@@ -2470,12 +2470,6 @@ abstract class AppLocalizations {
   /// **'This invoice is no longer open. Nothing was paid.'**
   String get invoiceGone;
 
-  /// Title of the screen where the user approves or declines one invoice.
-  ///
-  /// In en, this message translates to:
-  /// **'Review invoice'**
-  String get invoiceReviewTitle;
-
   /// Heading above the invoiced amount. service is the name the user gave the service. No full stop.
   ///
   /// In en, this message translates to:
@@ -2644,54 +2638,6 @@ abstract class AppLocalizations {
   /// **'Request a payment'**
   String get receiveRequestTitle;
 
-  /// Title of the screen where the user asks someone to pay them.
-  ///
-  /// In en, this message translates to:
-  /// **'Request a payment'**
-  String get requestTitle;
-
-  /// First line of the request screen, above the two numbered steps the payer must take first.
-  ///
-  /// In en, this message translates to:
-  /// **'Their wallet must take invoices. Before you request:'**
-  String get requestStepsIntro;
-
-  /// First step on the request screen. 'Trusted services' is the list in the payer's invoice settings; the user's own address is shown in full right below.
-  ///
-  /// In en, this message translates to:
-  /// **'1. They add your address below to their trusted services.'**
-  String get requestStepTrust;
-
-  /// Second step on the request screen: the payer's invoice address goes in the field below.
-  ///
-  /// In en, this message translates to:
-  /// **'2. They give you their invoice address.'**
-  String get requestStepAddress;
-
-  /// Label above the user's own payments address on the request screen, which the payer must trust.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address'**
-  String get requestYourAddress;
-
-  /// Label of the field for the payer's invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Their invoice address'**
-  String get requestPayerLabel;
-
-  /// Error under the payer field when it is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste or scan their invoice address.'**
-  String get requestPayerMissing;
-
-  /// Error under the payer field when it holds the user's own payments or invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'That is one of your own addresses. Enter the invoice address the payer gives you.'**
-  String get requestPayerOwn;
-
   /// Label of the optional message field on the request screen.
   ///
   /// In en, this message translates to:
@@ -2710,12 +2656,6 @@ abstract class AppLocalizations {
   /// **'Request'**
   String get requestButton;
 
-  /// Notice after a request reached the relay. payer is the contact's name or the start of their address.
-  ///
-  /// In en, this message translates to:
-  /// **'Request sent to {payer}.'**
-  String requestSentNotice(String payer);
-
   /// Heading on the Invoices screen above invoices that services sent the user.
   ///
   /// In en, this message translates to:
@@ -2727,12 +2667,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to pay.'**
   String get invoicesNoneToPay;
-
-  /// Heading on the Invoices screen above the payment requests the user sent to others.
-  ///
-  /// In en, this message translates to:
-  /// **'Requests you sent'**
-  String get invoicesSentSection;
 
   /// State of a request the user sent: the payer paid it.
   ///
@@ -2865,12 +2799,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The payer\'s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.'**
   String get issuedDetailsBounced;
-
-  /// Warning on the request form, before Request: this payer's wallet sent a request back before, so it cannot pay requests. Shown with a button that explains payment files.
-  ///
-  /// In en, this message translates to:
-  /// **'This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.'**
-  String get requestPayerNoInvoices;
 
   /// Status of a payment request the user sent: the payer has not paid it yet.
   ///
@@ -4660,12 +4588,6 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get contactsNameLabel;
 
-  /// Label of the contact's address field, which holds an epicbox address. epicbox is a proper name.
-  ///
-  /// In en, this message translates to:
-  /// **'Address'**
-  String get contactsAddressLabel;
-
   /// No description provided for @contactsDuplicate.
   ///
   /// In en, this message translates to:
@@ -4695,12 +4617,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the full wallet URL, such as {example}'**
   String contactsUrlIncomplete(String example);
-
-  /// Error under an address field. example shows the shape of an epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'This is not a valid address. It looks like {example}'**
-  String contactsAddressInvalid(String example);
 
   /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
@@ -4917,180 +4833,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Who may ask you to pay'**
   String get settingsInvoicesSubtitle;
-
-  /// Title of the invoice settings screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices'**
-  String get invoiceSettingsTitle;
-
-  /// Heading above the invoice address and its QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'Your invoice address'**
-  String get invoiceSettingsAddressTitle;
-
-  /// Explains the invoice address, which is separate from the receive address.
-  ///
-  /// In en, this message translates to:
-  /// **'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.'**
-  String get invoiceSettingsAddressBody;
-
-  /// Screen reader label of the invoice address QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'QR code of your invoice address'**
-  String get invoiceSettingsQrLabel;
-
-  /// Notice after copying the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice address copied.'**
-  String get invoiceSettingsAddressCopied;
-
-  /// Heading above the list of services allowed to send invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted services'**
-  String get invoiceSettingsServicesTitle;
-
-  /// Shown when no service is allowed to send invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'No trusted services yet. Invoices from anyone else never reach you.'**
-  String get invoiceSettingsNoServices;
-
-  /// Button that opens the form to add a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a service'**
-  String get invoiceSettingsAddService;
-
-  /// Tooltip of the button that removes a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove {name}'**
-  String invoiceSettingsRemoveTooltip(String name);
-
-  /// Title of the dialog that confirms removing a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove {name}?'**
-  String invoiceSettingsRemoveTitle(String name);
-
-  /// Body of the dialog that confirms removing a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'This service can no longer send you invoices. Payments you already made are not affected.'**
-  String get invoiceSettingsRemoveBody;
-
-  /// Dialog button that leaves the invoice settings as they are.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep'**
-  String get invoiceSettingsKeep;
-
-  /// Dialog button that removes a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get invoiceSettingsRemoveConfirm;
-
-  /// Notice after removing a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} can no longer send you invoices.'**
-  String invoiceSettingsRemoved(String name);
-
-  /// Advanced settings row that replaces the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Get a new invoice address'**
-  String get invoiceSettingsRotate;
-
-  /// Hint under the row that replaces the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'The current one stops working.'**
-  String get invoiceSettingsRotateHint;
-
-  /// Title of the dialog that confirms replacing the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Get a new invoice address?'**
-  String get invoiceSettingsRotateTitle;
-
-  /// Body of the dialog that confirms replacing the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Your current invoice address stops working for good. Every service that bills you needs the new one.'**
-  String get invoiceSettingsRotateBody;
-
-  /// Dialog button that replaces the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Get new address'**
-  String get invoiceSettingsRotateConfirm;
-
-  /// Notice after the invoice address was replaced.
-  ///
-  /// In en, this message translates to:
-  /// **'New invoice address ready. Give it to your services.'**
-  String get invoiceSettingsRotated;
-
-  /// Advanced readout: messages to the invoice address from senders not on the list, dropped unread.
-  ///
-  /// In en, this message translates to:
-  /// **'Dropped from unknown senders this session: {count}'**
-  String invoiceSettingsDropped(int count);
-
-  /// Title of the form that adds a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a trusted service'**
-  String get invoiceSettingsAddTitle;
-
-  /// Explains, in two sentences, what adding a trusted service allows.
-  ///
-  /// In en, this message translates to:
-  /// **'A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.'**
-  String get invoiceSettingsAddExplanation;
-
-  /// Label of the field for the user's own name for a service.
-  ///
-  /// In en, this message translates to:
-  /// **'Name'**
-  String get invoiceSettingsLabelLabel;
-
-  /// Field error when the service name is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Give the service a name.'**
-  String get invoiceSettingsLabelMissing;
-
-  /// Label of the field for the address a service shows.
-  ///
-  /// In en, this message translates to:
-  /// **'The service\'s epicbox address'**
-  String get invoiceSettingsServiceAddressLabel;
-
-  /// Field error when the service address is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste or scan the address the service shows.'**
-  String get invoiceSettingsAddressMissing;
-
-  /// Button that saves a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'Add service'**
-  String get invoiceSettingsAddButton;
-
-  /// Notice after adding a trusted service.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} can now send you invoices.'**
-  String invoiceSettingsAdded(String name);
 
   /// Settings row: search the blockchain for the wallet's funds again.
   ///
@@ -7287,18 +7029,6 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get contactsSendAction;
 
-  /// Contact sheet: opens the contact's edit screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get contactsEditAction;
-
-  /// Contact sheet: label over the full address.
-  ///
-  /// In en, this message translates to:
-  /// **'Address'**
-  String get contactsAddressHeading;
-
   /// Contact sheet: label over the contact's note.
   ///
   /// In en, this message translates to:
@@ -7310,12 +7040,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show code'**
   String get contactsShowCode;
-
-  /// Contact sheet: hides the QR code again.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide code'**
-  String get contactsHideCode;
 
   /// Contact sheet: screen reader label of the QR code.
   ///
@@ -7358,18 +7082,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label}, {count, plural, =0{none} =1{1 item} other{{count} items}}'**
   String invoicesSegmentCount(String label, int count);
-
-  /// Invoices: empty To pay segment, heading.
-  ///
-  /// In en, this message translates to:
-  /// **'No invoices to pay'**
-  String get invoicesToPayEmpty;
-
-  /// Invoices: empty To pay segment, caption.
-  ///
-  /// In en, this message translates to:
-  /// **'Services on your trusted list can bill this wallet. Each invoice waits here for your approval.'**
-  String get invoicesToPayEmptyCaption;
 
   /// Invoices: empty Sent segment, heading.
   ///
@@ -7467,23 +7179,11 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get invoicesEpicboxDown;
 
-  /// Request form: the button that sends the request.
-  ///
-  /// In en, this message translates to:
-  /// **'Send request'**
-  String get invoicesSendRequest;
-
   /// Request form: summary above Send request.
   ///
   /// In en, this message translates to:
   /// **'{payer} is asked to pay {amount}. The request expires in 24 h.'**
   String invoicesRequestSummary(String payer, String amount);
-
-  /// Request form: heading of what the payer must do first.
-  ///
-  /// In en, this message translates to:
-  /// **'Before you request'**
-  String get invoicesRequestHowTitle;
 
   /// Status card row title: the node the wallet uses.
   ///
@@ -8547,389 +8247,17 @@ abstract class AppLocalizations {
   /// **'How invoices work'**
   String get deskInvHowItWorks;
 
-  /// Hint in an Epicbox address field: the shape of an address. Keep as is.
-  ///
-  /// In en, this message translates to:
-  /// **'es…@epicbox.epiccash.com'**
-  String get deskInvAddressHint;
-
-  /// Title of the QR of this wallet's Epicbox address (its payments address).
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox address'**
-  String get deskInvEpicboxAddress;
-
-  /// Help section title: invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices'**
-  String get deskInvHelpTitle;
-
-  /// Help section lede under 'Invoices'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bills from trusted senders, paid only after approval.'**
-  String get deskInvHelpLede;
-
-  /// Help topic title.
-  ///
-  /// In en, this message translates to:
-  /// **'How an invoice works'**
-  String get deskInvHelpFlowTitle;
-
-  /// One-line answer of the topic.
-  ///
-  /// In en, this message translates to:
-  /// **'The issuer sends an invoice to the payer\'s invoice address. Nothing is paid until the payer approves it.'**
-  String get deskInvHelpFlowShort;
-
-  /// Paragraph. **x** marks a term.
-  ///
-  /// In en, this message translates to:
-  /// **'An invoice asks for a payment. The **issuer** is paid; the **payer** decides.'**
-  String get deskInvHelpFlowIntro;
-
-  /// Step 1 of the invoice flow.
-  ///
-  /// In en, this message translates to:
-  /// **'The issuer\'s wallet sends the invoice to the payer\'s **invoice address** over the Epicbox server.'**
-  String get deskInvHelpFlowStep1;
-
-  /// Step 2. [[x]] marks a place in the app; keep the place name as the UI shows it.
-  ///
-  /// In en, this message translates to:
-  /// **'The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.'**
-  String get deskInvHelpFlowStep2;
-
-  /// Step 3.
-  ///
-  /// In en, this message translates to:
-  /// **'The payer\'s wallet sends the payment to the issuer\'s **payments address**.'**
-  String get deskInvHelpFlowStep3;
-
-  /// Step 4.
-  ///
-  /// In en, this message translates to:
-  /// **'The issuer\'s wallet finalizes the payment and posts it to the network. After {confirmations} confirmations it is final.'**
-  String deskInvHelpFlowStep4(int confirmations);
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing is paid without approval, and an invoice never adds money to the payer\'s wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.'**
-  String get deskInvHelpFlowNever;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices this wallet issued are under [[Invoices › Issue]].'**
-  String get deskInvHelpFlowIssued;
-
-  /// Help topic title.
-  ///
-  /// In en, this message translates to:
-  /// **'Why only trusted senders'**
-  String get deskInvHelpTrustTitle;
-
-  /// One-line answer.
-  ///
-  /// In en, this message translates to:
-  /// **'Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.'**
-  String get deskInvHelpTrustShort;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender\'s address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].'**
-  String get deskInvHelpTrustP1;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.'**
-  String get deskInvHelpTrustP2;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.'**
-  String get deskInvHelpTrustP3;
-
-  /// List item.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust a sender under [[Settings › Invoices]].'**
-  String get deskInvHelpTrustWhere1;
-
-  /// List item.
-  ///
-  /// In en, this message translates to:
-  /// **'Or switch on **Trusted for invoices** on a contact under [[Contacts]].'**
-  String get deskInvHelpTrustWhere2;
-
-  /// List item.
-  ///
-  /// In en, this message translates to:
-  /// **'A sender can be removed from the list at any time. Its new invoices are then dropped.'**
-  String get deskInvHelpTrustWhere3;
-
-  /// Help topic title.
-  ///
-  /// In en, this message translates to:
-  /// **'Why a separate invoice address'**
-  String get deskInvHelpAddrTitle;
-
-  /// One-line answer.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices arrive at their own address, apart from the payments address that people pay to.'**
-  String get deskInvHelpAddrShort;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.'**
-  String get deskInvHelpAddrP1;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.'**
-  String get deskInvHelpAddrP2;
-
-  /// Paragraph.
-  ///
-  /// In en, this message translates to:
-  /// **'The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.'**
-  String get deskInvHelpAddrP3;
-
-  /// List item.
-  ///
-  /// In en, this message translates to:
-  /// **'Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].'**
-  String get deskInvHelpAddrWhere1;
-
-  /// List item; 'New address' is the button's label.
-  ///
-  /// In en, this message translates to:
-  /// **'**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.'**
-  String get deskInvHelpAddrWhere2;
-
-  /// Caption over the invoice flow diagram.
-  ///
-  /// In en, this message translates to:
-  /// **'How an invoice travels'**
-  String get deskInvHelpDiagramTitle;
-
-  /// Diagram lane: the side that issues the invoice and is paid.
-  ///
-  /// In en, this message translates to:
-  /// **'Issuer'**
-  String get deskInvHelpDiagramIssuer;
-
-  /// Diagram lane: the side that pays.
-  ///
-  /// In en, this message translates to:
-  /// **'Payer'**
-  String get deskInvHelpDiagramPayer;
-
-  /// Diagram box, issuer side. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Issues the invoice'**
-  String get deskInvHelpDiagramIssues;
-
-  /// Diagram arrow label. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice'**
-  String get deskInvHelpDiagramInvoice;
-
-  /// Diagram box: the payer's invoice address, a gate.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice address'**
-  String get deskInvHelpDiagramGate;
-
-  /// Under the gate. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted senders only'**
-  String get deskInvHelpDiagramGateSub;
-
-  /// Diagram: a sender not on the trusted list.
-  ///
-  /// In en, this message translates to:
-  /// **'Other senders'**
-  String get deskInvHelpDiagramDropped;
-
-  /// Under 'Other senders'. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Dropped unread'**
-  String get deskInvHelpDiagramDroppedSub;
-
-  /// Diagram box, payer side. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Reviews and approves'**
-  String get deskInvHelpDiagramReview;
-
-  /// Under it: the button's label.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve and pay'**
-  String get deskInvHelpDiagramReviewSub;
-
-  /// Diagram arrow label. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment'**
-  String get deskInvHelpDiagramPayment;
-
-  /// Diagram box, issuer side: the normal receive address.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments address'**
-  String get deskInvHelpDiagramPayAddr;
-
-  /// Under 'Payments address'. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Not the invoice address'**
-  String get deskInvHelpDiagramPayAddrSub;
-
-  /// Diagram box, issuer side: finalizes the payment and posts it to the network.
-  ///
-  /// In en, this message translates to:
-  /// **'Finalizes and posts'**
-  String get deskInvHelpDiagramFinal;
-
-  /// Under it. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Final after {confirmations} confirmations'**
-  String deskInvHelpDiagramFinalSub(int confirmations);
-
-  /// Screen reader text for the whole diagram.
-  ///
-  /// In en, this message translates to:
-  /// **'The issuer sends an invoice to the payer\'s invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer\'s payments address; the issuer\'s wallet finalizes it and posts it to the network.'**
-  String get deskInvHelpDiagramSemantics;
-
-  /// Title of the form that asks someone to pay you.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue an invoice'**
-  String get deskInvIssuerFormTitle;
-
-  /// Panel title: the one-off steps the payer takes before they can be billed.
-  ///
-  /// In en, this message translates to:
-  /// **'Before the first invoice'**
-  String get deskInvIssuerFirstTitle;
-
-  /// Label: this wallet's normal Epicbox address, which the payer must trust.
-  ///
-  /// In en, this message translates to:
-  /// **'Your payments address'**
-  String get deskInvIssuerYourAddress;
-
-  /// Label of the choice how the request travels: Epicbox, File, Link.
-  ///
-  /// In en, this message translates to:
-  /// **'Method'**
-  String get deskInvIssuerMethod;
-
-  /// Method: the request goes over the Epicbox relay. Product name, usually not translated.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox'**
-  String get deskInvIssuerEpicbox;
-
-  /// Method: the request is saved as a file to hand over.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct · File'**
-  String get deskInvIssuerFile;
-
-  /// Method: the payment comes straight to this wallet over HTTP or Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'Link'**
-  String get deskInvIssuerDirect;
-
   /// Why a method or button is disabled: not built yet.
   ///
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get deskInvIssuerSoon;
 
-  /// Field label: the payer's invoice address, where the request goes.
-  ///
-  /// In en, this message translates to:
-  /// **'Their invoice address'**
-  String get deskInvIssuerPayer;
-
-  /// Help under the payer field: where the payer finds their invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Their wallet shows it under Settings › Invoices.'**
-  String get deskInvIssuerPayerHelp;
-
-  /// Error: the payer field is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste their invoice address.'**
-  String get deskInvIssuerPayerMissing;
-
-  /// Error: the payer field holds something that is not an Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'This is not a valid Epicbox address.'**
-  String get deskInvIssuerPayerInvalid;
-
-  /// Error: the payer field holds this wallet's payments or invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'This is one of your own addresses. Use the invoice address the payer gives you.'**
-  String get deskInvIssuerPayerOwn;
-
-  /// Error: an http(s) or onion address was given while the method is Epicbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.'**
-  String get deskInvIssuerPayerHttp;
-
-  /// Button: pick the payer from contacts that have an invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Contacts'**
-  String get deskInvIssuerContacts;
-
   /// Shown in the contact picker when no contact has an invoice address.
   ///
   /// In en, this message translates to:
   /// **'No contact has an invoice address yet. Add it under Contacts.'**
   String get deskInvIssuerNoContacts;
-
-  /// Warning on the request form: the payer's wallet is known not to pay requests.
-  ///
-  /// In en, this message translates to:
-  /// **'This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.'**
-  String get deskInvIssuerNoInvoices;
-
-  /// Button: switch the request to the File method.
-  ///
-  /// In en, this message translates to:
-  /// **'Use a file'**
-  String get deskInvIssuerUseFile;
-
-  /// Quiet line on the request form when nothing is known about the payer's wallet. Product names stay as they are.
-  ///
-  /// In en, this message translates to:
-  /// **'Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.'**
-  String get deskInvIssuerUnknown;
 
   /// Field label: how much the payer is asked to pay, in EPIC.
   ///
@@ -8991,35 +8319,17 @@ abstract class AppLocalizations {
   /// **'The payer has {hours} hours to pay.'**
   String deskInvIssuerExpiry(int hours);
 
-  /// Main button: send the payment request. No password is needed.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue'**
-  String get deskInvIssuerIssue;
-
   /// Why Request is disabled: the relay is down.
   ///
   /// In en, this message translates to:
   /// **'The Epicbox server is not answering, so an invoice cannot go out now.'**
   String get deskInvIssuerRelayDown;
 
-  /// Why Request did nothing: some fields have errors.
-  ///
-  /// In en, this message translates to:
-  /// **'Fix the fields marked in red.'**
-  String get deskInvIssuerFixFields;
-
   /// Error after Request: the relay did not take it; it was cancelled at once.
   ///
   /// In en, this message translates to:
   /// **'The invoice did not reach the Epicbox server. Nothing was sent. Try again.'**
   String get deskInvIssuerNotDelivered;
-
-  /// Notice after Request: delivered to the payer's invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice sent to {payer}.'**
-  String deskInvIssuerSent(String payer);
 
   /// Empty Sent tab.
   ///
@@ -9192,7 +8502,7 @@ abstract class AppLocalizations {
   /// Detail text of a waiting request.
   ///
   /// In en, this message translates to:
-  /// **'Delivered to {payer}\'s invoice address. Nothing is paid until they approve it.'**
+  /// **'Delivered to {payer}\'s mailbox. Nothing is paid until they approve it.'**
   String deskInvIssuerWaitingText(String payer);
 
   /// Button tooltip: copy the request's technical identifier.
@@ -9200,24 +8510,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy slate ID'**
   String get deskInvIssuerCopySlate;
-
-  /// Before the steps on the issue form: the payer must have done these once.
-  ///
-  /// In en, this message translates to:
-  /// **'Their wallet must take invoices. Before the first invoice:'**
-  String get deskInvIssuerStepsIntro;
-
-  /// Step 1 on the issue form.
-  ///
-  /// In en, this message translates to:
-  /// **'1. They add your payments address below to their trusted senders.'**
-  String get deskInvIssuerStepTrust;
-
-  /// Step 2 on the issue form.
-  ///
-  /// In en, this message translates to:
-  /// **'2. They give you their invoice address.'**
-  String get deskInvIssuerStepAddress;
 
   /// Progress step: the invoice was issued and delivered.
   ///
@@ -9303,24 +8595,6 @@ abstract class AppLocalizations {
   /// **'No message'**
   String get deskInvPayerNoMessage;
 
-  /// Quiet line on the Invoices page › To pay: invoices from senders not on the trusted list were dropped unread. Never more detail.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 message from a sender you do not trust was ignored.} other{{count} messages from senders you do not trust were ignored.}}'**
-  String deskInvPayerDropped(int count);
-
-  /// Link: open Settings › Receiving to add a service allowed to send invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust a service…'**
-  String get deskInvPayerTrustService;
-
-  /// Link: open Settings › Receiving where the invoice address is shown.
-  ///
-  /// In en, this message translates to:
-  /// **'Your invoice address'**
-  String get deskInvPayerYourInvoiceAddress;
-
   /// Empty state title of Requests › To pay.
   ///
   /// In en, this message translates to:
@@ -9330,7 +8604,7 @@ abstract class AppLocalizations {
   /// Empty state text of Requests › To pay.
   ///
   /// In en, this message translates to:
-  /// **'When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.'**
+  /// **'When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.'**
   String get deskInvPayerEmptyText;
 
   /// Notice on To pay: an approved invoice payment did not reach the relay. service is the user's label for the service.
@@ -9440,12 +8714,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pays to'**
   String get deskInvPayerPaysTo;
-
-  /// The service's label and when the user added it to trusted services, e.g. 'Coffee Roasters, trusted since 2 Sep 2026'.
-  ///
-  /// In en, this message translates to:
-  /// **'{service}, trusted since {date}'**
-  String deskInvPayerTrustedSince(String service, String date);
 
   /// Label: time left before the invoice expires.
   ///
@@ -9693,215 +8961,11 @@ abstract class AppLocalizations {
   /// **'The Epicbox server is not answering. Nothing was paid.'**
   String get deskInvPayerRelayDownPay;
 
-  /// Settings › Receiving section title: the invoice address and who may bill you.
+  /// Settings › Invoices section title: the paired contacts who may bill you.
   ///
   /// In en, this message translates to:
   /// **'Invoices'**
   String get deskInvSetTitle;
-
-  /// Intro of the Invoices settings section.
-  ///
-  /// In en, this message translates to:
-  /// **'Services you trust bill this wallet at its invoice address. Nothing is paid until you approve each invoice.'**
-  String get deskInvSetIntro;
-
-  /// Label of this wallet's separate address for receiving invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice address'**
-  String get deskInvSetAddressLabel;
-
-  /// Warning beside the invoice address and its QR code: never use it to receive money.
-  ///
-  /// In en, this message translates to:
-  /// **'Give it only to services you trust. It does not receive payments.'**
-  String get deskInvSetAddressWarning;
-
-  /// Button: copy the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy'**
-  String get deskInvSetCopy;
-
-  /// Notice after copying the invoice address, repeating the warning.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice address copied. Give it only to services you trust; it does not receive payments.'**
-  String get deskInvSetCopied;
-
-  /// Button: show the invoice address as a QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'Show QR'**
-  String get deskInvSetQrShow;
-
-  /// Button: hide the QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide QR'**
-  String get deskInvSetQrHide;
-
-  /// Screen-reader label of the invoice address QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'QR code of your invoice address'**
-  String get deskInvSetQrLabel;
-
-  /// Which invoice address this is (it changes when rotated), e.g. 'Invoice address 2'.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice address {index}'**
-  String deskInvSetIndex(int index);
-
-  /// List title: services and contacts allowed to send you invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted senders'**
-  String get deskInvSetTrusted;
-
-  /// Empty trusted list.
-  ///
-  /// In en, this message translates to:
-  /// **'No trusted senders. Invoices from anyone else are ignored unread.'**
-  String get deskInvSetTrustedNone;
-
-  /// When a sender was trusted.
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted since {date}'**
-  String deskInvSetSince(String date);
-
-  /// Tag on a trusted sender that is one of your contacts.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact'**
-  String get deskInvSetContactTag;
-
-  /// Button: stop trusting a sender.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get deskInvSetRemove;
-
-  /// Confirm dialog title.
-  ///
-  /// In en, this message translates to:
-  /// **'Stop trusting {name}?'**
-  String deskInvSetRemoveTitle(String name);
-
-  /// Confirm dialog text.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} can no longer send you invoices. Invoices already waiting stay until you answer them or they expire.'**
-  String deskInvSetRemoveBody(String name);
-
-  /// Notice after removing a trusted sender.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} can no longer send you invoices.'**
-  String deskInvSetRemoved(String name);
-
-  /// Dialog button: keep as it is.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep'**
-  String get deskInvSetKeep;
-
-  /// Button: add a service allowed to send you invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust a sender'**
-  String get deskInvSetAdd;
-
-  /// Text of the Trust a sender dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'A trusted sender can bill this wallet at its invoice address. Nothing is paid until you approve each invoice with your wallet password.'**
-  String get deskInvSetAddBody;
-
-  /// Field label: your name for the sender, shown on its invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Name'**
-  String get deskInvSetName;
-
-  /// Error: name is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Give the sender a name.'**
-  String get deskInvSetNameMissing;
-
-  /// Field label: the Epicbox address the service shows on its site.
-  ///
-  /// In en, this message translates to:
-  /// **'Their payments address'**
-  String get deskInvSetSenderAddress;
-
-  /// Error: address is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste the address the service shows.'**
-  String get deskInvSetSenderMissing;
-
-  /// Error: not an Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'This is not a valid Epicbox address.'**
-  String get deskInvSetSenderInvalid;
-
-  /// Dialog button: add the sender to the trusted list.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust'**
-  String get deskInvSetTrust;
-
-  /// Notice after trusting a sender.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} can now send you invoices.'**
-  String deskInvSetAdded(String name);
-
-  /// Quiet line: messages to the invoice address from untrusted senders, dropped without opening.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 message from a sender you do not trust was ignored unread.} other{{count} messages from senders you do not trust were ignored unread.}}'**
-  String deskInvSetDropped(int count);
-
-  /// Button (Advanced): move to a fresh invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'New invoice address'**
-  String get deskInvSetRotate;
-
-  /// Text beside the rotate button.
-  ///
-  /// In en, this message translates to:
-  /// **'Services that have the old one can no longer send you invoices.'**
-  String get deskInvSetRotateHint;
-
-  /// Confirm dialog title.
-  ///
-  /// In en, this message translates to:
-  /// **'Make a new invoice address?'**
-  String get deskInvSetRotateTitle;
-
-  /// Confirm dialog text.
-  ///
-  /// In en, this message translates to:
-  /// **'Services that have the old one can no longer send you invoices. Give the new one to every service that bills you.'**
-  String get deskInvSetRotateBody;
-
-  /// Dialog button: rotate the invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'Make new address'**
-  String get deskInvSetRotateConfirm;
-
-  /// Notice after rotating.
-  ///
-  /// In en, this message translates to:
-  /// **'New invoice address ready. Give it to your services.'**
-  String get deskInvSetRotated;
 
   /// Setting (Advanced): how long requests and invoices stay payable.
   ///
@@ -9921,65 +8985,11 @@ abstract class AppLocalizations {
   /// **'{hours} hours'**
   String deskInvSetHours(int hours);
 
-  /// Dialog button: close without changes.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get deskInvSetCancel;
-
-  /// Section title in a contact's detail: their invoice address and trust.
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices'**
-  String get deskInvSetContactSection;
-
-  /// Contact field: where requests to this contact go.
-  ///
-  /// In en, this message translates to:
-  /// **'Their invoice address'**
-  String get deskInvSetTheirInvoice;
-
-  /// Contact detail when no invoice address is saved.
-  ///
-  /// In en, this message translates to:
-  /// **'No invoice address saved. Ask them for it to issue invoices to them.'**
-  String get deskInvSetTheirInvoiceNone;
-
-  /// Contact switch: this contact may send you invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted for invoices'**
-  String get deskInvSetTrustedSwitch;
-
-  /// Text of the trusted switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Lets this contact bill you. Nothing is paid until you approve an invoice.'**
-  String get deskInvSetTrustedSwitchHelp;
-
-  /// Why Request payment is disabled for a contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Needs their invoice address.'**
-  String get deskInvSetIssueNeeds;
-
-  /// Contact action: copy your invoice address to give to this contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Share invoice address'**
-  String get deskInvSetShare;
-
   /// Text beside Request a payment on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Ask a contact or a service to pay you. Their wallet must take invoices.'**
+  /// **'Ask a paired contact to pay you, or save the request as a file.'**
   String get deskInvSetReceiveHint;
-
-  /// Line under the invoice address while its index is 1: a wallet restored without its history file starts again at the first invoice address, so services hold an old one (flow.md §2, P-16).
-  ///
-  /// In en, this message translates to:
-  /// **'Restored this wallet from its recovery phrase? Give services this invoice address again.'**
-  String get deskInvSetRestoredHint;
 
   /// Title of the confirm before the epicbox server of the open wallet changes.
   ///
@@ -13568,24 +12578,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} was deleted'**
   String deskConDeleted(String name);
-
-  /// Label above the address in a contact's detail, for an Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox address'**
-  String get deskConAddrEpicbox;
-
-  /// Label above the address in a contact's detail, for a Tor address.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · Tor address'**
-  String get deskConAddrTor;
-
-  /// Label above the address in a contact's detail, for an HTTP address.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP address'**
-  String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
   ///
@@ -22499,7 +21491,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Server details switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.'**
+  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.'**
   String get advServerDetailsHint;
 
   /// Advanced switch: recheck balance and restore from a block height or date.
@@ -23990,12 +22982,6 @@ abstract class AppLocalizations {
   /// **'Good for 10 minutes'**
   String get pairWordsGoodFor;
 
-  /// Countdown readout, mono, e.g. 9:32 left.
-  ///
-  /// In en, this message translates to:
-  /// **'{time} left'**
-  String pairWordsLeft(String time);
-
   /// Status line in the last minute, warn colour.
   ///
   /// In en, this message translates to:
@@ -24169,12 +23155,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pairing finishes when {name}’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.'**
   String pairInviteSentBody(String name);
-
-  /// Countdown chip after sharing.
-  ///
-  /// In en, this message translates to:
-  /// **'Expires in {time}'**
-  String pairInviteExpiresIn(String time);
 
   /// Button and menu item.
   ///
@@ -24404,12 +23384,6 @@ abstract class AppLocalizations {
   /// **'Someone else also answered {name}’s invite. See Pending invites.'**
   String pairSecondReplyTitle(String name);
 
-  /// Notice body.
-  ///
-  /// In en, this message translates to:
-  /// **'If you didn’t share it with them, remove them.'**
-  String get pairSecondReplyBody;
-
   /// Pending row subtitle for the second replier.
   ///
   /// In en, this message translates to:
@@ -24583,12 +23557,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pairing'**
   String get contactPairing;
-
-  /// Button: the contact’s QR.
-  ///
-  /// In en, this message translates to:
-  /// **'Show code'**
-  String get contactShowCode;
 
   /// Desktop status row subtitle.
   ///
@@ -24986,12 +23954,6 @@ abstract class AppLocalizations {
   /// **'{name} requests'**
   String reqRequests(String name);
 
-  /// Desktop header.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} asks you to pay'**
-  String reqAsksYouToPay(String name);
-
   /// Desktop line next to the chips.
   ///
   /// In en, this message translates to:
@@ -25003,24 +23965,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reference'**
   String get reqReference;
-
-  /// Reference readout for a deposit.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit · ref {ref}'**
-  String reqDepositRef(String ref);
-
-  /// Reference readout for a withdrawal.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdrawal · ref {ref}'**
-  String reqWithdrawalRef(String ref);
-
-  /// Desktop row label.
-  ///
-  /// In en, this message translates to:
-  /// **'Delivered via'**
-  String get reqDeliveredVia;
 
   /// Edge card title after paying.
   ///
@@ -25142,29 +24086,11 @@ abstract class AppLocalizations {
   /// **'{name} withdrew this request'**
   String reqWithdrewUnpaid(String name);
 
-  /// Status after the user declined.
-  ///
-  /// In en, this message translates to:
-  /// **'Declined'**
-  String get reqDeclined;
-
   /// Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}'**
   String reqTwoSame(String name, int count, String amount);
-
-  /// Docked notice when the parked-invoice cap is hit.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} sent too many requests.'**
-  String reqTooMany(String name);
-
-  /// Body.
-  ///
-  /// In en, this message translates to:
-  /// **'Extra ones were dropped. Turn its invoices off if this keeps happening.'**
-  String get reqTooManyBody;
 
   /// Payment title for an incoming withdrawal.
   ///
@@ -25430,18 +24356,6 @@ abstract class AppLocalizations {
   /// **'{count} · on another device'**
   String restorePairingsOnOtherDevice(int count);
 
-  /// Notice title.
-  ///
-  /// In en, this message translates to:
-  /// **'History restored.'**
-  String get restoreDone;
-
-  /// Notice body after a history restore: what came back, as counts.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments: {payments}. Contacts: {contacts}. Pairings: {pairings}.'**
-  String restoreDoneBody(String payments, String contacts, String pairings);
-
   /// After sharing an invite made for nobody in particular.
   ///
   /// In en, this message translates to:
@@ -25574,12 +24488,6 @@ abstract class AppLocalizations {
   /// **'Check the words with {name}'**
   String sasDialogTitle(String name);
 
-  /// Badge text for a contact without a pairing (desktop rows that need a word).
-  ///
-  /// In en, this message translates to:
-  /// **'Not paired'**
-  String get trustNotPaired;
-
   /// Tooltip of the contact page more menu.
   ///
   /// In en, this message translates to:
@@ -25597,12 +24505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete contact'**
   String get contactDelete;
-
-  /// Tooltip and screen reader label of an info icon beside a switch.
-  ///
-  /// In en, this message translates to:
-  /// **'About {label}'**
-  String contactInfoAbout(String label);
 
   /// Tooltip of an address row copy button.
   ///
@@ -25627,12 +24529,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove {type} address'**
   String addrRemove(String type);
-
-  /// Hint when the address belongs to another contact.
-  ///
-  /// In en, this message translates to:
-  /// **'This address is already saved as {name}.'**
-  String addrAlreadySaved(String name);
 
   /// Label of the method segments on Send for a contact with several addresses.
   ///
@@ -25694,12 +24590,6 @@ abstract class AppLocalizations {
   /// **'Payment request'**
   String get reqFileTitle;
 
-  /// Body of the request file screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.'**
-  String get reqFileBody;
-
   /// Docked warning for OutboxStuck.
   ///
   /// In en, this message translates to:
@@ -25736,18 +24626,6 @@ abstract class AppLocalizations {
   /// **'Pairings'**
   String get restorePairings;
 
-  /// Under the recipient on Send when the file method seals.
-  ///
-  /// In en, this message translates to:
-  /// **'Sealed for {name}: only their wallet can open the file.'**
-  String sendSealedNote(String name);
-
-  /// Screen reader label of the Sealed / Plain chooser.
-  ///
-  /// In en, this message translates to:
-  /// **'Seal this file'**
-  String get sendSealChoice;
-
   /// Desktop Show my code panel lead.
   ///
   /// In en, this message translates to:
@@ -25765,12 +24643,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invite online'**
   String get pairingInviteOnline;
-
-  /// Desktop restore dialog primary (short).
-  ///
-  /// In en, this message translates to:
-  /// **'Use here'**
-  String get pairUseHere;
 
   /// Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.
   ///
@@ -25790,23 +24662,11 @@ abstract class AppLocalizations {
   /// **'Add to a contact'**
   String get pairAddToAContact;
 
-  /// Title of the contact picker for attaching a pairing.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to which contact?'**
-  String get pairPickContactTitle;
-
   /// Notice after a pairing was saved to or added to a contact.
   ///
   /// In en, this message translates to:
   /// **'Saved as {name}.'**
   String pairSavedAs(String name);
-
-  /// Hint in the picker for a contact that is paired already (RFC 7.8).
-  ///
-  /// In en, this message translates to:
-  /// **'{name} already has a pairing. Adding this one checks whether the keys are the same.'**
-  String pairContactAlreadyPaired(String name);
 
   /// A time span of a day or more, short units, in countdowns ("Invite expires in 6 d 23 h").
   ///
@@ -26041,6 +24901,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
   String get helpPairRestoreP4;
+
+  /// Label above the address in a contact's detail, for an Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address'**
+  String get deskConAddrEpicbox;
+
+  /// Label above the address in a contact's detail, for a Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor address'**
+  String get deskConAddrTor;
+
+  /// Label above the address in a contact's detail, for an HTTP address.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP address'**
+  String get deskConAddrHttp;
+
+  /// Title of the form that asks someone to pay you.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue an invoice'**
+  String get deskInvIssuerFormTitle;
+
+  /// Panel title: the one-off steps the payer takes before they can be billed.
+  ///
+  /// In en, this message translates to:
+  /// **'Before the first invoice'**
+  String get deskInvIssuerFirstTitle;
+
+  /// Label: this wallet's normal Epicbox address, which the payer must trust.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payments address'**
+  String get deskInvIssuerYourAddress;
+
+  /// Label of the choice how the request travels: Epicbox, File, Link.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get deskInvIssuerMethod;
+
+  /// Method: the request goes over the Epicbox relay. Product name, usually not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get deskInvIssuerEpicbox;
+
+  /// Method: the request is saved as a file to hand over.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct · File'**
+  String get deskInvIssuerFile;
+
+  /// Method: the payment comes straight to this wallet over HTTP or Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get deskInvIssuerDirect;
 }
 
 class _AppLocalizationsDelegate

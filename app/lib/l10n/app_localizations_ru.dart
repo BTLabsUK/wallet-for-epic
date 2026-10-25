@@ -1851,7 +1851,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'Нет ожидающих счетов. Когда доверенный сервис выставит вам счёт, он появится здесь. Ничего не оплачивается без вашего одобрения.';
+      'Запросов нет. Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, запрос появится здесь, и ничего не будет оплачено без вашего одобрения.';
 
   @override
   String get invoicesUnnamedService => 'Сервис без названия';
@@ -1874,9 +1874,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invoiceGone => 'Этот счёт больше не открыт. Ничего не оплачено.';
-
-  @override
-  String get invoiceReviewTitle => 'Проверка счёта';
 
   @override
   String invoiceReviewAsks(String service) {
@@ -1986,35 +1983,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveRequestTitle => 'Запросить платёж';
 
   @override
-  String get requestTitle => 'Запросить платёж';
-
-  @override
-  String get requestStepsIntro =>
-      'Кошелёк плательщика должен принимать счета. Перед запросом:';
-
-  @override
-  String get requestStepTrust =>
-      '1. Плательщик добавляет ваш адрес ниже в свои доверенные сервисы.';
-
-  @override
-  String get requestStepAddress =>
-      '2. Плательщик даёт вам свой адрес для счетов.';
-
-  @override
-  String get requestYourAddress => 'Ваш адрес';
-
-  @override
-  String get requestPayerLabel => 'Адрес для счетов плательщика';
-
-  @override
-  String get requestPayerMissing =>
-      'Вставьте или отсканируйте адрес для счетов плательщика.';
-
-  @override
-  String get requestPayerOwn =>
-      'Это один из ваших собственных адресов. Введите адрес для счетов, который даст вам плательщик.';
-
-  @override
   String get requestMessageLabel => 'Сообщение плательщику (необязательно)';
 
   @override
@@ -2025,18 +1993,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestButton => 'Запросить';
 
   @override
-  String requestSentNotice(String payer) {
-    return 'Запрос отправлен: $payer.';
-  }
-
-  @override
   String get invoicesToPaySection => 'К оплате';
 
   @override
   String get invoicesNoneToPay => 'Нечего оплачивать.';
-
-  @override
-  String get invoicesSentSection => 'Отправленные запросы';
 
   @override
   String get issuedPaid => 'Оплачен';
@@ -2115,10 +2075,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get issuedDetailsBounced =>
       'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
-
-  @override
-  String get requestPayerNoInvoices =>
-      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
 
   @override
   String get txStatusWaitingPayer => 'Ждёт плательщика';
@@ -3280,9 +3236,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsNameLabel => 'Имя';
 
   @override
-  String get contactsAddressLabel => 'Адрес';
-
-  @override
   String contactsDuplicate(String name) {
     return 'Этот адрес уже сохранён как «$name».';
   }
@@ -3299,11 +3252,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String contactsUrlIncomplete(String example) {
     return 'Введите полный URL кошелька, например $example';
-  }
-
-  @override
-  String contactsAddressInvalid(String example) {
-    return 'Это недействительный адрес. Правильный адрес выглядит так: $example';
   }
 
   @override
@@ -3416,115 +3364,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionInvoices => 'Счета';
 
   @override
-  String get settingsInvoices => 'Адрес для счетов и доверенные сервисы';
+  String get settingsInvoices => 'Счета';
 
   @override
-  String get settingsInvoicesSubtitle =>
-      'Второй адрес, только для счетов, на который доверенные сервисы могут их выставлять. Сообщения от всех остальных отбрасываются, и ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом. Он отделён от вашего адреса для платежей.';
-
-  @override
-  String get invoiceSettingsTitle => 'Счета';
-
-  @override
-  String get invoiceSettingsAddressTitle => 'Ваш адрес для счетов';
-
-  @override
-  String get invoiceSettingsAddressBody =>
-      'Передайте этот адрес сервису, которому доверяете, чтобы он мог присылать вам счета. Он отделён от вашего адреса для платежей.';
-
-  @override
-  String get invoiceSettingsQrLabel => 'QR-код вашего адреса для счетов';
-
-  @override
-  String get invoiceSettingsAddressCopied => 'Адрес для счетов скопирован.';
-
-  @override
-  String get invoiceSettingsServicesTitle => 'Доверенные сервисы';
-
-  @override
-  String get invoiceSettingsNoServices =>
-      'Доверенных сервисов пока нет. Счета от других до вас не доходят.';
-
-  @override
-  String get invoiceSettingsAddService => 'Добавить сервис';
-
-  @override
-  String invoiceSettingsRemoveTooltip(String name) {
-    return 'Удалить $name';
-  }
-
-  @override
-  String invoiceSettingsRemoveTitle(String name) {
-    return 'Удалить $name?';
-  }
-
-  @override
-  String get invoiceSettingsRemoveBody =>
-      'Этот сервис больше не сможет присылать вам счета. Уже сделанные платежи это не затрагивает.';
-
-  @override
-  String get invoiceSettingsKeep => 'Оставить';
-
-  @override
-  String get invoiceSettingsRemoveConfirm => 'Удалить';
-
-  @override
-  String invoiceSettingsRemoved(String name) {
-    return '$name больше не может присылать вам счета.';
-  }
-
-  @override
-  String get invoiceSettingsRotate => 'Получить новый адрес для счетов';
-
-  @override
-  String get invoiceSettingsRotateHint => 'Текущий перестанет работать.';
-
-  @override
-  String get invoiceSettingsRotateTitle => 'Получить новый адрес для счетов?';
-
-  @override
-  String get invoiceSettingsRotateBody =>
-      'Текущий адрес для счетов перестанет работать навсегда. Каждому сервису, который выставляет вам счета, нужен новый.';
-
-  @override
-  String get invoiceSettingsRotateConfirm => 'Новый адрес';
-
-  @override
-  String get invoiceSettingsRotated =>
-      'Новый адрес для счетов готов. Передайте его своим сервисам.';
-
-  @override
-  String invoiceSettingsDropped(int count) {
-    return 'Отброшено за сеанс (неизвестные отправители): $count';
-  }
-
-  @override
-  String get invoiceSettingsAddTitle => 'Добавить доверенный сервис';
-
-  @override
-  String get invoiceSettingsAddExplanation =>
-      'Доверенный сервис может присылать счета на ваш адрес для счетов; сообщения от других отбрасываются. Ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом или отпечатком пальца.';
-
-  @override
-  String get invoiceSettingsLabelLabel => 'Название';
-
-  @override
-  String get invoiceSettingsLabelMissing => 'Дайте сервису название.';
-
-  @override
-  String get invoiceSettingsServiceAddressLabel => 'Адрес epicbox сервиса';
-
-  @override
-  String get invoiceSettingsAddressMissing =>
-      'Вставьте или отсканируйте адрес, который показывает сервис.';
-
-  @override
-  String get invoiceSettingsAddButton => 'Добавить сервис';
-
-  @override
-  String invoiceSettingsAdded(String name) {
-    return '$name теперь может присылать вам счета.';
-  }
+  String get settingsInvoicesSubtitle => 'Кто может просить вас об оплате';
 
   @override
   String get settingsRescan => 'Сверка баланса';
@@ -4844,19 +4687,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsSendAction => 'Отправить';
 
   @override
-  String get contactsEditAction => 'Изменить';
-
-  @override
-  String get contactsAddressHeading => 'Адрес';
-
-  @override
   String get contactsNoteHeading => 'Заметка';
 
   @override
   String get contactsShowCode => 'Показать код';
-
-  @override
-  String get contactsHideCode => 'Скрыть код';
 
   @override
   String contactsQrLabel(String name) {
@@ -4894,13 +4728,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$label, $_temp0';
   }
-
-  @override
-  String get invoicesToPayEmpty => 'Нет счетов к оплате';
-
-  @override
-  String get invoicesToPayEmptyCaption =>
-      'Сервисы из вашего доверенного списка могут выставлять счета этому кошельку. Каждый счёт ждёт здесь вашего одобрения.';
 
   @override
   String get invoicesSentEmpty => 'Запросов не отправлено';
@@ -4958,15 +4785,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoicesEpicboxDown => 'Не подключено';
 
   @override
-  String get invoicesSendRequest => 'Отправить запрос';
-
-  @override
   String invoicesRequestSummary(String payer, String amount) {
     return '$payer получит запрос на оплату $amount. Запрос истекает через 24 ч.';
   }
-
-  @override
-  String get invoicesRequestHowTitle => 'Перед запросом';
 
   @override
   String get netStatusNode => 'Узел';
@@ -5664,229 +5485,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvHowItWorks => 'Как работают счета';
 
   @override
-  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
-
-  @override
-  String get deskInvEpicboxAddress => 'Адрес Epicbox';
-
-  @override
-  String get deskInvHelpTitle => 'Счета';
-
-  @override
-  String get deskInvHelpLede =>
-      'Счета от доверенных отправителей, оплата только после одобрения.';
-
-  @override
-  String get deskInvHelpFlowTitle => 'Как работает счёт';
-
-  @override
-  String get deskInvHelpFlowShort =>
-      'Выставитель отправляет счёт на адрес для счетов плательщика. Ничего не оплачивается, пока плательщик не одобрит.';
-
-  @override
-  String get deskInvHelpFlowIntro =>
-      'Счёт — это просьба об оплате. **Выставитель** получает деньги; **плательщик** решает.';
-
-  @override
-  String get deskInvHelpFlowStep1 =>
-      'Кошелёк выставителя отправляет счёт через сервер Epicbox на **адрес для счетов** плательщика.';
-
-  @override
-  String get deskInvHelpFlowStep2 =>
-      'Плательщик открывает его в [[Счета › Оплатить|Invoices › Pay]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
-
-  @override
-  String get deskInvHelpFlowStep3 =>
-      'Кошелёк плательщика отправляет платёж на **адрес для платежей** выставителя.';
-
-  @override
-  String deskInvHelpFlowStep4(int confirmations) {
-    return 'Кошелёк выставителя завершает платёж и публикует его в сети. Подтверждений до окончательности: $confirmations.';
-  }
-
-  @override
-  String get deskInvHelpFlowNever =>
-      'Без одобрения ничего не оплачивается, а счёт никогда не добавляет деньги в кошелёк плательщика. У каждого счёта есть срок оплаты, не больше 48 часов; после него счёт оплатить нельзя.';
-
-  @override
-  String get deskInvHelpFlowIssued =>
-      'Счета, выставленные этим кошельком, — в [[Счета › Выставить|Invoices › Issue]].';
-
-  @override
-  String get deskInvHelpTrustTitle => 'Почему только доверенные отправители';
-
-  @override
-  String get deskInvHelpTrustShort =>
-      'Только отправители из списка доверенных могут положить счёт во входящие. Это защищает от спама и поддельных счетов.';
-
-  @override
-  String get deskInvHelpTrustP1 =>
-      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить|Invoices › Pay]].';
-
-  @override
-  String get deskInvHelpTrustP2 =>
-      'Без списка любой, кто узнал адрес для счетов, мог бы заполнить входящие спамом или счетами, похожими на настоящие.';
-
-  @override
-  String get deskInvHelpTrustP3 =>
-      'Доверие позволяет отправителю только просить. Доверенный отправитель ничего не может взять: каждый счёт по-прежнему ждёт **Одобрить и оплатить**.';
-
-  @override
-  String get deskInvHelpTrustWhere1 =>
-      'Добавить доверенного отправителя можно в [[Настройки › Счета|Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpTrustWhere2 =>
-      'Или включите **Доверенный для счетов** у контакта в [[Контакты|Contacts]].';
-
-  @override
-  String get deskInvHelpTrustWhere3 =>
-      'Отправителя можно убрать из списка в любой момент. Его новые счета тогда отбрасываются.';
-
-  @override
-  String get deskInvHelpAddrTitle => 'Почему отдельный адрес для счетов';
-
-  @override
-  String get deskInvHelpAddrShort =>
-      'Счета приходят на свой адрес, отдельно от адреса для платежей, на который платят.';
-
-  @override
-  String get deskInvHelpAddrP1 =>
-      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить|Receive]] принимает платежи. **Адрес для счетов** принимает только счета.';
-
-  @override
-  String get deskInvHelpAddrP2 =>
-      'Раздельные адреса позволяют давать адрес для счетов сервисам или заменять его, не раскрывая и не меняя адрес, на который платят.';
-
-  @override
-  String get deskInvHelpAddrP3 =>
-      'Адрес для счетов не принимает платежи: платёж, отправленный на него, отбрасывается. Чтобы получить оплату, дайте адрес для платежей.';
-
-  @override
-  String get deskInvHelpAddrWhere1 =>
-      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета|Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpAddrWhere2 =>
-      '**Новый адрес для счетов** заменяет его. Сервисы со старым адресом не смогут присылать счета, пока не получат новый.';
-
-  @override
-  String get deskInvHelpDiagramTitle => 'Путь счёта';
-
-  @override
-  String get deskInvHelpDiagramIssuer => 'Выставитель';
-
-  @override
-  String get deskInvHelpDiagramPayer => 'Плательщик';
-
-  @override
-  String get deskInvHelpDiagramIssues => 'Выставляет счёт';
-
-  @override
-  String get deskInvHelpDiagramInvoice => 'Счёт';
-
-  @override
-  String get deskInvHelpDiagramGate => 'Адрес для счетов';
-
-  @override
-  String get deskInvHelpDiagramGateSub => 'Только доверенные';
-
-  @override
-  String get deskInvHelpDiagramDropped => 'Другие отправители';
-
-  @override
-  String get deskInvHelpDiagramDroppedSub => 'Отброшено непрочитанным';
-
-  @override
-  String get deskInvHelpDiagramReview => 'Проверяет и одобряет';
-
-  @override
-  String get deskInvHelpDiagramReviewSub => 'Одобрить и оплатить';
-
-  @override
-  String get deskInvHelpDiagramPayment => 'Платёж';
-
-  @override
-  String get deskInvHelpDiagramPayAddr => 'Адрес для платежей';
-
-  @override
-  String get deskInvHelpDiagramPayAddrSub => 'Не адрес для счетов';
-
-  @override
-  String get deskInvHelpDiagramFinal => 'Завершает и публикует';
-
-  @override
-  String deskInvHelpDiagramFinalSub(int confirmations) {
-    return 'Окончательно после подтверждений: $confirmations';
-  }
-
-  @override
-  String get deskInvHelpDiagramSemantics =>
-      'Выставитель отправляет счёт на адрес для счетов плательщика, который принимает только доверенных отправителей и отбрасывает остальных; плательщик проверяет и одобряет его; платёж идёт на адрес для платежей выставителя; кошелёк выставителя завершает его и публикует в сети.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Выставить счёт';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Перед первым счётом';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Ваш адрес для платежей';
-
-  @override
-  String get deskInvIssuerMethod => 'Способ';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Напрямую · Файл';
-
-  @override
-  String get deskInvIssuerDirect => 'Ссылка';
-
-  @override
   String get deskInvIssuerSoon => 'Скоро';
-
-  @override
-  String get deskInvIssuerPayer => 'Адрес для счетов плательщика';
-
-  @override
-  String get deskInvIssuerPayerHelp =>
-      'Кошелёк плательщика показывает его в разделе «Настройки › Счета».';
-
-  @override
-  String get deskInvIssuerPayerMissing =>
-      'Вставьте адрес для счетов плательщика.';
-
-  @override
-  String get deskInvIssuerPayerInvalid => 'Это недействительный адрес Epicbox.';
-
-  @override
-  String get deskInvIssuerPayerOwn =>
-      'Это один из ваших собственных адресов. Используйте адрес для счетов, который даст плательщик.';
-
-  @override
-  String get deskInvIssuerPayerHttp =>
-      'Счетам через Epicbox нужен адрес Epicbox, а не HTTP или Tor.';
-
-  @override
-  String get deskInvIssuerContacts => 'Контакты';
 
   @override
   String get deskInvIssuerNoContacts =>
       'Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».';
-
-  @override
-  String get deskInvIssuerNoInvoices =>
-      'Этот кошелёк уже возвращал счёт: он не может оплачивать счета через Epicbox. Отправьте вместо этого файл счёта или попросите прислать платёж.';
-
-  @override
-  String get deskInvIssuerUseFile => 'Использовать файл';
-
-  @override
-  String get deskInvIssuerUnknown =>
-      'Только wallet-for-epic и другие кошельки LEPIC могут оплатить счёт через Epicbox. Epic GUI wallet и Stack Wallet вообще не оплачивают счета; командная строка epic-wallet может оплатить файл счёта.';
 
   @override
   String get deskInvIssuerAmount => 'Сумма';
@@ -5926,23 +5529,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerIssue => 'Выставить';
-
-  @override
   String get deskInvIssuerRelayDown =>
       'Сервер Epicbox не отвечает, поэтому счёт сейчас не отправить.';
 
   @override
-  String get deskInvIssuerFixFields => 'Исправьте поля, отмеченные красным.';
-
-  @override
   String get deskInvIssuerNotDelivered =>
       'Счёт не дошёл до сервера Epicbox. Ничего не отправлено. Попробуйте ещё раз.';
-
-  @override
-  String deskInvIssuerSent(String payer) {
-    return 'Счёт отправлен: $payer.';
-  }
 
   @override
   String get deskInvIssuerEmpty =>
@@ -6047,23 +5639,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Доставлено на адрес для счетов $payer. Ничего не оплачено, пока плательщик не одобрит.';
+    return 'Доставлено в почтовый ящик $payer. Ничего не оплачено, пока плательщик не одобрит.';
   }
 
   @override
   String get deskInvIssuerCopySlate => 'Копировать ID слейта';
-
-  @override
-  String get deskInvIssuerStepsIntro =>
-      'Кошелёк плательщика должен принимать счета. Перед первым счётом:';
-
-  @override
-  String get deskInvIssuerStepTrust =>
-      '1. Плательщик добавляет ваш адрес для платежей ниже в доверенные отправители.';
-
-  @override
-  String get deskInvIssuerStepAddress =>
-      '2. Плательщик даёт вам свой адрес для счетов.';
 
   @override
   String get deskInvIssuerStepIssued => 'Выставлен';
@@ -6117,30 +5697,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvPayerNoMessage => 'Нет сообщения';
 
   @override
-  String deskInvPayerDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count сообщения от недоверенных отправителей проигнорированы.',
-      many: '$count сообщений от недоверенных отправителей проигнорированы.',
-      few: '$count сообщения от недоверенных отправителей проигнорированы.',
-      one: '$count сообщение от недоверенного отправителя проигнорировано.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvPayerTrustService => 'Доверять сервису…';
-
-  @override
-  String get deskInvPayerYourInvoiceAddress => 'Ваш адрес для счетов';
-
-  @override
   String get deskInvPayerEmptyTitle => 'Нет ожидающих счетов';
 
   @override
   String get deskInvPayerEmptyText =>
-      'Когда доверенный сервис выставит вам счёт, он появится здесь. Ничего не оплачивается, пока вы не одобрите.';
+      'Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, запрос появится здесь, и ничего не будет оплачено без вашего одобрения.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -6213,11 +5774,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerPaysTo => 'Получатель';
-
-  @override
-  String deskInvPayerTrustedSince(String service, String date) {
-    return '$service, в доверенных с $date';
-  }
 
   @override
   String get deskInvPayerExpires => 'Истекает';
@@ -6369,143 +5925,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvSetTitle => 'Счета';
 
   @override
-  String get deskInvSetIntro =>
-      'Доверенные сервисы выставляют счета на адрес для счетов этого кошелька. Ничего не оплачивается, пока вы не одобрите каждый счёт.';
-
-  @override
-  String get deskInvSetAddressLabel => 'Адрес для счетов';
-
-  @override
-  String get deskInvSetAddressWarning =>
-      'Давайте его только доверенным сервисам. Он не принимает платежи.';
-
-  @override
-  String get deskInvSetCopy => 'Копировать';
-
-  @override
-  String get deskInvSetCopied =>
-      'Адрес для счетов скопирован. Давайте его только доверенным сервисам; он не принимает платежи.';
-
-  @override
-  String get deskInvSetQrShow => 'Показать QR';
-
-  @override
-  String get deskInvSetQrHide => 'Скрыть QR';
-
-  @override
-  String get deskInvSetQrLabel => 'QR-код вашего адреса для счетов';
-
-  @override
-  String deskInvSetIndex(int index) {
-    return 'Адрес для счетов $index';
-  }
-
-  @override
-  String get deskInvSetTrusted => 'Доверенные отправители';
-
-  @override
-  String get deskInvSetTrustedNone =>
-      'Нет доверенных отправителей. Счета от всех остальных игнорируются непрочитанными.';
-
-  @override
-  String deskInvSetSince(String date) {
-    return 'В доверенных с $date';
-  }
-
-  @override
-  String get deskInvSetContactTag => 'Контакт';
-
-  @override
-  String get deskInvSetRemove => 'Удалить';
-
-  @override
-  String deskInvSetRemoveTitle(String name) {
-    return 'Больше не доверять $name?';
-  }
-
-  @override
-  String deskInvSetRemoveBody(String name) {
-    return '$name больше не сможет присылать вам счета. Уже ожидающие счета останутся, пока вы не ответите или они не истекут.';
-  }
-
-  @override
-  String deskInvSetRemoved(String name) {
-    return '$name больше не может присылать вам счета.';
-  }
-
-  @override
-  String get deskInvSetKeep => 'Оставить';
-
-  @override
-  String get deskInvSetAdd => 'Доверять отправителю';
-
-  @override
-  String get deskInvSetAddBody =>
-      'Доверенный отправитель может выставлять счета на адрес для счетов этого кошелька. Ничего не оплачивается, пока вы не одобрите каждый счёт паролем кошелька.';
-
-  @override
-  String get deskInvSetName => 'Название';
-
-  @override
-  String get deskInvSetNameMissing => 'Дайте отправителю название.';
-
-  @override
-  String get deskInvSetSenderAddress => 'Его адрес для платежей';
-
-  @override
-  String get deskInvSetSenderMissing =>
-      'Вставьте адрес, который показывает сервис.';
-
-  @override
-  String get deskInvSetSenderInvalid => 'Это недействительный адрес Epicbox.';
-
-  @override
-  String get deskInvSetTrust => 'Доверять';
-
-  @override
-  String deskInvSetAdded(String name) {
-    return '$name теперь может присылать вам счета.';
-  }
-
-  @override
-  String deskInvSetDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count сообщения от недоверенных отправителей проигнорированы непрочитанными.',
-      many:
-          '$count сообщений от недоверенных отправителей проигнорированы непрочитанными.',
-      few:
-          '$count сообщения от недоверенных отправителей проигнорированы непрочитанными.',
-      one:
-          '$count сообщение от недоверенного отправителя проигнорировано непрочитанным.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvSetRotate => 'Новый адрес для счетов';
-
-  @override
-  String get deskInvSetRotateHint =>
-      'Сервисы со старым адресом больше не смогут присылать вам счета.';
-
-  @override
-  String get deskInvSetRotateTitle => 'Создать новый адрес для счетов?';
-
-  @override
-  String get deskInvSetRotateBody =>
-      'Сервисы со старым адресом больше не смогут присылать вам счета. Передайте новый каждому сервису, который выставляет вам счета.';
-
-  @override
-  String get deskInvSetRotateConfirm => 'Создать новый адрес';
-
-  @override
-  String get deskInvSetRotated =>
-      'Новый адрес для счетов готов. Передайте его своим сервисам.';
-
-  @override
   String get deskInvSetExpiry => 'Срок оплаты';
 
   @override
@@ -6518,38 +5937,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetCancel => 'Отмена';
-
-  @override
-  String get deskInvSetContactSection => 'Счета';
-
-  @override
-  String get deskInvSetTheirInvoice => 'Адрес для счетов контакта';
-
-  @override
-  String get deskInvSetTheirInvoiceNone =>
-      'Адрес для счетов не сохранён. Попросите его, чтобы выставлять счета.';
-
-  @override
-  String get deskInvSetTrustedSwitch => 'Доверенный для счетов';
-
-  @override
-  String get deskInvSetTrustedSwitchHelp =>
-      'Позволяет этому контакту выставлять вам счета. Ничего не оплачивается, пока вы не одобрите счёт.';
-
-  @override
-  String get deskInvSetIssueNeeds => 'Нужен адрес для счетов контакта.';
-
-  @override
-  String get deskInvSetShare => 'Поделиться адресом для счетов';
-
-  @override
   String get deskInvSetReceiveHint =>
-      'Попросите контакт или сервис заплатить вам. Его кошелёк должен принимать счета.';
-
-  @override
-  String get deskInvSetRestoredHint =>
-      'Восстановили кошелёк из фразы восстановления? Передайте сервисам этот адрес для счетов заново.';
+      'Попросите сопряжённый контакт оплатить или сохраните запрос файлом.';
 
   @override
   String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
@@ -8840,15 +8229,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskConDeleted(String name) {
     return 'Контакт «$name» удалён';
   }
-
-  @override
-  String get deskConAddrEpicbox => 'Адрес Epicbox';
-
-  @override
-  String get deskConAddrTor => 'Адрес Ссылка · Tor';
-
-  @override
-  String get deskConAddrHttp => 'Адрес Ссылка · HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -14596,7 +13976,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'Показывает хосты, задержку, версию и высоту блока в списках серверов и на карточке состояния, адрес релея в «Получить» и полный адрес счёта.';
+      'Показывает хосты, задержку, версию и высоту блока в списках серверов и на карточке состояния, а также адрес ретранслятора в «Получить».';
 
   @override
   String get advRecheckHeight => 'Сверка с заданной высоты';
@@ -15462,698 +14842,690 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вставленный текст не является транзакцией. Вставьте весь текст от отправителя или выберите его файл.';
 
   @override
-  String get pairTitle => 'Pair';
+  String get pairTitle => 'Сопрячь';
 
   @override
   String pairWithName(String name) {
-    return 'Pair with $name';
+    return 'Сопрячь: $name';
   }
 
   @override
   String get pairLead =>
-      'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.';
+      'Выполните сопряжение с собеседником один раз. После этого файлы платежей и счета между двумя кошельками запечатаны: прочитать их могут только эти два кошелька.';
 
   @override
-  String get pairInPerson => 'In person';
+  String get pairInPerson => 'Лично';
 
   @override
-  String get pairInPersonHint => 'Show your code and scan theirs';
+  String get pairInPersonHint =>
+      'Покажите свой код и отсканируйте код собеседника';
 
   @override
-  String get pairOnline => 'Online';
+  String get pairOnline => 'Онлайн';
 
   @override
-  String get pairOnlineHint => 'Send an invite link, or read out pairing words';
+  String get pairOnlineHint =>
+      'Отправьте ссылку-приглашение или зачитайте слова сопряжения';
 
   @override
-  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+  String get pairOfflineHint => 'Вы офлайн. Выполните сопряжение лично.';
 
   @override
-  String get pairEnter => 'Enter link or words';
+  String get pairEnter => 'Ввести ссылку или слова';
 
   @override
   String get pairEnterHint =>
-      'Paste an invite link or type the words you were given';
+      'Вставьте ссылку-приглашение или введите полученные слова';
 
   @override
-  String get pairNotPaired => 'Not paired';
+  String get pairNotPaired => 'Не сопряжён';
 
   @override
   String get pairNotPairedHint =>
-      'Pair to seal payment files and allow invoices.';
+      'Сопряжение запечатывает файлы платежей и позволяет разрешить счета.';
 
   @override
-  String get pairInPersonTitle => 'Pair in person';
+  String get pairInPersonTitle => 'Сопряжение лично';
 
   @override
-  String get pairShowMyCode => 'Show my code';
+  String get pairShowMyCode => 'Показать мой код';
 
   @override
-  String get pairScanTheirs => 'Scan theirs';
+  String get pairScanTheirs => 'Сканировать код';
 
   @override
-  String get pairShowCodeCaption => 'Let them scan this, then scan theirs.';
+  String get pairShowCodeCaption =>
+      'Дайте отсканировать этот код, затем отсканируйте код собеседника.';
 
   @override
   String get pairScanCaption =>
-      'Both of you scan. The words check opens when both codes are in.';
+      'Сканируют оба. Проверка слов откроется, когда оба кода считаны.';
 
   @override
-  String get pairScanPrompt => 'Point the camera at their code';
+  String get pairScanPrompt => 'Наведите камеру на код собеседника';
 
   @override
-  String get pairSeenAs => 'They will see you as';
+  String get pairSeenAs => 'Собеседник увидит вас как';
 
   @override
-  String get pairUseWords => 'Use words instead';
+  String get pairUseWords => 'Использовать слова';
 
   @override
-  String get pairCameraDeniedTitle => 'The camera is not allowed';
+  String get pairCameraDeniedTitle => 'Доступ к камере не разрешён';
 
   @override
   String get pairCameraDeniedBody =>
-      'Allow the camera to scan, or use words instead.';
+      'Разрешите камеру для сканирования или используйте слова.';
 
   @override
-  String get pairOpenSettings => 'Open settings';
+  String get pairOpenSettings => 'Открыть настройки';
 
   @override
-  String get pairWordsTitle => 'Pairing words';
+  String get pairWordsTitle => 'Слова сопряжения';
 
   @override
   String get pairWordsLead =>
-      'Read these to them, in this order. Their wallet finds the invite from the words.';
+      'Зачитайте их собеседнику в этом порядке. Его кошелёк найдёт приглашение по словам.';
 
   @override
-  String get pairWordsGoodFor => 'Good for 10 minutes';
+  String get pairWordsGoodFor => 'Действуют 10 минут';
 
   @override
-  String pairWordsLeft(String time) {
-    return '$time left';
-  }
-
-  @override
-  String get pairWordsLastMinute => 'Less than a minute left';
+  String get pairWordsLastMinute => 'Осталось меньше минуты';
 
   @override
   String get pairWordsFooter =>
-      'Whoever has these words can answer this invite until it expires. Check the words together afterwards.';
+      'Любой, у кого есть эти слова, может ответить на приглашение, пока оно действует. Затем проверьте слова вместе.';
 
   @override
-  String get pairWordsNew => 'New words';
+  String get pairWordsNew => 'Новые слова';
 
   @override
-  String get pairWordsCopy => 'Copy words';
+  String get pairWordsCopy => 'Копировать слова';
 
   @override
-  String get pairWordsExpiredTitle => 'These words have expired';
+  String get pairWordsExpiredTitle => 'Срок этих слов истёк';
 
   @override
-  String get pairWordsExpiredBody => 'Make new ones and read them out again.';
+  String get pairWordsExpiredBody => 'Создайте новые и зачитайте их снова.';
 
   @override
   String get pairWordsNeedEpicbox =>
-      'Pairing words need Epicbox, so they are not offered now.';
+      'Для слов сопряжения нужен Epicbox, поэтому сейчас они недоступны.';
 
   @override
   String pairWordsDesktopChip(String time) {
-    return 'Words: $time left';
+    return 'Слова: осталось $time';
   }
 
   @override
   String get pairEnterLead =>
-      'Paste the invite link, or type the five words you were given.';
+      'Вставьте ссылку-приглашение или введите пять полученных слов.';
 
   @override
-  String get pairEnterField => 'Invite link or words';
+  String get pairEnterField => 'Ссылка-приглашение или слова';
 
   @override
   String get pairEnterNotFound =>
-      'No invite found for these words. Check them, or ask for new ones.';
+      'По этим словам приглашение не найдено. Проверьте их или попросите новые.';
 
   @override
-  String get pairEnterTryAgain => 'Try again';
+  String get pairEnterTryAgain => 'Повторить';
 
   @override
   String get pairEnterDesktopHint =>
-      'A pasted link or typed words do what a scan does on the phone.';
+      'Вставленная ссылка или введённые слова заменяют сканирование на телефоне.';
 
   @override
   String get pairEnterDesktopPlaceholder =>
-      'Paste the invite link, or type the five words';
+      'Вставьте ссылку-приглашение или введите пять слов';
 
   @override
-  String get pairOnlineTitle => 'Pair online';
+  String get pairOnlineTitle => 'Сопряжение онлайн';
 
   @override
   String get pairOnlineLead =>
-      'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'Отправьте приглашение по любому каналу, которым вы уже пользуетесь с собеседником. Сопряжение завершится, когда его кошелёк откроет приглашение.';
 
   @override
   String get pairOnlineLeadByHand =>
-      'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.';
+      'Отправьте приглашение по любому каналу, которым вы уже пользуетесь с собеседником. Ответ придёт тем же путём: вставьте его в «Ввести ссылку или слова».';
 
   @override
-  String get pairExpiresIn => 'Invite expires in';
+  String get pairExpiresIn => 'Приглашение истекает через';
 
   @override
-  String get pairExpiry1h => '1 hour';
+  String get pairExpiry1h => '1 час';
 
   @override
-  String get pairExpiry24h => '24 hours';
+  String get pairExpiry24h => '24 часа';
 
   @override
-  String get pairExpiry7d => '7 days';
+  String get pairExpiry7d => '7 дней';
 
   @override
-  String get pairWhatTheyReceive => 'What they receive';
+  String get pairWhatTheyReceive => 'Что получит собеседник';
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n$link\n\nExpires $date.';
+    return '$name предлагает сопрячь кошельки Epic Cash.\n\nОткрыть в Epic Cash:\n$link\n\nДействует до: $date.';
   }
 
   @override
   String get pairShareWarning =>
-      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+      'Любой, у кого есть это приглашение, может выполнить сопряжение от вашего имени, пока оно действует. Отправляйте его только нужному человеку, затем проверьте слова вместе.';
 
   @override
-  String get pairShareInvite => 'Share invite';
+  String get pairShareInvite => 'Поделиться приглашением';
 
   @override
-  String get pairCopyInvite => 'Copy invite';
+  String get pairCopyInvite => 'Копировать приглашение';
 
   @override
-  String get pairUseWordsShort => 'Use words';
+  String get pairUseWordsShort => 'Слова';
 
   @override
-  String get pairInviteSentTitle => 'Invite sent';
+  String get pairInviteSentTitle => 'Приглашение отправлено';
 
   @override
   String pairInviteSentBody(String name) {
-    return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+    return 'Сопряжение завершится, когда кошелёк $name откроет приглашение. Можно уйти с этого экрана; приглашение останется в «Контакты › Ожидающие приглашения».';
   }
 
   @override
-  String pairInviteExpiresIn(String time) {
-    return 'Expires in $time';
-  }
-
-  @override
-  String get pairCancelInvite => 'Cancel invite';
+  String get pairCancelInvite => 'Отменить приглашение';
 
   @override
   String pairCancelInviteTitle(String name) {
-    return 'Cancel the invite to $name?';
+    return 'Отменить приглашение для $name?';
   }
 
   @override
   String pairCancelInviteBody(String name) {
-    return 'Their wallet will see “$name cancelled this invite” if they open it later.';
+    return 'Если другой кошелёк откроет его позже, он увидит «$name: приглашение отменено».';
   }
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Pair with $name?';
+    return 'Сопрячь: $name?';
   }
 
   @override
-  String get pairNameClaimed => 'Name chosen by them · not checked yet';
+  String get pairNameClaimed => 'Имя выбрано собеседником · ещё не проверено';
 
   @override
-  String get pairNameClaimedShort => 'Name chosen by them';
+  String get pairNameClaimedShort => 'Имя выбрано собеседником';
 
   @override
   String pairCallsThemselves(String name) {
-    return 'Calls themselves “$name”';
+    return 'Называет себя «$name»';
   }
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+    return 'После сопряжения файлы платежей и счета между вами и $name запечатаны. Затем вы вместе проверите слова.';
   }
 
   @override
   String pairIncomingAllowInvoices(String name) {
-    return 'Allow $name to request payments';
+    return 'Разрешить $name запрашивать оплату';
   }
 
   @override
   String get pairIncomingAllowHint =>
-      'Turns on after you check the words. Nothing is paid without your PIN.';
+      'Включится после проверки слов. Без вашего PIN ничего не оплачивается.';
 
   @override
-  String get pairNotNow => 'Not now';
+  String get pairNotNow => 'Не сейчас';
 
   @override
   String pairWaitingTitle(String name) {
-    return 'Waiting for $name’s wallet…';
+    return 'Ожидание кошелька $name…';
   }
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+      'Другой кошелёк ответит, когда его откроют. Это можно закрыть; сопряжение продолжится в фоне, а проверка слов появится, когда оно завершится.';
 
   @override
-  String get pairWaitingFor => 'Checking for 1 hour';
+  String get pairWaitingFor => 'Проверка в течение 1 часа';
 
   @override
-  String get pairSendByHand => 'Send by hand';
+  String get pairSendByHand => 'Отправить вручную';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => 'Ретранслятор недоступен';
 
   @override
-  String get pairRelayUnreachableBody => 'Send your answer by hand?';
+  String get pairRelayUnreachableBody => 'Отправить ответ вручную?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+      'Ретранслятор недоступен через Tor. Отправить ответ вручную?';
 
   @override
-  String get pairByHandTitle => 'Send by hand';
+  String get pairByHandTitle => 'Отправить вручную';
 
   @override
   String pairByHandLead(String name) {
-    return 'Send this back to $name on any channel. Their wallet finishes the pairing when it opens it.';
+    return 'Отправьте это обратно $name по любому каналу. Его кошелёк завершит сопряжение, когда откроет это.';
   }
 
   @override
-  String get pairByHandYourAnswer => 'Your answer';
+  String get pairByHandYourAnswer => 'Ваш ответ';
 
   @override
   String pairByHandFooter(String name) {
-    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+    return 'Ответ запечатан для приглашения $name. Никто другой не сможет его прочитать, и он срабатывает один раз.';
   }
 
   @override
   String pairConfirmByHandLead(String name) {
-    return 'Send this back to $name. Their wallet shows the words check when it opens it.';
+    return 'Отправьте это обратно $name. Его кошелёк покажет проверку слов, когда откроет это.';
   }
 
   @override
-  String get pairExpiredTitle => 'This invite has expired';
+  String get pairExpiredTitle => 'Срок приглашения истёк';
 
   @override
   String pairExpiredBody(String name) {
-    return 'Ask $name for a new one.';
+    return 'Попросите у $name новое.';
   }
 
   @override
-  String get pairUsedTitle => 'This invite was already used';
+  String get pairUsedTitle => 'Это приглашение уже использовано';
 
   @override
-  String get pairUsedBody => 'Ask for a new one.';
+  String get pairUsedBody => 'Попросите новое.';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name cancelled this invite';
+    return '$name: приглашение отменено';
   }
 
   @override
-  String get pairCancelledBody => 'Nothing was stored.';
+  String get pairCancelledBody => 'Ничего не сохранено.';
 
   @override
   String pairNoAnswerTitle(String name) {
-    return 'No answer from $name';
+    return 'Нет ответа от $name';
   }
 
   @override
   String get pairNoAnswerBody =>
-      'The invite may have been cancelled. Ask for a new one, or pair in person.';
+      'Возможно, приглашение отменено. Попросите новое или выполните сопряжение лично.';
 
   @override
-  String get pairChangedTitle => 'This invite was changed on the way';
+  String get pairChangedTitle => 'Приглашение изменено в пути';
 
   @override
   String pairChangedBody(String name) {
-    return 'Nothing was stored. Pair again, in person or with a fresh invite from $name.';
+    return 'Ничего не сохранено. Повторите сопряжение лично или с новым приглашением от $name.';
   }
 
   @override
-  String get pairNewerTitle => 'Update Epic Cash to open this';
+  String get pairNewerTitle => 'Обновите Epic Cash, чтобы открыть это';
 
   @override
-  String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
+  String get pairNewerInviteBody =>
+      'Это приглашение создано более новым кошельком.';
 
   @override
-  String get pairNewerFileBody => 'The file was sealed by a newer wallet.';
+  String get pairNewerFileBody => 'Файл запечатан более новым кошельком.';
 
   @override
-  String get pairCheckForUpdates => 'Check for updates';
+  String get pairCheckForUpdates => 'Проверить обновления';
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Someone else also answered $name’s invite. See Pending invites.';
+    return 'На приглашение $name ответил кто-то ещё. См. «Ожидающие приглашения».';
   }
 
   @override
-  String get pairSecondReplyBody =>
-      'If you didn’t share it with them, remove them.';
+  String get pairAnsweredSameInvite =>
+      'Ответ на то же приглашение · не сохранён';
 
   @override
-  String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
-
-  @override
-  String get sasTitle => 'Check the words';
+  String get sasTitle => 'Проверить слова';
 
   @override
   String sasLead(String name) {
-    return '$name’s wallet shows the same four. Compare them on a call or in person.';
+    return 'Кошелёк $name показывает те же четыре. Сравните их по телефону или лично.';
   }
 
   @override
   String sasLeadExchange(String name) {
-    return 'The $name page shows the same four. Compare them, then confirm on both sides.';
+    return 'Страница $name показывает те же четыре. Сравните их, затем подтвердите с обеих сторон.';
   }
 
   @override
   String sasLeadRecheck(String name) {
-    return '$name’s wallet shows these under $name › Check the words. Compare them on a call or in person.';
+    return 'Кошелёк $name показывает их в «$name › Проверить слова». Сравните их по телефону или лично.';
   }
 
   @override
-  String get sasMatch => 'They match';
+  String get sasMatch => 'Совпадают';
 
   @override
-  String get sasNoMatch => 'They don’t match';
+  String get sasNoMatch => 'Не совпадают';
 
   @override
-  String get sasSkip => 'Skip for now';
+  String get sasSkip => 'Пропустить пока';
 
   @override
-  String get sasLater => 'Later';
+  String get sasLater => 'Позже';
 
   @override
   String sasMatchedTitle(String name) {
-    return '$name is verified';
+    return '$name: проверено';
   }
 
   @override
   String sasMatchedBody(String name) {
-    return 'Payment files and invoices with $name are sealed from now on.';
+    return 'Файлы платежей и счета с $name теперь запечатаны.';
   }
 
   @override
-  String get sasNoMatchTitle => 'The words don’t match';
+  String get sasNoMatchTitle => 'Слова не совпадают';
 
   @override
   String get sasNoMatchBody =>
-      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+      'Возможно, кто-то изменил приглашение в пути. Ничего не сохраняется. Повторите сопряжение лично или с новым приглашением.';
 
   @override
-  String get sasStopPairing => 'Stop pairing';
+  String get sasStopPairing => 'Прервать сопряжение';
 
   @override
   String sasSkippedTitle(String name) {
-    return 'Paired with $name';
+    return 'Сопряжено: $name';
   }
 
   @override
   String sasSkippedBody(String name) {
-    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+    return 'Файлы платежей с $name запечатаны. Проверьте слова на странице контакта $name, когда сможете; счета до тех пор ждут.';
   }
 
   @override
-  String get sasCheckNow => 'Check now';
+  String get sasCheckNow => 'Проверить сейчас';
 
   @override
-  String get sasAllowAfterMatch => 'On once you confirm the words match.';
+  String get sasAllowAfterMatch =>
+      'Включится, когда вы подтвердите, что слова совпадают.';
 
   @override
   String sasAllowInvoicesHint(String name) {
-    return '$name’s wallet can ask you to pay. Nothing is paid without your PIN.';
+    return 'Кошелёк $name сможет просить вас об оплате. Без вашего PIN ничего не оплачивается.';
   }
 
   @override
-  String get trustVerified => 'Verified';
+  String get trustVerified => 'Проверено';
 
   @override
-  String get trustPaired => 'Paired, not verified';
+  String get trustPaired => 'Сопряжено, не проверено';
 
   @override
-  String get trustPairedShort => 'Paired';
+  String get trustPairedShort => 'Сопряжено';
 
   @override
-  String get trustKeysChanged => 'Keys changed';
+  String get trustKeysChanged => 'Ключи изменились';
 
   @override
-  String get trustSealed => 'Sealed';
+  String get trustSealed => 'Запечатано';
 
   @override
   String trustSealedFor(String name) {
-    return 'Sealed for $name';
+    return 'Запечатано для $name';
   }
 
   @override
-  String get trustAllowsInvoices => 'Allows invoices';
+  String get trustAllowsInvoices => 'Счета разрешены';
 
   @override
-  String get contactTitle => 'Contact';
+  String get contactTitle => 'Контакт';
 
   @override
-  String get contactAddresses => 'Addresses';
+  String get contactAddresses => 'Адреса';
 
   @override
-  String get contactPairing => 'Pairing';
-
-  @override
-  String get contactShowCode => 'Show code';
+  String get contactPairing => 'Сопряжение';
 
   @override
   String contactWordsChecked(String date) {
-    return 'Words checked $date';
+    return 'Слова проверены $date';
   }
 
   @override
-  String get contactCheckAgain => 'Check again';
+  String get contactCheckAgain => 'Проверить снова';
 
   @override
-  String get contactCheckWordsAgain => 'Check the words again';
+  String get contactCheckWordsAgain => 'Проверить слова снова';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => 'Запечатывать платежи';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return 'Платежи и счета с $name зашифрованы сквозным шифрованием. Прочитать их может только кошелёк $name.';
   }
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Off, a payment file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+    return 'Если выключено, файл платежа для $name открытый: любой, кто получит файл, может его прочитать. Выключайте, только если кошелёк $name не открывает запечатанные файлы.';
   }
 
   @override
-  String get contactAllowInvoices => 'Allow invoices';
+  String get contactAllowInvoices => 'Разрешить счета';
 
   @override
   String contactAllowInfo(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+    return 'Кошелёк $name может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего одобрения и PIN. Само по себе ничего не оплачивается.';
   }
 
   @override
   String get contactAllowInfoMore =>
-      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+      'Разрешить можно только проверенному контакту: проверка слов исключает подменённое приглашение.';
 
   @override
-  String get contactCheckWordsFirst => 'Check the words first';
+  String get contactCheckWordsFirst => 'Сначала проверьте слова';
 
   @override
-  String get contactPausedUntilChecked => 'Paused until you check the words';
+  String get contactPausedUntilChecked => 'Приостановлено до проверки слов';
 
   @override
   String contactDeliveredVia(String relay) {
-    return 'Delivered via $relay';
+    return 'Доставка через $relay';
   }
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return 'Ретранслятор $name не отвечает';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+      'Повторная попытка. Запросы и платежи ждут, пока он ответит; ничего не теряется.';
 
   @override
-  String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
+  String get contactPausedEpicboxOff => 'Приостановлено, пока Epicbox выключен';
 
   @override
-  String get contactPausedEpicboxOffBody => 'Sealed files still work.';
+  String get contactPausedEpicboxOffBody =>
+      'Запечатанные файлы по-прежнему работают.';
 
   @override
-  String get contactRemovePairing => 'Remove pairing';
+  String get contactRemovePairing => 'Удалить сопряжение';
 
   @override
   String contactRemovePairingTitle(String name) {
-    return 'Remove the pairing with $name?';
+    return 'Удалить сопряжение с $name?';
   }
 
   @override
   String contactRemovePairingBody(String name) {
-    return 'Sealed payments and invoices from $name will stop. Their addresses stay in your contacts.';
+    return 'Запечатанные платежи и счета от $name прекратятся. Адреса останутся в ваших контактах.';
   }
 
   @override
-  String get contactKeep => 'Keep';
+  String get contactKeep => 'Оставить';
 
   @override
-  String get contactRemove => 'Remove';
+  String get contactRemove => 'Удалить';
 
   @override
   String contactKeysChangedTitle(String name) {
-    return '$name’s keys changed';
+    return 'Ключи $name изменились';
   }
 
   @override
   String get contactKeysChangedBody =>
-      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+      'Это может значить, что теперь у этого человека другой кошелёк или что кто-то другой использует это имя. Проверьте слова снова.';
 
   @override
-  String get contactKeysChangedStatus => 'sealing and invoices paused';
+  String get contactKeysChangedStatus => 'запечатывание и счета приостановлены';
 
   @override
-  String get contactKeepOldKeys => 'Keep the old keys';
+  String get contactKeepOldKeys => 'Оставить старые ключи';
 
   @override
-  String get contactUseNewKeys => 'Use the new keys';
+  String get contactUseNewKeys => 'Использовать новые ключи';
 
   @override
   String contactKeysBack(String name) {
-    return '$name’s keys are back.';
+    return 'Ключи $name вернулись.';
   }
 
   @override
-  String get contactKeysBackBody => 'Nothing changed for you.';
+  String get contactKeysBackBody => 'Для вас ничего не изменилось.';
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return 'Последний платёж для $name ушёл открытым';
   }
 
   @override
   String contactSealDegradedBody(String name) {
-    return 'The next one asks Seal or plain. Sealing turns itself back on when $name’s wallet answers sealed.';
+    return 'Следующий спросит: запечатать или открыто. Запечатывание включится само, когда кошелёк $name ответит запечатанным файлом.';
   }
 
   @override
-  String get addrField => 'Address';
+  String get addrField => 'Адрес';
 
   @override
   String addrFieldTyped(String type) {
-    return '$type address';
+    return 'Адрес ($type)';
   }
 
   @override
-  String get addrAddAnother => 'Add another address';
+  String get addrAddAnother => 'Добавить ещё адрес';
 
   @override
   String addrOneFree(String type) {
-    return 'One more type is free: $type.';
+    return 'Свободен ещё один тип: $type.';
   }
 
   @override
   String addrDuplicateType(String name, String type) {
-    return '$name already has this kind of address ($type).';
+    return 'У $name уже есть адрес этого типа ($type).';
   }
 
   @override
-  String get addrKeepOld => 'Keep the old one';
+  String get addrKeepOld => 'Оставить старый';
 
   @override
-  String get addrReplace => 'Replace it';
+  String get addrReplace => 'Заменить';
 
   @override
   String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
+    return 'Вставьте адрес ($type) или оставьте пустым';
   }
 
   @override
   String get addrDesktopRule =>
-      'One address per type. The third field appears only while a type is free.';
+      'Один адрес на тип. Третье поле появляется, только пока какой-то тип свободен.';
 
   @override
-  String get pendingTitle => 'Pending invites';
+  String get pendingTitle => 'Ожидающие приглашения';
 
   @override
   String pendingRowHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count invites waiting for an answer',
-      one: '1 invite waiting for an answer',
+      other: '$count приглашения ждут ответа',
+      many: '$count приглашений ждут ответа',
+      few: '$count приглашения ждут ответа',
+      one: '$count приглашение ждёт ответа',
     );
     return '$_temp0';
   }
 
   @override
   String pendingLink(String time) {
-    return 'Link · expires in $time';
+    return 'Ссылка · истекает через $time';
   }
 
   @override
   String pendingWords(String time) {
-    return 'Pairing words · expires in $time';
+    return 'Слова сопряжения · истекают через $time';
   }
 
   @override
-  String get pendingExpired => 'Expired';
+  String get pendingExpired => 'Истекло';
 
   @override
-  String get pendingInviteAgain => 'Invite again';
+  String get pendingInviteAgain => 'Пригласить снова';
 
   @override
   String pendingWaitingConfirm(String time) {
-    return 'Waiting for their confirmation · $time';
+    return 'Ждёт подтверждения · $time';
   }
 
   @override
-  String get pendingPairedCheck => 'Paired · check the words';
+  String get pendingPairedCheck => 'Сопряжено · проверьте слова';
 
   @override
   String get pendingEmpty =>
-      'No invites waiting. An invite shows here until the other wallet answers it.';
+      'Ожидающих приглашений нет. Приглашение видно здесь, пока другой кошелёк не ответит на него.';
 
   @override
-  String get pendingShareAgain => 'Share again';
+  String get pendingShareAgain => 'Поделиться снова';
 
   @override
-  String get pendingShowWords => 'Show words';
+  String get pendingShowWords => 'Показать слова';
 
   @override
-  String get pendingCopyLink => 'Copy link';
+  String get pendingCopyLink => 'Копировать ссылку';
 
   @override
-  String get invSetTitle => 'Invoices';
+  String get invSetTitle => 'Счета';
 
   @override
   String get invSetLead =>
-      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+      'Сопряжённый контакт, которому вы разрешите, может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего PIN.';
 
   @override
-  String get invSetPaired => 'Paired contacts';
+  String get invSetPaired => 'Сопряжённые контакты';
 
   @override
-  String get invSetAllowed => 'Allowed';
+  String get invSetAllowed => 'Разрешено';
 
   @override
-  String get invSetOff => 'Off';
+  String get invSetOff => 'Выкл.';
 
   @override
-  String get invSetPairShop => 'Pair with a shop or exchange';
+  String get invSetPairShop => 'Сопрячь с магазином или биржей';
 
   @override
   String get invSetEmpty =>
-      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+      'Сопряжённых контактов пока нет. Выполните сопряжение с магазином, биржей или человеком, проверьте слова, затем разрешите здесь их счета.';
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+      'Запросы ждут на ретрансляторе и придут, когда Epicbox снова включится.';
 
   @override
   String invSetSwitchedOff(String name) {
-    return 'Invoices from $name are off.';
+    return 'Счета от $name выключены.';
   }
 
   @override
@@ -16161,331 +15533,306 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count open requests were declined.',
-      one: '1 open request was declined.',
+      other: 'Отклонено $count открытого запроса.',
+      many: 'Отклонено $count открытых запросов.',
+      few: 'Отклонено $count открытых запроса.',
+      one: 'Отклонён $count открытый запрос.',
     );
     return '$_temp0';
   }
 
   @override
-  String get invSetTimeToPay => 'Time to pay';
+  String get invSetTimeToPay => 'Время на оплату';
 
   @override
   String invSetTimeToPayHint(int hours) {
-    return '$hours hours · how long an invoice stays payable';
+    return '$hours ч · столько счёт остаётся доступным для оплаты';
   }
 
   @override
-  String get invoicesEmptyAction => 'Paired contacts';
+  String get invoicesEmptyAction => 'Сопряжённые контакты';
 
   @override
-  String get reqTitle => 'Review request';
+  String get reqTitle => 'Проверить запрос';
 
   @override
   String reqRequests(String name) {
-    return '$name requests';
-  }
-
-  @override
-  String reqAsksYouToPay(String name) {
-    return '$name asks you to pay';
+    return '$name запрашивает';
   }
 
   @override
   String reqSealedSigned(String name) {
-    return 'Sealed to this wallet and signed by $name';
+    return 'Запечатано для этого кошелька и подписано $name';
   }
 
   @override
-  String get reqReference => 'Reference';
-
-  @override
-  String reqDepositRef(String ref) {
-    return 'Deposit · ref $ref';
-  }
-
-  @override
-  String reqWithdrawalRef(String ref) {
-    return 'Withdrawal · ref $ref';
-  }
-
-  @override
-  String get reqDeliveredVia => 'Delivered via';
+  String get reqReference => 'Номер';
 
   @override
   String reqPaidWaiting(String name) {
-    return 'Paid. Waiting for $name to post';
+    return 'Оплачено. Ждём публикации от $name';
   }
 
   @override
   String get reqPaidWaitingBody =>
-      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+      'Ваша часть выполнена. Биржа завершает и публикует; это закроется само.';
 
   @override
-  String get reqTlPaid => 'Paid';
+  String get reqTlPaid => 'Оплачено';
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return 'Доставлено на ретранслятор $name';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return 'Ответ доставлен на ретранслятор $name';
   }
 
   @override
   String reqTlPosted(String name) {
-    return 'Posted by $name';
+    return 'Опубликовано: $name';
   }
 
   @override
-  String get reqTlPostedHint => 'Usually within minutes';
+  String get reqTlPostedHint => 'Обычно в течение нескольких минут';
 
   @override
-  String get reqTlConfirming => 'Confirming';
+  String get reqTlConfirming => 'Подтверждается';
 
   @override
   String reqTlConfirmingHint(int n, int total) {
-    return '$n of $total confirmations';
+    return '$n из $total подтверждений';
   }
 
   @override
-  String get reqTlConfirmed => 'Confirmed';
+  String get reqTlConfirmed => 'Подтверждено';
 
   @override
   String reqTlWaiting(String time) {
-    return 'Waiting $time';
+    return 'Ожидание $time';
   }
 
   @override
   String reqNotPostedTitle(String name) {
-    return '$name has not posted yet';
+    return '$name: ещё не опубликовано';
   }
 
   @override
   String get reqNotPostedBody =>
-      'Send again delivers the same payment once more. It cannot be paid twice.';
+      '«Отправить снова» доставляет тот же платёж ещё раз. Дважды его оплатить нельзя.';
 
   @override
-  String get reqSendAgain => 'Send again';
+  String get reqSendAgain => 'Отправить снова';
 
   @override
   String reqUnreachableTitle(String name) {
-    return 'Couldn’t reach $name yet';
+    return '$name пока недоступен';
   }
 
   @override
   String get reqUnreachableBody =>
-      'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
+      'Ваши средства в безопасности; они разблокируются, если платёж не опубликуют. Доставка повторяется.';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => 'Ретранслятор не отвечает · повтор';
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name withdrew the request';
+    return '$name: запрос отозван';
   }
 
   @override
-  String get reqWithdrewBody => 'Your funds are unlocked. Nothing was paid.';
+  String get reqWithdrewBody =>
+      'Ваши средства разблокированы. Ничего не оплачено.';
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name withdrew this request';
+    return '$name: этот запрос отозван';
   }
-
-  @override
-  String get reqDeclined => 'Declined';
 
   @override
   String reqTwoSame(String name, int count, String amount) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
-      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+      other: '$name: $count запроса на $amount EPIC за 10 минут. Оплатить все?',
+      many: '$name: $count запросов на $amount EPIC за 10 минут. Оплатить все?',
+      few: '$name: $count запроса на $amount EPIC за 10 минут. Оплатить все?',
+      one: '$name: $count запрос на $amount EPIC за 10 минут. Оплатить?',
     );
     return '$_temp0';
   }
 
   @override
-  String reqTooMany(String name) {
-    return '$name sent too many requests.';
-  }
-
-  @override
-  String get reqTooManyBody =>
-      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
-
-  @override
   String reqWithdrawalFrom(String name) {
-    return 'Withdrawal from $name';
+    return 'Вывод с $name';
   }
 
   @override
   String reqReceivedWaiting(String name) {
-    return 'Received. Waiting for $name to post';
+    return 'Получено. Ждём публикации от $name';
   }
 
   @override
   String get reqReceivedWaitingBody =>
-      'Nothing to do. The exchange posts it; confirmations follow.';
+      'Ничего делать не нужно. Биржа публикует платёж; подтверждения последуют.';
 
   @override
-  String get reqNewTitle => 'New request';
+  String get reqNewTitle => 'Новый запрос';
 
   @override
   String get reqNewLead =>
-      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+      'Попросите сопряжённый контакт оплатить или сохраните запрос файлом для кого угодно.';
 
   @override
-  String get reqNewTo => 'To';
+  String get reqNewTo => 'Кому';
 
   @override
   String get reqNewToHint =>
-      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+      'Сопряжённые контакты, чей кошелёк оплачивает запросы. Для остальных: сохраните запрос файлом.';
 
   @override
-  String get reqNewSaveFile => 'Save as file';
+  String get reqNewSaveFile => 'Сохранить файлом';
 
   @override
-  String get reqNewSend => 'Send request';
+  String get reqNewSend => 'Отправить запрос';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Send through $name’s mailbox';
+    return 'Отправить через почтовый ящик $name';
   }
 
   @override
   String sendViaMailboxHint(String relay) {
-    return 'Sealed. Delivered via $relay';
+    return 'Запечатано. Доставка через $relay';
   }
 
   @override
   String sendSealedTitle(String name) {
-    return 'Sealed for $name';
+    return 'Запечатано для $name';
   }
 
   @override
   String sendSealedBody(String name) {
-    return 'Only $name’s wallet can open this file. Send it any way you like, then open the file they send back.';
+    return 'Открыть этот файл может только кошелёк $name. Отправьте его любым способом, затем откройте файл, который придёт в ответ.';
   }
 
   @override
-  String get sendSealOrPlainTitle => 'Seal this file?';
+  String get sendSealOrPlainTitle => 'Запечатать этот файл?';
 
   @override
   String sendSealOrPlainBody(String name) {
-    return 'The last file to $name went plain. Sealed is the default again.';
+    return 'Последний файл для $name ушёл открытым. Запечатывание снова по умолчанию.';
   }
 
   @override
-  String get sendSealedOption => 'Sealed';
+  String get sendSealedOption => 'Запечатанный';
 
   @override
   String sendSealedOptionHint(String name) {
-    return 'Only $name’s wallet can read it';
+    return 'Прочитать может только кошелёк $name';
   }
 
   @override
-  String get sendPlainOption => 'Plain';
+  String get sendPlainOption => 'Открытый';
 
   @override
-  String get sendPlainOptionHint => 'Anyone with the file can read it';
+  String get sendPlainOptionHint => 'Прочитать может любой, у кого есть файл';
 
   @override
   String sendCantOpenTitle(String name) {
-    return '$name can’t open sealed files?';
+    return '$name не может открыть запечатанные файлы?';
   }
 
   @override
   String get sendCantOpenBody =>
-      'Send as plain instead resends the same payment unsealed. It is still one payment.';
+      '«Отправить открытым» отправляет тот же платёж снова без печати. Это по-прежнему один платёж.';
 
   @override
-  String get sendAsPlain => 'Send as plain instead';
+  String get sendAsPlain => 'Отправить открытым';
 
   @override
-  String get sendAsPlainTitle => 'Send as plain instead?';
+  String get sendAsPlainTitle => 'Отправить открытым?';
 
   @override
   String get sendAsPlainBody =>
-      'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.';
+      'Файл не будет запечатан: любой, кто его получит, увидит сумму и адреса в нём. Это тот же платёж, поэтому дважды его оплатить нельзя.';
 
   @override
-  String get sendKeepSealed => 'Keep sealed';
+  String get sendKeepSealed => 'Оставить запечатанным';
 
   @override
-  String get sendPlain => 'Send as plain';
+  String get sendPlain => 'Отправить открытым';
 
   @override
   String sendNotHeardTitle(String name) {
-    return 'Not heard from $name’s wallet in 90 days';
+    return 'Кошелёк $name молчит уже 90 дней';
   }
 
   @override
   String sendNotHeardBody(String name) {
-    return '$name will need Epic Cash to open this file.';
+    return 'Чтобы открыть этот файл, $name понадобится Epic Cash.';
   }
 
   @override
-  String get sendPlainShort => 'Send plain';
+  String get sendPlainShort => 'Открыто';
 
   @override
   String get openSealedOtherTitle =>
-      'This was sealed for another wallet or install';
+      'Это запечатано для другого кошелька или установки';
 
   @override
   String get openSealedOtherBody =>
-      'It cannot be opened here. Ask the sender to send it again.';
+      'Здесь это открыть нельзя. Попросите отправителя прислать снова.';
 
   @override
-  String get openArrivedUnsealed => 'This arrived unsealed.';
+  String get openArrivedUnsealed => 'Это пришло без печати.';
 
   @override
   String openArrivedUnsealedBody(String name) {
-    return '$name chose plain for this file.';
+    return '$name: файл отправлен открытым.';
   }
 
   @override
   String noticePairingReplied(String name) {
-    return '$name answered your invite. Check the words together.';
+    return '$name: ответ на ваше приглашение. Проверьте слова вместе.';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Paired with $name. Check the words together.';
+    return 'Сопряжено: $name. Проверьте слова вместе.';
   }
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name requests $amount EPIC. Review under Invoices.';
+    return '$name запрашивает $amount EPIC. Проверьте в «Счетах».';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'Received $amount EPIC from $name. Waiting for it to post.';
+    return 'Получено $amount EPIC от $name. Ждём публикации.';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name’s keys changed. Check the words again before paying.';
+    return 'Ключи $name изменились. Проверьте слова снова перед оплатой.';
   }
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return 'Ретранслятор $name не отвечает. Повторная попытка.';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name withdrew the request. Your funds are unlocked.';
+    return '$name: запрос отозван. Ваши средства разблокированы.';
   }
 
   @override
-  String get restoreUseContactsTitle => 'Use your contacts on this device?';
+  String get restoreUseContactsTitle =>
+      'Использовать контакты на этом устройстве?';
 
   @override
   String restoreUseContactsBody(int count) {
@@ -16493,395 +15840,387 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count pairings in this backup were used on another device. Your other device should stop using them.',
-      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+          '$count сопряжения из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+      many:
+          '$count сопряжений из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+      few:
+          '$count сопряжения из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+      one:
+          '$count сопряжение из этой копии использовалось на другом устройстве. Другое устройство должно перестать его использовать.',
     );
     return '$_temp0';
   }
 
   @override
-  String get restoreUseHere => 'Use them here';
+  String get restoreUseHere => 'Использовать здесь';
 
   @override
   String restorePairingsOnOtherDevice(int count) {
-    return '$count · on another device';
-  }
-
-  @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(String payments, String contacts, String pairings) {
-    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
+    return '$count · на другом устройстве';
   }
 
   @override
   String get pairInviteSentBodyAnyone =>
-      'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+      'Сопряжение завершится, когда другой кошелёк откроет приглашение. Можно уйти с этого экрана; приглашение останется в «Контакты › Ожидающие приглашения».';
 
   @override
-  String get pairInvalidLink => 'This is not a pairing link';
+  String get pairInvalidLink => 'Это не ссылка для сопряжения';
 
   @override
   String get pairInvalidBody =>
-      'Check that the whole link was copied, or ask for a new one.';
+      'Проверьте, что ссылка скопирована целиком, или попросите новую.';
 
   @override
-  String get pairOwnCode => 'This is your own code';
+  String get pairOwnCode => 'Это ваш собственный код';
 
   @override
-  String get pairOwnCodeBody => 'Scan the code on the other phone.';
+  String get pairOwnCodeBody => 'Отсканируйте код на другом телефоне.';
 
   @override
-  String get pairUnnamedInvite => 'Open invite';
+  String get pairUnnamedInvite => 'Открытое приглашение';
 
   @override
-  String get pairSeenAsMissing => 'Enter the name they will see.';
+  String get pairSeenAsMissing => 'Введите имя, которое увидит собеседник.';
 
   @override
-  String get pairSeenAsTooLong => 'Use a shorter name.';
+  String get pairSeenAsTooLong => 'Используйте имя покороче.';
 
   @override
-  String get pairSeenAsEdit => 'Change the name they will see';
+  String get pairSeenAsEdit => 'Изменить имя, которое видит собеседник';
 
   @override
-  String get pairCodeLabel => 'Your pairing code';
+  String get pairCodeLabel => 'Ваш код сопряжения';
 
   @override
-  String get pairWordsLabel => 'Your pairing words';
+  String get pairWordsLabel => 'Ваши слова сопряжения';
 
   @override
-  String get pairWordsEnteredLabel => 'Words entered';
+  String get pairWordsEnteredLabel => 'Введённые слова';
 
   @override
   String pairWordSlot(int n) {
-    return 'Word $n, not entered';
+    return 'Слово $n, не введено';
   }
 
   @override
-  String get pairSuggestions => 'Suggestions';
+  String get pairSuggestions => 'Подсказки';
 
   @override
-  String get pairCopied => 'Copied';
+  String get pairCopied => 'Скопировано';
 
   @override
-  String get pairPaste => 'Paste';
+  String get pairPaste => 'Вставить';
 
   @override
-  String get pairInPersonDone => 'Codes scanned';
+  String get pairInPersonDone => 'Коды отсканированы';
 
   @override
   String get pairEpicboxOffNotice =>
-      'Paused while Epicbox is off. The invite and the answer travel by hand.';
+      'Приостановлено, пока Epicbox выключен. Приглашение и ответ передаются вручную.';
 
   @override
-  String get pairWaitingTitleShort => 'Pairing';
+  String get pairWaitingTitleShort => 'Сопряжение';
 
   @override
-  String get pairClosed => 'Close';
+  String get pairClosed => 'Закрыть';
 
   @override
-  String get sasWordsLabel => 'The four words';
+  String get sasWordsLabel => 'Четыре слова';
 
   @override
   String sasDialogTitle(String name) {
-    return 'Check the words with $name';
+    return 'Проверить слова с $name';
   }
 
   @override
-  String get trustNotPaired => 'Not paired';
+  String get contactMore => 'Ещё';
 
   @override
-  String get contactMore => 'More';
+  String get contactEdit => 'Изменить';
 
   @override
-  String get contactEdit => 'Edit';
-
-  @override
-  String get contactDelete => 'Delete contact';
-
-  @override
-  String contactInfoAbout(String label) {
-    return 'About $label';
-  }
+  String get contactDelete => 'Удалить контакт';
 
   @override
   String contactCopyAddress(String type) {
-    return 'Copy $type address';
+    return 'Копировать адрес ($type)';
   }
 
   @override
   String contactDeletePaired(String name) {
-    return 'Deleting $name also removes the pairing. Sealed payments and invoices from them stop.';
+    return 'Удаление $name удаляет и сопряжение. Запечатанные платежи и счета от этого контакта прекратятся.';
   }
 
   @override
-  String get contactNoAddresses => 'No addresses saved.';
+  String get contactNoAddresses => 'Адреса не сохранены.';
 
   @override
   String addrRemove(String type) {
-    return 'Remove $type address';
+    return 'Удалить адрес ($type)';
   }
 
   @override
-  String addrAlreadySaved(String name) {
-    return 'This address is already saved as $name.';
-  }
-
-  @override
-  String get sendVia => 'Send via';
+  String get sendVia => 'Отправить через';
 
   @override
   String get invSetLeadDesktop =>
-      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+      'Сопряжённый контакт, которому вы разрешите, может присылать этому кошельку запросы на оплату. Каждый ждёт в «Счетах» пароля кошелька.';
 
   @override
-  String get invSetRowAllowed => 'Verified · allowed';
+  String get invSetRowAllowed => 'Проверено · разрешено';
 
   @override
   String get invSetRowCheckFirst =>
-      'Paired, not verified · check the words first';
+      'Сопряжено, не проверено · сначала проверьте слова';
 
   @override
   String invSetAllowFor(String name) {
-    return 'Allow invoices from $name';
+    return 'Разрешить счета от $name';
   }
 
   @override
   String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+      'Пока ни один сопряжённый контакт не оплачивает запросы. Выполните сопряжение и проверьте слова или сохраните запрос файлом.';
 
   @override
-  String get reqPickContact => 'Choose a contact';
+  String get reqPickContact => 'Выберите контакт';
 
   @override
-  String get reqFileSaved => 'Request saved as a file';
+  String get reqFileSaved => 'Запрос сохранён файлом';
 
   @override
   String reqSent(String name) {
-    return 'Request sent to $name';
+    return 'Запрос отправлен: $name';
   }
 
   @override
-  String get reqFileTitle => 'Payment request';
-
-  @override
-  String get reqFileBody =>
-      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
+  String get reqFileTitle => 'Запрос на оплату';
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'Couldn’t reach $name yet. Your funds are safe.';
+    return '$name пока недоступен. Ваши средства в безопасности.';
   }
 
   @override
   String noticeTooMany(String name) {
-    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+    return '$name: слишком много запросов. Лишние отброшены. Выключите счета этого контакта, если это повторяется.';
   }
 
   @override
-  String get noticeOpen => 'Open';
+  String get noticeOpen => 'Открыть';
 
   @override
-  String get noticeCheckWords => 'Check the words';
+  String get noticeCheckWords => 'Проверить слова';
 
   @override
-  String get noticeView => 'View';
+  String get noticeView => 'Показать';
 
   @override
-  String get restorePairings => 'Pairings';
-
-  @override
-  String sendSealedNote(String name) {
-    return 'Sealed for $name: only their wallet can open the file.';
-  }
-
-  @override
-  String get sendSealChoice => 'Seal this file';
+  String get restorePairings => 'Сопряжения';
 
   @override
   String get pairingDesktopShowCodeLead =>
-      'Let them scan this with their phone, or read them the pairing words.';
+      'Дайте отсканировать этот код телефоном или зачитайте слова сопряжения.';
 
   @override
   String get pairingDesktopInviteLead =>
-      'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'Отправьте приглашение по любому каналу, которым вы уже пользуетесь с собеседником. Сопряжение завершится, когда его кошелёк откроет приглашение.';
 
   @override
-  String get pairingInviteOnline => 'Invite online';
-
-  @override
-  String get pairUseHere => 'Use here';
+  String get pairingInviteOnline => 'Пригласить онлайн';
 
   @override
   String pairSaveContactTitle(String name) {
-    return 'Save $name in your contacts?';
+    return 'Сохранить $name в контактах?';
   }
 
   @override
-  String get pairSaveNewContact => 'Save as a new contact';
+  String get pairSaveNewContact => 'Сохранить как новый контакт';
 
   @override
-  String get pairAddToAContact => 'Add to a contact';
-
-  @override
-  String get pairPickContactTitle => 'Add to which contact?';
+  String get pairAddToAContact => 'Добавить к контакту';
 
   @override
   String pairSavedAs(String name) {
-    return 'Saved as $name.';
-  }
-
-  @override
-  String pairContactAlreadyPaired(String name) {
-    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
+    return 'Сохранено как $name.';
   }
 
   @override
   String pairDurDays(int days, int hours) {
-    return '$days d $hours h';
+    return '$days д $hours ч';
   }
 
   @override
   String pairDurHours(int hours, int minutes) {
-    return '$hours h $minutes min';
+    return '$hours ч $minutes мин';
   }
 
   @override
   String pairDurMinutes(int minutes) {
-    return '$minutes min';
+    return '$minutes мин';
   }
 
   @override
-  String get pairDurUnderMinute => 'under a minute';
+  String get pairDurUnderMinute => 'меньше минуты';
 
   @override
-  String get pairBack => 'Back';
+  String get pairBack => 'Назад';
 
   @override
-  String get pairNotInContacts => 'Not in contacts';
+  String get pairNotInContacts => 'Нет в контактах';
 
   @override
-  String get pairAddToContacts => 'Add to contacts';
+  String get pairAddToContacts => 'Добавить в контакты';
 
   @override
-  String get helpPairingSection => 'Pairing';
+  String get helpPairingSection => 'Сопряжение';
 
   @override
   String get helpPairingLede =>
-      'Pair once; payment files and invoices with that contact are sealed.';
+      'Сопряжение выполняется один раз; файлы платежей и счета с этим контактом запечатаны.';
 
   @override
-  String get helpPairWhatTitle => 'What pairing is';
+  String get helpPairWhatTitle => 'Что такое сопряжение';
 
   @override
   String get helpPairWhatShort =>
-      'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.';
+      'Выполните сопряжение с собеседником один раз; после этого файлы платежей и счета между двумя кошельками запечатаны.';
 
   @override
   String get helpPairWhatP1 =>
-      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+      'Сопряжение связывает два кошелька один раз: лично, когда вы сканируете коды друг друга, или онлайн через ссылку-приглашение или пять слов сопряжения. Каждый кошелёк хранит ключ, созданный только для этого контакта; ничего из этого не передаётся серверу Epicbox.';
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+      'После сопряжения файл платежа для этого контакта **запечатан**: открыть его может только кошелёк контакта, и в пути его нельзя изменить или подделать. Платежи через Epicbox между людьми работают как прежде.';
 
   @override
-  String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
+  String get helpPairWhatStep1 =>
+      'Откройте [[Контакты|Contacts]] и выберите **Сопрячь**.';
 
   @override
   String get helpPairWhatStep2 =>
-      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+      'Лично: покажите свой код, отсканируйте код собеседника. Онлайн: отправьте приглашение или зачитайте слова сопряжения.';
 
   @override
   String get helpPairWhatStep3 =>
-      'Check the words together, then **They match**.';
+      'Проверьте слова вместе, затем **Совпадают**.';
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
+      'Для сопряжения нужен Epic Cash с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы платежей и платежи Epicbox.';
 
   @override
-  String get helpPairWhyTitle => 'Why check the words';
+  String get helpPairWhyTitle => 'Зачем проверять слова';
 
   @override
   String get helpPairWhyShort =>
-      'The four words prove the pairing reached the right wallet and not someone in between.';
+      'Четыре слова доказывают, что сопряжение дошло до нужного кошелька, а не до посредника.';
 
   @override
   String get helpPairWhyP1 =>
-      'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.';
+      'После сопряжения оба кошелька показывают одни и те же четыре картинки с названиями. Они получаются из ключей обоих кошельков, поэтому сопряжение, изменённое в пути, покажет на двух экранах разные слова.';
 
   @override
   String get helpPairWhyP2 =>
-      'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.';
+      'Сравните их по телефону или лично, затем нажмите **Совпадают**. Контакт становится **Проверено**. **Пропустить пока** оставляет его в состоянии **Сопряжено, не проверено**: файлы платежей всё равно запечатаны, но контакт не может присылать счета, пока слова не проверены.';
 
   @override
   String get helpPairWhyP3 =>
-      'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
+      'Если слова различаются, нажмите **Не совпадают**. Сопряжение удаляется с этой стороны. Повторите сопряжение лично или с новым приглашением.';
 
   @override
-  String get helpPairWordsTitle => 'Pairing words';
+  String get helpPairWordsTitle => 'Слова сопряжения';
 
   @override
   String get helpPairWordsShort =>
-      'Five pictures with names stand in for a link when there is nothing to scan or paste.';
+      'Пять картинок с названиями заменяют ссылку, когда нечего сканировать или вставлять.';
 
   @override
   String get helpPairWordsP1 =>
-      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+      'Когда у одного кошелька нет камеры или приглашение нельзя отправить ссылкой, приглашающий кошелёк показывает пять слов сопряжения. Собеседник вводит их названия в **Ввести ссылку или слова**; поле дополняет каждое название после нескольких букв. Слова действуют 10 минут.';
 
   @override
   String get helpPairWordsP2 =>
-      'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.';
+      'Слова только находят приглашение. У того, кто их знает, те же возможности, что у получившего ссылку, поэтому, как обычно, затем проверьте вместе четыре слова.';
 
   @override
   String get helpPairWordsP3 =>
-      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+      'Для слов сопряжения нужен сервер Epicbox. Пока Epicbox выключен, отправьте ссылку-приглашение.';
 
   @override
-  String get helpPairInvTitle => 'Invoices from paired contacts';
+  String get helpPairInvTitle => 'Счета от сопряжённых контактов';
 
   @override
   String get helpPairInvShort =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+      'Просить вас об оплате может только проверенный контакт, которому вы разрешили. Каждый запрос ждёт вашего PIN.';
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      'Магазин, биржа или человек, с которым вы выполнили сопряжение, может присылать запросы на оплату, если вы разрешите: **Разрешить счета** на странице контакта или в [[Настройки › Счета|Settings › Invoices]]. Переключатель работает только для проверенного контакта.';
 
   @override
   String get helpPairInvP2 =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+      'Запрос появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите запрос своим PIN. Запрос никогда не добавляет деньги в кошелёк.';
 
   @override
   String get helpPairInvP3 =>
-      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+      'Выключение действует сразу: новые запросы от этого контакта отбрасываются, а открытые отклоняются.';
 
   @override
   String get helpPairInvP4 =>
-      'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.';
+      'Биржа, сопряжённая с вами, так проводит пополнения и выводы. Пополнение: биржа запрашивает, вы одобряете, биржа публикует. Вывод: биржа отправляет платёж, ваш кошелёк отвечает сам, биржа публикует.';
 
   @override
-  String get helpPairRestoreTitle => 'What a restore does';
+  String get helpPairRestoreTitle => 'Что даёт восстановление';
 
   @override
   String get helpPairRestoreShort =>
-      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+      'Восстановление из фразы восстановления с копией истории возвращает все сопряжения; без неё повторное сопряжение находит те же ключи.';
 
   @override
   String get helpPairRestoreP1 =>
-      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+      'С копией истории восстановление возвращает все сопряжения без изменений: те же ключи, те же отметки «Проверено», те же настройки. Контакты ничего не заметят.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      'Без копии сопряжения пропадают из этого кошелька, но ключи нет: они получаются из фразы восстановления. Повторите сопряжение с контактом, у которого оно сохранилось, и его кошелёк найдёт те же ключи. Он сообщит, что ключи вернулись, и контакт сохранит отметку «Проверено». В этом кошельке «Запечатывать платежи» и «Разрешить счета» возвращаются к значениям по умолчанию.';
 
   @override
   String get helpPairRestoreP3 =>
-      'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.';
+      'Контакт видит **Ключи изменились**, только если фраза другая. Это может значить новый кошелёк или то, что кто-то другой использует это имя. Проверьте слова снова, прежде чем доверять.';
 
   @override
   String get helpPairRestoreP4 =>
-      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+      'Используйте сопряжение только на одном устройстве за раз. Копия, восстановленная на втором устройстве, спросит, прежде чем использовать там контакты.';
+
+  @override
+  String get deskConAddrEpicbox => 'Адрес Epicbox';
+
+  @override
+  String get deskConAddrTor => 'Адрес Ссылка · Tor';
+
+  @override
+  String get deskConAddrHttp => 'Адрес Ссылка · HTTP';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Выставить счёт';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Перед первым счётом';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Ваш адрес для платежей';
+
+  @override
+  String get deskInvIssuerMethod => 'Способ';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Напрямую · Файл';
+
+  @override
+  String get deskInvIssuerDirect => 'Ссылка';
 }

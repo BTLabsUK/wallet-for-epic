@@ -35,7 +35,5 @@
   "deskInvOneDevice": "Используйте счета только на одном устройстве. Другое устройство с этим кошельком может принять платёж, предназначенный для этого.",
   "deskInvFailed": "Не получилось. Ничего не изменилось; попробуйте ещё раз.",
   "deskInvHowItWorks": "Как работают счета",
-  "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Адрес Epicbox",
   "deskInvPayStalled": "Застряло"
 }

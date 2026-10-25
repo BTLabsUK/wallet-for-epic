@@ -16,6 +16,7 @@ import '../l10n.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
+import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -152,7 +153,8 @@ class ReceiveView extends ConsumerWidget {
     final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
     final address = ref.watch(addressProvider);
     final demo = ref.watch(demoModeProvider);
-    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+    // Requests go to paired contacts or into a file, both through pairing (RFC 0002).
+    final invoices = (ref.watch(sessionProvider)?.supportsInvoices ?? false) && ref.watch(pairingSupportedProvider);
     final help = Center(
       child: TextButton.icon(
         icon: const Icon(Icons.help_outline),

@@ -4,11 +4,8 @@
   "deskInvPayerReview": "ตรวจสอบ",
   "deskInvPayerView": "ดู",
   "deskInvPayerNoMessage": "ไม่มีข้อความ",
-  "deskInvPayerDropped": "{count, plural, other{ข้อความ {count} รายการจากผู้ส่งที่ไม่ได้เชื่อถือถูกละเว้น}}",
-  "deskInvPayerTrustService": "เชื่อถือบริการ…",
-  "deskInvPayerYourInvoiceAddress": "ที่อยู่ใบแจ้งหนี้ของคุณ",
   "deskInvPayerEmptyTitle": "ไม่มีใบแจ้งหนี้รออยู่",
-  "deskInvPayerEmptyText": "เมื่อบริการที่เชื่อถือเรียกเก็บเงิน ใบแจ้งหนี้จะแสดงที่นี่ ไม่มีการชำระใดๆ จนกว่าคุณจะอนุมัติ",
+  "deskInvPayerEmptyText": "เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน คำขอจะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ",
   "deskInvPayerNotDeliveredTitle": "การชำระถึง {service} ส่งไม่ถึง",
   "deskInvPayerNotDeliveredText": "รายการลงนามแล้วและเก็บไว้ในอุปกรณ์นี้ เงินยังถูกล็อกอยู่ ลองใหม่จะส่งอีกครั้งโดยไม่ต้องอนุมัติซ้ำ",
   "deskInvPayerWithdrawnTitle": "{service} เรียกคืนใบแจ้งหนี้ที่คุณชำระแล้ว",
@@ -27,7 +24,6 @@
   "deskInvPayerBalanceAfter": "ยอดคงเหลือหลังชำระ",
   "deskInvPayerMessageCaption": "เขียนโดยบริการ กระเป๋าไม่ได้ตรวจสอบข้อความนี้",
   "deskInvPayerPaysTo": "ชำระไปที่",
-  "deskInvPayerTrustedSince": "{service} เชื่อถือตั้งแต่ {date}",
   "deskInvPayerExpires": "หมดอายุ",
   "deskInvPayerLockHeight": "ความสูงล็อก",
   "deskInvPayerLockNone": "ไม่มี",
@@ -70,5 +66,6 @@
   "deskInvPayerLocked": "ชำระใบแจ้งหนี้นี้ไม่ได้ เพราะถูกล็อกไว้จนถึงบล็อกถัดไป ไม่มีการชำระ",
   "deskInvPayerRelayDownPay": "เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง ไม่มีการชำระ",
   "deskInvPayerStalledTitle": "รายการชำระให้ {service} ค้างอยู่",
-  "deskInvPayerStalledText": "ส่งไม่ถึง รายการยังไม่เข้าสู่เครือข่าย และเงินยังถูกล็อกอยู่ ส่งอีกครั้งจะส่งซ้ำโดยไม่ต้องอนุมัติอีก"
+  "deskInvPayerStalledText": "ส่งไม่ถึง รายการยังไม่เข้าสู่เครือข่าย และเงินยังถูกล็อกอยู่ ส่งอีกครั้งจะส่งซ้ำโดยไม่ต้องอนุมัติอีก",
+  "deskInvPayerPaidHead": "Paid"
 }

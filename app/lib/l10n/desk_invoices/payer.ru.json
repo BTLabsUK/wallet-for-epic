@@ -4,11 +4,8 @@
   "deskInvPayerReview": "Проверить",
   "deskInvPayerView": "Открыть",
   "deskInvPayerNoMessage": "Нет сообщения",
-  "deskInvPayerDropped": "{count, plural, one{{count} сообщение от недоверенного отправителя проигнорировано.} few{{count} сообщения от недоверенных отправителей проигнорированы.} many{{count} сообщений от недоверенных отправителей проигнорированы.} other{{count} сообщения от недоверенных отправителей проигнорированы.}}",
-  "deskInvPayerTrustService": "Доверять сервису…",
-  "deskInvPayerYourInvoiceAddress": "Ваш адрес для счетов",
   "deskInvPayerEmptyTitle": "Нет ожидающих счетов",
-  "deskInvPayerEmptyText": "Когда доверенный сервис выставит вам счёт, он появится здесь. Ничего не оплачивается, пока вы не одобрите.",
+  "deskInvPayerEmptyText": "Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, запрос появится здесь, и ничего не будет оплачено без вашего одобрения.",
   "deskInvPayerNotDeliveredTitle": "Ваш платёж сервису {service} не доставлен",
   "deskInvPayerNotDeliveredText": "Он подписан и хранится на этом устройстве; средства заблокированы. «Повторить» отправит его снова без повторного одобрения.",
   "deskInvPayerWithdrawnTitle": "Сервис {service} отозвал оплаченный вами счёт",
@@ -27,7 +24,6 @@
   "deskInvPayerBalanceAfter": "Баланс после",
   "deskInvPayerMessageCaption": "Написано сервисом. Кошелёк это не проверяет.",
   "deskInvPayerPaysTo": "Получатель",
-  "deskInvPayerTrustedSince": "{service}, в доверенных с {date}",
   "deskInvPayerExpires": "Истекает",
   "deskInvPayerLockHeight": "Высота блокировки",
   "deskInvPayerLockNone": "Нет",
@@ -70,5 +66,6 @@
   "deskInvPayerLocked": "Этот счёт нельзя оплатить: он заблокирован до более позднего блока. Ничего не оплачено.",
   "deskInvPayerRelayDownPay": "Сервер Epicbox не отвечает. Ничего не оплачено.",
   "deskInvPayerStalledTitle": "Ваш платёж для {service} застрял",
-  "deskInvPayerStalledText": "Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения."
+  "deskInvPayerStalledText": "Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения.",
+  "deskInvPayerPaidHead": "Оплаченные"
 }

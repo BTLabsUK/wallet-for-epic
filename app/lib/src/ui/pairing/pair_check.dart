@@ -106,7 +106,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       return SlotScaffold(appBar: AppBar(title: Text(l.sasTitle)), body: const SizedBox.shrink());
     }
     final name = ref.watch(pairingNameProvider(record.id));
-    final service = record.kind != PairingKind.person;
+    final service = record.kind != PairingParty.person;
     final lead = widget.recheck
         ? l.sasLeadRecheck(name)
         : (service && record.way != PairingWay.inPerson ? l.sasLeadExchange(name) : l.sasLead(name));

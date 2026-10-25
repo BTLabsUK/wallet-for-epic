@@ -169,14 +169,6 @@
   "@deskInvHowItWorks": {
     "description": "Link on the Invoices page to Help › Invoices."
   },
-  "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "@deskInvAddressHint": {
-    "description": "Hint in an Epicbox address field: the shape of an address. Keep as is."
-  },
-  "deskInvEpicboxAddress": "Epicbox address",
-  "@deskInvEpicboxAddress": {
-    "description": "Title of the QR of this wallet's Epicbox address (its payments address)."
-  },
   "deskInvPayStalled": "Stalled",
   "@deskInvPayStalled": {
     "description": "State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself."

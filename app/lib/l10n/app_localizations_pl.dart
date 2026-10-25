@@ -1861,7 +1861,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'Brak oczekujących faktur. Gdy zaufany serwis wystawi ci fakturę, pojawi się tutaj. Nic nie zostanie zapłacone bez twojej zgody.';
+      'Żadne prośby nie czekają. Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, prośba pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
 
   @override
   String get invoicesUnnamedService => 'Serwis bez nazwy';
@@ -1885,9 +1885,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get invoiceGone =>
       'Ta faktura nie jest już otwarta. Nic nie zostało zapłacone.';
-
-  @override
-  String get invoiceReviewTitle => 'Sprawdź fakturę';
 
   @override
   String invoiceReviewAsks(String service) {
@@ -1998,34 +1995,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveRequestTitle => 'Poproś o płatność';
 
   @override
-  String get requestTitle => 'Poproś o płatność';
-
-  @override
-  String get requestStepsIntro =>
-      'Portfel płacącego musi przyjmować faktury. Przed prośbą:';
-
-  @override
-  String get requestStepTrust =>
-      '1. Płacący dodaje twój adres poniżej do swoich zaufanych serwisów.';
-
-  @override
-  String get requestStepAddress => '2. Płacący podaje ci swój adres do faktur.';
-
-  @override
-  String get requestYourAddress => 'Twój adres';
-
-  @override
-  String get requestPayerLabel => 'Adres do faktur płacącego';
-
-  @override
-  String get requestPayerMissing =>
-      'Wklej lub zeskanuj adres do faktur płacącego.';
-
-  @override
-  String get requestPayerOwn =>
-      'To jeden z twoich własnych adresów. Wpisz adres do faktur, który poda ci płacący.';
-
-  @override
   String get requestMessageLabel => 'Wiadomość do płacącego (opcjonalnie)';
 
   @override
@@ -2036,18 +2005,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get requestButton => 'Poproś';
 
   @override
-  String requestSentNotice(String payer) {
-    return 'Wysłano prośbę do: $payer.';
-  }
-
-  @override
   String get invoicesToPaySection => 'Do zapłaty';
 
   @override
   String get invoicesNoneToPay => 'Nic do zapłaty.';
-
-  @override
-  String get invoicesSentSection => 'Wysłane prośby';
 
   @override
   String get issuedPaid => 'Zapłacona';
@@ -2125,10 +2086,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get issuedDetailsBounced =>
       'Portfel płacącego nie obsługuje próśb o płatność i odesłał tę prośbę, więc została wycofana. Nic nie zapłacono. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik płatności.';
-
-  @override
-  String get requestPayerNoInvoices =>
-      'Ten portfel odesłał już wcześniej prośbę: nie obsługuje próśb o płatność. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik płatności.';
 
   @override
   String get txStatusWaitingPayer => 'Czeka na płacącego';
@@ -3303,9 +3260,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactsNameLabel => 'Nazwa';
 
   @override
-  String get contactsAddressLabel => 'Adres';
-
-  @override
   String contactsDuplicate(String name) {
     return 'Ten adres jest już zapisany jako $name.';
   }
@@ -3322,11 +3276,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String contactsUrlIncomplete(String example) {
     return 'Wpisz pełny URL portfela, np. $example';
-  }
-
-  @override
-  String contactsAddressInvalid(String example) {
-    return 'To nie jest prawidłowy adres. Prawidłowy wygląda tak: $example';
   }
 
   @override
@@ -3440,115 +3389,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionInvoices => 'Faktury';
 
   @override
-  String get settingsInvoices => 'Adres do faktur i zaufane serwisy';
+  String get settingsInvoices => 'Faktury';
 
   @override
-  String get settingsInvoicesSubtitle =>
-      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Jest oddzielny od twojego adresu do płatności.';
-
-  @override
-  String get invoiceSettingsTitle => 'Faktury';
-
-  @override
-  String get invoiceSettingsAddressTitle => 'Twój adres do faktur';
-
-  @override
-  String get invoiceSettingsAddressBody =>
-      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać ci faktury. Jest oddzielny od twojego adresu do płatności.';
-
-  @override
-  String get invoiceSettingsQrLabel => 'Kod QR twojego adresu do faktur';
-
-  @override
-  String get invoiceSettingsAddressCopied => 'Skopiowano adres do faktur.';
-
-  @override
-  String get invoiceSettingsServicesTitle => 'Zaufane serwisy';
-
-  @override
-  String get invoiceSettingsNoServices =>
-      'Brak zaufanych serwisów. Faktury od innych nigdy do ciebie nie dotrą.';
-
-  @override
-  String get invoiceSettingsAddService => 'Dodaj serwis';
-
-  @override
-  String invoiceSettingsRemoveTooltip(String name) {
-    return 'Usuń $name';
-  }
-
-  @override
-  String invoiceSettingsRemoveTitle(String name) {
-    return 'Usunąć $name?';
-  }
-
-  @override
-  String get invoiceSettingsRemoveBody =>
-      'Ten serwis nie będzie mógł już wysyłać ci faktur. Dokonane płatności pozostają bez zmian.';
-
-  @override
-  String get invoiceSettingsKeep => 'Zostaw';
-
-  @override
-  String get invoiceSettingsRemoveConfirm => 'Usuń';
-
-  @override
-  String invoiceSettingsRemoved(String name) {
-    return '$name nie może już wysyłać ci faktur.';
-  }
-
-  @override
-  String get invoiceSettingsRotate => 'Utwórz nowy adres do faktur';
-
-  @override
-  String get invoiceSettingsRotateHint => 'Obecny przestanie działać.';
-
-  @override
-  String get invoiceSettingsRotateTitle => 'Utworzyć nowy adres do faktur?';
-
-  @override
-  String get invoiceSettingsRotateBody =>
-      'Obecny adres do faktur przestanie działać na zawsze. Każdy serwis, który wystawia ci faktury, potrzebuje nowego.';
-
-  @override
-  String get invoiceSettingsRotateConfirm => 'Utwórz nowy adres';
-
-  @override
-  String get invoiceSettingsRotated =>
-      'Nowy adres do faktur gotowy. Przekaż go swoim serwisom.';
-
-  @override
-  String invoiceSettingsDropped(int count) {
-    return 'Odrzucone w tej sesji (nieznani nadawcy): $count';
-  }
-
-  @override
-  String get invoiceSettingsAddTitle => 'Dodaj zaufany serwis';
-
-  @override
-  String get invoiceSettingsAddExplanation =>
-      'Zaufany serwis może wysyłać faktury na twój adres do faktur; wiadomości od innych są odrzucane. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz każdej faktury PIN-em lub odciskiem palca.';
-
-  @override
-  String get invoiceSettingsLabelLabel => 'Nazwa';
-
-  @override
-  String get invoiceSettingsLabelMissing => 'Nadaj serwisowi nazwę.';
-
-  @override
-  String get invoiceSettingsServiceAddressLabel => 'Adres epicbox serwisu';
-
-  @override
-  String get invoiceSettingsAddressMissing =>
-      'Wklej lub zeskanuj adres, który pokazuje serwis.';
-
-  @override
-  String get invoiceSettingsAddButton => 'Dodaj serwis';
-
-  @override
-  String invoiceSettingsAdded(String name) {
-    return '$name może teraz wysyłać ci faktury.';
-  }
+  String get settingsInvoicesSubtitle => 'Kto może prosić cię o zapłatę';
 
   @override
   String get settingsRescan => 'Sprawdź saldo';
@@ -4867,19 +4711,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactsSendAction => 'Wyślij';
 
   @override
-  String get contactsEditAction => 'Edytuj';
-
-  @override
-  String get contactsAddressHeading => 'Adres';
-
-  @override
   String get contactsNoteHeading => 'Notatka';
 
   @override
   String get contactsShowCode => 'Pokaż kod';
-
-  @override
-  String get contactsHideCode => 'Ukryj kod';
 
   @override
   String contactsQrLabel(String name) {
@@ -4917,13 +4752,6 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$label, $_temp0';
   }
-
-  @override
-  String get invoicesToPayEmpty => 'Brak faktur do zapłaty';
-
-  @override
-  String get invoicesToPayEmptyCaption =>
-      'Serwisy z twojej zaufanej listy mogą wystawiać faktury temu portfelowi. Każda faktura czeka tu na twoją zgodę.';
 
   @override
   String get invoicesSentEmpty => 'Brak wysłanych próśb';
@@ -4981,15 +4809,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoicesEpicboxDown => 'Brak połączenia';
 
   @override
-  String get invoicesSendRequest => 'Wyślij prośbę';
-
-  @override
   String invoicesRequestSummary(String payer, String amount) {
     return '$payer otrzyma prośbę o zapłatę $amount. Prośba wygasa za 24 h.';
   }
-
-  @override
-  String get invoicesRequestHowTitle => 'Zanim poprosisz';
 
   @override
   String get netStatusNode => 'Węzeł';
@@ -5686,229 +5508,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvHowItWorks => 'Jak działają faktury';
 
   @override
-  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
-
-  @override
-  String get deskInvEpicboxAddress => 'Adres Epicbox';
-
-  @override
-  String get deskInvHelpTitle => 'Faktury';
-
-  @override
-  String get deskInvHelpLede =>
-      'Faktury od zaufanych nadawców, płacone dopiero po zatwierdzeniu.';
-
-  @override
-  String get deskInvHelpFlowTitle => 'Jak działa faktura';
-
-  @override
-  String get deskInvHelpFlowShort =>
-      'Wystawca wysyła fakturę na adres do faktur płacącego. Nic nie zostaje zapłacone, dopóki płacący jej nie zatwierdzi.';
-
-  @override
-  String get deskInvHelpFlowIntro =>
-      'Faktura to prośba o płatność. **Wystawca** otrzymuje pieniądze; **płacący** decyduje.';
-
-  @override
-  String get deskInvHelpFlowStep1 =>
-      'Portfel wystawcy wysyła fakturę przez serwer Epicbox na **adres do faktur** płacącego.';
-
-  @override
-  String get deskInvHelpFlowStep2 =>
-      'Płacący otwiera ją w [[Faktury › Zapłać|Invoices › Pay]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
-
-  @override
-  String get deskInvHelpFlowStep3 =>
-      'Portfel płacącego wysyła płatność na **adres do płatności** wystawcy.';
-
-  @override
-  String deskInvHelpFlowStep4(int confirmations) {
-    return 'Portfel wystawcy finalizuje płatność i publikuje ją w sieci. Liczba potwierdzeń, po której jest ostateczna: $confirmations.';
-  }
-
-  @override
-  String get deskInvHelpFlowNever =>
-      'Bez zatwierdzenia nic nie zostaje zapłacone, a faktura nigdy nie dodaje pieniędzy do portfela płacącego. Każda faktura ma termin płatności, najwyżej 48 godzin; po nim nie da się jej już zapłacić.';
-
-  @override
-  String get deskInvHelpFlowIssued =>
-      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw|Invoices › Issue]].';
-
-  @override
-  String get deskInvHelpTrustTitle => 'Dlaczego tylko zaufani nadawcy';
-
-  @override
-  String get deskInvHelpTrustShort =>
-      'Tylko nadawcy z listy zaufanych mogą umieścić fakturę w skrzynce. To chroni przed spamem i fałszywymi fakturami.';
-
-  @override
-  String get deskInvHelpTrustP1 =>
-      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać|Invoices › Pay]].';
-
-  @override
-  String get deskInvHelpTrustP2 =>
-      'Bez tej listy każdy, kto poznał adres do faktur, mógłby zapełnić skrzynkę spamem albo fakturami, które wyglądają na prawdziwe.';
-
-  @override
-  String get deskInvHelpTrustP3 =>
-      'Zaufanie pozwala nadawcy tylko prosić. Zaufany nadawca nie może niczego zabrać: każda faktura nadal czeka na **Zatwierdź i zapłać**.';
-
-  @override
-  String get deskInvHelpTrustWhere1 =>
-      'Zaufaj nadawcy w [[Ustawienia › Faktury|Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpTrustWhere2 =>
-      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty|Contacts]].';
-
-  @override
-  String get deskInvHelpTrustWhere3 =>
-      'Nadawcę można w każdej chwili usunąć z listy. Jego nowe faktury są wtedy odrzucane.';
-
-  @override
-  String get deskInvHelpAddrTitle => 'Dlaczego osobny adres do faktur';
-
-  @override
-  String get deskInvHelpAddrShort =>
-      'Faktury przychodzą na własny adres, oddzielny od adresu do płatności, na który się płaci.';
-
-  @override
-  String get deskInvHelpAddrP1 =>
-      'Portfel ma dwa adresy Epicbox. **Adres do płatności**, w [[Odbierz|Receive]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
-
-  @override
-  String get deskInvHelpAddrP2 =>
-      'Dzięki rozdzieleniu adres do faktur można dać serwisom albo wymienić, nie ujawniając ani nie zmieniając adresu, na który się płaci.';
-
-  @override
-  String get deskInvHelpAddrP3 =>
-      'Adres do faktur nie przyjmuje płatności: płatność wysłana na niego jest odrzucana. Aby otrzymać płatność, podaj adres do płatności.';
-
-  @override
-  String get deskInvHelpAddrWhere1 =>
-      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury|Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpAddrWhere2 =>
-      '**Nowy adres do faktur** go zastępuje. Serwisy ze starym adresem nie mogą wysyłać faktur, dopóki nie dostaną nowego.';
-
-  @override
-  String get deskInvHelpDiagramTitle => 'Droga faktury';
-
-  @override
-  String get deskInvHelpDiagramIssuer => 'Wystawca';
-
-  @override
-  String get deskInvHelpDiagramPayer => 'Płacący';
-
-  @override
-  String get deskInvHelpDiagramIssues => 'Wystawia fakturę';
-
-  @override
-  String get deskInvHelpDiagramInvoice => 'Faktura';
-
-  @override
-  String get deskInvHelpDiagramGate => 'Adres do faktur';
-
-  @override
-  String get deskInvHelpDiagramGateSub => 'Tylko zaufani nadawcy';
-
-  @override
-  String get deskInvHelpDiagramDropped => 'Inni nadawcy';
-
-  @override
-  String get deskInvHelpDiagramDroppedSub => 'Odrzucone bez czytania';
-
-  @override
-  String get deskInvHelpDiagramReview => 'Sprawdza i zatwierdza';
-
-  @override
-  String get deskInvHelpDiagramReviewSub => 'Zatwierdź i zapłać';
-
-  @override
-  String get deskInvHelpDiagramPayment => 'Płatność';
-
-  @override
-  String get deskInvHelpDiagramPayAddr => 'Adres do płatności';
-
-  @override
-  String get deskInvHelpDiagramPayAddrSub => 'Nie adres do faktur';
-
-  @override
-  String get deskInvHelpDiagramFinal => 'Finalizuje i publikuje';
-
-  @override
-  String deskInvHelpDiagramFinalSub(int confirmations) {
-    return 'Ostateczna po potwierdzeniach: $confirmations';
-  }
-
-  @override
-  String get deskInvHelpDiagramSemantics =>
-      'Wystawca wysyła fakturę na adres do faktur płacącego, który przyjmuje tylko zaufanych nadawców i odrzuca resztę; płacący ją sprawdza i zatwierdza; płatność trafia na adres do płatności wystawcy; portfel wystawcy ją finalizuje i publikuje w sieci.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Wystaw fakturę';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Przed pierwszą fakturą';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Twój adres do płatności';
-
-  @override
-  String get deskInvIssuerMethod => 'Metoda';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Bezpośrednio · Plik';
-
-  @override
-  String get deskInvIssuerDirect => 'Link';
-
-  @override
   String get deskInvIssuerSoon => 'Wkrótce';
-
-  @override
-  String get deskInvIssuerPayer => 'Adres do faktur płacącego';
-
-  @override
-  String get deskInvIssuerPayerHelp =>
-      'Jego portfel pokazuje go w Ustawienia › Faktury.';
-
-  @override
-  String get deskInvIssuerPayerMissing => 'Wklej adres do faktur płacącego.';
-
-  @override
-  String get deskInvIssuerPayerInvalid =>
-      'To nie jest prawidłowy adres Epicbox.';
-
-  @override
-  String get deskInvIssuerPayerOwn =>
-      'To jeden z twoich własnych adresów. Użyj adresu do faktur, który poda płacący.';
-
-  @override
-  String get deskInvIssuerPayerHttp =>
-      'Faktury przez Epicbox wymagają adresu Epicbox, a nie HTTP ani Tor.';
-
-  @override
-  String get deskInvIssuerContacts => 'Kontakty';
 
   @override
   String get deskInvIssuerNoContacts =>
       'Żaden kontakt nie ma jeszcze adresu do faktur. Dodaj go w Kontaktach.';
-
-  @override
-  String get deskInvIssuerNoInvoices =>
-      'Ten portfel odesłał już kiedyś fakturę: nie może płacić faktur przez Epicbox. Wyślij zamiast tego plik z fakturą albo poproś o przesłanie płatności.';
-
-  @override
-  String get deskInvIssuerUseFile => 'Użyj pliku';
-
-  @override
-  String get deskInvIssuerUnknown =>
-      'Tylko wallet-for-epic i inne portfele LEPIC mogą zapłacić fakturę przez Epicbox. Epic GUI wallet i Stack Wallet w ogóle nie płacą faktur; wiersz poleceń epic-wallet może zapłacić plik z fakturą.';
 
   @override
   String get deskInvIssuerAmount => 'Kwota';
@@ -5948,23 +5552,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerIssue => 'Wystaw';
-
-  @override
   String get deskInvIssuerRelayDown =>
       'Serwer Epicbox nie odpowiada, więc teraz nie można wysłać faktury.';
 
   @override
-  String get deskInvIssuerFixFields => 'Popraw pola zaznaczone na czerwono.';
-
-  @override
   String get deskInvIssuerNotDelivered =>
       'Faktura nie dotarła do serwera Epicbox. Nic nie wysłano. Spróbuj ponownie.';
-
-  @override
-  String deskInvIssuerSent(String payer) {
-    return 'Wysłano fakturę do: $payer.';
-  }
 
   @override
   String get deskInvIssuerEmpty =>
@@ -6069,23 +5662,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Dostarczono na adres do faktur płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
+    return 'Dostarczono do skrzynki płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
   }
 
   @override
   String get deskInvIssuerCopySlate => 'Kopiuj ID slate';
-
-  @override
-  String get deskInvIssuerStepsIntro =>
-      'Portfel płacącego musi obsługiwać faktury. Przed pierwszą fakturą:';
-
-  @override
-  String get deskInvIssuerStepTrust =>
-      '1. Płacący dodaje twój adres do płatności poniżej do zaufanych nadawców.';
-
-  @override
-  String get deskInvIssuerStepAddress =>
-      '2. Płacący podaje ci swój adres do faktur.';
 
   @override
   String get deskInvIssuerStepIssued => 'Wystawiono';
@@ -6139,30 +5720,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayerNoMessage => 'Brak wiadomości';
 
   @override
-  String deskInvPayerDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count wiadomości od niezaufanych nadawców zignorowano.',
-      many: '$count wiadomości od niezaufanych nadawców zignorowano.',
-      few: '$count wiadomości od niezaufanych nadawców zignorowano.',
-      one: '$count wiadomość od niezaufanego nadawcy zignorowano.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvPayerTrustService => 'Zaufaj serwisowi…';
-
-  @override
-  String get deskInvPayerYourInvoiceAddress => 'Twój adres do faktur';
-
-  @override
   String get deskInvPayerEmptyTitle => 'Żadne faktury nie czekają';
 
   @override
   String get deskInvPayerEmptyText =>
-      'Gdy zaufany serwis wystawi ci fakturę, pojawi się tutaj. Nic nie jest płacone, dopóki jej nie zatwierdzisz.';
+      'Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, prośba pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -6236,11 +5798,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerPaysTo => 'Płatność dla';
-
-  @override
-  String deskInvPayerTrustedSince(String service, String date) {
-    return '$service, zaufany od $date';
-  }
 
   @override
   String get deskInvPayerExpires => 'Wygasa';
@@ -6393,141 +5950,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvSetTitle => 'Faktury';
 
   @override
-  String get deskInvSetIntro =>
-      'Zaufane serwisy wystawiają faktury na adres do faktur tego portfela. Nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury.';
-
-  @override
-  String get deskInvSetAddressLabel => 'Adres do faktur';
-
-  @override
-  String get deskInvSetAddressWarning =>
-      'Podawaj go tylko zaufanym serwisom. Nie służy do odbierania płatności.';
-
-  @override
-  String get deskInvSetCopy => 'Kopiuj';
-
-  @override
-  String get deskInvSetCopied =>
-      'Skopiowano adres do faktur. Podawaj go tylko zaufanym serwisom; nie służy do odbierania płatności.';
-
-  @override
-  String get deskInvSetQrShow => 'Pokaż QR';
-
-  @override
-  String get deskInvSetQrHide => 'Ukryj QR';
-
-  @override
-  String get deskInvSetQrLabel => 'Kod QR twojego adresu do faktur';
-
-  @override
-  String deskInvSetIndex(int index) {
-    return 'Adres do faktur $index';
-  }
-
-  @override
-  String get deskInvSetTrusted => 'Zaufani nadawcy';
-
-  @override
-  String get deskInvSetTrustedNone =>
-      'Brak zaufanych nadawców. Faktury od innych są ignorowane bez czytania.';
-
-  @override
-  String deskInvSetSince(String date) {
-    return 'Zaufany od $date';
-  }
-
-  @override
-  String get deskInvSetContactTag => 'Kontakt';
-
-  @override
-  String get deskInvSetRemove => 'Usuń';
-
-  @override
-  String deskInvSetRemoveTitle(String name) {
-    return 'Przestać ufać: $name?';
-  }
-
-  @override
-  String deskInvSetRemoveBody(String name) {
-    return '$name nie może już wysyłać ci faktur. Faktury, które już czekają, zostaną, dopóki na nie nie odpowiesz albo nie wygasną.';
-  }
-
-  @override
-  String deskInvSetRemoved(String name) {
-    return '$name nie może już wysyłać ci faktur.';
-  }
-
-  @override
-  String get deskInvSetKeep => 'Zostaw';
-
-  @override
-  String get deskInvSetAdd => 'Zaufaj nadawcy';
-
-  @override
-  String get deskInvSetAddBody =>
-      'Zaufany nadawca może wystawiać faktury na adres do faktur tego portfela. Nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury hasłem portfela.';
-
-  @override
-  String get deskInvSetName => 'Nazwa';
-
-  @override
-  String get deskInvSetNameMissing => 'Nadaj nadawcy nazwę.';
-
-  @override
-  String get deskInvSetSenderAddress => 'Jego adres do płatności';
-
-  @override
-  String get deskInvSetSenderMissing => 'Wklej adres, który pokazuje serwis.';
-
-  @override
-  String get deskInvSetSenderInvalid => 'To nie jest prawidłowy adres Epicbox.';
-
-  @override
-  String get deskInvSetTrust => 'Zaufaj';
-
-  @override
-  String deskInvSetAdded(String name) {
-    return '$name może teraz wysyłać ci faktury.';
-  }
-
-  @override
-  String deskInvSetDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
-      many:
-          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
-      few:
-          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
-      one: '$count wiadomość od niezaufanego nadawcy zignorowano bez czytania.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvSetRotate => 'Nowy adres do faktur';
-
-  @override
-  String get deskInvSetRotateHint =>
-      'Serwisy ze starym adresem nie będą mogły wysyłać ci faktur.';
-
-  @override
-  String get deskInvSetRotateTitle => 'Utworzyć nowy adres do faktur?';
-
-  @override
-  String get deskInvSetRotateBody =>
-      'Serwisy ze starym adresem nie będą mogły wysyłać ci faktur. Przekaż nowy każdemu serwisowi, który wystawia ci faktury.';
-
-  @override
-  String get deskInvSetRotateConfirm => 'Utwórz nowy adres';
-
-  @override
-  String get deskInvSetRotated =>
-      'Nowy adres do faktur gotowy. Przekaż go swoim serwisom.';
-
-  @override
   String get deskInvSetExpiry => 'Czas na zapłatę';
 
   @override
@@ -6540,38 +5962,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetCancel => 'Anuluj';
-
-  @override
-  String get deskInvSetContactSection => 'Faktury';
-
-  @override
-  String get deskInvSetTheirInvoice => 'Adres do faktur kontaktu';
-
-  @override
-  String get deskInvSetTheirInvoiceNone =>
-      'Nie zapisano adresu do faktur. Poproś o niego, aby wystawiać faktury.';
-
-  @override
-  String get deskInvSetTrustedSwitch => 'Zaufany dla faktur';
-
-  @override
-  String get deskInvSetTrustedSwitchHelp =>
-      'Pozwala temu kontaktowi wystawiać ci faktury. Nic nie jest płacone, dopóki nie zatwierdzisz faktury.';
-
-  @override
-  String get deskInvSetIssueNeeds => 'Wymaga adresu do faktur kontaktu.';
-
-  @override
-  String get deskInvSetShare => 'Udostępnij adres do faktur';
-
-  @override
   String get deskInvSetReceiveHint =>
-      'Poproś kontakt lub serwis o zapłatę. Jego portfel musi obsługiwać faktury.';
-
-  @override
-  String get deskInvSetRestoredHint =>
-      'Portfel przywrócony z frazy odzyskiwania? Przekaż serwisom ten adres do faktur ponownie.';
+      'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik.';
 
   @override
   String get serverSwitchRelayTitle => 'Zmienić serwer epicbox?';
@@ -8869,15 +8261,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskConDeleted(String name) {
     return 'Usunięto: $name';
   }
-
-  @override
-  String get deskConAddrEpicbox => 'Adres Epicbox';
-
-  @override
-  String get deskConAddrTor => 'Adres Link · Tor';
-
-  @override
-  String get deskConAddrHttp => 'Adres Link · HTTP';
 
   @override
   String get deskConNote => 'Notatka';
@@ -14630,7 +14013,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu, adres przekaźnika w Odbierz oraz pełny adres faktur.';
+      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu oraz adres przekaźnika w Odbierz.';
 
   @override
   String get advRecheckHeight => 'Sprawdź od wysokości';
@@ -15497,698 +14880,690 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wklejony tekst nie jest transakcją. Wklej cały tekst od nadawcy albo wybierz jego plik.';
 
   @override
-  String get pairTitle => 'Pair';
+  String get pairTitle => 'Sparuj';
 
   @override
   String pairWithName(String name) {
-    return 'Pair with $name';
+    return 'Sparuj z: $name';
   }
 
   @override
   String get pairLead =>
-      'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.';
+      'Sparuj się raz z drugą osobą. Pliki płatności i faktury między dwoma portfelami są wtedy zapieczętowane: tylko te dwa portfele mogą je odczytać.';
 
   @override
-  String get pairInPerson => 'In person';
+  String get pairInPerson => 'Osobiście';
 
   @override
-  String get pairInPersonHint => 'Show your code and scan theirs';
+  String get pairInPersonHint => 'Pokaż swój kod i zeskanuj kod drugiej osoby';
 
   @override
   String get pairOnline => 'Online';
 
   @override
-  String get pairOnlineHint => 'Send an invite link, or read out pairing words';
+  String get pairOnlineHint =>
+      'Wyślij link z zaproszeniem lub przeczytaj słowa parowania';
 
   @override
-  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+  String get pairOfflineHint => 'Jesteś offline. Sparuj się osobiście.';
 
   @override
-  String get pairEnter => 'Enter link or words';
+  String get pairEnter => 'Wpisz link lub słowa';
 
   @override
   String get pairEnterHint =>
-      'Paste an invite link or type the words you were given';
+      'Wklej link z zaproszeniem lub wpisz otrzymane słowa';
 
   @override
-  String get pairNotPaired => 'Not paired';
+  String get pairNotPaired => 'Niesparowany';
 
   @override
   String get pairNotPairedHint =>
-      'Pair to seal payment files and allow invoices.';
+      'Sparuj, aby pieczętować pliki płatności i zezwalać na faktury.';
 
   @override
-  String get pairInPersonTitle => 'Pair in person';
+  String get pairInPersonTitle => 'Parowanie osobiście';
 
   @override
-  String get pairShowMyCode => 'Show my code';
+  String get pairShowMyCode => 'Pokaż mój kod';
 
   @override
-  String get pairScanTheirs => 'Scan theirs';
+  String get pairScanTheirs => 'Zeskanuj ich kod';
 
   @override
-  String get pairShowCodeCaption => 'Let them scan this, then scan theirs.';
+  String get pairShowCodeCaption =>
+      'Daj zeskanować ten kod, potem zeskanuj kod drugiej osoby.';
 
   @override
   String get pairScanCaption =>
-      'Both of you scan. The words check opens when both codes are in.';
+      'Skanujecie oboje. Sprawdzanie słów otworzy się, gdy oba kody zostaną odczytane.';
 
   @override
-  String get pairScanPrompt => 'Point the camera at their code';
+  String get pairScanPrompt => 'Skieruj aparat na kod drugiej osoby';
 
   @override
-  String get pairSeenAs => 'They will see you as';
+  String get pairSeenAs => 'Druga strona zobaczy cię jako';
 
   @override
-  String get pairUseWords => 'Use words instead';
+  String get pairUseWords => 'Użyj słów';
 
   @override
-  String get pairCameraDeniedTitle => 'The camera is not allowed';
+  String get pairCameraDeniedTitle => 'Aparat jest niedozwolony';
 
   @override
   String get pairCameraDeniedBody =>
-      'Allow the camera to scan, or use words instead.';
+      'Zezwól na aparat, aby skanować, albo użyj słów.';
 
   @override
-  String get pairOpenSettings => 'Open settings';
+  String get pairOpenSettings => 'Otwórz ustawienia';
 
   @override
-  String get pairWordsTitle => 'Pairing words';
+  String get pairWordsTitle => 'Słowa parowania';
 
   @override
   String get pairWordsLead =>
-      'Read these to them, in this order. Their wallet finds the invite from the words.';
+      'Przeczytaj je drugiej osobie w tej kolejności. Jej portfel znajdzie zaproszenie po słowach.';
 
   @override
-  String get pairWordsGoodFor => 'Good for 10 minutes';
+  String get pairWordsGoodFor => 'Ważne przez 10 minut';
 
   @override
-  String pairWordsLeft(String time) {
-    return '$time left';
-  }
-
-  @override
-  String get pairWordsLastMinute => 'Less than a minute left';
+  String get pairWordsLastMinute => 'Została niecała minuta';
 
   @override
   String get pairWordsFooter =>
-      'Whoever has these words can answer this invite until it expires. Check the words together afterwards.';
+      'Każdy, kto zna te słowa, może odpowiedzieć na zaproszenie, dopóki nie wygaśnie. Potem sprawdźcie razem słowa.';
 
   @override
-  String get pairWordsNew => 'New words';
+  String get pairWordsNew => 'Nowe słowa';
 
   @override
-  String get pairWordsCopy => 'Copy words';
+  String get pairWordsCopy => 'Kopiuj słowa';
 
   @override
-  String get pairWordsExpiredTitle => 'These words have expired';
+  String get pairWordsExpiredTitle => 'Te słowa wygasły';
 
   @override
-  String get pairWordsExpiredBody => 'Make new ones and read them out again.';
+  String get pairWordsExpiredBody => 'Utwórz nowe i przeczytaj je ponownie.';
 
   @override
   String get pairWordsNeedEpicbox =>
-      'Pairing words need Epicbox, so they are not offered now.';
+      'Słowa parowania wymagają Epicbox, więc teraz nie są dostępne.';
 
   @override
   String pairWordsDesktopChip(String time) {
-    return 'Words: $time left';
+    return 'Słowa: zostało $time';
   }
 
   @override
   String get pairEnterLead =>
-      'Paste the invite link, or type the five words you were given.';
+      'Wklej link z zaproszeniem lub wpisz pięć otrzymanych słów.';
 
   @override
-  String get pairEnterField => 'Invite link or words';
+  String get pairEnterField => 'Link z zaproszeniem lub słowa';
 
   @override
   String get pairEnterNotFound =>
-      'No invite found for these words. Check them, or ask for new ones.';
+      'Nie znaleziono zaproszenia dla tych słów. Sprawdź je lub poproś o nowe.';
 
   @override
-  String get pairEnterTryAgain => 'Try again';
+  String get pairEnterTryAgain => 'Spróbuj ponownie';
 
   @override
   String get pairEnterDesktopHint =>
-      'A pasted link or typed words do what a scan does on the phone.';
+      'Wklejony link lub wpisane słowa działają jak skan w telefonie.';
 
   @override
   String get pairEnterDesktopPlaceholder =>
-      'Paste the invite link, or type the five words';
+      'Wklej link z zaproszeniem lub wpisz pięć słów';
 
   @override
-  String get pairOnlineTitle => 'Pair online';
+  String get pairOnlineTitle => 'Parowanie online';
 
   @override
   String get pairOnlineLead =>
-      'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'Wyślij zaproszenie kanałem, którego już używacie. Parowanie kończy się, gdy portfel drugiej osoby je otworzy.';
 
   @override
   String get pairOnlineLeadByHand =>
-      'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.';
+      'Wyślij zaproszenie kanałem, którego już używacie. Odpowiedź wróci tą samą drogą: wklej ją w Wpisz link lub słowa.';
 
   @override
-  String get pairExpiresIn => 'Invite expires in';
+  String get pairExpiresIn => 'Zaproszenie wygasa za';
 
   @override
-  String get pairExpiry1h => '1 hour';
+  String get pairExpiry1h => '1 godzina';
 
   @override
-  String get pairExpiry24h => '24 hours';
+  String get pairExpiry24h => '24 godziny';
 
   @override
-  String get pairExpiry7d => '7 days';
+  String get pairExpiry7d => '7 dni';
 
   @override
-  String get pairWhatTheyReceive => 'What they receive';
+  String get pairWhatTheyReceive => 'Co otrzyma druga osoba';
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n$link\n\nExpires $date.';
+    return '$name chce sparować z tobą portfele Epic Cash.\n\nOtwórz w Epic Cash:\n$link\n\nWygasa: $date.';
   }
 
   @override
   String get pairShareWarning =>
-      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+      'Każdy, kto ma to zaproszenie, może się sparować jako ty, dopóki nie wygaśnie. Wyślij je tylko właściwej osobie, a potem sprawdźcie razem słowa.';
 
   @override
-  String get pairShareInvite => 'Share invite';
+  String get pairShareInvite => 'Udostępnij zaproszenie';
 
   @override
-  String get pairCopyInvite => 'Copy invite';
+  String get pairCopyInvite => 'Kopiuj zaproszenie';
 
   @override
-  String get pairUseWordsShort => 'Use words';
+  String get pairUseWordsShort => 'Użyj słów';
 
   @override
-  String get pairInviteSentTitle => 'Invite sent';
+  String get pairInviteSentTitle => 'Zaproszenie wysłane';
 
   @override
   String pairInviteSentBody(String name) {
-    return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+    return 'Parowanie kończy się, gdy portfel $name otworzy zaproszenie. Możesz opuścić ten ekran; zaproszenie zostaje w Kontakty › Oczekujące zaproszenia.';
   }
 
   @override
-  String pairInviteExpiresIn(String time) {
-    return 'Expires in $time';
-  }
-
-  @override
-  String get pairCancelInvite => 'Cancel invite';
+  String get pairCancelInvite => 'Anuluj zaproszenie';
 
   @override
   String pairCancelInviteTitle(String name) {
-    return 'Cancel the invite to $name?';
+    return 'Anulować zaproszenie dla $name?';
   }
 
   @override
   String pairCancelInviteBody(String name) {
-    return 'Their wallet will see “$name cancelled this invite” if they open it later.';
+    return 'Jeśli drugi portfel otworzy je później, zobaczy „$name anulował(a) to zaproszenie”.';
   }
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Pair with $name?';
+    return 'Sparować z: $name?';
   }
 
   @override
-  String get pairNameClaimed => 'Name chosen by them · not checked yet';
+  String get pairNameClaimed =>
+      'Nazwa wybrana przez drugą stronę · jeszcze niesprawdzona';
 
   @override
-  String get pairNameClaimedShort => 'Name chosen by them';
+  String get pairNameClaimedShort => 'Nazwa wybrana przez drugą stronę';
 
   @override
   String pairCallsThemselves(String name) {
-    return 'Calls themselves “$name”';
+    return 'Przedstawia się jako „$name”';
   }
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+    return 'Po sparowaniu pliki płatności i faktury między tobą a $name są zapieczętowane. Następnie sprawdzicie razem słowa.';
   }
 
   @override
   String pairIncomingAllowInvoices(String name) {
-    return 'Allow $name to request payments';
+    return 'Zezwól $name na prośby o płatność';
   }
 
   @override
   String get pairIncomingAllowHint =>
-      'Turns on after you check the words. Nothing is paid without your PIN.';
+      'Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez twojego PIN-u.';
 
   @override
-  String get pairNotNow => 'Not now';
+  String get pairNotNow => 'Nie teraz';
 
   @override
   String pairWaitingTitle(String name) {
-    return 'Waiting for $name’s wallet…';
+    return 'Czekam na portfel $name…';
   }
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a sprawdzanie słów pojawi się po jego zakończeniu.';
 
   @override
-  String get pairWaitingFor => 'Checking for 1 hour';
+  String get pairWaitingFor => 'Sprawdzanie przez 1 godzinę';
 
   @override
-  String get pairSendByHand => 'Send by hand';
+  String get pairSendByHand => 'Wyślij ręcznie';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => 'Brak połączenia z przekaźnikiem';
 
   @override
-  String get pairRelayUnreachableBody => 'Send your answer by hand?';
+  String get pairRelayUnreachableBody => 'Wysłać odpowiedź ręcznie?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+      'Brak połączenia z przekaźnikiem przez Tor. Wysłać odpowiedź ręcznie?';
 
   @override
-  String get pairByHandTitle => 'Send by hand';
+  String get pairByHandTitle => 'Wyślij ręcznie';
 
   @override
   String pairByHandLead(String name) {
-    return 'Send this back to $name on any channel. Their wallet finishes the pairing when it opens it.';
+    return 'Odeślij to do $name dowolnym kanałem. Portfel drugiej osoby dokończy parowanie, gdy to otworzy.';
   }
 
   @override
-  String get pairByHandYourAnswer => 'Your answer';
+  String get pairByHandYourAnswer => 'Twoja odpowiedź';
 
   @override
   String pairByHandFooter(String name) {
-    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+    return 'Odpowiedź jest zapieczętowana dla zaproszenia od $name. Nikt inny jej nie odczyta i działa tylko raz.';
   }
 
   @override
   String pairConfirmByHandLead(String name) {
-    return 'Send this back to $name. Their wallet shows the words check when it opens it.';
+    return 'Odeślij to do $name. Portfel drugiej osoby pokaże sprawdzanie słów, gdy to otworzy.';
   }
 
   @override
-  String get pairExpiredTitle => 'This invite has expired';
+  String get pairExpiredTitle => 'To zaproszenie wygasło';
 
   @override
   String pairExpiredBody(String name) {
-    return 'Ask $name for a new one.';
+    return 'Poproś $name o nowe.';
   }
 
   @override
-  String get pairUsedTitle => 'This invite was already used';
+  String get pairUsedTitle => 'To zaproszenie zostało już użyte';
 
   @override
-  String get pairUsedBody => 'Ask for a new one.';
+  String get pairUsedBody => 'Poproś o nowe.';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name cancelled this invite';
+    return '$name: zaproszenie anulowane';
   }
 
   @override
-  String get pairCancelledBody => 'Nothing was stored.';
+  String get pairCancelledBody => 'Nic nie zostało zapisane.';
 
   @override
   String pairNoAnswerTitle(String name) {
-    return 'No answer from $name';
+    return 'Brak odpowiedzi od $name';
   }
 
   @override
   String get pairNoAnswerBody =>
-      'The invite may have been cancelled. Ask for a new one, or pair in person.';
+      'Zaproszenie mogło zostać anulowane. Poproś o nowe lub sparuj się osobiście.';
 
   @override
-  String get pairChangedTitle => 'This invite was changed on the way';
+  String get pairChangedTitle => 'To zaproszenie zostało zmienione po drodze';
 
   @override
   String pairChangedBody(String name) {
-    return 'Nothing was stored. Pair again, in person or with a fresh invite from $name.';
+    return 'Nic nie zostało zapisane. Sparuj się ponownie, osobiście lub z nowym zaproszeniem od $name.';
   }
 
   @override
-  String get pairNewerTitle => 'Update Epic Cash to open this';
+  String get pairNewerTitle => 'Zaktualizuj Epic Cash, aby to otworzyć';
 
   @override
-  String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
+  String get pairNewerInviteBody => 'To zaproszenie utworzył nowszy portfel.';
 
   @override
-  String get pairNewerFileBody => 'The file was sealed by a newer wallet.';
+  String get pairNewerFileBody => 'Plik zapieczętował nowszy portfel.';
 
   @override
-  String get pairCheckForUpdates => 'Check for updates';
+  String get pairCheckForUpdates => 'Sprawdź aktualizacje';
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Someone else also answered $name’s invite. See Pending invites.';
+    return 'Ktoś inny też odpowiedział na zaproszenie od $name. Zobacz Oczekujące zaproszenia.';
   }
 
   @override
-  String get pairSecondReplyBody =>
-      'If you didn’t share it with them, remove them.';
+  String get pairAnsweredSameInvite =>
+      'Odpowiedź na to samo zaproszenie · niezapisana';
 
   @override
-  String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
-
-  @override
-  String get sasTitle => 'Check the words';
+  String get sasTitle => 'Sprawdź słowa';
 
   @override
   String sasLead(String name) {
-    return '$name’s wallet shows the same four. Compare them on a call or in person.';
+    return 'Portfel $name pokazuje te same cztery. Porównajcie je przez telefon lub osobiście.';
   }
 
   @override
   String sasLeadExchange(String name) {
-    return 'The $name page shows the same four. Compare them, then confirm on both sides.';
+    return 'Strona $name pokazuje te same cztery. Porównaj je, a potem potwierdź po obu stronach.';
   }
 
   @override
   String sasLeadRecheck(String name) {
-    return '$name’s wallet shows these under $name › Check the words. Compare them on a call or in person.';
+    return 'Portfel $name pokazuje je w $name › Sprawdź słowa. Porównajcie je przez telefon lub osobiście.';
   }
 
   @override
-  String get sasMatch => 'They match';
+  String get sasMatch => 'Zgadzają się';
 
   @override
-  String get sasNoMatch => 'They don’t match';
+  String get sasNoMatch => 'Nie zgadzają się';
 
   @override
-  String get sasSkip => 'Skip for now';
+  String get sasSkip => 'Pomiń na razie';
 
   @override
-  String get sasLater => 'Later';
+  String get sasLater => 'Później';
 
   @override
   String sasMatchedTitle(String name) {
-    return '$name is verified';
+    return '$name: zweryfikowano';
   }
 
   @override
   String sasMatchedBody(String name) {
-    return 'Payment files and invoices with $name are sealed from now on.';
+    return 'Pliki płatności i faktury z $name są od teraz zapieczętowane.';
   }
 
   @override
-  String get sasNoMatchTitle => 'The words don’t match';
+  String get sasNoMatchTitle => 'Słowa się nie zgadzają';
 
   @override
   String get sasNoMatchBody =>
-      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+      'Ktoś mógł zmienić zaproszenie po drodze. Nic nie zostaje zachowane. Sparuj się ponownie, osobiście lub z nowym zaproszeniem.';
 
   @override
-  String get sasStopPairing => 'Stop pairing';
+  String get sasStopPairing => 'Przerwij parowanie';
 
   @override
   String sasSkippedTitle(String name) {
-    return 'Paired with $name';
+    return 'Sparowano z: $name';
   }
 
   @override
   String sasSkippedBody(String name) {
-    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+    return 'Pliki płatności z $name są zapieczętowane. Sprawdź słowa na stronie kontaktu $name, gdy tylko możesz; faktury czekają do tego czasu.';
   }
 
   @override
-  String get sasCheckNow => 'Check now';
+  String get sasCheckNow => 'Sprawdź teraz';
 
   @override
-  String get sasAllowAfterMatch => 'On once you confirm the words match.';
+  String get sasAllowAfterMatch =>
+      'Włącza się, gdy potwierdzisz, że słowa się zgadzają.';
 
   @override
   String sasAllowInvoicesHint(String name) {
-    return '$name’s wallet can ask you to pay. Nothing is paid without your PIN.';
+    return 'Portfel $name może prosić cię o zapłatę. Nic nie zostanie zapłacone bez twojego PIN-u.';
   }
 
   @override
-  String get trustVerified => 'Verified';
+  String get trustVerified => 'Zweryfikowany';
 
   @override
-  String get trustPaired => 'Paired, not verified';
+  String get trustPaired => 'Sparowany, niezweryfikowany';
 
   @override
-  String get trustPairedShort => 'Paired';
+  String get trustPairedShort => 'Sparowany';
 
   @override
-  String get trustKeysChanged => 'Keys changed';
+  String get trustKeysChanged => 'Klucze zmienione';
 
   @override
-  String get trustSealed => 'Sealed';
+  String get trustSealed => 'Zapieczętowane';
 
   @override
   String trustSealedFor(String name) {
-    return 'Sealed for $name';
+    return 'Zapieczętowane dla $name';
   }
 
   @override
-  String get trustAllowsInvoices => 'Allows invoices';
+  String get trustAllowsInvoices => 'Faktury dozwolone';
 
   @override
-  String get contactTitle => 'Contact';
+  String get contactTitle => 'Kontakt';
 
   @override
-  String get contactAddresses => 'Addresses';
+  String get contactAddresses => 'Adresy';
 
   @override
-  String get contactPairing => 'Pairing';
-
-  @override
-  String get contactShowCode => 'Show code';
+  String get contactPairing => 'Parowanie';
 
   @override
   String contactWordsChecked(String date) {
-    return 'Words checked $date';
+    return 'Słowa sprawdzone $date';
   }
 
   @override
-  String get contactCheckAgain => 'Check again';
+  String get contactCheckAgain => 'Sprawdź ponownie';
 
   @override
-  String get contactCheckWordsAgain => 'Check the words again';
+  String get contactCheckWordsAgain => 'Sprawdź słowa ponownie';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => 'Pieczętuj płatności';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return 'Płatności i faktury z $name są szyfrowane od końca do końca. Tylko portfel $name może je odczytać.';
   }
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Off, a payment file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+    return 'Po wyłączeniu plik płatności dla $name jest jawny: każdy, kto go dostanie, może go odczytać. Wyłącz tylko wtedy, gdy portfel $name nie otwiera zapieczętowanych plików.';
   }
 
   @override
-  String get contactAllowInvoices => 'Allow invoices';
+  String get contactAllowInvoices => 'Zezwól na faktury';
 
   @override
   String contactAllowInfo(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+    return 'Portfel $name może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i PIN. Nic nie płaci się samo.';
   }
 
   @override
   String get contactAllowInfoMore =>
-      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+      'Zezwolić można tylko zweryfikowanemu kontaktowi: sprawdzenie słów wyklucza podmienione zaproszenie.';
 
   @override
-  String get contactCheckWordsFirst => 'Check the words first';
+  String get contactCheckWordsFirst => 'Najpierw sprawdź słowa';
 
   @override
-  String get contactPausedUntilChecked => 'Paused until you check the words';
+  String get contactPausedUntilChecked => 'Wstrzymane do sprawdzenia słów';
 
   @override
   String contactDeliveredVia(String relay) {
-    return 'Delivered via $relay';
+    return 'Dostarczane przez $relay';
   }
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return 'Przekaźnik $name nie odpowiada';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+      'Ponawianie. Prośby i płatności czekają, aż odpowie; nic nie przepada.';
 
   @override
-  String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
+  String get contactPausedEpicboxOff =>
+      'Wstrzymane, gdy Epicbox jest wyłączony';
 
   @override
-  String get contactPausedEpicboxOffBody => 'Sealed files still work.';
+  String get contactPausedEpicboxOffBody =>
+      'Zapieczętowane pliki nadal działają.';
 
   @override
-  String get contactRemovePairing => 'Remove pairing';
+  String get contactRemovePairing => 'Usuń parowanie';
 
   @override
   String contactRemovePairingTitle(String name) {
-    return 'Remove the pairing with $name?';
+    return 'Usunąć parowanie z $name?';
   }
 
   @override
   String contactRemovePairingBody(String name) {
-    return 'Sealed payments and invoices from $name will stop. Their addresses stay in your contacts.';
+    return 'Zapieczętowane płatności i faktury od $name ustaną. Adresy zostają w twoich kontaktach.';
   }
 
   @override
-  String get contactKeep => 'Keep';
+  String get contactKeep => 'Zachowaj';
 
   @override
-  String get contactRemove => 'Remove';
+  String get contactRemove => 'Usuń';
 
   @override
   String contactKeysChangedTitle(String name) {
-    return '$name’s keys changed';
+    return 'Klucze $name się zmieniły';
   }
 
   @override
   String get contactKeysChangedBody =>
-      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+      'Może to oznaczać, że ta osoba używa teraz innego portfela albo że ktoś inny używa jej nazwy. Sprawdź słowa ponownie.';
 
   @override
-  String get contactKeysChangedStatus => 'sealing and invoices paused';
+  String get contactKeysChangedStatus => 'pieczętowanie i faktury wstrzymane';
 
   @override
-  String get contactKeepOldKeys => 'Keep the old keys';
+  String get contactKeepOldKeys => 'Zachowaj stare klucze';
 
   @override
-  String get contactUseNewKeys => 'Use the new keys';
+  String get contactUseNewKeys => 'Użyj nowych kluczy';
 
   @override
   String contactKeysBack(String name) {
-    return '$name’s keys are back.';
+    return 'Klucze $name wróciły.';
   }
 
   @override
-  String get contactKeysBackBody => 'Nothing changed for you.';
+  String get contactKeysBackBody => 'Dla ciebie nic się nie zmieniło.';
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return 'Ostatnia płatność dla $name poszła jawnie';
   }
 
   @override
   String contactSealDegradedBody(String name) {
-    return 'The next one asks Seal or plain. Sealing turns itself back on when $name’s wallet answers sealed.';
+    return 'Następna zapyta: zapieczętować czy jawnie. Pieczętowanie włączy się samo, gdy portfel $name odpowie zapieczętowanym plikiem.';
   }
 
   @override
-  String get addrField => 'Address';
+  String get addrField => 'Adres';
 
   @override
   String addrFieldTyped(String type) {
-    return '$type address';
+    return 'Adres ($type)';
   }
 
   @override
-  String get addrAddAnother => 'Add another address';
+  String get addrAddAnother => 'Dodaj kolejny adres';
 
   @override
   String addrOneFree(String type) {
-    return 'One more type is free: $type.';
+    return 'Wolny jest jeszcze jeden typ: $type.';
   }
 
   @override
   String addrDuplicateType(String name, String type) {
-    return '$name already has this kind of address ($type).';
+    return '$name ma już adres tego typu ($type).';
   }
 
   @override
-  String get addrKeepOld => 'Keep the old one';
+  String get addrKeepOld => 'Zachowaj stary';
 
   @override
-  String get addrReplace => 'Replace it';
+  String get addrReplace => 'Zastąp';
 
   @override
   String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
+    return 'Wklej adres ($type) lub zostaw puste';
   }
 
   @override
   String get addrDesktopRule =>
-      'One address per type. The third field appears only while a type is free.';
+      'Jeden adres na typ. Trzecie pole pojawia się tylko, gdy jakiś typ jest wolny.';
 
   @override
-  String get pendingTitle => 'Pending invites';
+  String get pendingTitle => 'Oczekujące zaproszenia';
 
   @override
   String pendingRowHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count invites waiting for an answer',
-      one: '1 invite waiting for an answer',
+      other: '$count zaproszenia czeka na odpowiedź',
+      many: '$count zaproszeń czeka na odpowiedź',
+      few: '$count zaproszenia czekają na odpowiedź',
+      one: '$count zaproszenie czeka na odpowiedź',
     );
     return '$_temp0';
   }
 
   @override
   String pendingLink(String time) {
-    return 'Link · expires in $time';
+    return 'Link · wygasa za $time';
   }
 
   @override
   String pendingWords(String time) {
-    return 'Pairing words · expires in $time';
+    return 'Słowa parowania · wygasają za $time';
   }
 
   @override
-  String get pendingExpired => 'Expired';
+  String get pendingExpired => 'Wygasło';
 
   @override
-  String get pendingInviteAgain => 'Invite again';
+  String get pendingInviteAgain => 'Zaproś ponownie';
 
   @override
   String pendingWaitingConfirm(String time) {
-    return 'Waiting for their confirmation · $time';
+    return 'Czeka na potwierdzenie · $time';
   }
 
   @override
-  String get pendingPairedCheck => 'Paired · check the words';
+  String get pendingPairedCheck => 'Sparowany · sprawdź słowa';
 
   @override
   String get pendingEmpty =>
-      'No invites waiting. An invite shows here until the other wallet answers it.';
+      'Brak oczekujących zaproszeń. Zaproszenie widać tutaj, dopóki drugi portfel na nie nie odpowie.';
 
   @override
-  String get pendingShareAgain => 'Share again';
+  String get pendingShareAgain => 'Udostępnij ponownie';
 
   @override
-  String get pendingShowWords => 'Show words';
+  String get pendingShowWords => 'Pokaż słowa';
 
   @override
-  String get pendingCopyLink => 'Copy link';
+  String get pendingCopyLink => 'Kopiuj link';
 
   @override
-  String get invSetTitle => 'Invoices';
+  String get invSetTitle => 'Faktury';
 
   @override
   String get invSetLead =>
-      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+      'Sparowany kontakt, któremu zezwolisz, może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twój PIN.';
 
   @override
-  String get invSetPaired => 'Paired contacts';
+  String get invSetPaired => 'Sparowane kontakty';
 
   @override
-  String get invSetAllowed => 'Allowed';
+  String get invSetAllowed => 'Dozwolone';
 
   @override
-  String get invSetOff => 'Off';
+  String get invSetOff => 'Wyłączone';
 
   @override
-  String get invSetPairShop => 'Pair with a shop or exchange';
+  String get invSetPairShop => 'Sparuj ze sklepem lub giełdą';
 
   @override
   String get invSetEmpty =>
-      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+      'Brak sparowanych kontaktów. Sparuj się ze sklepem, giełdą lub osobą, sprawdź słowa, a potem zezwól tutaj na ich faktury.';
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+      'Prośby czekają na przekaźniku i dotrą, gdy Epicbox znów będzie włączony.';
 
   @override
   String invSetSwitchedOff(String name) {
-    return 'Invoices from $name are off.';
+    return 'Faktury od $name są wyłączone.';
   }
 
   @override
@@ -16196,142 +15571,124 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count open requests were declined.',
-      one: '1 open request was declined.',
+      other: 'Odrzucono $count otwartej prośby.',
+      many: 'Odrzucono $count otwartych próśb.',
+      few: 'Odrzucono $count otwarte prośby.',
+      one: 'Odrzucono $count otwartą prośbę.',
     );
     return '$_temp0';
   }
 
   @override
-  String get invSetTimeToPay => 'Time to pay';
+  String get invSetTimeToPay => 'Czas na zapłatę';
 
   @override
   String invSetTimeToPayHint(int hours) {
-    return '$hours hours · how long an invoice stays payable';
+    return '$hours godz. · tyle faktura pozostaje do zapłacenia';
   }
 
   @override
-  String get invoicesEmptyAction => 'Paired contacts';
+  String get invoicesEmptyAction => 'Sparowane kontakty';
 
   @override
-  String get reqTitle => 'Review request';
+  String get reqTitle => 'Sprawdź prośbę';
 
   @override
   String reqRequests(String name) {
-    return '$name requests';
-  }
-
-  @override
-  String reqAsksYouToPay(String name) {
-    return '$name asks you to pay';
+    return '$name prosi o';
   }
 
   @override
   String reqSealedSigned(String name) {
-    return 'Sealed to this wallet and signed by $name';
+    return 'Zapieczętowane dla tego portfela i podpisane przez $name';
   }
 
   @override
-  String get reqReference => 'Reference';
-
-  @override
-  String reqDepositRef(String ref) {
-    return 'Deposit · ref $ref';
-  }
-
-  @override
-  String reqWithdrawalRef(String ref) {
-    return 'Withdrawal · ref $ref';
-  }
-
-  @override
-  String get reqDeliveredVia => 'Delivered via';
+  String get reqReference => 'Numer referencyjny';
 
   @override
   String reqPaidWaiting(String name) {
-    return 'Paid. Waiting for $name to post';
+    return 'Zapłacono. Czekam, aż $name opublikuje';
   }
 
   @override
   String get reqPaidWaitingBody =>
-      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+      'Twoja część jest skończona. Giełda finalizuje i publikuje; to zamknie się samo.';
 
   @override
-  String get reqTlPaid => 'Paid';
+  String get reqTlPaid => 'Zapłacono';
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return 'Dostarczono do przekaźnika $name';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return 'Odpowiedź dostarczona do przekaźnika $name';
   }
 
   @override
   String reqTlPosted(String name) {
-    return 'Posted by $name';
+    return 'Opublikowane przez $name';
   }
 
   @override
-  String get reqTlPostedHint => 'Usually within minutes';
+  String get reqTlPostedHint => 'Zwykle w ciągu kilku minut';
 
   @override
-  String get reqTlConfirming => 'Confirming';
+  String get reqTlConfirming => 'Potwierdzanie';
 
   @override
   String reqTlConfirmingHint(int n, int total) {
-    return '$n of $total confirmations';
+    return '$n z $total potwierdzeń';
   }
 
   @override
-  String get reqTlConfirmed => 'Confirmed';
+  String get reqTlConfirmed => 'Potwierdzone';
 
   @override
   String reqTlWaiting(String time) {
-    return 'Waiting $time';
+    return 'Czeka od $time';
   }
 
   @override
   String reqNotPostedTitle(String name) {
-    return '$name has not posted yet';
+    return '$name jeszcze nie opublikował(a)';
   }
 
   @override
   String get reqNotPostedBody =>
-      'Send again delivers the same payment once more. It cannot be paid twice.';
+      'Wyślij ponownie dostarcza tę samą płatność jeszcze raz. Nie da się jej zapłacić dwa razy.';
 
   @override
-  String get reqSendAgain => 'Send again';
+  String get reqSendAgain => 'Wyślij ponownie';
 
   @override
   String reqUnreachableTitle(String name) {
-    return 'Couldn’t reach $name yet';
+    return 'Brak kontaktu z $name';
   }
 
   @override
   String get reqUnreachableBody =>
-      'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
+      'Twoje środki są bezpieczne; zostaną odblokowane, jeśli płatność nie zostanie opublikowana. Dostarczanie jest ponawiane.';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => 'Przekaźnik nie odpowiada · ponawianie';
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name withdrew the request';
+    return '$name wycofał(a) prośbę';
   }
 
   @override
-  String get reqWithdrewBody => 'Your funds are unlocked. Nothing was paid.';
+  String get reqWithdrewBody =>
+      'Twoje środki są odblokowane. Nic nie zostało zapłacone.';
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name withdrew this request';
+    return '$name wycofał(a) tę prośbę';
   }
-
-  @override
-  String get reqDeclined => 'Declined';
 
   @override
   String reqTwoSame(String name, int count, String amount) {
@@ -16339,188 +15696,184 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
-      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+          '$name wysłał(a) w ciągu 10 minut $count prośby o $amount EPIC. Zapłacić wszystkie?',
+      many:
+          '$name wysłał(a) w ciągu 10 minut $count próśb o $amount EPIC. Zapłacić wszystkie?',
+      few:
+          '$name wysłał(a) w ciągu 10 minut $count prośby o $amount EPIC. Zapłacić wszystkie?',
+      one:
+          '$name wysłał(a) w ciągu 10 minut $count prośbę o $amount EPIC. Zapłacić?',
     );
     return '$_temp0';
   }
 
   @override
-  String reqTooMany(String name) {
-    return '$name sent too many requests.';
-  }
-
-  @override
-  String get reqTooManyBody =>
-      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
-
-  @override
   String reqWithdrawalFrom(String name) {
-    return 'Withdrawal from $name';
+    return 'Wypłata z: $name';
   }
 
   @override
   String reqReceivedWaiting(String name) {
-    return 'Received. Waiting for $name to post';
+    return 'Odebrano. Czekam, aż $name opublikuje';
   }
 
   @override
   String get reqReceivedWaitingBody =>
-      'Nothing to do. The exchange posts it; confirmations follow.';
+      'Nic nie musisz robić. Giełda publikuje płatność; potwierdzenia przyjdą później.';
 
   @override
-  String get reqNewTitle => 'New request';
+  String get reqNewTitle => 'Nowa prośba';
 
   @override
   String get reqNewLead =>
-      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+      'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik dla kogokolwiek.';
 
   @override
-  String get reqNewTo => 'To';
+  String get reqNewTo => 'Do';
 
   @override
   String get reqNewToHint =>
-      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+      'Sparowane kontakty, których portfel opłaca prośby. Dla innych: zapisz prośbę jako plik.';
 
   @override
-  String get reqNewSaveFile => 'Save as file';
+  String get reqNewSaveFile => 'Zapisz jako plik';
 
   @override
-  String get reqNewSend => 'Send request';
+  String get reqNewSend => 'Wyślij prośbę';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Send through $name’s mailbox';
+    return 'Wyślij przez skrzynkę $name';
   }
 
   @override
   String sendViaMailboxHint(String relay) {
-    return 'Sealed. Delivered via $relay';
+    return 'Zapieczętowane. Dostarczane przez $relay';
   }
 
   @override
   String sendSealedTitle(String name) {
-    return 'Sealed for $name';
+    return 'Zapieczętowane dla $name';
   }
 
   @override
   String sendSealedBody(String name) {
-    return 'Only $name’s wallet can open this file. Send it any way you like, then open the file they send back.';
+    return 'Tylko portfel $name może otworzyć ten plik. Wyślij go w dowolny sposób, a potem otwórz plik, który wróci.';
   }
 
   @override
-  String get sendSealOrPlainTitle => 'Seal this file?';
+  String get sendSealOrPlainTitle => 'Zapieczętować ten plik?';
 
   @override
   String sendSealOrPlainBody(String name) {
-    return 'The last file to $name went plain. Sealed is the default again.';
+    return 'Ostatni plik dla $name poszedł jawnie. Zapieczętowanie jest znów domyślne.';
   }
 
   @override
-  String get sendSealedOption => 'Sealed';
+  String get sendSealedOption => 'Zapieczętowany';
 
   @override
   String sendSealedOptionHint(String name) {
-    return 'Only $name’s wallet can read it';
+    return 'Tylko portfel $name może go odczytać';
   }
 
   @override
-  String get sendPlainOption => 'Plain';
+  String get sendPlainOption => 'Jawny';
 
   @override
-  String get sendPlainOptionHint => 'Anyone with the file can read it';
+  String get sendPlainOptionHint => 'Każdy, kto ma plik, może go odczytać';
 
   @override
   String sendCantOpenTitle(String name) {
-    return '$name can’t open sealed files?';
+    return '$name nie może otworzyć zapieczętowanych plików?';
   }
 
   @override
   String get sendCantOpenBody =>
-      'Send as plain instead resends the same payment unsealed. It is still one payment.';
+      'Wyślij jawnie wysyła tę samą płatność ponownie, bez pieczęci. To nadal jedna płatność.';
 
   @override
-  String get sendAsPlain => 'Send as plain instead';
+  String get sendAsPlain => 'Wyślij jawnie';
 
   @override
-  String get sendAsPlainTitle => 'Send as plain instead?';
+  String get sendAsPlainTitle => 'Wysłać jawnie?';
 
   @override
   String get sendAsPlainBody =>
-      'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.';
+      'Plik nie zostanie zapieczętowany: każdy, kto go dostanie, odczyta kwotę i adresy. To ta sama płatność, więc nie da się jej zapłacić dwa razy.';
 
   @override
-  String get sendKeepSealed => 'Keep sealed';
+  String get sendKeepSealed => 'Zostaw zapieczętowany';
 
   @override
-  String get sendPlain => 'Send as plain';
+  String get sendPlain => 'Wyślij jawnie';
 
   @override
   String sendNotHeardTitle(String name) {
-    return 'Not heard from $name’s wallet in 90 days';
+    return 'Brak wieści z portfela $name od 90 dni';
   }
 
   @override
   String sendNotHeardBody(String name) {
-    return '$name will need Epic Cash to open this file.';
+    return '$name będzie potrzebować Epic Cash, aby otworzyć ten plik.';
   }
 
   @override
-  String get sendPlainShort => 'Send plain';
+  String get sendPlainShort => 'Wyślij jawnie';
 
   @override
   String get openSealedOtherTitle =>
-      'This was sealed for another wallet or install';
+      'To zapieczętowano dla innego portfela lub instalacji';
 
   @override
   String get openSealedOtherBody =>
-      'It cannot be opened here. Ask the sender to send it again.';
+      'Nie da się tego tutaj otworzyć. Poproś nadawcę o ponowne wysłanie.';
 
   @override
-  String get openArrivedUnsealed => 'This arrived unsealed.';
+  String get openArrivedUnsealed => 'To dotarło bez pieczęci.';
 
   @override
   String openArrivedUnsealedBody(String name) {
-    return '$name chose plain for this file.';
+    return '$name wysłał(a) ten plik jawnie.';
   }
 
   @override
   String noticePairingReplied(String name) {
-    return '$name answered your invite. Check the words together.';
+    return '$name odpowiada na twoje zaproszenie. Sprawdźcie razem słowa.';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Paired with $name. Check the words together.';
+    return 'Sparowano z: $name. Sprawdźcie razem słowa.';
   }
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name requests $amount EPIC. Review under Invoices.';
+    return '$name prosi o $amount EPIC. Sprawdź w Fakturach.';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'Received $amount EPIC from $name. Waiting for it to post.';
+    return 'Odebrano $amount EPIC od $name. Czekam na publikację.';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name’s keys changed. Check the words again before paying.';
+    return 'Klucze $name się zmieniły. Sprawdź słowa ponownie przed zapłatą.';
   }
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return 'Przekaźnik $name nie odpowiada. Ponawianie.';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name withdrew the request. Your funds are unlocked.';
+    return '$name wycofał(a) prośbę. Twoje środki są odblokowane.';
   }
 
   @override
-  String get restoreUseContactsTitle => 'Use your contacts on this device?';
+  String get restoreUseContactsTitle => 'Używać kontaktów na tym urządzeniu?';
 
   @override
   String restoreUseContactsBody(int count) {
@@ -16528,258 +15881,219 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count pairings in this backup were used on another device. Your other device should stop using them.',
-      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+          '$count parowania z tej kopii było używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+      many:
+          '$count parowań z tej kopii było używanych na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+      few:
+          '$count parowania z tej kopii były używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+      one:
+          '$count parowanie z tej kopii było używane na innym urządzeniu. Drugie urządzenie powinno przestać go używać.',
     );
     return '$_temp0';
   }
 
   @override
-  String get restoreUseHere => 'Use them here';
+  String get restoreUseHere => 'Używaj tutaj';
 
   @override
   String restorePairingsOnOtherDevice(int count) {
-    return '$count · on another device';
-  }
-
-  @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(String payments, String contacts, String pairings) {
-    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
+    return '$count · na innym urządzeniu';
   }
 
   @override
   String get pairInviteSentBodyAnyone =>
-      'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+      'Parowanie kończy się, gdy drugi portfel otworzy zaproszenie. Możesz opuścić ten ekran; zaproszenie zostaje w Kontakty › Oczekujące zaproszenia.';
 
   @override
-  String get pairInvalidLink => 'This is not a pairing link';
+  String get pairInvalidLink => 'To nie jest link do parowania';
 
   @override
   String get pairInvalidBody =>
-      'Check that the whole link was copied, or ask for a new one.';
+      'Sprawdź, czy skopiowano cały link, lub poproś o nowy.';
 
   @override
-  String get pairOwnCode => 'This is your own code';
+  String get pairOwnCode => 'To twój własny kod';
 
   @override
-  String get pairOwnCodeBody => 'Scan the code on the other phone.';
+  String get pairOwnCodeBody => 'Zeskanuj kod na drugim telefonie.';
 
   @override
-  String get pairUnnamedInvite => 'Open invite';
+  String get pairUnnamedInvite => 'Otwarte zaproszenie';
 
   @override
-  String get pairSeenAsMissing => 'Enter the name they will see.';
+  String get pairSeenAsMissing => 'Wpisz nazwę, którą zobaczy druga strona.';
 
   @override
-  String get pairSeenAsTooLong => 'Use a shorter name.';
+  String get pairSeenAsTooLong => 'Użyj krótszej nazwy.';
 
   @override
-  String get pairSeenAsEdit => 'Change the name they will see';
+  String get pairSeenAsEdit => 'Zmień nazwę widoczną dla drugiej strony';
 
   @override
-  String get pairCodeLabel => 'Your pairing code';
+  String get pairCodeLabel => 'Twój kod parowania';
 
   @override
-  String get pairWordsLabel => 'Your pairing words';
+  String get pairWordsLabel => 'Twoje słowa parowania';
 
   @override
-  String get pairWordsEnteredLabel => 'Words entered';
+  String get pairWordsEnteredLabel => 'Wpisane słowa';
 
   @override
   String pairWordSlot(int n) {
-    return 'Word $n, not entered';
+    return 'Słowo $n, niewpisane';
   }
 
   @override
-  String get pairSuggestions => 'Suggestions';
+  String get pairSuggestions => 'Podpowiedzi';
 
   @override
-  String get pairCopied => 'Copied';
+  String get pairCopied => 'Skopiowano';
 
   @override
-  String get pairPaste => 'Paste';
+  String get pairPaste => 'Wklej';
 
   @override
-  String get pairInPersonDone => 'Codes scanned';
+  String get pairInPersonDone => 'Kody zeskanowane';
 
   @override
   String get pairEpicboxOffNotice =>
-      'Paused while Epicbox is off. The invite and the answer travel by hand.';
+      'Wstrzymane, gdy Epicbox jest wyłączony. Zaproszenie i odpowiedź przekazuje się ręcznie.';
 
   @override
-  String get pairWaitingTitleShort => 'Pairing';
+  String get pairWaitingTitleShort => 'Parowanie';
 
   @override
-  String get pairClosed => 'Close';
+  String get pairClosed => 'Zamknij';
 
   @override
-  String get sasWordsLabel => 'The four words';
+  String get sasWordsLabel => 'Cztery słowa';
 
   @override
   String sasDialogTitle(String name) {
-    return 'Check the words with $name';
+    return 'Sprawdź słowa z $name';
   }
 
   @override
-  String get trustNotPaired => 'Not paired';
+  String get contactMore => 'Więcej';
 
   @override
-  String get contactMore => 'More';
+  String get contactEdit => 'Edytuj';
 
   @override
-  String get contactEdit => 'Edit';
-
-  @override
-  String get contactDelete => 'Delete contact';
-
-  @override
-  String contactInfoAbout(String label) {
-    return 'About $label';
-  }
+  String get contactDelete => 'Usuń kontakt';
 
   @override
   String contactCopyAddress(String type) {
-    return 'Copy $type address';
+    return 'Kopiuj adres ($type)';
   }
 
   @override
   String contactDeletePaired(String name) {
-    return 'Deleting $name also removes the pairing. Sealed payments and invoices from them stop.';
+    return 'Usunięcie $name usuwa też parowanie. Zapieczętowane płatności i faktury od tego kontaktu ustaną.';
   }
 
   @override
-  String get contactNoAddresses => 'No addresses saved.';
+  String get contactNoAddresses => 'Brak zapisanych adresów.';
 
   @override
   String addrRemove(String type) {
-    return 'Remove $type address';
+    return 'Usuń adres ($type)';
   }
 
   @override
-  String addrAlreadySaved(String name) {
-    return 'This address is already saved as $name.';
-  }
-
-  @override
-  String get sendVia => 'Send via';
+  String get sendVia => 'Wyślij przez';
 
   @override
   String get invSetLeadDesktop =>
-      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+      'Sparowany kontakt, któremu zezwolisz, może wysyłać do tego portfela prośby o zapłatę. Każda czeka w Fakturach na hasło portfela.';
 
   @override
-  String get invSetRowAllowed => 'Verified · allowed';
+  String get invSetRowAllowed => 'Zweryfikowany · dozwolone';
 
   @override
   String get invSetRowCheckFirst =>
-      'Paired, not verified · check the words first';
+      'Sparowany, niezweryfikowany · najpierw sprawdź słowa';
 
   @override
   String invSetAllowFor(String name) {
-    return 'Allow invoices from $name';
+    return 'Zezwól na faktury od $name';
   }
 
   @override
   String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa lub zapisz prośbę jako plik.';
 
   @override
-  String get reqPickContact => 'Choose a contact';
+  String get reqPickContact => 'Wybierz kontakt';
 
   @override
-  String get reqFileSaved => 'Request saved as a file';
+  String get reqFileSaved => 'Prośba zapisana jako plik';
 
   @override
   String reqSent(String name) {
-    return 'Request sent to $name';
+    return 'Prośba wysłana do $name';
   }
 
   @override
-  String get reqFileTitle => 'Payment request';
-
-  @override
-  String get reqFileBody =>
-      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
+  String get reqFileTitle => 'Prośba o płatność';
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'Couldn’t reach $name yet. Your funds are safe.';
+    return 'Brak kontaktu z $name. Twoje środki są bezpieczne.';
   }
 
   @override
   String noticeTooMany(String name) {
-    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+    return '$name wysyła za dużo próśb. Nadmiarowe zostały odrzucone. Wyłącz faktury od tego kontaktu, jeśli to się powtarza.';
   }
 
   @override
-  String get noticeOpen => 'Open';
+  String get noticeOpen => 'Otwórz';
 
   @override
-  String get noticeCheckWords => 'Check the words';
+  String get noticeCheckWords => 'Sprawdź słowa';
 
   @override
-  String get noticeView => 'View';
+  String get noticeView => 'Pokaż';
 
   @override
-  String get restorePairings => 'Pairings';
-
-  @override
-  String sendSealedNote(String name) {
-    return 'Sealed for $name: only their wallet can open the file.';
-  }
-
-  @override
-  String get sendSealChoice => 'Seal this file';
+  String get restorePairings => 'Parowania';
 
   @override
   String get pairingDesktopShowCodeLead =>
-      'Let them scan this with their phone, or read them the pairing words.';
+      'Daj zeskanować ten kod telefonem lub przeczytaj słowa parowania.';
 
   @override
   String get pairingDesktopInviteLead =>
-      'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'Wyślij zaproszenie kanałem, którego już używacie. Parowanie kończy się, gdy portfel drugiej osoby je otworzy.';
 
   @override
-  String get pairingInviteOnline => 'Invite online';
-
-  @override
-  String get pairUseHere => 'Use here';
+  String get pairingInviteOnline => 'Zaproś online';
 
   @override
   String pairSaveContactTitle(String name) {
-    return 'Save $name in your contacts?';
+    return 'Zapisać $name w kontaktach?';
   }
 
   @override
-  String get pairSaveNewContact => 'Save as a new contact';
+  String get pairSaveNewContact => 'Zapisz jako nowy kontakt';
 
   @override
-  String get pairAddToAContact => 'Add to a contact';
-
-  @override
-  String get pairPickContactTitle => 'Add to which contact?';
+  String get pairAddToAContact => 'Dodaj do kontaktu';
 
   @override
   String pairSavedAs(String name) {
-    return 'Saved as $name.';
-  }
-
-  @override
-  String pairContactAlreadyPaired(String name) {
-    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
+    return 'Zapisano jako $name.';
   }
 
   @override
   String pairDurDays(int days, int hours) {
-    return '$days d $hours h';
+    return '$days d $hours godz.';
   }
 
   @override
   String pairDurHours(int hours, int minutes) {
-    return '$hours h $minutes min';
+    return '$hours godz. $minutes min';
   }
 
   @override
@@ -16788,135 +16102,166 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get pairDurUnderMinute => 'under a minute';
+  String get pairDurUnderMinute => 'mniej niż minuta';
 
   @override
-  String get pairBack => 'Back';
+  String get pairBack => 'Wstecz';
 
   @override
-  String get pairNotInContacts => 'Not in contacts';
+  String get pairNotInContacts => 'Nie ma w kontaktach';
 
   @override
-  String get pairAddToContacts => 'Add to contacts';
+  String get pairAddToContacts => 'Dodaj do kontaktów';
 
   @override
-  String get helpPairingSection => 'Pairing';
+  String get helpPairingSection => 'Parowanie';
 
   @override
   String get helpPairingLede =>
-      'Pair once; payment files and invoices with that contact are sealed.';
+      'Sparuj się raz; pliki płatności i faktury z tym kontaktem są zapieczętowane.';
 
   @override
-  String get helpPairWhatTitle => 'What pairing is';
+  String get helpPairWhatTitle => 'Czym jest parowanie';
 
   @override
   String get helpPairWhatShort =>
-      'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.';
+      'Sparuj się raz z drugą osobą; potem pliki płatności i faktury między dwoma portfelami są zapieczętowane.';
 
   @override
   String get helpPairWhatP1 =>
-      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+      'Parowanie łączy dwa portfele jeden raz: osobiście, gdy skanujecie nawzajem swoje kody, lub online przez link z zaproszeniem albo pięć słów parowania. Każdy portfel trzyma klucz utworzony dla tego jednego kontaktu; nic z tego nie trafia na serwer Epicbox.';
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+      'Po sparowaniu plik płatności dla tego kontaktu jest **zapieczętowany**: tylko jego portfel może go otworzyć i po drodze nie da się go zmienić ani podrobić. Płatności przez Epicbox między osobami działają jak dotąd.';
 
   @override
-  String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
+  String get helpPairWhatStep1 =>
+      'Otwórz [[Kontakty|Contacts]] i wybierz **Sparuj**.';
 
   @override
   String get helpPairWhatStep2 =>
-      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+      'Osobiście: pokaż swój kod, zeskanuj kod drugiej osoby. Online: wyślij zaproszenie lub przeczytaj słowa parowania.';
 
   @override
   String get helpPairWhatStep3 =>
-      'Check the words together, then **They match**.';
+      'Sprawdźcie razem słowa, potem **Zgadzają się**.';
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
+      'Parowanie wymaga Epic Cash po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki płatności i płatności Epicbox.';
 
   @override
-  String get helpPairWhyTitle => 'Why check the words';
+  String get helpPairWhyTitle => 'Po co sprawdzać słowa';
 
   @override
   String get helpPairWhyShort =>
-      'The four words prove the pairing reached the right wallet and not someone in between.';
+      'Cztery słowa dowodzą, że parowanie trafiło do właściwego portfela, a nie do kogoś pośrodku.';
 
   @override
   String get helpPairWhyP1 =>
-      'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.';
+      'Po sparowaniu oba portfele pokazują te same cztery obrazki z nazwami. Powstają z kluczy obu portfeli, więc parowanie zmienione po drodze pokaże na dwóch ekranach różne słowa.';
 
   @override
   String get helpPairWhyP2 =>
-      'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.';
+      'Porównajcie je przez telefon lub osobiście, a potem dotknij **Zgadzają się**. Kontakt staje się **Zweryfikowany**. **Pomiń na razie** zostawia go jako **Sparowany, niezweryfikowany**: pliki płatności są nadal zapieczętowane, ale kontakt nie może wysyłać faktur, dopóki słowa nie zostaną sprawdzone.';
 
   @override
   String get helpPairWhyP3 =>
-      'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
+      'Jeśli słowa się różnią, dotknij **Nie zgadzają się**. Parowanie zostaje odrzucone po tej stronie. Sparuj się ponownie, osobiście lub z nowym zaproszeniem.';
 
   @override
-  String get helpPairWordsTitle => 'Pairing words';
+  String get helpPairWordsTitle => 'Słowa parowania';
 
   @override
   String get helpPairWordsShort =>
-      'Five pictures with names stand in for a link when there is nothing to scan or paste.';
+      'Pięć obrazków z nazwami zastępuje link, gdy nie ma czego zeskanować ani wkleić.';
 
   @override
   String get helpPairWordsP1 =>
-      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+      'Gdy jeden portfel nie ma aparatu albo zaproszenia nie da się wysłać jako linku, zapraszający portfel pokazuje pięć słów parowania. Druga osoba wpisuje ich nazwy w **Wpisz link lub słowa**; pole uzupełnia każdą nazwę po kilku literach. Słowa są ważne przez 10 minut.';
 
   @override
   String get helpPairWordsP2 =>
-      'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.';
+      'Słowa tylko odnajdują zaproszenie. Kto je zna, jest w tej samej sytuacji co ktoś, kto dostał link, więc jak zwykle sprawdźcie potem razem cztery słowa.';
 
   @override
   String get helpPairWordsP3 =>
-      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+      'Słowa parowania wymagają serwera Epicbox. Gdy Epicbox jest wyłączony, wyślij link z zaproszeniem.';
 
   @override
-  String get helpPairInvTitle => 'Invoices from paired contacts';
+  String get helpPairInvTitle => 'Faktury od sparowanych kontaktów';
 
   @override
   String get helpPairInvShort =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda prośba czeka na twój PIN.';
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać prośby o zapłatę, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
 
   @override
   String get helpPairInvP2 =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+      'Prośba pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej PIN-em. Prośba nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP3 =>
-      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+      'Wyłączenie przełącznika działa od razu: nowe prośby od tego kontaktu przepadają, a otwarte zostają odrzucone.';
 
   @override
   String get helpPairInvP4 =>
-      'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.';
+      'Giełda sparowana z tobą tędy obsługuje wpłaty i wypłaty. Wpłata: giełda prosi, ty zatwierdzasz, giełda publikuje. Wypłata: giełda wysyła płatność, twój portfel sam odpowiada, giełda publikuje.';
 
   @override
-  String get helpPairRestoreTitle => 'What a restore does';
+  String get helpPairRestoreTitle => 'Co daje przywrócenie';
 
   @override
   String get helpPairRestoreShort =>
-      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+      'Przywrócenie z frazy odzyskiwania z kopią historii przywraca każde parowanie; bez niej ponowne parowanie odnajduje te same klucze.';
 
   @override
   String get helpPairRestoreP1 =>
-      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+      'Z kopią historii przywrócenie odtwarza każde parowanie bez zmian: te same klucze, te same oznaczenia Zweryfikowany, te same ustawienia. Kontakty niczego nie zauważą.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      'Bez kopii parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj płatności i Zezwól na faktury wracają do ustawień domyślnych.';
 
   @override
   String get helpPairRestoreP3 =>
-      'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.';
+      'Kontakt widzi **Klucze zmienione** tylko wtedy, gdy fraza jest inna. Może to oznaczać nowy portfel albo kogoś innego, kto używa tej nazwy. Sprawdź słowa ponownie, zanim temu zaufasz.';
 
   @override
   String get helpPairRestoreP4 =>
-      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+      'Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.';
+
+  @override
+  String get deskConAddrEpicbox => 'Adres Epicbox';
+
+  @override
+  String get deskConAddrTor => 'Adres Link · Tor';
+
+  @override
+  String get deskConAddrHttp => 'Adres Link · HTTP';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Wystaw fakturę';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Przed pierwszą fakturą';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Twój adres do płatności';
+
+  @override
+  String get deskInvIssuerMethod => 'Metoda';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Bezpośrednio · Plik';
+
+  @override
+  String get deskInvIssuerDirect => 'Link';
 }

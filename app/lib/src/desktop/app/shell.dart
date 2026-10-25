@@ -12,6 +12,9 @@ import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
+import '../../ui/notices.dart' show NoticeLevel;
+import '../../ui/pairing/pairing_notices.dart' show pairingNoticeOf;
+import '../data/pairing_state.dart' show deskPairingEventsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -140,6 +143,19 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
       if (n != null && mounted) _invoiceToast(context, n);
+    });
+    // What the pairing engine found (RFC 10.4), as a toast; the screens that wait open the
+    // words check themselves, Pending invites keeps the rest.
+    ref.listen(deskPairingEventsProvider, (_, next) {
+      final e = next.value;
+      final n = e == null ? null : pairingNoticeOf(context.l10n, e);
+      if (n == null || !mounted) return;
+      showEToast(context, n.text, tone: switch (n.level) {
+        NoticeLevel.success => ETone.ok,
+        NoticeLevel.info => ETone.info,
+        NoticeLevel.warning => ETone.warn,
+        NoticeLevel.error => ETone.risk,
+      });
     });
     // Node failover moved the wallet to another node for this session: said wherever the
     // user is, never asked.

@@ -4,11 +4,8 @@
   "deskInvPayerReview": "Sprawdź",
   "deskInvPayerView": "Pokaż",
   "deskInvPayerNoMessage": "Brak wiadomości",
-  "deskInvPayerDropped": "{count, plural, one{{count} wiadomość od niezaufanego nadawcy zignorowano.} few{{count} wiadomości od niezaufanych nadawców zignorowano.} many{{count} wiadomości od niezaufanych nadawców zignorowano.} other{{count} wiadomości od niezaufanych nadawców zignorowano.}}",
-  "deskInvPayerTrustService": "Zaufaj serwisowi…",
-  "deskInvPayerYourInvoiceAddress": "Twój adres do faktur",
   "deskInvPayerEmptyTitle": "Żadne faktury nie czekają",
-  "deskInvPayerEmptyText": "Gdy zaufany serwis wystawi ci fakturę, pojawi się tutaj. Nic nie jest płacone, dopóki jej nie zatwierdzisz.",
+  "deskInvPayerEmptyText": "Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, prośba pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.",
   "deskInvPayerNotDeliveredTitle": "Twoja płatność dla: {service} nie została dostarczona",
   "deskInvPayerNotDeliveredText": "Jest podpisana i zapisana na tym urządzeniu; środki pozostają zablokowane. Ponów wysyła ją jeszcze raz bez ponownego zatwierdzania.",
   "deskInvPayerWithdrawnTitle": "Serwis {service} wycofał opłaconą fakturę",
@@ -27,7 +24,6 @@
   "deskInvPayerBalanceAfter": "Saldo po",
   "deskInvPayerMessageCaption": "Napisane przez serwis. Twój portfel tego nie sprawdza.",
   "deskInvPayerPaysTo": "Płatność dla",
-  "deskInvPayerTrustedSince": "{service}, zaufany od {date}",
   "deskInvPayerExpires": "Wygasa",
   "deskInvPayerLockHeight": "Wysokość blokady",
   "deskInvPayerLockNone": "Brak",
@@ -70,5 +66,6 @@
   "deskInvPayerLocked": "Tej faktury nie można zapłacić: jest zablokowana do późniejszego bloku. Nic nie zostało zapłacone.",
   "deskInvPayerRelayDownPay": "Serwer Epicbox nie odpowiada. Nic nie zostało zapłacone.",
   "deskInvPayerStalledTitle": "Twoja płatność dla {service} utknęła",
-  "deskInvPayerStalledText": "Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody."
+  "deskInvPayerStalledText": "Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody.",
+  "deskInvPayerPaidHead": "Zapłacone"
 }

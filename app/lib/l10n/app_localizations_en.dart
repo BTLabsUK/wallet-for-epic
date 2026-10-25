@@ -1761,9 +1761,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoiceGone => 'This invoice is no longer open. Nothing was paid.';
 
   @override
-  String get invoiceReviewTitle => 'Review invoice';
-
-  @override
   String invoiceReviewAsks(String service) {
     return '$service asks you to pay';
   }
@@ -1873,33 +1870,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveRequestTitle => 'Request a payment';
 
   @override
-  String get requestTitle => 'Request a payment';
-
-  @override
-  String get requestStepsIntro =>
-      'Their wallet must take invoices. Before you request:';
-
-  @override
-  String get requestStepTrust =>
-      '1. They add your address below to their trusted services.';
-
-  @override
-  String get requestStepAddress => '2. They give you their invoice address.';
-
-  @override
-  String get requestYourAddress => 'Your address';
-
-  @override
-  String get requestPayerLabel => 'Their invoice address';
-
-  @override
-  String get requestPayerMissing => 'Paste or scan their invoice address.';
-
-  @override
-  String get requestPayerOwn =>
-      'That is one of your own addresses. Enter the invoice address the payer gives you.';
-
-  @override
   String get requestMessageLabel => 'Message to the payer (optional)';
 
   @override
@@ -1910,18 +1880,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestButton => 'Request';
 
   @override
-  String requestSentNotice(String payer) {
-    return 'Request sent to $payer.';
-  }
-
-  @override
   String get invoicesToPaySection => 'To pay';
 
   @override
   String get invoicesNoneToPay => 'Nothing to pay.';
-
-  @override
-  String get invoicesSentSection => 'Requests you sent';
 
   @override
   String get issuedPaid => 'Paid';
@@ -1999,10 +1961,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get issuedDetailsBounced =>
       'The payer\'s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.';
-
-  @override
-  String get requestPayerNoInvoices =>
-      'This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.';
 
   @override
   String get txStatusWaitingPayer => 'Waiting for payer';
@@ -3137,9 +3095,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsNameLabel => 'Name';
 
   @override
-  String get contactsAddressLabel => 'Address';
-
-  @override
   String contactsDuplicate(String name) {
     return 'This address is already saved as $name.';
   }
@@ -3156,11 +3111,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String contactsUrlIncomplete(String example) {
     return 'Enter the full wallet URL, such as $example';
-  }
-
-  @override
-  String contactsAddressInvalid(String example) {
-    return 'This is not a valid address. It looks like $example';
   }
 
   @override
@@ -3277,111 +3227,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle => 'Who may ask you to pay';
-
-  @override
-  String get invoiceSettingsTitle => 'Invoices';
-
-  @override
-  String get invoiceSettingsAddressTitle => 'Your invoice address';
-
-  @override
-  String get invoiceSettingsAddressBody =>
-      'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.';
-
-  @override
-  String get invoiceSettingsQrLabel => 'QR code of your invoice address';
-
-  @override
-  String get invoiceSettingsAddressCopied => 'Invoice address copied.';
-
-  @override
-  String get invoiceSettingsServicesTitle => 'Trusted services';
-
-  @override
-  String get invoiceSettingsNoServices =>
-      'No trusted services yet. Invoices from anyone else never reach you.';
-
-  @override
-  String get invoiceSettingsAddService => 'Add a service';
-
-  @override
-  String invoiceSettingsRemoveTooltip(String name) {
-    return 'Remove $name';
-  }
-
-  @override
-  String invoiceSettingsRemoveTitle(String name) {
-    return 'Remove $name?';
-  }
-
-  @override
-  String get invoiceSettingsRemoveBody =>
-      'This service can no longer send you invoices. Payments you already made are not affected.';
-
-  @override
-  String get invoiceSettingsKeep => 'Keep';
-
-  @override
-  String get invoiceSettingsRemoveConfirm => 'Remove';
-
-  @override
-  String invoiceSettingsRemoved(String name) {
-    return '$name can no longer send you invoices.';
-  }
-
-  @override
-  String get invoiceSettingsRotate => 'Get a new invoice address';
-
-  @override
-  String get invoiceSettingsRotateHint => 'The current one stops working.';
-
-  @override
-  String get invoiceSettingsRotateTitle => 'Get a new invoice address?';
-
-  @override
-  String get invoiceSettingsRotateBody =>
-      'Your current invoice address stops working for good. Every service that bills you needs the new one.';
-
-  @override
-  String get invoiceSettingsRotateConfirm => 'Get new address';
-
-  @override
-  String get invoiceSettingsRotated =>
-      'New invoice address ready. Give it to your services.';
-
-  @override
-  String invoiceSettingsDropped(int count) {
-    return 'Dropped from unknown senders this session: $count';
-  }
-
-  @override
-  String get invoiceSettingsAddTitle => 'Add a trusted service';
-
-  @override
-  String get invoiceSettingsAddExplanation =>
-      'A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.';
-
-  @override
-  String get invoiceSettingsLabelLabel => 'Name';
-
-  @override
-  String get invoiceSettingsLabelMissing => 'Give the service a name.';
-
-  @override
-  String get invoiceSettingsServiceAddressLabel =>
-      'The service\'s epicbox address';
-
-  @override
-  String get invoiceSettingsAddressMissing =>
-      'Paste or scan the address the service shows.';
-
-  @override
-  String get invoiceSettingsAddButton => 'Add service';
-
-  @override
-  String invoiceSettingsAdded(String name) {
-    return '$name can now send you invoices.';
-  }
 
   @override
   String get settingsRescan => 'Recheck balance';
@@ -4684,19 +4529,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsSendAction => 'Send';
 
   @override
-  String get contactsEditAction => 'Edit';
-
-  @override
-  String get contactsAddressHeading => 'Address';
-
-  @override
   String get contactsNoteHeading => 'Note';
 
   @override
   String get contactsShowCode => 'Show code';
-
-  @override
-  String get contactsHideCode => 'Hide code';
 
   @override
   String contactsQrLabel(String name) {
@@ -4732,13 +4568,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$label, $_temp0';
   }
-
-  @override
-  String get invoicesToPayEmpty => 'No invoices to pay';
-
-  @override
-  String get invoicesToPayEmptyCaption =>
-      'Services on your trusted list can bill this wallet. Each invoice waits here for your approval.';
 
   @override
   String get invoicesSentEmpty => 'No requests sent';
@@ -4796,15 +4625,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoicesEpicboxDown => 'Not connected';
 
   @override
-  String get invoicesSendRequest => 'Send request';
-
-  @override
   String invoicesRequestSummary(String payer, String amount) {
     return '$payer is asked to pay $amount. The request expires in 24 h.';
   }
-
-  @override
-  String get invoicesRequestHowTitle => 'Before you request';
 
   @override
   String get netStatusNode => 'Node';
@@ -5478,229 +5301,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvHowItWorks => 'How invoices work';
 
   @override
-  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
-
-  @override
-  String get deskInvEpicboxAddress => 'Epicbox address';
-
-  @override
-  String get deskInvHelpTitle => 'Invoices';
-
-  @override
-  String get deskInvHelpLede =>
-      'Bills from trusted senders, paid only after approval.';
-
-  @override
-  String get deskInvHelpFlowTitle => 'How an invoice works';
-
-  @override
-  String get deskInvHelpFlowShort =>
-      'The issuer sends an invoice to the payer\'s invoice address. Nothing is paid until the payer approves it.';
-
-  @override
-  String get deskInvHelpFlowIntro =>
-      'An invoice asks for a payment. The **issuer** is paid; the **payer** decides.';
-
-  @override
-  String get deskInvHelpFlowStep1 =>
-      'The issuer\'s wallet sends the invoice to the payer\'s **invoice address** over the Epicbox server.';
-
-  @override
-  String get deskInvHelpFlowStep2 =>
-      'The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.';
-
-  @override
-  String get deskInvHelpFlowStep3 =>
-      'The payer\'s wallet sends the payment to the issuer\'s **payments address**.';
-
-  @override
-  String deskInvHelpFlowStep4(int confirmations) {
-    return 'The issuer\'s wallet finalizes the payment and posts it to the network. After $confirmations confirmations it is final.';
-  }
-
-  @override
-  String get deskInvHelpFlowNever =>
-      'Nothing is paid without approval, and an invoice never adds money to the payer\'s wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.';
-
-  @override
-  String get deskInvHelpFlowIssued =>
-      'Invoices this wallet issued are under [[Invoices › Issue]].';
-
-  @override
-  String get deskInvHelpTrustTitle => 'Why only trusted senders';
-
-  @override
-  String get deskInvHelpTrustShort =>
-      'Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.';
-
-  @override
-  String get deskInvHelpTrustP1 =>
-      'The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender\'s address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].';
-
-  @override
-  String get deskInvHelpTrustP2 =>
-      'Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.';
-
-  @override
-  String get deskInvHelpTrustP3 =>
-      'Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.';
-
-  @override
-  String get deskInvHelpTrustWhere1 =>
-      'Trust a sender under [[Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpTrustWhere2 =>
-      'Or switch on **Trusted for invoices** on a contact under [[Contacts]].';
-
-  @override
-  String get deskInvHelpTrustWhere3 =>
-      'A sender can be removed from the list at any time. Its new invoices are then dropped.';
-
-  @override
-  String get deskInvHelpAddrTitle => 'Why a separate invoice address';
-
-  @override
-  String get deskInvHelpAddrShort =>
-      'Invoices arrive at their own address, apart from the payments address that people pay to.';
-
-  @override
-  String get deskInvHelpAddrP1 =>
-      'The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.';
-
-  @override
-  String get deskInvHelpAddrP2 =>
-      'Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.';
-
-  @override
-  String get deskInvHelpAddrP3 =>
-      'The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.';
-
-  @override
-  String get deskInvHelpAddrWhere1 =>
-      'Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].';
-
-  @override
-  String get deskInvHelpAddrWhere2 =>
-      '**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.';
-
-  @override
-  String get deskInvHelpDiagramTitle => 'How an invoice travels';
-
-  @override
-  String get deskInvHelpDiagramIssuer => 'Issuer';
-
-  @override
-  String get deskInvHelpDiagramPayer => 'Payer';
-
-  @override
-  String get deskInvHelpDiagramIssues => 'Issues the invoice';
-
-  @override
-  String get deskInvHelpDiagramInvoice => 'Invoice';
-
-  @override
-  String get deskInvHelpDiagramGate => 'Invoice address';
-
-  @override
-  String get deskInvHelpDiagramGateSub => 'Trusted senders only';
-
-  @override
-  String get deskInvHelpDiagramDropped => 'Other senders';
-
-  @override
-  String get deskInvHelpDiagramDroppedSub => 'Dropped unread';
-
-  @override
-  String get deskInvHelpDiagramReview => 'Reviews and approves';
-
-  @override
-  String get deskInvHelpDiagramReviewSub => 'Approve and pay';
-
-  @override
-  String get deskInvHelpDiagramPayment => 'Payment';
-
-  @override
-  String get deskInvHelpDiagramPayAddr => 'Payments address';
-
-  @override
-  String get deskInvHelpDiagramPayAddrSub => 'Not the invoice address';
-
-  @override
-  String get deskInvHelpDiagramFinal => 'Finalizes and posts';
-
-  @override
-  String deskInvHelpDiagramFinalSub(int confirmations) {
-    return 'Final after $confirmations confirmations';
-  }
-
-  @override
-  String get deskInvHelpDiagramSemantics =>
-      'The issuer sends an invoice to the payer\'s invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer\'s payments address; the issuer\'s wallet finalizes it and posts it to the network.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Issue an invoice';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Before the first invoice';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Your payments address';
-
-  @override
-  String get deskInvIssuerMethod => 'Method';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Direct · File';
-
-  @override
-  String get deskInvIssuerDirect => 'Link';
-
-  @override
   String get deskInvIssuerSoon => 'Coming soon';
-
-  @override
-  String get deskInvIssuerPayer => 'Their invoice address';
-
-  @override
-  String get deskInvIssuerPayerHelp =>
-      'Their wallet shows it under Settings › Invoices.';
-
-  @override
-  String get deskInvIssuerPayerMissing => 'Paste their invoice address.';
-
-  @override
-  String get deskInvIssuerPayerInvalid =>
-      'This is not a valid Epicbox address.';
-
-  @override
-  String get deskInvIssuerPayerOwn =>
-      'This is one of your own addresses. Use the invoice address the payer gives you.';
-
-  @override
-  String get deskInvIssuerPayerHttp =>
-      'Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.';
-
-  @override
-  String get deskInvIssuerContacts => 'Contacts';
 
   @override
   String get deskInvIssuerNoContacts =>
       'No contact has an invoice address yet. Add it under Contacts.';
-
-  @override
-  String get deskInvIssuerNoInvoices =>
-      'This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.';
-
-  @override
-  String get deskInvIssuerUseFile => 'Use a file';
-
-  @override
-  String get deskInvIssuerUnknown =>
-      'Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.';
 
   @override
   String get deskInvIssuerAmount => 'Amount';
@@ -5739,23 +5344,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerIssue => 'Issue';
-
-  @override
   String get deskInvIssuerRelayDown =>
       'The Epicbox server is not answering, so an invoice cannot go out now.';
 
   @override
-  String get deskInvIssuerFixFields => 'Fix the fields marked in red.';
-
-  @override
   String get deskInvIssuerNotDelivered =>
       'The invoice did not reach the Epicbox server. Nothing was sent. Try again.';
-
-  @override
-  String deskInvIssuerSent(String payer) {
-    return 'Invoice sent to $payer.';
-  }
 
   @override
   String get deskInvIssuerEmpty =>
@@ -5860,23 +5454,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Delivered to $payer\'s invoice address. Nothing is paid until they approve it.';
+    return 'Delivered to $payer\'s mailbox. Nothing is paid until they approve it.';
   }
 
   @override
   String get deskInvIssuerCopySlate => 'Copy slate ID';
-
-  @override
-  String get deskInvIssuerStepsIntro =>
-      'Their wallet must take invoices. Before the first invoice:';
-
-  @override
-  String get deskInvIssuerStepTrust =>
-      '1. They add your payments address below to their trusted senders.';
-
-  @override
-  String get deskInvIssuerStepAddress =>
-      '2. They give you their invoice address.';
 
   @override
   String get deskInvIssuerStepIssued => 'Issued';
@@ -5931,28 +5513,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvPayerNoMessage => 'No message';
 
   @override
-  String deskInvPayerDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count messages from senders you do not trust were ignored.',
-      one: '1 message from a sender you do not trust was ignored.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvPayerTrustService => 'Trust a service…';
-
-  @override
-  String get deskInvPayerYourInvoiceAddress => 'Your invoice address';
-
-  @override
   String get deskInvPayerEmptyTitle => 'No invoices are waiting';
 
   @override
   String get deskInvPayerEmptyText =>
-      'When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.';
+      'When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -6025,11 +5590,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerPaysTo => 'Pays to';
-
-  @override
-  String deskInvPayerTrustedSince(String service, String date) {
-    return '$service, trusted since $date';
-  }
 
   @override
   String get deskInvPayerExpires => 'Expires';
@@ -6182,137 +5742,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvSetTitle => 'Invoices';
 
   @override
-  String get deskInvSetIntro =>
-      'Services you trust bill this wallet at its invoice address. Nothing is paid until you approve each invoice.';
-
-  @override
-  String get deskInvSetAddressLabel => 'Invoice address';
-
-  @override
-  String get deskInvSetAddressWarning =>
-      'Give it only to services you trust. It does not receive payments.';
-
-  @override
-  String get deskInvSetCopy => 'Copy';
-
-  @override
-  String get deskInvSetCopied =>
-      'Invoice address copied. Give it only to services you trust; it does not receive payments.';
-
-  @override
-  String get deskInvSetQrShow => 'Show QR';
-
-  @override
-  String get deskInvSetQrHide => 'Hide QR';
-
-  @override
-  String get deskInvSetQrLabel => 'QR code of your invoice address';
-
-  @override
-  String deskInvSetIndex(int index) {
-    return 'Invoice address $index';
-  }
-
-  @override
-  String get deskInvSetTrusted => 'Trusted senders';
-
-  @override
-  String get deskInvSetTrustedNone =>
-      'No trusted senders. Invoices from anyone else are ignored unread.';
-
-  @override
-  String deskInvSetSince(String date) {
-    return 'Trusted since $date';
-  }
-
-  @override
-  String get deskInvSetContactTag => 'Contact';
-
-  @override
-  String get deskInvSetRemove => 'Remove';
-
-  @override
-  String deskInvSetRemoveTitle(String name) {
-    return 'Stop trusting $name?';
-  }
-
-  @override
-  String deskInvSetRemoveBody(String name) {
-    return '$name can no longer send you invoices. Invoices already waiting stay until you answer them or they expire.';
-  }
-
-  @override
-  String deskInvSetRemoved(String name) {
-    return '$name can no longer send you invoices.';
-  }
-
-  @override
-  String get deskInvSetKeep => 'Keep';
-
-  @override
-  String get deskInvSetAdd => 'Trust a sender';
-
-  @override
-  String get deskInvSetAddBody =>
-      'A trusted sender can bill this wallet at its invoice address. Nothing is paid until you approve each invoice with your wallet password.';
-
-  @override
-  String get deskInvSetName => 'Name';
-
-  @override
-  String get deskInvSetNameMissing => 'Give the sender a name.';
-
-  @override
-  String get deskInvSetSenderAddress => 'Their payments address';
-
-  @override
-  String get deskInvSetSenderMissing => 'Paste the address the service shows.';
-
-  @override
-  String get deskInvSetSenderInvalid => 'This is not a valid Epicbox address.';
-
-  @override
-  String get deskInvSetTrust => 'Trust';
-
-  @override
-  String deskInvSetAdded(String name) {
-    return '$name can now send you invoices.';
-  }
-
-  @override
-  String deskInvSetDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count messages from senders you do not trust were ignored unread.',
-      one: '1 message from a sender you do not trust was ignored unread.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvSetRotate => 'New invoice address';
-
-  @override
-  String get deskInvSetRotateHint =>
-      'Services that have the old one can no longer send you invoices.';
-
-  @override
-  String get deskInvSetRotateTitle => 'Make a new invoice address?';
-
-  @override
-  String get deskInvSetRotateBody =>
-      'Services that have the old one can no longer send you invoices. Give the new one to every service that bills you.';
-
-  @override
-  String get deskInvSetRotateConfirm => 'Make new address';
-
-  @override
-  String get deskInvSetRotated =>
-      'New invoice address ready. Give it to your services.';
-
-  @override
   String get deskInvSetExpiry => 'Time to pay';
 
   @override
@@ -6325,38 +5754,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetCancel => 'Cancel';
-
-  @override
-  String get deskInvSetContactSection => 'Invoices';
-
-  @override
-  String get deskInvSetTheirInvoice => 'Their invoice address';
-
-  @override
-  String get deskInvSetTheirInvoiceNone =>
-      'No invoice address saved. Ask them for it to issue invoices to them.';
-
-  @override
-  String get deskInvSetTrustedSwitch => 'Trusted for invoices';
-
-  @override
-  String get deskInvSetTrustedSwitchHelp =>
-      'Lets this contact bill you. Nothing is paid until you approve an invoice.';
-
-  @override
-  String get deskInvSetIssueNeeds => 'Needs their invoice address.';
-
-  @override
-  String get deskInvSetShare => 'Share invoice address';
-
-  @override
   String get deskInvSetReceiveHint =>
-      'Ask a contact or a service to pay you. Their wallet must take invoices.';
-
-  @override
-  String get deskInvSetRestoredHint =>
-      'Restored this wallet from its recovery phrase? Give services this invoice address again.';
+      'Ask a paired contact to pay you, or save the request as a file.';
 
   @override
   String get serverSwitchRelayTitle => 'Switch epicbox server?';
@@ -8582,15 +7981,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskConDeleted(String name) {
     return '$name was deleted';
   }
-
-  @override
-  String get deskConAddrEpicbox => 'Epicbox address';
-
-  @override
-  String get deskConAddrTor => 'Link · Tor address';
-
-  @override
-  String get deskConAddrHttp => 'Link · HTTP address';
 
   @override
   String get deskConNote => 'Note';
@@ -14201,7 +13591,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.';
+      'Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.';
 
   @override
   String get advRecheckHeight => 'Recheck from a height';
@@ -15128,11 +14518,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairWordsGoodFor => 'Good for 10 minutes';
 
   @override
-  String pairWordsLeft(String time) {
-    return '$time left';
-  }
-
-  @override
   String get pairWordsLastMinute => 'Less than a minute left';
 
   @override
@@ -15232,11 +14617,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String pairInviteSentBody(String name) {
     return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
-  }
-
-  @override
-  String pairInviteExpiresIn(String time) {
-    return 'Expires in $time';
   }
 
   @override
@@ -15388,10 +14768,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pairSecondReplyBody =>
-      'If you didn’t share it with them, remove them.';
-
-  @override
   String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
 
   @override
@@ -15496,9 +14872,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactPairing => 'Pairing';
-
-  @override
-  String get contactShowCode => 'Show code';
 
   @override
   String contactWordsChecked(String date) {
@@ -15767,30 +15140,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reqAsksYouToPay(String name) {
-    return '$name asks you to pay';
-  }
-
-  @override
   String reqSealedSigned(String name) {
     return 'Sealed to this wallet and signed by $name';
   }
 
   @override
   String get reqReference => 'Reference';
-
-  @override
-  String reqDepositRef(String ref) {
-    return 'Deposit · ref $ref';
-  }
-
-  @override
-  String reqWithdrawalRef(String ref) {
-    return 'Withdrawal · ref $ref';
-  }
-
-  @override
-  String get reqDeliveredVia => 'Delivered via';
 
   @override
   String reqPaidWaiting(String name) {
@@ -15876,9 +15231,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reqDeclined => 'Declined';
-
-  @override
   String reqTwoSame(String name, int count, String amount) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15889,15 +15241,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String reqTooMany(String name) {
-    return '$name sent too many requests.';
-  }
-
-  @override
-  String get reqTooManyBody =>
-      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
 
   @override
   String reqWithdrawalFrom(String name) {
@@ -16088,14 +15431,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(String payments, String contacts, String pairings) {
-    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
-  }
-
-  @override
   String get pairInviteSentBodyAnyone =>
       'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
 
@@ -16169,9 +15504,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get trustNotPaired => 'Not paired';
-
-  @override
   String get contactMore => 'More';
 
   @override
@@ -16179,11 +15511,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactDelete => 'Delete contact';
-
-  @override
-  String contactInfoAbout(String label) {
-    return 'About $label';
-  }
 
   @override
   String contactCopyAddress(String type) {
@@ -16201,11 +15528,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String addrRemove(String type) {
     return 'Remove $type address';
-  }
-
-  @override
-  String addrAlreadySaved(String name) {
-    return 'This address is already saved as $name.';
   }
 
   @override
@@ -16246,10 +15568,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqFileTitle => 'Payment request';
 
   @override
-  String get reqFileBody =>
-      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
-
-  @override
   String noticeOutboxStuck(String name) {
     return 'Couldn’t reach $name yet. Your funds are safe.';
   }
@@ -16272,14 +15590,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restorePairings => 'Pairings';
 
   @override
-  String sendSealedNote(String name) {
-    return 'Sealed for $name: only their wallet can open the file.';
-  }
-
-  @override
-  String get sendSealChoice => 'Seal this file';
-
-  @override
   String get pairingDesktopShowCodeLead =>
       'Let them scan this with their phone, or read them the pairing words.';
 
@@ -16289,9 +15599,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairingInviteOnline => 'Invite online';
-
-  @override
-  String get pairUseHere => 'Use here';
 
   @override
   String pairSaveContactTitle(String name) {
@@ -16305,16 +15612,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairAddToAContact => 'Add to a contact';
 
   @override
-  String get pairPickContactTitle => 'Add to which contact?';
-
-  @override
   String pairSavedAs(String name) {
     return 'Saved as $name.';
-  }
-
-  @override
-  String pairContactAlreadyPaired(String name) {
-    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
   }
 
   @override
@@ -16464,4 +15763,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+
+  @override
+  String get deskConAddrEpicbox => 'Epicbox address';
+
+  @override
+  String get deskConAddrTor => 'Link · Tor address';
+
+  @override
+  String get deskConAddrHttp => 'Link · HTTP address';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Issue an invoice';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Before the first invoice';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Your payments address';
+
+  @override
+  String get deskInvIssuerMethod => 'Method';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Direct · File';
+
+  @override
+  String get deskInvIssuerDirect => 'Link';
 }

@@ -393,7 +393,7 @@ FakeWalletSession _previewSession() {
     ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired, checkSkipped: true)
     ..seedPaired(
       name: 'Northwind Exchange',
-      kind: PairingKind.exchange,
+      kind: PairingParty.exchange,
       caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
       allowInvoices: true,
       paymentsAddress: biller,

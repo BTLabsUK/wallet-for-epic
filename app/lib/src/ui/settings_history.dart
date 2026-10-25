@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
+import '../pairing_providers.dart' show pairingsProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -382,13 +383,34 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     ref.invalidate(homeProvider);
     if (context.mounted) {
+      final pairings = report.pairingsAdded == 0
+          ? null
+          : '${l.restorePairings}: ${report.pairingsOtherDevice > 0 ? l.restorePairingsOnOtherDevice(report.pairingsAdded) : report.pairingsAdded}';
       await _tell(
         context,
         l.historyBackupImportedTitle,
-        report.replaced > 0
-            ? '${describeImport(l, report)} ${l.histImportedReplaced(report.replaced)}'
-            : describeImport(l, report),
+        [
+          describeImport(l, report),
+          if (report.replaced > 0) l.histImportedReplaced(report.replaced),
+          ?pairings,
+        ].join(' '),
       );
+    }
+    // Pairings used on another device wait until the user takes them over here (RFC 9.5).
+    if (report.pairingsOtherDevice > 0 && context.mounted) {
+      final use = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l.restoreUseContactsTitle),
+          content: Text(l.restoreUseContactsBody(report.pairingsOtherDevice)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.pairNotNow)),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.restoreUseHere)),
+          ],
+        ),
+      );
+      if (use == true) await session.pairing.useImportedPairings();
+      ref.invalidate(pairingsProvider);
     }
     return true;
   } catch (error) {

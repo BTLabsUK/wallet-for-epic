@@ -28,6 +28,7 @@ import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
 import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
+import 'pairing/pairing_notices.dart';
 import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
@@ -584,6 +585,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           actions: [
             // Invoices moved to the destinations row; the entry keeps its event wiring.
             const InvoicesEntry(visible: false),
+            // Pairing events as notices; draws nothing.
+            const PairingNotices(),
             if (scan)
               IconButton(
                 tooltip: l.homeScanTooltip,

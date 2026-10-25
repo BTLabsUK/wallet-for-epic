@@ -736,6 +736,8 @@ class HistoryImport {
     this.conflicts = const [],
     this.applied = true,
     this.replaced = 0,
+    this.pairingsAdded = 0,
+    this.pairingsOtherDevice = 0,
   });
 
   /// Payments already here that got details back.
@@ -758,7 +760,12 @@ class HistoryImport {
   /// Fields the user chose the file's value for.
   final int replaced;
 
-  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0 && replaced == 0;
+  /// Pairings the file brought back (RFC 10.5); of those, the ones used on another device,
+  /// which wait for the user to take them over here (RFC 9.5).
+  final int pairingsAdded;
+  final int pairingsOtherDevice;
+
+  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0 && replaced == 0 && pairingsAdded == 0;
 }
 
 /// Why a history backup file was refused.

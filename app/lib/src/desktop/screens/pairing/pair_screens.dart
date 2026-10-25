@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDayMonth;
 import '../../../models.dart'
-    show PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingKind, PairingRecord, PairingState, PairingWay, pairingError, pairingFailureOf;
+    show PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, pairingError, pairingFailureOf;
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
@@ -624,7 +624,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     if (r == null) return EDialog(title: l.sasTitle);
     final lead = widget.recheck
         ? l.sasLeadRecheck(name)
-        : (r.kind != PairingKind.person && r.way != PairingWay.inPerson ? l.sasLeadExchange(name) : l.sasLead(name));
+        : (r.kind != PairingParty.person && r.way != PairingWay.inPerson ? l.sasLeadExchange(name) : l.sasLead(name));
     final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
       title: l.sasDialogTitle(name),

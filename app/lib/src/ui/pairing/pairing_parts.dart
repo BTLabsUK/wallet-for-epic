@@ -256,10 +256,10 @@ class ClaimedNameBadge extends StatelessWidget {
 /// A contact's avatar: its initials in a corner-ticked tile, in the accent's text colour for
 /// a person and the info colour for a shop or an exchange.
 class PairAvatar extends StatelessWidget {
-  const PairAvatar({super.key, required this.name, this.kind = PairingKind.person, this.size = 48});
+  const PairAvatar({super.key, required this.name, this.kind = PairingParty.person, this.size = 48});
 
   final String name;
-  final PairingKind kind;
+  final PairingParty kind;
   final double size;
 
   @override
@@ -273,7 +273,7 @@ class PairAvatar extends StatelessWidget {
           fontFamily: t.headFamily,
           fontSize: size * 0.35,
           fontWeight: FontWeight.w600,
-          color: kind == PairingKind.person ? t.accentText : t.info,
+          color: kind == PairingParty.person ? t.accentText : t.info,
         ),
       ),
     );

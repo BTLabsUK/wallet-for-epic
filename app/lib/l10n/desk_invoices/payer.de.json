@@ -4,11 +4,8 @@
   "deskInvPayerReview": "Prüfen",
   "deskInvPayerView": "Ansehen",
   "deskInvPayerNoMessage": "Keine Nachricht",
-  "deskInvPayerDropped": "{count, plural, =1{1 Nachricht eines nicht vertrauenswürdigen Absenders wurde ignoriert.} other{{count} Nachrichten nicht vertrauenswürdiger Absender wurden ignoriert.}}",
-  "deskInvPayerTrustService": "Dienst vertrauen…",
-  "deskInvPayerYourInvoiceAddress": "Ihre Rechnungsadresse",
   "deskInvPayerEmptyTitle": "Keine Rechnungen warten",
-  "deskInvPayerEmptyText": "Wenn Ihnen ein vertrauenswürdiger Dienst eine Rechnung stellt, erscheint sie hier. Bezahlt wird erst, wenn Sie zustimmen.",
+  "deskInvPayerEmptyText": "Wenn Sie ein gekoppelter, erlaubter Kontakt um Zahlung bittet, erscheint die Anforderung hier, und nichts wird bezahlt, bis Sie zustimmen.",
   "deskInvPayerNotDeliveredTitle": "Ihre Zahlung an {service} wurde nicht zugestellt",
   "deskInvPayerNotDeliveredText": "Sie ist signiert und auf diesem Gerät gespeichert; das Guthaben bleibt gesperrt. „Erneut senden“ schickt sie ohne zweite Zustimmung noch einmal.",
   "deskInvPayerWithdrawnTitle": "{service} hat eine bezahlte Rechnung zurückgezogen",
@@ -27,7 +24,6 @@
   "deskInvPayerBalanceAfter": "Guthaben danach",
   "deskInvPayerMessageCaption": "Vom Dienst geschrieben. Ihre Wallet prüft sie nicht.",
   "deskInvPayerPaysTo": "Zahlt an",
-  "deskInvPayerTrustedSince": "{service}, vertraut seit {date}",
   "deskInvPayerExpires": "Läuft ab",
   "deskInvPayerLockHeight": "Sperrhöhe",
   "deskInvPayerLockNone": "Keine",
@@ -70,5 +66,6 @@
   "deskInvPayerLocked": "Diese Rechnung kann nicht bezahlt werden: Sie ist bis zu einem späteren Block gesperrt. Nichts wurde bezahlt.",
   "deskInvPayerRelayDownPay": "Der Epicbox-Server antwortet nicht. Es wurde nichts bezahlt.",
   "deskInvPayerStalledTitle": "Ihre Zahlung an {service} hängt fest",
-  "deskInvPayerStalledText": "Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe."
+  "deskInvPayerStalledText": "Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe.",
+  "deskInvPayerPaidHead": "Bezahlt"
 }

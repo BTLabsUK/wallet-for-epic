@@ -552,8 +552,8 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
 String _phonePairingPlace(AppLocalizations l, String inner, String whole) {
   final bar = inner.indexOf('|');
   final target = bar < 0 ? inner : inner.substring(bar + 1).trim();
-  final label = bar < 0 ? null : inner.substring(0, bar).trim();
-  String link(List<String> words, String place) => '[[${label ?? words.join(' › ')}|$place]]';
+  // The phone's own words, whatever label the desktop's place carries.
+  String link(List<String> words, String place) => '[[${words.join(' › ')}|$place]]';
   return switch (target) {
     'Invoices › Pay' => link([l.invoicesTitle, l.invoicesToPaySection], 'Invoices › To pay'),
     'Settings › Invoices' => link([l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices], 'Settings › Wallet › Invoices'),

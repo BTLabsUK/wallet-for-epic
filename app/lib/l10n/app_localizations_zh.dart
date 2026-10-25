@@ -1629,7 +1629,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoicesChecking => '正在检查账单';
 
   @override
-  String get invoicesEmpty => '没有待处理的账单。你信任的服务向你发送账单后，账单会显示在这里。未经你批准，不会支付任何款项。';
+  String get invoicesEmpty => '没有等待中的请求。你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。';
 
   @override
   String get invoicesUnnamedService => '未命名的服务';
@@ -1652,9 +1652,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invoiceGone => '此账单已不再有效，未支付任何款项。';
-
-  @override
-  String get invoiceReviewTitle => '查看账单';
 
   @override
   String invoiceReviewAsks(String service) {
@@ -1759,30 +1756,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveRequestTitle => '请求付款';
 
   @override
-  String get requestTitle => '请求付款';
-
-  @override
-  String get requestStepsIntro => '对方的钱包必须能接收账单。请求之前：';
-
-  @override
-  String get requestStepTrust => '1. 对方把下面你的地址添加到其信任的服务中。';
-
-  @override
-  String get requestStepAddress => '2. 对方把其账单地址给你。';
-
-  @override
-  String get requestYourAddress => '你的地址';
-
-  @override
-  String get requestPayerLabel => '对方的账单地址';
-
-  @override
-  String get requestPayerMissing => '粘贴或扫描对方的账单地址。';
-
-  @override
-  String get requestPayerOwn => '这是你自己的地址之一。请输入付款方给你的账单地址。';
-
-  @override
   String get requestMessageLabel => '给付款方的留言（可选）';
 
   @override
@@ -1792,18 +1765,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get requestButton => '请求';
 
   @override
-  String requestSentNotice(String payer) {
-    return '已向 $payer 发送请求。';
-  }
-
-  @override
   String get invoicesToPaySection => '待支付';
 
   @override
   String get invoicesNoneToPay => '没有待支付的账单。';
-
-  @override
-  String get invoicesSentSection => '你发出的请求';
 
   @override
   String get issuedPaid => '已支付';
@@ -1875,10 +1840,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get issuedDetailsBounced =>
       '付款方的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
-
-  @override
-  String get requestPayerNoInvoices =>
-      '这个钱包之前退回过请求：它无法支付请求。请让对方改为直接向你的地址付款，或使用付款文件。';
 
   @override
   String get txStatusWaitingPayer => '等待付款方';
@@ -2942,9 +2903,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsNameLabel => '名称';
 
   @override
-  String get contactsAddressLabel => '地址';
-
-  @override
   String contactsDuplicate(String name) {
     return '此地址已保存为 $name。';
   }
@@ -2961,11 +2919,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String contactsUrlIncomplete(String example) {
     return '请输入完整的钱包 URL，例如 $example';
-  }
-
-  @override
-  String contactsAddressInvalid(String example) {
-    return '这不是有效的地址。地址格式类似 $example';
   }
 
   @override
@@ -3074,110 +3027,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionInvoices => '账单';
 
   @override
-  String get settingsInvoices => '账单地址和受信任的服务';
+  String get settingsInvoices => '账单';
 
   @override
-  String get settingsInvoicesSubtitle =>
-      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。它与你的收款地址分开。';
-
-  @override
-  String get invoiceSettingsTitle => '账单';
-
-  @override
-  String get invoiceSettingsAddressTitle => '你的账单地址';
-
-  @override
-  String get invoiceSettingsAddressBody =>
-      '将此地址提供给你信任的服务，以便它向你发送账单。它与你的收款地址分开。';
-
-  @override
-  String get invoiceSettingsQrLabel => '你的账单地址二维码';
-
-  @override
-  String get invoiceSettingsAddressCopied => '已复制账单地址。';
-
-  @override
-  String get invoiceSettingsServicesTitle => '受信任的服务';
-
-  @override
-  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达你这里。';
-
-  @override
-  String get invoiceSettingsAddService => '添加服务';
-
-  @override
-  String invoiceSettingsRemoveTooltip(String name) {
-    return '移除 $name';
-  }
-
-  @override
-  String invoiceSettingsRemoveTitle(String name) {
-    return '移除 $name？';
-  }
-
-  @override
-  String get invoiceSettingsRemoveBody => '此服务将无法再向你发送账单。已完成的付款不受影响。';
-
-  @override
-  String get invoiceSettingsKeep => '保留';
-
-  @override
-  String get invoiceSettingsRemoveConfirm => '移除';
-
-  @override
-  String invoiceSettingsRemoved(String name) {
-    return '$name 无法再向你发送账单。';
-  }
-
-  @override
-  String get invoiceSettingsRotate => '获取新的账单地址';
-
-  @override
-  String get invoiceSettingsRotateHint => '当前地址将停止使用。';
-
-  @override
-  String get invoiceSettingsRotateTitle => '获取新的账单地址？';
-
-  @override
-  String get invoiceSettingsRotateBody => '你当前的账单地址将永久停止使用。每个向你发送账单的服务都需要新地址。';
-
-  @override
-  String get invoiceSettingsRotateConfirm => '获取新地址';
-
-  @override
-  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给你的服务。';
-
-  @override
-  String invoiceSettingsDropped(int count) {
-    return '本次会话丢弃（未知发件人）：$count';
-  }
-
-  @override
-  String get invoiceSettingsAddTitle => '添加受信任的服务';
-
-  @override
-  String get invoiceSettingsAddExplanation =>
-      '受信任的服务可以向你的账单地址发送账单；其他人的消息会被丢弃。在你用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
-
-  @override
-  String get invoiceSettingsLabelLabel => '名称';
-
-  @override
-  String get invoiceSettingsLabelMissing => '请为服务命名。';
-
-  @override
-  String get invoiceSettingsServiceAddressLabel => '服务的 Epicbox 地址';
-
-  @override
-  String get invoiceSettingsAddressMissing => '粘贴或扫描服务显示的地址。';
-
-  @override
-  String get invoiceSettingsAddButton => '添加服务';
-
-  @override
-  String invoiceSettingsAdded(String name) {
-    return '$name 现在可以向你发送账单了。';
-  }
+  String get settingsInvoicesSubtitle => '谁可以请求你付款';
 
   @override
   String get settingsRescan => '重新核对余额';
@@ -4422,19 +4275,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsSendAction => '发送';
 
   @override
-  String get contactsEditAction => '编辑';
-
-  @override
-  String get contactsAddressHeading => '地址';
-
-  @override
   String get contactsNoteHeading => '备注';
 
   @override
   String get contactsShowCode => '显示二维码';
-
-  @override
-  String get contactsHideCode => '隐藏二维码';
 
   @override
   String contactsQrLabel(String name) {
@@ -4468,12 +4312,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$label，$_temp0';
   }
-
-  @override
-  String get invoicesToPayEmpty => '没有待付账单';
-
-  @override
-  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具账单。每张账单都在这里等待你批准。';
 
   @override
   String get invoicesSentEmpty => '没有已发送的请求';
@@ -4530,15 +4368,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoicesEpicboxDown => '未连接';
 
   @override
-  String get invoicesSendRequest => '发送请求';
-
-  @override
   String invoicesRequestSummary(String payer, String amount) {
     return '将请求 $payer 支付 $amount。请求在 24 小时后到期。';
   }
-
-  @override
-  String get invoicesRequestHowTitle => '请求之前';
 
   @override
   String get netStatusNode => '节点';
@@ -5177,212 +5009,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvHowItWorks => '账单如何运作';
 
   @override
-  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
-
-  @override
-  String get deskInvEpicboxAddress => 'Epicbox 地址';
-
-  @override
-  String get deskInvHelpTitle => '账单';
-
-  @override
-  String get deskInvHelpLede => '来自受信任发送方的账单，批准后才付款。';
-
-  @override
-  String get deskInvHelpFlowTitle => '账单如何运作';
-
-  @override
-  String get deskInvHelpFlowShort => '开单方把账单发到付款方的账单地址。付款方批准之前不会付款。';
-
-  @override
-  String get deskInvHelpFlowIntro => '账单是一项付款请求。**开单方**收款；**付款方**做决定。';
-
-  @override
-  String get deskInvHelpFlowStep1 => '开单方的钱包通过 Epicbox 服务器把账单发到付款方的**账单地址**。';
-
-  @override
-  String get deskInvHelpFlowStep2 =>
-      '付款方在 [[账单 › 支付|Invoices › Pay]] 中打开它，核对发送方、金额和留言，然后输入钱包密码，选择**批准并付款**。';
-
-  @override
-  String get deskInvHelpFlowStep3 => '付款方的钱包把付款发到开单方的**收款地址**。';
-
-  @override
-  String deskInvHelpFlowStep4(int confirmations) {
-    return '开单方的钱包完成这笔付款并广播到网络。$confirmations 个确认后即为最终状态。';
-  }
-
-  @override
-  String get deskInvHelpFlowNever =>
-      '未经批准不会付款，账单也绝不会给付款方的钱包增加资金。每张账单都有付款期限，最长 48 小时；过期后无法再付款。';
-
-  @override
-  String get deskInvHelpFlowIssued =>
-      '本钱包开具的账单在 [[账单 › 开具|Invoices › Issue]] 中。';
-
-  @override
-  String get deskInvHelpTrustTitle => '为什么只接受受信任的发送方';
-
-  @override
-  String get deskInvHelpTrustShort => '只有受信任列表中的发送方才能把账单放进收件箱。这可以挡住垃圾信息和假账单。';
-
-  @override
-  String get deskInvHelpTrustP1 =>
-      '钱包只在自己的账单地址接收账单，并且只接收受信任列表中的发送方（按发送方地址匹配）。其他一切在打开之前就被直接丢弃，不会出现在 [[账单 › 支付|Invoices › Pay]] 中。';
-
-  @override
-  String get deskInvHelpTrustP2 => '没有这个列表，任何知道账单地址的人都可以用垃圾信息或看似真实的账单塞满收件箱。';
-
-  @override
-  String get deskInvHelpTrustP3 =>
-      '信任只是允许发送方提出请求。受信任的发送方无法拿走任何东西：每张账单仍需**批准并付款**。';
-
-  @override
-  String get deskInvHelpTrustWhere1 =>
-      '在 [[设置 › 账单|Settings › Invoices]] 中信任发送方。';
-
-  @override
-  String get deskInvHelpTrustWhere2 => '或在 [[联系人|Contacts]] 中为联系人打开**信任其账单**。';
-
-  @override
-  String get deskInvHelpTrustWhere3 => '发送方可随时从列表中移除。之后它的新账单会被丢弃。';
-
-  @override
-  String get deskInvHelpAddrTitle => '为什么要单独的账单地址';
-
-  @override
-  String get deskInvHelpAddrShort => '账单到达自己的地址，与别人付款用的收款地址分开。';
-
-  @override
-  String get deskInvHelpAddrP1 =>
-      '钱包有两个 Epicbox 地址。[[接收|Receive]] 中的**收款地址**接收付款。**账单地址**只接收账单。';
-
-  @override
-  String get deskInvHelpAddrP2 => '分开之后，账单地址可以提供给服务或更换，而不会暴露或改变别人付款用的地址。';
-
-  @override
-  String get deskInvHelpAddrP3 => '账单地址不接收付款：发到它的付款会被丢弃。收款应使用收款地址。';
-
-  @override
-  String get deskInvHelpAddrWhere1 =>
-      '在 [[设置 › 账单|Settings › Invoices]] 中查找、复制账单地址或显示其二维码。';
-
-  @override
-  String get deskInvHelpAddrWhere2 => '**新的账单地址**会替换它。持有旧地址的服务在拿到新地址之前无法再发送账单。';
-
-  @override
-  String get deskInvHelpDiagramTitle => '账单的流转';
-
-  @override
-  String get deskInvHelpDiagramIssuer => '开单方';
-
-  @override
-  String get deskInvHelpDiagramPayer => '付款方';
-
-  @override
-  String get deskInvHelpDiagramIssues => '开具账单';
-
-  @override
-  String get deskInvHelpDiagramInvoice => '账单';
-
-  @override
-  String get deskInvHelpDiagramGate => '账单地址';
-
-  @override
-  String get deskInvHelpDiagramGateSub => '仅限受信任的发送方';
-
-  @override
-  String get deskInvHelpDiagramDropped => '其他发送方';
-
-  @override
-  String get deskInvHelpDiagramDroppedSub => '直接丢弃';
-
-  @override
-  String get deskInvHelpDiagramReview => '核对并批准';
-
-  @override
-  String get deskInvHelpDiagramReviewSub => '批准并付款';
-
-  @override
-  String get deskInvHelpDiagramPayment => '付款';
-
-  @override
-  String get deskInvHelpDiagramPayAddr => '收款地址';
-
-  @override
-  String get deskInvHelpDiagramPayAddrSub => '不是账单地址';
-
-  @override
-  String get deskInvHelpDiagramFinal => '完成并广播';
-
-  @override
-  String deskInvHelpDiagramFinalSub(int confirmations) {
-    return '$confirmations 个确认后即为最终状态';
-  }
-
-  @override
-  String get deskInvHelpDiagramSemantics =>
-      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并广播到网络。';
-
-  @override
-  String get deskInvIssuerFormTitle => '开具账单';
-
-  @override
-  String get deskInvIssuerFirstTitle => '首次开具账单之前';
-
-  @override
-  String get deskInvIssuerYourAddress => '你的收款地址';
-
-  @override
-  String get deskInvIssuerMethod => '方式';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => '直接 · 文件';
-
-  @override
-  String get deskInvIssuerDirect => '链接';
-
-  @override
   String get deskInvIssuerSoon => '即将推出';
 
   @override
-  String get deskInvIssuerPayer => '对方的账单地址';
-
-  @override
-  String get deskInvIssuerPayerHelp => '对方钱包在“设置 › 账单”中显示它。';
-
-  @override
-  String get deskInvIssuerPayerMissing => '粘贴对方的账单地址。';
-
-  @override
-  String get deskInvIssuerPayerInvalid => '这不是有效的 Epicbox 地址。';
-
-  @override
-  String get deskInvIssuerPayerOwn => '这是你自己的地址之一。请使用付款方提供的账单地址。';
-
-  @override
-  String get deskInvIssuerPayerHttp =>
-      '通过 Epicbox 的账单需要 Epicbox 地址，而不是 HTTP 或 Tor 地址。';
-
-  @override
-  String get deskInvIssuerContacts => '联系人';
-
-  @override
   String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在“联系人”中添加。';
-
-  @override
-  String get deskInvIssuerNoInvoices =>
-      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给你。';
-
-  @override
-  String get deskInvIssuerUseFile => '使用文件';
-
-  @override
-  String get deskInvIssuerUnknown =>
-      '只有 wallet-for-epic 和其他 LEPIC 钱包可以通过 Epicbox 支付账单。Epic GUI wallet 和 Stack Wallet 完全无法支付账单；epic-wallet 命令行可以支付账单文件。';
 
   @override
   String get deskInvIssuerAmount => '金额';
@@ -5419,21 +5049,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerIssue => '开具';
-
-  @override
   String get deskInvIssuerRelayDown => 'Epicbox 服务器无响应，暂时无法发出账单。';
 
   @override
-  String get deskInvIssuerFixFields => '请修正标红的字段。';
-
-  @override
   String get deskInvIssuerNotDelivered => '账单未到达 Epicbox 服务器。未发送任何内容。请重试。';
-
-  @override
-  String deskInvIssuerSent(String payer) {
-    return '已向 $payer 发送账单。';
-  }
 
   @override
   String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向你付款；它不花费任何资金。';
@@ -5533,20 +5152,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return '已送达 $payer 的账单地址。在对方批准之前不会付款。';
+    return '已送达 $payer 的信箱。在对方批准之前不会付款。';
   }
 
   @override
   String get deskInvIssuerCopySlate => '复制 Slate ID';
-
-  @override
-  String get deskInvIssuerStepsIntro => '对方的钱包必须支持账单。首次开具账单之前：';
-
-  @override
-  String get deskInvIssuerStepTrust => '1. 对方把你下面的收款地址加入受信任的发送方。';
-
-  @override
-  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给你。';
 
   @override
   String get deskInvIssuerStepIssued => '已开具';
@@ -5599,26 +5209,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerNoMessage => '无留言';
 
   @override
-  String deskInvPayerDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '已忽略 $count 条来自不受信任发送方的消息。',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvPayerTrustService => '信任服务…';
-
-  @override
-  String get deskInvPayerYourInvoiceAddress => '你的账单地址';
-
-  @override
   String get deskInvPayerEmptyTitle => '没有等待中的账单';
 
   @override
-  String get deskInvPayerEmptyText => '当你信任的服务向你开账单时，账单会显示在这里。在你批准之前不会付款。';
+  String get deskInvPayerEmptyText => '你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5686,11 +5280,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerPaysTo => '付款给';
-
-  @override
-  String deskInvPayerTrustedSince(String service, String date) {
-    return '$service，自 $date 起受信任';
-  }
 
   @override
   String get deskInvPayerExpires => '过期时间';
@@ -5831,127 +5420,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetTitle => '账单';
 
   @override
-  String get deskInvSetIntro => '你信任的服务会向此钱包的账单地址发送账单。在你批准每张账单之前不会付款。';
-
-  @override
-  String get deskInvSetAddressLabel => '账单地址';
-
-  @override
-  String get deskInvSetAddressWarning => '只提供给你信任的服务。此地址不接收付款。';
-
-  @override
-  String get deskInvSetCopy => '复制';
-
-  @override
-  String get deskInvSetCopied => '已复制账单地址。只提供给你信任的服务；此地址不接收付款。';
-
-  @override
-  String get deskInvSetQrShow => '显示二维码';
-
-  @override
-  String get deskInvSetQrHide => '隐藏二维码';
-
-  @override
-  String get deskInvSetQrLabel => '你的账单地址二维码';
-
-  @override
-  String deskInvSetIndex(int index) {
-    return '账单地址 $index';
-  }
-
-  @override
-  String get deskInvSetTrusted => '受信任的发送方';
-
-  @override
-  String get deskInvSetTrustedNone => '没有受信任的发送方。其他人的账单会被直接忽略，不会打开。';
-
-  @override
-  String deskInvSetSince(String date) {
-    return '自 $date 起受信任';
-  }
-
-  @override
-  String get deskInvSetContactTag => '联系人';
-
-  @override
-  String get deskInvSetRemove => '移除';
-
-  @override
-  String deskInvSetRemoveTitle(String name) {
-    return '不再信任 $name？';
-  }
-
-  @override
-  String deskInvSetRemoveBody(String name) {
-    return '$name 将无法再向你发送账单。已在等待的账单会保留，直到你处理或它们过期。';
-  }
-
-  @override
-  String deskInvSetRemoved(String name) {
-    return '$name 已无法再向你发送账单。';
-  }
-
-  @override
-  String get deskInvSetKeep => '保留';
-
-  @override
-  String get deskInvSetAdd => '信任发送方';
-
-  @override
-  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在你用钱包密码批准每张账单之前不会付款。';
-
-  @override
-  String get deskInvSetName => '名称';
-
-  @override
-  String get deskInvSetNameMissing => '请为发送方命名。';
-
-  @override
-  String get deskInvSetSenderAddress => '对方的收款地址';
-
-  @override
-  String get deskInvSetSenderMissing => '粘贴服务显示的地址。';
-
-  @override
-  String get deskInvSetSenderInvalid => '这不是有效的 Epicbox 地址。';
-
-  @override
-  String get deskInvSetTrust => '信任';
-
-  @override
-  String deskInvSetAdded(String name) {
-    return '$name 现在可以向你发送账单。';
-  }
-
-  @override
-  String deskInvSetDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '已忽略 $count 条来自不受信任发送方的消息，未打开。',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvSetRotate => '新的账单地址';
-
-  @override
-  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向你发送账单。';
-
-  @override
-  String get deskInvSetRotateTitle => '生成新的账单地址？';
-
-  @override
-  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向你发送账单。请把新地址提供给每个向你开账单的服务。';
-
-  @override
-  String get deskInvSetRotateConfirm => '生成新地址';
-
-  @override
-  String get deskInvSetRotated => '新的账单地址已就绪。请提供给你的服务。';
-
-  @override
   String get deskInvSetExpiry => '付款期限';
 
   @override
@@ -5963,34 +5431,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetCancel => '取消';
-
-  @override
-  String get deskInvSetContactSection => '账单';
-
-  @override
-  String get deskInvSetTheirInvoice => '对方的账单地址';
-
-  @override
-  String get deskInvSetTheirInvoiceNone => '未保存账单地址。请向对方索取，以便开具账单。';
-
-  @override
-  String get deskInvSetTrustedSwitch => '信任其账单';
-
-  @override
-  String get deskInvSetTrustedSwitchHelp => '允许此联系人向你开账单。在你批准账单之前不会付款。';
-
-  @override
-  String get deskInvSetIssueNeeds => '需要对方的账单地址。';
-
-  @override
-  String get deskInvSetShare => '分享账单地址';
-
-  @override
-  String get deskInvSetReceiveHint => '请联系人或服务向你付款。对方的钱包必须支持账单。';
-
-  @override
-  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个账单地址提供给服务方。';
+  String get deskInvSetReceiveHint => '请已配对的联系人付款，或将请求保存为文件。';
 
   @override
   String get serverSwitchRelayTitle => '更换 Epicbox 服务器？';
@@ -8093,15 +7534,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskConDeleted(String name) {
     return '已删除 $name';
   }
-
-  @override
-  String get deskConAddrEpicbox => 'Epicbox 地址';
-
-  @override
-  String get deskConAddrTor => '链接 · Tor 地址';
-
-  @override
-  String get deskConAddrHttp => '链接 · HTTP 地址';
 
   @override
   String get deskConNote => '备注';
@@ -13447,7 +12879,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      '在服务器列表和状态卡片中显示主机、延迟、版本和区块高度，在“接收”中显示中继地址，并完整显示账单地址。';
+      '在服务器列表和状态卡片中显示主机、延迟、版本和区块高度，并在“接收”中显示中继地址。';
 
   @override
   String get advRecheckHeight => '从某个高度重新核对';
@@ -14228,698 +13660,655 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskImpWrongTypePasted => '粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。';
 
   @override
-  String get pairTitle => 'Pair';
+  String get pairTitle => '配对';
 
   @override
   String pairWithName(String name) {
-    return 'Pair with $name';
+    return '与 $name 配对';
   }
 
   @override
-  String get pairLead =>
-      'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.';
+  String get pairLead => '与对方配对一次。之后两个钱包之间的付款文件和账单都会被密封：只有这两个钱包能读取。';
 
   @override
-  String get pairInPerson => 'In person';
+  String get pairInPerson => '当面';
 
   @override
-  String get pairInPersonHint => 'Show your code and scan theirs';
+  String get pairInPersonHint => '出示你的码并扫描对方的码';
 
   @override
-  String get pairOnline => 'Online';
+  String get pairOnline => '在线';
 
   @override
-  String get pairOnlineHint => 'Send an invite link, or read out pairing words';
+  String get pairOnlineHint => '发送邀请链接，或念出配对词';
 
   @override
-  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+  String get pairOfflineHint => '你已离线。请改为当面配对。';
 
   @override
-  String get pairEnter => 'Enter link or words';
+  String get pairEnter => '输入链接或词';
 
   @override
-  String get pairEnterHint =>
-      'Paste an invite link or type the words you were given';
+  String get pairEnterHint => '粘贴邀请链接，或输入收到的词';
 
   @override
-  String get pairNotPaired => 'Not paired';
+  String get pairNotPaired => '未配对';
 
   @override
-  String get pairNotPairedHint =>
-      'Pair to seal payment files and allow invoices.';
+  String get pairNotPairedHint => '配对后可密封付款文件并允许账单。';
 
   @override
-  String get pairInPersonTitle => 'Pair in person';
+  String get pairInPersonTitle => '当面配对';
 
   @override
-  String get pairShowMyCode => 'Show my code';
+  String get pairShowMyCode => '出示我的码';
 
   @override
-  String get pairScanTheirs => 'Scan theirs';
+  String get pairScanTheirs => '扫描对方的码';
 
   @override
-  String get pairShowCodeCaption => 'Let them scan this, then scan theirs.';
+  String get pairShowCodeCaption => '让对方扫描此码，然后扫描对方的码。';
 
   @override
-  String get pairScanCaption =>
-      'Both of you scan. The words check opens when both codes are in.';
+  String get pairScanCaption => '双方都要扫描。两个码都读取后会打开词语核对。';
 
   @override
-  String get pairScanPrompt => 'Point the camera at their code';
+  String get pairScanPrompt => '将相机对准对方的码';
 
   @override
-  String get pairSeenAs => 'They will see you as';
+  String get pairSeenAs => '对方看到你的名字';
 
   @override
-  String get pairUseWords => 'Use words instead';
+  String get pairUseWords => '改用配对词';
 
   @override
-  String get pairCameraDeniedTitle => 'The camera is not allowed';
+  String get pairCameraDeniedTitle => '未允许使用相机';
 
   @override
-  String get pairCameraDeniedBody =>
-      'Allow the camera to scan, or use words instead.';
+  String get pairCameraDeniedBody => '允许相机以进行扫描，或改用配对词。';
 
   @override
-  String get pairOpenSettings => 'Open settings';
+  String get pairOpenSettings => '打开设置';
 
   @override
-  String get pairWordsTitle => 'Pairing words';
+  String get pairWordsTitle => '配对词';
 
   @override
-  String get pairWordsLead =>
-      'Read these to them, in this order. Their wallet finds the invite from the words.';
+  String get pairWordsLead => '按此顺序念给对方。对方的钱包会根据这些词找到邀请。';
 
   @override
-  String get pairWordsGoodFor => 'Good for 10 minutes';
+  String get pairWordsGoodFor => '10 分钟内有效';
 
   @override
-  String pairWordsLeft(String time) {
-    return '$time left';
-  }
+  String get pairWordsLastMinute => '剩余不到一分钟';
 
   @override
-  String get pairWordsLastMinute => 'Less than a minute left';
+  String get pairWordsFooter => '在邀请过期前，任何拥有这些词的人都能回应此邀请。之后请一起核对词语。';
 
   @override
-  String get pairWordsFooter =>
-      'Whoever has these words can answer this invite until it expires. Check the words together afterwards.';
+  String get pairWordsNew => '新词';
 
   @override
-  String get pairWordsNew => 'New words';
+  String get pairWordsCopy => '复制词';
 
   @override
-  String get pairWordsCopy => 'Copy words';
+  String get pairWordsExpiredTitle => '这些词已过期';
 
   @override
-  String get pairWordsExpiredTitle => 'These words have expired';
+  String get pairWordsExpiredBody => '生成新的词并重新念出。';
 
   @override
-  String get pairWordsExpiredBody => 'Make new ones and read them out again.';
-
-  @override
-  String get pairWordsNeedEpicbox =>
-      'Pairing words need Epicbox, so they are not offered now.';
+  String get pairWordsNeedEpicbox => '配对词需要 Epicbox，因此现在不可用。';
 
   @override
   String pairWordsDesktopChip(String time) {
-    return 'Words: $time left';
+    return '配对词：剩余 $time';
   }
 
   @override
-  String get pairEnterLead =>
-      'Paste the invite link, or type the five words you were given.';
+  String get pairEnterLead => '粘贴邀请链接，或输入收到的五个词。';
 
   @override
-  String get pairEnterField => 'Invite link or words';
+  String get pairEnterField => '邀请链接或词';
 
   @override
-  String get pairEnterNotFound =>
-      'No invite found for these words. Check them, or ask for new ones.';
+  String get pairEnterNotFound => '找不到与这些词对应的邀请。请检查，或索取新的词。';
 
   @override
-  String get pairEnterTryAgain => 'Try again';
+  String get pairEnterTryAgain => '重试';
 
   @override
-  String get pairEnterDesktopHint =>
-      'A pasted link or typed words do what a scan does on the phone.';
+  String get pairEnterDesktopHint => '粘贴的链接或输入的词相当于在手机上扫描。';
 
   @override
-  String get pairEnterDesktopPlaceholder =>
-      'Paste the invite link, or type the five words';
+  String get pairEnterDesktopPlaceholder => '粘贴邀请链接，或输入五个词';
 
   @override
-  String get pairOnlineTitle => 'Pair online';
+  String get pairOnlineTitle => '在线配对';
 
   @override
-  String get pairOnlineLead =>
-      'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+  String get pairOnlineLead => '通过你们已在使用的任何渠道发送邀请。对方的钱包打开邀请后即完成配对。';
 
   @override
   String get pairOnlineLeadByHand =>
-      'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.';
+      '通过你们已在使用的任何渠道发送邀请。对方的回复会经同样的方式返回：将其粘贴到“输入链接或词”。';
 
   @override
-  String get pairExpiresIn => 'Invite expires in';
+  String get pairExpiresIn => '邀请过期时间';
 
   @override
-  String get pairExpiry1h => '1 hour';
+  String get pairExpiry1h => '1 小时';
 
   @override
-  String get pairExpiry24h => '24 hours';
+  String get pairExpiry24h => '24 小时';
 
   @override
-  String get pairExpiry7d => '7 days';
+  String get pairExpiry7d => '7 天';
 
   @override
-  String get pairWhatTheyReceive => 'What they receive';
+  String get pairWhatTheyReceive => '对方收到的内容';
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n$link\n\nExpires $date.';
+    return '$name 想与你配对 Epic Cash 钱包。\n\n在 Epic Cash 中打开：\n$link\n\n过期时间：$date。';
   }
 
   @override
   String get pairShareWarning =>
-      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+      '在邀请过期前，任何拥有此邀请的人都能以你的身份配对。只发送给你要配对的人，然后一起核对词语。';
 
   @override
-  String get pairShareInvite => 'Share invite';
+  String get pairShareInvite => '分享邀请';
 
   @override
-  String get pairCopyInvite => 'Copy invite';
+  String get pairCopyInvite => '复制邀请';
 
   @override
-  String get pairUseWordsShort => 'Use words';
+  String get pairUseWordsShort => '用配对词';
 
   @override
-  String get pairInviteSentTitle => 'Invite sent';
+  String get pairInviteSentTitle => '邀请已发送';
 
   @override
   String pairInviteSentBody(String name) {
-    return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+    return '$name 的钱包打开邀请后即完成配对。你可以离开此页面；邀请会保留在“联系人 › 待处理邀请”中。';
   }
 
   @override
-  String pairInviteExpiresIn(String time) {
-    return 'Expires in $time';
-  }
-
-  @override
-  String get pairCancelInvite => 'Cancel invite';
+  String get pairCancelInvite => '取消邀请';
 
   @override
   String pairCancelInviteTitle(String name) {
-    return 'Cancel the invite to $name?';
+    return '取消给 $name 的邀请？';
   }
 
   @override
   String pairCancelInviteBody(String name) {
-    return 'Their wallet will see “$name cancelled this invite” if they open it later.';
+    return '如果对方的钱包之后打开它，会看到“$name 已取消此邀请”。';
   }
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Pair with $name?';
+    return '与 $name 配对？';
   }
 
   @override
-  String get pairNameClaimed => 'Name chosen by them · not checked yet';
+  String get pairNameClaimed => '名字由对方选择 · 尚未核对';
 
   @override
-  String get pairNameClaimedShort => 'Name chosen by them';
+  String get pairNameClaimedShort => '名字由对方选择';
 
   @override
   String pairCallsThemselves(String name) {
-    return 'Calls themselves “$name”';
+    return '自称“$name”';
   }
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+    return '配对后，你与 $name 之间的付款文件和账单都会被密封。接下来你们一起核对词语。';
   }
 
   @override
   String pairIncomingAllowInvoices(String name) {
-    return 'Allow $name to request payments';
+    return '允许 $name 请求付款';
   }
 
   @override
-  String get pairIncomingAllowHint =>
-      'Turns on after you check the words. Nothing is paid without your PIN.';
+  String get pairIncomingAllowHint => '核对词语后开启。没有你的 PIN 不会付款。';
 
   @override
-  String get pairNotNow => 'Not now';
+  String get pairNotNow => '暂不';
 
   @override
   String pairWaitingTitle(String name) {
-    return 'Waiting for $name’s wallet…';
+    return '正在等待 $name 的钱包…';
   }
 
   @override
-  String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+  String get pairWaitingBody => '对方的钱包下次打开时会回复。你可以关闭此页面；配对会在后台继续，完成后会出现词语核对。';
 
   @override
-  String get pairWaitingFor => 'Checking for 1 hour';
+  String get pairWaitingFor => '持续检查 1 小时';
 
   @override
-  String get pairSendByHand => 'Send by hand';
+  String get pairSendByHand => '手动发送';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => '无法连接中继';
 
   @override
-  String get pairRelayUnreachableBody => 'Send your answer by hand?';
+  String get pairRelayUnreachableBody => '手动发送你的回复？';
 
   @override
-  String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+  String get pairRelayUnreachableTor => '无法通过 Tor 连接中继。手动发送你的回复？';
 
   @override
-  String get pairByHandTitle => 'Send by hand';
+  String get pairByHandTitle => '手动发送';
 
   @override
   String pairByHandLead(String name) {
-    return 'Send this back to $name on any channel. Their wallet finishes the pairing when it opens it.';
+    return '通过任何渠道将此发回给 $name。对方的钱包打开后会完成配对。';
   }
 
   @override
-  String get pairByHandYourAnswer => 'Your answer';
+  String get pairByHandYourAnswer => '你的回复';
 
   @override
   String pairByHandFooter(String name) {
-    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+    return '回复已针对 $name 的邀请密封。其他人无法读取，且只能使用一次。';
   }
 
   @override
   String pairConfirmByHandLead(String name) {
-    return 'Send this back to $name. Their wallet shows the words check when it opens it.';
+    return '将此发回给 $name。对方的钱包打开后会显示词语核对。';
   }
 
   @override
-  String get pairExpiredTitle => 'This invite has expired';
+  String get pairExpiredTitle => '此邀请已过期';
 
   @override
   String pairExpiredBody(String name) {
-    return 'Ask $name for a new one.';
+    return '请向 $name 索取新的邀请。';
   }
 
   @override
-  String get pairUsedTitle => 'This invite was already used';
+  String get pairUsedTitle => '此邀请已被使用';
 
   @override
-  String get pairUsedBody => 'Ask for a new one.';
+  String get pairUsedBody => '请索取新的邀请。';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name cancelled this invite';
+    return '$name 已取消此邀请';
   }
 
   @override
-  String get pairCancelledBody => 'Nothing was stored.';
+  String get pairCancelledBody => '未保存任何内容。';
 
   @override
   String pairNoAnswerTitle(String name) {
-    return 'No answer from $name';
+    return '$name 没有回复';
   }
 
   @override
-  String get pairNoAnswerBody =>
-      'The invite may have been cancelled. Ask for a new one, or pair in person.';
+  String get pairNoAnswerBody => '邀请可能已被取消。请索取新的邀请，或当面配对。';
 
   @override
-  String get pairChangedTitle => 'This invite was changed on the way';
+  String get pairChangedTitle => '此邀请在途中被更改';
 
   @override
   String pairChangedBody(String name) {
-    return 'Nothing was stored. Pair again, in person or with a fresh invite from $name.';
+    return '未保存任何内容。请重新配对，当面或使用 $name 的新邀请。';
   }
 
   @override
-  String get pairNewerTitle => 'Update Epic Cash to open this';
+  String get pairNewerTitle => '更新 Epic Cash 以打开此内容';
 
   @override
-  String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
+  String get pairNewerInviteBody => '此邀请由更新版本的钱包生成。';
 
   @override
-  String get pairNewerFileBody => 'The file was sealed by a newer wallet.';
+  String get pairNewerFileBody => '此文件由更新版本的钱包密封。';
 
   @override
-  String get pairCheckForUpdates => 'Check for updates';
+  String get pairCheckForUpdates => '检查更新';
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Someone else also answered $name’s invite. See Pending invites.';
+    return '还有其他人回应了 $name 的邀请。请查看待处理邀请。';
   }
 
   @override
-  String get pairSecondReplyBody =>
-      'If you didn’t share it with them, remove them.';
+  String get pairAnsweredSameInvite => '回应了同一邀请 · 未保存';
 
   @override
-  String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
-
-  @override
-  String get sasTitle => 'Check the words';
+  String get sasTitle => '核对词语';
 
   @override
   String sasLead(String name) {
-    return '$name’s wallet shows the same four. Compare them on a call or in person.';
+    return '$name 的钱包显示相同的四个词。请通过电话或当面比较。';
   }
 
   @override
   String sasLeadExchange(String name) {
-    return 'The $name page shows the same four. Compare them, then confirm on both sides.';
+    return '$name 页面显示相同的四个词。比较后在双方确认。';
   }
 
   @override
   String sasLeadRecheck(String name) {
-    return '$name’s wallet shows these under $name › Check the words. Compare them on a call or in person.';
+    return '$name 的钱包在“$name › 核对词语”中显示这些词。请通过电话或当面比较。';
   }
 
   @override
-  String get sasMatch => 'They match';
+  String get sasMatch => '一致';
 
   @override
-  String get sasNoMatch => 'They don’t match';
+  String get sasNoMatch => '不一致';
 
   @override
-  String get sasSkip => 'Skip for now';
+  String get sasSkip => '暂时跳过';
 
   @override
-  String get sasLater => 'Later';
+  String get sasLater => '稍后';
 
   @override
   String sasMatchedTitle(String name) {
-    return '$name is verified';
+    return '$name 已验证';
   }
 
   @override
   String sasMatchedBody(String name) {
-    return 'Payment files and invoices with $name are sealed from now on.';
+    return '从现在起，与 $name 的付款文件和账单都会被密封。';
   }
 
   @override
-  String get sasNoMatchTitle => 'The words don’t match';
+  String get sasNoMatchTitle => '词语不一致';
 
   @override
-  String get sasNoMatchBody =>
-      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+  String get sasNoMatchBody => '可能有人在途中更改了邀请。不会保留任何内容。请重新配对，当面或使用新的邀请。';
 
   @override
-  String get sasStopPairing => 'Stop pairing';
+  String get sasStopPairing => '停止配对';
 
   @override
   String sasSkippedTitle(String name) {
-    return 'Paired with $name';
+    return '已与 $name 配对';
   }
 
   @override
   String sasSkippedBody(String name) {
-    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+    return '与 $name 的付款文件已密封。方便时请在 $name 的联系人页面核对词语；在此之前账单会等待。';
   }
 
   @override
-  String get sasCheckNow => 'Check now';
+  String get sasCheckNow => '立即核对';
 
   @override
-  String get sasAllowAfterMatch => 'On once you confirm the words match.';
+  String get sasAllowAfterMatch => '确认词语一致后开启。';
 
   @override
   String sasAllowInvoicesHint(String name) {
-    return '$name’s wallet can ask you to pay. Nothing is paid without your PIN.';
+    return '$name 的钱包可以请求你付款。没有你的 PIN 不会付款。';
   }
 
   @override
-  String get trustVerified => 'Verified';
+  String get trustVerified => '已验证';
 
   @override
-  String get trustPaired => 'Paired, not verified';
+  String get trustPaired => '已配对，未验证';
 
   @override
-  String get trustPairedShort => 'Paired';
+  String get trustPairedShort => '已配对';
 
   @override
-  String get trustKeysChanged => 'Keys changed';
+  String get trustKeysChanged => '密钥已更改';
 
   @override
-  String get trustSealed => 'Sealed';
+  String get trustSealed => '已密封';
 
   @override
   String trustSealedFor(String name) {
-    return 'Sealed for $name';
+    return '为 $name 密封';
   }
 
   @override
-  String get trustAllowsInvoices => 'Allows invoices';
+  String get trustAllowsInvoices => '允许账单';
 
   @override
-  String get contactTitle => 'Contact';
+  String get contactTitle => '联系人';
 
   @override
-  String get contactAddresses => 'Addresses';
+  String get contactAddresses => '地址';
 
   @override
-  String get contactPairing => 'Pairing';
-
-  @override
-  String get contactShowCode => 'Show code';
+  String get contactPairing => '配对';
 
   @override
   String contactWordsChecked(String date) {
-    return 'Words checked $date';
+    return '词语核对于 $date';
   }
 
   @override
-  String get contactCheckAgain => 'Check again';
+  String get contactCheckAgain => '再次核对';
 
   @override
-  String get contactCheckWordsAgain => 'Check the words again';
+  String get contactCheckWordsAgain => '再次核对词语';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => '密封付款';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return '与 $name 的付款和账单采用端到端加密。只有对方的钱包能读取。';
   }
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Off, a payment file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+    return '关闭后，发给 $name 的付款文件为明文：拿到文件的任何人都能读取。仅当 $name 的钱包无法打开密封文件时才关闭。';
   }
 
   @override
-  String get contactAllowInvoices => 'Allow invoices';
+  String get contactAllowInvoices => '允许账单';
 
   @override
   String contactAllowInfo(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+    return '$name 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和 PIN。不会自动付款。';
   }
 
   @override
-  String get contactAllowInfoMore =>
-      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+  String get contactAllowInfoMore => '只能允许已验证的联系人：核对词语可排除被调换的邀请。';
 
   @override
-  String get contactCheckWordsFirst => 'Check the words first';
+  String get contactCheckWordsFirst => '请先核对词语';
 
   @override
-  String get contactPausedUntilChecked => 'Paused until you check the words';
+  String get contactPausedUntilChecked => '核对词语前已暂停';
 
   @override
   String contactDeliveredVia(String relay) {
-    return 'Delivered via $relay';
+    return '经 $relay 投递';
   }
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return '$name 的中继没有响应';
   }
 
   @override
-  String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+  String get contactRelayDownBody => '正在重试。请求和付款会等待其响应；不会丢失任何内容。';
 
   @override
-  String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
+  String get contactPausedEpicboxOff => 'Epicbox 关闭期间已暂停';
 
   @override
-  String get contactPausedEpicboxOffBody => 'Sealed files still work.';
+  String get contactPausedEpicboxOffBody => '密封文件仍可使用。';
 
   @override
-  String get contactRemovePairing => 'Remove pairing';
+  String get contactRemovePairing => '移除配对';
 
   @override
   String contactRemovePairingTitle(String name) {
-    return 'Remove the pairing with $name?';
+    return '移除与 $name 的配对？';
   }
 
   @override
   String contactRemovePairingBody(String name) {
-    return 'Sealed payments and invoices from $name will stop. Their addresses stay in your contacts.';
+    return '来自 $name 的密封付款和账单将停止。地址仍保留在你的联系人中。';
   }
 
   @override
-  String get contactKeep => 'Keep';
+  String get contactKeep => '保留';
 
   @override
-  String get contactRemove => 'Remove';
+  String get contactRemove => '移除';
 
   @override
   String contactKeysChangedTitle(String name) {
-    return '$name’s keys changed';
+    return '$name 的密钥已更改';
   }
 
   @override
   String get contactKeysChangedBody =>
-      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+      '这可能表示对方现在使用了另一个钱包，或有其他人在使用这个名字。请再次核对词语。';
 
   @override
-  String get contactKeysChangedStatus => 'sealing and invoices paused';
+  String get contactKeysChangedStatus => '密封和账单已暂停';
 
   @override
-  String get contactKeepOldKeys => 'Keep the old keys';
+  String get contactKeepOldKeys => '保留旧密钥';
 
   @override
-  String get contactUseNewKeys => 'Use the new keys';
+  String get contactUseNewKeys => '使用新密钥';
 
   @override
   String contactKeysBack(String name) {
-    return '$name’s keys are back.';
+    return '$name 的密钥已恢复。';
   }
 
   @override
-  String get contactKeysBackBody => 'Nothing changed for you.';
+  String get contactKeysBackBody => '对你来说没有任何变化。';
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return '上一笔给 $name 的付款为明文';
   }
 
   @override
   String contactSealDegradedBody(String name) {
-    return 'The next one asks Seal or plain. Sealing turns itself back on when $name’s wallet answers sealed.';
+    return '下一笔会询问密封还是明文。$name 的钱包以密封方式回复后，密封会自动重新开启。';
   }
 
   @override
-  String get addrField => 'Address';
+  String get addrField => '地址';
 
   @override
   String addrFieldTyped(String type) {
-    return '$type address';
+    return '$type 地址';
   }
 
   @override
-  String get addrAddAnother => 'Add another address';
+  String get addrAddAnother => '添加另一个地址';
 
   @override
   String addrOneFree(String type) {
-    return 'One more type is free: $type.';
+    return '还有一种类型可用：$type。';
   }
 
   @override
   String addrDuplicateType(String name, String type) {
-    return '$name already has this kind of address ($type).';
+    return '$name 已有此类地址（$type）。';
   }
 
   @override
-  String get addrKeepOld => 'Keep the old one';
+  String get addrKeepOld => '保留旧的';
 
   @override
-  String get addrReplace => 'Replace it';
+  String get addrReplace => '替换';
 
   @override
   String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
+    return '粘贴 $type 地址，或留空';
   }
 
   @override
-  String get addrDesktopRule =>
-      'One address per type. The third field appears only while a type is free.';
+  String get addrDesktopRule => '每种类型一个地址。只有某种类型空缺时才显示第三个字段。';
 
   @override
-  String get pendingTitle => 'Pending invites';
+  String get pendingTitle => '待处理邀请';
 
   @override
   String pendingRowHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count invites waiting for an answer',
-      one: '1 invite waiting for an answer',
+      other: '$count 个邀请等待回复',
     );
     return '$_temp0';
   }
 
   @override
   String pendingLink(String time) {
-    return 'Link · expires in $time';
+    return '链接 · $time 后过期';
   }
 
   @override
   String pendingWords(String time) {
-    return 'Pairing words · expires in $time';
+    return '配对词 · $time 后过期';
   }
 
   @override
-  String get pendingExpired => 'Expired';
+  String get pendingExpired => '已过期';
 
   @override
-  String get pendingInviteAgain => 'Invite again';
+  String get pendingInviteAgain => '再次邀请';
 
   @override
   String pendingWaitingConfirm(String time) {
-    return 'Waiting for their confirmation · $time';
+    return '等待对方确认 · $time';
   }
 
   @override
-  String get pendingPairedCheck => 'Paired · check the words';
+  String get pendingPairedCheck => '已配对 · 请核对词语';
 
   @override
-  String get pendingEmpty =>
-      'No invites waiting. An invite shows here until the other wallet answers it.';
+  String get pendingEmpty => '没有等待中的邀请。邀请会显示在这里，直到对方的钱包回复。';
 
   @override
-  String get pendingShareAgain => 'Share again';
+  String get pendingShareAgain => '再次分享';
 
   @override
-  String get pendingShowWords => 'Show words';
+  String get pendingShowWords => '显示配对词';
 
   @override
-  String get pendingCopyLink => 'Copy link';
+  String get pendingCopyLink => '复制链接';
 
   @override
-  String get invSetTitle => 'Invoices';
+  String get invSetTitle => '账单';
 
   @override
-  String get invSetLead =>
-      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+  String get invSetLead => '你允许的已配对联系人可以向你发送付款请求。每个请求都在“账单”中等待你的 PIN。';
 
   @override
-  String get invSetPaired => 'Paired contacts';
+  String get invSetPaired => '已配对联系人';
 
   @override
-  String get invSetAllowed => 'Allowed';
+  String get invSetAllowed => '已允许';
 
   @override
-  String get invSetOff => 'Off';
+  String get invSetOff => '关闭';
 
   @override
-  String get invSetPairShop => 'Pair with a shop or exchange';
+  String get invSetPairShop => '与商店或交易所配对';
 
   @override
-  String get invSetEmpty =>
-      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+  String get invSetEmpty => '还没有已配对的联系人。与商店、交易所或个人配对，核对词语，然后在这里允许其账单。';
 
   @override
-  String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+  String get invSetPausedBody => '请求在中继上等待，Epicbox 重新开启后送达。';
 
   @override
   String invSetSwitchedOff(String name) {
-    return 'Invoices from $name are off.';
+    return '来自 $name 的账单已关闭。';
   }
 
   @override
@@ -14927,727 +14316,651 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count open requests were declined.',
-      one: '1 open request was declined.',
+      other: '已拒绝 $count 个未处理的请求。',
     );
     return '$_temp0';
   }
 
   @override
-  String get invSetTimeToPay => 'Time to pay';
+  String get invSetTimeToPay => '付款期限';
 
   @override
   String invSetTimeToPayHint(int hours) {
-    return '$hours hours · how long an invoice stays payable';
+    return '$hours 小时 · 账单可付款的时长';
   }
 
   @override
-  String get invoicesEmptyAction => 'Paired contacts';
+  String get invoicesEmptyAction => '已配对联系人';
 
   @override
-  String get reqTitle => 'Review request';
+  String get reqTitle => '查看请求';
 
   @override
   String reqRequests(String name) {
-    return '$name requests';
-  }
-
-  @override
-  String reqAsksYouToPay(String name) {
-    return '$name asks you to pay';
+    return '$name 请求';
   }
 
   @override
   String reqSealedSigned(String name) {
-    return 'Sealed to this wallet and signed by $name';
+    return '为此钱包密封并由 $name 签名';
   }
 
   @override
-  String get reqReference => 'Reference';
-
-  @override
-  String reqDepositRef(String ref) {
-    return 'Deposit · ref $ref';
-  }
-
-  @override
-  String reqWithdrawalRef(String ref) {
-    return 'Withdrawal · ref $ref';
-  }
-
-  @override
-  String get reqDeliveredVia => 'Delivered via';
+  String get reqReference => '参考号';
 
   @override
   String reqPaidWaiting(String name) {
-    return 'Paid. Waiting for $name to post';
+    return '已付款。等待 $name 发布';
   }
 
   @override
-  String get reqPaidWaitingBody =>
-      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+  String get reqPaidWaitingBody => '你的部分已完成。交易所会完成并发布；此项会自动关闭。';
 
   @override
-  String get reqTlPaid => 'Paid';
+  String get reqTlPaid => '已付款';
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return '已送达 $name 的中继';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return '回复已送达 $name 的中继';
   }
 
   @override
   String reqTlPosted(String name) {
-    return 'Posted by $name';
+    return '已由 $name 发布';
   }
 
   @override
-  String get reqTlPostedHint => 'Usually within minutes';
+  String get reqTlPostedHint => '通常在几分钟内';
 
   @override
-  String get reqTlConfirming => 'Confirming';
+  String get reqTlConfirming => '确认中';
 
   @override
   String reqTlConfirmingHint(int n, int total) {
-    return '$n of $total confirmations';
+    return '$n / $total 次确认';
   }
 
   @override
-  String get reqTlConfirmed => 'Confirmed';
+  String get reqTlConfirmed => '已确认';
 
   @override
   String reqTlWaiting(String time) {
-    return 'Waiting $time';
+    return '已等待 $time';
   }
 
   @override
   String reqNotPostedTitle(String name) {
-    return '$name has not posted yet';
+    return '$name 尚未发布';
   }
 
   @override
-  String get reqNotPostedBody =>
-      'Send again delivers the same payment once more. It cannot be paid twice.';
+  String get reqNotPostedBody => '“再次发送”会再次投递同一笔付款。它不会被支付两次。';
 
   @override
-  String get reqSendAgain => 'Send again';
+  String get reqSendAgain => '再次发送';
 
   @override
   String reqUnreachableTitle(String name) {
-    return 'Couldn’t reach $name yet';
+    return '暂时无法联系 $name';
   }
 
   @override
-  String get reqUnreachableBody =>
-      'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
+  String get reqUnreachableBody => '你的资金是安全的；如果未发布，资金会解锁。投递会持续重试。';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => '中继无响应 · 重试中';
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name withdrew the request';
+    return '$name 撤回了请求';
   }
 
   @override
-  String get reqWithdrewBody => 'Your funds are unlocked. Nothing was paid.';
+  String get reqWithdrewBody => '你的资金已解锁。未付款。';
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name withdrew this request';
+    return '$name 撤回了此请求';
   }
-
-  @override
-  String get reqDeclined => 'Declined';
 
   @override
   String reqTwoSame(String name, int count, String amount) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
-      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+      other: '$name 在 10 分钟内发送了 $count 个 $amount EPIC 的请求。全部付款？',
     );
     return '$_temp0';
   }
 
   @override
-  String reqTooMany(String name) {
-    return '$name sent too many requests.';
-  }
-
-  @override
-  String get reqTooManyBody =>
-      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
-
-  @override
   String reqWithdrawalFrom(String name) {
-    return 'Withdrawal from $name';
+    return '来自 $name 的提现';
   }
 
   @override
   String reqReceivedWaiting(String name) {
-    return 'Received. Waiting for $name to post';
+    return '已收到。等待 $name 发布';
   }
 
   @override
-  String get reqReceivedWaitingBody =>
-      'Nothing to do. The exchange posts it; confirmations follow.';
+  String get reqReceivedWaitingBody => '无需操作。交易所会发布；之后会有确认。';
 
   @override
-  String get reqNewTitle => 'New request';
+  String get reqNewTitle => '新请求';
 
   @override
-  String get reqNewLead =>
-      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+  String get reqNewLead => '请已配对的联系人付款，或将请求保存为文件发给任何人。';
 
   @override
-  String get reqNewTo => 'To';
+  String get reqNewTo => '收款对象';
 
   @override
-  String get reqNewToHint =>
-      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+  String get reqNewToHint => '钱包可支付请求的已配对联系人。其他人：将请求保存为文件。';
 
   @override
-  String get reqNewSaveFile => 'Save as file';
+  String get reqNewSaveFile => '保存为文件';
 
   @override
-  String get reqNewSend => 'Send request';
+  String get reqNewSend => '发送请求';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Send through $name’s mailbox';
+    return '通过 $name 的信箱发送';
   }
 
   @override
   String sendViaMailboxHint(String relay) {
-    return 'Sealed. Delivered via $relay';
+    return '已密封。经 $relay 投递';
   }
 
   @override
   String sendSealedTitle(String name) {
-    return 'Sealed for $name';
+    return '为 $name 密封';
   }
 
   @override
   String sendSealedBody(String name) {
-    return 'Only $name’s wallet can open this file. Send it any way you like, then open the file they send back.';
+    return '只有 $name 的钱包能打开此文件。可用任何方式发送，然后打开对方发回的文件。';
   }
 
   @override
-  String get sendSealOrPlainTitle => 'Seal this file?';
+  String get sendSealOrPlainTitle => '密封此文件？';
 
   @override
   String sendSealOrPlainBody(String name) {
-    return 'The last file to $name went plain. Sealed is the default again.';
+    return '上一个发给 $name 的文件为明文。现在默认重新为密封。';
   }
 
   @override
-  String get sendSealedOption => 'Sealed';
+  String get sendSealedOption => '密封';
 
   @override
   String sendSealedOptionHint(String name) {
-    return 'Only $name’s wallet can read it';
+    return '只有 $name 的钱包能读取';
   }
 
   @override
-  String get sendPlainOption => 'Plain';
+  String get sendPlainOption => '明文';
 
   @override
-  String get sendPlainOptionHint => 'Anyone with the file can read it';
+  String get sendPlainOptionHint => '拿到文件的任何人都能读取';
 
   @override
   String sendCantOpenTitle(String name) {
-    return '$name can’t open sealed files?';
+    return '$name 无法打开密封文件？';
   }
 
   @override
-  String get sendCantOpenBody =>
-      'Send as plain instead resends the same payment unsealed. It is still one payment.';
+  String get sendCantOpenBody => '“改为明文发送”会以不密封的方式重新发送同一笔付款。仍然只是一笔付款。';
 
   @override
-  String get sendAsPlain => 'Send as plain instead';
+  String get sendAsPlain => '改为明文发送';
 
   @override
-  String get sendAsPlainTitle => 'Send as plain instead?';
+  String get sendAsPlainTitle => '改为明文发送？';
 
   @override
   String get sendAsPlainBody =>
-      'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.';
+      '文件不会被密封：拿到文件的任何人都能看到其中的金额和地址。这是同一笔付款，因此不会被支付两次。';
 
   @override
-  String get sendKeepSealed => 'Keep sealed';
+  String get sendKeepSealed => '保持密封';
 
   @override
-  String get sendPlain => 'Send as plain';
+  String get sendPlain => '明文发送';
 
   @override
   String sendNotHeardTitle(String name) {
-    return 'Not heard from $name’s wallet in 90 days';
+    return '$name 的钱包已 90 天没有消息';
   }
 
   @override
   String sendNotHeardBody(String name) {
-    return '$name will need Epic Cash to open this file.';
+    return '$name 需要 Epic Cash 才能打开此文件。';
   }
 
   @override
-  String get sendPlainShort => 'Send plain';
+  String get sendPlainShort => '明文发送';
 
   @override
-  String get openSealedOtherTitle =>
-      'This was sealed for another wallet or install';
+  String get openSealedOtherTitle => '此内容是为另一个钱包或安装密封的';
 
   @override
-  String get openSealedOtherBody =>
-      'It cannot be opened here. Ask the sender to send it again.';
+  String get openSealedOtherBody => '无法在此打开。请让发送方重新发送。';
 
   @override
-  String get openArrivedUnsealed => 'This arrived unsealed.';
+  String get openArrivedUnsealed => '此内容未密封送达。';
 
   @override
   String openArrivedUnsealedBody(String name) {
-    return '$name chose plain for this file.';
+    return '$name 以明文发送了此文件。';
   }
 
   @override
   String noticePairingReplied(String name) {
-    return '$name answered your invite. Check the words together.';
+    return '$name 回复了你的邀请。请一起核对词语。';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Paired with $name. Check the words together.';
+    return '已与 $name 配对。请一起核对词语。';
   }
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name requests $amount EPIC. Review under Invoices.';
+    return '$name 请求 $amount EPIC。请在“账单”中查看。';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'Received $amount EPIC from $name. Waiting for it to post.';
+    return '已收到来自 $name 的 $amount EPIC。等待发布。';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name’s keys changed. Check the words again before paying.';
+    return '$name 的密钥已更改。付款前请再次核对词语。';
   }
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return '$name 的中继没有响应。正在重试。';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name withdrew the request. Your funds are unlocked.';
+    return '$name 撤回了请求。你的资金已解锁。';
   }
 
   @override
-  String get restoreUseContactsTitle => 'Use your contacts on this device?';
+  String get restoreUseContactsTitle => '在此设备上使用你的联系人？';
 
   @override
   String restoreUseContactsBody(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count pairings in this backup were used on another device. Your other device should stop using them.',
-      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+      other: '此备份中有 $count 个配对曾在另一台设备上使用。另一台设备应停止使用它们。',
     );
     return '$_temp0';
   }
 
   @override
-  String get restoreUseHere => 'Use them here';
+  String get restoreUseHere => '在此使用';
 
   @override
   String restorePairingsOnOtherDevice(int count) {
-    return '$count · on another device';
-  }
-
-  @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(String payments, String contacts, String pairings) {
-    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
+    return '$count · 在另一台设备上';
   }
 
   @override
   String get pairInviteSentBodyAnyone =>
-      'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+      '对方的钱包打开邀请后即完成配对。你可以离开此页面；邀请会保留在“联系人 › 待处理邀请”中。';
 
   @override
-  String get pairInvalidLink => 'This is not a pairing link';
+  String get pairInvalidLink => '这不是配对链接';
 
   @override
-  String get pairInvalidBody =>
-      'Check that the whole link was copied, or ask for a new one.';
+  String get pairInvalidBody => '请检查是否复制了完整链接，或索取新的链接。';
 
   @override
-  String get pairOwnCode => 'This is your own code';
+  String get pairOwnCode => '这是你自己的码';
 
   @override
-  String get pairOwnCodeBody => 'Scan the code on the other phone.';
+  String get pairOwnCodeBody => '请扫描另一部手机上的码。';
 
   @override
-  String get pairUnnamedInvite => 'Open invite';
+  String get pairUnnamedInvite => '公开邀请';
 
   @override
-  String get pairSeenAsMissing => 'Enter the name they will see.';
+  String get pairSeenAsMissing => '请输入对方会看到的名字。';
 
   @override
-  String get pairSeenAsTooLong => 'Use a shorter name.';
+  String get pairSeenAsTooLong => '请使用更短的名字。';
 
   @override
-  String get pairSeenAsEdit => 'Change the name they will see';
+  String get pairSeenAsEdit => '更改对方看到的名字';
 
   @override
-  String get pairCodeLabel => 'Your pairing code';
+  String get pairCodeLabel => '你的配对码';
 
   @override
-  String get pairWordsLabel => 'Your pairing words';
+  String get pairWordsLabel => '你的配对词';
 
   @override
-  String get pairWordsEnteredLabel => 'Words entered';
+  String get pairWordsEnteredLabel => '已输入的词';
 
   @override
   String pairWordSlot(int n) {
-    return 'Word $n, not entered';
+    return '第 $n 个词，未输入';
   }
 
   @override
-  String get pairSuggestions => 'Suggestions';
+  String get pairSuggestions => '建议';
 
   @override
-  String get pairCopied => 'Copied';
+  String get pairCopied => '已复制';
 
   @override
-  String get pairPaste => 'Paste';
+  String get pairPaste => '粘贴';
 
   @override
-  String get pairInPersonDone => 'Codes scanned';
+  String get pairInPersonDone => '码已扫描';
 
   @override
-  String get pairEpicboxOffNotice =>
-      'Paused while Epicbox is off. The invite and the answer travel by hand.';
+  String get pairEpicboxOffNotice => 'Epicbox 关闭期间已暂停。邀请和回复需手动传递。';
 
   @override
-  String get pairWaitingTitleShort => 'Pairing';
+  String get pairWaitingTitleShort => '配对';
 
   @override
-  String get pairClosed => 'Close';
+  String get pairClosed => '关闭';
 
   @override
-  String get sasWordsLabel => 'The four words';
+  String get sasWordsLabel => '四个词';
 
   @override
   String sasDialogTitle(String name) {
-    return 'Check the words with $name';
+    return '与 $name 核对词语';
   }
 
   @override
-  String get trustNotPaired => 'Not paired';
+  String get contactMore => '更多';
 
   @override
-  String get contactMore => 'More';
+  String get contactEdit => '编辑';
 
   @override
-  String get contactEdit => 'Edit';
-
-  @override
-  String get contactDelete => 'Delete contact';
-
-  @override
-  String contactInfoAbout(String label) {
-    return 'About $label';
-  }
+  String get contactDelete => '删除联系人';
 
   @override
   String contactCopyAddress(String type) {
-    return 'Copy $type address';
+    return '复制 $type 地址';
   }
 
   @override
   String contactDeletePaired(String name) {
-    return 'Deleting $name also removes the pairing. Sealed payments and invoices from them stop.';
+    return '删除 $name 也会移除配对。来自该联系人的密封付款和账单将停止。';
   }
 
   @override
-  String get contactNoAddresses => 'No addresses saved.';
+  String get contactNoAddresses => '未保存地址。';
 
   @override
   String addrRemove(String type) {
-    return 'Remove $type address';
+    return '移除 $type 地址';
   }
 
   @override
-  String addrAlreadySaved(String name) {
-    return 'This address is already saved as $name.';
-  }
+  String get sendVia => '发送方式';
 
   @override
-  String get sendVia => 'Send via';
+  String get invSetLeadDesktop => '你允许的已配对联系人可以向此钱包发送付款请求。每个请求都在“账单”中等待钱包密码。';
 
   @override
-  String get invSetLeadDesktop =>
-      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+  String get invSetRowAllowed => '已验证 · 已允许';
 
   @override
-  String get invSetRowAllowed => 'Verified · allowed';
-
-  @override
-  String get invSetRowCheckFirst =>
-      'Paired, not verified · check the words first';
+  String get invSetRowCheckFirst => '已配对，未验证 · 请先核对词语';
 
   @override
   String invSetAllowFor(String name) {
-    return 'Allow invoices from $name';
+    return '允许来自 $name 的账单';
   }
 
   @override
-  String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+  String get reqNoPayers => '还没有可支付请求的已配对联系人。请配对并核对词语，或将请求保存为文件。';
 
   @override
-  String get reqPickContact => 'Choose a contact';
+  String get reqPickContact => '选择联系人';
 
   @override
-  String get reqFileSaved => 'Request saved as a file';
+  String get reqFileSaved => '请求已保存为文件';
 
   @override
   String reqSent(String name) {
-    return 'Request sent to $name';
+    return '请求已发送给 $name';
   }
 
   @override
-  String get reqFileTitle => 'Payment request';
-
-  @override
-  String get reqFileBody =>
-      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
+  String get reqFileTitle => '付款请求';
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'Couldn’t reach $name yet. Your funds are safe.';
+    return '暂时无法联系 $name。你的资金是安全的。';
   }
 
   @override
   String noticeTooMany(String name) {
-    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+    return '$name 发送的请求过多。多余的已被丢弃。如果持续发生，请关闭其账单。';
   }
 
   @override
-  String get noticeOpen => 'Open';
+  String get noticeOpen => '打开';
 
   @override
-  String get noticeCheckWords => 'Check the words';
+  String get noticeCheckWords => '核对词语';
 
   @override
-  String get noticeView => 'View';
+  String get noticeView => '查看';
 
   @override
-  String get restorePairings => 'Pairings';
+  String get restorePairings => '配对';
 
   @override
-  String sendSealedNote(String name) {
-    return 'Sealed for $name: only their wallet can open the file.';
-  }
+  String get pairingDesktopShowCodeLead => '让对方用手机扫描此码，或念出配对词。';
 
   @override
-  String get sendSealChoice => 'Seal this file';
+  String get pairingDesktopInviteLead => '通过你们已在使用的任何渠道发送邀请。对方的钱包打开邀请后即完成配对。';
 
   @override
-  String get pairingDesktopShowCodeLead =>
-      'Let them scan this with their phone, or read them the pairing words.';
-
-  @override
-  String get pairingDesktopInviteLead =>
-      'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
-
-  @override
-  String get pairingInviteOnline => 'Invite online';
-
-  @override
-  String get pairUseHere => 'Use here';
+  String get pairingInviteOnline => '在线邀请';
 
   @override
   String pairSaveContactTitle(String name) {
-    return 'Save $name in your contacts?';
+    return '将 $name 保存到联系人？';
   }
 
   @override
-  String get pairSaveNewContact => 'Save as a new contact';
+  String get pairSaveNewContact => '保存为新联系人';
 
   @override
-  String get pairAddToAContact => 'Add to a contact';
-
-  @override
-  String get pairPickContactTitle => 'Add to which contact?';
+  String get pairAddToAContact => '添加到联系人';
 
   @override
   String pairSavedAs(String name) {
-    return 'Saved as $name.';
-  }
-
-  @override
-  String pairContactAlreadyPaired(String name) {
-    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
+    return '已保存为 $name。';
   }
 
   @override
   String pairDurDays(int days, int hours) {
-    return '$days d $hours h';
+    return '$days 天 $hours 小时';
   }
 
   @override
   String pairDurHours(int hours, int minutes) {
-    return '$hours h $minutes min';
+    return '$hours 小时 $minutes 分钟';
   }
 
   @override
   String pairDurMinutes(int minutes) {
-    return '$minutes min';
+    return '$minutes 分钟';
   }
 
   @override
-  String get pairDurUnderMinute => 'under a minute';
+  String get pairDurUnderMinute => '不到一分钟';
 
   @override
-  String get pairBack => 'Back';
+  String get pairBack => '返回';
 
   @override
-  String get pairNotInContacts => 'Not in contacts';
+  String get pairNotInContacts => '不在联系人中';
 
   @override
-  String get pairAddToContacts => 'Add to contacts';
+  String get pairAddToContacts => '添加到联系人';
 
   @override
-  String get helpPairingSection => 'Pairing';
+  String get helpPairingSection => '配对';
 
   @override
-  String get helpPairingLede =>
-      'Pair once; payment files and invoices with that contact are sealed.';
+  String get helpPairingLede => '配对一次；与该联系人的付款文件和账单都会被密封。';
 
   @override
-  String get helpPairWhatTitle => 'What pairing is';
+  String get helpPairWhatTitle => '什么是配对';
 
   @override
-  String get helpPairWhatShort =>
-      'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.';
+  String get helpPairWhatShort => '与对方配对一次；之后两个钱包之间的付款文件和账单都会被密封。';
 
   @override
   String get helpPairWhatP1 =>
-      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+      '配对一次性地连接两个钱包：当面互相扫描对方的码，或在线使用邀请链接或五个配对词。每个钱包保存一把只为该联系人生成的密钥；这些都不会与 Epicbox 服务器共享。';
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+      '配对后，发给该联系人的付款文件是**密封**的：只有对方的钱包能打开，途中也无法被更改或伪造。人与人之间通过 Epicbox 的付款照常进行。';
 
   @override
-  String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
+  String get helpPairWhatStep1 => '打开[[联系人|Contacts]]，选择**配对**。';
 
   @override
-  String get helpPairWhatStep2 =>
-      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+  String get helpPairWhatStep2 => '当面：出示你的码，扫描对方的码。在线：发送邀请，或念出配对词。';
 
   @override
-  String get helpPairWhatStep3 =>
-      'Check the words together, then **They match**.';
+  String get helpPairWhatStep3 => '一起核对词语，然后选择**一致**。';
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
+      '配对需要双方都使用 Epic Cash。未配对的联系人仍会收到普通付款文件和 Epicbox 付款。';
 
   @override
-  String get helpPairWhyTitle => 'Why check the words';
+  String get helpPairWhyTitle => '为什么要核对词语';
 
   @override
-  String get helpPairWhyShort =>
-      'The four words prove the pairing reached the right wallet and not someone in between.';
+  String get helpPairWhyShort => '这四个词证明配对到达了正确的钱包，而不是中间的某个人。';
 
   @override
   String get helpPairWhyP1 =>
-      'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.';
+      '配对后，两个钱包都会显示相同的四个图片和名称。它们来自两个钱包的密钥，因此在途中被更改的配对会在两个屏幕上显示不同的词。';
 
   @override
   String get helpPairWhyP2 =>
-      'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.';
+      '通过电话或当面比较，然后点按**一致**。联系人变为**已验证**。**暂时跳过**会保留为**已配对，未验证**：付款文件仍会密封，但在核对词语之前，该联系人不能发送账单。';
 
   @override
-  String get helpPairWhyP3 =>
-      'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
+  String get helpPairWhyP3 => '如果词语不同，点按**不一致**。此端会丢弃该配对。请重新配对，当面或使用新的邀请。';
 
   @override
-  String get helpPairWordsTitle => 'Pairing words';
+  String get helpPairWordsTitle => '配对词';
 
   @override
-  String get helpPairWordsShort =>
-      'Five pictures with names stand in for a link when there is nothing to scan or paste.';
+  String get helpPairWordsShort => '在无法扫描或粘贴时，五个带名称的图片可代替链接。';
 
   @override
   String get helpPairWordsP1 =>
-      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+      '当一个钱包没有相机，或邀请无法以链接发送时，发出邀请的钱包会显示五个配对词。对方在**输入链接或词**中输入它们的名称；输入几个字母后，输入框会补全名称。这些词 10 分钟内有效。';
 
   @override
   String get helpPairWordsP2 =>
-      'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.';
+      '这些词只用于找到邀请。拥有它们的人与收到链接的人处境相同，因此之后仍要像平常一样一起核对四个词。';
 
   @override
-  String get helpPairWordsP3 =>
-      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+  String get helpPairWordsP3 => '配对词需要 Epicbox 服务器。Epicbox 关闭期间，请改为发送邀请链接。';
 
   @override
-  String get helpPairInvTitle => 'Invoices from paired contacts';
+  String get helpPairInvTitle => '来自已配对联系人的账单';
 
   @override
-  String get helpPairInvShort =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+  String get helpPairInvShort => '只有你允许的已验证联系人才能请求你付款。每个请求都会等待你的 PIN。';
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      '与你配对的商店、交易所或个人在你允许后可以发送付款请求：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
 
   @override
   String get helpPairInvP2 =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+      '请求会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。请求绝不会向你的钱包加钱。';
 
   @override
-  String get helpPairInvP3 =>
-      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+  String get helpPairInvP3 => '关闭开关立即生效：该联系人的新请求会被丢弃，未处理的请求会被拒绝。';
 
   @override
   String get helpPairInvP4 =>
-      'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.';
+      '与你配对的交易所通过这种方式处理充值和提现。充值：交易所请求，你批准，交易所发布。提现：交易所发送付款，你的钱包自动回复，交易所发布。';
 
   @override
-  String get helpPairRestoreTitle => 'What a restore does';
+  String get helpPairRestoreTitle => '恢复会带来什么';
 
   @override
   String get helpPairRestoreShort =>
-      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+      '有历史备份时，用恢复短语恢复会带回所有配对；没有备份时，重新配对会找到相同的密钥。';
 
   @override
   String get helpPairRestoreP1 =>
-      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+      '有历史备份时，恢复会原样带回所有配对：相同的密钥、相同的“已验证”标记、相同的设置。联系人不会察觉任何变化。';
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      '没有备份时，配对会从此钱包中消失，但密钥不会：它们来自恢复短语。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封付款”和“允许账单”恢复为默认设置。';
 
   @override
   String get helpPairRestoreP3 =>
-      'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.';
+      '只有当恢复短语不同时，联系人才会看到**密钥已更改**。这可能表示一个新钱包，或有其他人在使用这个名字。信任之前请再次核对词语。';
 
   @override
-  String get helpPairRestoreP4 =>
-      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+  String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。';
+
+  @override
+  String get deskConAddrEpicbox => 'Epicbox 地址';
+
+  @override
+  String get deskConAddrTor => '链接 · Tor 地址';
+
+  @override
+  String get deskConAddrHttp => '链接 · HTTP 地址';
+
+  @override
+  String get deskInvIssuerFormTitle => '开具账单';
+
+  @override
+  String get deskInvIssuerFirstTitle => '首次开具账单之前';
+
+  @override
+  String get deskInvIssuerYourAddress => '你的收款地址';
+
+  @override
+  String get deskInvIssuerMethod => '方式';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => '直接 · 文件';
+
+  @override
+  String get deskInvIssuerDirect => '链接';
 }

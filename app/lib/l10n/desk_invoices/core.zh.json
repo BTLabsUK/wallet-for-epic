@@ -35,7 +35,5 @@
   "deskInvOneDevice": "请只在一台设备上使用账单。装有此钱包的另一台设备可能会收走本应给这台设备的付款。",
   "deskInvFailed": "操作未成功。没有任何更改；请重试。",
   "deskInvHowItWorks": "账单如何运作",
-  "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Epicbox 地址",
   "deskInvPayStalled": "已停滞"
 }

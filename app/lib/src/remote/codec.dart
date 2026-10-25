@@ -759,7 +759,7 @@ final WireCodec<PinWalletRef> pinWalletRefWire = _object<PinWalletRef>(
 // Pairing (RFC 0002).
 
 final WireCodec<PairingState> pairingStateWire = enumWire('PairingState', PairingState.values);
-final WireCodec<PairingKind> pairingKindWire = enumWire('PairingKind', PairingKind.values);
+final WireCodec<PairingParty> pairingPartyWire = enumWire('PairingParty', PairingParty.values);
 final WireCodec<SealMode> sealModeWire = enumWire('SealMode', SealMode.values);
 final WireCodec<PairingWay> pairingWayWire = enumWire('PairingWay', PairingWay.values);
 final WireCodec<PairingCheck> pairingCheckWire = enumWire('PairingCheck', PairingCheck.values);
@@ -784,7 +784,7 @@ final WireCodec<PairingRecord> pairingRecordWire = _object<PairingRecord>(
     'createdAt': timeWire.encode(v.createdAt),
     'name': v.name,
     'label': v.label,
-    'kind': pairingKindWire.encode(v.kind),
+    'kind': pairingPartyWire.encode(v.kind),
     'caps': v.caps.bits,
     'sas': listOf(sasWordWire).encode(v.sas),
     'verifiedAt': optTime.encode(v.verifiedAt),
@@ -810,7 +810,7 @@ final WireCodec<PairingRecord> pairingRecordWire = _object<PairingRecord>(
     createdAt: r.of('createdAt', timeWire),
     name: r.of('name', optString),
     label: r.of('label', optString),
-    kind: r.of('kind', pairingKindWire),
+    kind: r.of('kind', pairingPartyWire),
     caps: PairingCaps.fromBits(r.of('caps', intWire)),
     sas: r.of('sas', listOf(sasWordWire)),
     verifiedAt: r.of('verifiedAt', optTime),
@@ -836,7 +836,7 @@ final WireCodec<PairingInvitePreview> pairingPreviewWire = _object<PairingInvite
     'token': v.token,
     'name': v.name,
     'expiresAt': timeWire.encode(v.expiresAt),
-    'kind': pairingKindWire.encode(v.kind),
+    'kind': pairingPartyWire.encode(v.kind),
     'asksInvoices': v.asksInvoices,
     'homeRelay': v.homeRelay,
     'wordsAvailable': v.wordsAvailable,
@@ -845,7 +845,7 @@ final WireCodec<PairingInvitePreview> pairingPreviewWire = _object<PairingInvite
     token: r.of('token', stringWire),
     name: r.of('name', stringWire),
     expiresAt: r.of('expiresAt', timeWire),
-    kind: r.of('kind', pairingKindWire),
+    kind: r.of('kind', pairingPartyWire),
     asksInvoices: r.of('asksInvoices', boolWire),
     homeRelay: r.of('homeRelay', stringWire),
     wordsAvailable: r.of('wordsAvailable', boolWire),

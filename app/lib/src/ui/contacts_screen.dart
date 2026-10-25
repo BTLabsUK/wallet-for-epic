@@ -362,7 +362,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingKind.person, size: 40),
+              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingParty.person, size: 40),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

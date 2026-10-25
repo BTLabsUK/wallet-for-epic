@@ -40,6 +40,7 @@ import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
+import 'pairing/send_pairing.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
 import 'pin.dart' show askPin;
@@ -1317,14 +1318,24 @@ class _SendViewState extends ConsumerState<SendView> {
       )).spendable;
       final TxEntry tx;
       try {
+        // Through the paired contact's mailbox, sealed (RFC 9.1), when the user chose it.
+        final mailbox = _viaMailbox ? sendPairingFor(ref, to.address) : null;
         tx = await hold.during(
-          () => session.sendEpicbox(
-            amount: amount,
-            minimumConfirmations: ref.read(countedConfirmationsProvider),
-            address: to.address,
-            message: note.isEmpty ? null : note,
-            options: options,
-          ),
+          () => mailbox != null
+              ? session.pairing.sendViaMailbox(
+                  id: mailbox.id,
+                  amount: amount,
+                  minimumConfirmations: ref.read(countedConfirmationsProvider),
+                  message: note.isEmpty ? null : note,
+                  options: options,
+                )
+              : session.sendEpicbox(
+                  amount: amount,
+                  minimumConfirmations: ref.read(countedConfirmationsProvider),
+                  address: to.address,
+                  message: note.isEmpty ? null : note,
+                  options: options,
+                ),
         );
       } on WalletError catch (error) {
         if (error.kind != WalletErrorKind.transportFailed) rethrow;
@@ -1947,6 +1958,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Offline on a node that is not local: the file steps carry [OfflineNodeNote].
   bool _offlineNode = false;
 
+  /// Send through the paired contact's mailbox instead of its payments address (RFC 9.1).
+  bool _viaMailbox = false;
+
   /// The payment method the form sends by now: Epicbox, or for a Link send the Link method
   /// the address picks (Link · HTTP or Link · Tor); null while a Link send has no address yet,
   /// and for the file routes (their gate is [_postBlock]).
@@ -2363,6 +2377,19 @@ class _SendViewState extends ConsumerState<SendView> {
       if (_tagOn && _switchedTo != null)
         _SwitchAnnouncement(method: _switchedTo!),
       _TorNotice(way: way),
+      // A saved contact: Send via its other addresses; paired, its trust and the seal.
+      if (valid)
+        SendPairingLine(
+          address: to.address,
+          epicbox: _method == TransferMethod.epicbox,
+          viaMailbox: _viaMailbox,
+          onViaMailbox: (on) => setState(() => _viaMailbox = on),
+          onAddress: (address) => setState(() {
+            _recipient.text = address;
+            _followAddress(address);
+            _recipientError = null;
+          }),
+        ),
       if (text.isEmpty && shape != null)
         Row(
           children: [

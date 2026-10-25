@@ -190,7 +190,7 @@ class FakePairing implements PairingApi {
     required String name,
     String? id,
     PairingState state = PairingState.verified,
-    PairingKind kind = PairingKind.person,
+    PairingParty kind = PairingParty.person,
     bool allowInvoices = false,
     String? contactId,
     String? paymentsAddress,
@@ -231,7 +231,7 @@ class FakePairing implements PairingApi {
 
   /// The other wallet answered the invite [id] as [name]: it becomes paired and the inviter
   /// gets [PairingEventKind.replied].
-  PairingRecord answerInvite(String id, {String? name, PairingKind kind = PairingKind.person, PairingCaps? caps}) {
+  PairingRecord answerInvite(String id, {String? name, PairingParty kind = PairingParty.person, PairingCaps? caps}) {
     final r = _get(id);
     final who = name ?? r.label ?? autoAnswerName;
     final paired = r.copyWith(
@@ -321,7 +321,7 @@ class FakePairing implements PairingApi {
   String inviteLinkFrom({
     required String name,
     Duration expiresIn = const Duration(hours: 23, minutes: 12),
-    PairingKind kind = PairingKind.person,
+    PairingParty kind = PairingParty.person,
     bool asksInvoices = false,
     String? relay,
   }) {
@@ -461,7 +461,7 @@ class FakePairing implements PairingApi {
       token: token,
       name: body['n'] as String? ?? '',
       expiresAt: expires,
-      kind: PairingKind.values.asNameMap()[body['k']] ?? PairingKind.person,
+      kind: PairingParty.values.asNameMap()[body['k']] ?? PairingParty.person,
       asksInvoices: body['i'] == true,
       homeRelay: body['r'] as String? ?? homeRelay,
       wordsAvailable: !relayUnreachable,
@@ -516,7 +516,7 @@ class FakePairing implements PairingApi {
       createdAt: now,
       name: preview.name,
       kind: preview.kind,
-      caps: PairingCaps(issuesInvoices: preview.asksInvoices || preview.kind != PairingKind.person, sendsWithdrawals: preview.kind == PairingKind.exchange),
+      caps: PairingCaps(issuesInvoices: preview.asksInvoices || preview.kind != PairingParty.person, sendsWithdrawals: preview.kind == PairingParty.exchange),
       asksInvoices: preview.asksInvoices && allowInvoices,
       homeRelay: preview.homeRelay,
       contactId: contactId,
@@ -877,7 +877,7 @@ class FakePairing implements PairingApi {
           inviter: false,
           createdAt: clock(),
           name: m['name'] as String?,
-          kind: PairingKind.values.asNameMap()[m['kind']] ?? PairingKind.person,
+          kind: PairingParty.values.asNameMap()[m['kind']] ?? PairingParty.person,
           sas: fakeSasWords(id),
           verifiedAt: verifiedAt == null ? null : DateTime.fromMillisecondsSinceEpoch(verifiedAt),
           homeRelay: m['relay'] as String? ?? homeRelay,

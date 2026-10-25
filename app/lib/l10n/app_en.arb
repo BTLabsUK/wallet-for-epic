@@ -1974,10 +1974,6 @@
   "@invoiceGone": {
     "description": "On the invoice review screen when the service withdrew the invoice while the user looked at it."
   },
-  "invoiceReviewTitle": "Review invoice",
-  "@invoiceReviewTitle": {
-    "description": "Title of the screen where the user approves or declines one invoice."
-  },
   "invoiceReviewAsks": "{service} asks you to pay",
   "@invoiceReviewAsks": {
     "description": "Heading above the invoiced amount. service is the name the user gave the service. No full stop.",
@@ -2144,38 +2140,6 @@
   "@receiveRequestTitle": {
     "description": "Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Shown beside Get test coins in the web demo, so keep it short."
   },
-  "requestTitle": "Request a payment",
-  "@requestTitle": {
-    "description": "Title of the screen where the user asks someone to pay them."
-  },
-  "requestStepsIntro": "Their wallet must take invoices. Before you request:",
-  "@requestStepsIntro": {
-    "description": "First line of the request screen, above the two numbered steps the payer must take first."
-  },
-  "requestStepTrust": "1. They add your address below to their trusted services.",
-  "@requestStepTrust": {
-    "description": "First step on the request screen. 'Trusted services' is the list in the payer's invoice settings; the user's own address is shown in full right below."
-  },
-  "requestStepAddress": "2. They give you their invoice address.",
-  "@requestStepAddress": {
-    "description": "Second step on the request screen: the payer's invoice address goes in the field below."
-  },
-  "requestYourAddress": "Your address",
-  "@requestYourAddress": {
-    "description": "Label above the user's own payments address on the request screen, which the payer must trust."
-  },
-  "requestPayerLabel": "Their invoice address",
-  "@requestPayerLabel": {
-    "description": "Label of the field for the payer's invoice address."
-  },
-  "requestPayerMissing": "Paste or scan their invoice address.",
-  "@requestPayerMissing": {
-    "description": "Error under the payer field when it is empty."
-  },
-  "requestPayerOwn": "That is one of your own addresses. Enter the invoice address the payer gives you.",
-  "@requestPayerOwn": {
-    "description": "Error under the payer field when it holds the user's own payments or invoice address."
-  },
   "requestMessageLabel": "Message to the payer (optional)",
   "@requestMessageLabel": {
     "description": "Label of the optional message field on the request screen."
@@ -2188,16 +2152,6 @@
   "@requestButton": {
     "description": "Main button of the request screen: sends the request to the payer."
   },
-  "requestSentNotice": "Request sent to {payer}.",
-  "@requestSentNotice": {
-    "description": "Notice after a request reached the relay. payer is the contact's name or the start of their address.",
-    "placeholders": {
-      "payer": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
   "invoicesToPaySection": "To pay",
   "@invoicesToPaySection": {
     "description": "Heading on the Invoices screen above invoices that services sent the user."
@@ -2205,10 +2159,6 @@
   "invoicesNoneToPay": "Nothing to pay.",
   "@invoicesNoneToPay": {
     "description": "Shown under invoicesToPaySection when no invoice waits but the user has sent requests."
-  },
-  "invoicesSentSection": "Requests you sent",
-  "@invoicesSentSection": {
-    "description": "Heading on the Invoices screen above the payment requests the user sent to others."
   },
   "issuedPaid": "Paid",
   "@issuedPaid": {
@@ -2308,10 +2258,6 @@
   "issuedDetailsBounced": "The payer's wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.",
   "@issuedDetailsBounced": {
     "description": "Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it."
-  },
-  "requestPayerNoInvoices": "This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.",
-  "@requestPayerNoInvoices": {
-    "description": "Warning on the request form, before Request: this payer's wallet sent a request back before, so it cannot pay requests. Shown with a button that explains payment files."
   },
   "txStatusWaitingPayer": "Waiting for payer",
   "@txStatusWaitingPayer": {
@@ -3754,10 +3700,6 @@
   "@contactsNameLabel": {
     "description": "Label of the contact's name field."
   },
-  "contactsAddressLabel": "Address",
-  "@contactsAddressLabel": {
-    "description": "Label of the contact's address field, which holds an epicbox address. epicbox is a proper name."
-  },
   "contactsDuplicate": "This address is already saved as {name}.",
   "@contactsDuplicate": {
     "placeholders": {
@@ -3786,16 +3728,6 @@
       "example": {
         "type": "String",
         "example": "http://203.0.113.5:3415"
-      }
-    }
-  },
-  "contactsAddressInvalid": "This is not a valid address. It looks like {example}",
-  "@contactsAddressInvalid": {
-    "description": "Error under an address field. example shows the shape of an epicbox address.",
-    "placeholders": {
-      "example": {
-        "type": "String",
-        "example": "es5x…@epicbox.epiccash.com"
       }
     }
   },
@@ -3952,151 +3884,6 @@
   "settingsInvoicesSubtitle": "Who may ask you to pay",
   "@settingsInvoicesSubtitle": {
     "description": "Row subtitle; the info icon opens invSetLead."
-  },
-  "invoiceSettingsTitle": "Invoices",
-  "@invoiceSettingsTitle": {
-    "description": "Title of the invoice settings screen."
-  },
-  "invoiceSettingsAddressTitle": "Your invoice address",
-  "@invoiceSettingsAddressTitle": {
-    "description": "Heading above the invoice address and its QR code."
-  },
-  "invoiceSettingsAddressBody": "Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.",
-  "@invoiceSettingsAddressBody": {
-    "description": "Explains the invoice address, which is separate from the receive address."
-  },
-  "invoiceSettingsQrLabel": "QR code of your invoice address",
-  "@invoiceSettingsQrLabel": {
-    "description": "Screen reader label of the invoice address QR code."
-  },
-  "invoiceSettingsAddressCopied": "Invoice address copied.",
-  "@invoiceSettingsAddressCopied": {
-    "description": "Notice after copying the invoice address."
-  },
-  "invoiceSettingsServicesTitle": "Trusted services",
-  "@invoiceSettingsServicesTitle": {
-    "description": "Heading above the list of services allowed to send invoices."
-  },
-  "invoiceSettingsNoServices": "No trusted services yet. Invoices from anyone else never reach you.",
-  "@invoiceSettingsNoServices": {
-    "description": "Shown when no service is allowed to send invoices."
-  },
-  "invoiceSettingsAddService": "Add a service",
-  "@invoiceSettingsAddService": {
-    "description": "Button that opens the form to add a trusted service."
-  },
-  "invoiceSettingsRemoveTooltip": "Remove {name}",
-  "@invoiceSettingsRemoveTooltip": {
-    "description": "Tooltip of the button that removes a trusted service.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Exchange"
-      }
-    }
-  },
-  "invoiceSettingsRemoveTitle": "Remove {name}?",
-  "@invoiceSettingsRemoveTitle": {
-    "description": "Title of the dialog that confirms removing a trusted service.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Exchange"
-      }
-    }
-  },
-  "invoiceSettingsRemoveBody": "This service can no longer send you invoices. Payments you already made are not affected.",
-  "@invoiceSettingsRemoveBody": {
-    "description": "Body of the dialog that confirms removing a trusted service."
-  },
-  "invoiceSettingsKeep": "Keep",
-  "@invoiceSettingsKeep": {
-    "description": "Dialog button that leaves the invoice settings as they are."
-  },
-  "invoiceSettingsRemoveConfirm": "Remove",
-  "@invoiceSettingsRemoveConfirm": {
-    "description": "Dialog button that removes a trusted service."
-  },
-  "invoiceSettingsRemoved": "{name} can no longer send you invoices.",
-  "@invoiceSettingsRemoved": {
-    "description": "Notice after removing a trusted service.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Exchange"
-      }
-    }
-  },
-  "invoiceSettingsRotate": "Get a new invoice address",
-  "@invoiceSettingsRotate": {
-    "description": "Advanced settings row that replaces the invoice address."
-  },
-  "invoiceSettingsRotateHint": "The current one stops working.",
-  "@invoiceSettingsRotateHint": {
-    "description": "Hint under the row that replaces the invoice address."
-  },
-  "invoiceSettingsRotateTitle": "Get a new invoice address?",
-  "@invoiceSettingsRotateTitle": {
-    "description": "Title of the dialog that confirms replacing the invoice address."
-  },
-  "invoiceSettingsRotateBody": "Your current invoice address stops working for good. Every service that bills you needs the new one.",
-  "@invoiceSettingsRotateBody": {
-    "description": "Body of the dialog that confirms replacing the invoice address."
-  },
-  "invoiceSettingsRotateConfirm": "Get new address",
-  "@invoiceSettingsRotateConfirm": {
-    "description": "Dialog button that replaces the invoice address."
-  },
-  "invoiceSettingsRotated": "New invoice address ready. Give it to your services.",
-  "@invoiceSettingsRotated": {
-    "description": "Notice after the invoice address was replaced."
-  },
-  "invoiceSettingsDropped": "Dropped from unknown senders this session: {count}",
-  "@invoiceSettingsDropped": {
-    "description": "Advanced readout: messages to the invoice address from senders not on the list, dropped unread.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "invoiceSettingsAddTitle": "Add a trusted service",
-  "@invoiceSettingsAddTitle": {
-    "description": "Title of the form that adds a trusted service."
-  },
-  "invoiceSettingsAddExplanation": "A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.",
-  "@invoiceSettingsAddExplanation": {
-    "description": "Explains, in two sentences, what adding a trusted service allows."
-  },
-  "invoiceSettingsLabelLabel": "Name",
-  "@invoiceSettingsLabelLabel": {
-    "description": "Label of the field for the user's own name for a service."
-  },
-  "invoiceSettingsLabelMissing": "Give the service a name.",
-  "@invoiceSettingsLabelMissing": {
-    "description": "Field error when the service name is empty."
-  },
-  "invoiceSettingsServiceAddressLabel": "The service's epicbox address",
-  "@invoiceSettingsServiceAddressLabel": {
-    "description": "Label of the field for the address a service shows."
-  },
-  "invoiceSettingsAddressMissing": "Paste or scan the address the service shows.",
-  "@invoiceSettingsAddressMissing": {
-    "description": "Field error when the service address is empty."
-  },
-  "invoiceSettingsAddButton": "Add service",
-  "@invoiceSettingsAddButton": {
-    "description": "Button that saves a trusted service."
-  },
-  "invoiceSettingsAdded": "{name} can now send you invoices.",
-  "@invoiceSettingsAdded": {
-    "description": "Notice after adding a trusted service.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Exchange"
-      }
-    }
   },
   "settingsRescan": "Recheck balance",
   "@settingsRescan": {
@@ -5859,14 +5646,6 @@
   "@contactsSendAction": {
     "description": "Contact sheet: opens Send with this contact as the recipient."
   },
-  "contactsEditAction": "Edit",
-  "@contactsEditAction": {
-    "description": "Contact sheet: opens the contact's edit screen."
-  },
-  "contactsAddressHeading": "Address",
-  "@contactsAddressHeading": {
-    "description": "Contact sheet: label over the full address."
-  },
   "contactsNoteHeading": "Note",
   "@contactsNoteHeading": {
     "description": "Contact sheet: label over the contact's note."
@@ -5874,10 +5653,6 @@
   "contactsShowCode": "Show code",
   "@contactsShowCode": {
     "description": "Contact sheet: shows the address as a QR code."
-  },
-  "contactsHideCode": "Hide code",
-  "@contactsHideCode": {
-    "description": "Contact sheet: hides the QR code again."
   },
   "contactsQrLabel": "QR code of {name}'s address",
   "@contactsQrLabel": {
@@ -5924,14 +5699,6 @@
         "type": "int"
       }
     }
-  },
-  "invoicesToPayEmpty": "No invoices to pay",
-  "@invoicesToPayEmpty": {
-    "description": "Invoices: empty To pay segment, heading."
-  },
-  "invoicesToPayEmptyCaption": "Services on your trusted list can bill this wallet. Each invoice waits here for your approval.",
-  "@invoicesToPayEmptyCaption": {
-    "description": "Invoices: empty To pay segment, caption."
   },
   "invoicesSentEmpty": "No requests sent",
   "@invoicesSentEmpty": {
@@ -6012,10 +5779,6 @@
   "@invoicesEpicboxDown": {
     "description": "Invoice review: the epicbox listener is not connected."
   },
-  "invoicesSendRequest": "Send request",
-  "@invoicesSendRequest": {
-    "description": "Request form: the button that sends the request."
-  },
   "invoicesRequestSummary": "{payer} is asked to pay {amount}. The request expires in 24 h.",
   "@invoicesRequestSummary": {
     "description": "Request form: summary above Send request.",
@@ -6027,10 +5790,6 @@
         "type": "String"
       }
     }
-  },
-  "invoicesRequestHowTitle": "Before you request",
-  "@invoicesRequestHowTitle": {
-    "description": "Request form: heading of what the payer must do first."
   },
   "netStatusNode": "Node",
   "@netStatusNode": {
@@ -6887,271 +6646,13 @@
   "@deskInvHowItWorks": {
     "description": "Link on the Invoices page to Help › Invoices."
   },
-  "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "@deskInvAddressHint": {
-    "description": "Hint in an Epicbox address field: the shape of an address. Keep as is."
-  },
-  "deskInvEpicboxAddress": "Epicbox address",
-  "@deskInvEpicboxAddress": {
-    "description": "Title of the QR of this wallet's Epicbox address (its payments address)."
-  },
-  "deskInvHelpTitle": "Invoices",
-  "@deskInvHelpTitle": {
-    "description": "Help section title: invoices."
-  },
-  "deskInvHelpLede": "Bills from trusted senders, paid only after approval.",
-  "@deskInvHelpLede": {
-    "description": "Help section lede under 'Invoices'."
-  },
-  "deskInvHelpFlowTitle": "How an invoice works",
-  "@deskInvHelpFlowTitle": {
-    "description": "Help topic title."
-  },
-  "deskInvHelpFlowShort": "The issuer sends an invoice to the payer's invoice address. Nothing is paid until the payer approves it.",
-  "@deskInvHelpFlowShort": {
-    "description": "One-line answer of the topic."
-  },
-  "deskInvHelpFlowIntro": "An invoice asks for a payment. The **issuer** is paid; the **payer** decides.",
-  "@deskInvHelpFlowIntro": {
-    "description": "Paragraph. **x** marks a term."
-  },
-  "deskInvHelpFlowStep1": "The issuer's wallet sends the invoice to the payer's **invoice address** over the Epicbox server.",
-  "@deskInvHelpFlowStep1": {
-    "description": "Step 1 of the invoice flow."
-  },
-  "deskInvHelpFlowStep2": "The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.",
-  "@deskInvHelpFlowStep2": {
-    "description": "Step 2. [[x]] marks a place in the app; keep the place name as the UI shows it."
-  },
-  "deskInvHelpFlowStep3": "The payer's wallet sends the payment to the issuer's **payments address**.",
-  "@deskInvHelpFlowStep3": {
-    "description": "Step 3."
-  },
-  "deskInvHelpFlowStep4": "The issuer's wallet finalizes the payment and posts it to the network. After {confirmations} confirmations it is final.",
-  "@deskInvHelpFlowStep4": {
-    "description": "Step 4.",
-    "placeholders": {
-      "confirmations": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvHelpFlowNever": "Nothing is paid without approval, and an invoice never adds money to the payer's wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.",
-  "@deskInvHelpFlowNever": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpFlowIssued": "Invoices this wallet issued are under [[Invoices › Issue]].",
-  "@deskInvHelpFlowIssued": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpTrustTitle": "Why only trusted senders",
-  "@deskInvHelpTrustTitle": {
-    "description": "Help topic title."
-  },
-  "deskInvHelpTrustShort": "Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.",
-  "@deskInvHelpTrustShort": {
-    "description": "One-line answer."
-  },
-  "deskInvHelpTrustP1": "The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender's address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].",
-  "@deskInvHelpTrustP1": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpTrustP2": "Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.",
-  "@deskInvHelpTrustP2": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpTrustP3": "Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.",
-  "@deskInvHelpTrustP3": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpTrustWhere1": "Trust a sender under [[Settings › Invoices]].",
-  "@deskInvHelpTrustWhere1": {
-    "description": "List item."
-  },
-  "deskInvHelpTrustWhere2": "Or switch on **Trusted for invoices** on a contact under [[Contacts]].",
-  "@deskInvHelpTrustWhere2": {
-    "description": "List item."
-  },
-  "deskInvHelpTrustWhere3": "A sender can be removed from the list at any time. Its new invoices are then dropped.",
-  "@deskInvHelpTrustWhere3": {
-    "description": "List item."
-  },
-  "deskInvHelpAddrTitle": "Why a separate invoice address",
-  "@deskInvHelpAddrTitle": {
-    "description": "Help topic title."
-  },
-  "deskInvHelpAddrShort": "Invoices arrive at their own address, apart from the payments address that people pay to.",
-  "@deskInvHelpAddrShort": {
-    "description": "One-line answer."
-  },
-  "deskInvHelpAddrP1": "The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.",
-  "@deskInvHelpAddrP1": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpAddrP2": "Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.",
-  "@deskInvHelpAddrP2": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpAddrP3": "The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.",
-  "@deskInvHelpAddrP3": {
-    "description": "Paragraph."
-  },
-  "deskInvHelpAddrWhere1": "Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].",
-  "@deskInvHelpAddrWhere1": {
-    "description": "List item."
-  },
-  "deskInvHelpAddrWhere2": "**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.",
-  "@deskInvHelpAddrWhere2": {
-    "description": "List item; 'New address' is the button's label."
-  },
-  "deskInvHelpDiagramTitle": "How an invoice travels",
-  "@deskInvHelpDiagramTitle": {
-    "description": "Caption over the invoice flow diagram."
-  },
-  "deskInvHelpDiagramIssuer": "Issuer",
-  "@deskInvHelpDiagramIssuer": {
-    "description": "Diagram lane: the side that issues the invoice and is paid."
-  },
-  "deskInvHelpDiagramPayer": "Payer",
-  "@deskInvHelpDiagramPayer": {
-    "description": "Diagram lane: the side that pays."
-  },
-  "deskInvHelpDiagramIssues": "Issues the invoice",
-  "@deskInvHelpDiagramIssues": {
-    "description": "Diagram box, issuer side. Short."
-  },
-  "deskInvHelpDiagramInvoice": "Invoice",
-  "@deskInvHelpDiagramInvoice": {
-    "description": "Diagram arrow label. Short."
-  },
-  "deskInvHelpDiagramGate": "Invoice address",
-  "@deskInvHelpDiagramGate": {
-    "description": "Diagram box: the payer's invoice address, a gate."
-  },
-  "deskInvHelpDiagramGateSub": "Trusted senders only",
-  "@deskInvHelpDiagramGateSub": {
-    "description": "Under the gate. Short."
-  },
-  "deskInvHelpDiagramDropped": "Other senders",
-  "@deskInvHelpDiagramDropped": {
-    "description": "Diagram: a sender not on the trusted list."
-  },
-  "deskInvHelpDiagramDroppedSub": "Dropped unread",
-  "@deskInvHelpDiagramDroppedSub": {
-    "description": "Under 'Other senders'. Short."
-  },
-  "deskInvHelpDiagramReview": "Reviews and approves",
-  "@deskInvHelpDiagramReview": {
-    "description": "Diagram box, payer side. Short."
-  },
-  "deskInvHelpDiagramReviewSub": "Approve and pay",
-  "@deskInvHelpDiagramReviewSub": {
-    "description": "Under it: the button's label."
-  },
-  "deskInvHelpDiagramPayment": "Payment",
-  "@deskInvHelpDiagramPayment": {
-    "description": "Diagram arrow label. Short."
-  },
-  "deskInvHelpDiagramPayAddr": "Payments address",
-  "@deskInvHelpDiagramPayAddr": {
-    "description": "Diagram box, issuer side: the normal receive address."
-  },
-  "deskInvHelpDiagramPayAddrSub": "Not the invoice address",
-  "@deskInvHelpDiagramPayAddrSub": {
-    "description": "Under 'Payments address'. Short."
-  },
-  "deskInvHelpDiagramFinal": "Finalizes and posts",
-  "@deskInvHelpDiagramFinal": {
-    "description": "Diagram box, issuer side: finalizes the payment and posts it to the network."
-  },
-  "deskInvHelpDiagramFinalSub": "Final after {confirmations} confirmations",
-  "@deskInvHelpDiagramFinalSub": {
-    "description": "Under it. Short.",
-    "placeholders": {
-      "confirmations": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvHelpDiagramSemantics": "The issuer sends an invoice to the payer's invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer's payments address; the issuer's wallet finalizes it and posts it to the network.",
-  "@deskInvHelpDiagramSemantics": {
-    "description": "Screen reader text for the whole diagram."
-  },
-  "deskInvIssuerFormTitle": "Issue an invoice",
-  "@deskInvIssuerFormTitle": {
-    "description": "Title of the form that asks someone to pay you."
-  },
-  "deskInvIssuerFirstTitle": "Before the first invoice",
-  "@deskInvIssuerFirstTitle": {
-    "description": "Panel title: the one-off steps the payer takes before they can be billed."
-  },
-  "deskInvIssuerYourAddress": "Your payments address",
-  "@deskInvIssuerYourAddress": {
-    "description": "Label: this wallet's normal Epicbox address, which the payer must trust."
-  },
-  "deskInvIssuerMethod": "Method",
-  "@deskInvIssuerMethod": {
-    "description": "Label of the choice how the request travels: Epicbox, File, Link."
-  },
-  "deskInvIssuerEpicbox": "Epicbox",
-  "@deskInvIssuerEpicbox": {
-    "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
-  },
-  "deskInvIssuerFile": "Direct · File",
-  "@deskInvIssuerFile": {
-    "description": "Method: the request is saved as a file to hand over."
-  },
-  "deskInvIssuerDirect": "Link",
-  "@deskInvIssuerDirect": {
-    "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
-  },
   "deskInvIssuerSoon": "Coming soon",
   "@deskInvIssuerSoon": {
     "description": "Why a method or button is disabled: not built yet."
   },
-  "deskInvIssuerPayer": "Their invoice address",
-  "@deskInvIssuerPayer": {
-    "description": "Field label: the payer's invoice address, where the request goes."
-  },
-  "deskInvIssuerPayerHelp": "Their wallet shows it under Settings › Invoices.",
-  "@deskInvIssuerPayerHelp": {
-    "description": "Help under the payer field: where the payer finds their invoice address."
-  },
-  "deskInvIssuerPayerMissing": "Paste their invoice address.",
-  "@deskInvIssuerPayerMissing": {
-    "description": "Error: the payer field is empty."
-  },
-  "deskInvIssuerPayerInvalid": "This is not a valid Epicbox address.",
-  "@deskInvIssuerPayerInvalid": {
-    "description": "Error: the payer field holds something that is not an Epicbox address."
-  },
-  "deskInvIssuerPayerOwn": "This is one of your own addresses. Use the invoice address the payer gives you.",
-  "@deskInvIssuerPayerOwn": {
-    "description": "Error: the payer field holds this wallet's payments or invoice address."
-  },
-  "deskInvIssuerPayerHttp": "Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.",
-  "@deskInvIssuerPayerHttp": {
-    "description": "Error: an http(s) or onion address was given while the method is Epicbox."
-  },
-  "deskInvIssuerContacts": "Contacts",
-  "@deskInvIssuerContacts": {
-    "description": "Button: pick the payer from contacts that have an invoice address."
-  },
   "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
   "@deskInvIssuerNoContacts": {
     "description": "Shown in the contact picker when no contact has an invoice address."
-  },
-  "deskInvIssuerNoInvoices": "This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.",
-  "@deskInvIssuerNoInvoices": {
-    "description": "Warning on the request form: the payer's wallet is known not to pay requests."
-  },
-  "deskInvIssuerUseFile": "Use a file",
-  "@deskInvIssuerUseFile": {
-    "description": "Button: switch the request to the File method."
-  },
-  "deskInvIssuerUnknown": "Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.",
-  "@deskInvIssuerUnknown": {
-    "description": "Quiet line on the request form when nothing is known about the payer's wallet. Product names stay as they are."
   },
   "deskInvIssuerAmount": "Amount",
   "@deskInvIssuerAmount": {
@@ -7206,30 +6707,13 @@
       }
     }
   },
-  "deskInvIssuerIssue": "Issue",
-  "@deskInvIssuerIssue": {
-    "description": "Main button: send the payment request. No password is needed."
-  },
   "deskInvIssuerRelayDown": "The Epicbox server is not answering, so an invoice cannot go out now.",
   "@deskInvIssuerRelayDown": {
     "description": "Why Request is disabled: the relay is down."
   },
-  "deskInvIssuerFixFields": "Fix the fields marked in red.",
-  "@deskInvIssuerFixFields": {
-    "description": "Why Request did nothing: some fields have errors."
-  },
   "deskInvIssuerNotDelivered": "The invoice did not reach the Epicbox server. Nothing was sent. Try again.",
   "@deskInvIssuerNotDelivered": {
     "description": "Error after Request: the relay did not take it; it was cancelled at once."
-  },
-  "deskInvIssuerSent": "Invoice sent to {payer}.",
-  "@deskInvIssuerSent": {
-    "description": "Notice after Request: delivered to the payer's invoice address.",
-    "placeholders": {
-      "payer": {
-        "type": "String"
-      }
-    }
   },
   "deskInvIssuerEmpty": "No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.",
   "@deskInvIssuerEmpty": {
@@ -7373,7 +6857,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}'s invoice address. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered to {payer}'s mailbox. Nothing is paid until they approve it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {
@@ -7385,18 +6869,6 @@
   "deskInvIssuerCopySlate": "Copy slate ID",
   "@deskInvIssuerCopySlate": {
     "description": "Button tooltip: copy the request's technical identifier."
-  },
-  "deskInvIssuerStepsIntro": "Their wallet must take invoices. Before the first invoice:",
-  "@deskInvIssuerStepsIntro": {
-    "description": "Before the steps on the issue form: the payer must have done these once."
-  },
-  "deskInvIssuerStepTrust": "1. They add your payments address below to their trusted senders.",
-  "@deskInvIssuerStepTrust": {
-    "description": "Step 1 on the issue form."
-  },
-  "deskInvIssuerStepAddress": "2. They give you their invoice address.",
-  "@deskInvIssuerStepAddress": {
-    "description": "Step 2 on the issue form."
   },
   "deskInvIssuerStepIssued": "Issued",
   "@deskInvIssuerStepIssued": {
@@ -7472,28 +6944,11 @@
   "@deskInvPayerNoMessage": {
     "description": "Shown in place of the service's message when the invoice has none."
   },
-  "deskInvPayerDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored.} other{{count} messages from senders you do not trust were ignored.}}",
-  "@deskInvPayerDropped": {
-    "description": "Quiet line on the Invoices page › To pay: invoices from senders not on the trusted list were dropped unread. Never more detail.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvPayerTrustService": "Trust a service…",
-  "@deskInvPayerTrustService": {
-    "description": "Link: open Settings › Receiving to add a service allowed to send invoices."
-  },
-  "deskInvPayerYourInvoiceAddress": "Your invoice address",
-  "@deskInvPayerYourInvoiceAddress": {
-    "description": "Link: open Settings › Receiving where the invoice address is shown."
-  },
   "deskInvPayerEmptyTitle": "No invoices are waiting",
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
@@ -7604,18 +7059,6 @@
   "deskInvPayerPaysTo": "Pays to",
   "@deskInvPayerPaysTo": {
     "description": "Label: the address the payment goes to (stored in the trusted list)."
-  },
-  "deskInvPayerTrustedSince": "{service}, trusted since {date}",
-  "@deskInvPayerTrustedSince": {
-    "description": "The service's label and when the user added it to trusted services, e.g. 'Coffee Roasters, trusted since 2 Sep 2026'.",
-    "placeholders": {
-      "service": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
   },
   "deskInvPayerExpires": "Expires",
   "@deskInvPayerExpires": {
@@ -7815,178 +7258,7 @@
   },
   "deskInvSetTitle": "Invoices",
   "@deskInvSetTitle": {
-    "description": "Settings › Receiving section title: the invoice address and who may bill you."
-  },
-  "deskInvSetIntro": "Services you trust bill this wallet at its invoice address. Nothing is paid until you approve each invoice.",
-  "@deskInvSetIntro": {
-    "description": "Intro of the Invoices settings section."
-  },
-  "deskInvSetAddressLabel": "Invoice address",
-  "@deskInvSetAddressLabel": {
-    "description": "Label of this wallet's separate address for receiving invoices."
-  },
-  "deskInvSetAddressWarning": "Give it only to services you trust. It does not receive payments.",
-  "@deskInvSetAddressWarning": {
-    "description": "Warning beside the invoice address and its QR code: never use it to receive money."
-  },
-  "deskInvSetCopy": "Copy",
-  "@deskInvSetCopy": {
-    "description": "Button: copy the invoice address."
-  },
-  "deskInvSetCopied": "Invoice address copied. Give it only to services you trust; it does not receive payments.",
-  "@deskInvSetCopied": {
-    "description": "Notice after copying the invoice address, repeating the warning."
-  },
-  "deskInvSetQrShow": "Show QR",
-  "@deskInvSetQrShow": {
-    "description": "Button: show the invoice address as a QR code."
-  },
-  "deskInvSetQrHide": "Hide QR",
-  "@deskInvSetQrHide": {
-    "description": "Button: hide the QR code."
-  },
-  "deskInvSetQrLabel": "QR code of your invoice address",
-  "@deskInvSetQrLabel": {
-    "description": "Screen-reader label of the invoice address QR code."
-  },
-  "deskInvSetIndex": "Invoice address {index}",
-  "@deskInvSetIndex": {
-    "description": "Which invoice address this is (it changes when rotated), e.g. 'Invoice address 2'.",
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvSetTrusted": "Trusted senders",
-  "@deskInvSetTrusted": {
-    "description": "List title: services and contacts allowed to send you invoices."
-  },
-  "deskInvSetTrustedNone": "No trusted senders. Invoices from anyone else are ignored unread.",
-  "@deskInvSetTrustedNone": {
-    "description": "Empty trusted list."
-  },
-  "deskInvSetSince": "Trusted since {date}",
-  "@deskInvSetSince": {
-    "description": "When a sender was trusted.",
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "deskInvSetContactTag": "Contact",
-  "@deskInvSetContactTag": {
-    "description": "Tag on a trusted sender that is one of your contacts."
-  },
-  "deskInvSetRemove": "Remove",
-  "@deskInvSetRemove": {
-    "description": "Button: stop trusting a sender."
-  },
-  "deskInvSetRemoveTitle": "Stop trusting {name}?",
-  "@deskInvSetRemoveTitle": {
-    "description": "Confirm dialog title.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskInvSetRemoveBody": "{name} can no longer send you invoices. Invoices already waiting stay until you answer them or they expire.",
-  "@deskInvSetRemoveBody": {
-    "description": "Confirm dialog text.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskInvSetRemoved": "{name} can no longer send you invoices.",
-  "@deskInvSetRemoved": {
-    "description": "Notice after removing a trusted sender.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskInvSetKeep": "Keep",
-  "@deskInvSetKeep": {
-    "description": "Dialog button: keep as it is."
-  },
-  "deskInvSetAdd": "Trust a sender",
-  "@deskInvSetAdd": {
-    "description": "Button: add a service allowed to send you invoices."
-  },
-  "deskInvSetAddBody": "A trusted sender can bill this wallet at its invoice address. Nothing is paid until you approve each invoice with your wallet password.",
-  "@deskInvSetAddBody": {
-    "description": "Text of the Trust a sender dialog."
-  },
-  "deskInvSetName": "Name",
-  "@deskInvSetName": {
-    "description": "Field label: your name for the sender, shown on its invoices."
-  },
-  "deskInvSetNameMissing": "Give the sender a name.",
-  "@deskInvSetNameMissing": {
-    "description": "Error: name is empty."
-  },
-  "deskInvSetSenderAddress": "Their payments address",
-  "@deskInvSetSenderAddress": {
-    "description": "Field label: the Epicbox address the service shows on its site."
-  },
-  "deskInvSetSenderMissing": "Paste the address the service shows.",
-  "@deskInvSetSenderMissing": {
-    "description": "Error: address is empty."
-  },
-  "deskInvSetSenderInvalid": "This is not a valid Epicbox address.",
-  "@deskInvSetSenderInvalid": {
-    "description": "Error: not an Epicbox address."
-  },
-  "deskInvSetTrust": "Trust",
-  "@deskInvSetTrust": {
-    "description": "Dialog button: add the sender to the trusted list."
-  },
-  "deskInvSetAdded": "{name} can now send you invoices.",
-  "@deskInvSetAdded": {
-    "description": "Notice after trusting a sender.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskInvSetDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored unread.} other{{count} messages from senders you do not trust were ignored unread.}}",
-  "@deskInvSetDropped": {
-    "description": "Quiet line: messages to the invoice address from untrusted senders, dropped without opening.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvSetRotate": "New invoice address",
-  "@deskInvSetRotate": {
-    "description": "Button (Advanced): move to a fresh invoice address."
-  },
-  "deskInvSetRotateHint": "Services that have the old one can no longer send you invoices.",
-  "@deskInvSetRotateHint": {
-    "description": "Text beside the rotate button."
-  },
-  "deskInvSetRotateTitle": "Make a new invoice address?",
-  "@deskInvSetRotateTitle": {
-    "description": "Confirm dialog title."
-  },
-  "deskInvSetRotateBody": "Services that have the old one can no longer send you invoices. Give the new one to every service that bills you.",
-  "@deskInvSetRotateBody": {
-    "description": "Confirm dialog text."
-  },
-  "deskInvSetRotateConfirm": "Make new address",
-  "@deskInvSetRotateConfirm": {
-    "description": "Dialog button: rotate the invoice address."
-  },
-  "deskInvSetRotated": "New invoice address ready. Give it to your services.",
-  "@deskInvSetRotated": {
-    "description": "Notice after rotating."
+    "description": "Settings › Invoices section title: the paired contacts who may bill you."
   },
   "deskInvSetExpiry": "Time to pay",
   "@deskInvSetExpiry": {
@@ -8005,45 +7277,9 @@
       }
     }
   },
-  "deskInvSetCancel": "Cancel",
-  "@deskInvSetCancel": {
-    "description": "Dialog button: close without changes."
-  },
-  "deskInvSetContactSection": "Invoices",
-  "@deskInvSetContactSection": {
-    "description": "Section title in a contact's detail: their invoice address and trust."
-  },
-  "deskInvSetTheirInvoice": "Their invoice address",
-  "@deskInvSetTheirInvoice": {
-    "description": "Contact field: where requests to this contact go."
-  },
-  "deskInvSetTheirInvoiceNone": "No invoice address saved. Ask them for it to issue invoices to them.",
-  "@deskInvSetTheirInvoiceNone": {
-    "description": "Contact detail when no invoice address is saved."
-  },
-  "deskInvSetTrustedSwitch": "Trusted for invoices",
-  "@deskInvSetTrustedSwitch": {
-    "description": "Contact switch: this contact may send you invoices."
-  },
-  "deskInvSetTrustedSwitchHelp": "Lets this contact bill you. Nothing is paid until you approve an invoice.",
-  "@deskInvSetTrustedSwitchHelp": {
-    "description": "Text of the trusted switch."
-  },
-  "deskInvSetIssueNeeds": "Needs their invoice address.",
-  "@deskInvSetIssueNeeds": {
-    "description": "Why Request payment is disabled for a contact."
-  },
-  "deskInvSetShare": "Share invoice address",
-  "@deskInvSetShare": {
-    "description": "Contact action: copy your invoice address to give to this contact."
-  },
-  "deskInvSetReceiveHint": "Ask a contact or a service to pay you. Their wallet must take invoices.",
+  "deskInvSetReceiveHint": "Ask a paired contact to pay you, or save the request as a file.",
   "@deskInvSetReceiveHint": {
     "description": "Text beside Request a payment on Receive."
-  },
-  "deskInvSetRestoredHint": "Restored this wallet from its recovery phrase? Give services this invoice address again.",
-  "@deskInvSetRestoredHint": {
-    "description": "Line under the invoice address while its index is 1: a wallet restored without its history file starts again at the first invoice address, so services hold an old one (flow.md §2, P-16)."
   },
   "serverSwitchRelayTitle": "Switch epicbox server?",
   "@serverSwitchRelayTitle": {
@@ -11032,18 +10268,6 @@
         "example": "Piotr"
       }
     }
-  },
-  "deskConAddrEpicbox": "Epicbox address",
-  "@deskConAddrEpicbox": {
-    "description": "Label above the address in a contact's detail, for an Epicbox address."
-  },
-  "deskConAddrTor": "Link · Tor address",
-  "@deskConAddrTor": {
-    "description": "Label above the address in a contact's detail, for a Tor address."
-  },
-  "deskConAddrHttp": "Link · HTTP address",
-  "@deskConAddrHttp": {
-    "description": "Label above the address in a contact's detail, for an HTTP address."
   },
   "deskConNote": "Note",
   "@deskConNote": {
@@ -18661,7 +17885,7 @@
   "@advServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."
   },
-  "advServerDetailsHint": "Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.",
+  "advServerDetailsHint": "Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.",
   "@advServerDetailsHint": {
     "description": "Info sheet of the Server details switch."
   },
@@ -19792,16 +19016,6 @@
   "@pairWordsGoodFor": {
     "description": "Status line under the five words."
   },
-  "pairWordsLeft": "{time} left",
-  "@pairWordsLeft": {
-    "description": "Countdown readout, mono, e.g. 9:32 left.",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "example": "9:32"
-      }
-    }
-  },
   "pairWordsLastMinute": "Less than a minute left",
   "@pairWordsLastMinute": {
     "description": "Status line in the last minute, warn colour."
@@ -19941,16 +19155,6 @@
       "name": {
         "type": "String",
         "example": "Anna"
-      }
-    }
-  },
-  "pairInviteExpiresIn": "Expires in {time}",
-  "@pairInviteExpiresIn": {
-    "description": "Countdown chip after sharing.",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "example": "9:32"
       }
     }
   },
@@ -20196,10 +19400,6 @@
       }
     }
   },
-  "pairSecondReplyBody": "If you didn’t share it with them, remove them.",
-  "@pairSecondReplyBody": {
-    "description": "Notice body."
-  },
   "pairAnsweredSameInvite": "Answered the same invite · not stored",
   "@pairAnsweredSameInvite": {
     "description": "Pending row subtitle for the second replier."
@@ -20369,10 +19569,6 @@
   "contactPairing": "Pairing",
   "@contactPairing": {
     "description": "Section head."
-  },
-  "contactShowCode": "Show code",
-  "@contactShowCode": {
-    "description": "Button: the contact’s QR."
   },
   "contactWordsChecked": "Words checked {date}",
   "@contactWordsChecked": {
@@ -20783,16 +19979,6 @@
       }
     }
   },
-  "reqAsksYouToPay": "{name} asks you to pay",
-  "@reqAsksYouToPay": {
-    "description": "Desktop header.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
   "reqSealedSigned": "Sealed to this wallet and signed by {name}",
   "@reqSealedSigned": {
     "description": "Desktop line next to the chips.",
@@ -20806,30 +19992,6 @@
   "reqReference": "Reference",
   "@reqReference": {
     "description": "Row label."
-  },
-  "reqDepositRef": "Deposit · ref {ref}",
-  "@reqDepositRef": {
-    "description": "Reference readout for a deposit.",
-    "placeholders": {
-      "ref": {
-        "type": "String",
-        "example": "NW-48213"
-      }
-    }
-  },
-  "reqWithdrawalRef": "Withdrawal · ref {ref}",
-  "@reqWithdrawalRef": {
-    "description": "Reference readout for a withdrawal.",
-    "placeholders": {
-      "ref": {
-        "type": "String",
-        "example": "NW-48213"
-      }
-    }
-  },
-  "reqDeliveredVia": "Delivered via",
-  "@reqDeliveredVia": {
-    "description": "Desktop row label."
   },
   "reqPaidWaiting": "Paid. Waiting for {name} to post",
   "@reqPaidWaiting": {
@@ -20973,10 +20135,6 @@
       }
     }
   },
-  "reqDeclined": "Declined",
-  "@reqDeclined": {
-    "description": "Status after the user declined."
-  },
   "reqTwoSame": "{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}",
   "@reqTwoSame": {
     "description": "Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.",
@@ -20993,20 +20151,6 @@
         "example": "250"
       }
     }
-  },
-  "reqTooMany": "{name} sent too many requests.",
-  "@reqTooMany": {
-    "description": "Docked notice when the parked-invoice cap is hit.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
-  "reqTooManyBody": "Extra ones were dropped. Turn its invoices off if this keeps happening.",
-  "@reqTooManyBody": {
-    "description": "Body."
   },
   "reqWithdrawalFrom": "Withdrawal from {name}",
   "@reqWithdrawalFrom": {
@@ -21316,28 +20460,6 @@
       }
     }
   },
-  "restoreDone": "History restored.",
-  "@restoreDone": {
-    "description": "Notice title."
-  },
-  "restoreDoneBody": "Payments: {payments}. Contacts: {contacts}. Pairings: {pairings}.",
-  "@restoreDoneBody": {
-    "description": "Notice body after a history restore: what came back, as counts.",
-    "placeholders": {
-      "payments": {
-        "type": "String",
-        "example": "184"
-      },
-      "contacts": {
-        "type": "String",
-        "example": "12"
-      },
-      "pairings": {
-        "type": "String",
-        "example": "3"
-      }
-    }
-  },
   "pairInviteSentBodyAnyone": "Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.",
   "@pairInviteSentBodyAnyone": {
     "description": "After sharing an invite made for nobody in particular."
@@ -21437,10 +20559,6 @@
       }
     }
   },
-  "trustNotPaired": "Not paired",
-  "@trustNotPaired": {
-    "description": "Badge text for a contact without a pairing (desktop rows that need a word)."
-  },
   "contactMore": "More",
   "@contactMore": {
     "description": "Tooltip of the contact page more menu."
@@ -21452,16 +20570,6 @@
   "contactDelete": "Delete contact",
   "@contactDelete": {
     "description": "Contact page more menu: delete."
-  },
-  "contactInfoAbout": "About {label}",
-  "@contactInfoAbout": {
-    "description": "Tooltip and screen reader label of an info icon beside a switch.",
-    "placeholders": {
-      "label": {
-        "type": "String",
-        "example": "Seal payments"
-      }
-    }
   },
   "contactCopyAddress": "Copy {type} address",
   "@contactCopyAddress": {
@@ -21494,16 +20602,6 @@
       "type": {
         "type": "String",
         "example": "Epicbox"
-      }
-    }
-  },
-  "addrAlreadySaved": "This address is already saved as {name}.",
-  "@addrAlreadySaved": {
-    "description": "Hint when the address belongs to another contact.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
       }
     }
   },
@@ -21559,10 +20657,6 @@
   "@reqFileTitle": {
     "description": "Title of the request file screen."
   },
-  "reqFileBody": "Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.",
-  "@reqFileBody": {
-    "description": "Body of the request file screen."
-  },
   "noticeOutboxStuck": "Couldn’t reach {name} yet. Your funds are safe.",
   "@noticeOutboxStuck": {
     "description": "Docked warning for OutboxStuck.",
@@ -21599,20 +20693,6 @@
   "@restorePairings": {
     "description": "Import summary row label."
   },
-  "sendSealedNote": "Sealed for {name}: only their wallet can open the file.",
-  "@sendSealedNote": {
-    "description": "Under the recipient on Send when the file method seals.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
-  "sendSealChoice": "Seal this file",
-  "@sendSealChoice": {
-    "description": "Screen reader label of the Sealed / Plain chooser."
-  },
   "pairingDesktopShowCodeLead": "Let them scan this with their phone, or read them the pairing words.",
   "@pairingDesktopShowCodeLead": {
     "description": "Desktop Show my code panel lead."
@@ -21624,10 +20704,6 @@
   "pairingInviteOnline": "Invite online",
   "@pairingInviteOnline": {
     "description": "Desktop panel title."
-  },
-  "pairUseHere": "Use here",
-  "@pairUseHere": {
-    "description": "Desktop restore dialog primary (short)."
   },
   "pairSaveContactTitle": "Save {name} in your contacts?",
   "@pairSaveContactTitle": {
@@ -21647,23 +20723,9 @@
   "@pairAddToAContact": {
     "description": "Button: attach this pairing to an existing contact the user picks."
   },
-  "pairPickContactTitle": "Add to which contact?",
-  "@pairPickContactTitle": {
-    "description": "Title of the contact picker for attaching a pairing."
-  },
   "pairSavedAs": "Saved as {name}.",
   "@pairSavedAs": {
     "description": "Notice after a pairing was saved to or added to a contact.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
-  "pairContactAlreadyPaired": "{name} already has a pairing. Adding this one checks whether the keys are the same.",
-  "@pairContactAlreadyPaired": {
-    "description": "Hint in the picker for a contact that is paired already (RFC 7.8).",
     "placeholders": {
       "name": {
         "type": "String",
@@ -21847,5 +20909,45 @@
   "helpPairRestoreP4": "Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.",
   "@helpPairRestoreP4": {
     "description": "Topic 5."
+  },
+  "deskConAddrEpicbox": "Epicbox address",
+  "@deskConAddrEpicbox": {
+    "description": "Label above the address in a contact's detail, for an Epicbox address."
+  },
+  "deskConAddrTor": "Link · Tor address",
+  "@deskConAddrTor": {
+    "description": "Label above the address in a contact's detail, for a Tor address."
+  },
+  "deskConAddrHttp": "Link · HTTP address",
+  "@deskConAddrHttp": {
+    "description": "Label above the address in a contact's detail, for an HTTP address."
+  },
+  "deskInvIssuerFormTitle": "Issue an invoice",
+  "@deskInvIssuerFormTitle": {
+    "description": "Title of the form that asks someone to pay you."
+  },
+  "deskInvIssuerFirstTitle": "Before the first invoice",
+  "@deskInvIssuerFirstTitle": {
+    "description": "Panel title: the one-off steps the payer takes before they can be billed."
+  },
+  "deskInvIssuerYourAddress": "Your payments address",
+  "@deskInvIssuerYourAddress": {
+    "description": "Label: this wallet's normal Epicbox address, which the payer must trust."
+  },
+  "deskInvIssuerMethod": "Method",
+  "@deskInvIssuerMethod": {
+    "description": "Label of the choice how the request travels: Epicbox, File, Link."
+  },
+  "deskInvIssuerEpicbox": "Epicbox",
+  "@deskInvIssuerEpicbox": {
+    "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
+  },
+  "deskInvIssuerFile": "Direct · File",
+  "@deskInvIssuerFile": {
+    "description": "Method: the request is saved as a file to hand over."
+  },
+  "deskInvIssuerDirect": "Link",
+  "@deskInvIssuerDirect": {
+    "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
   }
 }

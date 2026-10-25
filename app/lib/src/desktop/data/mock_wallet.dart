@@ -10,7 +10,7 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
-import '../../models.dart' show PairingCaps, PairingKind, PairingState, SealMode;
+import '../../models.dart' show PairingCaps, PairingParty, PairingState, SealMode;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -970,7 +970,7 @@ class MockDeskWallet implements DeskWalletApi {
       id: mockNorthwindPairing,
       name: 'Northwind Exchange',
       contactId: 'c8',
-      kind: PairingKind.exchange,
+      kind: PairingParty.exchange,
       caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
       allowInvoices: true,
       paymentsAddress: _northwindAddr,
@@ -981,7 +981,7 @@ class MockDeskWallet implements DeskWalletApi {
       id: mockCoffeePairing,
       name: 'Coffee Roasters',
       contactId: 'c5',
-      kind: PairingKind.shop,
+      kind: PairingParty.shop,
       caps: const PairingCaps(issuesInvoices: true),
       allowInvoices: true,
       paymentsAddress: _coffeeAddr,

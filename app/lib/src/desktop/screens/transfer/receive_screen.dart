@@ -11,6 +11,7 @@ import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/http_reach.dart';
+import '../../data/pairing_state.dart' show deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
@@ -431,7 +432,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
         if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
         // Invoices (docs/invoices/flow.md §1): ask someone to pay; the invoice address never shows here.
-        if (ref.watch(deskApiProvider).supportsInvoices) ...[
+        if (ref.watch(deskApiProvider).supportsInvoices && ref.watch(deskPairsProvider)) ...[
           SizedBox(height: Sp.x5),
           Wrap(
             spacing: Sp.x3,

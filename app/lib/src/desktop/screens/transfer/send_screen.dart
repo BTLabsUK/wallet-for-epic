@@ -22,7 +22,9 @@ import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
+import '../../data/pairing_state.dart' show deskPairsProvider;
 import '../../widgets/kit.dart';
+import '../pairing/pair_screens.dart' show deskOpenPairingText;
 import '../../widgets/tor_chip.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
@@ -633,7 +635,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         );
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
-      case PairingLink() when pasted:
+      case PairingLink() when pasted && !ref.read(deskPairsProvider):
         fieldError((l) => l.scanPairingUnavailable);
       case PairingLink(text: final link):
         openPairingLink(link);
@@ -658,9 +660,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return true;
   }
 
-  /// A pairing link: the desktop does not pair yet. The one place to swap for that flow.
-  void openPairingLink(String link) =>
-      showCodeDialog(context, icon: Icons.handshake_outlined, title: context.l10n.scanPairingTitle, text: context.l10n.scanPairingUnavailable, code: link);
+  /// A pairing link: Pair with Anna?, the words check or why not; a wallet that does not pair
+  /// says so.
+  void openPairingLink(String link) => ref.read(deskPairsProvider)
+      ? deskOpenPairingText(context, ref, link).catchError((Object e) {
+          if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+        })
+      : showCodeDialog(context, icon: Icons.handshake_outlined, title: context.l10n.scanPairingTitle, text: context.l10n.scanPairingUnavailable, code: link);
 
   /// To, Amount and Message from [r]; the method follows the address. A field the code leaves
   /// out keeps what was typed, but a dropped amount empties Amount. The note goes into Message

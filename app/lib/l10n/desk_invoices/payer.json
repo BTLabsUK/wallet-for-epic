@@ -19,28 +19,11 @@
   "@deskInvPayerNoMessage": {
     "description": "Shown in place of the service's message when the invoice has none."
   },
-  "deskInvPayerDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored.} other{{count} messages from senders you do not trust were ignored.}}",
-  "@deskInvPayerDropped": {
-    "description": "Quiet line on the Invoices page › To pay: invoices from senders not on the trusted list were dropped unread. Never more detail.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "deskInvPayerTrustService": "Trust a service…",
-  "@deskInvPayerTrustService": {
-    "description": "Link: open Settings › Receiving to add a service allowed to send invoices."
-  },
-  "deskInvPayerYourInvoiceAddress": "Your invoice address",
-  "@deskInvPayerYourInvoiceAddress": {
-    "description": "Link: open Settings › Receiving where the invoice address is shown."
-  },
   "deskInvPayerEmptyTitle": "No invoices are waiting",
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
@@ -151,18 +134,6 @@
   "deskInvPayerPaysTo": "Pays to",
   "@deskInvPayerPaysTo": {
     "description": "Label: the address the payment goes to (stored in the trusted list)."
-  },
-  "deskInvPayerTrustedSince": "{service}, trusted since {date}",
-  "@deskInvPayerTrustedSince": {
-    "description": "The service's label and when the user added it to trusted services, e.g. 'Coffee Roasters, trusted since 2 Sep 2026'.",
-    "placeholders": {
-      "service": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
   },
   "deskInvPayerExpires": "Expires",
   "@deskInvPayerExpires": {
@@ -372,5 +343,9 @@
   "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
   "@deskInvPayerStalledText": {
     "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
+  },
+  "deskInvPayerPaidHead": "Paid",
+  "@deskInvPayerPaidHead": {
+    "description": "Section head on Invoices › To pay: a paid invoice opened from Activity, which To pay no longer lists."
   }
 }

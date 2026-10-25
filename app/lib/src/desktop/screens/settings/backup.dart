@@ -16,6 +16,7 @@ import '../../../log.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/pairing_state.dart' show deskPairingCall;
 import '../../widgets/kit.dart';
 import 'history_conflicts.dart';
 
@@ -389,6 +390,23 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
       }
       if (mounted) setState(() => _done = (name: file.name, result: result));
       ref.invalidate(historyBackupProvider);
+      // Pairings used on another device wait until the user takes them over here (RFC 9.5).
+      if (result.pairingsOtherDevice > 0 && mounted) {
+        final l = context.l10n;
+        final use = await showEDialog<bool>(
+          context,
+          builder: (ctx) => EDialog(
+            title: l.restoreUseContactsTitle,
+            description: l.restoreUseContactsBody(result.pairingsOtherDevice),
+            icon: EIcons.trusted,
+            actions: [
+              EButton(label: l.pairNotNow, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+              EButton.primary(label: l.restoreUseHere, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+            ],
+          ),
+        );
+        if (use == true) await deskPairingCall(ref, (api) => api.useImportedPairings());
+      }
       // The archive rows now merge into Activity, and contacts may have come. The import is
       // done either way: a failed reload must not read as "Not imported".
       try {
@@ -438,6 +456,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
         if (r.merged > 0) _count(context, r.merged, l.deskSetBackupDetailsRestored, l.deskSetBackupDetailsRestoredSub),
         if (r.added > 0) _count(context, r.added, l.deskSetBackupOlderAdded, l.deskSetBackupOlderAddedSub),
         if (r.contactsAdded > 0) _count(context, r.contactsAdded, l.deskSetBackupContactsAdded),
+        if (r.pairingsAdded > 0)
+          _count(context, r.pairingsAdded, l.restorePairings, r.pairingsOtherDevice > 0 ? l.restorePairingsOnOtherDevice(r.pairingsOtherDevice) : null),
         if (r.skipped > 0) _count(context, r.skipped, l.deskSetBackupAlreadyHere, l.deskSetBackupUnchanged),
       ];
       body = r.nothingNew

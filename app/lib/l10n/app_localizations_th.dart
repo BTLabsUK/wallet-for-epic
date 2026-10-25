@@ -1682,7 +1682,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'ไม่มีใบแจ้งหนี้รออยู่ เมื่อบริการที่คุณเชื่อถือเรียกเก็บเงิน ใบแจ้งหนี้จะแสดงที่นี่ และจะไม่มีการจ่ายจนกว่าคุณจะอนุมัติ';
+      'ไม่มีคำขอที่รออยู่ เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน คำขอจะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ';
 
   @override
   String get invoicesUnnamedService => 'บริการไม่มีชื่อ';
@@ -1705,9 +1705,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invoiceGone => 'ใบแจ้งหนี้นี้ไม่เปิดอยู่แล้ว ไม่มีการจ่ายเงิน';
-
-  @override
-  String get invoiceReviewTitle => 'ตรวจสอบใบแจ้งหนี้';
 
   @override
   String invoiceReviewAsks(String service) {
@@ -1817,35 +1814,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveRequestTitle => 'ขอรับเงิน';
 
   @override
-  String get requestTitle => 'ขอรับเงิน';
-
-  @override
-  String get requestStepsIntro =>
-      'กระเป๋าเงินของผู้จ่ายต้องรับใบแจ้งหนี้ได้ ก่อนขอรับเงิน:';
-
-  @override
-  String get requestStepTrust =>
-      '1. ผู้จ่ายเพิ่มที่อยู่ของคุณด้านล่างในบริการที่เชื่อถือ';
-
-  @override
-  String get requestStepAddress =>
-      '2. ผู้จ่ายให้ที่อยู่สำหรับใบแจ้งหนี้ของเขามา';
-
-  @override
-  String get requestYourAddress => 'ที่อยู่ของคุณ';
-
-  @override
-  String get requestPayerLabel => 'ที่อยู่สำหรับใบแจ้งหนี้ของผู้จ่าย';
-
-  @override
-  String get requestPayerMissing =>
-      'วางหรือสแกนที่อยู่สำหรับใบแจ้งหนี้ของผู้จ่าย';
-
-  @override
-  String get requestPayerOwn =>
-      'นี่คือที่อยู่ของคุณเอง ใส่ที่อยู่สำหรับใบแจ้งหนี้ที่ผู้จ่ายให้มา';
-
-  @override
   String get requestMessageLabel => 'ข้อความถึงผู้จ่าย (ไม่บังคับ)';
 
   @override
@@ -1855,18 +1823,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get requestButton => 'ขอรับเงิน';
 
   @override
-  String requestSentNotice(String payer) {
-    return 'ส่งคำขอถึง $payer แล้ว';
-  }
-
-  @override
   String get invoicesToPaySection => 'ต้องชำระ';
 
   @override
   String get invoicesNoneToPay => 'ไม่มีรายการต้องชำระ';
-
-  @override
-  String get invoicesSentSection => 'คำขอที่ส่งไป';
 
   @override
   String get issuedPaid => 'ชำระแล้ว';
@@ -1943,10 +1903,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get issuedDetailsBounced =>
       'กระเป๋าเงินของผู้จ่ายชำระคำขอไม่ได้และส่งคำขอนี้คืนมา จึงถูกเรียกคืน ไม่มีการจ่ายเงิน ขอให้เขาส่งเงินมาแทน ไปยังที่อยู่ของคุณหรือเป็นไฟล์รายการ';
-
-  @override
-  String get requestPayerNoInvoices =>
-      'กระเป๋าเงินนี้เคยส่งคำขอคืนมาแล้ว: ชำระคำขอไม่ได้ ขอให้เขาส่งเงินมาแทน ไปยังที่อยู่ของคุณหรือเป็นไฟล์รายการ';
 
   @override
   String get txStatusWaitingPayer => 'รอผู้จ่าย';
@@ -3052,9 +3008,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactsNameLabel => 'ชื่อ';
 
   @override
-  String get contactsAddressLabel => 'ที่อยู่';
-
-  @override
   String contactsDuplicate(String name) {
     return 'ที่อยู่นี้บันทึกไว้แล้วในชื่อ $name';
   }
@@ -3071,11 +3024,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String contactsUrlIncomplete(String example) {
     return 'ป้อน URL ของกระเป๋าแบบเต็ม เช่น $example';
-  }
-
-  @override
-  String contactsAddressInvalid(String example) {
-    return 'ที่อยู่ไม่ถูกต้อง ที่อยู่ควรมีลักษณะเช่น $example';
   }
 
   @override
@@ -3187,115 +3135,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSectionInvoices => 'ใบแจ้งหนี้';
 
   @override
-  String get settingsInvoices => 'ที่อยู่ใบแจ้งหนี้และบริการที่เชื่อถือ';
+  String get settingsInvoices => 'ใบแจ้งหนี้';
 
   @override
-  String get settingsInvoicesSubtitle =>
-      'ที่อยู่ที่สองสำหรับใบแจ้งหนี้โดยเฉพาะ ให้บริการที่เชื่อถือส่งใบแจ้งหนี้มาได้ ข้อความจากคนอื่นจะถูกทิ้ง และจะไม่จ่ายอะไรจนกว่าคุณจะอนุมัติใบแจ้งหนี้แต่ละใบด้วย PIN ที่อยู่นี้แยกจากที่อยู่สำหรับรับชำระเงินของคุณ';
-
-  @override
-  String get invoiceSettingsTitle => 'ใบแจ้งหนี้';
-
-  @override
-  String get invoiceSettingsAddressTitle => 'ที่อยู่สำหรับใบแจ้งหนี้';
-
-  @override
-  String get invoiceSettingsAddressBody =>
-      'ให้ที่อยู่นี้กับบริการที่เชื่อถือ เพื่อให้ส่งใบแจ้งหนี้ได้ ที่อยู่นี้แยกจากที่อยู่สำหรับรับชำระเงินของคุณ';
-
-  @override
-  String get invoiceSettingsQrLabel => 'QR Code ของที่อยู่สำหรับใบแจ้งหนี้';
-
-  @override
-  String get invoiceSettingsAddressCopied =>
-      'คัดลอกที่อยู่สำหรับใบแจ้งหนี้แล้ว';
-
-  @override
-  String get invoiceSettingsServicesTitle => 'บริการที่เชื่อถือ';
-
-  @override
-  String get invoiceSettingsNoServices =>
-      'ยังไม่มีบริการที่เชื่อถือ ใบแจ้งหนี้จากผู้อื่นจะไม่ถึงคุณ';
-
-  @override
-  String get invoiceSettingsAddService => 'เพิ่มบริการ';
-
-  @override
-  String invoiceSettingsRemoveTooltip(String name) {
-    return 'ลบ $name';
-  }
-
-  @override
-  String invoiceSettingsRemoveTitle(String name) {
-    return 'ลบ $name ไหม?';
-  }
-
-  @override
-  String get invoiceSettingsRemoveBody =>
-      'บริการนี้จะส่งใบแจ้งหนี้ไม่ได้อีก การชำระที่ทำไปแล้วไม่ได้รับผลกระทบ';
-
-  @override
-  String get invoiceSettingsKeep => 'เก็บไว้';
-
-  @override
-  String get invoiceSettingsRemoveConfirm => 'ลบ';
-
-  @override
-  String invoiceSettingsRemoved(String name) {
-    return '$name ส่งใบแจ้งหนี้ไม่ได้อีกแล้ว';
-  }
-
-  @override
-  String get invoiceSettingsRotate => 'ขอที่อยู่ใบแจ้งหนี้ใหม่';
-
-  @override
-  String get invoiceSettingsRotateHint => 'ที่อยู่ปัจจุบันจะใช้ไม่ได้';
-
-  @override
-  String get invoiceSettingsRotateTitle => 'ขอที่อยู่ใบแจ้งหนี้ใหม่ไหม?';
-
-  @override
-  String get invoiceSettingsRotateBody =>
-      'ที่อยู่ใบแจ้งหนี้ปัจจุบันจะใช้ไม่ได้อีกถาวร ทุกบริการที่ส่งใบแจ้งหนี้ต้องใช้ที่อยู่ใหม่';
-
-  @override
-  String get invoiceSettingsRotateConfirm => 'ขอที่อยู่ใหม่';
-
-  @override
-  String get invoiceSettingsRotated =>
-      'ที่อยู่ใบแจ้งหนี้ใหม่พร้อมแล้ว ส่งให้บริการต่างๆ';
-
-  @override
-  String invoiceSettingsDropped(int count) {
-    return 'ข้อความจากผู้ส่งที่ไม่รู้จักที่ถูกทิ้งในรอบนี้: $count';
-  }
-
-  @override
-  String get invoiceSettingsAddTitle => 'เพิ่มบริการที่เชื่อถือ';
-
-  @override
-  String get invoiceSettingsAddExplanation =>
-      'บริการที่เชื่อถือส่งใบแจ้งหนี้มายังที่อยู่ใบแจ้งหนี้ได้ ข้อความจากผู้อื่นจะถูกทิ้ง ไม่มีการชำระใดๆ จนกว่าจะอนุมัติใบแจ้งหนี้แต่ละใบด้วย PIN หรือลายนิ้วมือ';
-
-  @override
-  String get invoiceSettingsLabelLabel => 'ชื่อ';
-
-  @override
-  String get invoiceSettingsLabelMissing => 'ตั้งชื่อบริการ';
-
-  @override
-  String get invoiceSettingsServiceAddressLabel => 'ที่อยู่ Epicbox ของบริการ';
-
-  @override
-  String get invoiceSettingsAddressMissing => 'วางหรือสแกนที่อยู่ที่บริการแสดง';
-
-  @override
-  String get invoiceSettingsAddButton => 'เพิ่มบริการ';
-
-  @override
-  String invoiceSettingsAdded(String name) {
-    return '$name ส่งใบแจ้งหนี้ได้แล้ว';
-  }
+  String get settingsInvoicesSubtitle => 'ใครขอให้คุณชำระเงินได้';
 
   @override
   String get settingsRescan => 'ตรวจยอดใหม่';
@@ -4582,19 +4425,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactsSendAction => 'ส่ง';
 
   @override
-  String get contactsEditAction => 'แก้ไข';
-
-  @override
-  String get contactsAddressHeading => 'ที่อยู่';
-
-  @override
   String get contactsNoteHeading => 'บันทึก';
 
   @override
   String get contactsShowCode => 'แสดง QR Code';
-
-  @override
-  String get contactsHideCode => 'ซ่อน QR Code';
 
   @override
   String contactsQrLabel(String name) {
@@ -4629,13 +4463,6 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$label, $_temp0';
   }
-
-  @override
-  String get invoicesToPayEmpty => 'ไม่มีใบแจ้งหนี้ที่ต้องชำระ';
-
-  @override
-  String get invoicesToPayEmptyCaption =>
-      'บริการในรายการที่เชื่อถือส่งใบแจ้งหนี้มายังกระเป๋านี้ได้ ใบแจ้งหนี้แต่ละใบจะรอการอนุมัติที่นี่';
 
   @override
   String get invoicesSentEmpty => 'ยังไม่ได้ส่งคำขอ';
@@ -4693,15 +4520,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get invoicesEpicboxDown => 'ไม่ได้เชื่อมต่อ';
 
   @override
-  String get invoicesSendRequest => 'ส่งคำขอ';
-
-  @override
   String invoicesRequestSummary(String payer, String amount) {
     return 'ขอให้ $payer ชำระ $amount คำขอจะหมดอายุใน 24 ชั่วโมง';
   }
-
-  @override
-  String get invoicesRequestHowTitle => 'ก่อนส่งคำขอ';
 
   @override
   String get netStatusNode => 'โหนด';
@@ -5362,228 +5183,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvHowItWorks => 'ใบแจ้งหนี้ทำงานอย่างไร';
 
   @override
-  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
-
-  @override
-  String get deskInvEpicboxAddress => 'ที่อยู่ Epicbox';
-
-  @override
-  String get deskInvHelpTitle => 'ใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpLede =>
-      'บิลจากผู้ส่งที่เชื่อถือ ชำระหลังอนุมัติเท่านั้น';
-
-  @override
-  String get deskInvHelpFlowTitle => 'ใบแจ้งหนี้ทำงานอย่างไร';
-
-  @override
-  String get deskInvHelpFlowShort =>
-      'ผู้ออกส่งใบแจ้งหนี้ไปยังที่อยู่สำหรับใบแจ้งหนี้ของผู้ชำระ ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
-
-  @override
-  String get deskInvHelpFlowIntro =>
-      'ใบแจ้งหนี้คือการขอให้ชำระเงิน **ผู้ออก** เป็นผู้รับเงิน **ผู้ชำระ** เป็นผู้ตัดสินใจ';
-
-  @override
-  String get deskInvHelpFlowStep1 =>
-      'กระเป๋าของผู้ออกส่งใบแจ้งหนี้ไปยัง **ที่อยู่สำหรับใบแจ้งหนี้** ของผู้ชำระผ่านเซิร์ฟเวอร์ Epicbox';
-
-  @override
-  String get deskInvHelpFlowStep2 =>
-      'ผู้ชำระเปิดใบแจ้งหนี้ใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] ตรวจผู้ส่ง จำนวน และข้อความ แล้วเลือก **อนุมัติและชำระ** ด้วยรหัสผ่านกระเป๋า';
-
-  @override
-  String get deskInvHelpFlowStep3 =>
-      'กระเป๋าของผู้ชำระส่งเงินไปยัง **ที่อยู่รับเงิน** ของผู้ออก';
-
-  @override
-  String deskInvHelpFlowStep4(int confirmations) {
-    return 'กระเป๋าของผู้ออกทำรายการให้เสร็จและส่งเข้าเครือข่าย หลังยืนยัน $confirmations ครั้ง รายการจะถือเป็นที่สุด';
-  }
-
-  @override
-  String get deskInvHelpFlowNever =>
-      'ไม่มีการชำระใดๆ หากไม่ได้อนุมัติ และใบแจ้งหนี้ไม่เคยเพิ่มเงินเข้ากระเป๋าของผู้ชำระ ใบแจ้งหนี้แต่ละใบมีเวลาชำระไม่เกิน 48 ชั่วโมง หลังจากนั้นจะชำระไม่ได้อีก';
-
-  @override
-  String get deskInvHelpFlowIssued =>
-      'ใบแจ้งหนี้ที่กระเป๋านี้ออกอยู่ใน [[ใบแจ้งหนี้ › ออก|Invoices › Issue]]';
-
-  @override
-  String get deskInvHelpTrustTitle => 'ทำไมรับเฉพาะผู้ส่งที่เชื่อถือ';
-
-  @override
-  String get deskInvHelpTrustShort =>
-      'เฉพาะผู้ส่งในรายการที่เชื่อถือเท่านั้นที่ส่งใบแจ้งหนี้เข้ามาได้ ช่วยกันสแปมและบิลปลอม';
-
-  @override
-  String get deskInvHelpTrustP1 =>
-      'กระเป๋ารับใบแจ้งหนี้เฉพาะที่ที่อยู่สำหรับใบแจ้งหนี้ และเฉพาะจากผู้ส่งในรายการที่เชื่อถือ โดยจับคู่จากที่อยู่ของผู้ส่ง สิ่งอื่นจะถูกทิ้งโดยไม่เปิดอ่าน และไม่แสดงใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]]';
-
-  @override
-  String get deskInvHelpTrustP2 =>
-      'หากไม่มีรายการนี้ ใครก็ตามที่รู้ที่อยู่สำหรับใบแจ้งหนี้อาจส่งสแปมหรือบิลที่ดูเหมือนจริงเข้ามาได้';
-
-  @override
-  String get deskInvHelpTrustP3 =>
-      'การเชื่อถือเพียงอนุญาตให้ผู้ส่งขอเงินได้ ผู้ส่งที่เชื่อถือไม่สามารถเอาเงินไปได้ ใบแจ้งหนี้ทุกใบยังต้องรอ **อนุมัติและชำระ**';
-
-  @override
-  String get deskInvHelpTrustWhere1 =>
-      'เพิ่มผู้ส่งที่เชื่อถือได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
-
-  @override
-  String get deskInvHelpTrustWhere2 =>
-      'หรือเปิด **เชื่อถือสำหรับใบแจ้งหนี้** ที่ผู้ติดต่อใน [[ผู้ติดต่อ|Contacts]]';
-
-  @override
-  String get deskInvHelpTrustWhere3 =>
-      'ลบผู้ส่งออกจากรายการได้ทุกเมื่อ ใบแจ้งหนี้ใหม่จากผู้ส่งนั้นจะถูกทิ้ง';
-
-  @override
-  String get deskInvHelpAddrTitle => 'ทำไมต้องมีที่อยู่สำหรับใบแจ้งหนี้แยก';
-
-  @override
-  String get deskInvHelpAddrShort =>
-      'ใบแจ้งหนี้เข้ามาที่ที่อยู่ของตัวเอง แยกจากที่อยู่รับเงินที่ผู้อื่นใช้ชำระ';
-
-  @override
-  String get deskInvHelpAddrP1 =>
-      'กระเป๋ามีที่อยู่ Epicbox สองที่อยู่ **ที่อยู่รับเงิน** ใน [[รับ|Receive]] ใช้รับเงิน **ที่อยู่สำหรับใบแจ้งหนี้** รับเฉพาะใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpAddrP2 =>
-      'การแยกกันทำให้ให้ที่อยู่สำหรับใบแจ้งหนี้กับบริการต่างๆ หรือเปลี่ยนใหม่ได้ โดยไม่เปิดเผยหรือเปลี่ยนที่อยู่ที่ผู้อื่นใช้ชำระ';
-
-  @override
-  String get deskInvHelpAddrP3 =>
-      'ที่อยู่สำหรับใบแจ้งหนี้ไม่รับเงิน เงินที่ส่งมาที่อยู่นี้จะถูกทิ้ง หากต้องการรับเงิน ให้ใช้ที่อยู่รับเงิน';
-
-  @override
-  String get deskInvHelpAddrWhere1 =>
-      'ดู คัดลอก หรือแสดงที่อยู่สำหรับใบแจ้งหนี้เป็น QR Code ได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
-
-  @override
-  String get deskInvHelpAddrWhere2 =>
-      '**ที่อยู่ใบแจ้งหนี้ใหม่** จะแทนที่อยู่เดิม บริการที่มีที่อยู่เดิมจะส่งใบแจ้งหนี้ไม่ได้จนกว่าจะได้ที่อยู่ใหม่';
-
-  @override
-  String get deskInvHelpDiagramTitle => 'เส้นทางของใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpDiagramIssuer => 'ผู้ออก';
-
-  @override
-  String get deskInvHelpDiagramPayer => 'ผู้ชำระ';
-
-  @override
-  String get deskInvHelpDiagramIssues => 'ออกใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpDiagramInvoice => 'ใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpDiagramGate => 'ที่อยู่ใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpDiagramGateSub => 'เฉพาะผู้ส่งที่เชื่อถือ';
-
-  @override
-  String get deskInvHelpDiagramDropped => 'ผู้ส่งอื่น';
-
-  @override
-  String get deskInvHelpDiagramDroppedSub => 'ทิ้งโดยไม่อ่าน';
-
-  @override
-  String get deskInvHelpDiagramReview => 'ตรวจสอบและอนุมัติ';
-
-  @override
-  String get deskInvHelpDiagramReviewSub => 'อนุมัติและชำระ';
-
-  @override
-  String get deskInvHelpDiagramPayment => 'การชำระ';
-
-  @override
-  String get deskInvHelpDiagramPayAddr => 'ที่อยู่รับเงิน';
-
-  @override
-  String get deskInvHelpDiagramPayAddrSub => 'ไม่ใช่ที่อยู่ใบแจ้งหนี้';
-
-  @override
-  String get deskInvHelpDiagramFinal => 'ทำรายการให้เสร็จและส่ง';
-
-  @override
-  String deskInvHelpDiagramFinalSub(int confirmations) {
-    return 'เป็นที่สุดหลังยืนยัน $confirmations ครั้ง';
-  }
-
-  @override
-  String get deskInvHelpDiagramSemantics =>
-      'ผู้ออกส่งใบแจ้งหนี้ไปยังที่อยู่สำหรับใบแจ้งหนี้ของผู้ชำระ ซึ่งรับเฉพาะผู้ส่งที่เชื่อถือและทิ้งที่เหลือ ผู้ชำระตรวจสอบและอนุมัติ เงินส่งไปยังที่อยู่รับเงินของผู้ออก กระเป๋าของผู้ออกทำรายการให้เสร็จและส่งเข้าเครือข่าย';
-
-  @override
-  String get deskInvIssuerFormTitle => 'ออกใบแจ้งหนี้';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'ก่อนออกใบแจ้งหนี้ใบแรก';
-
-  @override
-  String get deskInvIssuerYourAddress => 'ที่อยู่รับเงินของคุณ';
-
-  @override
-  String get deskInvIssuerMethod => 'วิธีส่ง';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'โดยตรง · ไฟล์';
-
-  @override
-  String get deskInvIssuerDirect => 'ลิงก์';
-
-  @override
   String get deskInvIssuerSoon => 'เร็วๆ นี้';
-
-  @override
-  String get deskInvIssuerPayer => 'ที่อยู่ใบแจ้งหนี้ของผู้ชำระ';
-
-  @override
-  String get deskInvIssuerPayerHelp =>
-      'กระเป๋าของผู้ชำระแสดงที่อยู่นี้ใน การตั้งค่า › ใบแจ้งหนี้';
-
-  @override
-  String get deskInvIssuerPayerMissing => 'วางที่อยู่ใบแจ้งหนี้ของผู้ชำระ';
-
-  @override
-  String get deskInvIssuerPayerInvalid => 'ที่อยู่ Epicbox ไม่ถูกต้อง';
-
-  @override
-  String get deskInvIssuerPayerOwn =>
-      'นี่คือที่อยู่ของคุณเอง ใช้ที่อยู่ใบแจ้งหนี้ที่ผู้ชำระให้มา';
-
-  @override
-  String get deskInvIssuerPayerHttp =>
-      'ใบแจ้งหนี้ผ่าน Epicbox ต้องใช้ที่อยู่ Epicbox ไม่ใช่ที่อยู่ HTTP หรือ Tor';
-
-  @override
-  String get deskInvIssuerContacts => 'ผู้ติดต่อ';
 
   @override
   String get deskInvIssuerNoContacts =>
       'ยังไม่มีผู้ติดต่อที่มีที่อยู่ใบแจ้งหนี้ เพิ่มได้ในผู้ติดต่อ';
-
-  @override
-  String get deskInvIssuerNoInvoices =>
-      'กระเป๋านี้เคยส่งใบแจ้งหนี้กลับมาแล้ว จึงชำระใบแจ้งหนี้ผ่าน Epicbox ไม่ได้ ส่งไฟล์ใบแจ้งหนี้แทน หรือขอให้ส่งเงินมาให้คุณ';
-
-  @override
-  String get deskInvIssuerUseFile => 'ใช้ไฟล์';
-
-  @override
-  String get deskInvIssuerUnknown =>
-      'เฉพาะ wallet-for-epic และกระเป๋า LEPIC อื่นๆ ที่ชำระใบแจ้งหนี้ผ่าน Epicbox ได้ Epic GUI wallet และ Stack Wallet ชำระใบแจ้งหนี้ไม่ได้เลย ส่วน epic-wallet แบบ command line ชำระไฟล์ใบแจ้งหนี้ได้';
 
   @override
   String get deskInvIssuerAmount => 'จำนวน';
@@ -5621,23 +5225,12 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerIssue => 'ออกใบแจ้งหนี้';
-
-  @override
   String get deskInvIssuerRelayDown =>
       'เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง จึงส่งใบแจ้งหนี้ไม่ได้ในขณะนี้';
 
   @override
-  String get deskInvIssuerFixFields => 'แก้ไขช่องที่มีเครื่องหมายสีแดง';
-
-  @override
   String get deskInvIssuerNotDelivered =>
       'ใบแจ้งหนี้ไปไม่ถึงเซิร์ฟเวอร์ Epicbox ไม่มีสิ่งใดถูกส่ง ลองอีกครั้ง';
-
-  @override
-  String deskInvIssuerSent(String payer) {
-    return 'ส่งใบแจ้งหนี้ถึง $payer แล้ว';
-  }
 
   @override
   String get deskInvIssuerEmpty =>
@@ -5742,23 +5335,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'ส่งถึงที่อยู่ใบแจ้งหนี้ของ $payer แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
+    return 'ส่งถึงกล่องรับของ $payer แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
   }
 
   @override
   String get deskInvIssuerCopySlate => 'คัดลอก Slate ID';
-
-  @override
-  String get deskInvIssuerStepsIntro =>
-      'กระเป๋าของผู้ชำระต้องรับใบแจ้งหนี้ได้ ก่อนใบแจ้งหนี้ใบแรก:';
-
-  @override
-  String get deskInvIssuerStepTrust =>
-      '1. ผู้ชำระเพิ่มที่อยู่รับเงินของคุณด้านล่างในรายการผู้ส่งที่เชื่อถือ';
-
-  @override
-  String get deskInvIssuerStepAddress =>
-      '2. ผู้ชำระให้ที่อยู่ใบแจ้งหนี้ของตนกับคุณ';
 
   @override
   String get deskInvIssuerStepIssued => 'ออกแล้ว';
@@ -5812,27 +5393,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvPayerNoMessage => 'ไม่มีข้อความ';
 
   @override
-  String deskInvPayerDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'ข้อความ $count รายการจากผู้ส่งที่ไม่ได้เชื่อถือถูกละเว้น',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvPayerTrustService => 'เชื่อถือบริการ…';
-
-  @override
-  String get deskInvPayerYourInvoiceAddress => 'ที่อยู่ใบแจ้งหนี้ของคุณ';
-
-  @override
   String get deskInvPayerEmptyTitle => 'ไม่มีใบแจ้งหนี้รออยู่';
 
   @override
   String get deskInvPayerEmptyText =>
-      'เมื่อบริการที่เชื่อถือเรียกเก็บเงิน ใบแจ้งหนี้จะแสดงที่นี่ ไม่มีการชำระใดๆ จนกว่าคุณจะอนุมัติ';
+      'เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน คำขอจะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5904,11 +5469,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerPaysTo => 'ชำระไปที่';
-
-  @override
-  String deskInvPayerTrustedSince(String service, String date) {
-    return '$service เชื่อถือตั้งแต่ $date';
-  }
 
   @override
   String get deskInvPayerExpires => 'หมดอายุ';
@@ -6057,136 +5617,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvSetTitle => 'ใบแจ้งหนี้';
 
   @override
-  String get deskInvSetIntro =>
-      'บริการที่เชื่อถือเรียกเก็บเงินจากกระเป๋านี้ผ่านที่อยู่ใบแจ้งหนี้ ไม่มีการชำระใดๆ จนกว่าคุณจะอนุมัติแต่ละใบ';
-
-  @override
-  String get deskInvSetAddressLabel => 'ที่อยู่ใบแจ้งหนี้';
-
-  @override
-  String get deskInvSetAddressWarning =>
-      'ให้เฉพาะบริการที่เชื่อถือเท่านั้น ที่อยู่นี้ไม่รับเงิน';
-
-  @override
-  String get deskInvSetCopy => 'คัดลอก';
-
-  @override
-  String get deskInvSetCopied =>
-      'คัดลอกที่อยู่ใบแจ้งหนี้แล้ว ให้เฉพาะบริการที่เชื่อถือเท่านั้น ที่อยู่นี้ไม่รับเงิน';
-
-  @override
-  String get deskInvSetQrShow => 'แสดง QR';
-
-  @override
-  String get deskInvSetQrHide => 'ซ่อน QR';
-
-  @override
-  String get deskInvSetQrLabel => 'QR Code ของที่อยู่ใบแจ้งหนี้';
-
-  @override
-  String deskInvSetIndex(int index) {
-    return 'ที่อยู่ใบแจ้งหนี้ $index';
-  }
-
-  @override
-  String get deskInvSetTrusted => 'ผู้ส่งที่เชื่อถือ';
-
-  @override
-  String get deskInvSetTrustedNone =>
-      'ไม่มีผู้ส่งที่เชื่อถือ ใบแจ้งหนี้จากผู้อื่นจะถูกละเว้นโดยไม่อ่าน';
-
-  @override
-  String deskInvSetSince(String date) {
-    return 'เชื่อถือตั้งแต่ $date';
-  }
-
-  @override
-  String get deskInvSetContactTag => 'ผู้ติดต่อ';
-
-  @override
-  String get deskInvSetRemove => 'ลบ';
-
-  @override
-  String deskInvSetRemoveTitle(String name) {
-    return 'เลิกเชื่อถือ $name ไหม?';
-  }
-
-  @override
-  String deskInvSetRemoveBody(String name) {
-    return '$name จะส่งใบแจ้งหนี้ไม่ได้อีก ใบแจ้งหนี้ที่รออยู่จะยังอยู่จนกว่าคุณจะตอบหรือหมดอายุ';
-  }
-
-  @override
-  String deskInvSetRemoved(String name) {
-    return '$name ส่งใบแจ้งหนี้ไม่ได้อีกแล้ว';
-  }
-
-  @override
-  String get deskInvSetKeep => 'เก็บไว้';
-
-  @override
-  String get deskInvSetAdd => 'เพิ่มผู้ส่งที่เชื่อถือ';
-
-  @override
-  String get deskInvSetAddBody =>
-      'ผู้ส่งที่เชื่อถือเรียกเก็บเงินจากกระเป๋านี้ผ่านที่อยู่ใบแจ้งหนี้ได้ ไม่มีการชำระใดๆ จนกว่าคุณจะอนุมัติแต่ละใบด้วยรหัสผ่านกระเป๋า';
-
-  @override
-  String get deskInvSetName => 'ชื่อ';
-
-  @override
-  String get deskInvSetNameMissing => 'ตั้งชื่อผู้ส่ง';
-
-  @override
-  String get deskInvSetSenderAddress => 'ที่อยู่รับเงินของผู้ส่ง';
-
-  @override
-  String get deskInvSetSenderMissing => 'วางที่อยู่ที่บริการแสดง';
-
-  @override
-  String get deskInvSetSenderInvalid => 'ที่อยู่ Epicbox ไม่ถูกต้อง';
-
-  @override
-  String get deskInvSetTrust => 'เชื่อถือ';
-
-  @override
-  String deskInvSetAdded(String name) {
-    return '$name ส่งใบแจ้งหนี้ได้แล้ว';
-  }
-
-  @override
-  String deskInvSetDropped(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'ข้อความ $count รายการจากผู้ส่งที่ไม่ได้เชื่อถือถูกละเว้นโดยไม่อ่าน',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get deskInvSetRotate => 'ที่อยู่ใบแจ้งหนี้ใหม่';
-
-  @override
-  String get deskInvSetRotateHint =>
-      'บริการที่มีที่อยู่เดิมจะส่งใบแจ้งหนี้ไม่ได้อีก';
-
-  @override
-  String get deskInvSetRotateTitle => 'สร้างที่อยู่ใบแจ้งหนี้ใหม่ไหม?';
-
-  @override
-  String get deskInvSetRotateBody =>
-      'บริการที่มีที่อยู่เดิมจะส่งใบแจ้งหนี้ไม่ได้อีก ให้ที่อยู่ใหม่กับทุกบริการที่เรียกเก็บเงินจากคุณ';
-
-  @override
-  String get deskInvSetRotateConfirm => 'สร้างที่อยู่ใหม่';
-
-  @override
-  String get deskInvSetRotated =>
-      'ที่อยู่ใบแจ้งหนี้ใหม่พร้อมแล้ว ส่งให้บริการต่างๆ';
-
-  @override
   String get deskInvSetExpiry => 'เวลาชำระ';
 
   @override
@@ -6199,38 +5629,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetCancel => 'ยกเลิก';
-
-  @override
-  String get deskInvSetContactSection => 'ใบแจ้งหนี้';
-
-  @override
-  String get deskInvSetTheirInvoice => 'ที่อยู่ใบแจ้งหนี้ของผู้ติดต่อ';
-
-  @override
-  String get deskInvSetTheirInvoiceNone =>
-      'ยังไม่ได้บันทึกที่อยู่ใบแจ้งหนี้ ขอที่อยู่จากผู้ติดต่อเพื่อออกใบแจ้งหนี้ให้';
-
-  @override
-  String get deskInvSetTrustedSwitch => 'เชื่อถือสำหรับใบแจ้งหนี้';
-
-  @override
-  String get deskInvSetTrustedSwitchHelp =>
-      'ให้ผู้ติดต่อนี้เรียกเก็บเงินได้ ไม่มีการชำระใดๆ จนกว่าคุณจะอนุมัติใบแจ้งหนี้';
-
-  @override
-  String get deskInvSetIssueNeeds => 'ต้องมีที่อยู่ใบแจ้งหนี้ของผู้ติดต่อ';
-
-  @override
-  String get deskInvSetShare => 'แชร์ที่อยู่ใบแจ้งหนี้';
-
-  @override
   String get deskInvSetReceiveHint =>
-      'ขอให้ผู้ติดต่อหรือบริการชำระเงินให้คุณ กระเป๋าของอีกฝ่ายต้องรับใบแจ้งหนี้ได้';
-
-  @override
-  String get deskInvSetRestoredHint =>
-      'กู้คืนกระเป๋านี้จากวลีกู้คืน? ให้ที่อยู่ใบแจ้งหนี้นี้กับบริการต่างๆ อีกครั้ง';
+      'ขอให้ผู้ติดต่อที่จับคู่แล้วชำระเงินให้คุณ หรือบันทึกคำขอเป็นไฟล์';
 
   @override
   String get serverSwitchRelayTitle => 'เปลี่ยนเซิร์ฟเวอร์ Epicbox ไหม?';
@@ -8415,15 +7815,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskConDeleted(String name) {
     return 'ลบ $name แล้ว';
   }
-
-  @override
-  String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
-
-  @override
-  String get deskConAddrTor => 'ที่อยู่ ลิงก์ · Tor';
-
-  @override
-  String get deskConAddrHttp => 'ที่อยู่ ลิงก์ · HTTP';
 
   @override
   String get deskConNote => 'บันทึก';
@@ -13930,7 +13321,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการเซิร์ฟเวอร์และการ์ดสถานะ แสดงที่อยู่รีเลย์ใน รับ และแสดงที่อยู่ใบแจ้งหนี้แบบเต็ม';
+      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการเซิร์ฟเวอร์และการ์ดสถานะ และแสดงที่อยู่รีเลย์ใน รับ';
 
   @override
   String get advRecheckHeight => 'ตรวจยอดใหม่จากบล็อกที่กำหนด';
@@ -14759,698 +14150,679 @@ class AppLocalizationsTh extends AppLocalizations {
       'ข้อความที่วางไม่ใช่ธุรกรรม วางข้อความทั้งหมดที่ผู้ส่งให้มา หรือเลือกไฟล์ของผู้ส่ง';
 
   @override
-  String get pairTitle => 'Pair';
+  String get pairTitle => 'จับคู่';
 
   @override
   String pairWithName(String name) {
-    return 'Pair with $name';
+    return 'จับคู่กับ $name';
   }
 
   @override
   String get pairLead =>
-      'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.';
+      'จับคู่กับอีกฝ่ายเพียงครั้งเดียว จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก มีเพียงสองกระเป๋าเงินนี้ที่อ่านได้';
 
   @override
-  String get pairInPerson => 'In person';
+  String get pairInPerson => 'แบบพบตัว';
 
   @override
-  String get pairInPersonHint => 'Show your code and scan theirs';
+  String get pairInPersonHint => 'แสดงโค้ดของคุณและสแกนโค้ดของอีกฝ่าย';
 
   @override
-  String get pairOnline => 'Online';
+  String get pairOnline => 'ออนไลน์';
 
   @override
-  String get pairOnlineHint => 'Send an invite link, or read out pairing words';
+  String get pairOnlineHint => 'ส่งลิงก์คำเชิญ หรืออ่านคำจับคู่ให้ฟัง';
 
   @override
-  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+  String get pairOfflineHint => 'คุณออฟไลน์อยู่ ให้จับคู่แบบพบตัวแทน';
 
   @override
-  String get pairEnter => 'Enter link or words';
+  String get pairEnter => 'ใส่ลิงก์หรือคำ';
 
   @override
-  String get pairEnterHint =>
-      'Paste an invite link or type the words you were given';
+  String get pairEnterHint => 'วางลิงก์คำเชิญ หรือพิมพ์คำที่ได้รับ';
 
   @override
-  String get pairNotPaired => 'Not paired';
+  String get pairNotPaired => 'ยังไม่จับคู่';
 
   @override
   String get pairNotPairedHint =>
-      'Pair to seal payment files and allow invoices.';
+      'จับคู่เพื่อปิดผนึกไฟล์การชำระเงินและอนุญาตใบแจ้งหนี้';
 
   @override
-  String get pairInPersonTitle => 'Pair in person';
+  String get pairInPersonTitle => 'จับคู่แบบพบตัว';
 
   @override
-  String get pairShowMyCode => 'Show my code';
+  String get pairShowMyCode => 'แสดงโค้ดของฉัน';
 
   @override
-  String get pairScanTheirs => 'Scan theirs';
+  String get pairScanTheirs => 'สแกนโค้ดของอีกฝ่าย';
 
   @override
-  String get pairShowCodeCaption => 'Let them scan this, then scan theirs.';
+  String get pairShowCodeCaption =>
+      'ให้อีกฝ่ายสแกนโค้ดนี้ แล้วสแกนโค้ดของอีกฝ่าย';
 
   @override
   String get pairScanCaption =>
-      'Both of you scan. The words check opens when both codes are in.';
+      'สแกนทั้งสองฝ่าย การตรวจคำจะเปิดขึ้นเมื่ออ่านโค้ดครบทั้งสอง';
 
   @override
-  String get pairScanPrompt => 'Point the camera at their code';
+  String get pairScanPrompt => 'หันกล้องไปที่โค้ดของอีกฝ่าย';
 
   @override
-  String get pairSeenAs => 'They will see you as';
+  String get pairSeenAs => 'อีกฝ่ายจะเห็นคุณเป็น';
 
   @override
-  String get pairUseWords => 'Use words instead';
+  String get pairUseWords => 'ใช้คำแทน';
 
   @override
-  String get pairCameraDeniedTitle => 'The camera is not allowed';
+  String get pairCameraDeniedTitle => 'ไม่ได้อนุญาตให้ใช้กล้อง';
 
   @override
-  String get pairCameraDeniedBody =>
-      'Allow the camera to scan, or use words instead.';
+  String get pairCameraDeniedBody => 'อนุญาตกล้องเพื่อสแกน หรือใช้คำแทน';
 
   @override
-  String get pairOpenSettings => 'Open settings';
+  String get pairOpenSettings => 'เปิดการตั้งค่า';
 
   @override
-  String get pairWordsTitle => 'Pairing words';
+  String get pairWordsTitle => 'คำจับคู่';
 
   @override
   String get pairWordsLead =>
-      'Read these to them, in this order. Their wallet finds the invite from the words.';
+      'อ่านคำเหล่านี้ให้อีกฝ่ายฟังตามลำดับ กระเป๋าเงินของอีกฝ่ายจะหาคำเชิญจากคำเหล่านี้';
 
   @override
-  String get pairWordsGoodFor => 'Good for 10 minutes';
+  String get pairWordsGoodFor => 'ใช้ได้ 10 นาที';
 
   @override
-  String pairWordsLeft(String time) {
-    return '$time left';
-  }
-
-  @override
-  String get pairWordsLastMinute => 'Less than a minute left';
+  String get pairWordsLastMinute => 'เหลือไม่ถึงหนึ่งนาที';
 
   @override
   String get pairWordsFooter =>
-      'Whoever has these words can answer this invite until it expires. Check the words together afterwards.';
+      'ใครก็ตามที่มีคำเหล่านี้ตอบคำเชิญนี้ได้จนกว่าจะหมดอายุ หลังจากนั้นให้ตรวจคำด้วยกัน';
 
   @override
-  String get pairWordsNew => 'New words';
+  String get pairWordsNew => 'คำชุดใหม่';
 
   @override
-  String get pairWordsCopy => 'Copy words';
+  String get pairWordsCopy => 'คัดลอกคำ';
 
   @override
-  String get pairWordsExpiredTitle => 'These words have expired';
+  String get pairWordsExpiredTitle => 'คำเหล่านี้หมดอายุแล้ว';
 
   @override
-  String get pairWordsExpiredBody => 'Make new ones and read them out again.';
+  String get pairWordsExpiredBody => 'สร้างชุดใหม่แล้วอ่านให้ฟังอีกครั้ง';
 
   @override
   String get pairWordsNeedEpicbox =>
-      'Pairing words need Epicbox, so they are not offered now.';
+      'คำจับคู่ต้องใช้ Epicbox จึงไม่มีให้ใช้ตอนนี้';
 
   @override
   String pairWordsDesktopChip(String time) {
-    return 'Words: $time left';
+    return 'คำ: เหลือ $time';
   }
 
   @override
-  String get pairEnterLead =>
-      'Paste the invite link, or type the five words you were given.';
+  String get pairEnterLead => 'วางลิงก์คำเชิญ หรือพิมพ์ห้าคำที่ได้รับ';
 
   @override
-  String get pairEnterField => 'Invite link or words';
+  String get pairEnterField => 'ลิงก์คำเชิญหรือคำ';
 
   @override
   String get pairEnterNotFound =>
-      'No invite found for these words. Check them, or ask for new ones.';
+      'ไม่พบคำเชิญสำหรับคำเหล่านี้ ตรวจสอบอีกครั้ง หรือขอคำชุดใหม่';
 
   @override
-  String get pairEnterTryAgain => 'Try again';
+  String get pairEnterTryAgain => 'ลองอีกครั้ง';
 
   @override
   String get pairEnterDesktopHint =>
-      'A pasted link or typed words do what a scan does on the phone.';
+      'ลิงก์ที่วางหรือคำที่พิมพ์ใช้แทนการสแกนบนโทรศัพท์';
 
   @override
-  String get pairEnterDesktopPlaceholder =>
-      'Paste the invite link, or type the five words';
+  String get pairEnterDesktopPlaceholder => 'วางลิงก์คำเชิญ หรือพิมพ์ห้าคำ';
 
   @override
-  String get pairOnlineTitle => 'Pair online';
+  String get pairOnlineTitle => 'จับคู่ออนไลน์';
 
   @override
   String get pairOnlineLead =>
-      'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'ส่งคำเชิญผ่านช่องทางที่คุณใช้กับอีกฝ่ายอยู่แล้ว การจับคู่เสร็จเมื่อกระเป๋าเงินของอีกฝ่ายเปิดคำเชิญ';
 
   @override
   String get pairOnlineLeadByHand =>
-      'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.';
+      'ส่งคำเชิญผ่านช่องทางที่คุณใช้กับอีกฝ่ายอยู่แล้ว คำตอบจะกลับมาทางเดียวกัน ให้วางไว้ที่ ใส่ลิงก์หรือคำ';
 
   @override
-  String get pairExpiresIn => 'Invite expires in';
+  String get pairExpiresIn => 'คำเชิญหมดอายุใน';
 
   @override
-  String get pairExpiry1h => '1 hour';
+  String get pairExpiry1h => '1 ชั่วโมง';
 
   @override
-  String get pairExpiry24h => '24 hours';
+  String get pairExpiry24h => '24 ชั่วโมง';
 
   @override
-  String get pairExpiry7d => '7 days';
+  String get pairExpiry7d => '7 วัน';
 
   @override
-  String get pairWhatTheyReceive => 'What they receive';
+  String get pairWhatTheyReceive => 'สิ่งที่อีกฝ่ายได้รับ';
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n$link\n\nExpires $date.';
+    return '$name ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ\n\nเปิดใน Epic Cash:\n$link\n\nหมดอายุ $date';
   }
 
   @override
   String get pairShareWarning =>
-      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+      'ใครก็ตามที่มีคำเชิญนี้จับคู่ในนามคุณได้จนกว่าจะหมดอายุ ส่งให้เฉพาะคนที่ตั้งใจเท่านั้น แล้วตรวจคำด้วยกัน';
 
   @override
-  String get pairShareInvite => 'Share invite';
+  String get pairShareInvite => 'แชร์คำเชิญ';
 
   @override
-  String get pairCopyInvite => 'Copy invite';
+  String get pairCopyInvite => 'คัดลอกคำเชิญ';
 
   @override
-  String get pairUseWordsShort => 'Use words';
+  String get pairUseWordsShort => 'ใช้คำ';
 
   @override
-  String get pairInviteSentTitle => 'Invite sent';
+  String get pairInviteSentTitle => 'ส่งคำเชิญแล้ว';
 
   @override
   String pairInviteSentBody(String name) {
-    return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+    return 'การจับคู่เสร็จเมื่อกระเป๋าเงินของ $name เปิดคำเชิญ คุณออกจากหน้านี้ได้ คำเชิญจะอยู่ที่ ผู้ติดต่อ › คำเชิญที่รออยู่';
   }
 
   @override
-  String pairInviteExpiresIn(String time) {
-    return 'Expires in $time';
-  }
-
-  @override
-  String get pairCancelInvite => 'Cancel invite';
+  String get pairCancelInvite => 'ยกเลิกคำเชิญ';
 
   @override
   String pairCancelInviteTitle(String name) {
-    return 'Cancel the invite to $name?';
+    return 'ยกเลิกคำเชิญถึง $name หรือไม่';
   }
 
   @override
   String pairCancelInviteBody(String name) {
-    return 'Their wallet will see “$name cancelled this invite” if they open it later.';
+    return 'หากกระเป๋าเงินของอีกฝ่ายเปิดภายหลัง จะเห็นว่า “$name ยกเลิกคำเชิญนี้แล้ว”';
   }
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Pair with $name?';
+    return 'จับคู่กับ $name หรือไม่';
   }
 
   @override
-  String get pairNameClaimed => 'Name chosen by them · not checked yet';
+  String get pairNameClaimed => 'ชื่อที่อีกฝ่ายเลือกเอง · ยังไม่ได้ตรวจ';
 
   @override
-  String get pairNameClaimedShort => 'Name chosen by them';
+  String get pairNameClaimedShort => 'ชื่อที่อีกฝ่ายเลือกเอง';
 
   @override
   String pairCallsThemselves(String name) {
-    return 'Calls themselves “$name”';
+    return 'เรียกตัวเองว่า “$name”';
   }
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+    return 'เมื่อจับคู่แล้ว ไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก ขั้นต่อไปคือตรวจคำด้วยกัน';
   }
 
   @override
   String pairIncomingAllowInvoices(String name) {
-    return 'Allow $name to request payments';
+    return 'อนุญาตให้ $name ขอให้ชำระเงิน';
   }
 
   @override
   String get pairIncomingAllowHint =>
-      'Turns on after you check the words. Nothing is paid without your PIN.';
+      'เปิดใช้หลังจากคุณตรวจคำ ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ';
 
   @override
-  String get pairNotNow => 'Not now';
+  String get pairNotNow => 'ไว้ทีหลัง';
 
   @override
   String pairWaitingTitle(String name) {
-    return 'Waiting for $name’s wallet…';
+    return 'กำลังรอกระเป๋าเงินของ $name…';
   }
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+      'กระเป๋าเงินของอีกฝ่ายจะตอบเมื่อเปิดครั้งถัดไป คุณปิดหน้านี้ได้ การจับคู่ดำเนินต่อเบื้องหลัง และการตรวจคำจะปรากฏเมื่อเสร็จ';
 
   @override
-  String get pairWaitingFor => 'Checking for 1 hour';
+  String get pairWaitingFor => 'ตรวจสอบเป็นเวลา 1 ชั่วโมง';
 
   @override
-  String get pairSendByHand => 'Send by hand';
+  String get pairSendByHand => 'ส่งด้วยตนเอง';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => 'เชื่อมต่อรีเลย์ไม่ได้';
 
   @override
-  String get pairRelayUnreachableBody => 'Send your answer by hand?';
+  String get pairRelayUnreachableBody => 'ส่งคำตอบด้วยตนเองหรือไม่';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+      'เชื่อมต่อรีเลย์ผ่าน Tor ไม่ได้ ส่งคำตอบด้วยตนเองหรือไม่';
 
   @override
-  String get pairByHandTitle => 'Send by hand';
+  String get pairByHandTitle => 'ส่งด้วยตนเอง';
 
   @override
   String pairByHandLead(String name) {
-    return 'Send this back to $name on any channel. Their wallet finishes the pairing when it opens it.';
+    return 'ส่งสิ่งนี้กลับไปยัง $name ทางช่องทางใดก็ได้ กระเป๋าเงินของอีกฝ่ายจะจับคู่ให้เสร็จเมื่อเปิด';
   }
 
   @override
-  String get pairByHandYourAnswer => 'Your answer';
+  String get pairByHandYourAnswer => 'คำตอบของคุณ';
 
   @override
   String pairByHandFooter(String name) {
-    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+    return 'คำตอบถูกปิดผนึกสำหรับคำเชิญของ $name ไม่มีใครอื่นอ่านได้ และใช้ได้ครั้งเดียว';
   }
 
   @override
   String pairConfirmByHandLead(String name) {
-    return 'Send this back to $name. Their wallet shows the words check when it opens it.';
+    return 'ส่งสิ่งนี้กลับไปยัง $name กระเป๋าเงินของอีกฝ่ายจะแสดงการตรวจคำเมื่อเปิด';
   }
 
   @override
-  String get pairExpiredTitle => 'This invite has expired';
+  String get pairExpiredTitle => 'คำเชิญนี้หมดอายุแล้ว';
 
   @override
   String pairExpiredBody(String name) {
-    return 'Ask $name for a new one.';
+    return 'ขอคำเชิญใหม่จาก $name';
   }
 
   @override
-  String get pairUsedTitle => 'This invite was already used';
+  String get pairUsedTitle => 'คำเชิญนี้ถูกใช้แล้ว';
 
   @override
-  String get pairUsedBody => 'Ask for a new one.';
+  String get pairUsedBody => 'ขอคำเชิญใหม่';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name cancelled this invite';
+    return '$name ยกเลิกคำเชิญนี้แล้ว';
   }
 
   @override
-  String get pairCancelledBody => 'Nothing was stored.';
+  String get pairCancelledBody => 'ไม่มีการบันทึกสิ่งใด';
 
   @override
   String pairNoAnswerTitle(String name) {
-    return 'No answer from $name';
+    return 'ไม่มีคำตอบจาก $name';
   }
 
   @override
   String get pairNoAnswerBody =>
-      'The invite may have been cancelled. Ask for a new one, or pair in person.';
+      'คำเชิญอาจถูกยกเลิก ขอคำเชิญใหม่ หรือจับคู่แบบพบตัว';
 
   @override
-  String get pairChangedTitle => 'This invite was changed on the way';
+  String get pairChangedTitle => 'คำเชิญนี้ถูกเปลี่ยนระหว่างทาง';
 
   @override
   String pairChangedBody(String name) {
-    return 'Nothing was stored. Pair again, in person or with a fresh invite from $name.';
+    return 'ไม่มีการบันทึกสิ่งใด จับคู่อีกครั้งแบบพบตัว หรือด้วยคำเชิญใหม่จาก $name';
   }
 
   @override
-  String get pairNewerTitle => 'Update Epic Cash to open this';
+  String get pairNewerTitle => 'อัปเดต Epic Cash เพื่อเปิดสิ่งนี้';
 
   @override
-  String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
+  String get pairNewerInviteBody =>
+      'คำเชิญนี้สร้างโดยกระเป๋าเงินเวอร์ชันใหม่กว่า';
 
   @override
-  String get pairNewerFileBody => 'The file was sealed by a newer wallet.';
+  String get pairNewerFileBody =>
+      'ไฟล์นี้ถูกปิดผนึกโดยกระเป๋าเงินเวอร์ชันใหม่กว่า';
 
   @override
-  String get pairCheckForUpdates => 'Check for updates';
+  String get pairCheckForUpdates => 'ตรวจหาการอัปเดต';
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Someone else also answered $name’s invite. See Pending invites.';
+    return 'มีคนอื่นตอบคำเชิญของ $name ด้วย ดูที่ คำเชิญที่รออยู่';
   }
 
   @override
-  String get pairSecondReplyBody =>
-      'If you didn’t share it with them, remove them.';
+  String get pairAnsweredSameInvite => 'ตอบคำเชิญเดียวกัน · ไม่ได้บันทึก';
 
   @override
-  String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
-
-  @override
-  String get sasTitle => 'Check the words';
+  String get sasTitle => 'ตรวจคำ';
 
   @override
   String sasLead(String name) {
-    return '$name’s wallet shows the same four. Compare them on a call or in person.';
+    return 'กระเป๋าเงินของ $name แสดงสี่คำเดียวกัน เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
   }
 
   @override
   String sasLeadExchange(String name) {
-    return 'The $name page shows the same four. Compare them, then confirm on both sides.';
+    return 'หน้า $name แสดงสี่คำเดียวกัน เปรียบเทียบแล้วยืนยันทั้งสองฝั่ง';
   }
 
   @override
   String sasLeadRecheck(String name) {
-    return '$name’s wallet shows these under $name › Check the words. Compare them on a call or in person.';
+    return 'กระเป๋าเงินของ $name แสดงคำเหล่านี้ที่ $name › ตรวจคำ เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
   }
 
   @override
-  String get sasMatch => 'They match';
+  String get sasMatch => 'ตรงกัน';
 
   @override
-  String get sasNoMatch => 'They don’t match';
+  String get sasNoMatch => 'ไม่ตรงกัน';
 
   @override
-  String get sasSkip => 'Skip for now';
+  String get sasSkip => 'ข้ามไปก่อน';
 
   @override
-  String get sasLater => 'Later';
+  String get sasLater => 'ภายหลัง';
 
   @override
   String sasMatchedTitle(String name) {
-    return '$name is verified';
+    return '$name ยืนยันแล้ว';
   }
 
   @override
   String sasMatchedBody(String name) {
-    return 'Payment files and invoices with $name are sealed from now on.';
+    return 'นับจากนี้ ไฟล์การชำระเงินและใบแจ้งหนี้กับ $name จะถูกปิดผนึก';
   }
 
   @override
-  String get sasNoMatchTitle => 'The words don’t match';
+  String get sasNoMatchTitle => 'คำไม่ตรงกัน';
 
   @override
   String get sasNoMatchBody =>
-      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+      'อาจมีคนเปลี่ยนคำเชิญระหว่างทาง จะไม่เก็บสิ่งใดไว้ จับคู่อีกครั้งแบบพบตัว หรือด้วยคำเชิญใหม่';
 
   @override
-  String get sasStopPairing => 'Stop pairing';
+  String get sasStopPairing => 'หยุดการจับคู่';
 
   @override
   String sasSkippedTitle(String name) {
-    return 'Paired with $name';
+    return 'จับคู่กับ $name แล้ว';
   }
 
   @override
   String sasSkippedBody(String name) {
-    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+    return 'ไฟล์การชำระเงินกับ $name ถูกปิดผนึก ตรวจคำจากหน้าผู้ติดต่อของ $name เมื่อสะดวก ใบแจ้งหนี้จะรอจนกว่าจะตรวจ';
   }
 
   @override
-  String get sasCheckNow => 'Check now';
+  String get sasCheckNow => 'ตรวจตอนนี้';
 
   @override
-  String get sasAllowAfterMatch => 'On once you confirm the words match.';
+  String get sasAllowAfterMatch => 'เปิดใช้เมื่อคุณยืนยันว่าคำตรงกัน';
 
   @override
   String sasAllowInvoicesHint(String name) {
-    return '$name’s wallet can ask you to pay. Nothing is paid without your PIN.';
+    return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ';
   }
 
   @override
-  String get trustVerified => 'Verified';
+  String get trustVerified => 'ยืนยันแล้ว';
 
   @override
-  String get trustPaired => 'Paired, not verified';
+  String get trustPaired => 'จับคู่แล้ว ยังไม่ยืนยัน';
 
   @override
-  String get trustPairedShort => 'Paired';
+  String get trustPairedShort => 'จับคู่แล้ว';
 
   @override
-  String get trustKeysChanged => 'Keys changed';
+  String get trustKeysChanged => 'คีย์เปลี่ยน';
 
   @override
-  String get trustSealed => 'Sealed';
+  String get trustSealed => 'ปิดผนึก';
 
   @override
   String trustSealedFor(String name) {
-    return 'Sealed for $name';
+    return 'ปิดผนึกสำหรับ $name';
   }
 
   @override
-  String get trustAllowsInvoices => 'Allows invoices';
+  String get trustAllowsInvoices => 'อนุญาตใบแจ้งหนี้';
 
   @override
-  String get contactTitle => 'Contact';
+  String get contactTitle => 'ผู้ติดต่อ';
 
   @override
-  String get contactAddresses => 'Addresses';
+  String get contactAddresses => 'ที่อยู่';
 
   @override
-  String get contactPairing => 'Pairing';
-
-  @override
-  String get contactShowCode => 'Show code';
+  String get contactPairing => 'การจับคู่';
 
   @override
   String contactWordsChecked(String date) {
-    return 'Words checked $date';
+    return 'ตรวจคำเมื่อ $date';
   }
 
   @override
-  String get contactCheckAgain => 'Check again';
+  String get contactCheckAgain => 'ตรวจอีกครั้ง';
 
   @override
-  String get contactCheckWordsAgain => 'Check the words again';
+  String get contactCheckWordsAgain => 'ตรวจคำอีกครั้ง';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => 'ปิดผนึกการชำระเงิน';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return 'การชำระเงินและใบแจ้งหนี้กับ $name เข้ารหัสแบบต้นทางถึงปลายทาง มีเพียงกระเป๋าเงินของอีกฝ่ายที่อ่านได้';
   }
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Off, a payment file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+    return 'เมื่อปิด ไฟล์การชำระเงินถึง $name จะไม่ปิดผนึก ใครที่ได้ไฟล์ก็อ่านได้ ปิดเฉพาะเมื่อกระเป๋าเงินของ $name เปิดไฟล์ที่ปิดผนึกไม่ได้';
   }
 
   @override
-  String get contactAllowInvoices => 'Allow invoices';
+  String get contactAllowInvoices => 'อนุญาตใบแจ้งหนี้';
 
   @override
   String contactAllowInfo(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+    return 'กระเป๋าเงินของ $name ส่งคำขอชำระเงินถึงคุณได้ แต่ละรายการรอที่ ใบแจ้งหนี้ ให้คุณอนุมัติและใส่ PIN ไม่มีการชำระเอง';
   }
 
   @override
   String get contactAllowInfoMore =>
-      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+      'อนุญาตได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว การตรวจคำช่วยตัดโอกาสที่คำเชิญถูกสลับ';
 
   @override
-  String get contactCheckWordsFirst => 'Check the words first';
+  String get contactCheckWordsFirst => 'ตรวจคำก่อน';
 
   @override
-  String get contactPausedUntilChecked => 'Paused until you check the words';
+  String get contactPausedUntilChecked => 'หยุดไว้จนกว่าคุณจะตรวจคำ';
 
   @override
   String contactDeliveredVia(String relay) {
-    return 'Delivered via $relay';
+    return 'ส่งผ่าน $relay';
   }
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return 'รีเลย์ของ $name ไม่ตอบสนอง';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+      'กำลังลองใหม่ คำขอและการชำระเงินจะรอจนกว่าจะตอบ ไม่มีสิ่งใดสูญหาย';
 
   @override
-  String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
+  String get contactPausedEpicboxOff => 'หยุดไว้ขณะปิด Epicbox';
 
   @override
-  String get contactPausedEpicboxOffBody => 'Sealed files still work.';
+  String get contactPausedEpicboxOffBody => 'ไฟล์ที่ปิดผนึกยังใช้ได้';
 
   @override
-  String get contactRemovePairing => 'Remove pairing';
+  String get contactRemovePairing => 'ลบการจับคู่';
 
   @override
   String contactRemovePairingTitle(String name) {
-    return 'Remove the pairing with $name?';
+    return 'ลบการจับคู่กับ $name หรือไม่';
   }
 
   @override
   String contactRemovePairingBody(String name) {
-    return 'Sealed payments and invoices from $name will stop. Their addresses stay in your contacts.';
+    return 'การชำระเงินและใบแจ้งหนี้ที่ปิดผนึกจาก $name จะหยุด ที่อยู่ยังอยู่ในผู้ติดต่อของคุณ';
   }
 
   @override
-  String get contactKeep => 'Keep';
+  String get contactKeep => 'เก็บไว้';
 
   @override
-  String get contactRemove => 'Remove';
+  String get contactRemove => 'ลบ';
 
   @override
   String contactKeysChangedTitle(String name) {
-    return '$name’s keys changed';
+    return 'คีย์ของ $name เปลี่ยน';
   }
 
   @override
   String get contactKeysChangedBody =>
-      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+      'อาจหมายความว่าอีกฝ่ายใช้กระเป๋าเงินใบอื่นแล้ว หรือมีคนอื่นใช้ชื่อนี้ ตรวจคำอีกครั้ง';
 
   @override
-  String get contactKeysChangedStatus => 'sealing and invoices paused';
+  String get contactKeysChangedStatus => 'หยุดการปิดผนึกและใบแจ้งหนี้ไว้';
 
   @override
-  String get contactKeepOldKeys => 'Keep the old keys';
+  String get contactKeepOldKeys => 'ใช้คีย์เดิม';
 
   @override
-  String get contactUseNewKeys => 'Use the new keys';
+  String get contactUseNewKeys => 'ใช้คีย์ใหม่';
 
   @override
   String contactKeysBack(String name) {
-    return '$name’s keys are back.';
+    return 'คีย์ของ $name กลับมาแล้ว';
   }
 
   @override
-  String get contactKeysBackBody => 'Nothing changed for you.';
+  String get contactKeysBackBody => 'ไม่มีอะไรเปลี่ยนสำหรับคุณ';
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return 'การชำระเงินครั้งล่าสุดถึง $name ไม่ได้ปิดผนึก';
   }
 
   @override
   String contactSealDegradedBody(String name) {
-    return 'The next one asks Seal or plain. Sealing turns itself back on when $name’s wallet answers sealed.';
+    return 'ครั้งถัดไปจะถามว่าปิดผนึกหรือไม่ การปิดผนึกจะเปิดเองอีกครั้งเมื่อกระเป๋าเงินของ $name ตอบแบบปิดผนึก';
   }
 
   @override
-  String get addrField => 'Address';
+  String get addrField => 'ที่อยู่';
 
   @override
   String addrFieldTyped(String type) {
-    return '$type address';
+    return 'ที่อยู่ $type';
   }
 
   @override
-  String get addrAddAnother => 'Add another address';
+  String get addrAddAnother => 'เพิ่มที่อยู่อื่น';
 
   @override
   String addrOneFree(String type) {
-    return 'One more type is free: $type.';
+    return 'ยังเหลืออีกหนึ่งประเภท: $type';
   }
 
   @override
   String addrDuplicateType(String name, String type) {
-    return '$name already has this kind of address ($type).';
+    return '$name มีที่อยู่ประเภทนี้แล้ว ($type)';
   }
 
   @override
-  String get addrKeepOld => 'Keep the old one';
+  String get addrKeepOld => 'ใช้อันเดิม';
 
   @override
-  String get addrReplace => 'Replace it';
+  String get addrReplace => 'แทนที่';
 
   @override
   String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
+    return 'วางที่อยู่ $type หรือเว้นว่างไว้';
   }
 
   @override
   String get addrDesktopRule =>
-      'One address per type. The third field appears only while a type is free.';
+      'หนึ่งที่อยู่ต่อประเภท ช่องที่สามจะแสดงเฉพาะเมื่อยังมีประเภทว่าง';
 
   @override
-  String get pendingTitle => 'Pending invites';
+  String get pendingTitle => 'คำเชิญที่รออยู่';
 
   @override
   String pendingRowHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count invites waiting for an answer',
-      one: '1 invite waiting for an answer',
+      other: 'คำเชิญ $count รายการรอคำตอบ',
     );
     return '$_temp0';
   }
 
   @override
   String pendingLink(String time) {
-    return 'Link · expires in $time';
+    return 'ลิงก์ · หมดอายุใน $time';
   }
 
   @override
   String pendingWords(String time) {
-    return 'Pairing words · expires in $time';
+    return 'คำจับคู่ · หมดอายุใน $time';
   }
 
   @override
-  String get pendingExpired => 'Expired';
+  String get pendingExpired => 'หมดอายุ';
 
   @override
-  String get pendingInviteAgain => 'Invite again';
+  String get pendingInviteAgain => 'เชิญอีกครั้ง';
 
   @override
   String pendingWaitingConfirm(String time) {
-    return 'Waiting for their confirmation · $time';
+    return 'รออีกฝ่ายยืนยัน · $time';
   }
 
   @override
-  String get pendingPairedCheck => 'Paired · check the words';
+  String get pendingPairedCheck => 'จับคู่แล้ว · ตรวจคำ';
 
   @override
   String get pendingEmpty =>
-      'No invites waiting. An invite shows here until the other wallet answers it.';
+      'ไม่มีคำเชิญที่รออยู่ คำเชิญจะแสดงที่นี่จนกว่ากระเป๋าเงินอีกฝ่ายจะตอบ';
 
   @override
-  String get pendingShareAgain => 'Share again';
+  String get pendingShareAgain => 'แชร์อีกครั้ง';
 
   @override
-  String get pendingShowWords => 'Show words';
+  String get pendingShowWords => 'แสดงคำ';
 
   @override
-  String get pendingCopyLink => 'Copy link';
+  String get pendingCopyLink => 'คัดลอกลิงก์';
 
   @override
-  String get invSetTitle => 'Invoices';
+  String get invSetTitle => 'ใบแจ้งหนี้';
 
   @override
   String get invSetLead =>
-      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+      'ผู้ติดต่อที่จับคู่แล้วซึ่งคุณอนุญาต ส่งคำขอชำระเงินถึงคุณได้ แต่ละรายการรอ PIN ของคุณที่ ใบแจ้งหนี้';
 
   @override
-  String get invSetPaired => 'Paired contacts';
+  String get invSetPaired => 'ผู้ติดต่อที่จับคู่แล้ว';
 
   @override
-  String get invSetAllowed => 'Allowed';
+  String get invSetAllowed => 'อนุญาต';
 
   @override
-  String get invSetOff => 'Off';
+  String get invSetOff => 'ปิด';
 
   @override
-  String get invSetPairShop => 'Pair with a shop or exchange';
+  String get invSetPairShop => 'จับคู่กับร้านค้าหรือศูนย์แลกเปลี่ยน';
 
   @override
   String get invSetEmpty =>
-      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+      'ยังไม่มีผู้ติดต่อที่จับคู่ จับคู่กับร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคล ตรวจคำ แล้วอนุญาตใบแจ้งหนี้ของอีกฝ่ายที่นี่';
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+      'คำขอจะรออยู่บนรีเลย์ และมาถึงเมื่อเปิด Epicbox อีกครั้ง';
 
   @override
   String invSetSwitchedOff(String name) {
-    return 'Invoices from $name are off.';
+    return 'ปิดใบแจ้งหนี้จาก $name แล้ว';
   }
 
   @override
@@ -15458,142 +14830,120 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count open requests were declined.',
-      one: '1 open request was declined.',
+      other: 'ปฏิเสธคำขอที่ค้างอยู่ $count รายการแล้ว',
     );
     return '$_temp0';
   }
 
   @override
-  String get invSetTimeToPay => 'Time to pay';
+  String get invSetTimeToPay => 'ระยะเวลาชำระ';
 
   @override
   String invSetTimeToPayHint(int hours) {
-    return '$hours hours · how long an invoice stays payable';
+    return '$hours ชั่วโมง · ระยะเวลาที่ใบแจ้งหนี้ยังชำระได้';
   }
 
   @override
-  String get invoicesEmptyAction => 'Paired contacts';
+  String get invoicesEmptyAction => 'ผู้ติดต่อที่จับคู่แล้ว';
 
   @override
-  String get reqTitle => 'Review request';
+  String get reqTitle => 'ตรวจสอบคำขอ';
 
   @override
   String reqRequests(String name) {
-    return '$name requests';
-  }
-
-  @override
-  String reqAsksYouToPay(String name) {
-    return '$name asks you to pay';
+    return '$name ขอ';
   }
 
   @override
   String reqSealedSigned(String name) {
-    return 'Sealed to this wallet and signed by $name';
+    return 'ปิดผนึกสำหรับกระเป๋าเงินนี้และลงนามโดย $name';
   }
 
   @override
-  String get reqReference => 'Reference';
-
-  @override
-  String reqDepositRef(String ref) {
-    return 'Deposit · ref $ref';
-  }
-
-  @override
-  String reqWithdrawalRef(String ref) {
-    return 'Withdrawal · ref $ref';
-  }
-
-  @override
-  String get reqDeliveredVia => 'Delivered via';
+  String get reqReference => 'เลขอ้างอิง';
 
   @override
   String reqPaidWaiting(String name) {
-    return 'Paid. Waiting for $name to post';
+    return 'ชำระแล้ว รอ $name ประกาศ';
   }
 
   @override
   String get reqPaidWaitingBody =>
-      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+      'ส่วนของคุณเสร็จแล้ว ศูนย์แลกเปลี่ยนจะทำให้เสร็จและประกาศ รายการนี้จะปิดเอง';
 
   @override
-  String get reqTlPaid => 'Paid';
+  String get reqTlPaid => 'ชำระแล้ว';
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return 'ส่งถึงรีเลย์ของ $name แล้ว';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return 'ส่งคำตอบถึงรีเลย์ของ $name แล้ว';
   }
 
   @override
   String reqTlPosted(String name) {
-    return 'Posted by $name';
+    return 'ประกาศโดย $name';
   }
 
   @override
-  String get reqTlPostedHint => 'Usually within minutes';
+  String get reqTlPostedHint => 'โดยปกติภายในไม่กี่นาที';
 
   @override
-  String get reqTlConfirming => 'Confirming';
+  String get reqTlConfirming => 'กำลังยืนยัน';
 
   @override
   String reqTlConfirmingHint(int n, int total) {
-    return '$n of $total confirmations';
+    return 'ยืนยันแล้ว $n จาก $total ครั้ง';
   }
 
   @override
-  String get reqTlConfirmed => 'Confirmed';
+  String get reqTlConfirmed => 'ยืนยันแล้ว';
 
   @override
   String reqTlWaiting(String time) {
-    return 'Waiting $time';
+    return 'รอมา $time';
   }
 
   @override
   String reqNotPostedTitle(String name) {
-    return '$name has not posted yet';
+    return '$name ยังไม่ได้ประกาศ';
   }
 
   @override
   String get reqNotPostedBody =>
-      'Send again delivers the same payment once more. It cannot be paid twice.';
+      'ส่งอีกครั้งจะส่งการชำระเงินเดิมอีกรอบ ไม่สามารถชำระซ้ำสองครั้ง';
 
   @override
-  String get reqSendAgain => 'Send again';
+  String get reqSendAgain => 'ส่งอีกครั้ง';
 
   @override
   String reqUnreachableTitle(String name) {
-    return 'Couldn’t reach $name yet';
+    return 'ยังติดต่อ $name ไม่ได้';
   }
 
   @override
   String get reqUnreachableBody =>
-      'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
+      'เงินของคุณปลอดภัย จะปลดล็อกหากไม่มีการประกาศ ระบบยังคงลองส่งต่อไป';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => 'รีเลย์ไม่ตอบสนอง · กำลังลองใหม่';
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name withdrew the request';
+    return '$name ถอนคำขอแล้ว';
   }
 
   @override
-  String get reqWithdrewBody => 'Your funds are unlocked. Nothing was paid.';
+  String get reqWithdrewBody => 'เงินของคุณปลดล็อกแล้ว ไม่มีการชำระใดๆ';
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name withdrew this request';
+    return '$name ถอนคำขอนี้แล้ว';
   }
-
-  @override
-  String get reqDeclined => 'Declined';
 
   @override
   String reqTwoSame(String name, int count, String amount) {
@@ -15601,188 +14951,177 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
-      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+          '$name ส่งคำขอ $amount EPIC จำนวน $count รายการภายใน 10 นาที ชำระทั้งหมดหรือไม่',
     );
     return '$_temp0';
   }
 
   @override
-  String reqTooMany(String name) {
-    return '$name sent too many requests.';
-  }
-
-  @override
-  String get reqTooManyBody =>
-      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
-
-  @override
   String reqWithdrawalFrom(String name) {
-    return 'Withdrawal from $name';
+    return 'การถอนจาก $name';
   }
 
   @override
   String reqReceivedWaiting(String name) {
-    return 'Received. Waiting for $name to post';
+    return 'ได้รับแล้ว รอ $name ประกาศ';
   }
 
   @override
   String get reqReceivedWaitingBody =>
-      'Nothing to do. The exchange posts it; confirmations follow.';
+      'ไม่ต้องทำอะไร ศูนย์แลกเปลี่ยนจะประกาศ จากนั้นจะมีการยืนยันตามมา';
 
   @override
-  String get reqNewTitle => 'New request';
+  String get reqNewTitle => 'คำขอใหม่';
 
   @override
   String get reqNewLead =>
-      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+      'ขอให้ผู้ติดต่อที่จับคู่แล้วชำระเงินให้คุณ หรือบันทึกคำขอเป็นไฟล์สำหรับใครก็ได้';
 
   @override
-  String get reqNewTo => 'To';
+  String get reqNewTo => 'ถึง';
 
   @override
   String get reqNewToHint =>
-      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+      'ผู้ติดต่อที่จับคู่แล้วซึ่งกระเป๋าเงินชำระคำขอได้ สำหรับคนอื่น ให้บันทึกคำขอเป็นไฟล์';
 
   @override
-  String get reqNewSaveFile => 'Save as file';
+  String get reqNewSaveFile => 'บันทึกเป็นไฟล์';
 
   @override
-  String get reqNewSend => 'Send request';
+  String get reqNewSend => 'ส่งคำขอ';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Send through $name’s mailbox';
+    return 'ส่งผ่านกล่องรับของ $name';
   }
 
   @override
   String sendViaMailboxHint(String relay) {
-    return 'Sealed. Delivered via $relay';
+    return 'ปิดผนึก ส่งผ่าน $relay';
   }
 
   @override
   String sendSealedTitle(String name) {
-    return 'Sealed for $name';
+    return 'ปิดผนึกสำหรับ $name';
   }
 
   @override
   String sendSealedBody(String name) {
-    return 'Only $name’s wallet can open this file. Send it any way you like, then open the file they send back.';
+    return 'มีเพียงกระเป๋าเงินของ $name ที่เปิดไฟล์นี้ได้ ส่งด้วยวิธีใดก็ได้ แล้วเปิดไฟล์ที่อีกฝ่ายส่งกลับมา';
   }
 
   @override
-  String get sendSealOrPlainTitle => 'Seal this file?';
+  String get sendSealOrPlainTitle => 'ปิดผนึกไฟล์นี้หรือไม่';
 
   @override
   String sendSealOrPlainBody(String name) {
-    return 'The last file to $name went plain. Sealed is the default again.';
+    return 'ไฟล์ล่าสุดถึง $name ไม่ได้ปิดผนึก ตอนนี้ค่าเริ่มต้นกลับเป็นปิดผนึก';
   }
 
   @override
-  String get sendSealedOption => 'Sealed';
+  String get sendSealedOption => 'ปิดผนึก';
 
   @override
   String sendSealedOptionHint(String name) {
-    return 'Only $name’s wallet can read it';
+    return 'มีเพียงกระเป๋าเงินของ $name ที่อ่านได้';
   }
 
   @override
-  String get sendPlainOption => 'Plain';
+  String get sendPlainOption => 'ไม่ปิดผนึก';
 
   @override
-  String get sendPlainOptionHint => 'Anyone with the file can read it';
+  String get sendPlainOptionHint => 'ใครที่มีไฟล์ก็อ่านได้';
 
   @override
   String sendCantOpenTitle(String name) {
-    return '$name can’t open sealed files?';
+    return '$name เปิดไฟล์ที่ปิดผนึกไม่ได้หรือ';
   }
 
   @override
   String get sendCantOpenBody =>
-      'Send as plain instead resends the same payment unsealed. It is still one payment.';
+      'ส่งแบบไม่ปิดผนึกจะส่งการชำระเงินเดิมอีกครั้งโดยไม่ปิดผนึก ยังคงเป็นการชำระเงินเดียว';
 
   @override
-  String get sendAsPlain => 'Send as plain instead';
+  String get sendAsPlain => 'ส่งแบบไม่ปิดผนึกแทน';
 
   @override
-  String get sendAsPlainTitle => 'Send as plain instead?';
+  String get sendAsPlainTitle => 'ส่งแบบไม่ปิดผนึกแทนหรือไม่';
 
   @override
   String get sendAsPlainBody =>
-      'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.';
+      'ไฟล์จะไม่ถูกปิดผนึก ใครที่ได้ไฟล์จะอ่านจำนวนเงินและที่อยู่ในไฟล์ได้ เป็นการชำระเงินเดิม จึงชำระซ้ำสองครั้งไม่ได้';
 
   @override
-  String get sendKeepSealed => 'Keep sealed';
+  String get sendKeepSealed => 'คงการปิดผนึก';
 
   @override
-  String get sendPlain => 'Send as plain';
+  String get sendPlain => 'ส่งแบบไม่ปิดผนึก';
 
   @override
   String sendNotHeardTitle(String name) {
-    return 'Not heard from $name’s wallet in 90 days';
+    return 'ไม่มีข่าวจากกระเป๋าเงินของ $name มา 90 วัน';
   }
 
   @override
   String sendNotHeardBody(String name) {
-    return '$name will need Epic Cash to open this file.';
+    return '$name ต้องใช้ Epic Cash เพื่อเปิดไฟล์นี้';
   }
 
   @override
-  String get sendPlainShort => 'Send plain';
+  String get sendPlainShort => 'ส่งไม่ปิดผนึก';
 
   @override
   String get openSealedOtherTitle =>
-      'This was sealed for another wallet or install';
+      'สิ่งนี้ปิดผนึกไว้สำหรับกระเป๋าเงินหรือการติดตั้งอื่น';
 
   @override
-  String get openSealedOtherBody =>
-      'It cannot be opened here. Ask the sender to send it again.';
+  String get openSealedOtherBody => 'เปิดที่นี่ไม่ได้ ขอให้ผู้ส่งส่งมาอีกครั้ง';
 
   @override
-  String get openArrivedUnsealed => 'This arrived unsealed.';
+  String get openArrivedUnsealed => 'สิ่งนี้มาถึงโดยไม่ได้ปิดผนึก';
 
   @override
   String openArrivedUnsealedBody(String name) {
-    return '$name chose plain for this file.';
+    return '$name เลือกส่งไฟล์นี้แบบไม่ปิดผนึก';
   }
 
   @override
   String noticePairingReplied(String name) {
-    return '$name answered your invite. Check the words together.';
+    return '$name ตอบคำเชิญของคุณแล้ว ตรวจคำด้วยกัน';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Paired with $name. Check the words together.';
+    return 'จับคู่กับ $name แล้ว ตรวจคำด้วยกัน';
   }
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name requests $amount EPIC. Review under Invoices.';
+    return '$name ขอ $amount EPIC ตรวจสอบได้ที่ ใบแจ้งหนี้';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'Received $amount EPIC from $name. Waiting for it to post.';
+    return 'ได้รับ $amount EPIC จาก $name รอการประกาศ';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name’s keys changed. Check the words again before paying.';
+    return 'คีย์ของ $name เปลี่ยน ตรวจคำอีกครั้งก่อนชำระ';
   }
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return 'รีเลย์ของ $name ไม่ตอบสนอง กำลังลองใหม่';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name withdrew the request. Your funds are unlocked.';
+    return '$name ถอนคำขอแล้ว เงินของคุณปลดล็อกแล้ว';
   }
 
   @override
-  String get restoreUseContactsTitle => 'Use your contacts on this device?';
+  String get restoreUseContactsTitle => 'ใช้ผู้ติดต่อของคุณบนอุปกรณ์นี้หรือไม่';
 
   @override
   String restoreUseContactsBody(int count) {
@@ -15790,395 +15129,378 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count pairings in this backup were used on another device. Your other device should stop using them.',
-      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+          'การจับคู่ $count รายการในข้อมูลสำรองนี้เคยใช้บนอุปกรณ์อื่น อุปกรณ์อื่นของคุณควรหยุดใช้',
     );
     return '$_temp0';
   }
 
   @override
-  String get restoreUseHere => 'Use them here';
+  String get restoreUseHere => 'ใช้ที่นี่';
 
   @override
   String restorePairingsOnOtherDevice(int count) {
-    return '$count · on another device';
-  }
-
-  @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(String payments, String contacts, String pairings) {
-    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
+    return '$count · บนอุปกรณ์อื่น';
   }
 
   @override
   String get pairInviteSentBodyAnyone =>
-      'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+      'การจับคู่เสร็จเมื่อกระเป๋าเงินของอีกฝ่ายเปิดคำเชิญ คุณออกจากหน้านี้ได้ คำเชิญจะอยู่ที่ ผู้ติดต่อ › คำเชิญที่รออยู่';
 
   @override
-  String get pairInvalidLink => 'This is not a pairing link';
+  String get pairInvalidLink => 'นี่ไม่ใช่ลิงก์จับคู่';
 
   @override
-  String get pairInvalidBody =>
-      'Check that the whole link was copied, or ask for a new one.';
+  String get pairInvalidBody => 'ตรวจว่าคัดลอกลิงก์ครบทั้งหมด หรือขอลิงก์ใหม่';
 
   @override
-  String get pairOwnCode => 'This is your own code';
+  String get pairOwnCode => 'นี่คือโค้ดของคุณเอง';
 
   @override
-  String get pairOwnCodeBody => 'Scan the code on the other phone.';
+  String get pairOwnCodeBody => 'สแกนโค้ดบนโทรศัพท์อีกเครื่อง';
 
   @override
-  String get pairUnnamedInvite => 'Open invite';
+  String get pairUnnamedInvite => 'คำเชิญที่เปิดอยู่';
 
   @override
-  String get pairSeenAsMissing => 'Enter the name they will see.';
+  String get pairSeenAsMissing => 'ใส่ชื่อที่อีกฝ่ายจะเห็น';
 
   @override
-  String get pairSeenAsTooLong => 'Use a shorter name.';
+  String get pairSeenAsTooLong => 'ใช้ชื่อที่สั้นกว่านี้';
 
   @override
-  String get pairSeenAsEdit => 'Change the name they will see';
+  String get pairSeenAsEdit => 'เปลี่ยนชื่อที่อีกฝ่ายจะเห็น';
 
   @override
-  String get pairCodeLabel => 'Your pairing code';
+  String get pairCodeLabel => 'โค้ดจับคู่ของคุณ';
 
   @override
-  String get pairWordsLabel => 'Your pairing words';
+  String get pairWordsLabel => 'คำจับคู่ของคุณ';
 
   @override
-  String get pairWordsEnteredLabel => 'Words entered';
+  String get pairWordsEnteredLabel => 'คำที่ใส่แล้ว';
 
   @override
   String pairWordSlot(int n) {
-    return 'Word $n, not entered';
+    return 'คำที่ $n ยังไม่ได้ใส่';
   }
 
   @override
-  String get pairSuggestions => 'Suggestions';
+  String get pairSuggestions => 'คำแนะนำ';
 
   @override
-  String get pairCopied => 'Copied';
+  String get pairCopied => 'คัดลอกแล้ว';
 
   @override
-  String get pairPaste => 'Paste';
+  String get pairPaste => 'วาง';
 
   @override
-  String get pairInPersonDone => 'Codes scanned';
+  String get pairInPersonDone => 'สแกนโค้ดแล้ว';
 
   @override
   String get pairEpicboxOffNotice =>
-      'Paused while Epicbox is off. The invite and the answer travel by hand.';
+      'หยุดไว้ขณะปิด Epicbox คำเชิญและคำตอบต้องส่งด้วยตนเอง';
 
   @override
-  String get pairWaitingTitleShort => 'Pairing';
+  String get pairWaitingTitleShort => 'การจับคู่';
 
   @override
-  String get pairClosed => 'Close';
+  String get pairClosed => 'ปิด';
 
   @override
-  String get sasWordsLabel => 'The four words';
+  String get sasWordsLabel => 'สี่คำ';
 
   @override
   String sasDialogTitle(String name) {
-    return 'Check the words with $name';
+    return 'ตรวจคำกับ $name';
   }
 
   @override
-  String get trustNotPaired => 'Not paired';
+  String get contactMore => 'เพิ่มเติม';
 
   @override
-  String get contactMore => 'More';
+  String get contactEdit => 'แก้ไข';
 
   @override
-  String get contactEdit => 'Edit';
-
-  @override
-  String get contactDelete => 'Delete contact';
-
-  @override
-  String contactInfoAbout(String label) {
-    return 'About $label';
-  }
+  String get contactDelete => 'ลบผู้ติดต่อ';
 
   @override
   String contactCopyAddress(String type) {
-    return 'Copy $type address';
+    return 'คัดลอกที่อยู่ $type';
   }
 
   @override
   String contactDeletePaired(String name) {
-    return 'Deleting $name also removes the pairing. Sealed payments and invoices from them stop.';
+    return 'การลบ $name จะลบการจับคู่ด้วย การชำระเงินและใบแจ้งหนี้ที่ปิดผนึกจากผู้ติดต่อนี้จะหยุด';
   }
 
   @override
-  String get contactNoAddresses => 'No addresses saved.';
+  String get contactNoAddresses => 'ไม่มีที่อยู่ที่บันทึกไว้';
 
   @override
   String addrRemove(String type) {
-    return 'Remove $type address';
+    return 'ลบที่อยู่ $type';
   }
 
   @override
-  String addrAlreadySaved(String name) {
-    return 'This address is already saved as $name.';
-  }
-
-  @override
-  String get sendVia => 'Send via';
+  String get sendVia => 'ส่งผ่าน';
 
   @override
   String get invSetLeadDesktop =>
-      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+      'ผู้ติดต่อที่จับคู่แล้วซึ่งคุณอนุญาต ส่งคำขอชำระเงินถึงกระเป๋าเงินนี้ได้ แต่ละรายการรอรหัสผ่านกระเป๋าเงินที่ ใบแจ้งหนี้';
 
   @override
-  String get invSetRowAllowed => 'Verified · allowed';
+  String get invSetRowAllowed => 'ยืนยันแล้ว · อนุญาต';
 
   @override
-  String get invSetRowCheckFirst =>
-      'Paired, not verified · check the words first';
+  String get invSetRowCheckFirst => 'จับคู่แล้ว ยังไม่ยืนยัน · ตรวจคำก่อน';
 
   @override
   String invSetAllowFor(String name) {
-    return 'Allow invoices from $name';
+    return 'อนุญาตใบแจ้งหนี้จาก $name';
   }
 
   @override
   String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และตรวจคำกับอีกฝ่าย หรือบันทึกคำขอเป็นไฟล์';
 
   @override
-  String get reqPickContact => 'Choose a contact';
+  String get reqPickContact => 'เลือกผู้ติดต่อ';
 
   @override
-  String get reqFileSaved => 'Request saved as a file';
+  String get reqFileSaved => 'บันทึกคำขอเป็นไฟล์แล้ว';
 
   @override
   String reqSent(String name) {
-    return 'Request sent to $name';
+    return 'ส่งคำขอถึง $name แล้ว';
   }
 
   @override
-  String get reqFileTitle => 'Payment request';
-
-  @override
-  String get reqFileBody =>
-      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
+  String get reqFileTitle => 'คำขอชำระเงิน';
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'Couldn’t reach $name yet. Your funds are safe.';
+    return 'ยังติดต่อ $name ไม่ได้ เงินของคุณปลอดภัย';
   }
 
   @override
   String noticeTooMany(String name) {
-    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+    return '$name ส่งคำขอมากเกินไป คำขอส่วนเกินถูกทิ้ง ปิดใบแจ้งหนี้ของผู้ติดต่อนี้หากยังเกิดขึ้นต่อ';
   }
 
   @override
-  String get noticeOpen => 'Open';
+  String get noticeOpen => 'เปิด';
 
   @override
-  String get noticeCheckWords => 'Check the words';
+  String get noticeCheckWords => 'ตรวจคำ';
 
   @override
-  String get noticeView => 'View';
+  String get noticeView => 'ดู';
 
   @override
-  String get restorePairings => 'Pairings';
-
-  @override
-  String sendSealedNote(String name) {
-    return 'Sealed for $name: only their wallet can open the file.';
-  }
-
-  @override
-  String get sendSealChoice => 'Seal this file';
+  String get restorePairings => 'การจับคู่';
 
   @override
   String get pairingDesktopShowCodeLead =>
-      'Let them scan this with their phone, or read them the pairing words.';
+      'ให้อีกฝ่ายสแกนโค้ดนี้ด้วยโทรศัพท์ หรืออ่านคำจับคู่ให้ฟัง';
 
   @override
   String get pairingDesktopInviteLead =>
-      'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+      'ส่งคำเชิญผ่านช่องทางที่คุณใช้กับอีกฝ่ายอยู่แล้ว การจับคู่เสร็จเมื่อกระเป๋าเงินของอีกฝ่ายเปิดคำเชิญ';
 
   @override
-  String get pairingInviteOnline => 'Invite online';
-
-  @override
-  String get pairUseHere => 'Use here';
+  String get pairingInviteOnline => 'เชิญออนไลน์';
 
   @override
   String pairSaveContactTitle(String name) {
-    return 'Save $name in your contacts?';
+    return 'บันทึก $name ในผู้ติดต่อของคุณหรือไม่';
   }
 
   @override
-  String get pairSaveNewContact => 'Save as a new contact';
+  String get pairSaveNewContact => 'บันทึกเป็นผู้ติดต่อใหม่';
 
   @override
-  String get pairAddToAContact => 'Add to a contact';
-
-  @override
-  String get pairPickContactTitle => 'Add to which contact?';
+  String get pairAddToAContact => 'เพิ่มในผู้ติดต่อ';
 
   @override
   String pairSavedAs(String name) {
-    return 'Saved as $name.';
-  }
-
-  @override
-  String pairContactAlreadyPaired(String name) {
-    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
+    return 'บันทึกเป็น $name แล้ว';
   }
 
   @override
   String pairDurDays(int days, int hours) {
-    return '$days d $hours h';
+    return '$days วัน $hours ชม.';
   }
 
   @override
   String pairDurHours(int hours, int minutes) {
-    return '$hours h $minutes min';
+    return '$hours ชม. $minutes นาที';
   }
 
   @override
   String pairDurMinutes(int minutes) {
-    return '$minutes min';
+    return '$minutes นาที';
   }
 
   @override
-  String get pairDurUnderMinute => 'under a minute';
+  String get pairDurUnderMinute => 'ไม่ถึงหนึ่งนาที';
 
   @override
-  String get pairBack => 'Back';
+  String get pairBack => 'กลับ';
 
   @override
-  String get pairNotInContacts => 'Not in contacts';
+  String get pairNotInContacts => 'ไม่อยู่ในผู้ติดต่อ';
 
   @override
-  String get pairAddToContacts => 'Add to contacts';
+  String get pairAddToContacts => 'เพิ่มในผู้ติดต่อ';
 
   @override
-  String get helpPairingSection => 'Pairing';
+  String get helpPairingSection => 'การจับคู่';
 
   @override
   String get helpPairingLede =>
-      'Pair once; payment files and invoices with that contact are sealed.';
+      'จับคู่ครั้งเดียว ไฟล์การชำระเงินและใบแจ้งหนี้กับผู้ติดต่อนั้นจะถูกปิดผนึก';
 
   @override
-  String get helpPairWhatTitle => 'What pairing is';
+  String get helpPairWhatTitle => 'การจับคู่คืออะไร';
 
   @override
   String get helpPairWhatShort =>
-      'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.';
+      'จับคู่กับอีกฝ่ายครั้งเดียว หลังจากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
 
   @override
   String get helpPairWhatP1 =>
-      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+      'การจับคู่เชื่อมสองกระเป๋าเงินเพียงครั้งเดียว แบบพบตัวโดยสแกนโค้ดของกันและกัน หรือออนไลน์ด้วยลิงก์คำเชิญหรือคำจับคู่ห้าคำ แต่ละกระเป๋าเงินเก็บคีย์ที่สร้างขึ้นสำหรับผู้ติดต่อนั้นเท่านั้น และไม่มีข้อมูลใดส่งไปยังเซิร์ฟเวอร์ Epicbox';
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+      'หลังจับคู่ ไฟล์การชำระเงินถึงผู้ติดต่อนั้นจะ**ปิดผนึก** มีเพียงกระเป๋าเงินของอีกฝ่ายที่เปิดได้ และไม่สามารถถูกเปลี่ยนหรือปลอมระหว่างทาง การชำระเงินผ่าน Epicbox ระหว่างบุคคลยังทำงานเหมือนเดิม';
 
   @override
-  String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
+  String get helpPairWhatStep1 =>
+      'เปิด [[ผู้ติดต่อ|Contacts]] แล้วเลือก **จับคู่**';
 
   @override
   String get helpPairWhatStep2 =>
-      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+      'แบบพบตัว: แสดงโค้ดของคุณ สแกนโค้ดของอีกฝ่าย ออนไลน์: ส่งคำเชิญ หรืออ่านคำจับคู่ให้ฟัง';
 
   @override
-  String get helpPairWhatStep3 =>
-      'Check the words together, then **They match**.';
+  String get helpPairWhatStep3 => 'ตรวจคำด้วยกัน แล้วเลือก **ตรงกัน**';
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
+      'การจับคู่ต้องใช้ Epic Cash ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์การชำระเงินปกติและการชำระเงินผ่าน Epicbox';
 
   @override
-  String get helpPairWhyTitle => 'Why check the words';
+  String get helpPairWhyTitle => 'ทำไมต้องตรวจคำ';
 
   @override
   String get helpPairWhyShort =>
-      'The four words prove the pairing reached the right wallet and not someone in between.';
+      'สี่คำนี้พิสูจน์ว่าการจับคู่ไปถึงกระเป๋าเงินที่ถูกต้อง ไม่ใช่คนที่อยู่ตรงกลาง';
 
   @override
   String get helpPairWhyP1 =>
-      'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.';
+      'หลังจับคู่ ทั้งสองกระเป๋าเงินจะแสดงภาพและชื่อสี่รายการเดียวกัน ซึ่งมาจากคีย์ของทั้งสองกระเป๋าเงิน ดังนั้นการจับคู่ที่ถูกเปลี่ยนระหว่างทางจะแสดงคำต่างกันบนสองหน้าจอ';
 
   @override
   String get helpPairWhyP2 =>
-      'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.';
+      'เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว แล้วแตะ **ตรงกัน** ผู้ติดต่อจะเป็น **ยืนยันแล้ว** ส่วน **ข้ามไปก่อน** จะคงไว้เป็น **จับคู่แล้ว ยังไม่ยืนยัน** ไฟล์การชำระเงินยังปิดผนึก แต่ผู้ติดต่อจะส่งใบแจ้งหนี้ไม่ได้จนกว่าจะตรวจคำ';
 
   @override
   String get helpPairWhyP3 =>
-      'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
+      'หากคำต่างกัน ให้แตะ **ไม่ตรงกัน** การจับคู่จะถูกทิ้งที่ฝั่งนี้ จับคู่อีกครั้งแบบพบตัว หรือด้วยคำเชิญใหม่';
 
   @override
-  String get helpPairWordsTitle => 'Pairing words';
+  String get helpPairWordsTitle => 'คำจับคู่';
 
   @override
   String get helpPairWordsShort =>
-      'Five pictures with names stand in for a link when there is nothing to scan or paste.';
+      'ภาพห้าภาพพร้อมชื่อใช้แทนลิงก์ได้เมื่อไม่มีอะไรให้สแกนหรือวาง';
 
   @override
   String get helpPairWordsP1 =>
-      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+      'เมื่อกระเป๋าเงินหนึ่งไม่มีกล้อง หรือส่งคำเชิญเป็นลิงก์ไม่ได้ กระเป๋าเงินที่เชิญจะแสดงคำจับคู่ห้าคำ อีกฝ่ายพิมพ์ชื่อเหล่านั้นที่ **ใส่ลิงก์หรือคำ** ช่องจะเติมชื่อให้หลังพิมพ์ไม่กี่ตัวอักษร คำเหล่านี้ใช้ได้ 10 นาที';
 
   @override
   String get helpPairWordsP2 =>
-      'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.';
+      'คำเหล่านี้ใช้หาคำเชิญเท่านั้น ใครที่มีคำเหล่านี้อยู่ในสถานะเดียวกับคนที่ได้รับลิงก์ หลังจากนั้นจึงต้องตรวจสี่คำด้วยกันตามปกติ';
 
   @override
   String get helpPairWordsP3 =>
-      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+      'คำจับคู่ต้องใช้เซิร์ฟเวอร์ Epicbox ขณะปิด Epicbox ให้ส่งลิงก์คำเชิญแทน';
 
   @override
-  String get helpPairInvTitle => 'Invoices from paired contacts';
+  String get helpPairInvTitle => 'ใบแจ้งหนี้จากผู้ติดต่อที่จับคู่แล้ว';
 
   @override
   String get helpPairInvShort =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+      'มีเพียงผู้ติดต่อที่ยืนยันแล้วซึ่งคุณอนุญาตที่ขอให้คุณชำระเงินได้ แต่ละคำขอจะรอ PIN ของคุณ';
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      'ร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคลที่คุณจับคู่ด้วย ส่งคำขอชำระเงินได้หากคุณอนุญาต: **อนุญาตใบแจ้งหนี้** ที่หน้าผู้ติดต่อ หรือที่ [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]] สวิตช์นี้ใช้ได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว';
 
   @override
   String get helpPairInvP2 =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+      'คำขอจะแสดงที่ [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] พร้อมชื่อผู้ติดต่อ จำนวนเงิน และเลขอ้างอิง จะไม่มีการชำระจนกว่าคุณจะอนุมัติด้วย PIN คำขอไม่เคยเพิ่มเงินเข้ากระเป๋าเงินของคุณ';
 
   @override
   String get helpPairInvP3 =>
-      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+      'การปิดสวิตช์มีผลทันที คำขอใหม่จากผู้ติดต่อนั้นจะถูกทิ้ง และคำขอที่ค้างอยู่จะถูกปฏิเสธ';
 
   @override
   String get helpPairInvP4 =>
-      'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.';
+      'ศูนย์แลกเปลี่ยนที่จับคู่กับคุณใช้วิธีนี้ในการฝากและถอน ฝาก: ศูนย์แลกเปลี่ยนขอ คุณอนุมัติ ศูนย์แลกเปลี่ยนประกาศ ถอน: ศูนย์แลกเปลี่ยนส่งการชำระเงิน กระเป๋าเงินของคุณตอบเอง ศูนย์แลกเปลี่ยนประกาศ';
 
   @override
-  String get helpPairRestoreTitle => 'What a restore does';
+  String get helpPairRestoreTitle => 'การกู้คืนทำอะไรบ้าง';
 
   @override
   String get helpPairRestoreShort =>
-      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+      'การกู้คืนจากวลีกู้คืนพร้อมข้อมูลสำรองประวัติจะนำการจับคู่ทั้งหมดกลับมา หากไม่มีข้อมูลสำรอง การจับคู่ใหม่จะพบคีย์เดิม';
 
   @override
   String get helpPairRestoreP1 =>
-      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+      'เมื่อมีข้อมูลสำรองประวัติ การกู้คืนจะนำการจับคู่ทั้งหมดกลับมาโดยไม่เปลี่ยน คีย์เดิม เครื่องหมายยืนยันแล้วเดิม การตั้งค่าเดิม ผู้ติดต่อจะไม่สังเกตเห็นอะไร';
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      'หากไม่มีข้อมูลสำรอง การจับคู่จะหายไปจากกระเป๋าเงินนี้ แต่คีย์ไม่หาย เพราะมาจากวลีกู้คืน จับคู่อีกครั้งกับผู้ติดต่อที่ยังเก็บการจับคู่ไว้ แล้วกระเป๋าเงินของอีกฝ่ายจะพบคีย์เดิม และแจ้งว่าคีย์กลับมาแล้ว ผู้ติดต่อยังคงเครื่องหมายยืนยันแล้ว ในกระเป๋าเงินนี้ ปิดผนึกการชำระเงิน และ อนุญาตใบแจ้งหนี้ จะกลับเป็นค่าเริ่มต้น';
 
   @override
   String get helpPairRestoreP3 =>
-      'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.';
+      'ผู้ติดต่อจะเห็น **คีย์เปลี่ยน** เฉพาะเมื่อวลีเป็นวลีอื่น ซึ่งอาจหมายถึงกระเป๋าเงินใบใหม่ หรือมีคนอื่นใช้ชื่อนี้ ตรวจคำอีกครั้งก่อนเชื่อถือ';
 
   @override
   String get helpPairRestoreP4 =>
-      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+      'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลสำรองที่กู้คืนบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
+
+  @override
+  String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
+
+  @override
+  String get deskConAddrTor => 'ที่อยู่ ลิงก์ · Tor';
+
+  @override
+  String get deskConAddrHttp => 'ที่อยู่ ลิงก์ · HTTP';
+
+  @override
+  String get deskInvIssuerFormTitle => 'ออกใบแจ้งหนี้';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'ก่อนออกใบแจ้งหนี้ใบแรก';
+
+  @override
+  String get deskInvIssuerYourAddress => 'ที่อยู่รับเงินของคุณ';
+
+  @override
+  String get deskInvIssuerMethod => 'วิธีส่ง';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'โดยตรง · ไฟล์';
+
+  @override
+  String get deskInvIssuerDirect => 'ลิงก์';
 }

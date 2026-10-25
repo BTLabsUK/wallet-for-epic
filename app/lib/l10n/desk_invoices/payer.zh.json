@@ -4,11 +4,8 @@
   "deskInvPayerReview": "查看",
   "deskInvPayerView": "查看",
   "deskInvPayerNoMessage": "无留言",
-  "deskInvPayerDropped": "{count, plural, other{已忽略 {count} 条来自不受信任发送方的消息。}}",
-  "deskInvPayerTrustService": "信任服务…",
-  "deskInvPayerYourInvoiceAddress": "你的账单地址",
   "deskInvPayerEmptyTitle": "没有等待中的账单",
-  "deskInvPayerEmptyText": "当你信任的服务向你开账单时，账单会显示在这里。在你批准之前不会付款。",
+  "deskInvPayerEmptyText": "你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。",
   "deskInvPayerNotDeliveredTitle": "你给 {service} 的付款未送达",
   "deskInvPayerNotDeliveredText": "付款已签名并保存在此设备上；资金保持锁定。重试会再次发送，无需再次批准。",
   "deskInvPayerWithdrawnTitle": "{service} 撤回了一张你已支付的账单",
@@ -27,7 +24,6 @@
   "deskInvPayerBalanceAfter": "付款后余额",
   "deskInvPayerMessageCaption": "由服务填写。你的钱包不会核实。",
   "deskInvPayerPaysTo": "付款给",
-  "deskInvPayerTrustedSince": "{service}，自 {date} 起受信任",
   "deskInvPayerExpires": "过期时间",
   "deskInvPayerLockHeight": "锁定高度",
   "deskInvPayerLockNone": "无",
@@ -70,5 +66,6 @@
   "deskInvPayerLocked": "此账单无法支付：它被锁定到较晚的区块。未支付任何款项。",
   "deskInvPayerRelayDownPay": "Epicbox 服务器没有响应。未支付任何款项。",
   "deskInvPayerStalledTitle": "你给 {service} 的付款已停滞",
-  "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。"
+  "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。",
+  "deskInvPayerPaidHead": "已支付"
 }

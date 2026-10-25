@@ -271,7 +271,7 @@ class _Header extends StatelessWidget {
       children: [
         Row(
           children: [
-            PairAvatar(name: contact.name, kind: p?.kind ?? PairingKind.person, size: 72),
+            PairAvatar(name: contact.name, kind: p?.kind ?? PairingParty.person, size: 72),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

@@ -31,49 +31,9 @@
   "@deskInvIssuerSoon": {
     "description": "Why a method or button is disabled: not built yet."
   },
-  "deskInvIssuerPayer": "Their invoice address",
-  "@deskInvIssuerPayer": {
-    "description": "Field label: the payer's invoice address, where the request goes."
-  },
-  "deskInvIssuerPayerHelp": "Their wallet shows it under Settings › Invoices.",
-  "@deskInvIssuerPayerHelp": {
-    "description": "Help under the payer field: where the payer finds their invoice address."
-  },
-  "deskInvIssuerPayerMissing": "Paste their invoice address.",
-  "@deskInvIssuerPayerMissing": {
-    "description": "Error: the payer field is empty."
-  },
-  "deskInvIssuerPayerInvalid": "This is not a valid Epicbox address.",
-  "@deskInvIssuerPayerInvalid": {
-    "description": "Error: the payer field holds something that is not an Epicbox address."
-  },
-  "deskInvIssuerPayerOwn": "This is one of your own addresses. Use the invoice address the payer gives you.",
-  "@deskInvIssuerPayerOwn": {
-    "description": "Error: the payer field holds this wallet's payments or invoice address."
-  },
-  "deskInvIssuerPayerHttp": "Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.",
-  "@deskInvIssuerPayerHttp": {
-    "description": "Error: an http(s) or onion address was given while the method is Epicbox."
-  },
-  "deskInvIssuerContacts": "Contacts",
-  "@deskInvIssuerContacts": {
-    "description": "Button: pick the payer from contacts that have an invoice address."
-  },
   "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
   "@deskInvIssuerNoContacts": {
     "description": "Shown in the contact picker when no contact has an invoice address."
-  },
-  "deskInvIssuerNoInvoices": "This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.",
-  "@deskInvIssuerNoInvoices": {
-    "description": "Warning on the request form: the payer's wallet is known not to pay requests."
-  },
-  "deskInvIssuerUseFile": "Use a file",
-  "@deskInvIssuerUseFile": {
-    "description": "Button: switch the request to the File method."
-  },
-  "deskInvIssuerUnknown": "Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.",
-  "@deskInvIssuerUnknown": {
-    "description": "Quiet line on the request form when nothing is known about the payer's wallet. Product names stay as they are."
   },
   "deskInvIssuerAmount": "Amount",
   "@deskInvIssuerAmount": {
@@ -128,30 +88,13 @@
       }
     }
   },
-  "deskInvIssuerIssue": "Issue",
-  "@deskInvIssuerIssue": {
-    "description": "Main button: send the payment request. No password is needed."
-  },
   "deskInvIssuerRelayDown": "The Epicbox server is not answering, so an invoice cannot go out now.",
   "@deskInvIssuerRelayDown": {
     "description": "Why Request is disabled: the relay is down."
   },
-  "deskInvIssuerFixFields": "Fix the fields marked in red.",
-  "@deskInvIssuerFixFields": {
-    "description": "Why Request did nothing: some fields have errors."
-  },
   "deskInvIssuerNotDelivered": "The invoice did not reach the Epicbox server. Nothing was sent. Try again.",
   "@deskInvIssuerNotDelivered": {
     "description": "Error after Request: the relay did not take it; it was cancelled at once."
-  },
-  "deskInvIssuerSent": "Invoice sent to {payer}.",
-  "@deskInvIssuerSent": {
-    "description": "Notice after Request: delivered to the payer's invoice address.",
-    "placeholders": {
-      "payer": {
-        "type": "String"
-      }
-    }
   },
   "deskInvIssuerEmpty": "No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.",
   "@deskInvIssuerEmpty": {
@@ -295,7 +238,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}'s invoice address. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered to {payer}'s mailbox. Nothing is paid until they approve it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {
@@ -307,18 +250,6 @@
   "deskInvIssuerCopySlate": "Copy slate ID",
   "@deskInvIssuerCopySlate": {
     "description": "Button tooltip: copy the request's technical identifier."
-  },
-  "deskInvIssuerStepsIntro": "Their wallet must take invoices. Before the first invoice:",
-  "@deskInvIssuerStepsIntro": {
-    "description": "Before the steps on the issue form: the payer must have done these once."
-  },
-  "deskInvIssuerStepTrust": "1. They add your payments address below to their trusted senders.",
-  "@deskInvIssuerStepTrust": {
-    "description": "Step 1 on the issue form."
-  },
-  "deskInvIssuerStepAddress": "2. They give you their invoice address.",
-  "@deskInvIssuerStepAddress": {
-    "description": "Step 2 on the issue form."
   },
   "deskInvIssuerStepIssued": "Issued",
   "@deskInvIssuerStepIssued": {

@@ -35,7 +35,5 @@
   "deskInvOneDevice": "Nutzen Sie Rechnungen nur auf einem Gerät. Ein anderes Gerät mit dieser Wallet kann eine Zahlung annehmen, die für dieses bestimmt ist.",
   "deskInvFailed": "Das hat nicht geklappt. Nichts wurde geändert; versuchen Sie es erneut.",
   "deskInvHowItWorks": "So funktionieren Rechnungen",
-  "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Epicbox-Adresse",
   "deskInvPayStalled": "Hängt fest"
 }

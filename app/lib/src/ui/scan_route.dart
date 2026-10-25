@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
+import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../payment_prefs.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart';
@@ -17,6 +18,7 @@ import '../scan/scan_router.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import 'notices.dart';
+import 'pairing/pair_incoming.dart' show openPairingLink;
 import 'receive_screen.dart' show scanSlateQr;
 import 'scan_result_sheet.dart';
 import 'scan_screen.dart' show offersQrPayment;
@@ -84,6 +86,8 @@ Future<void> openScannedCode(
       }
     case SlateText(:final text):
       await _showSlateText(context, text);
+    case PairingLink(:final text) when ref.read(pairingSupportedProvider):
+      await openPairingLink(context, ref, text);
     case PairingLink(:final text):
       await showPairingSheet(context, text, origin: origin);
     case WrongNetwork(:final recipient):
@@ -130,8 +134,8 @@ Future<void> _showUnknown(
   if (again && scanAgain != null) await scanAgain();
 }
 
-/// The fallback for a pairing link while this version has no pairing: says so, with Copy.
-/// The pairing flow replaces it when it lands.
+/// The fallback for a pairing link on a wallet that does not pair (its core has no pairing
+/// yet): says so, with Copy. A wallet that pairs opens the link ([openPairingLink]).
 Future<void> showPairingSheet(
   BuildContext context,
   String text, {

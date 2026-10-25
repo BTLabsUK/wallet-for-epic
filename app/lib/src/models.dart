@@ -2394,7 +2394,7 @@ enum PairingState {
 }
 
 /// What the other side's card says it is (card tag 03).
-enum PairingKind { person, shop, exchange }
+enum PairingParty { person, shop, exchange }
 
 /// Seal payments for a contact (RFC 7.6, 9.3).
 enum SealMode {
@@ -2490,7 +2490,7 @@ class PairingRecord {
     required this.createdAt,
     this.name,
     this.label,
-    this.kind = PairingKind.person,
+    this.kind = PairingParty.person,
     this.caps = const PairingCaps(),
     this.sas = const [],
     this.verifiedAt,
@@ -2525,7 +2525,7 @@ class PairingRecord {
   /// For an invite this wallet made: the name of whom it is for, when the user started it
   /// from a contact. Shown in Pending invites.
   final String? label;
-  final PairingKind kind;
+  final PairingParty kind;
   final PairingCaps caps;
 
   /// The four words of the check; empty until paired.
@@ -2608,7 +2608,7 @@ class PairingRecord {
     bool? otherDevice,
     String? homeRelay,
     PairingCaps? caps,
-    PairingKind? kind,
+    PairingParty? kind,
     String? paymentsAddress,
   }) => PairingRecord(
     id: id,
@@ -2644,7 +2644,7 @@ class PairingInvitePreview {
     required this.token,
     required this.name,
     required this.expiresAt,
-    this.kind = PairingKind.person,
+    this.kind = PairingParty.person,
     this.asksInvoices = false,
     this.homeRelay = '',
     this.wordsAvailable = true,
@@ -2656,7 +2656,7 @@ class PairingInvitePreview {
   /// The name the inviter chose: a claim, not checked yet.
   final String name;
   final DateTime expiresAt;
-  final PairingKind kind;
+  final PairingParty kind;
 
   /// The invite asks the user to allow the inviter's invoices (an exchange's, RFC 12.2).
   final bool asksInvoices;

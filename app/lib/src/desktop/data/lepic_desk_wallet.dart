@@ -3735,7 +3735,15 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
       await _reload();
-      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded, replaced: r.replaced);
+      return HistoryImport(
+        merged: r.merged,
+        added: r.added,
+        skipped: r.skipped,
+        contactsAdded: r.contactsAdded,
+        replaced: r.replaced,
+        pairingsAdded: r.pairingsAdded,
+        pairingsOtherDevice: r.pairingsOtherDevice,
+      );
     } on core.WalletError catch (e) {
       logWarn('desk', 'history import refused: ${e.kind.name}');
       throw historyFileError(e);

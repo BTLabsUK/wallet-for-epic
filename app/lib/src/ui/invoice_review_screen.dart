@@ -312,7 +312,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           // name. Sealed: it came through the contact's mailbox, sealed and signed.
           Row(
             children: [
-              PairAvatar(name: service, kind: pairing?.kind ?? PairingKind.person, size: 48),
+              PairAvatar(name: service, kind: pairing?.kind ?? PairingParty.person, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -682,6 +682,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
       paid.pairingId,
     );
     final message = invoiceMessageLine(paid.message);
+    final tip = ref.watch(homeProvider).value?.summary.lastConfirmedHeight;
 
     Widget warning(String text, Widget? action) => EdgeCard(
       edge: t.warn,
@@ -708,7 +709,26 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     );
 
     final now = ref.watch(clockProvider)();
-    final status = switch (paid.status) {
+    // A paired contact's request: the states of SPEC 2.8 in the contact's own words.
+    final paired = paid.pairingId != null;
+    final age = now.difference(DateTime.fromMillisecondsSinceEpoch(widget.tx.createdAtUnix * 1000));
+    final Widget? pairedState = !paired
+        ? null
+        : switch (paid.status) {
+            InvoiceStatus.replied when invoicePaymentStalled(widget.tx, now) || age > const Duration(hours: 2) && txConfirmations(widget.tx, tip) == null =>
+              PairEdgeNotice(
+                tone: BadgeTone.warn,
+                title: l.reqNotPostedTitle(service),
+                body: l.reqNotPostedBody,
+                actions: [FilledButton(onPressed: _busy ? null : () => _retry(paid, service), child: Text(l.reqSendAgain))],
+              ),
+            InvoiceStatus.replyFailed when age > const Duration(hours: 24) =>
+              PairEdgeNotice(tone: BadgeTone.warn, title: l.reqUnreachableTitle(service), body: l.reqUnreachableBody),
+            InvoiceStatus.withdrawn when widget.tx.status == TxStatus.cancelled =>
+              PairEdgeNotice(tone: BadgeTone.info, title: l.reqWithdrewTitle(service), body: l.reqWithdrewBody),
+            _ => null,
+          };
+    final status = pairedState ?? switch (paid.status) {
       // Still not on the network a while after paying, though the wallet sent the reply again
       // by itself (windows-05, stall_retry.dart): Stalled, with Send again.
       InvoiceStatus.replied when invoicePaymentStalled(widget.tx, now) => warning(
@@ -798,8 +818,59 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
               ),
             ),
           status,
+          // A paired contact's request: where the payment is on its way (SPEC 2.8).
+          if (paid.pairingId != null) ...[
+            const SizedBox(height: 12),
+            if (paid.status == InvoiceStatus.replied && txConfirmations(widget.tx, tip) == null) ...[
+              PairEdgeNotice(tone: BadgeTone.info, title: l.reqPaidWaiting(service), body: l.reqPaidWaitingBody),
+              const SizedBox(height: 12),
+            ],
+            RequestTimeline(paid: paid, tx: widget.tx, name: service, tip: tip, target: confirmationsTargetOf(ref)),
+          ],
         ],
       ),
+    );
+  }
+}
+
+/// A paid request's way (SPEC 2.8): Paid, delivered to the contact's relay, posted by the
+/// contact, then the confirmations. The current step says what the wallet waits for.
+class RequestTimeline extends StatelessWidget {
+  const RequestTimeline({super.key, required this.paid, required this.tx, required this.name, required this.tip, required this.target});
+
+  final PaidInvoice paid;
+  final TxEntry tx;
+  final String name;
+  final BigInt? tip;
+  final int target;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final delivered = paid.status != InvoiceStatus.replyFailed;
+    final confirmations = txConfirmations(tx, tip);
+    final posted = paid.status == InvoiceStatus.posted || confirmations != null;
+    final confirmed = confirmations != null && confirmations >= target;
+    return StatusTimeline(
+      steps: [
+        TimelineStep(l.reqTlPaid, TimelineState.done),
+        TimelineStep(
+          l.reqTlDelivered(name),
+          delivered ? TimelineState.done : TimelineState.current,
+          detail: delivered ? null : l.reqRelayRetrying,
+        ),
+        TimelineStep(
+          l.reqTlPosted(name),
+          posted ? TimelineState.done : (delivered ? TimelineState.current : TimelineState.todo),
+          detail: !posted && delivered ? l.reqTlPostedHint : null,
+        ),
+        if (confirmed)
+          TimelineStep(l.reqTlConfirmed, TimelineState.done)
+        else if (confirmations != null)
+          TimelineStep(l.reqTlConfirming, TimelineState.current, detail: l.reqTlConfirmingHint(confirmations, target))
+        else
+          TimelineStep(l.reqTlConfirmed, TimelineState.todo),
+      ],
     );
   }
 }
