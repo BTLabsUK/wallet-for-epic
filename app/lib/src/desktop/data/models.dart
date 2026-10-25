@@ -274,6 +274,7 @@ class Tx {
     this.note,
     this.manualFields = const {},
     this.manualEditedAt,
+    this.senderPosted = false,
   });
 
   final int id;
@@ -353,6 +354,11 @@ class Tx {
   /// An Epicbox, HTTP or Tor send no attempt has delivered: [DeskWalletApi.resendTx] sends
   /// it again. Never set for the send being made right now.
   final bool undelivered;
+
+  /// An incoming Epicbox payment still waiting for its sender, whose sender reports it posted
+  /// the transaction, under an hour ago (the core's `senderReportsPosted`). The sender's word
+  /// only: never shown as received before the chain confirms it.
+  final bool senderPosted;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
@@ -424,6 +430,7 @@ class Tx {
       note: n,
       manualFields: manual,
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
+      senderPosted: senderPosted,
     );
   }
 

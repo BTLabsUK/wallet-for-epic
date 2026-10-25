@@ -692,6 +692,9 @@ String txStatusLabel(
   TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
     l.txStatusStalled,
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
+  // The sender's word, not the chain's: never Received before a block.
+  TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
+    l.txStatusSenderPosted,
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
   // Finished, but the node refused it: not on the network until it is posted again.
@@ -745,7 +748,11 @@ class TxStatusLine extends ConsumerWidget {
     final theme = Theme.of(context);
     final target = confirmationsTargetOf(ref);
     final phase = txPhase(tx, tip, target: target);
-    final (icon, color) = txStatusMark(context, phase);
+    final now = ref.watch(clockProvider)();
+    // The sender reports it posted: still waiting, but under way, so in the info colour.
+    final reported = phase == TxPhase.waitingSender && senderReportsPosted(tx, now: now);
+    final (icon, mark) = txStatusMark(context, phase);
+    final color = reported ? t.info : mark;
     final base = theme.textTheme.bodySmall?.copyWith(
       color: t.dim,
       fontFeatures: const [FontFeature.tabularFigures()],
@@ -766,9 +773,9 @@ class TxStatusLine extends ConsumerWidget {
                     tx,
                     tip,
                     target: target,
-                    now: ref.watch(clockProvider)(),
+                    now: now,
                   ),
-                  style: phase == TxPhase.confirming
+                  style: phase == TxPhase.confirming || reported
                       ? base?.copyWith(color: t.info)
                       : base,
                 ),
@@ -799,6 +806,7 @@ List<TimelineStep>? txTimeline(
   TxEntry tx,
   BigInt? tip, {
   int? target,
+  DateTime? now,
 }) {
   if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
   final phase = txPhase(tx, tip, target: target);
@@ -839,9 +847,14 @@ List<TimelineStep>? txTimeline(
       _ => null,
     };
   } else {
+    final reported = now != null && senderReportsPosted(tx, now: now);
     steps = [
       (l.txStepArrived, l.txStepArrived, l.txStepArrived),
-      (l.txStepSenderFinished, l.txStatusWaitingSender, l.txStepSenderFinished),
+      (
+        l.txStepSenderFinished,
+        reported ? l.txStatusSenderPosted : l.txStatusWaitingSender,
+        l.txStepSenderFinished,
+      ),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -895,8 +908,8 @@ String? contactName(WidgetRef ref, String? address) {
 }
 
 /// The badge with a transaction's status: warn while it waits for the other side, info while
-/// it confirms (the icon beside it shows the progress, so no spinner), neutral once it is over
-/// (completed, from a backup, cancelled).
+/// it confirms or its sender reports it posted (the icon beside it shows the progress, so no
+/// spinner), neutral once it is over (completed, from a backup, cancelled).
 class TxStatusChip extends ConsumerWidget {
   const TxStatusChip({super.key, required this.tx, required this.tip});
 
@@ -906,7 +919,9 @@ class TxStatusChip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final target = confirmationsTargetOf(ref);
+    final now = ref.watch(clockProvider)();
     final tone = switch (txPhase(tx, tip, target: target)) {
+      TxPhase.waitingSender when senderReportsPosted(tx, now: now) => BadgeTone.info,
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
       TxPhase.waitingPayer => BadgeTone.warn,
@@ -915,13 +930,7 @@ class TxStatusChip extends ConsumerWidget {
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
     return EBadge(
-      txStatusLabel(
-        context.l10n,
-        tx,
-        tip,
-        target: target,
-        now: ref.watch(clockProvider)(),
-      ),
+      txStatusLabel(context.l10n, tx, tip, target: target, now: now),
       tone: tone,
     );
   }

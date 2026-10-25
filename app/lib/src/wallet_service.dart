@@ -2385,6 +2385,21 @@ class FakeWalletSession implements WalletSession {
         InvoiceEvent(kind: kind, slateId: slateId, kernelExcess: kernelExcess),
       );
 
+  /// The sender of the waiting incoming payment [slateId] reports it posted, as LEPIC raises
+  /// it: the row records the report (at [clock]) and [InvoiceEventKind.paymentPosted] goes out.
+  void reportPosted({required String slateId, String? kernelExcess}) {
+    final i = transactionsValue.indexWhere((t) => t.slateId == slateId);
+    if (i >= 0) {
+      final tx = transactionsValue[i];
+      transactionsValue[i] = copyTx(
+        tx,
+        note: tx.note,
+        senderReportedPostedAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+      );
+    }
+    _emit(InvoiceEventKind.paymentPosted, slateId, kernelExcess: kernelExcess);
+  }
+
   /// Drops the invoices whose time ran out.
   void _sweepExpired() {
     final now = clock();
@@ -2923,6 +2938,7 @@ TxEntry fakeTx({
   int? finalizedAtUnix,
   CancelReason? cancelReason,
   TxFlow flow = TxFlow.payment,
+  int? senderReportedPostedAtUnix,
 }) {
   final resolvedStatus =
       status ??
@@ -2970,15 +2986,17 @@ TxEntry fakeTx({
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
+    senderReportedPostedAtUnix: senderReportedPostedAtUnix,
   );
 }
 
 /// [tx] with [note] replaced, and [undelivered], [label], [counterparty], [transport],
-/// [manualFields] and [manualEditedAtUnix] when given.
+/// [manualFields], [manualEditedAtUnix] and [senderReportedPostedAtUnix] when given.
 TxEntry copyTx(
   TxEntry tx, {
   String? note,
   bool? undelivered,
+  int? senderReportedPostedAtUnix,
   String? label,
   String? counterparty,
   String? transport,
@@ -3021,4 +3039,6 @@ TxEntry copyTx(
   flow: tx.flow,
   foundDuring: tx.foundDuring,
   datedByBlock: tx.datedByBlock,
+  senderReportedPostedAtUnix:
+      senderReportedPostedAtUnix ?? tx.senderReportedPostedAtUnix,
 );

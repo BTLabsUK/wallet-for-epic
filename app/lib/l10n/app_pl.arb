@@ -69,6 +69,7 @@
   "txIncomingPayment": "Płatność przychodząca",
   "txStatusWaitingRecipient": "Czeka na odbiorcę",
   "txStatusWaitingSender": "Czeka na nadawcę",
+  "txStatusSenderPosted": "Nadawca zgłasza wysłanie",
   "txStatusConfirming": "Potwierdzanie {count}/{target}",
   "txStatusCompleted": "Zakończona",
   "txStatusCancelled": "Anulowana",
@@ -148,6 +149,7 @@
   "txDetailsWaitingEpicbox": "Wysłano na serwer epicbox odbiorcy. Płatność zakończy się, gdy portfel odbiorcy połączy się z siecią. Do tego czasu lub do anulowania środki pozostaną zablokowane.",
   "txDetailsWaitingRecipient": "Oczekiwanie, aż odbiorca odeśle plik transakcji. Do tego czasu lub do anulowania środki pozostaną zablokowane.",
   "txDetailsWaitingSender": "Ta płatność została przyjęta. Zakończy się, gdy nadawca ją sfinalizuje i opublikuje w sieci.",
+  "txDetailsSenderPosted": "Według nadawcy ta płatność została wysłana do sieci. Zakończy się, gdy blockchain ją potwierdzi.",
   "txDetailsPublished": "Opublikowano w sieci. Oczekiwanie na pierwsze potwierdzenie.",
   "txDetailsWaitingConfirmation": "Oczekiwanie na potwierdzenie przez sieć.",
   "txDetailsConfirmingMinutes": "W bloku {height}. {count} z {target, plural, one{{target} potwierdzenia} few{{target} potwierdzeń} many{{target} potwierdzeń} other{{target} potwierdzenia}}; pełne potwierdzenie za około {minutes, plural, one{{minutes} minutę} few{{minutes} minuty} many{{minutes} minut} other{{minutes} minuty}}.",
@@ -316,6 +318,8 @@
   "homeNoticeReceivedFrom": "{who} wysyła płatność. Zakończy się, gdy nadawca ją sfinalizuje.",
   "homeNoticeReceivedAmount": "{amount} w drodze. Płatność zakończy się, gdy nadawca ją sfinalizuje.",
   "homeNoticeReceivedAmountFrom": "{who} wysyła {amount}. Płatność zakończy się, gdy nadawca ją sfinalizuje.",
+  "homeNoticeSenderPosted": "Według nadawcy płatność została wysłana. Zakończy się, gdy blockchain ją potwierdzi.",
+  "homeNoticeSenderPostedAmount": "Według nadawcy wysłano {amount}. Płatność zakończy się, gdy blockchain ją potwierdzi.",
   "homeNoticeFinished": "Płatność sfinalizowana. Oczekiwanie na potwierdzenia.",
   "homeNoticeFinishedTo": "Płatność sfinalizowana (odbiorca: {who}). Oczekiwanie na potwierdzenia.",
   "homeNoticeRepeated": "Ta płatność została już przyjęta. Nadawca ponownie otrzymał tę samą odpowiedź; żadna druga płatność nie jest w drodze.",
@@ -3984,5 +3988,7 @@
   "deskSetRecvTorText": "Prosto z innego portfela na adres Tor tego portfela, gdy jest otwarty.",
   "deskSetTxTorHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.",
   "deskSetTxTorNeedsTor": "Tor jest wyłączony. Włącz go w Prywatności, aby przyjmować płatności na adres Tor.",
-  "deskSetTxLastMethod": "Przynajmniej jedna metoda płatności musi zostać włączona."
+  "deskSetTxLastMethod": "Przynajmniej jedna metoda płatności musi zostać włączona.",
+  "deskTxStatusSenderPosted": "Nadawca zgłasza publikację",
+  "deskTxNowSenderPosted": "Podpisana i odesłana. Według nadawcy opublikowana w sieci; zakończy się, gdy blockchain ją potwierdzi."
 }

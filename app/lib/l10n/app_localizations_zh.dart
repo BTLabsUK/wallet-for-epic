@@ -246,6 +246,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStatusWaitingSender => '等待发送方';
 
   @override
+  String get txStatusSenderPosted => '发送方称已广播';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return '确认中 $count/$target';
   }
@@ -536,6 +539,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。';
+
+  @override
+  String get txDetailsSenderPosted => '发送方称已广播这笔付款。区块链确认后，付款即完成。';
 
   @override
   String get txDetailsPublished => '已广播到网络。正在等待第一个确认。';
@@ -1365,6 +1371,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '来自 $who 的 $amount 正在途中。待发送方完成操作后即可到账。';
+  }
+
+  @override
+  String get homeNoticeSenderPosted => '发送方称付款已广播。区块链确认后即可到账。';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return '发送方称 $amount 已广播。区块链确认后即可到账。';
   }
 
   @override
@@ -14202,4 +14216,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskErrProofContactsFailed => '联系人未全部保存：无法写入通讯录';
+
+  @override
+  String get deskTxStatusSenderPosted => '发送方称已广播';
+
+  @override
+  String get deskTxNowSenderPosted => '已签名并发回。发送方称已广播到网络；区块链确认后即完成。';
 }

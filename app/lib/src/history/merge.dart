@@ -117,7 +117,8 @@ class MergedTx {
       releasable = e.releasable,
       finalizedAtUnix = e.finalizedAtUnix,
       cancelReason = e.cancelReason,
-      flow = e.flow;
+      flow = e.flow,
+      senderReportedPostedAtUnix = e.senderReportedPostedAtUnix;
 
   String key;
   int? id;
@@ -158,6 +159,9 @@ class MergedTx {
 
   /// From the live row; an imported record is a payment.
   TxFlow flow;
+
+  /// From the live row: LEPIC's, never stored or exported.
+  int? senderReportedPostedAtUnix;
 
   /// Every key the transaction was ever known by, for notes.
   List<String> aliases = const [];
@@ -202,6 +206,7 @@ class MergedTx {
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
+    senderReportedPostedAtUnix: senderReportedPostedAtUnix,
   );
 }
 

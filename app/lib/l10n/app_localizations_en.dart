@@ -251,6 +251,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStatusWaitingSender => 'Waiting for sender';
 
   @override
+  String get txStatusSenderPosted => 'Sender reports posted';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return 'Confirming $count/$target';
   }
@@ -557,6 +560,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txDetailsWaitingSender =>
       'You accepted this payment. It completes when the sender finishes it and publishes it to the network.';
+
+  @override
+  String get txDetailsSenderPosted =>
+      'The sender reports it posted this payment. It completes when the blockchain confirms it.';
 
   @override
   String get txDetailsPublished =>
@@ -1450,6 +1457,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '$amount from $who on the way. It completes when the sender finishes.';
+  }
+
+  @override
+  String get homeNoticeSenderPosted =>
+      'Sender reports a payment posted. It completes when the blockchain confirms it.';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return 'Sender reports $amount posted. It completes when the blockchain confirms it.';
   }
 
   @override
@@ -15015,4 +15031,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskErrProofContactsFailed =>
       'Not all contacts were saved: the address book could not be written';
+
+  @override
+  String get deskTxStatusSenderPosted => 'Sender reports posted';
+
+  @override
+  String get deskTxNowSenderPosted =>
+      'Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.';
 }

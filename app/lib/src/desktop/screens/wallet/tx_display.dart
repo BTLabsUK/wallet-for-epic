@@ -89,6 +89,8 @@ IconData iconOf(Tx t) => switch (t.method) {
     ? (l.deskTxStatusImmature, ETone.warn)
     : switch (t.state) {
         TxState.waitingRecipient when t.undelivered => (l.deskTxStatusUndelivered, ETone.warn),
+        // The sender's word, not the chain's: in progress, never Received before a block.
+        TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
         TxState.waitingRecipient => (
           t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           ETone.warn,
@@ -251,7 +253,7 @@ class TxStateMark extends StatelessWidget {
     if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
-      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: c.warn),
+      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.senderPosted ? c.info : c.warn),
       TxState.posted => ERing(confirmations: 0, size: size),
       _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),
     };

@@ -262,6 +262,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txStatusWaitingSender => 'Czeka na nadawcę';
 
   @override
+  String get txStatusSenderPosted => 'Nadawca zgłasza wysłanie';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return 'Potwierdzanie $count/$target';
   }
@@ -575,6 +578,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txDetailsWaitingSender =>
       'Ta płatność została przyjęta. Zakończy się, gdy nadawca ją sfinalizuje i opublikuje w sieci.';
+
+  @override
+  String get txDetailsSenderPosted =>
+      'Według nadawcy ta płatność została wysłana do sieci. Zakończy się, gdy blockchain ją potwierdzi.';
 
   @override
   String get txDetailsPublished =>
@@ -1554,6 +1561,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '$who wysyła $amount. Płatność zakończy się, gdy nadawca ją sfinalizuje.';
+  }
+
+  @override
+  String get homeNoticeSenderPosted =>
+      'Według nadawcy płatność została wysłana. Zakończy się, gdy blockchain ją potwierdzi.';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return 'Według nadawcy wysłano $amount. Płatność zakończy się, gdy blockchain ją potwierdzi.';
   }
 
   @override
@@ -15468,4 +15484,11 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskErrProofContactsFailed =>
       'Nie wszystkie kontakty zostały zapisane: błąd zapisu książki adresowej';
+
+  @override
+  String get deskTxStatusSenderPosted => 'Nadawca zgłasza publikację';
+
+  @override
+  String get deskTxNowSenderPosted =>
+      'Podpisana i odesłana. Według nadawcy opublikowana w sieci; zakończy się, gdy blockchain ją potwierdzi.';
 }

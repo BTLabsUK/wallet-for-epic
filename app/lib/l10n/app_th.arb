@@ -69,6 +69,7 @@
   "txIncomingPayment": "รายการรับเข้า",
   "txStatusWaitingRecipient": "รอผู้รับ",
   "txStatusWaitingSender": "รอผู้ส่ง",
+  "txStatusSenderPosted": "ผู้ส่งแจ้งว่าส่งแล้ว",
   "txStatusConfirming": "กำลังยืนยัน {count}/{target}",
   "txStatusCompleted": "สำเร็จ",
   "txStatusCancelled": "ยกเลิกแล้ว",
@@ -148,6 +149,7 @@
   "txDetailsWaitingEpicbox": "ส่งไปยัง Epicbox ของผู้รับแล้ว รายการจะสำเร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์ ยอดเงินจะถูกล็อกจนถึงตอนนั้น หรือจนกว่าจะยกเลิก",
   "txDetailsWaitingRecipient": "รอผู้รับตอบกลับด้วยไฟล์ธุรกรรม ยอดเงินจะถูกล็อกจนถึงตอนนั้น หรือจนกว่าจะยกเลิก",
   "txDetailsWaitingSender": "รับรายการนี้แล้ว รายการจะสำเร็จเมื่อผู้ส่งทำรายการให้เสร็จและเผยแพร่ไปยังเครือข่าย",
+  "txDetailsSenderPosted": "ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน",
   "txDetailsPublished": "เผยแพร่ไปยังเครือข่ายแล้ว รอการยืนยันครั้งแรก",
   "txDetailsWaitingConfirmation": "รอเครือข่ายยืนยัน",
   "txDetailsConfirmingMinutes": "อยู่ในบล็อก {height} ยืนยันแล้ว {count} จาก {target, plural, other{{target} ครั้ง}} เสร็จสมบูรณ์ในอีกประมาณ {minutes, plural, other{{minutes} นาที}}",
@@ -316,6 +318,8 @@
   "homeNoticeReceivedFrom": "รายการจาก {who} กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ",
   "homeNoticeReceivedAmount": "{amount} กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ",
   "homeNoticeReceivedAmountFrom": "{amount} จาก {who} กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ",
+  "homeNoticeSenderPosted": "ผู้ส่งแจ้งว่าส่งรายการแล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน",
+  "homeNoticeSenderPostedAmount": "ผู้ส่งแจ้งว่าส่ง {amount} แล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน",
   "homeNoticeFinished": "ทำรายการเสร็จแล้ว รอการยืนยัน",
   "homeNoticeFinishedTo": "รายการถึง {who} เสร็จแล้ว รอการยืนยัน",
   "homeNoticeRepeated": "รับรายการนี้ไปแล้ว ผู้ส่งได้รับคำตอบเดิมอีกครั้ง ไม่มีรายการที่สองกำลังเข้า",
@@ -3984,5 +3988,7 @@
   "deskSetRecvTorText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่ Tor ของกระเป๋าเงินนี้ ขณะที่เปิดอยู่",
   "deskSetTxTorHint": "จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่ onion ผ่าน Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน ความเป็นส่วนตัว ส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม Link · Tor ใน ส่ง และที่อยู่ของมันใน รับ",
   "deskSetTxTorNeedsTor": "Tor ปิดอยู่ เปิดได้ที่ ความเป็นส่วนตัว เพื่อรับเงินที่ที่อยู่ Tor",
-  "deskSetTxLastMethod": "ต้องเปิดวิธีชำระเงินไว้อย่างน้อยหนึ่งวิธี"
+  "deskSetTxLastMethod": "ต้องเปิดวิธีชำระเงินไว้อย่างน้อยหนึ่งวิธี",
+  "deskTxStatusSenderPosted": "ผู้ส่งแจ้งว่าส่งแล้ว",
+  "deskTxNowSenderPosted": "ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน"
 }

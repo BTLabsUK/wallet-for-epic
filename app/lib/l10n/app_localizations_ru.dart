@@ -262,6 +262,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStatusWaitingSender => 'Ждёт отправителя';
 
   @override
+  String get txStatusSenderPosted => 'Отправитель сообщил об отправке';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return 'Подтверждение $count/$target';
   }
@@ -573,6 +576,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get txDetailsWaitingSender =>
       'Вы приняли этот платёж. Он будет выполнен, когда отправитель завершит его и опубликует в сети.';
+
+  @override
+  String get txDetailsSenderPosted =>
+      'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда блокчейн его подтвердит.';
 
   @override
   String get txDetailsPublished =>
@@ -1550,6 +1557,15 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '$who отправляет вам $amount. Платёж поступит, когда отправитель его завершит.';
+  }
+
+  @override
+  String get homeNoticeSenderPosted =>
+      'По словам отправителя, платёж отправлен. Он поступит, когда блокчейн его подтвердит.';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return 'По словам отправителя, $amount отправлено. Платёж поступит, когда блокчейн его подтвердит.';
   }
 
   @override
@@ -15432,4 +15448,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskErrProofContactsFailed =>
       'Не все контакты сохранены: не удалось записать адресную книгу';
+
+  @override
+  String get deskTxStatusSenderPosted => 'Отправитель сообщил об отправке';
+
+  @override
+  String get deskTxNowSenderPosted =>
+      'Подписано и возвращено. По словам отправителя, отправлено в сеть; платёж будет выполнен, когда блокчейн его подтвердит.';
 }

@@ -484,13 +484,18 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
       InvoiceEventKind.unknownInvoicePayment,
     lepic.WalletEventKind.unknownSlate => InvoiceEventKind.unknownSendAnswer,
     lepic.WalletEventKind.receiveSuperseded => InvoiceEventKind.receiveSuperseded,
+    // An ordinary Epicbox payment's sender reports it posted: advisory, LEPIC checked who.
+    lepic.WalletEventKind.paymentPosted => InvoiceEventKind.paymentPosted,
     _ => null,
   };
   if (kind == null) return null;
   return InvoiceEvent(
     kind: kind,
     slateId: slateId,
-    kernelExcess: kind == InvoiceEventKind.posted ? e.kernelExcess : null,
+    kernelExcess:
+        kind == InvoiceEventKind.posted || kind == InvoiceEventKind.paymentPosted
+        ? e.kernelExcess
+        : null,
   );
 }
 
@@ -631,6 +636,9 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
       null => null,
     },
     datedByBlock: d.found?.datedByBlock ?? true,
+    senderReportedPostedAtUnix: d.senderReportedPostedAtMs == null
+        ? null
+        : d.senderReportedPostedAtMs! ~/ 1000,
   );
 }
 
@@ -1970,6 +1978,9 @@ class LepicWalletSession implements WalletSession {
             InvoiceEventKind.receiveSuperseded:
           // A relay that did not settle the message delivers it again: one notice per slate.
           if (!_unknownSlates.add(event.slateId)) return;
+        case InvoiceEventKind.paymentPosted:
+          // LEPIC raises it once per payment and records the report itself.
+          break;
       }
     } on WalletError catch (error) {
       logWarn(

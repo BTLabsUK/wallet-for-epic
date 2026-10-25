@@ -249,6 +249,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txStatusWaitingSender => 'รอผู้ส่ง';
 
   @override
+  String get txStatusSenderPosted => 'ผู้ส่งแจ้งว่าส่งแล้ว';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return 'กำลังยืนยัน $count/$target';
   }
@@ -553,6 +556,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txDetailsWaitingSender =>
       'รับรายการนี้แล้ว รายการจะสำเร็จเมื่อผู้ส่งทำรายการให้เสร็จและเผยแพร่ไปยังเครือข่าย';
+
+  @override
+  String get txDetailsSenderPosted =>
+      'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
 
   @override
   String get txDetailsPublished =>
@@ -1403,6 +1410,15 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '$amount จาก $who กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
+  }
+
+  @override
+  String get homeNoticeSenderPosted =>
+      'ผู้ส่งแจ้งว่าส่งรายการแล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return 'ผู้ส่งแจ้งว่าส่ง $amount แล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน';
   }
 
   @override
@@ -14730,4 +14746,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskErrProofContactsFailed =>
       'บันทึกผู้ติดต่อไม่ครบ: เขียนสมุดที่อยู่ไม่ได้';
+
+  @override
+  String get deskTxStatusSenderPosted => 'ผู้ส่งแจ้งว่าส่งแล้ว';
+
+  @override
+  String get deskTxNowSenderPosted =>
+      'ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
 }

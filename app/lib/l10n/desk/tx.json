@@ -95,6 +95,10 @@
   "@deskTxStatusWaitingSender": {
     "description": "Status of an incoming payment that waits for the sender to finalize it. Narrow status column."
   },
+  "deskTxStatusSenderPosted": "Sender reports posted",
+  "@deskTxStatusSenderPosted": {
+    "description": "Status of an incoming Epicbox payment whose sender reports that it posted the transaction. The sender's word only: never say received or paid before the blockchain confirms it. Narrow status column."
+  },
   "deskTxStatusWaitingResponseFile": "Waiting for the response file",
   "@deskTxStatusWaitingResponseFile": {
     "description": "Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column."
@@ -270,6 +274,10 @@
   "deskTxNowWaitingSender": "Signed and returned. Waiting for the sender to finalize.",
   "@deskTxNowWaitingSender": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
+  },
+  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.",
+  "@deskTxNowSenderPosted": {
+    "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   },
   "deskTxNowWaitingResponseFile": "Waiting for the response file. Finalize when it arrives.",
   "@deskTxNowWaitingResponseFile": {

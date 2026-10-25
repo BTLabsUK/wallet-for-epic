@@ -473,7 +473,32 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     ref.invalidateSelf();
     await future;
   }
+
+  /// Reads the list again from the wallet's own files, keeping the balance, so what LEPIC
+  /// recorded without a refresh (a sender's posted report) shows at once. Nothing while a load
+  /// runs: that one reads the list itself.
+  Future<void> relist() async {
+    final shown = state.value;
+    final session = shown?.session;
+    if (state.isLoading || shown == null || session == null) return;
+    final transactions = await session.transactions(refresh: false);
+    if (!ref.mounted || state.isLoading || !identical(state.value?.session, session)) return;
+    final now = state.requireValue;
+    state = AsyncData(
+      HomeData(
+        summary: now.summary,
+        transactions: transactions,
+        syncing: now.syncing,
+        session: session,
+      ),
+    );
+  }
 }
+
+/// Whether home is refreshing against the node: a reload, or the background refresh after a
+/// local first load.
+bool homeRefreshing(AsyncValue<HomeData> home) =>
+    home.isLoading || (home.value?.syncing ?? false);
 
 /// The relay the open wallet uses, as [walletConfigProvider] names it. Own addresses carry the
 /// relay, so a provider of one watches this: a live switch reads the address again.
@@ -899,6 +924,62 @@ class ListenerNotifier extends Notifier<ListenerState> {
           ref.invalidate(homeProvider);
         }
     }
+  }
+}
+
+/// The latest report from the sender of an incoming Epicbox payment that it posted the
+/// transaction (LEPIC's `paymentPosted`); home words it as a notice. Advisory: the payment
+/// counts once the chain confirms it. Each report shows on its row at once
+/// ([HomeNotifier.relist]) and asks for one chain check, home's refresh against the node: at
+/// once when none runs, else once after the running one ends, however many reports came
+/// meanwhile. Never a second refresh beside a running one, and never a listener or a drain:
+/// the report only comes from one, which Epicbox off ([NetGate.epicboxOff]) already refuses.
+final paymentPostedProvider =
+    NotifierProvider<PaymentPostedNotifier, InvoiceEvent?>(
+      PaymentPostedNotifier.new,
+    );
+
+class PaymentPostedNotifier extends Notifier<InvoiceEvent?> {
+  /// Waits for the running refresh to end, while a check is owed.
+  ProviderSubscription<AsyncValue<HomeData>>? _owed;
+
+  @override
+  InvoiceEvent? build() {
+    final session = ref.watch(sessionProvider);
+    ref.onDispose(() => _owed?.close());
+    if (session == null) return null;
+    final events = session
+        .invoiceEvents()
+        .where((e) => e.kind == InvoiceEventKind.paymentPosted)
+        .listen((e) => unawaited(_onPosted(e)), onError: (_) {});
+    ref.onDispose(events.cancel);
+    return null;
+  }
+
+  Future<void> _onPosted(InvoiceEvent event) async {
+    logInfo('home', 'sender reports a payment posted');
+    try {
+      await ref.read(homeProvider.notifier).relist();
+    } catch (error) {
+      logInfo('home', 'list not read: ${error.runtimeType}');
+    }
+    if (!ref.mounted) return;
+    _checkChain();
+    state = event;
+  }
+
+  void _checkChain() {
+    if (!homeRefreshing(ref.read(homeProvider))) {
+      ref.invalidate(homeProvider);
+      return;
+    }
+    if (_owed != null) return;
+    _owed = ref.listen<AsyncValue<HomeData>>(homeProvider, (_, home) {
+      if (homeRefreshing(home)) return;
+      _owed?.close();
+      _owed = null;
+      ref.invalidate(homeProvider);
+    });
   }
 }
 

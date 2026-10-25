@@ -3818,6 +3818,14 @@ class LepicDeskWallet implements DeskWalletApi {
         _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.receiveSuperseded, slateId: e.slateId));
         await _reload();
         return;
+      // Not an invoice: the sender of an Epicbox payment reports it posted. The row says so at
+      // once, then one chain check ([sync] runs once more if one is running). No notice: the
+      // desktop has none for incoming payments.
+      case core.InvoiceEventKind.paymentPosted:
+        logInfo('desk', 'sender reports a payment posted');
+        await _reload();
+        if (_session == session) unawaited(sync());
+        return;
       case _:
         break;
     }
@@ -4339,7 +4347,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.
-Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName}) {
+Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now}) {
   final sent = e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled;
   final fee = e.fee?.toInt() ?? 0;
   final height = e.blockHeight?.toInt();
@@ -4407,6 +4415,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     manualEditedAt: e.manualEditedAtUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.manualEditedAtUnix! * 1000),
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
+    senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
   );
 }
 

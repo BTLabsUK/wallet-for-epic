@@ -254,6 +254,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txStatusWaitingSender => 'Wartet auf Absender';
 
   @override
+  String get txStatusSenderPosted => 'Laut Absender gesendet';
+
+  @override
   String txStatusConfirming(int count, int target) {
     return 'Bestätigung $count/$target';
   }
@@ -564,6 +567,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get txDetailsWaitingSender =>
       'Sie haben diese Zahlung angenommen. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt und im Netzwerk veröffentlicht.';
+
+  @override
+  String get txDetailsSenderPosted =>
+      'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
 
   @override
   String get txDetailsPublished =>
@@ -1460,6 +1467,15 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
     return '$amount von $who unterwegs. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt.';
+  }
+
+  @override
+  String get homeNoticeSenderPosted =>
+      'Laut Absender ist eine Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
+
+  @override
+  String homeNoticeSenderPostedAmount(String amount) {
+    return 'Laut Absender sind $amount gesendet. Die Zahlung wird abgeschlossen, sobald die Blockchain sie bestätigt.';
   }
 
   @override
@@ -15197,4 +15213,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskErrProofContactsFailed =>
       'Nicht alle Kontakte gespeichert: Das Adressbuch konnte nicht geschrieben werden';
+
+  @override
+  String get deskTxStatusSenderPosted => 'Laut Absender gesendet';
+
+  @override
+  String get deskTxNowSenderPosted =>
+      'Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt.';
 }

@@ -69,6 +69,7 @@
   "txIncomingPayment": "收到的付款",
   "txStatusWaitingRecipient": "等待接收方",
   "txStatusWaitingSender": "等待发送方",
+  "txStatusSenderPosted": "发送方称已广播",
   "txStatusConfirming": "确认中 {count}/{target}",
   "txStatusCompleted": "已完成",
   "txStatusCancelled": "已取消",
@@ -148,6 +149,7 @@
   "txDetailsWaitingEpicbox": "已发送到接收方的 Epicbox。对方钱包上线后即可完成。在此之前，或在你取消之前，你的资金将保持锁定。",
   "txDetailsWaitingRecipient": "正在等待接收方回复其交易文件。在此之前，或在你取消之前，你的资金将保持锁定。",
   "txDetailsWaitingSender": "你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。",
+  "txDetailsSenderPosted": "发送方称已广播这笔付款。区块链确认后，付款即完成。",
   "txDetailsPublished": "已广播到网络。正在等待第一个确认。",
   "txDetailsWaitingConfirmation": "正在等待网络确认。",
   "txDetailsConfirmingMinutes": "位于区块 {height}。已有 {count} 个确认，共需 {target, plural, other{{target} 个}}；约 {minutes, plural, other{{minutes} 分钟}}后完成最终确认。",
@@ -316,6 +318,8 @@
   "homeNoticeReceivedFrom": "来自 {who} 的付款正在途中。待发送方完成操作后即可到账。",
   "homeNoticeReceivedAmount": "{amount} 正在途中。待发送方完成操作后即可到账。",
   "homeNoticeReceivedAmountFrom": "来自 {who} 的 {amount} 正在途中。待发送方完成操作后即可到账。",
+  "homeNoticeSenderPosted": "发送方称付款已广播。区块链确认后即可到账。",
+  "homeNoticeSenderPostedAmount": "发送方称 {amount} 已广播。区块链确认后即可到账。",
   "homeNoticeFinished": "付款已完成，正在等待确认。",
   "homeNoticeFinishedTo": "发给 {who} 的付款已完成，正在等待确认。",
   "homeNoticeRepeated": "这笔付款已被接受。发送方再次收到了相同的回复；不会有第二笔付款。",
@@ -3984,5 +3988,7 @@
   "deskSetRecvTorText": "钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。",
   "deskSetTxTorHint": "通过 onion 地址、经由 Tor 在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。需要 Tor：“隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”中加入 Link · Tor，并在“接收”中加入它的地址。",
   "deskSetTxTorNeedsTor": "Tor 已关闭。请在“隐私”中开启，才能通过 Tor 地址收款。",
-  "deskSetTxLastMethod": "至少保留一种付款方式开启。"
+  "deskSetTxLastMethod": "至少保留一种付款方式开启。",
+  "deskTxStatusSenderPosted": "发送方称已广播",
+  "deskTxNowSenderPosted": "已签名并发回。发送方称已广播到网络；区块链确认后即完成。"
 }

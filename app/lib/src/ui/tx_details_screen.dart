@@ -132,6 +132,8 @@ String txExplanation(
     TxPhase.waitingRecipient when _isEpicboxAddress(tx.counterparty) =>
       l.txDetailsWaitingEpicbox,
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
+    TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
+      l.txDetailsSenderPosted,
     TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
     // Finished, but the node refused it (android-17): it is not on the network.
@@ -571,7 +573,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
                   Text(txExplanation(l, tx, tip, now: now, target: target)),
-                  if (txTimeline(l, tx, tip, target: target)
+                  if (txTimeline(l, tx, tip, target: target, now: now)
                       case final steps?) ...[
                     const SizedBox(height: 16),
                     StatusTimeline(steps: steps),

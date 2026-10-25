@@ -69,6 +69,7 @@
   "txIncomingPayment": "Eingehende Zahlung",
   "txStatusWaitingRecipient": "Wartet auf Empfänger",
   "txStatusWaitingSender": "Wartet auf Absender",
+  "txStatusSenderPosted": "Laut Absender gesendet",
   "txStatusConfirming": "Bestätigung {count}/{target}",
   "txStatusCompleted": "Abgeschlossen",
   "txStatusCancelled": "Storniert",
@@ -148,6 +149,7 @@
   "txDetailsWaitingEpicbox": "An die Epicbox des Empfängers gesendet. Die Zahlung wird abgeschlossen, sobald dessen Wallet online ist. Bis dahin bleibt der Betrag gesperrt, es sei denn, Sie stornieren.",
   "txDetailsWaitingRecipient": "Wartet darauf, dass der Empfänger mit seiner Transaktionsdatei antwortet. Bis dahin bleibt der Betrag gesperrt, es sei denn, Sie stornieren.",
   "txDetailsWaitingSender": "Sie haben diese Zahlung angenommen. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt und im Netzwerk veröffentlicht.",
+  "txDetailsSenderPosted": "Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.",
   "txDetailsPublished": "Im Netzwerk veröffentlicht. Warten auf die erste Bestätigung.",
   "txDetailsWaitingConfirmation": "Warten auf die Bestätigung durch das Netzwerk.",
   "txDetailsConfirmingMinutes": "In Block {height}. {count} von {target, plural, =1{1 Bestätigung} other{{target} Bestätigungen}}; endgültig in etwa {minutes, plural, =1{1 Minute} other{{minutes} Minuten}}.",
@@ -316,6 +318,8 @@
   "homeNoticeReceivedFrom": "Eine Zahlung von {who} ist unterwegs und wird abgeschlossen, sobald der Absender sie fertigstellt.",
   "homeNoticeReceivedAmount": "{amount} unterwegs. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt.",
   "homeNoticeReceivedAmountFrom": "{amount} von {who} unterwegs. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt.",
+  "homeNoticeSenderPosted": "Laut Absender ist eine Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.",
+  "homeNoticeSenderPostedAmount": "Laut Absender sind {amount} gesendet. Die Zahlung wird abgeschlossen, sobald die Blockchain sie bestätigt.",
   "homeNoticeFinished": "Zahlung fertiggestellt. Warten auf Bestätigungen.",
   "homeNoticeFinishedTo": "Zahlung an {who} fertiggestellt. Warten auf Bestätigungen.",
   "homeNoticeRepeated": "Diese Zahlung wurde bereits angenommen. Der Absender hat dieselbe Antwort erneut erhalten; es ist keine zweite Zahlung unterwegs.",
@@ -3984,5 +3988,7 @@
   "deskSetRecvTorText": "Direkt von einer anderen Wallet an der Tor-Adresse dieser Wallet, solange sie geöffnet ist.",
   "deskSetTxTorHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
   "deskSetTxTorNeedsTor": "Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
-  "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet."
+  "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet.",
+  "deskTxStatusSenderPosted": "Laut Absender gesendet",
+  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt."
 }

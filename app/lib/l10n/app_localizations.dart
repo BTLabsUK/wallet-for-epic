@@ -520,6 +520,12 @@ abstract class AppLocalizations {
   /// **'Waiting for sender'**
   String get txStatusWaitingSender;
 
+  /// Status of an incoming Epicbox payment whose sender reports that it posted the transaction to the network. The sender's word only: never say received or paid, the blockchain has not confirmed it. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender reports posted'**
+  String get txStatusSenderPosted;
+
   /// Status chip: the payment is on the chain with count of target confirmations.
   ///
   /// In en, this message translates to:
@@ -993,6 +999,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You accepted this payment. It completes when the sender finishes it and publishes it to the network.'**
   String get txDetailsWaitingSender;
+
+  /// Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender reports it posted this payment. It completes when the blockchain confirms it.'**
+  String get txDetailsSenderPosted;
 
   /// Payment details, status explanation of a finished send that is not in a block yet.
   ///
@@ -2037,6 +2049,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} from {who} on the way. It completes when the sender finishes.'**
   String homeNoticeReceivedAmountFrom(String amount, String who);
+
+  /// Notice: the sender of an incoming payment reports that it posted it (amount hidden or unknown). Never say received: the blockchain has not confirmed it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender reports a payment posted. It completes when the blockchain confirms it.'**
+  String get homeNoticeSenderPosted;
+
+  /// Notice: the sender of an incoming payment of this amount reports that it posted it. Never say received: the blockchain has not confirmed it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender reports {amount} posted. It completes when the blockchain confirms it.'**
+  String homeNoticeSenderPostedAmount(String amount);
 
   /// Notice: an outgoing payment was finished and posted to the chain, not yet confirmed.
   ///
@@ -23791,6 +23815,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not all contacts were saved: the address book could not be written'**
   String get deskErrProofContactsFailed;
+
+  /// Status of an incoming Epicbox payment whose sender reports that it posted the transaction. The sender's word only: never say received or paid before the blockchain confirms it. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender reports posted'**
+  String get deskTxStatusSenderPosted;
+
+  /// Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.'**
+  String get deskTxNowSenderPosted;
 }
 
 class _AppLocalizationsDelegate

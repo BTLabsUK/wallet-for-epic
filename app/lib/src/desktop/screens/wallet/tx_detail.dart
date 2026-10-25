@@ -51,6 +51,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
             _ => l.deskTxNowUndelivered,
           },
+          TxState.waitingRecipient when t.incoming && t.senderPosted => l.deskTxNowSenderPosted,
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
@@ -224,7 +225,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             children: [
               TxStateMark(t),
               SizedBox(width: Sp.x3),
-              Expanded(child: Text(_now(l, t), style: ts.body)),
+              Expanded(
+                child: t.incoming && t.senderPosted && t.state == TxState.waitingRecipient
+                    // The words on the badge, the meaning under it.
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
+                          SizedBox(height: Sp.x1),
+                          Text(_now(l, t), style: ts.body),
+                        ],
+                      )
+                    : Text(_now(l, t), style: ts.body),
+              ),
             ],
           ),
         ),
@@ -412,7 +425,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         l.deskTxStepPosted,
         posted ? _S.done : (waitingSender ? _S.now : _S.todo),
         posted ? hm(const Duration(minutes: 1)) : '',
-        sub: waitingSender ? l.deskTxStatusWaitingSender : null,
+        sub: waitingSender ? (t.senderPosted ? l.deskTxStatusSenderPosted : l.deskTxStatusWaitingSender) : null,
       ),
       _Step(
         l.deskTxStepConfirming,

@@ -1385,6 +1385,11 @@ class TxEntry {
   /// not read the block header). True for every other row.
   final bool datedByBlock;
 
+  /// When the sender of this incoming Epicbox payment reported that it posted the transaction
+  /// (unix seconds), while LEPIC still holds it waiting and the report is under an hour old;
+  /// null otherwise. The sender's word only: [senderReportsPosted] says when to show it.
+  final int? senderReportedPostedAtUnix;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1422,6 +1427,7 @@ class TxEntry {
     this.flow = TxFlow.payment,
     this.foundDuring,
     this.datedByBlock = true,
+    this.senderReportedPostedAtUnix,
   });
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1475,7 +1481,8 @@ class TxEntry {
       cancelReason.hashCode ^
       flow.hashCode ^
       foundDuring.hashCode ^
-      datedByBlock.hashCode;
+      datedByBlock.hashCode ^
+      senderReportedPostedAtUnix.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1518,7 +1525,23 @@ class TxEntry {
           cancelReason == other.cancelReason &&
           flow == other.flow &&
           foundDuring == other.foundDuring &&
-          datedByBlock == other.datedByBlock;
+          datedByBlock == other.datedByBlock &&
+          senderReportedPostedAtUnix == other.senderReportedPostedAtUnix;
+}
+
+/// How long a sender's posted report shows, as LEPIC keeps it.
+const senderReportWindow = Duration(hours: 1);
+
+/// Whether [tx] shows that its sender reports it posted: an incoming Epicbox payment (not a
+/// request) still waiting for its sender, with a report under [senderReportWindow] old at
+/// [now]. Advisory: the payment counts only once the chain confirms it, and then this is false.
+/// Link (HTTP, Tor) and Direct (QR Payment, File Transfer) payments never show it.
+bool senderReportsPosted(TxEntry tx, {required DateTime now}) {
+  final at = tx.senderReportedPostedAtUnix;
+  if (at == null) return false;
+  if (tx.kind != TxKind.received || tx.isRequest || tx.transport != 'epicbox') return false;
+  if (tx.status != TxStatus.awaitingConfirmation || tx.blockHeight != null) return false;
+  return now.difference(DateTime.fromMillisecondsSinceEpoch(at * 1000)) < senderReportWindow;
 }
 
 /// Which scan found an output with no record (LEPIC `FoundDuring`).
@@ -1937,13 +1960,18 @@ enum InvoiceEventKind {
   /// sender completed that one, so LEPIC ended this install's receive. Its coins are on the
   /// phrase; a Recheck balance shows them here.
   receiveSuperseded,
+
+  /// Not an invoice: the sender of an ordinary Epicbox payment this wallet answered reports
+  /// that it posted the transaction (`kernelExcess` is set). Once per payment, only from its
+  /// sender. Advisory: refresh now; the payment counts once the chain confirms it.
+  paymentPosted,
 }
 
 class InvoiceEvent {
   final InvoiceEventKind kind;
   final String slateId;
 
-  /// For [InvoiceEventKind.posted] only.
+  /// For [InvoiceEventKind.posted] and [InvoiceEventKind.paymentPosted] only.
   final String? kernelExcess;
 
   const InvoiceEvent({

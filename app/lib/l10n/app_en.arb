@@ -264,6 +264,10 @@
   "@txStatusWaitingSender": {
     "description": "Status chip: we answered a payment, the sender has not finished it yet. Keep it short."
   },
+  "txStatusSenderPosted": "Sender reports posted",
+  "@txStatusSenderPosted": {
+    "description": "Status of an incoming Epicbox payment whose sender reports that it posted the transaction to the network. The sender's word only: never say received or paid, the blockchain has not confirmed it. Keep it short."
+  },
   "txStatusConfirming": "Confirming {count}/{target}",
   "@txStatusConfirming": {
     "description": "Status chip: the payment is on the chain with count of target confirmations.",
@@ -647,6 +651,10 @@
   "txDetailsWaitingSender": "You accepted this payment. It completes when the sender finishes it and publishes it to the network.",
   "@txDetailsWaitingSender": {
     "description": "Payment details, status explanation of a receive the sender has not finished yet."
+  },
+  "txDetailsSenderPosted": "The sender reports it posted this payment. It completes when the blockchain confirms it.",
+  "@txDetailsSenderPosted": {
+    "description": "Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides."
   },
   "txDetailsPublished": "Published to the network. Waiting for the first confirmation.",
   "@txDetailsPublished": {
@@ -1586,6 +1594,20 @@
       "who": {
         "type": "String",
         "example": "Alice"
+      }
+    }
+  },
+  "homeNoticeSenderPosted": "Sender reports a payment posted. It completes when the blockchain confirms it.",
+  "@homeNoticeSenderPosted": {
+    "description": "Notice: the sender of an incoming payment reports that it posted it (amount hidden or unknown). Never say received: the blockchain has not confirmed it."
+  },
+  "homeNoticeSenderPostedAmount": "Sender reports {amount} posted. It completes when the blockchain confirms it.",
+  "@homeNoticeSenderPostedAmount": {
+    "description": "Notice: the sender of an incoming payment of this amount reports that it posted it. Never say received: the blockchain has not confirmed it.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
       }
     }
   },
@@ -19647,5 +19669,13 @@
   "deskErrProofContactsFailed": "Not all contacts were saved: the address book could not be written",
   "@deskErrProofContactsFailed": {
     "description": "A line of the import wizard's result (a warning): saving the imported contacts stopped with an error."
+  },
+  "deskTxStatusSenderPosted": "Sender reports posted",
+  "@deskTxStatusSenderPosted": {
+    "description": "Status of an incoming Epicbox payment whose sender reports that it posted the transaction. The sender's word only: never say received or paid before the blockchain confirms it. Narrow status column."
+  },
+  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.",
+  "@deskTxNowSenderPosted": {
+    "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   }
 }

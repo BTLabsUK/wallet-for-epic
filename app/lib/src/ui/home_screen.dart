@@ -175,6 +175,16 @@ String paymentNotice(
   }
 }
 
+/// The notice for a sender's report that it posted the incoming payment [tx] (null when the
+/// list does not have it): the sender's word, with the amount unless balances are [hidden].
+/// Never "received": the payment counts once the chain confirms it.
+String senderPostedNotice(AppLocalizations l, TxEntry? tx, {bool hidden = false}) {
+  final amount = hidden || tx == null ? null : epicText(l, txAmount(tx).amount);
+  return amount == null
+      ? l.homeNoticeSenderPosted
+      : l.homeNoticeSenderPostedAmount(amount);
+}
+
 /// The level of a listener event's notice: a payment that arrived or finished is a success, a
 /// repeated slate only informs, a payment that expired or waits on the node is a warning, and a
 /// relay or payment failure is an error.
@@ -455,6 +465,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _showNotice(text, level: paymentNoticeLevel(event.kind), txKey: key);
   }
 
+  /// The sender of an incoming payment reports it posted; the row says so already
+  /// ([paymentPostedProvider] read the list first).
+  void _notifyPosted(InvoiceEvent event) {
+    final tx = ref
+        .read(homeProvider)
+        .value
+        ?.transactions
+        .where((t) => t.slateId == event.slateId)
+        .firstOrNull;
+    _showNotice(
+      senderPostedNotice(
+        context.l10n,
+        tx,
+        hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
+      ),
+      level: NoticeLevel.info,
+      txKey: tx?.key,
+    );
+  }
+
   /// A notice with a way to the payment when it is known. It leaves on its own; the payment is
   /// always one tap away in the list too.
   void _showNotice(String text, {required NoticeLevel level, String? txKey}) {
@@ -497,6 +527,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
       if (event != null) _notify(event);
+    });
+    ref.listen(paymentPostedProvider, (_, event) {
+      if (event != null) _notifyPosted(event);
     });
     // The phone's Tor controller lives as long as the shell: it starts tor on unlock when Tor
     // receiving is on, and keeps it for a send. A listen, not a watch: progress ticks must
