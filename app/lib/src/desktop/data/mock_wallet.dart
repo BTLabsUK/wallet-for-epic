@@ -970,6 +970,19 @@ class MockDeskWallet implements DeskWalletApi {
     return _words;
   }
 
+  /// The id of [addSenderPostedDemo]'s payment.
+  static const senderPostedDemoId = 140;
+
+  /// For the tour: Anna's Epicbox payment, answered here, whose sender reports it posted
+  /// (LEPIC W-31). Only its own shots add it, so the other shots keep their rows.
+  void addSenderPostedDemo() {
+    if (_txs.any((t) => t.id == senderPostedDemoId)) return;
+    _txs.insert(
+      0,
+      Tx(id: senderPostedDemoId, slateId: 'c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(7.25), fee: 0, created: _ago(minutes: 4), counterparty: _contacts[0].address, contactName: 'Anna Kowalska', cancellable: true, transport: 'epicbox', senderPosted: true),
+    );
+  }
+
   /// The history backup record the Backup rows and the reminder show; tours and tests set it.
   HistoryBackupState backup = HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12, payments: 48, contacts: 6);
 

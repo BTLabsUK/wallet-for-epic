@@ -19,6 +19,13 @@ Tx _tx(BuildContext context, int id) {
   return container.read(deskProvider).txs!.firstWhere((t) => t.id == id);
 }
 
+/// Adds the mock's payment whose sender reports it posted, and shows it.
+Future<void> _senderPosted(ProviderContainer c, BuildContext _) async {
+  final api = c.read(deskApiProvider);
+  if (api is MockDeskWallet) api.addSenderPostedDemo();
+  await c.read(deskProvider.notifier).refresh();
+}
+
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> walletShots = [
@@ -72,6 +79,14 @@ final List<DeskShot> walletShots = [
     prepare: (c, _) async => c.read(txLabelEditingProvider.notifier).open(c.read(deskProvider).txs!.firstWhere((t) => t.id == 35).key, txLabelDetailPlace),
   ),
   const DeskShot(id: '12j-tx-detail-restored-details', title: 'Transaction detail, restored with details', route: DeskRoute.activity, arg: 103),
+  DeskShot(id: '11j-activity-sender-posted', title: 'Activity, an incoming payment whose sender reports it posted', route: DeskRoute.activity, arg: const ActivityArgs(), prepare: _senderPosted),
+  DeskShot(
+    id: '12k-tx-detail-sender-posted',
+    title: 'Transaction detail, the sender reports it posted',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.senderPostedDemoId,
+    prepare: _senderPosted,
+  ),
   DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
   DeskShot(id: '35e-dlg-tx-details-edit', title: 'Edit details of a restored payment', route: DeskRoute.activity, arg: 103, dialog: (c) => showTxDetailsDialog(c, _tx(c, 103))),
   const DeskShot(id: '12-tx-detail', title: 'Transaction detail', route: DeskRoute.activity, arg: 36),
