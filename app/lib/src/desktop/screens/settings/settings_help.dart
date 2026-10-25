@@ -668,13 +668,18 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(l.deskSetHelpTravels, style: ts.label),
-              ESegmented<_Way>(
-                segments: [ESegment(_Way.epicbox, l.deskSetHelpOverEpicbox), ESegment(_Way.link, l.receiveTabDirect), ESegment(_Way.file, l.deskSetHelpWithFile)],
-                value: _way,
-                onChanged: (v) => setState(() {
-                  _way = v;
-                  _i = 0;
-                }),
+              // On a line of its own when the label leaves no room; narrower than the card
+              // (a phone-wide window at big text), it scales down rather than overflow.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: ESegmented<_Way>(
+                  segments: [ESegment(_Way.epicbox, l.deskSetHelpOverEpicbox), ESegment(_Way.link, l.receiveTabDirect), ESegment(_Way.file, l.deskSetHelpWithFile)],
+                  value: _way,
+                  onChanged: (v) => setState(() {
+                    _way = v;
+                    _i = 0;
+                  }),
+                ),
               ),
             ],
           ),
