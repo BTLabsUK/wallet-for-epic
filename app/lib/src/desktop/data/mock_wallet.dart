@@ -637,6 +637,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<ReceivedFile> receiveText(String text) => receiveFile('pasted');
+
+  @override
   Future<Tx> finalizeFile(String fileName) => _running(() => _finalize(fileName));
 
   Future<Tx> _finalize(String fileName) async {

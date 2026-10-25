@@ -3,6 +3,7 @@
 // block, and nothing is sent until the review and the password. Pasted codes Send cannot take
 // stay in To with the reason under it; links get dialogs; plain text is typed text.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/import_tx_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_code.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -36,6 +37,18 @@ class _Wallet extends MockDeskWallet {
 
   @override
   bool epicboxAddressOtherChain(String to) => to.trim() == _floonet;
+}
+
+class _PastedWallet extends MockDeskWallet {
+  _PastedWallet() : super(delay: Duration.zero);
+
+  final texts = <String>[];
+
+  @override
+  Future<ReceivedFile> receiveText(String text) {
+    texts.add(text);
+    return super.receiveText(text);
+  }
 }
 
 void main() {
@@ -256,6 +269,24 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
     expect(container.read(deskNavProvider).route, DeskRoute.importTx);
+    // LNX-3: the pasted text goes along, not only the screen.
+    expect((container.read(deskNavProvider).arg as ImportArgs?)?.text, 'BEGINSLATEPACK. 4H1qx1wHe668tFW yC2gfL8PPd8kSgv. ENDSLATEPACK.');
+  });
+
+  testWidgets('the import screen signs pasted text at once, as a chosen file (LNX-3)', (tester) async {
+    final api = _PastedWallet();
+    final c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: ImportTxScreen(arg: ImportArgs(text: '{"ver":"4:3"}')))),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(api.texts, ['{"ver":"4:3"}']);
+    expect(find.text('Response saved'), findsOneWidget);
   });
 
   testWidgets('a link opens Send filled the same way, "From a link" on the review', (tester) async {

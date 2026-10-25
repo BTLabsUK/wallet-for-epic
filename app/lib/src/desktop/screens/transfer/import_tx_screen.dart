@@ -10,10 +10,13 @@ import 'file_panels.dart';
 /// Argument of the Import route: [done] opens on the saved response file, [error] on a
 /// refused file.
 class ImportArgs {
-  const ImportArgs({this.done = false, this.error});
+  const ImportArgs({this.done = false, this.error, this.text});
 
   final bool done;
   final ImportError? error;
+
+  /// A transaction file's text pasted into Send: signed at once, as a chosen file is.
+  final String? text;
 }
 
 /// Why a transaction file was not signed.
@@ -62,23 +65,31 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     final a = widget.arg;
     if (a is ImportArgs && a.done) _response = 'invoice_0042.response.slate';
     if (a is ImportArgs) _error = a.error;
+    final text = a is ImportArgs ? a.text : null;
+    if (text != null) WidgetsBinding.instance.addPostFrameCallback((_) => _receive(() => ref.read(deskApiProvider).receiveText(text)));
   }
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
     final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: context.l10n.deskImpPickTitle);
     if (path == null || !mounted) return;
+    await _receive(() => ref.read(deskApiProvider).receiveFile(path), mock: files == null);
+  }
+
+  /// Signs what [receive] reads and shows the answer, or why not.
+  Future<void> _receive(Future<ReceivedFile> Function() receive, {bool mock = false}) async {
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;
       _detail = null;
     });
     try {
-      final r = await ref.read(deskApiProvider).receiveFile(path);
+      final r = await receive();
       if (!mounted) return;
       setState(() {
         _tx = r.tx;
-        _response = files == null ? 'invoice_0042.response.slate' : r.response;
+        _response = mock ? 'invoice_0042.response.slate' : r.response;
       });
     } on DeskError catch (e) {
       if (mounted) {

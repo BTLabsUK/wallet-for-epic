@@ -2359,8 +2359,22 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<ReceivedFile> receiveFile(String fileName) => _running(() => _receiveFile(fileName));
 
-  Future<ReceivedFile> _receiveFile(String fileName) async {
-    final json = await _readSlate(fileName);
+  Future<ReceivedFile> _receiveFile(String fileName) async => _receiveJson(await _readSlate(fileName), fileName);
+
+  @override
+  Future<ReceivedFile> receiveText(String text) => _running(() async {
+    final String json;
+    try {
+      json = decodeSlateFile(utf8.encode(text));
+    } on FormatException {
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+    }
+    // The answer goes where a file of that name in the files folder would put it.
+    return _receiveJson(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted');
+  });
+
+  /// Signs [json], read from [fileName], and writes the answer beside it.
+  Future<ReceivedFile> _receiveJson(String json, String fileName) async {
     try {
       final answer = await _open.receiveSlate(slateJson: json);
       final response = await _writeResponse(fileName, answer.slateId, answer.json);

@@ -191,6 +191,10 @@ abstract interface class DeskWalletApi {
   Future<void> resendTx(int id);
   Future<SendResult> send(SendRequest request);
   Future<ReceivedFile> receiveFile(String fileName);
+
+  /// Signs a transaction file's [text] pasted into Send (slate JSON or a slatepack), as
+  /// [receiveFile] does a file; the answer goes into the app's files folder.
+  Future<ReceivedFile> receiveText(String text);
   Future<Tx> finalizeFile(String fileName);
   Future<void> cancelTx(int id);
   Future<String> exportProof(int id);

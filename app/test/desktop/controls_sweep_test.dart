@@ -213,6 +213,8 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<ReceivedFile> receiveFile(String fileName) => _r('receiveFile', () => _m.receiveFile(fileName));
   @override
+  Future<ReceivedFile> receiveText(String text) => _r('receiveText', () => _m.receiveText(text));
+  @override
   Future<Tx> finalizeFile(String fileName) => _r('finalizeFile', () => _m.finalizeFile(fileName));
   @override
   Future<void> cancelTx(int id) => _r('cancelTx', () => _m.cancelTx(id));

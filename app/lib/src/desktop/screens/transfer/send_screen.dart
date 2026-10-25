@@ -26,6 +26,7 @@ import '../../widgets/tor_chip.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
+import 'import_tx_screen.dart' show ImportArgs;
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
@@ -601,9 +602,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _fillAddress(recipient.address, origin);
       case ScannedAddress():
         return false;
-      case SlateText():
+      case SlateText(text: final slate):
         setState(() => _to.text = _lastTo);
-        showSlateTextDialog(context, onOpen: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx));
+        // Open signs the pasted text as if its file had been chosen (LNX-3).
+        showSlateTextDialog(context, onOpen: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx, ImportArgs(text: slate)));
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
       case PairingLink() when pasted:
