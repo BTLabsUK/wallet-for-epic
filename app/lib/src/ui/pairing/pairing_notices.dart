@@ -26,10 +26,22 @@ import '../tx_details_screen.dart';
 /// handles would only repeat what it shows.
 final Set<bool Function(PairingEvent e)> pairingWordsOnScreen = {};
 
-/// Whether [e] is an answer a screen already turns into the words check.
+/// Pages that show an event's news themselves (a contact's relay or keys on its page, a
+/// withdrawal on its transaction): the notice would repeat it, with a way to the page that is
+/// already open.
+final Set<bool Function(PairingEvent e)> pairingNewsOnScreen = {};
+
+/// The tag of a contact's relay and keys notices: its page closes them when it opens.
+String pairingContactNoticeTag(String pairingId) => 'pairing-contact:$pairingId';
+
+/// The tag of a withdrawal's notice: its transaction page closes it when it opens.
+String pairingSlateNoticeTag(String slateId) => 'pairing-slate:$slateId';
+
+/// Whether [e] is an answer a screen already turns into the words check, or news an open page
+/// already shows.
 bool pairingEventOnScreen(PairingEvent e) =>
-    (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) &&
-    pairingWordsOnScreen.any((handles) => handles(e));
+    ((e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && pairingWordsOnScreen.any((handles) => handles(e))) ||
+    pairingNewsOnScreen.any((shows) => shows(e));
 
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
@@ -142,7 +154,13 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
         }),
       _ => null,
     };
-    ref.read(noticeProvider.notifier).show(notice.text, level: notice.level, action: action);
+    final tag = switch (e.kind) {
+      PairingEventKind.homeRelayUnreachable || PairingEventKind.keysChanged || PairingEventKind.keysRestored when id != null =>
+        pairingContactNoticeTag(id),
+      PairingEventKind.withdrawalFromContact when e.slateId != null => pairingSlateNoticeTag(e.slateId!),
+      _ => null,
+    };
+    ref.read(noticeProvider.notifier).show(notice.text, level: notice.level, action: action, tag: tag);
   }
 
   @override

@@ -4,8 +4,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
+import '../../../l10n.dart' show localDayMonth;
 import '../../desk_l10n.dart';
 import '../../../ui/pairing/pairing_parts.dart' show ClaimedNameBadge, SealedBadge, TrustBadge;
 import '../../data/invoice_state.dart';
@@ -91,7 +91,6 @@ class _Review extends ConsumerWidget {
     final same = open ? book.samePaidBefore(i) : null;
     final pairing = i.pairingId == null ? null : ref.watch(deskPairingByIdProvider(i.pairingId!));
     final message = cleanInvoiceText(i.message);
-    final tag = Localizations.localeOf(context).toLanguageTag();
 
     // Why the invoice cannot be paid from here, read-only or blocked for now.
     final String? readOnly = open
@@ -131,7 +130,7 @@ class _Review extends ConsumerWidget {
     final messagePanel = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.invoiceReviewMessageLabel, style: ts.label),
+        Text(l.invoiceReviewMessageLabel(i.label), style: ts.label),
         SizedBox(height: Sp.x2),
         Container(
           padding: EdgeInsets.all(Sp.x4),
@@ -153,7 +152,7 @@ class _Review extends ConsumerWidget {
           ),
         ),
         SizedBox(height: Sp.x1),
-        Text(l.deskInvPayerMessageCaption, style: ts.caption),
+        Text(l.deskInvPayerMessageCaption(i.label), style: ts.caption),
       ],
     );
 
@@ -200,7 +199,7 @@ class _Review extends ConsumerWidget {
                     TrustBadge(pairing),
                     if (pairing.contactId == null) const ClaimedNameBadge(),
                     Text(
-                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(DateFormat.yMMMd(tag).format(pairing.verifiedAt!))}',
+                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))}',
                       style: ts.small,
                     ),
                   ],
@@ -240,15 +239,6 @@ class _Review extends ConsumerWidget {
           SizedBox(height: Sp.x4),
         ] else ...[
           ENotice(tone: ETone.warn, icon: EIcons.shield, title: l.deskInvPayerSafetyTitle, text: l.deskInvPayerSafetyText),
-          SizedBox(height: Sp.x2),
-          // The standing two-device warning (flow.md §5), quiet under the safety panel.
-          Row(
-            children: [
-              Icon(EIcons.info, size: Ctl.iconSm, color: c.dim),
-              SizedBox(width: Sp.x2),
-              Expanded(child: Text(l.deskInvOneDevice, style: ts.small)),
-            ],
-          ),
           SizedBox(height: Sp.x3),
           if (same != null) ...[
             ENotice(

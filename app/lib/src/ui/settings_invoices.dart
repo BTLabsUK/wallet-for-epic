@@ -157,8 +157,14 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     final name = contact?.name ?? r.shownName;
     final verified = r.state == PairingState.verified;
     final orphan = contact == null;
-    final subtitle = verified ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff) : l.contactCheckWordsFirst;
-    final checkWords = !verified && r.state == PairingState.paired;
+    // Keys changed, as the contact page shows it: the risk badge, paused until the words match.
+    final changed = r.state == PairingState.keysChanged;
+    final subtitle = changed
+        ? l.contactKeysChangedStatus
+        : verified
+        ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff)
+        : l.contactCheckWordsFirst;
+    final checkWords = !verified && (r.state == PairingState.paired || changed);
     // Not faded and not merged: the text keeps its contrast, and a screen reader reaches the
     // switch and the row's menu on their own.
     return ConstrainedBox(
@@ -168,7 +174,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PairAvatar(name: name, kind: r.kind, size: 40),
+            PairAvatar(name: name, kind: r.kind, size: 48),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -176,7 +182,21 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(name, style: theme.textTheme.bodyLarge?.copyWith(color: verified ? t.text : t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  if (changed)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          TrustBadge(r, short: true),
+                          Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                        ],
+                      ),
+                    )
+                  else
+                    Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                   if (orphan) Text(l.pairNotInContacts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                 ],
               ),
@@ -196,7 +216,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 onSelected: (v) => switch (v) {
                   'new' => _attach(r, asNew: true),
                   'add' => _attach(r, asNew: false),
-                  'check' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))),
+                  'check' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id, recheck: changed))),
                   'remove' => _remove(r, name),
                   _ => null,
                 },
@@ -210,7 +230,8 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 ],
               )
             else
-              const SizedBox(width: 8),
+              // The menu's width: every switch lines up.
+              const SizedBox(width: kMinInteractiveDimension),
           ],
         ),
       ),

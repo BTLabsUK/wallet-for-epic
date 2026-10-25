@@ -1782,7 +1782,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => 'Nachricht des Dienstes';
+  String invoiceReviewMessageLabel(String name) {
+    return 'Nachricht von $name';
+  }
 
   @override
   String get invoiceReviewNote =>
@@ -5361,10 +5363,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvAdvanced => 'Erweitert';
 
   @override
-  String get deskInvOneDevice =>
-      'Nutzen Sie Rechnungen nur auf einem Gerät. Ein anderes Gerät mit dieser Wallet kann eine Zahlung annehmen, die für dieses bestimmt ist.';
-
-  @override
   String get deskInvFailed =>
       'Das hat nicht geklappt. Nichts wurde geändert; versuchen Sie es erneut.';
 
@@ -5373,10 +5371,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => 'Demnächst';
-
-  @override
-  String get deskInvIssuerNoContacts =>
-      'Noch kein Kontakt hat eine Rechnungsadresse. Fügen Sie sie unter Kontakte hinzu.';
 
   @override
   String get deskInvIssuerAmount => 'Betrag';
@@ -5657,8 +5651,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvPayerBalanceAfter => 'Guthaben danach';
 
   @override
-  String get deskInvPayerMessageCaption =>
-      'Vom Dienst geschrieben. Ihre Wallet prüft sie nicht.';
+  String deskInvPayerMessageCaption(String name) {
+    return 'Von $name geschrieben. Ihre Wallet prüft sie nicht.';
+  }
 
   @override
   String get deskInvPayerPaysTo => 'Zahlt an';
@@ -14741,15 +14736,15 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein eingefügter Link oder eingetippte Wörter ersetzen den Scan am Telefon.';
 
   @override
-  String get pairCardCopy => 'Meinen Kartenlink kopieren';
+  String get pairCardCopy => 'Meinen Kopplungslink kopieren';
 
   @override
   String get pairCardHint =>
-      'Persönlich ohne Kamera: Jede Wallet fügt oben den Kartenlink der anderen ein.';
+      'Persönlich ohne Kamera: Jede Wallet fügt oben den Kopplungslink der anderen ein.';
 
   @override
   String pairCardBackTitle(String name) {
-    return 'Geben Sie $name jetzt Ihre Karte';
+    return 'Geben Sie $name jetzt Ihren Code';
   }
 
   @override
@@ -14868,9 +14863,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pairWaitingBody =>
       'Die andere Wallet antwortet, sobald sie das nächste Mal geöffnet wird. Sie können dies schließen; die Kopplung läuft im Hintergrund weiter und die Wortprüfung erscheint, wenn sie fertig ist.';
-
-  @override
-  String get pairWaitingFor => 'Wird 1 Stunde lang geprüft';
 
   @override
   String get pairSendByHand => 'Von Hand senden';
@@ -15976,6 +15968,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pairNameForCode =>
       'Geben Sie den Namen ein, den die andere Seite sieht; dann erscheint hier Ihr Code.';
+
+  @override
+  String get pairYourNamePlaceholder => 'Ihr Name';
 
   @override
   String get restoreDone => 'Verlauf wiederhergestellt.';

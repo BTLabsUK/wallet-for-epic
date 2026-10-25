@@ -168,7 +168,13 @@ void main() {
 
     testWidgets('an empty field removes the label; the contact name is the title again', (tester) async {
       await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Tom')));
-      await openField(tester);
+      // Tom has more rows than this one now (his Epicbox address): the pen on its line.
+      final y = tester.getCenter(find.text('Rent, October')).dy;
+      final pens = find.byType(TxPen).evaluate().toList()
+        ..sort((a, b) => (tester.getCenter(find.byWidget(a.widget)).dy - y).abs().compareTo((tester.getCenter(find.byWidget(b.widget)).dy - y).abs()));
+      await tester.tap(find.byWidget(pens.first.widget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TxLabelField), findsOneWidget);
       await tester.enterText(find.byType(TextField).last, '   ');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();

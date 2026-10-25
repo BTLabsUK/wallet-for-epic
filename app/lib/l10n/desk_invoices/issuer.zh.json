@@ -1,6 +1,5 @@
 {
   "deskInvIssuerSoon": "即将推出",
-  "deskInvIssuerNoContacts": "还没有联系人有账单地址。请在“联系人”中添加。",
   "deskInvIssuerAmount": "金额",
   "deskInvIssuerAmountMissing": "请输入金额。",
   "deskInvIssuerAmountZero": "金额必须大于 0。",

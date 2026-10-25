@@ -586,7 +586,7 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
     if (sent != null) return _sentView(l, sent);
     final name = ref.watch(pairingSeenAsProvider).value ?? '';
     final canShare = ref.watch(slateFilesProvider).canShareText;
-    final preview = _shareText(l, name.isEmpty ? '…' : name, 'epiccash://pair/1/…', DateTime.now().add(_expiry));
+    final preview = _shareText(l, name.isEmpty ? l.pairYourNamePlaceholder : name, 'epiccash://pair/1/…', DateTime.now().add(_expiry));
     return SlotScaffold(
       appBar: AppBar(title: Text(l.pairOnlineTitle)),
       body: ScreenBody(
@@ -640,7 +640,9 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
           const SizedBox(height: 8),
           ShareBox(label: l.pairWhatTheyReceive, text: preview),
           const SizedBox(height: 10),
-          PairSmallPrint(byHand ? l.pairWordsNeedEpicbox : l.pairShareWarning),
+          // By hand the invite is just as open: the warning stays.
+          PairSmallPrint(l.pairShareWarning),
+          if (byHand) ...[const SizedBox(height: 6), PairSmallPrint(l.pairWordsNeedEpicbox)],
         ],
       ),
     );

@@ -351,7 +351,8 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
           ),
           const SizedBox(height: 12),
-          Center(child: TrustBadge(record)),
+          // The result's badge is the big one (SPEC): the same badge, scaled up.
+          Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
           if (verified) ...[
             const SizedBox(height: 20),
             PairCard(
@@ -384,19 +385,23 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                     children: [
                       Text(l.pairSaveContactTitle(name), style: theme.textTheme.titleSmall),
                       const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                      // Two halves of the card's width, the same gutter on both sides.
+                      Row(
                         children: [
-                          FilledButton.tonal(
-                            key: resultSaveNewKey,
-                            onPressed: _busy ? null : () => _saveNew(record),
-                            child: Text(l.pairSaveNewContact),
+                          Expanded(
+                            child: FilledButton.tonal(
+                              key: resultSaveNewKey,
+                              onPressed: _busy ? null : () => _saveNew(record),
+                              child: Text(l.pairSaveNewContact, textAlign: TextAlign.center),
+                            ),
                           ),
-                          OutlinedButton(
-                            key: resultAddToKey,
-                            onPressed: _busy ? null : () => _addTo(record),
-                            child: Text(l.pairAddToAContact),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton(
+                              key: resultAddToKey,
+                              onPressed: _busy ? null : () => _addTo(record),
+                              child: Text(l.pairAddToAContact, textAlign: TextAlign.center),
+                            ),
                           ),
                         ],
                       ),

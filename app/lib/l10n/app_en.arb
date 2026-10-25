@@ -1939,7 +1939,7 @@
   },
   "invoicesUnnamedService": "Unnamed service",
   "@invoicesUnnamedService": {
-    "description": "Name shown for a trusted service whose label was lost. Never the name the invoice gives itself."
+    "description": "Name shown for a paired contact whose label was lost. Never the name the invoice gives itself."
   },
   "invoiceTimeLeftHours": "{hours} h {minutes} min left",
   "@invoiceTimeLeftHours": {
@@ -1984,9 +1984,15 @@
       }
     }
   },
-  "invoiceReviewMessageLabel": "Message from the service",
+  "invoiceReviewMessageLabel": "Message from {name}",
   "@invoiceReviewMessageLabel": {
-    "description": "Label above the one line of text the service put in its invoice."
+    "description": "Label above the one line of text the contact put in its invoice. {name} is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind"
+      }
+    }
   },
   "invoiceReviewNote": "Your wallet adds the network fee. Nothing is paid until you approve it.",
   "@invoiceReviewNote": {
@@ -2118,7 +2124,7 @@
   },
   "invoiceNoticeReceived": "An invoice is waiting for your approval.",
   "@invoiceNoticeReceived": {
-    "description": "Notice when a trusted service's invoice arrived."
+    "description": "Notice when an invoice from a paired contact arrived."
   },
   "invoiceNoticePosted": "A service reports it posted your payment.",
   "@invoiceNoticePosted": {
@@ -3875,7 +3881,7 @@
   },
   "settingsSectionInvoices": "Invoices",
   "@settingsSectionInvoices": {
-    "description": "Settings section header for invoices from trusted services."
+    "description": "Settings section header for invoices from paired contacts."
   },
   "settingsInvoices": "Invoices",
   "@settingsInvoices": {
@@ -6634,10 +6640,6 @@
   "@deskInvAdvanced": {
     "description": "Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch."
   },
-  "deskInvOneDevice": "Use invoices on one device only. Another device with this wallet can take a payment meant for this one.",
-  "@deskInvOneDevice": {
-    "description": "Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments."
-  },
   "deskInvFailed": "That did not work. Nothing changed; try again.",
   "@deskInvFailed": {
     "description": "Error notice when an invoice action failed for a reason without its own words."
@@ -6649,10 +6651,6 @@
   "deskInvIssuerSoon": "Coming soon",
   "@deskInvIssuerSoon": {
     "description": "Why a method or button is disabled: not built yet."
-  },
-  "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
-  "@deskInvIssuerNoContacts": {
-    "description": "Shown in the contact picker when no contact has an invoice address."
   },
   "deskInvIssuerAmount": "Amount",
   "@deskInvIssuerAmount": {
@@ -6922,7 +6920,7 @@
   },
   "deskInvPayerWaitingHead": "Waiting for you",
   "@deskInvPayerWaitingHead": {
-    "description": "Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer."
+    "description": "Section heading on the Invoices page › To pay: invoices from paired contacts that wait for the user's answer."
   },
   "deskInvPayerNeedsHead": "Payments to settle",
   "@deskInvPayerNeedsHead": {
@@ -7052,9 +7050,15 @@
   "@deskInvPayerBalanceAfter": {
     "description": "Label: spendable balance left after paying."
   },
-  "deskInvPayerMessageCaption": "Written by the service. Your wallet does not check it.",
+  "deskInvPayerMessageCaption": "Written by {name}. Your wallet does not check it.",
   "@deskInvPayerMessageCaption": {
-    "description": "Caption under the service's message on Review invoice: the text is untrusted."
+    "description": "Caption under the contact's message on Review invoice: the text is untrusted. {name} is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind"
+      }
+    }
   },
   "deskInvPayerPaysTo": "Pays to",
   "@deskInvPayerPaysTo": {
@@ -19074,17 +19078,17 @@
   "@pairEnterDesktopHint": {
     "description": "Small print under the desktop field."
   },
-  "pairCardCopy": "Copy my card link",
+  "pairCardCopy": "Copy my pairing link",
   "@pairCardCopy": {
-    "description": "Desktop Pair screen button: copies this wallet's in-person card link, for pairing face to face without a camera."
+    "description": "Desktop Pair screen button: copies this wallet's in-person pairing link (its contact card inside, not a word the UI uses), for pairing face to face without a camera."
   },
-  "pairCardHint": "Face to face without a camera: each wallet pastes the other's card link above.",
+  "pairCardHint": "Face to face without a camera: each wallet pastes the other's pairing link above.",
   "@pairCardHint": {
     "description": "Desktop Pair screen hint under the card button."
   },
-  "pairCardBackTitle": "Now give {name} your card",
+  "pairCardBackTitle": "Now give {name} your code",
   "@pairCardBackTitle": {
-    "description": "Dialog title after this wallet read the other wallet's card link: the other wallet still needs this wallet's card. {name} is the name the other wallet chose.",
+    "description": "Dialog title after this wallet read the other wallet's pairing link: the other wallet still needs this wallet's code. {name} is the name the other wallet chose.",
     "placeholders": {
       "name": {
         "type": "String",
@@ -19279,10 +19283,6 @@
   "pairWaitingBody": "Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.",
   "@pairWaitingBody": {
     "description": "Waiting screen body."
-  },
-  "pairWaitingFor": "Checking for 1 hour",
-  "@pairWaitingFor": {
-    "description": "Countdown line on the waiting screen."
   },
   "pairSendByHand": "Send by hand",
   "@pairSendByHand": {
@@ -20945,6 +20945,10 @@
   "pairNameForCode": "Enter the name they will see, and your code appears here.",
   "@pairNameForCode": {
     "description": "In person, Show my code: the placeholder of the code until the user gave the name the other side sees."
+  },
+  "pairYourNamePlaceholder": "Your name",
+  "@pairYourNamePlaceholder": {
+    "description": "Stands for the name in the preview of the invite text until the user types the name they will see."
   },
   "restoreDone": "History restored.",
   "@restoreDone": {

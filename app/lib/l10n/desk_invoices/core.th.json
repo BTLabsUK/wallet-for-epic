@@ -32,7 +32,6 @@
   "deskInvExpiresAt": "หมดอายุ {time}",
   "deskInvSlateId": "Slate ID",
   "deskInvAdvanced": "ขั้นสูง",
-  "deskInvOneDevice": "ใช้ใบแจ้งหนี้บนอุปกรณ์เดียวเท่านั้น อุปกรณ์อื่นที่มีกระเป๋าเดียวกันอาจรับการชำระที่ตั้งใจส่งมายังอุปกรณ์นี้",
   "deskInvFailed": "ไม่สำเร็จ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง",
   "deskInvHowItWorks": "ใบแจ้งหนี้ทำงานอย่างไร",
   "deskInvPayStalled": "ค้างอยู่"

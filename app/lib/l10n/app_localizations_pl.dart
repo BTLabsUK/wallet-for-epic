@@ -1892,7 +1892,9 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => 'Wiadomość od serwisu';
+  String invoiceReviewMessageLabel(String name) {
+    return 'Wiadomość od: $name';
+  }
 
   @override
   String get invoiceReviewNote =>
@@ -5497,10 +5499,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvAdvanced => 'Zaawansowane';
 
   @override
-  String get deskInvOneDevice =>
-      'Korzystaj z faktur tylko na jednym urządzeniu. Inne urządzenie z tym portfelem może przejąć płatność przeznaczoną dla tego.';
-
-  @override
   String get deskInvFailed =>
       'To się nie udało. Nic się nie zmieniło; spróbuj ponownie.';
 
@@ -5509,10 +5507,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => 'Wkrótce';
-
-  @override
-  String get deskInvIssuerNoContacts =>
-      'Żaden kontakt nie ma jeszcze adresu do faktur. Dodaj go w Kontaktach.';
 
   @override
   String get deskInvIssuerAmount => 'Kwota';
@@ -5793,8 +5787,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayerBalanceAfter => 'Saldo po';
 
   @override
-  String get deskInvPayerMessageCaption =>
-      'Napisane przez serwis. Twój portfel tego nie sprawdza.';
+  String deskInvPayerMessageCaption(String name) {
+    return 'Napisane przez: $name. Twój portfel tego nie sprawdza.';
+  }
 
   @override
   String get deskInvPayerPaysTo => 'Płatność dla';
@@ -15014,15 +15009,15 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wklejony link lub wpisane słowa działają jak skan w telefonie.';
 
   @override
-  String get pairCardCopy => 'Kopiuj link mojej karty';
+  String get pairCardCopy => 'Kopiuj mój link parowania';
 
   @override
   String get pairCardHint =>
-      'Osobiście bez aparatu: każdy portfel wkleja powyżej link karty drugiego.';
+      'Osobiście bez aparatu: każdy portfel wkleja powyżej link parowania drugiego.';
 
   @override
   String pairCardBackTitle(String name) {
-    return 'Teraz daj $name swoją kartę';
+    return 'Teraz przekaż $name swój kod';
   }
 
   @override
@@ -15141,9 +15136,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get pairWaitingBody =>
       'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a sprawdzanie słów pojawi się po jego zakończeniu.';
-
-  @override
-  String get pairWaitingFor => 'Sprawdzanie przez 1 godzinę';
 
   @override
   String get pairSendByHand => 'Wyślij ręcznie';
@@ -16258,6 +16250,9 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get pairNameForCode =>
       'Wpisz nazwę, którą zobaczy druga strona, a tutaj pojawi się twój kod.';
+
+  @override
+  String get pairYourNamePlaceholder => 'Twoje imię';
 
   @override
   String get restoreDone => 'Historia przywrócona.';

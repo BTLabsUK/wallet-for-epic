@@ -3,10 +3,6 @@
   "@deskInvIssuerSoon": {
     "description": "Why a method or button is disabled: not built yet."
   },
-  "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
-  "@deskInvIssuerNoContacts": {
-    "description": "Shown in the contact picker when no contact has an invoice address."
-  },
   "deskInvIssuerAmount": "Amount",
   "@deskInvIssuerAmount": {
     "description": "Field label: how much the payer is asked to pay, in EPIC."

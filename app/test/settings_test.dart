@@ -1614,6 +1614,22 @@ void main() {
       expect(find.text(l.sasMatch), findsOneWidget);
     });
 
+    testWidgets('keys changed: the risk badge, paused, and Check the words; never allowed', (tester) async {
+      late PairingRecord r;
+      await openInvoices(tester, seed: (h) async => r = await paired(h, 'Marta', state: PairingState.keysChanged));
+      expect(find.text(l.trustKeysChanged), findsOneWidget);
+      expect(find.text(l.contactKeysChangedStatus), findsOneWidget);
+      expect(find.text(l.contactCheckWordsFirst), findsNothing, reason: 'not the paired text');
+      final sw = tester.widget<Switch>(find.byKey(invoiceSettingsSwitchKey(r.id)));
+      expect(sw.onChanged, isNull);
+      expect(sw.value, isFalse);
+      await tester.tap(find.byKey(invoiceSettingsMenuKey(r.id)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.sasTitle).last);
+      await tester.pumpAndSettle();
+      expect(find.text(l.sasMatch), findsOneWidget);
+    });
+
     testWidgets('a pairing whose contact is gone offers Add to contacts and Remove pairing', (tester) async {
       final h = await openInvoices(tester, seed: (h) async => paired(h, 'Marta', saved: false));
       expect(find.text(l.pairNotInContacts), findsOneWidget);

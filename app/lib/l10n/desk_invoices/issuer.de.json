@@ -1,6 +1,5 @@
 {
   "deskInvIssuerSoon": "Demnächst",
-  "deskInvIssuerNoContacts": "Noch kein Kontakt hat eine Rechnungsadresse. Fügen Sie sie unter Kontakte hinzu.",
   "deskInvIssuerAmount": "Betrag",
   "deskInvIssuerAmountMissing": "Geben Sie einen Betrag ein.",
   "deskInvIssuerAmountZero": "Der Betrag muss größer als 0 sein.",

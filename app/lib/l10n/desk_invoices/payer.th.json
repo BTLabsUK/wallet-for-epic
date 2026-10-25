@@ -22,7 +22,7 @@
   "deskInvPayerFee": "ค่าธรรมเนียม",
   "deskInvPayerTotal": "รวม",
   "deskInvPayerBalanceAfter": "ยอดคงเหลือหลังชำระ",
-  "deskInvPayerMessageCaption": "เขียนโดยบริการ กระเป๋าไม่ได้ตรวจสอบข้อความนี้",
+  "deskInvPayerMessageCaption": "เขียนโดย {name} กระเป๋าไม่ได้ตรวจสอบข้อความนี้",
   "deskInvPayerPaysTo": "ชำระไปที่",
   "deskInvPayerExpires": "หมดอายุ",
   "deskInvPayerLockHeight": "ความสูงล็อก",

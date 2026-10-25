@@ -20,7 +20,9 @@ import 'method_names.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
+import 'pairing/pairing_notices.dart' show pairingContactNoticeTag, pairingNewsOnScreen;
 import 'scan_route.dart' show sendPayments;
+import 'status_icons.dart' show EpicGlyphs;
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -86,13 +88,29 @@ class ContactPage extends ConsumerStatefulWidget {
 class _ContactPageState extends ConsumerState<ContactPage> {
   bool _busy = false;
 
+  /// The page shows this contact's relay and keys itself.
+  bool _shows(PairingEvent e) =>
+      const {PairingEventKind.homeRelayUnreachable, PairingEventKind.keysChanged, PairingEventKind.keysRestored}.contains(e.kind) &&
+      e.pairingId != null &&
+      e.pairingId == ref.read(contactPairingProvider(widget.contactId))?.id;
+
+  @override
+  void dispose() {
+    pairingNewsOnScreen.remove(_shows);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    pairingNewsOnScreen.add(_shows);
     // Epicbox off pauses the contact's pairing; say so once on the way in.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final paired = ref.read(contactPairingProvider(widget.contactId)) != null;
+      // The page shows the contact's relay and keys: their notices have done their job.
+      final pairing = ref.read(contactPairingProvider(widget.contactId));
+      if (pairing != null) ref.read(noticeProvider.notifier).dismissTag(pairingContactNoticeTag(pairing.id));
+      final paired = pairing != null;
       if (paired && ref.read(pairNetProvider) == PairNet.epicboxOff) {
         final l = context.l10n;
         ref.read(noticeProvider.notifier).show('${l.contactPausedEpicboxOff}. ${l.contactPausedEpicboxOffBody}', level: NoticeLevel.info);
@@ -193,7 +211,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             },
             itemBuilder: (context) => [
               if (pairing != null)
-                PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(Icons.verified_user_outlined), title: Text(l.contactCheckWordsAgain))),
+                PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.contactCheckWordsAgain))),
               PopupMenuItem(
                 key: contactPageDeleteKey,
                 value: 'delete',
@@ -399,7 +417,7 @@ class _NotPaired extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
           child: Row(
             children: [
-              Icon(Icons.shield_outlined, color: t.dim),
+              Icon(EpicGlyphs.paired, color: t.dim),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -473,7 +491,7 @@ class _PairingBlock extends ConsumerWidget {
       child: Row(
         children: [
           Icon(
-            changed ? Icons.gpp_maybe_outlined : (verified ? Icons.verified_user_outlined : Icons.shield_outlined),
+            changed ? EpicGlyphs.keysChanged : (verified ? EpicGlyphs.verified : EpicGlyphs.paired),
             color: changed ? t.risk : (verified ? t.ok : t.warn),
             size: 22,
           ),
@@ -528,6 +546,7 @@ class _PairingBlock extends ConsumerWidget {
             tone: BadgeTone.warn,
             title: l.contactKeysChangedTitle(name),
             body: l.contactKeysChangedBody,
+            stretchActions: true,
             actions: [
               FilledButton(onPressed: busy ? null : onCheck, child: Text(l.sasTitle)),
               OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.keepOld), child: Text(l.contactKeepOldKeys)),

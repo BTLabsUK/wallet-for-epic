@@ -157,10 +157,6 @@
   "@deskInvAdvanced": {
     "description": "Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch."
   },
-  "deskInvOneDevice": "Use invoices on one device only. Another device with this wallet can take a payment meant for this one.",
-  "@deskInvOneDevice": {
-    "description": "Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments."
-  },
   "deskInvFailed": "That did not work. Nothing changed; try again.",
   "@deskInvFailed": {
     "description": "Error notice when an invoice action failed for a reason without its own words."

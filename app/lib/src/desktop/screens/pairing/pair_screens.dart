@@ -229,7 +229,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     final expired = left != null && left.isNegative;
     final net = ref.watch(deskPairNetProvider);
     final byHand = net == DeskPairNet.epicboxOff;
-    final preview = l.pairShareText(_seenAs.isEmpty ? '…' : _seenAs, 'epiccash://pair/1/…', localDayTime(l, now.add(_expiry)));
+    final preview = l.pairShareText(_seenAs.isEmpty ? l.pairYourNamePlaceholder : _seenAs, 'epiccash://pair/1/…', localDayTime(l, now.add(_expiry)));
 
     final show = EPanel(
       title: l.pairShowMyCode,
@@ -344,7 +344,9 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             child: SelectableText(preview, style: ts.mono()),
           ),
           SizedBox(height: Sp.x2),
-          Text(byHand ? l.pairWordsNeedEpicbox : l.pairShareWarning, style: ts.small),
+          // By hand the invite is just as open: the warning stays.
+          Text(l.pairShareWarning, style: ts.small),
+          if (byHand) ...[SizedBox(height: Sp.x1), Text(l.pairWordsNeedEpicbox, style: ts.small)],
           SizedBox(height: Sp.x4),
           Align(
             alignment: Alignment.centerRight,
@@ -943,7 +945,7 @@ class DeskPendingScreen extends ConsumerWidget {
       onBack: () => nav.go(DeskRoute.contacts),
       actions: [EButton.primary(label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair))],
       child: pending.isEmpty
-          ? EEmpty(icon: EIcons.clock, title: l.pendingEmpty, actions: [EButton.primary(label: l.pairTitle, onPressed: () => nav.go(DeskRoute.pair))])
+          ? EEmpty(icon: EIcons.clock, title: l.pendingEmpty)
           : ESetGroup(rows: [for (final r in pending) row(r)]),
     );
   }

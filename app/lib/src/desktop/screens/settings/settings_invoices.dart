@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models.dart' show PairingRecord, PairingState;
 import '../../data/invoice_state.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -46,34 +47,52 @@ class InvoiceSettingsBlock extends ConsumerWidget {
       final contact = contacts.where((x) => x.id == r.contactId).firstOrNull;
       final name = contact?.name ?? r.shownName;
       final verified = r.state == PairingState.verified;
-      final state = verified ? (r.allowInvoices ? l.invSetRowAllowed : l.trustVerified) : l.invSetRowCheckFirst;
+      // Keys changed, as the contact shows it: the risk badge, paused until the words match.
+      final changed = r.state == PairingState.keysChanged;
+      final state = changed
+          ? l.contactKeysChangedStatus
+          : verified
+          ? (r.allowInvoices ? l.invSetRowAllowed : '${l.trustVerified} · ${l.invSetOff}')
+          : l.invSetRowCheckFirst;
       final text = contact == null ? '$state · ${l.pairNotInContacts}' : state;
       return ESetRow(
         title: name,
         text: text,
+        badge: changed ? TrustBadge(r, short: true) : null,
+        // Not in the contacts: the three choices under the row, so it never runs out of width.
+        below: contact == null
+            ? Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                children: [
+                  // The user picks how it goes in the contacts; nothing is saved without the form.
+                  EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
+                  EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+                  EButton(
+                    label: l.contactRemovePairing,
+                    kind: EBtnKind.danger,
+                    size: EBtnSize.sm,
+                    onPressed: () async {
+                      if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+                    },
+                  ),
+                ],
+              )
+            : null,
         control: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (contact == null) ...[
-              // The user picks how it goes in the contacts; nothing is saved without the form.
-              EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-              SizedBox(width: Sp.x2),
-              EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
-              SizedBox(width: Sp.x2),
-              EButton(
-                label: l.contactRemovePairing,
-                kind: EBtnKind.danger,
-                size: EBtnSize.sm,
-                onPressed: () async {
-                  if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
-                },
-              ),
+            // The explanation stays before the buttons on every row.
+            EInfoHint(l.contactAllowInfo(name)),
+            SizedBox(width: Sp.x3),
+            if (changed) ...[
+              EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id, recheck: true)),
               SizedBox(width: Sp.x3),
-            ] else if (!verified && r.state == PairingState.paired) ...[
+            ],
+            if (r.state == PairingState.paired) ...[
               EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
               SizedBox(width: Sp.x3),
-            ] else
-              EInfoHint(l.contactAllowInfo(name)),
+            ],
             ESwitch(
               value: verified && r.allowInvoices,
               semanticLabel: l.invSetAllowFor(name),

@@ -1881,7 +1881,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => 'Сообщение от сервиса';
+  String invoiceReviewMessageLabel(String name) {
+    return 'Сообщение от $name';
+  }
 
   @override
   String get invoiceReviewNote =>
@@ -5474,10 +5476,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvAdvanced => 'Дополнительно';
 
   @override
-  String get deskInvOneDevice =>
-      'Используйте счета только на одном устройстве. Другое устройство с этим кошельком может принять платёж, предназначенный для этого.';
-
-  @override
   String get deskInvFailed =>
       'Не получилось. Ничего не изменилось; попробуйте ещё раз.';
 
@@ -5486,10 +5484,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => 'Скоро';
-
-  @override
-  String get deskInvIssuerNoContacts =>
-      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».';
 
   @override
   String get deskInvIssuerAmount => 'Сумма';
@@ -5769,8 +5763,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvPayerBalanceAfter => 'Баланс после';
 
   @override
-  String get deskInvPayerMessageCaption =>
-      'Написано сервисом. Кошелёк это не проверяет.';
+  String deskInvPayerMessageCaption(String name) {
+    return 'Написано: $name. Кошелёк это не проверяет.';
+  }
 
   @override
   String get deskInvPayerPaysTo => 'Получатель';
@@ -14977,20 +14972,20 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вставленная ссылка или введённые слова заменяют сканирование на телефоне.';
 
   @override
-  String get pairCardCopy => 'Скопировать ссылку моей карточки';
+  String get pairCardCopy => 'Скопировать мою ссылку для сопряжения';
 
   @override
   String get pairCardHint =>
-      'Лично без камеры: каждый кошелёк вставляет выше ссылку карточки другого.';
+      'Лично без камеры: каждый кошелёк вставляет выше ссылку для сопряжения другого.';
 
   @override
   String pairCardBackTitle(String name) {
-    return 'Теперь передайте $name свою карточку';
+    return 'Теперь передайте $name свой код';
   }
 
   @override
   String pairCardBackBody(String name) {
-    return 'Вставьте эту ссылку в кошельке $name в поле «Введите ссылку или слова». Затем вместе сверьте слова.';
+    return 'Вставьте эту ссылку в кошельке $name в поле «Ввести ссылку или слова». Затем вместе сверьте слова.';
   }
 
   @override
@@ -15103,9 +15098,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pairWaitingBody =>
       'Другой кошелёк ответит, когда его откроют. Это можно закрыть; сопряжение продолжится в фоне, а проверка слов появится, когда оно завершится.';
-
-  @override
-  String get pairWaitingFor => 'Проверка в течение 1 часа';
 
   @override
   String get pairSendByHand => 'Отправить вручную';
@@ -16217,6 +16209,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pairNameForCode =>
       'Введите имя, которое увидит собеседник, и здесь появится ваш код.';
+
+  @override
+  String get pairYourNamePlaceholder => 'Ваше имя';
 
   @override
   String get restoreDone => 'История восстановлена.';

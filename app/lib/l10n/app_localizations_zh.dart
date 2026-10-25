@@ -1659,7 +1659,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => '服务的留言';
+  String invoiceReviewMessageLabel(String name) {
+    return '$name 的留言';
+  }
 
   @override
   String get invoiceReviewNote => '钱包会加上网络手续费。在你批准之前不会支付任何款项。';
@@ -5000,9 +5002,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvAdvanced => '高级';
 
   @override
-  String get deskInvOneDevice => '请只在一台设备上使用账单。装有此钱包的另一台设备可能会收走本应给这台设备的付款。';
-
-  @override
   String get deskInvFailed => '操作未成功。没有任何更改；请重试。';
 
   @override
@@ -5010,9 +5009,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => '即将推出';
-
-  @override
-  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在“联系人”中添加。';
 
   @override
   String get deskInvIssuerAmount => '金额';
@@ -5276,7 +5272,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerBalanceAfter => '付款后余额';
 
   @override
-  String get deskInvPayerMessageCaption => '由服务填写。你的钱包不会核实。';
+  String deskInvPayerMessageCaption(String name) {
+    return '由 $name 填写。你的钱包不会核实。';
+  }
 
   @override
   String get deskInvPayerPaysTo => '付款给';
@@ -13781,19 +13779,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairEnterDesktopHint => '粘贴的链接或输入的词相当于在手机上扫描。';
 
   @override
-  String get pairCardCopy => '复制我的名片链接';
+  String get pairCardCopy => '复制我的配对链接';
 
   @override
-  String get pairCardHint => '当面配对且没有摄像头：双方钱包各自在上方粘贴对方的名片链接。';
+  String get pairCardHint => '当面配对且没有摄像头：双方钱包各自在上方粘贴对方的配对链接。';
 
   @override
   String pairCardBackTitle(String name) {
-    return '现在把你的名片交给 $name';
+    return '现在把你的码交给 $name';
   }
 
   @override
   String pairCardBackBody(String name) {
-    return '在 $name 的钱包中“输入链接或词语”处粘贴此链接。然后一起核对词语。';
+    return '在 $name 的钱包中“输入链接或词”处粘贴此链接。然后一起核对词语。';
   }
 
   @override
@@ -13902,9 +13900,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairWaitingBody => '对方的钱包下次打开时会回复。你可以关闭此页面；配对会在后台继续，完成后会出现词语核对。';
-
-  @override
-  String get pairWaitingFor => '持续检查 1 小时';
 
   @override
   String get pairSendByHand => '手动发送';
@@ -14955,6 +14950,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairNameForCode => '输入对方会看到的名字，你的码就会显示在这里。';
+
+  @override
+  String get pairYourNamePlaceholder => '你的名字';
 
   @override
   String get restoreDone => '历史已恢复。';

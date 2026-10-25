@@ -810,7 +810,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                l.invoiceReviewMessageLabel,
+                l.invoiceReviewMessageLabel(service),
                 style: theme.textTheme.labelLarge,
               ),
               // Hostile text: one plain line, never a link.

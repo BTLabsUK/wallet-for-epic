@@ -1,7 +1,7 @@
 {
   "deskInvPayerWaitingHead": "Waiting for you",
   "@deskInvPayerWaitingHead": {
-    "description": "Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer."
+    "description": "Section heading on the Invoices page › To pay: invoices from paired contacts that wait for the user's answer."
   },
   "deskInvPayerNeedsHead": "Payments to settle",
   "@deskInvPayerNeedsHead": {
@@ -127,9 +127,15 @@
   "@deskInvPayerBalanceAfter": {
     "description": "Label: spendable balance left after paying."
   },
-  "deskInvPayerMessageCaption": "Written by the service. Your wallet does not check it.",
+  "deskInvPayerMessageCaption": "Written by {name}. Your wallet does not check it.",
   "@deskInvPayerMessageCaption": {
-    "description": "Caption under the service's message on Review invoice: the text is untrusted."
+    "description": "Caption under the contact's message on Review invoice: the text is untrusted. {name} is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind"
+      }
+    }
   },
   "deskInvPayerPaysTo": "Pays to",
   "@deskInvPayerPaysTo": {

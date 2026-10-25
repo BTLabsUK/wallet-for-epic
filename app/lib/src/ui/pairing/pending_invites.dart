@@ -134,10 +134,14 @@ class _PendingRow extends ConsumerWidget {
               ],
             ),
           ),
-          trailing: OutlinedButton(
-            key: pendingInviteAgainKey,
-            onPressed: () => _again(context, ref),
-            child: Text(l.pendingInviteAgain),
+          // The list's end gutter: the button ends where the other rows' menus do.
+          trailing: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: OutlinedButton(
+              key: pendingInviteAgainKey,
+              onPressed: () => _again(context, ref),
+              child: Text(l.pendingInviteAgain),
+            ),
           ),
         );
       case PairingState.pendingInvite:

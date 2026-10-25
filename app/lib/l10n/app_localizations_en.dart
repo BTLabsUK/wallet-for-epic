@@ -1766,7 +1766,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => 'Message from the service';
+  String invoiceReviewMessageLabel(String name) {
+    return 'Message from $name';
+  }
 
   @override
   String get invoiceReviewNote =>
@@ -5291,10 +5293,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvAdvanced => 'Address and expiry';
 
   @override
-  String get deskInvOneDevice =>
-      'Use invoices on one device only. Another device with this wallet can take a payment meant for this one.';
-
-  @override
   String get deskInvFailed => 'That did not work. Nothing changed; try again.';
 
   @override
@@ -5302,10 +5300,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => 'Coming soon';
-
-  @override
-  String get deskInvIssuerNoContacts =>
-      'No contact has an invoice address yet. Add it under Contacts.';
 
   @override
   String get deskInvIssuerAmount => 'Amount';
@@ -5585,8 +5579,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvPayerBalanceAfter => 'Balance after';
 
   @override
-  String get deskInvPayerMessageCaption =>
-      'Written by the service. Your wallet does not check it.';
+  String deskInvPayerMessageCaption(String name) {
+    return 'Written by $name. Your wallet does not check it.';
+  }
 
   @override
   String get deskInvPayerPaysTo => 'Pays to';
@@ -14564,15 +14559,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'A pasted link or typed words do what a scan does on the phone.';
 
   @override
-  String get pairCardCopy => 'Copy my card link';
+  String get pairCardCopy => 'Copy my pairing link';
 
   @override
   String get pairCardHint =>
-      'Face to face without a camera: each wallet pastes the other\'s card link above.';
+      'Face to face without a camera: each wallet pastes the other\'s pairing link above.';
 
   @override
   String pairCardBackTitle(String name) {
-    return 'Now give $name your card';
+    return 'Now give $name your code';
   }
 
   @override
@@ -14690,9 +14685,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pairWaitingBody =>
       'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
-
-  @override
-  String get pairWaitingFor => 'Checking for 1 hour';
 
   @override
   String get pairSendByHand => 'Send by hand';
@@ -15787,6 +15779,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pairNameForCode =>
       'Enter the name they will see, and your code appears here.';
+
+  @override
+  String get pairYourNamePlaceholder => 'Your name';
 
   @override
   String get restoreDone => 'History restored.';

@@ -5,7 +5,8 @@ import '../../../known_relays.dart' show recipientRelay;
 import '../../../models.dart' show SlatePurpose;
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
-import '../../data/pairing_state.dart' show deskPairingNameProvider, deskPairingSlateProvider;
+import '../../data/pairing_state.dart' show deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
+import '../pairing/pair_screens.dart' show deskPutPairingInContacts;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
@@ -212,10 +213,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                           // The name sits in its own style: split the sentence at a marker.
                           for (final (i, part) in (t.incoming ? l.deskTxHeadFrom('\u0001') : l.deskTxHeadTo('\u0001')).split('\u0001').indexed) ...[
                             if (i > 0)
-                              TextSpan(
-                                text: whoOf(l, t),
-                                style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
-                              ),
+                              // A withdrawal is from the paired exchange, by name.
+                              withdrawal != null && contactName.isNotEmpty
+                                  ? TextSpan(text: contactName, style: TextStyle(color: c.text))
+                                  : TextSpan(
+                                      text: whoOf(l, t),
+                                      style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
+                                    ),
                             TextSpan(text: part),
                           ],
                         ],
@@ -229,7 +233,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ],
         ),
         SizedBox(height: Sp.x4),
-        if (!t.isInvoice)
+        // A withdrawal not posted yet: its notice below stands alone.
+        if (!t.isInvoice && !(withdrawal != null && !onChain))
         Container(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
           decoration: BoxDecoration(
@@ -288,7 +293,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ),
         EFacts(labelWidth: 96.u, [
           (l.deskTxFactDate, Text(dateTimeOf(l, t))),
-          if (t.counterparty != null)
+          // A withdrawal names the paired exchange, never its address (RFC C-21).
+          if (withdrawal != null)
+            (l.deskTxFactFrom, _PairedFrom(pairingId: withdrawal.pairingId, name: contactName))
+          else if (t.counterparty != null)
             (
               t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
               _withTag(
@@ -721,3 +729,37 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
     },
   ),
 );
+
+/// "From" on a withdrawal: the paired exchange by name; not in the contacts yet, Save as a
+/// new contact and Add to a contact, as Settings › Invoices offers them.
+class _PairedFrom extends ConsumerWidget {
+  const _PairedFrom({required this.pairingId, required this.name});
+
+  final String pairingId;
+  final String name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final r = ref.watch(deskPairingByIdProvider(pairingId));
+    final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
+    final saved = r?.contactId != null && contacts.any((c) => c.id == r!.contactId);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(name),
+        if (r != null && !saved) ...[
+          SizedBox(height: Sp.x2),
+          Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
+              EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}

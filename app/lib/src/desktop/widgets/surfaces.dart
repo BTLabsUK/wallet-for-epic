@@ -545,7 +545,7 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below, this.leading});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below, this.leading, this.badge});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
@@ -570,6 +570,9 @@ class ESetRow extends StatelessWidget {
   /// A glyph before the words (a payment method's icon), 18 u, in the dim colour.
   final IconData? leading;
 
+  /// A badge before [text] (a trust state, as the contact shows it).
+  final Widget? badge;
+
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
@@ -592,7 +595,16 @@ class ESetRow extends StatelessWidget {
           if (title != null) const SizedBox(height: 2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 560.u),
-            child: Text(this.text!, style: title == null ? ts.bodyDim : ts.small),
+            child: badge == null
+                ? Text(this.text!, style: title == null ? ts.bodyDim : ts.small)
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      badge!,
+                      SizedBox(width: Sp.x2),
+                      Flexible(child: Text(this.text!, style: title == null ? ts.bodyDim : ts.small)),
+                    ],
+                  ),
           ),
         ],
       ],

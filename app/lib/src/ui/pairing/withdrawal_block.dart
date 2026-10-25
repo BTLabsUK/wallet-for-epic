@@ -12,6 +12,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
+import 'pair_check.dart' show pickContactForPairing, savePairingAsNewContact;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
@@ -24,6 +25,62 @@ import '../theme/tokens.dart';
   final record = ref.watch(pairingByIdProvider(slate.pairingId));
   final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
   return (slate: slate, name: record == null ? '' : pairingName(record, contacts));
+}
+
+/// "Received from" on a withdrawal: the paired exchange by name. Not in the contacts yet, it
+/// offers Save as a new contact and Add to a contact, as the words result does; nothing is
+/// matched by name or address.
+class WithdrawalFromRow extends ConsumerWidget {
+  const WithdrawalFromRow({super.key, required this.pairingId, required this.name});
+
+  final String pairingId;
+  final String name;
+
+  Future<void> _attach(WidgetRef ref, Contact? contact) async {
+    if (contact == null) return;
+    await pairingCall(ref, (api) => api.attach(pairingId, contact.id));
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final record = ref.watch(pairingByIdProvider(pairingId));
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final saved = record?.contactId != null && contacts.any((c) => c.id == record!.contactId);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.txDetailsReceivedFrom, style: theme.textTheme.labelLarge),
+          const SizedBox(height: 2),
+          Text(name, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+          if (record != null && !saved) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: () async => _attach(ref, await savePairingAsNewContact(context, record)),
+                    child: Text(l.pairSaveNewContact, textAlign: TextAlign.center),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () async => _attach(ref, await pickContactForPairing(context)),
+                    child: Text(l.pairAddToAContact, textAlign: TextAlign.center),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class WithdrawalBlock extends ConsumerWidget {

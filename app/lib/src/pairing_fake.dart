@@ -179,6 +179,7 @@ class FakePairing implements PairingApi {
     bool relayDown = false,
     bool checkSkipped = false,
     PairingWay way = PairingWay.inPerson,
+    List<SasWord>? sas,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
@@ -191,7 +192,7 @@ class FakePairing implements PairingApi {
       name: name,
       kind: kind,
       caps: caps,
-      sas: fakeSasWords(rid),
+      sas: sas ?? fakeSasWords(rid),
       verifiedAt: state == PairingState.verified ? (verifiedAt ?? now.subtract(const Duration(days: 1))) : null,
       allowInvoices: allowInvoices && state == PairingState.verified,
       seal: seal,

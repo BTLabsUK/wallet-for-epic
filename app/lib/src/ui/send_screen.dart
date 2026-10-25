@@ -3431,7 +3431,8 @@ class _SendViewState extends ConsumerState<SendView> {
           alignment: AlignmentDirectional.centerStart,
           child: _filePlain ? EBadge(l.sendPlainOption) : SealedBadge(name: name),
         ),
-      if (quiet && !_filePlain) ...[
+      // The chooser asks the same question already.
+      if (quiet && !_filePlain && !degraded) ...[
         const SizedBox(height: 8),
         PairEdgeNotice(
           tone: BadgeTone.info,

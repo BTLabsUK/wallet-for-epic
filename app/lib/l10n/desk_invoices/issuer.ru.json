@@ -1,6 +1,5 @@
 {
   "deskInvIssuerSoon": "Скоро",
-  "deskInvIssuerNoContacts": "Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».",
   "deskInvIssuerAmount": "Сумма",
   "deskInvIssuerAmountMissing": "Введите сумму.",
   "deskInvIssuerAmountZero": "Сумма должна быть больше 0.",

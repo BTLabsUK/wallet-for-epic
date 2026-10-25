@@ -32,7 +32,6 @@
   "deskInvExpiresAt": "Wygasa {time}",
   "deskInvSlateId": "ID slate",
   "deskInvAdvanced": "Zaawansowane",
-  "deskInvOneDevice": "Korzystaj z faktur tylko na jednym urządzeniu. Inne urządzenie z tym portfelem może przejąć płatność przeznaczoną dla tego.",
   "deskInvFailed": "To się nie udało. Nic się nie zmieniło; spróbuj ponownie.",
   "deskInvHowItWorks": "Jak działają faktury",
   "deskInvPayStalled": "Utknęło"

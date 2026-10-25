@@ -1712,7 +1712,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get invoiceReviewMessageLabel => 'ข้อความจากบริการ';
+  String invoiceReviewMessageLabel(String name) {
+    return 'ข้อความจาก $name';
+  }
 
   @override
   String get invoiceReviewNote =>
@@ -5173,10 +5175,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvAdvanced => 'ขั้นสูง';
 
   @override
-  String get deskInvOneDevice =>
-      'ใช้ใบแจ้งหนี้บนอุปกรณ์เดียวเท่านั้น อุปกรณ์อื่นที่มีกระเป๋าเดียวกันอาจรับการชำระที่ตั้งใจส่งมายังอุปกรณ์นี้';
-
-  @override
   String get deskInvFailed => 'ไม่สำเร็จ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง';
 
   @override
@@ -5184,10 +5182,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvIssuerSoon => 'เร็วๆ นี้';
-
-  @override
-  String get deskInvIssuerNoContacts =>
-      'ยังไม่มีผู้ติดต่อที่มีที่อยู่ใบแจ้งหนี้ เพิ่มได้ในผู้ติดต่อ';
 
   @override
   String get deskInvIssuerAmount => 'จำนวน';
@@ -5464,8 +5458,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvPayerBalanceAfter => 'ยอดคงเหลือหลังชำระ';
 
   @override
-  String get deskInvPayerMessageCaption =>
-      'เขียนโดยบริการ กระเป๋าไม่ได้ตรวจสอบข้อความนี้';
+  String deskInvPayerMessageCaption(String name) {
+    return 'เขียนโดย $name กระเป๋าไม่ได้ตรวจสอบข้อความนี้';
+  }
 
   @override
   String get deskInvPayerPaysTo => 'ชำระไปที่';
@@ -14280,20 +14275,20 @@ class AppLocalizationsTh extends AppLocalizations {
       'ลิงก์ที่วางหรือคำที่พิมพ์ใช้แทนการสแกนบนโทรศัพท์';
 
   @override
-  String get pairCardCopy => 'คัดลอกลิงก์การ์ดของฉัน';
+  String get pairCardCopy => 'คัดลอกลิงก์จับคู่ของฉัน';
 
   @override
   String get pairCardHint =>
-      'พบกันต่อหน้าโดยไม่มีกล้อง: แต่ละวอลเล็ตวางลิงก์การ์ดของอีกฝ่ายด้านบน';
+      'พบกันต่อหน้าโดยไม่มีกล้อง: กระเป๋าเงินแต่ละฝั่งวางลิงก์จับคู่ของอีกฝ่ายด้านบน';
 
   @override
   String pairCardBackTitle(String name) {
-    return 'ตอนนี้ส่งการ์ดของคุณให้ $name';
+    return 'ตอนนี้ส่งโค้ดของคุณให้ $name';
   }
 
   @override
   String pairCardBackBody(String name) {
-    return 'วางลิงก์นี้ในช่อง ใส่ลิงก์หรือคำ ในวอลเล็ตของ $name จากนั้นตรวจคำด้วยกัน';
+    return 'วางลิงก์นี้ในช่อง ใส่ลิงก์หรือคำ ในกระเป๋าเงินของ $name จากนั้นตรวจคำด้วยกัน';
   }
 
   @override
@@ -14405,9 +14400,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get pairWaitingBody =>
       'กระเป๋าเงินของอีกฝ่ายจะตอบเมื่อเปิดครั้งถัดไป คุณปิดหน้านี้ได้ การจับคู่ดำเนินต่อเบื้องหลัง และการตรวจคำจะปรากฏเมื่อเสร็จ';
-
-  @override
-  String get pairWaitingFor => 'ตรวจสอบเป็นเวลา 1 ชั่วโมง';
 
   @override
   String get pairSendByHand => 'ส่งด้วยตนเอง';
@@ -15497,6 +15489,9 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get pairNameForCode =>
       'ใส่ชื่อที่อีกฝ่ายจะเห็น แล้วโค้ดของคุณจะแสดงที่นี่';
+
+  @override
+  String get pairYourNamePlaceholder => 'ชื่อของคุณ';
 
   @override
   String get restoreDone => 'กู้คืนประวัติแล้ว';

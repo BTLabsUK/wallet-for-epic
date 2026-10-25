@@ -13,6 +13,7 @@ import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
+import 'pairing/pairing_notices.dart' show pairingNewsOnScreen, pairingSlateNoticeTag;
 import 'pairing/withdrawal_block.dart';
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
@@ -229,6 +230,34 @@ class TxDetailsScreen extends ConsumerStatefulWidget {
 class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   /// "More" was tapped: the technical rows show for this view although the switch is off.
   bool _more = false;
+
+  /// The page shows its own withdrawal.
+  bool _shows(PairingEvent e) {
+    if (e.kind != PairingEventKind.withdrawalFromContact || e.slateId == null) return false;
+    if (widget.txKey == 's:${e.slateId}') return true;
+    final tx = ref.read(homeProvider).value?.transactions.where((t) => t.key == widget.txKey).firstOrNull;
+    return tx?.slateId == e.slateId;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    pairingNewsOnScreen.add(_shows);
+    // A withdrawal's notice led here, or would repeat what the page shows.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final slate = widget.txKey.startsWith('s:')
+          ? widget.txKey.substring(2)
+          : ref.read(homeProvider).value?.transactions.where((t) => t.key == widget.txKey).firstOrNull?.slateId;
+      if (slate != null) ref.read(noticeProvider.notifier).dismissTag(pairingSlateNoticeTag(slate));
+    });
+  }
+
+  @override
+  void dispose() {
+    pairingNewsOnScreen.remove(_shows);
+    super.dispose();
+  }
 
   bool _busy = false;
 
@@ -571,8 +600,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Card(
+          // A withdrawal's own block below says where it stands: no second status here.
+          if (withdrawal == null) ...[
+            const SizedBox(height: 16),
+            Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -656,6 +687,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               ),
             ),
           ),
+          ],
           // The invoice this payment paid, if any (I-03).
           PaidInvoiceBlock(
             tx: tx,
@@ -708,7 +740,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   ? ManualTag(editedAtUnix: tx.manualEditedAtUnix)
                   : null,
             ),
-          if (counterparty != null)
+          // A withdrawal names the paired exchange, never its address (RFC C-21).
+          if (withdrawal != null)
+            WithdrawalFromRow(pairingId: withdrawal.slate.pairingId, name: withdrawal.name)
+          else if (counterparty != null)
             _CounterpartyRow(
               label: outgoing
                   ? l.txDetailsSentTo

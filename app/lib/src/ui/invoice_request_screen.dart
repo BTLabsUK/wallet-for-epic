@@ -238,7 +238,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           for (final r in payers)
             ListTile(
               minTileHeight: 64,
-              leading: PairAvatar(name: pairingName(r, contacts), kind: r.kind, size: 40),
+              leading: PairAvatar(name: pairingName(r, contacts), kind: r.kind, size: 48),
               title: Text(pairingName(r, contacts)),
               trailing: TrustBadge(r, short: true),
               selected: r.id == _to,

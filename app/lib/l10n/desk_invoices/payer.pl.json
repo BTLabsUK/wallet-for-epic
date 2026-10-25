@@ -22,7 +22,7 @@
   "deskInvPayerFee": "Opłata",
   "deskInvPayerTotal": "Razem",
   "deskInvPayerBalanceAfter": "Saldo po",
-  "deskInvPayerMessageCaption": "Napisane przez serwis. Twój portfel tego nie sprawdza.",
+  "deskInvPayerMessageCaption": "Napisane przez: {name}. Twój portfel tego nie sprawdza.",
   "deskInvPayerPaysTo": "Płatność dla",
   "deskInvPayerExpires": "Wygasa",
   "deskInvPayerLockHeight": "Wysokość blokady",

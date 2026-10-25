@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCar
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_invoices.dart' show InvoiceSettingsBlock;
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -138,6 +139,22 @@ void main() {
     expect(pairingEventOnScreen(replied), isTrue);
     expect(pairingEventOnScreen(other), isFalse);
     expect(pairingEventOnScreen(request), isFalse, reason: 'only the answered and paired notices');
+  });
+
+  testWidgets('Settings › Invoices: keys changed has the risk badge, the paused line and Check the words', (tester) async {
+    await _open(tester, const SingleChildScrollView(child: InvoiceSettingsBlock()));
+    // The mock's Marta W. is in keys changed, as on her contact page.
+    expect((await tester.runAsync(() => _pairing.pairing(mockMartaPairing)))!.state, PairingState.keysChanged);
+    expect(find.text('Marta W.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    final row = find.ancestor(of: find.text('Marta W.'), matching: find.byType(ESetRow));
+    Finder inRow(Finder f) => find.descendant(of: row, matching: f);
+    expect(inRow(find.text(_l.trustKeysChanged)), findsOneWidget);
+    expect(inRow(find.textContaining(_l.contactKeysChangedStatus)), findsOneWidget);
+    expect(inRow(find.textContaining(_l.invSetRowCheckFirst)), findsNothing, reason: 'not the paired text');
+    await tester.tap(inRow(find.widgetWithText(EButton, _l.sasTitle)));
+    await _real(tester);
+    expect(find.text(_l.sasMatch), findsOneWidget);
   });
 
   testWidgets('Pending invites lists what waits, with Cancel', (tester) async {

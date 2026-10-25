@@ -22,7 +22,7 @@
   "deskInvPayerFee": "Комиссия",
   "deskInvPayerTotal": "Итого",
   "deskInvPayerBalanceAfter": "Баланс после",
-  "deskInvPayerMessageCaption": "Написано сервисом. Кошелёк это не проверяет.",
+  "deskInvPayerMessageCaption": "Написано: {name}. Кошелёк это не проверяет.",
   "deskInvPayerPaysTo": "Получатель",
   "deskInvPayerExpires": "Истекает",
   "deskInvPayerLockHeight": "Высота блокировки",

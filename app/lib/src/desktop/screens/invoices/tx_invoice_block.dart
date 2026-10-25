@@ -94,7 +94,7 @@ class TxInvoiceBlock extends ConsumerWidget {
             SizedBox(height: Sp.x3),
             EFacts(labelWidth: 96.u, [
               (l.deskInvActBilledBy, Text(i.label)),
-              if ((i.message ?? '').isNotEmpty) (l.invoiceReviewMessageLabel, Text(cleanInvoiceText(i.message))),
+              if ((i.message ?? '').isNotEmpty) (l.invoiceReviewMessageLabel(i.label), Text(cleanInvoiceText(i.message))),
             ]),
           ],
           SizedBox(height: Sp.x3),

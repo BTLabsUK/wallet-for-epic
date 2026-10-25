@@ -22,7 +22,7 @@
   "deskInvPayerFee": "手续费",
   "deskInvPayerTotal": "合计",
   "deskInvPayerBalanceAfter": "付款后余额",
-  "deskInvPayerMessageCaption": "由服务填写。你的钱包不会核实。",
+  "deskInvPayerMessageCaption": "由 {name} 填写。你的钱包不会核实。",
   "deskInvPayerPaysTo": "付款给",
   "deskInvPayerExpires": "过期时间",
   "deskInvPayerLockHeight": "锁定高度",

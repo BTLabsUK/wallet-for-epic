@@ -319,7 +319,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 260),
-                child: PairCountdown(until: record!.expiresAt!, label: l.pairWaitingFor),
+                child: PairCountdown(until: record!.expiresAt!),
               ),
             ),
           if (unreachable) ...[

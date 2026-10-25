@@ -22,7 +22,7 @@
   "deskInvPayerFee": "Gebühr",
   "deskInvPayerTotal": "Gesamt",
   "deskInvPayerBalanceAfter": "Guthaben danach",
-  "deskInvPayerMessageCaption": "Vom Dienst geschrieben. Ihre Wallet prüft sie nicht.",
+  "deskInvPayerMessageCaption": "Von {name} geschrieben. Ihre Wallet prüft sie nicht.",
   "deskInvPayerPaysTo": "Zahlt an",
   "deskInvPayerExpires": "Läuft ab",
   "deskInvPayerLockHeight": "Sperrhöhe",

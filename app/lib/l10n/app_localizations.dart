@@ -2434,7 +2434,7 @@ abstract class AppLocalizations {
   /// **'No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.'**
   String get invoicesEmpty;
 
-  /// Name shown for a trusted service whose label was lost. Never the name the invoice gives itself.
+  /// Name shown for a paired contact whose label was lost. Never the name the invoice gives itself.
   ///
   /// In en, this message translates to:
   /// **'Unnamed service'**
@@ -2476,11 +2476,11 @@ abstract class AppLocalizations {
   /// **'{service} asks you to pay'**
   String invoiceReviewAsks(String service);
 
-  /// Label above the one line of text the service put in its invoice.
+  /// Label above the one line of text the contact put in its invoice. {name} is the contact.
   ///
   /// In en, this message translates to:
-  /// **'Message from the service'**
-  String get invoiceReviewMessageLabel;
+  /// **'Message from {name}'**
+  String invoiceReviewMessageLabel(String name);
 
   /// Under the invoice on the review screen.
   ///
@@ -2602,7 +2602,7 @@ abstract class AppLocalizations {
   /// **'{service} withdrew this invoice after you paid it. If the payment does not confirm, cancel it to unlock your funds.'**
   String invoiceDetailsWithdrawn(String service);
 
-  /// Notice when a trusted service's invoice arrived.
+  /// Notice when an invoice from a paired contact arrived.
   ///
   /// In en, this message translates to:
   /// **'An invoice is waiting for your approval.'**
@@ -4816,7 +4816,7 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get settingsContacts;
 
-  /// Settings section header for invoices from trusted services.
+  /// Settings section header for invoices from paired contacts.
   ///
   /// In en, this message translates to:
   /// **'Invoices'**
@@ -8229,12 +8229,6 @@ abstract class AppLocalizations {
   /// **'Address and expiry'**
   String get deskInvAdvanced;
 
-  /// Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Use invoices on one device only. Another device with this wallet can take a payment meant for this one.'**
-  String get deskInvOneDevice;
-
   /// Error notice when an invoice action failed for a reason without its own words.
   ///
   /// In en, this message translates to:
@@ -8252,12 +8246,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get deskInvIssuerSoon;
-
-  /// Shown in the contact picker when no contact has an invoice address.
-  ///
-  /// In en, this message translates to:
-  /// **'No contact has an invoice address yet. Add it under Contacts.'**
-  String get deskInvIssuerNoContacts;
 
   /// Field label: how much the payer is asked to pay, in EPIC.
   ///
@@ -8559,7 +8547,7 @@ abstract class AppLocalizations {
   /// **'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownAnswer;
 
-  /// Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer.
+  /// Section heading on the Invoices page › To pay: invoices from paired contacts that wait for the user's answer.
   ///
   /// In en, this message translates to:
   /// **'Waiting for you'**
@@ -8703,11 +8691,11 @@ abstract class AppLocalizations {
   /// **'Balance after'**
   String get deskInvPayerBalanceAfter;
 
-  /// Caption under the service's message on Review invoice: the text is untrusted.
+  /// Caption under the contact's message on Review invoice: the text is untrusted. {name} is the contact.
   ///
   /// In en, this message translates to:
-  /// **'Written by the service. Your wallet does not check it.'**
-  String get deskInvPayerMessageCaption;
+  /// **'Written by {name}. Your wallet does not check it.'**
+  String deskInvPayerMessageCaption(String name);
 
   /// Label: the address the payment goes to (stored in the trusted list).
   ///
@@ -23060,22 +23048,22 @@ abstract class AppLocalizations {
   /// **'A pasted link or typed words do what a scan does on the phone.'**
   String get pairEnterDesktopHint;
 
-  /// Desktop Pair screen button: copies this wallet's in-person card link, for pairing face to face without a camera.
+  /// Desktop Pair screen button: copies this wallet's in-person pairing link (its contact card inside, not a word the UI uses), for pairing face to face without a camera.
   ///
   /// In en, this message translates to:
-  /// **'Copy my card link'**
+  /// **'Copy my pairing link'**
   String get pairCardCopy;
 
   /// Desktop Pair screen hint under the card button.
   ///
   /// In en, this message translates to:
-  /// **'Face to face without a camera: each wallet pastes the other\'s card link above.'**
+  /// **'Face to face without a camera: each wallet pastes the other\'s pairing link above.'**
   String get pairCardHint;
 
-  /// Dialog title after this wallet read the other wallet's card link: the other wallet still needs this wallet's card. {name} is the name the other wallet chose.
+  /// Dialog title after this wallet read the other wallet's pairing link: the other wallet still needs this wallet's code. {name} is the name the other wallet chose.
   ///
   /// In en, this message translates to:
-  /// **'Now give {name} your card'**
+  /// **'Now give {name} your code'**
   String pairCardBackTitle(String name);
 
   /// Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.
@@ -23257,12 +23245,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.'**
   String get pairWaitingBody;
-
-  /// Countdown line on the waiting screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking for 1 hour'**
-  String get pairWaitingFor;
 
   /// Button on the waiting screen and the relay notice.
   ///
@@ -24937,6 +24919,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the name they will see, and your code appears here.'**
   String get pairNameForCode;
+
+  /// Stands for the name in the preview of the invite text until the user types the name they will see.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get pairYourNamePlaceholder;
 
   /// Notice title after a history backup was imported with pairings.
   ///

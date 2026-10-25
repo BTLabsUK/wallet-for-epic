@@ -1,6 +1,5 @@
 {
   "deskInvIssuerSoon": "เร็วๆ นี้",
-  "deskInvIssuerNoContacts": "ยังไม่มีผู้ติดต่อที่มีที่อยู่ใบแจ้งหนี้ เพิ่มได้ในผู้ติดต่อ",
   "deskInvIssuerAmount": "จำนวน",
   "deskInvIssuerAmountMissing": "ป้อนจำนวน",
   "deskInvIssuerAmountZero": "จำนวนต้องมากกว่า 0",

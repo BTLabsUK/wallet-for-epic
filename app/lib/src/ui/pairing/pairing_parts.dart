@@ -35,7 +35,8 @@ enum WordTileSize {
 /// A row of word tiles (the four of the check, the five pairing words): each emoji in a
 /// square tile with its name under it. A null entry is an empty slot (dashed, its number in
 /// it) while the words are typed; indexes in [bad] get a risk border. Tiles shrink to fit the
-/// width, never below two thirds of their size.
+/// width, never below two thirds of their size. Each name has its whole slot and shrinks to
+/// fit it: the names are read out to the other side, so none is ever cut.
 class WordTiles extends StatelessWidget {
   const WordTiles({
     super.key,
@@ -67,16 +68,20 @@ class WordTiles extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           final n = words.length;
-          // Each slot is the tile plus 12 for its name: n of them fit one row.
-          final fit = (box.maxWidth - gap * (n - 1)) / n - 12;
+          // n slots fit one row; the tile is the slot less 12, the name the whole slot.
+          final full = box.maxWidth.isFinite ? (box.maxWidth - gap * (n - 1)) / n : double.infinity;
+          final fit = full - 12;
           final side = fit < size.tile ? (fit < size.tile * 2 / 3 ? size.tile * 2 / 3 : fit) : size.tile;
           final scale = side / size.tile;
+          // Wide rows keep the tiles together: a slot is at most the tile and a long name.
+          final slot = full.clamp(side + 12, side + 48).toDouble();
           final tiles = [
             for (var i = 0; i < n; i++)
               _WordTile(
                 word: words[i],
                 index: i,
                 side: side,
+                slot: slot,
                 nameSize: size.name * (scale < 1 ? (0.85 + 0.15 * scale) : 1),
                 bad: bad.contains(i),
                 dim: dim,
@@ -101,6 +106,7 @@ class _WordTile extends StatelessWidget {
     required this.word,
     required this.index,
     required this.side,
+    required this.slot,
     required this.nameSize,
     required this.bad,
     required this.dim,
@@ -111,6 +117,9 @@ class _WordTile extends StatelessWidget {
   final SasWord? word;
   final int index;
   final double side;
+
+  /// The width the name has: the tile's share of the row.
+  final double slot;
   final double nameSize;
   final bool bad;
 
@@ -162,18 +171,24 @@ class _WordTile extends StatelessWidget {
       label: w?.name ?? emptyLabel,
       excludeSemantics: true,
       child: SizedBox(
-        width: side + 12,
+        width: slot,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Opacity(opacity: dim ? 0.5 : 1, child: square),
             const SizedBox(height: 6),
-            Text(
-              w?.name ?? '…',
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: nameSize, color: w == null || dim ? t.dim : t.text),
+            // The whole name on one line, smaller when it is long: never cut.
+            SizedBox(
+              width: slot,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  w?.name ?? '…',
+                  maxLines: 1,
+                  softWrap: false,
+                  style: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: nameSize, color: w == null || dim ? t.dim : t.text),
+                ),
+              ),
             ),
           ],
         ),
@@ -459,12 +474,15 @@ class PairSwitchRow extends StatelessWidget {
 /// A notice inside a screen: the tone's colour as the card's edge, a bold title, the body and
 /// optional buttons. [tone] is ok, info, warn or risk.
 class PairEdgeNotice extends StatelessWidget {
-  const PairEdgeNotice({super.key, required this.tone, required this.title, this.body, this.actions = const []});
+  const PairEdgeNotice({super.key, required this.tone, required this.title, this.body, this.actions = const [], this.stretchActions = false});
 
   final BadgeTone tone;
   final String title;
   final String? body;
   final List<Widget> actions;
+
+  /// The actions one under the other, each the card's width: a choice of three reads as one.
+  final bool stretchActions;
 
   @override
   Widget build(BuildContext context) {
@@ -507,7 +525,15 @@ class PairEdgeNotice extends StatelessWidget {
                     ],
                     if (actions.isNotEmpty) ...[
                       const SizedBox(height: 10),
-                      Wrap(spacing: 8, runSpacing: 8, children: actions),
+                      if (stretchActions)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var i = 0; i < actions.length; i++) ...[if (i > 0) const SizedBox(height: 8), actions[i]],
+                          ],
+                        )
+                      else
+                        Wrap(spacing: 8, runSpacing: 8, children: actions),
                     ],
                   ],
                 ),
