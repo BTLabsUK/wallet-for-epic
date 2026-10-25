@@ -15380,13 +15380,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveQrRequest => '请求金额';
 
   @override
-  String get expInvoicesTurnOn => '开启账单';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      '请求金额属于账单功能。账单是实验性功能，仍可能变化。可在此开启，或稍后在 设置 › 高级 中开启。';
-
-  @override
   String get reqQrPaidTitle => '已付款';
 
   @override

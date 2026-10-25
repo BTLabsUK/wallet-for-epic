@@ -16241,13 +16241,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveQrRequest => 'Request an amount';
 
   @override
-  String get expInvoicesTurnOn => 'Turn on Invoices';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      'Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.';
-
-  @override
   String get reqQrPaidTitle => 'Paid';
 
   @override

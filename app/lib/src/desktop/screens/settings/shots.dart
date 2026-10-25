@@ -335,5 +335,6 @@ final List<ImportConflict> _conflicts = [
   ImportConflict(key: 's:e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', field: ManualField.label, mine: 'Rent, October', theirs: 'Tom, rent', timeUnix: DateTime(2026, 10, 19, 8, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(-4000000000)),
 ];
 
-/// Shots taken with Pairing and Invoices off, as on a new install; every other shot has them on.
-const deskExperimentalOffShots = {'43-advanced', '43l-advanced-experimental-off', '43m-contacts-pairing-off', '43n-pairing-link-off'};
+/// Shots taken with Pairing and Invoices on (Settings › Advanced › Experimental); every other
+/// shot runs as a new install, with both off. The invoice shots are all in the invoice shots (invoices/shots.dart).
+const deskExperimentalShots = {'43k-advanced-experimental'};

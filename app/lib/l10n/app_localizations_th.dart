@@ -15969,13 +15969,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveQrRequest => 'ขอจำนวนเงิน';
 
   @override
-  String get expInvoicesTurnOn => 'เปิดใบแจ้งหนี้';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      'การขอจำนวนเงินเป็นส่วนหนึ่งของใบแจ้งหนี้ ซึ่งเป็นฟีเจอร์ทดลองและอาจเปลี่ยนได้ เปิดได้ที่นี่ หรือภายหลังที่ การตั้งค่า › ขั้นสูง';
-
-  @override
   String get reqQrPaidTitle => 'ชำระแล้ว';
 
   @override

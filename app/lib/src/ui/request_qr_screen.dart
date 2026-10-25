@@ -8,13 +8,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../advanced.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../network_gate.dart' show NetBlock;
-import '../pairing_providers.dart' show invoicesOnProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
@@ -24,7 +22,6 @@ import 'invoice_review_screen.dart' show ReviewAmount, requestFileRefusal;
 import 'net_block.dart';
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
-import 'scan_result_sheet.dart';
 import 'slate_file_screen.dart' show NotPostedNotice, openSlateFile;
 import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
@@ -37,29 +34,11 @@ const Key requestQrErrorKey = ValueKey('request-qr-error');
 const Key requestQrPaidKey = ValueKey('request-qr-paid');
 const Key requestQrNewKey = ValueKey('request-qr-new');
 
-/// Opens the request form set to show the request as a QR (Receive › Direct · QR). Requests
-/// are part of Invoices, which is experimental: while it is off, a sheet says so and turns it
-/// on in place.
-Future<void> openQrRequest(BuildContext context, WidgetRef ref) async {
-  if (!ref.read(invoicesOnProvider)) {
-    final l = context.l10n;
-    final on = await showScanResultSheet(
-      context,
-      icon: Icons.request_quote_outlined,
-      title: l.expInvoicesOffTitle,
-      text: l.expInvoicesOffQrBody,
-      secondary: l.commonClose,
-      primary: l.expInvoicesTurnOn,
-    );
-    if (!on || !context.mounted) return;
-    await ref.read(appSettingsProvider.notifier).setExperimental(AdvancedFeature.invoices, true);
-    logInfo('invoices', 'Invoices turned on for a QR request');
-    if (!context.mounted) return;
-  }
-  await Navigator.of(context).push<void>(
-    MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen(asQr: true)),
-  );
-}
+/// Opens the request form set to show the request as a QR (Receive › Direct · QR). Receive
+/// offers it only while Invoices is on.
+Future<void> openQrRequest(BuildContext context) => Navigator.of(context).push<void>(
+  MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen(asQr: true)),
+);
 
 /// The request made for a QR: its code opens at once; scanning the payer's answer from there
 /// (or from here) finishes and posts it, and the screen turns into the receipt. New request

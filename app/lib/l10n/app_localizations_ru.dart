@@ -16647,13 +16647,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveQrRequest => 'Запросить сумму';
 
   @override
-  String get expInvoicesTurnOn => 'Включить счета';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      'Запрос суммы — часть счетов, экспериментальной функции, которая ещё может измениться. Включите их здесь или позже в Настройки › Дополнительно.';
-
-  @override
   String get reqQrPaidTitle => 'Оплачено';
 
   @override
