@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
@@ -152,7 +153,7 @@ void main() {
       await wallet.setListening(true);
       expect(session().httpListenerStarts, isEmpty, reason: 'the HTTP switch is off');
 
-      await wallet.saveSettings(const DeskSettings(directHttp: true));
+      await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true)));
       await wallet.setHttpListening(true);
       expect(session().httpListenerStarts.single, (exposure: core.HttpExposure.localOnly, port: 3415));
       expect((await wallet.status()).httpListener, ServiceHealth.checking);
@@ -161,7 +162,7 @@ void main() {
       expect((await wallet.status()).httpListener, ServiceHealth.ok);
       expect(await wallet.httpAddress(), 'http://127.0.0.1:3415');
 
-      await wallet.saveSettings(const DeskSettings(directHttp: true, publicMode: true, httpPort: 3420));
+      await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true), publicMode: true, httpPort: 3420));
       expect(session().httpListenerStops, 1);
       expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
@@ -180,7 +181,7 @@ void main() {
 
     test('Offline with a LAN node: Receive shows the LAN address, the internet is not asked', () async {
       await wallet.useNode('http://10.100.10.20:3413');
-      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true, publicMode: true, httpPort: 3420));
+      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true), publicMode: true, httpPort: 3420)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
       await pumpEventQueue();
@@ -196,7 +197,7 @@ void main() {
     });
 
     test('a port in use becomes the status text; Try again starts it again', () async {
-      await wallet.saveSettings(const DeskSettings(directHttp: true));
+      await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.portInUse, port: 3415));
       await pumpEventQueue();
@@ -232,7 +233,7 @@ void main() {
       expect((await wallet.status()).httpListener, ServiceHealth.off);
     });
 
-    test('unlock starts it only with Start with the wallet', () async {
+    test('unlock starts it only with Link · HTTP on (the one switch)', () async {
       final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
       addTearDown(container.dispose);
       final desk = container.read(deskProvider.notifier);
@@ -242,7 +243,8 @@ void main() {
       expect(session().listenerStarts, 1, reason: 'Epicbox starts with the wallet by default');
       await desk.lock();
       expect(await wallet.unlock(_password), isTrue);
-      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true, epicboxAutostart: false));
+      final own0 = await wallet.settings();
+      await wallet.saveSettings(own0.copyWith(payments: own0.payments.copyWith(linkHttp: true), epicboxAutostart: false));
       await desk.startLive();
       expect(session().httpListenerStarts.single.exposure, core.HttpExposure.localOnly);
       expect(container.read(deskProvider).settings.directHttp, isTrue);
@@ -317,8 +319,9 @@ void main() {
       return container;
     }
 
-    test('a second wallet does not inherit the first one’s reach, port or autostart', () async {
-      await wallet.saveSettings((await wallet.settings()).copyWith(publicMode: true, httpPort: 3420, httpAutostart: true));
+    test('a second wallet does not inherit the first one’s reach or port; Link · HTTP is the app’s switch', () async {
+      final main0 = await wallet.settings();
+      await wallet.saveSettings(main0.copyWith(publicMode: true, httpPort: 3420, payments: main0.payments.copyWith(linkHttp: true)));
       await wallet.createWallet(name: 'Savings', password: _password);
       await wallet.lock();
       final all = await wallet.wallets();
@@ -326,28 +329,29 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       final desk = (await live()).read(deskProvider.notifier);
       await desk.startLive(listen: false);
-      expect(session().httpListenerStarts, isEmpty, reason: 'Savings has autostart off');
+      // Link · HTTP is the app's switch: Savings starts the listener too, on its own reach and port.
+      expect(session().httpListenerStarts.single, (exposure: core.HttpExposure.localOnly, port: 3415));
       final own = await wallet.settings();
-      expect((own.publicMode, own.httpPort, own.httpAutostart), (false, 3415, false));
+      expect((own.publicMode, own.httpPort, own.payments.linkHttp), (false, 3415, true));
 
-      // Savings keeps its own, apart from the first wallet.
-      await wallet.saveSettings(own.copyWith(httpPort: 3500, httpAutostart: true));
+      // Savings keeps its own reach and port, apart from the first wallet.
+      await wallet.saveSettings(own.copyWith(httpPort: 3500));
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);
       expect(await wallet.unlock(_password), isTrue);
       var first = await wallet.settings();
-      expect((first.publicMode, first.httpPort, first.httpAutostart), (true, 3420, true));
+      expect((first.publicMode, first.httpPort, first.payments.linkHttp), (true, 3420, true));
       await desk.startLive(listen: false);
-      expect(session().httpListenerStarts.single, (exposure: core.HttpExposure.internet, port: 3420));
+      expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
       expect(await wallet.unlock(_password), isTrue);
       first = await wallet.settings();
-      expect((first.publicMode, first.httpPort, first.httpAutostart), (false, 3500, true));
+      expect((first.publicMode, first.httpPort, first.payments.linkHttp), (false, 3500, true));
     });
 
     test('a reopen on another node restarts HTTP with the same reach', () async {
-      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true, publicMode: true, httpPort: 3420));
+      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true), publicMode: true, httpPort: 3420)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
       await pumpEventQueue();
@@ -359,7 +363,7 @@ void main() {
 
   group('public address', () {
     test('asked only From the internet with the listener on (Tor: tor_direct_test)', () async {
-      await wallet.saveSettings(const DeskSettings(directHttp: true));
+      await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
       await pumpEventQueue();
@@ -367,7 +371,7 @@ void main() {
       expect(await wallet.httpAddress(), 'http://127.0.0.1:3415');
       expect(probe.asked, 0, reason: 'Local only asks nothing of the internet');
 
-      await wallet.saveSettings(const DeskSettings(directHttp: true, publicMode: true));
+      await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true), publicMode: true));
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
       await pumpEventQueue();
       expect((await wallet.httpReach())?.reachable, isFalse);
@@ -414,4 +418,9 @@ void main() {
       expect(await lanAddress(list: () async => nics({'lo': '127.0.0.1', 'eth0': '169.254.1.2'})), isNull);
     });
   });
+}
+
+
+extension _Let<T> on T {
+  R let<R>(R Function(T) f) => f(this);
 }

@@ -241,7 +241,7 @@ void main() {
       await tester.tap(find.widgetWithText(EButton, 'Add details'));
       await tester.pumpAndSettle();
       expect(find.byType(EDialog), findsOneWidget);
-      await tester.tap(find.text('Link Payment · HTTP'));
+      await tester.tap(find.text('Link · HTTP'));
       final fields = find.descendant(of: find.byType(EDialog), matching: find.byType(TextField));
       await tester.enterText(fields.at(0), '   ');
       await tester.enterText(fields.at(1), 'From the pool');

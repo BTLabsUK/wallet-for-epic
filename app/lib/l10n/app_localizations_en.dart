@@ -5098,6 +5098,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodShortFile => 'Direct · File';
 
   @override
+  String get methodGroupHttp => 'HTTP';
+
+  @override
+  String get methodGroupTor => 'Tor';
+
+  @override
   String get methodDirectQr => 'Direct · QR Payment';
 
   @override
@@ -7450,7 +7456,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'When reading it out, check the first six and last six characters.';
 
   @override
-  String get deskRecvHttpAddress => 'Link Payment · HTTP address';
+  String get deskRecvHttpAddress => 'Link · HTTP address';
 
   @override
   String get deskRecvCopyHttp => 'Copy HTTP address';
@@ -7473,14 +7479,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Turn on Tor in Settings › Privacy for a Tor address instead.';
 
   @override
-  String get deskRecvDirectTor => 'Link Payment · Tor address';
+  String get deskRecvDirectTor => 'Link · Tor address';
 
   @override
   String get deskRecvTorIntro =>
       'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.';
 
   @override
-  String get deskRecvTorAddress => 'Link Payment · Tor address';
+  String get deskRecvTorAddress => 'Link · Tor address';
 
   @override
   String get deskRecvCopyTor => 'Copy Tor address';

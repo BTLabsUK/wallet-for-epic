@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
-import '../../../ui/method_icons.dart' show MethodIcons;
 import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
@@ -61,7 +60,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     Future.microtask(() async {
       final n = ref.read(deskProvider.notifier);
       final s = ref.read(deskProvider).settings;
-      if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) await n.setTor(true);
+      if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) {
+        // Link · Tor on with Tor: its group shows with the Tor state.
+        if (!s.payments.linkTor) await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
+        await n.setTor(true);
+      }
       if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
       if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
       if (arg == ReceivingDemo.directOn || arg == ReceivingDemo.sendOptions) {

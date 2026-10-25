@@ -19,7 +19,6 @@ import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
-import 'method_icons.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';

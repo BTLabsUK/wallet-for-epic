@@ -8,5 +8,5 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> advancedOn(ProviderContainer c, {Set<AdvancedFeature>? only}) async {
   final s = c.read(deskProvider).settings;
   final prefs = only == null ? AdvancedPrefs.all : AdvancedPrefs(features: only);
-  await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: prefs, payments: s.payments.copyWith(direct: true)));
+  await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: prefs, payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
 }

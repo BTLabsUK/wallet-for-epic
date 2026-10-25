@@ -147,15 +147,15 @@ void main() {
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'File').enabled, isTrue);
-      expect(segment(tester, 'File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
+      expect(segment(tester, 'Direct · File').enabled, isTrue);
+      expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
     });
 
     testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       expect(segment(tester, 'Link').enabled, isTrue);
-      expect(segment(tester, 'File').enabled, isTrue);
+      expect(segment(tester, 'Direct · File').enabled, isTrue);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
       expect(find.byKey(const ValueKey('send-offline-no-peers')), findsOneWidget);
       expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
@@ -167,8 +167,8 @@ void main() {
       expect(find.text('Waiting for Tor. Tor only is on in Advanced.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       // A file needs no connection of its own: it goes on while Tor connects.
-      expect(segment(tester, 'File').enabled, isTrue);
-      await tester.tap(find.text('File'));
+      expect(segment(tester, 'Direct · File').enabled, isTrue);
+      await tester.tap(find.text('Direct · File'));
       await _settle(tester);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
     });
@@ -182,12 +182,12 @@ void main() {
     testWidgets('Link receiving off: a pasted onion brings the Link segment for this send', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
       List<String> labels() => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.map((s) => s.label).toList();
-      expect(labels(), ['Epicbox', 'File']);
+      expect(labels(), ['Epicbox', 'Direct · File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(labels(), ['Epicbox', 'Link', 'File']);
+      expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
-      expect(_container.read(deskProvider).settings.payments.direct, isFalse, reason: 'nothing was switched on');
+      expect(_container.read(deskProvider).settings.payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
     });
   });
 

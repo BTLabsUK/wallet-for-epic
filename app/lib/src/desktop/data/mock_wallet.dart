@@ -705,9 +705,14 @@ class MockDeskWallet implements DeskWalletApi {
     NetGate.set(mode);
     NetGate.setPayments(settings.payments);
     if (!settings.payments.epicbox) _listening = false;
-    // Link · HTTP is the one HTTP switch (the adapter): the listener follows it.
+    // Link · HTTP is the one HTTP switch (the adapter): the listener follows it, on while
+    // Tor is off, off at once.
     settings = settings.copyWith(directHttp: settings.payments.linkHttp, httpAutostart: settings.payments.linkHttp);
-    if (!settings.payments.linkHttp) _http = false;
+    if (!settings.payments.linkHttp) {
+      _http = false;
+    } else if (!_settings.payments.linkHttp && !settings.tor) {
+      _http = true;
+    }
     _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
   }
 

@@ -1,4 +1,4 @@
-// The one naming rule for a payment method on the desktop: Epicbox, Link Payment · HTTP, Link Payment · Tor
+// The one naming rule for a payment method on the desktop: Epicbox, Link · HTTP, Link · Tor
 // or File, in each language, in Activity, the details, the kind tag of an address and the receiving
 // rail. HTTP and Tor are Link's transport and never a method on their own.
 import 'package:epic_wallet/src/desktop/data/history_files.dart';
@@ -13,8 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _names = <String, List<String>>{
-  'en': ['Epicbox', 'Link Payment · HTTP', 'Link Payment · Tor', 'File'],
-  'de': ['Epicbox', 'Link-Zahlung · HTTP', 'Link-Zahlung · Tor', 'Datei'],
+  'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'File'],
+  'de': ['Epicbox', 'Link-Zahlung · HTTP', 'Link · Tor', 'Datei'],
   'pl': ['Epicbox', 'Płatność linkiem · HTTP', 'Płatność linkiem · Tor', 'Plik'],
   'ru': ['Epicbox', 'Платёж по ссылке · HTTP', 'Платёж по ссылке · Tor', 'Файл'],
   'zh': ['Epicbox', '链接付款 · HTTP', '链接付款 · Tor', '文件'],
@@ -63,24 +63,24 @@ void main() {
   });
 
   group('Activity and the details', () {
-    testWidgets('a Link send over HTTP reads Link Payment · HTTP, never HTTP alone', (tester) async {
+    testWidgets('a Link send over HTTP reads Link · HTTP, never HTTP alone', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 35));
-      expect(find.text('Link Payment · HTTP'), findsWidgets);
+      expect(find.text('Link · HTTP'), findsWidgets);
       expect(find.text('HTTP'), findsNothing);
       expect(find.text('Tor'), findsNothing);
     });
 
-    testWidgets('a Link receive over Tor reads Link Payment · Tor, never Tor alone', (tester) async {
+    testWidgets('a Link receive over Tor reads Link · Tor, never Tor alone', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 33));
-      expect(find.text('Link Payment · Tor'), findsWidgets);
+      expect(find.text('Link · Tor'), findsWidgets);
       expect(find.text('Tor'), findsNothing);
       expect(find.text('HTTP'), findsNothing);
     });
 
     testWidgets('the table names the method in the language', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 33), locale: const Locale('de'));
-      expect(find.text('Link-Zahlung · Tor'), findsWidgets);
-      expect(find.text('Link Payment · Tor'), findsNothing);
+      expect(find.text('Link · Tor'), findsWidgets);
+      expect(find.text('Link · Tor'), findsNothing);
     });
   });
 
@@ -93,8 +93,9 @@ void main() {
       ),
     );
     expect(find.text('Epicbox'), findsOneWidget);
-    expect(find.text('HTTP'), findsOneWidget);
-    expect(find.text('Tor'), findsOneWidget);
+    expect(find.text('Link · HTTP'), findsOneWidget);
+    expect(find.text('Link · Tor'), findsOneWidget);
+    expect(find.text('HTTP'), findsNothing, reason: 'a sub-option never stands alone');
     expect(find.byIcon(EIcons.epicbox), findsOneWidget);
     expect(find.byIcon(EIcons.http), findsOneWidget);
     expect(find.byIcon(EIcons.tor), findsOneWidget);
@@ -111,7 +112,7 @@ void main() {
     );
     expect(find.byType(Text), findsNothing);
     expect(find.byIcon(EIcons.tor), findsOneWidget);
-    expect(find.byTooltip('Link Payment · Tor'), findsOneWidget);
-    expect(find.bySemanticsLabel('Link Payment · Tor'), findsOneWidget);
+    expect(find.byTooltip('Link · Tor'), findsOneWidget);
+    expect(find.bySemanticsLabel('Link · Tor'), findsOneWidget);
   });
 }
