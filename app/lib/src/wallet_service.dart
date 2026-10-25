@@ -20,6 +20,12 @@ export 'pairing_api.dart';
 abstract interface class WalletService {
   bool validateMnemonic({required String phrase});
 
+  /// The wallet's fingerprint for [mnemonic] on [chain]: 8 lowercase hex characters, the same
+  /// value [WalletSession.fingerprint] gives for a wallet created, restored or imported
+  /// (wallet.seed) with that phrase, so "is this wallet here already" has one answer. A phrase
+  /// that is not one throws [WalletError] with [WalletErrorKind.invalidMnemonic].
+  String walletFingerprint({required String mnemonic, required Chain chain});
+
   /// Reads a slate's id, amount, fee and step without touching a wallet. Throws [WalletError]
   /// with [WalletErrorKind.invalidSlate] for anything that is not a slate. LEPIC reads it on
   /// the chain of the last wallet config it saw.
@@ -213,6 +219,9 @@ abstract interface class WalletSession {
   });
 
   Future<String> epicboxAddress();
+
+  /// This wallet's fingerprint ([WalletService.walletFingerprint] of its phrase and chain).
+  Future<String> fingerprint();
 
   /// What a send of [amount] with [options] would spend, pay and get back now, with nothing
   /// locked. Pass the [options] the send will get.
@@ -616,6 +625,16 @@ String onionHost(String address) {
   return m == null ? address.trim() : '${m[0]!.toLowerCase()}.onion';
 }
 
+/// The fakes' [WalletService.walletFingerprint]: 8 hex characters of an FNV-1a hash of the
+/// chain and the phrase (the core's own value is derived from the seed).
+String fakeWalletFingerprint(String mnemonic, Chain chain) {
+  var h = 0x811c9dc5;
+  for (final b in utf8.encode('${chain.name} $mnemonic')) {
+    h = ((h ^ b) * 0x01000193) & 0xffffffff;
+  }
+  return h.toRadixString(16).padLeft(8, '0');
+}
+
 /// In-memory wallet for widget tests. Holds at most one wallet per data directory.
 ///
 /// Nothing here touches disk, the network or the native library.
@@ -658,6 +677,14 @@ class FakeWalletService implements WalletService {
 
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
+
+  @override
+  String walletFingerprint({required String mnemonic, required Chain chain}) {
+    if (!validateMnemonic(phrase: mnemonic)) {
+      throw const WalletError(kind: WalletErrorKind.invalidMnemonic, message: 'not a phrase');
+    }
+    return fakeWalletFingerprint(mnemonic, chain);
+  }
 
   /// Slates [inspectSlate] recognises, by JSON text.
   final Map<String, SlateInfo> slateInfos = {};
@@ -855,6 +882,9 @@ class FakeWalletService implements WalletService {
   /// The only seed password [importWalletSeed] accepts; any other is wrong.
   String seedFilePassword = 'old password';
 
+  /// The phrase behind the seed file [importWalletSeed] takes; [phrase] when null.
+  String? seedFilePhrase;
+
   @override
   Future<WalletSession> importWalletSeed({
     required WalletConfig config,
@@ -879,6 +909,7 @@ class FakeWalletService implements WalletService {
     createdConfig = config;
     importedSeedFile = seedFile;
     importedSeedPassword = seedPassword;
+    phraseOf[config.dataDir] = seedFilePhrase ?? phrase;
     session.openedConfig = config;
     return session;
   }
@@ -1257,6 +1288,19 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<String> epicboxAddress() async => address;
+
+  /// [fingerprint]'s answer; null: [fakeWalletFingerprint] of the phrase its service made it with.
+  String? fingerprintValue;
+
+  @override
+  Future<String> fingerprint() async {
+    final dir = openedConfig?.dataDir;
+    return fingerprintValue ??
+        fakeWalletFingerprint(
+          owner?.phraseOf[dir] ?? owner?.phrase ?? '',
+          openedConfig?.chain ?? Chain.mainnet,
+        );
+  }
 
   @override
   Future<FeeEstimate> estimateFee({

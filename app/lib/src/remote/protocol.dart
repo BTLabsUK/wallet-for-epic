@@ -33,6 +33,7 @@ enum SessionMember {
   createSendSlate,
   epicboxAddress,
   restoreScanRequired,
+  fingerprint,
   estimateFee,
   finalizeAndPost,
   sendEpicbox,

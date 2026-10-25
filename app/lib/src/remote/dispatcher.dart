@@ -421,6 +421,7 @@ class WalletDispatcher {
     ),
     SessionMember.epicboxAddress => _once(s.epicboxAddress(), stringWire),
     SessionMember.restoreScanRequired => _once(s.restoreScanRequired(), boolWire),
+    SessionMember.fingerprint => _once(s.fingerprint(), stringWire),
     SessionMember.estimateFee => _once(
       s.estimateFee(
         amount: p.of('amount', bigIntWire),

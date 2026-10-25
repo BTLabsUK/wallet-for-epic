@@ -440,6 +440,15 @@ class RemoteWalletService implements WalletService {
   @override
   bool validateMnemonic({required String phrase}) => validMnemonic(phrase);
 
+  /// Answered by the core only, which a call cannot reach synchronously; the open wallet's
+  /// [WalletSession.fingerprint] goes to the server.
+  @override
+  String walletFingerprint({required String mnemonic, required Chain chain}) =>
+      throw const WalletError(
+        kind: WalletErrorKind.other,
+        message: 'no wallet fingerprint in the browser',
+      );
+
   /// The address syntax only; the server's send has the final word.
   @override
   bool validateEpicboxAddress({required String address}) =>
@@ -692,6 +701,9 @@ class RemoteWalletSession implements WalletSession {
   @override
   Future<bool> restoreScanRequired() =>
       _call(SessionMember.restoreScanRequired, boolWire);
+
+  @override
+  Future<String> fingerprint() => _call(SessionMember.fingerprint, stringWire);
 
   @override
   Future<FeeEstimate> estimateFee({

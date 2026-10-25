@@ -78,6 +78,10 @@ class GatedWalletService implements WalletService {
       _inner.validateMnemonic(phrase: phrase);
 
   @override
+  String walletFingerprint({required String mnemonic, required Chain chain}) =>
+      _inner.walletFingerprint(mnemonic: mnemonic, chain: chain);
+
+  @override
   Future<SlateInfo> inspectSlate({required String json}) =>
       _inner.inspectSlate(json: json);
 
@@ -283,6 +287,9 @@ class GatedWalletSession implements WalletSession {
 
   @override
   Future<String> epicboxAddress() => _inner.epicboxAddress();
+
+  @override
+  Future<String> fingerprint() => _inner.fingerprint();
 
   @override
   Future<FeeEstimate> estimateFee({
