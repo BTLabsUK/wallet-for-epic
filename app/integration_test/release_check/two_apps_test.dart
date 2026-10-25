@@ -310,7 +310,8 @@ void main() {
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
       await settle(tester, ms: 2000);
       await tester.tap(find.byKey(deskPairCopyCardKey));
-      await settle(tester, ms: 1500);
+      // Making a card is a native call: give it its time.
+      await pumpUntil(tester, () => containerOf(tester).read(deskOwnCardProvider) != null, timeout: const Duration(seconds: 60), what: 'A\'s card');
       final card = containerOf(tester).read(deskOwnCardProvider);
       rc('c: A made its card link', card?.link.startsWith('epiccash://contact/1/') ?? false, '');
       await shot(tester, 'A-c-card');
