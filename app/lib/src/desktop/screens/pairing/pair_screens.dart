@@ -736,6 +736,10 @@ const Key deskSaveContactNameKey = ValueKey('desk-save-contact-name');
 Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pairingId, {bool recheck = false}) =>
     showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: recheck));
 
+/// [showDeskCheckWords] from a plain [BuildContext], for the screenshot catalogue.
+Future<void> showDeskCheckWordsFor(BuildContext context, String pairingId) =>
+    showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: false));
+
 class _CheckDialog extends ConsumerStatefulWidget {
   const _CheckDialog({required this.pairingId, required this.recheck});
 

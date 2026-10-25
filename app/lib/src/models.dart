@@ -2627,6 +2627,7 @@ class PairingRecord {
     PairingCaps? caps,
     PairingParty? kind,
     String? paymentsAddress,
+    List<SasWord>? inviteWords,
   }) => PairingRecord(
     id: id,
     state: state ?? this.state,
@@ -2649,7 +2650,7 @@ class PairingRecord {
     lastSealedIn: lastSealedIn ?? this.lastSealedIn,
     expiresAt: expiresAt ?? this.expiresAt,
     inviteLink: inviteLink,
-    inviteWords: inviteWords,
+    inviteWords: inviteWords ?? this.inviteWords,
     relayDown: relayDown ?? this.relayDown,
     otherDevice: otherDevice ?? this.otherDevice,
   );

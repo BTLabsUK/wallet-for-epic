@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shots.dart';
 import '../../data/invoice_state.dart';
+import '../../../models.dart' show PairingState;
+import '../../../sas_table.dart';
 import '../../data/mock_wallet.dart';
+import '../../data/pairing_state.dart' show deskPairingsProvider;
+import '../pairing/pair_screens.dart' show showDeskCheckWordsFor;
 import '../../widgets/kit.dart';
 import '../wallet/contacts_screen.dart' show ContactsArgs;
 
@@ -84,6 +88,18 @@ final List<DeskShot> invoiceSetShotsCore = [
   const DeskShot(id: 'inv-set-08-contact-exchange', title: 'Contact: an exchange, invoices allowed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c8')),
   const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: show my code, enter link or words, invite online', route: DeskRoute.pair),
   const DeskShot(id: 'pair-02-pending', title: 'Contacts › Pending invites', route: DeskRoute.pairPending),
+  // The words check with the table's longest names: each one whole (acceptance F1).
+  DeskShot(
+    id: 'pair-03-check-words',
+    title: 'The words check dialog, the longest names',
+    route: DeskRoute.pair,
+    prepare: (c, _) async {
+      final longest = ([...sasTable]..sort((a, b) => b.name.length.compareTo(a.name.length))).take(4).toList();
+      (c.read(deskApiProvider) as MockDeskWallet).pairing.seedPaired(id: 'p-long-words', name: 'Northwind', state: PairingState.paired, sas: longest);
+      c.invalidate(deskPairingsProvider);
+    },
+    dialog: (ctx) => showDeskCheckWordsFor(ctx, 'p-long-words'),
+  ),
   const DeskShot(id: 'inv-set-03b-contact-1920', title: 'Contact at 1920', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1'), width: 1920, height: 1080),
   const DeskShot(id: 'inv-set-06-receive', title: 'Receive: Issue an invoice beside the Epicbox address', route: DeskRoute.receive),
 ];
