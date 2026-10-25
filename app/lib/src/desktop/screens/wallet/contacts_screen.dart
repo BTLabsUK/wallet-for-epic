@@ -238,18 +238,31 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       ),
     );
 
+    final compactBar = MediaQuery.sizeOf(context).width < Bp.phone;
     return EPage(
       title: l.deskConTitle,
       width: EPageWidth.full,
       actions: [
+        // In a phone-wide window the pairing actions are icons (named in their tooltips), so
+        // the bar keeps room for the title and Add contact at any text size.
         if (ref.watch(deskPairsProvider)) ...[
           if (ref.watch(deskPendingPairingsProvider).isNotEmpty)
-            EButton.ghost(
-              label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
-              icon: EIcons.clock,
-              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
-            ),
-          EButton.ghost(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair)),
+            if (compactBar)
+              EIconButton(
+                label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
+                icon: EIcons.clock,
+                onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
+              )
+            else
+              EButton.ghost(
+                label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
+                icon: EIcons.clock,
+                onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
+              ),
+          if (compactBar)
+            EIconButton(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair))
+          else
+            EButton.ghost(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair)),
         ],
         if (_adding || _editing)
           EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
