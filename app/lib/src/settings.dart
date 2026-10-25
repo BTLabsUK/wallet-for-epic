@@ -447,8 +447,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       if (sealed != null || backedUp != null) hadWallet = true;
     }
     if (hadWallet) {
-      // As the version before read it: nothing stored means File on.
-      final before = PaymentPrefs.decode(payments, legacyDirect: legacyDirect, phone: true);
+      // As the version before read it: nothing stored means File on (QR on as well, the
+      // phone's defaults otherwise).
+      final decoded = PaymentPrefs.decode(payments, legacyDirect: legacyDirect, phone: true);
+      final before = payments == null || payments.isEmpty ? decoded.copyWith(directFile: true) : decoded;
       if (before.directFile) {
         payments = before.encode();
         await store.write(_paymentsKey, payments);
