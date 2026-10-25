@@ -9,6 +9,7 @@ import 'demo.dart';
 import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'node_failover_phone.dart';
+import 'phone_http.dart';
 import 'providers.dart';
 import 'push_controller.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -68,6 +69,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Push notifications follow every unlock and the Tor switch (push_controller.dart); what
     // they tell the user is said here, where the language is known.
     ref.listenManual(pushControllerProvider, (_, _) {});
+    // Alive for the app's life: the Link · HTTP listener runs while a wallet is open and its
+    // switch is on, stops on lock and while Tor is on, and starts again on resume.
+    ref.listenManual(phoneHttpProvider, (_, _) {});
     ref.listenManual(pushNoteProvider, (_, event) {
       final context = _navigator.currentContext;
       if (event == null || context == null) return;
