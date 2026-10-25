@@ -10,6 +10,7 @@ library;
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart' show AndroidAuthMessages;
@@ -145,9 +146,13 @@ class PlatformBiometricStore implements BiometricStore {
   /// cookie"); past this the call counts as dismissed rather than waiting for good (AND-5).
   static const Duration promptLimit = Duration(seconds: 90);
 
+  /// How long a call may stay unanswered once the app is back in front, the prompt gone. A
+  /// confirmed prompt answers within moments; one dismissed with "Use PIN" never does.
+  static const Duration answerGrace = Duration(seconds: 3);
+
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
-      return await action().timeout(promptLimit);
+      return await _promptAnswer(action()).timeout(promptLimit);
     } on TimeoutException {
       logInfo('biometrics', 'not unlocked: no answer');
       throw const BiometricCancelled('no answer');
@@ -158,6 +163,38 @@ class PlatformBiometricStore implements BiometricStore {
       logInfo('biometrics', 'not unlocked: ${error.code.name}');
       throw BiometricCancelled(error.description ?? error.code.name);
     }
+  }
+
+  /// [call], or [BiometricCancelled] once the app was covered by a prompt, came back to the
+  /// front and [answerGrace] passed with no answer: the prompt was dismissed and the store will
+  /// not say so (AND-5). Covered again meanwhile (the store's own prompt after local_auth's),
+  /// the wait starts over.
+  Future<T> _promptAnswer<T>(Future<T> call) {
+    final done = Completer<T>();
+    Timer? grace;
+    var covered = false;
+    final watch = _LifecycleWatch((state) {
+      if (state == AppLifecycleState.inactive || state == AppLifecycleState.hidden) {
+        covered = true;
+        grace?.cancel();
+        grace = null;
+      } else if (state == AppLifecycleState.resumed && covered) {
+        grace?.cancel();
+        grace = Timer(answerGrace, () {
+          if (!done.isCompleted) done.completeError(const BiometricCancelled('dismissed'));
+        });
+      }
+    });
+    WidgetsBinding.instance.addObserver(watch);
+    call.then((v) {
+      if (!done.isCompleted) done.complete(v);
+    }, onError: (Object e, StackTrace st) {
+      if (!done.isCompleted) done.completeError(e, st);
+    });
+    return done.future.whenComplete(() {
+      grace?.cancel();
+      WidgetsBinding.instance.removeObserver(watch);
+    });
   }
 
   // flutter_secure_storage 11.2.0 keeps the key it unlocked for the first write of a new
@@ -171,7 +208,8 @@ class PlatformBiometricStore implements BiometricStore {
   Future<bool> _authenticate() => _auth.authenticate(
     localizedReason: prompt.subtitle,
     authMessages: [
-      AndroidAuthMessages(signInTitle: prompt.title, signInHint: prompt.subtitle, cancelButton: prompt.usePin),
+      // No hint line: the reason above already says it, and the prompt hides an empty one.
+      AndroidAuthMessages(signInTitle: prompt.title, signInHint: '', cancelButton: prompt.usePin),
     ],
     biometricOnly: true,
     sensitiveTransaction: false,
@@ -247,4 +285,13 @@ class MemoryBiometricStore implements BiometricStore {
     deletes++;
     values.remove(key);
   }
+}
+
+class _LifecycleWatch with WidgetsBindingObserver {
+  _LifecycleWatch(this.onChange);
+
+  final void Function(AppLifecycleState state) onChange;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) => onChange(state);
 }
