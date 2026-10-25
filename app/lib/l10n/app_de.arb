@@ -4403,8 +4403,8 @@
   "deskSlotSending": "Zahlung wird gesendet",
   "deskSlotPaymentOut": "Zahlung unterwegs",
   "deskSlotPaymentIn": "Zahlung kommt an",
-  "deskSlotPaymentsOut": "Zahlungen unterwegs ({count})",
-  "deskSlotPaymentsMoving": "Zahlungen in Bestätigung ({count})",
+  "deskSlotPaymentsOut": "Zahlungen unterwegs",
+  "deskSlotPaymentsMoving": "Zahlungen bestätigen",
   "deskSlotOf": "{done} von {needed}",
   "deskSlotWaitingBlock": "wartet auf einen Block",
   "deskSlotRequests": "Neue Anfragen",
@@ -4415,5 +4415,11 @@
   "deskBarBuildCopied": "Build-Info kopiert",
   "deskBarBuildTip": "Version {version}, Commit {commit}. Ein Klick kopiert die Build-Info.",
   "deskBarBuildTipRebuild": "Version {version}, Neubau {rebuild}, Commit {commit}. Ein Klick kopiert die Build-Info.",
-  "deskBarBuildTipDev": "Version {version}. Ein Entwicklungs-Build. Ein Klick kopiert die Build-Info."
+  "deskBarBuildTipDev": "Version {version}. Ein Entwicklungs-Build. Ein Klick kopiert die Build-Info.",
+  "deskSlotOpenAdvanced": "Erweiterte Einstellungen öffnen",
+  "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
+  "deskSlotOpenSend": "Senden öffnen",
+  "deskSlotOpenActivity": "In Aktivität öffnen",
+  "deskSlotOpenInvoices": "Rechnungen öffnen",
+  "deskBarKeyMenu": "App-Menü öffnen"
 }

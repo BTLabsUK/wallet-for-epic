@@ -16418,14 +16418,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSlotPaymentIn => 'การชำระเงินกำลังเข้ามา';
 
   @override
-  String deskSlotPaymentsOut(String count) {
-    return 'การชำระเงินกำลังดำเนินการ ($count)';
-  }
+  String get deskSlotPaymentsOut => 'การชำระเงินกำลังดำเนินการ';
 
   @override
-  String deskSlotPaymentsMoving(String count) {
-    return 'การชำระเงินกำลังยืนยัน ($count)';
-  }
+  String get deskSlotPaymentsMoving => 'กำลังยืนยันการชำระ';
 
   @override
   String deskSlotOf(String done, String needed) {
@@ -16469,4 +16465,22 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'เวอร์ชัน $version บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์';
   }
+
+  @override
+  String get deskSlotOpenAdvanced => 'เปิดการตั้งค่าขั้นสูง';
+
+  @override
+  String get deskSlotOpenRecheck => 'เปิดตรวจยอดใหม่';
+
+  @override
+  String get deskSlotOpenSend => 'เปิดส่ง';
+
+  @override
+  String get deskSlotOpenActivity => 'เปิดในประวัติ';
+
+  @override
+  String get deskSlotOpenInvoices => 'เปิดใบแจ้งหนี้';
+
+  @override
+  String get deskBarKeyMenu => 'เปิดเมนูแอป';
 }

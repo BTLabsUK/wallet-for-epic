@@ -1985,8 +1985,15 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     super.dispose();
   }
 
+  // From the press on, a send is in progress: closing the app waits for it (close_guard.dart),
+  // also while the password is checked.
   Future<void> _go() async {
     if (!_ready) return;
+    final sending = ProviderScope.containerOf(context, listen: false).read(deskSendingProvider.notifier);
+    await sending.during(_send);
+  }
+
+  Future<void> _send() async {
     setState(() => _busy = true);
     final recheck = widget.recheck;
     if (recheck != null) {
@@ -1995,7 +2002,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         fresh = await recheck(_draft);
       } on Object catch (e) {
         // Nothing left: the send cannot be built as reviewed any more.
-        if (mounted) Navigator.of(context).pop(SendFailed(deskErrorText(e)));
+        _close(SendFailed(deskErrorText(e)));
         return;
       }
       if (!mounted) return;
@@ -2035,7 +2042,20 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       logWarn('desk', 'send ended with ${e.runtimeType}');
       r = SendFailed.l10n((l) => l.deskSendNotConfirmed, inActivity: true);
     }
-    if (mounted) Navigator.of(context).pop(r);
+    _close(r);
+  }
+
+  /// Closes this dialog with [r], also when another one opened over it meanwhile (Close asked
+  /// "A send is in progress" during the send): only this route goes.
+  void _close(SendResult r) {
+    if (!mounted) return;
+    final route = ModalRoute.of(context);
+    final nav = Navigator.of(context);
+    if (route == null || route.isCurrent) {
+      nav.pop(r);
+    } else {
+      nav.removeRoute(route, r);
+    }
   }
 
   /// A Direct address's host and port (`1.2.3.4:3415`, `<56 characters>.onion`).

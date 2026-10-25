@@ -10,12 +10,17 @@
   "deskSlotSending": "Wysyłanie płatności",
   "deskSlotPaymentOut": "Płatność w drodze",
   "deskSlotPaymentIn": "Płatność nadchodzi",
-  "deskSlotPaymentsOut": "Płatności w drodze ({count})",
-  "deskSlotPaymentsMoving": "Płatności w potwierdzaniu ({count})",
+  "deskSlotPaymentsOut": "Płatności w drodze",
+  "deskSlotPaymentsMoving": "Płatności w toku",
   "deskSlotOf": "{done} z {needed}",
   "deskSlotWaitingBlock": "czeka na blok",
   "deskSlotRequests": "Nowe żądania",
   "deskSlotNodeStarting": "Uruchamianie węzła lokalnego",
   "deskSlotNodeSyncing": "Synchronizacja węzła lokalnego",
-  "deskSlotUpdateDot": "Dostępna aktualizacja, {version}. Pokazuje aktualizację."
+  "deskSlotUpdateDot": "Dostępna aktualizacja, {version}. Pokazuje aktualizację.",
+  "deskSlotOpenAdvanced": "Otwórz ustawienia zaawansowane",
+  "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
+  "deskSlotOpenSend": "Otwórz Wyślij",
+  "deskSlotOpenActivity": "Otwórz w Aktywności",
+  "deskSlotOpenInvoices": "Otwórz Faktury"
 }

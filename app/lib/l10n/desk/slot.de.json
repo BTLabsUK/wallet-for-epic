@@ -10,12 +10,17 @@
   "deskSlotSending": "Zahlung wird gesendet",
   "deskSlotPaymentOut": "Zahlung unterwegs",
   "deskSlotPaymentIn": "Zahlung kommt an",
-  "deskSlotPaymentsOut": "Zahlungen unterwegs ({count})",
-  "deskSlotPaymentsMoving": "Zahlungen in Bestätigung ({count})",
+  "deskSlotPaymentsOut": "Zahlungen unterwegs",
+  "deskSlotPaymentsMoving": "Zahlungen bestätigen",
   "deskSlotOf": "{done} von {needed}",
   "deskSlotWaitingBlock": "wartet auf einen Block",
   "deskSlotRequests": "Neue Anfragen",
   "deskSlotNodeStarting": "Lokaler Node startet",
   "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
-  "deskSlotUpdateDot": "Update verfügbar, {version}. Zeigt das Update."
+  "deskSlotUpdateDot": "Update verfügbar, {version}. Zeigt das Update.",
+  "deskSlotOpenAdvanced": "Erweiterte Einstellungen öffnen",
+  "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
+  "deskSlotOpenSend": "Senden öffnen",
+  "deskSlotOpenActivity": "In Aktivität öffnen",
+  "deskSlotOpenInvoices": "Rechnungen öffnen"
 }

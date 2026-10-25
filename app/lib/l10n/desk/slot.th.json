@@ -10,12 +10,17 @@
   "deskSlotSending": "กำลังส่งการชำระเงิน",
   "deskSlotPaymentOut": "การชำระเงินกำลังดำเนินการ",
   "deskSlotPaymentIn": "การชำระเงินกำลังเข้ามา",
-  "deskSlotPaymentsOut": "การชำระเงินกำลังดำเนินการ ({count})",
-  "deskSlotPaymentsMoving": "การชำระเงินกำลังยืนยัน ({count})",
+  "deskSlotPaymentsOut": "การชำระเงินกำลังดำเนินการ",
+  "deskSlotPaymentsMoving": "กำลังยืนยันการชำระ",
   "deskSlotOf": "{done} จาก {needed}",
   "deskSlotWaitingBlock": "รอบล็อก",
   "deskSlotRequests": "คำขอใหม่",
   "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
   "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
-  "deskSlotUpdateDot": "มีอัปเดต {version} แสดงการอัปเดต"
+  "deskSlotUpdateDot": "มีอัปเดต {version} แสดงการอัปเดต",
+  "deskSlotOpenAdvanced": "เปิดการตั้งค่าขั้นสูง",
+  "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
+  "deskSlotOpenSend": "เปิดส่ง",
+  "deskSlotOpenActivity": "เปิดในประวัติ",
+  "deskSlotOpenInvoices": "เปิดใบแจ้งหนี้"
 }

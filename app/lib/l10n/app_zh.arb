@@ -4403,8 +4403,8 @@
   "deskSlotSending": "正在发送付款",
   "deskSlotPaymentOut": "付款途中",
   "deskSlotPaymentIn": "付款到账中",
-  "deskSlotPaymentsOut": "付款途中（{count}）",
-  "deskSlotPaymentsMoving": "付款确认中（{count}）",
+  "deskSlotPaymentsOut": "付款途中",
+  "deskSlotPaymentsMoving": "付款确认中",
   "deskSlotOf": "{done}/{needed}",
   "deskSlotWaitingBlock": "等待区块",
   "deskSlotRequests": "新请求",
@@ -4415,5 +4415,11 @@
   "deskBarBuildCopied": "已复制构建信息",
   "deskBarBuildTip": "版本 {version}，提交 {commit}。点击可复制构建信息。",
   "deskBarBuildTipRebuild": "版本 {version}，重建 {rebuild}，提交 {commit}。点击可复制构建信息。",
-  "deskBarBuildTipDev": "版本 {version}。开发版本。点击可复制构建信息。"
+  "deskBarBuildTipDev": "版本 {version}。开发版本。点击可复制构建信息。",
+  "deskSlotOpenAdvanced": "打开高级设置",
+  "deskSlotOpenRecheck": "打开重新核对余额",
+  "deskSlotOpenSend": "打开发送",
+  "deskSlotOpenActivity": "在活动中打开",
+  "deskSlotOpenInvoices": "打开账单",
+  "deskBarKeyMenu": "打开应用菜单"
 }

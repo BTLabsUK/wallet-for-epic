@@ -233,4 +233,37 @@ void main() {
     expect(copied, startsWith('Epic Cash Desktop '));
     expect(find.text('Build info copied'), findsOneWidget);
   });
+
+  testWidgets('the send ends while "A send is in progress" is open: it goes by itself, the dialog under it stays', (tester) async {
+    final container = await pump(tester);
+    // A dialog of the page under the question (the send's review, in the app).
+    var underClosed = false;
+    unawaited(
+      showDialog<void>(context: deskNavigatorKey.currentContext!, builder: (_) => const Text('under')).then((_) => underClosed = true),
+    );
+    await tester.pumpAndSettle();
+    final done = Completer<void>();
+    final send = container.read(deskSendingProvider.notifier).during(() => done.future);
+    await tester.pump();
+    await tester.tap(bar('close'));
+    await settle(tester);
+    expect(find.text('A send is in progress'), findsOneWidget);
+    done.complete();
+    await send;
+    await settle(tester);
+    expect(find.text('A send is in progress'), findsNothing);
+    expect(find.text('under'), findsOneWidget);
+    expect(underClosed, isFalse);
+    expect(quits, 0);
+  });
+
+  testWidgets('F10 opens the app menu, the keyboard way into the bar', (tester) async {
+    await pump(tester);
+    await tester.sendKeyEvent(LogicalKeyboardKey.f10);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bar-menu-quit')), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bar-menu-quit')), findsNothing);
+  });
 }

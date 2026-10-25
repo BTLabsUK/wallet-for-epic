@@ -4403,8 +4403,8 @@
   "deskSlotSending": "กำลังส่งการชำระเงิน",
   "deskSlotPaymentOut": "การชำระเงินกำลังดำเนินการ",
   "deskSlotPaymentIn": "การชำระเงินกำลังเข้ามา",
-  "deskSlotPaymentsOut": "การชำระเงินกำลังดำเนินการ ({count})",
-  "deskSlotPaymentsMoving": "การชำระเงินกำลังยืนยัน ({count})",
+  "deskSlotPaymentsOut": "การชำระเงินกำลังดำเนินการ",
+  "deskSlotPaymentsMoving": "กำลังยืนยันการชำระ",
   "deskSlotOf": "{done} จาก {needed}",
   "deskSlotWaitingBlock": "รอบล็อก",
   "deskSlotRequests": "คำขอใหม่",
@@ -4415,5 +4415,11 @@
   "deskBarBuildCopied": "คัดลอกข้อมูลบิลด์แล้ว",
   "deskBarBuildTip": "เวอร์ชัน {version} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
   "deskBarBuildTipRebuild": "เวอร์ชัน {version} บิลด์ใหม่ {rebuild} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
-  "deskBarBuildTipDev": "เวอร์ชัน {version} บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์"
+  "deskBarBuildTipDev": "เวอร์ชัน {version} บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์",
+  "deskSlotOpenAdvanced": "เปิดการตั้งค่าขั้นสูง",
+  "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
+  "deskSlotOpenSend": "เปิดส่ง",
+  "deskSlotOpenActivity": "เปิดในประวัติ",
+  "deskSlotOpenInvoices": "เปิดใบแจ้งหนี้",
+  "deskBarKeyMenu": "เปิดเมนูแอป"
 }

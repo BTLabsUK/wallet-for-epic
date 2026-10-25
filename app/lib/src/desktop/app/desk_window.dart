@@ -87,6 +87,15 @@ class DeskWindow {
   Future<void> destroy() async {}
 }
 
+/// The screenshot tour's window: the bar draws the window controls as on a real window, and
+/// nothing moves.
+class PictureDeskWindow extends DeskWindow {
+  const PictureDeskWindow();
+
+  @override
+  bool get frameless => true;
+}
+
 /// The window the bar drives; main_desktop.dart puts in the real one.
 final deskWindowProvider = Provider<DeskWindow>((ref) => DeskWindow.none);
 

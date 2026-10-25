@@ -16724,14 +16724,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSlotPaymentIn => 'Payment arriving';
 
   @override
-  String deskSlotPaymentsOut(String count) {
-    return 'Payments on their way ($count)';
-  }
+  String get deskSlotPaymentsOut => 'Payments on their way';
 
   @override
-  String deskSlotPaymentsMoving(String count) {
-    return 'Payments confirming ($count)';
-  }
+  String get deskSlotPaymentsMoving => 'Payments confirming';
 
   @override
   String deskSlotOf(String done, String needed) {
@@ -16775,4 +16771,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'Version $version. A development build. Click copies the build info.';
   }
+
+  @override
+  String get deskSlotOpenAdvanced => 'Open Advanced settings';
+
+  @override
+  String get deskSlotOpenRecheck => 'Open Recheck balance';
+
+  @override
+  String get deskSlotOpenSend => 'Open Send';
+
+  @override
+  String get deskSlotOpenActivity => 'Open in Activity';
+
+  @override
+  String get deskSlotOpenInvoices => 'Open Invoices';
+
+  @override
+  String get deskBarKeyMenu => 'Open the app menu';
 }

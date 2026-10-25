@@ -17232,14 +17232,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSlotPaymentIn => 'Płatność nadchodzi';
 
   @override
-  String deskSlotPaymentsOut(String count) {
-    return 'Płatności w drodze ($count)';
-  }
+  String get deskSlotPaymentsOut => 'Płatności w drodze';
 
   @override
-  String deskSlotPaymentsMoving(String count) {
-    return 'Płatności w potwierdzaniu ($count)';
-  }
+  String get deskSlotPaymentsMoving => 'Płatności w toku';
 
   @override
   String deskSlotOf(String done, String needed) {
@@ -17283,4 +17279,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'Wersja $version. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji.';
   }
+
+  @override
+  String get deskSlotOpenAdvanced => 'Otwórz ustawienia zaawansowane';
+
+  @override
+  String get deskSlotOpenRecheck => 'Otwórz Sprawdź saldo';
+
+  @override
+  String get deskSlotOpenSend => 'Otwórz Wyślij';
+
+  @override
+  String get deskSlotOpenActivity => 'Otwórz w Aktywności';
+
+  @override
+  String get deskSlotOpenInvoices => 'Otwórz Faktury';
+
+  @override
+  String get deskBarKeyMenu => 'Otwórz menu aplikacji';
 }

@@ -22157,23 +22157,13 @@
   "@deskSlotPaymentIn": {
     "description": "Sidebar slot line: a payment to this wallet is confirming; '1 of 3' (confirmations) follows."
   },
-  "deskSlotPaymentsOut": "Payments on their way ({count})",
+  "deskSlotPaymentsOut": "Payments on their way",
   "@deskSlotPaymentsOut": {
-    "description": "Sidebar slot line: several sent payments are confirming. {count} is how many.",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
+    "description": "Sidebar slot line: several sent payments are confirming (the least advanced one's count follows)."
   },
-  "deskSlotPaymentsMoving": "Payments confirming ({count})",
+  "deskSlotPaymentsMoving": "Payments confirming",
   "@deskSlotPaymentsMoving": {
-    "description": "Sidebar slot line: several payments, sent and received, are confirming. {count} is how many.",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
+    "description": "Sidebar slot line: several payments, sent and received, are confirming. Short: the sidebar is narrow."
   },
   "deskSlotOf": "{done} of {needed}",
   "@deskSlotOf": {
@@ -22255,5 +22245,29 @@
         "type": "String"
       }
     }
+  },
+  "deskSlotOpenAdvanced": "Open Advanced settings",
+  "@deskSlotOpenAdvanced": {
+    "description": "Tooltip line of a sidebar slot line: where its click goes."
+  },
+  "deskSlotOpenRecheck": "Open Recheck balance",
+  "@deskSlotOpenRecheck": {
+    "description": "Tooltip line of the slot's scan line: opens the Recheck balance page."
+  },
+  "deskSlotOpenSend": "Open Send",
+  "@deskSlotOpenSend": {
+    "description": "Tooltip line of the slot's sending line: opens Send."
+  },
+  "deskSlotOpenActivity": "Open in Activity",
+  "@deskSlotOpenActivity": {
+    "description": "Tooltip line of the slot's payment line: opens the payment in Activity."
+  },
+  "deskSlotOpenInvoices": "Open Invoices",
+  "@deskSlotOpenInvoices": {
+    "description": "Tooltip line of the slot's requests line: opens Invoices."
+  },
+  "deskBarKeyMenu": "Open the app menu",
+  "@deskBarKeyMenu": {
+    "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
   }
 }

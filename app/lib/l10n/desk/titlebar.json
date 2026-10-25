@@ -148,5 +148,9 @@
         "type": "String"
       }
     }
+  },
+  "deskBarKeyMenu": "Open the app menu",
+  "@deskBarKeyMenu": {
+    "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
   }
 }

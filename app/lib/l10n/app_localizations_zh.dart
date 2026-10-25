@@ -15822,14 +15822,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSlotPaymentIn => '付款到账中';
 
   @override
-  String deskSlotPaymentsOut(String count) {
-    return '付款途中（$count）';
-  }
+  String get deskSlotPaymentsOut => '付款途中';
 
   @override
-  String deskSlotPaymentsMoving(String count) {
-    return '付款确认中（$count）';
-  }
+  String get deskSlotPaymentsMoving => '付款确认中';
 
   @override
   String deskSlotOf(String done, String needed) {
@@ -15873,4 +15869,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return '版本 $version。开发版本。点击可复制构建信息。';
   }
+
+  @override
+  String get deskSlotOpenAdvanced => '打开高级设置';
+
+  @override
+  String get deskSlotOpenRecheck => '打开重新核对余额';
+
+  @override
+  String get deskSlotOpenSend => '打开发送';
+
+  @override
+  String get deskSlotOpenActivity => '在活动中打开';
+
+  @override
+  String get deskSlotOpenInvoices => '打开账单';
+
+  @override
+  String get deskBarKeyMenu => '打开应用菜单';
 }

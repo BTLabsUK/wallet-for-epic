@@ -17195,14 +17195,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSlotPaymentIn => 'Платёж поступает';
 
   @override
-  String deskSlotPaymentsOut(String count) {
-    return 'Платежи в пути ($count)';
-  }
+  String get deskSlotPaymentsOut => 'Платежи в пути';
 
   @override
-  String deskSlotPaymentsMoving(String count) {
-    return 'Платежи подтверждаются ($count)';
-  }
+  String get deskSlotPaymentsMoving => 'Платежи в пути';
 
   @override
   String deskSlotOf(String done, String needed) {
@@ -17246,4 +17242,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'Версия $version. Сборка для разработки. Щелчок копирует сведения о сборке.';
   }
+
+  @override
+  String get deskSlotOpenAdvanced => 'Открыть «Дополнительно»';
+
+  @override
+  String get deskSlotOpenRecheck => 'Открыть «Сверка баланса»';
+
+  @override
+  String get deskSlotOpenSend => 'Открыть «Отправить»';
+
+  @override
+  String get deskSlotOpenActivity => 'Открыть в «Активности»';
+
+  @override
+  String get deskSlotOpenInvoices => 'Открыть «Счета»';
+
+  @override
+  String get deskBarKeyMenu => 'Открыть меню приложения';
 }

@@ -10,12 +10,17 @@
   "deskSlotSending": "正在发送付款",
   "deskSlotPaymentOut": "付款途中",
   "deskSlotPaymentIn": "付款到账中",
-  "deskSlotPaymentsOut": "付款途中（{count}）",
-  "deskSlotPaymentsMoving": "付款确认中（{count}）",
+  "deskSlotPaymentsOut": "付款途中",
+  "deskSlotPaymentsMoving": "付款确认中",
   "deskSlotOf": "{done}/{needed}",
   "deskSlotWaitingBlock": "等待区块",
   "deskSlotRequests": "新请求",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
-  "deskSlotUpdateDot": "有可用更新 {version}。显示该更新。"
+  "deskSlotUpdateDot": "有可用更新 {version}。显示该更新。",
+  "deskSlotOpenAdvanced": "打开高级设置",
+  "deskSlotOpenRecheck": "打开重新核对余额",
+  "deskSlotOpenSend": "打开发送",
+  "deskSlotOpenActivity": "在活动中打开",
+  "deskSlotOpenInvoices": "打开账单"
 }

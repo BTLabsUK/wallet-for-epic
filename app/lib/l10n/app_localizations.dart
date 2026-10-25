@@ -26300,17 +26300,17 @@ abstract class AppLocalizations {
   /// **'Payment arriving'**
   String get deskSlotPaymentIn;
 
-  /// Sidebar slot line: several sent payments are confirming. {count} is how many.
+  /// Sidebar slot line: several sent payments are confirming (the least advanced one's count follows).
   ///
   /// In en, this message translates to:
-  /// **'Payments on their way ({count})'**
-  String deskSlotPaymentsOut(String count);
+  /// **'Payments on their way'**
+  String get deskSlotPaymentsOut;
 
-  /// Sidebar slot line: several payments, sent and received, are confirming. {count} is how many.
+  /// Sidebar slot line: several payments, sent and received, are confirming. Short: the sidebar is narrow.
   ///
   /// In en, this message translates to:
-  /// **'Payments confirming ({count})'**
-  String deskSlotPaymentsMoving(String count);
+  /// **'Payments confirming'**
+  String get deskSlotPaymentsMoving;
 
   /// Confirmations so far of those needed, after a payment line: '2 of 3'.
   ///
@@ -26377,6 +26377,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}. A development build. Click copies the build info.'**
   String deskBarBuildTipDev(String version);
+
+  /// Tooltip line of a sidebar slot line: where its click goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Advanced settings'**
+  String get deskSlotOpenAdvanced;
+
+  /// Tooltip line of the slot's scan line: opens the Recheck balance page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Recheck balance'**
+  String get deskSlotOpenRecheck;
+
+  /// Tooltip line of the slot's sending line: opens Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Send'**
+  String get deskSlotOpenSend;
+
+  /// Tooltip line of the slot's payment line: opens the payment in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Activity'**
+  String get deskSlotOpenActivity;
+
+  /// Tooltip line of the slot's requests line: opens Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Invoices'**
+  String get deskSlotOpenInvoices;
+
+  /// Keyboard-shortcuts row: F10 opens the app menu in the title bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app menu'**
+  String get deskBarKeyMenu;
 }
 
 class _AppLocalizationsDelegate

@@ -84,12 +84,21 @@ Future<void> _askAboutSend(WidgetRef ref) async {
   if (after && shown != null && shown.mounted) showEToast(shown, shown.l10n.deskBarClosesAfterSend, tone: ETone.neutral);
 }
 
-class _SendRunningDialog extends StatelessWidget {
+class _SendRunningDialog extends ConsumerWidget {
   const _SendRunningDialog();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
+    // The send ended while this was open: nothing to ask any more. Only this route goes, also
+    // when another dialog is over it.
+    ref.listen(deskSendingProvider, (_, now) {
+      if (now > 0 || !context.mounted) return;
+      final route = ModalRoute.of(context);
+      if (route == null) return;
+      final nav = Navigator.of(context);
+      route.isCurrent ? nav.pop() : nav.removeRoute(route);
+    });
     return EDialog(
       icon: EIcons.alert,
       tone: ETone.warn,

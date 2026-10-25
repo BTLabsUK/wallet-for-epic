@@ -10,12 +10,17 @@
   "deskSlotSending": "Отправка платежа",
   "deskSlotPaymentOut": "Платёж в пути",
   "deskSlotPaymentIn": "Платёж поступает",
-  "deskSlotPaymentsOut": "Платежи в пути ({count})",
-  "deskSlotPaymentsMoving": "Платежи подтверждаются ({count})",
+  "deskSlotPaymentsOut": "Платежи в пути",
+  "deskSlotPaymentsMoving": "Платежи в пути",
   "deskSlotOf": "{done} из {needed}",
   "deskSlotWaitingBlock": "ждёт блока",
   "deskSlotRequests": "Новые запросы",
   "deskSlotNodeStarting": "Запуск локального узла",
   "deskSlotNodeSyncing": "Синхронизация локального узла",
-  "deskSlotUpdateDot": "Доступно обновление, {version}. Показывает обновление."
+  "deskSlotUpdateDot": "Доступно обновление, {version}. Показывает обновление.",
+  "deskSlotOpenAdvanced": "Открыть «Дополнительно»",
+  "deskSlotOpenRecheck": "Открыть «Сверка баланса»",
+  "deskSlotOpenSend": "Открыть «Отправить»",
+  "deskSlotOpenActivity": "Открыть в «Активности»",
+  "deskSlotOpenInvoices": "Открыть «Счета»"
 }

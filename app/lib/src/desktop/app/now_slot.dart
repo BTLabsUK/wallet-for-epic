@@ -71,7 +71,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
 
   // 1. Offline mode: nothing goes out or comes in.
   if (s.settings.advanced.networkMode == NetworkMode.offline) {
-    items.add(NowItem(id: 'offline', icon: EIcons.offline, tone: ETone.neutral, title: l.deskSlotOffline, hint: l.deskSlotOfflineDetail, onTap: to(DeskRoute.settingsAdvanced)));
+    items.add(NowItem(id: 'offline', icon: EIcons.offline, tone: ETone.neutral, title: l.deskSlotOffline, hint: here == DeskRoute.settingsAdvanced ? l.deskSlotOfflineDetail : '${l.deskSlotOfflineDetail}\n${l.deskSlotOpenAdvanced}', onTap: to(DeskRoute.settingsAdvanced)));
   }
   // 2. A scan: the one a restore owes, or a Recheck balance.
   final scan = status?.restoreScan;
@@ -84,9 +84,9 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         title: l.deskSlotScanning,
         detail: scan.percent == null ? null : '${localInt(l, scan.percent!)} %',
         progress: scan.percent == null ? -1 : scan.percent! / 100,
-        onTap: to(DeskRoute.settingsRescan),
+        hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),
-      RestoreScanState.waiting => NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.warn, title: l.deskSlotScanWaits, onTap: to(DeskRoute.settingsRescan)),
+      RestoreScanState.waiting => NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.warn, title: l.deskSlotScanWaits, hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan)),
       RestoreScanState.failed => NowItem(
         id: 'scan',
         icon: EIcons.scan,
@@ -94,11 +94,11 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         title: l.deskSlotScanStopped,
         detail: l.deskSlotTryAgain,
         act: true,
-        onTap: to(DeskRoute.settingsRescan),
+        hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),
     });
   } else if (status?.scanning ?? false) {
-    items.add(NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.info, title: l.deskSlotScanning, progress: -1, onTap: to(DeskRoute.settingsRescan)));
+    items.add(NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.info, title: l.deskSlotScanning, progress: -1, hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan)));
   }
   // 3. An update that needs a click (restart, try again), and 8. one downloading.
   final u = ref.watch(deskUpdateProvider);
@@ -123,7 +123,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   }
   // 4. A send under way.
   if (ref.watch(deskSendingProvider) > 0) {
-    items.add(NowItem(id: 'sending', icon: EIcons.send, tone: ETone.info, title: l.deskSlotSending, progress: -1, onTap: to(DeskRoute.send)));
+    items.add(NowItem(id: 'sending', icon: EIcons.send, tone: ETone.info, title: l.deskSlotSending, progress: -1, hint: DeskRoute.send == here ? null : l.deskSlotOpenSend, onTap: to(DeskRoute.send)));
   }
   // 5. Payments posted and confirming (never a mining reward, which matures for a day).
   final moving = [
@@ -142,20 +142,20 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         icon: t.direction == TxDirection.sent ? EIcons.send : EIcons.receive,
         tone: ETone.info,
         title: moving.length > 1
-            ? (sent == moving.length ? l.deskSlotPaymentsOut(localInt(l, moving.length)) : l.deskSlotPaymentsMoving(localInt(l, moving.length)))
+            ? (sent == moving.length ? l.deskSlotPaymentsOut : l.deskSlotPaymentsMoving)
             : t.direction == TxDirection.sent
             ? l.deskSlotPaymentOut
             : l.deskSlotPaymentIn,
         detail: t.state == TxState.posted ? l.deskSlotWaitingBlock : count,
         progress: done / needed,
-        onTap: to(DeskRoute.activity, t.id),
+        hint: DeskRoute.activity == here ? null : l.deskSlotOpenActivity, onTap: to(DeskRoute.activity, t.id),
       ),
     );
   }
   // 6. Requests to pay (Invoices on).
   final requests = ref.watch(deskInvoiceBadgeProvider);
   if (requests > 0) {
-    items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), onTap: to(DeskRoute.invoices)));
+    items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), hint: DeskRoute.invoices == here ? null : l.deskSlotOpenInvoices, onTap: to(DeskRoute.invoices)));
   }
   // 7. The local node starting or syncing.
   if (ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
@@ -170,7 +170,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
           detail: v.marker,
           progress: -1,
-          onTap: to(DeskRoute.settingsNode),
+          hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
         ),
       );
     }
@@ -179,7 +179,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   // 9. A notice from the wallet core (a database being rebuilt).
   final notice = status?.notice;
   if (notice != null && notice.isNotEmpty) {
-    items.add(NowItem(id: 'notice', icon: EIcons.info, tone: ETone.info, title: notice, onTap: to(DeskRoute.settingsNode)));
+    items.add(NowItem(id: 'notice', icon: EIcons.info, tone: ETone.info, title: notice, hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode)));
   }
   return items;
 }
@@ -202,6 +202,9 @@ class _NowSlotState extends ConsumerState<NowSlot> {
   final Map<String, NowItem> _lines = {};
   final Set<String> _open = {};
   final Map<String, Timer> _gone = {};
+
+  /// The lines' order on screen: a line that leaves keeps its place while it closes.
+  List<String> _order = const [];
   String _said = '';
 
   @override
@@ -253,7 +256,17 @@ class _NowSlotState extends ConsumerState<NowSlot> {
         });
       });
     }
-    final order = [...shown.map((i) => i.id), ..._lines.keys.where((k) => !ids.contains(k))];
+    final order = [for (final id in _order) if (_lines.containsKey(id)) id];
+    for (final (n, i) in shown.indexed) {
+      if (order.contains(i.id)) continue;
+      order.insert(n == 0 ? 0 : order.indexOf(shown[n - 1].id) + 1, i.id);
+    }
+    // The lines in view take their slots in priority order; the closing ones stay put.
+    final slots = [for (final (k, id) in order.indexed) if (ids.contains(id)) k];
+    for (final (n, k) in slots.indexed) {
+      order[k] = shown[n].id;
+    }
+    _order = order;
     final dot = available && !_updateOpen
         ? _UpdateDot(version: u.version ?? '', onTap: () => setState(() => _updateOpen = true), compact: widget.compact)
         : null;
@@ -439,8 +452,10 @@ class _Resting extends ConsumerWidget {
         children: [
           _TextLink(key: const ValueKey('now-help'), label: l.deskSlotHelp, onTap: help),
           Text(' · ', style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
-          Flexible(
-            child: _TextLink(
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _TextLink(
               key: const ValueKey('now-report'),
               label: l.deskSetReportTitle,
               onTap: () {
@@ -448,8 +463,8 @@ class _Resting extends ConsumerWidget {
                 if (shown != null) unawaited(showReportProblemDialog(shown));
               },
             ),
+            ),
           ),
-          const Spacer(),
           ?dot,
         ],
       ),

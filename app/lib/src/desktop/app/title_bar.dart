@@ -11,6 +11,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io' show File, Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,6 @@ import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
 import '../../app_info.dart';
 import '../../app_version.dart' show coreVersion;
-import '../../wallet_backend.dart' show platformLabel;
 import '../data/desk_update.dart' show deskAppVersion;
 import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
 import '../desk_l10n.dart';
@@ -55,7 +55,12 @@ class DeskModalWatch extends NavigatorObserver {
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) => didPop(route, previousRoute);
 }
 
-final deskModalWatch = DeskModalWatch();
+/// One per app (per provider container), so a test's leftovers never count in the next app.
+final deskModalWatchProvider = Provider<DeskModalWatch>((ref) {
+  final w = DeskModalWatch();
+  ref.onDispose(w.open.dispose);
+  return w;
+});
 
 /// Everything inside the window: the bar, the app under it, and on Linux the border and the
 /// resize edges the system does not draw. Goes in `MaterialApp.builder`, above the navigator,
@@ -297,17 +302,17 @@ class _DragSurface extends StatelessWidget {
 
 /// The dialog scrim's part over the bar: paint only, so the bar still moves the window and its
 /// controls still work ([_Held] keeps the app's own buttons out of reach meanwhile).
-class _ModalScrim extends StatelessWidget {
+class _ModalScrim extends ConsumerWidget {
   const _ModalScrim({required this.controlsWidth});
 
   final double controlsWidth;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     return IgnorePointer(
       child: ValueListenableBuilder(
-        valueListenable: deskModalWatch.open,
+        valueListenable: ref.watch(deskModalWatchProvider).open,
         builder: (context, open, _) => Row(
           children: [
             Expanded(child: AnimatedOpacity(opacity: open > 0 ? 1 : 0, duration: Dur.fast, child: ColoredBox(color: c.scrim))),
@@ -323,14 +328,14 @@ class _ModalScrim extends StatelessWidget {
 }
 
 /// An app control of the bar: out of reach (pointer and focus) while a dialog holds the app.
-class _Held extends StatelessWidget {
+class _Held extends ConsumerWidget {
   const _Held({required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder(
-    valueListenable: deskModalWatch.open,
+  Widget build(BuildContext context, WidgetRef ref) => ValueListenableBuilder(
+    valueListenable: ref.watch(deskModalWatchProvider).open,
     child: child,
     builder: (context, open, child) => IgnorePointer(ignoring: open > 0, child: ExcludeFocus(excluding: open > 0, child: child!)),
   );
@@ -464,7 +469,10 @@ Widget _menuDivider(DeskColors c) => Padding(
 
 /// A menu that opens below its button and closes on Esc.
 class _BarMenu extends StatefulWidget {
-  const _BarMenu({required this.children, required this.builder, this.minWidth});
+  const _BarMenu({required this.children, required this.builder, this.minWidth, this.f10 = false});
+
+  /// F10 opens this one (the app menu).
+  final bool f10;
 
   final List<Widget> Function(BuildContext context, MenuController menu) children;
   final Widget Function(BuildContext context, MenuController menu, bool open) builder;
@@ -478,12 +486,21 @@ class _BarMenuState extends State<_BarMenu> {
   final _menu = MenuController();
   bool _open = false;
 
-  // Esc closes the open menu wherever the focus is (the bar is outside the page's focus).
+  // Esc closes the open menu wherever the focus is (the bar is outside the page's focus); F10
+  // opens the app menu, the keyboard's way into the bar.
   bool _onKey(KeyEvent e) {
-    if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !_menu.isOpen) return false;
+    if (e is! KeyDownEvent) return false;
+    if (e.logicalKey == LogicalKeyboardKey.f10 && widget.f10 && !_menu.isOpen && ProviderScope.containerOf(context, listen: false).read(deskModalWatchProvider).open.value == 0) {
+      _menu.open();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _first.requestFocus());
+      return true;
+    }
+    if (e.logicalKey != LogicalKeyboardKey.escape || !_menu.isOpen) return false;
     _menu.close();
     return true;
   }
+
+  final _first = FocusNode(debugLabel: 'bar-menu-first');
 
   @override
   void initState() {
@@ -494,6 +511,7 @@ class _BarMenuState extends State<_BarMenu> {
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_onKey);
+    _first.dispose();
     super.dispose();
   }
 
@@ -509,7 +527,9 @@ class _BarMenuState extends State<_BarMenu> {
       onClose: () {
         if (mounted) setState(() => _open = false);
       },
-      menuChildren: widget.children(context, _menu),
+      menuChildren: [
+        for (final (n, child) in widget.children(context, _menu).indexed) n == 0 && widget.f10 ? Focus(focusNode: _first, skipTraversal: true, child: child) : child,
+      ],
       builder: (context, menu, _) => CallbackShortcuts(
         bindings: {const SingleActivator(LogicalKeyboardKey.escape): menu.close},
         child: widget.builder(context, menu, _open),
@@ -605,6 +625,7 @@ class _Brand extends ConsumerWidget {
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
     return _BarMenu(
+      f10: true,
       children: (context, m) => [
         _menuItem(context, key: const ValueKey('bar-menu-lock'), icon: EIcons.lock, label: l.deskBarLock, keys: deskKeys('L'), onPressed: locking ? null : () => lockWallet(ref)),
         if (canSwitch) _menuItem(context, icon: EIcons.swap, label: l.deskShellSwitchWallet, onPressed: locking ? null : () => lockWallet(ref)),
@@ -631,11 +652,34 @@ class _Brand extends ConsumerWidget {
 
 /// The running build in a few characters: `26.10.16 · r2 · 810de1e`; the version alone in a
 /// build without a commit (development).
-String deskBuildLabel() => [deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId].join(' · ');
+String deskBuildLabel() =>
+    [deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId.substring(0, appBuildId.length.clamp(0, 7))].join(' · ');
 
 /// What Copy build info puts on the clipboard: the build, the core and the system.
 String deskBuildInfo() =>
-    '$appName $deskAppVersion${appBuildTag.isEmpty ? '' : ' $appBuildTag'}${appBuildId.isEmpty ? '' : ' ($appBuildId)'} · core $coreVersion · $platformLabel';
+    '$appName $deskAppVersion${appBuildTag.isEmpty ? '' : ' $appBuildTag'}${appBuildId.isEmpty ? '' : ' ($appBuildId)'} · core $coreVersion · ${deskSystemName()}';
+
+/// The system in a few words: "Windows 11", "Ubuntu 25.10", "macOS 15.1".
+String deskSystemName() {
+  if (kIsWeb) return 'web'; // l10n-ok: system name
+  try {
+    if (Platform.isWindows) {
+      // "Windows 10 Pro" 10.0 (Build 22631): Windows 11 is build 22000 and up.
+      final build = int.tryParse(RegExp(r'Build (\d+)').firstMatch(Platform.operatingSystemVersion)?.group(1) ?? '') ?? 0;
+      return build >= 22000 ? 'Windows 11' : 'Windows 10'; // l10n-ok: system name
+    }
+    if (Platform.isMacOS) return 'macOS ${RegExp(r'[\d.]+').firstMatch(Platform.operatingSystemVersion)?.group(0) ?? ''}'.trim(); // l10n-ok: system name
+    if (Platform.isLinux) {
+      final release = File('/etc/os-release');
+      final pretty = release.existsSync() ? RegExp(r'^PRETTY_NAME="?([^"\n]*)', multiLine: true).firstMatch(release.readAsStringSync())?.group(1) : null;
+      final kernel = RegExp(r'^\S+ (\d+\.\d+)').firstMatch(Platform.operatingSystemVersion)?.group(1);
+      return pretty ?? 'Linux ${kernel ?? ''}'.trim(); // l10n-ok: system name
+    }
+  } on Object {
+    // A name only; the version line above says the rest.
+  }
+  return Platform.operatingSystem;
+}
 
 /// Copies [deskBuildInfo] and says so.
 Future<void> copyBuildInfo() async {
@@ -690,7 +734,7 @@ class _BuildLabelState extends State<_BuildLabel> {
       TextSpan(
         children: [
           for (final (i, p) in parts.indexed) ...[
-            if (i > 0) TextSpan(text: ' · ', style: style.copyWith(color: c.lineField)), // l10n-ok: separator
+            if (i > 0) TextSpan(text: ' · ', style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
             TextSpan(text: p),
           ],
         ],
@@ -712,7 +756,7 @@ class _BuildLabelState extends State<_BuildLabel> {
         ? l.deskBarBuildTipDev(deskAppVersion)
         : appBuildTag.isEmpty
         ? l.deskBarBuildTip(deskAppVersion, appBuildId)
-        : l.deskBarBuildTipRebuild(deskAppVersion, appBuildTag, appBuildId);
+        : l.deskBarBuildTipRebuild(deskAppVersion, appBuildTag.replaceFirst('r', ''), appBuildId);
     return Tooltip(
       message: tip,
       child: Semantics(
@@ -1299,7 +1343,7 @@ Future<void> showDeskShortcuts() async {
   final context = deskNavigatorKey.currentContext;
   if (context == null) return;
   // Not twice on top of itself.
-  if (deskModalWatch.open.value > 0) return;
+  if (ProviderScope.containerOf(context, listen: false).read(deskModalWatchProvider).open.value > 0) return;
   await showEDialog<void>(context, builder: (_) => const _ShortcutsDialog());
 }
 
@@ -1319,7 +1363,8 @@ class _ShortcutsDialog extends StatelessWidget {
       (l.deskBarKeyBack, '$alt←'),
       (l.deskBarKeyForward, '$alt→'),
       (l.deskBarKeyClose, 'Esc'), // l10n-ok: key name
-      (l.deskBarKeySubmit, deskKeys('Enter')),
+      (l.deskBarKeySubmit, deskKeys('Enter')), // l10n-ok: key name
+      (l.deskBarKeyMenu, 'F10'), // l10n-ok: key name
       (l.deskBarKeyList, '?'), // l10n-ok: key name
     ];
     return EDialog(

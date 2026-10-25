@@ -31,7 +31,7 @@ class DeskApp extends ConsumerWidget {
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
     return MaterialApp(
       navigatorKey: deskNavigatorKey,
-      navigatorObservers: [deskModalWatch],
+      navigatorObservers: [ref.watch(deskModalWatchProvider)],
       title: appName,
       debugShowCheckedModeBanner: false,
       // The app's own translations (lib/l10n). Screens moved to l10n read context.l10n; the

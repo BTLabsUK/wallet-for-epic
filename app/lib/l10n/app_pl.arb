@@ -4403,8 +4403,8 @@
   "deskSlotSending": "Wysyłanie płatności",
   "deskSlotPaymentOut": "Płatność w drodze",
   "deskSlotPaymentIn": "Płatność nadchodzi",
-  "deskSlotPaymentsOut": "Płatności w drodze ({count})",
-  "deskSlotPaymentsMoving": "Płatności w potwierdzaniu ({count})",
+  "deskSlotPaymentsOut": "Płatności w drodze",
+  "deskSlotPaymentsMoving": "Płatności w toku",
   "deskSlotOf": "{done} z {needed}",
   "deskSlotWaitingBlock": "czeka na blok",
   "deskSlotRequests": "Nowe żądania",
@@ -4415,5 +4415,11 @@
   "deskBarBuildCopied": "Skopiowano informacje o wersji",
   "deskBarBuildTip": "Wersja {version}, commit {commit}. Kliknięcie kopiuje informacje o wersji.",
   "deskBarBuildTipRebuild": "Wersja {version}, przebudowa {rebuild}, commit {commit}. Kliknięcie kopiuje informacje o wersji.",
-  "deskBarBuildTipDev": "Wersja {version}. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji."
+  "deskBarBuildTipDev": "Wersja {version}. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji.",
+  "deskSlotOpenAdvanced": "Otwórz ustawienia zaawansowane",
+  "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
+  "deskSlotOpenSend": "Otwórz Wyślij",
+  "deskSlotOpenActivity": "Otwórz w Aktywności",
+  "deskSlotOpenInvoices": "Otwórz Faktury",
+  "deskBarKeyMenu": "Otwórz menu aplikacji"
 }
