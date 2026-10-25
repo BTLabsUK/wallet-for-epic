@@ -22,6 +22,7 @@ import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
 import 'log.dart';
+import 'net/lan_node_relay.dart';
 import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
@@ -721,18 +722,24 @@ class LepicWalletService implements WalletService {
 
   /// LEPIC keeps its database in a subdirectory, so it never meets epic-wallet's `wallet_data/`
   /// or the app's `wfe_meta.json` beside it.
-  lepic.WalletConfig _config(WalletConfig config) {
+  Future<lepic.WalletConfig> _config(WalletConfig config) {
     _chain = config.chain;
     final dir = Directory('${config.dataDir}${Platform.pathSeparator}lepic')
       ..createSync(recursive: true);
     return _lepicConfig(config, dir.path);
   }
 
-  static lepic.WalletConfig _lepicConfig(WalletConfig config, String dataDir) =>
+  /// What LEPIC is given for [config] (tests).
+  @visibleForTesting
+  static Future<lepic.WalletConfig> lepicConfigOf(WalletConfig config) => _lepicConfig(config, config.dataDir);
+
+  /// A plain-http node on the local network goes to LEPIC through a loopback relay
+  /// ([lanNodeUrl]): LEPIC refuses plain http to anything but loopback.
+  static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
-        nodeUrl: config.nodeUrl,
+        nodeUrl: await lanNodeUrl(config.nodeUrl),
         nodeApiSecret: config.nodeApiSecret,
         epicboxDomain: config.epicboxDomain,
         epicboxPort: config.epicboxPort,
@@ -878,7 +885,7 @@ class LepicWalletService implements WalletService {
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
       runtime: _runtime,
-      config: _lepicConfig(config, config.dataDir),
+      config: await _lepicConfig(config, config.dataDir),
     );
     return NodeTip(
       height: tip.height,
@@ -897,7 +904,7 @@ class LepicWalletService implements WalletService {
       config,
       await lepic.EpicWallet.create(
         runtime: _runtime,
-        config: _config(config),
+        config: await _config(config),
         store: await _store(config, creating: true),
         mnemonic: mnemonic,
         password: password,
@@ -916,7 +923,7 @@ class LepicWalletService implements WalletService {
       config,
       await lepic.EpicWallet.importWalletSeed(
         runtime: _runtime,
-        config: _config(config),
+        config: await _config(config),
         store: await _store(config, creating: true),
         seedFile: seedFile,
         seedPassword: seedPassword,
@@ -934,7 +941,7 @@ class LepicWalletService implements WalletService {
       config,
       await lepic.EpicWallet.open(
         runtime: _runtime,
-        config: _config(config),
+        config: await _config(config),
         store: await _store(config),
         password: password,
       ),
@@ -982,7 +989,7 @@ class LepicWalletService implements WalletService {
   }) => _guard(() async {
     final created = await lepic.EpicWallet.createWithPin(
       runtime: _runtime,
-      config: _config(config),
+      config: await _config(config),
       store: await _store(config, creating: true),
       mnemonic: mnemonic,
       pin: pin,
@@ -1003,7 +1010,7 @@ class LepicWalletService implements WalletService {
       config,
       await lepic.EpicWallet.openWithPin(
         runtime: _runtime,
-        config: _config(config),
+        config: await _config(config),
         store: await _store(config),
         pin: pin,
         sealedPassword: sealedPassword,
@@ -1025,7 +1032,7 @@ class LepicWalletService implements WalletService {
   Future<void> deleteWallet({required WalletConfig config}) => _guard(() async {
     await lepic.deleteWallet(
       runtime: _runtime,
-      config: _config(config),
+      config: await _config(config),
       store: await _store(config),
     );
     // After LEPIC, which refuses while a wallet on the directory is open.
@@ -1334,7 +1341,7 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<void> setServers({required WalletConfig config}) => _guard(() async {
     await _wallet.setServers(
-      config: LepicWalletService._lepicConfig(
+      config: await LepicWalletService._lepicConfig(
         config,
         '${config.dataDir}${Platform.pathSeparator}lepic',
       ),
@@ -1347,7 +1354,7 @@ class LepicWalletSession implements WalletSession {
       _guard(() async {
         NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
         final tip = await _wallet.nodeTipFor(
-          config: LepicWalletService._lepicConfig(config, config.dataDir),
+          config: await LepicWalletService._lepicConfig(config, config.dataDir),
         );
         return NodeTip(
           height: tip.height,
