@@ -882,7 +882,7 @@ class FakeWalletService implements WalletService {
   /// The only seed password [importWalletSeed] accepts; any other is wrong.
   String seedFilePassword = 'old password';
 
-  /// The phrase behind the seed file [importWalletSeed] takes; [phrase] when null.
+  /// The phrase behind the seed file [importWalletSeed] takes; null: one of the seed file's own.
   String? seedFilePhrase;
 
   @override
@@ -909,9 +909,10 @@ class FakeWalletService implements WalletService {
     createdConfig = config;
     importedSeedFile = seedFile;
     importedSeedPassword = seedPassword;
-    phraseOf[config.dataDir] = seedFilePhrase ?? phrase;
+    // Each seed file its own wallet unless a test names its phrase.
+    phraseOf[config.dataDir] = seedFilePhrase ?? 'seed file $seedFile';
     session.openedConfig = config;
-    return session;
+    return session..owner = this;
   }
 
   @override

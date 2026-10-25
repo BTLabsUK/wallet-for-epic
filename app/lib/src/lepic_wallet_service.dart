@@ -829,12 +829,13 @@ class LepicWalletService implements WalletService {
   bool validateMnemonic({required String phrase}) =>
       lepic.validateMnemonic(phrase: phrase);
 
-  /// Until the binding carries `wallet_fingerprint` (LEPIC fix/restore-scan): refused.
   @override
   String walletFingerprint({required String mnemonic, required Chain chain}) =>
-      throw const WalletError(
-        kind: WalletErrorKind.other,
-        message: 'this build has no wallet fingerprint yet',
+      _guardSync(
+        () => lepic.walletFingerprint(
+          mnemonic: mnemonic,
+          chain: _lepicChain(chain),
+        ),
       );
 
   @override
@@ -1280,12 +1281,8 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<String> epicboxAddress() => _guard(_wallet.epicboxAddress);
 
-  /// Until the binding carries `fingerprint` (LEPIC fix/restore-scan): refused.
   @override
-  Future<String> fingerprint() async => throw const WalletError(
-    kind: WalletErrorKind.other,
-    message: 'this build has no wallet fingerprint yet',
-  );
+  Future<String> fingerprint() => _guard(_wallet.fingerprint);
 
   @override
   Future<FeeEstimate> estimateFee({
