@@ -11,6 +11,7 @@ import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
+import 'prefs.dart' show SettingsJump;
 import 'settings_frame.dart';
 
 export '../../../advanced.dart';
@@ -76,7 +77,8 @@ class SettingsAdvancedScreen extends ConsumerWidget {
         SizedBox(height: Sp.x6),
         const _NetworkGroup(),
         SizedBox(height: Sp.x6),
-        const _ExperimentalGroup(),
+        // An "experimental" dialog's Open Advanced lands here (LNX3-1).
+        const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
       ],
     ),
   );

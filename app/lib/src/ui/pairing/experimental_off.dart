@@ -20,5 +20,5 @@ Future<void> showExperimentalOffSheet(BuildContext context, WidgetRef ref, {bool
     secondary: l.commonClose,
     primary: l.expOpenAdvanced,
   );
-  if (open && context.mounted) await openSettingsSection(context, SettingsSection.advanced);
+  if (open && context.mounted) await openSettingsSection(context, SettingsSection.advanced, toExperimental: true);
 }

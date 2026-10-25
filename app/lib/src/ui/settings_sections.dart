@@ -175,18 +175,22 @@ Key settingsSectionKey(SettingsSection section) =>
     ValueKey('settings-section-${section.name}');
 
 /// Opens [section]'s page over the current route.
-Future<void> openSettingsSection(BuildContext context, SettingsSection section) =>
+Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toExperimental = false}) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsSectionScreen(section: section),
+        builder: (_) => SettingsSectionScreen(section: section, toExperimental: toExperimental),
       ),
     );
 
 /// One group's page: its rows under the group's title, with the actions they need.
 class SettingsSectionScreen extends ConsumerStatefulWidget {
-  const SettingsSectionScreen({super.key, required this.section});
+  const SettingsSectionScreen({super.key, required this.section, this.toExperimental = false});
 
   final SettingsSection section;
+
+  /// Advanced opened from an "experimental" sheet: scrolled to the Pairing and Invoices
+  /// switches, not its top (LNX3-1).
+  final bool toExperimental;
 
   @override
   ConsumerState<SettingsSectionScreen> createState() =>
@@ -195,6 +199,34 @@ class SettingsSectionScreen extends ConsumerStatefulWidget {
 
 class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   bool _busy = false;
+  final _scroll = ScrollController();
+  final _experimentalKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.toExperimental) WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental());
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// The group sits near the end of a lazy list: towards the end first, so it is built, then
+  /// it to the top.
+  void _showExperimental([int tries = 0]) {
+    if (!mounted || !_scroll.hasClients) return;
+    final at = _experimentalKey.currentContext;
+    if (at == null) {
+      if (tries > 2) return;
+      _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental(tries + 1));
+      return;
+    }
+    Scrollable.ensureVisible(at, alignment: 0);
+  }
 
   /// Transactions rows shown once stay while the page is open: a setting never disappears
   /// because it was changed (Split change back on, Link · Tor off without Tor).
@@ -475,6 +507,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: Builder(
               builder: (context) => ListView(
+              controller: _scroll,
               padding: DockSlack.pad(context, const EdgeInsets.only(top: 8, bottom: 24)),
               children: [
                 if (!scan.running && scan.error != null)
@@ -1096,7 +1129,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // Experimental, so last: Pairing and Invoices (off by default), then push, nothing
       // where the phone cannot push.
       const SizedBox(height: 8),
-      SettingsHeader(l.advExperimental),
+      SettingsHeader(l.advExperimental, key: _experimentalKey),
       experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
       experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
       Padding(

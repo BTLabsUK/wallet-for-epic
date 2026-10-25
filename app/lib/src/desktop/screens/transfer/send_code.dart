@@ -15,6 +15,7 @@ import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 
 export '../../../scan/scan_checks.dart' show CodeOrigin;
 
@@ -231,7 +232,8 @@ void showExperimentalOffDialog(BuildContext context, {bool invoices = false}) =>
           label: ctx.l10n.expOpenAdvanced,
           onPressed: () {
             Navigator.of(ctx).pop();
-            ProviderScope.containerOf(context, listen: false).read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
+            // Scrolled to the switches, not the top of Advanced (LNX3-1).
+            ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.experimental);
           },
         ),
       ],
