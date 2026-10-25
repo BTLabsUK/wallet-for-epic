@@ -42,5 +42,6 @@
   "deskInvIssuerPaidText": "Zapłacono ({payer}). Twój portfel sfinalizował płatność i opublikował ją.",
   "deskInvIssuerWaitingText": "Dostarczono do skrzynki płacącego ({payer}). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.",
   "deskInvIssuerCopySlate": "Kopiuj ID slate",
-  "deskInvIssuerStepIssued": "Wystawiono"
+  "deskInvIssuerStepIssued": "Wystawiono",
+  "deskInvIssuerAnother": "Kolejna prośba"
 }

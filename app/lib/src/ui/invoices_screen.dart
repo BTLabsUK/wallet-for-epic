@@ -528,11 +528,13 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
         for (final request in requests)
           RequestRow(
             request: request,
-            payer: payerName(
-              contacts,
-              request.payerAddress,
-              paired: request.pairingId == null ? null : ref.watch(pairingNameProvider(request.pairingId!)),
-            ),
+            payer: request.byFile
+                ? l.reqByFile
+                : payerName(
+                    contacts,
+                    request.payerAddress,
+                    paired: request.pairingId == null ? null : ref.watch(pairingNameProvider(request.pairingId!)),
+                  ),
             left: request.timeLeftAt(now),
             amount: shownEpic(l, request.amount, hidden: hidden),
           ),

@@ -248,20 +248,24 @@ void main() {
   });
 
   group('form', () {
-    testWidgets('without a paired payer: says so, Send request is off, the file still works', (
+    testWidgets('without a paired payer: says so, and the file is the choice (DESIGN 3.2)', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
       expect(find.text(_l.reqNoPayers), findsOneWidget);
-      final send = tester.widget<BusyButton>(find.widgetWithText(BusyButton, _l.reqNewSend));
-      expect(send.onPressed, isNull);
+      expect(find.text(_l.reqToFile), findsOneWidget);
+      expect(find.text(_l.reqNewSend), findsNothing);
       await tester.enterText(find.byKey(requestAmountKey), '2.5');
       await tester.pump();
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
+      // The request file, to save or share (DESIGN §3.2).
+      expect(find.text(_l.reqFileTitle), findsOneWidget);
+      await tester.tap(find.text(_l.slateSaveToDevice));
+      await tester.pumpAndSettle();
       expect(h.files.saved, hasLength(1));
-      expect(_notice(tester), _l.reqFileSaved);
+      expect(_notice(tester), _l.slateSaved(h.files.saved.single.name));
     });
 
     testWidgets('a wallet that asks paired contacts only offers no file', (tester) async {

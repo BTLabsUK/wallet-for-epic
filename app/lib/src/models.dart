@@ -1307,6 +1307,43 @@ class SlateInfo {
           _listEquals(messages, other.messages);
 }
 
+/// A payment request paid from a file ([WalletSession.payRequestFile]): the answer (I2) to
+/// hand back to whoever asked, who finishes and posts it.
+class PaidRequestFile {
+  final int txId;
+  final String slateId;
+
+  /// What the issuer receives.
+  final BigInt amount;
+
+  /// What this wallet pays on top.
+  final BigInt fee;
+
+  /// The answer slate's JSON.
+  final String json;
+
+  const PaidRequestFile({
+    required this.txId,
+    required this.slateId,
+    required this.amount,
+    required this.fee,
+    required this.json,
+  });
+
+  @override
+  int get hashCode => Object.hash(txId, slateId, amount, fee, json);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PaidRequestFile &&
+          txId == other.txId &&
+          slateId == other.slateId &&
+          amount == other.amount &&
+          fee == other.fee &&
+          json == other.json;
+}
+
 /// What a slate file asks this wallet to do.
 enum SlateStage {
   /// Someone sends to us: sign it with `receive_slate` and return the response.
@@ -1315,8 +1352,13 @@ enum SlateStage {
   /// The recipient's answer to one of our sends: `finalize_and_post` it.
   response,
 
-  /// A payment request (invoice). Not supported.
-  invoice,
+  /// A payment request (an invoice, I1) someone asks this wallet to pay: reviewed, then paid
+  /// with [WalletSession.payRequestFile] behind the PIN, which returns the answer file.
+  request,
+
+  /// The payer's answer to a request this wallet issued (I2, or the finalized I3):
+  /// `finalize_and_post` finishes and posts it, as it does a [response].
+  requestAnswer,
 }
 
 /// One transaction: epic-wallet's log merged with the app's history archive.
@@ -2190,6 +2232,10 @@ class IssuedInvoice {
 
   /// Only an unpaid, unanswered invoice can be withdrawn.
   bool get withdrawable => state == IssuedInvoiceState.waiting;
+
+  /// Saved as a payment file for anyone ([PairingApi.requestFile]): no payer address and no
+  /// paired contact.
+  bool get byFile => payerAddress.isEmpty && pairingId == null;
 
   /// Time left at [now], never negative.
   Duration timeLeftAt(DateTime now) {

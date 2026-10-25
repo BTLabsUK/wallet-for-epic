@@ -2664,10 +2664,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Diese Antwort gehört zu einer anderen Zahlung. Öffnen Sie die Datei, die der Empfänger für diese Zahlung zurückgeschickt hat.';
 
   @override
-  String get slateInvoiceUnsupported =>
-      'Zahlungsanforderungen (Rechnungen) werden noch nicht unterstützt.';
-
-  @override
   String get slateNotTransactionFile =>
       'Diese Datei ist keine Transaktionsdatei.';
 
@@ -16339,4 +16335,74 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return '$name hat keine Link-Adresse.';
   }
+
+  @override
+  String get reqToFile => 'Als Datei für jede beliebige Person speichern';
+
+  @override
+  String reqFileSummary(String amount) {
+    return 'Jede Person, die die Datei öffnet, kann $amount zahlen. Die Antwort kommt als Datei zurück.';
+  }
+
+  @override
+  String get reqSaveFile => 'Als Datei speichern';
+
+  @override
+  String get reqFileLead =>
+      'Schicken Sie diese Datei an die Person, die zahlen soll. Deren Wallet antwortet mit einer Datei; öffnen Sie diese hier, um abzuschließen.';
+
+  @override
+  String get reqByFile => 'Per Datei';
+
+  @override
+  String get reqToAnyone => 'Jede Person mit der Datei';
+
+  @override
+  String get reqFileWaitingCard =>
+      'Wartet auf die Antwortdatei. Öffnen Sie sie über Empfangen oder durch Antippen.';
+
+  @override
+  String get reqFromFileTitle => 'Zahlungsanforderung aus einer Datei';
+
+  @override
+  String get reqFromFileWarn =>
+      'Nichts zeigt, wer diese Anforderung erstellt hat. Zahlen Sie nur, wenn Sie sie von jemandem erwartet haben, den Sie kennen.';
+
+  @override
+  String get reqFileMessageLabel => 'Nachricht in der Datei';
+
+  @override
+  String get reqApproveSaveAnswer => 'Zustimmen und Antwort speichern';
+
+  @override
+  String get reqNotNow => 'Nicht jetzt';
+
+  @override
+  String get reqAnswerTitle => 'Antwort gespeichert';
+
+  @override
+  String get reqAnswerLead =>
+      'Schicken Sie diese Datei an die Person zurück, die angefragt hat. Sie schließt die Zahlung ab und sendet sie ins Netzwerk.';
+
+  @override
+  String get reqFileAlreadyPaid => 'Diese Anforderung ist bereits bezahlt.';
+
+  @override
+  String get reqFileEnded => 'Diese Anforderung ist beendet.';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return 'Die Antwort auf Ihre Zahlungsanforderung über $amount (Gebühr $fee).';
+  }
+
+  @override
+  String get reqAnswerUnknown =>
+      'Dies beantwortet eine Anforderung, die diese Wallet nicht mehr hat.';
+
+  @override
+  String get reqFileNeedsInvoices =>
+      'Schalten Sie Rechnungen unter Einstellungen › Erweitert ein, um Zahlungsanforderungen zu öffnen.';
+
+  @override
+  String get deskInvIssuerAnother => 'Weitere Anforderung';
 }

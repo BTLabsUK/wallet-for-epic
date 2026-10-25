@@ -292,13 +292,9 @@ void main() {
     expect(stage(lepic.SlateStage.s1), SlateStage.send);
     expect(stage(lepic.SlateStage.s2), SlateStage.response);
     expect(stage(lepic.SlateStage.s3), SlateStage.response);
-    for (final s in [
-      lepic.SlateStage.i1,
-      lepic.SlateStage.i2,
-      lepic.SlateStage.i3,
-    ]) {
-      expect(stage(s), SlateStage.invoice, reason: s.name);
-    }
+    expect(stage(lepic.SlateStage.i1), SlateStage.request);
+    expect(stage(lepic.SlateStage.i2), SlateStage.requestAnswer);
+    expect(stage(lepic.SlateStage.i3), SlateStage.requestAnswer);
     final info = lepicSlateInfo(
       lepic.SlateInfo(
         slateId: 'abc',

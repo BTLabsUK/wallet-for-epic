@@ -718,6 +718,14 @@ void main() {
       expect(await s.paidInvoice(slateId: 'none'), isNull);
       await s.declineInvoice(slateId: 'inv2');
       expect(session.declinedInvoices, ['inv2']);
+      // A request read from a file: paid for its own amount only; the answer comes back.
+      final file = await session.pairing.requestFile(amount: BigInt.from(300));
+      await expectLater(
+        s.payRequestFile(slateJson: file.json, amount: BigInt.one),
+        throwsKind(WalletErrorKind.amountMismatch),
+      );
+      final answer = await s.payRequestFile(slateJson: file.json, amount: BigInt.from(300));
+      expect(answer, session.paidRequestFiles[file.slateId]);
       await settle();
       expect(events.map((e) => (e.kind, e.slateId)), [
         (InvoiceEventKind.received, 'inv1'),

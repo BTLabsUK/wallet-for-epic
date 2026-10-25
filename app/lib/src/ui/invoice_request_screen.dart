@@ -28,6 +28,7 @@ import 'contacts_screen.dart';
 import 'invoices_screen.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
+import 'slate_file_screen.dart' show SlateFileResult;
 import 'send_screen.dart'
     show Utf8LengthLimiter, maxSendAtomic, normalizeAmountText, utf8Length;
 import 'theme/protocol.dart';
@@ -39,6 +40,18 @@ const Key requestSaveFileKey = ValueKey('request-save-file');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
 const Key requestSummaryKey = ValueKey('request-summary');
+const Key requestToFileKey = ValueKey('request-to-file');
+const Key requestFileWaitingKey = ValueKey('request-file-waiting');
+
+/// Payment requests work as files, both ways: the core handles them and Invoices is on
+/// (DESIGN §3). Off, "Save as file" is absent and request files are refused.
+// TODO(pairing-followups): also require the Invoices experimental switch (invoicesOnProvider)
+// once feat/experimental-flags is on main.
+bool requestFilesOn(WidgetRef ref, {bool listen = true}) =>
+    (listen ? ref.watch(sessionProvider) : ref.read(sessionProvider))?.supportsRequestFiles ?? false;
+
+/// The picker's value for "Save as a file for anyone".
+const String _fileRow = '\u0000file';
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
 ///
@@ -66,11 +79,13 @@ Future<bool> confirmWithdraw(
   WidgetRef ref,
   IssuedInvoice invoice,
 ) async {
-  final payer = payerName(
-    ref.read(contactsProvider).value ?? const <Contact>[],
-    invoice.payerAddress,
-    paired: invoice.pairingId == null ? null : ref.read(pairingNameProvider(invoice.pairingId!)),
-  );
+  final payer = invoice.byFile
+      ? context.l10n.reqToAnyone
+      : payerName(
+          ref.read(contactsProvider).value ?? const <Contact>[],
+          invoice.payerAddress,
+          paired: invoice.pairingId == null ? null : ref.read(pairingNameProvider(invoice.pairingId!)),
+        );
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) {
@@ -128,6 +143,10 @@ class InvoiceRequestScreen extends ConsumerStatefulWidget {
 
 class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   late String? _to = widget.pairingId;
+
+  /// "Save as a file for anyone" is chosen under To; null until the user picks, when it is
+  /// the choice only while no paired contact pays requests.
+  bool? _toFile;
   final _amount = TextEditingController();
   final _message = TextEditingController();
   final _amountFocus = FocusNode();
@@ -228,7 +247,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
 
   Future<void> _pickPayer(List<PairingRecord> payers, List<Contact> contacts) async {
     final l = context.l10n;
-    final byFile = ref.read(sessionProvider)?.supportsRequestFiles ?? false;
+    final byFile = requestFilesOn(ref, listen: false);
     final picked = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -242,17 +261,27 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               leading: PairAvatar(name: pairingName(r, contacts), kind: r.kind, size: 48),
               title: Text(pairingName(r, contacts)),
               trailing: TrustBadge(r, short: true),
-              selected: r.id == _to,
+              selected: r.id == _to && _toFile != true,
               onTap: () => Navigator.pop(context, r.id),
             ),
-          if (payers.isEmpty)
-            Padding(padding: const EdgeInsets.all(16), child: Text(byFile ? l.reqNoPayers : l.reqNoPayersContacts)),
+          if (payers.isEmpty && !byFile)
+            Padding(padding: const EdgeInsets.all(16), child: Text(l.reqNoPayersContacts)),
+          if (byFile)
+            ListTile(
+              key: requestToFileKey,
+              minTileHeight: 64,
+              leading: const SizedBox(width: 48, child: Icon(Icons.description_outlined)),
+              title: Text(l.reqToFile),
+              selected: _toFile ?? payers.isEmpty,
+              onTap: () => Navigator.pop(context, _fileRow),
+            ),
         ],
       ),
     );
     if (picked != null && mounted) {
       setState(() {
-        _to = picked;
+        _toFile = picked == _fileRow;
+        if (picked != _fileRow) _to = picked;
         _payerError = null;
       });
     }
@@ -315,6 +344,8 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     }
   }
 
+  /// Makes the request file, then shows it to save or share (DESIGN §3.2). Nothing is spent,
+  /// so no PIN; the request waits in Requests sent.
   Future<void> _saveFile() async {
     if (_busy) return;
     final l = context.l10n;
@@ -322,17 +353,23 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     if (amount == null) return;
     final message = _message.text.trim();
     final notices = ref.read(noticeProvider.notifier);
-    final files = ref.read(slateFilesProvider);
+    final navigator = Navigator.of(context);
     setState(() => _busy = true);
     try {
-      final slate = await pairingCall(
-        ref,
-        (api) => api.requestFile(amount: amount, message: message.isEmpty ? null : message),
+      final slate = await ref
+          .read(autoLockHoldProvider.notifier)
+          .during(() => pairingCall(ref, (api) => api.requestFile(amount: amount, message: message.isEmpty ? null : message)));
+      ref
+        ..invalidate(issuedInvoicesProvider)
+        ..invalidate(homeProvider);
+      logInfo('invoices', 'payment request saved as a file');
+      unawaited(
+        navigator.pushReplacement(
+          MaterialPageRoute<void>(builder: (_) => RequestFileSavedScreen(slate: slate, amount: amount)),
+        ),
       );
-      ref.invalidate(issuedInvoicesProvider);
-      final saved = await files.save(name: sendFileName(slate.slateId), json: slate.json, dialogTitle: l.reqFileTitle);
-      if (saved) notices.show(l.reqFileSaved, level: NoticeLevel.success);
     } catch (error) {
+      logWarn('invoices', 'request file failed: ${describeError(englishStrings, error)}');
       notices.show(describeError(l, error), level: NoticeLevel.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -353,11 +390,17 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final payers = requestPayers(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
     final to = payers.where((r) => r.id == _to).firstOrNull;
-    // LEPIC requests from paired contacts only: no file to save.
-    final byFile = ref.watch(sessionProvider)?.supportsRequestFiles ?? false;
+    // Request files off (the core or the Invoices switch): contacts only.
+    final byFile = requestFilesOn(ref);
+    // The file is the choice the user made, or the only one while no contact pays requests.
+    final toFile = byFile && (_toFile ?? (payers.isEmpty && to == null));
     final amount = _parsedAmount;
-    // What Send request does, once the payer and the amount are good.
-    final summary = amount == null || to == null
+    // What the button does, once the payer and the amount are good.
+    final summary = amount == null
+        ? null
+        : toFile
+        ? l.reqFileSummary(epicExact(l, amount))
+        : to == null
         ? null
         : l.invoicesRequestSummary(pairingName(to, contacts), epicExact(l, amount));
     String? amountHelper;
@@ -386,30 +429,16 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               const SizedBox(height: 12),
             ],
             // Sending the request is a network action; the file is not.
-            NetBlockNote(block),
-            Row(
-              children: [
-                if (byFile) ...[
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      key: requestSaveFileKey,
-                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                      icon: const Icon(Icons.description_outlined, size: 18),
-                      label: Text(l.reqNewSaveFile),
-                      onPressed: _busy ? null : _saveFile,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: BusyButton(
-                    label: l.reqNewSend,
-                    busy: _busy,
-                    onPressed: block == NetBlock.none && payers.isNotEmpty ? _request : null,
-                  ),
-                ),
-              ],
-            ),
+            if (toFile)
+              BusyButton(key: requestSaveFileKey, label: l.reqSaveFile, busy: _busy, onPressed: _saveFile)
+            else ...[
+              NetBlockNote(block),
+              BusyButton(
+                label: l.reqNewSend,
+                busy: _busy,
+                onPressed: block == NetBlock.none && payers.isNotEmpty ? _request : null,
+              ),
+            ],
           ],
         ),
         children: [
@@ -426,7 +455,15 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                 error: _payerError == null ? null : LiveFieldError(_payerError!),
                 suffixIcon: const Icon(Icons.expand_more),
               ),
-              child: to == null
+              child: toFile
+                  ? Row(
+                      children: [
+                        Icon(Icons.description_outlined, size: 22, color: t.dim),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(l.reqToFile, overflow: TextOverflow.ellipsis)),
+                      ],
+                    )
+                  : to == null
                   ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContact, style: TextStyle(color: t.dim))
                   : Row(
                       children: [
@@ -440,7 +477,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          PairSmallPrint(byFile ? l.reqNewToHint : l.reqNewToHintContacts),
+          PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHint) : l.reqNewToHintContacts),
           const SizedBox(height: 16),
           TextField(
             key: requestAmountKey,
@@ -508,6 +545,42 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               Expanded(child: Text(l.invSetTimeToPay)),
               Text(l.pairDurHours(invoiceExpiry.inHours, 0), style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.dim)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The payment request file, made (DESIGN §3.2): the file tile, what to do with it, the file
+/// and the amount, Save to device and Share. Done goes to Requests sent, where it waits.
+class RequestFileSavedScreen extends StatelessWidget {
+  const RequestFileSavedScreen({super.key, required this.slate, required this.amount});
+
+  final Slate slate;
+  final BigInt amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return SlotScaffold(
+      appBar: AppBar(title: Text(l.reqNewTitle)),
+      body: ScreenBody(
+        children: [
+          SlateFileResult(
+            title: l.reqFileTitle,
+            lead: l.reqFileLead,
+            fileName: sendFileName(slate.slateId),
+            amount: amount,
+            json: slate.json,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),
+            ),
+            child: Text(l.commonDone),
           ),
         ],
       ),
@@ -622,11 +695,13 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
                 style: theme.textTheme.labelLarge,
               ),
               subtitle: Text(
-                payerName(
-                  contacts,
-                  invoice.payerAddress,
-                  paired: invoice.pairingId == null ? null : ref.watch(pairingNameProvider(invoice.pairingId!)),
-                ),
+                invoice.byFile
+                    ? l.reqToAnyone
+                    : payerName(
+                        contacts,
+                        invoice.payerAddress,
+                        paired: invoice.pairingId == null ? null : ref.watch(pairingNameProvider(invoice.pairingId!)),
+                      ),
               ),
             ),
           if (message != null && !shownElsewhere)
@@ -636,7 +711,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
                 l.txDetailsYourMessage,
                 style: theme.textTheme.labelLarge,
               ),
-              subtitle: Text(message),
+              subtitle: Text(message, maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,6 +721,14 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
               Expanded(child: Text(text)),
             ],
           ),
+          if (invoice.byFile && invoice.withdrawable) ...[
+            const SizedBox(height: 12),
+            EdgeCard(
+              key: requestFileWaitingKey,
+              edge: t.info,
+              child: Padding(padding: const EdgeInsets.all(12), child: Text(l.reqFileWaitingCard)),
+            ),
+          ],
           if (invoice.withdrawable)
             Align(
               alignment: AlignmentDirectional.centerEnd,

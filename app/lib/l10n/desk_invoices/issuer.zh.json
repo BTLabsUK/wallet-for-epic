@@ -42,5 +42,6 @@
   "deskInvIssuerPaidText": "{payer} 已付款。你的钱包已完成并广播该付款。",
   "deskInvIssuerWaitingText": "已送达 {payer} 的信箱。在对方批准之前不会付款。",
   "deskInvIssuerCopySlate": "复制 Slate ID",
-  "deskInvIssuerStepIssued": "已开具"
+  "deskInvIssuerStepIssued": "已开具",
+  "deskInvIssuerAnother": "再发一个请求"
 }

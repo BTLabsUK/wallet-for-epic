@@ -724,7 +724,16 @@ class FakePairing implements PairingApi {
     }
     calls.add('requestFile');
     final issued = await s.issueRequestFile(amount: amount, message: message);
-    return Slate(slateId: issued.slateId, json: jsonEncode({'fake_invoice': issued.slateId, 'amount': '$amount', 'message': ?message}));
+    final json = jsonEncode({'fake_invoice': issued.slateId, 'amount': '$amount', 'message': ?message});
+    // Read back as a request, the way LEPIC's inspect reads an I1.
+    s.node?.slateInfos[json] = SlateInfo(
+      slateId: issued.slateId,
+      amount: amount,
+      fee: BigInt.zero,
+      stage: SlateStage.request,
+      messages: [if (issued.message case final m?) SlateMessage(role: SlateRole.receiver, text: m)],
+    );
+    return Slate(slateId: issued.slateId, json: json);
   }
 
   static const _armorHead = 'BEGINEPICSEALED. ';

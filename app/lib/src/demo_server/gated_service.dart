@@ -583,6 +583,10 @@ class GatedWalletSession implements WalletSession {
   }) => _inner.payInvoice(slateId: slateId, amount: amount);
 
   @override
+  Future<PaidRequestFile> payRequestFile({required String slateJson, required BigInt amount}) =>
+      _inner.payRequestFile(slateJson: slateJson, amount: amount);
+
+  @override
   Future<PaidInvoice> resendInvoiceReply({required String slateId}) =>
       _inner.resendInvoiceReply(slateId: slateId);
 

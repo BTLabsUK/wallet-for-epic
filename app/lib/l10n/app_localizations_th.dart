@@ -2555,9 +2555,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'คำตอบนี้เป็นของรายการอื่น เปิดไฟล์ที่ผู้รับส่งกลับมาสำหรับการส่งครั้งนี้';
 
   @override
-  String get slateInvoiceUnsupported => 'ยังไม่รองรับคำขอรับเงิน (ใบแจ้งหนี้)';
-
-  @override
   String get slateNotTransactionFile => 'ไฟล์นี้ไม่ใช่ไฟล์ธุรกรรม';
 
   @override
@@ -15842,4 +15839,74 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return '$name ไม่มีที่อยู่ Link';
   }
+
+  @override
+  String get reqToFile => 'บันทึกเป็นไฟล์สำหรับใครก็ได้';
+
+  @override
+  String reqFileSummary(String amount) {
+    return 'ใครก็ตามที่เปิดไฟล์นี้ชำระ $amount ได้ คำตอบจะกลับมาเป็นไฟล์';
+  }
+
+  @override
+  String get reqSaveFile => 'บันทึกเป็นไฟล์';
+
+  @override
+  String get reqFileLead =>
+      'ส่งไฟล์นี้ให้คนที่ต้องชำระ กระเป๋าเงินของเขาจะตอบกลับเป็นไฟล์ เปิดไฟล์นั้นที่นี่เพื่อทำรายการให้เสร็จ';
+
+  @override
+  String get reqByFile => 'ผ่านไฟล์';
+
+  @override
+  String get reqToAnyone => 'ใครก็ได้ที่มีไฟล์';
+
+  @override
+  String get reqFileWaitingCard =>
+      'รอไฟล์ตอบกลับ เปิดได้จากรับเงินหรือแตะที่ไฟล์';
+
+  @override
+  String get reqFromFileTitle => 'คำขอชำระเงินจากไฟล์';
+
+  @override
+  String get reqFromFileWarn =>
+      'ไม่มีข้อมูลว่าใครสร้างคำขอนี้ ชำระเฉพาะเมื่อคุณรอคำขอนี้จากคนที่คุณรู้จัก';
+
+  @override
+  String get reqFileMessageLabel => 'ข้อความในไฟล์';
+
+  @override
+  String get reqApproveSaveAnswer => 'อนุมัติและบันทึกคำตอบ';
+
+  @override
+  String get reqNotNow => 'ไว้ทีหลัง';
+
+  @override
+  String get reqAnswerTitle => 'บันทึกคำตอบแล้ว';
+
+  @override
+  String get reqAnswerLead =>
+      'ส่งไฟล์นี้คืนให้คนที่ขอ เขาจะทำรายการให้เสร็จและส่งเข้าเครือข่าย';
+
+  @override
+  String get reqFileAlreadyPaid => 'คำขอนี้ชำระแล้ว';
+
+  @override
+  String get reqFileEnded => 'คำขอนี้สิ้นสุดแล้ว';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return 'คำตอบสำหรับคำขอชำระเงิน $amount ของคุณ (ค่าธรรมเนียม $fee)';
+  }
+
+  @override
+  String get reqAnswerUnknown =>
+      'นี่เป็นคำตอบของคำขอที่กระเป๋าเงินนี้ไม่มีแล้ว';
+
+  @override
+  String get reqFileNeedsInvoices =>
+      'เปิดใบแจ้งหนี้ใน การตั้งค่า › ขั้นสูง เพื่อเปิดคำขอชำระเงิน';
+
+  @override
+  String get deskInvIssuerAnother => 'สร้างคำขออีกรายการ';
 }

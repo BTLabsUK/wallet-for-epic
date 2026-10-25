@@ -42,5 +42,6 @@
   "deskInvIssuerPaidText": "{payer} hat bezahlt. Ihre Wallet hat die Zahlung abgeschlossen und an das Netzwerk gesendet.",
   "deskInvIssuerWaitingText": "An das Postfach von {payer} zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.",
   "deskInvIssuerCopySlate": "Slate-ID kopieren",
-  "deskInvIssuerStepIssued": "Ausgestellt"
+  "deskInvIssuerStepIssued": "Ausgestellt",
+  "deskInvIssuerAnother": "Weitere Anforderung"
 }

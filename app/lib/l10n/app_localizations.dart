@@ -3838,12 +3838,6 @@ abstract class AppLocalizations {
   /// **'This response is for a different payment. Open the file the recipient returned for this send.'**
   String get slateWrongPayment;
 
-  /// No description provided for @slateInvoiceUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment requests (invoices) are not supported yet.'**
-  String get slateInvoiceUnsupported;
-
   /// No description provided for @slateNotTransactionFile.
   ///
   /// In en, this message translates to:
@@ -25351,6 +25345,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} has no Link address.'**
   String deskSendContactNoLink(String name);
+
+  /// Request form: the last row of the To picker (and the desktop To select), a request saved as a payment file anyone can pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a file for anyone'**
+  String get reqToFile;
+
+  /// Request form: the summary card when the request is saved as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone who opens the file can pay {amount}. The answer comes back as a file.'**
+  String reqFileSummary(String amount);
+
+  /// Request form: the main button when the request is saved as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as file'**
+  String get reqSaveFile;
+
+  /// Payment request file screen (and the desktop saved panel): what to do with the request file.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this file to whoever should pay. Their wallet answers with a file; open that one here to finish.'**
+  String get reqFileLead;
+
+  /// Requests sent: the row's subtitle in place of a contact name, for a request saved as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'By file'**
+  String get reqByFile;
+
+  /// Request details: who was asked, for a request saved as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with the file'**
+  String get reqToAnyone;
+
+  /// Request details: card on a request saved as a file that waits for its answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the answer file. Open it from Receive or by tapping it.'**
+  String get reqFileWaitingCard;
+
+  /// Review of a payment request opened from a file: the title beside the file tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request from a file'**
+  String get reqFromFileTitle;
+
+  /// Review of a payment request opened from a file: the warning card; nothing names who made it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing says who made this request. Pay it only if you expected it from someone you know.'**
+  String get reqFromFileWarn;
+
+  /// Review of a payment request opened from a file: label of the message the file carries (unchecked text).
+  ///
+  /// In en, this message translates to:
+  /// **'Message in the file'**
+  String get reqFileMessageLabel;
+
+  /// Review of a payment request opened from a file: the main button; it asks for the PIN, pays and saves the answer file.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and save answer'**
+  String get reqApproveSaveAnswer;
+
+  /// Review of a payment request opened from a file: closes it; nothing is paid, sent or stored.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get reqNotNow;
+
+  /// After paying a payment request from a file: the title of the answer file screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer saved'**
+  String get reqAnswerTitle;
+
+  /// After paying a payment request from a file: what to do with the answer file.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this file back to whoever asked. They finish the payment and post it.'**
+  String get reqAnswerLead;
+
+  /// A payment request file, or its answer, for a request already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is already paid.'**
+  String get reqFileAlreadyPaid;
+
+  /// A payment request file, or its answer, whose time ran out or that was withdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has ended.'**
+  String get reqFileEnded;
+
+  /// Transaction file screen: the lead for the payer's answer to a payment request this wallet saved as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'The answer to your payment request of {amount} (fee {fee}).'**
+  String slateIncomingRequestAnswer(String amount, String fee);
+
+  /// Transaction file screen: an answer to a payment request this wallet does not have (cancelled or never made here).
+  ///
+  /// In en, this message translates to:
+  /// **'This answers a request this wallet no longer has.'**
+  String get reqAnswerUnknown;
+
+  /// A payment request file opened while the Invoices switch is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Invoices in Settings › Advanced to open payment requests.'**
+  String get reqFileNeedsInvoices;
+
+  /// Request form, after a request was saved as a file: starts a new request.
+  ///
+  /// In en, this message translates to:
+  /// **'Another request'**
+  String get deskInvIssuerAnother;
 }
 
 class _AppLocalizationsDelegate

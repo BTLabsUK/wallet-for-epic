@@ -2767,10 +2767,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот ответ относится к другому платежу. Откройте файл, который получатель вернул для этой отправки.';
 
   @override
-  String get slateInvoiceUnsupported =>
-      'Запросы на оплату (счета) пока не поддерживаются.';
-
-  @override
   String get slateNotTransactionFile => 'Это не файл транзакции.';
 
   @override
@@ -16611,4 +16607,74 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return 'У $name нет адреса Link.';
   }
+
+  @override
+  String get reqToFile => 'Сохранить файлом для кого угодно';
+
+  @override
+  String reqFileSummary(String amount) {
+    return 'Любой, кто откроет файл, может оплатить $amount. Ответ вернётся файлом.';
+  }
+
+  @override
+  String get reqSaveFile => 'Сохранить файлом';
+
+  @override
+  String get reqFileLead =>
+      'Отправьте этот файл тому, кто должен заплатить. Его кошелёк ответит файлом; откройте его здесь, чтобы завершить.';
+
+  @override
+  String get reqByFile => 'Файлом';
+
+  @override
+  String get reqToAnyone => 'Любой, у кого есть файл';
+
+  @override
+  String get reqFileWaitingCard =>
+      'Ожидает файл ответа. Откройте его в разделе «Получить» или нажав на него.';
+
+  @override
+  String get reqFromFileTitle => 'Запрос на оплату из файла';
+
+  @override
+  String get reqFromFileWarn =>
+      'Ничто не говорит, кто создал этот запрос. Оплачивайте, только если ждали его от знакомого человека.';
+
+  @override
+  String get reqFileMessageLabel => 'Сообщение в файле';
+
+  @override
+  String get reqApproveSaveAnswer => 'Одобрить и сохранить ответ';
+
+  @override
+  String get reqNotNow => 'Не сейчас';
+
+  @override
+  String get reqAnswerTitle => 'Ответ сохранён';
+
+  @override
+  String get reqAnswerLead =>
+      'Отправьте этот файл обратно тому, кто запросил. Он завершит платёж и отправит его в сеть.';
+
+  @override
+  String get reqFileAlreadyPaid => 'Этот запрос уже оплачен.';
+
+  @override
+  String get reqFileEnded => 'Этот запрос больше не действует.';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return 'Ответ на ваш запрос на оплату: $amount (комиссия $fee).';
+  }
+
+  @override
+  String get reqAnswerUnknown =>
+      'Это ответ на запрос, которого в этом кошельке больше нет.';
+
+  @override
+  String get reqFileNeedsInvoices =>
+      'Включите «Счета» в разделе «Настройки › Дополнительно», чтобы открывать запросы на оплату.';
+
+  @override
+  String get deskInvIssuerAnother => 'Ещё один запрос';
 }

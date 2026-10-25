@@ -2629,10 +2629,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This response is for a different payment. Open the file the recipient returned for this send.';
 
   @override
-  String get slateInvoiceUnsupported =>
-      'Payment requests (invoices) are not supported yet.';
-
-  @override
   String get slateNotTransactionFile => 'That file is not a transaction file.';
 
   @override
@@ -16147,4 +16143,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return '$name has no Link address.';
   }
+
+  @override
+  String get reqToFile => 'Save as a file for anyone';
+
+  @override
+  String reqFileSummary(String amount) {
+    return 'Anyone who opens the file can pay $amount. The answer comes back as a file.';
+  }
+
+  @override
+  String get reqSaveFile => 'Save as file';
+
+  @override
+  String get reqFileLead =>
+      'Send this file to whoever should pay. Their wallet answers with a file; open that one here to finish.';
+
+  @override
+  String get reqByFile => 'By file';
+
+  @override
+  String get reqToAnyone => 'Anyone with the file';
+
+  @override
+  String get reqFileWaitingCard =>
+      'Waiting for the answer file. Open it from Receive or by tapping it.';
+
+  @override
+  String get reqFromFileTitle => 'Payment request from a file';
+
+  @override
+  String get reqFromFileWarn =>
+      'Nothing says who made this request. Pay it only if you expected it from someone you know.';
+
+  @override
+  String get reqFileMessageLabel => 'Message in the file';
+
+  @override
+  String get reqApproveSaveAnswer => 'Approve and save answer';
+
+  @override
+  String get reqNotNow => 'Not now';
+
+  @override
+  String get reqAnswerTitle => 'Answer saved';
+
+  @override
+  String get reqAnswerLead =>
+      'Send this file back to whoever asked. They finish the payment and post it.';
+
+  @override
+  String get reqFileAlreadyPaid => 'This request is already paid.';
+
+  @override
+  String get reqFileEnded => 'This request has ended.';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return 'The answer to your payment request of $amount (fee $fee).';
+  }
+
+  @override
+  String get reqAnswerUnknown =>
+      'This answers a request this wallet no longer has.';
+
+  @override
+  String get reqFileNeedsInvoices =>
+      'Turn on Invoices in Settings › Advanced to open payment requests.';
+
+  @override
+  String get deskInvIssuerAnother => 'Another request';
 }

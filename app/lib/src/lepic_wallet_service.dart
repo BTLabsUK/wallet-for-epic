@@ -445,20 +445,13 @@ String? _message(String? text) {
   return t.isEmpty ? null : t;
 }
 
-/// LEPIC's reading of a slate as the old core's. LEPIC names every step; the app tells only a
-/// send to sign from an answer to finalize, as the old core did: a finalized S3 reads as an
-/// answer, and every invoice step as an invoice, which the app refuses.
+/// LEPIC's reading of a slate. A finalized S3 reads as an answer and a finalized I3 as a
+/// request's answer, which finalizing refuses with LEPIC's own error.
 SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
   slateId: info.slateId,
   amount: info.amount,
   fee: info.fee,
-  stage: switch (info.stage) {
-    lepic.SlateStage.s1 => SlateStage.send,
-    lepic.SlateStage.s2 || lepic.SlateStage.s3 => SlateStage.response,
-    lepic.SlateStage.i1 ||
-    lepic.SlateStage.i2 ||
-    lepic.SlateStage.i3 => SlateStage.invoice,
-  },
+  stage: lepicSlateStage(info.stage),
   messages: lepicMessages(info.messages),
 );
 
@@ -2009,9 +2002,41 @@ class LepicWalletSession implements WalletSession {
   @override
   bool get supportsInvoices => true;
 
-  /// LEPIC issues no invoice as a file: requests go to paired contacts only.
+  /// LEPIC issues, pays and finishes requests as files for anyone (`issue_invoice_slate`,
+  /// `pay_invoice_slate`; `finalize_and_post` takes the answer).
   @override
-  bool get supportsRequestFiles => false;
+  bool get supportsRequestFiles => true;
+
+  /// Pays the request (I1) in [slateJson] with LEPIC's `pay_invoice_slate`, which checks the
+  /// amount against the one signed into it, and returns the answer (I2).
+  @override
+  Future<PaidRequestFile> payRequestFile({required String slateJson, required BigInt amount}) =>
+      _nodeGuard('pay request file', () async {
+        final paid = await _wallet.payInvoiceSlate(
+          slateJson: slateJson,
+          amount: amount,
+          minimumConfirmations: await _balanceConfirmations(),
+        );
+        logInfo('invoices', 'request file paid');
+        return PaidRequestFile(txId: paid.txId, slateId: paid.slateId, amount: paid.amount, fee: paid.fee, json: paid.json);
+      });
+
+  /// A request as a file for anyone (I1), kept as an issued invoice waiting for its payer.
+  Future<Slate> _issueFile({required BigInt amount, String? message}) => _nodeGuard('request file', () async {
+    _watchEvents();
+    if (amount <= BigInt.zero) {
+      throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the amount must be above zero');
+    }
+    final slate = await _wallet.issueInvoiceSlate(amount: amount, message: cutMessage(message));
+    try {
+      await _history.putIssuedInvoice(slate.slateId);
+    } on WalletError catch (error) {
+      // The file is made; only the app's view of it is lost. The sweep ends it.
+      logWarn('invoices', 'could not record an issued invoice: ${error.kind.name}');
+    }
+    logInfo('invoices', 'request saved as a file');
+    return Slate(slateId: slate.slateId, json: slate.json);
+  });
 
   late final _LepicPairing _pairing = _LepicPairing(this);
 
@@ -2462,7 +2487,8 @@ SlatePurpose lepicSlatePurpose(lepic.SlatePurpose p) => switch (p) {
 SlateStage lepicSlateStage(lepic.SlateStage s) => switch (s) {
   lepic.SlateStage.s1 => SlateStage.send,
   lepic.SlateStage.s2 || lepic.SlateStage.s3 => SlateStage.response,
-  lepic.SlateStage.i1 || lepic.SlateStage.i2 || lepic.SlateStage.i3 => SlateStage.invoice,
+  lepic.SlateStage.i1 => SlateStage.request,
+  lepic.SlateStage.i2 || lepic.SlateStage.i3 => SlateStage.requestAnswer,
 };
 
 /// The app's pairing failure for LEPIC's contact errors, or null for any other kind.
@@ -2929,9 +2955,8 @@ class _LepicPairing implements PairingApi {
   Future<IssuedInvoice> requestPayment({required String id, required BigInt amount, String? message}) =>
       _s._issueToContact(contactId: id, amount: amount, message: message);
 
-  // LEPIC issues no request as a file yet: only to a paired contact.
   @override
-  Future<Slate> requestFile({required BigInt amount, String? message}) async => throw pairingUnsupported('requestFile');
+  Future<Slate> requestFile({required BigInt amount, String? message}) => _s._issueFile(amount: amount, message: message);
 
   @override
   Future<String> sealSlate({required String id, required String slateJson}) => _call(() async {

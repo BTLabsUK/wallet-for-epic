@@ -2789,10 +2789,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ta odpowiedź dotyczy innej płatności. Otwórz plik, który odbiorca odesłał dla tej wysyłki.';
 
   @override
-  String get slateInvoiceUnsupported =>
-      'Prośby o płatność (faktury) nie są jeszcze obsługiwane.';
-
-  @override
   String get slateNotTransactionFile => 'To nie jest plik transakcji.';
 
   @override
@@ -16650,4 +16646,74 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return '$name nie ma adresu Link.';
   }
+
+  @override
+  String get reqToFile => 'Zapisz jako plik dla kogokolwiek';
+
+  @override
+  String reqFileSummary(String amount) {
+    return 'Każdy, kto otworzy plik, może zapłacić $amount. Odpowiedź wraca jako plik.';
+  }
+
+  @override
+  String get reqSaveFile => 'Zapisz jako plik';
+
+  @override
+  String get reqFileLead =>
+      'Wyślij ten plik osobie, która ma zapłacić. Jej portfel odpowie plikiem; otwórz go tutaj, aby dokończyć.';
+
+  @override
+  String get reqByFile => 'Plikiem';
+
+  @override
+  String get reqToAnyone => 'Każdy, kto ma plik';
+
+  @override
+  String get reqFileWaitingCard =>
+      'Czeka na plik odpowiedzi. Otwórz go w Odbierz lub dotykając go.';
+
+  @override
+  String get reqFromFileTitle => 'Prośba o płatność z pliku';
+
+  @override
+  String get reqFromFileWarn =>
+      'Nic nie wskazuje, kto utworzył tę prośbę. Zapłać tylko, jeśli spodziewałeś się jej od kogoś, kogo znasz.';
+
+  @override
+  String get reqFileMessageLabel => 'Wiadomość w pliku';
+
+  @override
+  String get reqApproveSaveAnswer => 'Zatwierdź i zapisz odpowiedź';
+
+  @override
+  String get reqNotNow => 'Nie teraz';
+
+  @override
+  String get reqAnswerTitle => 'Zapisano odpowiedź';
+
+  @override
+  String get reqAnswerLead =>
+      'Odeślij ten plik osobie, która prosiła. Ona dokończy płatność i wyśle ją do sieci.';
+
+  @override
+  String get reqFileAlreadyPaid => 'Ta prośba jest już opłacona.';
+
+  @override
+  String get reqFileEnded => 'Ta prośba jest już nieaktualna.';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return 'Odpowiedź na twoją prośbę o płatność: $amount (opłata $fee).';
+  }
+
+  @override
+  String get reqAnswerUnknown =>
+      'To odpowiedź na prośbę, której ten portfel już nie ma.';
+
+  @override
+  String get reqFileNeedsInvoices =>
+      'Włącz Faktury w Ustawienia › Zaawansowane, aby otwierać prośby o płatność.';
+
+  @override
+  String get deskInvIssuerAnother => 'Kolejna prośba';
 }

@@ -566,6 +566,13 @@ class WalletDispatcher {
       ),
       paidInvoiceWire,
     ),
+    SessionMember.payRequestFile => _once(
+      s.payRequestFile(
+        slateJson: p.of('slateJson', stringWire),
+        amount: p.of('amount', bigIntWire),
+      ),
+      paidRequestFileWire,
+    ),
     SessionMember.resendInvoiceReply => _once(
       s.resendInvoiceReply(slateId: p.of('slateId', stringWire)),
       paidInvoiceWire,

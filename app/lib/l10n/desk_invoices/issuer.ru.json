@@ -42,5 +42,6 @@
   "deskInvIssuerPaidText": "{payer} оплатил. Ваш кошелёк завершил платёж и отправил его в сеть.",
   "deskInvIssuerWaitingText": "Доставлено в почтовый ящик {payer}. Ничего не оплачено, пока плательщик не одобрит.",
   "deskInvIssuerCopySlate": "Копировать ID слейта",
-  "deskInvIssuerStepIssued": "Выставлен"
+  "deskInvIssuerStepIssued": "Выставлен",
+  "deskInvIssuerAnother": "Ещё один запрос"
 }

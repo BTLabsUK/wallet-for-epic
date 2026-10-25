@@ -222,5 +222,9 @@
   "deskInvIssuerStepIssued": "Issued",
   "@deskInvIssuerStepIssued": {
     "description": "Progress step: the invoice was issued and delivered."
+  },
+  "deskInvIssuerAnother": "Another request",
+  "@deskInvIssuerAnother": {
+    "description": "Request form, after a request was saved as a file: starts a new request."
   }
 }

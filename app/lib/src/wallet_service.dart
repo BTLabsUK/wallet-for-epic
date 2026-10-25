@@ -495,10 +495,23 @@ abstract interface class WalletSession {
   /// True when this core handles invoices over epicbox.
   bool get supportsInvoices;
 
-  /// True when this core issues a request as a payment file for anyone
-  /// ([PairingApi.requestFile]). LEPIC requests only from paired contacts, so the screens
-  /// hide "Save as file" when this is false.
+  /// True when this core handles payment requests as files, both ways: it issues one for
+  /// anyone ([PairingApi.requestFile]), pays one ([payRequestFile]) and finishes the answer
+  /// with [finalizeAndPost]. The screens hide "Save as file" and refuse request files when
+  /// this is false.
   bool get supportsRequestFiles;
+
+  /// Pays the payment request (I1) in [slateJson] and returns the answer (I2) to hand back to
+  /// whoever asked, who finishes and posts it. The file is untrusted: call it only after the
+  /// user approved [amount] behind the PIN or biometric gate. [amount] must equal the amount
+  /// the request asks ([WalletErrorKind.amountMismatch] otherwise); the fee comes on top.
+  /// [WalletErrorKind.invalidSlate] for text that is not a request,
+  /// [WalletErrorKind.invoiceAlreadyPaid] for one this wallet paid before,
+  /// [WalletErrorKind.paymentExpired] once its time ran out, and
+  /// [WalletErrorKind.invoiceLockedAboveTip], [WalletErrorKind.notEnoughFunds] and
+  /// [WalletErrorKind.nodeUnreachable]; nothing is stored then. Throws
+  /// [invoicesUnsupported] when [supportsRequestFiles] is false.
+  Future<PaidRequestFile> payRequestFile({required String slateJson, required BigInt amount});
 
   /// Pairing (RFC 0002): [PairingApi.supported] says whether this core pairs.
   PairingApi get pairing;
@@ -1201,6 +1214,10 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) async {
+    // The answer to a request, as LEPIC dispatches an I2: finished when this wallet issued it.
+    if (node?.slateInfos[slateJson] case SlateInfo(stage: SlateStage.requestAnswer, :final slateId)) {
+      return _finishRequest(slateId);
+    }
     if (slateJson != responseSlate.json) {
       throw const WalletError(
         kind: WalletErrorKind.invalidSlate,
@@ -2419,6 +2436,65 @@ class FakeWalletSession implements WalletSession {
 
   @override
   bool get supportsRequestFiles => invoicesSupported && requestFilesSupported;
+
+  /// Request files [payRequestFile] paid, by slate id, as LEPIC refuses a second payment.
+  final Map<String, PaidRequestFile> paidRequestFiles = {};
+
+  /// When set, [payRequestFile] throws it and pays nothing.
+  WalletError? payRequestFileError;
+
+  @override
+  Future<PaidRequestFile> payRequestFile({required String slateJson, required BigInt amount}) async {
+    if (!supportsRequestFiles) throw invoicesUnsupported('payRequestFile');
+    final info = node?.slateInfos[slateJson];
+    if (info == null || info.stage != SlateStage.request) {
+      throw const WalletError(kind: WalletErrorKind.invalidSlate, message: 'not a payment request');
+    }
+    if (paidRequestFiles.containsKey(info.slateId)) {
+      throw const WalletError(kind: WalletErrorKind.invoiceAlreadyPaid, message: 'already paid');
+    }
+    if (amount != info.amount) {
+      throw const WalletError(kind: WalletErrorKind.amountMismatch, message: 'the amount does not match the request');
+    }
+    if (payRequestFileError != null) throw payRequestFileError!;
+    _checkFunds(amount);
+    final txId = 400 + paidRequestFiles.length;
+    transactionsValue.add(
+      fakeTx(
+        id: txId,
+        slateId: info.slateId,
+        kind: TxKind.sent,
+        status: TxStatus.awaitingRecipient,
+        createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+        amountDebited: amount + fee,
+        fee: fee,
+        numInputs: 1,
+        cancellable: true,
+        flow: TxFlow.invoice,
+      ),
+    );
+    final json = jsonEncode({'fake_invoice_answer': info.slateId, 'amount': '$amount'});
+    // Another fake wallet that issued it finishes it from this text.
+    node?.slateInfos[json] = SlateInfo(slateId: info.slateId, amount: amount, fee: fee, stage: SlateStage.requestAnswer);
+    return paidRequestFiles[info.slateId] = PaidRequestFile(txId: txId, slateId: info.slateId, amount: amount, fee: fee, json: json);
+  }
+
+  /// Finishes the answer to the request [slateId], as LEPIC refuses one it no longer waits for.
+  Future<TxEntry> _finishRequest(String slateId) async {
+    final issued = _request(slateId);
+    if (issued == null) {
+      throw const WalletError(kind: WalletErrorKind.invoiceNotFound, message: 'no such request');
+    }
+    if (issued.state == IssuedInvoiceState.paid) {
+      throw const WalletError(kind: WalletErrorKind.invoiceAlreadyPaid, message: 'already paid');
+    }
+    if (!issued.withdrawable) {
+      throw const WalletError(kind: WalletErrorKind.paymentExpired, message: 'the request ended');
+    }
+    await payIssued(slateId);
+    finalizedSlates.add(slateId);
+    return transactionsValue.firstWhere((t) => t.slateId == slateId);
+  }
 
   @override
   Future<InvoiceDrainReport> drainInvoices() async {

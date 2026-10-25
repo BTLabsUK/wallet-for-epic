@@ -1059,6 +1059,13 @@ class RemoteWalletSession implements WalletSession {
   });
 
   @override
+  Future<PaidRequestFile> payRequestFile({required String slateJson, required BigInt amount}) =>
+      _call(SessionMember.payRequestFile, paidRequestFileWire, {
+        'slateJson': slateJson,
+        'amount': bigIntWire.encode(amount),
+      });
+
+  @override
   Future<PaidInvoice> resendInvoiceReply({required String slateId}) => _call(
     SessionMember.resendInvoiceReply,
     paidInvoiceWire,

@@ -639,6 +639,24 @@ final WireCodec<PaidInvoice> paidInvoiceWire = _object<PaidInvoice>(
   ),
 );
 
+final WireCodec<PaidRequestFile> paidRequestFileWire = _object<PaidRequestFile>(
+  'PaidRequestFile',
+  (v) => {
+    'txId': v.txId,
+    'slateId': v.slateId,
+    'amount': bigIntWire.encode(v.amount),
+    'fee': bigIntWire.encode(v.fee),
+    'json': v.json,
+  },
+  (r) => PaidRequestFile(
+    txId: r.of('txId', intWire),
+    slateId: r.of('slateId', stringWire),
+    amount: r.of('amount', bigIntWire),
+    fee: r.of('fee', bigIntWire),
+    json: r.of('json', stringWire),
+  ),
+);
+
 final WireCodec<InvoiceEvent> invoiceEventWire = _object<InvoiceEvent>(
   'InvoiceEvent',
   (v) => {

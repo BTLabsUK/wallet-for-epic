@@ -42,5 +42,6 @@
   "deskInvIssuerPaidText": "{payer} ชำระแล้ว กระเป๋าของคุณทำรายการให้เสร็จและส่งเข้าเครือข่ายแล้ว",
   "deskInvIssuerWaitingText": "ส่งถึงกล่องรับของ {payer} แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ",
   "deskInvIssuerCopySlate": "คัดลอก Slate ID",
-  "deskInvIssuerStepIssued": "ออกแล้ว"
+  "deskInvIssuerStepIssued": "ออกแล้ว",
+  "deskInvIssuerAnother": "สร้างคำขออีกรายการ"
 }

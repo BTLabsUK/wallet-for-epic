@@ -2468,9 +2468,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateWrongPayment => '此回复属于另一笔付款。请打开接收方针对这笔付款返回的文件。';
 
   @override
-  String get slateInvoiceUnsupported => '暂不支持账单。';
-
-  @override
   String get slateNotTransactionFile => '该文件不是交易文件。';
 
   @override
@@ -15287,4 +15284,68 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendContactNoLink(String name) {
     return '$name 没有 Link 地址。';
   }
+
+  @override
+  String get reqToFile => '保存为文件发给任何人';
+
+  @override
+  String reqFileSummary(String amount) {
+    return '任何打开此文件的人都可以支付 $amount。回复会以文件形式返回。';
+  }
+
+  @override
+  String get reqSaveFile => '保存为文件';
+
+  @override
+  String get reqFileLead => '把此文件发给应付款的人。对方钱包会回复一个文件；在这里打开它即可完成。';
+
+  @override
+  String get reqByFile => '通过文件';
+
+  @override
+  String get reqToAnyone => '持有此文件的任何人';
+
+  @override
+  String get reqFileWaitingCard => '正在等待回复文件。可从“收款”打开，或直接点按该文件。';
+
+  @override
+  String get reqFromFileTitle => '来自文件的付款请求';
+
+  @override
+  String get reqFromFileWarn => '无法得知此请求是谁发出的。只有在你预期收到来自熟人的请求时才付款。';
+
+  @override
+  String get reqFileMessageLabel => '文件中的留言';
+
+  @override
+  String get reqApproveSaveAnswer => '批准并保存回复';
+
+  @override
+  String get reqNotNow => '暂不';
+
+  @override
+  String get reqAnswerTitle => '回复已保存';
+
+  @override
+  String get reqAnswerLead => '把此文件发回给请求方。对方会完成付款并广播。';
+
+  @override
+  String get reqFileAlreadyPaid => '此请求已付款。';
+
+  @override
+  String get reqFileEnded => '此请求已结束。';
+
+  @override
+  String slateIncomingRequestAnswer(String amount, String fee) {
+    return '对你 $amount（手续费 $fee）付款请求的回复。';
+  }
+
+  @override
+  String get reqAnswerUnknown => '这是对本钱包已不存在的请求的回复。';
+
+  @override
+  String get reqFileNeedsInvoices => '在“设置 › 高级”中开启账单，即可打开付款请求。';
+
+  @override
+  String get deskInvIssuerAnother => '再发一个请求';
 }

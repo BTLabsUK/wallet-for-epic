@@ -18,10 +18,14 @@ import '../slate_files.dart';
 import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
 import 'common.dart';
+import 'invoice_request_screen.dart' show requestFilesOn;
+import 'invoice_review_screen.dart' show RequestFileReviewScreen, requestFileRefusal;
 import 'pairing/pairing_parts.dart';
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
 import 'scan_screen.dart' show offersQrPayment;
+import 'theme/brand.dart' show GlyphTile;
+import 'theme/protocol.dart' show EdgeCard;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'pairing/experimental_off.dart';
@@ -35,6 +39,9 @@ const String scannedSlateName = 'scanned';
 /// The keys of the QR buttons of the payment file screen, for tests.
 const Key showReplyQrKey = ValueKey('slate-show-reply-qr');
 const Key scanAgainKey = ValueKey('slate-scan-again');
+
+/// The risk card of an answer to a request this wallet does not have, for tests.
+const Key requestAnswerUnknownKey = ValueKey('slate-request-answer-unknown');
 
 /// How many payment screens of a scanned QR code are open. Home then keeps its "on the way"
 /// notice to itself: the screen already says the payment is accepted, and the notice would
@@ -174,8 +181,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       if (expected != null && info.slateId != expected) {
         error = (l) =>
             widget.scanned ? l.slateWrongPaymentQr : l.slateWrongPayment;
-      } else if (info.stage == SlateStage.invoice) {
-        error = (l) => l.slateInvoiceUnsupported;
+      } else if (info.stage == SlateStage.request || info.stage == SlateStage.requestAnswer) {
+        error = await _requestProblem(info);
       }
     } catch (e) {
       error = e is WalletError
@@ -184,11 +191,60 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           : (l) => describeError(l, e);
     }
     if (!mounted) return;
+    if (error == null && info != null && info.stage == SlateStage.request) {
+      _toReview(info);
+      return;
+    }
     setState(() {
       _reading = false;
       _info = info;
       _error = error;
     });
+  }
+
+  /// Why a payment request file, or the answer to one, cannot be acted on here; null when it
+  /// can (DESIGN §3.3, §3.4). Off with the Invoices switch, request files are refused.
+  Future<String Function(AppLocalizations l)?> _requestProblem(SlateInfo info) async {
+    if (!requestFilesOn(ref, listen: false)) return (AppLocalizations l) => l.reqFileNeedsInvoices;
+    if (info.stage == SlateStage.request) {
+      // A sealed request LEPIC does not hand the slate out of cannot be paid from here.
+      return _sealedText != null && _sealedInfo != null ? (AppLocalizations l) => l.slateNotTransactionFile : null;
+    }
+    final session = ref.read(sessionProvider);
+    if (session == null) return null;
+    final IssuedInvoice? issued;
+    try {
+      issued = await session.issuedInvoice(slateId: info.slateId);
+    } on WalletError catch (_) {
+      // Finishing says what is wrong, if anything.
+      return null;
+    }
+    if (issued == null) {
+      _answerUnknown = true;
+      return (AppLocalizations l) => l.reqAnswerUnknown;
+    }
+    return switch (issued.state) {
+      IssuedInvoiceState.waiting => null,
+      IssuedInvoiceState.paid => (AppLocalizations l) => l.reqFileAlreadyPaid,
+      _ => (AppLocalizations l) => l.reqFileEnded,
+    };
+  }
+
+  /// The answer names no request this wallet has: a risk card and Close, nothing to finish.
+  bool _answerUnknown = false;
+
+  /// A payment request: the Review in its file form takes over this screen (DESIGN §3.3).
+  void _toReview(SlateInfo info) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<bool>(
+        builder: (_) => RequestFileReviewScreen(
+          json: _file.json,
+          info: info,
+          pairingId: _sealedText != null ? _sealedFrom?.id : null,
+          pasted: widget.pasted,
+        ),
+      ),
+    );
   }
 
   /// Runs one wallet action at a time, then refreshes home, even if this screen has closed,
@@ -256,9 +312,19 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final hold = ref.read(autoLockHoldProvider.notifier);
     return _run((session) async {
       final sealedText = _sealedText;
-      final tx = await hold.during(
-        () => sealedText != null ? session.pairing.finalizeSealed(sealedText) : session.finalizeAndPost(slateJson: _file.json),
-      );
+      final answer = _info?.stage == SlateStage.requestAnswer;
+      final TxEntry tx;
+      try {
+        tx = await hold.during(
+          () => sealedText != null ? session.pairing.finalizeSealed(sealedText) : session.finalizeAndPost(slateJson: _file.json),
+        );
+      } catch (error) {
+        final refused = answer ? requestFileRefusal(error) : null;
+        if (refused == null) rethrow;
+        if (mounted) setState(() => _error = refused);
+        return false;
+      }
+      if (answer) ref.invalidate(issuedInvoicesProvider);
       if (mounted) setState(() => _posted = tx);
       return true;
     });
@@ -428,6 +494,23 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       ];
     } else if (info == null) {
       body = [];
+    } else if (_answerUnknown) {
+      body = [
+        EdgeCard(
+          key: requestAnswerUnknownKey,
+          edge: context.tokens.risk,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Semantics(liveRegion: true, child: Text(l.reqAnswerUnknown)),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.pairClosed),
+        ),
+      ];
     } else {
       final receiving = info.stage == SlateStage.send;
       // The other party's words: the sender's on a payment to us, the recipient's on an answer.
@@ -450,6 +533,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         Text(
           receiving
               ? l.slateIncomingSend(epicExact(l, info.amount))
+              : info.stage == SlateStage.requestAnswer
+              ? l.slateIncomingRequestAnswer(epicExact(l, info.amount), epicExact(l, info.fee))
               : l.slateIncomingResponse(
                   epicExact(l, info.amount),
                   epicExact(l, info.fee),
@@ -492,7 +577,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body: ScreenBody(
         children: [
           ...body,
-          if (error != null) ...[
+          if (error != null && !_answerUnknown) ...[
             ErrorText(error(l)),
             // A scan that failed is not the end: read the code again.
             if (widget.scanned && !_busy && _response == null) ...[
@@ -518,6 +603,73 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// A payment file the wallet made, ready to hand over (DESIGN §3.2, §3.3): a file tile, the
+/// title and what to do with the file, the file's name and amount, Save to device and Share.
+/// [badge] goes under the lead ("Sealed for Anna").
+class SlateFileResult extends StatelessWidget {
+  const SlateFileResult({
+    super.key,
+    required this.title,
+    required this.lead,
+    required this.fileName,
+    required this.amount,
+    required this.json,
+    this.copyable = false,
+    this.badge,
+  });
+
+  final String title;
+  final String lead;
+  final String fileName;
+  final BigInt amount;
+  final String json;
+  final bool copyable;
+  final Widget? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            GlyphTile(size: 48, child: Icon(Icons.description_outlined, color: t.accentText)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Semantics(
+                header: true,
+                liveRegion: true,
+                child: Text(title, style: theme.textTheme.titleMedium),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(lead, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+        if (badge != null) ...[
+          const SizedBox(height: 8),
+          Align(alignment: AlignmentDirectional.centerStart, child: badge),
+        ],
+        const SizedBox(height: 12),
+        PairCard(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: Text(fileName, style: TextStyle(fontFamily: t.monoFamily), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            ListTile(leading: const Icon(Icons.payments_outlined), title: Text(epicExact(l, amount))),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SlateFileButtons(name: fileName, json: json, copyable: copyable),
+      ],
     );
   }
 }

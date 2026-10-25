@@ -2206,16 +2206,17 @@ void main() {
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
 
-    testWidgets('the file screen waits for the core, and refuses invoices', (
+    testWidgets('the file screen waits for the core, and refuses requests while request files are off', (
       tester,
     ) async {
       final h = _Harness();
+      h.session.requestFilesSupported = false;
       const invoice = '{"id":"invoice"}';
       h.service.slateInfos[invoice] = SlateInfo(
         slateId: 'invoice',
         amount: _epic(4),
         fee: BigInt.zero,
-        stage: SlateStage.invoice,
+        stage: SlateStage.request,
       );
       final gate = h.service.inspectGate = Completer<void>();
       await h.pump(
@@ -2233,7 +2234,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel('Reading the file'), findsNothing);
       expect(
-        find.text('Payment requests (invoices) are not supported yet.'),
+        find.text('Turn on Invoices in Settings › Advanced to open payment requests.'),
         findsOneWidget,
       );
       expect(find.text('Accept payment'), findsNothing);

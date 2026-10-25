@@ -57,6 +57,7 @@ enum SessionMember {
   drainInvoices,
   pendingInvoices,
   payInvoice,
+  payRequestFile,
   resendInvoiceReply,
   declineInvoice,
   paidInvoice,

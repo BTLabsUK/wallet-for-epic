@@ -18,6 +18,7 @@ import '../amount.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
+import '../slate_files.dart' show responseFileName, sealedFileName;
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../wallet_service.dart';
 import 'common.dart';
@@ -26,6 +27,8 @@ import 'invoices_screen.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
 import 'pin.dart';
+import 'slate_file_screen.dart' show SlateFileResult;
+import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -435,6 +438,297 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
   }
 }
 
+/// A refusal of a payment request file or its answer, worded for the screens (DESIGN §3.3,
+/// §3.4); null for any other failure. LEPIC ends an unpaid file request after its expiry.
+String Function(AppLocalizations l)? requestFileRefusal(Object error) => switch (error) {
+  WalletError(kind: WalletErrorKind.invoiceAlreadyPaid) => (l) => l.reqFileAlreadyPaid,
+  WalletError(kind: WalletErrorKind.paymentExpired || WalletErrorKind.invoiceNotFound) => (l) => l.reqFileEnded,
+  _ => null,
+};
+
+/// The keys of the request file review, for tests.
+const Key requestFileWarnKey = ValueKey('request-file-warn');
+const Key requestFileApproveKey = ValueKey('request-file-approve');
+const Key requestFileNotNowKey = ValueKey('request-file-not-now');
+const Key requestFileMessageKey = ValueKey('request-file-message');
+
+/// A payment request opened from a file (DESIGN §3.3). The file is untrusted: nothing says
+/// who made it, so a warn card says so, unless a paired contact sealed it ([pairingId]); its
+/// message is cleaned plain text. Approve asks for the PIN, pays exactly the amount shown
+/// ([WalletSession.payRequestFile], which LEPIC checks against the signed one) and shows the
+/// answer file. Not now closes; nothing is paid, stored or sent.
+class RequestFileReviewScreen extends ConsumerStatefulWidget {
+  const RequestFileReviewScreen({
+    super.key,
+    required this.json,
+    required this.info,
+    this.pairingId,
+    this.pasted = false,
+  });
+
+  /// The request (I1) as plain slate JSON.
+  final String json;
+  final SlateInfo info;
+
+  /// The paired contact that sealed the file, or null when nothing names its maker.
+  final String? pairingId;
+
+  /// The text was pasted: the answer can be copied too.
+  final bool pasted;
+
+  @override
+  ConsumerState<RequestFileReviewScreen> createState() => _RequestFileReviewScreenState();
+}
+
+class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScreen> {
+  bool _busy = false;
+  PaidRequestFile? _paid;
+
+  /// The answer sealed for the paired contact that sent the request, when it seals.
+  String? _sealedAnswer;
+
+  /// Why it cannot be paid: already paid here, or ended. The screen is read-only then.
+  String Function(AppLocalizations l)? _refused;
+
+  SlateInfo get _info => widget.info;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPaid();
+  }
+
+  /// A request this wallet paid before opens read-only, as a second Review of a paid
+  /// invoice does; LEPIC refuses a second payment either way.
+  Future<void> _checkPaid() async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    try {
+      final txs = await session.transactions(refresh: false);
+      final paid = txs.any((t) => t.slateId == _info.slateId && t.kind == TxKind.sent);
+      if (paid && mounted) setState(() => _refused = (l) => l.reqFileAlreadyPaid);
+    } on WalletError catch (_) {
+      // Approve finds out instead.
+    }
+  }
+
+  Future<void> _approve() async {
+    final l = context.l10n;
+    final container = ProviderScope.containerOf(context, listen: false);
+    final notices = ref.read(noticeProvider.notifier);
+    // The gate first, every time: nothing below runs without it.
+    if (!await _invoiceGate(context, ref) || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      final paid = await ref
+          .read(autoLockHoldProvider.notifier)
+          .during(() => session.payRequestFile(slateJson: widget.json, amount: _info.amount));
+      container.invalidate(homeProvider);
+      logInfo('invoices', 'request file paid');
+      String? sealed;
+      final id = widget.pairingId;
+      if (id != null) {
+        try {
+          final r = await session.pairing.pairing(id);
+          if (r != null && r.seals) sealed = await session.pairing.sealSlate(id: id, slateJson: paid.json);
+        } on WalletError catch (error) {
+          // The plain answer works as well; only the seal is lost.
+          logWarn('invoices', 'request answer not sealed: ${error.kind.name}');
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _paid = paid;
+          _sealedAnswer = sealed;
+        });
+      }
+    } catch (error) {
+      final refused = requestFileRefusal(error);
+      if (refused != null) {
+        if (mounted) setState(() => _refused = refused);
+      } else {
+        notices.show(describeError(l, error), level: NoticeLevel.error);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final pairing = widget.pairingId == null ? null : ref.watch(pairingByIdProvider(widget.pairingId!));
+    final paid = _paid;
+    if (paid != null) {
+      final sealed = _sealedAnswer;
+      final name = sealed != null ? sealedFileName(paid.slateId) : responseFileName(paid.slateId);
+      return SlotScaffold(
+        appBar: AppBar(title: Text(l.reqTitle)),
+        body: ScreenBody(
+          children: [
+            SlateFileResult(
+              title: l.reqAnswerTitle,
+              lead: l.reqAnswerLead,
+              fileName: name,
+              amount: paid.amount,
+              json: sealed ?? paid.json,
+              copyable: widget.pasted,
+              badge: sealed != null && pairing != null ? SealedBadge(name: pairingName(pairing, contacts)) : null,
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.commonDone),
+            ),
+          ],
+        ),
+      );
+    }
+    final service = invoiceSenderName(l, ref.watch(pairingsProvider).value ?? const [], contacts, widget.pairingId);
+    final claimed = pairing != null && !contacts.any((c) => c.id == pairing.contactId);
+    final display = amountDisplay(ref);
+    final spendable = ref.watch(homeProvider).value?.summary.spendable;
+    final refused = _refused;
+    final short = refused == null && spendable != null && _info.amount > spendable ? _info.amount - spendable : null;
+    final fiat = approxFiat(l, _info.amount, (hidden: false, price: display.price, currency: display.currency));
+    // The issuer's words, unchecked: the first message an I1 carries is the issuer's.
+    final message = invoiceMessageLine(
+      messageBy(_info.messages, SlateRole.receiver) ?? _info.messages.firstOrNull?.text,
+    );
+
+    return SlotScaffold(
+      appBar: AppBar(title: Text(l.reqTitle)),
+      idle: _busy ? SlotProgress(label: l.reqTitle) : null,
+      body: ScreenBody(
+        bottom: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (refused == null)
+              BusyButton(
+                key: requestFileApproveKey,
+                label: l.reqApproveSaveAnswer,
+                busy: _busy,
+                onPressed: !_busy && short == null ? _approve : null,
+              ),
+            TextButton(
+              key: requestFileNotNowKey,
+              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: _busy ? null : () => Navigator.pop(context),
+              child: Text(refused == null ? l.reqNotNow : l.pairClosed),
+            ),
+          ],
+        ),
+        children: [
+          if (pairing != null)
+            // Sealed by a paired contact: the sender is known, as on a contact's request.
+            Row(
+              children: [
+                PairAvatar(name: service, kind: pairing.kind, size: 48),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          l.reqRequests(service),
+                          style: theme.textTheme.titleMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 2),
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [const SealedBadge(), TrustBadge(pairing), if (claimed) const ClaimedNameBadge()],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            Row(
+              children: [
+                GlyphTile(size: 48, child: Icon(Icons.description_outlined, color: t.accentText)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(l.reqFromFileTitle, style: theme.textTheme.titleMedium),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            EdgeCard(
+              key: requestFileWarnKey,
+              edge: t.warn,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l.reqFromFileWarn),
+              ),
+            ),
+          ],
+          const SizedBox(height: 24),
+          _ReviewAmount(amount: _info.amount),
+          if (fiat != null) Text(fiat, style: theme.textTheme.titleMedium?.copyWith(color: t.dim)),
+          const SizedBox(height: 20),
+          if (message != null)
+            // Hostile text: plain, its controls and line breaks gone, never a link.
+            _Fact(
+              label: l.reqFileMessageLabel,
+              child: Text(message, key: requestFileMessageKey, maxLines: 3, overflow: TextOverflow.ellipsis),
+            ),
+          if (refused == null)
+            _Fact(
+              label: l.invoicesPaysFrom,
+              child: Text(
+                l.invoicesAvailable(spendable == null ? '…' : shownEpic(l, spendable, hidden: display.hidden)),
+              ),
+            ),
+          if (refused == null) ...[
+            const SizedBox(height: 8),
+            // Nothing goes over the relay: the answer is a file.
+            const _Checks(epicbox: false),
+          ],
+          if (short != null) ...[
+            const SizedBox(height: 16),
+            EdgeCard(
+              edge: t.risk,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Semantics(liveRegion: true, child: Text(l.invoicesShort(epicExact(l, short)))),
+              ),
+            ),
+          ],
+          if (refused != null) ...[
+            const SizedBox(height: 16),
+            EdgeCard(
+              edge: t.dim,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Semantics(liveRegion: true, child: Text(refused(l))),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// The key of [address], shortened, without its relay.
 String _shortKey(String address) {
   final at = address.indexOf('@');
@@ -554,7 +848,10 @@ class _AddressText extends StatelessWidget {
 /// What paying needs, checked as the review opens: the node answers, and the epicbox
 /// listener is connected, as Send's review does. They inform; nothing here blocks Approve.
 class _Checks extends ConsumerWidget {
-  const _Checks();
+  const _Checks({this.epicbox = true});
+
+  /// Whether the Epicbox line shows: not for a request file, whose answer is a file.
+  final bool epicbox;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -606,13 +903,16 @@ class _Checks extends ConsumerWidget {
           ),
           _ => check(l.invoicesCheckNode, ok, l.invoicesNodeOk),
         },
-        listener.connected
-            ? check(l.invoicesCheckEpicbox, ok, l.invoicesEpicboxOk)
-            : check(
-                l.invoicesCheckEpicbox,
-                Icon(Icons.sync_problem, size: 18, color: t.warn),
-                l.invoicesEpicboxDown,
-              ),
+        if (!epicbox)
+          const SizedBox.shrink()
+        else if (listener.connected)
+          check(l.invoicesCheckEpicbox, ok, l.invoicesEpicboxOk)
+        else
+          check(
+            l.invoicesCheckEpicbox,
+            Icon(Icons.sync_problem, size: 18, color: t.warn),
+            l.invoicesEpicboxDown,
+          ),
       ],
     );
   }
