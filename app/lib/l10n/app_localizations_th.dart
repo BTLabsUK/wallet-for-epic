@@ -6376,6 +6376,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveHttpFailed => 'Could not start.';
 
   @override
+  String get receiveHttpShowQr => 'Show QR';
+
+  @override
+  String get receiveHttpHideQr => 'Hide QR';
+
+  @override
+  String get receiveHttpQrLabel => 'QR code of the Link · HTTP address';
+
+  @override
   String get netStatusOverTor => 'ผ่าน Tor';
 
   @override

@@ -8234,6 +8234,18 @@
   "@receiveHttpFailed": {
     "description": "The HTTP address card when the listener could not start for another reason; Retry is next to it."
   },
+  "receiveHttpShowQr": "Show QR",
+  "@receiveHttpShowQr": {
+    "description": "Button on the phone's Link · HTTP address card that shows the address as a QR code (hidden until asked)."
+  },
+  "receiveHttpHideQr": "Hide QR",
+  "@receiveHttpHideQr": {
+    "description": "Button on the phone's Link · HTTP address card that hides the QR code again."
+  },
+  "receiveHttpQrLabel": "QR code of the Link · HTTP address",
+  "@receiveHttpQrLabel": {
+    "description": "Screen reader label of the QR code on the phone's Link · HTTP address card."
+  },
   "netStatusOverTor": "over Tor",
   "@netStatusOverTor": {
     "description": "Status card: read out after a service whose connection goes through Tor."

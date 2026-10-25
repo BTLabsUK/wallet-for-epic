@@ -10227,6 +10227,24 @@ abstract class AppLocalizations {
   /// **'Could not start.'**
   String get receiveHttpFailed;
 
+  /// Button on the phone's Link · HTTP address card that shows the address as a QR code (hidden until asked).
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR'**
+  String get receiveHttpShowQr;
+
+  /// Button on the phone's Link · HTTP address card that hides the QR code again.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide QR'**
+  String get receiveHttpHideQr;
+
+  /// Screen reader label of the QR code on the phone's Link · HTTP address card.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of the Link · HTTP address'**
+  String get receiveHttpQrLabel;
+
   /// Status card: read out after a service whose connection goes through Tor.
   ///
   /// In en, this message translates to:
