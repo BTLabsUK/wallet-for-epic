@@ -551,7 +551,7 @@ void main() {
       expect(_origin('From a QR code'), findsOneWidget);
     });
 
-    testWidgets('a Link address selects Link Payment', (tester) async {
+    testWidgets('a Link address selects Link', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, _d);

@@ -788,7 +788,7 @@ void main() {
     testWidgets('an incomplete wallet URL is refused in plain words', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(direct: true);
       await h.pump(tester, _sendTab());
       await _enter(tester, _address, 'https://');
       await _tap(tester, _continue);

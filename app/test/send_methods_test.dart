@@ -752,9 +752,9 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Link Payment · HTTP'), findsOneWidget);
+      expect(_reviewMethod('Link · HTTP'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -772,7 +772,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _https);
       h.session.sendError = const WalletError(
         kind: WalletErrorKind.transportFailed,
@@ -801,7 +801,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _https);
       h.session.sendError = const WalletError(
         kind: WalletErrorKind.transportFailed,
@@ -815,7 +815,7 @@ void main() {
 
     testWidgets('plain HTTP to another device asks first', (tester) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _lan);
       await _tap(tester, find.text('Send 1 EPIC'));
       expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
@@ -846,10 +846,10 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.torOn(tester);
       await h.toReview(tester, _onion);
-      expect(_reviewMethod('Link Payment · Tor'), findsOneWidget);
+      expect(_reviewMethod('Link · Tor'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -862,7 +862,7 @@ void main() {
       'an onion with Tor off: Needs Tor; Turn on Tor keeps the form',
       (tester) async {
         final h = _Harness();
-        await h.pump(tester);
+        await h.pump(tester, payments: _directOn);
         await _enter(tester, 'To', _onion);
         expect(_method(tester), TransferMethod.direct);
         expect(find.byKey(sendTorNoticeKey), findsOneWidget);
@@ -925,7 +925,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, payments: _directOn);
       await h.torOn(tester);
       Finder tag(String text) => find.descendant(
         of: find.byKey(sendTorTagKey),
@@ -942,7 +942,7 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Link Payment · HTTP · Not over Tor'), findsOneWidget);
+      expect(_reviewMethod('Link · HTTP · Not over Tor'), findsOneWidget);
     });
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {

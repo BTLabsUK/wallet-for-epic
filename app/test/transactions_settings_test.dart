@@ -200,7 +200,9 @@ void main() {
     expect(find.text(_l.txLinkTorNeedsTor), findsOneWidget);
     await tester.tap(find.byKey(txTorNeededKey));
     await tester.pumpAndSettle();
-    expect(find.byType(SettingsScreen), findsOneWidget);
+    // Settings opens over the page, at Privacy & network (the hub stays under it).
+    expect(find.byType(SettingsScreen, skipOffstage: false), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is SettingsSectionScreen && w.section == SettingsSection.privacyNetwork), findsOneWidget);
   });
 
   testWidgets('Link · Tor on with Tor on: no line', (tester) async {
