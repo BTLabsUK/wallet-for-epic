@@ -28,8 +28,6 @@ import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
-import '../../../payment_prefs.dart' show MethodKind, MethodFamily;
-import '../../../ui/method_icons.dart' show MethodIcons;
 import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';

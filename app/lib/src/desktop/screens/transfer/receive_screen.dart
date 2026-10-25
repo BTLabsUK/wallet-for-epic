@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
-import '../../../payment_prefs.dart' show MethodKind;
-import '../../../ui/method_icons.dart' show MethodIcons;
 import '../../../network_gate.dart' show NetBlock;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
@@ -75,6 +73,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       Future.microtask(() async {
         await n.setEpicboxListening(args.epicbox != RxEpicbox.off);
         if (DeskFeatures.httpDirect) await n.setHttp(args.http != RxHttp.off);
+        if (DeskFeatures.tor && args.tor != RxTor.off) {
+          // The Tor address shows while Link · Tor is on (Settings › Transactions) and Tor runs.
+          final s = ref.read(deskProvider).settings;
+          if (!s.payments.linkTor) await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
+        }
         if (DeskFeatures.tor) await n.setTor(args.tor != RxTor.off);
       });
     }

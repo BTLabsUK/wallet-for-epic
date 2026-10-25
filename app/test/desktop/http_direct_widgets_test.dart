@@ -95,23 +95,25 @@ void main() {
   });
 
   group('Settings › Transactions', () {
-    Finder httpSwitch() => find.byKey(const ValueKey('st-switch-http'));
+    // Link · HTTP is the one HTTP switch (Payment methods); its group below holds the state.
+    Finder httpSwitch() => find.byKey(const ValueKey('st-offer-linkHttp'));
     String httpState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-http'))).line.text;
 
-    testWidgets('HTTP receiving is off by default and turns on local only', (tester) async {
+    // `show` turns the Link methods on (advancedOn): Link · HTTP on means the listener runs.
+    testWidgets('Link · HTTP on: the listener runs local only, its group shows the state with no second switch; off takes the group away', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      expect(httpState(tester), 'Off');
-      expect(find.text('Start with the wallet'), findsWidgets);
+      expect(httpState(tester), 'On · this computer only (127.0.0.1)');
+      expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no second HTTP switch');
+      expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing);
+      expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
       await tester.tap(httpSwitch());
       await tester.pumpAndSettle();
-      expect(httpState(tester), 'On · this computer only (127.0.0.1)');
-      expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
+      expect(find.byKey(const ValueKey('st-state-http')), findsNothing);
+      expect(container.read(deskProvider).status?.httpListener, ServiceHealth.off);
     });
 
     testWidgets('From the internet: the guide the first time, then straight', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      await tester.tap(httpSwitch());
-      await tester.pumpAndSettle();
       await tester.tap(find.text('From the internet'));
       await tester.pumpAndSettle();
       expect(find.byType(InternetGuide), findsOneWidget);

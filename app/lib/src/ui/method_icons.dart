@@ -69,8 +69,8 @@ abstract final class MethodIcons {
   /// QR Payment, File Transfer.
   static String groupName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.epicbox => l.methodEpicbox,
-    MethodKind.linkHttp => l.methodShortHttp,
-    MethodKind.linkTor => l.methodShortTor,
+    MethodKind.linkHttp => l.methodGroupHttp,
+    MethodKind.linkTor => l.methodGroupTor,
     MethodKind.directQr => l.methodQr,
     MethodKind.directFile => l.methodFile,
   };

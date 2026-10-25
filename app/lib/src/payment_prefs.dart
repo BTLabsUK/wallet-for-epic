@@ -49,8 +49,8 @@ class PaymentPrefs {
   /// The method Send starts on; the first one on when the chosen one is off ([startMethod]).
   final MethodKind defaultMethod;
 
-  /// The desktop's: File Transfer on, Link off.
-  static const PaymentPrefs defaults = PaymentPrefs();
+  /// The desktop's: File Transfer on, Link off, QR Payment never (the phone's method).
+  static const PaymentPrefs defaults = PaymentPrefs(directQr: false);
 
   /// A new phone's: QR Payment on, File Transfer off (a switch behind Advanced), Link off.
   static const PaymentPrefs phoneDefaults = PaymentPrefs(directFile: false);
@@ -120,8 +120,8 @@ class PaymentPrefs {
   /// [raw] as stored; null (never saved) is the defaults ([phoneDefaults] on a [phone]), with
   /// Link on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
   /// 26.10.13 held it). A value from the one Link switch (`direct`, before 26.10.16) turns on
-  /// the Link method that worked then: Tor on the phone (Link needed Tor), HTTP and Tor on
-  /// the desktop (the HTTP card, the Tor address while Tor ran).
+  /// both Link methods: that switch sent to web and onion addresses alike (HTTP sending stays,
+  /// as the owner asked), and showed the HTTP card and the Tor address.
   static PaymentPrefs decode(String? raw, {bool legacyDirect = false, bool phone = false}) {
     if (raw == null || raw.isEmpty) {
       return _legacyLink(phone ? phoneDefaults : defaults, legacyDirect, phone: phone);
@@ -141,7 +141,7 @@ class PaymentPrefs {
   }
 
   static PaymentPrefs _legacyLink(PaymentPrefs p, bool direct, {required bool phone}) =>
-      direct ? p.copyWith(linkTor: true, linkHttp: !phone) : p;
+      direct ? p.copyWith(linkTor: true, linkHttp: true) : p;
 
   /// A stored method name: today's, or the names before the split (`direct` was Link, `qr`
   /// and `file` the Direct methods).
@@ -162,7 +162,7 @@ class PaymentPrefs {
   };
 
   /// The desktop's stored form; the keys before the split (`direct`, `file`, `qr`) read as
-  /// [decode] reads them.
+  /// [decode] reads them, QR Payment off unless saved on (the desktop never offers it).
   static PaymentPrefs fromJson(Object? j, {bool legacyDirect = false}) {
     if (j is! Map) return _legacyLink(defaults, legacyDirect, phone: false);
     bool flag(String key, bool fallback) => j[key] is bool ? j[key] as bool : fallback;
@@ -171,7 +171,7 @@ class PaymentPrefs {
       epicbox: flag('epicbox', true),
       linkHttp: flag('linkHttp', false),
       linkTor: flag('linkTor', false),
-      directQr: flag('directQr', flag('qr', true)),
+      directQr: flag('directQr', flag('qr', false)),
       directFile: flag('directFile', flag('file', true)),
       defaultMethod: _method('${j['default']}'),
     );

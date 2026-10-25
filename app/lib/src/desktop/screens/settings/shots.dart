@@ -157,7 +157,7 @@ final List<DeskShot> settingsShots = [
     height: 1200,
   ),
   const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
-  const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Direct on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.directOn, height: 1200),
+  const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Link · HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.directOn, height: 1200),
   const DeskShot(id: '23o-transactions-send-options', title: 'Transactions, Send options on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.sendOptions, height: 1400),
   const DeskShot(id: '23j-privacy', title: 'Privacy, Tor off', route: DeskRoute.settingsPrivacy),
   const DeskShot(id: '23k-privacy-tor-starting', title: 'Privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting),

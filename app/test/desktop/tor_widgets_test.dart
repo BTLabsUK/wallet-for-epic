@@ -85,7 +85,7 @@ void main() {
       expect(find.text('Needs Tor'), findsNothing);
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
-      expect(find.text('Link Payment · Tor (their wallet must be open)'), findsOneWidget);
+      expect(find.text('Link · Tor (their wallet must be open)'), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();

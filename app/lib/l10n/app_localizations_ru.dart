@@ -5269,6 +5269,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodShortFile => 'Direct · File';
 
   @override
+  String get methodGroupHttp => 'HTTP';
+
+  @override
+  String get methodGroupTor => 'Tor';
+
+  @override
   String get methodDirectQr => 'Direct · QR Payment';
 
   @override

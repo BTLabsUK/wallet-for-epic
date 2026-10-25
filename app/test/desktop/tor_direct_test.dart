@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
@@ -541,7 +542,7 @@ void main() {
   });
 
   test('HTTP From the internet asks nothing over the clearnet once Tor is on', () async {
-    await wallet.saveSettings(const DeskSettings(directHttp: true, publicMode: true));
+    await wallet.saveSettings(const DeskSettings(payments: PaymentPrefs(linkHttp: true), publicMode: true));
     await wallet.setHttpListening(true);
     session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
     await pumpEventQueue();

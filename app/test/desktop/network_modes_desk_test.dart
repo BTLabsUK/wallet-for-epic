@@ -158,7 +158,7 @@ void main() {
         expect(session().refreshCalls, greaterThan(refreshes));
         await wallet.rescan().drain<void>();
         expect(session().scanCalls, greaterThan(0));
-        await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+        await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
         await wallet.setHttpListening(true);
         expect(session().httpListenerStarts, isNotEmpty);
         await expectLater(wallet.setEpicboxListening(true), throwsA(isA<DeskError>()));
@@ -174,8 +174,13 @@ void main() {
       await wallet.syncNow();
       expect(session().refreshCalls, refreshes);
       await expectLater(wallet.rescan().drain<void>(), throwsA(isA<DeskError>()));
-      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
       await expectLater(wallet.setHttpListening(true), throwsA(isA<DeskError>()));
     });
   });
+}
+
+
+extension _Let<T> on T {
+  R let<R>(R Function(T) f) => f(this);
 }
