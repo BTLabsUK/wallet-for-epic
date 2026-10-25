@@ -118,9 +118,10 @@ abstract interface class PairingApi {
   /// leaves it paired.
   Future<PairingRecord?> checkWords(String id, PairingCheck check);
 
-  /// Collects the pairing mailboxes once (an open invite, an answer waiting for its confirm):
-  /// what it finds comes as [events]. Returns how many messages it took.
-  Future<int> collect();
+  /// Collects the pairing and contact mailboxes once (an open invite, an answer waiting for
+  /// its confirm, a contact's invoices, payments and withdrawals): what it finds comes as
+  /// [events]. [trigger] says why (RFC 8.4). Returns how many pairings it completed or ended.
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground});
 
   /// Removes the pairing [id] (C-19). Its contact stays.
   Future<void> removePairing(String id);
@@ -164,6 +165,13 @@ abstract interface class PairingApi {
   /// pairing; a plain one comes back as it is, with no pairing. `sealedForOther` for one
   /// sealed for another wallet or install (RFC 9.5), `newerVersion` for a newer one.
   Future<OpenedSlate> openSlate(String text);
+
+  /// Receives the payment in sealed [text] and returns the answer, sealed to its sender when
+  /// it can be, else plain. [message] is signed into the answer.
+  Future<SealedReply> receiveSealed(String text, {String? message});
+
+  /// Finalizes and posts the answer in sealed [text], to a payment this wallet started.
+  Future<TxEntry> finalizeSealed(String text);
 
   /// Sends [amount] to the paired contact [id] through its mailbox on its relay, sealed (RFC
   /// 9.1, "Send through Anna's mailbox"). The answer comes back the same way.
@@ -262,7 +270,7 @@ class NoPairing implements PairingApi {
   Future<PairingRecord?> checkWords(String id, PairingCheck check) async => throw pairingUnsupported('checkWords');
 
   @override
-  Future<int> collect() async => 0;
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async => 0;
 
   @override
   Future<void> removePairing(String id) async => throw pairingUnsupported('removePairing');
@@ -292,6 +300,12 @@ class NoPairing implements PairingApi {
   // Without pairing a file is always plain.
   @override
   Future<OpenedSlate> openSlate(String text) async => OpenedSlate(slateJson: text);
+
+  @override
+  Future<SealedReply> receiveSealed(String text, {String? message}) async => throw pairingUnsupported('receiveSealed');
+
+  @override
+  Future<TxEntry> finalizeSealed(String text) async => throw pairingUnsupported('finalizeSealed');
 
   @override
   Future<TxEntry> sendViaMailbox({

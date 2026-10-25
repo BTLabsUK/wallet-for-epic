@@ -506,6 +506,19 @@ class ImportReport {
     this.pairingsOtherDevice = 0,
   });
 
+  /// This report with [added] pairings, [otherDevice] of them maybe in use elsewhere too.
+  ImportReport withPairings(int added, {int otherDevice = 0}) => ImportReport(
+    merged: merged,
+    added: this.added,
+    skipped: skipped,
+    contactsAdded: contactsAdded,
+    conflicts: conflicts,
+    applied: applied,
+    replaced: replaced,
+    pairingsAdded: added,
+    pairingsOtherDevice: otherDevice,
+  );
+
   @override
   int get hashCode =>
       merged.hashCode ^
@@ -2078,6 +2091,10 @@ class IssuedInvoice {
   final int txId;
   final String payerAddress;
 
+  /// The paired contact asked (RFC 11.2), when the engine names it; its mailbox is never
+  /// shown as an address, so [payerAddress] is empty then.
+  final String? pairingId;
+
   /// What the payer is asked for, in the smallest unit.
   final BigInt amount;
 
@@ -2098,6 +2115,7 @@ class IssuedInvoice {
     required this.issuedAt,
     required this.expiresAt,
     required this.state,
+    this.pairingId,
   });
 
   /// Only an unpaid, unanswered invoice can be withdrawn.
@@ -2109,15 +2127,19 @@ class IssuedInvoice {
     return left.isNegative ? Duration.zero : left;
   }
 
-  IssuedInvoice withState(IssuedInvoiceState state) => IssuedInvoice(
+  IssuedInvoice withState(IssuedInvoiceState state) => withPairing(pairingId, state: state);
+
+  /// This invoice for the paired contact [pairingId].
+  IssuedInvoice withPairing(String? pairingId, {IssuedInvoiceState? state}) => IssuedInvoice(
     slateId: slateId,
     txId: txId,
     payerAddress: payerAddress,
+    pairingId: pairingId,
     amount: amount,
     message: message,
     issuedAt: issuedAt,
     expiresAt: expiresAt,
-    state: state,
+    state: state ?? this.state,
   );
 
   @override
@@ -2125,6 +2147,7 @@ class IssuedInvoice {
       slateId.hashCode ^
       txId.hashCode ^
       payerAddress.hashCode ^
+      pairingId.hashCode ^
       amount.hashCode ^
       message.hashCode ^
       issuedAt.hashCode ^
@@ -2138,6 +2161,7 @@ class IssuedInvoice {
           slateId == other.slateId &&
           txId == other.txId &&
           payerAddress == other.payerAddress &&
+          pairingId == other.pairingId &&
           amount == other.amount &&
           message == other.message &&
           issuedAt == other.issuedAt &&
@@ -2245,14 +2269,18 @@ class IssuerEvent {
   /// The payer's invoice address, when known, so a notice can name them.
   final String? payerAddress;
 
+  /// The paired contact asked, as on [IssuedInvoice.pairingId].
+  final String? pairingId;
+
   const IssuerEvent({
     required this.kind,
     required this.slateId,
     this.payerAddress,
+    this.pairingId,
   });
 
   @override
-  int get hashCode => kind.hashCode ^ slateId.hashCode ^ payerAddress.hashCode;
+  int get hashCode => kind.hashCode ^ slateId.hashCode ^ payerAddress.hashCode ^ pairingId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2260,7 +2288,8 @@ class IssuerEvent {
       other is IssuerEvent &&
           kind == other.kind &&
           slateId == other.slateId &&
-          payerAddress == other.payerAddress;
+          payerAddress == other.payerAddress &&
+          pairingId == other.pairingId;
 }
 
 /// What one drain of the payments address did.
@@ -2835,16 +2864,54 @@ class PairingSlate {
       other is PairingSlate && other.pairingId == pairingId && other.purpose == purpose && other.reference == reference;
 }
 
-/// A payment file or paste as [PairingApi.openSlate] opened it.
+/// A payment file or paste as [PairingApi.openSlate] opened it. A plain one comes back as it
+/// is ([slateJson]); a sealed one says what it holds, and is acted on sealed
+/// ([PairingApi.receiveSealed], [PairingApi.finalizeSealed]).
 class OpenedSlate {
-  const OpenedSlate({required this.slateJson, this.pairingId, this.sealed = false});
+  const OpenedSlate({
+    this.slateJson,
+    this.pairingId,
+    this.sealed = false,
+    this.stage,
+    this.slateId,
+    this.amount,
+    this.fee,
+    this.purpose,
+    this.reference,
+  });
 
-  /// The slate inside, as the engine reads a plain file.
-  final String slateJson;
+  /// The slate as plain JSON: the text itself for a plain file; for a sealed one only when
+  /// the engine hands it out (the fake does, LEPIC does not).
+  final String? slateJson;
 
   /// The paired contact it came from (sealed, or plain from a known card), or null.
   final String? pairingId;
 
   /// It was sealed. False with a [pairingId] is a paired contact's plain file.
   final bool sealed;
+
+  /// What a sealed file holds, for the screen before the user acts on it.
+  final SlateStage? stage;
+  final String? slateId;
+  final BigInt? amount;
+  final BigInt? fee;
+  final SlatePurpose? purpose;
+  final String? reference;
 }
+
+/// The answer to a sealed payment ([PairingApi.receiveSealed]): sealed to the sender when it
+/// can be, else plain slate JSON, to send back the way the payment came.
+class SealedReply {
+  const SealedReply({required this.slateId, required this.answer, required this.sealed, this.repeated = false});
+
+  final String slateId;
+  final String answer;
+  final bool sealed;
+
+  /// The payment was answered before; this is the same answer.
+  final bool repeated;
+}
+
+/// Why the pairing mailboxes are collected now (RFC 8.4): the app opened, resumed or was
+/// unlocked; the foreground tick; a pull to refresh; a push wake-up.
+enum PairingCollectTrigger { open, foreground, pull, push }

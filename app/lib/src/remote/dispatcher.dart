@@ -640,7 +640,7 @@ class WalletDispatcher {
       s.pairing.checkWords(p.of('id', stringWire), p.of('check', pairingCheckWire)),
       nullable(pairingRecordWire),
     ),
-    SessionMember.pairingCollect => _once(s.pairing.collect(), intWire),
+    SessionMember.pairingCollect => _once(s.pairing.collect(trigger: p.of('trigger', pairingCollectTriggerWire)), intWire),
     SessionMember.pairingRemove => _once(s.pairing.removePairing(p.of('id', stringWire)), voidWire),
     SessionMember.pairingSetSeal => _once(
       s.pairing.setSeal(p.of('id', stringWire), p.of('on', boolWire)),
@@ -675,6 +675,11 @@ class WalletDispatcher {
       stringWire,
     ),
     SessionMember.pairingOpenSlate => _once(s.pairing.openSlate(p.of('text', stringWire)), openedSlateWire),
+    SessionMember.pairingReceiveSealed => _once(
+      s.pairing.receiveSealed(p.of('text', stringWire), message: p.of('message', optString)),
+      sealedReplyWire,
+    ),
+    SessionMember.pairingFinalizeSealed => _once(s.pairing.finalizeSealed(p.of('text', stringWire)), txEntryWire),
     SessionMember.pairingSendViaMailbox => _once(
       s.pairing.sendViaMailbox(
         id: p.of('id', stringWire),

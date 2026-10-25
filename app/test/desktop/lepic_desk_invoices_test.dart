@@ -1,11 +1,10 @@
 // Invoices on the desktop's LEPIC adapter: LepicDeskWallet over the real LepicWalletSession on
-// a stand-in `EpicWallet` that keeps the invoice address, trusted list, waiting invoices and
-// transactions as LEPIC does. No native library is loaded; the password is a test value.
+// a stand-in `EpicWallet` that keeps a paired contact, its waiting invoices and transactions as
+// LEPIC does (RFC 11). No native library is loaded; the password is a test value.
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/address_format.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
@@ -17,10 +16,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
 const _password = 'test-pass-1234';
-const _payments = 'esOwnPaymentsKey@epicbox.example';
 const _shop = 'esShopKey@epicbox.example';
-const _shopElsewhere = 'esShopKey@other.relay';
 const _payer = 'esPayerInvoiceKey@epicbox.example';
+
+/// The paired shop, as LEPIC names it.
+const _shopContact = 'contact-shop';
 
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) => lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
@@ -29,7 +29,7 @@ lepic.TransactionDetails _tx({
   required String slateId,
   required lepic.TxDirection direction,
   required lepic.TxStatus status,
-  required String counterparty,
+  String? counterparty,
   BigInt? credited,
   BigInt? debited,
   BigInt? confirmedHeight,
@@ -55,10 +55,10 @@ lepic.TransactionDetails _tx({
   outputCommits: const [],
 );
 
-/// LEPIC's wallet in memory: the invoice half, transactions and a summary. Fails any other call.
+/// LEPIC's wallet in memory: a paired shop, its invoices, transactions and a summary. Fails any
+/// other call.
 class _Wallet implements lepic.EpicWallet {
-  final List<lepic.InvoiceSender> senders = [];
-  final List<lepic.IncomingInvoice> waiting = [];
+  final List<lepic.ContactInvoiceView> waiting = [];
   final List<lepic.TransactionDetails> stored = [];
   final StreamController<lepic.WalletEvent> events$ = StreamController<lepic.WalletEvent>.broadcast();
   final List<String> paid = [];
@@ -74,16 +74,49 @@ class _Wallet implements lepic.EpicWallet {
   /// When set, a cancel is refused with it after the node check (in the pool, unreachable).
   lepic.WalletErrorKind? cancelError;
 
-  void park(String slateId, int amount, {String from = _shopElsewhere, String? message}) => waiting.add(
-    lepic.IncomingInvoice(
+  void park(String slateId, int amount, {String? reference}) => waiting.add(
+    lepic.ContactInvoiceView(
       slateId: slateId,
-      senderAddress: from,
+      contactId: _shopContact,
       amount: BigInt.from(amount),
-      message: message,
+      purpose: lepic.SlatePurpose.request,
+      reference: reference,
+      expires: BigInt.from(DateTime.now().add(const Duration(hours: 20)).millisecondsSinceEpoch ~/ 1000),
       receivedAtMs: 1790000000000,
-      expiresAtMs: DateTime.now().add(const Duration(hours: 20)).millisecondsSinceEpoch,
+      sameAmount: const [],
     ),
   );
+
+  /// The contact each transaction was sealed to.
+  final Map<int, String> contactOf = {};
+
+  @override
+  Future<String?> contactOfTransaction({required int txId}) async => contactOf[txId];
+
+  @override
+  Future<List<lepic.ContactView>> contacts() async => const [
+    lepic.ContactView(
+      contactId: _shopContact,
+      label: 'Shop',
+      state: lepic.PairingState.verified,
+      sas: [],
+      allowInvoices: true,
+      seal: lepic.SealState.on_,
+      importedFromBackup: false,
+      lapsed: false,
+      createdAtMs: 1790000000000,
+    ),
+  ];
+
+  @override
+  Future<List<lepic.PendingPairingView>> pairingsPending() async => const [];
+
+  @override
+  Future<List<lepic.ContactInvoiceView>> contactInvoices() async => [...waiting];
+
+  @override
+  Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>
+      const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
   @override
   bool get isDisposed => false;
@@ -134,29 +167,13 @@ class _Wallet implements lepic.EpicWallet {
   }
 
   @override
-  Future<String> epicboxAddress() async => _payments;
-  @override
-  Future<String> invoiceAddress() async => 'esOwnInvoiceKey@epicbox.example';
-  @override
-  Future<int> invoiceAddressIndex() async => 1;
-
-  @override
-  Future<List<lepic.InvoiceSender>> invoiceSenders() async => [...senders];
-
-  @override
-  Future<lepic.InvoiceSender> allowInvoiceSender({required String address, required String label}) async {
-    final s = lepic.InvoiceSender(address: address, label: label, addedAtMs: 1790000000000);
-    senders
-      ..removeWhere((x) => x.address.split('@').first == address.split('@').first)
-      ..add(s);
-    return s;
-  }
-
-  @override
-  Future<lepic.InvoiceReport> drainInvoices() async {
+  Future<lepic.ContactCollectReport> contactsCollect({
+    required lepic.CollectTrigger trigger,
+    required lepic.ContactRelayMode relayMode,
+  }) async {
     invoiceDrains++;
     if (drainError != null) throw _lepicError(drainError!);
-    return const lepic.InvoiceReport(parked: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, dropped: 2, notices: 0, bounced: 0);
+    return const lepic.ContactCollectReport(mailboxes: 1, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: []);
   }
 
   @override
@@ -169,9 +186,6 @@ class _Wallet implements lepic.EpicWallet {
   Future<lepic.InvoiceSweep> sweepInvoices({BigInt? expirySecs}) async =>
       lepic.InvoiceSweep(deleted: const [], cancelled: Uint32List(0), cancellable: Uint32List(0));
 
-  @override
-  Future<List<lepic.IncomingInvoice>> pendingInvoices({BigInt? expirySecs}) async => [...waiting];
-
   int feeEstimates = 0;
 
   @override
@@ -181,12 +195,13 @@ class _Wallet implements lepic.EpicWallet {
   }
 
   @override
-  Future<lepic.PaidInvoice> payInvoice({
+  Future<lepic.PaidInvoice> contactPayInvoice({
     required String slateId,
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
     lepic.SendOptions? options,
+    required lepic.ContactRelayMode relayMode,
   }) async {
     paid.add(slateId);
     final invoice = waiting.firstWhere((i) => i.slateId == slateId, orElse: () => throw _lepicError(lepic.WalletErrorKind.invoiceNotFound));
@@ -197,11 +212,11 @@ class _Wallet implements lepic.EpicWallet {
         slateId: slateId,
         direction: lepic.TxDirection.outgoing,
         status: lepic.TxStatus.received,
-        counterparty: invoice.senderAddress,
         debited: amount + BigInt.from(100),
         createdAtMs: paidAt.millisecondsSinceEpoch,
       ),
     );
+    contactOf[9] = invoice.contactId;
     return lepic.PaidInvoice(txId: 9, slateId: slateId, amount: amount, fee: BigInt.from(100));
   }
 
@@ -243,7 +258,7 @@ class _Wallet implements lepic.EpicWallet {
       slateId: t.slateId!,
       direction: t.direction,
       status: lepic.TxStatus.cancelled,
-      counterparty: t.counterparty!,
+      counterparty: t.counterparty,
       credited: t.amountCredited,
       debited: t.amountDebited,
     );
@@ -260,7 +275,7 @@ class _Service extends core.FakeWalletService {
   @override
   Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {
     await super.open(config: config, password: password);
-    return opened = LepicWalletSession(lepicWallet, validateAddress: (_) => true);
+    return opened = LepicWalletSession(lepicWallet);
   }
 }
 
@@ -397,7 +412,7 @@ void main() {
 
     setUp(() async {
       support = await Directory.systemTemp.createTemp('desk-invoices-test-');
-      lepicWallet = _Wallet()..senders.add(lepic.InvoiceSender(address: _shop, label: 'Shop', addedAtMs: 1790000000000));
+      lepicWallet = _Wallet();
       service = _Service(lepicWallet);
       wallet = LepicDeskWallet(
         service: service,
@@ -423,17 +438,17 @@ void main() {
       await support.delete(recursive: true);
     });
 
-    test('a waiting invoice reads as one to pay: the stored address, the fee, no name from the invoice', () async {
-      lepicWallet.park('inv-1', 12000, message: 'Order\u202e 42\nthanks');
+    test('a waiting invoice reads as one to pay: the contact\'s name, the fee, a clean reference', () async {
+      lepicWallet.park('inv-1', 12000, reference: 'Order\u202e 42\nthanks');
       final book = await wallet.invoices();
       final i = book.invoice('inv-1')!;
       expect(i.state, PayState.waiting);
-      // Without a pairing (LEPIC's is a stub until U-24) the name is the short address.
-      expect(i.label, shortAddress(_shop, compact: true), reason: 'never a name from the invoice');
-      // No pairing to name it (LEPIC's pairing is a stub until U-24): the address it came from.
-      expect(i.senderAddress, 'esShopKey@other.relay');
+      // The pairing names it; its mailbox is no address to show (RFC C-21).
+      expect(i.label, 'Shop');
+      expect(i.pairingId, _shopContact);
+      expect(i.senderAddress, isEmpty);
       expect(i.fee, 700000);
-      expect(i.message, 'Order 42 thanks');
+      expect(i.reference, 'Order 42 thanks');
       expect(book.waiting.single.slateId, 'inv-1');
       await wallet.invoices();
       expect(lepicWallet.feeEstimates, 1, reason: 'a read does not estimate the fee again');
@@ -450,7 +465,7 @@ void main() {
       final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
       expect(lepicWallet.paid, ['inv-1']);
       expect(paid.state, PayState.delivered);
-      expect(paid.label, shortAddress(_shop, compact: true));
+      expect(paid.label, 'Shop');
       await expectLater(
         wallet.payInvoice('inv-1', amount: 12000, password: _password),
         throwsA(isA<InvoiceError>().having((e) => e.problem, 'problem', InvoiceProblem.alreadyAnswered)),
@@ -502,7 +517,7 @@ void main() {
       lepicWallet.events$.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.invoiceWithdrawn, slateId: 'inv-1'));
       await _settle();
       expect(notices.single.kind, InvoiceNoticeKind.withdrawn);
-      expect(notices.single.who, shortAddress(_shop, compact: true));
+      expect(notices.single.who, 'Shop');
       final book = await wallet.invoices();
       expect(book.waiting, isEmpty);
       expect(book.invoice('inv-1')!.state, PayState.withdrawn);

@@ -2,6 +2,8 @@
 /// step as its action. Mounted on home, so they show wherever the user is.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,10 +53,47 @@ class PairingNotices extends ConsumerStatefulWidget {
   ConsumerState<PairingNotices> createState() => _PairingNoticesState();
 }
 
-class _PairingNoticesState extends ConsumerState<PairingNotices> {
+class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBindingObserver {
+  /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
+  static const _tick = Duration(seconds: 45);
+  Timer? _timer;
+
+  void _collect(PairingCollectTrigger trigger) {
+    final api = ref.read(pairingApiProvider);
+    if (api.supported) api.collect(trigger: trigger).ignore();
+  }
+
+  void _startTick() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_tick, (_) => _collect(PairingCollectTrigger.foreground));
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _collect(PairingCollectTrigger.open);
+      _startTick();
+    } else if (state == AppLifecycleState.paused) {
+      _timer?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    // Home shows once the wallet is open or unlocked: every mailbox, then the tick.
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _collect(PairingCollectTrigger.open);
+    });
+    _startTick();
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
       if (e != null && mounted) _show(e);
@@ -86,7 +125,11 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> {
       PairingEventKind.duplicateRequests ||
       PairingEventKind.tooManyRequests => NoticeAction(l.noticeView, () => _push(const InvoicesScreen())),
       PairingEventKind.withdrawalFromContact when e.slateId != null =>
-        NoticeAction(l.noticeView, () => _push(TxDetailsScreen(txKey: 's:${e.slateId}'))),
+        NoticeAction(l.noticeView, () {
+          // The row's key is the wallet's; find it by its slate.
+          final tx = ref.read(homeProvider).value?.transactions.where((t) => t.slateId == e.slateId).firstOrNull;
+          _push(TxDetailsScreen(txKey: tx?.key ?? 's:${e.slateId}'));
+        }),
       _ => null,
     };
     ref.read(noticeProvider.notifier).show(notice.text, level: notice.level, action: action);

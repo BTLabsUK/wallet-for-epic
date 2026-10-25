@@ -3960,7 +3960,18 @@ class LepicDeskWallet implements DeskWalletApi {
       logWarn('invoices', 'issued invoice not read for a notice: ${error.kind.name}');
     }
     if (_session != session) return;
-    final who = _contactFor(await _contactsOr(), payer)?.name ?? (payer.isEmpty ? '' : shortAddress(payer, compact: true));
+    final people = await _contactsOr();
+    var pairingId = e.pairingId;
+    if (pairingId == null) {
+      try {
+        pairingId = (await session.issuedInvoice(slateId: e.slateId))?.pairingId;
+      } on core.WalletError catch (_) {
+        // Named by its address, if any.
+      }
+    }
+    final paired = pairingId == null ? null : _pairedName(await session.pairing.pairings(), people, pairingId);
+    if (_session != session) return;
+    final who = paired ?? _contactFor(people, payer)?.name ?? (payer.isEmpty ? '' : shortAddress(payer, compact: true));
     _notify(InvoiceNotice(kind, slateId: e.slateId, who: who, amount: amount));
   }
 
@@ -4073,7 +4084,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
     final sent = [
       for (final r in await session.issuedInvoices())
-        _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf),
+        _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf, pairings: pairings),
     ];
 
     return InvoiceBook(
@@ -4093,13 +4104,19 @@ class LepicDeskWallet implements DeskWalletApi {
     return s.isEmpty ? null : s;
   }
 
-  IssuedRequest _request(core.IssuedInvoice r, core.TxEntry? e, List<Contact> people, {required int minConf}) {
+  IssuedRequest _request(
+    core.IssuedInvoice r,
+    core.TxEntry? e,
+    List<Contact> people, {
+    required int minConf,
+    List<core.PairingRecord> pairings = const [],
+  }) {
     final tx = e == null ? null : deskTx(e, tip: _tip, minConf: minConf, fallbackId: -1);
     return IssuedRequest(
       slateId: r.slateId,
       txId: r.txId,
       payerAddress: r.payerAddress,
-      payerName: _contactFor(people, r.payerAddress)?.name,
+      payerName: _pairedName(pairings, people, r.pairingId) ?? _contactFor(people, r.payerAddress)?.name,
       amount: r.amount.toInt(),
       message: _line(r.message),
       issuedAt: r.issuedAt,
@@ -4135,7 +4152,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final r = await session.pairing.requestPayment(id: draft.pairingId, amount: BigInt.from(draft.amount), message: draft.message);
       await _reload();
       final e = (_entries ?? const <core.TxEntry>[]).where((t) => t.id == r.txId).firstOrNull;
-      final request = _request(r, e, await _contactsOr(), minConf: _minConf.toInt());
+      final request = _request(r, e, await _contactsOr(), minConf: _minConf.toInt(), pairings: await session.pairing.pairings());
       return draft.payerName == null || request.payerName != null
           ? request
           : IssuedRequest(

@@ -53,6 +53,20 @@ class HistoryPayload {
   }) : txs = txs ?? [],
        contacts = contacts ?? [];
 
+  /// This payload with [pairings], the core's pairing backup.
+  HistoryPayload withPairings(Map<String, Object?>? pairings) => HistoryPayload(
+    format: format,
+    version: version,
+    chain: chain,
+    walletFp: walletFp,
+    exportedAtUnix: exportedAtUnix,
+    appVersion: appVersion,
+    lastConfirmedHeight: lastConfirmedHeight,
+    txs: txs,
+    contacts: contacts,
+    pairings: pairings,
+  );
+
   /// Reads a payload as serde reads it. Throws [MetaFormatException] for a wrong shape.
   factory HistoryPayload.fromJson(Object? json) {
     final m = asObject(json, 'payload');

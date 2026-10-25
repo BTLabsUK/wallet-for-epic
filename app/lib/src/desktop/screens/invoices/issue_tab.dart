@@ -213,7 +213,7 @@ class _Row extends StatelessWidget {
                             child: Builder(
                               builder: (context) {
                                 final name = Text(payerOf(r), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
-                                return r.payerName == null ? Tooltip(message: r.payerAddress, child: name) : name;
+                                return r.payerName == null && r.payerAddress.isNotEmpty ? Tooltip(message: r.payerAddress, child: name) : name;
                               },
                             ),
                           ),
@@ -318,7 +318,7 @@ class RequestDetail extends ConsumerWidget {
         if (step >= 0) ...[SizedBox(height: Sp.x5), _Steps(step: step, confirmations: r.confirmations)],
         SizedBox(height: Sp.x5),
         EFacts(labelWidth: 96.u, [
-          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.payerName != null) Text(r.payerName!), EMonoText(shortAddress(r.payerAddress, compact: true))])),
+          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
           if ((r.message ?? '').isNotEmpty) (l.deskInvIssuerMessageFact, Text(cleanInvoiceText(r.message))),
           (l.deskInvIssuerSentFact, Text(invWhen(context, r.issuedAt))),
           if (r.state == RequestState.waiting)

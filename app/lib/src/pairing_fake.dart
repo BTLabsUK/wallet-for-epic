@@ -592,7 +592,8 @@ class FakePairing implements PairingApi {
   }
 
   @override
-  Future<int> collect() async {
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
+    collects.add(trigger);
     if (!enabled) return 0;
     final now = clock();
     var taken = 0;
@@ -786,6 +787,46 @@ class FakePairing implements PairingApi {
       message: message,
       options: options,
     );
+  }
+
+  /// Every [collect], by its trigger.
+  final List<PairingCollectTrigger> collects = [];
+
+  /// The pairing and slate inside sealed [text], as [openSlate] reads it.
+  ({String id, String slateJson}) _inside(String text) {
+    final t = text.trim();
+    if (!t.startsWith(_armorHead) || !t.endsWith(_armorFoot)) throw pairingError(PairingFailure.newerVersion);
+    final Object? body;
+    try {
+      body = jsonDecode(utf8.decode(base64Url.decode(t.substring(_armorHead.length, t.length - _armorFoot.length))));
+    } on FormatException {
+      throw pairingError(PairingFailure.invalid);
+    }
+    if (body is! Map<String, Object?>) throw pairingError(PairingFailure.invalid);
+    final id = body['p'] as String?;
+    if (id == null || !records.any((r) => r.id == id)) throw pairingError(PairingFailure.sealedForOther);
+    return (id: id, slateJson: body['s'] as String? ?? '');
+  }
+
+  @override
+  Future<SealedReply> receiveSealed(String text, {String? message}) async {
+    _require('receiveSealed');
+    final inside = _inside(text);
+    final s = session;
+    if (s == null) throw pairingUnsupported('receiveSealed');
+    final answer = await s.receiveSlate(slateJson: inside.slateJson);
+    final r = _get(inside.id);
+    final sealed = r.seals ? await sealSlate(id: inside.id, slateJson: answer.json) : null;
+    return SealedReply(slateId: answer.slateId, answer: sealed ?? answer.json, sealed: sealed != null, repeated: answer.repeated);
+  }
+
+  @override
+  Future<TxEntry> finalizeSealed(String text) async {
+    _require('finalizeSealed');
+    final inside = _inside(text);
+    final s = session;
+    if (s == null) throw pairingUnsupported('finalizeSealed');
+    return s.finalizeAndPost(slateJson: inside.slateJson);
   }
 
   /// Plain slates a paired contact sent, by their text: [openSlate] names the pairing, as the

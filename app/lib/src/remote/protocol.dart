@@ -100,6 +100,8 @@ enum SessionMember {
   pairingRequestFile,
   pairingSealSlate,
   pairingOpenSlate,
+  pairingReceiveSealed,
+  pairingFinalizeSealed,
   pairingSendViaMailbox,
   pairingPlainSlate,
   pairingUseImported,

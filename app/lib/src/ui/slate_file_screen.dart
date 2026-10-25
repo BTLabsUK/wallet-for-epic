@@ -90,6 +90,15 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   /// The paired contact a sealed file came from (RFC 3.4): the answer goes back sealed.
   PairingRecord? _sealedFrom;
 
+  /// The sealed text as it came, acted on sealed ([PairingApi.receiveSealed],
+  /// [PairingApi.finalizeSealed]); and what it holds when the engine does not hand out the
+  /// slate inside.
+  String? _sealedText;
+  SlateInfo? _sealedInfo;
+
+  /// "This arrived unsealed" was said already.
+  bool _toldUnsealed = false;
+
   /// Why a sealed file did not open: sealed for another wallet or install, or by a newer one.
   PairingFailure? _sealFailure;
 
@@ -117,12 +126,20 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       final from = opened.pairingId == null ? null : await api.pairing(opened.pairingId!);
       if (!mounted) return false;
       if (sealed) {
-        _file = SlateFile(name: _file.name, json: opened.slateJson);
+        _sealedText = _file.json;
         _sealedFrom = from;
+        if (opened.slateJson case final json?) {
+          _file = SlateFile(name: _file.name, json: json);
+        } else {
+          _sealedInfo = SlateInfo(
+            slateId: opened.slateId ?? '',
+            amount: opened.amount ?? BigInt.zero,
+            fee: opened.fee ?? BigInt.zero,
+            stage: opened.stage ?? SlateStage.send,
+          );
+        }
       } else if (from != null && from.seals) {
-        final l = context.l10n;
-        final name = pairingName(from, ref.read(contactsProvider).value ?? const []);
-        ref.read(noticeProvider.notifier).show('${l.openArrivedUnsealed} ${l.openArrivedUnsealedBody(name)}', level: NoticeLevel.info);
+        _tellUnsealed(from);
       }
       return true;
     } catch (error) {
@@ -141,9 +158,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       return;
     }
     try {
-      info = await ref
-          .read(walletServiceProvider)
-          .inspectSlate(json: _file.json);
+      info = _sealedInfo ?? await ref.read(walletServiceProvider).inspectSlate(json: _file.json);
       final expected = widget.expectedSlateId;
       if (expected != null && info.slateId != expected) {
         error = (l) =>
@@ -185,16 +200,40 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
   }
 
+  /// "This arrived unsealed": a plain file from a paired contact that seals (SPEC 2.9).
+  void _tellUnsealed(PairingRecord from) {
+    if (_toldUnsealed || !mounted) return;
+    _toldUnsealed = true;
+    final l = context.l10n;
+    final name = pairingName(from, ref.read(contactsProvider).value ?? const []);
+    ref.read(noticeProvider.notifier).show('${l.openArrivedUnsealed} ${l.openArrivedUnsealedBody(name)}', level: NoticeLevel.info);
+  }
+
   Future<void> _sign() => _run((session) async {
+    // Sealed in, sealed back (RFC 9.2): the engine receives it and seals the answer to the
+    // sender when it can.
+    final sealedText = _sealedText;
+    if (sealedText != null) {
+      final reply = await session.pairing.receiveSealed(sealedText);
+      if (mounted) {
+        setState(() {
+          _response = ReceivedSlate(slateId: reply.slateId, json: reply.answer, repeated: reply.repeated);
+          _sealedAnswer = reply.sealed ? reply.answer : null;
+        });
+      }
+      return !reply.repeated;
+    }
     final response = await session.receiveSlate(slateJson: _file.json);
-    // Sealed in, sealed back (RFC 9.2): only the sender's wallet opens the answer.
-    final from = _sealedFrom;
-    final sealed = from != null && from.seals ? await session.pairing.sealSlate(id: from.id, slateJson: response.json) : null;
-    if (mounted) {
-      setState(() {
-        _response = response;
-        _sealedAnswer = sealed;
-      });
+    if (mounted) setState(() => _response = response);
+    // A plain file can name its paired sender only once it is received.
+    if (session.pairing.supported && !_toldUnsealed) {
+      try {
+        final slate = await session.pairing.slateOf(response.slateId);
+        final from = slate == null ? null : await session.pairing.pairing(slate.pairingId);
+        if (from != null && from.seals) _tellUnsealed(from);
+      } on WalletError catch (_) {
+        // Only the notice is lost.
+      }
     }
     return !response.repeated;
   });
@@ -205,8 +244,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   Future<void> _finalize() {
     final hold = ref.read(autoLockHoldProvider.notifier);
     return _run((session) async {
+      final sealedText = _sealedText;
       final tx = await hold.during(
-        () => session.finalizeAndPost(slateJson: _file.json),
+        () => sealedText != null ? session.pairing.finalizeSealed(sealedText) : session.finalizeAndPost(slateJson: _file.json),
       );
       if (mounted) setState(() => _posted = tx);
       return true;

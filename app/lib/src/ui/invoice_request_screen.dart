@@ -41,8 +41,11 @@ const Key requestMessageKey = ValueKey('request-message');
 const Key requestSummaryKey = ValueKey('request-summary');
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
-String payerName(Iterable<Contact> contacts, String address) =>
-    contactNameFor(contacts, address) ?? shortAddress(address);
+///
+/// [paired] is the name of the paired contact asked, which comes first: a request to a
+/// pairing has no address to show (RFC C-21).
+String payerName(Iterable<Contact> contacts, String address, {String? paired}) =>
+    paired != null && paired.isNotEmpty ? paired : contactNameFor(contacts, address) ?? shortAddress(address);
 
 /// The one-word state of a request that is no longer waiting; null while it waits, where
 /// the time left is shown instead.
@@ -66,6 +69,7 @@ Future<bool> confirmWithdraw(
   final payer = payerName(
     ref.read(contactsProvider).value ?? const <Contact>[],
     invoice.payerAddress,
+    paired: invoice.pairingId == null ? null : ref.read(pairingNameProvider(invoice.pairingId!)),
   );
   final confirmed = await showDialog<bool>(
     context: context,
@@ -612,7 +616,13 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
                 l.issuedDetailsPayer,
                 style: theme.textTheme.labelLarge,
               ),
-              subtitle: Text(payerName(contacts, invoice.payerAddress)),
+              subtitle: Text(
+                payerName(
+                  contacts,
+                  invoice.payerAddress,
+                  paired: invoice.pairingId == null ? null : ref.watch(pairingNameProvider(invoice.pairingId!)),
+                ),
+              ),
             ),
           if (message != null && !shownElsewhere)
             ListTile(

@@ -232,6 +232,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         final payer = payerName(
           ref.read(contactsProvider).value ?? const <Contact>[],
           event.payerAddress ?? '',
+          paired: event.pairingId == null ? null : ref.read(pairingNameProvider(event.pairingId!)),
         );
         notices.show(
           l.issuerNoticeBouncedFrom(payer),
@@ -489,7 +490,11 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
         for (final request in requests)
           RequestRow(
             request: request,
-            payer: payerName(contacts, request.payerAddress),
+            payer: payerName(
+              contacts,
+              request.payerAddress,
+              paired: request.pairingId == null ? null : ref.watch(pairingNameProvider(request.pairingId!)),
+            ),
             left: request.timeLeftAt(now),
             amount: shownEpic(l, request.amount, hidden: hidden),
           ),

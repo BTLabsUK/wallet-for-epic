@@ -1,5 +1,5 @@
-// The LEPIC adapter's invoice calls over a stand-in `EpicWallet` that keeps the invoice
-// waiting invoices as LEPIC does. No native library is loaded.
+// The LEPIC adapter's invoice calls over a stand-in `EpicWallet` that keeps contact invoices
+// as LEPIC does (RFC 11). No native library is loaded.
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -10,40 +10,40 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
-const _payments = 'ownKey0@epicbox.example';
-const _shop = 'shopKey@epicbox.example';
+const _shop = 'contact-shop';
 
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) =>
     lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
-/// LEPIC's invoice half in memory. Fails any other native call.
+/// LEPIC's contact invoices in memory. Fails any other native call.
 class _InvoiceWallet implements lepic.EpicWallet {
-  int index = 1;
-  final List<lepic.InvoiceSender> senders = [];
-  final List<lepic.IncomingInvoice> waiting = [];
+  final List<lepic.ContactInvoiceView> waiting = [];
   final List<lepic.TransactionDetails> stored = [];
+  final List<lepic.OutboxEntryView> outbox = [];
   final StreamController<lepic.WalletEvent> eventSink =
       StreamController<lepic.WalletEvent>.broadcast();
 
-  /// Every `payInvoice` that reached LEPIC, with its arguments.
+  /// Every `contactPayInvoice` that reached LEPIC, with its arguments.
   final List<({String slateId, BigInt amount, BigInt minConf, String? message})>
   payments = [];
-  final List<int> resent = [];
+  final List<BigInt> resent = [];
   final List<String> declined = [];
   final List<BigInt?> expiries = [];
+  final List<lepic.CollectTrigger> collects = [];
   lepic.WalletErrorKind? payError;
   lepic.WalletErrorKind? resendError;
-  lepic.WalletErrorKind? indexError;
   bool sweepFails = false;
 
-  void park(String slateId, BigInt amount, {String? message}) => waiting.add(
-    lepic.IncomingInvoice(
+  void park(String slateId, BigInt amount, {String? reference}) => waiting.add(
+    lepic.ContactInvoiceView(
       slateId: slateId,
-      senderAddress: _shop,
+      contactId: _shop,
       amount: amount,
-      message: message,
+      purpose: lepic.SlatePurpose.request,
+      reference: reference,
+      expires: BigInt.from(1790086400),
       receivedAtMs: 1790000000000,
-      expiresAtMs: 1790086400000,
+      sameAmount: const [],
     ),
   );
 
@@ -80,67 +80,51 @@ class _InvoiceWallet implements lepic.EpicWallet {
         validatedWithNode: false,
       );
 
-  @override
-  Future<String> epicboxAddress() async => _payments;
+  final contactView = const lepic.ContactView(
+    contactId: _shop,
+    label: 'Shop',
+    state: lepic.PairingState.verified,
+    sas: [],
+    allowInvoices: true,
+    seal: lepic.SealState.on_,
+    importedFromBackup: false,
+    lapsed: false,
+    createdAtMs: 1790000000000,
+  );
 
   @override
-  Future<String> invoiceAddress() async => 'ownKey$index@epicbox.example';
+  Future<List<lepic.ContactView>> contacts() async => [contactView];
 
   @override
-  Future<int> invoiceAddressIndex() async {
-    if (indexError != null) throw _lepicError(indexError!);
-    return index;
-  }
+  Future<lepic.ContactView> contact({required String contactId}) async =>
+      contactView;
 
   @override
-  Future<void> setInvoiceAddressIndex({required int index}) async =>
-      this.index = index;
+  Future<String?> contactOfTransaction({required int txId}) async => _shop;
 
   @override
-  Future<String> rotateInvoiceAddress() async {
-    index++;
-    return invoiceAddress();
-  }
-
-  @override
-  Future<List<lepic.InvoiceSender>> invoiceSenders() async => [...senders];
-
-  @override
-  Future<lepic.InvoiceSender> allowInvoiceSender({
-    required String address,
-    required String label,
+  Future<lepic.ContactCollectReport> contactsCollect({
+    required lepic.CollectTrigger trigger,
+    required lepic.ContactRelayMode relayMode,
   }) async {
-    final key = address.split('@').first;
-    senders.removeWhere((s) => s.address.split('@').first == key);
-    final s = lepic.InvoiceSender(
-      address: address,
-      label: label,
-      addedAtMs: 1790000000000,
+    collects.add(trigger);
+    // Two invoices arrive in the shop's mailbox.
+    park('new-1', BigInt.from(7));
+    park('new-2', BigInt.from(8));
+    return const lepic.ContactCollectReport(
+      mailboxes: 1,
+      messages: 2,
+      paired: 0,
+      unreachable: [],
+      delivered: 0,
+      failed: [],
     );
-    senders.add(s);
-    return s;
   }
 
   @override
-  Future<bool> removeInvoiceSender({required String address}) async {
-    final key = address.split('@').first;
-    final before = senders.length;
-    senders.removeWhere((s) => s.address.split('@').first == key);
-    return senders.length < before;
-  }
-
-  @override
-  Future<lepic.InvoiceReport> drainInvoices() async =>
-      const lepic.InvoiceReport(
-        parked: 2,
-        finalized: 0,
-        repeated: 1,
-        rejected: 0,
-        held: 0,
-        dropped: 3,
-        notices: 1,
-        bounced: 0,
-      );
+  Future<lepic.OutboxReport> contactsOutboxDeliver({
+    required lepic.ContactRelayMode relayMode,
+  }) async => const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
   @override
   Future<lepic.InvoiceSweep> sweepInvoices({BigInt? expirySecs}) async {
@@ -154,20 +138,18 @@ class _InvoiceWallet implements lepic.EpicWallet {
   }
 
   @override
-  Future<List<lepic.IncomingInvoice>> pendingInvoices({
-    BigInt? expirySecs,
-  }) async {
-    expiries.add(expirySecs);
-    return [...waiting];
-  }
+  Future<List<lepic.ContactInvoiceView>> contactInvoices() async => [
+    ...waiting,
+  ];
 
   @override
-  Future<lepic.PaidInvoice> payInvoice({
+  Future<lepic.PaidInvoice> contactPayInvoice({
     required String slateId,
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
     lepic.SendOptions? options,
+    required lepic.ContactRelayMode relayMode,
   }) async {
     payments.add((
       slateId: slateId,
@@ -182,6 +164,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
     if (invoice.amount != amount) {
       throw _lepicError(lepic.WalletErrorKind.amountMismatch);
     }
+    if (payError != null) throw _lepicError(payError!);
     waiting.remove(invoice);
     stored.add(
       lepic.TransactionDetails(
@@ -189,23 +172,30 @@ class _InvoiceWallet implements lepic.EpicWallet {
         direction: lepic.TxDirection.outgoing,
         status: lepic.TxStatus.received,
         slateId: slateId,
-        counterparty: invoice.senderAddress,
         amountCredited: BigInt.zero,
         amountDebited: amount + BigInt.one,
         fee: BigInt.one,
         createdAtMs: 1790000000000,
         releasable: false,
         undelivered: false,
-        messages: [
-          if (invoice.message case final text?)
-            lepic.SlateMessage(role: lepic.SlateRole.receiver, text: text),
-        ],
+        messages: const [],
         flow: lepic.TxFlow.invoice,
         origin: lepic.TxOrigin.wallet,
         outputCommits: const [],
       ),
     );
-    if (payError != null) throw _lepicError(payError!);
+    outbox.add(
+      lepic.OutboxEntryView(
+        id: BigInt.from(4),
+        contactId: _shop,
+        slateId: slateId,
+        stage: lepic.SlateStage.i2,
+        state: lepic.OutboxState.queued,
+        attempts: 1,
+        createdAtMs: 1790000000000,
+        notPostedYet: false,
+      ),
+    );
     return lepic.PaidInvoice(
       txId: 9,
       slateId: slateId,
@@ -218,13 +208,21 @@ class _InvoiceWallet implements lepic.EpicWallet {
   Future<List<lepic.TransactionDetails>> transactions() async => [...stored];
 
   @override
-  Future<void> resendInvoicePayment({required int txId}) async {
-    resent.add(txId);
+  Future<List<lepic.OutboxEntryView>> contactOutbox({
+    required String contactId,
+  }) async => [...outbox.where((o) => o.contactId == contactId)];
+
+  @override
+  Future<void> contactOutboxResend({
+    required BigInt id,
+    required lepic.ContactRelayMode relayMode,
+  }) async {
+    resent.add(id);
     if (resendError != null) throw _lepicError(resendError!);
   }
 
   @override
-  Future<void> declineInvoice({required String slateId}) async {
+  Future<void> contactDeclineInvoice({required String slateId}) async {
     final before = waiting.length;
     waiting.removeWhere((i) => i.slateId == slateId);
     if (waiting.length == before) {
@@ -302,6 +300,25 @@ void main() {
       }
     });
 
+    test('a contact\'s invoice raises one received notice', () async {
+      final seen = <InvoiceEvent>[];
+      final sub = session.invoiceEvents().listen(seen.add);
+      wallet.eventSink.add(
+        lepic.WalletEvent(
+          kind: lepic.WalletEventKind.invoiceFromContact,
+          slateId: 'inv-1',
+          contactId: _shop,
+          amount: BigInt.from(500),
+        ),
+      );
+      await _settle();
+      await sub.cancel();
+      expect(seen, [
+        const InvoiceEvent(kind: InvoiceEventKind.received, slateId: 'inv-1'),
+      ]);
+      expect(wallet.payments, isEmpty);
+    });
+
     test('a slate this install does not know: a notice kind by stage, told once', () async {
       lepic.WalletEvent unknown(String stage) => lepic.WalletEvent(
         kind: lepic.WalletEventKind.unknownSlate,
@@ -348,6 +365,22 @@ void main() {
       await sub.cancel();
       expect(seen.single?.status, InvoiceStatus.posted);
       expect(seen.single?.kernelExcess, '08ab');
+    });
+
+    test('a stuck answer marks the paid invoice, a delivered one clears it', () async {
+      final s = LepicWalletSession(
+        wallet..park('inv-1', BigInt.from(500)),
+        history: WalletHistory.memory(),
+      );
+      await s.payInvoice(slateId: 'inv-1', amount: BigInt.from(500));
+      s.invoiceEvents().listen((_) {});
+      wallet.eventSink.add(_event(lepic.WalletEventKind.outboxStuck));
+      await _settle();
+      expect((await s.paidInvoice(slateId: 'inv-1'))?.status, InvoiceStatus.replyFailed);
+      wallet.eventSink.add(_event(lepic.WalletEventKind.outboxDelivered));
+      await _settle();
+      expect((await s.paidInvoice(slateId: 'inv-1'))?.status, InvoiceStatus.replied);
+      s.dispose();
     });
 
     test(
@@ -421,18 +454,19 @@ void main() {
       await sub.cancel();
       expect(events, isNotEmpty);
       expect(wallet.payments, isEmpty);
-      expect(wallet.waiting, hasLength(1));
+      expect(wallet.waiting, hasLength(3));
     });
   });
 
   group('drain and pending', () {
     test(
-      'a drain reports LEPIC\'s counts and sweeps with the app\'s expiry',
+      'a drain collects the contacts\' mailboxes, counts what arrived and sweeps',
       () async {
         expect(
           await session.drainInvoices(),
-          const InvoiceDrainReport(parked: 2, dropped: 3, notices: 1),
+          const InvoiceDrainReport(parked: 2),
         );
+        expect(wallet.collects, [lepic.CollectTrigger.open]);
         expect(wallet.expiries, [BigInt.from(86400)]);
       },
     );
@@ -442,19 +476,22 @@ void main() {
       expect((await session.drainInvoices()).parked, 2);
     });
 
-    test('waiting invoices keep their fields and times', () async {
-      wallet.park('inv-1', BigInt.from(500), message: 'order 42');
+    test('waiting invoices name their contact, reference and times', () async {
+      wallet.park('inv-1', BigInt.from(500), reference: 'order 42');
       expect(await session.pendingInvoices(), [
         PendingInvoice(
           slateId: 'inv-1',
-          senderAddress: _shop,
+          senderAddress: '',
           amount: BigInt.from(500),
-          message: 'order 42',
           receivedAt: DateTime.fromMillisecondsSinceEpoch(1790000000000),
           expiresAt: DateTime.fromMillisecondsSinceEpoch(1790086400000),
+          pairingId: _shop,
+          reference: 'order 42',
         ),
       ]);
-      expect(wallet.expiries, [BigInt.from(86400)]);
+      final pending = (await session.pendingInvoices()).single;
+      expect(pending.pairingId, _shop);
+      expect(pending.reference, 'order 42');
     });
   });
 
@@ -463,7 +500,7 @@ void main() {
       'a matching amount pays with the balance\'s confirmations and no message',
       () async {
         wallet.balanceConfirmations = BigInt.from(3);
-        wallet.park('inv-1', BigInt.from(500), message: 'order 42');
+        wallet.park('inv-1', BigInt.from(500));
         final paid = await session.payInvoice(
           slateId: 'inv-1',
           amount: BigInt.from(500),
@@ -472,16 +509,18 @@ void main() {
           paid,
           PaidInvoice(
             slateId: 'inv-1',
-            senderAddress: _shop,
+            senderAddress: '',
             amount: BigInt.from(500),
-            message: 'order 42',
             status: InvoiceStatus.replied,
             txId: 9,
           ),
         );
+        expect(paid.pairingId, _shop);
         expect(wallet.payments.single.minConf, BigInt.from(3));
         expect(wallet.payments.single.message, isNull);
-        expect(await session.paidInvoice(slateId: 'inv-1'), paid);
+        final again = await session.paidInvoice(slateId: 'inv-1');
+        expect(again, paid);
+        expect(again?.pairingId, _shop);
       },
     );
 
@@ -509,46 +548,40 @@ void main() {
       expect(wallet.payments, isEmpty);
     });
 
-    test(
-      'an undelivered reply is kept, then resent without paying again',
-      () async {
-        wallet
-          ..park('inv-1', BigInt.from(500))
-          ..payError = lepic.WalletErrorKind.notDelivered;
-        final paid = await session.payInvoice(
-          slateId: 'inv-1',
-          amount: BigInt.from(500),
-        );
-        expect(paid.status, InvoiceStatus.replyFailed);
-        expect(paid.txId, 9);
+    test('a contact no longer trusted is refused', () async {
+      wallet
+        ..park('inv-1', BigInt.from(500))
+        ..payError = lepic.WalletErrorKind.contactNotVerified;
+      await expectLater(
+        session.payInvoice(slateId: 'inv-1', amount: BigInt.from(500)),
+        throwsA(isA<WalletError>()),
+      );
+      expect(await session.paidInvoice(slateId: 'inv-1'), isNull);
+    });
 
-        wallet.resendError = lepic.WalletErrorKind.transportFailed;
-        await expectLater(
-          session.resendInvoiceReply(slateId: 'inv-1'),
-          throwsA(
-            isA<WalletError>().having(
-              (e) => e.kind,
-              'kind',
-              WalletErrorKind.transportFailed,
-            ),
+    test('Send again posts the outbox entry once more, never pays again', () async {
+      wallet.park('inv-1', BigInt.from(500));
+      await session.payInvoice(slateId: 'inv-1', amount: BigInt.from(500));
+
+      wallet.resendError = lepic.WalletErrorKind.transportFailed;
+      await expectLater(
+        session.resendInvoiceReply(slateId: 'inv-1'),
+        throwsA(
+          isA<WalletError>().having(
+            (e) => e.kind,
+            'kind',
+            WalletErrorKind.transportFailed,
           ),
-        );
-        expect(
-          (await session.paidInvoice(slateId: 'inv-1'))?.status,
-          InvoiceStatus.replyFailed,
-        );
+        ),
+      );
 
-        wallet.resendError = null;
-        final resent = await session.resendInvoiceReply(slateId: 'inv-1');
-        expect(resent.status, InvoiceStatus.replied);
-        expect(wallet.resent, [9, 9]);
-        // Delivered but not posted yet: Send again sends the same reply once more (linux-12),
-        // and never pays a second time.
-        await session.resendInvoiceReply(slateId: 'inv-1');
-        expect(wallet.resent, [9, 9, 9]);
-        expect(wallet.payments, hasLength(1));
-      },
-    );
+      wallet.resendError = null;
+      final resent = await session.resendInvoiceReply(slateId: 'inv-1');
+      expect(resent.status, InvoiceStatus.replied);
+      await session.resendInvoiceReply(slateId: 'inv-1');
+      expect(wallet.resent, [BigInt.from(4), BigInt.from(4), BigInt.from(4)]);
+      expect(wallet.payments, hasLength(1));
+    });
 
     test('a decline reaches LEPIC and is reported', () async {
       wallet.park('inv-1', BigInt.from(500));
@@ -574,7 +607,7 @@ void main() {
 
     test('a paid invoice survives a reopen', () async {
       final s = LepicWalletSession(
-        wallet..park('inv-1', BigInt.from(500), message: 'order 42'),
+        wallet..park('inv-1', BigInt.from(500)),
         history: await WalletHistory.open(dir.path, Chain.floonet),
       );
       final paid = await s.payInvoice(

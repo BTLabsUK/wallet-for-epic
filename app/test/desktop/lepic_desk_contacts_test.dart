@@ -1,5 +1,5 @@
-// Contacts and settings on the desktop's LEPIC adapter: a contact's invoice address, the trusted
-// list read by key, and the invoice expiry kept with the wallet. LepicDeskWallet over the real
+// Contacts and settings on the desktop's LEPIC adapter: a contact's addresses and the invoice
+// expiry kept with the wallet. LepicDeskWallet over the real
 // LepicWalletSession on a stand-in `EpicWallet`; no native library is loaded.
 import 'dart:async';
 import 'dart:io';
@@ -20,10 +20,8 @@ const _shop = 'esShopKey@epicbox.example';
 
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) => lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
-/// LEPIC's wallet in memory: the invoice half and a summary. Fails any other call.
+/// LEPIC's wallet in memory: a summary and no pairings. Fails any other call.
 class _Wallet implements lepic.EpicWallet {
-  final List<lepic.InvoiceSender> senders = [];
-
   @override
   bool get isDisposed => false;
   @override
@@ -75,31 +73,20 @@ class _Wallet implements lepic.EpicWallet {
   @override
   Future<String> epicboxAddress() async => _payments;
   @override
-  Future<String> invoiceAddress() async => 'esOwnInvoiceKey@epicbox.example';
-  @override
-  Future<int> invoiceAddressIndex() async => 1;
-  @override
-  Future<List<lepic.InvoiceSender>> invoiceSenders() async => [...senders];
+  Future<List<lepic.ContactView>> contacts() async => const [];
 
   @override
-  Future<lepic.InvoiceSender> allowInvoiceSender({required String address, required String label}) async {
-    final s = lepic.InvoiceSender(address: address, label: label, addedAtMs: 1790000000000);
-    senders
-      ..removeWhere((x) => x.address.split('@').first == address.split('@').first)
-      ..add(s);
-    return s;
-  }
+  Future<List<lepic.PendingPairingView>> pairingsPending() async => const [];
 
   @override
-  Future<bool> removeInvoiceSender({required String address}) async {
-    final before = senders.length;
-    senders.removeWhere((x) => x.address.split('@').first == address.split('@').first);
-    return senders.length < before;
-  }
+  Future<lepic.ContactCollectReport> contactsCollect({
+    required lepic.CollectTrigger trigger,
+    required lepic.ContactRelayMode relayMode,
+  }) async => const lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: []);
 
   @override
-  Future<lepic.InvoiceReport> drainInvoices() async =>
-      const lepic.InvoiceReport(parked: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, dropped: 0, notices: 0, bounced: 0);
+  Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>
+      const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
   @override
   Future<lepic.InboxReport> drainEpicbox() async =>
@@ -110,7 +97,7 @@ class _Wallet implements lepic.EpicWallet {
       lepic.InvoiceSweep(deleted: const [], cancelled: Uint32List(0), cancellable: Uint32List(0));
 
   @override
-  Future<List<lepic.IncomingInvoice>> pendingInvoices({BigInt? expirySecs}) async => const [];
+  Future<List<lepic.ContactInvoiceView>> contactInvoices() async => const [];
 }
 
 /// Opens a [LepicWalletSession] on the stand-in for every unlock.
@@ -123,7 +110,7 @@ class _Service extends core.FakeWalletService {
   @override
   Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {
     await super.open(config: config, password: password);
-    return opened = LepicWalletSession(lepicWallet, validateAddress: (_) => true);
+    return opened = LepicWalletSession(lepicWallet);
   }
 }
 

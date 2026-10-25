@@ -14,7 +14,8 @@ import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingNoticeOf;
-import '../data/pairing_state.dart' show deskPairingEventsProvider;
+import '../../models.dart' show PairingCollectTrigger;
+import '../data/pairing_state.dart' show deskPairingApiProvider, deskPairingEventsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -69,10 +70,23 @@ class DeskShell extends ConsumerStatefulWidget {
 class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _tourTimer;
 
+  /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
+  Timer? _collectTimer;
+
+  void _collect(PairingCollectTrigger trigger) {
+    final api = ref.read(deskPairingApiProvider);
+    if (api.supported) api.collect(trigger: trigger).ignore();
+  }
+
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
+    // The shell shows once the wallet is unlocked: every mailbox, then the tick.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _collect(PairingCollectTrigger.open);
+    });
+    _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
@@ -120,6 +134,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
+    _collectTimer?.cancel();
     super.dispose();
   }
 

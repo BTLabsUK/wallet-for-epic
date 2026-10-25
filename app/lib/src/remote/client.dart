@@ -1188,7 +1188,8 @@ class RemotePairing implements PairingApi {
   );
 
   @override
-  Future<int> collect() => _call(SessionMember.pairingCollect, intWire);
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) =>
+      _call(SessionMember.pairingCollect, intWire, {'trigger': pairingCollectTriggerWire.encode(trigger)});
 
   @override
   Future<void> removePairing(String id) => _call(SessionMember.pairingRemove, voidWire, {'id': id});
@@ -1230,6 +1231,13 @@ class RemotePairing implements PairingApi {
 
   @override
   Future<OpenedSlate> openSlate(String text) => _call(SessionMember.pairingOpenSlate, openedSlateWire, {'text': text});
+
+  @override
+  Future<SealedReply> receiveSealed(String text, {String? message}) =>
+      _call(SessionMember.pairingReceiveSealed, sealedReplyWire, {'text': text, 'message': message});
+
+  @override
+  Future<TxEntry> finalizeSealed(String text) => _call(SessionMember.pairingFinalizeSealed, txEntryWire, {'text': text});
 
   @override
   Future<TxEntry> sendViaMailbox({

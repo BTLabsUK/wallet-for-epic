@@ -787,6 +787,8 @@ void main() {
       await crossed(() => p.requestFile(amount: BigInt.from(5)));
       final sealed = await p.sealSlate(id: anna.id, slateJson: '{"id":"s1"}');
       expect((await p.openSlate(sealed)).slateJson, '{"id":"s1"}');
+      await crossed(() => p.receiveSealed(sealed));
+      await crossed(() => p.finalizeSealed(sealed));
       await crossed(() => p.sendViaMailbox(id: anna.id, amount: BigInt.from(5), minimumConfirmations: BigInt.from(10)));
       await crossed(() => p.plainSlate('none'));
       expect(await p.useImportedPairings(), 0);

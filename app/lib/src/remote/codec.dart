@@ -676,6 +676,7 @@ final WireCodec<IssuedInvoice> issuedInvoiceWire = _object<IssuedInvoice>(
     'slateId': v.slateId,
     'txId': v.txId,
     'payerAddress': v.payerAddress,
+    'pairingId': v.pairingId,
     'amount': bigIntWire.encode(v.amount),
     'message': v.message,
     'issuedAt': timeWire.encode(v.issuedAt),
@@ -686,6 +687,7 @@ final WireCodec<IssuedInvoice> issuedInvoiceWire = _object<IssuedInvoice>(
     slateId: r.of('slateId', stringWire),
     txId: r.of('txId', intWire),
     payerAddress: r.of('payerAddress', stringWire),
+    pairingId: r.of('pairingId', optString),
     amount: r.of('amount', bigIntWire),
     message: r.of('message', optString),
     issuedAt: r.of('issuedAt', timeWire),
@@ -700,11 +702,13 @@ final WireCodec<IssuerEvent> issuerEventWire = _object<IssuerEvent>(
     'kind': issuerEventKindWire.encode(v.kind),
     'slateId': v.slateId,
     'payerAddress': v.payerAddress,
+    'pairingId': v.pairingId,
   },
   (r) => IssuerEvent(
     kind: r.of('kind', issuerEventKindWire),
     slateId: r.of('slateId', stringWire),
     payerAddress: r.of('payerAddress', optString),
+    pairingId: r.of('pairingId', optString),
   ),
 );
 
@@ -896,10 +900,39 @@ final WireCodec<PairingSlate> pairingSlateWire = _object<PairingSlate>(
 
 final WireCodec<OpenedSlate> openedSlateWire = _object<OpenedSlate>(
   'OpenedSlate',
-  (v) => {'slateJson': v.slateJson, 'pairingId': v.pairingId, 'sealed': v.sealed},
+  (v) => {
+    'slateJson': v.slateJson,
+    'pairingId': v.pairingId,
+    'sealed': v.sealed,
+    'stage': nullable(slateStageWire).encode(v.stage),
+    'slateId': v.slateId,
+    'amount': optBigInt.encode(v.amount),
+    'fee': optBigInt.encode(v.fee),
+    'purpose': nullable(slatePurposeWire).encode(v.purpose),
+    'reference': v.reference,
+  },
   (r) => OpenedSlate(
-    slateJson: r.of('slateJson', stringWire),
+    slateJson: r.of('slateJson', optString),
     pairingId: r.of('pairingId', optString),
     sealed: r.of('sealed', boolWire),
+    stage: r.of('stage', nullable(slateStageWire)),
+    slateId: r.of('slateId', optString),
+    amount: r.of('amount', optBigInt),
+    fee: r.of('fee', optBigInt),
+    purpose: r.of('purpose', nullable(slatePurposeWire)),
+    reference: r.of('reference', optString),
   ),
 );
+
+final WireCodec<SealedReply> sealedReplyWire = _object<SealedReply>(
+  'SealedReply',
+  (v) => {'slateId': v.slateId, 'answer': v.answer, 'sealed': v.sealed, 'repeated': v.repeated},
+  (r) => SealedReply(
+    slateId: r.of('slateId', stringWire),
+    answer: r.of('answer', stringWire),
+    sealed: r.of('sealed', boolWire),
+    repeated: r.of('repeated', boolWire),
+  ),
+);
+
+final WireCodec<PairingCollectTrigger> pairingCollectTriggerWire = enumWire('PairingCollectTrigger', PairingCollectTrigger.values);
