@@ -565,14 +565,17 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
                 ),
           style: theme.textTheme.bodyLarge,
         ),
-        const SizedBox(height: 8),
-        Text(
-          receiving
-              ? (widget.scanned
-                    ? l.slateIncomingSendHintQr
-                    : l.slateIncomingSendHint)
-              : l.slateIncomingResponseHint,
-        ),
+        // What to do next, only while it can be done: never above a refusal.
+        if (_error == null) ...[
+          const SizedBox(height: 8),
+          Text(
+            receiving
+                ? (widget.scanned
+                      ? l.slateIncomingSendHintQr
+                      : l.slateIncomingSendHint)
+                : l.slateIncomingResponseHint,
+          ),
+        ],
         if (message != null) ...[
           const SizedBox(height: 16),
           Text(
