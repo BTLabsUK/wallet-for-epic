@@ -594,6 +594,7 @@ class ServiceStatus {
     this.torSlowStart = false,
     this.epicboxViaTor = false,
     this.syncProgress,
+    this.scanning = false,
     this.lastUpdate,
     this.notice,
   });
@@ -643,6 +644,10 @@ class ServiceStatus {
 
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
+
+  /// A chain scan runs: the first one after a restore, or Recheck balance. Auto-lock waits for
+  /// it, or an idle computer would stop a restore at every lock and never finish it.
+  final bool scanning;
   final DateTime? lastUpdate;
 
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.

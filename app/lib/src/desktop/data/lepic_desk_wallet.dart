@@ -1663,6 +1663,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_session != session) return;
       if (!_rescanning && due['scanPending'] == true) {
         var finished = false;
+        _scanningDue = true;
         try {
           // A restore from a block height (Restore's start height) scans from there.
           final from = due['scanFrom'];
@@ -1675,6 +1676,8 @@ class LepicDeskWallet implements DeskWalletApi {
         } on core.WalletError catch (e) {
           if (e.kind != core.WalletErrorKind.walletBusy) rethrow;
           logInfo('desk', 'due scan skipped: a scan is already running');
+        } finally {
+          _scanningDue = false;
         }
         // A scan stopped before its end stays due.
         if (finished) {
@@ -1949,6 +1952,7 @@ class LepicDeskWallet implements DeskWalletApi {
           _torStartedAt != null &&
           DateTime.now().difference(_torStartedAt!) >= torRetryAfter,
       syncProgress: _syncProgress,
+      scanning: _scanningDue || _rescanning,
       lastUpdate: _lastUpdate,
       notice: _notice,
     );
@@ -3563,6 +3567,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Set while Recheck balance scans: the due scan in [_sync] waits for the next sync.
   bool _rescanning = false;
+
+  /// The scan due since a restore runs ([_sync]).
+  bool _scanningDue = false;
   bool _rescanStopAsked = false;
   Completer<void>? _rescanEnded;
 

@@ -21,6 +21,26 @@ class _Wallet extends MockDeskWallet {
   }
 }
 
+/// A wallet whose chain scan runs while [scanning] (a restore's first scan, Recheck balance).
+class _Scanning extends _Wallet {
+  bool scanning = true;
+
+  @override
+  Future<ServiceStatus> status() async {
+    final s = await super.status();
+    return ServiceStatus(
+      node: s.node,
+      nodeHealth: s.nodeHealth,
+      nodeHeight: s.nodeHeight,
+      epicbox: s.epicbox,
+      epicboxHealth: s.epicboxHealth,
+      httpListener: s.httpListener,
+      tor: s.tor,
+      scanning: scanning,
+    );
+  }
+}
+
 Future<ProviderContainer> _open(WidgetTester tester, _Wallet api, {int? minutes, bool on = true, DeskRoute route = DeskRoute.overview}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
@@ -55,6 +75,17 @@ void main() {
     await _idle(tester, const Duration(minutes: 1));
     expect(api.locks, 1);
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
+  });
+
+  testWidgets('a running chain scan keeps the wallet open; once it ends the idle time locks (item 25)', (tester) async {
+    final api = _Scanning();
+    final container = await _open(tester, api);
+    await _idle(tester, const Duration(minutes: 31));
+    expect(api.locks, 0, reason: 'a restore must finish its first scan');
+    api.scanning = false;
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await _idle(tester, const Duration(minutes: 15));
+    expect(api.locks, 1);
   });
 
   testWidgets('a key or the mouse starts the idle time again', (tester) async {

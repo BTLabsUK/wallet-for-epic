@@ -72,6 +72,13 @@ class _DeskAutoLockState extends ConsumerState<DeskAutoLock> {
 
   void _lock() {
     if (!mounted) return;
+    // A chain scan (a restore's first, or Recheck balance) keeps the wallet open: a lock
+    // would stop it every idle period and a restore would never finish (item 25).
+    if (ref.read(deskProvider).status?.scanning ?? false) {
+      logInfo('session', 'auto-lock waits for the scan');
+      _restart();
+      return;
+    }
     logInfo('session', 'auto-lock');
     unawaited(lockWallet(ref));
   }
