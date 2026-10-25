@@ -50,14 +50,25 @@ class _Push implements PushPlatform {
   @override
   Future<bool> configured() async => true;
 
+  /// When set, the permission prompt waits for this answer, as Android's dialog does.
+  Completer<bool>? prompt;
+
+  /// How often a token was asked for.
+  int tokenAsks = 0;
+
   @override
   Future<bool> start() async {
     starts++;
+    final p = prompt;
+    if (p != null) return p.future;
     return permitted;
   }
 
   @override
-  Future<String?> token() async => _current ??= 'tok-${++_issued}';
+  Future<String?> token() async {
+    tokenAsks++;
+    return _current ??= 'tok-${++_issued}';
+  }
 
   @override
   Future<void> deleteToken() async {
@@ -328,6 +339,30 @@ Future<void> _reach(WidgetTester tester) async {
 }
 
 void main() {
+  group('the permission prompt (item 26)', () {
+    for (final granted in [false, true]) {
+      test('a second start waits for the same answer; no token before it (${granted ? 'granted' : 'denied'})', () async {
+        final push = _Push([])..prompt = Completer<bool>();
+        final c = ProviderContainer(overrides: [pushPlatformProvider.overrideWithValue(push)]);
+        addTearDown(c.dispose);
+        final n = c.read(pushProvider.notifier);
+        var answered = 0;
+        final first = n.start().whenComplete(() => answered++);
+        final second = n.start().whenComplete(() => answered++);
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(answered, 0, reason: 'nobody goes on while the prompt is up');
+        expect(push.starts, 1, reason: 'one prompt');
+        expect(await n.freshToken(), isNull);
+        expect(push.tokenAsks, 0);
+        push.prompt!.complete(granted);
+        expect(await first, granted);
+        expect(await second, granted);
+        expect(push.tokenAsks, granted ? 1 : 0);
+        expect(c.read(pushProvider).blocked, !granted);
+      });
+    }
+  });
+
   group('the registration request', () {
     late List<_Post> posts;
     late Future<int> Function(Uri url) answer;

@@ -128,7 +128,13 @@ final pushProvider = NotifierProvider<PushNotifier, PushState>(
 
 class PushNotifier extends Notifier<PushState> {
   final List<StreamSubscription<Object>> _subscriptions = [];
+
+  /// Started, with the system's permission: only then is there a token to hand out.
   bool _started = false;
+
+  /// The start under way: a second caller waits for the same answer to the permission
+  /// prompt instead of going on as if it were given (item 26).
+  Future<bool>? _starting;
 
   /// A deletion under way: no token is handed out until it is done, or Firebase may give back
   /// the one being deleted, which FCM then calls dead.
@@ -147,18 +153,21 @@ class PushNotifier extends Notifier<PushState> {
   /// Starts once per process. Returns false when pushes stay off: the system denied notification
   /// permission ([PushState.blocked]) or Firebase failed to start ([PushState.unavailable]). A
   /// start that returned false does not count, so turning notifications on again tries again.
-  Future<bool> start() async {
+  Future<bool> start() {
     final platform = ref.read(pushPlatformProvider);
-    if (platform == null || _started) return true;
-    _started = true;
+    if (platform == null || _started) return Future.value(true);
+    return _starting ??= _start(platform).whenComplete(() => _starting = null);
+  }
+
+  Future<bool> _start(PushPlatform platform) async {
     try {
       final permitted = await platform.start();
       if (!permitted) {
         logInfo('push', 'notification permission denied');
-        _started = false;
         state = PushState(token: state.token, blocked: true, last: state.last);
         return false;
       }
+      _started = true;
       final token = await platform.token();
       // Never the token itself: it addresses pushes to this device.
       logInfo(
