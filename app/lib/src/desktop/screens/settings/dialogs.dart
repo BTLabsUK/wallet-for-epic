@@ -444,17 +444,29 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
       if (id == null) throw DeskError.l10n((l) => l.deskSetDlgWalletLocked);
       await desk.removeWallet(id, WalletRemoval.delete, password: _password.text);
     } on Object catch (e) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _error = deskErrorText(e, l);
-        });
+      if (!mounted) return;
+      // A failed delete after the password still locks the wallet: the pages behind the dialog
+      // have nothing left to show, so Unlock opens with the error instead.
+      if (ref.read(deskProvider).account == null) {
+        Navigator.of(context).pop();
+        _leave(nav);
+        showEToast(context, deskErrorText(e, l), tone: ETone.warn);
+        return;
       }
+      setState(() {
+        _busy = false;
+        _error = deskErrorText(e, l);
+      });
       return;
     }
-    final left = ref.read(deskProvider).wallets ?? const [];
     if (!mounted) return;
     Navigator.of(context).pop();
+    _leave(nav);
+  }
+
+  /// Unlock after the wallet is gone or locked, or Welcome when no wallet is left.
+  void _leave(DeskNav nav) {
+    final left = ref.read(deskProvider).wallets ?? const [];
     nav.reset(left.isEmpty ? DeskRoute.welcome : DeskRoute.unlock);
   }
 

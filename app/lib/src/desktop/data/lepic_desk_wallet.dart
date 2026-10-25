@@ -802,7 +802,11 @@ class LepicDeskWallet implements DeskWalletApi {
           await _remember.forget(id);
           if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
         case WalletRemoval.delete:
-          await r.delete(id, service: _service, config: config);
+          // LEPIC deletes no folder a wallet still holds open: the wallet locks first (its
+          // listeners, HTTP, Tor and any scan stopped), then the delete waits for the core to
+          // let go of the folder.
+          if (open) await lock();
+          await _deleteWhenFree(r, id, config);
           await _remember.forget(id);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
@@ -822,6 +826,25 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_selectedId == id) _selectedId = null;
     logInfo('desk', 'wallet ${mode == WalletRemoval.list ? 'removed from the list' : 'deleted'}');
   }
+
+  /// Deletes [id] once the core has let go of its folder: a closed session and a stopped scan
+  /// end on the core's side a moment after the lock, and until then LEPIC answers "busy".
+  Future<void> _deleteWhenFree(reg.WalletRegistry r, String id, core.WalletConfig config) async {
+    final until = DateTime.now().add(deleteWaitAtMost);
+    while (true) {
+      try {
+        return await r.delete(id, service: _service, config: config);
+      } on core.WalletError catch (e) {
+        if (e.kind != core.WalletErrorKind.walletBusy || DateTime.now().isAfter(until)) rethrow;
+        logInfo('desk', 'delete waits for the core to close the wallet');
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+    }
+  }
+
+  /// How long a delete waits for the core to close the wallet ([_deleteWhenFree]).
+  @visibleForTesting
+  static Duration deleteWaitAtMost = const Duration(seconds: 30);
 
   @override
   Future<List<WalletEntry>> findRemoved() async {
@@ -1087,6 +1110,15 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _runLock() async {
     await _stopScanForUser();
+    // The scan due since a restore stays due; left running it would hold the wallet's folder
+    // after the lock, and a delete right after would find the wallet busy.
+    if (_scanningDue) {
+      try {
+        _session?.cancelScan();
+      } on core.WalletError catch (e) {
+        logWarn('desk', 'stop due scan: ${e.kind.name}');
+      }
+    }
     // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
     if (_busy > 0) logInfo('desk', 'lock waits for $_busy call(s) under way');
     await Future.any<void>([whenIdle(), _lockForce!.future]);
