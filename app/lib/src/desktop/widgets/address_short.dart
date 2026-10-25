@@ -29,7 +29,7 @@ class EShortAddress extends StatelessWidget {
         var shown = shortAddress(address);
         if (box.maxWidth.isFinite) {
           final tp = TextPainter(text: TextSpan(text: shown, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
-          if (tp.width > box.maxWidth) shown = shortAddress(address, compact: true);
+          if (tp.width + _drawSlack > box.maxWidth) shown = shortAddress(address, compact: true);
           tp.dispose();
         }
         return Text(shown, style: st, maxLines: 1, softWrap: false, overflow: TextOverflow.clip);
@@ -56,8 +56,13 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   )..layout();
   final w = tp.width;
   tp.dispose();
-  return w.ceilToDouble() + 1;
+  // A few pixels over the measure: Windows draws monospace a little wider than measured, which
+  // clipped the last letter of the domain (PAIR-WIN-3).
+  return w.ceilToDouble() + _drawSlack;
 }
+
+/// Room left over a measured address for the way Windows draws it.
+const double _drawSlack = 6;
 
 /// The kind badge of an address row: Epicbox, Link · HTTP or Link · Tor, each
 /// with its glyph.
