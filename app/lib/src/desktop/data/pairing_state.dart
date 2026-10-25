@@ -13,9 +13,11 @@ import '../../pairing_api.dart';
 import 'models.dart' show Contact;
 import 'state.dart';
 
-/// The open wallet's pairing; [NoPairing] while locked. Follows the unlock.
+/// The open wallet's pairing; [NoPairing] while locked. Follows the unlock and the reopen a
+/// node or Epicbox change makes, which closes the old session's pairing.
 final deskPairingApiProvider = Provider<PairingApi>((ref) {
   ref.watch(deskProvider.select((s) => s.account));
+  ref.watch(deskProvider.select((s) => s.session));
   return ref.watch(deskApiProvider).pairing;
 });
 

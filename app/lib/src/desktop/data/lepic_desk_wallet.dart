@@ -936,6 +936,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _session = session;
+    _sessionRevision++;
     await _routeEpicbox(session);
     if (!NetGate.offline) unawaited(_resendUndelivered(session));
     _config = config;
@@ -1159,6 +1160,7 @@ class LepicDeskWallet implements DeskWalletApi {
         return false;
       }
       _session = session;
+      _sessionRevision++;
       _config = c;
       await _routeEpicbox(session);
       return true;
@@ -3826,6 +3828,11 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool get supportsRequestFiles => _session?.supportsRequestFiles ?? false;
+
+  int _sessionRevision = 0;
+
+  @override
+  int get sessionRevision => _sessionRevision;
 
   @override
   Stream<InvoiceNotice> invoiceNotices() => _invoiceNotices.stream;

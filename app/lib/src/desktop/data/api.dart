@@ -334,6 +334,10 @@ abstract interface class DeskWalletApi {
   /// A request can be saved as a payment file (the session's `supportsRequestFiles`).
   bool get supportsRequestFiles;
 
+  /// Moves on every wallet session that opens: an unlock, and a node or Epicbox change, which
+  /// reopens the wallet. What holds on to the session's parts ([pairing]) follows it.
+  int get sessionRevision;
+
   /// What the wallet learned of invoices by itself (paid, declined, expired, sent back,
   /// withdrawn), for a notice; the open wallet's only.
   Stream<InvoiceNotice> invoiceNotices();

@@ -298,6 +298,9 @@ class _Recorder implements DeskWalletApi {
 
   @override
   bool get supportsRequestFiles => false;
+
+  @override
+  int get sessionRevision => 0;
   @override
   Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();
   @override

@@ -875,6 +875,9 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   bool get supportsRequestFiles => true;
 
+  @override
+  int get sessionRevision => 0;
+
   /// The prototype shows its other side's moves on the page itself.
   @override
   Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();

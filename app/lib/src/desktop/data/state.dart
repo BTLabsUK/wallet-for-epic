@@ -31,6 +31,7 @@ class DeskState {
     this.epicboxAddress,
     this.wallets,
     this.oldHistory = const [],
+    this.session = 0,
   });
 
   final WalletAccount? account;
@@ -46,6 +47,9 @@ class DeskState {
 
   /// What the old wallet's history waits for the user to choose ("Details differ").
   final List<ImportConflict> oldHistory;
+
+  /// The open wallet session's [DeskWalletApi.sessionRevision], as of the last unlock or reopen.
+  final int session;
 
   /// File sends waiting for the recipient's response: the Activity badge.
   int get pendingFiles =>
@@ -63,6 +67,7 @@ class DeskState {
     String? epicboxAddress,
     List<WalletEntry>? wallets,
     List<ImportConflict>? oldHistory,
+    int? session,
   }) => DeskState(
     account: account ?? this.account,
     balance: balance ?? this.balance,
@@ -75,6 +80,7 @@ class DeskState {
     epicboxAddress: epicboxAddress ?? this.epicboxAddress,
     wallets: wallets ?? this.wallets,
     oldHistory: oldHistory ?? this.oldHistory,
+    session: session ?? this.session,
   );
 }
 
@@ -321,7 +327,7 @@ class DeskController extends Notifier<DeskState> {
       return;
     }
     final address = await api.epicboxAddress();
-    state = state.copyWith(status: status, epicboxAddress: address);
+    state = state.copyWith(status: status, epicboxAddress: address, session: api.sessionRevision);
   }
 
   /// Starts or stops receiving (Receive › Start listener / Stop receiving). Transitional: the
