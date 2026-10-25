@@ -133,8 +133,9 @@ Type: dirifempty; Name: "{app}"
 [Registry]
 ; The window's place on screen (windows\runner\window_placement.cpp) goes with the app; the
 ; wallet's data folder stays.
-Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey
+; Inno undoes these last to first: the parent's if-empty check runs after the child is gone.
 Root: HKCU; Subkey: "Software\BT Labs"; Flags: uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey
 
 [Run]
 ; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
