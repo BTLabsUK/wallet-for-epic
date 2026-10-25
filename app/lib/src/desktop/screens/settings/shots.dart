@@ -21,6 +21,7 @@ import 'settings_receiving.dart';
 import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
+import '../transfer/send_code.dart' show showExperimentalOffDialog;
 import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
 
@@ -286,6 +287,12 @@ final List<DeskShot> settingsShots = [
     route: DeskRoute.overview,
     prepare: (c, _) async => c.read(deskTourProvider.notifier).open(at: deskTourSteps.length - 2),
   ),
+  // Settings › Advanced › Experimental: Pairing and Invoices on, then off (the default), and
+  // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
+  const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1100),
+  const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1100),
+  const DeskShot(id: '43m-contacts-pairing-off', title: 'Contacts with Pairing off: no Pair, no paired marks', route: DeskRoute.contacts),
+  DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
@@ -325,3 +332,6 @@ final List<ImportConflict> _conflicts = [
   ImportConflict(key: 'l:103', field: ManualField.transport, mine: 'epicbox', theirs: 'tor', timeUnix: DateTime(2026, 10, 15, 9, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(425000000)),
   ImportConflict(key: 's:e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', field: ManualField.label, mine: 'Rent, October', theirs: 'Tom, rent', timeUnix: DateTime(2026, 10, 19, 8, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(-4000000000)),
 ];
+
+/// Shots taken with Pairing and Invoices off, as on a new install; every other shot has them on.
+const deskExperimentalOffShots = {'43-advanced', '43l-advanced-experimental-off', '43m-contacts-pairing-off', '43n-pairing-link-off'};

@@ -31,6 +31,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/experimental.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -76,7 +77,7 @@ class _Harness {
   }
 
   final session = FakeWalletSession();
-  final store = MemorySecretStore();
+  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
 

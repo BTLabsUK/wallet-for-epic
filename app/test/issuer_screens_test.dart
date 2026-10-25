@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/experimental.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -94,7 +95,7 @@ class _Harness {
 
   DateTime now = DateTime(2026, 10, 5, 12);
   final session = FakeWalletSession(summary: _summary);
-  final store = MemorySecretStore();
+  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
   final copied = <String>[];

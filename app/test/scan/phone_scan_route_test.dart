@@ -27,6 +27,8 @@ import 'package:epic_wallet/src/ui/scan_result_sheet.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/settings_screen.dart' show SettingsSection;
+import 'package:epic_wallet/src/ui/settings_sections.dart' show SettingsSectionScreen;
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -133,8 +135,10 @@ class _Config extends WalletConfigNotifier {
 }
 
 class _Harness {
-  _Harness({bool otherChain = false}) {
+  _Harness({bool otherChain = false, bool pairing = true}) {
     store.values['wallet.mainnet.backedUp'] = '1';
+    // Pairing and Invoices (Settings › Advanced › Experimental) are off by default.
+    if (pairing) store.values['app.advanced_prefs'] = 'invoices,pairing|standard';
     store.values['app.history_reminder_first_seen.mainnet'] =
         '${_now.millisecondsSinceEpoch ~/ 1000}';
     store.values['app.payment_prefs'] = PaymentPrefs.phoneDefaults
@@ -644,6 +648,18 @@ void main() {
         find.text('Pairing is not available in this version.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('a pairing link with Pairing off says it is experimental; Open Advanced goes there', (tester) async {
+      final h = _Harness(pairing: false);
+      await h.pump(tester);
+      await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
+      expect(find.text('Pairing is experimental'), findsOneWidget);
+      expect(find.text('Turn it on in Settings › Advanced.'), findsOneWidget);
+      expect(find.text('Pair with Anna?'), findsNothing);
+      await _tap(tester, find.text('Open Advanced'));
+      expect(find.text('Pairing is experimental'), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is SettingsSectionScreen && w.section == SettingsSection.advanced), findsOneWidget);
     });
 
     testWidgets('a pairing invite opens the incoming invite', (tester) async {

@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+import '../support/experimental.dart';
 
 /// A wallet that does not take invoices (the LEPIC adapter before it is wired).
 class _NoInvoices extends MockDeskWallet {
@@ -45,7 +46,10 @@ Future<ProviderContainer> _open(
     retry: (_, _) => null,
   );
   addTearDown(container.dispose);
-  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    await container.read(deskProvider.notifier).refresh();
+    await deskExperimentalOn(container);
+  });
   container.read(deskNavProvider.notifier).reset(route);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
   await tester.pump(const Duration(milliseconds: 600));

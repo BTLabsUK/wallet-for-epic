@@ -20,6 +20,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/experimental.dart';
+import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
 
 /// A valid fake epicbox address with a key made of [c].
 String addr(String c, {String relay = 'epicbox.epiccash.com'}) =>
@@ -325,7 +327,7 @@ void main() {
 
     setUp(() {
       s = FakeWalletSession();
-      c = ProviderContainer(retry: (_, _) => null);
+      c = ProviderContainer(overrides: [invoicesOnProvider.overrideWithValue(true)], retry: (_, _) => null);
       addTearDown(c.dispose);
     });
 
@@ -485,7 +487,7 @@ class _AppHarness {
   }
 
   static const _pin = '123456';
-  final store = MemorySecretStore();
+  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   final session = FakeWalletSession();
   late final FakeWalletService service;
   late ProviderContainer container;

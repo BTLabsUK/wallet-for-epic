@@ -70,7 +70,11 @@ void main() {
   /// A build that does not pair: a pairing link says so (the pairing flow has its own tests).
   void noPairing() {
     container.dispose();
-    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskPairsProvider.overrideWithValue(false)]);
+    container = ProviderContainer(overrides: [
+      deskApiProvider.overrideWithValue(wallet),
+      deskPairsProvider.overrideWithValue(false),
+      deskPairingOnProvider.overrideWithValue(true),
+    ]);
   }
 
   Future<void> show(WidgetTester tester, {Size size = const Size(1280, 1000), String? link, PaymentPrefs? payments}) async {
@@ -108,6 +112,16 @@ void main() {
   String text(WidgetTester tester, String label) => tester.widget<EditableText>(field(label)).controller.text;
   Finder inDialog(Finder f) => find.descendant(of: find.byType(Dialog), matching: f);
   Finder banner() => find.byKey(const ValueKey('send-code-banner'));
+
+  testWidgets('a pairing link with Pairing off says it is experimental; Open Advanced goes there', (tester) async {
+    await show(tester, link: 'epiccash://pair/1/AbCdEfGh123');
+    expect(inDialog(find.text('Pairing is experimental')), findsOneWidget);
+    expect(inDialog(find.text('Turn it on in Settings › Advanced.')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('experimental-off-open')));
+    await tester.pumpAndSettle();
+    expect(find.byType(Dialog), findsNothing);
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+  });
 
   /// The Paste button next to To (To must be empty), with [code] on the clipboard.
   Future<void> paste(WidgetTester tester, String code) async {

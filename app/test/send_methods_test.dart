@@ -181,7 +181,10 @@ class _Harness {
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
           secretStoreProvider.overrideWithValue(
-            sendPinStore()..values['app.payment_prefs'] = payments.encode(),
+            sendPinStore()
+              ..values['app.payment_prefs'] = payments.encode()
+              // Pairing (Experimental) on, for the sealed files.
+              ..values['app.advanced_prefs'] = advanced.withExperimental(AdvancedFeature.pairing, true).encode(),
           ),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),

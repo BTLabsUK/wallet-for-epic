@@ -5,11 +5,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, OutputWord, Tx, TxState;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
@@ -428,6 +430,8 @@ void main() {
         paymentsEvery: const Duration(milliseconds: 40),
         invoiceFocus: false,
       );
+      // Invoices (Experimental) on: the wallet's default settings have it off.
+      NetGate.setExperimental(AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
       await wallet.createWallet(name: 'Main', password: _password);
       expect(await wallet.unlock(_password), isTrue);
       await _settle();
@@ -533,6 +537,13 @@ void main() {
       expect(b.reportedTotal, 1000, reason: 'LEPIC\'s total has no awaiting finalization');
       final row = (await wallet.transactions()).single;
       expect(row.isInvoice, isTrue);
+    });
+
+    test('Invoices off: the scheduler opens no contact mailbox', () async {
+      NetGate.setExperimental(AdvancedPrefs.none);
+      await wallet.sync();
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      expect(lepicWallet.invoiceDrains, 0);
     });
 
     test('the scheduler drains on its timers while open and stops on lock', () async {

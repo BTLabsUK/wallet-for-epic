@@ -216,7 +216,7 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
 
 /// A pairing link (or, [invoices], an invoice) while its switch in Settings › Advanced ›
 /// Experimental is off: says so, Open Advanced goes there.
-void showExperimentalOffDialog(BuildContext context, WidgetRef ref, {bool invoices = false}) => unawaited(
+void showExperimentalOffDialog(BuildContext context, {bool invoices = false}) => unawaited(
   showEDialog<void>(
     context,
     builder: (ctx) => EDialog(
@@ -231,7 +231,7 @@ void showExperimentalOffDialog(BuildContext context, WidgetRef ref, {bool invoic
           label: ctx.l10n.expOpenAdvanced,
           onPressed: () {
             Navigator.of(ctx).pop();
-            ref.read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
+            ProviderScope.containerOf(context, listen: false).read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
           },
         ),
       ],

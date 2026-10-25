@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import '../support/experimental.dart';
 
 final _l = englishStrings;
 
@@ -24,7 +25,10 @@ void main() {
     final api = MockDeskWallet(delay: Duration.zero);
     final c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
     addTearDown(c.dispose);
-    await tester.runAsync(() => c.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() async {
+    await c.read(deskProvider.notifier).refresh();
+    await deskExperimentalOn(c);
+  });
     c.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
     await tester.pumpWidget(
       UncontrolledProviderScope(

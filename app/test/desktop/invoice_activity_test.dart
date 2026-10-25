@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/experimental.dart';
 
 /// Activity on [api], with [arg] (a transaction id selects it).
 Future<void> _open(WidgetTester tester, MockDeskWallet api, {Object? arg, Size size = const Size(1280, 800)}) async {
@@ -20,7 +21,10 @@ Future<void> _open(WidgetTester tester, MockDeskWallet api, {Object? arg, Size s
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)], retry: (_, _) => null);
   addTearDown(container.dispose);
-  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    await container.read(deskProvider.notifier).refresh();
+    await deskExperimentalOn(container);
+  });
   container.read(deskNavProvider.notifier).reset(DeskRoute.activity, arg);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
   for (var i = 0; i < 10; i++) {

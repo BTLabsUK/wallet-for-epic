@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import '../support/experimental.dart';
 
 // The mock pairs Anna (c1, verified), Tom (c4, paired, not verified) and Marta (c9, keys
 // changed); Piotr (c6) is not paired.
@@ -32,7 +33,10 @@ Future<void> _open(WidgetTester tester, ContactsArgs arg) async {
   addTearDown(tester.view.reset);
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet())]);
   addTearDown(_c.dispose);
-  await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    await _c.read(deskProvider.notifier).refresh();
+    await deskExperimentalOn(_c);
+  });
   _c.read(deskInvoicesProvider);
   await _real(tester);
   await tester.pumpWidget(

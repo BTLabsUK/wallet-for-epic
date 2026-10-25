@@ -97,7 +97,8 @@ Future<_Rig> _pump(
   final config = mainnetPreset.config(dataDir: '/fake/wallets', nodeUrl: 'https://node');
   final store = MemorySecretStore()
     ..values['wallet.${config.chain.name}.backedUp'] = '1';
-  if (advanced != AdvancedPrefs.none) store.values['app.advanced_prefs'] = advanced.encode();
+  // Pairing and Invoices (Experimental) on, so the tour walks its invoice step.
+  store.values['app.advanced_prefs'] = advanced.withExperimental(AdvancedFeature.invoices, true).encode();
   if (seen) store.values[AppSettingsNotifier.phoneTourSeenKey] = 'true';
   await tester.pumpWidget(
     ProviderScope(
@@ -413,7 +414,7 @@ void main() {
       expect(_lit('tour-advanced-modes'), isTrue);
       await _tap(tester, 'Next');
       await _tap(tester, 'Done');
-      expect(rig.container.read(appSettingsProvider).value?.advanced, AdvancedPrefs.none);
+      expect(rig.container.read(appSettingsProvider).value?.advanced, AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
       expect(rig.store.values.keys.where((k) => k.startsWith('app.advanced')), isEmpty);
     });
 

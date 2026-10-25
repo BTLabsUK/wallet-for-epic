@@ -45,6 +45,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/experimental.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';
@@ -153,9 +154,16 @@ class _Harness {
     bool walletExists = true,
     bool advanced = false,
     bool scanSupported = false,
+    bool experimental = false,
     this.tor = false,
   }) : scanner = FakeQrScanner(supported: scanSupported) {
     if (advanced) store.values['app.advanced'] = 'true';
+    // Pairing and Invoices on (Experimental), with what the old Advanced switch showed.
+    if (experimental) {
+      store.values[phoneAdvancedPrefsKey] = advanced
+          ? 'invoices,pairing,recheckFromHeight,serverDetails,technicalDetails|standard'
+          : phoneExperimentalOn;
+    }
     if (sealed) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
     }
@@ -1515,7 +1523,7 @@ void main() {
       bool advanced = false,
       Future<void> Function(_Harness h)? seed,
     }) async {
-      final h = _Harness(advanced: advanced);
+      final h = _Harness(advanced: advanced, experimental: true);
       await seed?.call(h);
       await h.pump(tester);
       await h.unlock(tester);

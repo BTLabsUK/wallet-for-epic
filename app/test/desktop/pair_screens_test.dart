@@ -2,7 +2,7 @@
 // copied with the name they will see, a pasted invite answered, and Pending invites.
 import 'dart:async';
 
-import 'package:epic_wallet/src/advanced.dart' show AdvancedPrefs, NetworkMode;
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import '../support/experimental.dart';
 
 final _l = englishStrings;
 late ProviderContainer _c;
@@ -54,10 +55,13 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode}) asyn
   _mock = MockDeskWallet(delay: Duration.zero);
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock)]);
   addTearDown(_c.dispose);
-  await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    await _c.read(deskProvider.notifier).refresh();
+    await deskExperimentalOn(_c);
+  });
   if (mode != null) {
     final n = _c.read(deskProvider.notifier);
-    await tester.runAsync(() => n.saveSettings(_c.read(deskProvider).settings.copyWith(advanced: AdvancedPrefs.none.withMode(mode))));
+    await tester.runAsync(() => n.saveSettings(_c.read(deskProvider).settings.copyWith(advanced: _c.read(deskProvider).settings.advanced.withMode(mode))));
   }
   await tester.pumpWidget(
     UncontrolledProviderScope(

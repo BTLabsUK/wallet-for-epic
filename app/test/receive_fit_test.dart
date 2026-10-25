@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/experimental.dart';
 
 /// A full-length address, as long as a real one.
 const String _address =
@@ -103,7 +104,8 @@ Future<void> _pump(
     nodeUrl: 'https://node',
   );
   final store = MemorySecretStore()
-    ..values['wallet.${config.chain.name}.backedUp'] = '1';
+    ..values['wallet.${config.chain.name}.backedUp'] = '1'
+    ..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,

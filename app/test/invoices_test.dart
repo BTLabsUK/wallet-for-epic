@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
 
 /// A valid epicbox address with a key made of [c].
 String addr(String c, {String relay = 'epicbox.epiccash.com'}) =>
@@ -375,7 +376,7 @@ void main() {
 
     ProviderContainer start({bool supported = true}) {
       s = funded()..invoicesSupported = supported;
-      container = ProviderContainer();
+      container = ProviderContainer(overrides: [invoicesOnProvider.overrideWithValue(true)]);
       addTearDown(container.dispose);
       container.read(sessionProvider.notifier).unlocked(s);
       return container;
