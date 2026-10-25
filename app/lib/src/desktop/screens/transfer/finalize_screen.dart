@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/api.dart' show DeskWalletApi;
 import '../../data/files.dart';
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
@@ -10,10 +13,13 @@ import 'file_panels.dart';
 /// Argument of the Finalize route: [done] opens on the posted transaction, [error] on a
 /// refused file.
 class FinalizeArgs {
-  const FinalizeArgs({this.done = false, this.error});
+  const FinalizeArgs({this.done = false, this.error, this.text});
 
   final bool done;
   final FinalizeError? error;
+
+  /// An answer's text pasted into Send: finalized at once, as a chosen file is.
+  final String? text;
 }
 
 /// Why a response file was not finalized.
@@ -59,18 +65,28 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     final a = widget.arg;
     _done = a is FinalizeArgs && a.done;
     if (a is FinalizeArgs) _error = a.error;
+    final text = a is FinalizeArgs ? a.text : null;
+    if (text != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_finalize((api) => api.finalizeText(text)));
+      });
+    }
   }
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
     final path = files == null ? 'invoice_0042.response.slate' : await files.pickSlate(title: context.l10n.deskFinPickTitle);
     if (path == null || !mounted) return;
+    await _finalize((api) => api.finalizeFile(path));
+  }
+
+  Future<void> _finalize(Future<Tx> Function(DeskWalletApi api) run) async {
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final tx = await ref.read(deskApiProvider).finalizeFile(path);
+      final tx = await run(ref.read(deskApiProvider));
       if (!mounted) return;
       setState(() {
         _txId = tx.id;

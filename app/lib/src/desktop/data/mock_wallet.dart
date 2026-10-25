@@ -648,6 +648,13 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<Tx> finalizeFile(String fileName) => _running(() => _finalize(fileName));
 
+  /// The tour's and tests' answer text names its stage as a slate does (`"sta":"S2"`).
+  @override
+  Future<bool> isResponseText(String text) async => RegExp(r'"sta"\s*:\s*"S[23]"').hasMatch(text);
+
+  @override
+  Future<Tx> finalizeText(String text) => _running(() => _finalize('pasted'));
+
   Future<Tx> _finalize(String fileName) async {
     await _wait(2);
     return _txs.firstWhere((t) => t.id == 38);

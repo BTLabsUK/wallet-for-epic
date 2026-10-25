@@ -2468,8 +2468,30 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> finalizeFile(String fileName) => _running(() async {
-    final json = await _readSlate(fileName);
+  Future<bool> isResponseText(String text) async {
+    try {
+      final info = await _service.inspectSlate(json: decodeSlateFile(utf8.encode(text)));
+      return info.stage == core.SlateStage.response;
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
+  Future<Tx> finalizeText(String text) => _running(() async {
+    final String json;
+    try {
+      json = decodeSlateFile(utf8.encode(text));
+    } on FormatException {
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+    }
+    return _finalizeJson(json);
+  });
+
+  @override
+  Future<Tx> finalizeFile(String fileName) => _running(() async => _finalizeJson(await _readSlate(fileName)));
+
+  Future<Tx> _finalizeJson(String json) async {
     try {
       final e = await _open.finalizeAndPost(slateJson: json);
       await _reload();
@@ -2477,7 +2499,7 @@ class LepicDeskWallet implements DeskWalletApi {
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-  });
+  }
 
   @override
   Future<void> cancelTx(int id) => _running(() async {

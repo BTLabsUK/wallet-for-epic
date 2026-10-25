@@ -205,6 +205,13 @@ abstract interface class DeskWalletApi {
   /// [receiveFile] does a file; the answer goes into the app's files folder.
   Future<ReceivedFile> receiveText(String text);
   Future<Tx> finalizeFile(String fileName);
+
+  /// A transaction file's [text] pasted into Send is an answer to one of this wallet's sends
+  /// (the response to finalize), not a send to sign. False when it cannot be read.
+  Future<bool> isResponseText(String text);
+
+  /// Finalizes and posts the answer [text] pasted into Send, as [finalizeFile] does a file.
+  Future<Tx> finalizeText(String text);
   Future<void> cancelTx(int id);
   Future<String> exportProof(int id);
   /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.

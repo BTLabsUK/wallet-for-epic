@@ -221,6 +221,10 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<Tx> finalizeFile(String fileName) => _r('finalizeFile', () => _m.finalizeFile(fileName));
   @override
+  Future<bool> isResponseText(String text) => _r('isResponseText', () => _m.isResponseText(text));
+  @override
+  Future<Tx> finalizeText(String text) => _r('finalizeText', () => _m.finalizeText(text));
+  @override
   Future<void> cancelTx(int id) => _r('cancelTx', () => _m.cancelTx(id));
   @override
   Future<String> exportProof(int id) => _r('exportProof', () => _m.exportProof(id));

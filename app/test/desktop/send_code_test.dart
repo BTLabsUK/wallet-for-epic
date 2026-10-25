@@ -3,6 +3,7 @@
 // block, and nothing is sent until the review and the password. Pasted codes Send cannot take
 // stay in To with the reason under it; links get dialogs; plain text is typed text.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/import_tx_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_code.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -273,6 +274,32 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.importTx);
     // LNX-3: the pasted text goes along, not only the screen.
     expect((container.read(deskNavProvider).arg as ImportArgs?)?.text, 'BEGINSLATEPACK. 4H1qx1wHe668tFW yC2gfL8PPd8kSgv. ENDSLATEPACK.');
+  });
+
+  testWidgets('an answer to one of this wallet\'s sends goes to Finalize, not to signing (LNX-14)', (tester) async {
+    const answer = '{"ver":"4:3","id":"0436430c-2b02-624c-2032-570501212b00","sta":"S2"}';
+    await show(tester);
+    await paste(tester, answer);
+    expect(inDialog(find.text('Transaction file')), findsOneWidget);
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(container.read(deskNavProvider).route, DeskRoute.finalize);
+    expect((container.read(deskNavProvider).arg as FinalizeArgs?)?.text, answer);
+  });
+
+  testWidgets('the finalize screen finalizes a pasted answer at once (LNX-14)', (tester) async {
+    final api = MockDeskWallet(delay: Duration.zero);
+    final c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: FinalizeScreen(arg: FinalizeArgs(text: '{"ver":"4:3","sta":"S2"}')))),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('Transaction posted'), findsWidgets);
   });
 
   testWidgets('the import screen signs pasted text at once, as a chosen file (LNX-3)', (tester) async {

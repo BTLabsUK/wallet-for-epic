@@ -27,6 +27,7 @@ import '../../widgets/tor_chip.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
+import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
@@ -617,8 +618,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         return false;
       case SlateText(text: final slate):
         setState(() => _to.text = _lastTo);
-        // Open signs the pasted text as if its file had been chosen (LNX-3).
-        showSlateTextDialog(context, onOpen: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx, ImportArgs(text: slate)));
+        // Open signs the pasted text as if its file had been chosen (LNX-3); an answer to one
+        // of this wallet's sends is finalized instead (LNX-14).
+        showSlateTextDialog(
+          context,
+          onOpen: () async {
+            final nav = ref.read(deskNavProvider.notifier);
+            if (await ref.read(deskApiProvider).isResponseText(slate)) {
+              nav.go(DeskRoute.finalize, FinalizeArgs(text: slate));
+            } else {
+              nav.go(DeskRoute.importTx, ImportArgs(text: slate));
+            }
+          },
+        );
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
       case PairingLink() when pasted:
