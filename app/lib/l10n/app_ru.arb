@@ -417,7 +417,7 @@
   "invoiceNoticeWithdrawn": "Сервис отозвал счёт до вашего ответа.",
   "invoiceNoticeExpired": "Срок счёта истёк до вашего ответа.",
   "receiveRequestTitle": "Запросить платёж",
-  "requestMessageLabel": "Сообщение плательщику (необязательно)",
+  "requestMessageLabel": "Сообщение (необязательно)",
   "requestMessageHelper": "Плательщик увидит это сообщение вместе с запросом.",
   "requestButton": "Запросить",
   "invoicesToPaySection": "К оплате",

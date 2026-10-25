@@ -1991,7 +1991,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveRequestTitle => 'Запросить платёж';
 
   @override
-  String get requestMessageLabel => 'Сообщение плательщику (необязательно)';
+  String get requestMessageLabel => 'Сообщение (необязательно)';
 
   @override
   String get requestMessageHelper =>

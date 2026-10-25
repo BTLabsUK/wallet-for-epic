@@ -569,6 +569,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           Text(
             receiving
                 ? l.txDetailsMessageFromSender
+                // A request's answer carries the issuer's own message: it is this wallet's.
+                : info.stage == SlateStage.requestAnswer
+                ? l.invoicesMessage
                 : l.txDetailsMessageFromRecipient,
             style: theme.textTheme.labelLarge,
           ),

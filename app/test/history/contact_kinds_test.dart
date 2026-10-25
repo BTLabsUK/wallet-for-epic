@@ -24,6 +24,13 @@ void main() {
     expect(contactFor([c], _onion), c);
   });
 
+  test('a payment to a wallet URL names the contact saved without its endpoint', () {
+    final c = Contact(id: '', name: 'Multi', address: 'http://10.0.2.2:3416');
+    expect(contactFor([c], 'http://10.0.2.2:3416/v2/foreign'), c);
+    expect(contactFor([c], 'http://10.0.2.2:3416/'), c);
+    expect(contactFor([c], 'http://10.0.2.2:3417/v2/foreign'), isNull);
+  });
+
   test('one address writes as before; several write each kind and read back', () {
     final one = Meta(
       contacts: [ContactRec(id: '1', name: 'B', address: _box)],

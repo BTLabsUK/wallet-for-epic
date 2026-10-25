@@ -131,12 +131,25 @@ class FavouriteContactsNotifier extends AsyncNotifier<Set<String>> {
 /// part, so case counts.
 Contact? contactFor(Iterable<Contact> contacts, String? address) {
   if (address == null) return null;
-  final wanted = address.trim();
+  final wanted = _comparable(address);
   if (wanted.isEmpty) return null;
   for (final contact in contacts) {
-    if (contact.addresses.any((a) => a.trim() == wanted)) return contact;
+    if (contact.addresses.any((a) => _comparable(a) == wanted)) return contact;
   }
   return null;
+}
+
+/// [address] as saved and as a payment names it: a wallet URL with or without its
+/// `/v2/foreign` endpoint and trailing slash is the same wallet (a Link · HTTP row named the
+/// URL, not the contact).
+String _comparable(String address) {
+  var a = address.trim();
+  if (!a.startsWith('http://') && !a.startsWith('https://')) return a;
+  if (a.endsWith('/v2/foreign')) a = a.substring(0, a.length - '/v2/foreign'.length);
+  while (a.endsWith('/')) {
+    a = a.substring(0, a.length - 1);
+  }
+  return a;
 }
 
 /// The address Send pays [contact] at: the first of its addresses, Epicbox, Tor, HTTP (the

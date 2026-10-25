@@ -119,10 +119,17 @@ Future<bool> confirmWithdraw(
 
 /// The paired contacts a request can go to: verified, and their card says their wallet pays
 /// requests (caps bit 1). Anyone else gets the request as a file.
-List<PairingRecord> requestPayers(Iterable<PairingRecord> pairings) => [
-  for (final r in pairings)
-    if (r.state == PairingState.verified && r.caps.paysInvoices) r,
-];
+/// One per contact: the pairing it pays through (contactPairingOf), never its older ones twice.
+List<PairingRecord> requestPayers(Iterable<PairingRecord> pairings) {
+  final all = pairings.toList();
+  return [
+    for (final r in all)
+      if (r.state == PairingState.verified &&
+          r.caps.paysInvoices &&
+          (r.contactId == null || contactPairingOf(all, r.contactId!)?.id == r.id))
+        r,
+  ];
+}
 
 /// The request form: To (a paired contact whose wallet pays requests), the amount in EPIC or
 /// fiat, an optional message and the time to pay. Send request sends it to the contact's
