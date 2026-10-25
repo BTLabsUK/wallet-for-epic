@@ -39,6 +39,8 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.logs => l.deskSetAdvLogs,
   // Phone only; never on the desktop's list.
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
+  AdvancedFeature.pairing => l.expPairing,
+  AdvancedFeature.invoices => l.expInvoices,
 };
 
 /// A network mode's name.
@@ -73,6 +75,8 @@ class SettingsAdvancedScreen extends ConsumerWidget {
         ),
         SizedBox(height: Sp.x6),
         const _NetworkGroup(),
+        SizedBox(height: Sp.x6),
+        const _ExperimentalGroup(),
       ],
     ),
   );
@@ -101,7 +105,7 @@ class _ShowsGroup extends ConsumerWidget {
         onChanged: shown ? (v) => set(f, v) : null,
       ),
     );
-    final on = adv.features.length;
+    final on = adv.shownFeatures.length;
     return ESetGroup(
       title: l.deskSetAdvShows,
       trailing: Row(
@@ -116,9 +120,7 @@ class _ShowsGroup extends ConsumerWidget {
             size: EBtnSize.inline,
             onPressed: on == 0
                 ? null
-                : () => n.saveSettings(
-                    s.copyWith(advanced: AdvancedPrefs(networkMode: adv.networkMode, nodeFailover: adv.nodeFailover)),
-                  ),
+                : () => n.saveSettings(s.copyWith(advanced: adv.withoutShown())),
           ),
         ],
       ),
@@ -130,6 +132,41 @@ class _ShowsGroup extends ConsumerWidget {
         row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint),
         if (DeskFeatures.builtInNode) row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),
         row(AdvancedFeature.logs, l.deskSetAdvLogsHint),
+      ],
+    );
+  }
+}
+
+/// Pairing and Invoices, off by default: each with an Experimental tag, the rule between them
+/// in one line under them.
+class _ExperimentalGroup extends ConsumerWidget {
+  const _ExperimentalGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = ref.watch(deskProvider.select((s) => s.settings));
+    final adv = s.advanced;
+    final n = ref.read(deskProvider.notifier);
+    ESetRow row(AdvancedFeature f, bool value, String hint) => ESetRow(
+      key: ValueKey('adv-${f.name}'),
+      title: advancedFeatureName(l, f),
+      badge: EBadge(l.advExperimental),
+      hint: hint,
+      hintTitle: advancedFeatureName(l, f),
+      control: ESwitch(
+        value: value,
+        semanticLabel: advancedFeatureName(l, f),
+        onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withExperimental(f, v))),
+      ),
+    );
+    return ESetGroup(
+      key: const ValueKey('adv-experimental'),
+      title: l.advExperimental,
+      rows: [
+        row(AdvancedFeature.pairing, adv.pairingOn, l.expPairingHint),
+        row(AdvancedFeature.invoices, adv.invoicesOn, l.expInvoicesHint),
+        ESetRow(key: const ValueKey('adv-exp-rule'), text: l.expNeedsPairing),
       ],
     );
   }

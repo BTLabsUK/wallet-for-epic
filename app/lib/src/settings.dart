@@ -428,6 +428,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     // main.dart set the mode at launch.
     NetGate.set(settings.advanced.networkMode);
     NetGate.setPayments(settings.payments);
+    NetGate.setExperimental(settings.advanced);
     return settings;
   }
 
@@ -522,7 +523,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       (await _current()).copyWith(advanced: prefs),
     );
     NetGate.set(prefs.networkMode);
+    NetGate.setExperimental(prefs);
   }
+
+  /// One experimental switch, with the rule between them ([AdvancedPrefs.withExperimental]).
+  Future<void> setExperimental(AdvancedFeature f, bool on) async =>
+      setAdvanced((await _current()).advanced.withExperimental(f, on));
 
   /// Settings › Transactions changed. The Epicbox switch reaches the gate before anything
   /// reads the new settings (network_gate.dart).

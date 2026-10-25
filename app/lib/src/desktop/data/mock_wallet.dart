@@ -739,6 +739,7 @@ class MockDeskWallet implements DeskWalletApi {
     final mode = netModeOf(settings.advanced.networkMode);
     NetGate.set(mode);
     NetGate.setPayments(settings.payments);
+    NetGate.setExperimental(settings.advanced);
     if (!settings.payments.epicbox) _listening = false;
     // Link · HTTP is the one HTTP switch (the adapter): the listener follows it, on while
     // Tor is off, off at once.

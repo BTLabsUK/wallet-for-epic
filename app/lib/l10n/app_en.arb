@@ -20936,7 +20936,6 @@
   "@helpPairWhyP4": {
     "description": "Help › Pairing › Why check the words: the SAS word names are English on purpose, for comparing across languages."
   },
-
   "helpPairWordsTitle": "Pairing words",
   "@helpPairWordsTitle": {
     "description": "Topic 3 title."
@@ -21231,5 +21230,45 @@
   "contactsImportAllOtherNet": "These contacts are for another network. None can be used here.",
   "@contactsImportAllOtherNet": {
     "description": "Import error: the contacts file is for another network (e.g. a floonet address book in a mainnet wallet)."
+  },
+  "expPairing": "Pairing",
+  "@expPairing": {
+    "description": "Name of the experimental Pairing switch in Settings › Advanced"
+  },
+  "expPairingHint": "Pair once with someone you pay often: payment files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.",
+  "@expPairingHint": {
+    "description": "Info sheet of the Pairing switch: what it is, that it is experimental"
+  },
+  "expInvoices": "Invoices",
+  "@expInvoices": {
+    "description": "Name of the experimental Invoices switch in Settings › Advanced"
+  },
+  "expInvoicesHint": "Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.",
+  "@expInvoicesHint": {
+    "description": "Info sheet of the Invoices switch: what it is, that it needs Pairing and is experimental"
+  },
+  "expNeedsPairing": "Invoices need Pairing: Invoices on turns Pairing on, Pairing off turns Invoices off.",
+  "@expNeedsPairing": {
+    "description": "One line under the experimental switches: the rule between them"
+  },
+  "expPairingOffTitle": "Pairing is experimental",
+  "@expPairingOffTitle": {
+    "description": "Title of the sheet shown when a pairing link opens while Pairing is off"
+  },
+  "expPairingOffBody": "Turn it on in Settings › Advanced.",
+  "@expPairingOffBody": {
+    "description": "Body of that sheet"
+  },
+  "expInvoicesOffTitle": "Invoices are experimental",
+  "@expInvoicesOffTitle": {
+    "description": "Title of the sheet shown when an invoice opens while Invoices is off"
+  },
+  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
+  "@expInvoicesOffBody": {
+    "description": "Body of that sheet"
+  },
+  "expOpenAdvanced": "Open Advanced",
+  "@expOpenAdvanced": {
+    "description": "Button of those sheets: opens Settings › Advanced"
   }
 }

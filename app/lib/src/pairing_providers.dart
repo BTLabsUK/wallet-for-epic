@@ -13,8 +13,22 @@ import 'providers.dart';
 import 'settings.dart';
 import 'wallet_service.dart';
 
-/// The open wallet's pairing, or [NoPairing] while locked or on a core without it.
+/// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
+/// pairing shows and nothing collects; the stored pairings come back when it is on again.
+final pairingOnProvider = Provider<bool>(
+  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.pairingOn)) ?? false,
+);
+
+/// Invoices are on (Settings › Advanced › Experimental; off by default, never without
+/// Pairing): the invoice screens, requests, notices and Settings › Invoices.
+final invoicesOnProvider = Provider<bool>(
+  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.invoicesOn)) ?? false,
+);
+
+/// The open wallet's pairing, or [NoPairing] while locked, on a core without it, or while
+/// Pairing is off ([pairingOnProvider]).
 final pairingApiProvider = Provider<PairingApi>((ref) {
+  if (!ref.watch(pairingOnProvider)) return const NoPairing();
   final session = ref.watch(sessionProvider);
   return session?.pairing ?? const NoPairing();
 });

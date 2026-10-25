@@ -16509,4 +16509,37 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get contactsImportAllOtherNet =>
       'Эти контакты относятся к другой сети. Ни один нельзя использовать здесь.';
+
+  @override
+  String get expPairing => 'Сопряжение';
+
+  @override
+  String get expPairingHint =>
+      'Однократное сопряжение с тем, с кем часто бывают платежи: файлы платежей и счета между двумя кошельками запечатаны, а контакт отмечен как сопряжённый. Экспериментально: может ещё измениться.';
+
+  @override
+  String get expInvoices => 'Счета';
+
+  @override
+  String get expInvoicesHint =>
+      'Запрос платежа у сопряжённого контакта и одобрение счетов от сопряжённых контактов. Нужно сопряжение. Экспериментально: может ещё измениться.';
+
+  @override
+  String get expNeedsPairing =>
+      'Счетам нужно сопряжение: включение счетов включает сопряжение, выключение сопряжения выключает счета.';
+
+  @override
+  String get expPairingOffTitle => 'Сопряжение — экспериментальная функция';
+
+  @override
+  String get expPairingOffBody => 'Включается в Настройки › Дополнительно.';
+
+  @override
+  String get expInvoicesOffTitle => 'Счета — экспериментальная функция';
+
+  @override
+  String get expInvoicesOffBody => 'Включаются в Настройки › Дополнительно.';
+
+  @override
+  String get expOpenAdvanced => 'Открыть Дополнительно';
 }

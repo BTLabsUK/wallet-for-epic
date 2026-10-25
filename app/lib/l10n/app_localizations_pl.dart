@@ -16546,4 +16546,39 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get contactsImportAllOtherNet =>
       'Te kontakty są z innej sieci. Żadnego nie można tu użyć.';
+
+  @override
+  String get expPairing => 'Parowanie';
+
+  @override
+  String get expPairingHint =>
+      'Jednorazowe sparowanie z kimś, z kim często są płatności: pliki płatności i faktury między dwoma portfelami są wtedy zapieczętowane, a kontakt jest oznaczony jako sparowany. Eksperymentalne: może się jeszcze zmienić.';
+
+  @override
+  String get expInvoices => 'Faktury';
+
+  @override
+  String get expInvoicesHint =>
+      'Prośba o płatność do sparowanego kontaktu i zatwierdzanie faktur od sparowanych kontaktów. Wymaga parowania. Eksperymentalne: może się jeszcze zmienić.';
+
+  @override
+  String get expNeedsPairing =>
+      'Faktury wymagają parowania: włączenie faktur włącza parowanie, wyłączenie parowania wyłącza faktury.';
+
+  @override
+  String get expPairingOffTitle => 'Parowanie jest eksperymentalne';
+
+  @override
+  String get expPairingOffBody =>
+      'Można je włączyć w Ustawienia › Zaawansowane.';
+
+  @override
+  String get expInvoicesOffTitle => 'Faktury są eksperymentalne';
+
+  @override
+  String get expInvoicesOffBody =>
+      'Można je włączyć w Ustawienia › Zaawansowane.';
+
+  @override
+  String get expOpenAdvanced => 'Otwórz Zaawansowane';
 }

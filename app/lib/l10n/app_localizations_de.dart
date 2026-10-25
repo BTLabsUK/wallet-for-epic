@@ -16235,4 +16235,39 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get contactsImportAllOtherNet =>
       'Diese Kontakte gehören zu einem anderen Netzwerk. Keiner kann hier verwendet werden.';
+
+  @override
+  String get expPairing => 'Kopplung';
+
+  @override
+  String get expPairingHint =>
+      'Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Zahlungsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.';
+
+  @override
+  String get expInvoices => 'Rechnungen';
+
+  @override
+  String get expInvoicesHint =>
+      'Einen gekoppelten Kontakt um eine Zahlung bitten und Rechnungen gekoppelter Kontakte freigeben. Braucht Kopplung. Experimentell: Es kann sich noch ändern.';
+
+  @override
+  String get expNeedsPairing =>
+      'Rechnungen brauchen Kopplung: Rechnungen an schaltet Kopplung an, Kopplung aus schaltet Rechnungen aus.';
+
+  @override
+  String get expPairingOffTitle => 'Kopplung ist experimentell';
+
+  @override
+  String get expPairingOffBody =>
+      'Einschalten unter Einstellungen › Erweitert.';
+
+  @override
+  String get expInvoicesOffTitle => 'Rechnungen sind experimentell';
+
+  @override
+  String get expInvoicesOffBody =>
+      'Einschalten unter Einstellungen › Erweitert.';
+
+  @override
+  String get expOpenAdvanced => 'Erweitert öffnen';
 }

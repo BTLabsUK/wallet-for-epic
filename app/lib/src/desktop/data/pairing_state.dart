@@ -15,9 +15,18 @@ import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
 import 'state.dart';
 
-/// The open wallet's pairing; [NoPairing] while locked. Follows the unlock and the reopen a
+/// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
+/// pairing shows and nothing collects; the stored pairings come back when it is on again.
+final deskPairingOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.pairingOn)));
+
+/// Invoices are on (Settings › Advanced › Experimental; off by default, never without
+/// Pairing): the Invoices page, requests, notices and Settings › Invoices.
+final deskInvoicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.invoicesOn)));
+
+/// The open wallet's pairing; [NoPairing] while locked or while Pairing is off. Follows the unlock and the reopen a
 /// node or Epicbox change makes, which closes the old session's pairing.
 final deskPairingApiProvider = Provider<PairingApi>((ref) {
+  if (!ref.watch(deskPairingOnProvider)) return const NoPairing();
   ref.watch(deskProvider.select((s) => s.account));
   ref.watch(deskProvider.select((s) => s.session));
   return ref.watch(deskApiProvider).pairing;

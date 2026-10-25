@@ -4218,5 +4218,15 @@
   "contactsImportDamaged": "无法读取该文件，文件可能已损坏。",
   "contactsImportNewer": "该文件由更新版本的 Epic Cash 创建。请更新后再导入。",
   "contactsImportEmpty": "该文件中没有联系人。",
-  "contactsImportAllOtherNet": "这些联系人属于其他网络，此处均无法使用。"
+  "contactsImportAllOtherNet": "这些联系人属于其他网络，此处均无法使用。",
+  "expPairing": "配对",
+  "expPairingHint": "与常付款的人配对一次：之后两个钱包之间的付款文件和账单都会被密封，联系人显示为已配对。实验性：仍可能变化。",
+  "expInvoices": "账单",
+  "expInvoicesHint": "向已配对的联系人请求付款，并批准已配对联系人发来的账单。需要配对。实验性：仍可能变化。",
+  "expNeedsPairing": "账单需要配对：开启账单会开启配对，关闭配对会关闭账单。",
+  "expPairingOffTitle": "配对是实验性功能",
+  "expPairingOffBody": "可在 设置 › 高级 中开启。",
+  "expInvoicesOffTitle": "账单是实验性功能",
+  "expInvoicesOffBody": "可在 设置 › 高级 中开启。",
+  "expOpenAdvanced": "打开高级"
 }

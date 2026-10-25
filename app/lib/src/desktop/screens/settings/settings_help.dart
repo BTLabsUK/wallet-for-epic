@@ -152,7 +152,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final lang = deskHelpLanguage(ref);
     final lh = helpStrings(lang);
     // The topics of a part Advanced hides go with it (Outputs).
-    final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (pairs) ...pairingHelpTopics(lh, platform: HelpPlatform.desktop)];
+    final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (pairs) ...helpTopicsShown(pairingHelpTopics(lh, platform: HelpPlatform.desktop), advancedOf(ref))];
     // The Pairing section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
       for (final s in localizedHelpSections(lang)) ...[

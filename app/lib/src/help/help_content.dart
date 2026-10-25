@@ -97,17 +97,23 @@ const pairingHelpSection = 'pairing';
 
 /// The ids screens open Help by ([HelpTopic.id]).
 /// The topics that explain a part Advanced hides, by id: Help lists and finds them only while
-/// that switch is on, so a search never leads to a page the wallet does not show. Only the
-/// Outputs topics: the File Transfer method is everyday use and keeps its topic.
+/// that switch is on, so a search never leads to a page the wallet does not show. The Outputs
+/// topics and the experimental ones (the Pairing section goes with Pairing as a whole): the
+/// File Transfer method is everyday use and keeps its topic.
 const Map<String, AdvancedFeature> helpTopicFeature = {
   HelpId.strategy: AdvancedFeature.outputs,
   HelpId.split: AdvancedFeature.outputs,
+  HelpId.invoices: AdvancedFeature.invoices,
 };
 
 /// [topics] without those of a feature [prefs] keeps hidden.
 List<HelpTopic> helpTopicsShown(List<HelpTopic> topics, AdvancedPrefs prefs) => [
   for (final t in topics)
-    if (switch (helpTopicFeature[t.id]) { final f? => prefs.has(f), null => true }) t,
+    if (switch (helpTopicFeature[t.id]) {
+      AdvancedFeature.invoices => prefs.invoicesOn,
+      final f? => prefs.has(f),
+      null => true,
+    }) t,
 ];
 
 abstract final class HelpId {
@@ -466,6 +472,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}, and with Tor only it moves only to a node reachable over Tor.'),
+        const HelpBlock.p('**Experimental** holds **Pairing** and **Invoices**, both off to begin with. Pairing adds Pair and paired contacts; Invoices adds requests and invoices between paired contacts and needs Pairing. Off, they are hidden and nothing is checked for them; pairings already made stay saved and come back when the switch is on again.'),
         if (phone) const HelpBlock.p('**Notifications** (experimental) is the last switch on the page. It tells you when a payment or an invoice arrives while the app is closed, and it is off while Tor is on.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
       ],

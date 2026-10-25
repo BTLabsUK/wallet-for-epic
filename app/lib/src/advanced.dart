@@ -34,7 +34,20 @@ enum AdvancedFeature {
   /// Transaction files (phone only): the File switch under Settings › Transactions. The
   /// desktop offers File to everyone and never lists this.
   transactionFiles,
+
+  /// Experimental: pairing (RFC 0002): Pair, paired contacts, trust badges, the pairing
+  /// mailboxes. Off, the open wallet's pairing reads as unsupported and nothing collects;
+  /// what LEPIC stored stays and comes back.
+  pairing,
+
+  /// Experimental: invoices from and to paired contacts. Needs [pairing]
+  /// ([AdvancedPrefs.withExperimental] keeps the rule).
+  invoices,
 }
+
+/// The features listed in Settings › Advanced › Experimental, not with the others: Hide all
+/// leaves them and the count of features on does not include them.
+const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices};
 
 /// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's
 /// in [standard], locked on in [torOnly] and off in [offline].
@@ -74,6 +87,32 @@ class AdvancedPrefs {
   static final AdvancedPrefs all = AdvancedPrefs(features: AdvancedFeature.values.toSet());
 
   bool has(AdvancedFeature f) => features.contains(f);
+
+  /// Pairing is on (Settings › Advanced › Experimental). Invoices on implies it.
+  bool get pairingOn => has(AdvancedFeature.pairing) || has(AdvancedFeature.invoices);
+
+  /// Invoices are on; never without [pairingOn].
+  bool get invoicesOn => has(AdvancedFeature.invoices);
+
+  /// The features on outside [experimentalFeatures]: what the Advanced page counts and Hide
+  /// all turns off.
+  Set<AdvancedFeature> get shownFeatures => features.difference(experimentalFeatures);
+
+  /// [withFeature] with the experimental rule: Invoices on turns Pairing on, Pairing off
+  /// turns Invoices off.
+  AdvancedPrefs withExperimental(AdvancedFeature f, bool on) {
+    var next = withFeature(f, on);
+    if (f == AdvancedFeature.invoices && on) next = next.withFeature(AdvancedFeature.pairing, true);
+    if (f == AdvancedFeature.pairing && !on) next = next.withFeature(AdvancedFeature.invoices, false);
+    return next;
+  }
+
+  /// Hide all: every feature off but the experimental ones.
+  AdvancedPrefs withoutShown() => AdvancedPrefs(
+    features: features.intersection(experimentalFeatures),
+    networkMode: networkMode,
+    nodeFailover: nodeFailover,
+  );
 
   /// Whether anything is on beyond the simple app: the hub's state line and the About row
   /// read it. Node failover is on by default, so only its being off counts.

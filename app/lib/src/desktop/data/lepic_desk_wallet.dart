@@ -211,6 +211,7 @@ class LepicDeskWallet implements DeskWalletApi {
     statusSite.addListener(_statusSiteChanged);
     NetGate.set(_settings.advanced.networkMode);
     NetGate.setPayments(_settings.payments);
+    NetGate.setExperimental(_settings.advanced);
     _followTor();
   }
 
@@ -2808,6 +2809,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await _stopHttp();
       if (settings.directHttp && !_nodeOff) await setHttpListening(true);
     }
+    NetGate.setExperimental(settings.advanced);
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
     if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);

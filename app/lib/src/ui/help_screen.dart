@@ -13,6 +13,7 @@ import '../help/help_content.dart';
 import '../help/help_i18n.dart';
 import '../l10n.dart';
 import '../phone_tor.dart';
+import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
 import 'common.dart';
@@ -44,7 +45,8 @@ const Key helpSearchKey = ValueKey('help-search');
 /// [lang] has no translation of is English.
 List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang) {
   final confirmations = confirmationsTargetOf(ref);
-  final pairs = ref.watch(sessionProvider)?.pairing.supported ?? false;
+  // Pairing off (Settings › Advanced) reads as no pairing (pairingApiProvider).
+  final pairs = ref.watch(pairingSupportedProvider);
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
     // The topics of a part Advanced hides go with it (Outputs).
@@ -52,7 +54,11 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
       localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
       AdvancedOptions.of(context),
     ),
-    if (pairs) ...pairingHelpTopics(helpStrings(lang), platform: HelpPlatform.phone),
+    if (pairs)
+      ...helpTopicsShown(
+        pairingHelpTopics(helpStrings(lang), platform: HelpPlatform.phone),
+        AdvancedOptions.of(context),
+      ),
   ];
 }
 

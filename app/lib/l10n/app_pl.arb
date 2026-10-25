@@ -4218,5 +4218,15 @@
   "contactsImportDamaged": "Nie udało się odczytać pliku. Może być uszkodzony.",
   "contactsImportNewer": "Ten plik pochodzi z nowszej wersji Epic Cash. Zaktualizuj aplikację, aby go zaimportować.",
   "contactsImportEmpty": "Plik nie zawiera kontaktów.",
-  "contactsImportAllOtherNet": "Te kontakty są z innej sieci. Żadnego nie można tu użyć."
+  "contactsImportAllOtherNet": "Te kontakty są z innej sieci. Żadnego nie można tu użyć.",
+  "expPairing": "Parowanie",
+  "expPairingHint": "Jednorazowe sparowanie z kimś, z kim często są płatności: pliki płatności i faktury między dwoma portfelami są wtedy zapieczętowane, a kontakt jest oznaczony jako sparowany. Eksperymentalne: może się jeszcze zmienić.",
+  "expInvoices": "Faktury",
+  "expInvoicesHint": "Prośba o płatność do sparowanego kontaktu i zatwierdzanie faktur od sparowanych kontaktów. Wymaga parowania. Eksperymentalne: może się jeszcze zmienić.",
+  "expNeedsPairing": "Faktury wymagają parowania: włączenie faktur włącza parowanie, wyłączenie parowania wyłącza faktury.",
+  "expPairingOffTitle": "Parowanie jest eksperymentalne",
+  "expPairingOffBody": "Można je włączyć w Ustawienia › Zaawansowane.",
+  "expInvoicesOffTitle": "Faktury są eksperymentalne",
+  "expInvoicesOffBody": "Można je włączyć w Ustawienia › Zaawansowane.",
+  "expOpenAdvanced": "Otwórz Zaawansowane"
 }

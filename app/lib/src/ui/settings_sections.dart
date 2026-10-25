@@ -144,6 +144,8 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.builtInNode => l.advBuiltInNode,
   AdvancedFeature.logs => l.advLogs,
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
+  AdvancedFeature.pairing => l.expPairing,
+  AdvancedFeature.invoices => l.expInvoices,
 };
 
 /// A network mode's name.
@@ -973,6 +975,19 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       value: adv.has(f),
       onChanged: (on) => _settings.setFeature(f, on),
     );
+    // Pairing and Invoices: on as the rule between them says; an Experimental tag on each.
+    Widget experimental(AdvancedFeature f, IconData icon, String title, String hint) => HintSwitchTile(
+      key: ValueKey('adv-${f.name}'),
+      icon: icon,
+      title: title,
+      hint: hint,
+      subtitle: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(children: [EBadge(l.advExperimental)]),
+      ),
+      value: f == AdvancedFeature.pairing ? adv.pairingOn : adv.invoicesOn,
+      onChanged: (on) => _settings.setExperimental(f, on),
+    );
     Widget mode(NetworkMode m, String title, String line, {bool enabled = true}) =>
         RadioListTile<NetworkMode>(
           key: ValueKey('adv-mode-${m.name}'),
@@ -1077,22 +1092,28 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: adv.nodeFailover,
         onChanged: _settings.setNodeFailover,
       ),
-      // Experimental, so last; nothing where the phone cannot push.
+      // Experimental, so last: Pairing and Invoices (off by default), then push, nothing
+      // where the phone cannot push.
+      const SizedBox(height: 8),
+      SettingsHeader(l.advExperimental),
+      experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
+      experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
+      Padding(
+        key: const ValueKey('adv-exp-rule'),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: Text(
+          l.expNeedsPairing,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+        ),
+      ),
       const PushNotificationsTile(),
       const Divider(height: 24),
       ListTile(
         key: const ValueKey('adv-reset'),
         leading: const Icon(Icons.visibility_off_outlined),
         title: Text(l.advReset),
-        enabled: adv.features.isNotEmpty,
-        onTap: adv.features.isEmpty
-            ? null
-            : () => _settings.setAdvanced(
-                AdvancedPrefs(
-                  networkMode: adv.networkMode,
-                  nodeFailover: adv.nodeFailover,
-                ),
-              ),
+        enabled: adv.shownFeatures.isNotEmpty,
+        onTap: adv.shownFeatures.isEmpty ? null : () => _settings.setAdvanced(adv.withoutShown()),
       ),
     ];
   }

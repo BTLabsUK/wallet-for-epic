@@ -15188,4 +15188,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsImportAllOtherNet => '这些联系人属于其他网络，此处均无法使用。';
+
+  @override
+  String get expPairing => '配对';
+
+  @override
+  String get expPairingHint =>
+      '与常付款的人配对一次：之后两个钱包之间的付款文件和账单都会被密封，联系人显示为已配对。实验性：仍可能变化。';
+
+  @override
+  String get expInvoices => '账单';
+
+  @override
+  String get expInvoicesHint => '向已配对的联系人请求付款，并批准已配对联系人发来的账单。需要配对。实验性：仍可能变化。';
+
+  @override
+  String get expNeedsPairing => '账单需要配对：开启账单会开启配对，关闭配对会关闭账单。';
+
+  @override
+  String get expPairingOffTitle => '配对是实验性功能';
+
+  @override
+  String get expPairingOffBody => '可在 设置 › 高级 中开启。';
+
+  @override
+  String get expInvoicesOffTitle => '账单是实验性功能';
+
+  @override
+  String get expInvoicesOffBody => '可在 设置 › 高级 中开启。';
+
+  @override
+  String get expOpenAdvanced => '打开高级';
 }

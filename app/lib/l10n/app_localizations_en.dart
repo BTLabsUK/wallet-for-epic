@@ -16045,4 +16045,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get contactsImportAllOtherNet =>
       'These contacts are for another network. None can be used here.';
+
+  @override
+  String get expPairing => 'Pairing';
+
+  @override
+  String get expPairingHint =>
+      'Pair once with someone you pay often: payment files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.';
+
+  @override
+  String get expInvoices => 'Invoices';
+
+  @override
+  String get expInvoicesHint =>
+      'Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.';
+
+  @override
+  String get expNeedsPairing =>
+      'Invoices need Pairing: Invoices on turns Pairing on, Pairing off turns Invoices off.';
+
+  @override
+  String get expPairingOffTitle => 'Pairing is experimental';
+
+  @override
+  String get expPairingOffBody => 'Turn it on in Settings › Advanced.';
+
+  @override
+  String get expInvoicesOffTitle => 'Invoices are experimental';
+
+  @override
+  String get expInvoicesOffBody => 'Turn them on in Settings › Advanced.';
+
+  @override
+  String get expOpenAdvanced => 'Open Advanced';
 }

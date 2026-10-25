@@ -2021,6 +2021,8 @@ class LepicWalletSession implements WalletSession {
   /// Invoices come only from paired contacts (RFC 11): a drain collects their mailboxes.
   @override
   Future<InvoiceDrainReport> drainInvoices() => _epicboxGuard('invoice drain', () async {
+    // Invoices off (Settings › Advanced › Experimental): no mailbox is opened, nothing expires.
+    if (!NetGate.invoices) return const InvoiceDrainReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
     await _pairing.collectOrFail(PairingCollectTrigger.open);
@@ -2828,6 +2830,8 @@ class _LepicPairing implements PairingApi {
   /// [collect], failing as LEPIC does: a check the user or the invoice scheduler asked for
   /// says when the relay is down.
   Future<int> collectOrFail(PairingCollectTrigger trigger) async {
+    // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
+    if (!NetGate.pairing) return 0;
     _s._watchEvents();
     final before = {for (final c in await _w.contacts()) c.contactId};
     final report = await _w.contactsCollect(

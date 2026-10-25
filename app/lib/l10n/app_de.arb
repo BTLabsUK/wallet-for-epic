@@ -4218,5 +4218,15 @@
   "contactsImportDamaged": "Die Datei konnte nicht gelesen werden. Sie ist möglicherweise beschädigt.",
   "contactsImportNewer": "Diese Datei stammt von einer neueren Version von Epic Cash. Aktualisieren Sie, um sie zu importieren.",
   "contactsImportEmpty": "Die Datei enthält keine Kontakte.",
-  "contactsImportAllOtherNet": "Diese Kontakte gehören zu einem anderen Netzwerk. Keiner kann hier verwendet werden."
+  "contactsImportAllOtherNet": "Diese Kontakte gehören zu einem anderen Netzwerk. Keiner kann hier verwendet werden.",
+  "expPairing": "Kopplung",
+  "expPairingHint": "Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Zahlungsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.",
+  "expInvoices": "Rechnungen",
+  "expInvoicesHint": "Einen gekoppelten Kontakt um eine Zahlung bitten und Rechnungen gekoppelter Kontakte freigeben. Braucht Kopplung. Experimentell: Es kann sich noch ändern.",
+  "expNeedsPairing": "Rechnungen brauchen Kopplung: Rechnungen an schaltet Kopplung an, Kopplung aus schaltet Rechnungen aus.",
+  "expPairingOffTitle": "Kopplung ist experimentell",
+  "expPairingOffBody": "Einschalten unter Einstellungen › Erweitert.",
+  "expInvoicesOffTitle": "Rechnungen sind experimentell",
+  "expInvoicesOffBody": "Einschalten unter Einstellungen › Erweitert.",
+  "expOpenAdvanced": "Erweitert öffnen"
 }

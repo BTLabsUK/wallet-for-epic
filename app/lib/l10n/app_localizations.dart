@@ -25195,6 +25195,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'These contacts are for another network. None can be used here.'**
   String get contactsImportAllOtherNet;
+
+  /// Name of the experimental Pairing switch in Settings › Advanced
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing'**
+  String get expPairing;
+
+  /// Info sheet of the Pairing switch: what it is, that it is experimental
+  ///
+  /// In en, this message translates to:
+  /// **'Pair once with someone you pay often: payment files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.'**
+  String get expPairingHint;
+
+  /// Name of the experimental Invoices switch in Settings › Advanced
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get expInvoices;
+
+  /// Info sheet of the Invoices switch: what it is, that it needs Pairing and is experimental
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.'**
+  String get expInvoicesHint;
+
+  /// One line under the experimental switches: the rule between them
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices need Pairing: Invoices on turns Pairing on, Pairing off turns Invoices off.'**
+  String get expNeedsPairing;
+
+  /// Title of the sheet shown when a pairing link opens while Pairing is off
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing is experimental'**
+  String get expPairingOffTitle;
+
+  /// Body of that sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Turn it on in Settings › Advanced.'**
+  String get expPairingOffBody;
+
+  /// Title of the sheet shown when an invoice opens while Invoices is off
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices are experimental'**
+  String get expInvoicesOffTitle;
+
+  /// Body of that sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Turn them on in Settings › Advanced.'**
+  String get expInvoicesOffBody;
+
+  /// Button of those sheets: opens Settings › Advanced
+  ///
+  /// In en, this message translates to:
+  /// **'Open Advanced'**
+  String get expOpenAdvanced;
 }
 
 class _AppLocalizationsDelegate

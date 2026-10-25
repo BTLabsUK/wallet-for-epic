@@ -15740,4 +15740,37 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get contactsImportAllOtherNet =>
       'ผู้ติดต่อเหล่านี้เป็นของเครือข่ายอื่น ใช้ที่นี่ไม่ได้เลย';
+
+  @override
+  String get expPairing => 'การจับคู่';
+
+  @override
+  String get expPairingHint =>
+      'จับคู่ครั้งเดียวกับคนที่ชำระเงินกันบ่อย จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก และผู้ติดต่อจะแสดงว่าจับคู่แล้ว เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+
+  @override
+  String get expInvoices => 'ใบแจ้งหนี้';
+
+  @override
+  String get expInvoicesHint =>
+      'ขอรับเงินจากผู้ติดต่อที่จับคู่แล้ว และอนุมัติใบแจ้งหนี้ที่ผู้ติดต่อที่จับคู่แล้วส่งมา ต้องเปิดการจับคู่ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+
+  @override
+  String get expNeedsPairing =>
+      'ใบแจ้งหนี้ต้องใช้การจับคู่: เปิดใบแจ้งหนี้จะเปิดการจับคู่ด้วย ปิดการจับคู่จะปิดใบแจ้งหนี้ด้วย';
+
+  @override
+  String get expPairingOffTitle => 'การจับคู่เป็นฟีเจอร์ทดลอง';
+
+  @override
+  String get expPairingOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get expInvoicesOffTitle => 'ใบแจ้งหนี้เป็นฟีเจอร์ทดลอง';
+
+  @override
+  String get expInvoicesOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get expOpenAdvanced => 'เปิดขั้นสูง';
 }
