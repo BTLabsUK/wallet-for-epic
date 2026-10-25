@@ -159,7 +159,10 @@ void main() {
     await tester.runAsync(() async {
       await tester.tap(notice());
       await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 300));
+      // Real time, bounded: under a loaded full run 300 ms was not always enough.
+      for (var i = 0; i < 100 && quits == 0; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      }
     });
     await tester.pump();
     expect(notice(), findsNothing);
