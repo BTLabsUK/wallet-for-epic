@@ -819,7 +819,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         MethodKind.directFile => (l.txFileLine, l.txFileHint),
       };
       return HintSwitchTile(
-        key: ValueKey('tx-${m.name}'),
+        key: txMethodKey(m),
         icon: MethodIcons.of(m),
         title: MethodIcons.groupName(l, m),
         sheetTitle: MethodIcons.fullName(l, m),
@@ -858,9 +858,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             children: [
               for (final m in offered)
                 RadioListTile<MethodKind>(
-                  key: ValueKey(
-                    'tx-start-${m.family == MethodFamily.link ? 'link' : m.name}',
-                  ),
+                  key: txStartKey(m),
                   value: m,
                   secondary: Icon(
                     m.family == MethodFamily.link
@@ -1289,8 +1287,24 @@ class _MethodFamilyHeader extends StatelessWidget {
   }
 }
 
+/// The key of a method's switch on Settings › Transactions, for tests and the tour:
+/// `tx-epicbox`, `tx-http`, `tx-tor`, `tx-qr`, `tx-file`.
+Key txMethodKey(MethodKind m) => ValueKey('tx-${_txKeyName(m)}');
+
+/// The key of a "Send starts on" choice, for tests: Link is one (`tx-start-link`).
+Key txStartKey(MethodKind m) =>
+    ValueKey('tx-start-${m.family == MethodFamily.link ? 'link' : _txKeyName(m)}');
+
+String _txKeyName(MethodKind m) => switch (m) {
+  MethodKind.epicbox => 'epicbox',
+  MethodKind.linkHttp => 'http',
+  MethodKind.linkTor => 'tor',
+  MethodKind.directQr => 'qr',
+  MethodKind.directFile => 'file',
+};
+
 /// The key of the line under Link · Tor that Tor is off, for tests.
-const Key txTorNeededKey = ValueKey('tx-linkTor-needs-tor');
+const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
 
 /// Under the Link · Tor switch while it is on and Tor is off: "Needs Tor. Turn it on under
 /// Privacy & network." A tap opens Privacy & network, where the one Tor switch is.

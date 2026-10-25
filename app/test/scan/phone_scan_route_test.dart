@@ -138,7 +138,7 @@ class _Harness {
     store.values['app.history_reminder_first_seen.mainnet'] =
         '${_now.millisecondsSinceEpoch ~/ 1000}';
     store.values['app.payment_prefs'] = PaymentPrefs.phoneDefaults
-        .copyWith(direct: true)
+        .copyWith(linkHttp: true, linkTor: true)
         .encode();
     service = otherChain
         ? _OtherChainService(session: session)

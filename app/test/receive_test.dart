@@ -129,7 +129,7 @@ class _Harness {
   }
 
   /// Shows the Payment file tab.
-  Future<void> byFile(WidgetTester tester) => _tap(tester, find.text('File'));
+  Future<void> byFile(WidgetTester tester) => _tap(tester, find.text('Direct · File'));
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -190,7 +190,7 @@ void main() {
               ((s.label! as FittedBox).child! as Text).data,
             ),
         ],
-        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'File')],
+        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'Direct · File')],
       );
       expect(
         [for (final s in tabs.segments) (s.icon! as Icon).icon],
@@ -726,7 +726,7 @@ void main() {
         final h = _Harness();
         await h.pump(tester);
         await h.listener(tester, state);
-        for (final tab in ['Epicbox', 'File']) {
+        for (final tab in ['Epicbox', 'Direct · File']) {
           await _tap(tester, find.text(tab));
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
