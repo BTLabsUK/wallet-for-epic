@@ -1,7 +1,7 @@
 // Avatar letters on the phone and the desktop: letters and digits only (LNX-5).
 import 'package:epic_wallet/src/desktop/widgets/data.dart' show EAvatar;
 import 'package:epic_wallet/src/initials.dart';
-import 'package:epic_wallet/src/ui/contact_sheet.dart' show contactInitials;
+import 'package:epic_wallet/src/ui/contact_page.dart' show contactInitials;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
