@@ -174,21 +174,30 @@ void main() {
       expect((await tester.runAsync(wallet.status))!.httpListener, isNot(ServiceHealth.off));
     }, skip: _skip);
 
-    testWidgets('Receive: Link is the Tor address with Tor on, with no switch of its own', (tester) async {
+    testWidgets('Receive: Link · Tor on with Tor on shows the Tor address, with no switch of its own', (tester) async {
+      await tester.runAsync(() => _linkTorOn(container));
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
-      expect(find.text('Link Payment · Tor address'), findsOneWidget);
-      expect(find.text('Link Payment · HTTP address'), findsNothing);
+      expect(find.text('Link · Tor address'), findsOneWidget);
+      expect(find.text('Link · HTTP address'), findsNothing);
       expect(find.byKey(const ValueKey('rx-switch-tor')), findsNothing);
       expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);
 
     testWidgets('Receive: Tor not connected shows Retry and Turn Tor off', (tester) async {
       wallet.torHealth = ServiceHealth.down;
+      await tester.runAsync(() => _linkTorOn(container));
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
       expect(find.byKey(const ValueKey('rx-tor-notice')), findsOneWidget);
       expect(find.text('Turn Tor off'), findsOneWidget);
     }, skip: _skip);
   });
+}
+
+
+/// Link · Tor on in Settings › Transactions: the Tor address shows only with its switch on.
+Future<void> _linkTorOn(ProviderContainer c) async {
+  final s = c.read(deskProvider).settings;
+  await c.read(deskProvider.notifier).saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
 }

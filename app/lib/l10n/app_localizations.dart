@@ -7929,6 +7929,18 @@ abstract class AppLocalizations {
   /// **'Direct · File'**
   String get methodShortFile;
 
+  /// Link · HTTP under a Link header (Settings › Transactions, grouped by family): the sub-option alone. Keep the Latin letters.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP'**
+  String get methodGroupHttp;
+
+  /// Link · Tor under a Link header (Settings › Transactions, grouped by family): the sub-option alone. Keep the Latin letters; Tor is a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get methodGroupTor;
+
   /// Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it.
   ///
   /// In en, this message translates to:
@@ -11748,7 +11760,7 @@ abstract class AppLocalizations {
   /// Title of the HTTP panel on Receive and of its QR code.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP address'**
+  /// **'Link · HTTP address'**
   String get deskRecvHttpAddress;
 
   /// Label of the copy button next to the HTTP address.
@@ -11784,7 +11796,7 @@ abstract class AppLocalizations {
   /// Title of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor address'**
+  /// **'Link · Tor address'**
   String get deskRecvDirectTor;
 
   /// Intro text of the Tor panel on Receive.
@@ -11796,7 +11808,7 @@ abstract class AppLocalizations {
   /// Title of the QR code of the Tor address on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor address'**
+  /// **'Link · Tor address'**
   String get deskRecvTorAddress;
 
   /// Label of the copy button next to the Tor address.

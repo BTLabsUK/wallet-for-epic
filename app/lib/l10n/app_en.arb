@@ -6418,6 +6418,14 @@
   "@methodShortFile": {
     "description": "Short method name where space is short (badges, tags, chips, segments, table cells): the Direct family, a middle dot, File. The full name is methodDirectFile."
   },
+  "methodGroupHttp": "HTTP",
+  "@methodGroupHttp": {
+    "description": "Link · HTTP under a Link header (Settings › Transactions, grouped by family): the sub-option alone. Keep the Latin letters."
+  },
+  "methodGroupTor": "Tor",
+  "@methodGroupTor": {
+    "description": "Link · Tor under a Link header (Settings › Transactions, grouped by family): the sub-option alone. Keep the Latin letters; Tor is a name."
+  },
   "methodDirectQr": "Direct · QR Payment",
   "@methodDirectQr": {
     "description": "Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it."
@@ -9581,7 +9589,7 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
-  "deskRecvHttpAddress": "Link Payment · HTTP address",
+  "deskRecvHttpAddress": "Link · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
@@ -9610,7 +9618,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvDirectTor": "Link Payment · Tor address",
+  "deskRecvDirectTor": "Link · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
@@ -9618,7 +9626,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorAddress": "Link Payment · Tor address",
+  "deskRecvTorAddress": "Link · Tor address",
   "@deskRecvTorAddress": {
     "description": "Title of the QR code of the Tor address on Receive."
   },

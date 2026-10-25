@@ -67,7 +67,7 @@ void main() {
     });
 
     test('Epicbox off leaves HTTP running', () async {
-      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
       await wallet.setHttpListening(true);
       await httpStarted();
       await wallet.setEpicboxListening(true);
@@ -99,7 +99,7 @@ void main() {
     });
 
     test('Tor on stops the clearnet HTTP listener, leaves Epicbox; off starts HTTP again', () async {
-      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
       await wallet.setEpicboxListening(true);
       await wallet.setHttpListening(true);
       await httpStarted();
@@ -121,29 +121,35 @@ void main() {
 
     test('defaults: Epicbox on, HTTP off, Tor off', () async {
       final s = await wallet.settings();
-      expect((s.epicboxAutostart, s.httpAutostart, s.torAutostart), (true, false, false));
+      expect((s.epicboxAutostart, s.payments.linkHttp, s.torAutostart), (true, false, false));
       await wallet.startAutostart();
       expect(session().listenerStarts, 1);
       expect(session().httpListenerStarts, isEmpty);
       expect(session().torStarts, isEmpty);
     });
 
-    test('unlock starts exactly the methods whose autostart is on', () async {
-      await wallet.saveSettings((await wallet.settings()).copyWith(epicboxAutostart: false, httpAutostart: true, torAutostart: true));
+    test('unlock starts exactly the methods whose autostart (or Link · HTTP switch) is on', () async {
+      var s0 = await wallet.settings();
+      await wallet.saveSettings(s0.copyWith(epicboxAutostart: false, payments: s0.payments.copyWith(linkHttp: true), torAutostart: true));
+      final before = session().httpListenerStarts.length;
       await relock();
       expect(session().listenerStarts, 0, reason: 'Epicbox autostart off');
-      expect(session().httpListenerStarts, isEmpty, reason: 'the clearnet listener stays off with Tor on');
+      expect(session().httpListenerStarts, hasLength(before), reason: 'the clearnet listener stays off with Tor on (the switch started it once, before the relock)');
       expect(session().torStarts, hasLength(1));
       expect((await wallet.settings()).tor, isTrue, reason: 'Tor is on now');
 
-      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true, torAutostart: false));
+      s0 = await wallet.settings();
+      await wallet.saveSettings(s0.copyWith(payments: s0.payments.copyWith(linkHttp: true), torAutostart: false));
+      final beforeTorOff = session().httpListenerStarts.length;
       await relock();
-      expect(session().httpListenerStarts, hasLength(1), reason: 'Tor off: HTTP starts with the wallet');
+      expect(session().httpListenerStarts, hasLength(beforeTorOff + 1), reason: 'Tor off: Link · HTTP on starts the listener with the wallet');
 
-      await wallet.saveSettings((await wallet.settings()).copyWith(epicboxAutostart: true, httpAutostart: false, torAutostart: false));
+      s0 = await wallet.settings();
+      await wallet.saveSettings(s0.copyWith(epicboxAutostart: true, payments: s0.payments.copyWith(linkHttp: false), torAutostart: false));
+      final beforeOff = session().httpListenerStarts.length;
       await relock();
       expect(session().listenerStarts, 1);
-      expect(session().httpListenerStarts, hasLength(1), reason: 'HTTP autostart off now');
+      expect(session().httpListenerStarts, hasLength(beforeOff), reason: 'Link · HTTP off now');
       expect(session().torStarts, hasLength(1), reason: 'Tor autostart off now');
       expect((await wallet.settings()).tor, isFalse, reason: 'Tor on earlier does not start it at unlock');
     });
@@ -190,4 +196,9 @@ void main() {
       expect((s.epicboxAutostart, s.torAutostart), (true, false));
     });
   });
+}
+
+
+extension _Let<T> on T {
+  R let<R>(R Function(T) f) => f(this);
 }

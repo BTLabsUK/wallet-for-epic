@@ -53,7 +53,7 @@ Future<void> _open(
   tester.view.physicalSize = const Size(1280, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  addTearDown(() => NetGate.setEpicbox(true));
+  addTearDown(() => NetGate.setPayments(PaymentPrefs.defaults));
   _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet(pendingFile: pendingFile, pendingEpicbox: pendingEpicbox))], retry: (_, _) => null);
   addTearDown(_container.dispose);
   await tester.runAsync(() async {
@@ -78,44 +78,78 @@ List<String> _segments<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(f
 
 T _selected<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).value;
 
-/// The sidebar's Link Payment · HTTP row.
-final _railHttp = find.descendant(of: find.byKey(const ValueKey('rail')), matching: find.text('Link Payment · HTTP'));
+/// The sidebar's Link · HTTP row.
+final _railHttp = find.descendant(of: find.byKey(const ValueKey('rail')), matching: find.text('Link · HTTP'));
 
 Finder _offer(String m) => find.byKey(ValueKey('st-offer-$m'));
 
 void main() {
   group('the page', () {
-    testWidgets('Receiving became Transactions: the entry, the groups, Epicbox a switch that is on', (tester) async {
+    testWidgets('Payment methods: one switch per method, grouped by family, Epicbox on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       expect(find.text('Transactions'), findsWidgets);
       expect(find.text('Payment methods'), findsOneWidget);
       expect(find.text('Always on'), findsNothing);
       expect(tester.widget<ESwitch>(_offer('epicbox')).value, isTrue);
-      expect(_offer('direct'), findsOneWidget);
-      expect(_offer('file'), findsOneWidget);
+      // The families: Epicbox stands alone; Link and Direct carry a subhead over their methods.
+      expect(find.byKey(const ValueKey('st-family-link')), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-family-direct')), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-family-epicbox')), findsNothing);
+      expect(_offer('linkHttp'), findsOneWidget);
+      expect(_offer('linkTor'), findsOneWidget);
+      expect(_offer('directFile'), findsOneWidget);
+      expect(_offer('directQr'), findsNothing, reason: 'the phone\'s method');
+      // Under the family's subhead the method keeps its short word; the full name is the
+      // switch's label for a screen reader.
+      expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text('HTTP')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text('File Transfer')), findsOneWidget);
+      expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, 'Link · Tor');
       // The existing Epicbox receiving group is on the same page, nothing is duplicated.
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
       expect(find.text('Send starts on'), findsOneWidget);
     });
 
-    testWidgets('by default File is on, Link off, and Link’s receiving rows are not shown', (tester) async {
+    testWidgets('by default File Transfer is on, Link off, and Link’s receiving groups are not shown', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
-      expect(tester.widget<ESwitch>(_offer('file')).value, isTrue);
-      expect(tester.widget<ESwitch>(_offer('direct')).value, isFalse);
-      expect(find.byKey(const ValueKey('st-switch-http')), findsNothing);
+      expect(tester.widget<ESwitch>(_offer('directFile')).value, isTrue);
+      expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
+      expect(tester.widget<ESwitch>(_offer('linkTor')).value, isFalse);
+      expect(find.text('Link · HTTP receiving'), findsNothing);
+      expect(find.text('Link · Tor receiving'), findsNothing);
     });
 
-    testWidgets('the Link switch saves and shows the HTTP receiving rows under the methods', (tester) async {
+    testWidgets('Link · HTTP is one switch: it saves, starts the listener and shows the HTTP group without a second switch', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
-      await tester.tap(_offer('direct'));
+      await tester.tap(_offer('linkHttp'));
       await _settle(tester);
-      expect(_payments.direct, isTrue);
-      expect(find.byKey(const ValueKey('st-switch-http')), findsOneWidget);
-      expect(find.text('Start with the wallet'), findsWidgets);
-      await tester.tap(_offer('direct'));
+      expect(_payments.linkHttp, isTrue);
+      expect(_container.read(deskProvider).status?.httpListener, ServiceHealth.ok);
+      expect(find.text('Link · HTTP receiving'), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no duplicate switch for the same thing');
+      expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing, reason: 'on means now and at unlock');
+      expect(find.byKey(const ValueKey('st-state-http')), findsOneWidget);
+      expect(find.text('Reachable'), findsOneWidget);
+      await tester.tap(_offer('linkHttp'));
       await _settle(tester);
-      expect(_payments.direct, isFalse);
-      expect(find.byKey(const ValueKey('st-switch-http')), findsNothing);
+      expect(_payments.linkHttp, isFalse);
+      expect(_container.read(deskProvider).status?.httpListener, ServiceHealth.off);
+      expect(find.text('Link · HTTP receiving'), findsNothing);
+    });
+
+    testWidgets('Link · Tor saves; with Tor off its row says what it needs, with Tor on its group shows the Tor state', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
+      await tester.tap(_offer('linkTor'));
+      await _settle(tester);
+      expect(_payments.linkTor, isTrue);
+      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
+      expect(find.text('Tor is off. Turn it on under Privacy to be paid at the Tor address.'), findsOneWidget);
+      expect(find.text('Link · Tor receiving'), findsOneWidget);
+      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
+      await _settle(tester);
+      expect(_container.read(deskProvider).settings.tor, isTrue);
+      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
+      expect(find.byKey(const ValueKey('st-state-tor')), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-switch-tor')), findsNothing, reason: 'Tor itself is Privacy\'s switch');
     });
 
     testWidgets('the Epicbox switch saves, stops the listener, the group reads Off with the reason, and comes back on', (tester) async {
@@ -155,66 +189,80 @@ void main() {
       expect(_payments.epicbox, isFalse);
     });
 
-    testWidgets('the File switch saves', (tester) async {
+    testWidgets('the File Transfer switch saves', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
-      await tester.tap(_offer('file'));
+      await tester.tap(_offer('directFile'));
       await _settle(tester);
-      expect(_payments.file, isFalse);
-      await tester.tap(_offer('file'));
+      expect(_payments.directFile, isFalse);
+      await tester.tap(_offer('directFile'));
       await _settle(tester);
-      expect(_payments.file, isTrue);
+      expect(_payments.directFile, isTrue);
     });
 
-    testWidgets('a running listener keeps the HTTP rows although Link is off', (tester) async {
+    testWidgets('the last method on stays on: the switch does not move and a toast says why', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(directFile: false));
+      expect(_payments.on, [MethodKind.epicbox]);
+      await tester.tap(_offer('epicbox'));
+      await _settle(tester);
+      expect(_payments.epicbox, isTrue);
+      expect(find.text('Keep at least one payment method on.'), findsOneWidget);
+      expect(NetGate.epicbox, isTrue);
+    });
+
+    testWidgets('a listener Receive started keeps the HTTP group: it is the same switch', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.runAsync(() => _container.read(deskProvider.notifier).setHttp(true));
       await _settle(tester);
-      expect(_payments.direct, isFalse);
-      expect(find.byKey(const ValueKey('st-switch-http')), findsOneWidget);
+      expect(_payments.linkHttp, isTrue, reason: 'Receive\'s Try again and the method switch are one setting');
+      expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isTrue);
+      expect(find.text('Link · HTTP receiving'), findsOneWidget);
     });
   });
 
   group('Send starts on', () {
-    testWidgets('lists the methods that are on, and the choice saves', (tester) async {
+    testWidgets('lists the methods that are on, Link once for its family, and the choice saves', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
-      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<PayMethod>));
-      expect(tester.widget<ESegmented<PayMethod>>(start).segments.map((s) => s.label), ['Epicbox', 'File']);
-      await tester.tap(find.descendant(of: start, matching: find.text('File')));
+      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
+      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File Transfer')));
       await _settle(tester);
-      expect(_payments.defaultMethod, PayMethod.file);
-      await tester.tap(_offer('direct'));
+      expect(_payments.defaultMethod, MethodKind.directFile);
+      await tester.tap(_offer('linkTor'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<PayMethod>>(start).segments.map((s) => s.label), ['Epicbox', 'Link Payment', 'File']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer']);
+      await tester.tap(_offer('linkHttp'));
+      await _settle(tester);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer'], reason: 'Link once');
     });
 
     testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(direct: true, defaultMethod: PayMethod.direct));
-      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<PayMethod>));
-      expect(tester.widget<ESegmented<PayMethod>>(start).value, PayMethod.direct);
-      await tester.tap(_offer('direct'));
+      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(linkHttp: true, defaultMethod: MethodKind.linkHttp));
+      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
+      expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.linkHttp);
+      await tester.tap(_offer('linkHttp'));
       await _settle(tester);
-      expect(_payments.startMethod, PayMethod.epicbox);
-      expect(tester.widget<ESegmented<PayMethod>>(start).segments.map((s) => s.label), ['Epicbox', 'File']);
-      expect(tester.widget<ESegmented<PayMethod>>(start).value, PayMethod.epicbox);
+      expect(_payments.startMethod, MethodKind.epicbox);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.epicbox);
     });
 
     testWidgets('with only Epicbox on there is nothing to choose', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(file: false));
+      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(directFile: false));
       expect(find.byKey(const ValueKey('st-start-method')), findsNothing);
     });
 
     testWidgets('Send opens on the chosen method', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(defaultMethod: PayMethod.file));
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(defaultMethod: MethodKind.directFile));
       expect(_selected<TxMethod>(tester), TxMethod.file);
     });
 
-    testWidgets('Send opens on Link when that is the choice and Link is on', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(direct: true, defaultMethod: PayMethod.direct));
+    testWidgets('Send opens on Link when that is the choice and a Link method is on', (tester) async {
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true, defaultMethod: MethodKind.linkHttp));
       expect(_selected<TxMethod>(tester), TxMethod.http);
     });
 
     testWidgets('Send opens on Epicbox when the chosen method was switched off', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(file: false, defaultMethod: PayMethod.file));
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false, defaultMethod: MethodKind.directFile));
       expect(_selected<TxMethod>(tester), TxMethod.epicbox);
     });
   });
@@ -279,52 +327,62 @@ void main() {
       expect(find.byKey(const ValueKey('adv-mode-offline')), findsOneWidget);
     });
 
-    test('the old Link receiving switch is taken over as Link on', () {
+    test('the old Link receiving switch is taken over as Link · HTTP and Link · Tor on', () {
       final s = deskSettingsFromJson({
         'advanced': {'features': ['directReceiving', 'outputs'], 'networkMode': 'standard'},
       });
-      expect(s.payments.direct, isTrue);
+      expect((s.payments.linkHttp, s.payments.linkTor), (true, true));
       expect(s.advanced.has(AdvancedFeature.outputs), isTrue);
-      expect(deskSettingsFromJson({'advanced': {'features': ['outputs']}}).payments.direct, isFalse);
+      expect(deskSettingsFromJson({'advanced': {'features': ['outputs']}}).payments.offersFamily(MethodFamily.link), isFalse);
       // A saved choice wins over the old switch.
       expect(
         deskSettingsFromJson({
           'advanced': {'features': ['directReceiving']},
           'payments': {'direct': false, 'file': true, 'default': 'epicbox'},
-        }).payments.direct,
+        }).payments.offersFamily(MethodFamily.link),
         isFalse,
       );
     });
   });
 
   group('Send follows the switches', () {
-    testWidgets('default: Epicbox and File', (tester) async {
+    testWidgets('default: Epicbox and Direct · File', (tester) async {
       await _open(tester, DeskRoute.send);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Direct · File']);
     });
 
-    testWidgets('Link appears with its switch', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(direct: true));
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'File']);
+    testWidgets('Link appears with either of its switches, named for the family', (tester) async {
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true));
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
     });
 
-    testWidgets('File off: the segment is gone', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(file: false));
+    testWidgets('File Transfer off: the segment is gone', (tester) async {
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false));
       expect(_segments<TxMethod>(tester), ['Epicbox']);
     });
 
-    testWidgets('a pasted onion with Link off brings Link for this send, never a refusal', (tester) async {
+    testWidgets('a pasted onion with Link off brings Link for this send, with the reason it is off, never a silent refusal', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs());
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
       expect(_selected<TxMethod>(tester), TxMethod.http);
-      expect(_payments.direct, isFalse, reason: 'nothing was switched on');
+      expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
     });
 
-    testWidgets('a file send being made keeps File with the switch off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(file: false));
-      expect(_segments<TxMethod>(tester), contains('File'));
+    testWidgets('an http address with Link · HTTP off but Link · Tor on: the reason names Link · HTTP, the contact-only line names the contact', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'), payments: const PaymentPrefs(linkTor: true));
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Send'), findsWidgets);
+    });
+
+    testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
+      expect(_segments<TxMethod>(tester), contains('Direct · File'));
     });
 
     testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
@@ -337,31 +395,41 @@ void main() {
     });
 
     testWidgets('Epicbox not connected keeps the file fallback with the switch off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(file: false));
-      expect(_segments<TxMethod>(tester), contains('File'));
+      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
+      expect(_segments<TxMethod>(tester), contains('Direct · File'));
     });
   });
 
   group('Receive and the sidebar follow the switches', () {
-    testWidgets('Link off: no HTTP card and no HTTP row', (tester) async {
+    testWidgets('Link · HTTP off: no HTTP card and no HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive);
-      expect(find.text('Link Payment · HTTP address'), findsNothing);
+      expect(find.text('Link · HTTP address'), findsNothing);
       expect(_railHttp, findsNothing);
     });
 
-    testWidgets('Link on: the HTTP card and the HTTP row', (tester) async {
-      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(direct: true));
-      expect(find.text('Link Payment · HTTP address'), findsWidgets);
+    testWidgets('Link · HTTP on: the HTTP card (no switch of its own) and the HTTP row', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkHttp: true));
+      expect(find.text('Link · HTTP address'), findsWidgets);
       expect(_railHttp, findsOneWidget);
+      expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
     });
 
-    testWidgets('a running listener keeps the card and the sidebar row with Link off', (tester) async {
-      await _open(tester, DeskRoute.receive);
-      await tester.runAsync(() => _container.read(deskProvider.notifier).setHttp(true));
+    testWidgets('Link · Tor on with Tor off: the notice that it needs Tor, no Tor address; Turn on Tor brings the address', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkTor: true));
+      expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsOneWidget);
+      expect(find.text('Link · Tor address'), findsNothing);
+      await tester.tap(find.descendant(of: find.byKey(const ValueKey('rx-tor-off-notice')), matching: find.text('Turn on Tor')));
       await _settle(tester);
-      expect(_payments.direct, isFalse);
-      expect(find.text('Link Payment · HTTP address'), findsWidgets);
-      expect(_railHttp, findsOneWidget);
+      expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
+      expect(find.text('Link · Tor address'), findsWidgets);
+    });
+
+    testWidgets('Tor on with Link · Tor off: no Tor address on Receive', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkHttp: true));
+      await tester.runAsync(() => _container.read(deskProvider.notifier).setTor(true));
+      await _settle(tester);
+      expect(find.text('Link · Tor address'), findsNothing);
+      expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
     });
 
     testWidgets('Epicbox off: the notice stands in the address panel\'s place', (tester) async {
@@ -371,18 +439,18 @@ void main() {
       expect(find.text('Epicbox address'), findsNothing);
     });
 
-    testWidgets('File off: the Files panel is gone', (tester) async {
-      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(file: false), pendingFile: false);
+    testWidgets('File Transfer off: the Files panel is gone', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(directFile: false), pendingFile: false);
       expect(find.byKey(tourKey('receive-files')), findsNothing);
     });
 
-    testWidgets('File off but a file send waits for its response: the panel stays (Finalize)', (tester) async {
-      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(file: false));
+    testWidgets('File Transfer off but a file send waits for its response: the panel stays (Finalize)', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(directFile: false));
       expect(_container.read(deskProvider).pendingFiles, greaterThan(0));
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
     });
 
-    testWidgets('File on: the panel shows with nothing waiting', (tester) async {
+    testWidgets('File Transfer on: the panel shows with nothing waiting', (tester) async {
       await _open(tester, DeskRoute.receive, pendingFile: false);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
     });

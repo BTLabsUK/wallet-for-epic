@@ -114,17 +114,17 @@ void main() {
     expect(find.byKey(const ValueKey('rx-qr-image-http')), findsOneWidget);
   });
 
-  testWidgets('the HTTP panel grows with its switch and shrinks back to its state line', (tester) async {
-    await _pump(tester, const ReceiveArgs());
+  testWidgets('the HTTP panel comes with the Link · HTTP switch (Settings), grown, with no switch of its own', (tester) async {
+    final container = await _pump(tester, const ReceiveArgs());
     final panel = find.byKey(const ValueKey('rx-panel-http'));
-    final small = tester.getSize(panel).height;
-    expect(find.descendant(of: panel, matching: find.textContaining('Off', findRichText: true)), findsWidgets);
-    await tester.tap(find.byKey(const ValueKey('rx-switch-http')));
+    expect(panel, findsNothing, reason: 'Link · HTTP off: no card');
+    await tester.runAsync(() => container.read(deskProvider.notifier).setHttp(true));
     for (var i = 0; i < 4; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await tester.pumpAndSettle();
     }
-    expect(tester.getSize(panel).height, greaterThan(small + 60));
+    expect(panel, findsOneWidget);
+    expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
     expect(find.byKey(const ValueKey('rx-qr-http')), findsOneWidget);
   });
 
@@ -146,7 +146,7 @@ void main() {
     final view = tester.getRect(find.byType(Scrollable).first);
     final before = tester.getRect(panel).top;
     expect(view.contains(tester.getRect(panel).bottomLeft), isFalse, reason: 'below the fold in one column');
-    await tester.tap(find.bySemanticsLabel(RegExp(r'^Link Payment · Tor: ')));
+    await tester.tap(find.bySemanticsLabel(RegExp(r'^Link · Tor: ')));
     await tester.pumpAndSettle();
     expect(tester.getRect(panel).top, lessThan(before));
     expect(view.contains(tester.getRect(panel).topLeft), isTrue);
@@ -155,7 +155,7 @@ void main() {
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));
-    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Link Payment · HTTP on')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Link · HTTP on')), findsOneWidget);
     handle.dispose();
   });
 
