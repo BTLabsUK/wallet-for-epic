@@ -2,11 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../payment_prefs.dart' show PaymentPrefs;
+import '../../../recipient.dart' show RecipientKind;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
-/// The way a contact's address is sent to (by its kind, spec 7).
-TxMethod contactMethod(Contact c) => switch (addressKindOf(c.address)) {
+/// The address Send pays [c] at: the first of its addresses, Epicbox, Tor, HTTP (the
+/// [Contact.address] order), that this build sends to and whose method is on in [payments];
+/// else [Contact.address], so Send names the method that is off.
+String contactAddress(Contact c, PaymentPrefs payments) {
+  for (final kind in const [RecipientKind.epicbox, RecipientKind.tor, RecipientKind.http]) {
+    final address = c.addressOf(kind);
+    final built = switch (kind) {
+      RecipientKind.tor => DeskFeatures.tor,
+      RecipientKind.http => DeskFeatures.httpDirect,
+      RecipientKind.epicbox => true,
+    };
+    if (address != null && built && payments.offers(MethodKind.ofRecipient(kind))) return address;
+  }
+  return c.address;
+}
+
+/// The way a contact's [address] ([Contact.address] when null) is sent to (by its kind, spec 7).
+TxMethod contactMethod(Contact c, [String? address]) => switch (addressKindOf(address ?? c.address)) {
   AddressKind.tor when DeskFeatures.tor => TxMethod.tor,
   AddressKind.http when DeskFeatures.httpDirect => TxMethod.http,
   _ => TxMethod.epicbox,

@@ -9,6 +9,7 @@ library;
 import 'dart:convert';
 
 import '../amount.dart' show atomicPerEpic, epicDecimals, formatEpic;
+import '../payment_method.dart' show MethodKind;
 import '../recipient.dart';
 
 /// Longest text the router reads; longer is not an Epic code. Leaves room for a 264-character
@@ -148,20 +149,20 @@ final class PaymentRequest extends ScannedCode {
 
   final Set<RequestProblem> problems;
 
-  /// The address Send should use: the code's own, or its Link one when Link is
-  /// on ([directAllowed]) and the code asks for Direct, or Epicbox is off ([epicboxAllowed]).
-  Recipient recipientFor({
-    required bool directAllowed,
-    bool epicboxAllowed = true,
-  }) {
+  /// The address Send should use, picked by method: the one the code prefers (its Direct
+  /// one when it asks for Direct over an Epicbox address, else its own) when that method is
+  /// [offered], else its other one when that method is, else the preferred one, so Send names
+  /// the method that is off.
+  Recipient recipientFor(bool Function(MethodKind) offered) {
     final second = direct;
-    if (second != null &&
-        directAllowed &&
-        (method == MethodHint.direct || !epicboxAllowed) &&
-        recipient.kind == RecipientKind.epicbox) {
-      return second;
-    }
-    return recipient;
+    if (second == null) return recipient;
+    final wantsDirect =
+        method == MethodHint.direct && recipient.kind == RecipientKind.epicbox;
+    final (first, other) =
+        wantsDirect ? (second, recipient) : (recipient, second);
+    if (offered(MethodKind.ofRecipient(first.kind))) return first;
+    if (offered(MethodKind.ofRecipient(other.kind))) return other;
+    return first;
   }
 }
 

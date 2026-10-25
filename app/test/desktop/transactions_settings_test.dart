@@ -380,6 +380,40 @@ void main() {
       expect(find.text('Send'), findsWidgets);
     });
 
+    testWidgets('picks by method: a contact opens Send on its address whose method is on (qa-next)', (tester) async {
+      final two = Contact(id: 'c-two', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org');
+      await _open(tester, DeskRoute.send, arg: SendArgs(contact: two), payments: const PaymentPrefs(linkHttp: true));
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, 'https://wallet.example.org');
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+    });
+
+    testWidgets('a pasted onion of a contact with another address stays, without "only" (qa-next)', (tester) async {
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkHttp: true));
+      await tester.runAsync(() => _container.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org')));
+      await tester.enterText(find.byType(EditableText).first, _onion);
+      await _settle(tester);
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.textContaining('has only'), findsNothing);
+    });
+
+    testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
+      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+      await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?method=direct&direct=$_onion'), payments: const PaymentPrefs(linkHttp: true));
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, anna);
+      expect(_selected<TxMethod>(tester), TxMethod.epicbox);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+    });
+
+    testWidgets('picks by method: Epicbox off, the code\'s onion with Link · Tor on (qa-next)', (tester) async {
+      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+      await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?direct=$_onion'), payments: const PaymentPrefs(epicbox: false, linkTor: true));
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion.substring('http://'.length));
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+    });
+
     testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
       expect(_segments<TxMethod>(tester), contains('Direct · File'));

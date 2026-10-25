@@ -241,8 +241,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     _args = args;
     final contact = args.contact;
-    _method = contact != null ? contactMethod(contact) : args.method ?? _startMethod();
-    _to.text = args.recipient ?? contact?.address ?? '';
+    final contactTo = contact == null ? null : contactAddress(contact, ref.read(deskProvider).settings.payments);
+    _method = contact != null ? contactMethod(contact, contactTo) : args.method ?? _startMethod();
+    _to.text = args.recipient ?? contactTo ?? '';
     _autoSwitch(forced: true, tag: args.switched);
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
     _amount.text = args.amount ?? '';
@@ -633,8 +634,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _fillFrom(PaymentRequest r, CodeOrigin origin) {
     final l = context.l10n;
     final st = ref.read(deskProvider);
-    final directOn = (DeskFeatures.httpDirect || DeskFeatures.tor) && st.settings.payments.offersFamily(MethodFamily.link);
-    final to = r.recipientFor(directAllowed: directOn, epicboxAllowed: st.settings.payments.epicbox).address;
+    final payments = st.settings.payments;
+    final to = r.recipientFor(
+      (m) => payments.offers(m) && switch (m) {
+        MethodKind.linkHttp => DeskFeatures.httpDirect,
+        MethodKind.linkTor => DeskFeatures.tor,
+        _ => true,
+      },
+    ).address;
     final atomic = r.amount;
     final note = r.note;
     final noteFits = note != null && utf8Length(note) <= slateMessageMaxBytes;
@@ -701,11 +708,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   void _use(Contact c) {
     setState(() {
-      final m = contactMethod(c);
+      // The address whose method is on, when the contact has one.
+      final to = contactAddress(c, ref.read(deskProvider).settings.payments);
+      final m = contactMethod(c, to);
       if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
       _method = m;
-      _to.text = c.address;
-      _lastTo = c.address;
+      _to.text = to;
+      _lastTo = to;
     });
     _changed(to: true);
     setState(() => _suggestOff = true);
@@ -721,7 +730,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final v = _to.text.trim();
     if (v.isEmpty || contacts == null) return null;
     for (final c in contacts) {
-      if (c.address == v) return c;
+      if (c.addresses.contains(v)) return c;
     }
     return null;
   }
@@ -1011,7 +1020,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return ENotice(
         key: const ValueKey('send-epicbox-off'),
         title: l.netBlockEpicboxOff,
-        text: contact == null ? null : l.sendContactOnlyEpicbox(contact.name),
+        text: contact == null || contact.kinds.length > 1 ? null : l.sendContactOnlyEpicbox(contact.name),
         tone: ETone.warn,
         icon: EIcons.epicbox,
         actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
@@ -1023,7 +1032,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return ENotice(
         key: const ValueKey('send-method-off'),
         title: methodOffReason(l, _kind),
-        text: contact == null ? null : l.sendContactOnlyMethod(contact.name, MethodIcons.fullName(l, _kind)),
+        text: contact == null || contact.kinds.length > 1 ? null : l.sendContactOnlyMethod(contact.name, MethodIcons.fullName(l, _kind)),
         tone: ETone.warn,
         icon: MethodIcons.of(_kind),
         actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],

@@ -289,6 +289,9 @@ Finder _reviewMethod(String value) =>
 
 /// Frames and a slice of real time: the Tor controller's work completes on microtasks the
 /// test clock does not flush.
+String _toText(WidgetTester tester) =>
+    tester.widget<TextField>(find.widgetWithText(TextField, 'To')).controller!.text;
+
 Future<void> _settle(WidgetTester tester) async {
   for (var round = 0; round < 2; round++) {
     for (var i = 0; i < 10; i++) {
@@ -671,6 +674,55 @@ void main() {
         TransferMethod.epicbox,
       );
       expect(find.text('Link address'), findsOneWidget);
+    });
+
+    testWidgets('picks by method: a contact fills its address whose method is on (qa-next)', (tester) async {
+      final h = _Harness();
+      await h.session.saveContact(
+        contact: Contact(id: '', name: 'Two Way', tor: _onion, http: _https, note: null),
+      );
+      await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
+      await _tap(tester, find.text('Contacts'));
+      await _tap(tester, find.text('Two Way'));
+      expect(_toText(tester), _https);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+    });
+
+    testWidgets('a pasted onion of a contact with another address stays, without "only" (qa-next)', (tester) async {
+      String? clip = _onion;
+      _clipboard(tester, () => clip);
+      final h = _Harness();
+      await h.session.saveContact(
+        contact: Contact(id: '', name: 'Two Way', tor: _onion, http: _https, note: null),
+      );
+      await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
+      await _tap(tester, find.text('Paste'));
+      // Never swapped: what was pasted stays, and the note names the method that is off.
+      expect(_toText(tester), _onion);
+      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.textContaining('has only'), findsNothing);
+    });
+
+    testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
+      String? clip = 'epic:$_bob?method=direct&direct=http://$_onion';
+      _clipboard(tester, () => clip);
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
+      await _tap(tester, find.text('Paste'));
+      expect(_toText(tester), _bob);
+      expect(_method(tester), TransferMethod.epicbox);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
+    });
+
+    testWidgets('picks by method: Epicbox off, the code\'s onion with Link · Tor on (qa-next)', (tester) async {
+      String? clip = 'epic:$_bob?direct=http://$_onion';
+      _clipboard(tester, () => clip);
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(epicbox: false, linkTor: true));
+      await _tap(tester, find.text('Paste'));
+      expect(_toText(tester), _onion);
+      expect(_method(tester), TransferMethod.direct);
     });
 
     testWidgets('an onion contact picked moves it to Link', (tester) async {

@@ -2,6 +2,7 @@
 // the vectors of §2.5, the routing table of §3.1, build → parse round trips, the Send
 // address rule, and the strings Stack Wallet and Epic Pay write.
 
+import 'package:epic_wallet/src/payment_method.dart';
 import 'package:epic_wallet/src/recipient.dart';
 import 'package:epic_wallet/src/scan/scan_checks.dart';
 import 'package:epic_wallet/src/scan/scan_router.dart';
@@ -64,6 +65,13 @@ UnknownCode _unknown(
 
 BigInt _atomic(int epic, [int fraction = 0]) =>
     BigInt.from(epic) * BigInt.from(100000000) + BigInt.from(fraction);
+
+bool _all(MethodKind m) => true;
+
+/// How the router hands an onion back: its host, without the scheme.
+const _bareO = '$_onion.onion';
+
+bool Function(MethodKind) _only(Set<MethodKind> on) => on.contains;
 
 void main() {
   test('the test addresses are what the checks say', () {
@@ -481,26 +489,47 @@ void main() {
   });
 
   group('recipientFor', () {
+    test('picks by method: the address whose own method is on (qa-next)', () {
+      final p = _pay('epic:$_e?method=direct&direct=$_o');
+      // Only Link · HTTP and Epicbox on: the onion's Link · Tor is off, so the Epicbox
+      // address wins.
+      expect(p.recipientFor(_only({MethodKind.epicbox, MethodKind.linkHttp})).address, _e);
+      expect(p.recipientFor(_only({MethodKind.epicbox, MethodKind.linkTor})).address, _bareO);
+      // Epicbox off: the Link address, without a hint too.
+      expect(_pay('epic:$_e?direct=$_d').recipientFor(_only({MethodKind.linkHttp})).address, _d);
+      // A Direct code whose own method is off takes its other Direct address.
+      final d = PaymentRequest(recipient: parseRecipient(_d), direct: parseRecipient(_o));
+      expect(d.recipientFor(_only({MethodKind.linkTor})).address, _bareO);
+      expect(d.recipientFor(_only({MethodKind.linkHttp, MethodKind.linkTor})).address, _d);
+    });
+
+    test('no address of an offered method: the preferred one stays, so Send names its method', () {
+      final p = _pay('epic:$_e?method=direct&direct=$_o');
+      expect(p.recipientFor(_only({MethodKind.linkHttp})).address, _bareO);
+      expect(_pay('epic:$_e?direct=$_o').recipientFor(_only({MethodKind.linkHttp})).address, _e);
+      expect(_pay('epic:$_o').recipientFor(_only({MethodKind.linkHttp})).address, _bareO);
+    });
+
     test('Direct when the code asks and Send allows it', () {
       final p = _pay('epic:$_e?method=direct&direct=$_d');
-      expect(p.recipientFor(directAllowed: true).address, _d);
-      expect(p.recipientFor(directAllowed: false).address, _e);
+      expect(p.recipientFor(_all).address, _d);
+      expect(p.recipientFor(_only({MethodKind.epicbox})).address, _e);
     });
 
     test('the code’s own address without method=direct', () {
       expect(
-        _pay('epic:$_e?direct=$_d').recipientFor(directAllowed: true).address,
+        _pay('epic:$_e?direct=$_d').recipientFor(_all).address,
         _e,
       );
       expect(
         _pay('epic:$_e?method=epicbox&direct=$_d')
-            .recipientFor(directAllowed: true)
+            .recipientFor(_all)
             .address,
         _e,
       );
       expect(
         _pay('epic:$_e?method=direct')
-            .recipientFor(directAllowed: true)
+            .recipientFor(_all)
             .address,
         _e,
       );
@@ -512,7 +541,7 @@ void main() {
         method: MethodHint.direct,
         direct: parseRecipient(_o),
       );
-      expect(p.recipientFor(directAllowed: true).address, _d);
+      expect(p.recipientFor(_all).address, _d);
     });
 
     test('a direct= that is no Direct address is dropped silently', () {
@@ -525,7 +554,7 @@ void main() {
         final p = _pay('epic:$_e?method=direct&direct=${encodeUriValue(bad)}');
         expect(p.direct, isNull, reason: bad);
         expect(p.problems, isEmpty);
-        expect(p.recipientFor(directAllowed: true).address, _e);
+        expect(p.recipientFor(_all).address, _e);
       }
     });
 
@@ -533,7 +562,7 @@ void main() {
       // The router only reads the hint; the form decides which method Send uses.
       final p = _pay('epic:$_d?method=epicbox');
       expect(p.recipient.kind, RecipientKind.http);
-      expect(p.recipientFor(directAllowed: true).address, _d);
+      expect(p.recipientFor(_all).address, _d);
     });
   });
 

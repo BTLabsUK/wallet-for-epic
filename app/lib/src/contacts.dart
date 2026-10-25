@@ -5,6 +5,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'l10n.dart';
+import 'payment_method.dart' show MethodKind;
 import 'providers.dart';
 import 'recipient.dart';
 import 'wallet_service.dart';
@@ -107,6 +108,17 @@ Contact? contactFor(Iterable<Contact> contacts, String? address) {
     if (contact.addresses.any((a) => a.trim() == wanted)) return contact;
   }
   return null;
+}
+
+/// The address Send pays [contact] at: the first of its addresses, Epicbox, Tor, HTTP (the
+/// [Contact.address] order), whose method is [offered]; else [Contact.address], so Send names
+/// the method that is off.
+String contactSendAddress(Contact contact, bool Function(MethodKind) offered) {
+  for (final kind in const [RecipientKind.epicbox, RecipientKind.tor, RecipientKind.http]) {
+    final address = contact.addressOf(kind);
+    if (address != null && offered(MethodKind.ofRecipient(kind))) return address;
+  }
+  return contact.address;
 }
 
 /// The name of the contact saved under [address], if any.

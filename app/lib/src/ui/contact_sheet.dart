@@ -11,6 +11,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'scan_route.dart' show sendPayments;
 import 'method_names.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
@@ -106,7 +107,11 @@ class _ContactSheetState extends ConsumerState<ContactSheet> {
     Navigator.pop(context);
     final host = widget.host;
     if (host.mounted) {
-      showShellTab(host, ShellTab.send, recipient: _contact.address);
+      showShellTab(
+        host,
+        ShellTab.send,
+        recipient: contactSendAddress(_contact, sendPayments(ref).offers),
+      );
     }
   }
 

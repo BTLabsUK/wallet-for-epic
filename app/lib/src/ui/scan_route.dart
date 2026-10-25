@@ -10,9 +10,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
+import '../payment_prefs.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
+import '../settings.dart';
 import '../slate_files.dart';
 import 'notices.dart';
 import 'receive_screen.dart' show scanSlateQr;
@@ -29,6 +31,14 @@ bool looksLikeCode(String text) =>
 
 /// Whether [request] carries more than its address: an amount, a note, a name, or a part that
 /// was dropped. A bare `epic:<address>` is handled as the address alone.
+/// The methods on in Settings › Transactions, which pick the address a code or a contact
+/// fills in.
+PaymentPrefs sendPayments(WidgetRef ref) =>
+    ref.read(appSettingsProvider).value?.payments ??
+    (ref.read(phonePaymentsProvider)
+        ? PaymentPrefs.phoneDefaults
+        : PaymentPrefs.defaults);
+
 bool requestCarriesMore(PaymentRequest request) =>
     request.amount != null ||
     request.note != null ||
@@ -64,9 +74,13 @@ Future<void> openScannedCode(
       ref.read(sendRecipientProvider.notifier).handRequest(code, origin);
       showSendTab(context, ref);
     case PaymentRequest(:final recipient) || ScannedAddress(:final recipient):
+      // A code with a second address fills the one whose method is on.
+      final to = code is PaymentRequest
+          ? code.recipientFor(sendPayments(ref).offers)
+          : recipient;
       ref
           .read(sendRecipientProvider.notifier)
-          .hand(recipient.address, origin: origin);
+          .hand(to.address, origin: origin);
       showSendTab(context, ref);
     case SlateFrames(:final text):
       if (origin == CodeOrigin.qr && offersQrPayment(ref)) {

@@ -612,7 +612,9 @@ class _SendViewState extends ConsumerState<SendView> {
       case PaymentRequest() when requestCarriesMore(code):
         _applyRequest(code, origin);
       case PaymentRequest(:final recipient) || ScannedAddress(:final recipient):
-        _setRecipient(recipient.address, origin: origin);
+        // A code with a second address fills the one whose method is on.
+        final to = code is PaymentRequest ? _requestRecipient(code) : recipient;
+        _setRecipient(to.address, origin: origin);
       case UnknownCode(reason: UnknownReason.notEpic)
           when origin == CodeOrigin.paste && !looksLikeCode(text):
         _setRecipient(text);
@@ -753,19 +755,12 @@ class _SendViewState extends ConsumerState<SendView> {
     if (text != null && mounted) _openText(text, CodeOrigin.qr);
   }
 
-  /// The address a payment code fills in: its Direct one when it asks for Direct and Link
-  /// Payment is offered, else its own.
-  Recipient _requestRecipient(PaymentRequest request) {
-    final payments =
-        ref.read(appSettingsProvider).value?.payments ??
-        (ref.read(phonePaymentsProvider)
-            ? PaymentPrefs.phoneDefaults
-            : PaymentPrefs.defaults);
-    return request.recipientFor(
-      directAllowed: payments.offersFamily(MethodFamily.link),
-      epicboxAllowed: payments.epicbox,
-    );
-  }
+  PaymentPrefs get _payments => sendPayments(ref);
+
+  /// The address a payment code fills in, picked by which methods are on
+  /// ([PaymentRequest.recipientFor]).
+  Recipient _requestRecipient(PaymentRequest request) =>
+      request.recipientFor(_payments.offers);
 
   /// Fills the form from a payment code: the address, the amount and the note. Nothing is
   /// sent; every field stays editable and the review and PIN still come first.
@@ -834,7 +829,9 @@ class _SendViewState extends ConsumerState<SendView> {
         builder: (_) => const ContactsScreen(pick: true),
       ),
     );
-    if (contact != null && mounted) _setRecipient(contact.address);
+    if (contact != null && mounted) {
+      _setRecipient(contactSendAddress(contact, _payments.offers));
+    }
   }
 
   /// Fills the recipient and checks it at once, as after a paste.
@@ -1928,15 +1925,21 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// The method the form sends by is off in Settings › Transactions: its reason, then, when
-  /// the recipient is a saved contact (whose one address is of that kind), that the contact
+  /// the recipient is a saved contact whose one address is of that kind, that the contact
   /// can be paid only that way. Null for any other [note].
   String? _methodOffLine(NetBlock note) {
     final m = _sendMethod;
     if (m == null || (note != NetBlock.epicboxOff && note != NetBlock.methodOff)) return null;
     final l = context.l10n;
     final reason = methodOffReason(l, m);
-    final name = _contactName(parseRecipient(_recipient.text).address);
-    if (name == null) return reason;
+    final contact = contactFor(
+      ref.watch(contactsProvider).value ?? const <Contact>[],
+      parseRecipient(_recipient.text).address,
+    );
+    // A contact with another address is not "only" this way: pick it again for the address
+    // whose method is on.
+    if (contact == null || contact.kinds.length > 1) return reason;
+    final name = contact.name;
     final only = m == MethodKind.epicbox
         ? l.sendContactOnlyEpicbox(name)
         : l.sendContactOnlyMethod(name, MethodIcons.fullName(l, m));
@@ -2400,9 +2403,10 @@ class _SendViewState extends ConsumerState<SendView> {
         const SizedBox(height: 4),
         for (final contact in matches)
           _RecentRow(
-            address: contact.address,
+            address: contactSendAddress(contact, _payments.offers),
             name: contact.name,
-            onTap: () => _setRecipient(contact.address),
+            onTap: () =>
+                _setRecipient(contactSendAddress(contact, _payments.offers)),
           ),
       ],
       if (text.isEmpty && recent.isNotEmpty) ...[
