@@ -504,6 +504,8 @@ void main() {
       expect(await s.epicboxAddress(), session.address);
       session.restoreScanPending = true;
       expect(await s.restoreScanRequired(), isTrue);
+      session.fingerprintValue = '0a1b2c3d';
+      expect(await s.fingerprint(), '0a1b2c3d');
       expect(
         await s.estimateFee(amount: amount, minimumConfirmations: ten),
         FeeEstimate(amount: amount, fee: session.fee),

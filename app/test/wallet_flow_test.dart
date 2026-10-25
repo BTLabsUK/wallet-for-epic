@@ -1175,7 +1175,8 @@ void main() {
       expect(session.scanStarts, [null]);
       expect(session.restoreScanPending, isFalse);
       // The history is not in the new database: Home offers the backup until it is closed.
-      expect(find.textContaining('A history backup brings back who was paid'), findsOneWidget);
+      // The rebuilt-database notice shows its whole text and pushes the card down.
+      expect(find.textContaining('A history backup brings back who was paid', skipOffstage: false), findsOneWidget);
       await _clearNotices(tester);
       await _tapText(tester, 'Not now');
       expect(find.textContaining('A history backup brings back who was paid'), findsNothing);
