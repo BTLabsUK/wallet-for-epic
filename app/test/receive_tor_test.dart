@@ -137,7 +137,11 @@ class _Harness {
         matching: find.text('Link'),
       ),
     );
-    await tester.pumpAndSettle();
+    // Bounded frames: the Link · HTTP card's Starting spinner never settles while the fake
+    // session leaves the listener unanswered.
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
   }
 
   Future<void> emit(

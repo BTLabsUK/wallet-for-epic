@@ -165,7 +165,7 @@ void main() {
     expect(h.http.address, 'http://10.100.10.20:3415');
     expect(find.text('Link · HTTP address'), findsOneWidget);
     expect(find.text('http://10.100.10.20:3415'), findsOneWidget);
-    expect(find.text('For wallets on this Wi-Fi network, while the app is open.'), findsOneWidget);
+    expect(find.text('For wallets on this Wi-Fi network, while this wallet is open.'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Copy'));
     await h.settle(tester);
