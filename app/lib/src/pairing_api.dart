@@ -60,7 +60,8 @@ abstract interface class PairingApi {
     String? contactId,
   });
 
-  /// Cancels the invite [id]: a later answer is told it was cancelled.
+  /// Cancels the invite [id] (a later answer is told it was cancelled), or forgets the answer
+  /// [id] still waiting for its confirm; the other side is not told.
   Future<void> cancelInvite(String id);
 
   /// The inviter by hand (Epicbox off): opens a `epiccash://pair-reply/…` link pasted under

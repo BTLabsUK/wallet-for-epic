@@ -231,6 +231,23 @@ void main() {
     expect(find.text(_l.pendingCopyLink), findsWidgets);
   });
 
+  testWidgets('Pending invites: an answer waiting for a confirm can be removed; an unnamed invite has a glyph (PAIR-LNX-8)', (tester) async {
+    await _open(tester, const DeskPendingScreen());
+    _pairing.clock = DateTime.now;
+    await tester.runAsync(() async {
+      final preview = await _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Anna'));
+      await _pairing.acceptInvite(token: preview.token, name: 'the owner');
+      await _pairing.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+    });
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.byIcon(EIcons.words), findsOneWidget);
+    expect(find.text('·'), findsNothing);
+    await tester.tap(find.byKey(deskPendingRemoveKey));
+    await _real(tester);
+    expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply && r.name == 'Anna'), isEmpty);
+  });
+
   testWidgets('the name others see is kept in the settings', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');

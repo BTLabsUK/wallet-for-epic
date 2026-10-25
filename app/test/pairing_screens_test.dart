@@ -384,6 +384,22 @@ void main() {
       expect(find.text(_l.pendingEmpty), findsOneWidget);
     });
 
+    testWidgets('an answer waiting for a confirm can be removed; an unnamed invite has a glyph (PAIR-LNX-8)', (tester) async {
+      final h = _Harness();
+      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+      await h.api.acceptInvite(token: preview.token, name: 'the owner');
+      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+      await h.pump(tester, const PendingInvitesScreen());
+      expect(find.text(_l.pairUnnamedInvite), findsOneWidget);
+      final open = find.ancestor(of: find.text(_l.pairUnnamedInvite), matching: find.byType(Row)).first;
+      expect(find.descendant(of: open, matching: find.byIcon(Icons.link)), findsOneWidget);
+      expect(find.descendant(of: open, matching: find.text('?')), findsNothing);
+      await tester.tap(find.byKey(pendingRemoveReplyKey));
+      await tester.pumpAndSettle();
+      expect(h.api.records.where((r) => r.state == PairingState.pendingReply), isEmpty);
+      expect(find.text('Anna'), findsNothing);
+    });
+
     testWidgets('lists a link, words, and an expired invite with Invite again', (tester) async {
       final h = _Harness();
       await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');

@@ -38,16 +38,33 @@ const Key deskIncomingPairKey = ValueKey('desk-incoming-pair');
 const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
 const Key deskCheckSkipKey = ValueKey('desk-check-skip');
+const Key deskPendingRemoveKey = ValueKey('desk-pending-remove');
 
-/// The contact's (or the invite's) initials in the desktop avatar.
+/// The contact's (or the invite's) initials in the desktop avatar; [icon] instead for an
+/// invite nobody named yet (PAIR-LNX-8).
 class DeskPairAvatar extends StatelessWidget {
-  const DeskPairAvatar({super.key, required this.name, this.size});
+  const DeskPairAvatar({super.key, required this.name, this.size, this.icon});
 
   final String name;
   final double? size;
+  final IconData? icon;
 
   @override
-  Widget build(BuildContext context) => EAvatar(name.isEmpty ? '?' : name, size: size);
+  Widget build(BuildContext context) {
+    final glyph = icon;
+    if (glyph == null) return EAvatar(name.isEmpty ? '?' : name, size: size);
+    final c = context.dc;
+    final side = size ?? 32.u;
+    return ExcludeSemantics(
+      child: Container(
+        width: side,
+        height: side,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineStrong)),
+        child: Icon(glyph, size: side * 0.5, color: c.accentText),
+      ),
+    );
+  }
 }
 
 /// Contacts › Pair: Show my code (an invite's code and its words) with Enter link or words,
@@ -995,14 +1012,30 @@ class DeskPendingScreen extends ConsumerWidget {
             EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => deskPairingCall(ref, (api) => api.cancelInvite(r.id))),
           ],
         ),
-        PairingState.pendingReply => (l.pendingWaitingConfirm(pairingSpan(l, now.difference(r.createdAt))), [const ESpinner()]),
+        // The other side may never confirm (They don't match there): the answer can go.
+        PairingState.pendingReply => (
+          l.pendingWaitingConfirm(pairingSpan(l, now.difference(r.createdAt))),
+          [
+            const ESpinner(),
+            EButton(
+              key: deskPendingRemoveKey,
+              label: l.contactRemove,
+              size: EBtnSize.sm,
+              onPressed: () => deskPairingCall(ref, (api) => api.cancelInvite(r.id)),
+            ),
+          ],
+        ),
         _ => (l.pendingPairedCheck, [EButton.primary(label: l.contactCheckAgain, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id))]),
       };
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
         child: Row(
           children: [
-            DeskPairAvatar(name: r.label ?? r.name ?? '?', size: 40.u),
+            DeskPairAvatar(
+              name: r.label ?? r.name ?? '',
+              size: 40.u,
+              icon: r.label == null && (r.name ?? '').trim().isEmpty ? (r.way == PairingWay.words ? EIcons.words : EIcons.link) : null,
+            ),
             SizedBox(width: Sp.x3),
             Expanded(
               child: Column(

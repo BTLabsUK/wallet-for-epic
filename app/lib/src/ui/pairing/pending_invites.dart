@@ -24,6 +24,7 @@ import 'pairing_parts.dart';
 const Key pendingInviteAgainKey = ValueKey('pending-invite-again');
 const Key pendingCheckKey = ValueKey('pending-check');
 const Key pendingRemoveStrayKey = ValueKey('pending-remove-stray');
+const Key pendingRemoveReplyKey = ValueKey('pending-remove-reply');
 
 class PendingInvitesScreen extends ConsumerWidget {
   const PendingInvitesScreen({super.key});
@@ -119,7 +120,11 @@ class _PendingRow extends ConsumerWidget {
     final r = record;
     final now = ref.watch(pairingClockProvider)();
     final String name = r.label ?? (r.state == PairingState.pendingInvite ? l.pairUnnamedInvite : ref.watch(pairingNameProvider(r.id)));
-    final avatar = PairAvatar(name: r.label ?? r.name ?? '?', kind: r.kind);
+    // An invite nobody named yet shows how it went out, not a bare mark (PAIR-LNX-8).
+    final unnamed = r.label == null && (r.name ?? '').trim().isEmpty;
+    final Widget avatar = unnamed
+        ? GlyphTile(size: 48, child: Icon(r.way == PairingWay.words ? Icons.abc : Icons.link, color: t.accentText))
+        : PairAvatar(name: r.label ?? r.name ?? '', kind: r.kind);
     final left = r.expiresAt == null ? Duration.zero : r.expiresAt!.difference(now);
     switch (r.state) {
       case PairingState.pendingInvite when r.expiredAt(now):
@@ -169,9 +174,12 @@ class _PendingRow extends ConsumerWidget {
           avatar: avatar,
           title: name,
           subtitle: Text(l.pendingWaitingConfirm(pairingSpan(l, now.difference(r.createdAt)))),
-          trailing: const Padding(
-            padding: EdgeInsets.all(12),
-            child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+          // The other side may never confirm (They don't match there): the answer can go.
+          trailing: TextButton(
+            key: pendingRemoveReplyKey,
+            style: TextButton.styleFrom(foregroundColor: t.risk),
+            onPressed: () => pairingCall(ref, (api) => api.cancelInvite(r.id)),
+            child: Text(l.contactRemove),
           ),
         );
       default:

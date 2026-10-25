@@ -398,7 +398,8 @@ class FakePairing implements PairingApi {
   Future<void> cancelInvite(String id) async {
     _require('cancelInvite');
     calls.add('cancelInvite');
-    records.removeWhere((r) => r.id == id && r.state == PairingState.pendingInvite);
+    // LEPIC's pairing_cancel: an invite stops working, an answer waiting for its confirm goes.
+    records.removeWhere((r) => r.id == id && r.state.isPending);
   }
 
   @override
