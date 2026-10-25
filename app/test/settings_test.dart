@@ -1573,7 +1573,7 @@ void main() {
     });
 
     testWidgets('the section says who may ask you to pay', (tester) async {
-      final h = _Harness();
+      final h = _Harness(experimental: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);

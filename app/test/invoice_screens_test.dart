@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
+import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider, pairingOnProvider;
 
 const String _pin = '123456';
 
@@ -154,6 +155,9 @@ class _Harness {
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
+          // On from the first frame, before the stored settings load.
+          pairingOnProvider.overrideWithValue(true),
+          invoicesOnProvider.overrideWithValue(true),
           biometricStoreProvider.overrideWithValue(bio),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),

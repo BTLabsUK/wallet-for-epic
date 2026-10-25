@@ -415,7 +415,8 @@ void main() {
       await _tap(tester, 'Next');
       await _tap(tester, 'Done');
       expect(rig.container.read(appSettingsProvider).value?.advanced, AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
-      expect(rig.store.values.keys.where((k) => k.startsWith('app.advanced')), isEmpty);
+      expect(rig.store.values['app.advanced_prefs'], AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true).encode(), reason: 'as stored before the tour');
+      expect(rig.store.values.keys.where((k) => k == 'app.advanced'), isEmpty);
     });
 
     testWidgets('a pushed screen is under the card: Next works on it', (tester) async {

@@ -96,6 +96,9 @@ class _Harness {
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
+          // On from the first frame, before the stored settings load.
+          pairingOnProvider.overrideWithValue(true),
+          invoicesOnProvider.overrideWithValue(true),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
