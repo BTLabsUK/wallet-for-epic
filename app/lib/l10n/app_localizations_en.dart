@@ -16345,4 +16345,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return 'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet $number.';
   }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nothing in this wallet\'s files can confirm the phrase, so the password stays.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Restore it from the phrase instead: $name leaves the list and its files stay on this computer.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Restore from the phrase';
 }

@@ -146,6 +146,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
+  Future<bool?> phraseIsOf(String id, List<String> phrase) => _r('phraseIsOf', () => _m.phraseIsOf(id, phrase));
+  @override
   Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) =>
       _r('resetPassword', () => _m.resetPassword(id, phrase: phrase, newPassword: newPassword));
   @override

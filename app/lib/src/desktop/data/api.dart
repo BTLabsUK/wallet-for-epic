@@ -112,6 +112,11 @@ abstract interface class DeskWalletApi {
   /// is forgotten.
   Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword});
 
+  /// Whether [phrase] is wallet [id]'s, by the fingerprint the list keeps; null when the list
+  /// has none for it (the core decides at [resetPassword]). Forgot password asks before the
+  /// password step.
+  Future<bool?> phraseIsOf(String id, List<String> phrase);
+
   /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
   /// with [DeskError.sameWallet] set and makes nothing.
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});

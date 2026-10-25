@@ -188,6 +188,9 @@ class MockDeskWallet implements DeskWalletApi {
     if (i >= 0) _wallets[i] = _with(_wallets[i], name: label.trim());
   }
 
+  @override
+  Future<bool?> phraseIsOf(String id, List<String> phrase) async => phrase.firstOrNull != 'legal';
+
   /// The mock knows no phrase: one starting with "legal" is another wallet's.
   @override
   Future<void> dismissHistoryImportOffer() async {}

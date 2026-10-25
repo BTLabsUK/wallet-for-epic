@@ -29,5 +29,8 @@
   "deskOvRestoredImportButton": "Verlaufssicherung importieren",
   "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Sicherung.",
   "deskOnbRestoreNameLabel": "Wallet-Name (optional)",
-  "deskOnbRestoreNameHelp": "Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet {number}“."
+  "deskOnbRestoreNameHelp": "Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet {number}“.",
+  "deskOnbForgotNoCheck": "Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.",
+  "deskOnbForgotRestoreHint": "Stellen Sie sie stattdessen aus der Phrase wieder her: {name} verlässt die Liste, ihre Dateien bleiben auf diesem Computer.",
+  "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen"
 }

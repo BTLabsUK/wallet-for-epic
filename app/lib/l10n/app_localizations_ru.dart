@@ -16810,4 +16810,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return 'Отображается на экране разблокировки и в боковой панели. Без имени кошелёк называется «Wallet $number».';
   }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Ничто в файлах этого кошелька не может подтвердить фразу, поэтому пароль остаётся прежним.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Вместо этого восстановите его по фразе: $name уйдёт из списка, а его файлы останутся на этом компьютере.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Восстановить по фразе';
 }

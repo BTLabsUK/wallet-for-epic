@@ -15472,4 +15472,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return '显示在解锁界面和侧栏中。不填则名为“Wallet $number”。';
   }
+
+  @override
+  String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return '请改为用助记词恢复：$name 会从列表中移除，其文件仍保留在这台电脑上。';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => '用助记词恢复';
 }

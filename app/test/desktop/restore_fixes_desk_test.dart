@@ -27,6 +27,16 @@ class _Core extends core.FakeWalletService {
   /// When set, [create] writes the vault, then fails (R37).
   bool failCreate = false;
 
+  /// When set, [resetPassword] fails with it and changes nothing.
+  core.WalletError? resetError;
+
+  @override
+  Future<void> resetPassword({required core.WalletConfig config, required String mnemonic, required String newPassword}) async {
+    final e = resetError;
+    if (e != null) throw e;
+    return super.resetPassword(config: config, mnemonic: mnemonic, newPassword: newPassword);
+  }
+
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase || phrase == _other;
 
@@ -43,6 +53,23 @@ class _Core extends core.FakeWalletService {
   Future<void> deleteWallet({required core.WalletConfig config}) async {
     if (openWallets.contains(config.dataDir)) throw const core.WalletError(kind: core.WalletErrorKind.walletBusy, message: 'open');
     return super.deleteWallet(config: config);
+  }
+}
+
+/// The mock, whose core cannot confirm any phrase for the wallet (no database it used).
+class _Unverifiable extends MockDeskWallet {
+  _Unverifiable() : super(delay: Duration.zero);
+
+  final List<String> taken = [];
+
+  @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async =>
+      throw const DeskError('Nothing can confirm the phrase.', resetUnverifiable: true);
+
+  @override
+  Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
+    taken.add('$id:${mode.name}');
+    return super.removeWallet(id, mode, password: password);
   }
 }
 
@@ -192,6 +219,24 @@ void main() {
         expect(await wallet.unlock(_password), isTrue);
       });
 
+      test('a wallet the core cannot check the phrase against: nothing changes, the way out is a restore', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        final id = (await wallet.wallets()).single.id;
+        service.resetError = const core.WalletError(kind: core.WalletErrorKind.walletNotFound, message: 'nothing to check');
+        await expectLater(
+          wallet.resetPassword(id, phrase: service.phrase.split(' '), newPassword: 'brand-new-pass'),
+          throwsA(isA<DeskError>().having((e) => e.resetUnverifiable, 'resetUnverifiable', isTrue)),
+        );
+        expect(await wallet.unlock(_password), isTrue, reason: 'the old password still opens it');
+      });
+
+      test('the list fingerprint answers before the password step', () async {
+        await wallet.restoreWallet(name: 'Old', password: _password, phrase: _other.split(' '));
+        final id = (await wallet.wallets()).single.id;
+        expect(await wallet.phraseIsOf(id, _other.split(' ')), isTrue);
+        expect(await wallet.phraseIsOf(id, service.phrase.split(' ')), isFalse);
+      });
+
       test('a short new password is refused before the core', () async {
         await wallet.createWallet(name: 'Main', password: _password);
         final id = (await wallet.wallets()).single.id;
@@ -214,6 +259,27 @@ void main() {
       await settle(tester);
       return container;
     }
+
+    testWidgets('R4: a wallet whose files cannot confirm the phrase offers Restore from the phrase, which takes it off the list only', (tester) async {
+      final api = _Unverifiable();
+      final id = (await tester.runAsync(api.wallets))!.first.id;
+      final container = await pump(tester, api, DeskRoute.resetPassword, ResetPasswordArg(id, phrase: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'.split(' ')));
+      final pw = find.byType(EditableText);
+      await tester.enterText(pw.at(0), 'brand-new-pass');
+      await tester.enterText(pw.at(1), 'brand-new-pass');
+      await settle(tester);
+      await tester.tap(find.byKey(const ValueKey('reset-password-save')));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await settle(tester);
+      expect(find.text('Password not changed. The current password still opens the wallet.'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('reset-restore-instead')));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await settle(tester);
+      expect(api.taken, ['$id:list']);
+      expect(container.read(deskNavProvider).route, DeskRoute.restore);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 10));
+    });
 
     testWidgets('R5: a mistyped password in Delete stays in the dialog; the wallet stays open', (tester) async {
       final container = await pump(tester, MockDeskWallet(delay: Duration.zero), DeskRoute.settingsAccount);
@@ -256,7 +322,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);
       expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-      expect(find.text('New password set. Unlock with it.'), findsOneWidget);
+      expect(find.text('Password changed.'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 10));
     });
@@ -273,7 +339,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);
       expect(container.read(deskNavProvider).route, DeskRoute.resetPassword);
-      expect(find.text('This recovery phrase belongs to another wallet. Nothing was changed.'), findsOneWidget);
+      expect(find.text('This phrase belongs to another wallet. Nothing was changed.'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 10));
     });

@@ -16042,4 +16042,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return 'แสดงบนหน้าปลดล็อกและแถบด้านข้าง หากไม่ตั้ง จะใช้ชื่อ “Wallet $number”';
   }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'ไฟล์ของกระเป๋านี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'ให้กู้คืนจากวลีแทน: $name จะออกจากรายการ และไฟล์ยังอยู่บนคอมพิวเตอร์นี้';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'กู้คืนจากวลี';
 }

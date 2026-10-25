@@ -864,12 +864,12 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false})
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
     : _text = null;
 
   /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
   /// [message] keeps its English for logs.
-  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false})
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
     : message = text(englishStrings),
       _text = text;
 
@@ -883,6 +883,10 @@ class DeskError implements Exception {
 
   /// Forgot password: the phrase is not this wallet's (another wallet's, or no phrase at all).
   final bool wrongPhrase;
+
+  /// Forgot password: the wallet's files cannot confirm any phrase (no database it used, or a
+  /// damaged one), so nothing changed; a restore from the phrase is the way out.
+  final bool resetUnverifiable;
 
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
   /// flow offers to open it instead.

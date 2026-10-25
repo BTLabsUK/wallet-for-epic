@@ -147,5 +147,22 @@
         "type": "int"
       }
     }
+  },
+  "deskOnbForgotNoCheck": "Nothing in this wallet's files can confirm the phrase, so the password stays.",
+  "@deskOnbForgotNoCheck": {
+    "description": "Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed."
+  },
+  "deskOnbForgotRestoreHint": "Restore it from the phrase instead: {name} leaves the list and its files stay on this computer.",
+  "@deskOnbForgotRestoreHint": {
+    "description": "Forgot password: the way out when the phrase cannot be checked; the button below does it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbForgotRestoreInstead": "Restore from the phrase",
+  "@deskOnbForgotRestoreInstead": {
+    "description": "Forgot password: button when the phrase cannot be checked; removes the wallet from the list (files kept) and opens Restore with the phrase."
   }
 }

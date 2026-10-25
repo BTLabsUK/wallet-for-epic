@@ -98,8 +98,10 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
-    // A restored wallet's first unlock asks once about its history backup (R13).
-    if (demo == null && !_importOffered && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
+    // A restored wallet's first unlock asks once about its history backup (R13), after the
+    // first-run tour, never over it.
+    final tour = ref.watch(deskTourProvider);
+    if (demo == null && !_importOffered && tour.seen && !tour.open && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
       _importOffered = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(showHistoryImportOffer(context, ref));
@@ -189,7 +191,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             ),
           ),
           SizedBox(height: Sp.x2),
-          recent,
+          // While the restore scan runs, Recent activity shows what it finds, never "No
+          // transactions yet" (copy D1).
+          if (restore == null || (s.txs?.isNotEmpty ?? false)) recent,
           if (pending > 0) _PendingFiles(count: pending),
           const OverviewInvoicesCard(),
         ],

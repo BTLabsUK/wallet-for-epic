@@ -1439,6 +1439,12 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool?> phraseIsOf(String id, List<String> phrase) async {
+    final kept = (await _entry(id)).phraseFingerprint;
+    return kept == null ? null : kept == phraseFingerprint(_mnemonicOf(phrase));
+  }
+
+  @override
   Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async {
     _checkPassword(newPassword);
     final mnemonic = _mnemonicOf(phrase);
@@ -1461,6 +1467,10 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'password reset: ${e.kind.name}');
         throw switch (e.kind) {
           core.WalletErrorKind.invalidArgument => DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength)),
+          // Nothing in the wallet's files can confirm the phrase (no database a wallet used, or a
+          // damaged one): the way out is a restore from the phrase.
+          core.WalletErrorKind.walletNotFound => DeskError.l10n((l) => '${l.deskOnbForgotNoCheck} ${l.deskOnbForgotRestoreHint(entry.label)}', resetUnverifiable: true),
+          core.WalletErrorKind.damagedDatabase => DeskError.l10n((l) => l.deskErrDbDamagedDetail(l.deskOnbForgotRestoreHint(entry.label)), resetUnverifiable: true),
           core.WalletErrorKind.phraseMismatch => DeskError.l10n((l) => l.deskOnbForgotOtherWallet(entry.label), wrongPhrase: true),
           core.WalletErrorKind.invalidMnemonic => DeskError.l10n((l) => l.deskErrPhraseInvalid, wrongPhrase: true),
           _ => _deskError(e),

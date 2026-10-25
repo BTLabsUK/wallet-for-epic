@@ -16849,4 +16849,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return 'Widoczna na ekranie odblokowania i na pasku bocznym. Bez nazwy portfel nazywa się „Wallet $number”.';
   }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Zamiast tego przywróć go z frazy: $name znika z listy, a jego pliki zostają na tym komputerze.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Przywróć z frazy';
 }

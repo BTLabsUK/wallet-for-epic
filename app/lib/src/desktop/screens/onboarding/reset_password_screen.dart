@@ -8,6 +8,7 @@ import '../../../log.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import 'phrase_grid.dart';
+import 'restore_screen.dart' show RestoreSample;
 import 'unlock_screen.dart' show UnlockPick;
 
 /// Forgot password (R4, D4) for the listed wallet [walletId]: its recovery phrase, then a new
@@ -20,7 +21,7 @@ class ResetPasswordArg {
   final List<String>? phrase;
 }
 
-enum _Step { words, password, working, failed }
+enum _Step { words, password, working, failed, unverifiable }
 
 /// The phrase of a listed wallet sets a new password for it. The history, notes and labels
 /// stay; nothing is scanned again. An open wallet is locked first. Unlock follows with the
@@ -118,6 +119,53 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         );
   }
 
+  /// The phrase is looked up in the list before the password step: a phrase of another wallet
+  /// stays on the grid at once when the list knows this wallet's fingerprint (the core checks
+  /// again at the end either way).
+  bool _checking = false;
+
+  Future<void> _toPassword() async {
+    final id = _arg?.walletId;
+    if (id == null || _checking) return;
+    setState(() => _checking = true);
+    bool? mine;
+    try {
+      mine = await ref.read(deskApiProvider).phraseIsOf(id, _entry.phrase);
+    } on Object {
+      mine = null;
+    }
+    if (!mounted) return;
+    setState(() {
+      _checking = false;
+      if (mine == false) {
+        _phraseError = context.l10n.deskOnbForgotOtherWallet(_wallet?.name ?? context.l10n.deskOnbUnlockThisWallet);
+        _phraseErrorFor = _entry.phrase.join(' ');
+      } else {
+        _step = _Step.password;
+      }
+    });
+  }
+
+  /// The way out when the wallet's files cannot confirm the phrase: the wallet leaves the list
+  /// (its files stay, Settings › All wallets can add it back) and Restore opens with the phrase.
+  Future<void> _restoreInstead() async {
+    final id = _arg?.walletId;
+    if (id == null) return;
+    setState(() => _checking = true);
+    try {
+      await ref.read(deskProvider.notifier).removeWallet(id, WalletRemoval.list);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _checking = false;
+        _failure = deskErrorText(e, context.l10n);
+      });
+      return;
+    }
+    if (!mounted) return;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.restore, RestoreSample(_entry.phrase.join(' ')));
+  }
+
   Future<void> _reset() async {
     final id = _arg?.walletId;
     if (id == null || !_passwordOk) return;
@@ -138,6 +186,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       logWarn('desk', 'password not reset: ${e.runtimeType}');
       if (!mounted) return;
       final text = deskErrorText(e, context.l10n);
+      if (e is DeskError && e.resetUnverifiable) {
+        setState(() {
+          _step = _Step.unverifiable;
+          _failure = text;
+        });
+        return;
+      }
       if (e is DeskError && e.wrongPhrase) {
         setState(() {
           _step = _Step.words;
@@ -158,6 +213,20 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final l = context.l10n;
     final name = _wallet?.name ?? l.deskOnbUnlockThisWallet;
     switch (_step) {
+      case _Step.unverifiable:
+        return DeskStepBack(
+          onBack: () => setState(() => _step = _Step.words),
+          child: EOnbFrame(
+            sideTitle: l.deskOnbForgotTitle,
+            steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
+            title: l.deskErrPasswordNotChanged,
+            actions: [
+              backButton(() => setState(() => _step = _Step.words)),
+              EButton.primary(key: const ValueKey('reset-restore-instead'), label: l.deskOnbForgotRestoreInstead, busy: _checking, onPressed: _checking ? null : _restoreInstead),
+            ],
+            child: ENotice(tone: ETone.warn, title: l.deskOnbForgotTitle, text: _failure),
+          ),
+        );
       case _Step.working || _Step.failed:
         return DeskStepBack(
           onBack: () {},
@@ -225,13 +294,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         EButton.primary(
           key: const ValueKey('reset-password-words'),
           label: complete ? l.deskOnbRestoreUseWords(e.length) : l.commonContinue,
-          onPressed: complete ? () => setState(() => _step = _Step.password) : null,
+          busy: _checking,
+          onPressed: complete && !_checking ? _toPassword : null,
         ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          PhraseGrid(entry: e, autofocus: true, onSubmit: complete ? () => setState(() => _step = _Step.password) : null),
+          PhraseGrid(entry: e, autofocus: true, onSubmit: complete && !_checking ? _toPassword : null),
           SizedBox(height: Sp.x3),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),

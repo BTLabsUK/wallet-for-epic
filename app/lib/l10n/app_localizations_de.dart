@@ -16540,4 +16540,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskOnbRestoreNameHelp(int number) {
     return 'Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet $number“.';
   }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Stellen Sie sie stattdessen aus der Phrase wieder her: $name verlässt die Liste, ihre Dateien bleiben auf diesem Computer.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Aus der Phrase wiederherstellen';
 }

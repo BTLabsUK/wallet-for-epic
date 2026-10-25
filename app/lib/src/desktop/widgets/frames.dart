@@ -415,7 +415,9 @@ class EOnbFrame extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: Sp.x3),
-                      Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption, textAlign: TextAlign.end),
+                      // A long title (Set a new password, in German say) ends in an ellipsis
+                      // instead of pushing past the panel.
+                      Flexible(child: Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption, textAlign: TextAlign.end)),
                     ],
                   ),
                 ),

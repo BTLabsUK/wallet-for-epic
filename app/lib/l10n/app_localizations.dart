@@ -25687,6 +25687,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet {number}.'**
   String deskOnbRestoreNameHelp(int number);
+
+  /// Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this wallet\'s files can confirm the phrase, so the password stays.'**
+  String get deskOnbForgotNoCheck;
+
+  /// Forgot password: the way out when the phrase cannot be checked; the button below does it.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore it from the phrase instead: {name} leaves the list and its files stay on this computer.'**
+  String deskOnbForgotRestoreHint(String name);
+
+  /// Forgot password: button when the phrase cannot be checked; removes the wallet from the list (files kept) and opens Restore with the phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from the phrase'**
+  String get deskOnbForgotRestoreInstead;
 }
 
 class _AppLocalizationsDelegate
