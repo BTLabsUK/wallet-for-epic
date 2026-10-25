@@ -31,6 +31,10 @@ enum BalanceKind {
   /// Offered to this wallet, not in a block yet (awaiting finalization).
   waitingSender,
 
+  /// Of that, what its sender reports posted (the rows' word): still not in a block, so
+  /// never spendable and not in Total until the chain has it (LNX-13).
+  senderPosted,
+
   /// Held by a send in progress.
   locked,
 
@@ -58,7 +62,14 @@ List<BalanceTileData> balanceTiles(
   AppLocalizations l,
   WalletSummary summary, {
   required bool empty,
+  BigInt? senderPosted,
 }) {
+  // What senders report posted moves out of Waiting for sender into its own tile, named as
+  // its rows are: the tile and the row say the same.
+  final posted = senderPosted == null || senderPosted <= BigInt.zero
+      ? BigInt.zero
+      : (senderPosted > summary.awaitingFinalization ? summary.awaitingFinalization : senderPosted);
+  final waiting = summary.awaitingFinalization - posted;
   final pending = <BalanceTileData>[
     if (summary.awaitingConfirmation > BigInt.zero)
       (
@@ -67,12 +78,19 @@ List<BalanceTileData> balanceTiles(
         label: l.homeBalanceConfirming,
         value: summary.awaitingConfirmation,
       ),
-    if (summary.awaitingFinalization > BigInt.zero)
+    if (waiting > BigInt.zero)
       (
         kind: BalanceKind.waitingSender,
         icon: Icons.hourglass_empty,
         label: l.homeTileWaitingSender,
-        value: summary.awaitingFinalization,
+        value: waiting,
+      ),
+    if (posted > BigInt.zero)
+      (
+        kind: BalanceKind.senderPosted,
+        icon: Icons.hourglass_bottom,
+        label: l.txStatusSenderPosted,
+        value: posted,
       ),
     if (summary.locked > BigInt.zero)
       (
@@ -133,10 +151,14 @@ class BalanceTiles extends ConsumerWidget {
     if (summary == null) return const SizedBox(height: height);
     final hidden = amountDisplay(ref).hidden;
     final outputs = outputsShown(context, ref);
+    final now = DateTime.now();
     final tiles = balanceTiles(
       l,
       summary,
       empty: data?.transactions.isEmpty ?? false,
+      senderPosted: (data?.transactions ?? const <TxEntry>[])
+          .where((t) => senderReportsPosted(t, now: now))
+          .fold<BigInt>(BigInt.zero, (sum, t) => sum + t.amountCredited),
     );
     // The row grows with the text scale: label line, value line and the paddings.
     final scaler = MediaQuery.textScalerOf(context);

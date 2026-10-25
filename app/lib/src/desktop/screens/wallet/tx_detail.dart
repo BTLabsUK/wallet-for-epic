@@ -485,22 +485,24 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       _Step(
         t.incoming ? l.deskTxStepSignedReturned : l.deskTxSignedByRecipient,
         signed ? _S.done : _S.now,
-        signed ? hm(const Duration(seconds: 40)) : '',
+        // Only a time the record has: this wallet signs a payment the moment it takes it in;
+        // when the recipient signed, or the payment was posted, it does not keep (LNX-13).
+        signed && t.incoming ? hm(Duration.zero) : '',
         sub: signed ? null : (t.method == TxMethod.file ? l.deskTxStepWaitingFile : l.deskTxStepWaitingRecipient),
       ),
       _Step(
         l.deskTxStepPosted,
         posted ? _S.done : (waitingSender ? _S.now : _S.todo),
-        posted ? hm(const Duration(minutes: 1)) : '',
+        '',
         sub: waitingSender ? (t.senderPosted ? l.deskTxStatusSenderPosted : l.deskTxStatusWaitingSender) : null,
       ),
       _Step(
         l.deskTxStepConfirming,
         done ? _S.done : (inBlock ? _S.now : _S.todo),
-        inBlock ? hm(const Duration(minutes: 2)) : '',
+        '',
         sub: t.state == TxState.confirming ? l.deskTxStepProgress(t.confirmations, t.confirmationsNeeded) : null,
       ),
-      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, done ? hm(Duration(minutes: 2 + t.confirmationsNeeded)) : ''),
+      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, ''),
     ];
   }
 }

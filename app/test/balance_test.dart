@@ -185,6 +185,18 @@ String _rowLabel(WidgetTester tester) => tester
     .label!;
 
 void main() {
+  test('what senders report posted leaves Waiting for sender for its own tile, never Total (LNX-13)', () {
+    final tiles = balanceTiles(l, _summary(spendable: 1, waiting: 10), empty: false, senderPosted: _epic(4));
+    expect(tiles.map((t) => (t.kind, t.label, t.value)), [
+      (BalanceKind.waitingSender, l.homeTileWaitingSender, _epic(6)),
+      (BalanceKind.senderPosted, l.txStatusSenderPosted, _epic(4)),
+      (BalanceKind.total, l.homeTileTotal, _epic(1)),
+    ]);
+    // All of it reported: no Waiting for sender tile left.
+    final all = balanceTiles(l, _summary(waiting: 4), empty: false, senderPosted: _epic(4));
+    expect(all.map((t) => t.kind), [BalanceKind.senderPosted, BalanceKind.total]);
+  });
+
   group('coins on hold beside a spendable 0', () {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,

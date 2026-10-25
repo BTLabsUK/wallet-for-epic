@@ -159,6 +159,19 @@ void main() {
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
+    testWidgets('Overview: what a sender reports posted leaves Awaiting finalization for its own line (LNX-13)', (tester) async {
+      await _open(tester, DeskRoute.overview);
+      expect(find.text('Sender reports posted'), findsNothing);
+      expect(find.textContaining('12.5'), findsWidgets, reason: 'the mock awaits 12.5 EPIC finalization');
+      _wallet.addSenderPostedDemo();
+      await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
+      await _settle(tester);
+      // Its own line (and the row): 7.25 reported, 5.25 still awaiting; Total unchanged.
+      expect(find.text('Sender reports posted'), findsWidgets);
+      expect(find.textContaining('5.25'), findsWidgets);
+      expect(find.textContaining('7.25'), findsWidgets);
+    });
+
     testWidgets('Offline with a public node: Link\'s summary gives the Offline reason the banner gives, not the node sync (LNX-15)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _offline);
       expect(find.text('Waiting for the node to sync.'), findsNothing);

@@ -649,7 +649,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     OutputsScreen(
       filter: switch (kind) {
         BalanceKind.confirming => OutputsFilter.confirming,
-        BalanceKind.waitingSender => OutputsFilter.confirming,
+        BalanceKind.waitingSender || BalanceKind.senderPosted => OutputsFilter.confirming,
         BalanceKind.locked => OutputsFilter.locked,
         BalanceKind.total || BalanceKind.calm => null,
       },

@@ -299,6 +299,12 @@ class _BalancePanel extends ConsumerWidget {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     final b = balance;
+    // What senders report posted leaves Awaiting finalization for its own line, named as its
+    // rows are; it is still not in a block, so not in Total (LNX-13).
+    final reported = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+        .where((t) => t.incoming && t.senderPosted)
+        .fold<int>(0, (sum, t) => sum + t.amount);
+    final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization);
     final amount = b == null
         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_Skeleton(width: 260.u, height: 40.u), SizedBox(height: Sp.x4), _Trace(width: 260.u)])
         : _BigAmount(nano: b.spendable, hidden: hidden, dim: updating);
@@ -396,7 +402,8 @@ class _BalancePanel extends ConsumerWidget {
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, size: Ctl.iconSm)),
                 if (b == null || b.immature > 0) (l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (l.deskOvBreakAwaiting, b?.awaitingFinalization, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
               ];
               // Two columns on a narrow panel, one row otherwise.
