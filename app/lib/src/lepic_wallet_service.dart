@@ -2067,6 +2067,7 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: await _balanceConfirmations(),
       relayMode: lepicRelayMode(),
     );
+    _deliverOutbox();
     final result = PaidInvoice(
       slateId: slateId,
       senderAddress: '',
@@ -2084,6 +2085,22 @@ class LepicWalletSession implements WalletSession {
     }
     return result;
   });
+
+  /// Posts what waits in the contacts' outbox now, not on the next collect: a request, a
+  /// payment or a decline reaches the contact at once. A failure is logged only; the next
+  /// collect posts it again.
+  void _deliverOutbox() {
+    if (NetGate.offline || !NetGate.epicbox) return;
+    unawaited(
+      Future.sync(() => _wallet.contactsOutboxDeliver(relayMode: lepicRelayMode())).then<void>(
+        (_) {},
+        onError: (Object error) => logWarn(
+          'pairing',
+          'outbox not delivered: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}',
+        ),
+      ),
+    );
+  }
 
   @override
   Future<PaidInvoice> resendInvoiceReply({required String slateId}) =>
@@ -2110,6 +2127,7 @@ class LepicWalletSession implements WalletSession {
   Future<void> declineInvoice({required String slateId}) => _guard(() async {
     _watchEvents();
     await _wallet.contactDeclineInvoice(slateId: slateId);
+    _deliverOutbox();
     _waitingSlates.remove(slateId);
     if (!_invoiceEvents.isClosed) {
       _invoiceEvents.add(
@@ -2288,6 +2306,7 @@ class LepicWalletSession implements WalletSession {
       rethrow;
     }
     _txContacts[sent.txId] = contactId;
+    _deliverOutbox();
     final issued = IssuedInvoice(
       slateId: sent.slateId,
       txId: sent.txId,

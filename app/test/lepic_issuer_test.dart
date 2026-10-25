@@ -69,6 +69,17 @@ class _IssuerWallet implements lepic.EpicWallet {
   Future<String?> contactOfTransaction({required int txId}) async =>
       contactOf[txId];
 
+  /// Outbox deliveries asked for, one after each request.
+  int delivered = 0;
+
+  @override
+  Future<lepic.OutboxReport> contactsOutboxDeliver({
+    required lepic.ContactRelayMode relayMode,
+  }) async {
+    delivered++;
+    return const lepic.OutboxReport(delivered: 1, failed: 0, stuck: 0);
+  }
+
   @override
   Future<List<lepic.TransactionDetails>> transactions() async => [
     ...stored.values,
@@ -282,6 +293,8 @@ void main() {
         wallet.issued.single.expires!.toInt(),
         closeTo(before.add(invoiceExpiry).millisecondsSinceEpoch ~/ 1000, 5),
       );
+      // Posted at once, not on the next collect.
+      expect(wallet.delivered, 1);
       expect(issued.slateId, 'issued-40');
       expect(issued.txId, 40);
       // The pairing names the payer; its mailbox is no address to show (RFC C-21).
