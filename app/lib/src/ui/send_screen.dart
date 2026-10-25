@@ -3607,6 +3607,8 @@ class _TorNotice extends ConsumerWidget {
     if (!available || (way != TorWay.needsTor && way != TorWay.blocked)) {
       return const SizedBox.shrink();
     }
+    // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
+    if (watchNetBlock(context, ref) == NetBlock.offline) return const SizedBox.shrink();
     final tor = ref.read(phoneTorProvider.notifier);
     final blocked = way == TorWay.blocked;
     final quiet = TextButton.styleFrom(minimumSize: const Size(48, 44));

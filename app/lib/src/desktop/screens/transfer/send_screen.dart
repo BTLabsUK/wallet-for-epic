@@ -1291,7 +1291,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                     child: CodeBanner(code: _code!, onDismiss: () => setState(() => _codeBanner = false)),
                   ),
           ),
-          if (_torWay(st) == TorWay.needsTor) ...[
+          // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
+          if (_torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),

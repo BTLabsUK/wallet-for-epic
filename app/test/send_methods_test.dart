@@ -1092,6 +1092,14 @@ void main() {
       expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
     });
 
+    testWidgets('Offline: an onion in To gives the Offline reason, never Turn on Tor (LNX-12)', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: offline, payments: _directOn);
+      await _enter(tester, 'To', _onion);
+      expect(find.byKey(sendTurnOnTorKey), findsNothing);
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+    });
+
     testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {
       final h = _Harness();
       await h.pump(tester, advanced: offline, peers: 0);

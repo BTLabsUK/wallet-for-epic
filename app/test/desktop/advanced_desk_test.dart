@@ -159,6 +159,13 @@ void main() {
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
+    testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion', amount: '1'), advanced: _offline);
+      expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
+      expect(find.text('Turn on Tor'), findsNothing);
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
+    });
+
     testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
