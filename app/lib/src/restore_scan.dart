@@ -103,6 +103,10 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
     return const RestoreScanState();
   }
 
+  /// The running scan is the automatic one started here (Delete may stop it; a scan the user
+  /// started is theirs to finish).
+  bool get scanning => _own && ref.read(scanProvider).running;
+
   /// The Restore screen runs the restore's scan itself (with the user's start, and Stop and
   /// Try again): none starts from here until [release].
   void hold() => _holds++;

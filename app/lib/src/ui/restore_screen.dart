@@ -227,8 +227,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     });
     try {
       // The old wallet's scan writes to its files until it ends; the user chose to replace it.
-      await _stopScan();
-      await deleteWalletEverywhere(ref, config);
+      await deleteWalletEverywhere(ref, config, stopScan: true);
     } catch (error) {
       if (mounted) leaveAfterFailedDelete(context, ref, error);
       return;
@@ -236,23 +235,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     _replaced = true;
     if (!mounted) return;
     await _restore(pin, biometrics);
-  }
-
-  /// Stops a running scan and waits (at most 30 s) until it has ended.
-  Future<void> _stopScan() async {
-    if (!ref.read(scanProvider).running) return;
-    final ended = Completer<void>();
-    final watch = ref.listenManual(scanProvider.select((s) => s.running), (_, running) {
-      if (!running && !ended.isCompleted) ended.complete();
-    });
-    ref.read(scanProvider.notifier).stop();
-    try {
-      await ended.future.timeout(const Duration(seconds: 30));
-    } on TimeoutException {
-      // The delete waits for the core's calls to end in any case.
-    } finally {
-      watch.close();
-    }
   }
 
   Future<void> _restore(String pin, bool useBiometrics) async {

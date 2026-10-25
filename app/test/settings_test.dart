@@ -96,11 +96,22 @@ class _ScanSession extends FakeWalletSession {
   StreamController<ScanProgress>? controller;
   BigInt? lastStart;
 
+  /// Every [scan] call, scripted or not.
+  int scans = 0;
+
   @override
   Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     lastStart = startHeight;
+    scans++;
     final c = controller;
     return c == null ? super.scan(startHeight: startHeight) : c.stream;
+  }
+
+  /// The core ends a stopped scan's stream.
+  @override
+  void cancelScan() {
+    super.cancelScan();
+    unawaited(controller?.close());
   }
 }
 
@@ -1310,6 +1321,72 @@ void main() {
     );
 
     // R10: a delete that fails after the wallet closed leaves for the launch screen.
+    // The automatic restore scan never holds a delete: it is stopped first. A Recheck the user
+    // started still is.
+    testWidgets('Delete stops the automatic restore scan; a running Recheck still waits', (tester) async {
+      final h = _Harness();
+      h.session
+        ..restoreScanPending = true
+        ..controller = StreamController<ScanProgress>();
+      await h.pump(tester);
+      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(h.container.read(scanProvider).running, isTrue);
+      expect(h.session.lastStart, isNull, reason: 'the automatic scan from block 0');
+      // The running scan animates: frames instead of settling.
+      Future<void> frames() async {
+        for (var i = 0; i < 10; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+      }
+
+      await h.openSettingsNow(tester, SettingsSection.wallet);
+      final delete = find.text('Delete this wallet');
+      await tester.ensureVisible(delete);
+      await frames();
+      await tester.tap(delete);
+      await frames();
+      await tester.tap(find.text('I have written down my recovery phrase'));
+      await tester.enterText(find.widgetWithText(TextField, 'Type "delete" to confirm'), 'delete');
+      await frames();
+      await tester.tap(find.text('Delete wallet'));
+      await frames();
+      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await frames();
+      await tester.pumpAndSettle();
+
+      expect(h.session.scanCancels, 1);
+      expect(h.service.deletedWallets, [_mainnetDir]);
+      expect(find.byType(FirstRunScreen), findsOneWidget);
+      // The stopped scan did not start again.
+      expect(h.session.scans, 1);
+    });
+
+    testWidgets('Delete waits for a Recheck the user started', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      h.session.controller = StreamController<ScanProgress>();
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Recheck balance');
+      await tester.tap(find.text('Rescan'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(h.container.read(scanProvider).running, isTrue);
+      await tester.tap(find.text('Delete this wallet'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(find.text('Wait for the scan to finish before deleting the wallet.'), findsOneWidget);
+      expect(find.byType(DeleteWalletDialog), findsNothing);
+      expect(h.session.scanCancels, 0);
+      await h.session.controller!.close();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('a delete that fails returns to the launch screen with the reason', (tester) async {
       final h = _Harness();
       h.service.deleteError = const WalletError(kind: WalletErrorKind.walletBusy, message: 'busy');

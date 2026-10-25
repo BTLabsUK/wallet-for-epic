@@ -23,6 +23,7 @@ import '../phone_tor.dart';
 import '../price.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
+import '../restore_scan.dart' show restoreScanProvider;
 import '../settings.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
@@ -427,8 +428,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   Future<void> _deleteWallet() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
-    // A scan writes to the wallet's files until it ends.
-    if (ref.read(scanProvider).running) {
+    // A scan writes to the wallet's files until it ends. The automatic restore scan is stopped
+    // by the delete; a Recheck the user started is theirs to finish.
+    if (_userScanRunning()) {
       _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
@@ -450,7 +452,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       },
     );
     if (checked == null || !mounted) return;
-    if (ref.read(scanProvider).running) {
+    if (_userScanRunning()) {
       _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
@@ -467,6 +469,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       }
     });
   }
+
+  bool _userScanRunning() =>
+      ref.read(scanProvider).running && !ref.read(restoreScanProvider.notifier).scanning;
 
   /// Restore from a phrase replaces this wallet (one per network): the phrase comes first, and
   /// the wallet is deleted only once it checks out and the user confirmed with the PIN

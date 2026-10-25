@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../push_controller.dart';
+import '../restore_scan.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
@@ -22,8 +25,39 @@ final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
 /// wallet's files and PIN, the history backup note and shared-file copies. Settings › Delete,
 /// Forgot PIN and Restore from a phrase all go through it. Throws what the core's delete
 /// throws; the session is closed by then, so the caller leaves to the launch screen
-/// ([leaveAfterFailedDelete]).
-Future<void> deleteWalletEverywhere(WidgetRef ref, WalletConfig config) async {
+/// ([leaveAfterFailedDelete]). With [stopScan] a running scan is stopped first (the user chose
+/// to replace the wallet); else only the automatic restore scan is ([RestoreScanNotifier.scanning]).
+Future<void> deleteWalletEverywhere(WidgetRef ref, WalletConfig config, {bool stopScan = false}) async {
+  final restoreScan = ref.read(restoreScanProvider.notifier);
+  // Held until the wallet is gone, so the stopped restore scan does not start again.
+  restoreScan.hold();
+  try {
+    if (stopScan || restoreScan.scanning) await _stopRunningScan(ref);
+    await _delete(ref, config);
+  } finally {
+    restoreScan.release();
+  }
+}
+
+/// Stops a running scan and waits (at most 30 s) until it has ended; the core's delete waits for
+/// its calls to end in any case.
+Future<void> _stopRunningScan(WidgetRef ref) async {
+  if (!ref.read(scanProvider).running) return;
+  final ended = Completer<void>();
+  final watch = ref.listenManual(scanProvider.select((s) => s.running), (_, running) {
+    if (!running && !ended.isCompleted) ended.complete();
+  });
+  ref.read(scanProvider.notifier).stop();
+  try {
+    await ended.future.timeout(const Duration(seconds: 30));
+  } on TimeoutException {
+    logWarn('delete', 'the scan did not stop in 30 s');
+  } finally {
+    watch.close();
+  }
+}
+
+Future<void> _delete(WidgetRef ref, WalletConfig config) async {
   try {
     await ref.read(pushControllerProvider.notifier).beforeDelete();
   } catch (error) {
