@@ -969,8 +969,9 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'epicbox autostart: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
       }
     }
-    // The clearnet HTTP listener stays off while Tor is on (tor_routes.dart, torStops).
-    if (DeskFeatures.httpDirect && _settings.httpAutostart && !(_torFeature && _settings.torAutostart)) {
+    // Link · HTTP on (Settings › Transactions) starts the listener at unlock; it stays off
+    // while Tor is on (tor_routes.dart, torStops).
+    if (DeskFeatures.httpDirect && _settings.payments.linkHttp && !(_torFeature && _settings.torAutostart)) {
       try {
         await setHttpListening(true);
       } on Object catch (e) {
@@ -2680,6 +2681,10 @@ class LepicDeskWallet implements DeskWalletApi {
     final mode = netModeOf(settings.advanced.networkMode);
     // Tor only keeps the Tor switch on (network_gate.dart).
     if (mode == NetworkMode.torOnly && !settings.torAutostart) settings = settings.copyWith(torAutostart: true);
+    // Link · HTTP (Settings › Transactions) is the one HTTP switch: the listener runs now and
+    // at unlock while it is on ([DeskSettings.directHttp] and [DeskSettings.httpAutostart]
+    // follow it, for the data layer and older builds).
+    settings = settings.copyWith(directHttp: settings.payments.linkHttp, httpAutostart: settings.payments.linkHttp);
     // Tor is the open wallet's, changed only through setTor.
     _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
@@ -2699,6 +2704,26 @@ class LepicDeskWallet implements DeskWalletApi {
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
     if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);
+    if (settings.payments.linkHttp != old.payments.linkHttp && !moved) await _applyLinkHttpSwitch(settings.payments.linkHttp);
+    if (settings.payments.linkTor != old.payments.linkTor) {
+      logInfo('desk', 'link tor switch ${settings.payments.linkTor ? 'on' : 'off'}');
+      _changed();
+    }
+  }
+
+  /// The Link · HTTP switch (Settings › Transactions) changed while running: on starts the
+  /// clearnet listener (unless Tor is on or the mode holds it, as [setHttpListening] says),
+  /// off stops it. The gate reads the switch for sends ([NetGate.checkMethod]).
+  Future<void> _applyLinkHttpSwitch(bool on) async {
+    logInfo('desk', 'link http switch ${on ? 'on' : 'off'}');
+    if (_session == null) return;
+    if (!on) return _stopHttp();
+    if (!DeskFeatures.httpDirect || _nodeOff) return;
+    try {
+      await setHttpListening(true);
+    } on Object catch (e) {
+      logWarn('desk', 'link http on: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+    }
   }
 
   /// The Epicbox switch (Settings › Transactions) changed while running: off stops the
@@ -2706,7 +2731,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// starts the invoices again and, with Start with the wallet, the listener. One gate with
   /// the network mode (network_gate.dart): the sends and invoice calls read it there.
   Future<void> _applyEpicboxSwitch(bool on) async {
-    NetGate.setEpicbox(on);
+    NetGate.setPayments(_settings.payments);
     logInfo('desk', 'epicbox switch ${on ? 'on' : 'off'}');
     final session = _session;
     if (session == null) return;

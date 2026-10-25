@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
-import '../../../payment_prefs.dart' show MethodFamily;
+import '../../../payment_prefs.dart' show MethodKind;
+import '../../../ui/method_icons.dart' show MethodIcons;
 import '../../../network_gate.dart' show NetBlock;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
@@ -148,10 +149,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   /// Direct receiving is the clearnet HTTP listener with Tor off and the Tor address with Tor
   /// on (tor_routes.dart: the listener stops while Tor is on).
   /// The methods the indicator shows: Epicbox while its switch is on (Settings › Transactions),
+  /// Link · Tor while its switch is on and Tor runs, else Link · HTTP while its switch is on,
   /// then Tor or HTTP.
   List<TxMethod> _methodsFor(DeskSettings s) => [
     if (s.payments.epicbox) TxMethod.epicbox,
-    if (DeskFeatures.tor && s.tor) TxMethod.tor else if (DeskFeatures.httpDirect) TxMethod.http,
+    if (DeskFeatures.tor && s.payments.linkTor && s.tor) TxMethod.tor else if (DeskFeatures.httpDirect && s.payments.linkHttp) TxMethod.http,
   ];
 
   bool _switchOn(TxMethod m, ServiceStatus? s, DeskSettings settings) => switch (m) {
@@ -176,11 +178,17 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     // The Epicbox switch off (Settings › Transactions): no address to hand out; a notice says
     // where it is turned on and that senders' payments wait at the relay meanwhile.
     final epicbox = TourTarget(id: 'receive-epicbox', child: st.settings.payments.epicbox ? _epicboxPanel(st, status) : _epicboxOffNotice(nav));
-    // Settings › Transactions › Direct; Tor receiving on or a running listener keeps its panel.
-    final direct = st.settings.payments.offersFamily(MethodFamily.link) || st.settings.tor || status?.httpListener == ServiceHealth.ok;
+    // Settings › Transactions: Link · Tor's panel while its switch is on and Tor runs (Tor off
+    // with the switch on: the notice below says what it needs); Link · HTTP's while its switch
+    // is on and Tor is not (Tor stops the clearnet listener), or while its listener still runs.
+    final p = st.settings.payments;
+    final torPanel = DeskFeatures.tor && p.linkTor && st.settings.tor;
+    final httpPanel = DeskFeatures.httpDirect && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok);
     final others = [
-      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
+      if (torPanel) _torPanel(st, status),
+      if (httpPanel) _httpPanel(st, status),
     ];
+    final torNeeded = DeskFeatures.tor && p.linkTor && !st.settings.tor;
     final tor = netTorState(st.settings, status);
     final net = deskNetBlock(st);
     // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
@@ -210,7 +218,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (net != NetBlock.none) ...[_netNotice(net), SizedBox(height: Sp.x4)]
-            else if (tor == TorState.starting || tor == TorState.failed) ...[_torNotice(tor), SizedBox(height: Sp.x4)],
+            else if (torPanel && (tor == TorState.starting || tor == TorState.failed)) ...[_torNotice(tor), SizedBox(height: Sp.x4)]
+            else if (torNeeded) ...[_torOffNotice(), SizedBox(height: Sp.x4)],
             LayoutBuilder(
           builder: (context, box) {
             if (box.maxWidth >= 1040.u) {
@@ -279,6 +288,22 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       title: netBlockReason(l, net)!,
       text: offline ? l.deskNetRecvOfflineText : l.deskNetRecvWaitTorText,
       actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+    );
+  }
+
+  /// Link · Tor is on (Settings › Transactions) and Tor is off: the Tor address needs Tor.
+  Widget _torOffNotice() {
+    final l = context.l10n;
+    final busy = _busy.contains(TxMethod.tor);
+    return ENotice(
+      key: const ValueKey('rx-tor-off-notice'),
+      icon: MethodIcons.of(MethodKind.linkTor),
+      title: l.deskRecvTorOffTitle,
+      text: l.deskRecvTorOffText,
+      actions: [
+        EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
+        EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
+      ],
     );
   }
 
@@ -472,8 +497,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      // Offline: local senders reach it while the node is local.
-      onSwitch: status == null || deskNetBlock(st, nodeOnly: true) != NetBlock.none ? null : (v) => _toggle(m, v),
+      // The Link · HTTP switch is Settings › Transactions' (one switch); Try again is below.
+      onSwitch: null,
+      showSwitch: false,
       grown: on,
       small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-http')),
       body: Column(

@@ -29,6 +29,8 @@ import 'file_panels.dart';
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 import '../../../payment_prefs.dart' show MethodKind, MethodFamily;
+import '../../../ui/method_icons.dart' show MethodIcons;
+import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -320,13 +322,23 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
 
-  /// The network mode holds this send: Epicbox in Offline and in Tor only without Tor; Direct
+  /// The network mode holds this send: Epicbox in Offline and in Tor only without Tor; Link
   /// the same, except Offline with a local node, which lets it go to a local address (the
   /// adapter refuses any other). A file is never held: Offline lets it use the node in use
-  /// ([deskOfflineUsesNode] says so on the screen).
+  /// ([deskOfflineUsesNode] says so on the screen). A method whose switch is off (Settings ›
+  /// Transactions) holds it too ([NetBlock.methodOff]): a pasted address of that kind picks
+  /// the method and the notice says it is off.
   NetBlock _netBlock(DeskState st) => _method == TxMethod.file
       ? NetBlock.none
-      : deskNetBlock(st, nodeOnly: _method == TxMethod.http, epicbox: _method == TxMethod.epicbox);
+      : deskNetBlock(
+          st,
+          nodeOnly: _method == TxMethod.http,
+          epicbox: _method == TxMethod.epicbox,
+          offered: st.settings.payments.offers(methodKindOf(_method)),
+        );
+
+  /// The method this send goes by, for its name and its switch.
+  MethodKind get _kind => methodKindOf(_method);
 
   /// How this send's connection goes with the Tor switch as it is now; null for File.
   TorWay? _torWay(DeskState st) {
@@ -1007,6 +1019,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
       );
     }
+    if (net == NetBlock.methodOff) {
+      // The method's switch is off: the reason, and that a saved contact has only that address.
+      final contact = _contactOf(st.contacts);
+      return ENotice(
+        key: const ValueKey('send-method-off'),
+        title: methodOffReason(l, _kind),
+        text: contact == null ? null : l.sendContactOnlyMethod(contact.name, MethodIcons.fullName(l, _kind)),
+        tone: ETone.warn,
+        icon: MethodIcons.of(_kind),
+        actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
+      );
+    }
     if (net != NetBlock.none) {
       return ENotice(
         key: const ValueKey('send-net-blocked'),
@@ -1142,16 +1166,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: ESegmented<TxMethod>(
           stretch: true,
           segments: [
-            ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox, enabled: netIdle && st.settings.payments.epicbox, tooltip: netWhy ?? (st.settings.payments.epicbox ? null : l.netBlockEpicboxOff)), // l10n-ok: product name
-            // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
-            // Settings › Transactions: the methods on. The method in use stays (a pasted onion
-            // picks Direct; a file send in progress or the file fallback of a failed Epicbox
-            // keeps File).
+            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: netIdle && st.settings.payments.epicbox, tooltip: netWhy ?? (st.settings.payments.epicbox ? null : l.netBlockEpicboxOff)),
+            // Link: http(s) or an onion, the address decides ([TxMethod.tor] is its route), so
+            // the segment names the family. Settings › Transactions: the methods on. The
+            // method in use stays (a pasted onion picks Link; a file send in progress or the
+            // file fallback of a failed Epicbox keeps File Transfer).
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 (st.settings.payments.offersFamily(MethodFamily.link) || _segmentOf(_method) == TxMethod.http))
-              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.link, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
+              ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
             if (st.settings.payments.directFile || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
-              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, tooltip: fileTip),
+              ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile), tooltip: fileTip),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {
@@ -1352,6 +1376,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => l.deskSendHintSent,
       _ when nodeBlocked => l.deskSendHintNode,
       _ when _netBlock(st) == NetBlock.epicboxOff => l.netBlockEpicboxOff,
+      _ when _netBlock(st) == NetBlock.methodOff => methodOffReason(l, _kind),
       _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
       _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
       _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
@@ -1532,10 +1557,11 @@ class _SwitchTag extends StatelessWidget {
     final m = method;
     if (m == null) return const SizedBox.shrink();
     final l = context.l10n;
-    final (word, said) = switch (m) {
-      TxMethod.tor || TxMethod.http => (l.deskSendTagDirect, l.deskSendSwitchedDirect),
-      TxMethod.file => (l.deskSendTagFile, l.deskSendSwitchedFile),
-      TxMethod.epicbox => (l.deskSendTagEpicbox, l.deskSendSwitchedEpicbox),
+    final word = methodShortLabel(l, m);
+    final said = switch (m) {
+      TxMethod.tor || TxMethod.http => l.deskSendSwitchedDirect,
+      TxMethod.file => l.deskSendSwitchedFile,
+      TxMethod.epicbox => l.deskSendSwitchedEpicbox,
     };
     final reduce = MediaQuery.disableAnimationsOf(context);
     return Padding(

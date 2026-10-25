@@ -23689,6 +23689,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep at least one payment method on.'**
   String get deskSetTxLastMethod;
+
+  /// Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor receiving needs Tor.'**
+  String get deskRecvTorOffTitle;
+
+  /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.'**
+  String get deskRecvTorOffText;
 }
 
 class _AppLocalizationsDelegate

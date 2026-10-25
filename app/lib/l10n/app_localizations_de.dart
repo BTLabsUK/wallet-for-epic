@@ -15104,4 +15104,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetTxLastMethod => 'Keep at least one payment method on.';
+
+  @override
+  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+
+  @override
+  String get deskRecvTorOffText =>
+      'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
 }
