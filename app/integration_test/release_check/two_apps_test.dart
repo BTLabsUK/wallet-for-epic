@@ -225,9 +225,15 @@ void main() {
       rc('d: B sees the request named Anna Desk, verified', row?.label == theirName && hasText('Verified'), '${book?.waiting.length} waiting, label ${row?.label}, ${row?.amount}');
       await shot(tester, 'B-d-to-pay');
       if (row != null) {
+        // The "<name> is verified" offer to save the contact can land late; it is not this step.
+        if (hasText('Not now')) {
+          await tapText(tester, 'Not now');
+          await settle(tester, ms: 800);
+        }
         await tapText(tester, 'Review');
         await settle(tester, ms: 1500);
         await shot(tester, 'B-d-review');
+        rc("d: B's Review shows A's message", hasText('RC order'), '');
         await tapText(tester, 'Decline');
         await settle(tester, ms: 800);
         await tapText(tester, 'Decline', last: true);
