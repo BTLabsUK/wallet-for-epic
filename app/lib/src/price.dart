@@ -1,5 +1,6 @@
 /// The EPIC price in the user's display currency: from CoinGecko, or with the Tor switch on
 /// from BT Labs' copy of it on the status site ([BtlabsPriceSource]), never CoinGecko directly.
+/// With Tor off, BT Labs' copy also stands in when CoinGecko gives no price.
 ///
 /// Prices are decoration: a missing price never blocks anything, it only hides the fiat line.
 library;
@@ -134,12 +135,24 @@ final priceSourceProvider = Provider<PriceSource>(
 );
 
 /// CoinGecko with the Tor switch off; BT Labs' copy with it on ([TorSwitch.on]), asked at
-/// each fetch so a switch takes effect at the next refresh.
+/// each fetch so a switch takes effect at the next refresh. With Tor off and no price from
+/// CoinGecko, BT Labs' copy: CoinGecko refuses a request without a User-Agent (403) and ours
+/// carry none (`net/http.dart`).
 class TorAwarePriceSource implements PriceSource {
-  const TorAwarePriceSource();
+  const TorAwarePriceSource({PriceSource? coinGecko, PriceSource? btlabs})
+    : _coinGecko = coinGecko,
+      _btlabs = btlabs;
+
+  final PriceSource? _coinGecko;
+  final PriceSource? _btlabs;
+
+  PriceSource get _copy => _btlabs ?? BtlabsPriceSource();
 
   @override
-  Future<double?> price(String currency) => (TorSwitch.on ? BtlabsPriceSource() : const CoinGeckoPriceSource()).price(currency);
+  Future<double?> price(String currency) async {
+    if (TorSwitch.on) return _copy.price(currency);
+    return await (_coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
+  }
 }
 
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
