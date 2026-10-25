@@ -39,6 +39,9 @@ const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
 const Key deskCheckSkipKey = ValueKey('desk-check-skip');
 const Key deskPendingRemoveKey = ValueKey('desk-pending-remove');
+const Key deskSavedNewKey = ValueKey('desk-saved-new');
+const Key deskSavedAddToKey = ValueKey('desk-saved-add-to');
+const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
 
 /// The contact's (or the invite's) initials in the desktop avatar; [icon] instead for an
 /// invite nobody named yet (PAIR-LNX-8).
@@ -780,46 +783,70 @@ const Key deskConfirmRemovePairingKey = ValueKey('desk-confirm-remove-pairing');
 
 /// Puts the pairing [r] in the contacts the way the user picks (security review: never
 /// matched or saved for them): with [asNew], a form with the name it claims to check first;
-/// else one of their contacts from the picker.
-Future<void> deskPutPairingInContacts(BuildContext context, WidgetRef ref, PairingRecord r, {required bool asNew}) async {
+/// else one of their contacts from the picker. True once it is in one.
+Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, PairingRecord r, {required bool asNew}) async {
   final l = context.l10n;
   final String contactId;
   final String name;
   if (asNew) {
-    final text = TextEditingController(text: r.shownName);
-    final saved = await showEDialog<String>(
-      context,
-      builder: (ctx) => EDialog(
-        title: l.pairSaveContactTitle(r.shownName),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EField(label: l.deskConFieldName, child: EInput(key: deskSaveContactNameKey, controller: text, autofocus: true)),
-            if (r.paymentsAddress case final a?) ...[
-              SizedBox(height: Sp.x3),
-              EField(label: l.deskConFieldAddress, child: Text(a, style: ctx.ts.mono())),
-            ],
-          ],
-        ),
-        actions: [
-          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx)),
-          EButton.primary(label: l.deskConSave, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, text.text.trim())),
-        ],
-      ),
-    );
-    text.dispose();
-    if (saved == null || saved.isEmpty || !context.mounted) return;
+    // The form owns its field: it is disposed with the dialog, after the close animation.
+    final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r));
+    if (saved == null || saved.isEmpty || !context.mounted) return false;
     contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
     name = saved;
   } else {
     final picked = await showContactPicker(context);
-    if (picked == null) return;
+    if (picked == null) return false;
     contactId = picked.id;
     name = picked.name;
   }
   await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
   if (context.mounted) showEToast(context, l.pairSavedAs(name), tone: ETone.ok);
+  return true;
+}
+
+/// Save as a new contact: the name it claims, to check, and its payments address.
+class _SaveContactDialog extends StatefulWidget {
+  const _SaveContactDialog({required this.record});
+
+  final PairingRecord record;
+
+  @override
+  State<_SaveContactDialog> createState() => _SaveContactDialogState();
+}
+
+class _SaveContactDialogState extends State<_SaveContactDialog> {
+  late final _text = TextEditingController(text: widget.record.shownName);
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final r = widget.record;
+    return EDialog(
+      title: l.pairSaveContactTitle(r.shownName),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          EField(label: l.deskConFieldName, child: EInput(key: deskSaveContactNameKey, controller: _text, autofocus: true)),
+          if (r.paymentsAddress case final a?) ...[
+            SizedBox(height: Sp.x3),
+            EField(label: l.deskConFieldAddress, child: Text(a, style: context.ts.mono())),
+          ],
+        ],
+      ),
+      actions: [
+        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+        EButton.primary(label: l.deskConSave, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, _text.text.trim())),
+      ],
+    );
+  }
 }
 
 /// The name field of the Save as a new contact form, for tests.
@@ -883,7 +910,16 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       final r = await deskPairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
       if (r != null && check == PairingCheck.match && _allow) await deskPairingCall(ref, (api) => api.setAllowInvoices(r.id, true));
       if (!mounted) return;
+      final host = Navigator.of(context).context;
+      final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
+      final saved = r == null || (r.contactId != null && contacts.any((c) => c.id == r.contactId));
       Navigator.pop(context);
+      // Not in the contacts yet: the result asks where it goes, as the phone's Verified screen
+      // does (PAIR-LNX-4); else the toast says it.
+      if (!saved && check != PairingCheck.mismatch && !widget.recheck && host.mounted) {
+        await showEDialog<void>(host, builder: (_) => DeskPairedSaveDialog(pairingId: r.id, verified: check == PairingCheck.match));
+        return;
+      }
       if (check == PairingCheck.match) showEToast(context, l.sasMatchedTitle(name), text: l.sasMatchedBody(name), tone: ETone.ok);
       if (check == PairingCheck.skip && !widget.recheck) showEToast(context, l.sasSkippedTitle(name), text: l.sasSkippedBody(name), tone: ETone.warn);
     } catch (error) {
@@ -934,6 +970,48 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         EButton.ghost(key: deskCheckSkipKey, label: widget.recheck ? l.sasLater : l.sasSkip, onPressed: _busy ? null : () => _answer(PairingCheck.skip)),
         EButton(key: deskCheckNoMatchKey, label: l.sasNoMatch, size: EBtnSize.sm, onPressed: _busy ? null : () => _answer(PairingCheck.mismatch)),
         EButton.primary(key: deskCheckMatchKey, label: l.sasMatch, size: EBtnSize.sm, busy: _busy, onPressed: () => _answer(PairingCheck.match)),
+      ],
+    );
+  }
+}
+
+/// After the words check of a pairing that is in no contact yet: Verified (or Paired, not
+/// verified) and where it goes, Save as a new contact or Add to a contact, or Not now.
+class DeskPairedSaveDialog extends ConsumerWidget {
+  const DeskPairedSaveDialog({super.key, required this.pairingId, required this.verified});
+
+  final String pairingId;
+  final bool verified;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final r = ref.watch(deskPairingByIdProvider(pairingId));
+    final name = ref.watch(deskPairingNameProvider(pairingId));
+    Future<void> put({required bool asNew}) async {
+      if (r == null) return;
+      if (await deskPutPairingInContacts(context, ref, r, asNew: asNew) && context.mounted) Navigator.pop(context);
+    }
+
+    return EDialog(
+      title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
+      tone: verified ? ETone.ok : ETone.warn,
+      icon: verified ? EIcons.trusted : EIcons.shield,
+      width: 520.u,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
+          SizedBox(height: Sp.x4),
+          Text(l.pairSaveContactTitle(name), style: ts.label),
+        ],
+      ),
+      actions: [
+        EButton.ghost(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
+        EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => put(asNew: false)),
+        EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true)),
       ],
     );
   }

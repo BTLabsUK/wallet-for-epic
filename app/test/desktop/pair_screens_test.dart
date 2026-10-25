@@ -136,6 +136,32 @@ void main() {
     expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.paired && r.name == 'Ola'), hasLength(1));
   });
 
+  testWidgets('They match on a pairing in no contact: the result offers to save it, and Save as a new contact does (PAIR-LNX-4)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+    await tester.tap(find.byKey(deskPairCopyCardKey));
+    await _real(tester);
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskCheckMatchKey));
+    await _real(tester);
+    expect(find.text(_l.sasMatchedTitle('Ola')), findsOneWidget);
+    expect(find.text(_l.pairSaveContactTitle('Ola')), findsOneWidget);
+    await tester.tap(find.byKey(deskSavedNewKey));
+    await _real(tester);
+    await tester.enterText(find.descendant(of: find.byKey(deskSaveContactNameKey), matching: find.byType(EditableText)), 'Ola K.');
+    await tester.tap(find.widgetWithText(EButton, _l.deskConSave));
+    await _real(tester);
+    final contact = _c.read(deskProvider).contacts!.firstWhere((c) => c.name == 'Ola K.');
+    final paired = (await tester.runAsync(_pairing.pairings))!.firstWhere((r) => r.name == 'Ola');
+    expect(paired.contactId, contact.id);
+    expect(find.byType(DeskPairedSaveDialog), findsNothing, reason: 'saved: the result closes');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Copy my card link first: their card then goes straight to the words', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');
