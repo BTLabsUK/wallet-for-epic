@@ -8,6 +8,7 @@ import 'package:epic_wallet/l10n/app_localizations_en.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
+import 'package:epic_wallet/src/scan/incoming_link.dart' show incomingLinkProvider;
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
@@ -238,6 +239,22 @@ void main() {
       await _pump(tester, auto: false);
       await _startAuto(tester);
       expect(_overlay, findsNothing);
+    });
+
+    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet (AND-1)', (tester) async {
+      final rig = await _pump(tester);
+      rig.container.read(incomingLinkProvider.notifier).deliver('epic:${'b' * 52}@epicbox.epiccash.com?amount=0.4');
+      await tester.pumpAndSettle();
+      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      await _startAuto(tester);
+      expect(_overlay, findsNothing);
+      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      // Back on Wallet, Home is idle again: the tour opens.
+      rig.container.read(shellTabProvider.notifier).go(ShellTab.wallet);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(_overlay, findsOneWidget);
     });
 
     testWidgets('does not open over a dialog; opens once it is closed', (tester) async {

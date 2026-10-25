@@ -132,11 +132,13 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
     }
   }
 
-  /// Home idle: its route is the current one (no PIN screen, dialog or sheet over it).
+  /// Home idle: its route is the current one (no PIN screen, dialog or sheet over it) on the
+  /// Wallet tab. A payment link opened at unlock moved to Send: the link wins, and the tour
+  /// waits until Wallet shows again (AND-1).
   void _tryStart() {
     if (!mounted) return;
     final route = ModalRoute.of(context);
-    if (route == null || !route.isCurrent) {
+    if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.wallet) {
       if (++_waits < 30) _timer = Timer(const Duration(seconds: 1), _tryStart);
       return;
     }
