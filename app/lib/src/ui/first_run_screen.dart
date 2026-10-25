@@ -71,7 +71,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       if (useBiometrics && !result.biometrics) {
         ref
             .read(noticeProvider.notifier)
-            .show(l.firstRunBiometricsNotSetUp, level: NoticeLevel.warning);
+            .show(
+              l.firstRunBiometricsNotSetUp,
+              level: NoticeLevel.warning,
+              // Stays until closed: the first-run tour opens over Home and a timed notice
+              // ran out under it unseen.
+              persistent: true,
+            );
       }
       goHome(context);
     } catch (error) {

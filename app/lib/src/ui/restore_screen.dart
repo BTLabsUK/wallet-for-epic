@@ -145,7 +145,13 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (useBiometrics && !created.biometrics && mounted) {
         ref
             .read(noticeProvider.notifier)
-            .show(l.firstRunBiometricsNotSetUp, level: NoticeLevel.warning);
+            .show(
+              l.firstRunBiometricsNotSetUp,
+              level: NoticeLevel.warning,
+              // Stays until closed: the first-run tour opens over Home and a timed notice
+              // ran out under it unseen.
+              persistent: true,
+            );
       }
       await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;
