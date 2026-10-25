@@ -6,6 +6,7 @@ import '../screens/invoices/review_screen.dart';
 import '../screens/onboarding/create_screen.dart';
 import '../screens/pairing/pair_screens.dart';
 import '../screens/onboarding/import_wallets_screen.dart';
+import '../screens/onboarding/reset_password_screen.dart';
 import '../screens/onboarding/restore_screen.dart';
 import '../screens/onboarding/setup_screen.dart';
 import '../screens/onboarding/unlock_screen.dart';
@@ -42,6 +43,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.setup => SetupScreen(arg: a),
     DeskRoute.unlock => UnlockScreen(arg: a),
     DeskRoute.importWallets => ImportWalletsScreen(arg: a),
+    DeskRoute.resetPassword => ResetPasswordScreen(arg: a),
     DeskRoute.overview => OverviewScreen(arg: a),
     DeskRoute.activity => ActivityScreen(arg: a),
     DeskRoute.send => SendScreen(arg: a),

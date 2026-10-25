@@ -240,10 +240,6 @@
       }
     }
   },
-  "deskSetupSkipSave": "Continue without saving",
-  "@deskSetupSkipSave": {
-    "description": "Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far."
-  },
   "deskSetupResumeLead": "Setup was not finished last time. The wallet reads the chain and sends through an Epic node.",
   "@deskSetupResumeLead": {
     "description": "Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead."

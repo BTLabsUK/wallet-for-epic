@@ -87,7 +87,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   }
 
   // The same rules and words as Create's password (onboarding_parts.dart).
-  bool get _valid => _current.text.isNotEmpty && _next.text.length >= 8 && _repeat.text == _next.text;
+  bool get _valid => _current.text.isNotEmpty && passwordLongEnough(_next.text) && _repeat.text == _next.text;
 
   Future<void> _save() async {
     if (!_valid || _busy) return;

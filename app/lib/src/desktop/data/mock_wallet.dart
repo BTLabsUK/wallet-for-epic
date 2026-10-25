@@ -189,6 +189,21 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool?> phraseIsOf(String id, List<String> phrase) async => phrase.firstOrNull != 'legal';
+
+  /// The mock knows no phrase: one starting with "legal" is another wallet's.
+  @override
+  Future<void> dismissHistoryImportOffer() async {}
+
+  @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async {
+    await _wait(3);
+    if (phrase.firstOrNull == 'legal') throw const DeskError('This phrase belongs to another wallet. Nothing was changed.', wrongPhrase: true);
+    _remembered.remove(id);
+    _current = id;
+  }
+
+  @override
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
     await _wait(2);
     if (password == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
@@ -870,7 +885,7 @@ class MockDeskWallet implements DeskWalletApi {
   bool _scanStop = false;
 
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) async* {
     _scanStop = false;
     for (final (i, line) in _scanLog.indexed) {
       await _wait(2.5);

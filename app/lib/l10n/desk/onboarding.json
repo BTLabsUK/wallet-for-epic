@@ -382,7 +382,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet's password. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it asks for that wallet's password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },

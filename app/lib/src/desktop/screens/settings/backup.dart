@@ -703,6 +703,39 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
   }
 }
 
+// ---- The import offer of a restored wallet (R13, copy D6).
+
+/// A wallet restored from its phrase (or rebuilt from a damaged database) has its funds back but
+/// not who was paid, fees or notes: Overview asks once, at the first unlock, whether to import a
+/// history backup. Asked is answered: Not now leaves it to Settings › This wallet › Backup.
+Future<void> showHistoryImportOffer(BuildContext context, WidgetRef ref) async {
+  await ref.read(deskApiProvider).dismissHistoryImportOffer();
+  ref.invalidate(historyBackupProvider);
+  if (!context.mounted) return;
+  final import = await showEDialog<bool>(context, builder: (_) => const HistoryImportOfferDialog()) ?? false;
+  if (import && context.mounted) await showImportHistoryDialog(context);
+}
+
+class HistoryImportOfferDialog extends StatelessWidget {
+  const HistoryImportOfferDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return EDialog(
+      key: const ValueKey('history-import-offer'),
+      title: l.deskOvRestoredImportTitle,
+      description: l.deskOvRestoredImportBody,
+      icon: EIcons.archive,
+      body: Text(l.deskOvRestoredImportLater, style: context.ts.small),
+      actions: [
+        EButton.ghost(label: l.deskSetBackupNotNow, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(label: l.deskOvRestoredImportButton, icon: EIcons.upload, onPressed: () => Navigator.pop(context, true)),
+      ],
+    );
+  }
+}
+
 // ---- The reminder on Overview (F33).
 
 /// The history backup reminder for the notice stack on Overview: shown while

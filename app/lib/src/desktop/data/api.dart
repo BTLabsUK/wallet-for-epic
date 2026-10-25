@@ -105,6 +105,18 @@ abstract interface class DeskWalletApi {
   /// before the password step, so a phrase already here opens that wallet instead.
   Future<WalletEntry?> walletWithPhrase(List<String> words);
 
+  /// Forgot password (R4): [phrase] must be wallet [id]'s own recovery phrase; then its
+  /// password becomes [newPassword]. The history, notes and labels stay, and nothing is scanned
+  /// again. An open [id] is locked first (the core changes only a closed wallet). Another
+  /// wallet's phrase throws a [DeskError] and changes nothing; a remembered password of [id]
+  /// is forgotten.
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword});
+
+  /// Whether [phrase] is wallet [id]'s, by the fingerprint the list keeps; null when the list
+  /// has none for it (the core decides at [resetPassword]). Forgot password asks before the
+  /// password step.
+  Future<bool?> phraseIsOf(String id, List<String> phrase);
+
   /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
   /// with [DeskError.sameWallet] set and makes nothing.
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});
@@ -294,7 +306,9 @@ abstract interface class DeskWalletApi {
   /// Scans the chain again, with progress; the stream ends when the scan does, after the
   /// balance is brought up to date. [deleteUnconfirmed] also cancels unconfirmed
   /// transactions and unlocks their coins (only when [DeskFeatures.rescanRepair]).
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false});
+  /// [startHeight]: from that block (0: the whole chain); null from a little before the last
+  /// scan's end, or from block 0 while a restore's scan is owed ([ServiceStatus.restoreScan]).
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight});
 
   /// Ends a running [rescan] at the core's next page; its stream then ends without a
   /// finished step.
@@ -351,6 +365,10 @@ abstract interface class DeskWalletApi {
 
   /// "Not now" on the reminder, at [when].
   Future<void> dismissHistoryReminder(DateTime when);
+
+  /// "Not now" on the restored wallet's import offer ([HistoryBackupState.importOffer]); an
+  /// import that went in answers it too.
+  Future<void> dismissHistoryImportOffer();
 
   // Invoices over Epicbox (docs/invoices/flow.md on plan/invoices; types in invoices.dart).
   // Everything shows only when [supportsInvoices].

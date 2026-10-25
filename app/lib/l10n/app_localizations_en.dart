@@ -9564,7 +9564,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.';
+      'Open it asks for that wallet\'s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.';
 
   @override
   String get deskOnbSameOpen => 'Open it';
@@ -14458,9 +14458,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => 'Continue without saving';
-
-  @override
   String get deskSetupResumeLead =>
       'Setup was not finished last time. The wallet reads the chain and sends through an Epic node.';
 
@@ -16362,4 +16359,129 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetRecvEpicboxOwnHint =>
       'This wallet has its own Epicbox server, kept from the older app. A change here applies to this wallet only.';
+
+  @override
+  String get deskErrRestoreScanRequired =>
+      'Restore not finished. Receiving and sending open when the scan of the chain ends.';
+
+  @override
+  String get deskSetupSkip => 'Skip setup';
+
+  @override
+  String get deskOvRestoreTitle => 'Restore not finished';
+
+  @override
+  String get deskOvRestoreRunning =>
+      'Looking for this wallet\'s funds on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.';
+
+  @override
+  String deskOvRestoreAfterHeight(String height) {
+    return 'Funds after block $height are in. Earlier blocks are being checked; receiving and sending open when that finishes.';
+  }
+
+  @override
+  String get deskOvRestoreWaiting => 'The scan waits for the network.';
+
+  @override
+  String get deskOvRestoreFailed =>
+      'The scan stopped before the end. Receiving and sending stay closed until it finishes.';
+
+  @override
+  String get deskOvRestoreProgress => 'Restore scan progress';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      'The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.';
+
+  @override
+  String get deskSetRescanStartHeading => 'Where to start';
+
+  @override
+  String get deskSetRescanRecent => 'Recent blocks';
+
+  @override
+  String get deskSetRescanRecentHint =>
+      'From 100 blocks before the last one scanned. Enough after a failed send or a balance that looks wrong.';
+
+  @override
+  String get deskSetRescanFromHeight => 'From a block height';
+
+  @override
+  String get deskSetRescanHeightInvalid => 'Enter a block height of 1 or more.';
+
+  @override
+  String get deskSetRescanWholeChain => 'The whole chain';
+
+  @override
+  String get deskSetRescanWholeChainHint =>
+      'From the first block. Finds everything and takes long. Also finishes an unfinished restore.';
+
+  @override
+  String get deskOnbForgotLink => 'Forgot password?';
+
+  @override
+  String get deskOnbForgotTitle => 'Set a new password';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return 'The recovery phrase of $name replaces its password. History, notes and labels stay; no scan is needed.';
+  }
+
+  @override
+  String get deskOnbForgotPasswordLead =>
+      'The phrase checks out. Choose the new password that unlocks this wallet on this computer.';
+
+  @override
+  String get deskOnbForgotSet => 'Set password';
+
+  @override
+  String deskOnbForgotOtherWallet(String name) {
+    return 'This phrase belongs to another wallet, not to $name. Nothing was changed.';
+  }
+
+  @override
+  String get deskOnbSameNewPassword => 'Set a new password';
+
+  @override
+  String get deskSetupSkipKeeps =>
+      'Skip keeps the node and Epicbox settings as they are.';
+
+  @override
+  String deskSetupMarkNotCleared(String reason) {
+    return 'Setup could not be marked as done: $reason. It may open again at the next start; Skip setup leaves it.';
+  }
+
+  @override
+  String get deskOvRestoredImportTitle => 'Bring back payment details?';
+
+  @override
+  String get deskOvRestoredImportBody =>
+      'The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.';
+
+  @override
+  String get deskOvRestoredImportButton => 'Import a history backup';
+
+  @override
+  String get deskOvRestoredImportLater =>
+      'Later under Settings › This wallet › Backup.';
+
+  @override
+  String get deskOnbRestoreNameLabel => 'Wallet name (optional)';
+
+  @override
+  String deskOnbRestoreNameHelp(int number) {
+    return 'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet $number.';
+  }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nothing in this wallet\'s files can confirm the phrase, so the password stays.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Restore it from the phrase instead: $name leaves the list and its files stay on this computer.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Restore from the phrase';
 }

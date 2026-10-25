@@ -91,7 +91,7 @@ class AccountForm extends StatelessWidget {
 (String?, String?) accountErrors(AppLocalizations l, String password, String confirm) {
   String? p;
   String? c;
-  if (password.isNotEmpty && password.length < 8) p = l.deskSetupPasswordShort;
+  if (password.isNotEmpty && !passwordLongEnough(password)) p = l.deskSetupPasswordShort;
   if (confirm.isNotEmpty && confirm != password) c = l.deskSetupPasswordsDiffer;
   return (p, c);
 }

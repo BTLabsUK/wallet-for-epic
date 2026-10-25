@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,8 +11,9 @@ import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
-import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
+import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show settingsPrefsProvider;
+import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
@@ -39,6 +42,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _restarting = false;
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
+
+  /// The history import offer was asked on this Overview (R13).
+  bool _importOffered = false;
 
   /// Asks the node now, as 6.1.6's refresh does; says so when it could not.
   Future<void> _refresh() async {
@@ -71,7 +77,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final loading = demo == OverviewDemo.loading || s.balance == null;
-    final empty = demo == OverviewDemo.empty || (demo == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
+    // The scan a restore owes: its progress, not the empty-wallet state (R16, R35).
+    final restore = demo == null ? s.status?.restoreScan : null;
+    final empty = demo == OverviewDemo.empty || (demo == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
     final syncing = demo == OverviewDemo.syncing;
     // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
@@ -90,9 +98,19 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
+    // A restored wallet's first unlock asks once about its history backup (R13), after the
+    // first-run tour, never over it.
+    final tour = ref.watch(deskTourProvider);
+    if (demo == null && !_importOffered && tour.seen && !tour.open && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
+      _importOffered = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(showHistoryImportOffer(context, ref));
+      });
+    }
     final notices = <Widget>[
+      if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
-      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null) HistoryReminder(state: backup),
+      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       if (starting) const _Steps(),
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
         ENotice(
@@ -173,7 +191,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             ),
           ),
           SizedBox(height: Sp.x2),
-          recent,
+          // While the restore scan runs, Recent activity shows what it finds, never "No
+          // transactions yet" (copy D1).
+          if (restore == null || (s.txs?.isNotEmpty ?? false)) recent,
           if (pending > 0) _PendingFiles(count: pending),
           const OverviewInvoicesCard(),
         ],

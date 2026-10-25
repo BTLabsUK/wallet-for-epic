@@ -9903,7 +9903,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'Otwórz poprosi o hasło tego portfela. Anuluj zostawi frazę w polach.';
+      'Otwórz poprosi o hasło tego portfela. Ustaw nowe hasło zastąpi je tą frazą. Anuluj zostawi frazę w polach.';
 
   @override
   String get deskOnbSameOpen => 'Otwórz';
@@ -14904,9 +14904,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => 'Kontynuuj bez zapisywania';
-
-  @override
   String get deskSetupResumeLead =>
       'Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.';
 
@@ -16869,4 +16866,130 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetRecvEpicboxOwnHint =>
       'Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.';
+
+  @override
+  String get deskErrRestoreScanRequired =>
+      'Przywracanie nieukończone. Odbieranie i wysyłanie będą dostępne, gdy skanowanie łańcucha się zakończy.';
+
+  @override
+  String get deskSetupSkip => 'Pomiń konfigurację';
+
+  @override
+  String get deskOvRestoreTitle => 'Przywracanie nieukończone';
+
+  @override
+  String get deskOvRestoreRunning =>
+      'Wyszukiwanie środków tego portfela w łańcuchu od pierwszego bloku. Odebrane EPIC pojawiają się w miarę znajdowania; odbieranie i wysyłanie będą dostępne, gdy skanowanie się zakończy.';
+
+  @override
+  String deskOvRestoreAfterHeight(String height) {
+    return 'Środki od bloku $height są już widoczne. Wcześniejsze bloki są jeszcze sprawdzane; odbieranie i wysyłanie będą dostępne, gdy to się zakończy.';
+  }
+
+  @override
+  String get deskOvRestoreWaiting => 'Skanowanie czeka na sieć.';
+
+  @override
+  String get deskOvRestoreFailed =>
+      'Skanowanie zatrzymało się przed końcem. Odbieranie i wysyłanie pozostają niedostępne, dopóki się nie zakończy.';
+
+  @override
+  String get deskOvRestoreProgress => 'Postęp skanowania po przywróceniu';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      'Trwa skanowanie po przywróceniu: łańcuch jest odczytywany od pierwszego bloku. Sprawdź saldo będzie dostępne, gdy się zakończy.';
+
+  @override
+  String get deskSetRescanStartHeading => 'Od czego zacząć';
+
+  @override
+  String get deskSetRescanRecent => 'Ostatnie bloki';
+
+  @override
+  String get deskSetRescanRecentHint =>
+      'Od 100 bloków przed ostatnim przeskanowanym. Wystarcza po nieudanej płatności lub gdy saldo wygląda źle.';
+
+  @override
+  String get deskSetRescanFromHeight => 'Od wysokości bloku';
+
+  @override
+  String get deskSetRescanHeightInvalid =>
+      'Wpisz wysokość bloku 1 lub większą.';
+
+  @override
+  String get deskSetRescanWholeChain => 'Cały łańcuch';
+
+  @override
+  String get deskSetRescanWholeChainHint =>
+      'Od pierwszego bloku. Znajduje wszystko i trwa długo. Kończy też nieukończone przywracanie.';
+
+  @override
+  String get deskOnbForgotLink => 'Nie pamiętasz hasła?';
+
+  @override
+  String get deskOnbForgotTitle => 'Ustaw nowe hasło';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return 'Fraza odzyskiwania portfela $name zastępuje jego hasło. Historia, notatki i etykiety zostają; skanowanie nie jest potrzebne.';
+  }
+
+  @override
+  String get deskOnbForgotPasswordLead =>
+      'Fraza się zgadza. Wybierz nowe hasło, które odblokuje ten portfel na tym komputerze.';
+
+  @override
+  String get deskOnbForgotSet => 'Ustaw hasło';
+
+  @override
+  String deskOnbForgotOtherWallet(String name) {
+    return 'Ta fraza należy do innego portfela, nie do $name. Nic nie zmieniono.';
+  }
+
+  @override
+  String get deskOnbSameNewPassword => 'Ustaw nowe hasło';
+
+  @override
+  String get deskSetupSkipKeeps =>
+      'Pominięcie zachowuje obecne ustawienia węzła i Epicbox.';
+
+  @override
+  String deskSetupMarkNotCleared(String reason) {
+    return 'Nie udało się zapisać, że konfiguracja jest ukończona: $reason. Może otworzyć się ponownie przy następnym uruchomieniu; Pomiń konfigurację ją zamyka.';
+  }
+
+  @override
+  String get deskOvRestoredImportTitle => 'Przywrócić szczegóły płatności?';
+
+  @override
+  String get deskOvRestoredImportBody =>
+      'Łańcuch bloków przechowuje saldo, ale nie odbiorców płatności, opłaty ani notatki. Przywraca je kopia historii wyeksportowana z tego portfela: plik .wfeh zapisany poza starym komputerem.';
+
+  @override
+  String get deskOvRestoredImportButton => 'Importuj kopię historii';
+
+  @override
+  String get deskOvRestoredImportLater =>
+      'Później w Ustawienia › Ten portfel › Kopia zapasowa.';
+
+  @override
+  String get deskOnbRestoreNameLabel => 'Nazwa portfela (opcjonalnie)';
+
+  @override
+  String deskOnbRestoreNameHelp(int number) {
+    return 'Widoczna na ekranie odblokowania i na pasku bocznym. Bez nazwy portfel nazywa się „Wallet $number”.';
+  }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Zamiast tego przywróć go z frazy: $name znika z listy, a jego pliki zostają na tym komputerze.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Przywróć z frazy';
 }

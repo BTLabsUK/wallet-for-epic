@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
+/// What the user chose in [SameWalletDialog].
+enum SameWalletChoice { cancel, open, newPassword }
+
 /// "This wallet is already here" (O1): the restore phrase belongs to [wallet], which is in the
-/// list, so nothing was made. True when the user chose to open it; false for Cancel.
-Future<bool> showSameWalletDialog(BuildContext context, WalletEntry wallet) async =>
-    await showEDialog<bool>(context, builder: (_) => SameWalletDialog(wallet)) ?? false;
+/// list, so nothing was made. Open it, set a new password with this phrase (R4), or Cancel.
+Future<SameWalletChoice> showSameWalletDialog(BuildContext context, WalletEntry wallet) async =>
+    await showEDialog<SameWalletChoice>(context, builder: (_) => SameWalletDialog(wallet)) ?? SameWalletChoice.cancel;
 
 class SameWalletDialog extends StatelessWidget {
   const SameWalletDialog(this.wallet, {super.key});
@@ -61,8 +64,9 @@ class SameWalletDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
-        EButton.primary(label: l.deskOnbSameOpen, onPressed: () => Navigator.pop(context, true)),
+        EButton.ghost(label: l.commonCancel, onPressed: () => Navigator.pop(context, SameWalletChoice.cancel)),
+        EButton(key: const ValueKey('same-wallet-new-password'), label: l.deskOnbSameNewPassword, onPressed: () => Navigator.pop(context, SameWalletChoice.newPassword)),
+        EButton.primary(label: l.deskOnbSameOpen, onPressed: () => Navigator.pop(context, SameWalletChoice.open)),
       ],
     );
   }

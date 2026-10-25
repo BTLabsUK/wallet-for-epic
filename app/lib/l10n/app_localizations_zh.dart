@@ -9033,7 +9033,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbSameWallet => '钱包';
 
   @override
-  String get deskOnbSameNote => '“打开”会要求输入该钱包的密码。“取消”会把助记词保留在输入框中。';
+  String get deskOnbSameNote =>
+      '“打开”会要求输入该钱包的密码。“设置新密码”会用此助记词替换密码。“取消”会把助记词保留在输入框中。';
 
   @override
   String get deskOnbSameOpen => '打开';
@@ -13685,9 +13686,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => '不保存并继续';
-
-  @override
   String get deskSetupResumeLead => '上次设置未完成。钱包通过 Epic 节点读取区块链并发送交易。';
 
   @override
@@ -15479,4 +15477,121 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskSetRecvEpicboxOwnHint =>
       '此钱包有自己的 Epicbox 服务器，保留自旧应用。此处的更改只适用于此钱包。';
+
+  @override
+  String get deskErrRestoreScanRequired => '恢复尚未完成。区块链扫描结束后即可接收和发送。';
+
+  @override
+  String get deskSetupSkip => '跳过设置';
+
+  @override
+  String get deskOvRestoreTitle => '恢复尚未完成';
+
+  @override
+  String get deskOvRestoreRunning =>
+      '正在从第一个区块开始在链上查找此钱包的资金。已收到的 EPIC 会随查找逐步显示；扫描完成后即可接收和发送。';
+
+  @override
+  String deskOvRestoreAfterHeight(String height) {
+    return '区块 $height 之后的资金已找到。更早的区块仍在检查中，完成后即可接收和发送。';
+  }
+
+  @override
+  String get deskOvRestoreWaiting => '扫描正在等待网络。';
+
+  @override
+  String get deskOvRestoreFailed => '扫描在结束前中断。扫描完成前无法接收和发送。';
+
+  @override
+  String get deskOvRestoreProgress => '恢复扫描进度';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      '恢复扫描正在进行：从第一个区块开始读取链。扫描完成后才能重新核对余额。';
+
+  @override
+  String get deskSetRescanStartHeading => '从哪里开始';
+
+  @override
+  String get deskSetRescanRecent => '最近的区块';
+
+  @override
+  String get deskSetRescanRecentHint => '从最后扫描的区块往前 100 个区块开始。发送失败或余额看起来不对时足够。';
+
+  @override
+  String get deskSetRescanFromHeight => '从某个区块高度开始';
+
+  @override
+  String get deskSetRescanHeightInvalid => '请输入 1 或更大的区块高度。';
+
+  @override
+  String get deskSetRescanWholeChain => '整条链';
+
+  @override
+  String get deskSetRescanWholeChainHint => '从第一个区块开始。能找到全部，但耗时很长。也会完成未完成的恢复。';
+
+  @override
+  String get deskOnbForgotLink => '忘记密码？';
+
+  @override
+  String get deskOnbForgotTitle => '设置新密码';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return '用 $name 的助记词替换其密码。交易记录、备注和标签保留，无需扫描。';
+  }
+
+  @override
+  String get deskOnbForgotPasswordLead => '助记词核对无误。请设置在这台电脑上解锁此钱包的新密码。';
+
+  @override
+  String get deskOnbForgotSet => '设置密码';
+
+  @override
+  String deskOnbForgotOtherWallet(String name) {
+    return '此助记词属于另一个钱包，不属于 $name。没有做任何更改。';
+  }
+
+  @override
+  String get deskOnbSameNewPassword => '设置新密码';
+
+  @override
+  String get deskSetupSkipKeeps => '跳过将保持节点和 Epicbox 设置不变。';
+
+  @override
+  String deskSetupMarkNotCleared(String reason) {
+    return '无法将设置标记为已完成：$reason。下次启动时可能会再次显示；“跳过设置”可直接离开。';
+  }
+
+  @override
+  String get deskOvRestoredImportTitle => '找回付款详情？';
+
+  @override
+  String get deskOvRestoredImportBody =>
+      '区块链上保存着余额，但不包含付款对象、手续费和备注。从这个钱包导出的交易记录备份可以找回它们：即保存在旧电脑以外的 .wfeh 文件。';
+
+  @override
+  String get deskOvRestoredImportButton => '导入交易记录备份';
+
+  @override
+  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 备份”中导入。';
+
+  @override
+  String get deskOnbRestoreNameLabel => '钱包名称（可选）';
+
+  @override
+  String deskOnbRestoreNameHelp(int number) {
+    return '显示在解锁界面和侧栏中。不填则名为“Wallet $number”。';
+  }
+
+  @override
+  String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return '请改为用助记词恢复：$name 会从列表中移除，其文件仍保留在这台电脑上。';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => '用助记词恢复';
 }

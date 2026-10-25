@@ -9362,7 +9362,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'เปิดกระเป๋าเงิน จะถามรหัสผ่านของกระเป๋าเงินนั้น ยกเลิก จะเก็บวลีไว้ในตาราง';
+      'เปิดกระเป๋าเงิน จะถามรหัสผ่านของกระเป๋าเงินนั้น ตั้งรหัสผ่านใหม่ จะใช้วลีนี้แทนรหัสผ่าน ยกเลิก จะเก็บวลีไว้ในตาราง';
 
   @override
   String get deskOnbSameOpen => 'เปิดกระเป๋าเงิน';
@@ -14182,9 +14182,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => 'ดำเนินการต่อโดยไม่บันทึก';
-
-  @override
   String get deskSetupResumeLead =>
       'การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic';
 
@@ -16058,4 +16055,129 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetRecvEpicboxOwnHint =>
       'กระเป๋านี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋านี้เท่านั้น';
+
+  @override
+  String get deskErrRestoreScanRequired =>
+      'การกู้คืนยังไม่เสร็จ เมื่อสแกนบล็อกเชนเสร็จจึงรับและส่งได้';
+
+  @override
+  String get deskSetupSkip => 'ข้ามการตั้งค่า';
+
+  @override
+  String get deskOvRestoreTitle => 'การกู้คืนยังไม่เสร็จ';
+
+  @override
+  String get deskOvRestoreRunning =>
+      'กำลังค้นหายอดเงินของกระเป๋านี้บนบล็อกเชนตั้งแต่บล็อกแรก EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
+
+  @override
+  String deskOvRestoreAfterHeight(String height) {
+    return 'พบยอดเงินหลังบล็อก $height แล้ว กำลังตรวจบล็อกก่อนหน้า เมื่อเสร็จจึงรับและส่งได้';
+  }
+
+  @override
+  String get deskOvRestoreWaiting => 'การสแกนรอการเชื่อมต่อเครือข่าย';
+
+  @override
+  String get deskOvRestoreFailed =>
+      'การสแกนหยุดก่อนจบ รับและส่งไม่ได้จนกว่าจะสแกนเสร็จ';
+
+  @override
+  String get deskOvRestoreProgress => 'ความคืบหน้าการสแกนกู้คืน';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      'กำลังสแกนหลังกู้คืน: อ่านบล็อกเชนตั้งแต่บล็อกแรก ตรวจยอดใหม่ได้เมื่อสแกนเสร็จ';
+
+  @override
+  String get deskSetRescanStartHeading => 'เริ่มจากตรงไหน';
+
+  @override
+  String get deskSetRescanRecent => 'บล็อกล่าสุด';
+
+  @override
+  String get deskSetRescanRecentHint =>
+      'จาก 100 บล็อกก่อนบล็อกล่าสุดที่สแกน เพียงพอหลังส่งไม่สำเร็จหรือยอดดูไม่ถูก';
+
+  @override
+  String get deskSetRescanFromHeight => 'จากความสูงบล็อก';
+
+  @override
+  String get deskSetRescanHeightInvalid => 'ใส่ความสูงบล็อกตั้งแต่ 1 ขึ้นไป';
+
+  @override
+  String get deskSetRescanWholeChain => 'ทั้งบล็อกเชน';
+
+  @override
+  String get deskSetRescanWholeChainHint =>
+      'ตั้งแต่บล็อกแรก พบทุกอย่างแต่ใช้เวลานาน และทำให้การกู้คืนที่ค้างอยู่เสร็จด้วย';
+
+  @override
+  String get deskOnbForgotLink => 'ลืมรหัสผ่าน?';
+
+  @override
+  String get deskOnbForgotTitle => 'ตั้งรหัสผ่านใหม่';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return 'วลีกู้คืนของ $name ใช้แทนรหัสผ่านได้ ประวัติ บันทึก และป้ายกำกับยังอยู่ ไม่ต้องสแกน';
+  }
+
+  @override
+  String get deskOnbForgotPasswordLead =>
+      'วลีถูกต้อง เลือกรหัสผ่านใหม่สำหรับปลดล็อกกระเป๋านี้บนคอมพิวเตอร์นี้';
+
+  @override
+  String get deskOnbForgotSet => 'ตั้งรหัสผ่าน';
+
+  @override
+  String deskOnbForgotOtherWallet(String name) {
+    return 'วลีนี้เป็นของกระเป๋าอื่น ไม่ใช่ $name ไม่มีอะไรเปลี่ยน';
+  }
+
+  @override
+  String get deskOnbSameNewPassword => 'ตั้งรหัสผ่านใหม่';
+
+  @override
+  String get deskSetupSkipKeeps =>
+      'การข้ามจะคงการตั้งค่าโหนดและ Epicbox ไว้ตามเดิม';
+
+  @override
+  String deskSetupMarkNotCleared(String reason) {
+    return 'บันทึกว่าตั้งค่าเสร็จไม่ได้: $reason ครั้งหน้าอาจแสดงอีก กด ข้ามการตั้งค่า เพื่อออก';
+  }
+
+  @override
+  String get deskOvRestoredImportTitle => 'นำรายละเอียดรายการกลับมา?';
+
+  @override
+  String get deskOvRestoredImportBody =>
+      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋านี้จะนำกลับมาได้ คือไฟล์ .wfeh ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
+
+  @override
+  String get deskOvRestoredImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
+
+  @override
+  String get deskOvRestoredImportLater =>
+      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง';
+
+  @override
+  String get deskOnbRestoreNameLabel => 'ชื่อกระเป๋า (ไม่บังคับ)';
+
+  @override
+  String deskOnbRestoreNameHelp(int number) {
+    return 'แสดงบนหน้าปลดล็อกและแถบด้านข้าง หากไม่ตั้ง จะใช้ชื่อ “Wallet $number”';
+  }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'ไฟล์ของกระเป๋านี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'ให้กู้คืนจากวลีแทน: $name จะออกจากรายการ และไฟล์ยังอยู่บนคอมพิวเตอร์นี้';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'กู้คืนจากวลี';
 }

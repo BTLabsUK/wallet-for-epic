@@ -67,7 +67,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
 
   bool get _accountOk {
     final (p, c) = accountErrors(context.l10n, _password.text, _confirm.text);
-    return _password.text.length >= 8 && _confirm.text == _password.text && p == null && c == null;
+    return passwordLongEnough(_password.text) && _confirm.text == _password.text && p == null && c == null;
   }
 
   void _to(CreateStep s) => setState(() => _step = s);

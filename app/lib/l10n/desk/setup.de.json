@@ -52,6 +52,5 @@
   "deskSetupOff": "Aus",
   "deskSetupSaveFailedTitle": "Einstellungen nicht gespeichert",
   "deskSetupSaveFailedText": "{reason}. Ohne Speichern verwendet die Wallet die bisher gespeicherten Einstellungen. Sie lassen sich später unter Einstellungen ändern.",
-  "deskSetupSkipSave": "Ohne Speichern fortfahren",
   "deskSetupResumeLead": "Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node."
 }

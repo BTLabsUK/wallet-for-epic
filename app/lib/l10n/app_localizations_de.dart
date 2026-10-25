@@ -9683,7 +9683,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      '„Öffnen“ fragt nach dem Passwort dieser Wallet. „Abbrechen“ lässt die Phrase im Raster.';
+      '„Öffnen“ fragt nach dem Passwort dieser Wallet. „Neues Passwort festlegen“ ersetzt es mit dieser Phrase. „Abbrechen“ lässt die Phrase im Raster.';
 
   @override
   String get deskOnbSameOpen => 'Öffnen';
@@ -14632,9 +14632,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => 'Ohne Speichern fortfahren';
-
-  @override
   String get deskSetupResumeLead =>
       'Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node.';
 
@@ -16556,4 +16553,131 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetRecvEpicboxOwnHint =>
       'Diese Wallet hat einen eigenen Epicbox-Server aus der älteren App. Eine Änderung hier gilt nur für diese Wallet.';
+
+  @override
+  String get deskErrRestoreScanRequired =>
+      'Wiederherstellung nicht abgeschlossen. Empfangen und Senden sind möglich, sobald der Scan der Blockchain beendet ist.';
+
+  @override
+  String get deskSetupSkip => 'Einrichtung überspringen';
+
+  @override
+  String get deskOvRestoreTitle => 'Wiederherstellung nicht abgeschlossen';
+
+  @override
+  String get deskOvRestoreRunning =>
+      'Das Guthaben dieser Wallet wird ab dem ersten Block auf der Blockchain gesucht. Empfangene EPIC erscheinen, sobald sie gefunden werden; Empfangen und Senden sind möglich, sobald der Scan abgeschlossen ist.';
+
+  @override
+  String deskOvRestoreAfterHeight(String height) {
+    return 'Das Guthaben ab Block $height ist da. Frühere Blöcke werden noch geprüft; Empfangen und Senden sind möglich, sobald das abgeschlossen ist.';
+  }
+
+  @override
+  String get deskOvRestoreWaiting => 'Der Scan wartet auf das Netzwerk.';
+
+  @override
+  String get deskOvRestoreFailed =>
+      'Der Scan wurde vor dem Ende abgebrochen. Empfangen und Senden bleiben gesperrt, bis er abgeschlossen ist.';
+
+  @override
+  String get deskOvRestoreProgress =>
+      'Fortschritt des Wiederherstellungs-Scans';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      'Der Scan der Wiederherstellung läuft: Die Blockchain wird ab dem ersten Block gelesen. Guthaben neu prüfen ist verfügbar, sobald er abgeschlossen ist.';
+
+  @override
+  String get deskSetRescanStartHeading => 'Wo beginnen';
+
+  @override
+  String get deskSetRescanRecent => 'Letzte Blöcke';
+
+  @override
+  String get deskSetRescanRecentHint =>
+      'Ab 100 Blöcken vor dem letzten gescannten. Reicht nach einer fehlgeschlagenen Zahlung oder einem Guthaben, das falsch aussieht.';
+
+  @override
+  String get deskSetRescanFromHeight => 'Ab einer Blockhöhe';
+
+  @override
+  String get deskSetRescanHeightInvalid =>
+      'Geben Sie eine Blockhöhe von 1 oder mehr ein.';
+
+  @override
+  String get deskSetRescanWholeChain => 'Gesamte Blockchain';
+
+  @override
+  String get deskSetRescanWholeChainHint =>
+      'Ab dem ersten Block. Findet alles und dauert lange. Schließt auch eine nicht abgeschlossene Wiederherstellung ab.';
+
+  @override
+  String get deskOnbForgotLink => 'Passwort vergessen?';
+
+  @override
+  String get deskOnbForgotTitle => 'Neues Passwort festlegen';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return 'Die Wiederherstellungsphrase von $name ersetzt das Passwort. Verlauf, Notizen und Labels bleiben erhalten; kein Scan nötig.';
+  }
+
+  @override
+  String get deskOnbForgotPasswordLead =>
+      'Die Phrase stimmt. Wählen Sie das neue Passwort, das diese Wallet auf diesem Computer entsperrt.';
+
+  @override
+  String get deskOnbForgotSet => 'Passwort festlegen';
+
+  @override
+  String deskOnbForgotOtherWallet(String name) {
+    return 'Diese Phrase gehört zu einer anderen Wallet, nicht zu $name. Es wurde nichts geändert.';
+  }
+
+  @override
+  String get deskOnbSameNewPassword => 'Neues Passwort festlegen';
+
+  @override
+  String get deskSetupSkipKeeps =>
+      'Überspringen behält die Node- und Epicbox-Einstellungen, wie sie sind.';
+
+  @override
+  String deskSetupMarkNotCleared(String reason) {
+    return 'Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: $reason. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ verlässt sie.';
+  }
+
+  @override
+  String get deskOvRestoredImportTitle => 'Zahlungsdetails zurückholen?';
+
+  @override
+  String get deskOvRestoredImportBody =>
+      'Die Blockchain enthält das Guthaben, aber nicht, wer bezahlt wurde, Gebühren oder Notizen. Eine aus dieser Wallet exportierte Verlaufssicherung holt sie zurück: die .wfeh-Datei, die außerhalb des alten Computers gespeichert wurde.';
+
+  @override
+  String get deskOvRestoredImportButton => 'Verlaufssicherung importieren';
+
+  @override
+  String get deskOvRestoredImportLater =>
+      'Später unter Einstellungen › Diese Wallet › Sicherung.';
+
+  @override
+  String get deskOnbRestoreNameLabel => 'Wallet-Name (optional)';
+
+  @override
+  String deskOnbRestoreNameHelp(int number) {
+    return 'Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet $number“.';
+  }
+
+  @override
+  String get deskOnbForgotNoCheck =>
+      'Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.';
+
+  @override
+  String deskOnbForgotRestoreHint(String name) {
+    return 'Stellen Sie sie stattdessen aus der Phrase wieder her: $name verlässt die Liste, ihre Dateien bleiben auf diesem Computer.';
+  }
+
+  @override
+  String get deskOnbForgotRestoreInstead => 'Aus der Phrase wiederherstellen';
 }

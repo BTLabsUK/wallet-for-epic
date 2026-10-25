@@ -608,6 +608,7 @@ class ServiceStatus {
     this.epicboxOwn = false,
     this.syncProgress,
     this.scanning = false,
+    this.restoreScan,
     this.lastUpdate,
     this.notice,
   });
@@ -665,10 +666,36 @@ class ServiceStatus {
   /// A chain scan runs: the first one after a restore, or Recheck balance. Auto-lock waits for
   /// it, or an idle computer would stop a restore at every lock and never finish it.
   final bool scanning;
+
+  /// The scan a restore or a rebuilt database still owes (D3): null once the core says the scan
+  /// from block 0 finished. Receiving and sending wait for it.
+  final RestoreScan? restoreScan;
   final DateTime? lastUpdate;
 
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
+}
+
+/// Where the scan a restore owes stands ([ServiceStatus.restoreScan]): it runs (or is about to),
+/// it waits for the network (Offline, or the node does not answer), or it stopped with an error
+/// or did not finish and waits for Try again ([DeskWalletApi.syncNow]).
+enum RestoreScanState { running, waiting, failed }
+
+@immutable
+class RestoreScan {
+  const RestoreScan(this.state, {this.percent, this.fromHeight, this.offline = false});
+
+  final RestoreScanState state;
+
+  /// 0 to 100 while it runs and the core has said how far; null otherwise.
+  final int? percent;
+
+  /// The height typed at Restore, while the scan from block 0 the core still owes runs after the
+  /// scan from it ended (copy D1: "Funds after block N are in"); null otherwise.
+  final int? fromHeight;
+
+  /// It waits because Offline mode is on (not for a node that does not answer).
+  final bool offline;
 }
 
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
@@ -695,6 +722,10 @@ String torStatusLine(AppLocalizations l, ServiceStatus s) {
 
 /// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).
 const int minPasswordLength = 8;
+
+/// Whether [password] is long enough for a new wallet: counted in characters (runes), as the
+/// core counts them, so four emoji are four characters, not eight (R26).
+bool passwordLongEnough(String password) => password.runes.length >= minPasswordLength;
 
 /// One step of a rescan: the core's message and, when it gives one, the percentage.
 /// [finished] is set on the last step of a scan that ran to its end (not on a stopped one),
@@ -729,7 +760,11 @@ class ScanCounts {
 /// and the Overview reminder (F33).
 @immutable
 class HistoryBackupState {
-  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet'});
+  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet', this.importOffer = false});
+
+  /// A wallet restored from its phrase that has not answered "Import a history backup?" yet
+  /// (R13): Overview offers the import, or Not now.
+  final bool importOffer;
 
   /// The last export saved; null: never.
   final DateTime? lastExport;
@@ -834,12 +869,12 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
     : _text = null;
 
   /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
   /// [message] keeps its English for logs.
-  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
     : message = text(englishStrings),
       _text = text;
 
@@ -850,6 +885,13 @@ class DeskError implements Exception {
   /// The message in [l]'s language; English for an error made with a plain [message].
   String text(AppLocalizations l) => _text?.call(l) ?? message;
   final bool wrongPassword;
+
+  /// Forgot password: the phrase is not this wallet's (another wallet's, or no phrase at all).
+  final bool wrongPhrase;
+
+  /// Forgot password: the wallet's files cannot confirm any phrase (no database it used, or a
+  /// damaged one), so nothing changed; a restore from the phrase is the way out.
+  final bool resetUnverifiable;
 
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
   /// flow offers to open it instead.

@@ -240,14 +240,26 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (!mounted) return;
     final first = _first;
     if (first?.added.id case final id?) {
-      try {
-        await ref.read(deskApiProvider).setSetupPending(id, false);
-      } on Object catch (e) {
-        return _failed(e);
-      }
+      // The choices are stored: a mark that cannot be cleared is said, not a failed Save that
+      // a retry would repeat (node switch and all) (R11).
+      if (!await _clearMark(id)) return;
     }
     if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(first == null ? DeskRoute.overview : DeskRoute.unlock, first?.added);
+  }
+
+  /// Clears the first-run mark of wallet [id]; never a way back into this Setup in this session.
+  /// When it cannot be cleared, the toast says Setup opens again at the next start, and Unlock
+  /// follows. False when the screen went meanwhile.
+  Future<bool> _clearMark(String id) async {
+    setupSkippedThisSession.add(id);
+    try {
+      await ref.read(deskApiProvider).setSetupPending(id, false);
+    } on Object catch (e) {
+      logWarn('desk', 'setup mark not cleared: ${e.runtimeType}');
+      if (mounted) showEToast(context, context.l10n.deskSetupMarkNotCleared(_noStop(deskErrorText(e, context.l10n))), tone: ETone.warn);
+    }
+    return mounted;
   }
 
   void _failed(Object e) {
@@ -263,24 +275,22 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (_first == null) showEToast(context, context.l10n.deskSetupNotSaved, text: reason, tone: ETone.risk);
   }
 
-  /// A first run whose Save failed: Unlock without it. The wallet keeps what is stored (the
-  /// defaults, or what an earlier Save stored); Settings changes it later. Never a way back
-  /// into the same Setup in this session.
+  /// A first run left without saving (Skip from any step, or after a failed Save): Unlock
+  /// without it. The wallet keeps what is stored (the defaults, or what an earlier Save stored);
+  /// Settings changes it later. Never a way back into the same Setup in this session.
   Future<void> _skip() async {
     final first = _first;
     if (first == null || _busy) return;
     setState(() => _busy = true);
     if (first.added.id case final id?) {
-      setupSkippedThisSession.add(id);
-      try {
-        await ref.read(deskApiProvider).setSetupPending(id, false);
-      } on Object catch (e) {
-        logWarn('desk', 'setup mark not cleared: ${e.runtimeType}');
-      }
+      if (!await _clearMark(id)) return;
     }
     if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, first.added);
   }
+
+  /// [reason] for a sentence that adds its own full stop.
+  static String _noStop(String reason) => reason.endsWith('.') || reason.endsWith('。') ? reason.substring(0, reason.length - 1) : reason;
 
   void _to(SetupStep s) => setState(() => _step = s);
 
@@ -346,8 +356,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 alignment: Alignment.centerLeft,
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
-            : Text(l.deskSetupLaterNote, style: ts.caption),
+            : Text(_first != null ? '${l.deskSetupSkipKeeps} ${l.deskSetupLaterNote}' : l.deskSetupLaterNote, style: ts.caption),
         actions: [
+          // A first run can be left from the start: the defaults stay, Settings changes them (R11).
+          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
           if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
@@ -593,7 +605,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           title: l.deskSetupSaveFailedTitle,
           // The string adds the full stop.
           text: l.deskSetupSaveFailedText(failed.endsWith('.') || failed.endsWith('。') ? failed.substring(0, failed.length - 1) : failed),
-          actions: [EButton.ghost(label: l.deskSetupSkipSave, onPressed: _busy ? null : _skip)],
         ),
         SizedBox(height: Sp.x4),
         panel,

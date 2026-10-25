@@ -146,6 +146,11 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
+  Future<bool?> phraseIsOf(String id, List<String> phrase) => _r('phraseIsOf', () => _m.phraseIsOf(id, phrase));
+  @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) =>
+      _r('resetPassword', () => _m.resetPassword(id, phrase: phrase, newPassword: newPassword));
+  @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) =>
       _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase, startHeight: startHeight));
   @override
@@ -270,7 +275,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> syncNow() => _r('syncNow', _m.syncNow);
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed));
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed, startHeight: startHeight));
   @override
   Future<void> stopRescan() => _r('stopRescan', _m.stopRescan);
   @override
@@ -300,6 +305,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
   @override
   Future<void> dismissHistoryReminder(DateTime when) => _r('dismissHistoryReminder', () => _m.dismissHistoryReminder(when));
+  @override
+  Future<void> dismissHistoryImportOffer() => _r('dismissHistoryImportOffer', _m.dismissHistoryImportOffer);
 
   // Invoices: hidden in the sweep (the prototype's screens have their own shots).
   @override
