@@ -71,12 +71,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final args = _args;
     if (args != null) {
       final n = ref.read(deskProvider.notifier);
+      // The container, not ref: the screen can be gone before these awaits finish.
+      final c = ProviderScope.containerOf(context, listen: false);
       Future.microtask(() async {
         await n.setEpicboxListening(args.epicbox != RxEpicbox.off);
         if (DeskFeatures.httpDirect) await n.setHttp(args.http != RxHttp.off);
         if (DeskFeatures.tor && args.tor != RxTor.off) {
           // The Tor address shows while Link · Tor is on (Settings › Transactions) and Tor runs.
-          final s = ref.read(deskProvider).settings;
+          final s = c.read(deskProvider).settings;
           if (!s.payments.linkTor) await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
         }
         if (DeskFeatures.tor) await n.setTor(args.tor != RxTor.off);
