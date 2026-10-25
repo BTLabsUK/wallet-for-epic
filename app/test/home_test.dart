@@ -1984,19 +1984,16 @@ void main() {
             status: TxStatus.awaitingConfirmation,
             amountCredited: _epic(4),
             cancellable: true,
+            // Past the 15-minute hold, so Cancel is offered (test/receive_cancel_test.dart).
+            createdAtUnix: _now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
           ),
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:in'));
-      await _tap(tester, find.widgetWithText(OutlinedButton, 'Cancel payment'));
+      await _tap(tester, find.byKey(txDetailsCancelReceiveKey));
       expect(find.text('Cancel payment?'), findsOneWidget);
-      expect(
-        find.text(
-          'The sender may still finish this payment. If they do after you '
-          'cancel, it will not show until you rescan.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.textContaining('may already have posted'), findsOneWidget);
+      expect(find.textContaining('about a week'), findsOneWidget);
       await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(h.session.cancelledTxIds, [7]);
     });

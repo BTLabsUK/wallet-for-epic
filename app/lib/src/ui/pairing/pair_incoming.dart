@@ -348,7 +348,8 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
             child: Text(l.pairWaitingTitle(name), textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
           ),
           const SizedBox(height: 8),
-          Text(l.pairWaitingBody, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+          // By hand (Offline, Epicbox off) nothing continues in the background.
+          if (net == PairNet.online) Text(l.pairWaitingBody, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
           const SizedBox(height: 16),
           if (record?.expiresAt != null)
             Center(
@@ -370,7 +371,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
               body: net != PairNet.online ? null : (overTor ? l.pairRelayUnreachableTor : l.pairRelayUnreachableBody),
               actions: [
                 FilledButton(onPressed: _byHand, child: Text(l.pairSendByHand)),
-                OutlinedButton(onPressed: () => ref.read(pairingApiProvider).collect().ignore(), child: Text(l.pairEnterTryAgain)),
+                if (net == PairNet.online) OutlinedButton(onPressed: () => ref.read(pairingApiProvider).collect().ignore(), child: Text(l.pairEnterTryAgain)),
               ],
             ),
           ],

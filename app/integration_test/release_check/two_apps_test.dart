@@ -315,6 +315,9 @@ void main() {
     if (role == 'A') {
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
       await settle(tester, ms: 2000);
+      // Under the fold since the name field sits above both panels.
+      await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+      await settle(tester, ms: 500);
       await tester.tap(find.byKey(deskPairCopyCardKey));
       // Making a card is a native call: give it its time.
       await pumpUntil(tester, () => containerOf(tester).read(deskOwnCardProvider) != null, timeout: const Duration(seconds: 60), what: 'A\'s card');

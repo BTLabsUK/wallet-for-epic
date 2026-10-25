@@ -772,7 +772,8 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
           if (link == null) ...[
             const Center(child: ESpinner()),
             SizedBox(height: Sp.x3),
-            Text(l.pairWaitingBody, style: ts.bodyDim),
+            // By hand (Offline, Epicbox off) nothing continues in the background.
+            if (ref.watch(deskPairNetProvider) == DeskPairNet.online) Text(l.pairWaitingBody, style: ts.bodyDim),
             // Offline or Epicbox off on this wallet is no relay trouble: it says which.
             if (ref.watch(deskPairNetProvider) case final net when (r?.relayDown ?? false) || net != DeskPairNet.online) ...[
               SizedBox(height: Sp.x3),
