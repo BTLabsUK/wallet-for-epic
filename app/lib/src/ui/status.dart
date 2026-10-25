@@ -345,7 +345,8 @@ class StatusIcon extends StatelessWidget {
       container: true,
       button: true,
       label: label,
-      hint: [detail, ?actionHint].join('\n'),
+      // A detail that only repeats the state in the label is said once (AND-7).
+      hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, ?actionHint].join('\n'),
       liveRegion: true,
       excludeSemantics: true,
       onTap: onTap,

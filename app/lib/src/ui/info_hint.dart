@@ -16,12 +16,16 @@ import 'theme/tokens.dart';
 /// that is itself the 48 dp target). A tap opens [InfoSheet] with [title] (the row's name,
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = 40, required this.title, this.icon});
+  const InfoHint(this.text, {super.key, this.size = 40, required this.title, this.icon, this.labelled = true});
 
   final String text;
   final double size;
   final String title;
   final IconData? icon;
+
+  /// False where the row's own title names it already: a disabled row merges the icon into
+  /// itself, and its label would say the title twice (AND-7).
+  final bool labelled;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +40,7 @@ class InfoHint extends StatelessWidget {
     void open() => showInfoSheet(context, title: title, text: text, icon: icon);
     return Semantics(
       button: true,
-      label: title,
+      label: labelled ? title : null,
       hint: text,
       excludeSemantics: true,
       onTap: open,
@@ -126,12 +130,15 @@ class InfoSheet extends StatelessWidget {
 /// the row at its usual height. The sheet is titled [sheetTitle], or [title] itself, with
 /// [icon] beside it.
 class TitleWithHint extends StatelessWidget {
-  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon});
+  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon, this.labelled = true});
 
   final String title;
   final String hint;
   final String? sheetTitle;
   final IconData? icon;
+
+  /// [InfoHint.labelled].
+  final bool labelled;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -139,7 +146,7 @@ class TitleWithHint extends StatelessWidget {
     children: [
       Flexible(child: Text(title)),
       const SizedBox(width: 4),
-      InfoHint(hint, size: 32, title: sheetTitle ?? title, icon: icon),
+      InfoHint(hint, size: 32, title: sheetTitle ?? title, icon: icon, labelled: labelled),
     ],
   );
 }
@@ -181,6 +188,8 @@ class HintSwitchTile extends StatelessWidget {
         hint: hint,
         sheetTitle: sheetTitle,
         icon: sheetIcon ?? icon,
+        // Disabled, the row takes the icon into its own node, which has the title already.
+        labelled: onChanged != null,
       ),
       subtitle: subtitle,
       trailing: Switch(value: value, onChanged: onChanged),
