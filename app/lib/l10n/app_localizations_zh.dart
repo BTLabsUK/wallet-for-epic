@@ -1311,7 +1311,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String epicboxBlockedBody(String host) {
-    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。';
+    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或专用 DNS。';
   }
 
   @override
@@ -15577,7 +15577,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskEpicboxBlockedText(String host) {
-    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。';
+    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或专用 DNS。';
   }
 
   @override

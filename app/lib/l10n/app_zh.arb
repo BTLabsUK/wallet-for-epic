@@ -358,7 +358,7 @@
   "statusEpicboxConnecting": "正在连接 Epicbox",
   "statusEpicboxOffline": "Epicbox 未连接",
   "statusEpicboxBlocked": "Epicbox 被拦截",
-  "epicboxBlockedBody": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。",
+  "epicboxBlockedBody": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或专用 DNS。",
   "epicboxSwitchTo": "切换到 {host}",
   "netStatusBlocked": "被拦截",
   "statusNodeTestNetwork": "{network}，测试币",
@@ -4370,6 +4370,6 @@
   "backupSettingsKeepMine": "保留我的",
   "backupFromOtherWallet": "此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。",
   "deskEpicboxBlockedWord": "被拦截",
-  "deskEpicboxBlockedText": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。",
+  "deskEpicboxBlockedText": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或专用 DNS。",
   "deskEpicboxBlockedSwitch": "切换到 {host}"
 }

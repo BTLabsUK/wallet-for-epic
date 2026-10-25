@@ -358,7 +358,7 @@
   "statusEpicboxConnecting": "Подключение к epicbox",
   "statusEpicboxOffline": "Epicbox не подключён",
   "statusEpicboxBlocked": "Epicbox заблокирован",
-  "epicboxBlockedBody": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.",
+  "epicboxBlockedBody": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.",
   "epicboxSwitchTo": "Переключиться на {host}",
   "netStatusBlocked": "Заблокирован",
   "statusNodeTestNetwork": "{network}, тестовые монеты",
@@ -4370,6 +4370,6 @@
   "backupSettingsKeepMine": "Оставить мои",
   "backupFromOtherWallet": "Этот файл принадлежит другому кошельку. Открыть его может только кошелёк, восстановленный по той же фразе восстановления.",
   "deskEpicboxBlockedWord": "Заблокирован",
-  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.",
+  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.",
   "deskEpicboxBlockedSwitch": "Переключиться на {host}"
 }

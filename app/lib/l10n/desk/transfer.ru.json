@@ -51,6 +51,6 @@
   "deskImpChooseText": "Кошелёк подпишет его и сохранит ответ для отправителя.",
   "deskImpOpenAnother": "Открыть другой файл",
   "deskEpicboxBlockedWord": "Заблокирован",
-  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.",
+  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.",
   "deskEpicboxBlockedSwitch": "Переключиться на {host}"
 }

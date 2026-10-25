@@ -1423,7 +1423,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String epicboxBlockedBody(String host) {
-    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.';
+    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.';
   }
 
   @override
@@ -16881,7 +16881,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskEpicboxBlockedText(String host) {
-    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.';
+    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.';
   }
 
   @override
