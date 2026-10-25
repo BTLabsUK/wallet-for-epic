@@ -815,6 +815,8 @@ class LepicDeskWallet implements DeskWalletApi {
           }
           await _store.delete(DeskStore.torKeyOf(entry.walletId));
           await _store.delete(DeskStore.outputsKeyOf(entry.walletId));
+          await _store.delete(DeskStore.autostartKeyOf(entry.walletId));
+          await _removeWalletTxt(config.dataDir, legacy: entry.isLegacy);
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -825,6 +827,21 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     if (_selectedId == id) _selectedId = null;
     logInfo('desk', 'wallet ${mode == WalletRemoval.list ? 'removed from the list' : 'deleted'}');
+  }
+
+  /// WALLET.txt is the app's own file in a deleted wallet's folder ([writeWalletTxt]): it goes
+  /// too, then the folders the registry kept for it, each only while empty (R19).
+  Future<void> _removeWalletTxt(String dir, {required bool legacy}) async {
+    try {
+      for (final name in ['WALLET.txt', 'WALLET.txt.tmp']) {
+        final f = File('$dir${Platform.pathSeparator}$name');
+        if (!FileSystemEntity.isLinkSync(f.path) && f.existsSync()) await f.delete();
+      }
+      await Directory(dir).delete(); // only when empty
+      if (!legacy) await Directory(dir).parent.delete();
+    } on FileSystemException {
+      // Not empty (wallet_data, other files) or already gone.
+    }
   }
 
   /// Deletes [id] once the core has let go of its folder: a closed session and a stopped scan
@@ -1249,7 +1266,7 @@ class LepicDeskWallet implements DeskWalletApi {
       throw UnsupportedError('the phrase comes from createWallet');
 
   void _checkPassword(String password) {
-    if (password.length < minPasswordLength) {
+    if (!passwordLongEnough(password)) {
       throw DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength));
     }
   }
