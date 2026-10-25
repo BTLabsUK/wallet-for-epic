@@ -13781,6 +13781,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairEnterDesktopHint => '粘贴的链接或输入的词相当于在手机上扫描。';
 
   @override
+  String get pairCardCopy => '复制我的名片链接';
+
+  @override
+  String get pairCardHint => '当面配对且没有摄像头：双方钱包各自在上方粘贴对方的名片链接。';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return '现在把你的名片交给 $name';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return '在 $name 的钱包中“输入链接或词语”处粘贴此链接。然后一起核对词语。';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder => '粘贴邀请链接，或输入五个词';
 
   @override

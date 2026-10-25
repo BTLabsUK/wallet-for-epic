@@ -14280,6 +14280,23 @@ class AppLocalizationsTh extends AppLocalizations {
       'ลิงก์ที่วางหรือคำที่พิมพ์ใช้แทนการสแกนบนโทรศัพท์';
 
   @override
+  String get pairCardCopy => 'คัดลอกลิงก์การ์ดของฉัน';
+
+  @override
+  String get pairCardHint =>
+      'พบกันต่อหน้าโดยไม่มีกล้อง: แต่ละวอลเล็ตวางลิงก์การ์ดของอีกฝ่ายด้านบน';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return 'ตอนนี้ส่งการ์ดของคุณให้ $name';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return 'วางลิงก์นี้ในช่อง ใส่ลิงก์หรือคำ ในวอลเล็ตของ $name จากนั้นตรวจคำด้วยกัน';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder => 'วางลิงก์คำเชิญ หรือพิมพ์ห้าคำ';
 
   @override

@@ -14564,6 +14564,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'A pasted link or typed words do what a scan does on the phone.';
 
   @override
+  String get pairCardCopy => 'Copy my card link';
+
+  @override
+  String get pairCardHint =>
+      'Face to face without a camera: each wallet pastes the other\'s card link above.';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return 'Now give $name your card';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return 'Paste this link under Enter link or words in $name\'s wallet. Then check the words together.';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder =>
       'Paste the invite link, or type the five words';
 

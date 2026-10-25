@@ -14977,6 +14977,23 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вставленная ссылка или введённые слова заменяют сканирование на телефоне.';
 
   @override
+  String get pairCardCopy => 'Скопировать ссылку моей карточки';
+
+  @override
+  String get pairCardHint =>
+      'Лично без камеры: каждый кошелёк вставляет выше ссылку карточки другого.';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return 'Теперь передайте $name свою карточку';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return 'Вставьте эту ссылку в кошельке $name в поле «Введите ссылку или слова». Затем вместе сверьте слова.';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder =>
       'Вставьте ссылку-приглашение или введите пять слов';
 

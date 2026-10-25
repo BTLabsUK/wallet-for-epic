@@ -21,6 +21,7 @@ import '../common.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_screen.dart';
+import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -239,10 +240,12 @@ class PairingWaitingScreen extends ConsumerStatefulWidget {
 class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   PairingCollector? _collector;
   StreamSubscription<PairingEvent>? _events;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
+    pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(pairingApiProvider);
     _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
     _events = api.events().listen((e) {
@@ -258,6 +261,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
 
   @override
   void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
     _collector?.stop();
     _events?.cancel();
     super.dispose();

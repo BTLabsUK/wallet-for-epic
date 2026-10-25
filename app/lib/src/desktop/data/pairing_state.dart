@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
-import '../../models.dart' show PairingEvent, PairingRecord, PairingSlate, PairingState;
+import '../../models.dart' show PairingCard, PairingEvent, PairingRecord, PairingSlate, PairingState;
 import '../../pairing_api.dart';
 import 'models.dart' show Contact;
 import 'state.dart';
@@ -97,6 +97,20 @@ final deskPairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?
   ref.onDispose(sub.cancel);
   return api.slateOf(slateId);
 });
+
+/// This wallet's in-person card while one is out (RFC 7.4): the card the other wallet's card
+/// link is read against. Memory only; it ends with the pairing it made and with the wallet.
+final deskOwnCardProvider = NotifierProvider<DeskOwnCard, PairingCard?>(DeskOwnCard.new);
+
+class DeskOwnCard extends Notifier<PairingCard?> {
+  @override
+  PairingCard? build() {
+    ref.watch(deskPairingApiProvider);
+    return null;
+  }
+
+  void set(PairingCard? card) => state = card;
+}
 
 /// The name others see when pairing ("They will see you as"), kept in the settings.
 final deskSeenAsProvider = NotifierProvider<DeskSeenAs, String>(DeskSeenAs.new);

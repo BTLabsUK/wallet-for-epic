@@ -1,6 +1,7 @@
 /// Pairing on the desktop (SPEC 2.1 to 2.3, 2.6, desktop frames): no camera, so Show my code
 /// is an invite's code with its pairing words beside it, and Enter link or words takes a
-/// pasted link (an invite, an answer or a confirm sent by hand) or typed words. Invite online
+/// pasted link (an invite, an answer or a confirm sent by hand, or the other wallet's card
+/// link for pairing face to face) or typed words. Invite online
 /// copies the invite. The incoming invite and the words check are dialogs; Pending invites is
 /// a page under Contacts.
 library;
@@ -18,6 +19,7 @@ import '../../../models.dart'
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
+import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
@@ -29,6 +31,9 @@ import '../transfer/contact_picker.dart' show showContactPicker;
 const Key deskPairEnterKey = ValueKey('desk-pair-enter');
 const Key deskPairGoKey = ValueKey('desk-pair-go');
 const Key deskPairCopyInviteKey = ValueKey('desk-pair-copy-invite');
+const Key deskPairCopyCardKey = ValueKey('desk-pair-copy-card');
+const Key deskCardBackLinkKey = ValueKey('desk-card-back-link');
+const Key deskCardBackCheckKey = ValueKey('desk-card-back-check');
 const Key deskIncomingPairKey = ValueKey('desk-incoming-pair');
 const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
@@ -73,9 +78,13 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   Timer? _collect;
   StreamSubscription<PairingEvent>? _events;
 
+  /// Any answer opens its words here.
+  bool _onScreen(PairingEvent e) => e.kind == PairingEventKind.replied;
+
   @override
   void initState() {
     super.initState();
+    pairingWordsOnScreen.add(_onScreen);
     _name.text = ref.read(deskSeenAsProvider);
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
@@ -92,6 +101,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
 
   @override
   void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
     _tick?.cancel();
     _collect?.cancel();
     _events?.cancel();
@@ -148,9 +158,34 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     return w.length == pairingWordCount && w.every((x) => (sasWordNamed(x) ?? sasWordOfEmoji(x)) != null);
   }
 
+  /// This wallet's card for pairing face to face: the other wallet pastes its link, and this
+  /// one pastes theirs back.
+  Future<void> _copyCard() async {
+    final l = context.l10n;
+    if (_seenAs.isEmpty) {
+      setState(() => _triedInvite = true);
+      return;
+    }
+    try {
+      final card = ref.read(deskOwnCardProvider) ?? await ref.read(deskPairingApiProvider).showCard(name: _seenAs);
+      ref.read(deskOwnCardProvider.notifier).set(card);
+      if (mounted) await copyToClipboard(context, card.link, l.pairCopied);
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
+    }
+  }
+
   Future<void> _go() async {
     if (_busy || !_ready) return;
     final l = context.l10n;
+    // A card link needs this wallet's own card, and a card needs the name others see.
+    if (pairingLinkKind(_enter.text) == PairingLinkKind.card && ref.read(deskOwnCardProvider) == null && _seenAs.isEmpty) {
+      setState(() {
+        _triedInvite = true;
+        _enterError = l.pairSeenAsMissing;
+      });
+      return;
+    }
     setState(() {
       _busy = true;
       _enterError = null;
@@ -263,6 +298,14 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
               ],
             ),
           ),
+          SizedBox(height: Sp.x3),
+          Row(
+            children: [
+              Expanded(child: Text(l.pairCardHint, style: ts.small)),
+              SizedBox(width: Sp.x2),
+              EButton(key: deskPairCopyCardKey, label: l.pairCardCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyCard),
+            ],
+          ),
         ],
       ),
     );
@@ -367,8 +410,18 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String tex
         final r = await deskPairingCall(ref, (a) => a.openConfirm(text));
         if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case PairingLinkKind.card:
-        // A card wants a camera on both sides; the desktop shows its invite instead.
-        throw pairingError(PairingFailure.invalid);
+        // Face to face without a camera: the other wallet's card against this wallet's own,
+        // made now when this side has not handed one over yet.
+        final own = ref.read(deskOwnCardProvider);
+        final name = ref.read(deskSeenAsProvider).trim();
+        if (own == null && name.isEmpty) throw pairingError(PairingFailure.invalid);
+        final card = own ?? await api.showCard(name: name);
+        final r = await deskPairingCall(ref, (a) => a.scanCard(cardId: card.id, text: text));
+        ref.read(deskOwnCardProvider.notifier).set(null);
+        if (own == null && context.mounted) {
+          await showEDialog<void>(context, builder: (_) => _CardBackDialog(name: r.shownName, link: card.link));
+        }
+        if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case null:
         final words = text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
         final preview = await api.openWords([for (final w in words) (sasWordNamed(w) ?? sasWordOfEmoji(w))?.name ?? w]);
@@ -378,6 +431,37 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String tex
     final failure = pairingFailureOf(error);
     if (failure == null || failure == PairingFailure.notFound || !context.mounted) rethrow;
     await showDeskOutcome(context, failure);
+  }
+}
+
+/// This wallet's card link to paste into the other wallet, which read none yet; then the
+/// words check.
+class _CardBackDialog extends StatelessWidget {
+  const _CardBackDialog({required this.name, required this.link});
+
+  final String name;
+  final String link;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    return EDialog(
+      title: l.pairCardBackTitle(name),
+      width: 520.u,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.pairCardBackBody(name), style: ts.bodyDim),
+          SizedBox(height: Sp.x3),
+          SelectableText(link, key: deskCardBackLinkKey, style: ts.mono()),
+        ],
+      ),
+      actions: [
+        EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, link, l.pairCopied)),
+        EButton.primary(key: deskCardBackCheckKey, label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+      ],
+    );
   }
 }
 
@@ -500,10 +584,12 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
   Timer? _collect;
   StreamSubscription<PairingEvent>? _events;
   String? _link;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
+    pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(deskPairingApiProvider);
     _collect = Timer.periodic(const Duration(seconds: 5), (_) => api.collect().ignore());
     _events = api.events().listen((e) {
@@ -520,6 +606,7 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
 
   @override
   void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
     _collect?.cancel();
     _events?.cancel();
     super.dispose();
@@ -660,6 +747,19 @@ class _CheckDialog extends ConsumerStatefulWidget {
 class _CheckDialogState extends ConsumerState<_CheckDialog> {
   bool _busy = false;
   bool _allow = false;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
+
+  @override
+  void initState() {
+    super.initState();
+    pairingWordsOnScreen.add(_onScreen);
+  }
+
+  @override
+  void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
+    super.dispose();
+  }
 
   Future<void> _answer(PairingCheck check) async {
     final l = context.l10n;

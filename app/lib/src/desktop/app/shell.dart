@@ -13,7 +13,7 @@ import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
-import '../../ui/pairing/pairing_notices.dart' show pairingNoticeOf;
+import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger;
 import '../data/pairing_state.dart' show deskPairingApiProvider, deskPairingEventsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
@@ -164,7 +164,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
       final n = e == null ? null : pairingNoticeOf(context.l10n, e);
-      if (n == null || !mounted) return;
+      if (n == null || !mounted || pairingEventOnScreen(e!)) return;
       showEToast(context, n.text, tone: switch (n.level) {
         NoticeLevel.success => ETone.ok,
         NoticeLevel.info => ETone.info,

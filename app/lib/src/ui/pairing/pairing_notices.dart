@@ -21,6 +21,16 @@ import 'pair_check.dart';
 import 'pending_invites.dart';
 import '../tx_details_screen.dart';
 
+/// Screens and dialogs that show a pairing's words, or open them on its next answer, add a
+/// test here while they are up: the "answered" and "paired" notices for an event one of them
+/// handles would only repeat what it shows.
+final Set<bool Function(PairingEvent e)> pairingWordsOnScreen = {};
+
+/// Whether [e] is an answer a screen already turns into the words check.
+bool pairingEventOnScreen(PairingEvent e) =>
+    (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) &&
+    pairingWordsOnScreen.any((handles) => handles(e));
+
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
   final name = e.name;
@@ -109,7 +119,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       ref.invalidate(homeProvider);
     }
     final notice = pairingNoticeOf(l, e);
-    if (notice == null) return;
+    if (notice == null || pairingEventOnScreen(e)) return;
     final id = e.pairingId;
     final contactId = id == null ? null : ref.read(pairingByIdProvider(id))?.contactId;
     final contact = contactId == null

@@ -17,6 +17,7 @@ import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
+import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -83,6 +84,19 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _allow = false;
   bool _busy = false;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
+
+  @override
+  void initState() {
+    super.initState();
+    pairingWordsOnScreen.add(_onScreen);
+  }
+
+  @override
+  void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
+    super.dispose();
+  }
 
   Future<void> _answer(PairingCheck check) async {
     if (_busy) return;

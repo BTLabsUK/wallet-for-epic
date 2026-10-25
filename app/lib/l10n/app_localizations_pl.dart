@@ -15014,6 +15014,23 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wklejony link lub wpisane słowa działają jak skan w telefonie.';
 
   @override
+  String get pairCardCopy => 'Kopiuj link mojej karty';
+
+  @override
+  String get pairCardHint =>
+      'Osobiście bez aparatu: każdy portfel wkleja powyżej link karty drugiego.';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return 'Teraz daj $name swoją kartę';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return 'Wklej ten link w portfelu $name w polu „Wpisz link lub słowa”. Potem sprawdźcie razem słowa.';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder =>
       'Wklej link z zaproszeniem lub wpisz pięć słów';
 

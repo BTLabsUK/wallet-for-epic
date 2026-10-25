@@ -19074,6 +19074,34 @@
   "@pairEnterDesktopHint": {
     "description": "Small print under the desktop field."
   },
+  "pairCardCopy": "Copy my card link",
+  "@pairCardCopy": {
+    "description": "Desktop Pair screen button: copies this wallet's in-person card link, for pairing face to face without a camera."
+  },
+  "pairCardHint": "Face to face without a camera: each wallet pastes the other's card link above.",
+  "@pairCardHint": {
+    "description": "Desktop Pair screen hint under the card button."
+  },
+  "pairCardBackTitle": "Now give {name} your card",
+  "@pairCardBackTitle": {
+    "description": "Dialog title after this wallet read the other wallet's card link: the other wallet still needs this wallet's card. {name} is the name the other wallet chose.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairCardBackBody": "Paste this link under Enter link or words in {name}'s wallet. Then check the words together.",
+  "@pairCardBackBody": {
+    "description": "Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "pairEnterDesktopPlaceholder": "Paste the invite link, or type the five words",
   "@pairEnterDesktopPlaceholder": {
     "description": "Placeholder of the desktop field."

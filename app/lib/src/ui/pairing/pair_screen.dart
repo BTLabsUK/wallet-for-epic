@@ -27,6 +27,7 @@ import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart';
+import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -491,10 +492,12 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
   bool _busy = false;
   PairingCollector? _collector;
   StreamSubscription<PairingEvent>? _events;
+  bool _onScreen(PairingEvent e) => e.pairingId != null && e.pairingId == _sent?.id;
 
   @override
   void initState() {
     super.initState();
+    pairingWordsOnScreen.add(_onScreen);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && ref.read(pairNetProvider) == PairNet.epicboxOff) {
         ref.read(noticeProvider.notifier).show(context.l10n.pairEpicboxOffNotice, level: NoticeLevel.info);
@@ -504,6 +507,7 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
 
   @override
   void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
     _collector?.stop();
     _events?.cancel();
     super.dispose();
@@ -739,10 +743,12 @@ class _PairingWordsScreenState extends ConsumerState<PairingWordsScreen> {
   PairingCollector? _collector;
   StreamSubscription<PairingEvent>? _events;
   Timer? _expiry;
+  bool _onScreen(PairingEvent e) => e.pairingId != null && e.pairingId == _invite?.id;
 
   @override
   void initState() {
     super.initState();
+    pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(pairingApiProvider);
     _collector = PairingCollector(api)..start();
     _events = api.events().listen((e) {
@@ -759,6 +765,7 @@ class _PairingWordsScreenState extends ConsumerState<PairingWordsScreen> {
 
   @override
   void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
     _collector?.stop();
     _events?.cancel();
     _expiry?.cancel();

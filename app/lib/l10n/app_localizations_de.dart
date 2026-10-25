@@ -14741,6 +14741,23 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein eingefügter Link oder eingetippte Wörter ersetzen den Scan am Telefon.';
 
   @override
+  String get pairCardCopy => 'Meinen Kartenlink kopieren';
+
+  @override
+  String get pairCardHint =>
+      'Persönlich ohne Kamera: Jede Wallet fügt oben den Kartenlink der anderen ein.';
+
+  @override
+  String pairCardBackTitle(String name) {
+    return 'Geben Sie $name jetzt Ihre Karte';
+  }
+
+  @override
+  String pairCardBackBody(String name) {
+    return 'Fügen Sie diesen Link in der Wallet von $name unter „Link oder Wörter eingeben“ ein. Prüfen Sie dann gemeinsam die Wörter.';
+  }
+
+  @override
   String get pairEnterDesktopPlaceholder =>
       'Einladungslink einfügen oder die fünf Wörter tippen';
 

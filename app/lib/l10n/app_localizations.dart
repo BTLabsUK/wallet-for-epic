@@ -23060,6 +23060,30 @@ abstract class AppLocalizations {
   /// **'A pasted link or typed words do what a scan does on the phone.'**
   String get pairEnterDesktopHint;
 
+  /// Desktop Pair screen button: copies this wallet's in-person card link, for pairing face to face without a camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy my card link'**
+  String get pairCardCopy;
+
+  /// Desktop Pair screen hint under the card button.
+  ///
+  /// In en, this message translates to:
+  /// **'Face to face without a camera: each wallet pastes the other\'s card link above.'**
+  String get pairCardHint;
+
+  /// Dialog title after this wallet read the other wallet's card link: the other wallet still needs this wallet's card. {name} is the name the other wallet chose.
+  ///
+  /// In en, this message translates to:
+  /// **'Now give {name} your card'**
+  String pairCardBackTitle(String name);
+
+  /// Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste this link under Enter link or words in {name}\'s wallet. Then check the words together.'**
+  String pairCardBackBody(String name);
+
   /// Placeholder of the desktop field.
   ///
   /// In en, this message translates to:
