@@ -144,6 +144,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
+    // Only resetPassword returns it, which the phone does not call.
+    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.invalidArgument,
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
