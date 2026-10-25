@@ -14666,4 +14666,67 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskRecvTorOffText =>
       'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'ไม่ได้บันทึกการตั้งค่า';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason หากไม่บันทึก กระเป๋าเงินจะใช้การตั้งค่าที่เก็บไว้จนถึงตอนนี้ และเปลี่ยนได้ภายหลังในการตั้งค่า';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'ดำเนินการต่อโดยไม่บันทึก';
+
+  @override
+  String get deskSetupResumeLead =>
+      'การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รวมผู้ติดต่อ $count รายเข้ากับรายการที่มีอยู่',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ผู้ติดต่อ $count รายบันทึกไว้แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ข้ามผู้ติดต่อ $count ราย: ไม่มีที่อยู่ที่ใช้ได้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ไม่ได้เพิ่มที่อยู่ $count รายการ: ขัดกับผู้ติดต่อที่บันทึกไว้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'อ่านผู้ติดต่อเดิมบางรายไม่ได้: สมุดที่อยู่เดิมเสียหาย';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'บันทึกผู้ติดต่อไม่ครบ: เขียนสมุดที่อยู่ไม่ได้';
 }

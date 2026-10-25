@@ -14,7 +14,9 @@ export 'wallet_service.dart' show Contact;
 
 // `Contact` is the core's type, exported by wallet_service.dart. An empty id means not saved yet.
 
-/// Where contacts are stored.
+/// Where contacts are stored: the address book's repository. Screens and providers reach
+/// contacts only through it, so a store shared by every wallet on the device can replace the
+/// open wallet's [SessionContactBook] without touching them.
 abstract interface class ContactBook {
   Future<List<Contact>> list();
 
@@ -52,13 +54,7 @@ class MemoryContactBook implements ContactBook {
   @override
   Future<Contact> save(Contact contact) async {
     final id = contact.id.isEmpty ? 'c${_next++}' : contact.id;
-    final saved = Contact(
-      id: id,
-      name: contact.name,
-      address: contact.address,
-      note: contact.note,
-      invoiceAddress: contact.invoiceAddress,
-    );
+    final saved = contact.copyWith(id: id);
     _byId[id] = saved;
     return saved;
   }
@@ -100,14 +96,15 @@ class ContactsNotifier extends AsyncNotifier<List<Contact>> {
   }
 }
 
-/// The contact saved under [address], if any. Addresses compare without surrounding
-/// whitespace; epicbox addresses and URLs are case-sensitive in their key part, so case counts.
+/// The contact saved under [address], any of its addresses, if any. Addresses compare
+/// without surrounding whitespace; epicbox addresses and URLs are case-sensitive in their key
+/// part, so case counts.
 Contact? contactFor(Iterable<Contact> contacts, String? address) {
   if (address == null) return null;
   final wanted = address.trim();
   if (wanted.isEmpty) return null;
   for (final contact in contacts) {
-    if (contact.address.trim() == wanted) return contact;
+    if (contact.addresses.any((a) => a.trim() == wanted)) return contact;
   }
   return null;
 }

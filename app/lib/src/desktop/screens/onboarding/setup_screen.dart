@@ -13,6 +13,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/settings_node.dart' show hostOf, nodeUrlOf, serverRows, nodeListNoteText;
 import '../../widgets/server_list_panel.dart';
 import '../../data/server_lists.dart';
+import '../../../log.dart';
 import '../../../net/probe_not_run.dart';
 import '../../../send_preflight.dart' show relayProbeProvider;
 import 'local_node_step.dart';
@@ -25,7 +26,7 @@ enum SetupStep { prefs, node, local, epicbox, review }
 /// A tour start state: the step, and for the local step which probe answer to show.
 @immutable
 class SetupDemo {
-  const SetupDemo(this.step, {this.local = LocalNodeDemo.none, this.localChosen = false, this.listOpen = false});
+  const SetupDemo(this.step, {this.local = LocalNodeDemo.none, this.localChosen = false, this.listOpen = false, this.first, this.saveFailed = false});
 
   final SetupStep step;
   final LocalNodeDemo local;
@@ -35,6 +36,12 @@ class SetupDemo {
 
   /// The node or Epicbox step with its server list open.
   final bool listOpen;
+
+  /// A first run (fresh or resumed) instead of Setup run again.
+  final SetupFirstRun? first;
+
+  /// Review after a failed Save (the wallet was locked).
+  final bool saveFailed;
 }
 
 /// The first run of a wallet just made or restored (spec §21: password, phrase, Node, Epicbox,
@@ -43,11 +50,18 @@ class SetupDemo {
 /// is app-wide, so it starts as the current one.
 @immutable
 class SetupFirstRun {
-  const SetupFirstRun(this.added, {this.second = false});
+  const SetupFirstRun(this.added, {this.second = false, this.resumed = false});
 
   final UnlockAdded added;
   final bool second;
+
+  /// Unlock sent the wallet back: its setup was not saved before the app closed.
+  final bool resumed;
 }
+
+/// Wallets whose first-run setup was skipped after Save failed: Unlock does not send them
+/// back to Setup in this session, even when the pending mark could not be cleared.
+final Set<String> setupSkippedThisSession = {};
 
 /// The setup steps. [arg] is a [SetupStep], a [SetupDemo] or a [SetupFirstRun].
 class SetupScreen extends ConsumerStatefulWidget {
@@ -63,7 +77,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   /// The Epicbox server chosen (its label), and whether the wallet receives through Epicbox.
   String _relay = defaultEpicboxHost;
   bool _epicboxOn = true;
-  SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : null;
+  SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _demo?.first;
   late final List<SetupStep> _steps = [if (DeskFeatures.languages && _first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
   SetupDemo? get _demo => widget.arg is SetupDemo ? widget.arg! as SetupDemo : null;
@@ -98,6 +112,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   List<EpicboxServer>? _boxes;
   bool _busy = false;
   bool _checking = false;
+
+  /// Why the last Save failed on a first run: the Review step then offers to skip it.
+  String? _saveFailed;
 
   @override
   void initState() {
@@ -204,10 +221,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         await c.refresh();
       }
     } on Object catch (e) {
-      if (!mounted) return;
-      setState(() => _busy = false);
-      showEToast(context, context.l10n.deskSetupNotSaved, text: deskErrorText(e, context.l10n));
-      return;
+      return _failed(e);
     }
     if (!mounted) return;
     final first = _first;
@@ -215,14 +229,41 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       try {
         await ref.read(deskApiProvider).setSetupPending(id, false);
       } on Object catch (e) {
-        if (!mounted) return;
-        setState(() => _busy = false);
-        showEToast(context, context.l10n.deskSetupNotSaved, text: deskErrorText(e, context.l10n));
-        return;
+        return _failed(e);
       }
     }
     if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(first == null ? DeskRoute.overview : DeskRoute.unlock, first?.added);
+  }
+
+  void _failed(Object e) {
+    if (!mounted) return;
+    final reason = deskErrorText(e, context.l10n);
+    setState(() {
+      _busy = false;
+      if (_first != null) _saveFailed = reason;
+    });
+    // A first run shows the notice on Review instead (it offers the way out).
+    if (_first == null) showEToast(context, context.l10n.deskSetupNotSaved, text: reason, tone: ETone.risk);
+  }
+
+  /// A first run whose Save failed: Unlock without it. The wallet keeps what is stored (the
+  /// defaults, or what an earlier Save stored); Settings changes it later. Never a way back
+  /// into the same Setup in this session.
+  Future<void> _skip() async {
+    final first = _first;
+    if (first == null || _busy) return;
+    setState(() => _busy = true);
+    if (first.added.id case final id?) {
+      setupSkippedThisSession.add(id);
+      try {
+        await ref.read(deskApiProvider).setSetupPending(id, false);
+      } on Object catch (e) {
+        logWarn('desk', 'setup mark not cleared: ${e.runtimeType}');
+      }
+    }
+    if (!mounted) return;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, first.added);
   }
 
   void _to(SetupStep s) => setState(() => _step = s);
@@ -266,7 +307,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final again = nav.canBack ? l.deskSetupAgain : null;
     final (title, lead, body) = switch (_step) {
       SetupStep.prefs => (l.deskSetupStepPrefs, again ?? l.deskSetupPrefsLead, _prefs(context)),
-      SetupStep.node => (l.deskSetupNodeTitle, again ?? l.deskSetupNodeLead, _node(context)),
+      SetupStep.node => (l.deskSetupNodeTitle, again ?? (_first?.resumed ?? false ? l.deskSetupResumeLead : l.deskSetupNodeLead), _node(context)),
       SetupStep.local => (
         l.deskSetupLocalTitle,
         l.deskSetupLocalLead,
@@ -501,7 +542,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         (l.deskSetupDataFolder, Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
       ],
     ];
-    return EPanel(
+    final failed = _first == null ? null : _saveFailed ?? (_demo?.saveFailed ?? false ? l.deskErrWalletLocked : null);
+    final panel = EPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -525,6 +567,21 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ], SetupStep.epicbox),
         ],
       ),
+    );
+    if (failed == null) return panel;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ENotice(
+          tone: ETone.risk,
+          title: l.deskSetupSaveFailedTitle,
+          // The string adds the full stop.
+          text: l.deskSetupSaveFailedText(failed.endsWith('.') || failed.endsWith('。') ? failed.substring(0, failed.length - 1) : failed),
+          actions: [EButton.ghost(label: l.deskSetupSkipSave, onPressed: _busy ? null : _skip)],
+        ),
+        SizedBox(height: Sp.x4),
+        panel,
+      ],
     );
   }
 }

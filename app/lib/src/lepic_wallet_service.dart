@@ -20,6 +20,7 @@ import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
+import 'contact_store.dart';
 import 'log.dart';
 import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
@@ -681,10 +682,15 @@ class LepicWalletService implements WalletService {
     required this._secrets,
     lepic.LepicRuntime Function()? runtime,
     this.oneWalletPerChain = false,
+    this.contactsDir,
   }) : _makeRuntime = runtime ?? _defaultRuntime;
 
   final SecretStore _secrets;
   final bool oneWalletPerChain;
+
+  /// The folder of the address book every wallet shares (`contact_store.dart`); null keeps
+  /// each wallet's contacts in its own archive (tests).
+  final Future<String> Function()? contactsDir;
 
   /// The prefix pinned for each chain, once read.
   final Map<Chain, String> _pinnedPrefixes = {};
@@ -949,11 +955,25 @@ class LepicWalletService implements WalletService {
         wallet,
         config.dataDir,
         config.chain,
+        contacts: await _sharedContacts(),
       ))..nodeUrl = config.nodeUrl;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
       rethrow;
+    }
+  }
+
+  /// The shared address book, or null without [contactsDir]. A book that cannot be read (its
+  /// folder unreadable) never keeps a wallet from opening: the wallet then keeps its own list.
+  Future<ContactStore?> _sharedContacts() async {
+    final dir = contactsDir;
+    if (dir == null) return null;
+    try {
+      return await ContactStore.open(await dir());
+    } on Object catch (e) {
+      logWarn('contacts', 'the shared address book could not be opened (${e.runtimeType})');
+      return null;
     }
   }
 
@@ -1077,9 +1097,10 @@ class LepicWalletSession implements WalletSession {
   static Future<LepicWalletSession> openOn(
     lepic.EpicWallet wallet,
     String dataDir,
-    Chain chain,
-  ) async {
-    final history = await WalletHistory.open(dataDir, chain);
+    Chain chain, {
+    ContactStore? contacts,
+  }) async {
+    final history = await WalletHistory.open(dataDir, chain, contacts: contacts);
     final session = LepicWalletSession(wallet, history: history);
     await session.restoreInvoiceIndex();
     return session;

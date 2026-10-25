@@ -243,17 +243,17 @@ void main() {
       'contacts: add, replace, delete, sorted, with the old checks',
       () async {
         final bob = await history.saveContact(
-          const Contact(id: '', name: ' bob ', address: ' b@relay ', note: ' '),
+          Contact(id: '', name: ' bob ', address: ' b@relay ', note: ' '),
         );
         expect(bob.id, hasLength(32));
         expect((bob.name, bob.address, bob.note), ('bob', 'b@relay', null));
         await history.saveContact(
-          const Contact(id: '', name: 'Alice', address: 'a@relay'),
+          Contact(id: '', name: 'Alice', address: 'a@relay'),
         );
         expect(history.contacts().map((c) => c.name), ['Alice', 'bob']);
         // The desktop pays http(s) addresses too; the store keeps one as typed.
         final web = await history.saveContact(
-          const Contact(id: '', name: 'lol', address: 'http://llol'),
+          Contact(id: '', name: 'lol', address: 'http://llol'),
         );
         expect(web.address, 'http://llol');
         await history.deleteContact(web.id);
@@ -263,19 +263,19 @@ void main() {
         expect(history.contacts().last.note, 'x');
         expect(
           () => history.saveContact(
-            const Contact(id: 'nope', name: 'n', address: 'a'),
+            Contact(id: 'nope', name: 'n', address: 'a'),
           ),
           _invalid('no contact with id nope'),
         );
         expect(
           () => history.saveContact(
-            const Contact(id: '', name: ' ', address: 'a'),
+            Contact(id: '', name: ' ', address: 'a'),
           ),
           _invalid('the contact needs a name'),
         );
         expect(
           () => history.saveContact(
-            const Contact(id: '', name: 'n', address: ''),
+            Contact(id: '', name: 'n', address: ''),
           ),
           _invalid('the contact needs an address'),
         );
@@ -286,7 +286,7 @@ void main() {
 
     test('export then import twice, and files of others are refused', () async {
       await history.saveContact(
-        const Contact(id: '', name: 'Bob', address: 'b@relay'),
+        Contact(id: '', name: 'Bob', address: 'b@relay'),
       );
       await history.setNote(live, 's:a', 'rent');
       final payload = history.exportPayload(

@@ -17,7 +17,11 @@ import 'windows_secret_store.dart';
 Future<void> initWalletBackend() => initLepic();
 
 WalletService createWalletService(SecretStore secrets) =>
-    LepicWalletService(secrets: secrets, oneWalletPerChain: true);
+    LepicWalletService(
+      secrets: secrets,
+      oneWalletPerChain: true,
+      contactsDir: () async => (await appDataDirectory()).path,
+    );
 
 /// The platform keystore; on Windows the crash-safe store over the plugin's file
 /// (windows_secret_store.dart), one per process so its writes share one lock.

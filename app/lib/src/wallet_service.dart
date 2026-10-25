@@ -1874,7 +1874,7 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<Contact> saveContact({required Contact contact}) async {
-    if (contact.name.trim().isEmpty || contact.address.trim().isEmpty) {
+    if (contact.name.trim().isEmpty || contact.addresses.isEmpty) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'the contact needs a name and an address',
@@ -1883,7 +1883,9 @@ class FakeWalletSession implements WalletSession {
     final stored = Contact(
       id: contact.id.isEmpty ? 'contact-${++_contactSeq}' : contact.id,
       name: contact.name.trim(),
-      address: contact.address.trim(),
+      epicbox: contact.epicbox?.trim(),
+      http: contact.http?.trim(),
+      tor: contact.tor?.trim(),
       note: (contact.note?.trim().isEmpty ?? true)
           ? null
           : contact.note!.trim(),
@@ -1911,7 +1913,8 @@ class FakeWalletSession implements WalletSession {
       '$_exportMagic${jsonEncode({
         'notes': notes,
         'contacts': [
-          for (final c in contactsValue) {'id': c.id, 'name': c.name, 'address': c.address, 'note': c.note},
+          for (final c in contactsValue)
+            {'id': c.id, 'name': c.name, 'epicbox': c.epicbox, 'http': c.http, 'tor': c.tor, 'note': c.note},
         ],
       })}',
     ),
@@ -2025,15 +2028,19 @@ class FakeWalletSession implements WalletSession {
     var contactsAdded = 0;
     for (final raw in decoded['contacts'] as List<dynamic>) {
       final c = raw as Map<String, dynamic>;
-      if (contactsValue.any((e) => e.address == c['address'])) continue;
-      contactsValue.add(
-        Contact(
-          id: c['id'] as String,
-          name: c['name'] as String,
-          address: c['address'] as String,
-          note: c['note'] as String?,
-        ),
+      final contact = Contact(
+        id: c['id'] as String,
+        name: c['name'] as String,
+        address: c['address'] as String?,
+        epicbox: c['epicbox'] as String?,
+        http: c['http'] as String?,
+        tor: c['tor'] as String?,
+        note: c['note'] as String?,
       );
+      if (contactsValue.any((e) => e.addresses.any(contact.addresses.contains))) {
+        continue;
+      }
+      contactsValue.add(contact);
       contactsAdded++;
     }
     return ImportReport(

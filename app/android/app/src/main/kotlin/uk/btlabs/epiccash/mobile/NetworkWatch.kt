@@ -1,4 +1,4 @@
-package com.blacktyger.epic_wallet
+package uk.btlabs.epiccash.mobile
 
 import android.content.Context
 import android.net.ConnectivityManager

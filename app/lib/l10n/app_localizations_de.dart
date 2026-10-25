@@ -15126,4 +15126,72 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskRecvTorOffText =>
       'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'Einstellungen nicht gespeichert';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Ohne Speichern verwendet die Wallet die bisher gespeicherten Einstellungen. Sie lassen sich später unter Einstellungen ändern.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Ohne Speichern fortfahren';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node.';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte mit vorhandenen zusammengeführt',
+      one: '1 Kontakt mit einem vorhandenen zusammengeführt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte waren schon gespeichert',
+      one: '1 Kontakt war schon gespeichert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte übersprungen: keine gültige Adresse',
+      one: '1 Kontakt übersprungen: keine gültige Adresse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Adressen nicht hinzugefügt: Konflikt mit gespeicherten Kontakten',
+      one: '1 Adresse nicht hinzugefügt: Konflikt mit einem gespeicherten Kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'Einige alte Kontakte waren nicht lesbar: Das alte Adressbuch ist beschädigt';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'Nicht alle Kontakte gespeichert: Das Adressbuch konnte nicht geschrieben werden';
 }

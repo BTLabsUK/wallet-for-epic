@@ -8,7 +8,7 @@
 PRODUCT_NAME = epic_wallet
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.blacktyger.epicWallet
+PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.epiccash.desktop
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.blacktyger. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 BT Labs. All rights reserved.

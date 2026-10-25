@@ -4,6 +4,7 @@
 // the current node.
 import 'dart:async';
 
+import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
@@ -22,6 +23,11 @@ class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
   final List<String> calls = [];
+
+  /// As the real wallet (LepicDeskWallet): Setup runs before Unlock, and a locked wallet has no
+  /// address to read. Reading it made every first-run Save fail (26.10.13–26.10.15).
+  @override
+  Future<String> epicboxAddress() async => throw DeskError.l10n((l) => l.deskErrWalletLocked);
 
   @override
   Future<List<NodeServer>> nodes() async => const [
@@ -81,6 +87,23 @@ class _Checking extends _Wallet {
   Future<List<NodeServer>> nodes() async => answered
       ? super.nodes()
       : [for (final n in await super.nodes()) NodeServer(url: n.url, label: n.label, operator: n.operator, health: ServiceHealth.checking)];
+}
+
+/// A wallet whose Epicbox change fails, and optionally whose setup mark cannot be cleared
+/// (a store that cannot be written): Save fails on every try.
+class _Refusing extends _Wallet {
+  _Refusing({this.markStuck = false});
+
+  final bool markStuck;
+
+  @override
+  Future<void> useEpicbox(String domain) async => throw DeskError.l10n((l) => l.deskErrWalletLocked);
+
+  @override
+  Future<void> setSetupPending(String id, bool pending) async {
+    if (markStuck && !pending) throw DeskError.l10n((l) => l.deskErrListNotSaved);
+    return super.setSetupPending(id, pending);
+  }
 }
 
 class _Router extends ConsumerWidget {
@@ -278,4 +301,44 @@ void main() {
     expect(await tester.runAsync(() => wallet.setupPending(id)), isTrue);
     await end(tester);
   });
+
+  /// A first run's Save that fails offers to skip it: Unlock opens and stays, also when the
+  /// setup mark cannot be cleared. Never back into the same Setup (the 26.10.15 loop).
+  for (final stuck in [false, true]) {
+    testWidgets('Save fails on a first run → the notice offers to skip → Unlock${stuck ? ' (mark not cleared)' : ''}', (tester) async {
+      final refusing = _Refusing(markStuck: stuck);
+      wallet = refusing;
+      container.dispose();
+      container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(refusing), deskNodeProvider.overrideWithValue(MockDeskNode())]);
+      final added = (await tester.runAsync(() async {
+        await refusing.createWallet(password: 'longpassword');
+        final a = (await refusing.wallets()).last;
+        await refusing.setSetupPending(a.id, true);
+        return a;
+      }))!;
+      await pumpApp(tester, DeskRoute.unlock);
+      await wait(tester, 800);
+      expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'pending: Unlock sends it to Setup');
+      final l = lookupAppLocalizations(const Locale('en'));
+      expect(find.text(l.deskSetupSkipSave), findsNothing, reason: 'no way out before a Save failed');
+      expect(find.text(l.deskSetupResumeLead), findsOneWidget, reason: 'a resumed Setup says so');
+      await tester.tap(find.text('Continue'));
+      await wait(tester, 1000);
+      await tester.tap(find.text('Continue'));
+      await wait(tester, 300);
+      await tester.tap(find.text('Save settings'));
+      await wait(tester, 800);
+      expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'Save failed: still on Review');
+      expect(find.text(l.deskSetupSaveFailedTitle), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5)); // the toast goes
+      await tester.tap(find.text(l.deskSetupSkipSave));
+      await wait(tester, 800);
+      expect(container.read(deskNavProvider).route, DeskRoute.unlock);
+      expect(await tester.runAsync(() => refusing.setupPending(added.id)), stuck ? isTrue : isFalse);
+      await wait(tester, 1500);
+      expect(container.read(deskNavProvider).route, DeskRoute.unlock, reason: 'skipped: Unlock stays in this session');
+      setupSkippedThisSession.clear();
+      await end(tester);
+    });
+  }
 }

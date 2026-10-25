@@ -49,5 +49,9 @@
   "deskSetupSaveStartsFallback": "保存后会启动节点。首次同步需要数小时；期间钱包会打开，并使用 {node}。",
   "deskSetupSaveStarts": "保存后会启动节点。首次同步需要数小时；期间钱包会打开。",
   "deskSetupServer": "服务器",
-  "deskSetupOff": "关闭"
+  "deskSetupOff": "关闭",
+  "deskSetupSaveFailedTitle": "设置未保存",
+  "deskSetupSaveFailedText": "{reason}。不保存时，钱包使用目前已存储的设置，之后可在“设置”中更改。",
+  "deskSetupSkipSave": "不保存并继续",
+  "deskSetupResumeLead": "上次设置未完成。钱包通过 Epic 节点读取区块链并发送交易。"
 }

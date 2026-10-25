@@ -15,6 +15,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../log.dart';
+import '../recipient.dart';
 import '../wallet_service.dart';
 
 const String metaFileName = 'wfe_meta.json';
@@ -120,21 +121,41 @@ void _put(Map<String, Object?> out, String key, Object? value) {
   if (value != null) out[key] = value;
 }
 
+/// A contact as the file keeps it. [address] is the first of its addresses (Epicbox, Tor,
+/// HTTP), as the old core wrote it; a contact with several also writes [epicbox], [http] and
+/// [tor]. A record with none of them reads [address] by its shape.
 class ContactRec {
+  /// [address] goes into the field of its kind, as for [Contact].
   ContactRec({
     required this.id,
     required this.name,
-    required this.address,
+    String? address,
+    String? epicbox,
+    String? http,
+    String? tor,
     this.note,
     this.invoiceAddress,
-  });
+  }) : epicbox = epicbox ?? _kindOf(address, RecipientKind.epicbox),
+       http = http ?? _kindOf(address, RecipientKind.http),
+       tor = tor ?? _kindOf(address, RecipientKind.tor);
+
+  static String? _kindOf(String? address, RecipientKind kind) =>
+      address == null || address.trim().isEmpty || parseRecipient(address).kind != kind ? null : address;
 
   factory ContactRec.fromJson(Object? json) {
     final m = asObject(json, 'contact');
+    final address = _optStr(m['address'], 'contact address') ?? '';
+    final epicbox = _optStr(m['epicbox'], 'contact epicbox address');
+    final http = _optStr(m['http'], 'contact http address');
+    final tor = _optStr(m['tor'], 'contact tor address');
+    final byKind = epicbox != null || http != null || tor != null;
+    final kind = address.trim().isEmpty ? null : parseRecipient(address).kind;
     return ContactRec(
       id: _str(m['id'], 'contact id'),
       name: _str(m['name'], 'contact name'),
-      address: _str(m['address'], 'contact address'),
+      epicbox: byKind ? epicbox : (kind == RecipientKind.epicbox ? address : null),
+      http: byKind ? http : (kind == RecipientKind.http ? address : null),
+      tor: byKind ? tor : (kind == RecipientKind.tor ? address : null),
       note: _optStr(m['note'], 'contact note'),
       invoiceAddress: _optStr(m['invoice_address'], 'contact invoice address'),
     );
@@ -142,14 +163,24 @@ class ContactRec {
 
   String id;
   String name;
-  String address;
+  String? epicbox;
+  String? http;
+  String? tor;
   String? note;
 
   /// Written only when set, so a file without it stays as the old core wrote it.
   String? invoiceAddress;
 
+  String get address => epicbox ?? tor ?? http ?? '';
+
   Map<String, Object?> toJson() {
     final out = <String, Object?>{'id': id, 'name': name, 'address': address};
+    // One address stays as the old core wrote it; with several, each in its kind's field.
+    if ([epicbox, http, tor].nonNulls.length > 1) {
+      _put(out, 'epicbox', epicbox);
+      _put(out, 'http', http);
+      _put(out, 'tor', tor);
+    }
     _put(out, 'note', note);
     _put(out, 'invoice_address', invoiceAddress);
     return out;

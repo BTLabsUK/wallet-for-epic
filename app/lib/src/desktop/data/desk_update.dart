@@ -38,12 +38,11 @@ import 'state.dart' show deskProvider, deskQuitProvider;
 /// About and the support report show it with the build id (`shell.dart`).
 const String deskAppVersion = appVersion;
 
-/// Where a download page may be: BT Labs' public download page and the project's own GitHub
-/// accounts.
+/// Where a download page may be: BT Labs' public download page and the project's GitHub
+/// account.
 const List<String> deskUpdatePageHosts = [
   'https://examples.btlabs.uk/epic-cash-wallets/',
   'https://github.com/BTLabs-EPIC/',
-  'https://github.com/blacktyger/',
 ];
 
 /// Where an update is downloaded, when the manifest names no page of its own: the public

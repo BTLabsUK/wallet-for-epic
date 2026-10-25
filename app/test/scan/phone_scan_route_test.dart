@@ -471,7 +471,7 @@ void main() {
     ) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'anna', address: _e),
+        Contact(id: 'c1', name: 'anna', address: _e),
       );
       await h.pump(tester);
       await h.scan(tester, 'epic:$_e?amount=1&message=Hi&label=%20ANNA%20');
@@ -515,7 +515,7 @@ void main() {
     ) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'Bob', address: _e),
+        Contact(id: 'c1', name: 'Bob', address: _e),
       );
       await h.pump(tester);
       await h.scan(tester, _lunch);

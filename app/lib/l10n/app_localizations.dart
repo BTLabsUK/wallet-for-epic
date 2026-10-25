@@ -23731,6 +23731,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.'**
   String get deskRecvTorOffText;
+
+  /// Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave).
+  ///
+  /// In en, this message translates to:
+  /// **'Settings not saved'**
+  String get deskSetupSaveFailedTitle;
+
+  /// Text of the red notice on the setup's last step after Save failed on a first run. {reason} is the error text, a short sentence without a final period (e.g. 'The wallet is locked'). 'Settings' is the app's Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.'**
+  String deskSetupSaveFailedText(String reason);
+
+  /// Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without saving'**
+  String get deskSetupSkipSave;
+
+  /// Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup was not finished last time. The wallet reads the chain and sends through an Epic node.'**
+  String get deskSetupResumeLead;
+
+  /// A line of the import wizard's result: old contacts whose address was already in the address book; the missing addresses or note were added to that contact, nothing saved was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact merged with an existing one} other{{count} contacts merged with existing ones}}'**
+  String deskErrProofContactsMerged(int count);
+
+  /// A line of the import wizard's result: old contacts the address book already had, with nothing to add.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact already saved} other{{count} contacts already saved}}'**
+  String deskErrProofContactsKnown(int count);
+
+  /// A line of the import wizard's result (a warning): old contacts with no Epicbox, HTTP or Tor address the app can send to.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact skipped: no valid address} other{{count} contacts skipped: no valid address}}'**
+  String deskErrProofContactsSkipped(int count);
+
+  /// A line of the import wizard's result (a warning): valid addresses of old contacts that were not saved, because the matching saved contact already has a different address of that kind, or another contact has the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 address not added: it conflicts with a saved contact} other{{count} addresses not added: they conflict with saved contacts}}'**
+  String deskErrProofContactAddressesLeftOut(int count);
+
+  /// A line of the import wizard's result (a warning): the old app's contact database was found but part of it could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Some old contacts could not be read: the old address book is damaged'**
+  String get deskErrProofContactsUnreadable;
+
+  /// A line of the import wizard's result (a warning): saving the imported contacts stopped with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Not all contacts were saved: the address book could not be written'**
+  String get deskErrProofContactsFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -124,8 +124,8 @@ foreach ($f in 'epic_wallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\
 Step 'checks'
 $info = (Get-Item "$rel\epic_wallet.exe").VersionInfo
 Write-Output "ProductName=$($info.ProductName) CompanyName=$($info.CompanyName) ProductVersion=$($info.ProductVersion) FileVersion=$($info.FileVersion)"
-if ($info.ProductName -ne 'EpicWallet' -or $info.CompanyName -ne 'com.blacktyger' -or $info.ProductVersion -ne $name) {
-    throw 'epic_wallet.exe VersionInfo is not EpicWallet / com.blacktyger / version'
+if ($info.ProductName -ne 'Epic Cash Desktop' -or $info.CompanyName -ne 'BT Labs' -or $info.ProductVersion -ne $name) {
+    throw 'epic_wallet.exe VersionInfo is not Epic Cash Desktop / BT Labs / version'
 }
 $numbers = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart).$($info.FilePrivatePart)"
 if ($numbers -ne $fileVersion) { throw "epic_wallet.exe file version is $numbers, not $fileVersion" }

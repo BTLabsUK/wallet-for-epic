@@ -606,7 +606,7 @@ void main() {
       expect(await s.contacts(), [saved]);
       await expectLater(
         s.saveContact(
-          contact: const Contact(id: '', name: '', address: ''),
+          contact: Contact(id: '', name: '', address: ''),
         ),
         throwsKind(WalletErrorKind.invalidArgument),
       );

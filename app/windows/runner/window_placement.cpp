@@ -6,10 +6,10 @@
 
 namespace {
 
-// Next to the data folder's name (%APPDATA%\com.blacktyger\EpicWallet). The registry, not a file
-// there: the runner needs no file or JSON code, the data folder stays the wallet's alone, and a
-// value is written whole.
-constexpr const wchar_t kKey[] = L"Software\\com.blacktyger\\EpicWallet";
+// Under the publisher and the app's name. The registry, not a file in the data folder
+// (%USERPROFILE%\.epic_cash_desktop): the runner needs no file or JSON code, the data folder
+// stays the wallet's alone, and a value is written whole.
+constexpr const wchar_t kKey[] = L"Software\\BT Labs\\Epic Cash Desktop";
 constexpr const wchar_t kValue[] = L"WindowPlacement";
 
 // The first window, in logical px.

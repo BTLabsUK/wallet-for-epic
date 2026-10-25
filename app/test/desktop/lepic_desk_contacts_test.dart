@@ -171,7 +171,7 @@ void main() {
 
   test('a contact keeps its invoice address, and the trusted entry finds the contact by it', () async {
     lepicWallet.senders.add(lepic.InvoiceSender(address: _shopInvoice, label: 'Shop', addedAtMs: 1790000000000));
-    final id = await wallet!.saveContact(const Contact(id: '', name: 'Shop', address: _shop, invoiceAddress: _shopInvoice));
+    final id = await wallet!.saveContact(Contact(id: '', name: 'Shop', address: _shop, invoiceAddress: _shopInvoice));
     final saved = (await wallet!.contacts()).firstWhere((c) => c.id == id);
     expect(saved.id, id);
     expect(saved.invoiceAddress, _shopInvoice);
@@ -182,7 +182,7 @@ void main() {
 
   test('a contact without an invoice address reads as before, and is matched by its payments key', () async {
     lepicWallet.senders.add(lepic.InvoiceSender(address: _shop, label: 'Shop', addedAtMs: 1790000000000));
-    final id = await wallet!.saveContact(const Contact(id: '', name: 'Shop', address: _shop));
+    final id = await wallet!.saveContact(Contact(id: '', name: 'Shop', address: _shop));
     expect((await wallet!.contacts()).firstWhere((c) => c.id == id).invoiceAddress, isNull);
     expect((await wallet!.invoices()).trusted.single.contactId, id);
   });

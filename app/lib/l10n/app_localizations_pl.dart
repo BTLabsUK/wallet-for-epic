@@ -15389,4 +15389,79 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskRecvTorOffText =>
       'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'Ustawienia nie zostały zapisane';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Bez zapisu portfel używa ustawień zapisanych do tej pory. Można je później zmienić w Ustawieniach.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Kontynuuj bez zapisywania';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Scalono $count kontaktu z istniejącymi',
+      many: 'Scalono $count kontaktów z istniejącymi',
+      few: 'Scalono $count kontakty z istniejącymi',
+      one: 'Scalono $count kontakt z istniejącym',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kontaktu było już zapisanych',
+      many: '$count kontaktów było już zapisanych',
+      few: '$count kontakty były już zapisane',
+      one: '$count kontakt był już zapisany',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pominięto $count kontaktu: brak poprawnego adresu',
+      many: 'Pominięto $count kontaktów: brak poprawnego adresu',
+      few: 'Pominięto $count kontakty: brak poprawnego adresu',
+      one: 'Pominięto $count kontakt: brak poprawnego adresu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nie dodano $count adresu: konflikt z zapisanymi kontaktami',
+      many: 'Nie dodano $count adresów: konflikt z zapisanymi kontaktami',
+      few: 'Nie dodano $count adresów: konflikt z zapisanymi kontaktami',
+      one: 'Nie dodano $count adresu: konflikt z zapisanym kontaktem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'Nie udało się odczytać części starych kontaktów: stara książka adresowa jest uszkodzona';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'Nie wszystkie kontakty zostały zapisane: błąd zapisu książki adresowej';
 }

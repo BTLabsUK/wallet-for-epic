@@ -39,7 +39,7 @@ val releaseSigningProblem: String? = run {
 }
 
 android {
-    namespace = "com.blacktyger.epic_wallet"
+    namespace = "uk.btlabs.epiccash.mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -49,12 +49,11 @@ android {
     }
 
     defaultConfig {
-        // Epic Cash Mobile, registered in Firebase under this id. From 26.10.0 it is its own app
-        // beside 0.1.0 (com.blacktyger.epicwallet, debug-signed) and the 1.x test builds
-        // (com.blacktyger.epic_wallet): installing it never replaces them, and its data starts
-        // empty. 0.1.0 learns of it from the legacy feed (tool/release_android.sh).
-        // The namespace and the Kotlin package stay com.blacktyger.epic_wallet.
-        applicationId = "com.blacktyger.epiccashmobile"
+        // Epic Cash Mobile, registered in Firebase (project wallet-for-epic) under this id; the
+        // namespace and the Kotlin package are the same. Its own app beside the builds before it,
+        // which carried the developer's old ids: installing it never replaces them, and its data
+        // starts empty (app/README.md, "App ids and data folders").
+        applicationId = "uk.btlabs.epiccash.mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

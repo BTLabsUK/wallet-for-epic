@@ -14946,4 +14946,71 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskRecvTorOffText =>
       'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'Settings not saved';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Continue without saving';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Setup was not finished last time. The wallet reads the chain and sends through an Epic node.';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts merged with existing ones',
+      one: '1 contact merged with an existing one',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts already saved',
+      one: '1 contact already saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts skipped: no valid address',
+      one: '1 contact skipped: no valid address',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count addresses not added: they conflict with saved contacts',
+      one: '1 address not added: it conflicts with a saved contact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'Some old contacts could not be read: the old address book is damaged';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'Not all contacts were saved: the address book could not be written';
 }

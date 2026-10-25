@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -469,7 +470,7 @@ class _ContactDetail extends ConsumerWidget {
               onPressed: () => ref
                   .read(deskProvider.notifier)
                   .saveContact(
-                    Contact(id: x.id, name: x.name, address: x.address, note: x.note, favourite: !x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture, invoiceAddress: x.invoiceAddress),
+                    x.copyWith(favourite: !x.favourite),
                   )
                   .then<void>((_) {}, onError: (Object e) {
                     if (context.mounted) showEToast(context, deskErrorText(e, l));
@@ -613,6 +614,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     return p.kind == AddressKind.epicbox && p.complete ? null : context.l10n.deskInvIssuerPayerInvalid;
   }
 
+  /// The contact's address of [kind] when the edited field is not of that kind, so saving
+  /// one address keeps the others.
+  String? _kept(RecipientKind kind) {
+    final c = widget.contact;
+    if (c == null) return null;
+    final edited = parseRecipient(_address.text).kind;
+    final first = parseRecipient(c.address).kind;
+    return kind == edited || kind == first ? null : c.addressOf(kind);
+  }
+
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
@@ -628,9 +639,13 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       id = await ref
           .read(deskProvider.notifier)
           .saveContact(
+            // The field edits the contact's first address; its other ones stay.
             Contact(
               id: widget.contact?.id ?? '',
               name: _name.text.trim(),
+              epicbox: _kept(RecipientKind.epicbox),
+              http: _kept(RecipientKind.http),
+              tor: _kept(RecipientKind.tor),
               address: parseAddress(_address.text, ref.read(deskApiProvider)).canonical,
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
               favourite: widget.contact?.favourite ?? false,

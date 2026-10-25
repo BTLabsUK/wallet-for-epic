@@ -173,9 +173,9 @@ void main() {
       );
       roundTrip(
         contactWire,
-        const Contact(id: '1', name: 'Ann', address: 'a@b', note: 'n'),
+        Contact(id: '1', name: 'Ann', address: 'a@b', note: 'n'),
       );
-      roundTrip(contactWire, const Contact(id: '', name: 'Ann', address: 'a'));
+      roundTrip(contactWire, Contact(id: '', name: 'Ann', address: 'a'));
       roundTrip(feeEstimateWire, FeeEstimate(amount: big, fee: BigInt.two));
       roundTrip(
         importReportWire,

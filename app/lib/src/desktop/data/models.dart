@@ -15,6 +15,7 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
+import '../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../relay_directory.dart' show ServerIcon;
 
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
@@ -435,22 +436,36 @@ class Tx {
 /// Which scan found an output with no record: the one after a restore, or a later one.
 enum FoundDuring { restore, rescan }
 
+/// An address book entry: at most one address of each kind (RFC 0002 17.2), never a list.
+/// [address], given to the constructor, goes into the field of its kind; an explicit
+/// [epicbox], [http] or [tor] wins over it.
 @immutable
 class Contact {
-  const Contact({
+  Contact({
     required this.id,
     required this.name,
-    required this.address,
+    String? address,
+    String? epicbox,
+    String? http,
+    String? tor,
     this.note,
     this.favourite = false,
     this.lastUsed,
     this.hasPicture = false,
     this.invoiceAddress,
-  });
+  }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
+       http = _blank(http) ?? _ofKind(address, RecipientKind.http),
+       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
+
+  static String? _blank(String? s) => s == null || s.trim().isEmpty ? null : s;
+
+  static String? _ofKind(String? address, RecipientKind kind) {
+    if (_blank(address) == null) return null;
+    return parseRecipient(address!).kind == kind ? address : null;
+  }
 
   final String id;
   final String name;
-  final String address;
   final String? note;
   final bool favourite;
   final DateTime? lastUsed;
@@ -458,9 +473,49 @@ class Contact {
   /// A picture was added for the contact (the mock draws a placeholder).
   final bool hasPicture;
 
+  /// `<key>@<relay>`.
+  final String? epicbox;
+
+  /// The wallet URL.
+  final String? http;
+
+  /// `<56 characters>.onion`.
+  final String? tor;
+
   /// Their invoice address, where requests to them go (`invoices.dart`); null when not known.
   /// Whether they may send this wallet invoices is the trusted list's, by [address]'s key.
   final String? invoiceAddress;
+
+  /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP.
+  String get address => epicbox ?? tor ?? http ?? '';
+
+  /// Every address, Epicbox, HTTP, Tor.
+  List<String> get addresses => [?epicbox, ?http, ?tor];
+
+  String? addressOf(RecipientKind kind) => switch (kind) {
+    RecipientKind.epicbox => epicbox,
+    RecipientKind.http => http,
+    RecipientKind.tor => tor,
+  };
+
+  /// The kinds this contact has an address of, Epicbox, HTTP, Tor.
+  List<RecipientKind> get kinds => [
+    for (final k in const [RecipientKind.epicbox, RecipientKind.http, RecipientKind.tor])
+      if (addressOf(k) != null) k,
+  ];
+
+  Contact copyWith({bool? favourite, DateTime? lastUsed}) => Contact(
+    id: id,
+    name: name,
+    epicbox: epicbox,
+    http: http,
+    tor: tor,
+    note: note,
+    favourite: favourite ?? this.favourite,
+    lastUsed: lastUsed ?? this.lastUsed,
+    hasPicture: hasPicture,
+    invoiceAddress: invoiceAddress,
+  );
 }
 
 enum ServiceHealth { ok, slow, down, off, checking }

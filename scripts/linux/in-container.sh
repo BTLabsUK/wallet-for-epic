@@ -38,12 +38,13 @@ HERE="$(dirname "$(readlink -f "$0")")"
 exec "$HERE/usr/bin/epic_wallet" "$@"
 RUN
 chmod +x "$appdir/AppRun"
-cat > "$appdir/epic-wallet.desktop" <<'DESK'
+cat > "$appdir/uk.btlabs.epiccash.desktop.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
 Name=Epic Cash Desktop
 Exec=epic_wallet
 Icon=epic-cash-desktop
+StartupWMClass=uk.btlabs.epiccash.desktop
 Categories=Finance;Utility;
 Terminal=false
 DESK

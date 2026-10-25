@@ -1,4 +1,4 @@
-package com.blacktyger.epic_wallet
+package uk.btlabs.epiccash.mobile
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
