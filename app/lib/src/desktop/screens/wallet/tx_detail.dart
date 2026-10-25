@@ -235,7 +235,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ? _paidSteps(l, t, paid!.state, contactName)
         : withdrawal != null
         ? _withdrawalSteps(l, t, contactName)
-        : mailboxName != null
+        // The mailbox steps are the payer's; the payee's are the usual receive steps (LNX3-8).
+        : mailboxName != null && !t.incoming
         ? _mailboxSteps(l, t, mailboxName, mailboxPairing?.homeRelay ?? '', ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff)
         : _steps(l, t);
     final onChain = t.state == TxState.confirming || t.state == TxState.confirmed;
@@ -320,7 +321,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ],
-                    Text(mailboxName != null && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
+                    Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
                     if (hold != null) ...[
                       SizedBox(height: Sp.x1),
                       Text(_holdLine(l, hold), key: const ValueKey('tx-cancel-hold'), style: ts.small.copyWith(color: c.faint)),
@@ -333,7 +334,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ),
         // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
         // silent.
-        if (mailboxName != null && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
+        if (mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
         // A withdrawal from a paired exchange, not yet posted by it (SPEC 2.8).
         if (withdrawal != null && !onChain) ...[
           SizedBox(height: Sp.x3),
@@ -371,7 +372,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           // Through the pairing: the contact, never the mailbox as an address (DESIGN 1.3).
           else if (mailboxName != null)
             (
-              l.deskTxFactTo,
+              t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
               Column(
                 key: const ValueKey('tx-fact-pairing'),
                 crossAxisAlignment: CrossAxisAlignment.start,
