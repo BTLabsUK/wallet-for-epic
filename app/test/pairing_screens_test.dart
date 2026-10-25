@@ -482,6 +482,24 @@ void main() {
       expect(find.byType(PairingResultScreen), findsOneWidget);
     });
 
+    testWidgets('the notice\'s Check the words opens the words even after the widget that showed it was rebuilt away (PAIR-AND-15)', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices(key: ValueKey('first'))));
+      tester.view.physicalSize = const Size(1800, 2340);
+      final invite = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      h.api.answerInvite(invite.id, name: 'Anna');
+      await tester.pumpAndSettle();
+      final c = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
+      final action = c.read(noticeProvider)!.action!;
+      // The home screen rebuilt: a new PairingNotices, the one that showed the notice is gone.
+      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+      nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => const Scaffold(body: PairingNotices(key: ValueKey('second')))));
+      await tester.pumpAndSettle();
+      action.onPressed();
+      await tester.pumpAndSettle();
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+    });
+
     testWidgets('no contact of its name, or two unpaired ones: nothing is suggested (PAIR-LNX-7)', (tester) async {
       final h = _Harness();
       await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));

@@ -137,7 +137,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.listenManual(keysBackProvider, (_, _) {});
   }
 
-  void _push(Widget screen) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => screen));
 
   void _show(PairingEvent e) {
     final l = context.l10n;
@@ -159,20 +158,24 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     final contact = contactId == null
         ? null
         : (ref.read(contactsProvider).value ?? const <Contact>[]).where((c) => c.id == contactId).firstOrNull;
+    // The navigator now, while this widget is mounted: the action may run after it was rebuilt
+    // away, and a context of its own would then open nothing (PAIR-AND-15).
+    final nav = Navigator.of(context);
+    void push(Widget screen) => nav.push<void>(MaterialPageRoute<void>(builder: (_) => screen));
     final NoticeAction? action = switch (e.kind) {
       PairingEventKind.replied || PairingEventKind.confirmed when id != null =>
-        NoticeAction(l.noticeCheckWords, () => _push(CheckWordsScreen(pairingId: id))),
-      PairingEventKind.failed || PairingEventKind.secondReply => NoticeAction(l.noticeOpen, () => _push(const PendingInvitesScreen())),
+        NoticeAction(l.noticeCheckWords, () => push(CheckWordsScreen(pairingId: id))),
+      PairingEventKind.failed || PairingEventKind.secondReply => NoticeAction(l.noticeOpen, () => push(const PendingInvitesScreen())),
       PairingEventKind.keysChanged || PairingEventKind.keysRestored || PairingEventKind.homeRelayUnreachable when contact != null =>
-        NoticeAction(l.noticeOpen, () => openContactPage(context, contact)),
+        NoticeAction(l.noticeOpen, () => push(ContactPage(contactId: contact.id, initial: contact))),
       PairingEventKind.invoiceFromContact ||
       PairingEventKind.duplicateRequests ||
-      PairingEventKind.tooManyRequests => NoticeAction(l.noticeView, () => _push(const InvoicesScreen())),
+      PairingEventKind.tooManyRequests => NoticeAction(l.noticeView, () => push(const InvoicesScreen())),
       PairingEventKind.withdrawalFromContact when e.slateId != null =>
         NoticeAction(l.noticeView, () {
           // The row's key is the wallet's; find it by its slate.
           final tx = ref.read(homeProvider).value?.transactions.where((t) => t.slateId == e.slateId).firstOrNull;
-          _push(TxDetailsScreen(txKey: tx?.key ?? 's:${e.slateId}'));
+          push(TxDetailsScreen(txKey: tx?.key ?? 's:${e.slateId}'));
         }),
       _ => null,
     };
