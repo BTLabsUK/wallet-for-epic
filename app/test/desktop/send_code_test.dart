@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_code.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,7 +50,7 @@ void main() {
   });
   tearDown(() => container.dispose());
 
-  Future<void> show(WidgetTester tester, {Size size = const Size(1280, 1000), String? link}) async {
+  Future<void> show(WidgetTester tester, {Size size = const Size(1280, 1000), String? link, PaymentPrefs? payments}) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -63,7 +64,11 @@ void main() {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() async {
+      final n = container.read(deskProvider.notifier);
+      await n.refresh();
+      if (payments != null) await n.saveSettings(container.read(deskProvider).settings.copyWith(payments: payments));
+    });
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -327,7 +332,8 @@ void main() {
   for (final size in const [Size(1280, 800), Size(2474, 1338)]) {
     testWidgets('a 255-character Direct URL and a 264-character note fit at ${size.width.toInt()}x${size.height.toInt()}', (tester) async {
       expect(direct.length, 255);
-      await show(tester, size: size);
+      // A Direct URL goes by Link · HTTP, off by default since the methods split.
+      await show(tester, size: size, payments: const PaymentPrefs(linkHttp: true));
       await paste(tester, 'epic:$direct?amount=1&label=${Uri.encodeComponent('L' * 64)}&message=${Uri.encodeComponent(note)}');
       expect(text(tester, 'To'), direct);
       expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, note);
