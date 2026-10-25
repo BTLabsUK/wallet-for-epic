@@ -16,7 +16,7 @@ import '../l10n.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
-import '../pairing_providers.dart' show invoicesShownProvider, pairingSupportedProvider;
+import '../pairing_providers.dart' show invoicesOnProvider, invoicesShownProvider, pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -1017,8 +1017,9 @@ class _QrCard extends ConsumerWidget {
               label: Text(l.qrScanPayment),
               onPressed: () => scanSlateQr(context, ref),
             ),
-            // Asking for an amount: a request shown as a QR (it turns Invoices on first).
-            if (ref.watch(sessionProvider.select((s) => s?.supportsRequestFiles ?? false))) ...[
+            // Asking for an amount: a request shown as a QR (only while Invoices is on).
+            if (ref.watch(invoicesOnProvider) &&
+                ref.watch(sessionProvider.select((s) => s?.supportsRequestFiles ?? false))) ...[
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 key: receiveQrRequestKey,
@@ -1027,7 +1028,7 @@ class _QrCard extends ConsumerWidget {
                 ),
                 icon: const Icon(Icons.request_quote_outlined),
                 label: Text(l.receiveQrRequest),
-                onPressed: () => openQrRequest(context, ref),
+                onPressed: () => openQrRequest(context),
               ),
             ],
             if (offlineNode)

@@ -4354,8 +4354,6 @@
   "reqQrSummary": "Kto zeskanuje kod, może zapłacić {amount}. Zeskanuj tu ich odpowiedź, by dokończyć. Prośba wygasa za 24 h.",
   "reqShowQr": "Pokaż jako QR",
   "receiveQrRequest": "Poproś o kwotę",
-  "expInvoicesTurnOn": "Włącz faktury",
-  "expInvoicesOffQrBody": "Proszenie o kwotę jest częścią faktur, które są eksperymentalne i mogą się jeszcze zmienić. Włącz je tutaj albo później w Ustawienia › Zaawansowane.",
   "reqQrPaidTitle": "Zapłacono",
   "reqQrPaidHeadline": "{amount} zapłacone i wysłane do sieci.",
   "reqQrNew": "Nowa prośba",

@@ -4354,8 +4354,6 @@
   "reqQrSummary": "谁扫到二维码，谁就能支付 {amount}。在这里扫描对方的回复即可完成。请求在 24 小时后过期。",
   "reqShowQr": "显示为二维码",
   "receiveQrRequest": "请求金额",
-  "expInvoicesTurnOn": "开启账单",
-  "expInvoicesOffQrBody": "请求金额属于账单功能。账单是实验性功能，仍可能变化。可在此开启，或稍后在 设置 › 高级 中开启。",
   "reqQrPaidTitle": "已付款",
   "reqQrPaidHeadline": "{amount} 已付款并广播到网络。",
   "reqQrNew": "新请求",
