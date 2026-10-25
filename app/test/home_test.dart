@@ -2533,15 +2533,15 @@ void main() {
       ttlCutoffHeight: cutoff,
     );
 
-    test('a finished send cancelled by the 14-day limit says to check', () {
+    test('a finished send cancelled past its limit says to check', () {
       expect(
         txExplanation(
           englishStrings,
           cancelledSend(finalizedAt: _at(_now), cutoff: _tip - BigInt.one),
           _tip,
         ),
-        'It did not reach the network within 14 days, so the wallet cancelled '
-        'it. Check the recipient did not receive it before sending again.',
+        'It did not reach the network in time and was cancelled. Check the '
+        'recipient did not receive it before sending again.',
       );
       // Released by the user before the limit: it may still have left the device.
       expect(
@@ -2555,7 +2555,7 @@ void main() {
       // Unanswered and expired: nothing left the device.
       expect(
         txExplanation(englishStrings, cancelledSend(cutoff: _tip), _tip),
-        startsWith('The recipient did not answer within 14 days'),
+        startsWith('The recipient did not answer within 24 hours'),
       );
       // Cancelled by the user.
       expect(
@@ -2670,15 +2670,15 @@ void main() {
       );
       expect(
         say(cancelled(CancelReason.expiry, finalizedAt: _at(_now))),
-        startsWith('It did not reach the network within 14 days'),
+        startsWith('It did not reach the network in time'),
       );
       expect(
         say(cancelled(CancelReason.expiry)),
-        startsWith('The recipient did not answer within 14 days'),
+        startsWith('The recipient did not answer within 24 hours'),
       );
       expect(
         say(cancelled(CancelReason.lateAnswer, cutoff: _tip - BigInt.one)),
-        startsWith('The recipient answered after the 14-day limit'),
+        startsWith('The recipient answered after the 24-hour limit'),
       );
       expect(
         say(cancelled(CancelReason.failed)),
@@ -2688,7 +2688,7 @@ void main() {
       // No recorded reason: the old rule.
       expect(
         say(cancelled(null, cutoff: _tip - BigInt.one)),
-        startsWith('The recipient did not answer within 14 days'),
+        startsWith('The recipient did not answer within 24 hours'),
       );
       expect(say(cancelled(null)), startsWith('Cancelled. Nothing was paid'));
       // android-13: a cancelled send may have reached the recipient, so it never says

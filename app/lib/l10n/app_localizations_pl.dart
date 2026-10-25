@@ -687,15 +687,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledNotOnChain =>
-      'Płatność nie trafiła do sieci w ciągu 14 dni, więc portfel ją anulował. Przed ponownym wysłaniem sprawdź, czy odbiorca jej nie otrzymał.';
+      'Płatność nie trafiła do sieci na czas i została anulowana. Przed ponownym wysłaniem sprawdź, czy odbiorca jej nie otrzymał.';
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało zapłacone, a środki są znów dostępne.';
+      'Odbiorca nie odpowiedział w ciągu 24 godzin, więc portfel anulował płatność. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.';
+      'Odbiorca odpowiedział po upływie 24 godzin, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledUndelivered =>

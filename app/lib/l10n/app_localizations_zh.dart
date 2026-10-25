@@ -627,15 +627,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledNotOnChain =>
-      '这笔付款未能在 14 天内进入网络，因此钱包已将其取消。再次发送前，请确认接收方没有收到。';
+      '这笔付款未能及时进入网络，已被取消。再次发送前，请确认接收方没有收到。';
 
   @override
   String get txDetailsCancelledUnanswered =>
-      '接收方未在 14 天内回复，因此钱包已将其取消。没有支付任何资金，这些资金已恢复可用。';
+      '接收方未在 24 小时内回复，因此钱包已将其取消。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      '接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。';
+      '接收方在 24 小时期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledUndelivered =>

@@ -33,9 +33,10 @@ import 'tour/phone_tour.dart';
 
 export '../help/help_content.dart' show HelpId;
 
-/// Days after which a send that was never completed cancels itself: the old core set a time
-/// to live of 20160 blocks, at one block a minute. The Send tracker's copy still quotes it.
-const int sendTtlDays = 14;
+/// Days after which a send that was never answered cancels itself: LEPIC gives every app send
+/// a limit of 1,440 blocks, a day at one block a minute, past which it neither finalizes nor
+/// posts it.
+const int sendTtlDays = 1;
 
 /// The key of the search field, for tests.
 const Key helpSearchKey = ValueKey('help-search');

@@ -657,15 +657,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledNotOnChain =>
-      'It did not reach the network within 14 days, so the wallet cancelled it. Check the recipient did not receive it before sending again.';
+      'It did not reach the network in time and was cancelled. Check the recipient did not receive it before sending again.';
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.';
+      'The recipient did not answer within 24 hours, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.';
+      'The recipient answered after the 24-hour limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.';
 
   @override
   String get txDetailsCancelledUndelivered =>

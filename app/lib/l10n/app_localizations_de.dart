@@ -664,15 +664,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelledNotOnChain =>
-      'Die Zahlung hat das Netzwerk nicht innerhalb von 14 Tagen erreicht, daher hat die Wallet sie storniert. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.';
+      'Die Zahlung hat das Netzwerk nicht rechtzeitig erreicht und wurde storniert. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.';
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
+      'Der Empfänger hat nicht innerhalb von 24 Stunden geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
+      'Der Empfänger hat erst nach Ablauf der 24-Stunden-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
 
   @override
   String get txDetailsCancelledUndelivered =>

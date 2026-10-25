@@ -822,7 +822,7 @@ void main() {
         expect(
           find.text(
             "Their relay (epicbox.epiccash.com) didn't take it. The amount is on hold until you cancel "
-            'it, or for at most 14 days.',
+            'it, or for at most 1 day.',
           ),
           findsOneWidget,
         );

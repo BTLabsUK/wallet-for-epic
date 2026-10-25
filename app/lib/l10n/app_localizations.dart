@@ -1075,22 +1075,22 @@ abstract class AppLocalizations {
   /// **'The network never took it, so its funds were released. Check the recipient did not receive it before sending again.'**
   String get txDetailsCancelledReleased;
 
-  /// Payment details, why a send is cancelled: it was finished but never confirmed within its 14-day limit.
+  /// Payment details, why a send is cancelled: it was finished but never reached the network, and was cancelled.
   ///
   /// In en, this message translates to:
-  /// **'It did not reach the network within 14 days, so the wallet cancelled it. Check the recipient did not receive it before sending again.'**
+  /// **'It did not reach the network in time and was cancelled. Check the recipient did not receive it before sending again.'**
   String get txDetailsCancelledNotOnChain;
 
-  /// Payment details, why a send is cancelled: the recipient never answered within its 14-day limit.
+  /// Payment details, why a send is cancelled: the recipient never answered within its 24-hour (1,440-block) limit.
   ///
   /// In en, this message translates to:
-  /// **'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.'**
+  /// **'The recipient did not answer within 24 hours, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledUnanswered;
 
   /// Payment details, why a send is cancelled: the answer came too late.
   ///
   /// In en, this message translates to:
-  /// **'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.'**
+  /// **'The recipient answered after the 24-hour limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledLateAnswer;
 
   /// Payment details, why a send is cancelled: it never reached the recipient.

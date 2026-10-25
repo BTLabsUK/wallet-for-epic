@@ -860,7 +860,7 @@ void main() {
       expect(
         find.text(
           'Their wallet was not reached. The amount is on hold until you cancel '
-          'it, or for at most 14 days.',
+          'it, or for at most 1 day.',
         ),
         findsOneWidget,
       );

@@ -743,15 +743,15 @@
   "@txDetailsCancelledReleased": {
     "description": "Payment details, why a send is cancelled: the user released the funds of a send the network refused."
   },
-  "txDetailsCancelledNotOnChain": "It did not reach the network within 14 days, so the wallet cancelled it. Check the recipient did not receive it before sending again.",
+  "txDetailsCancelledNotOnChain": "It did not reach the network in time and was cancelled. Check the recipient did not receive it before sending again.",
   "@txDetailsCancelledNotOnChain": {
-    "description": "Payment details, why a send is cancelled: it was finished but never confirmed within its 14-day limit."
+    "description": "Payment details, why a send is cancelled: it was finished but never reached the network, and was cancelled."
   },
-  "txDetailsCancelledUnanswered": "The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.",
+  "txDetailsCancelledUnanswered": "The recipient did not answer within 24 hours, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.",
   "@txDetailsCancelledUnanswered": {
-    "description": "Payment details, why a send is cancelled: the recipient never answered within its 14-day limit."
+    "description": "Payment details, why a send is cancelled: the recipient never answered within its 24-hour (1,440-block) limit."
   },
-  "txDetailsCancelledLateAnswer": "The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.",
+  "txDetailsCancelledLateAnswer": "The recipient answered after the 24-hour limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.",
   "@txDetailsCancelledLateAnswer": {
     "description": "Payment details, why a send is cancelled: the answer came too late."
   },

@@ -772,7 +772,7 @@ void main() {
         expect(find.textContaining('cancels by itself'), findsNothing);
         await _tap(tester, find.text('What if it never finishes?'));
         expect(
-          find.textContaining('If it is still not completed after 14 days'),
+          find.textContaining('If it is still not completed after 1 day'),
           findsOneWidget,
         );
 

@@ -373,8 +373,8 @@ void main() {
         ),
         findsOneWidget,
       );
-      // The 14-day rule waits behind the expandable.
-      expect(find.textContaining('14 days'), findsNothing);
+      // The one-day rule waits behind the expandable.
+      expect(find.textContaining('after 1 day'), findsNothing);
     });
 
     testWidgets('a cancelled payment says so in one line', (tester) async {
