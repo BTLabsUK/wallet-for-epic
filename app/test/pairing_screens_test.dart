@@ -450,6 +450,27 @@ void main() {
     expect(pairingSpan(_l, const Duration(seconds: 59)), _l.pairDurUnderMinute);
   });
 
+  group('Contacts', () {
+    testWidgets('a pairing in no contact is listed by its name with Not in contacts and its menu (PAIR-AND-8)', (tester) async {
+      final h = _Harness();
+      h.api.seedPaired(id: 'p-floo', name: 'Floo C', state: PairingState.verified);
+      await h.pump(tester, const ContactsScreen());
+      expect(find.text(_l.contactsEmptyTitle), findsNothing, reason: 'not the empty book');
+      expect(find.text('Floo C'), findsOneWidget);
+      expect(find.text(_l.pairNotInContacts), findsOneWidget);
+      await tester.tap(find.byKey(contactsOrphanMenuKey('p-floo')));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairSaveNewContact), findsOneWidget);
+      expect(find.text(_l.pairAddToAContact), findsOneWidget);
+      await tester.tap(find.text(_l.contactRemovePairing));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, _l.contactRemove).last);
+      await tester.pumpAndSettle();
+      expect(await h.api.pairing('p-floo'), isNull);
+      expect(find.text('Floo C'), findsNothing);
+    });
+  });
+
   group('Pending invites', () {
     testWidgets('empty: says how an invite gets here', (tester) async {
       final h = _Harness();

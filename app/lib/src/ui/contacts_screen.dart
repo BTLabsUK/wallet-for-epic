@@ -6,6 +6,7 @@ import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart';
+import '../pairing_text.dart' show sameNamedContact;
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
 import '../wallet_service.dart';
@@ -13,6 +14,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'method_names.dart';
+import 'pairing/pair_check.dart' show confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
 import 'pairing/pending_invites.dart';
@@ -25,6 +27,9 @@ import 'tour/tour_target.dart';
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
 const Key contactsPendingKey = ValueKey('contacts-pending');
+
+/// The row menu of a pairing in no contact, by its id.
+Key contactsOrphanMenuKey(String id) => ValueKey('contacts-orphan-menu-$id');
 const Key contactAddAnotherKey = ValueKey('contact-add-another');
 const Key contactKeepOldKey = ValueKey('contact-keep-old');
 const Key contactReplaceKey = ValueKey('contact-replace');
@@ -118,10 +123,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final l = context.l10n;
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
     final pending = pairs ? ref.watch(pendingPairingsProvider).length : 0;
+    final orphans = pairs ? ref.watch(orphanPairingsProvider) : const <PairingRecord>[];
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {
-      AsyncData(:final value) => value.isEmpty && pending == 0,
+      AsyncData(:final value) => value.isEmpty && pending == 0 && orphans.isEmpty,
       _ => false,
     };
     return SlotScaffold(
@@ -216,7 +222,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                       ),
                       Expanded(
                         child: switch (contacts) {
-                          AsyncData(:final value) => _list(value, pending),
+                          AsyncData(:final value) => _list(value, pending, orphans),
                           AsyncError(:final error) => ListView(
                             padding: const EdgeInsets.all(16),
                             children: [ErrorText(describeError(l, error))],
@@ -233,11 +239,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     );
   }
 
-  Widget _list(List<Contact> all, int pending) {
+  Widget _list(List<Contact> all, int pending, List<PairingRecord> orphans) {
     final contacts = _filter(all);
     final t = context.tokens;
     final l = context.l10n;
+    final query = _search.text.trim().toLowerCase();
     final rows = <Widget>[
+      // Pairings in no contact, by the name they chose: Add to contacts or Remove pairing.
+      for (final r in orphans)
+        if (query.isEmpty || r.shownName.toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
       if (pending > 0 && _search.text.trim().isEmpty) ...[
         ListTile(
           key: contactsPendingKey,
@@ -256,7 +266,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
         children: [
           ...rows,
-          if (all.isNotEmpty)
+          if (all.isNotEmpty && query.isNotEmpty)
             Text(
               l.contactsNoMatchQuery(_search.text.trim()),
               textAlign: TextAlign.center,
@@ -282,6 +292,75 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       rows.add(_ContactRow(contact: c, onTap: () => _open(c)));
     }
     return ListView(padding: const EdgeInsets.only(bottom: 16), children: rows);
+  }
+}
+
+/// A pairing of this wallet in no contact (PAIR-AND-8): the name it chose, its trust badge and
+/// "Not in contacts"; the menu adds it to the contacts (a contact of its name first, which
+/// starts a re-pair's key check) or removes the pairing.
+class _OrphanRow extends ConsumerWidget {
+  const _OrphanRow({required this.record, required this.contacts});
+
+  final PairingRecord record;
+  final List<Contact> contacts;
+
+  Future<void> _attach(BuildContext context, WidgetRef ref, Contact? contact) async {
+    if (contact == null || !context.mounted) return;
+    final l = context.l10n;
+    await pairingCall(ref, (api) => api.attach(record.id, contact.id));
+    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+  }
+
+  Future<void> _choose(BuildContext context, WidgetRef ref, String choice, Contact? suggested) async {
+    switch (choice) {
+      case 'named':
+        await _attach(context, ref, suggested);
+      case 'new':
+        final saved = await savePairingAsNewContact(context, record);
+        if (context.mounted) await _attach(context, ref, saved);
+      case 'add':
+        final picked = await pickContactForPairing(context);
+        if (context.mounted) await _attach(context, ref, picked);
+      case 'remove':
+        if (await confirmRemovePairing(context, record.shownName)) await pairingCall(ref, (api) => api.removePairing(record.id));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final name = record.shownName;
+    final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
+    final suggested = sameNamedContact<Contact>(
+      record,
+      contacts,
+      (c) => c.name,
+      paired: (c) => all.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
+    );
+    return ListTile(
+      minTileHeight: 64,
+      leading: PairAvatar(name: name, kind: record.kind, size: 40),
+      title: Row(
+        children: [
+          Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          const SizedBox(width: 8),
+          TrustBadge(record, short: true),
+        ],
+      ),
+      subtitle: Text(l.pairNotInContacts, style: TextStyle(color: t.dim)),
+      trailing: PopupMenuButton<String>(
+        key: contactsOrphanMenuKey(record.id),
+        tooltip: l.contactMore,
+        onSelected: (v) => _choose(context, ref, v, suggested),
+        itemBuilder: (context) => [
+          if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
+          PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
+          PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
+          PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+        ],
+      ),
+    );
   }
 }
 

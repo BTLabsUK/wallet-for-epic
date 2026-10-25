@@ -83,6 +83,16 @@ final pairedProvider = Provider<List<PairingRecord>>((ref) => [
     if (r.state.isPaired) r,
 ]);
 
+/// Pairings of this wallet in no address-book contact (never saved, or the contact was
+/// deleted from the shared book): Contacts lists them by the name they chose (PAIR-AND-8).
+final orphanPairingsProvider = Provider<List<PairingRecord>>((ref) {
+  final ids = {for (final c in ref.watch(contactsProvider).value ?? const <Contact>[]) c.id};
+  return [
+    for (final r in ref.watch(pairedProvider))
+      if (r.contactId == null || !ids.contains(r.contactId)) r,
+  ];
+});
+
 /// What Pending invites lists: invites and answers in flight, and pairings whose words are
 /// still to be checked.
 final pendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [

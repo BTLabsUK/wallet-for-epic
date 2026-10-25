@@ -69,6 +69,16 @@ final deskPairedProvider = Provider<List<PairingRecord>>((ref) => [
     if (r.state.isPaired) r,
 ]);
 
+/// Pairings in no contact (never saved, or deleted from the shared book): Contacts lists them
+/// by the name they chose (PAIR-AND-8).
+final deskOrphanPairingsProvider = Provider<List<PairingRecord>>((ref) {
+  final ids = {for (final c in ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]) c.id};
+  return [
+    for (final r in ref.watch(deskPairedProvider))
+      if (r.contactId == null || !ids.contains(r.contactId)) r,
+  ];
+});
+
 /// In flight: invites, answers, pairings still to check.
 final deskPendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [
   for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[])

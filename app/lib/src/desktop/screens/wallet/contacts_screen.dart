@@ -117,7 +117,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         ),
       );
     }
-    if (all.isEmpty && !_adding) {
+    final orphans = ref.watch(deskPairsProvider) ? ref.watch(deskOrphanPairingsProvider) : const <PairingRecord>[];
+    if (all.isEmpty && orphans.isEmpty && !_adding) {
       return EPage(
         title: l.deskConTitle,
         width: EPageWidth.narrow,
@@ -198,7 +199,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ),
           Divider(height: 1, color: c.line),
           ],
-          if (shown.isEmpty && _query.text.isEmpty)
+          // Pairings in no contact, by the name they chose (PAIR-AND-8).
+          for (final r in orphans)
+            if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
+          if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
               child: Text(l.deskConNone, style: ts.bodyDim, textAlign: TextAlign.center),
@@ -378,6 +382,66 @@ class _Pic extends StatelessWidget {
           gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.accent, c.ok]),
         ),
         child: Icon(EIcons.user, size: size * 0.55, color: c.bg),
+      ),
+    );
+  }
+}
+
+/// A pairing of this wallet in no contact: the name it chose, its badge and "Not in contacts",
+/// with the choices of Settings › Invoices (a contact of its name first, PAIR-LNX-7).
+class _OrphanRow extends ConsumerWidget {
+  const _OrphanRow({required this.record});
+
+  final PairingRecord record;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final r = record;
+    final suggested = deskSuggestedContact(ref, r);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DeskPairAvatar(name: r.shownName, size: 40.u),
+          SizedBox(width: 14.u),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(child: Text(r.shownName, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    SizedBox(width: Sp.x2),
+                    TrustBadge(r, short: true),
+                  ],
+                ),
+                Text(l.pairNotInContacts, style: ts.small),
+                SizedBox(height: Sp.x2),
+                Wrap(
+                  spacing: Sp.x2,
+                  runSpacing: Sp.x2,
+                  children: [
+                    if (suggested != null)
+                      EButton.primary(label: l.pairAddToNamed(suggested.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, suggested)),
+                    EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
+                    EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+                    EButton(
+                      label: l.contactRemovePairing,
+                      kind: EBtnKind.danger,
+                      size: EBtnSize.sm,
+                      onPressed: () async {
+                        if (await deskConfirmRemovePairing(context, r.shownName)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

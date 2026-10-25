@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice
 import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/invoices/review_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsScreen;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_invoices.dart' show InvoiceSettingsBlock;
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -379,6 +380,18 @@ void main() {
     expect(find.byType(EKindTag), findsNWidgets(3));
     expect(find.byType(EShortAddress), findsNothing);
     expect(find.text(' · shop'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Contacts lists a pairing in no contact by its name, with its choices (PAIR-AND-8)', (tester) async {
+    await _open(tester, const ContactsScreen());
+    _pairing.seedPaired(id: 'p-floo', name: 'Floo C', state: PairingState.verified);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.text('Floo C'), findsOneWidget);
+    expect(find.text(_l.pairNotInContacts), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.pairSaveNewContact), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.contactRemovePairing), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
