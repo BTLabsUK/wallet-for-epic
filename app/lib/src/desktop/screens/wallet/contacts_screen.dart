@@ -424,6 +424,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                   child: EAddressLines(
                     name: x.name,
                     address: x.address,
+                    addresses: x.addresses,
                     note: x.note,
                     nameTrailing: Row(
                       mainAxisSize: MainAxisSize.min,

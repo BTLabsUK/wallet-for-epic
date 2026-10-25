@@ -84,12 +84,16 @@ class EKindTag extends StatelessWidget {
 /// The two text lines of a row that carries an address (spec 7.1): name, [nameTrailing] and
 /// the kind tag; then the short address and the note. When the row is narrow the note gives way
 /// first (down to 12 characters), then the address falls to its compact form, then the note
-/// goes. Nothing wraps.
+/// goes. Nothing wraps. A contact with several [addresses] shows their kind tags instead of
+/// one address (SPEC 2.5).
 class EAddressLines extends StatelessWidget {
-  const EAddressLines({super.key, required this.name, required this.address, this.note, this.nameTrailing, this.addressStyle});
+  const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle});
 
   final String name;
   final String address;
+
+  /// Every address of the contact, when it can have several; [address] is the first.
+  final List<String>? addresses;
   final String? note;
   final Widget? nameTrailing;
   final TextStyle? addressStyle;
@@ -101,6 +105,7 @@ class EAddressLines extends StatelessWidget {
     final aStyle = addressStyle ?? ts.mono(size: Fs.sm, color: c.dim);
     final nStyle = ts.small.copyWith(color: c.faint);
     final n = note?.split('\n').first.trim() ?? '';
+    final several = (addresses?.length ?? 0) > 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -110,13 +115,21 @@ class EAddressLines extends StatelessWidget {
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
             // A contact with no address (paired only) has no kind to tag (PAIR-LNX-5).
-            if (address.trim().isNotEmpty) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: true)],
+            if (address.trim().isNotEmpty && !several) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: true)],
           ],
         ),
         const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, box) {
             if (address.trim().isEmpty) return Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis);
+            if (several) {
+              return Row(
+                children: [
+                  for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: true), SizedBox(width: Sp.x1)],
+                  if (n.isNotEmpty) Flexible(child: Text(' · $n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+                ],
+              );
+            }
             if (n.isEmpty) return EShortAddress(address, style: aStyle);
             final noteMin = _width(context, ' · ${n.length > 12 ? n.substring(0, 12) : n}', nStyle);
             final full = shortAddressWidth(context, address, aStyle);
