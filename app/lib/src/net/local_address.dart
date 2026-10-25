@@ -107,6 +107,18 @@ bool isLoopbackIp(String address) {
   return bytes.sublist(0, 15).every((b) => b == 0) && bytes[15] == 1;
 }
 
+/// Whether [address] is a literal CGNAT address, 100.64.0.0/10: a Tailscale tailnet or a
+/// carrier's own network. Not local for Offline; a plain-http node there goes through the node
+/// relay (`lan_node_relay.dart`) and is judged by the app's own check ([isLocalNodeUrl]).
+bool isCgnatIp(String address) {
+  var bytes = _literalBytes(address);
+  if (bytes == null) return false;
+  if (bytes.length == 16 && bytes.sublist(0, 10).every((b) => b == 0) && bytes[10] == 0xff && bytes[11] == 0xff) {
+    bytes = bytes.sublist(12);
+  }
+  return bytes.length == 4 && bytes[0] == 100 && (bytes[1] & 0xc0) == 64;
+}
+
 /// Whether [host] is a name only the local network answers for: `.local` (mDNS) or `.lan`. A
 /// node there is looked up before the wallet connects ([resolveLocal]).
 bool isLocalNetworkName(String host) {
@@ -115,13 +127,13 @@ bool isLocalNetworkName(String host) {
   return h.endsWith('.local') || h.endsWith('.lan');
 }
 
-/// Whether the node at [url] is on this computer or the local network, as the app judges it
-/// (never status.btlabs.uk, which cannot reach it): a literal local IP, `localhost`, or a
-/// `.local` / `.lan` name.
+/// Whether the node at [url] is on this computer, the local network or a tailnet, as the app
+/// judges it (never status.btlabs.uk, which cannot reach it): a literal local IP, `localhost`,
+/// a `.local` / `.lan` name, or a CGNAT address ([isCgnatIp]).
 bool isLocalNodeUrl(String? url) {
   if (isLocalAddressUrl(url)) return true;
   final u = url == null ? null : Uri.tryParse(url.trim());
-  return u != null && u.host.isNotEmpty && isLocalNetworkName(u.host);
+  return u != null && u.host.isNotEmpty && (isLocalNetworkName(u.host) || isCgnatIp(u.host));
 }
 
 /// Looks [host] up: its addresses as strings. `InternetAddress.lookup` on a computer.

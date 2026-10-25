@@ -10,7 +10,9 @@
 ///   on this computer that pipes every connection to the node, unchanged;
 /// - at a `.local` or `.lan` name is looked up once; when every address found is local, the
 ///   relay goes to the first one (never looked up again), else LEPIC gets the name and refuses
-///   it as before.
+///   it as before;
+/// - at a literal CGNAT address (100.64.0.0/10, a Tailscale tailnet: [isCgnatIp]) goes through
+///   the relay as well (the owner, 2026-10-25), though Offline does not count it as local.
 ///
 /// Anything else (https, a public address, another name, an onion) goes as it is. The relayed
 /// traffic never leaves the local network; LEPIC takes loopback directly, never over Tor, whose
@@ -47,7 +49,10 @@ Future<String> lanNodeUrl(String url) async {
       final found = await resolveLocal(host, lanNodeLookup);
       if (found == null) return url;
       target = found;
-    case HostKind.public || HostKind.onion:
+    case HostKind.public:
+      if (!isCgnatIp(host)) return url;
+      target = host;
+    case HostKind.onion:
       return url;
   }
   final port = u.port;
