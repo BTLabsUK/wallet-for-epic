@@ -427,6 +427,9 @@ class GatedWalletSession implements WalletSession {
   void cancelScan() => _inner.cancelScan();
 
   @override
+  Future<bool> restoreScanRequired() => _inner.restoreScanRequired();
+
+  @override
   Future<WalletSummary> summary({
     required bool refresh,
     required BigInt minimumConfirmations,

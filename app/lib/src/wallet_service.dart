@@ -363,6 +363,11 @@ abstract interface class WalletSession {
   /// event. Pages stored so far stay. Nothing happens when no scan runs.
   void cancelScan();
 
+  /// Whether the wallet was rebuilt from its phrase and its scan from block 0 has not finished
+  /// ([WalletErrorKind.restoreScanRequired]). While true, [scan] with no start height scans
+  /// from block 0, resuming a stopped one, and clears it when it finishes.
+  Future<bool> restoreScanRequired();
+
   Future<WalletSummary> summary({
     required bool refresh,
     required BigInt minimumConfirmations,
@@ -1708,12 +1713,34 @@ class FakeWalletSession implements WalletSession {
   @override
   Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     scanCalls++;
+    scanStarts.add(startHeight);
     scanDeleteUnconfirmed = deleteUnconfirmed;
-    return scanStream ?? Stream.fromIterable(scanEvents);
+    return scanStream ?? _scripted(startHeight);
+  }
+
+  Stream<ScanProgress> _scripted(BigInt? startHeight) async* {
+    for (final event in scanEvents) {
+      if (event.finished &&
+          (startHeight == null || startHeight == BigInt.zero) &&
+          !event.message.startsWith('Scan failed:')) {
+        restoreScanPending = false;
+      }
+      yield event;
+    }
   }
 
   @override
   void cancelScan() => scanCancels++;
+
+  /// [restoreScanRequired]'s answer. A scan of [scanEvents] with no start height (or 0) that
+  /// finishes clears it, as the core does.
+  bool restoreScanPending = false;
+
+  /// The start height of every [scan] call, in order.
+  final List<BigInt?> scanStarts = [];
+
+  @override
+  Future<bool> restoreScanRequired() async => restoreScanPending;
 
   @override
   Future<WalletSummary> summary({

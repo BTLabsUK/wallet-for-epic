@@ -161,7 +161,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // An undelivered issue or resend is a transport failure; `payInvoice` catches the kind
     // before it gets here and answers `InvoiceStatus.replyFailed`.
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
-    lepic.WalletErrorKind.restoreScanRequired ||
+    lepic.WalletErrorKind.restoreScanRequired =>
+      WalletErrorKind.restoreScanRequired,
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
@@ -1687,6 +1688,11 @@ class LepicWalletSession implements WalletSession {
   void cancelScan() {
     if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
   }
+
+  /// Until the binding carries `restore_scan_required` (LEPIC fix/restore-scan), the app learns
+  /// of the flag from the core's refusals only, so this answers false.
+  @override
+  Future<bool> restoreScanRequired() async => false;
 
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.
