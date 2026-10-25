@@ -41,8 +41,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   _Step _step = _Step.words;
   WalletEntry? _wallet;
 
-  /// Under the grid: the phrase is not this wallet's.
+  /// Under the grid: the phrase is not this wallet's, until the words change.
   String? _phraseError;
+  String? _phraseErrorFor;
   String? _failure;
   bool _clipboardEmpty = false;
   bool _locking = false;
@@ -73,7 +74,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   void _onEntry() {
     _clipboardEmpty = false;
-    _phraseError = null;
+    if (_phraseErrorFor != _entry.phrase.join(' ')) _phraseError = null;
     if (mounted) setState(() {});
   }
 
@@ -141,6 +142,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         setState(() {
           _step = _Step.words;
           _phraseError = text;
+          _phraseErrorFor = _entry.phrase.join(' ');
         });
         return;
       }
