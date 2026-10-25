@@ -30,6 +30,7 @@ import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
 import 'payment_gate.dart';
+import 'receive_http_card.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'qr_scan_screen.dart';
@@ -43,9 +44,10 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 
-/// Receive's ways of receiving, one tab each: Epicbox first and by default, Direct (the onion
-/// address, over Tor) where the app has Tor, a code scanned from the phone next to this one (QR),
-/// and a payment file.
+/// Receive's ways of receiving, one tab each: Epicbox first and by default, Link (the
+/// Link · Tor onion address where the app has Tor, and the Link · HTTP address for this Wi-Fi
+/// network), a code scanned from the phone next to this one (Direct · QR) and a payment file
+/// (Direct · File).
 enum ReceiveTab { epicbox, direct, qr, file }
 
 /// Which of Receive's tabs shows. Kept while the app runs, across tab changes and rebuilds;
@@ -70,17 +72,18 @@ const Key receiveTabsKey = ValueKey('receive-tabs');
 /// scrolls.
 const double receiveQrMaxSize = 240, receiveQrMinSize = 112;
 
-/// Receiving: epicbox payments arrive by themselves while connected; with Tor on, other
-/// wallets reach this one Direct at its onion address while the app is open; a payment file
-/// or its text can still be accepted by hand. There is no HTTP receive, because a phone cannot
-/// accept connections.
+/// Receiving: epicbox payments arrive by themselves while connected; with Link · Tor and Tor
+/// on, other wallets reach this one at its onion address while the app is open; with
+/// Link · HTTP on, wallets on this Wi-Fi network reach it at its HTTP address; a payment file
+/// or its text can still be accepted by hand.
 ///
 /// The Receive tab's content: a choice at the top with Send's look, then on Epicbox the
 /// address (tap to copy, Share inside), the epicbox line, the QR code, and the demo's test
-/// coins and requesting a payment when the wallet handles invoices; on Direct the onion
-/// address in the same card, Tor's state and the QR code, or with Tor off a Turn on Tor; on
-/// File the file card. Help ends all three. The QR code takes the room left, so the Epicbox
-/// tab fits a phone without scrolling. The Direct tab exists only where the app has Tor.
+/// coins and requesting a payment when the wallet handles invoices; on Link, stacked, the
+/// onion address in the same card, Tor's state and the QR code (or with Tor off a Turn on
+/// Tor) while Link · Tor is on, and the Link · HTTP card ([ReceiveHttpCard]) while
+/// Link · HTTP is on; on File the file card. Help ends them all. The QR code takes the room
+/// left, so the Epicbox tab fits a phone without scrolling.
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
@@ -97,8 +100,12 @@ class ReceiveView extends ConsumerWidget {
     final filePending = hasPendingFileSend(
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
-    if (tab == ReceiveTab.direct && !torAvailable) tab = ReceiveTab.epicbox;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // Link: the Tor part where the app has Tor and Link · Tor is on (the tab in use keeps it,
+    // as Tor's own state did before the split); the HTTP card while Link · HTTP is on.
+    final linkTor = torAvailable && (payments.linkTor || (tab == ReceiveTab.direct && !payments.linkHttp));
+    final linkHttp = payments.linkHttp;
+    if (tab == ReceiveTab.direct && !linkTor && !linkHttp) tab = ReceiveTab.epicbox;
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
     final offline = watchNetBlock(context, ref) == NetBlock.offline;
     final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
@@ -112,52 +119,28 @@ class ReceiveView extends ConsumerWidget {
         onPressed: () => openHelp(context, HelpId.receive),
       ),
     );
+    ButtonSegment<ReceiveTab> segment(ReceiveTab value, IconData icon, String label) => ButtonSegment(
+      value: value,
+      icon: Icon(icon),
+      label: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(label, maxLines: 1),
+      ),
+    );
     // With Epicbox alone there is nothing to choose: the strip names it.
     final tabSegments = <ButtonSegment<ReceiveTab>>[
         // Epicbox off (Settings › Transactions): no address to hand out, no tab.
         if (payments.epicbox)
-          ButtonSegment(
-            value: ReceiveTab.epicbox,
-            icon: const Icon(EpicGlyphs.epicbox),
-            label: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(l.receiveTabEpicbox, maxLines: 1),
-            ),
-          ),
-        // Settings › Transactions says which are offered; Tor receiving on (or starting, or
-        // failed) keeps Direct, and so does the tab in use.
-        if (torAvailable &&
-            (tab == ReceiveTab.direct ||
-                torState != TorState.off ||
-                payments.offersFamily(MethodFamily.link)))
-          ButtonSegment(
-            value: ReceiveTab.direct,
-            icon: const Icon(EpicGlyphs.link),
-            label: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(l.receiveTabDirect, maxLines: 1),
-            ),
-          ),
+          segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
+        // Settings › Transactions says which are offered: Link while either Link method is.
+        if (linkTor || linkHttp)
+          segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
         // QR is the phone next to this one: offered where the camera works.
         if (tab == ReceiveTab.qr || (payments.directQr && offersQrPayment(ref)))
-          ButtonSegment(
-            value: ReceiveTab.qr,
-            icon: const Icon(Icons.qr_code_2),
-            label: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(l.receiveTabQr, maxLines: 1),
-            ),
-          ),
+          segment(ReceiveTab.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
         // The tab in use and a file send waiting for its reply keep File.
         if (tab == ReceiveTab.file || payments.directFile || filePending)
-          ButtonSegment(
-            value: ReceiveTab.file,
-            icon: const Icon(Icons.description_outlined),
-          label: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(l.receiveTabFile, maxLines: 1),
-          ),
-        ),
+          segment(ReceiveTab.file, MethodIcons.of(MethodKind.directFile), MethodIcons.shortName(l, MethodKind.directFile)),
     ];
     // Every method off: nothing to show but the way to Settings.
     if (tabSegments.isEmpty) {
@@ -243,15 +226,29 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && torState == TorState.off && !offline) {
-      // No Direct receiving without Tor: the phone accepts no other connection.
+    } else if (tab == ReceiveTab.direct && !linkTor) {
+      // Link · HTTP alone: its card.
       above = column([
         strip,
-        const _DirectNeedsTor(),
+        const ReceiveHttpCard(),
+        const SizedBox(height: 8),
+        help,
+      ]);
+      code = null;
+      below = const SizedBox.shrink();
+    } else if (tab == ReceiveTab.direct && torState == TorState.off && !offline) {
+      // No Link · Tor receiving without Tor; Link · HTTP's card under it while that is on.
+      above = column([
+        strip,
+        _DirectNeedsTor(epicbox: payments.epicbox),
         const SizedBox(height: 8),
       ]);
       code = null;
-      below = column([const SizedBox(height: 8), help]);
+      below = column([
+        if (linkHttp) ...[const SizedBox(height: 8), const ReceiveHttpCard()],
+        const SizedBox(height: 8),
+        help,
+      ]);
     } else if (tab == ReceiveTab.direct) {
       final onion = ref.watch(phoneTorProvider.select((s) => s.onion));
       // The code stays, scannable and the same address, but dimmed until the address is
@@ -302,7 +299,11 @@ class ReceiveView extends ConsumerWidget {
                 ),
               ),
             );
-      below = column([const SizedBox(height: 8), help]);
+      below = column([
+        if (linkHttp) ...[const SizedBox(height: 8), const ReceiveHttpCard()],
+        const SizedBox(height: 8),
+        help,
+      ]);
     } else {
       above = column([
         strip,
@@ -730,13 +731,16 @@ class _EpicboxLine extends ConsumerWidget {
   }
 }
 
-/// The key of Turn on Tor on Receive's Direct tab, for tests.
+/// The key of Turn on Tor on Receive's Link tab, for tests.
 const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 
-/// Receive's Direct tab with Tor off: Direct receiving needs Tor, the Epicbox address works
-/// meanwhile, and Turn on Tor (the one switch, as in Settings › Privacy).
+/// Receive's Link tab with Link · Tor on and Tor off: Link · Tor receiving needs Tor, the
+/// Epicbox address works meanwhile (while [epicbox] is on), and Turn on Tor (the one switch,
+/// as in Settings › Privacy).
 class _DirectNeedsTor extends ConsumerWidget {
-  const _DirectNeedsTor();
+  const _DirectNeedsTor({required this.epicbox});
+
+  final bool epicbox;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -751,12 +755,14 @@ class _DirectNeedsTor extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyLarge,
         ),
-        const SizedBox(height: 4),
-        Text(
-          l.receiveDirectMeanwhile,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
-        ),
+        if (epicbox) ...[
+          const SizedBox(height: 4),
+          Text(
+            l.receiveDirectMeanwhile,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
+          ),
+        ],
         const SizedBox(height: 12),
         FilledButton.tonalIcon(
           key: receiveTurnOnTorKey,

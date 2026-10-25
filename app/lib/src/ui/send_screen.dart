@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'status_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show NumberFormat;
@@ -1918,14 +1917,30 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Offline on a node that is not local: the file steps carry [OfflineNodeNote].
   bool _offlineNode = false;
 
-  /// Epicbox off, and the recipient is a saved contact: the reason, then that the contact can
-  /// be paid only over Epicbox. Null leaves the standard reason.
-  String? _epicboxOffLine(NetBlock note) {
-    if (note != NetBlock.epicboxOff) return null;
-    final name = _contactName(parseRecipient(_recipient.text).address);
-    if (name == null) return null;
+  /// The payment method the form sends by now: Epicbox, or for a Link send the Link method
+  /// the address picks (Link · HTTP or Link · Tor); null while a Link send has no address yet,
+  /// and for the file routes (their gate is [_postBlock]).
+  MethodKind? get _sendMethod {
+    if (_method == TransferMethod.epicbox) return MethodKind.epicbox;
+    if (_method != TransferMethod.direct || _recipient.text.trim().isEmpty) return null;
+    final kind = parseRecipient(_recipient.text).kind;
+    return kind == RecipientKind.epicbox ? null : MethodKind.ofRecipient(kind);
+  }
+
+  /// The method the form sends by is off in Settings › Transactions: its reason, then, when
+  /// the recipient is a saved contact (whose one address is of that kind), that the contact
+  /// can be paid only that way. Null for any other [note].
+  String? _methodOffLine(NetBlock note) {
+    final m = _sendMethod;
+    if (m == null || (note != NetBlock.epicboxOff && note != NetBlock.methodOff)) return null;
     final l = context.l10n;
-    return '${l.netBlockEpicboxOff} ${l.sendContactOnlyEpicbox(name)}';
+    final reason = methodOffReason(l, m);
+    final name = _contactName(parseRecipient(_recipient.text).address);
+    if (name == null) return reason;
+    final only = m == MethodKind.epicbox
+        ? l.sendContactOnlyEpicbox(name)
+        : l.sendContactOnlyMethod(name, MethodIcons.fullName(l, m));
+    return '$reason $only';
   }
 
   @override
@@ -1934,7 +1949,9 @@ class _SendViewState extends ConsumerState<SendView> {
     // any other) and the File method run.
     final localNode = ref.watch(localNodeProvider);
     final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
-    _block = watchNetBlock(context, ref, localNode: localNode && direct, epicbox: _method == TransferMethod.epicbox);
+    // A method off in Settings › Transactions holds the send too: Epicbox, or the Link method
+    // the address picks (a pasted onion with Link · Tor off says so, never a silent refusal).
+    _block = watchNetBlock(context, ref, localNode: localNode && direct, method: _sendMethod);
     // A file or QR Payment is made, finalized and posted through the node in use, which
     // Offline allows on any node (the note under the button says so).
     _postBlock = watchNetBlock(context, ref, localNode: true);
@@ -2023,7 +2040,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 else if (offlineNode)
                   const OfflineNodeNote()
                 else
-                  NetBlockNote(note, line: _epicboxOffLine(note)),
+                  NetBlockNote(note, line: _methodOffLine(note)),
                 bottom,
               ],
             )
@@ -2135,8 +2152,9 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
-  /// Epicbox, Direct and File, one segment each, icon over label. Tor is not a method: the
-  /// one Tor switch (Settings › Privacy) changes how Epicbox and Direct connect.
+  /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
+  /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor
+  /// switch (Settings › Privacy) changes how Epicbox and Link connect.
   Widget _methodSelector(BuildContext context, TransferMethod selected) {
     final l = context.l10n;
     final labelStyle = Theme.of(context).textTheme.labelMedium;
@@ -2160,7 +2178,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
     );
     // Settings › Transactions says which methods are offered; the method in use stays
-    // whatever the switch says (a pasted onion picks Direct; a file send, the failed-Epicbox
+    // whatever the switch says (a pasted onion picks Link; a file send, the failed-Epicbox
     // file fallback and a file waiting for its reply keep File).
     final payments =
         ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
@@ -2174,13 +2192,15 @@ class _SendViewState extends ConsumerState<SendView> {
       // Epicbox off (Settings › Transactions) hides it too; a pasted Epicbox address brings it
       // back for this send, where the note says it is off.
       if (selected == TransferMethod.epicbox || payments.epicbox)
-        segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
+        segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
+      // Link · HTTP and Link · Tor both off hide it; a pasted http or onion address brings it
+      // back for this send, where the note names the method that is off.
       if (selected == TransferMethod.direct || payments.offersFamily(MethodFamily.link))
-        segment(TransferMethod.direct, EpicGlyphs.link, l.methodDirect),
+        segment(TransferMethod.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
       if (selected == TransferMethod.qr || (payments.directQr && offersQrPayment(ref)))
-        segment(TransferMethod.qr, Icons.qr_code_2, l.methodQrChip),
+        segment(TransferMethod.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
       if (selected == TransferMethod.file || payments.directFile || filePending)
-        segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
+        segment(TransferMethod.file, MethodIcons.of(MethodKind.directFile), MethodIcons.shortName(l, MethodKind.directFile)),
     ];
     if (segments.length == 1) return const SizedBox.shrink();
     return PhoneTourTarget(
@@ -3103,7 +3123,7 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(
         context,
-        _viaQr ? l.sendQrTitle : l.sendFileTitle,
+        _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
         extra: _viaQr
             ? null
@@ -3186,7 +3206,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_viaQr) {
       // The code has its own screen; this step is where the send waits for the reply.
       return [
-        _header(context, l.sendQrTitle),
+        _header(context, MethodIcons.fullName(l, MethodKind.directQr)),
         _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
         Semantics(
           liveRegion: true,
@@ -3292,7 +3312,7 @@ class _SendViewState extends ConsumerState<SendView> {
       return [NotPostedNotice(tx: posted)];
     }
     return [
-      _header(context, _viaQr ? l.sendQrTitle : l.sendFileTitle),
+      _header(context, _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle),
       _fileSteps(context, 3, _parsedAmount ?? BigInt.zero, posted: posted),
     ];
   }
@@ -3462,8 +3482,8 @@ class _SwitchTag extends StatelessWidget {
     final still = MediaQuery.disableAnimationsOf(context);
     if (method == null) return const SizedBox.shrink();
     final (icon, text) = switch (method) {
-      TransferMethod.direct => (EpicGlyphs.link, l.sendSwitchedDirect),
-      _ => (EpicGlyphs.epicbox, l.sendSwitchedEpicbox),
+      TransferMethod.direct => (MethodIcons.family(MethodFamily.link), l.sendSwitchedDirect),
+      _ => (MethodIcons.of(MethodKind.epicbox), l.sendSwitchedEpicbox),
     };
     // The text field merges its label: [_SwitchAnnouncement] says it out loud.
     return ExcludeSemantics(

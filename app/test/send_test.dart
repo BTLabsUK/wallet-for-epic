@@ -248,7 +248,7 @@ class _Harness {
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(
             sendPinStore()
-              ..values['app.payment_prefs'] = PaymentPrefs(direct: direct).encode(),
+              ..values['app.payment_prefs'] = PaymentPrefs(linkHttp: direct, linkTor: direct).encode(),
           ),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(scanner),
@@ -355,7 +355,7 @@ Future<void> _toReview(
 }
 
 /// The payment file route, from the first step.
-Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('File'));
+Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('Direct · File'));
 
 String _fieldText(WidgetTester tester, String label) => tester
     .widget<TextField>(find.widgetWithText(TextField, label))
@@ -788,7 +788,7 @@ void main() {
     testWidgets('an incomplete wallet URL is refused in plain words', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(direct: true);
       await h.pump(tester, _sendTab());
       await _enter(tester, _address, 'https://');
       await _tap(tester, _continue);
@@ -1640,7 +1640,7 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       await _tap(tester, find.text('Open file'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -2241,7 +2241,7 @@ void main() {
     ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
-      expect(find.text('File'), findsOneWidget);
+      expect(find.text('Direct · File'), findsOneWidget);
       expect(find.text('Link'), findsNothing);
       expect(find.text('Other ways to send'), findsNothing);
 
@@ -2249,7 +2249,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
-      expect(find.text('File'), findsOneWidget);
+      expect(find.text('Direct · File'), findsOneWidget);
       expect(find.text('Link'), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);

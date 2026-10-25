@@ -80,14 +80,27 @@ class OfflineNodeNote extends StatelessWidget {
 }
 
 /// What the stored network mode and Tor allow now. Rebuilds when either changes. [localNode]
-/// for an action that reaches only the node in use ([localNodeProvider]), or a Direct send.
-/// [epicbox] for an action over Epicbox: the switch on Settings › Transactions counts too.
-NetBlock watchNetBlock(BuildContext context, WidgetRef ref, {bool localNode = false, bool epicbox = false}) => netBlockFor(
-  AdvancedOptions.of(context).networkMode,
-  phoneTorState(ref.watch(phoneTorProvider)),
-  localNode: localNode,
-  epicbox: !epicbox || ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox ?? true)),
-);
+/// for an action that reaches only the node in use ([localNodeProvider]), or a Link send.
+/// [method] for an action by one payment method: its switch on Settings › Transactions counts
+/// too ([NetBlock.epicboxOff], [NetBlock.methodOff]); [epicbox] is `method: epicbox`.
+NetBlock watchNetBlock(
+  BuildContext context,
+  WidgetRef ref, {
+  bool localNode = false,
+  bool epicbox = false,
+  MethodKind? method,
+}) {
+  final m = method ?? (epicbox ? MethodKind.epicbox : null);
+  // Until the settings are read, nothing is off.
+  final on = m == null || ref.watch(appSettingsProvider.select((s) => s.value?.payments.offers(m) ?? true));
+  return netBlockFor(
+    AdvancedOptions.of(context).networkMode,
+    phoneTorState(ref.watch(phoneTorProvider)),
+    localNode: localNode,
+    epicbox: m != MethodKind.epicbox || on,
+    offered: m == MethodKind.epicbox || on,
+  );
+}
 
 /// The one-line reason a network action is off, null when nothing stops it.
 String? netBlockReason(AppLocalizations l, NetBlock block) => switch (block) {
@@ -104,8 +117,9 @@ String methodOffReason(AppLocalizations l, MethodKind m) =>
     m == MethodKind.epicbox ? l.netBlockEpicboxOff : l.netBlockMethodOff(MethodIcons.fullName(l, m));
 
 /// The reason line under a disabled network action. Offline opens the Advanced page, where the
-/// mode is changed, Epicbox off the Transactions page; nothing shows when [block] is
-/// [NetBlock.none].
+/// mode is changed, a method off (Epicbox or another) the Transactions page; nothing shows when
+/// [block] is [NetBlock.none], nor for [NetBlock.methodOff] without a [line] (the screen names
+/// the method, [methodOffReason]).
 class NetBlockNote extends StatelessWidget {
   const NetBlockNote(this.block, {super.key, this.line});
 
@@ -128,7 +142,7 @@ class NetBlockNote extends StatelessWidget {
       liveRegion: true,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: block == NetBlock.offline || block == NetBlock.epicboxOff
+        child: block == NetBlock.offline || block == NetBlock.epicboxOff || block == NetBlock.methodOff
             ? InkWell(
                 onTap: () => openSettingsSection(
                   context,

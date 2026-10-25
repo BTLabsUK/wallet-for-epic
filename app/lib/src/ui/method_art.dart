@@ -3,13 +3,15 @@ import 'dart:ui' show PathMetric;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import 'method_icons.dart';
 import 'theme/tokens.dart';
 
 /// The ways a payment travels, on Send and Receive: Epicbox (held by the Epicbox server until
-/// the recipient's wallet is back), Direct (straight to their wallet at an http(s) or onion
-/// address, which must be open), a code shown on one phone and scanned by the other next to
-/// it (QR), and a transaction file handed over by hand. Tor is not a method: the one Tor switch
-/// changes how Epicbox and Direct connect.
+/// the recipient's wallet is back), Link (straight to their wallet at an http(s) or onion
+/// address, which must be open: Link · HTTP or Link · Tor), a code shown on one phone and
+/// scanned by the other next to it (Direct · QR Payment), and a transaction file handed over
+/// by hand (Direct · File Transfer). Tor is not a method: the one Tor switch changes how
+/// Epicbox and Link connect.
 enum TransferMethod { epicbox, direct, qr, file }
 
 /// The strip's picture of [method] (the desktop's `HeroArt`, ported): the two people dim, the
@@ -31,9 +33,9 @@ class MethodArt extends StatelessWidget {
 
   static String label(AppLocalizations l, TransferMethod m) => switch (m) {
     TransferMethod.epicbox => l.methodArtLabelEpicbox,
-    TransferMethod.direct => l.methodArtLabelDirect,
-    TransferMethod.qr => l.methodArtLabelQr,
-    TransferMethod.file => l.methodArtLabelFile,
+    TransferMethod.direct => l.methodArtSpokenLink(MethodIcons.familyName(l, MethodFamily.link)),
+    TransferMethod.qr => l.methodArtSpokenQr(MethodIcons.fullName(l, MethodKind.directQr)),
+    TransferMethod.file => l.methodArtSpokenFile(MethodIcons.fullName(l, MethodKind.directFile)),
   };
 
   @override

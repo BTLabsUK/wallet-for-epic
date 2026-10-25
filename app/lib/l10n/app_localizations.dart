@@ -10077,6 +10077,24 @@ abstract class AppLocalizations {
   /// **'Link Payment: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
 
+  /// Screen reader label of the Link family's picture on Send and Receive. {method} is the family's name ("Link").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String methodArtSpokenLink(String method);
+
+  /// Screen reader label of the QR Payment picture on Send and Receive. {method} is the method's full name ("Direct · QR Payment").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: a code passes from one phone to the phone next to it'**
+  String methodArtSpokenQr(String method);
+
+  /// Screen reader label of the File Transfer picture on Send and Receive. {method} is the method's full name ("Direct · File Transfer").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  String methodArtSpokenFile(String method);
+
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
   ///
   /// In en, this message translates to:

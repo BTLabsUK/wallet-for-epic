@@ -51,6 +51,7 @@ import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
+import 'settings_screen.dart' show openPrivacySettings;
 import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
@@ -193,9 +194,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   bool _busy = false;
 
   /// Transactions rows shown once stay while the page is open: a setting never disappears
-  /// because it was changed (Split change back on, Direct off without Tor).
+  /// because it was changed (Split change back on, Link · Tor off without Tor).
   bool _txDefaultsShown = false;
-  bool _txDirectShown = false;
+  bool _txTorShown = false;
   bool _txFileShown = false;
 
   void _say(String message, {required NoticeLevel level}) {
@@ -745,14 +746,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     return yes == true;
   }
 
-  /// Transactions: how payments are made. The methods Send and Receive offer (Epicbox on by
-  /// default; off, nothing connects to a relay), the one Send starts on, and, with Advanced ›
-  /// Send options, the defaults a send uses (which outputs it spends and whether its change is
-  /// split).
+  /// Transactions: how payments are made. The methods Send and Receive offer, one switch each,
+  /// grouped by family (Epicbox; Link › HTTP, Tor; Direct › QR Payment, File Transfer), the one
+  /// Send starts on, and, with Advanced › Send options, the defaults a send uses (which outputs
+  /// it spends and whether its change is split).
   List<Widget> _transactions(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final torOff = ref.watch(phoneTorProvider.select((t) => t.settled && !t.receiving));
     final t = context.tokens;
     // Send options on shows the defaults; one that is not at its default stays (never hide a
     // choice in use), as Outputs did before they moved here.
@@ -760,80 +762,95 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         s.advanced.has(AdvancedFeature.sendOptions) ||
         s.sendStrategy != SelectionStrategy.smallest ||
         !s.splitChange;
-    final showDirect = _txDirectShown |= torAvailable || payments.offersFamily(MethodFamily.link);
-    // The phone's methods: QR for everyone, File behind Advanced › Transaction files (a phone
-    // that has File on keeps the row, so it can still be turned off).
+    // Link · HTTP works on any phone (this Wi-Fi network); Link · Tor needs Tor, so where the
+    // app has none (and the switch is off) there is nothing to turn on.
+    final showTor = _txTorShown |= torAvailable || payments.linkTor;
+    // The phone's Direct methods: QR Payment for everyone, File Transfer behind Advanced ›
+    // Transaction files (a phone that has it on keeps the row, so it can still be turned off).
     final phone = ref.watch(phonePaymentsProvider);
     final loaded = ref.watch(appSettingsProvider).value != null;
     final showFile = !phone ||
         (_txFileShown |= loaded &&
             (payments.directFile ||
                 s.advanced.has(AdvancedFeature.transactionFiles)));
-    final offered = [
-      for (final m in MethodKind.values)
-        if (payments.offers(m) && (phone || m != MethodKind.directQr) && m != MethodKind.linkTor) m,
-    ];
-    String methodName(MethodKind m) => switch (m) {
-      MethodKind.linkHttp || MethodKind.linkTor => l.methodDirect,
-      _ => MethodIcons.fullName(l, m),
+    bool shown(MethodKind m) => switch (m) {
+      MethodKind.epicbox || MethodKind.linkHttp => true,
+      MethodKind.linkTor => showTor,
+      MethodKind.directQr => phone,
+      MethodKind.directFile => showFile,
     };
+    // Send starts on: the methods on, Link once for the family (the address picks HTTP or
+    // Tor), on the one Send would open on.
+    final start = payments.startMethod;
+    final offered = <MethodKind>[];
+    for (final m in payments.on) {
+      if (!shown(m)) continue;
+      if (m.family == MethodFamily.link) {
+        if (offered.any((o) => o.family == MethodFamily.link)) continue;
+        offered.add(start.family == MethodFamily.link ? start : m);
+      } else {
+        offered.add(m);
+      }
+    }
+    String startName(MethodKind m) =>
+        m.family == MethodFamily.link ? l.methodDirect : MethodIcons.fullName(l, m);
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
-    // Off while a send still waits for its reply over Epicbox: one confirm first.
-    Future<void> setEpicbox(bool on) async {
-      if (!on) {
+    // The last method on stays on: Send and Receive always keep a way. The switch does not
+    // move; the notice says why.
+    Future<void> set(MethodKind m, bool on) async {
+      if (!on && !payments.canTurnOff(m)) {
+        _say(l.txLastMethodNotice, level: NoticeLevel.warning);
+        return;
+      }
+      // Epicbox off while a send still waits for its reply over it: one confirm first.
+      if (!on && m == MethodKind.epicbox) {
         final waiting = pendingEpicboxSends(await _walletTransactions());
         if (!mounted || (waiting > 0 && !await _confirmEpicboxOff(waiting))) return;
       }
-      await save(payments.copyWith(epicbox: on));
+      await save(payments.withMethod(m, on));
     }
+
+    Widget methodTile(MethodKind m) {
+      final (line, hint) = switch (m) {
+        MethodKind.epicbox => (l.txEpicboxLine, l.txEpicboxHint),
+        MethodKind.linkHttp => (l.txLinkHttpLine, l.txLinkHttpHint),
+        MethodKind.linkTor => (l.txLinkTorLine, l.txLinkTorHint),
+        MethodKind.directQr => (l.txQrLine, l.txQrHint),
+        MethodKind.directFile => (l.txFileLine, l.txFileHint),
+      };
+      return HintSwitchTile(
+        key: txMethodKey(m),
+        icon: MethodIcons.of(m),
+        title: MethodIcons.groupName(l, m),
+        sheetTitle: MethodIcons.fullName(l, m),
+        hint: hint,
+        subtitle: Text(line),
+        value: payments.offers(m),
+        onChanged: (on) => set(m, on),
+      );
+    }
+
     return [
       SettingsHeader(l.txMethodsHeader),
-      HintSwitchTile(
-        key: const ValueKey('tx-epicbox'),
-        icon: EpicGlyphs.epicbox,
-        title: l.methodEpicbox,
-        hint: l.txEpicboxHint,
-        subtitle: Text(l.txEpicboxLine),
-        value: payments.epicbox,
-        onChanged: setEpicbox,
-      ),
-      // Direct needs Tor; where the app has none (and the switch is off) there is nothing to
-      // turn on.
-      if (showDirect)
-        HintSwitchTile(
-          key: const ValueKey('tx-direct'),
-          icon: EpicGlyphs.link,
-          title: l.methodDirect,
-          hint: l.txDirectHint,
-          subtitle: Text(l.txDirectLine),
-          value: payments.linkTor,
-          onChanged: (on) => save(payments.copyWith(linkTor: on)),
-        ),
-      if (phone)
-        HintSwitchTile(
-          key: const ValueKey('tx-qr'),
-          icon: Icons.qr_code_2,
-          title: l.methodQr,
-          hint: l.txQrHint,
-          subtitle: Text(l.txQrLine),
-          value: payments.directQr,
-          onChanged: (on) => save(payments.copyWith(directQr: on)),
-        ),
-      if (showFile)
-        HintSwitchTile(
-          key: const ValueKey('tx-file'),
-          icon: Icons.description_outlined,
-          title: l.methodFile,
-          hint: l.txFileHint,
-          subtitle: Text(l.txFileLine),
-          value: payments.directFile,
-          onChanged: (on) => save(payments.copyWith(directFile: on)),
-        ),
-      // Only a choice when there is one: Epicbox alone is what Send opens on.
+      for (final f in MethodFamily.values) ...[
+        // Epicbox is a family of one: its row stands alone, its line under the switch.
+        if (f != MethodFamily.epicbox)
+          _MethodFamilyHeader(
+            f,
+            line: f == MethodFamily.link ? l.txFamilyLinkLine : l.txFamilyDirectLine,
+          ),
+        for (final m in MethodKind.values)
+          if (m.family == f && shown(m)) ...[
+            methodTile(m),
+            if (m == MethodKind.linkTor && payments.linkTor && torOff)
+              _TorNeededLine(onTap: () => openPrivacySettings(context)),
+          ],
+      ],
+      // Only a choice when there is one: a single method is what Send opens on.
       if (offered.length > 1) ...[
         SettingsHeader(l.txStartHeader),
         RadioGroup<MethodKind>(
-          groupValue: payments.startMethod,
+          groupValue: start,
           onChanged: (m) {
             if (m != null) save(payments.copyWith(defaultMethod: m));
           },
@@ -841,9 +858,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             children: [
               for (final m in offered)
                 RadioListTile<MethodKind>(
-                  key: ValueKey('tx-start-${m.name}'),
+                  key: txStartKey(m),
                   value: m,
-                  title: Text(methodName(m)),
+                  secondary: Icon(
+                    m.family == MethodFamily.link
+                        ? MethodIcons.family(MethodFamily.link)
+                        : MethodIcons.of(m),
+                  ),
+                  title: Text(startName(m)),
                 ),
             ],
           ),
@@ -1213,6 +1235,111 @@ class SettingsHeader extends StatelessWidget {
           title,
           style: theme.textTheme.titleSmall?.copyWith(
             color: theme.colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A family's subhead inside Payment methods (Settings › Transactions): its glyph and name,
+/// and one line on what the family is, over its methods' switches.
+class _MethodFamilyHeader extends StatelessWidget {
+  const _MethodFamilyHeader(this.family, {required this.line});
+
+  final MethodFamily family;
+  final String line;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    return Padding(
+      key: ValueKey('tx-family-${family.name}'),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(MethodIcons.family(family), size: 18, color: t.dim),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    MethodIcons.familyName(context.l10n, family),
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(line, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The key of a method's switch on Settings › Transactions, for tests and the tour:
+/// `tx-epicbox`, `tx-http`, `tx-tor`, `tx-qr`, `tx-file`.
+Key txMethodKey(MethodKind m) => ValueKey('tx-${_txKeyName(m)}');
+
+/// The key of a "Send starts on" choice, for tests: Link is one (`tx-start-link`).
+Key txStartKey(MethodKind m) =>
+    ValueKey('tx-start-${m.family == MethodFamily.link ? 'link' : _txKeyName(m)}');
+
+String _txKeyName(MethodKind m) => switch (m) {
+  MethodKind.epicbox => 'epicbox',
+  MethodKind.linkHttp => 'http',
+  MethodKind.linkTor => 'tor',
+  MethodKind.directQr => 'qr',
+  MethodKind.directFile => 'file',
+};
+
+/// The key of the line under Link · Tor that Tor is off, for tests.
+const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
+
+/// Under the Link · Tor switch while it is on and Tor is off: "Needs Tor. Turn it on under
+/// Privacy & network." A tap opens Privacy & network, where the one Tor switch is.
+class _TorNeededLine extends StatelessWidget {
+  const _TorNeededLine({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final text = context.l10n.txLinkTorNeedsTor;
+    return Semantics(
+      key: txTorNeededKey,
+      button: true,
+      label: text,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          // Lined up with the switch's title, past its icon.
+          padding: const EdgeInsets.fromLTRB(56, 0, 16, 10),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, size: 16, color: t.info),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  text,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.info),
+                ),
+              ),
+              Icon(Icons.chevron_right, size: 18, color: t.info),
+            ],
           ),
         ),
       ),

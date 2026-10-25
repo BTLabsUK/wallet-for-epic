@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
+import 'package:epic_wallet/src/ui/net_block.dart' show offlineNodeNoteKey;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -191,7 +192,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('QR Code'));
+      await tester.tap(_segment('Direct · QR'));
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(find.byType(HandshakeSheet), findsOneWidget);
@@ -209,7 +210,7 @@ void main() {
     testWidgets('Epicbox, Link and File each open their own tab on Send', (
       tester,
     ) async {
-      final h = _Harness(prefs: 'direct,file|epicbox');
+      final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakePay1}');
@@ -224,7 +225,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      await tester.tap(_segment('File'));
+      await tester.tap(_segment('Direct · File'));
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeFile1}');
@@ -236,7 +237,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Code'),
+          matching: find.text('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -254,15 +255,15 @@ void main() {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
       expect(_segment('Epicbox'), findsOneWidget);
-      expect(_segment('QR Code'), findsOneWidget);
-      expect(_segment('File'), findsNothing);
+      expect(_segment('Direct · QR'), findsOneWidget);
+      expect(_segment('Direct · File'), findsNothing);
       expect(_segment('Link'), findsNothing);
     });
 
     testWidgets('Send: the order is Epicbox · Link · QR · File', (tester) async {
-      final h = _Harness(prefs: 'direct,file|epicbox');
+      final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      final names = ['Epicbox', 'Link', 'QR Code', 'File'];
+      final names = ['Epicbox', 'Link', 'Direct · QR', 'Direct · File'];
       final xs = [
         for (final n in names) tester.getTopLeft(_segment(n)).dx,
       ];
@@ -277,15 +278,15 @@ void main() {
       expect(find.byKey(sendMethodsKey), findsNothing);
       h = _Harness(prefs: 'file,noqr|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      expect(_segment('QR Code'), findsNothing);
-      expect(_segment('File'), findsOneWidget);
+      expect(_segment('Direct · QR'), findsNothing);
+      expect(_segment('Direct · File'), findsOneWidget);
     });
 
     testWidgets('Send starts on QR when Settings says so', (tester) async {
       final h = _Harness(prefs: '|qr');
       await h.pump(tester, SendView(onDone: () {}));
-      expect(find.text('QR Code'), findsOneWidget);
-      expect(find.text('QR Payment'), findsOneWidget);
+      expect(find.text('Direct · QR'), findsOneWidget);
+      expect(find.text('Direct · QR Payment'), findsOneWidget);
       expect(find.text('Make payment QR'), findsOneWidget);
     });
 
@@ -298,16 +299,18 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Code'),
+          matching: find.text('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
       expect(find.text('Standing next to the sender?'), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
-      expect(find.text('File'), findsNothing);
+      expect(find.text('Direct · File'), findsNothing);
     });
 
-    testWidgets('Receive: scanning waits for the network mode like a file does', (
+    // Offline lets QR Payment use the node in use, like a file; on a node that is not local
+    // the note under the button says so.
+    testWidgets('Receive: scanning runs Offline on the node in use, with the node note', (
       tester,
     ) async {
       final h = _Harness();
@@ -319,14 +322,15 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Code'),
+          matching: find.text('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
       expect(
         tester.widget<FilledButton>(find.byKey(receiveScanQrKey)).onPressed,
-        isNull,
+        isNotNull,
       );
+      expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
     });
   });
 
@@ -424,44 +428,48 @@ void main() {
     test('a phone with a wallet and nothing chosen keeps File, saved on', () async {
       final store = withWallet();
       final s = await load(store);
-      expect(s.payments.file, isTrue);
-      expect(s.payments.qr, isTrue);
-      expect(store.values['app.payment_prefs'], 'file|epicbox');
+      expect(s.payments.directFile, isTrue);
+      expect(s.payments.directQr, isTrue);
+      expect(store.values['app.payment_prefs'], 'v2,file|epicbox');
       expect(store.values['app.qr_method_seen'], '1');
     });
 
     test('a phone whose stored choice has File on keeps it', () async {
       final store = withWallet({'app.payment_prefs': 'direct,file|direct'});
       final s = await load(store);
-      expect(s.payments.file, isTrue);
-      expect(s.payments.direct, isTrue);
-      expect(s.payments.defaultMethod, PayMethod.direct);
-      expect(store.values['app.payment_prefs'], 'direct,file|direct');
+      expect(s.payments.directFile, isTrue);
+      // The one Link switch sent to web and onion addresses alike: both Link methods on.
+      expect(s.payments.linkTor, isTrue);
+      expect(s.payments.linkHttp, isTrue);
+      expect(s.payments.startMethod.family, MethodFamily.link);
+      expect(PaymentPrefs.decode(store.values['app.payment_prefs'], phone: true), s.payments);
     });
 
     test('a phone that had turned File off keeps it off', () async {
       final store = withWallet({'app.payment_prefs': 'direct|epicbox'});
       final s = await load(store);
-      expect(s.payments.file, isFalse);
-      expect(s.payments.qr, isTrue);
+      expect(s.payments.directFile, isFalse);
+      expect(s.payments.directQr, isTrue);
     });
 
     test('a new install gets QR and no File, and stays so after its wallet is made', () async {
       final store = MemorySecretStore();
       final s = await load(store);
-      expect(s.payments.file, isFalse);
-      expect(s.payments.qr, isTrue);
+      expect(s.payments.directFile, isFalse);
+      expect(s.payments.directQr, isTrue);
+      expect(s.payments.linkHttp, isFalse);
+      expect(s.payments.linkTor, isFalse);
       expect(store.values.containsKey('app.payment_prefs'), isFalse);
       // The wallet is created later; the next start does not migrate it.
       store.values['wallet.mainnet.pinSealed'] = 'sealed';
       final again = await load(store);
-      expect(again.payments.file, isFalse);
+      expect(again.payments.directFile, isFalse);
     });
 
     test('the desktop is left alone: File on, nothing written', () async {
       final store = withWallet();
       final s = await load(store, phone: false);
-      expect(s.payments.file, isTrue);
+      expect(s.payments.directFile, isTrue);
       expect(store.values.containsKey('app.payment_prefs'), isFalse);
       expect(store.values.containsKey('app.qr_method_seen'), isFalse);
     });
@@ -479,10 +487,10 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('QR Code'));
+      await tester.tap(_segment('Direct · QR'));
       await tester.pumpAndSettle();
-      expect(find.text('QR Code'), findsOneWidget);
-      expect(find.text('QR Payment'), findsOneWidget);
+      expect(find.text('Direct · QR'), findsOneWidget);
+      expect(find.text('Direct · QR Payment'), findsOneWidget);
 
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
       await tester.pumpAndSettle();
@@ -537,7 +545,7 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('QR Code'));
+      await tester.tap(_segment('Direct · QR'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
       await tester.pumpAndSettle();
@@ -577,7 +585,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Code'),
+          matching: find.text('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -608,7 +616,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Code'),
+          matching: find.text('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -626,7 +634,7 @@ void main() {
       expect(find.text('Accept it, then show the reply to the sender.'), findsOneWidget);
       // Titled for the method, with no word of files.
       expect(
-        find.descendant(of: find.byType(AppBar), matching: find.text('QR Payment')),
+        find.descendant(of: find.byType(AppBar), matching: find.text('Direct · QR Payment')),
         findsOneWidget,
       );
       expect(find.text('Transaction file'), findsNothing);

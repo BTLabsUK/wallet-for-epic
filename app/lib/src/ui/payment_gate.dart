@@ -1,6 +1,7 @@
 /// Which payment methods Send and Receive show: the ones Settings › Transactions offers
 /// (`AppSettings.payments`), plus any a payment in use still needs. A method is never taken
-/// away under a payment half-way: a file send waiting for its reply keeps File, and an address
+/// away under a payment half-way: a file send waiting for its reply keeps Direct · File Transfer,
+/// and an address
 /// of that kind pasted into Send keeps its method (see the screens).
 library;
 
@@ -26,7 +27,7 @@ int pendingEpicboxSends(Iterable<TxEntry>? txs) =>
     0;
 
 /// A payment made by file that still waits for the other wallet's reply: Finalize happens
-/// from File, so File stays on Receive and Send while one is open.
+/// from Direct · File Transfer, so it stays on Receive and Send while one is open.
 bool hasPendingFileSend(Iterable<TxEntry>? txs) =>
     txs?.any(
       (x) =>

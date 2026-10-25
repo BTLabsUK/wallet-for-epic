@@ -6053,6 +6053,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodArtLabelDirect => '链接付款：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
 
   @override
+  String methodArtSpokenLink(String method) {
+    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+  }
+
+  @override
+  String methodArtSpokenQr(String method) {
+    return '$method: a code passes from one phone to the phone next to it';
+  }
+
+  @override
+  String methodArtSpokenFile(String method) {
+    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+  }
+
+  @override
   String get methodReceiveEpicboxShort => '钱包关闭时也可收款。';
 
   @override

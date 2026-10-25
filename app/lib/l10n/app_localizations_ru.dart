@@ -6614,6 +6614,21 @@ class AppLocalizationsRu extends AppLocalizations {
       'Платёж по ссылке: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
+  String methodArtSpokenLink(String method) {
+    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+  }
+
+  @override
+  String methodArtSpokenQr(String method) {
+    return '$method: a code passes from one phone to the phone next to it';
+  }
+
+  @override
+  String methodArtSpokenFile(String method) {
+    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+  }
+
+  @override
   String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
 
   @override
