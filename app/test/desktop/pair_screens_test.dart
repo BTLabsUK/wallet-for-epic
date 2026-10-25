@@ -1,8 +1,11 @@
 // The desktop's Pair page (SPEC 2.1-2.3, desktop): the code with its words, an online invite
 // copied with the name they will see, a pasted invite answered, and Pending invites.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
+import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -100,5 +103,41 @@ void main() {
     await _real(tester);
     expect(find.text('Ola'), findsOneWidget);
     expect(find.text(_l.pendingCopyLink), findsWidgets);
+  });
+
+  testWidgets('the name others see is kept in the settings', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
+    await tester.tap(find.byKey(deskPairCopyInviteKey));
+    await _real(tester);
+    expect(_c.read(deskProvider).settings.pairingSeenAs, 'the owner');
+    expect(_c.read(deskSeenAsProvider), 'the owner');
+  });
+
+  test('the settings file keeps the name, and an old file reads without it', () {
+    final kept = deskSettingsFromJson(deskSettingsToJson(const DeskSettings(pairingSeenAs: 'the owner')));
+    expect(kept.pairingSeenAs, 'the owner');
+    expect(deskSettingsFromJson(const {}).pairingSeenAs, '');
+    expect(deskSettingsToJson(const DeskSettings()).containsKey('pairingSeenAs'), isFalse);
+  });
+
+  testWidgets('a paid request from a paired contact: its timeline in the transaction', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    _c.read(deskInvoicesProvider);
+    await _real(tester);
+    final tx = _c.read(deskProvider).txs!.firstWhere((t) => t.id == 37);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: SingleChildScrollView(child: TxDetail(tx: tx)))),
+      ),
+    );
+    await _real(tester);
+    final name = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c5').name;
+    expect(find.text(_l.reqTlPaid), findsOneWidget);
+    expect(find.text(_l.reqTlDelivered(name)), findsOneWidget);
+    expect(find.text(_l.reqTlPosted(name)), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

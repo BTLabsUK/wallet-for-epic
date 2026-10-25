@@ -1277,4 +1277,88 @@ void main() {
       );
     });
   });
+
+  group('sealed files (SPEC 2.9)', () {
+    final l = lookupAppLocalizations(const Locale('en'));
+    Finder makeFile() => find.widgetWithText(FilledButton, 'Make payment file');
+
+    /// Bob as a paired, verified contact whose wallet opens sealed files.
+    PairingRecord pairBob(_Harness h, {SealMode seal = SealMode.on, Duration quiet = const Duration(days: 1)}) {
+      h.session.contactsValue.add(Contact(id: 'c-bob', name: 'Bob', address: _bob));
+      return h.session.pairing.seedPaired(
+        id: 'p-bob',
+        name: 'Bob',
+        contactId: 'c-bob',
+        paymentsAddress: _bob,
+        seal: seal,
+        lastSealedIn: DateTime.now().subtract(quiet),
+      );
+    }
+
+    Future<void> toFile(WidgetTester tester) async {
+      await _enter(tester, 'To', _bob);
+      await _tap(tester, _segment('Direct · File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+    }
+
+    testWidgets('a file to a paired contact is sealed for it; Send as plain instead asks first', (tester) async {
+      final h = _Harness();
+      pairBob(h);
+      await h.pump(tester);
+      await toFile(tester);
+      expect(find.text(l.trustSealedFor('Bob')), findsOneWidget);
+      await _tap(tester, makeFile());
+      expect(find.text(l.sendSealedTitle('Bob')), findsOneWidget);
+      expect(find.text(l.sendSealedBody('Bob')), findsOneWidget);
+      expect(find.text(sealedFileName(h.session.sendSlate.slateId)), findsOneWidget);
+      expect(h.session.pairing.calls, contains('seal'));
+
+      await _tap(tester, find.byKey(sendAsPlainKey));
+      expect(find.text(l.sendAsPlainTitle), findsOneWidget);
+      expect(find.text(l.sendAsPlainBody), findsOneWidget);
+      await _tap(tester, find.text(l.sendKeepSealed));
+      expect(find.text(l.sendSealedTitle('Bob')), findsOneWidget, reason: 'kept sealed');
+
+      await _tap(tester, find.byKey(sendAsPlainKey));
+      await _tap(tester, find.byKey(sendAsPlainConfirmKey));
+      expect(find.text(l.sendSealedTitle('Bob')), findsNothing);
+      expect(find.text(l.sendFileShareHint), findsOneWidget);
+      expect((await h.session.pairing.pairing('p-bob'))!.seal, SealMode.degraded);
+    });
+
+    testWidgets('after a plain file: Seal this file? with Sealed preselected; Plain makes it plain', (tester) async {
+      final h = _Harness();
+      pairBob(h, seal: SealMode.degraded);
+      await h.pump(tester);
+      await toFile(tester);
+      expect(find.text(l.sendSealOrPlainTitle), findsOneWidget);
+      expect(tester.widget<RadioGroup<bool>>(find.byType(RadioGroup<bool>)).groupValue, isFalse);
+      await _tap(tester, find.byKey(sendPlainOptionKey));
+      await _tap(tester, makeFile());
+      expect(h.session.pairing.calls, isNot(contains('seal')));
+      expect(find.text(l.sendSealedTitle('Bob')), findsNothing);
+    });
+
+    testWidgets('90 days without a sealed message: the hint offers Send plain', (tester) async {
+      final h = _Harness();
+      pairBob(h, quiet: const Duration(days: 120));
+      await h.pump(tester);
+      await toFile(tester);
+      expect(find.text(l.sendNotHeardTitle('Bob')), findsOneWidget);
+      await _tap(tester, find.byKey(sendPlainShortKey));
+      expect(find.text(l.sendNotHeardTitle('Bob')), findsNothing);
+      expect(find.text(l.trustSealedFor('Bob')), findsNothing);
+      await _tap(tester, makeFile());
+      expect(h.session.pairing.calls, isNot(contains('seal')));
+    });
+
+    testWidgets('a recipient not paired gets a plain file', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await toFile(tester);
+      expect(find.text(l.trustSealedFor('Bob')), findsNothing);
+      await _tap(tester, makeFile());
+      expect(find.text(l.sendFileShareHint), findsOneWidget);
+    });
+  });
 }

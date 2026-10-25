@@ -18,9 +18,13 @@ import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pending_invites.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -445,6 +449,83 @@ void main() {
       await h.pump(tester, const ContactPage(contactId: 'c2'));
       expect(find.text(_l.contactPairing), findsNothing);
       expect(find.byType(TrustBadge), findsNothing);
+    });
+  });
+
+  group('opening a sealed file (SPEC 2.9)', () {
+    const json = '{"id":"in-1"}';
+
+    /// A payment Anna's wallet sent, as the fake reads it.
+    _Harness anna() {
+      final h = _Harness();
+      h.service.slateInfos[json] = SlateInfo(slateId: 'in-1', amount: BigInt.from(500000000), fee: BigInt.zero, stage: SlateStage.send);
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
+      return h;
+    }
+
+    testWidgets('sealed for this wallet: opens, and the answer goes back sealed', (tester) async {
+      final h = anna();
+      final sealed = await h.api.sealSlate(id: 'p1', slateJson: json);
+      await h.pump(tester, SlateFileScreen(file: SlateFile(name: 'from-anna.epicsealed', json: sealed)));
+      expect(find.textContaining('5'), findsWidgets);
+      await tester.tap(find.text(_l.slateAcceptPayment));
+      await tester.pumpAndSettle();
+      expect(h.session.receivedSlates, [json], reason: 'the slate inside went to the wallet');
+      expect(find.text(_l.trustSealedFor('Anna')), findsOneWidget);
+      expect(find.text(sealedFileName(h.session.responseSlate.slateId)), findsOneWidget);
+    });
+
+    testWidgets('sealed for another wallet or install: says so, nothing is signed', (tester) async {
+      final h = anna();
+      final other = FakeWalletSession().pairing..seedPaired(id: 'p-elsewhere', name: 'Someone');
+      final sealed = await other.sealSlate(id: 'p-elsewhere', slateJson: json);
+      await h.pump(tester, SlateFileScreen(file: SlateFile(name: 'x.epicsealed', json: sealed)));
+      expect(find.text(_l.openSealedOtherTitle), findsOneWidget);
+      expect(find.text(_l.openSealedOtherBody), findsOneWidget);
+      expect(find.text(_l.slateAcceptPayment), findsNothing);
+      expect(h.session.receivedSlates, isEmpty);
+    });
+
+    testWidgets('sealed by a newer wallet: Update Epic Cash to open this', (tester) async {
+      final h = anna();
+      await h.pump(tester, const SlateFileScreen(file: SlateFile(name: 'x.epicsealed', json: 'BEGINEPICSEALED.v2.ENDEPICSEALED.')));
+      expect(find.text(_l.pairNewerTitle), findsOneWidget);
+      expect(find.text(_l.pairNewerFileBody), findsOneWidget);
+      expect(find.byKey(slateCheckUpdatesKey), findsOneWidget);
+    });
+
+    testWidgets('a plain file from a contact that seals: This arrived unsealed', (tester) async {
+      final h = anna();
+      h.api.plainFrom[json] = 'p1';
+      await h.pump(tester, const SlateFileScreen(file: SlateFile(name: 'from-anna.tx', json: json)));
+      expect(_notice(tester), '${_l.openArrivedUnsealed} ${_l.openArrivedUnsealedBody('Anna')}');
+      expect(find.text(_l.slateAcceptPayment), findsOneWidget);
+    });
+
+    test('a sealed file passes the file check; other text does not', () {
+      expect(decodeSlateFile(utf8.encode('  BEGINEPICSEALED. abc. ENDEPICSEALED.')), startsWith('BEGINEPICSEALED'));
+      expect(() => decodeSlateFile(utf8.encode('hello')), throwsA(isA<FormatException>()));
+    });
+  });
+
+  group('a withdrawal from a paired exchange (SPEC 2.8)', () {
+    testWidgets('its page: Withdrawal from …, waiting for it to post, the timeline', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c8', name: 'Northwind Exchange', address: _anna));
+      h.api.seedPaired(id: 'p-nw', name: 'Northwind', contactId: 'c8', kind: PairingParty.exchange, paymentsAddress: _anna);
+      final events = <PairingEvent>[];
+      h.api.events().listen(events.add);
+      final slateId = h.api.withdrawalFrom('p-nw', BigInt.from(10000000000), reference: 'WD-1042');
+      await pumpEventQueue();
+      expect(events.single.kind, PairingEventKind.withdrawalFromContact);
+      expect(await h.api.slateOf(slateId), const PairingSlate(pairingId: 'p-nw', purpose: SlatePurpose.withdrawal, reference: 'WD-1042'));
+      await h.pump(tester, TxDetailsScreen(txKey: 's:$slateId'), settle: false);
+      expect(find.text(_l.reqWithdrawalFrom('Northwind Exchange')), findsOneWidget);
+      expect(find.text(_l.reqReceivedWaiting('Northwind Exchange')), findsOneWidget);
+      expect(find.text(_l.reqTlAnswerDelivered('Northwind Exchange')), findsOneWidget);
+      expect(find.text(_l.reqTlPosted('Northwind Exchange')), findsOneWidget);
+      expect(find.text('WD-1042'), findsOneWidget);
     });
   });
 }

@@ -163,7 +163,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
     // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
     // contact's own steps (SPEC 2.8).
-    final paid = t.isInvoice && !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
+    final paid = !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
     final paidTo = paid?.pairingId;
     final slate = t.incoming && !t.isInvoice && t.slateId.isNotEmpty ? ref.watch(deskPairingSlateProvider(t.slateId)).value : null;
     final withdrawal = slate?.purpose == SlatePurpose.withdrawal ? slate : null;
@@ -264,7 +264,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
-        if (paidTo != null && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _SubBar(
           l.deskTxSubDetails,
