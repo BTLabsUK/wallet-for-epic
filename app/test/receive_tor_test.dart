@@ -231,17 +231,8 @@ void main() {
       expect(
         [
           for (final s in tabs.segments)
-            (
-              s.value,
-              tester
-                  .widget<Text>(
-                    find.descendant(
-                      of: find.byWidget(s.label!),
-                      matching: find.byType(Text),
-                    ),
-                  )
-                  .data,
-            ),
+            // The whole name: a long one wraps in two lines on the tab (PH-1).
+            (s.value, s.tooltip),
         ],
         [
           (ReceiveTab.epicbox, 'Epicbox'),

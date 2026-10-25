@@ -129,7 +129,8 @@ class _Harness {
   }
 
   /// Shows the Payment file tab.
-  Future<void> byFile(WidgetTester tester) => _tap(tester, find.text('Direct · File'));
+  Future<void> byFile(WidgetTester tester) =>
+      _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -185,15 +186,17 @@ void main() {
       expect(
         [
           for (final s in tabs.segments)
-            (
-              s.value,
-              ((s.label! as FittedBox).child! as Text).data,
-            ),
+            // The whole name: a long one wraps in two lines on the tab (PH-1).
+            (s.value, s.tooltip),
         ],
         [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'Direct · File')],
       );
+      // The icon above the label, on every tab.
       expect(
-        [for (final s in tabs.segments) (s.icon! as Icon).icon],
+        [
+          for (final s in tabs.segments)
+            tester.widget<Icon>(find.descendant(of: find.byWidget(s.label!), matching: find.byType(Icon))).icon,
+        ],
         [EpicGlyphs.epicbox, Icons.description_outlined],
       );
       // Full width: as wide as the address card under it.
@@ -727,7 +730,7 @@ void main() {
         await h.pump(tester);
         await h.listener(tester, state);
         for (final tab in ['Epicbox', 'Direct · File']) {
-          await _tap(tester, find.text(tab));
+          await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(tab)));
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
           await expectLater(tester, meetsGuideline(textContrastGuideline));

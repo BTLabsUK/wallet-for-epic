@@ -1209,7 +1209,8 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(receiveTabsKey),
-            matching: find.text(label),
+            // A long label wraps in two lines; the tooltip holds it whole.
+            matching: find.byTooltip(label),
           ),
           findsOneWidget,
           reason: label,
@@ -1242,7 +1243,7 @@ void main() {
       expect(find.byType(Switch), findsNothing);
       expect(find.text('Tor settings'), findsOneWidget);
 
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
       expect(find.text('Hand a file back and forth.'), findsOneWidget);
       expect(
         find.text('Works with no connection between the wallets.'),

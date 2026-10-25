@@ -84,6 +84,47 @@ const double receiveQrMaxSize = 240, receiveQrMinSize = 112;
 /// Tor) while Link · Tor is on, and the Link · HTTP card ([ReceiveHttpCard]) while
 /// Link · HTTP is on; on File the file card. Help ends them all. The QR code takes the room
 /// left, so the Epicbox tab fits a phone without scrolling.
+/// Room on each side of a method tab's label.
+const double _tabPad = 4;
+
+/// The labels of a row of method tabs at one size: each on one line where it fits [width],
+/// else broken at its " · " (family on one line, option on the next); when a line still does
+/// not fit, one smaller size for all of them, never a size per tab.
+({List<String> texts, double size}) fitTabLabels(
+  BuildContext context,
+  List<String> labels, {
+  required double width,
+  required TextStyle style,
+}) {
+  final scaler = MediaQuery.textScalerOf(context);
+  final direction = Directionality.of(context);
+  double widthOf(String line) {
+    final painter = TextPainter(
+      text: TextSpan(text: line, style: style),
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final w = painter.width;
+    painter.dispose();
+    return w;
+  }
+
+  var scale = 1.0;
+  final texts = <String>[];
+  for (final label in labels) {
+    final lines = widthOf(label) > width && label.contains(' · ')
+        ? label.split(' · ')
+        : [label];
+    texts.add(lines.join('\n'));
+    for (final line in lines) {
+      final w = widthOf(line);
+      if (w > width && width > 0) scale = math.min(scale, width / w);
+    }
+  }
+  return (texts: texts, size: (style.fontSize ?? 12) * scale);
+}
+
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
@@ -119,16 +160,10 @@ class ReceiveView extends ConsumerWidget {
         onPressed: () => openHelp(context, HelpId.receive),
       ),
     );
-    ButtonSegment<ReceiveTab> segment(ReceiveTab value, IconData icon, String label) => ButtonSegment(
-      value: value,
-      icon: Icon(icon),
-      label: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(label, maxLines: 1),
-      ),
-    );
+    ({ReceiveTab value, IconData icon, String label}) segment(ReceiveTab value, IconData icon, String label) =>
+        (value: value, icon: icon, label: label);
     // With Epicbox alone there is nothing to choose: the strip names it.
-    final tabSegments = <ButtonSegment<ReceiveTab>>[
+    final tabSegments = <({ReceiveTab value, IconData icon, String label})>[
         // Epicbox off (Settings › Transactions): no address to hand out, no tab.
         if (payments.epicbox)
           segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
@@ -160,17 +195,53 @@ class ReceiveView extends ConsumerWidget {
     if (!tabSegments.any((s) => s.value == tab)) tab = tabSegments.first.value;
     final Widget tabs = tabSegments.length == 1
         ? const SizedBox.shrink()
-        : SegmentedButton<ReceiveTab>(
-            key: receiveTabsKey,
-            segments: tabSegments,
-            selected: {tab},
-            showSelectedIcon: false,
-            expandedInsets: EdgeInsets.zero,
-            style: const ButtonStyle(
-              minimumSize: WidgetStatePropertyAll(Size(0, 44)),
-            ),
-            onSelectionChanged: (selected) =>
-                ref.read(receiveTabProvider.notifier).choose(selected.first),
+        : LayoutBuilder(
+            builder: (context, box) {
+              // Icon above the label, every label at one size (PH-1): the selected tab changes
+              // colour only. Room per tab: its share, less the padding and the dividers.
+              final style = Theme.of(context).textTheme.labelMedium!;
+              final fit = fitTabLabels(
+                context,
+                [for (final s in tabSegments) s.label],
+                width: box.maxWidth / tabSegments.length - 2 * _tabPad - 2,
+                style: style,
+              );
+              return SegmentedButton<ReceiveTab>(
+                key: receiveTabsKey,
+                segments: [
+                  for (final (i, s) in tabSegments.indexed)
+                    ButtonSegment(
+                      value: s.value,
+                      tooltip: s.label,
+                      label: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(s.icon, size: 18),
+                          const SizedBox(height: 2),
+                          Text(
+                            fit.texts[i],
+                            maxLines: 2,
+                            softWrap: false,
+                            textAlign: TextAlign.center,
+                            style: style.copyWith(fontSize: fit.size),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+                selected: {tab},
+                showSelectedIcon: false,
+                expandedInsets: EdgeInsets.zero,
+                style: const ButtonStyle(
+                  minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+                  padding: WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(horizontal: _tabPad, vertical: 6),
+                  ),
+                ),
+                onSelectionChanged: (selected) =>
+                    ref.read(receiveTabProvider.notifier).choose(selected.first),
+              );
+            },
           );
     Widget column(List<Widget> children) => Column(
       mainAxisSize: MainAxisSize.min,
