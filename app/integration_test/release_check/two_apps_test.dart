@@ -1,0 +1,296 @@
+// Pairing between two real desktop apps (RFC 0002): this file runs in two app instances at
+// once, each with its own HOME, keyring and wallet, which meet through files in RC_SYNC.
+// RC_ROLE is A or B. Driven by tool/two_apps_check.sh, which builds the app once with this
+// file as its entry and starts both under xvfb. Real LEPIC, the node in RC_NODE and the relay
+// in RC_RELAY; no funds move. Never prints a phrase or a password.
+//
+//   (a) A's online invite link pasted into B: the same four words, both verified.
+//   (d) B allows A's invoices, A asks B for a payment, B sees it named and verified and
+//       declines it, A sees it declined.
+//   (b)+(e) B removes the pairing, A keeps it; A's pairing words typed into B pair again and
+//       A, which kept the record, finds the keys back.
+//   (c) Both remove what they hold; face to face by pasting each other's card link.
+import 'dart:io';
+
+import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'package:epic_wallet/src/desktop/data/invoices.dart' show PaymentRequestDraft, RequestState;
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart'
+    show deskOwnCardProvider, deskPairingApiProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
+import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart' show EDialog;
+import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
+import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/material.dart' show SelectableText;
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
+
+import 'support.dart';
+
+final String role = Platform.environment['RC_ROLE'] ?? 'A';
+final String other = role == 'A' ? 'B' : 'A';
+final String syncDir = Platform.environment['RC_SYNC'] ?? 'build/rc_sync';
+final String nodeUrl = Platform.environment['RC_NODE'] ?? 'https://node.btlabs.uk';
+final String relayHost = Platform.environment['RC_RELAY'] ?? 'epicbox.stackwallet.com';
+
+const _names = {'A': 'Anna Desk', 'B': 'Ben Desk'};
+String get myName => _names[role]!;
+String get theirName => _names[other]!;
+
+void rc(String step, bool pass, [String evidence = '']) => record('[$role] $step', pass, evidence);
+
+/// Hands [value] to the other app under [key].
+Future<void> put(WidgetTester tester, String key, String value) async {
+  await tester.runAsync(() async {
+    final tmp = File('$syncDir/$role-$key.tmp');
+    await tmp.writeAsString(value);
+    await tmp.rename('$syncDir/$role-$key');
+  });
+}
+
+/// What the other app handed over under [key], waiting for it.
+Future<String> take(WidgetTester tester, String key, {Duration timeout = const Duration(minutes: 6)}) async {
+  final f = File('$syncDir/$other-$key');
+  final end = DateTime.now().add(timeout);
+  while (!(await tester.runAsync(f.exists))!) {
+    if (DateTime.now().isAfter(end)) throw TestFailure('[$role] timed out waiting for $other-$key');
+    await settle(tester, ms: 1000);
+  }
+  return (await tester.runAsync(f.readAsString))!;
+}
+
+/// Both apps reach [name] before either goes on.
+Future<void> meet(WidgetTester tester, String name) async {
+  await put(tester, 'at-$name', '1');
+  await take(tester, 'at-$name');
+}
+
+Finder get dialogWords => find.descendant(of: find.byType(EDialog), matching: find.byType(WordTiles));
+
+List<String> shownWords(WidgetTester tester) =>
+    dialogWords.evaluate().isEmpty ? const [] : [for (final w in tester.widget<WordTiles>(dialogWords.first).words) w?.name ?? '?'];
+
+Future<List<PairingRecord>> pairings(WidgetTester tester) async =>
+    (await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).pairings()))!;
+
+/// The pairing with the other app once verified, waiting for it.
+Future<PairingRecord?> verifiedWithOther(WidgetTester tester) async {
+  final end = DateTime.now().add(const Duration(seconds: 90));
+  while (DateTime.now().isBefore(end)) {
+    final r = (await pairings(tester)).where((p) => p.name == theirName && p.state == PairingState.verified).firstOrNull;
+    if (r != null) return r;
+    await settle(tester, ms: 1000);
+  }
+  return null;
+}
+
+Future<void> wordsCheck(WidgetTester tester, String step) async {
+  await pumpUntil(tester, () => dialogWords.evaluate().isNotEmpty, timeout: const Duration(minutes: 5), what: 'the words check');
+  await settle(tester, ms: 800);
+  final mine = shownWords(tester);
+  await shot(tester, '$role-$step-words');
+  await put(tester, '$step-words', mine.join(' '));
+  final theirs = await take(tester, '$step-words');
+  rc('$step: both apps show the same four words', mine.length == 4 && mine.join(' ') == theirs, '${mine.length} words, same: ${mine.join(' ') == theirs}');
+  await tester.tap(find.byKey(deskCheckMatchKey));
+  await settle(tester, ms: 1500);
+  final r = await verifiedWithOther(tester);
+  rc('$step: verified', r != null, (await pairings(tester)).map((p) => '${p.name}:${p.state.name}').join(', '));
+  await shot(tester, '$role-$step-verified');
+}
+
+/// Pastes [text] under Enter link or words and presses Pair.
+Future<void> enter(WidgetTester tester, String text) async {
+  containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+  await settle(tester, ms: 1500);
+  await tester.enterText(find.byKey(deskPairEnterKey), text);
+  await settle(tester);
+  await tester.tap(find.byKey(deskPairGoKey));
+  await settle(tester, ms: 1500);
+}
+
+/// Answers the incoming invite dialog with Pair.
+Future<void> answerIncoming(WidgetTester tester, String step) async {
+  await pumpUntil(tester, () => find.byKey(deskIncomingPairKey).evaluate().isNotEmpty, timeout: const Duration(seconds: 90), what: 'Pair with $theirName?');
+  rc('$step: the invite opens as Pair with $theirName?', hasText('Pair with $theirName?'), texts().where((t) => t.contains(theirName)).take(1).join());
+  await shot(tester, '$role-$step-incoming');
+  await tester.tap(find.byKey(deskIncomingPairKey));
+  await settle(tester, ms: 1500);
+  await shot(tester, '$role-$step-waiting');
+}
+
+Future<void> removeAll(WidgetTester tester) async {
+  final api = containerOf(tester).read(deskPairingApiProvider);
+  for (final p in await pairings(tester)) {
+    await tester.runAsync(() => p.state.isPaired ? api.removePairing(p.id) : api.cancelInvite(p.id));
+  }
+}
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets('two apps pair: $role', (tester) async {
+    captureErrors();
+    final password = randomPassword();
+    final events = <PairingEvent>[];
+    await tester.runAsync(() => Directory(syncDir).create(recursive: true));
+    await boot(tester);
+
+    // A fresh wallet on the given node and relay.
+    await tapText(tester, 'Create a new wallet');
+    await typeIn(tester, 0, password);
+    await typeIn(tester, 1, password);
+    await settle(tester);
+    await tapText(tester, 'Create wallet', last: true);
+    await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
+    // A throwaway wallet: the phrase is shown but never read or kept.
+    await tapText(tester, 'Reveal phrase');
+    await tapText(tester, 'Written down');
+    await tapText(tester, 'Continue', last: true);
+    for (var i = 0; i < 4 && !hasText('Unlock wallet'); i++) {
+      await waitText(tester, RegExp(r'^(Continue|Save settings)$'));
+      await settle(tester, ms: 1000);
+      await tapText(tester, hasText('Save settings') ? 'Save settings' : 'Continue', last: true);
+      await settle(tester, ms: 3000);
+    }
+    await waitText(tester, 'Unlock wallet');
+    await typeIn(tester, 0, password);
+    await tapText(tester, 'Unlock', last: true);
+    await waitText(tester, RegExp('Overview|Balance'), timeout: const Duration(seconds: 120));
+    await settle(tester, ms: 3000);
+    if (hasText('Skip tour')) await tapText(tester, 'Skip tour');
+    final desk = containerOf(tester).read(deskProvider.notifier);
+    await tester.runAsync(() => desk.useNode(nodeUrl));
+    await tester.runAsync(() => desk.useEpicbox(relayHost));
+    await settle(tester, ms: 5000);
+    rc('the wallet uses ${Uri.parse(nodeUrl).host} and $relayHost', hasText(relayHost.replaceFirst(RegExp(r'^epicbox\.(?=.*\.)'), '')), texts().where((t) => t.contains('stackwallet') || t.contains('btlabs')).join(' / '));
+    containerOf(tester).read(deskSeenAsProvider.notifier).set(myName);
+    final sub = containerOf(tester).read(deskPairingApiProvider).events().listen(events.add);
+    addTearDown(sub.cancel);
+    await meet(tester, 'ready');
+
+    // (a) An online invite link.
+    containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+    await settle(tester, ms: 2000);
+    if (role == 'A') {
+      await tester.tap(find.byKey(deskPairCopyInviteKey));
+      await settle(tester, ms: 2000);
+      final invite = (await pairings(tester)).where((p) => p.way == PairingWay.link && p.inviteLink != null).firstOrNull;
+      rc('a: Copy invite made an invite link', invite?.inviteLink?.startsWith('epiccash://pair/1/') ?? false, invite?.homeRelay ?? '');
+      await shot(tester, 'A-a-invite');
+      await put(tester, 'a-link', invite?.inviteLink ?? '');
+    } else {
+      await enter(tester, await take(tester, 'a-link'));
+      await answerIncoming(tester, 'a');
+    }
+    await wordsCheck(tester, 'a');
+    await meet(tester, 'a-done');
+
+    // (d) Allow invoices, a request from A to B, declined by B.
+    final withOther = (await verifiedWithOther(tester))!;
+    if (role == 'B') {
+      await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).setAllowInvoices(withOther.id, true));
+      rc('d: B allows invoices from A', (await pairings(tester)).any((p) => p.id == withOther.id && p.allowInvoices), '');
+      await meet(tester, 'd-allowed');
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.invoices);
+      final end = DateTime.now().add(const Duration(minutes: 4));
+      while (DateTime.now().isBefore(end) && !hasText('Review')) {
+        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
+        await settle(tester, ms: 4000);
+      }
+      final book = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).invoices());
+      final row = book?.waiting.firstOrNull;
+      rc('d: B sees the request named Anna Desk, verified', row?.label == theirName && hasText('Verified'), '${book?.waiting.length} waiting, label ${row?.label}, ${row?.amount}');
+      await shot(tester, 'B-d-to-pay');
+      if (row != null) {
+        await tapText(tester, 'Review');
+        await settle(tester, ms: 1500);
+        await shot(tester, 'B-d-review');
+        await tapText(tester, 'Decline');
+        await settle(tester, ms: 800);
+        await tapText(tester, 'Decline', last: true);
+        await settle(tester, ms: 3000);
+      }
+      final after = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).invoices());
+      rc('d: B declined it', after?.waiting.isEmpty ?? false, '${after?.waiting.length} waiting');
+      await put(tester, 'd-declined', '1');
+    } else {
+      await take(tester, 'at-d-allowed');
+      await put(tester, 'at-d-allowed', '1');
+      final req = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).requestPayment(PaymentRequestDraft(pairingId: withOther.id, amount: 12345678, message: 'RC order')));
+      rc('d: A asked B for 0.12345678 EPIC', req != null, '${req?.state.name}');
+      await take(tester, 'd-declined');
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.invoices);
+      await settle(tester, ms: 1000);
+      if (hasText('Issue')) await tapText(tester, 'Issue');
+      RequestState? state;
+      final end = DateTime.now().add(const Duration(minutes: 4));
+      while (DateTime.now().isBefore(end) && state != RequestState.declined) {
+        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
+        await settle(tester, ms: 4000);
+        state = (await tester.runAsync(() => containerOf(tester).read(deskApiProvider).invoices()))?.request(req!.slateId)?.state;
+      }
+      rc('d: A sees the request declined', state == RequestState.declined, '${state?.name}');
+      await shot(tester, 'A-d-declined');
+    }
+    await meet(tester, 'd-done');
+
+    // (b) + (e): B removes the pairing, A keeps it; A's words pair again, keys back on A.
+    if (role == 'B') {
+      await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).removePairing(withOther.id));
+      rc('e: B removed the pairing', !(await pairings(tester)).any((p) => p.id == withOther.id), '');
+      await put(tester, 'e-removed', '1');
+      final words = await take(tester, 'b-words-code');
+      rc('b: A handed over five pairing words', words.split(' ').length == 5, '${words.split(' ').length} words');
+      if (words.split(' ').length == 5) {
+        await enter(tester, words);
+        await answerIncoming(tester, 'b');
+        await wordsCheck(tester, 'b');
+      }
+    } else {
+      await take(tester, 'e-removed');
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
+      await settle(tester, ms: 1000);
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+      await settle(tester, ms: 4000);
+      final code = (await pairings(tester)).where((p) => p.way == PairingWay.words && p.inviteWords.isNotEmpty).firstOrNull;
+      await shot(tester, 'A-b-code');
+      rc('b: A shows five pairing words on $relayHost', code?.inviteWords.length == 5, code == null ? texts().where((t) => t.contains('relay') || t.contains('Epicbox')).take(2).join(' / ') : '');
+      await put(tester, 'b-words-code', [for (final w in code?.inviteWords ?? const <SasWord>[]) w.name].join(' '));
+      if (code != null) await wordsCheck(tester, 'b');
+      final back = events.any((e) => e.kind == PairingEventKind.keysRestored);
+      final withBen = (await pairings(tester)).where((p) => p.name == theirName).toList();
+      rc('e: A, which kept the record, finds the keys back', back, 'events ${events.map((e) => e.kind.name).toSet().join(',')}; records ${withBen.map((p) => p.state.name).join(',')}');
+      await shot(tester, 'A-e-keys');
+    }
+    await meet(tester, 'b-done');
+
+    // (c) Face to face by card links.
+    await removeAll(tester);
+    await meet(tester, 'c-clean');
+    if (role == 'A') {
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+      await settle(tester, ms: 2000);
+      await tester.tap(find.byKey(deskPairCopyCardKey));
+      await settle(tester, ms: 1500);
+      final card = containerOf(tester).read(deskOwnCardProvider);
+      rc('c: A made its card link', card?.link.startsWith('epiccash://contact/1/') ?? false, '');
+      await shot(tester, 'A-c-card');
+      await put(tester, 'c-card', card?.link ?? '');
+      await enter(tester, await take(tester, 'c-card'));
+    } else {
+      await enter(tester, await take(tester, 'c-card'));
+      await pumpUntil(tester, () => find.byKey(deskCardBackLinkKey).evaluate().isNotEmpty, what: 'B\'s card to hand back');
+      final link = tester.widget<SelectableText>(find.byKey(deskCardBackLinkKey)).data ?? '';
+      rc('c: B read A\'s card and shows its own to hand back', link.startsWith('epiccash://contact/1/'), '');
+      await shot(tester, 'B-c-card-back');
+      await put(tester, 'c-card', link);
+      await tester.tap(find.byKey(deskCardBackCheckKey));
+      await settle(tester, ms: 1000);
+    }
+    await wordsCheck(tester, 'c');
+    await meet(tester, 'c-done');
+    rc('no Flutter errors', flutterErrors.isEmpty, flutterErrors.take(3).join(' / '));
+    // ignore: avoid_print
+    print('RC DONE $role');
+  });
+}
