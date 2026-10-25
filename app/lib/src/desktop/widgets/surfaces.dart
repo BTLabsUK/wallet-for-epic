@@ -545,7 +545,7 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below, this.leading});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
@@ -567,10 +567,14 @@ class ESetRow extends StatelessWidget {
   /// Extra content under the row (status line, expanded options).
   final Widget? below;
 
+  /// A glyph before the words (a payment method's icon), 18 u, in the dim colour.
+  final IconData? leading;
+
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
-    final words = Column(
+    final c = context.dc;
+    final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -584,15 +588,25 @@ class ESetRow extends StatelessWidget {
               EInfoHint(hint!, title: hintTitle, icon: hintIcon),
             ],
           ),
-        if (text != null) ...[
+        if (this.text != null) ...[
           if (title != null) const SizedBox(height: 2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 560.u),
-            child: Text(text!, style: title == null ? ts.bodyDim : ts.small),
+            child: Text(this.text!, style: title == null ? ts.bodyDim : ts.small),
           ),
         ],
       ],
     );
+    final words = leading == null
+        ? text
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: EdgeInsets.only(top: 1.u), child: Icon(leading, size: 18.u, color: c.dim)),
+              SizedBox(width: Sp.x3),
+              Expanded(child: text),
+            ],
+          );
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
       child: Column(

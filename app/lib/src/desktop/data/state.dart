@@ -113,11 +113,11 @@ class DeskController extends Notifier<DeskState> {
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
     // The reach, port, autostart and Tor are the opened wallet's own: read them from it.
     final own = await api.settings();
-    final http = DeskFeatures.httpDirect && own.httpAutostart;
+    final http = DeskFeatures.httpDirect && own.payments.linkHttp;
     final s = state.settings.copyWith(
       publicMode: own.publicMode,
       httpPort: own.httpPort,
-      httpAutostart: own.httpAutostart,
+      httpAutostart: http,
       epicboxAutostart: own.epicboxAutostart,
       torAutostart: own.torAutostart,
       directHttp: http,
@@ -332,10 +332,15 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
-  /// The HTTP listener switch (Settings › Transactions, Receive's Turn on / Turn off / Try again):
-  /// saved as [DeskSettings.directHttp] and the listener started or stopped with it.
+  /// The Link · HTTP switch (Settings › Transactions; Receive's Try again): the one switch
+  /// for HTTP receiving, saved as `payments.linkHttp` (the listener runs now and at unlock
+  /// while it is on) and the listener started or stopped with it.
   Future<void> setHttp(bool on) async {
-    final s = state.settings.copyWith(directHttp: on);
+    final s = state.settings.copyWith(
+      payments: state.settings.payments.copyWith(linkHttp: on),
+      directHttp: on,
+      httpAutostart: on,
+    );
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
     await api.setHttpListening(on);

@@ -7905,28 +7905,28 @@ abstract class AppLocalizations {
   /// **'File Transfer'**
   String get methodFile;
 
-  /// Short method name where space is short (badges, segments): Link · HTTP as just HTTP. Keep the Latin letters.
+  /// Method name in badges, tags, chips and segments: the family, a middle dot, HTTP. Never HTTP alone. Keep the Latin letters.
   ///
   /// In en, this message translates to:
-  /// **'HTTP'**
+  /// **'Link · HTTP'**
   String get methodShortHttp;
 
-  /// Short method name where space is short (badges, segments): Link · Tor as just Tor. Keep the Latin letters; Tor is a name.
+  /// Method name in badges, tags, chips and segments: the family, a middle dot, Tor. Never Tor alone. Keep the Latin letters; Tor is a name.
   ///
   /// In en, this message translates to:
-  /// **'Tor'**
+  /// **'Link · Tor'**
   String get methodShortTor;
 
-  /// Short method name where space is short (badges, segments): QR Payment as just QR. Keep the Latin letters.
+  /// Short method name where space is short (badges, tags, chips, segments): the Direct family, a middle dot, QR. The full name is methodDirectQr.
   ///
   /// In en, this message translates to:
-  /// **'QR'**
+  /// **'Direct · QR'**
   String get methodShortQr;
 
-  /// Short method name where space is short (badges, segments, table cells): Direct · File Transfer as just File.
+  /// Short method name where space is short (badges, tags, chips, segments, table cells): the Direct family, a middle dot, File. The full name is methodDirectFile.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get methodShortFile;
 
   /// Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it.
@@ -23671,6 +23671,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep at least one payment method on.'**
   String get deskSetTxLastMethod;
+
+  /// Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor receiving needs Tor.'**
+  String get deskRecvTorOffTitle;
+
+  /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.'**
+  String get deskRecvTorOffText;
 }
 
 class _AppLocalizationsDelegate

@@ -34,12 +34,14 @@ bool deskLocalNode(DeskState st) => isLocalAddressUrl(st.status?.node.url);
 /// Why network actions can't run now ([NetBlock.none]: they can). [nodeOnly]: the action
 /// reaches only the node (Recheck balance, the HTTP listener) or local addresses (a Direct
 /// send), which Offline allows with a local node. [epicbox]: the action goes over Epicbox,
-/// which the Epicbox switch (Settings › Transactions) holds when off.
-NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false, bool epicbox = false}) => netBlockFor(
+/// which the Epicbox switch (Settings › Transactions) holds when off. [offered]: false when
+/// the action's method is off there ([NetBlock.methodOff]).
+NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false, bool epicbox = false, bool offered = true}) => netBlockFor(
   deskNetMode(st),
   deskNetTor(st),
   localNode: nodeOnly && deskLocalNode(st),
   epicbox: !epicbox || st.settings.payments.epicbox,
+  offered: offered,
 );
 
 /// The transaction file method uses the node in use while Offline, and the node is not local:

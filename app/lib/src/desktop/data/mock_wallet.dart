@@ -705,6 +705,9 @@ class MockDeskWallet implements DeskWalletApi {
     NetGate.set(mode);
     NetGate.setPayments(settings.payments);
     if (!settings.payments.epicbox) _listening = false;
+    // Link · HTTP is the one HTTP switch (the adapter): the listener follows it.
+    settings = settings.copyWith(directHttp: settings.payments.linkHttp, httpAutostart: settings.payments.linkHttp);
+    if (!settings.payments.linkHttp) _http = false;
     _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
   }
 
@@ -765,7 +768,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> startAutostart() async {
     if (_settings.epicboxAutostart && _settings.payments.epicbox) await setEpicboxListening(true);
-    if (_settings.httpAutostart && !_settings.torAutostart) await setHttpListening(true);
+    if (_settings.payments.linkHttp && !_settings.torAutostart) await setHttpListening(true);
     if (_settings.torAutostart) await setTor(true);
   }
 

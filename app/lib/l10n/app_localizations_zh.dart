@@ -4812,16 +4812,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodFile => '文件';
 
   @override
-  String get methodShortHttp => 'HTTP';
+  String get methodShortHttp => 'Link · HTTP';
 
   @override
-  String get methodShortTor => 'Tor';
+  String get methodShortTor => 'Link · Tor';
 
   @override
   String get methodShortQr => 'QR';
 
   @override
-  String get methodShortFile => 'File';
+  String get methodShortFile => 'Direct · File';
 
   @override
   String get methodDirectQr => 'Direct · QR Payment';
@@ -14114,4 +14114,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetTxLastMethod => 'Keep at least one payment method on.';
+
+  @override
+  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+
+  @override
+  String get deskRecvTorOffText =>
+      'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
 }

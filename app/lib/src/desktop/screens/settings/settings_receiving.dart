@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
 import '../../../ui/method_icons.dart' show MethodIcons;
+import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
 import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
@@ -20,6 +21,7 @@ import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
+import 'settings_privacy.dart' show torStateLine;
 
 /// Start states of Settings › Transactions (once Receiving), for the tour. [directOn] has the
 /// Direct switch on, [sendOptions] also Advanced › Send options.
@@ -32,11 +34,13 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Transactions (spec 6.1, 26.10.13): how payments are made. Payment methods (one
-/// switch each: Epicbox on by default, Direct and File), what Send starts on and, with Advanced › Send options,
-/// its defaults; then one group per receiving method, each the same three parts: Receiving
-/// (switch and state line), Start with the wallet, then the method's options. Direct's group
-/// shows while Direct is on or its listener runs.
+/// Settings › Transactions (spec 6.1, 26.10.13; one switch per method 26.10.16): how payments
+/// are made. Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
+/// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
+/// options, its defaults; then the receiving groups: Epicbox (its listener switch, Start with
+/// the wallet, the server), Link · HTTP (state line and options; the method switch is the one
+/// HTTP switch, there is no second one here) while it is on or its listener runs, Link · Tor
+/// (state line; Tor itself is Settings › Privacy's) while it is on.
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
 
@@ -143,8 +147,10 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     }
   }
 
-  /// The group's first row: the switch (a spinner while it runs) and the state line.
-  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, Widget? notice}) {
+  /// The group's first row: the switch (a spinner while it runs) and the state line. Without
+  /// [switchable] the row is the state alone: the method's switch in Payment methods is the
+  /// one switch (Link · HTTP), so none is repeated here.
+  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice}) {
     final l = context.l10n;
     final busy = _busy.contains(m);
     // In Settings the description sits above: an "Off" line needs no repeat of it.
@@ -152,7 +158,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     return ESetRow(
       title: l.deskSetRecvReceiving,
       text: text,
-      control: SizedBox(
+      control: !switchable ? null : SizedBox(
         width: 40.u,
         height: 24.u,
         child: busy
@@ -260,43 +266,117 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     await _savePayments((x) => x.copyWith(epicbox: on));
   }
 
-  /// A method's row in Payment methods: its name, one hint, and its switch.
-  Widget _methodRow(MethodKind m, PaymentPrefs p) {
+  /// A method's switch changed: the last one on stays on (a toast says so); Epicbox asks
+  /// while sends wait; Link · HTTP starts or stops the listener with the switch.
+  Future<void> _setMethod(MethodKind m, bool on) async {
     final l = context.l10n;
-    final name = MethodIcons.fullName(l, m);
+    final p = ref.read(deskProvider).settings.payments;
+    if (!on && !p.canTurnOff(m)) {
+      showEToast(context, l.deskSetTxLastMethod, tone: ETone.warn);
+      return;
+    }
+    switch (m) {
+      case MethodKind.epicbox:
+        return _setEpicbox(on);
+      case MethodKind.linkHttp:
+        return _toggle(TxMethod.http, on);
+      case MethodKind.linkTor || MethodKind.directQr || MethodKind.directFile:
+        return _savePayments((x) => x.withMethod(m, on));
+    }
+  }
+
+  /// A method's row in Payment methods: its icon, its name under the family's subhead, one
+  /// hint, and its switch. Link · Tor on while Tor is off says what it needs.
+  Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s) {
+    final l = context.l10n;
+    final name = MethodIcons.groupName(l, m);
+    final full = MethodIcons.fullName(l, m);
     final hint = switch (m) {
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
-      MethodKind.linkHttp || MethodKind.linkTor => l.deskSetTxDirectHint,
+      MethodKind.linkHttp => l.deskSetTxDirectHint,
+      MethodKind.linkTor => l.deskSetTxTorHint,
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,
     };
+    final busy = m == MethodKind.linkHttp && _busy.contains(TxMethod.http);
+    final needsTor = m == MethodKind.linkTor && p.linkTor && !s.tor;
     return ESetRow(
       key: ValueKey('st-method-${m.name}'),
+      leading: MethodIcons.of(m),
       title: name,
       hint: hint,
-      hintTitle: name,
-      control: ESwitch(
-        key: ValueKey('st-offer-${m.name}'),
-        value: p.offers(m),
-        semanticLabel: name,
-        onChanged: (v) => m == MethodKind.epicbox ? _setEpicbox(v) : _savePayments((x) => x.withMethod(m, v)),
+      hintTitle: full,
+      hintIcon: MethodIcons.of(m),
+      control: SizedBox(
+        width: 40.u,
+        height: 24.u,
+        child: busy
+            ? Center(child: Semantics(label: l.deskSetRecvSwitching(full), child: ESpinner(size: 18.u)))
+            : ESwitch(
+                key: ValueKey('st-offer-${m.name}'),
+                value: p.offers(m),
+                semanticLabel: full,
+                onChanged: (v) => _setMethod(m, v),
+              ),
+      ),
+      below: needsTor
+          ? ENotice(
+              key: const ValueKey('st-tor-needs-tor'),
+              icon: EIcons.tor,
+              title: l.deskSetTxTorNeedsTor,
+              actions: [
+                EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, onPressed: () => _toggle(TxMethod.tor, true)),
+                EButton.ghost(label: l.deskSetRecvPrivacySettings, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor)),
+              ],
+            )
+          : null,
+    );
+  }
+
+  /// A family's subhead inside Payment methods: its glyph and name, over its methods.
+  Widget _familyRow(MethodFamily f) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    return Padding(
+      key: ValueKey('st-family-${f.name}'),
+      padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x3, Sp.x5, 0),
+      child: Row(
+        children: [
+          Icon(MethodIcons.family(f), size: 16.u, color: c.dim),
+          SizedBox(width: Sp.x2),
+          Semantics(header: true, child: Text(MethodIcons.familyName(l, f), style: ts.caption.copyWith(fontWeight: FontWeight.w600, color: c.dim))),
+        ],
       ),
     );
   }
 
+  /// The methods this build has, by family: Epicbox; Link › HTTP, Tor; Direct › File Transfer
+  /// (QR Payment is the phone's).
+  static List<MethodKind> _familyMethods(MethodFamily f) => [
+    for (final m in MethodKind.values)
+      if (m.family == f && m != MethodKind.directQr && (m != MethodKind.linkHttp || DeskFeatures.httpDirect) && (m != MethodKind.linkTor || DeskFeatures.tor)) m,
+  ];
+
+  /// Send starts on names Link once for the family (the address picks HTTP or Tor), the
+  /// others by their full name.
   String _startName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.linkHttp || MethodKind.linkTor => l.methodDirect,
     _ => MethodIcons.fullName(l, m),
   };
 
-  /// Payment methods: what Send and Receive offer.
-  Widget _methodsGroup(PaymentPrefs p) {
+  /// Payment methods: one switch per method, grouped by family. Epicbox is its own family, so
+  /// its row stands alone; Link and Direct get a subhead over their methods.
+  Widget _methodsGroup(PaymentPrefs p, DeskSettings s) {
     final l = context.l10n;
     return ESetGroup(
       title: l.deskSetTxMethods,
       rows: [
-        for (final m in MethodKind.values)
-          if (m != MethodKind.directQr && (m.family != MethodFamily.link || DeskFeatures.httpDirect || DeskFeatures.tor)) _methodRow(m, p),
+        for (final f in MethodFamily.values)
+          if (_familyMethods(f).isNotEmpty) ...[
+            if (f != MethodFamily.epicbox) _familyRow(f),
+            for (final m in _familyMethods(f)) _methodRow(m, p, s),
+          ],
       ],
     );
   }
@@ -305,10 +385,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// and Split change that Outputs kept before).
   Widget? _sendGroup(PaymentPrefs p) {
     final l = context.l10n;
+    // Link once, whichever of its methods is on (the address decides the route).
     final offered = [
-      for (final m in MethodKind.values)
-        if (m != MethodKind.directQr && m != MethodKind.linkTor && p.offers(m) && (m.family != MethodFamily.link || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
+      if (p.epicbox) MethodKind.epicbox,
+      if ((DeskFeatures.httpDirect || DeskFeatures.tor) && p.offersFamily(MethodFamily.link)) MethodKind.linkHttp,
+      if (p.directFile) MethodKind.directFile,
     ];
+    final start = p.startMethod.family == MethodFamily.link ? MethodKind.linkHttp : p.startMethod;
     final options = advancedHas(ref, AdvancedFeature.sendOptions);
     if (offered.length < 2 && !options) return null;
     final out = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
@@ -325,8 +408,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 wide: true,
                 child: ESegmented<MethodKind>(
                   stretch: true,
-                  segments: [for (final m in offered) ESegment(m, _startName(l, m))],
-                  value: p.startMethod,
+                  segments: [for (final m in offered) ESegment(m, _startName(l, m), icon: m.family == MethodFamily.link ? MethodIcons.family(MethodFamily.link) : MethodIcons.of(m))],
+                  value: offered.contains(start) ? start : offered.firstOrNull ?? MethodKind.epicbox,
                   onChanged: (m) => _savePayments((x) => x.copyWith(defaultMethod: m)),
                 ),
               ),
@@ -391,13 +474,14 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         ? MethodLine(l.deskKitMethodOff, EState.off, detail: l.netBlockEpicboxOff)
         : methodStateLine(l, TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(l, TxMethod.http, status, s);
+    final torLine = torStateLine(l, netTorState(s, status), status, included: status.torIncluded);
 
     return SettingsFrame(
       route: DeskRoute.settingsReceiving,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _methodsGroup(s.payments),
+          _methodsGroup(s.payments, s),
           ?_sendGroup(s.payments),
           _group(TxMethod.epicbox, SettingsJump.epicbox, l.deskSetRecvEpicboxTitle, ebLine, _headWord(l, TxMethod.epicbox, status, s, ebLine), [
             _receivingRow(
@@ -432,7 +516,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               ),
             ),
           ]),
-          // Direct on; a listener that is on keeps its rows.
+          // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's
+          // (Payment methods above): this group holds its state and options.
           if (DeskFeatures.httpDirect && (s.payments.linkHttp || status.httpListener != ServiceHealth.off))
             _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
               _receivingRow(
@@ -440,7 +525,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 l.deskSetRecvHttpText,
                 status.httpListener != ServiceHealth.off,
                 httpLine,
-                // Off while Tor is on (tor_routes.dart): Direct payments arrive at the Tor address.
+                switchable: false,
+                // Off while Tor is on (tor_routes.dart): Link payments arrive at the Tor address.
                 enabled: !s.tor,
                 notice: s.tor
                     ? ENotice(
@@ -456,8 +542,12 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                       )
                     : null,
               ),
-              _autostart(TxMethod.http, s.httpAutostart, (v) => _saveAutostart(s.copyWith(httpAutostart: v))),
               const HttpOptions(),
+            ]),
+          // Link · Tor on: where its address stands (Tor itself is Settings › Privacy's switch).
+          if (DeskFeatures.tor && s.payments.linkTor)
+            _group(TxMethod.tor, SettingsJump.tor, l.deskSetRecvTorTitle, torLine, _headWord(l, TxMethod.tor, status, s, torLine), [
+              _receivingRow(TxMethod.tor, l.deskSetRecvTorText, s.tor, torLine, switchable: false),
             ]),
         ],
       ),
