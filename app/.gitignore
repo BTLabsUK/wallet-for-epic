@@ -52,3 +52,6 @@ app.*.map.json
 
 # LevelDB write-ahead logs of the legacy GUI fixtures (tool/legacy_gui_fixtures.py)
 !test/fixtures/legacy_gui/**/*.log
+
+# Golden test failure images (flutter test writes them next to the test)
+**/test/**/failures/
