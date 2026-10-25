@@ -795,6 +795,13 @@ class HistoryImport {
     this.replaced = 0,
     this.pairingsAdded = 0,
     this.pairingsOtherDevice = 0,
+    this.notesAdded = 0,
+    this.labelsAdded = 0,
+    this.detailsAdded = 0,
+    this.invoicesAdded = 0,
+    this.starsAdded = 0,
+    this.walletName,
+    this.settings,
   });
 
   /// Payments already here that got details back.
@@ -822,7 +829,36 @@ class HistoryImport {
   final int pairingsAdded;
   final int pairingsOtherDevice;
 
-  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0 && replaced == 0 && pairingsAdded == 0;
+  /// Notes, labels, and a scan-found payment's sender or method the file filled in where this
+  /// wallet had none.
+  final int notesAdded;
+  final int labelsAdded;
+  final int detailsAdded;
+
+  /// Invoices (issued or paid) whose outcome the file brought back.
+  final int invoicesAdded;
+
+  /// Contacts this wallet starred again.
+  final int starsAdded;
+
+  /// The wallet's name the file carries; [planDeskBackupSettings] offers it.
+  final String? walletName;
+
+  /// The settings the file carries (`backup_settings.dart`), null for a file without any;
+  /// [planDeskBackupSettings] plans them.
+  final Map<String, Object?>? settings;
+
+  bool get nothingNew =>
+      merged == 0 &&
+      added == 0 &&
+      contactsAdded == 0 &&
+      replaced == 0 &&
+      pairingsAdded == 0 &&
+      notesAdded == 0 &&
+      labelsAdded == 0 &&
+      detailsAdded == 0 &&
+      invoicesAdded == 0 &&
+      starsAdded == 0;
 }
 
 /// Why a history backup file was refused.

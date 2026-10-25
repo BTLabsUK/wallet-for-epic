@@ -710,7 +710,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         SettingsHeader(l.settingsSectionHistory),
         ListTile(
           leading: const Icon(Icons.upload_file),
-          title: Text(l.settingsExportHistory),
+          title: TitleWithHint(
+            l.settingsExportHistory,
+            hint: '${l.backupFileHolds} ${l.backupFileNoPhrase} ${l.backupFileRestoreOrder}',
+            icon: Icons.upload_file,
+          ),
           onTap: _busy
               ? null
               : () => _run(() => exportHistoryBackup(context, ref)),
@@ -722,7 +726,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
         ListTile(
           leading: const Icon(Icons.download),
-          title: Text(l.settingsImportHistory),
+          title: TitleWithHint(
+            l.settingsImportHistory,
+            hint: l.backupImportLead,
+            icon: Icons.download,
+          ),
           onTap: _busy
               ? null
               : () => _run(() => importHistoryBackup(context, ref)),

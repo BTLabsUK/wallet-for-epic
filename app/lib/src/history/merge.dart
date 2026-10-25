@@ -71,6 +71,15 @@ CancelReason? cancelReasonFrom(String? s) => switch (s) {
   _ => null,
 };
 
+/// A record's flow: `invoice`, else a payment.
+TxFlow flowFrom(String? s) => s == 'invoice' ? TxFlow.invoice : TxFlow.payment;
+
+/// A record's slate messages, as the app shows them; a role it does not know is left out.
+List<SlateMessage> slateMessagesOf(Record r) => [
+  for (final x in r.slateMessages)
+    if (SlateRole.values.asNameMap()[x.role] case final role?) SlateMessage(role: role, text: x.text),
+];
+
 String? _someStr(String? s) {
   final t = s?.trim();
   return t == null || t.isEmpty ? null : t;
@@ -158,13 +167,14 @@ class MergedTx {
   int? finalizedAtUnix;
   CancelReason? cancelReason;
 
-  /// From the live row; an imported record is a payment.
+  /// From the live row, else the record's (a record of a version 1 file is a payment).
   TxFlow flow;
 
   /// From the live row: LEPIC's, never stored or exported.
   int? senderReportedPostedAtUnix;
 
-  /// From the live row: LEPIC's link to a pairing, never stored or exported.
+  /// LEPIC's link to a pairing, from the live row, else the record's: exported, so a restored
+  /// wallet still knows which paired contact a payment was with.
   String? pairingId;
 
   /// Every key the transaction was ever known by, for notes.
@@ -262,6 +272,9 @@ MergedTx _fromRecord(Record r) {
       cancelReason: status == TxStatus.cancelled
           ? cancelReasonFrom(r.cancelReason)
           : null,
+      flow: flowFrom(r.flow),
+      pairingId: _someStr(r.pairingId),
+      messages: slateMessagesOf(r),
     ),
   );
   m.kernelLookupMinHeight = r.kernelLookupMinHeight;
@@ -282,6 +295,7 @@ void _absorb(MergedTx m, Record r) {
     m.numOutputs = r.numOutputs;
     m.createdAtUnix = r.createdAtUnix;
     m.fee = r.fee ?? m.fee;
+    m.flow = flowFrom(r.flow);
   } else {
     m.fee ??= r.fee;
   }
@@ -296,6 +310,8 @@ void _absorb(MergedTx m, Record r) {
   m.kernelLookupMinHeight ??= r.kernelLookupMinHeight;
   m.recordMessages ??= r.messages;
   m.paymentProof ??= r.paymentProof;
+  m.pairingId ??= _someStr(r.pairingId);
+  if (m.messages.isEmpty) m.messages = slateMessagesOf(r);
 }
 
 /// Live rows by slate id, kernel and created commitment, so matching a record is a lookup
@@ -629,4 +645,9 @@ Record toRecord(MergedTx m) => Record(
   ],
   userEditedAtUnix: m.manualEditedAtUnix,
   // The file's own `exported_at_unix` stands for every record in it.
+  flow: m.flow == TxFlow.invoice ? 'invoice' : null,
+  pairingId: m.pairingId,
+  slateMessages: [
+    for (final x in m.messages) SlateMessageRec(role: x.role.name, text: x.text),
+  ],
 );

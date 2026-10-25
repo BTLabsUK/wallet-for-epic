@@ -358,6 +358,25 @@ class ManualRec {
   }
 }
 
+/// A slate message as a history file keeps it: who signed it (`sender` or `receiver`) and
+/// its text.
+class SlateMessageRec {
+  SlateMessageRec({required this.role, required this.text});
+
+  factory SlateMessageRec.fromJson(Object? json) {
+    final m = asObject(json, 'slate message');
+    return SlateMessageRec(
+      role: _str(m['role'], 'slate message role'),
+      text: _str(m['text'], 'slate message text'),
+    );
+  }
+
+  final String role;
+  final String text;
+
+  Map<String, Object?> toJson() => {'role': role, 'text': text};
+}
+
 bool _pending(String status) =>
     status == 'AwaitingRecipient' || status == 'AwaitingConfirmation';
 
@@ -392,7 +411,11 @@ class Record {
     this.transport,
     List<String>? userFields,
     this.userEditedAtUnix,
+    this.flow,
+    this.pairingId,
+    List<SlateMessageRec>? slateMessages,
   }) : userFields = userFields ?? [],
+       slateMessages = slateMessages ?? [],
        amountCredited = amountCredited ?? BigInt.zero,
        amountDebited = amountDebited ?? BigInt.zero,
        outputCommits = outputCommits ?? [];
@@ -448,6 +471,13 @@ class Record {
         m['user_edited_at_unix'],
         'user_edited_at_unix',
       ),
+      flow: _optStr(m['flow'], 'flow'),
+      pairingId: _optStr(m['pairing_id'], 'pairing_id'),
+      slateMessages: m['slate_messages'] == null
+          ? null
+          : m['slate_messages'] is List
+          ? [for (final x in m['slate_messages'] as List) SlateMessageRec.fromJson(x)]
+          : _bad('slate_messages'),
     );
   }
 
@@ -498,6 +528,17 @@ class Record {
   /// When the user last changed those (unix seconds), in a history file only.
   int? userEditedAtUnix;
 
+  /// `invoice` for a payment an invoice started (either way); null for a payment. Since
+  /// version 2 of the history file.
+  String? flow;
+
+  /// The pairing the payment went to or came from, as LEPIC linked it. Since version 2.
+  String? pairingId;
+
+  /// The parties' messages signed into the slate, as the app showed them. The old core's
+  /// [messages] stay as they were written. Since version 2.
+  List<SlateMessageRec> slateMessages;
+
   /// This record without what only a history file carries, as the archive keeps it.
   Record withoutUserFields() => copy()
     ..label = null
@@ -538,6 +579,11 @@ class Record {
     _put(out, 'transport', transport);
     if (userFields.isNotEmpty) out['user_fields'] = [...userFields];
     _put(out, 'user_edited_at_unix', userEditedAtUnix);
+    _put(out, 'flow', flow);
+    _put(out, 'pairing_id', pairingId);
+    if (slateMessages.isNotEmpty) {
+      out['slate_messages'] = [for (final x in slateMessages) x.toJson()];
+    }
     return out;
   }
 
@@ -565,6 +611,9 @@ class Record {
     note ??= other.note;
     ttlCutoffHeight ??= other.ttlCutoffHeight;
     messages ??= other.messages;
+    flow ??= other.flow;
+    pairingId ??= other.pairingId;
+    if (slateMessages.isEmpty) slateMessages = [...other.slateMessages];
     paymentProof ??= other.paymentProof;
     for (final c in other.outputCommits) {
       if (!outputCommits.contains(c)) outputCommits.add(c);

@@ -538,7 +538,7 @@
   },
   "errorHistoryNewer": "This history file was made by a newer version of the app.",
   "errorHistoryDamaged": "This history file is damaged.",
-  "errorHistoryOtherWallet": "This history file belongs to a different wallet.",
+  "errorHistoryOtherWallet": "This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.",
   "errorHistoryOtherNetwork": "This history file is from {fileNetwork}, but this wallet is on {walletNetwork}.",
   "@errorHistoryOtherNetwork": {
     "description": "Network names stay as given (Mainnet, Floonet, Usernet).",
@@ -1215,7 +1215,7 @@
   "@historyBackupExportTitle": {
     "description": "Title of the sheet that hands over the encrypted payment-history backup file."
   },
-  "historyBackupExportNote": "History backups hold payments up to now. Export again after new payments.",
+  "historyBackupExportNote": "The backup holds everything up to now. Export again after new payments or changes.",
   "@historyBackupExportNote": {
     "description": "Text in the export sheet under its title."
   },
@@ -1231,7 +1231,7 @@
   "@historyBackupCsvConfirm": {
     "description": "Button in the CSV warning dialog that goes ahead with the export."
   },
-  "historyBackupImportedTitle": "History imported",
+  "historyBackupImportedTitle": "Backup imported",
   "@historyBackupImportedTitle": {
     "description": "Title of the dialog with the result of a history backup import."
   },
@@ -1248,192 +1248,6 @@
   "historyBackupImportNothingNew": "The backup held nothing new.",
   "@historyBackupImportNothingNew": {
     "description": "Import result when the backup added nothing."
-  },
-  "historyBackupImportMerged": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}.",
-  "@historyBackupImportMerged": {
-    "description": "Import result. The historyBackupImport… messages are one sentence per combination of counts, each count shown only when above zero: merged payments already in the list got their note, address and fee back from the backup; added older payments were not in the list; skipped records were imported before; contacts went into the address book.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportAdded": "{added, plural, =1{1 older payment added} other{{added} older payments added}}.",
-  "@historyBackupImportAdded": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedAdded": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}.",
-  "@historyBackupImportMergedAdded": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "added": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportSkipped": "{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
-  "@historyBackupImportSkipped": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedSkipped": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
-  "@historyBackupImportMergedSkipped": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportAddedSkipped": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
-  "@historyBackupImportAddedSkipped": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedAddedSkipped": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
-  "@historyBackupImportMergedAddedSkipped": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportContacts": "{contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportMergedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportAddedContacts": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportAddedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedAddedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportMergedAddedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "added": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportSkippedContacts": "{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportSkippedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "skipped": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedSkippedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportMergedSkippedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportAddedSkippedContacts": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportAddedSkippedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
-  },
-  "historyBackupImportMergedAddedSkippedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
-  "@historyBackupImportMergedAddedSkippedContacts": {
-    "description": "Import result; see historyBackupImportMerged.",
-    "placeholders": {
-      "merged": {
-        "type": "int"
-      },
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      }
-    }
   },
   "homeLockTooltip": "Lock wallet",
   "@homeLockTooltip": {
@@ -2720,7 +2534,7 @@
   "@unlockDatabaseRebuilt": {
     "description": "Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0."
   },
-  "restoreRebuiltImportText": "A history backup brings back who was paid, notes and labels.",
+  "restoreRebuiltImportText": "A history backup brings back payment history, contacts, invoices and settings.",
   "@restoreRebuiltImportText": {
     "description": "Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow."
   },
@@ -2770,18 +2584,14 @@
       }
     }
   },
-  "historyBackupExportCarries": "It also holds the contacts and their stars. Invoices and settings are not in it.",
-  "@historyBackupExportCarries": {
-    "description": "Second line of the Export history backup sheet: what else the file holds and what it does not."
-  },
   "restoreDoneIconLabel": "Done",
   "@restoreDoneIconLabel": {
     "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
   },
   "restoreDoneTitle": "Your wallet is restored",
-  "restoreImportExplanation": "The chain holds your balance, but not who you paid, fees or notes. If you exported a history backup from this wallet, import it now to get them back. It is the .wfeh file you shared or saved outside your old phone.",
+  "restoreImportExplanation": "The recovery phrase brought back the balance. A history backup brings back this wallet's payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
   "@restoreImportExplanation": {
-    "description": "Offer to import a payment-history backup after a restore. Keep .wfeh, the backup file's extension, as it is."
+    "description": "Offer to import a history backup on the phone restore screen, once the restore from the phrase is done."
   },
   "restoreImportButton": "Import a history backup",
   "restoreImportNotNow": "Not now",
@@ -14399,7 +14209,7 @@
   "@deskSetBackupExportTitle": {
     "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
   },
-  "deskSetBackupExportHint": "Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.",
+  "deskSetBackupExportHint": "Payment history, contacts, invoices and settings, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not these.",
   "@deskSetBackupExportHint": {
     "description": "Settings > Backup: hint under the Export history backup row."
   },
@@ -14415,7 +14225,7 @@
   "@deskSetBackupImportTitle": {
     "description": "Settings > Backup: row title and dialog title for importing a history backup file."
   },
-  "deskSetBackupImportHint": "Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.",
+  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.",
   "@deskSetBackupImportHint": {
     "description": "Settings > Backup: hint under the Import history backup row."
   },
@@ -14459,7 +14269,7 @@
       }
     }
   },
-  "deskSetBackupInFileSub": "Who paid what, fees, notes, slate ids",
+  "deskSetBackupInFileSub": "Who paid what, fees, notes and labels; invoices; settings",
   "@deskSetBackupInFileSub": {
     "description": "Export history dialog: small text under the counts of what the file holds."
   },
@@ -14467,7 +14277,7 @@
   "@deskSetBackupNotIn": {
     "description": "Export history dialog: label of the row listing what the file does not hold. Narrow label column."
   },
-  "deskSetBackupNotInValue": "Keys, the recovery phrase, the password",
+  "deskSetBackupNotInValue": "The recovery phrase, keys, the password",
   "@deskSetBackupNotInValue": {
     "description": "Export history dialog: what the file does not contain."
   },
@@ -14475,7 +14285,7 @@
   "@deskSetBackupOpensWith": {
     "description": "Export history dialog: label of the row saying which wallet can open the file. Narrow label column."
   },
-  "deskSetBackupOpensWithValue": "This wallet, or one restored from its phrase",
+  "deskSetBackupOpensWithValue": "This wallet, or one restored from its recovery phrase",
   "@deskSetBackupOpensWithValue": {
     "description": "Export history dialog: which wallets can open the file."
   },
@@ -14483,11 +14293,11 @@
   "@deskSetBackupFile": {
     "description": "Export dialog: label of the row with the file name. Narrow label column."
   },
-  "deskSetBackupFileNote": "The file holds payments up to now. Export again after new payments.",
+  "deskSetBackupFileNote": "The file holds everything up to now. Export again after new payments or changes.",
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
-  "deskSetBackupExportDesc": "A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.",
+  "deskSetBackupExportDesc": "A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.",
   "@deskSetBackupExportDesc": {
     "description": "Export history dialog: description under the title."
   },
@@ -14518,34 +14328,6 @@
   "deskSetBackupOpenDialogTitle": "Open history backup",
   "@deskSetBackupOpenDialogTitle": {
     "description": "Title of the system Open dialog when importing a history backup."
-  },
-  "deskSetBackupDetailsRestored": "Details restored",
-  "@deskSetBackupDetailsRestored": {
-    "description": "Import result tile title: count of payments that got details back."
-  },
-  "deskSetBackupDetailsRestoredSub": "Payments already here got their counterparty, fee or note back",
-  "@deskSetBackupDetailsRestoredSub": {
-    "description": "Import result tile text under \"Details restored\"."
-  },
-  "deskSetBackupOlderAdded": "Older payments added",
-  "@deskSetBackupOlderAdded": {
-    "description": "Import result tile title: count of payments added from the backup."
-  },
-  "deskSetBackupOlderAddedSub": "Not in the list any more; shown as From backup",
-  "@deskSetBackupOlderAddedSub": {
-    "description": "Import result tile text under \"Older payments added\". \"From backup\" is a label shown in Activity."
-  },
-  "deskSetBackupContactsAdded": "Contacts added",
-  "@deskSetBackupContactsAdded": {
-    "description": "Import result tile title: count of contacts added."
-  },
-  "deskSetBackupAlreadyHere": "Already here",
-  "@deskSetBackupAlreadyHere": {
-    "description": "Import result tile title: count of records that were already in the wallet."
-  },
-  "deskSetBackupUnchanged": "Unchanged",
-  "@deskSetBackupUnchanged": {
-    "description": "Import result tile text under \"Already here\"."
   },
   "deskSetBackupNothingNew": "Nothing new",
   "@deskSetBackupNothingNew": {
@@ -14581,7 +14363,7 @@
   "@deskSetBackupBringsBack": {
     "description": "Import dialog: label of the row saying what the import restores. Narrow label column."
   },
-  "deskSetBackupBringsBackValue": "Who paid what, fees and notes of payments already here; older payments the list lost; contacts",
+  "deskSetBackupBringsBackValue": "Payment details and notes, older payments the list lost, contacts, invoices and settings",
   "@deskSetBackupBringsBackValue": {
     "description": "Import dialog: what the import restores."
   },
@@ -14589,7 +14371,7 @@
   "@deskSetBackupNeeds": {
     "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
   },
-  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}",
+  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}. Restore the wallet from its phrase first.",
   "@deskSetBackupNeedsValue": {
     "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
     "placeholders": {
@@ -14610,7 +14392,7 @@
   "@deskSetBackupChooseFile": {
     "description": "Import dialog: button that opens the system Open dialog."
   },
-  "deskSetBackupImportDesc": "Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.",
+  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.",
   "@deskSetBackupImportDesc": {
     "description": "Import history dialog: description under the title."
   },
@@ -21170,25 +20952,6 @@
   "@pairYourNamePlaceholder": {
     "description": "Stands for the name in the preview of the invite text until the user types the name they will see."
   },
-  "restoreDone": "History restored.",
-  "@restoreDone": {
-    "description": "Notice title after a history backup was imported with pairings."
-  },
-  "restoreDoneBody": "{payments} payments, {contacts} contacts and {pairings} pairings are back.",
-  "@restoreDoneBody": {
-    "description": "Notice body after a history backup was imported with pairings.",
-    "placeholders": {
-      "payments": {
-        "type": "int"
-      },
-      "contacts": {
-        "type": "int"
-      },
-      "pairings": {
-        "type": "int"
-      }
-    }
-  },
   "deskConPickForPairing": "The pairing is added to the contact you choose.",
   "@deskConPickForPairing": {
     "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
@@ -21815,11 +21578,11 @@
       }
     }
   },
-  "deskOvRestoredImportTitle": "Bring back payment details?",
+  "deskOvRestoredImportTitle": "Bring back history and settings?",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },
@@ -22014,5 +21777,143 @@
   "reqQrWrongReply": "This reply answers a different request. Scan the reply to this one.",
   "@reqQrWrongReply": {
     "description": "Merchant scanned a reply to a different request."
+  },
+  "backupFileHolds": "This file holds this wallet's payment history, contacts, invoices and settings.",
+  "@backupFileHolds": {
+    "description": "Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export."
+  },
+  "backupFileNoPhrase": "It does not hold the recovery phrase and cannot restore the wallet on its own.",
+  "@backupFileNoPhrase": {
+    "description": "Export of the history backup, sentence 2: the file has no recovery phrase and cannot restore the wallet alone."
+  },
+  "backupFileRestoreOrder": "To restore: enter the recovery phrase first, then import this file.",
+  "@backupFileRestoreOrder": {
+    "description": "Export of the history backup, sentence 3: the order of a restore, the phrase first, then this file."
+  },
+  "backupImportLead": "Brings back this wallet's payment history, contacts, invoices and settings. Restore the wallet from its recovery phrase first.",
+  "@backupImportLead": {
+    "description": "Short lead on the import step of the history backup (both apps): what it brings back; restore from the phrase first."
+  },
+  "backupRestoredSummary": "Restored: {items}.",
+  "@backupRestoredSummary": {
+    "description": "The one summary after a history backup import. {items} is a list such as \"12 payments, 5 notes and settings\", joined with backupListSeparator and backupListLastSeparator from the backupRestored… items.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "backupListSeparator": ", ",
+  "@backupListSeparator": {
+    "description": "Joins the items of a short list in a sentence, all but the last join: \", \" in English. Keep the spaces the language needs."
+  },
+  "backupListLastSeparator": " and ",
+  "@backupListLastSeparator": {
+    "description": "Joins the last two items of a short list in a sentence: \" and \" in English. Keep the spaces the language needs."
+  },
+  "backupRestoredPayments": "{n, plural, =1{1 payment} other{{n} payments}}",
+  "@backupRestoredPayments": {
+    "description": "Item of the backupRestoredSummary list: payments restored. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredNotes": "{n, plural, =1{1 note} other{{n} notes}}",
+  "@backupRestoredNotes": {
+    "description": "Item of the backupRestoredSummary list: payment notes restored. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredLabels": "{n, plural, =1{1 label} other{{n} labels}}",
+  "@backupRestoredLabels": {
+    "description": "Item of the backupRestoredSummary list: payment labels restored. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredContacts": "{n, plural, =1{1 contact} other{{n} contacts}}",
+  "@backupRestoredContacts": {
+    "description": "Item of the backupRestoredSummary list: contacts added to the address book. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredStars": "{n, plural, =1{1 starred contact} other{{n} starred contacts}}",
+  "@backupRestoredStars": {
+    "description": "Item of the backupRestoredSummary list: contacts that got their star back. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredPairings": "{n, plural, =1{1 pairing} other{{n} pairings}}",
+  "@backupRestoredPairings": {
+    "description": "Item of the backupRestoredSummary list: paired contacts restored. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredInvoices": "{n, plural, =1{1 invoice} other{{n} invoices}}",
+  "@backupRestoredInvoices": {
+    "description": "Item of the backupRestoredSummary list: invoices and payment requests restored. Lowercase, no full stop.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoredSettings": "settings",
+  "@backupRestoredSettings": {
+    "description": "Item of the backupRestoredSummary list, no number: the settings were restored. Lowercase."
+  },
+  "backupRestoredWalletName": "the wallet name",
+  "@backupRestoredWalletName": {
+    "description": "Item of the backupRestoredSummary list, no number: the wallet name was restored (desktop). Lowercase."
+  },
+  "backupRestoredAlreadyHere": "{n, plural, =1{1 record was already here.} other{{n} records were already here.}}",
+  "@backupRestoredAlreadyHere": {
+    "description": "Sentence after backupRestoredSummary: how many records of the backup were in the wallet already.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSettingsTitle": "Use the settings from this backup?",
+  "@backupSettingsTitle": {
+    "description": "Title of the one question an import asks when settings changed here differ from the backup."
+  },
+  "backupSettingsBody": "{n, plural, =1{1 setting here differs from the backup.} other{{n} settings here differ from the backup.}} The rest of the backup is already imported.",
+  "@backupSettingsBody": {
+    "description": "Text of the settings question: how many settings differ; everything else in the backup is already imported.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSettingsUseBackup": "Use the backup's",
+  "@backupSettingsUseBackup": {
+    "description": "Button of the settings question: take the settings from the backup. Short."
+  },
+  "backupSettingsKeepMine": "Keep mine",
+  "@backupSettingsKeepMine": {
+    "description": "Button of the settings question: keep the settings of this wallet. Short."
+  },
+  "backupFromOtherWallet": "This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.",
+  "@backupFromOtherWallet": {
+    "description": "Import error: the file was exported by a different wallet (another recovery phrase). Same text as errorHistoryOtherWallet."
   }
 }

@@ -119,11 +119,11 @@
       }
     }
   },
-  "deskOvRestoredImportTitle": "Bring back payment details?",
+  "deskOvRestoredImportTitle": "Bring back history and settings?",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },

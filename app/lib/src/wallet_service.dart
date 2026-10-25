@@ -440,8 +440,10 @@ abstract interface class WalletSession {
   /// Stars ([favourite] true) or unstars the contact [id] in this wallet.
   Future<void> setFavouriteContact({required String id, required bool favourite});
 
-  /// Encrypted history file that only a wallet with the same recovery phrase can import.
-  Future<Uint8List> exportHistory();
+  /// Encrypted history file that only a wallet with the same recovery phrase can import. It
+  /// carries what the phrase and a scan cannot give back; the app adds the wallet's
+  /// [walletName] where it names wallets, and its [settings] (`backup_settings.dart`).
+  Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings});
 
   /// The transaction list as CSV. Not encrypted, not importable.
   Future<String> exportHistoryCsv();
@@ -2061,10 +2063,12 @@ class FakeWalletSession implements WalletSession {
 
   /// A readable stand-in for the encrypted file: notes and contacts as JSON.
   @override
-  Future<Uint8List> exportHistory() async => Uint8List.fromList(
+  Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) async => Uint8List.fromList(
     utf8.encode(
       '$_exportMagic${jsonEncode({
         'notes': notes,
+        'walletName': ?walletName,
+        'settings': ?settings,
         'pairings': pairing.exportBackup(),
         'contacts': [
           for (final c in contactsValue)
@@ -2212,6 +2216,8 @@ class FakeWalletSession implements WalletSession {
       replaced: replaced,
       pairingsAdded: pairings,
       pairingsOtherDevice: importPairingsFromOtherDevice ? pairings : 0,
+      walletName: decoded['walletName'] as String?,
+      settings: decoded['settings'] as Map<String, Object?>?,
     );
   }
 
@@ -2987,7 +2993,7 @@ class FakeWalletSession implements WalletSession {
         message: 'only a waiting invoice can be withdrawn',
       );
     }
-    cancelledTxIds.add(issued.txId);
+    cancelledTxIds.add(issued.txId!);
     await _settleIssued(slateId, IssuedInvoiceState.withdrawn);
     return _requireIssued(slateId);
   }
@@ -3031,7 +3037,7 @@ class FakeWalletSession implements WalletSession {
   Future<void> _endIssued(String slateId, IssuedInvoiceState state) async {
     final issued = _request(slateId);
     if (issued == null || !issued.withdrawable) return;
-    cancelledTxIds.add(issued.txId);
+    cancelledTxIds.add(issued.txId!);
     await _settleIssued(slateId, state);
   }
 }
@@ -3097,6 +3103,7 @@ TxEntry fakeTx({
   CancelReason? cancelReason,
   TxFlow flow = TxFlow.payment,
   int? senderReportedPostedAtUnix,
+  String? pairingId,
 }) {
   final resolvedStatus =
       status ??
@@ -3145,6 +3152,7 @@ TxEntry fakeTx({
     cancelReason: cancelReason,
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    pairingId: pairingId,
   );
 }
 

@@ -436,7 +436,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorHistoryOtherWallet =>
-      'Diese Verlaufsdatei gehört zu einer anderen Wallet.';
+      'Diese Datei gehört zu einer anderen Wallet. Nur die aus derselben Wiederherstellungsphrase wiederhergestellte Wallet kann sie öffnen.';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
@@ -1046,7 +1046,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get historyBackupExportNote =>
-      'Verlaufssicherungen enthalten die Zahlungen bis heute. Exportieren Sie nach neuen Zahlungen erneut.';
+      'Die Sicherung enthält alles bis jetzt. Exportieren Sie nach neuen Zahlungen oder Änderungen erneut.';
 
   @override
   String get historyBackupCsvTitle => 'CSV exportieren';
@@ -1059,7 +1059,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get historyBackupCsvConfirm => 'CSV exportieren';
 
   @override
-  String get historyBackupImportedTitle => 'Verlauf importiert';
+  String get historyBackupImportedTitle => 'Sicherung importiert';
 
   @override
   String historyBackupImportFailed(String reason) {
@@ -1069,294 +1069,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get historyBackupImportNothingNew =>
       'Die Sicherung enthielt nichts Neues.';
-
-  @override
-  String historyBackupImportMerged(int merged) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportAdded(int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedAdded(int merged, int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportSkipped(int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedSkipped(int merged, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedSkipped(int added, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportContacts(int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedContacts(int merged, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedContacts(int added, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportSkippedContacts(int skipped, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'Details von $merged Zahlungen wiederhergestellt',
-      one: 'Details von 1 Zahlung wiederhergestellt',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added ältere Zahlungen hinzugefügt',
-      one: '1 ältere Zahlung hinzugefügt',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped Einträge waren bereits vorhanden',
-      one: '1 Eintrag war bereits vorhanden',
-    );
-    String _temp3 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts Kontakte hinzugefügt',
-      one: '1 Kontakt hinzugefügt',
-    );
-    return '$_temp0, $_temp1, $_temp2, $_temp3.';
-  }
 
   @override
   String get homeLockTooltip => 'Wallet sperren';
@@ -2359,7 +2071,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreRebuiltImportText =>
-      'Eine Verlaufssicherung holt zurück, wer bezahlt wurde, Notizen und Bezeichnungen.';
+      'Eine Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück.';
 
   @override
   String get restoreReplaceLead =>
@@ -2397,10 +2109,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportCarries =>
-      'Sie enthält auch die Kontakte und ihre Favoriten-Markierung. Rechnungen und Einstellungen sind nicht enthalten.';
-
-  @override
   String get restoreDoneIconLabel => 'Fertig';
 
   @override
@@ -2408,7 +2116,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Die Blockchain enthält Ihr Guthaben, aber nicht, wen Sie bezahlt haben, Gebühren oder Notizen. Wenn Sie aus dieser Wallet eine Verlaufssicherung exportiert haben, importieren Sie sie jetzt, um diese Angaben zurückzuholen. Es ist die .wfeh-Datei, die Sie außerhalb Ihres alten Smartphones geteilt oder gespeichert haben.';
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine Verlaufssicherung bringt den Zahlungsverlauf, die Kontakte, Rechnungen und Einstellungen dieser Wallet zurück. Wenn Sie eine exportiert haben, importieren Sie sie jetzt: Es ist die Datei, die Sie außerhalb Ihres alten Smartphones geteilt oder gespeichert haben.';
 
   @override
   String get restoreImportButton => 'Verlaufssicherung importieren';
@@ -11138,7 +10846,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupExportHint =>
-      'Zahlungen mit ihren Details und Kontakte, in einer Datei, die nur eine Wallet mit dieser Wiederherstellungsphrase öffnet. Die Phrase allein bringt das Guthaben zurück, nicht die Einträge.';
+      'Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen, in einer Datei, die nur eine Wallet mit dieser Wiederherstellungsphrase öffnet. Die Phrase allein bringt das Guthaben zurück, nicht diese.';
 
   @override
   String get deskSetBackupExporting => 'Wird exportiert…';
@@ -11151,7 +10859,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupImportHint =>
-      'Führt eine Sicherung dieser Wallet in die Aktivität zusammen. Nichts wird entfernt; dieselbe Datei zweimal ändert nichts.';
+      'Bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet aus einer Sicherung zurück. Nichts wird entfernt; dieselbe Datei zweimal ändert nichts.';
 
   @override
   String get deskSetBackupImportButton => 'Importieren…';
@@ -11194,32 +10902,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupInFileSub =>
-      'Wer was gezahlt hat, Gebühren, Notizen, Slate-IDs';
+      'Wer was gezahlt hat, Gebühren, Notizen und Bezeichnungen; Rechnungen; Einstellungen';
 
   @override
   String get deskSetBackupNotIn => 'Nicht enthalten';
 
   @override
   String get deskSetBackupNotInValue =>
-      'Schlüssel, Wiederherstellungsphrase, Passwort';
+      'Wiederherstellungsphrase, Schlüssel, Passwort';
 
   @override
   String get deskSetBackupOpensWith => 'Öffnen mit';
 
   @override
   String get deskSetBackupOpensWithValue =>
-      'Dieser Wallet oder einer aus ihrer Phrase wiederhergestellten Wallet';
+      'Diese Wallet oder eine aus ihrer Wiederherstellungsphrase wiederhergestellte Wallet';
 
   @override
   String get deskSetBackupFile => 'Datei';
 
   @override
   String get deskSetBackupFileNote =>
-      'Die Datei enthält die Zahlungen bis jetzt. Exportieren Sie nach neuen Zahlungen erneut.';
+      'Die Datei enthält alles bis jetzt. Exportieren Sie nach neuen Zahlungen oder Änderungen erneut.';
 
   @override
   String get deskSetBackupExportDesc =>
-      'Eine Datei mit den Zahlungen dieser Wallet, ihren Details und den Kontakten. Nur eine Wallet mit derselben Wiederherstellungsphrase öffnet sie.';
+      'Eine Datei mit Zahlungsverlauf, Kontakten, Rechnungen und Einstellungen dieser Wallet. Allein kann sie die Wallet nicht wiederherstellen: zuerst aus der Wiederherstellungsphrase wiederherstellen, dann diese Datei importieren.';
 
   @override
   String get deskSetBackupSaved => 'Gespeichert';
@@ -11242,29 +10950,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupOpenDialogTitle => 'Verlaufssicherung öffnen';
-
-  @override
-  String get deskSetBackupDetailsRestored => 'Details wiederhergestellt';
-
-  @override
-  String get deskSetBackupDetailsRestoredSub =>
-      'Vorhandene Zahlungen haben Gegenseite, Gebühr oder Notiz zurückbekommen';
-
-  @override
-  String get deskSetBackupOlderAdded => 'Ältere Zahlungen hinzugefügt';
-
-  @override
-  String get deskSetBackupOlderAddedSub =>
-      'Nicht mehr in der Liste; angezeigt als „Aus Sicherung“';
-
-  @override
-  String get deskSetBackupContactsAdded => 'Kontakte hinzugefügt';
-
-  @override
-  String get deskSetBackupAlreadyHere => 'Schon vorhanden';
-
-  @override
-  String get deskSetBackupUnchanged => 'Unverändert';
 
   @override
   String get deskSetBackupNothingNew => 'Nichts Neues';
@@ -11290,14 +10975,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupBringsBackValue =>
-      'Wer was gezahlt hat, Gebühren und Notizen vorhandener Zahlungen; ältere Zahlungen, die der Liste fehlen; Kontakte';
+      'Zahlungsdetails und Notizen, ältere Zahlungen, die der Liste fehlen, Kontakte, Rechnungen und Einstellungen';
 
   @override
   String get deskSetBackupNeeds => 'Benötigt';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase), im $network';
+    return 'Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase), im $network. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.';
   }
 
   @override
@@ -11312,7 +10997,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupImportDesc =>
-      'Führt eine Verlaufssicherung dieser Wallet in die Aktivität zusammen. Nichts wird entfernt, und dieselbe Datei zweimal ändert nichts.';
+      'Bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet zurück. Nichts wird entfernt, und dieselbe Datei zweimal ändert nichts.';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'Zahlungen als CSV speichern';
@@ -16147,14 +15832,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairYourNamePlaceholder => 'Ihr Name';
 
   @override
-  String get restoreDone => 'Verlauf wiederhergestellt.';
-
-  @override
-  String restoreDoneBody(int payments, int contacts, int pairings) {
-    return '$payments Zahlungen, $contacts Kontakte und $pairings Kopplungen sind zurück.';
-  }
-
-  @override
   String get deskConPickForPairing =>
       'Die Kopplung kommt zu dem Kontakt, den Sie wählen.';
 
@@ -16669,11 +16346,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'Zahlungsdetails zurückholen?';
+  String get deskOvRestoredImportTitle =>
+      'Verlauf und Einstellungen zurückholen?';
 
   @override
   String get deskOvRestoredImportBody =>
-      'Die Blockchain enthält das Guthaben, aber nicht, wer bezahlt wurde, Gebühren oder Notizen. Eine aus dieser Wallet exportierte Verlaufssicherung holt sie zurück: die .wfeh-Datei, die außerhalb des alten Computers gespeichert wurde.';
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.';
 
   @override
   String get deskOvRestoredImportButton => 'Verlaufssicherung importieren';
@@ -16817,4 +16495,150 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get reqQrWrongReply =>
       'Diese Antwort gehört zu einer anderen Anforderung. Scannen Sie die Antwort auf diese.';
+
+  @override
+  String get backupFileHolds =>
+      'Diese Datei enthält den Zahlungsverlauf, die Kontakte, Rechnungen und Einstellungen dieser Wallet.';
+
+  @override
+  String get backupFileNoPhrase =>
+      'Sie enthält nicht die Wiederherstellungsphrase und kann die Wallet allein nicht wiederherstellen.';
+
+  @override
+  String get backupFileRestoreOrder =>
+      'Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann diese Datei importieren.';
+
+  @override
+  String get backupImportLead =>
+      'Bringt den Zahlungsverlauf, die Kontakte, Rechnungen und Einstellungen dieser Wallet zurück. Stellen Sie die Wallet zuerst aus ihrer Wiederherstellungsphrase wieder her.';
+
+  @override
+  String backupRestoredSummary(String items) {
+    return 'Wiederhergestellt: $items.';
+  }
+
+  @override
+  String get backupListSeparator => ', ';
+
+  @override
+  String get backupListLastSeparator => ' und ';
+
+  @override
+  String backupRestoredPayments(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Zahlungen',
+      one: '1 Zahlung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredNotes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Notizen',
+      one: '1 Notiz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredLabels(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Bezeichnungen',
+      one: '1 Bezeichnung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredContacts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Kontakte',
+      one: '1 Kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredStars(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Favoriten',
+      one: '1 Favorit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredPairings(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Kopplungen',
+      one: '1 Kopplung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredInvoices(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Rechnungen',
+      one: '1 Rechnung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupRestoredSettings => 'Einstellungen';
+
+  @override
+  String get backupRestoredWalletName => 'der Wallet-Name';
+
+  @override
+  String backupRestoredAlreadyHere(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Einträge waren bereits vorhanden.',
+      one: '1 Eintrag war bereits vorhanden.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupSettingsTitle =>
+      'Einstellungen aus dieser Sicherung übernehmen?';
+
+  @override
+  String backupSettingsBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Einstellungen hier unterscheiden sich von der Sicherung.',
+      one: '1 Einstellung hier unterscheidet sich von der Sicherung.',
+    );
+    return '$_temp0 Der Rest der Sicherung ist bereits importiert.';
+  }
+
+  @override
+  String get backupSettingsUseBackup => 'Die der Sicherung';
+
+  @override
+  String get backupSettingsKeepMine => 'Meine behalten';
+
+  @override
+  String get backupFromOtherWallet =>
+      'Diese Datei gehört zu einer anderen Wallet. Nur die aus derselben Wiederherstellungsphrase wiederhergestellte Wallet kann sie öffnen.';
 }

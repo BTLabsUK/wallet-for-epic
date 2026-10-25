@@ -413,7 +413,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorHistoryDamaged => '此交易记录备份已损坏。';
 
   @override
-  String get errorHistoryOtherWallet => '此交易记录备份属于另一个钱包。';
+  String get errorHistoryOtherWallet => '此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
@@ -990,7 +990,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupExportTitle => '导出交易记录备份';
 
   @override
-  String get historyBackupExportNote => '交易记录备份包含截至目前的付款。有新付款后请重新导出。';
+  String get historyBackupExportNote => '备份包含截至目前的全部内容。有新付款或更改后请重新导出。';
 
   @override
   String get historyBackupCsvTitle => '导出 CSV';
@@ -1003,7 +1003,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupCsvConfirm => '导出 CSV';
 
   @override
-  String get historyBackupImportedTitle => '已导入交易记录备份';
+  String get historyBackupImportedTitle => '已导入备份';
 
   @override
   String historyBackupImportFailed(String reason) {
@@ -1012,262 +1012,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get historyBackupImportNothingNew => '备份中没有新内容。';
-
-  @override
-  String historyBackupImportMerged(int merged) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    return '$_temp0。';
-  }
-
-  @override
-  String historyBackupImportAdded(int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    return '$_temp0。';
-  }
-
-  @override
-  String historyBackupImportMergedAdded(int merged, int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportSkipped(int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    return '$_temp0。';
-  }
-
-  @override
-  String historyBackupImportMergedSkipped(int merged, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportAddedSkipped(int added, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    return '$_temp0，$_temp1，$_temp2。';
-  }
-
-  @override
-  String historyBackupImportContacts(int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0。';
-  }
-
-  @override
-  String historyBackupImportMergedContacts(int merged, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportAddedContacts(int added, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1，$_temp2。';
-  }
-
-  @override
-  String historyBackupImportSkippedContacts(int skipped, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1。';
-  }
-
-  @override
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1，$_temp2。';
-  }
-
-  @override
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1，$_temp2。';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged 笔付款已恢复详情',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '已添加 $added 笔较早的付款',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped 条记录已存在',
-    );
-    String _temp3 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '已添加 $contacts 个联系人',
-    );
-    return '$_temp0，$_temp1，$_temp2，$_temp3。';
-  }
 
   @override
   String get homeLockTooltip => '锁定钱包';
@@ -2181,7 +1925,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '钱包数据库已损坏，并已根据助记词重建。扫描会找回资金；付款详情、备注和标签只能从交易记录备份中找回。';
 
   @override
-  String get restoreRebuiltImportText => '交易记录备份可找回付款对象、备注和标签。';
+  String get restoreRebuiltImportText => '交易记录备份可找回交易记录、联系人、账单和设置。';
 
   @override
   String get restoreReplaceLead =>
@@ -2214,9 +1958,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportCarries => '备份还包含联系人及其星标。账单和设置不在其中。';
-
-  @override
   String get restoreDoneIconLabel => '完成';
 
   @override
@@ -2224,7 +1965,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      '区块链上保存着你的余额，但不包含付款对象、手续费和备注。如果你曾从这个钱包导出交易记录备份，现在导入即可找回这些信息。它就是你分享或保存到旧手机以外的 .wfeh 文件。';
+      '助记词已找回余额。交易记录备份可找回这个钱包的交易记录、联系人、账单和设置。如果你曾导出过，现在就导入：它就是你分享或保存到旧手机以外的那个文件。';
 
   @override
   String get restoreImportButton => '导入交易记录备份';
@@ -10415,7 +10156,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupExportHint =>
-      '包含付款及其详情和联系人，只有使用同一助记词的钱包才能打开此文件。仅凭助记词只能恢复余额，无法恢复这些记录。';
+      '交易记录、联系人、账单和设置，存在只有持这个助记词的钱包才能打开的文件里。助记词本身只找回余额，找不回这些。';
 
   @override
   String get deskSetBackupExporting => '正在导出…';
@@ -10428,7 +10169,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupImportHint =>
-      '把本钱包的备份合并到“活动”中。不会删除任何内容；同一文件导入两次不会有变化。';
+      '从备份找回这个钱包的交易记录、联系人、账单和设置。不会删除任何内容；同一文件导入两次不会有变化。';
 
   @override
   String get deskSetBackupImportButton => '导入…';
@@ -10467,28 +10208,29 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetBackupInFileSub => '谁付了什么、手续费、备注、Slate ID';
+  String get deskSetBackupInFileSub => '谁付了什么、手续费、备注和标签；账单；设置';
 
   @override
   String get deskSetBackupNotIn => '不包含';
 
   @override
-  String get deskSetBackupNotInValue => '密钥、助记词、密码';
+  String get deskSetBackupNotInValue => '助记词、密钥、密码';
 
   @override
   String get deskSetBackupOpensWith => '可打开的钱包';
 
   @override
-  String get deskSetBackupOpensWithValue => '本钱包，或用其助记词恢复的钱包';
+  String get deskSetBackupOpensWithValue => '这个钱包，或用它的助记词恢复的钱包';
 
   @override
   String get deskSetBackupFile => '文件';
 
   @override
-  String get deskSetBackupFileNote => '文件包含截至目前的付款。有新付款后请再次导出。';
+  String get deskSetBackupFileNote => '文件包含截至目前的全部内容。有新付款或更改后请重新导出。';
 
   @override
-  String get deskSetBackupExportDesc => '包含本钱包的付款、详情和联系人的文件。只有使用同一助记词的钱包才能打开它。';
+  String get deskSetBackupExportDesc =>
+      '包含这个钱包的交易记录、联系人、账单和设置的文件。它无法单独恢复钱包：先用助记词恢复，再导入此文件。';
 
   @override
   String get deskSetBackupSaved => '已保存';
@@ -10513,27 +10255,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupOpenDialogTitle => '打开交易记录备份';
 
   @override
-  String get deskSetBackupDetailsRestored => '已恢复详情';
-
-  @override
-  String get deskSetBackupDetailsRestoredSub => '已有的付款找回了对方、手续费或备注';
-
-  @override
-  String get deskSetBackupOlderAdded => '已添加较早的付款';
-
-  @override
-  String get deskSetBackupOlderAddedSub => '已不在列表中；显示为“来自备份”';
-
-  @override
-  String get deskSetBackupContactsAdded => '已添加联系人';
-
-  @override
-  String get deskSetBackupAlreadyHere => '已存在';
-
-  @override
-  String get deskSetBackupUnchanged => '未改动';
-
-  @override
   String get deskSetBackupNothingNew => '没有新内容';
 
   @override
@@ -10556,14 +10277,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupBringsBack => '可找回';
 
   @override
-  String get deskSetBackupBringsBackValue => '已有付款的付款人、手续费和备注；列表中丢失的较早付款；联系人';
+  String get deskSetBackupBringsBackValue => '付款详情和备注、列表中丢失的较早付款、联系人、账单和设置';
 
   @override
   String get deskSetBackupNeeds => '需要';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return '来自本钱包（同一助记词）的文件，网络为 $network';
+    return '这个钱包（同一助记词）在$network上导出的文件。请先用助记词恢复钱包。';
   }
 
   @override
@@ -10577,7 +10298,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupImportDesc =>
-      '把本钱包的交易记录备份合并到“活动”中。不会删除任何内容，同一文件导入两次也不会有变化。';
+      '找回这个钱包的交易记录、联系人、账单和设置。不会删除任何内容，同一文件导入两次也不会有变化。';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => '将付款保存为 CSV';
@@ -15105,14 +14826,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairYourNamePlaceholder => '你的名字';
 
   @override
-  String get restoreDone => '历史已恢复。';
-
-  @override
-  String restoreDoneBody(int payments, int contacts, int pairings) {
-    return '已恢复 $payments 笔付款、$contacts 个联系人和 $pairings 个配对。';
-  }
-
-  @override
   String get deskConPickForPairing => '配对将添加到你选择的联系人。';
 
   @override
@@ -15582,11 +15295,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => '找回付款详情？';
+  String get deskOvRestoredImportTitle => '找回记录和设置？';
 
   @override
   String get deskOvRestoredImportBody =>
-      '区块链上保存着余额，但不包含付款对象、手续费和备注。从这个钱包导出的交易记录备份可以找回它们：即保存在旧电脑以外的 .wfeh 文件。';
+      '助记词已找回余额。从这个钱包导出的交易记录备份可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。';
 
   @override
   String get deskOvRestoredImportButton => '导入交易记录备份';
@@ -15718,4 +15431,135 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reqQrWrongReply => '此回复属于另一个请求。请扫描针对这个请求的回复。';
+
+  @override
+  String get backupFileHolds => '此文件包含这个钱包的交易记录、联系人、账单和设置。';
+
+  @override
+  String get backupFileNoPhrase => '它不包含助记词，也无法单独恢复钱包。';
+
+  @override
+  String get backupFileRestoreOrder => '恢复时：先输入助记词，再导入此文件。';
+
+  @override
+  String get backupImportLead => '找回这个钱包的交易记录、联系人、账单和设置。请先用助记词恢复钱包。';
+
+  @override
+  String backupRestoredSummary(String items) {
+    return '已恢复：$items。';
+  }
+
+  @override
+  String get backupListSeparator => '、';
+
+  @override
+  String get backupListLastSeparator => '和';
+
+  @override
+  String backupRestoredPayments(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 笔付款',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredNotes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 条备注',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredLabels(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个标签',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredContacts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个联系人',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredStars(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个星标联系人',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredPairings(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个配对',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredInvoices(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 张账单',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupRestoredSettings => '设置';
+
+  @override
+  String get backupRestoredWalletName => '钱包名称';
+
+  @override
+  String backupRestoredAlreadyHere(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 条记录已存在。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupSettingsTitle => '使用此备份中的设置？';
+
+  @override
+  String backupSettingsBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '这里有 $n 项设置与备份不同。',
+    );
+    return '$_temp0备份的其余内容已导入。';
+  }
+
+  @override
+  String get backupSettingsUseBackup => '使用备份的';
+
+  @override
+  String get backupSettingsKeepMine => '保留我的';
+
+  @override
+  String get backupFromOtherWallet => '此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。';
 }

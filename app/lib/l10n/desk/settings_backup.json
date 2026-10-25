@@ -87,7 +87,7 @@
   "@deskSetBackupExportTitle": {
     "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
   },
-  "deskSetBackupExportHint": "Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.",
+  "deskSetBackupExportHint": "Payment history, contacts, invoices and settings, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not these.",
   "@deskSetBackupExportHint": {
     "description": "Settings > Backup: hint under the Export history backup row."
   },
@@ -103,7 +103,7 @@
   "@deskSetBackupImportTitle": {
     "description": "Settings > Backup: row title and dialog title for importing a history backup file."
   },
-  "deskSetBackupImportHint": "Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.",
+  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.",
   "@deskSetBackupImportHint": {
     "description": "Settings > Backup: hint under the Import history backup row."
   },
@@ -147,7 +147,7 @@
       }
     }
   },
-  "deskSetBackupInFileSub": "Who paid what, fees, notes, slate ids",
+  "deskSetBackupInFileSub": "Who paid what, fees, notes and labels; invoices; settings",
   "@deskSetBackupInFileSub": {
     "description": "Export history dialog: small text under the counts of what the file holds."
   },
@@ -155,7 +155,7 @@
   "@deskSetBackupNotIn": {
     "description": "Export history dialog: label of the row listing what the file does not hold. Narrow label column."
   },
-  "deskSetBackupNotInValue": "Keys, the recovery phrase, the password",
+  "deskSetBackupNotInValue": "The recovery phrase, keys, the password",
   "@deskSetBackupNotInValue": {
     "description": "Export history dialog: what the file does not contain."
   },
@@ -163,7 +163,7 @@
   "@deskSetBackupOpensWith": {
     "description": "Export history dialog: label of the row saying which wallet can open the file. Narrow label column."
   },
-  "deskSetBackupOpensWithValue": "This wallet, or one restored from its phrase",
+  "deskSetBackupOpensWithValue": "This wallet, or one restored from its recovery phrase",
   "@deskSetBackupOpensWithValue": {
     "description": "Export history dialog: which wallets can open the file."
   },
@@ -171,11 +171,11 @@
   "@deskSetBackupFile": {
     "description": "Export dialog: label of the row with the file name. Narrow label column."
   },
-  "deskSetBackupFileNote": "The file holds payments up to now. Export again after new payments.",
+  "deskSetBackupFileNote": "The file holds everything up to now. Export again after new payments or changes.",
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
-  "deskSetBackupExportDesc": "A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.",
+  "deskSetBackupExportDesc": "A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.",
   "@deskSetBackupExportDesc": {
     "description": "Export history dialog: description under the title."
   },
@@ -206,34 +206,6 @@
   "deskSetBackupOpenDialogTitle": "Open history backup",
   "@deskSetBackupOpenDialogTitle": {
     "description": "Title of the system Open dialog when importing a history backup."
-  },
-  "deskSetBackupDetailsRestored": "Details restored",
-  "@deskSetBackupDetailsRestored": {
-    "description": "Import result tile title: count of payments that got details back."
-  },
-  "deskSetBackupDetailsRestoredSub": "Payments already here got their counterparty, fee or note back",
-  "@deskSetBackupDetailsRestoredSub": {
-    "description": "Import result tile text under \"Details restored\"."
-  },
-  "deskSetBackupOlderAdded": "Older payments added",
-  "@deskSetBackupOlderAdded": {
-    "description": "Import result tile title: count of payments added from the backup."
-  },
-  "deskSetBackupOlderAddedSub": "Not in the list any more; shown as From backup",
-  "@deskSetBackupOlderAddedSub": {
-    "description": "Import result tile text under \"Older payments added\". \"From backup\" is a label shown in Activity."
-  },
-  "deskSetBackupContactsAdded": "Contacts added",
-  "@deskSetBackupContactsAdded": {
-    "description": "Import result tile title: count of contacts added."
-  },
-  "deskSetBackupAlreadyHere": "Already here",
-  "@deskSetBackupAlreadyHere": {
-    "description": "Import result tile title: count of records that were already in the wallet."
-  },
-  "deskSetBackupUnchanged": "Unchanged",
-  "@deskSetBackupUnchanged": {
-    "description": "Import result tile text under \"Already here\"."
   },
   "deskSetBackupNothingNew": "Nothing new",
   "@deskSetBackupNothingNew": {
@@ -269,7 +241,7 @@
   "@deskSetBackupBringsBack": {
     "description": "Import dialog: label of the row saying what the import restores. Narrow label column."
   },
-  "deskSetBackupBringsBackValue": "Who paid what, fees and notes of payments already here; older payments the list lost; contacts",
+  "deskSetBackupBringsBackValue": "Payment details and notes, older payments the list lost, contacts, invoices and settings",
   "@deskSetBackupBringsBackValue": {
     "description": "Import dialog: what the import restores."
   },
@@ -277,7 +249,7 @@
   "@deskSetBackupNeeds": {
     "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
   },
-  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}",
+  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}. Restore the wallet from its phrase first.",
   "@deskSetBackupNeedsValue": {
     "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
     "placeholders": {
@@ -298,7 +270,7 @@
   "@deskSetBackupChooseFile": {
     "description": "Import dialog: button that opens the system Open dialog."
   },
-  "deskSetBackupImportDesc": "Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.",
+  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.",
   "@deskSetBackupImportDesc": {
     "description": "Import history dialog: description under the title."
   },

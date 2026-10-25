@@ -368,6 +368,13 @@ final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
     'replaced': v.replaced,
     'pairingsAdded': v.pairingsAdded,
     'pairingsOtherDevice': v.pairingsOtherDevice,
+    'notesAdded': v.notesAdded,
+    'labelsAdded': v.labelsAdded,
+    'detailsAdded': v.detailsAdded,
+    'invoicesAdded': v.invoicesAdded,
+    'starsAdded': v.starsAdded,
+    'walletName': v.walletName,
+    'settings': v.settings == null ? null : jsonEncode(v.settings),
   },
   (r) => ImportReport(
     merged: r.of('merged', intWire),
@@ -380,6 +387,19 @@ final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
     replaced: r.of('replaced', optInt) ?? 0,
     pairingsAdded: r.of('pairingsAdded', optInt) ?? 0,
     pairingsOtherDevice: r.of('pairingsOtherDevice', optInt) ?? 0,
+    notesAdded: r.of('notesAdded', optInt) ?? 0,
+    labelsAdded: r.of('labelsAdded', optInt) ?? 0,
+    detailsAdded: r.of('detailsAdded', optInt) ?? 0,
+    invoicesAdded: r.of('invoicesAdded', optInt) ?? 0,
+    starsAdded: r.of('starsAdded', optInt) ?? 0,
+    walletName: r.of('walletName', optString),
+    settings: switch (r.of('settings', optString)) {
+      final String text => switch (jsonDecode(text)) {
+        final Map<String, Object?> m => m,
+        _ => null,
+      },
+      null => null,
+    },
   ),
 );
 

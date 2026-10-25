@@ -218,7 +218,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
         HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
-        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、交易消息、联系人和钱包名称。交易记录备份会保存付款详情和联系人：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、备注和标签、联系人、账单、设置和钱包名称。交易记录备份会保存这些：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        const HelpBlock.p('**交易记录备份不是助记词。** 它不含助记词，也无法单独恢复钱包。恢复时：先输入助记词，再导入备份；恢复完成后钱包会立即提示导入。'),
         HelpBlock.p('**余额看起来不对？** 运行$recheckPlace。它会为此钱包的输出重新读取整条区块链。'),
         if (!phone)
           const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),

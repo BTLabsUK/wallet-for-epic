@@ -34,6 +34,7 @@ import 'package:epic_wallet/src/ui/server_list_sheet.dart'
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart' show confirmRemovePairingKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
@@ -434,13 +435,13 @@ void main() {
       expect(h.session.lastStart, mainnetHeightForDate(dayStart));
       expect(find.text('Your wallet is restored'), findsOneWidget);
       expect(
-        find.textContaining('the .wfeh file you shared or saved outside'),
+        find.textContaining('the file you shared or saved outside'),
         findsOneWidget,
       );
 
       h.files.picks.add(await h.session.exportHistory());
       await _tapText(tester, 'Import a history backup');
-      expect(find.text('History imported'), findsOneWidget);
+      expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
       await _tapText(tester, 'OK');
       expect(find.byType(RestoreScreen), findsNothing);
     });
@@ -996,14 +997,9 @@ void main() {
 
       await _tapText(tester, 'Export history backup');
       // Share comes first: the copy that matters is the one off this phone.
-      expect(
-        find.text(
-          'History backups hold payments up to now. Export again after new '
-          'payments.\nIt also holds the contacts and their stars. Invoices and settings are '
-          'not in it.',
-        ),
-        findsOneWidget,
-      );
+      // What the file holds, that it is not the recovery phrase, and the order of a restore.
+      expect(find.text(backupFileNote(englishStrings)), findsOneWidget);
+      expect(backupFileNote(englishStrings), contains('does not hold the recovery phrase'));
       expect(
         tester.getTopLeft(find.text('Share')).dy <
             tester.getTopLeft(find.text('Save to device')).dy,
@@ -1027,12 +1023,12 @@ void main() {
 
       h.files.picks.add(h.files.saved.first.bytes);
       await _tapText(tester, 'Import history backup');
-      expect(find.text('History imported'), findsOneWidget);
+      expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
       await _tapText(tester, 'OK');
 
       // A cancelled pick does nothing.
       await _tapText(tester, 'Import history backup');
-      expect(find.text('History imported'), findsNothing);
+      expect(find.text(englishStrings.historyBackupImportedTitle), findsNothing);
 
       h.session.importError = const WalletError(
         kind: WalletErrorKind.invalidArgument,
@@ -1079,29 +1075,17 @@ void main() {
       expect(h.files.shared, isEmpty);
     });
 
-    test('describes the import counts in words', () {
+    test('one summary says what came back', () {
       expect(
-        describeImport(
-          englishStrings,
-          const ImportReport(merged: 2, added: 1, skipped: 0, contactsAdded: 1),
-        ),
-        '2 payments got their details back, '
-        '1 older payment added, 1 contact added.',
+        backupRestoredText(englishStrings, payments: 12, notes: 1, contacts: 4, pairings: 2, invoices: 3, settings: true),
+        'Restored: 12 payments, 1 note, 4 contacts, 2 pairings, 3 invoices and settings.',
       );
+      expect(backupRestoredText(englishStrings, contacts: 1), 'Restored: 1 contact.');
       expect(
-        describeImport(
-          englishStrings,
-          const ImportReport(merged: 0, added: 0, skipped: 3, contactsAdded: 0),
-        ),
-        '3 records were already here.',
+        backupRestoredText(englishStrings, payments: 2, alreadyHere: 3),
+        'Restored: 2 payments. 3 records were already here.',
       );
-      expect(
-        describeImport(
-          englishStrings,
-          const ImportReport(merged: 0, added: 0, skipped: 0, contactsAdded: 0),
-        ),
-        'The backup held nothing new.',
-      );
+      expect(backupRestoredText(englishStrings, alreadyHere: 3), 'The backup held nothing new.');
     });
   });
 
@@ -1828,7 +1812,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Import history backup'));
+      await _reveal(tester, find.text('Contacts'));
       expect(find.text('Contacts'), findsOneWidget);
       expect(find.text('Who may ask you to pay'), findsNothing);
     });
@@ -1838,7 +1822,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Import history backup'));
+      await _reveal(tester, find.text('Who may ask you to pay'));
       expect(find.text('Who may ask you to pay'), findsOneWidget);
       expect(find.text('Invoice address and trusted services'), findsNothing);
     });

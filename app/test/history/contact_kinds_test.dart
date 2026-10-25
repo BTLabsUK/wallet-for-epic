@@ -121,7 +121,7 @@ void main() {
   test('a file without stars stays as older apps wrote it, and older files read', () {
     final payload = WalletHistory.memory().exportPayload(const [], walletFp: 'fp', appVersion: 't');
     expect(payload.toJson().containsKey('favourites'), isFalse);
-    expect(payload.toJson()['version'], 1);
+    expect(payload.toJson()['version'], 2);
     final old = HistoryPayload.fromJson({
       'format': 'wfe-history',
       'version': 1,
