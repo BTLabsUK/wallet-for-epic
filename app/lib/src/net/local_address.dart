@@ -96,6 +96,34 @@ bool isLocalAddressUrl(String? url) {
   return hostKind(u.host) == HostKind.local;
 }
 
+/// Whether [address] is a literal loopback IP: 127/8 or ::1 (IPv4-mapped judged as IPv4).
+bool isLoopbackIp(String address) {
+  var bytes = _literalBytes(address);
+  if (bytes == null) return false;
+  if (bytes.length == 16 && bytes.sublist(0, 10).every((b) => b == 0) && bytes[10] == 0xff && bytes[11] == 0xff) {
+    bytes = bytes.sublist(12);
+  }
+  if (bytes.length == 4) return bytes[0] == 127;
+  return bytes.sublist(0, 15).every((b) => b == 0) && bytes[15] == 1;
+}
+
+/// Whether [host] is a name only the local network answers for: `.local` (mDNS) or `.lan`. A
+/// node there is looked up before the wallet connects ([resolveLocal]).
+bool isLocalNetworkName(String host) {
+  var h = host.trim().toLowerCase();
+  if (h.endsWith('.')) h = h.substring(0, h.length - 1);
+  return h.endsWith('.local') || h.endsWith('.lan');
+}
+
+/// Whether the node at [url] is on this computer or the local network, as the app judges it
+/// (never status.btlabs.uk, which cannot reach it): a literal local IP, `localhost`, or a
+/// `.local` / `.lan` name.
+bool isLocalNodeUrl(String? url) {
+  if (isLocalAddressUrl(url)) return true;
+  final u = url == null ? null : Uri.tryParse(url.trim());
+  return u != null && u.host.isNotEmpty && isLocalNetworkName(u.host);
+}
+
 /// Looks [host] up: its addresses as strings. `InternetAddress.lookup` on a computer.
 typedef HostLookup = Future<List<String>> Function(String host);
 
