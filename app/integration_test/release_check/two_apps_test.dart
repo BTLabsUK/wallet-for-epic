@@ -12,6 +12,7 @@
 //   (c) Both remove what they hold; face to face by pasting each other's card link.
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/app_log_io.dart' show startLogging;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show PaymentRequestDraft, RequestState;
@@ -23,7 +24,7 @@ import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show EDialog;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/wallet_service.dart' hide Contact;
-import 'package:flutter/material.dart' show SelectableText;
+import 'package:flutter/material.dart' show Scrollable, SelectableText;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -176,6 +177,9 @@ void main() {
     final desk = containerOf(tester).read(deskProvider.notifier);
     await tester.runAsync(() => desk.useNode(nodeUrl));
     await tester.runAsync(() => desk.useEpicbox(relayHost));
+    // Pairing and Invoices are experimental switches, off by default: this check needs both.
+    final settings = containerOf(tester).read(deskProvider).settings;
+    await tester.runAsync(() => desk.saveSettings(settings.copyWith(advanced: settings.advanced.withExperimental(AdvancedFeature.invoices, true))));
     await settle(tester, ms: 5000);
     rc('the wallet uses ${Uri.parse(nodeUrl).host} and $relayHost', hasText(relayHost.replaceFirst(RegExp(r'^epicbox\.(?=.*\.)'), '')), texts().where((t) => t.contains('stackwallet') || t.contains('btlabs')).join(' / '));
     containerOf(tester).read(deskSeenAsProvider.notifier).set(myName);
@@ -316,7 +320,8 @@ void main() {
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
       await settle(tester, ms: 2000);
       // Under the fold since the name field sits above both panels.
-      await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+      // Centred: at the bottom edge a toast can cover it.
+      await Scrollable.ensureVisible(tester.element(find.byKey(deskPairCopyCardKey)), alignment: 0.5);
       await settle(tester, ms: 500);
       await tester.tap(find.byKey(deskPairCopyCardKey));
       // Making a card is a native call: give it its time.
