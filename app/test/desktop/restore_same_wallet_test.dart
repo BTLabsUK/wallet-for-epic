@@ -116,8 +116,9 @@ void main() {
     await tester.tap(find.text('Use 12 words'));
     await _wait(tester);
     expect(find.text('Choose a password'), findsOneWidget);
-    await tester.enterText(find.byType(EditableText).at(0), 'password-1234');
+    // Field 0 is the optional wallet name (R23).
     await tester.enterText(find.byType(EditableText).at(1), 'password-1234');
+    await tester.enterText(find.byType(EditableText).at(2), 'password-1234');
     await tester.pump();
     await tester.tap(find.text('Restore wallet').last);
     await _wait(tester);

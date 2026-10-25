@@ -103,7 +103,7 @@ void flows() {
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
     expect(find.text('Name'), findsNothing);
-    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
+    expect(find.byType(EditableText), findsNWidgets(3), reason: 'the optional wallet name (R23), password and repeat');
     await _end(tester);
   });
 

@@ -214,8 +214,9 @@ void main() {
     await wait(tester, 500);
     await tester.tap(find.text('Use 12 words'));
     await tester.pump();
-    await tester.enterText(field(0), 'longpassword');
+    // Field 0 is the optional wallet name (R23).
     await tester.enterText(field(1), 'longpassword');
+    await tester.enterText(field(2), 'longpassword');
     await tester.pump();
     await tester.tap(find.text('Restore wallet').last);
     await wait(tester, 5000);

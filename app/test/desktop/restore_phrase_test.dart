@@ -310,7 +310,7 @@ void main() {
     await tester.tap(find.text('Use 24 words'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
-    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and confirmation only');
+    expect(find.byType(EditableText), findsNWidgets(3), reason: 'the optional wallet name (R23), password and confirmation');
   });
 
   testWidgets('pasting 12 words sets the count to 12 with no error', (tester) async {

@@ -263,6 +263,16 @@ void main() {
       expect(await client.pinFailures(config: config), 0);
     });
 
+    test('resetPassword', () async {
+      fake.existingWallets.add(config.dataDir);
+      await client.resetPassword(config: config, mnemonic: fake.phrase, newPassword: 'brand-new-pass');
+      expect(fake.passwordResets, [config.dataDir]);
+      await expectLater(
+        client.resetPassword(config: config, mnemonic: 'not a phrase', newPassword: 'brand-new-pass'),
+        throwsKind(WalletErrorKind.invalidMnemonic),
+      );
+    });
+
     test('deleteWallet', () async {
       fake.existingWallets.add(config.dataDir);
       await client.deleteWallet(config: config);

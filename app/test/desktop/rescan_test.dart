@@ -428,14 +428,19 @@ void main() {
       expect(session.scanStarts, [null, null]);
     });
 
-    test('a failed due scan shows as failed and stays due', () async {
+    test('a failed due scan shows as failed and stays due; a node that does not answer is waiting for the network', () async {
       await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '));
       session.restoreScanPending = true;
-      session.scanError = const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'no answer');
+      session.scanError = const core.WalletError(kind: core.WalletErrorKind.io, message: 'disk');
       expect(await wallet.unlock(_password), isTrue);
       await wallet.sync();
       expect((await wallet.status()).restoreScan?.state, RestoreScanState.failed);
       expect(await pending(), isTrue);
+      session.scanError = const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'no answer');
+      await wallet.sync();
+      final waits = (await wallet.status()).restoreScan;
+      expect(waits?.state, RestoreScanState.waiting);
+      expect(waits?.offline, isFalse);
     });
 
     test('a finished Recheck forgets the restore\'s start height (R21); the scan from block 0 the core still owes follows', () async {
