@@ -15698,8 +15698,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactsImportDo => 'นำเข้า';
 
   @override
-  String get contactsImportNothing =>
-      'ไม่มีอะไรให้นำเข้า ผู้ติดต่อเหล่านี้มีอยู่แล้วทั้งหมด';
+  String get contactsImportNothing => 'ไม่มีอะไรให้นำเข้า';
 
   @override
   String contactsImported(int added, int same) {

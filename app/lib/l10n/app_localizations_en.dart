@@ -15998,8 +15998,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsImportDo => 'Import';
 
   @override
-  String get contactsImportNothing =>
-      'Nothing to import. These contacts are all here already.';
+  String get contactsImportNothing => 'Nothing to import.';
 
   @override
   String contactsImported(int added, int same) {

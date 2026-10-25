@@ -16493,8 +16493,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactsImportDo => 'Importuj';
 
   @override
-  String get contactsImportNothing =>
-      'Nie ma czego importować. Wszystkie te kontakty są już zapisane.';
+  String get contactsImportNothing => 'Nie ma czego importować.';
 
   @override
   String contactsImported(int added, int same) {

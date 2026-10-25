@@ -16456,8 +16456,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsImportDo => 'Импортировать';
 
   @override
-  String get contactsImportNothing =>
-      'Импортировать нечего. Все эти контакты уже сохранены.';
+  String get contactsImportNothing => 'Импортировать нечего.';
 
   @override
   String contactsImported(int added, int same) {

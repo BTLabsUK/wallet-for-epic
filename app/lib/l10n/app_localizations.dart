@@ -25148,10 +25148,10 @@ abstract class AppLocalizations {
   /// **'Import'**
   String get contactsImportDo;
 
-  /// Import confirm, when every contact in the file is already here: nothing to import.
+  /// Import confirm, when the file adds nothing; the lines under it say what is already here or left out.
   ///
   /// In en, this message translates to:
-  /// **'Nothing to import. These contacts are all here already.'**
+  /// **'Nothing to import.'**
   String get contactsImportNothing;
 
   /// Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.

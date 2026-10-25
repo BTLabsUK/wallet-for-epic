@@ -15148,7 +15148,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsImportDo => '导入';
 
   @override
-  String get contactsImportNothing => '没有可导入的内容。这些联系人都已存在。';
+  String get contactsImportNothing => '没有可导入的内容。';
 
   @override
   String contactsImported(int added, int same) {
