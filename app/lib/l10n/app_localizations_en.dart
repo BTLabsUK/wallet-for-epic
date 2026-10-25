@@ -16448,7 +16448,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetupMarkNotCleared(String reason) {
-    return 'Setup could not be marked as done: $reason. It may open again at the next start; Skip setup leaves it.';
+    return 'Setup could not be marked as done: $reason. It may open again at the next start; Skip setup closes it.';
   }
 
   @override

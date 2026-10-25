@@ -16620,7 +16620,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskOnbForgotLead(String name) {
-    return 'Die Wiederherstellungsphrase von $name ersetzt das Passwort. Verlauf, Notizen und Labels bleiben erhalten; kein Scan nötig.';
+    return 'Die Wiederherstellungsphrase von $name ersetzt das Passwort. Verlauf, Notizen und Bezeichnungen bleiben erhalten; kein Scan nötig.';
   }
 
   @override
@@ -16644,7 +16644,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetupMarkNotCleared(String reason) {
-    return 'Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: $reason. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ verlässt sie.';
+    return 'Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: $reason. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ schließt sie.';
   }
 
   @override

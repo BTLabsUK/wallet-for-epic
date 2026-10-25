@@ -16956,7 +16956,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetupMarkNotCleared(String reason) {
-    return 'Nie udało się zapisać, że konfiguracja jest ukończona: $reason. Może otworzyć się ponownie przy następnym uruchomieniu; Pomiń konfigurację ją zamyka.';
+    return 'Nie udało się zapisać, że konfiguracja jest ukończona: $reason. Może otworzyć się ponownie przy następnym uruchomieniu; „Pomiń konfigurację” ją zamyka.';
   }
 
   @override

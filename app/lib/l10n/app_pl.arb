@@ -4323,7 +4323,7 @@
   "deskOnbSameNewPassword": "Ustaw nowe hasło",
   "deskSetupSkip": "Pomiń konfigurację",
   "deskSetupSkipKeeps": "Pominięcie zachowuje obecne ustawienia węzła i Epicbox.",
-  "deskSetupMarkNotCleared": "Nie udało się zapisać, że konfiguracja jest ukończona: {reason}. Może otworzyć się ponownie przy następnym uruchomieniu; Pomiń konfigurację ją zamyka.",
+  "deskSetupMarkNotCleared": "Nie udało się zapisać, że konfiguracja jest ukończona: {reason}. Może otworzyć się ponownie przy następnym uruchomieniu; „Pomiń konfigurację” ją zamyka.",
   "deskOvRestoredImportTitle": "Przywrócić szczegóły płatności?",
   "deskOvRestoredImportBody": "Łańcuch bloków przechowuje saldo, ale nie odbiorców płatności, opłaty ani notatki. Przywraca je kopia historii wyeksportowana z tego portfela: plik .wfeh zapisany poza starym komputerem.",
   "deskOvRestoredImportButton": "Importuj kopię historii",

@@ -25823,7 +25823,7 @@ abstract class AppLocalizations {
   /// Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.
   ///
   /// In en, this message translates to:
-  /// **'Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup leaves it.'**
+  /// **'Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup closes it.'**
   String deskSetupMarkNotCleared(String reason);
 
   /// Title of the history-backup offer after the first unlock of a restored wallet.

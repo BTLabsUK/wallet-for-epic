@@ -21782,7 +21782,7 @@
   "@deskSetupSkipKeeps": {
     "description": "Helper line next to Skip; deskSetupLaterNote follows it."
   },
-  "deskSetupMarkNotCleared": "Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup leaves it.",
+  "deskSetupMarkNotCleared": "Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup closes it.",
   "@deskSetupMarkNotCleared": {
     "description": "Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.",
     "placeholders": {
