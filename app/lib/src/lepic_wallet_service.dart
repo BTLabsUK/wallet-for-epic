@@ -1692,10 +1692,8 @@ class LepicWalletSession implements WalletSession {
     if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
   }
 
-  /// Until the binding carries `restore_scan_required` (LEPIC fix/restore-scan), the app learns
-  /// of the flag from the core's refusals only, so this answers false.
   @override
-  Future<bool> restoreScanRequired() async => false;
+  Future<bool> restoreScanRequired() => _guard(_wallet.restoreScanRequired);
 
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.
