@@ -1,11 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "ออกใบแจ้งหนี้",
-  "deskInvIssuerFirstTitle": "ก่อนออกใบแจ้งหนี้ใบแรก",
-  "deskInvIssuerYourAddress": "ที่อยู่รับเงินของคุณ",
-  "deskInvIssuerMethod": "วิธีส่ง",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "โดยตรง · ไฟล์",
-  "deskInvIssuerDirect": "ลิงก์",
   "deskInvIssuerSoon": "เร็วๆ นี้",
   "deskInvIssuerNoContacts": "ยังไม่มีผู้ติดต่อที่มีที่อยู่ใบแจ้งหนี้ เพิ่มได้ในผู้ติดต่อ",
   "deskInvIssuerAmount": "จำนวน",

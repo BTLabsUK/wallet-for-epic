@@ -24902,24 +24902,6 @@ abstract class AppLocalizations {
   /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
   String get helpPairRestoreP4;
 
-  /// Label above the address in a contact's detail, for an Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox address'**
-  String get deskConAddrEpicbox;
-
-  /// Label above the address in a contact's detail, for a Tor address.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · Tor address'**
-  String get deskConAddrTor;
-
-  /// Label above the address in a contact's detail, for an HTTP address.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP address'**
-  String get deskConAddrHttp;
-
   /// Title of the form that asks someone to pay you.
   ///
   /// In en, this message translates to:

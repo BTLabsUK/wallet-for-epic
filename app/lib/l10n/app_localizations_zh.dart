@@ -14935,15 +14935,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。';
 
   @override
-  String get deskConAddrEpicbox => 'Epicbox 地址';
-
-  @override
-  String get deskConAddrTor => '链接 · Tor 地址';
-
-  @override
-  String get deskConAddrHttp => '链接 · HTTP 地址';
-
-  @override
   String get deskInvIssuerFormTitle => '开具账单';
 
   @override

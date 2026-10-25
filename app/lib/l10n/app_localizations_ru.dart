@@ -16195,15 +16195,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Используйте сопряжение только на одном устройстве за раз. Копия, восстановленная на втором устройстве, спросит, прежде чем использовать там контакты.';
 
   @override
-  String get deskConAddrEpicbox => 'Адрес Epicbox';
-
-  @override
-  String get deskConAddrTor => 'Адрес Ссылка · Tor';
-
-  @override
-  String get deskConAddrHttp => 'Адрес Ссылка · HTTP';
-
-  @override
   String get deskInvIssuerFormTitle => 'Выставить счёт';
 
   @override

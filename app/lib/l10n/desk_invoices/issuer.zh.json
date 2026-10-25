@@ -1,11 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "开具账单",
-  "deskInvIssuerFirstTitle": "首次开具账单之前",
-  "deskInvIssuerYourAddress": "你的收款地址",
-  "deskInvIssuerMethod": "方式",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "直接 · 文件",
-  "deskInvIssuerDirect": "链接",
   "deskInvIssuerSoon": "即将推出",
   "deskInvIssuerNoContacts": "还没有联系人有账单地址。请在“联系人”中添加。",
   "deskInvIssuerAmount": "金额",

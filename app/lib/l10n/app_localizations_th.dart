@@ -15475,15 +15475,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลสำรองที่กู้คืนบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
 
   @override
-  String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
-
-  @override
-  String get deskConAddrTor => 'ที่อยู่ ลิงก์ · Tor';
-
-  @override
-  String get deskConAddrHttp => 'ที่อยู่ ลิงก์ · HTTP';
-
-  @override
   String get deskInvIssuerFormTitle => 'ออกใบแจ้งหนี้';
 
   @override

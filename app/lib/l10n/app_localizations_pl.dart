@@ -16236,15 +16236,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.';
 
   @override
-  String get deskConAddrEpicbox => 'Adres Epicbox';
-
-  @override
-  String get deskConAddrTor => 'Adres Link · Tor';
-
-  @override
-  String get deskConAddrHttp => 'Adres Link · HTTP';
-
-  @override
   String get deskInvIssuerFormTitle => 'Wystaw fakturę';
 
   @override

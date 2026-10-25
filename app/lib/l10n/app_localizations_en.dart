@@ -15765,15 +15765,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
 
   @override
-  String get deskConAddrEpicbox => 'Epicbox address';
-
-  @override
-  String get deskConAddrTor => 'Link · Tor address';
-
-  @override
-  String get deskConAddrHttp => 'Link · HTTP address';
-
-  @override
   String get deskInvIssuerFormTitle => 'Issue an invoice';
 
   @override

@@ -15953,15 +15953,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet.';
 
   @override
-  String get deskConAddrEpicbox => 'Epicbox-Adresse';
-
-  @override
-  String get deskConAddrTor => 'Link · Tor-Adresse';
-
-  @override
-  String get deskConAddrHttp => 'Link · HTTP-Adresse';
-
-  @override
   String get deskInvIssuerFormTitle => 'Rechnung ausstellen';
 
   @override

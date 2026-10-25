@@ -1,11 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "Rechnung ausstellen",
-  "deskInvIssuerFirstTitle": "Vor der ersten Rechnung",
-  "deskInvIssuerYourAddress": "Ihre Zahlungsadresse",
-  "deskInvIssuerMethod": "Methode",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "Direkt · Datei",
-  "deskInvIssuerDirect": "Link",
   "deskInvIssuerSoon": "Demnächst",
   "deskInvIssuerNoContacts": "Noch kein Kontakt hat eine Rechnungsadresse. Fügen Sie sie unter Kontakte hinzu.",
   "deskInvIssuerAmount": "Betrag",

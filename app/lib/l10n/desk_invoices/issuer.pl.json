@@ -1,11 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "Wystaw fakturę",
-  "deskInvIssuerFirstTitle": "Przed pierwszą fakturą",
-  "deskInvIssuerYourAddress": "Twój adres do płatności",
-  "deskInvIssuerMethod": "Metoda",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "Bezpośrednio · Plik",
-  "deskInvIssuerDirect": "Link",
   "deskInvIssuerSoon": "Wkrótce",
   "deskInvIssuerNoContacts": "Żaden kontakt nie ma jeszcze adresu do faktur. Dodaj go w Kontaktach.",
   "deskInvIssuerAmount": "Kwota",

@@ -139,18 +139,6 @@
       }
     }
   },
-  "deskConAddrEpicbox": "Epicbox address",
-  "@deskConAddrEpicbox": {
-    "description": "Label above the address in a contact's detail, for an Epicbox address."
-  },
-  "deskConAddrTor": "Link · Tor address",
-  "@deskConAddrTor": {
-    "description": "Label above the address in a contact's detail, for a Tor address."
-  },
-  "deskConAddrHttp": "Link · HTTP address",
-  "@deskConAddrHttp": {
-    "description": "Label above the address in a contact's detail, for an HTTP address."
-  },
   "deskConNote": "Note",
   "@deskConNote": {
     "description": "Label above the note in a contact's detail; also the label of the note field in the form."

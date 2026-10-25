@@ -1,32 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "Issue an invoice",
-  "@deskInvIssuerFormTitle": {
-    "description": "Title of the form that asks someone to pay you."
-  },
-  "deskInvIssuerFirstTitle": "Before the first invoice",
-  "@deskInvIssuerFirstTitle": {
-    "description": "Panel title: the one-off steps the payer takes before they can be billed."
-  },
-  "deskInvIssuerYourAddress": "Your payments address",
-  "@deskInvIssuerYourAddress": {
-    "description": "Label: this wallet's normal Epicbox address, which the payer must trust."
-  },
-  "deskInvIssuerMethod": "Method",
-  "@deskInvIssuerMethod": {
-    "description": "Label of the choice how the request travels: Epicbox, File, Link."
-  },
-  "deskInvIssuerEpicbox": "Epicbox",
-  "@deskInvIssuerEpicbox": {
-    "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
-  },
-  "deskInvIssuerFile": "Direct · File",
-  "@deskInvIssuerFile": {
-    "description": "Method: the request is saved as a file to hand over."
-  },
-  "deskInvIssuerDirect": "Link",
-  "@deskInvIssuerDirect": {
-    "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
-  },
   "deskInvIssuerSoon": "Coming soon",
   "@deskInvIssuerSoon": {
     "description": "Why a method or button is disabled: not built yet."

@@ -1,11 +1,4 @@
 {
-  "deskInvIssuerFormTitle": "Выставить счёт",
-  "deskInvIssuerFirstTitle": "Перед первым счётом",
-  "deskInvIssuerYourAddress": "Ваш адрес для платежей",
-  "deskInvIssuerMethod": "Способ",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "Напрямую · Файл",
-  "deskInvIssuerDirect": "Ссылка",
   "deskInvIssuerSoon": "Скоро",
   "deskInvIssuerNoContacts": "Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».",
   "deskInvIssuerAmount": "Сумма",
