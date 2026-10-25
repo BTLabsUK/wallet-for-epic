@@ -25,7 +25,7 @@ const int contactsFileVersion = 1;
 
 /// One address book entry as stored.
 class ContactFields {
-  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.note, this.invoiceAddress});
+  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.note});
 
   /// Empty for a contact not saved yet.
   final String id;
@@ -41,8 +41,6 @@ class ContactFields {
   final String? tor;
   final String? note;
 
-  /// Their invoice address, where requests to them go; null when not known.
-  final String? invoiceAddress;
 
   String? of(RecipientKind kind) => switch (kind) {
     RecipientKind.epicbox => epicbox,
@@ -59,7 +57,6 @@ class ContactFields {
     http: http ?? this.http,
     tor: tor ?? this.tor,
     note: note ?? this.note,
-    invoiceAddress: invoiceAddress,
   );
 
   Map<String, Object?> toJson() => {
@@ -69,7 +66,6 @@ class ContactFields {
     if (http != null) 'http': http,
     if (tor != null) 'tor': tor,
     if (note != null) 'note': note,
-    if (invoiceAddress != null) 'invoice_address': invoiceAddress,
   };
 
   /// Null for an entry of the wrong shape.
@@ -78,7 +74,7 @@ class ContactFields {
     String? opt(String k) => j[k] is String && (j[k] as String).trim().isNotEmpty ? j[k] as String : null;
     final id = opt('id'), name = opt('name');
     if (id == null || name == null) return null;
-    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), note: opt('note'), invoiceAddress: opt('invoice_address'));
+    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), note: opt('note'));
   }
 
   @override
@@ -89,11 +85,10 @@ class ContactFields {
       other.epicbox == epicbox &&
       other.http == http &&
       other.tor == tor &&
-      other.note == note &&
-      other.invoiceAddress == invoiceAddress;
+      other.note == note;
 
   @override
-  int get hashCode => Object.hash(id, name, epicbox, http, tor, note, invoiceAddress);
+  int get hashCode => Object.hash(id, name, epicbox, http, tor, note);
 
   @override
   String toString() => 'ContactFields($id, $name, epicbox: $epicbox, http: $http, tor: $tor, note: $note)';
@@ -207,7 +202,7 @@ class ContactStore {
     String? t(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
     final name = t(c.name);
     if (name == null) throw _invalid('the contact needs a name');
-    final out = ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note), invoiceAddress: t(c.invoiceAddress));
+    final out = ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note));
     if (out.addresses.isEmpty) throw _invalid('the contact needs an address');
     return out;
   }

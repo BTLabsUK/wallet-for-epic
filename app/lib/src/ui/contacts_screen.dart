@@ -5,15 +5,35 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../pairing_providers.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
+import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
-import 'contact_sheet.dart';
+import 'contact_page.dart';
+import 'method_names.dart';
+import 'pairing/pair_screen.dart';
+import 'pairing/pairing_parts.dart';
+import 'pairing/pending_invites.dart';
 import 'scan_screen.dart';
+import 'status_icons.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'tour/tour_target.dart';
+
+/// Keys for tests.
+const Key contactsPairKey = ValueKey('contacts-pair');
+const Key contactsPendingKey = ValueKey('contacts-pending');
+const Key contactAddAnotherKey = ValueKey('contact-add-another');
+const Key contactKeepOldKey = ValueKey('contact-keep-old');
+const Key contactReplaceKey = ValueKey('contact-replace');
+
+/// The key of the address field at [index] of the contact form, for tests.
+Key contactAddressFieldKey(int index) => ValueKey('contact-address-$index');
+
+/// The key of the remove button of the address field at [index].
+Key contactAddressRemoveKey(int index) => ValueKey('contact-address-remove-$index');
 
 /// A field's error that screen readers announce as soon as it appears, for
 /// `InputDecoration.error`.
@@ -37,7 +57,9 @@ class LiveFieldError extends StatelessWidget {
   }
 }
 
-/// The address book. With [pick], tapping a contact returns it instead of opening its sheet.
+/// The address book. With [pick], tapping a contact returns it instead of opening its page.
+/// Where the wallet pairs, the app bar offers Pair and the list starts with Pending invites
+/// while any are in flight.
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key, this.pick = false});
 
@@ -67,7 +89,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     return [
       for (final c in sorted)
         if (c.name.toLowerCase().contains(query) ||
-            c.address.toLowerCase().contains(query) ||
+            c.addresses.any((a) => a.toLowerCase().contains(query)) ||
             (c.note?.toLowerCase().contains(query) ?? false))
           c,
     ];
@@ -78,7 +100,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       Navigator.pop(context, contact);
       return;
     }
-    await showContactSheet(context, contact);
+    await openContactPage(context, contact);
   }
 
   Future<void> _add() async {
@@ -88,14 +110,18 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     if (saved != null && widget.pick && mounted) Navigator.pop(context, saved);
   }
 
+  void _pair() => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PairScreen()));
+
   @override
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
     final l = context.l10n;
+    final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
+    final pending = pairs ? ref.watch(pendingPairingsProvider).length : 0;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {
-      AsyncData(:final value) => value.isEmpty,
+      AsyncData(:final value) => value.isEmpty && pending == 0,
       _ => false,
     };
     return SlotScaffold(
@@ -104,6 +130,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       appBar: AppBar(
         title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
         actions: [
+          if (pairs)
+            IconButton(
+              key: contactsPairKey,
+              tooltip: l.pairTitle,
+              icon: const Icon(EpicGlyphs.verified),
+              onPressed: _pair,
+            ),
           IconButton(
             tooltip: l.contactsAdd,
             icon: const Icon(Icons.person_add_alt),
@@ -137,6 +170,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                         label: Text(l.contactsAdd),
                         onPressed: _add,
                       ),
+                      if (pairs) ...[
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                          icon: const Icon(EpicGlyphs.verified, size: 18),
+                          label: Text(l.pairTitle),
+                          onPressed: _pair,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -174,7 +216,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                       ),
                       Expanded(
                         child: switch (contacts) {
-                          AsyncData(:final value) => _list(value),
+                          AsyncData(:final value) => _list(value, pending),
                           AsyncError(:final error) => ListView(
                             padding: const EdgeInsets.all(16),
                             children: [ErrorText(describeError(l, error))],
@@ -191,23 +233,39 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     );
   }
 
-  Widget _list(List<Contact> all) {
+  Widget _list(List<Contact> all, int pending) {
     final contacts = _filter(all);
     final t = context.tokens;
+    final l = context.l10n;
+    final rows = <Widget>[
+      if (pending > 0 && _search.text.trim().isEmpty) ...[
+        ListTile(
+          key: contactsPendingKey,
+          minTileHeight: 64,
+          leading: GlyphTile(size: 40, child: Icon(Icons.schedule, color: t.info)),
+          title: Text(l.pendingTitle),
+          subtitle: Text(l.pendingRowHint(pending)),
+          trailing: Icon(Icons.chevron_right, color: t.dim),
+          onTap: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PendingInvitesScreen())),
+        ),
+        Divider(height: 1, color: t.line),
+      ],
+    ];
     if (contacts.isEmpty) {
       return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
         children: [
-          Text(
-            context.l10n.contactsNoMatchQuery(_search.text.trim()),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: t.dim),
-          ),
+          ...rows,
+          if (all.isNotEmpty)
+            Text(
+              l.contactsNoMatchQuery(_search.text.trim()),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: t.dim),
+            ),
         ],
       );
     }
     final grouped = contacts.length > _groupAbove;
-    final rows = <Widget>[];
     String? letter;
     for (final c in contacts) {
       if (grouped) {
@@ -249,18 +307,23 @@ class _LetterHead extends StatelessWidget {
   }
 }
 
-/// One contact: the initials tile, the name with its tag, the short address, the note.
-class _ContactRow extends StatelessWidget {
+/// One contact: the initials tile, the name with its trust badge (or, unpaired, its address
+/// kind), then what it is reached at: the short address, the kind badges when it has several,
+/// or "Allows invoices"; the note under it.
+class _ContactRow extends ConsumerWidget {
   const _ContactRow({required this.contact, required this.onTap});
 
   final Contact contact;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = context.l10n;
     final theme = Theme.of(context);
     final note = contact.note?.trim();
+    final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
+    final several = contact.kinds.length > 1;
     final address = shortAddress(contact.address);
     final at = address.indexOf('@');
     final mono = TextStyle(
@@ -268,6 +331,29 @@ class _ContactRow extends StatelessWidget {
       fontSize: 13,
       color: t.dim,
     );
+    final Widget reach;
+    if (pairing != null && pairing.allowInvoices) {
+      reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
+    } else if (several) {
+      reach = Wrap(spacing: 4, runSpacing: 4, children: [for (final k in contact.kinds) EBadge.kind(k, l: l)]);
+    } else if (contact.addresses.isEmpty) {
+      reach = const SizedBox.shrink();
+    } else {
+      reach = Text.rich(
+        TextSpan(
+          style: mono,
+          children: [
+            TextSpan(
+              text: at < 0 ? address : address.substring(0, at),
+              style: TextStyle(color: t.text),
+            ),
+            if (at >= 0) TextSpan(text: address.substring(at)),
+          ],
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
@@ -276,7 +362,7 @@ class _ContactRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              ContactTile(name: contact.name),
+              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingKind.person, size: 40),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -294,24 +380,14 @@ class _ContactRow extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        ContactTag(contact.address, compact: true),
+                        if (pairing != null)
+                          Flexible(child: TrustBadge(pairing, short: true))
+                        else if (!several && contact.addresses.isNotEmpty)
+                          Flexible(child: ContactTag(contact.address, compact: true)),
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text.rich(
-                      TextSpan(
-                        style: mono,
-                        children: [
-                          TextSpan(
-                            text: at < 0 ? address : address.substring(0, at),
-                            style: TextStyle(color: t.text),
-                          ),
-                          if (at >= 0) TextSpan(text: address.substring(at)),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    reach,
                     if (note != null && note.isNotEmpty)
                       Text(
                         note,
@@ -332,25 +408,45 @@ class _ContactRow extends StatelessWidget {
   }
 }
 
-/// Adds a contact, prefilled with [address], or edits [contact]. Pops with the saved contact.
+/// One address field of the form: its text and, once checked, the kind it holds.
+class _AddressField {
+  _AddressField([String? text]) : text = TextEditingController(text: text);
+
+  final TextEditingController text;
+  String? error;
+
+  /// The kind another field already holds, when this one was given the same kind: the form
+  /// asks Keep the old one or Replace it.
+  RecipientKind? clash;
+
+  void dispose() => text.dispose();
+}
+
+/// Adds a contact, prefilled with [name] and [address], or edits [contact]. One address per
+/// kind (SPEC 2.5): the kind shows on the field once the address is valid, Add another address
+/// adds a field while a kind is free, and a second address of a kind asks which to keep. Pops
+/// with the saved contact.
 class ContactEditScreen extends ConsumerStatefulWidget {
-  const ContactEditScreen({super.key, this.address, this.contact});
+  const ContactEditScreen({super.key, this.address, this.contact, this.name});
 
   final String? address;
   final Contact? contact;
+  final String? name;
 
   @override
   ConsumerState<ContactEditScreen> createState() => _ContactEditScreenState();
 }
 
 class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
-  late final _name = TextEditingController(text: widget.contact?.name);
-  late final _address = TextEditingController(
-    text: widget.contact?.address ?? widget.address,
-  );
+  late final _name = TextEditingController(text: widget.contact?.name ?? widget.name);
+  late final List<_AddressField> _fields = [
+    if (widget.contact case final c? when c.addresses.isNotEmpty)
+      for (final a in c.addresses) _AddressField(a)
+    else
+      _AddressField(widget.address),
+  ];
   late final _note = TextEditingController(text: widget.contact?.note);
   String? _nameError;
-  String? _addressError;
   String? _error;
   bool _busy = false;
 
@@ -359,60 +455,125 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   @override
   void dispose() {
     _name.dispose();
-    _address.dispose();
+    for (final f in _fields) {
+      f.dispose();
+    }
     _note.dispose();
     super.dispose();
   }
 
-  /// Another contact already saved under the address being entered.
-  Contact? _duplicate(List<Contact> contacts) {
-    final address = parseRecipient(_address.text).address;
-    final other = contactFor(contacts, address);
-    return other == null || other.id == widget.contact?.id ? null : other;
+  /// The kind [f] holds when its text is a valid address, else null.
+  RecipientKind? _kindOf(_AddressField f) {
+    final text = f.text.text.trim();
+    if (text.isEmpty) return null;
+    final l = context.l10n;
+    if (checkContactAddress(l, ref.read(walletServiceProvider), text) != null) return null;
+    return parseRecipient(text).kind;
   }
 
-  Future<void> _paste() async {
+  Set<RecipientKind> get _taken => {for (final f in _fields) ?_kindOf(f)};
+
+  List<RecipientKind> get _free => [for (final k in contactKinds) if (!_taken.contains(k)) k];
+
+  /// After [f] changed: a valid address of a kind another field holds asks which to keep.
+  void _check(_AddressField f) {
+    final kind = _kindOf(f);
+    f.error = null;
+    f.clash = null;
+    if (kind != null && _fields.any((o) => o != f && _kindOf(o) == kind)) f.clash = kind;
+    setState(() {});
+  }
+
+  void _keepOld(_AddressField f) => setState(() {
+    if (_fields.length > 1) {
+      _fields.remove(f);
+      f.dispose();
+    } else {
+      f.text.clear();
+      f.clash = null;
+    }
+  });
+
+  void _replace(_AddressField f) => setState(() {
+    final kind = f.clash;
+    final old = _fields.firstWhere((o) => o != f && _kindOf(o) == kind);
+    old.text.text = f.text.text;
+    _fields.remove(f);
+    f.dispose();
+  });
+
+  void _remove(int i) => setState(() {
+    if (_fields.length > 1) {
+      _fields.removeAt(i).dispose();
+    } else {
+      _fields[i].text.clear();
+      _fields[i].error = null;
+    }
+  });
+
+  void _addField() => setState(() => _fields.add(_AddressField()));
+
+  Future<void> _paste(_AddressField f) async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     final text = data?.text?.trim();
     if (text == null || text.isEmpty) return;
-    _address.text = text;
-    setState(() => _addressError = null);
+    f.text.text = parseRecipient(text).address;
+    _check(f);
   }
 
-  Future<void> _scan() async {
+  Future<void> _scan(_AddressField f) async {
     final text = await ref.read(qrScannerProvider).scan(context);
     if (text == null || !mounted) return;
-    _address.text = parseRecipient(
+    f.text.text = parseRecipient(
       addressOfScan(ref.read(walletServiceProvider), text),
     ).address;
-    setState(() => _addressError = null);
+    _check(f);
+  }
+
+  /// Another contact already saved under one of the addresses being entered.
+  Contact? _duplicate(List<Contact> contacts, _AddressField f) {
+    final text = f.text.text.trim();
+    if (text.isEmpty) return null;
+    final other = contactFor(contacts, parseRecipient(text).address);
+    return other == null || other.id == widget.contact?.id ? null : other;
   }
 
   Future<void> _save() async {
     final l = context.l10n;
     final name = _name.text.trim();
-    final recipient = parseRecipient(_address.text);
+    final service = ref.read(walletServiceProvider);
     setState(() {
       _nameError = name.isEmpty ? l.contactsNameMissing : null;
-      _addressError = checkContactAddress(
-        l,
-        ref.read(walletServiceProvider),
-        _address.text,
-      );
+      for (final f in _fields) {
+        final text = f.text.text.trim();
+        f.error = text.isEmpty ? null : checkContactAddress(l, service, text);
+      }
+      if (_fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
       _error = null;
     });
-    if (_nameError != null || _addressError != null) return;
+    if (_nameError != null || _fields.any((f) => f.error != null || f.clash != null)) return;
     final note = _note.text.trim();
+    String? of(RecipientKind kind) {
+      for (final f in _fields) {
+        final text = f.text.text.trim();
+        if (text.isNotEmpty && parseRecipient(text).kind == kind) return parseRecipient(text).address;
+      }
+      return null;
+    }
+
     setState(() => _busy = true);
     try {
       final saved = await ref
           .read(contactsProvider.notifier)
           .save(
-            // The field edits the contact's first address; its other ones stay.
-            (widget.contact ?? Contact(id: '', name: name))
-                .withAddress(parseRecipient(widget.contact?.address ?? recipient.address).kind, null)
-                .withAddress(recipient.kind, recipient.address)
-                .copyWith(name: name, note: note, clearNote: note.isEmpty),
+            Contact(
+              id: widget.contact?.id ?? '',
+              name: name,
+              epicbox: of(RecipientKind.epicbox),
+              http: of(RecipientKind.http),
+              tor: of(RecipientKind.tor),
+              note: note.isEmpty ? null : note,
+            ),
           );
       if (mounted) Navigator.pop(context, saved);
     } catch (error) {
@@ -425,13 +586,14 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   Future<void> _delete() async {
     final contact = widget.contact;
     if (contact == null) return;
+    final pairing = ref.read(contactPairingProvider(contact.id));
     final sure = await showDialog<bool>(
       context: context,
       builder: (context) {
         final l = context.l10n;
         return AlertDialog(
           title: Text(l.contactsDeleteTitle(contact.name)),
-          content: Text(l.contactsDeleteBody),
+          content: Text(pairing == null ? l.contactsDeleteBody : '${l.contactsDeleteBody}\n\n${l.contactDeletePaired(contact.name)}'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -447,7 +609,10 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     );
     if (sure != true || !mounted) return;
     try {
+      // Deleting a paired contact removes its pairing (C-19).
+      if (pairing != null) await pairingCall(ref, (api) => api.removePairing(pairing.id));
       await ref.read(contactsProvider.notifier).delete(contact.id);
+      // The contact's page under this form closes by itself once the contact is gone.
       if (mounted) Navigator.pop(context);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(context.l10n, error));
@@ -457,9 +622,12 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
-    final duplicate = _duplicate(contacts);
     final scan = offersQrScan(ref);
+    final free = _free;
+    final lastFilled = _fields.isNotEmpty && _fields.last.text.text.trim().isNotEmpty && _kindOf(_fields.last) != null;
+    final shownName = _name.text.trim().isEmpty ? l.contactTitle : _name.text.trim();
     return SlotScaffold(
       appBar: AppBar(
         title: Text(_editing ? l.contactsEditTitle : l.contactsNewTitle),
@@ -476,7 +644,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
         bottom: BusyButton(
           label: l.contactsSave,
           busy: _busy,
-          onPressed: _save,
+          onPressed: _fields.any((f) => f.clash != null) ? null : _save,
         ),
         children: [
           TextField(
@@ -489,52 +657,27 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
               border: const OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _address,
-            autocorrect: false,
-            enableSuggestions: false,
-            minLines: 1,
-            maxLines: null,
-            onChanged: (_) => setState(() => _addressError = null),
-            decoration: InputDecoration(
-              labelText: l.contactsAddressLabel,
-              error: _addressError == null
-                  ? null
-                  : LiveFieldError(_addressError!),
-              border: const OutlineInputBorder(),
-              suffixIcon: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: l.commonPaste,
-                    icon: const Icon(Icons.content_paste),
-                    onPressed: _paste,
-                  ),
-                  if (scan)
-                    IconButton(
-                      tooltip: l.scanQrTooltip,
-                      icon: const Icon(Icons.qr_code_scanner),
-                      onPressed: _scan,
-                    ),
-                ],
+          for (var i = 0; i < _fields.length; i++) ...[
+            const SizedBox(height: 12),
+            _addressField(l, i, scan, shownName, contacts),
+          ],
+          if (lastFilled && free.isNotEmpty) ...[
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: contactAddAnotherKey,
+                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                icon: const Icon(Icons.add),
+                label: Text(l.addrAddAnother),
+                onPressed: _addField,
               ),
             ),
-          ),
-          if (duplicate != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Semantics(
-                liveRegion: true,
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(l.contactsDuplicate(duplicate.name))),
-                  ],
-                ),
+            if (free.length == 1)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 4),
+                child: Text(l.addrOneFree(recipientMethodWord(l, free.single)), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
               ),
-            ),
+          ],
           const SizedBox(height: 12),
           TextField(
             controller: _note,
@@ -547,6 +690,87 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           if (_error != null) ErrorText(_error!),
         ],
       ),
+    );
+  }
+
+  Widget _addressField(AppLocalizations l, int i, bool scan, String shownName, List<Contact> contacts) {
+    final f = _fields[i];
+    final kind = _kindOf(f);
+    final duplicate = _duplicate(contacts, f);
+    final clash = f.clash;
+    final error = clash != null ? l.addrDuplicateType(shownName, recipientMethodWord(l, clash)) : f.error;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          key: contactAddressFieldKey(i),
+          controller: f.text,
+          autocorrect: false,
+          enableSuggestions: false,
+          minLines: 1,
+          maxLines: null,
+          onChanged: (_) => _check(f),
+          decoration: InputDecoration(
+            labelText: kind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, kind)),
+            error: error == null ? null : LiveFieldError(error),
+            border: const OutlineInputBorder(),
+            suffixIcon: kind != null
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      EBadge.kind(kind, l: l),
+                      IconButton(
+                        key: contactAddressRemoveKey(i),
+                        tooltip: l.addrRemove(recipientMethodWord(l, kind)),
+                        icon: const Icon(Icons.close),
+                        onPressed: () => _remove(i),
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: l.commonPaste,
+                        icon: const Icon(Icons.content_paste),
+                        onPressed: () => _paste(f),
+                      ),
+                      if (scan)
+                        IconButton(
+                          tooltip: l.scanQrTooltip,
+                          icon: const Icon(Icons.qr_code_scanner),
+                          onPressed: () => _scan(f),
+                        ),
+                    ],
+                  ),
+          ),
+        ),
+        if (clash != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                OutlinedButton(key: contactKeepOldKey, onPressed: () => _keepOld(f), child: Text(l.addrKeepOld)),
+                FilledButton.tonal(key: contactReplaceKey, onPressed: () => _replace(f), child: Text(l.addrReplace)),
+              ],
+            ),
+          )
+        else if (duplicate != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(l.contactsDuplicate(duplicate.name))),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

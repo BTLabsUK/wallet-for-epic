@@ -10,8 +10,11 @@ import 'dart:typed_data';
 
 import 'history/wallet_history.dart';
 import 'models.dart';
+import 'pairing_api.dart';
+import 'pairing_fake.dart';
 
 export 'models.dart';
+export 'pairing_api.dart';
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 abstract interface class WalletService {
@@ -477,47 +480,25 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
   });
 
-  // Invoices over epicbox (I-01). Trusted services bill the user at a separate invoice
-  // address; each invoice waits for the user. Capabilities, not LEPIC's names: I-04 adapts
-  // them to the binding. Every call below throws [invoicesUnsupported] when this is false.
+  // Invoices over epicbox. Since RFC 0002 an invoice comes only from a paired contact the user
+  // allows ([PairingRecord.allowInvoices], verified), sealed and signed in that contact's
+  // mailbox; each one waits for the user. Every call below throws [invoicesUnsupported] when
+  // this is false.
 
   /// True when this core handles invoices over epicbox.
   bool get supportsInvoices;
 
-  /// The address the user gives services, apart from [epicboxAddress], which keeps taking
-  /// payments from anyone.
-  Future<String> invoiceAddress();
+  /// Pairing (RFC 0002): [PairingApi.supported] says whether this core pairs.
+  PairingApi get pairing;
 
-  /// Moves to a new invoice address and abandons the old one for good. Services must be given
-  /// the new one. Returns it.
-  Future<String> rotateInvoiceAddress();
-
-  /// The derivation index of [invoiceAddress], 1 or higher. A wallet restored from its phrase
-  /// without its history file starts again at 1.
-  Future<int> invoiceAddressIndex();
-
-  /// Services allowed to send invoices, with the user's labels.
-  Future<List<TrustedService>> trustedServices();
-
-  /// Allows the service at [address] (a full epicbox address, validated as one) under
-  /// [label]. Adding one already listed, by key, replaces its address and label.
-  Future<TrustedService> addTrustedService({
-    required String address,
-    required String label,
-  });
-
-  /// Stops the service at [address] from reaching the wallet. Its pending invoices stay until
-  /// answered or expired.
-  Future<void> removeTrustedService({required String address});
-
-  /// Fetches what waits at the invoice address: invoices from trusted services are parked,
-  /// notices applied, everything else dropped unread. Runs on demand only.
+  /// Collects what waits in the paired contacts' mailboxes: invoices from contacts the user
+  /// allows are parked, notices applied, everything else dropped unread. Runs on demand only.
   Future<InvoiceDrainReport> drainInvoices();
 
   /// Parked invoices not yet answered or expired, oldest first.
   Future<List<PendingInvoice>> pendingInvoices();
 
-  /// Pays a pending invoice and sends the reply to the service's address on the list.
+  /// Pays a pending invoice and sends the reply to the contact's mailbox.
   /// [amount] must equal the invoiced amount ([WalletErrorKind.amountMismatch] otherwise).
   /// Call it only after the user approved behind the PIN or biometric gate.
   ///
@@ -959,6 +940,10 @@ class FakeWalletSession implements WalletSession {
 
   WalletSummary summaryValue;
   List<TxEntry> transactionsValue;
+
+  /// The pairing engine's fake, both sides in memory (`pairing_fake.dart`).
+  @override
+  late final FakePairing pairing = FakePairing(this);
   String address = 'esFakeAddress1234567890@epicbox.epiccash.com';
   BigInt fee = BigInt.from(800000);
   Slate sendSlate = const Slate(slateId: 'slate-1', json: '{"id":"slate-1"}');
@@ -1889,7 +1874,6 @@ class FakeWalletSession implements WalletSession {
       note: (contact.note?.trim().isEmpty ?? true)
           ? null
           : contact.note!.trim(),
-      invoiceAddress: contact.invoiceAddress,
     );
     final index = contactsValue.indexWhere((c) => c.id == stored.id);
     if (index >= 0) {
@@ -1912,6 +1896,7 @@ class FakeWalletSession implements WalletSession {
     utf8.encode(
       '$_exportMagic${jsonEncode({
         'notes': notes,
+        'pairings': pairing.exportBackup(),
         'contacts': [
           for (final c in contactsValue)
             {'id': c.id, 'name': c.name, 'epicbox': c.epicbox, 'http': c.http, 'tor': c.tor, 'note': c.note},
@@ -1984,6 +1969,9 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
+  /// Whether a history import treats the file's pairings as used on another device (RFC 9.5).
+  bool importPairingsFromOtherDevice = true;
+
   /// The `useOldWallet` of the last [importLegacyHistory] call.
   Map<String, bool>? lastUseOldWallet;
 
@@ -2043,12 +2031,18 @@ class FakeWalletSession implements WalletSession {
       contactsValue.add(contact);
       contactsAdded++;
     }
+    final pairings = pairing.importBackup(
+      decoded['pairings'] as Map<String, Object?>?,
+      otherDevice: importPairingsFromOtherDevice,
+    );
     return ImportReport(
       merged: 0,
       added: added,
       skipped: skipped,
       contactsAdded: contactsAdded,
       replaced: replaced,
+      pairingsAdded: pairings,
+      pairingsOtherDevice: importPairingsFromOtherDevice ? pairings : 0,
     );
   }
 
@@ -2285,25 +2279,23 @@ class FakeWalletSession implements WalletSession {
     return _postSelf(_selfSend(1), 1);
   }
 
-  // Invoices. The fake plays the wallet's half as UP-14 describes it: the allowlist and the
-  // parked invoices are the wallet's, labels and the invoice index live in [invoiceHistory],
-  // as the LEPIC session will keep them. Tests and the tour drive it with [relayInvoice],
-  // [relayNotice], [clock] and [replyError]; [drainInvoices] picks up what was relayed.
+  // Invoices. The fake plays the wallet's half: an invoice parks only from a sender the
+  // wallet allows ([allowlist], which pairing fills for a verified contact with Allow
+  // invoices on), and issued invoices' states live in [invoiceHistory], as the LEPIC session
+  // keeps them. Tests and the tour drive it with [relayInvoice], [relayNotice], [clock] and
+  // [replyError]; [drainInvoices] picks up what was relayed.
 
   /// When false, every invoice call throws [invoicesUnsupported], as on a core without them.
   bool invoicesSupported = true;
 
-  /// Labels and the invoice index; a test passes one on a file to check a reopen.
+  /// Issued invoices' states; a test passes one on a file to check a reopen.
   WalletHistory invoiceHistory;
 
   /// Now, for expiry. Tests move it forward.
   DateTime Function() clock = DateTime.now;
 
-  /// The wallet's allowlist: full epicbox addresses.
+  /// The senders whose invoices park: their epicbox addresses, matched on the key.
   final List<String> allowlist = [];
-
-  /// When each allowlisted service was first allowed, by epicbox key.
-  final Map<String, DateTime> allowedSince = {};
 
   /// Waiting at the relay until the next [drainInvoices].
   final List<_Relayed> _relay = [];
@@ -2329,17 +2321,6 @@ class FakeWalletSession implements WalletSession {
   final StreamController<InvoiceEvent> invoiceEventsController =
       StreamController<InvoiceEvent>.broadcast();
 
-  /// The invoice address at [index].
-  static String fakeInvoiceAddress(
-    int index, [
-    String relay = 'epicbox.epiccash.com',
-  ]) => 'esFakeInvoice$index@$relay';
-
-  /// The invoice address at [index] on the relay in use, as LEPIC builds it: the domain (and
-  /// port) of [address].
-  String _invoiceAddressAt(int index) =>
-      fakeInvoiceAddress(index, address.split('@').last);
-
   /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
   /// key is on the allowlist and [expiresIn] is at most [maxInvoiceExpiry]; dropped
   /// otherwise.
@@ -2348,6 +2329,7 @@ class FakeWalletSession implements WalletSession {
     required String slateId,
     required BigInt amount,
     String? message,
+    String? reference,
     Duration expiresIn = const Duration(hours: 24),
   }) => _relay.add(
     _Relayed(
@@ -2355,6 +2337,7 @@ class FakeWalletSession implements WalletSession {
       slateId: slateId,
       amount: amount,
       message: message,
+      reference: reference,
       expiresIn: expiresIn,
     ),
   );
@@ -2420,84 +2403,6 @@ class FakeWalletSession implements WalletSession {
   bool get supportsInvoices => invoicesSupported;
 
   @override
-  Future<String> invoiceAddress() async {
-    _requireInvoices('invoiceAddress');
-    return _invoiceAddressAt(invoiceHistory.invoiceIndex);
-  }
-
-  @override
-  Future<int> invoiceAddressIndex() async {
-    _requireInvoices('invoiceAddressIndex');
-    return invoiceHistory.invoiceIndex;
-  }
-
-  @override
-  Future<String> rotateInvoiceAddress() async {
-    _requireInvoices('rotateInvoiceAddress');
-    final next = invoiceHistory.invoiceIndex + 1;
-    await invoiceHistory.setInvoiceIndex(next);
-    return _invoiceAddressAt(next);
-  }
-
-  @override
-  Future<List<TrustedService>> trustedServices() async {
-    _requireInvoices('trustedServices');
-    return [
-      for (final t in invoiceHistory.trustedServices(allowlist))
-        TrustedService(
-          address: t.address,
-          label: t.label,
-          since: allowedSince[epicboxKey(t.address)],
-        ),
-    ];
-  }
-
-  @override
-  Future<TrustedService> addTrustedService({
-    required String address,
-    required String label,
-  }) async {
-    _requireInvoices('addTrustedService');
-    final a = address.trim();
-    if (!fakeEpicboxAddress(a)) {
-      throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
-        message: 'not an epicbox address',
-      );
-    }
-    final own = [this.address, _invoiceAddressAt(invoiceHistory.invoiceIndex)];
-    if (own.any((o) => epicboxKey(o) == epicboxKey(a))) {
-      throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
-        message: 'this is one of your own addresses',
-      );
-    }
-    await invoiceHistory.setServiceLabel(a, label);
-    final i = allowlist.indexWhere((e) => epicboxKey(e) == epicboxKey(a));
-    if (i >= 0) {
-      if (allowlist[i] != a) {
-        await invoiceHistory.removeServiceLabel(allowlist[i]);
-      }
-      allowlist[i] = a;
-    } else {
-      allowlist.add(a);
-    }
-    final since = allowedSince.putIfAbsent(epicboxKey(a), DateTime.now);
-    return TrustedService(address: a, label: label.trim(), since: since);
-  }
-
-  @override
-  Future<void> removeTrustedService({required String address}) async {
-    _requireInvoices('removeTrustedService');
-    final key = epicboxKey(address);
-    allowedSince.remove(key);
-    for (final a in allowlist.where((e) => epicboxKey(e) == key).toList()) {
-      allowlist.remove(a);
-      await invoiceHistory.removeServiceLabel(a);
-    }
-  }
-
-  @override
   Future<InvoiceDrainReport> drainInvoices() async {
     _requireInvoices('drainInvoices');
     var parked = 0, dropped = 0, notices = 0;
@@ -2523,6 +2428,8 @@ class FakeWalletSession implements WalletSession {
           message: m.message,
           receivedAt: now,
           expiresAt: now.add(m.expiresIn),
+          pairingId: pairing.recordFor(m.from)?.id,
+          reference: m.reference,
         );
         parked++;
         _emit(InvoiceEventKind.received, m.slateId);
@@ -2617,6 +2524,8 @@ class FakeWalletSession implements WalletSession {
     final paid = PaidInvoice(
       slateId: slateId,
       senderAddress: invoice.senderAddress,
+      pairingId: invoice.pairingId,
+      reference: invoice.reference,
       amount: amount,
       message: invoice.message,
       status: InvoiceStatus.replyFailed,
@@ -2750,7 +2659,7 @@ class FakeWalletSession implements WalletSession {
     _requireInvoices('issueInvoice');
     final to = address.trim();
     // Its own addresses first: the fake's are not valid epicbox addresses.
-    final own = [this.address, _invoiceAddressAt(invoiceHistory.invoiceIndex)];
+    final own = [this.address];
     if (own.any((o) => epicboxKey(o) == epicboxKey(to))) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
@@ -2784,6 +2693,33 @@ class FakeWalletSession implements WalletSession {
         createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
         amountCredited: amount,
         counterparty: to,
+        messages: [
+          if (text != null) SlateMessage(role: SlateRole.receiver, text: text),
+        ],
+        cancellable: true,
+        flow: TxFlow.invoice,
+      ),
+    );
+    await invoiceHistory.putIssuedInvoice(slateId);
+    return _requireIssued(slateId);
+  }
+
+  /// A request kept as a file ([FakePairing.requestFile]): an incoming invoice waiting for
+  /// its payer, with no address to send it to.
+  Future<IssuedInvoice> issueRequestFile({required BigInt amount, String? message}) async {
+    _requireInvoices('requestFile');
+    final text = cutMessage(message);
+    issuedRequests.add((amount: amount, to: '', message: text));
+    final n = issuedRequests.length;
+    final slateId = 'issued-$n';
+    transactionsValue.add(
+      fakeTx(
+        id: 300 + n,
+        slateId: slateId,
+        kind: TxKind.received,
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+        amountCredited: amount,
         messages: [
           if (text != null) SlateMessage(role: SlateRole.receiver, text: text),
         ],
@@ -2890,12 +2826,14 @@ class _Relayed {
     this.expiresIn = Duration.zero,
     this.notice,
     this.kernelExcess,
+    this.reference,
   });
 
   final String from;
   final String slateId;
   final BigInt? amount;
   final String? message;
+  final String? reference;
   final Duration expiresIn;
   final InvoiceEventKind? notice;
   final String? kernelExcess;

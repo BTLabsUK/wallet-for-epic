@@ -40,11 +40,11 @@ const int sendTtlDays = 14;
 const Key helpSearchKey = ValueKey('help-search');
 
 /// The topics this wallet shows in [lang], the help language: the shared set for the phone, the
-/// invoice topics when the wallet supports invoices, Tor only when the phone has it. A topic
+/// Pairing topics when the wallet pairs, Tor only when the phone has it. A topic
 /// [lang] has no translation of is English.
 List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang) {
   final confirmations = confirmationsTargetOf(ref);
-  final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+  final pairs = ref.watch(sessionProvider)?.pairing.supported ?? false;
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
     // The topics of a part Advanced hides go with it (Outputs).
@@ -52,19 +52,19 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
       localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
       AdvancedOptions.of(context),
     ),
-    if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations, platform: HelpPlatform.phone),
+    if (pairs) ...pairingHelpTopics(helpStrings(lang), platform: HelpPlatform.phone),
   ];
 }
 
-/// The sections in [lang], in the order the index shows them: Invoices before "When something
+/// The sections in [lang], in the order the index shows them: Pairing before "When something
 /// goes wrong", and only when a topic uses it.
 List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
   final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
   final out = <HelpSection>[];
   for (final s in localizedHelpSections(lang)) {
-    if (s.id == 'trouble' && used.contains(invoiceHelpSection)) {
-      out.add((id: invoiceHelpSection, title: l.deskInvHelpTitle, lede: l.deskInvHelpLede, art: ''));
+    if (s.id == 'trouble' && used.contains(pairingHelpSection)) {
+      out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
     }
     if (used.contains(s.id)) out.add(s);
   }
@@ -640,7 +640,7 @@ enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, sett
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
   'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node', 'Epicbox'}),
-  'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoice address and trusted services'}),
+  'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoices'}),
   'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
   'Display': (HelpPhonePlace.display, <String>{}),
   'About': (HelpPhonePlace.about, <String>{}),

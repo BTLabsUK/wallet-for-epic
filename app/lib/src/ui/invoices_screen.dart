@@ -1,4 +1,4 @@
-/// Invoices from trusted services (I-03): home's entry with its badge, the list, and the
+/// Invoices from paired contacts the user allows (I-03, RFC 0002 11): home's entry with its badge, the list, and the
 /// notices for what the drains find. Paying is the review screen's, behind the PIN gate;
 /// nothing here pays. The list also holds the requests this wallet sent (I-06), and home's
 /// entry turns their events into notices.
@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../contacts.dart';
 import '../errors.dart';
+import '../pairing_providers.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
@@ -50,15 +51,17 @@ String? invoiceMessageLine(String? message) {
   return '${String.fromCharCodes(chars.take(invoiceMessageMaxLength - 1))}…';
 }
 
-/// The service's name as the user gave it, matched on the sender's key. Never anything the
-/// invoice says about itself, and never the relay part of the address.
-String invoiceServiceName(
+/// The name of the contact whose pairing sent an invoice: the address-book name, else the
+/// name the contact chose. Never anything the invoice says about itself.
+String invoiceSenderName(
   AppLocalizations l,
-  List<TrustedService> services,
-  String senderAddress,
+  Iterable<PairingRecord> pairings,
+  Iterable<Contact> contacts,
+  String? pairingId,
 ) {
-  final label = serviceLabel(services, senderAddress)?.trim();
-  return label == null || label.isEmpty ? l.invoicesUnnamedService : label;
+  final r = pairings.where((p) => p.id == pairingId).firstOrNull;
+  final name = r == null ? '' : pairingName(r, contacts).trim();
+  return name.isEmpty ? l.invoicesUnnamedService : name;
 }
 
 /// `5 h 12 min left`, `12 min left`, or under a minute.
@@ -398,7 +401,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     context,
   ).push(MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen()));
 
-  void _trustedServices() => Navigator.of(context).push(
+  void _pairedContacts() => Navigator.of(context).push(
     MaterialPageRoute<void>(builder: (_) => const InvoiceSettingsScreen()),
   );
 
@@ -407,8 +410,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final l = context.l10n;
     final t = context.tokens;
     final invoices = ref.watch(pendingInvoicesProvider);
-    final services =
-        ref.watch(trustedServicesProvider).value ?? const <TrustedService>[];
+    final pairings = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final now = ref.watch(invoiceClockProvider)();
     final hidden = amountDisplay(ref).hidden;
     final toPay = [
@@ -429,7 +431,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     Widget emptyState({
       required IconData icon,
       required String title,
-      required String caption,
+      required String? caption,
       required String action,
       required VoidCallback onAction,
     }) => EmptyState(
@@ -437,13 +439,15 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
       message: title,
       action: Column(
         children: [
-          Text(
-            caption,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: t.dim),
-          ),
-          const SizedBox(height: 16),
+          if (caption != null) ...[
+            Text(
+              caption,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: t.dim),
+            ),
+            const SizedBox(height: 16),
+          ],
           OutlinedButton(
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
             onPressed: onAction,
@@ -457,17 +461,17 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
       InvoicesSegment.toPay when invoices.hasValue && toPay.isEmpty => [
         emptyState(
           icon: Icons.receipt_long_outlined,
-          title: l.invoicesToPayEmpty,
-          caption: l.invoicesToPayEmptyCaption,
-          action: l.invoiceSettingsServicesTitle,
-          onAction: _trustedServices,
+          title: l.invoicesEmpty,
+          caption: null,
+          action: l.invoicesEmptyAction,
+          onAction: _pairedContacts,
         ),
       ],
       InvoicesSegment.toPay => [
         for (final invoice in toPay)
           InvoiceRow(
             invoice: invoice,
-            service: invoiceServiceName(l, services, invoice.senderAddress),
+            service: invoiceSenderName(l, pairings, contacts, invoice.pairingId),
             left: invoice.timeLeftAt(now),
             amount: shownEpic(l, invoice.amount, hidden: hidden),
           ),

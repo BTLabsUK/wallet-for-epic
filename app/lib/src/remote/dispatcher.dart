@@ -271,7 +271,11 @@ class WalletDispatcher {
       session.dispose();
       throw connectionClosed;
     }
-    return (handle: _sessions.add(session), invoices: session.supportsInvoices);
+    return (
+      handle: _sessions.add(session),
+      invoices: session.supportsInvoices,
+      pairing: session.pairing.supported,
+    );
   }
 
   _Outcome _serve(ServiceMember member, WireReader p) => switch (member) {
@@ -541,30 +545,6 @@ class WalletDispatcher {
       s.nodeTipFor(config: _config(p)),
       nodeTipWire,
     ),
-    SessionMember.invoiceAddress => _once(s.invoiceAddress(), stringWire),
-    SessionMember.invoiceAddressIndex => _once(
-      s.invoiceAddressIndex(),
-      intWire,
-    ),
-    SessionMember.rotateInvoiceAddress => _once(
-      s.rotateInvoiceAddress(),
-      stringWire,
-    ),
-    SessionMember.trustedServices => _once(
-      s.trustedServices(),
-      listOf(trustedServiceWire),
-    ),
-    SessionMember.addTrustedService => _once(
-      s.addTrustedService(
-        address: p.of('address', stringWire),
-        label: p.of('label', stringWire),
-      ),
-      trustedServiceWire,
-    ),
-    SessionMember.removeTrustedService => _once(
-      s.removeTrustedService(address: p.of('address', stringWire)),
-      voidWire,
-    ),
     SessionMember.drainInvoices => _once(
       s.drainInvoices(),
       invoiceDrainReportWire,
@@ -618,6 +598,105 @@ class WalletDispatcher {
       paymentsDrainReportWire,
     ),
     SessionMember.issuerEvents => _many(s.issuerEvents(), issuerEventWire),
+    SessionMember.pairingList => _once(s.pairing.pairings(), listOf(pairingRecordWire)),
+    SessionMember.pairingGet => _once(
+      s.pairing.pairing(p.of('id', stringWire)),
+      nullable(pairingRecordWire),
+    ),
+    SessionMember.pairingForContact => _once(
+      s.pairing.pairingForContact(p.of('contactId', stringWire)),
+      nullable(pairingRecordWire),
+    ),
+    SessionMember.pairingStrays => _once(s.pairing.strays(), listOf(pairingStrayWire)),
+    SessionMember.pairingRemoveStray => _once(s.pairing.removeStray(p.of('id', stringWire)), voidWire),
+    SessionMember.pairingMakeInvite => _once(
+      s.pairing.makeInvite(
+        name: p.of('name', stringWire),
+        expiry: Duration(seconds: p.of('expirySecs', intWire)),
+        words: p.of('words', boolWire),
+        label: p.of('label', optString),
+        contactId: p.of('contactId', optString),
+      ),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingCancelInvite => _once(s.pairing.cancelInvite(p.of('id', stringWire)), voidWire),
+    SessionMember.pairingOpenReply => _once(s.pairing.openReply(p.of('link', stringWire)), pairingRecordWire),
+    SessionMember.pairingConfirmLink => _once(s.pairing.confirmLink(p.of('id', stringWire)), stringWire),
+    SessionMember.pairingOpenInvite => _once(s.pairing.openInvite(p.of('link', stringWire)), pairingPreviewWire),
+    SessionMember.pairingOpenWords => _once(
+      s.pairing.openWords(p.of('words', listOf(stringWire))),
+      pairingPreviewWire,
+    ),
+    SessionMember.pairingAccept => _once(
+      s.pairing.acceptInvite(
+        token: p.of('token', stringWire),
+        name: p.of('name', stringWire),
+        allowInvoices: p.of('allowInvoices', boolWire),
+        contactId: p.of('contactId', optString),
+        byHand: p.of('byHand', boolWire),
+      ),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingReplyLink => _once(s.pairing.replyLink(p.of('id', stringWire)), stringWire),
+    SessionMember.pairingOpenConfirm => _once(s.pairing.openConfirm(p.of('link', stringWire)), pairingRecordWire),
+    SessionMember.pairingShowCard => _once(s.pairing.showCard(name: p.of('name', stringWire)), pairingCardWire),
+    SessionMember.pairingScanCard => _once(
+      s.pairing.scanCard(cardId: p.of('cardId', stringWire), text: p.of('text', stringWire)),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingCheckWords => _once(
+      s.pairing.checkWords(p.of('id', stringWire), p.of('check', pairingCheckWire)),
+      nullable(pairingRecordWire),
+    ),
+    SessionMember.pairingCollect => _once(s.pairing.collect(), intWire),
+    SessionMember.pairingRemove => _once(s.pairing.removePairing(p.of('id', stringWire)), voidWire),
+    SessionMember.pairingSetSeal => _once(
+      s.pairing.setSeal(p.of('id', stringWire), p.of('on', boolWire)),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingSetAllowInvoices => _once(
+      s.pairing.setAllowInvoices(p.of('id', stringWire), p.of('on', boolWire)),
+      intWire,
+    ),
+    SessionMember.pairingAttach => _once(
+      s.pairing.attach(p.of('id', stringWire), p.of('contactId', optString)),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingResolveKeys => _once(
+      s.pairing.resolveKeysChanged(p.of('id', stringWire), p.of('choice', keysChoiceWire)),
+      pairingRecordWire,
+    ),
+    SessionMember.pairingRequestPayment => _once(
+      s.pairing.requestPayment(
+        id: p.of('id', stringWire),
+        amount: p.of('amount', bigIntWire),
+        message: p.of('message', optString),
+      ),
+      issuedInvoiceWire,
+    ),
+    SessionMember.pairingRequestFile => _once(
+      s.pairing.requestFile(amount: p.of('amount', bigIntWire), message: p.of('message', optString)),
+      slateWire,
+    ),
+    SessionMember.pairingSealSlate => _once(
+      s.pairing.sealSlate(id: p.of('id', stringWire), slateJson: p.of('slateJson', stringWire)),
+      stringWire,
+    ),
+    SessionMember.pairingOpenSlate => _once(s.pairing.openSlate(p.of('text', stringWire)), openedSlateWire),
+    SessionMember.pairingSendViaMailbox => _once(
+      s.pairing.sendViaMailbox(
+        id: p.of('id', stringWire),
+        amount: p.of('amount', bigIntWire),
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+        message: p.of('message', optString),
+        options: p.of('options', optSendOptions),
+      ),
+      txEntryWire,
+    ),
+    SessionMember.pairingPlainSlate => _once(s.pairing.plainSlate(p.of('key', stringWire)), stringWire),
+    SessionMember.pairingUseImported => _once(s.pairing.useImportedPairings(), intWire),
+    SessionMember.pairingEvents => _many(s.pairing.events(), pairingEventWire),
+
     SessionMember.peerCapability => _once(
       s.peerCapability(address: p.of('address', stringWire)),
       peerCapabilityWire,

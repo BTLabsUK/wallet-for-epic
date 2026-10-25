@@ -81,7 +81,6 @@ final List<DeskShot> invoicePayShots = [
       for (final i in (await _book(c)).waiting) {
         await _mock(c).declineInvoice(i.slateId);
       }
-      _proto(c).dropped = 0;
     }),
   ),
   _reviewShot('inv-pay-03-review', 1280, 800),

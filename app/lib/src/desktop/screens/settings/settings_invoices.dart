@@ -1,15 +1,20 @@
-/// Settings › Invoices, its own tab below Receiving (docs/invoices/flow.md §1, §2, §7): the invoice address in
-/// its own frame, the trusted senders, and under Advanced the rotation and the time to pay.
+/// Settings › Invoices, its own tab below Receiving (SPEC 2.7, desktop): who may ask this
+/// wallet to pay. A paired, verified contact with Allow invoices on; the group lists them with
+/// their switch, Pair with a shop or exchange opens Pair, and Time to pay stays in the
+/// collapsed details.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../desk_l10n.dart';
+import '../../../models.dart' show PairingRecord, PairingState;
 import '../../data/invoice_state.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/pairing_state.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../invoices/invoice_address.dart';
 import '../invoices/invoice_parts.dart';
+import '../pairing/pair_screens.dart';
 import 'settings_frame.dart' show SettingsFrame;
 
 /// Settings › Invoices: its own tab, right below Receiving.
@@ -31,9 +36,65 @@ class InvoiceSettingsBlock extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final book = ref.watch(deskInvoicesProvider);
-    if (book == null) return const SizedBox.shrink();
     final n = ref.read(deskInvoicesProvider.notifier);
     final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
+    final paired = ref.watch(deskPairedProvider);
+    final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
+    final nav = ref.read(deskNavProvider.notifier);
+
+    Widget row(PairingRecord r) {
+      final contact = contacts.where((x) => x.id == r.contactId).firstOrNull;
+      final name = contact?.name ?? r.shownName;
+      final verified = r.state == PairingState.verified;
+      final text = contact == null
+          ? l.pairNotInContacts
+          : verified
+          ? (r.allowInvoices ? l.invSetRowAllowed : l.trustVerified)
+          : l.invSetRowCheckFirst;
+      return ESetRow(
+        title: name,
+        text: text,
+        control: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (contact == null) ...[
+              EButton(
+                label: l.pairAddToContacts,
+                size: EBtnSize.sm,
+                onPressed: () async {
+                  final id = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: name, address: r.paymentsAddress));
+                  await deskPairingCall(ref, (api) => api.attach(r.id, id));
+                },
+              ),
+              SizedBox(width: Sp.x2),
+              EButton(label: l.contactRemovePairing, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => deskPairingCall(ref, (api) => api.removePairing(r.id))),
+              SizedBox(width: Sp.x3),
+            ] else if (!verified && r.state == PairingState.paired) ...[
+              EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
+              SizedBox(width: Sp.x3),
+            ] else
+              EInfoHint(l.contactAllowInfo(name)),
+            ESwitch(
+              value: verified && r.allowInvoices,
+              semanticLabel: l.invSetAllowFor(name),
+              onChanged: !verified || paused
+                  ? null
+                  : (v) async {
+                      try {
+                        final declined = await deskPairingCall(ref, (api) => api.setAllowInvoices(r.id, v));
+                        if (!v && context.mounted) {
+                          showEToast(context, l.invSetSwitchedOff(name), text: declined > 0 ? l.invSetDeclinedCount(declined) : null, tone: ETone.info);
+                        }
+                      } on Object catch (e) {
+                        if (context.mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+                      }
+                    },
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -41,220 +102,44 @@ class InvoiceSettingsBlock extends ConsumerWidget {
           children: [
             Icon(EIcons.invoice, size: Ctl.icon, color: c.dim),
             SizedBox(width: Sp.x2),
-            Expanded(child: Text(l.deskInvSetTitle, style: ts.h3)),
+            Expanded(child: Text(l.invSetTitle, style: ts.h3)),
           ],
         ),
         SizedBox(height: Sp.x2),
-        Text(l.deskInvSetIntro, style: ts.bodyDim),
-        SizedBox(height: Sp.x4),
-        InvoiceAddressFrame(address: book.invoiceAddress, index: book.invoiceIndex),
-        SizedBox(height: Sp.x3),
-        // A restore without the history file starts again at index 1 (P-16). Whether the wallet
-        // was restored is not known reliably (older restores kept no mark), so the first index
-        // alone shows the line, worded for a restore.
-        if (book.invoiceIndex == 1) ...[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(EIcons.info, size: Ctl.iconSm, color: c.dim),
-              SizedBox(width: Sp.x2),
-              Expanded(child: Text(l.deskInvSetRestoredHint, style: ts.small.copyWith(color: c.dim))),
-            ],
-          ),
-          SizedBox(height: Sp.x2),
-        ],
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(EIcons.monitor, size: Ctl.iconSm, color: c.dim),
-            SizedBox(width: Sp.x2),
-            Expanded(child: Text(l.deskInvOneDevice, style: ts.small.copyWith(color: c.dim))),
-          ],
-        ),
+        Text(l.invSetLeadDesktop, style: ts.bodyDim),
         SizedBox(height: Sp.x5),
+        if (paused) ...[
+          ENotice(title: l.contactPausedEpicboxOff, text: l.invSetPausedBody, tone: ETone.info, icon: Icons.pause_circle_outline),
+          SizedBox(height: Sp.x4),
+        ],
         ESetGroup(
-          title: l.deskInvSetTrusted,
-          trailing: InvButton(label: l.deskInvSetAdd, icon: EIcons.plus, width: InvW.md, onPressed: () => _add(context, ref)),
+          title: l.invSetPaired,
+          trailing: EButton(label: l.invSetPairShop, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair)),
           rows: [
-            if (book.trusted.isEmpty)
-              ESetRow(text: l.deskInvSetTrustedNone)
-            else
-              for (final t in book.trusted)
-                ESetRow(
-                  title: t.label,
-                  text: '${shortAddress(t.address, compact: true)} · ${l.deskInvSetSince(invWhen(context, t.since).split(',').first)}',
-                  control: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (t.contactId != null && contacts.any((x) => x.id == t.contactId)) ...[EBadge(l.deskInvSetContactTag, icon: EIcons.contacts), SizedBox(width: Sp.x3)],
-                      InvButton(label: l.deskInvSetRemove, kind: EBtnKind.danger, onPressed: () => _remove(context, ref, t)),
-                    ],
-                  ),
-                ),
+            if (paired.isEmpty) ESetRow(text: l.invSetEmpty) else for (final r in paired) row(r),
           ],
         ),
-        if (book.dropped > 0) ...[
-          SizedBox(height: Sp.x3),
-          Row(
-            children: [
-              Icon(EIcons.shield, size: Ctl.iconSm, color: c.dim),
-              SizedBox(width: Sp.x2),
-              Expanded(child: Text(l.deskInvSetDropped(book.dropped), style: ts.small.copyWith(color: c.dim))),
-            ],
-          ),
-        ],
-        SizedBox(height: Sp.x4),
-        EDetails(
-          title: l.deskInvAdvanced,
-          child: ESetGroup(
-            rows: [
-              ESetRow(
-                title: l.deskInvSetRotate,
-                text: l.deskInvSetRotateHint,
-                control: InvButton(label: l.deskInvSetRotate, width: InvW.md, onPressed: () => _rotate(context, ref)),
-              ),
-              ESetRow(
-                title: l.deskInvSetExpiry,
-                text: l.deskInvSetExpiryHint,
-                control: SizedBox(
-                  width: InvW.md,
-                  child: ESelect<int>(
-                    semanticLabel: l.deskInvSetExpiry,
-                    value: book.expiry.inHours,
-                    items: [for (final e in invoiceExpiries) ESelectItem(e.inHours, l.deskInvSetHours(e.inHours))],
-                    onChanged: (h) => n.setExpiry(Duration(hours: h)),
+        if (book != null)
+          EDetails(
+            title: l.invSetTimeToPay,
+            child: ESetGroup(
+              rows: [
+                ESetRow(
+                  title: l.deskInvSetExpiry,
+                  text: l.deskInvSetExpiryHint,
+                  control: SizedBox(
+                    width: InvW.md,
+                    child: ESelect<int>(
+                      semanticLabel: l.deskInvSetExpiry,
+                      value: book.expiry.inHours,
+                      items: [for (final e in invoiceExpiries) ESelectItem(e.inHours, l.deskInvSetHours(e.inHours))],
+                      onChanged: (h) => n.setExpiry(Duration(hours: h)),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _rotate(BuildContext context, WidgetRef ref) async {
-    final l = context.l10n;
-    final ok = await showEDialog<bool>(
-      context,
-      builder: (ctx) => EDialog(
-        title: l.deskInvSetRotateTitle,
-        description: l.deskInvSetRotateBody,
-        icon: EIcons.alert,
-        tone: ETone.warn,
-        actions: [
-          InvButton(label: l.deskInvSetKeep, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(false)),
-          InvButton(label: l.deskInvSetRotateConfirm, kind: EBtnKind.primary, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(true)),
-        ],
-      ),
-    );
-    if (ok != true || !context.mounted) return;
-    await ref.read(deskInvoicesProvider.notifier).rotate();
-    if (context.mounted) showEToast(context, l.deskInvSetRotated, tone: ETone.warn);
-  }
-
-  Future<void> _remove(BuildContext context, WidgetRef ref, TrustedSender t) async {
-    final l = context.l10n;
-    final ok = await showEDialog<bool>(
-      context,
-      builder: (ctx) => EDialog(
-        title: l.deskInvSetRemoveTitle(t.label),
-        description: l.deskInvSetRemoveBody(t.label),
-        icon: EIcons.trusted,
-        actions: [
-          InvButton(label: l.deskInvSetKeep, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(false)),
-          InvButton(label: l.deskInvSetRemove, kind: EBtnKind.danger, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(true)),
-        ],
-      ),
-    );
-    if (ok != true || !context.mounted) return;
-    await ref.read(deskInvoicesProvider.notifier).untrust(t.address);
-    if (context.mounted) showEToast(context, l.deskInvSetRemoved(t.label), tone: ETone.neutral);
-  }
-
-  Future<void> _add(BuildContext context, WidgetRef ref) => showEDialog<void>(context, builder: (_) => const TrustSenderDialog());
-}
-
-/// Trust a sender: a name and its payments address.
-class TrustSenderDialog extends ConsumerStatefulWidget {
-  const TrustSenderDialog({super.key, this.name, this.address, this.submitted = false});
-
-  /// Starting values (the screenshot tour fills them).
-  final String? name;
-  final String? address;
-  final bool submitted;
-
-  @override
-  ConsumerState<TrustSenderDialog> createState() => _TrustSenderDialogState();
-}
-
-class _TrustSenderDialogState extends ConsumerState<TrustSenderDialog> {
-  late final _name = TextEditingController(text: widget.name);
-  late final _address = TextEditingController(text: widget.address);
-  late bool _submitted = widget.submitted;
-  bool _busy = false;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _address.dispose();
-    super.dispose();
-  }
-
-  String? get _nameErr => _name.text.trim().isEmpty ? context.l10n.deskInvSetNameMissing : null;
-
-  String? get _addressErr {
-    final t = _address.text.trim();
-    if (t.isEmpty) return context.l10n.deskInvSetSenderMissing;
-    final p = parseAddress(t, ref.read(deskApiProvider));
-    return p.kind == AddressKind.epicbox && p.complete ? null : context.l10n.deskInvSetSenderInvalid;
-  }
-
-  Future<void> _save() async {
-    setState(() => _submitted = true);
-    if (_nameErr != null || _addressErr != null) return;
-    setState(() => _busy = true);
-    final l = context.l10n;
-    final name = _name.text.trim();
-    await ref.read(deskInvoicesProvider.notifier).trust(_address.text.trim(), name);
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    showEToast(context, l.deskInvSetAdded(name), tone: ETone.ok);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return EDialog(
-      title: l.deskInvSetAdd,
-      description: l.deskInvSetAddBody,
-      icon: EIcons.trusted,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EField(
-            label: l.deskInvSetName,
-            error: _submitted ? _nameErr : null,
-            child: EInput(controller: _name, invalid: _submitted && _nameErr != null, semanticLabel: l.deskInvSetName, onChanged: (_) => setState(() {})),
-          ),
-          SizedBox(height: Sp.x4),
-          EField(
-            label: l.deskInvSetSenderAddress,
-            error: _submitted ? _addressErr : null,
-            child: EInput(
-              controller: _address,
-              mono: true,
-              invalid: _submitted && _addressErr != null,
-              hint: l.deskInvAddressHint,
-              semanticLabel: l.deskInvSetSenderAddress,
-              onChanged: (_) => setState(() {}),
+              ],
             ),
           ),
-        ],
-      ),
-      actions: [
-        InvButton(label: l.deskInvSetCancel, width: InvW.md, onPressed: () => Navigator.of(context).pop()),
-        InvButton(label: l.deskInvSetTrust, kind: EBtnKind.primary, width: InvW.md, busy: _busy, onPressed: _busy ? null : _save),
       ],
     );
   }

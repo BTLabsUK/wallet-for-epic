@@ -5,6 +5,8 @@ library;
 
 import 'dart:typed_data';
 
+import '../../pairing_api.dart';
+
 import 'http_address.dart';
 import 'invoices.dart';
 import 'models.dart';
@@ -333,16 +335,16 @@ abstract interface class DeskWalletApi {
   /// withdrawn), for a notice; the open wallet's only.
   Stream<InvoiceNotice> invoiceNotices();
 
-  /// Requests sent, invoices received, the invoice address and the trusted list, as stored.
+  /// Requests sent and invoices received, as stored.
   Future<InvoiceBook> invoices();
 
-  /// Drains the invoice address (invoices from trusted senders are parked, others ignored
-  /// unread) and the payments address (payments for requests are finalized and posted), then
+  /// Collects the paired contacts' mailboxes (invoices from contacts the user allows are
+  /// parked, others dropped unread) and the payments address (payments for requests are finalized and posted), then
   /// sweeps expired ones. Throws a [DeskError] when the relay could not be reached; the stored
   /// lists stay as they were.
   Future<InvoiceBook> checkInvoices();
 
-  /// Sends the payer at [PaymentRequestDraft.payerAddress] (their invoice address) a request.
+  /// Sends the paired contact [PaymentRequestDraft.pairingId] a request through its mailbox.
   /// Nothing leaves the wallet, so no password. A request the relay did not take is cancelled at
   /// once and throws a [DeskError]: nothing was sent.
   Future<IssuedRequest> requestPayment(PaymentRequestDraft draft);
@@ -359,7 +361,7 @@ abstract interface class DeskWalletApi {
   Future<void> cancelRequestPayment(String slateId);
 
   /// Pays a waiting invoice: checks [password], signs for the invoice's own [amount] and sends
-  /// the reply to the sender's stored address. The only caller is Review's Approve. A reply
+  /// the reply to the contact's mailbox. The only caller is Review's Approve. A reply
   /// that did not reach the relay comes back as [PayState.notDelivered], stored and locked.
   Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password});
 
@@ -378,16 +380,11 @@ abstract interface class DeskWalletApi {
   /// password, as a consolidate does. Throws a [DeskError] when it did not go out.
   Future<SelfSend> spendCancelledToSelf(String slateId);
 
-  /// Moves to the next invoice address; senders holding the old one can no longer bill.
-  Future<String> rotateInvoiceAddress();
-
-  /// Lets the payments address [address] send invoices, under [label].
-  Future<void> trustSender(String address, String label, {String? contactId});
-
-  /// Stops [address] (matched on the key) from sending invoices. Waiting ones stay.
-  Future<void> untrustSender(String address);
-
   Future<void> setInvoiceExpiry(Duration expiry);
+
+  /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
+  /// core without it. The types are the core's (`models.dart`), shared with the phone.
+  PairingApi get pairing;
 
   /// What the wallet learned of the payer at [address].
   Future<PeerCapability> peerCapability(String address);

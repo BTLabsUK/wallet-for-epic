@@ -5,7 +5,6 @@ import '../../app/shots.dart';
 import '../../data/invoice_state.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
-import '../settings/settings_invoices.dart' show TrustSenderDialog;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
 
 InvoiceProto _proto(ProviderContainer c) => (c.read(deskApiProvider) as MockDeskWallet).proto;
@@ -75,17 +74,16 @@ final List<DeskShot> invoiceActShotsCore = [
 
 /// Settings › Invoices, Contacts and Receive.
 final List<DeskShot> invoiceSetShotsCore = [
-  _settings('inv-set-01-settings', 'Settings › Invoices (own tab): invoice address, trusted senders'),
+  _settings('inv-set-01-settings', 'Settings › Invoices (own tab): paired contacts with Allow invoices'),
   _settings('inv-set-01b-settings-1920', 'Settings › Invoices at 1920', width: 1920, height: 1080),
   _settings('inv-set-01c-settings-900', 'Settings › Invoices at 900 (rail)', width: 900, height: 900),
-  _settings(
-    'inv-set-02-trust-dialog-error',
-    'Trust a sender: address refused',
-    dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const TrustSenderDialog(name: 'Bike shop', address: 'http://shop.example', submitted: true)),
-  ),
-  const DeskShot(id: 'inv-set-03-contact-trusted', title: 'Contact: trusted for invoices, with invoice address', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1')),
-  const DeskShot(id: 'inv-set-04-contact-no-invoice', title: 'Contact without invoice address: Issue an invoice disabled', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c3')),
-  const DeskShot(id: 'inv-set-05-contact-edit', title: 'Contact form with their invoice address', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c6', editing: true)),
+  const DeskShot(id: 'inv-set-03-contact-verified', title: 'Contact: verified pairing, two addresses', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1')),
+  const DeskShot(id: 'inv-set-04-contact-not-paired', title: 'Contact: not paired', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c3')),
+  const DeskShot(id: 'inv-set-05-contact-edit', title: 'Contact form: one address per kind', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c6', editing: true)),
+  const DeskShot(id: 'inv-set-07-contact-keys-changed', title: 'Contact: keys changed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c9')),
+  const DeskShot(id: 'inv-set-08-contact-exchange', title: 'Contact: an exchange, invoices allowed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c8')),
+  const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: show my code, enter link or words, invite online', route: DeskRoute.pair),
+  const DeskShot(id: 'pair-02-pending', title: 'Contacts › Pending invites', route: DeskRoute.pairPending),
   const DeskShot(id: 'inv-set-03b-contact-1920', title: 'Contact at 1920', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1'), width: 1920, height: 1080),
   const DeskShot(id: 'inv-set-06-receive', title: 'Receive: Issue an invoice beside the Epicbox address', route: DeskRoute.receive),
 ];

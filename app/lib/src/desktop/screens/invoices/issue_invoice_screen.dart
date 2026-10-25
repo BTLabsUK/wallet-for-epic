@@ -1,27 +1,37 @@
-/// Request a payment (docs/invoices/flow.md §3.1, §3.2): who pays, how much, and what the payer
-/// must have done first. Nothing leaves the wallet, so no password.
+/// Request a payment (SPEC 2.8, desktop): a paired contact whose wallet pays requests, or a
+/// payment file for anyone; how much and why. Nothing leaves the wallet, so no password.
 library;
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show LocalizedFormatException;
-import '../../desk_l10n.dart';
+import '../../../models.dart' show PairingRecord, PairingState;
+import '../../../slate_files.dart' show sendFileName;
+import '../../data/history_files.dart';
 import '../../data/invoice_state.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/pairing_state.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 
 /// Epic's supply cap, in nanoepic: no request asks for more.
 const int _supplyCap = 21000000 * nanoPerEpic;
 
-enum _Method { epicbox, file, direct }
+/// The paired contacts a request can go to: verified, and their card says they pay requests.
+List<PairingRecord> deskRequestPayers(Iterable<PairingRecord> all) => [
+  for (final r in all)
+    if (r.state == PairingState.verified && r.caps.paysInvoices) r,
+];
 
 class IssueInvoiceScreen extends ConsumerStatefulWidget {
   const IssueInvoiceScreen({super.key, this.arg});
 
-  /// A [Contact] or an invoice address to start from.
+  /// A pairing id or a [Contact] (its pairing) to ask.
   final Object? arg;
 
   @override
@@ -29,79 +39,38 @@ class IssueInvoiceScreen extends ConsumerStatefulWidget {
 }
 
 class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
-  final _payer = TextEditingController();
   final _amount = TextEditingController();
   final _message = TextEditingController();
-  String? _payerName;
+  String? _to;
   bool _submitted = false;
   bool _busy = false;
   String? _failure;
-  PeerCapability? _capability;
-  String _checkedFor = '';
 
   @override
   void initState() {
     super.initState();
     _apply(widget.arg);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _probe());
   }
 
   @override
   void didUpdateWidget(IssueInvoiceScreen old) {
     super.didUpdateWidget(old);
-    if (widget.arg == old.arg) return;
-    _apply(widget.arg);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _probe());
+    if (widget.arg != old.arg) _apply(widget.arg);
   }
 
   void _apply(Object? a) {
-    if (a is Contact) {
-      _payer.text = a.invoiceAddress ?? '';
-      _payerName = a.name;
-    } else if (a is String) {
-      _payer.text = a;
-      _payerName = null;
+    if (a is String) {
+      _to = a;
+    } else if (a is Contact) {
+      _to = ref.read(deskContactPairingProvider(a.id))?.id;
     }
   }
 
   @override
   void dispose() {
-    _payer.dispose();
     _amount.dispose();
     _message.dispose();
     super.dispose();
-  }
-
-  /// Asks what the wallet knows of the payer's wallet, once per valid address.
-  Future<void> _probe() async {
-    final t = _payer.text.trim();
-    if (!mounted || t == _checkedFor) return;
-    _checkedFor = t;
-    if (_payerError(t) != null) {
-      setState(() => _capability = null);
-      return;
-    }
-    PeerCapability? cap;
-    try {
-      cap = await ref.read(deskInvoicesProvider.notifier).capability(t);
-    } on Object {
-      // A well-formed address LEPIC does not accept (no relay on this network): the form
-      // checks the address on Issue; the probe only adds a hint.
-      cap = null;
-    }
-    if (mounted && _payer.text.trim() == t) setState(() => _capability = cap);
-  }
-
-  String? _payerError(String t) {
-    final l = context.l10n;
-    if (t.isEmpty) return l.deskInvIssuerPayerMissing;
-    final api = ref.read(deskApiProvider);
-    final p = parseAddress(t, api);
-    if (p.kind == AddressKind.http || p.kind == AddressKind.tor) return l.deskInvIssuerPayerHttp;
-    if (p.kind != AddressKind.epicbox || !p.complete) return l.deskInvIssuerPayerInvalid;
-    final own = [ref.read(deskProvider).epicboxAddress, ref.read(deskInvoicesProvider)?.invoiceAddress];
-    if (own.any((o) => o != null && addressKey(o) == addressKey(t))) return l.deskInvIssuerPayerOwn;
-    return null;
   }
 
   String? _amountError() {
@@ -121,24 +90,24 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
 
   int get _messageBytes => utf8.encode(_message.text).length;
 
+  String? get _msg => _message.text.trim().isEmpty ? null : _message.text.trim();
+
   Future<void> _request() async {
     setState(() {
       _submitted = true;
       _failure = null;
     });
-    final payer = _payer.text.trim();
-    if (_payerError(payer) != null || _amountError() != null || _messageBytes > requestMessageMaxBytes) return;
+    final to = _to;
+    if (to == null || _amountError() != null || _messageBytes > requestMessageMaxBytes) return;
     setState(() => _busy = true);
     final l = context.l10n;
-    final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
-    final name = _payerName ?? contacts.where((c) => c.invoiceAddress != null && addressKey(c.invoiceAddress!) == addressKey(payer)).firstOrNull?.name;
+    final name = ref.read(deskPairingNameProvider(to));
     try {
-      final msg = _message.text.trim();
       await ref
           .read(deskInvoicesProvider.notifier)
-          .request(PaymentRequestDraft(payerAddress: payer, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: msg.isEmpty ? null : msg));
+          .request(PaymentRequestDraft(pairingId: to, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: _msg));
       if (!mounted) return;
-      showEToast(context, l.deskInvIssuerSent(name ?? shortAddress(payer)), tone: ETone.ok);
+      showEToast(context, l.reqSent(name));
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);
     } on InvoiceError catch (e) {
       if (!mounted) return;
@@ -156,6 +125,29 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     }
   }
 
+  Future<void> _saveFile() async {
+    setState(() {
+      _submitted = true;
+      _failure = null;
+    });
+    if (_amountError() != null || _messageBytes > requestMessageMaxBytes) return;
+    final l = context.l10n;
+    setState(() => _busy = true);
+    try {
+      final slate = await deskPairingCall(ref, (api) => api.requestFile(amount: BigInt.from(parseEpicIn(l, _amount.text)!), message: _msg));
+      final path = await ref.read(deskHistoryFilesProvider).save(
+        name: sendFileName(slate.slateId),
+        bytes: Uint8List.fromList(utf8.encode(slate.json)),
+        title: l.reqFileTitle,
+      );
+      if (mounted && path != null) showEToast(context, l.reqFileSaved, text: path);
+    } on Object catch (e) {
+      if (mounted) setState(() => _failure = deskErrorText(e, l));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -163,135 +155,42 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final ts = context.ts;
     final st = ref.watch(deskProvider);
     final book = ref.watch(deskInvoicesProvider);
-    final own = st.epicboxAddress ?? '';
     final relayDown = st.status?.epicboxHealth == ServiceHealth.down || book?.check == InvoiceCheck.failed;
-    final payer = _payer.text.trim();
-    final payerErr = _submitted || payer.isNotEmpty ? _payerError(payer) : null;
+    final payers = deskRequestPayers(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]);
     final amountErr = _submitted ? _amountError() : null;
     final bytes = _messageBytes;
-    final withInvoice = [for (final x in st.contacts ?? const <Contact>[]) if (x.invoiceAddress != null) x];
     final hours = (book?.expiry ?? defaultInvoiceExpiry).inHours;
-
-    final first = EPanel(
-      title: l.deskInvIssuerFirstTitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l.deskInvIssuerStepsIntro, style: ts.body),
-          SizedBox(height: Sp.x2),
-          Text(l.deskInvIssuerStepTrust, style: ts.bodyDim),
-          SizedBox(height: Sp.x1),
-          Text(l.deskInvIssuerStepAddress, style: ts.bodyDim),
-          SizedBox(height: Sp.x4),
-          Text(l.deskInvIssuerYourAddress, style: ts.label),
-          SizedBox(height: Sp.x2),
-          if (own.isNotEmpty)
-            EQrReveal(address: own, form: QrRevealForm.compact, title: l.deskInvEpicboxAddress, copyLabel: l.deskInvIssuerYourAddress)
-          else
-            const ESpinner(),
-        ],
-      ),
-    );
+    final to = payers.where((r) => r.id == _to).firstOrNull;
 
     final form = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Why Issue is off, first, so it shows without scrolling.
+        Text(l.reqNewLead, style: ts.bodyDim),
+        SizedBox(height: Sp.x5),
         if (relayDown) ...[
           ENotice(tone: ETone.risk, icon: EIcons.epicbox, title: l.deskInvIssuerRelayDown),
           SizedBox(height: Sp.x5),
         ],
         EField(
-          label: l.deskInvIssuerMethod,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Wrap(
-              spacing: Sp.x3,
-              runSpacing: Sp.x2,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                ESegmented<_Method>(
-                  value: _Method.epicbox,
-                  onChanged: (_) {},
-                  segments: [
-                    ESegment(_Method.epicbox, l.deskInvIssuerEpicbox, icon: EIcons.epicbox),
-                    ESegment(_Method.file, l.deskInvIssuerFile, icon: EIcons.file, enabled: false, tooltip: l.deskInvIssuerSoon),
-                    ESegment(_Method.direct, l.deskInvIssuerDirect, icon: EIcons.link, enabled: false, tooltip: l.deskInvIssuerSoon),
-                  ],
-                ),
-                Text('${l.deskInvIssuerFile}, ${l.deskInvIssuerDirect}: ${l.deskInvIssuerSoon}', style: ts.small.copyWith(color: c.dim)),
+          label: l.reqNewTo,
+          help: payers.isEmpty ? l.reqNoPayers : l.reqNewToHint,
+          error: _submitted && to == null && payers.isNotEmpty ? l.reqPickContact : null,
+          child: SizedBox(
+            width: InvW.lg * 1.4,
+            child: ESelect<String>(
+              semanticLabel: l.reqNewTo,
+              value: to?.id ?? '',
+              items: [
+                ESelectItem('', l.reqPickContact),
+                for (final r in payers) ESelectItem(r.id, deskPairingName(r, st.contacts), subtitle: l.trustVerified),
               ],
+              onChanged: (id) => setState(() {
+                _to = id.isEmpty ? null : id;
+                _failure = null;
+              }),
             ),
           ),
         ),
-        SizedBox(height: Sp.x5),
-        EField(
-          label: l.deskInvIssuerPayer,
-          help: l.deskInvIssuerPayerHelp,
-          error: payerErr,
-          child: Row(
-            children: [
-              Expanded(
-                child: EInput(
-                  controller: _payer,
-                  mono: true,
-                  invalid: payerErr != null,
-                  hint: l.deskInvAddressHint,
-                  semanticLabel: l.deskInvIssuerPayer,
-                  onChanged: (_) {
-                    setState(() {
-                      _payerName = null;
-                      _failure = null;
-                    });
-                    _probe();
-                  },
-                ),
-              ),
-              SizedBox(width: Sp.x2),
-              SizedBox(
-                width: InvW.md,
-                child: ESelect<String>(
-                  semanticLabel: l.deskInvIssuerContacts,
-                  value: '',
-                  items: [
-                    ESelectItem('', l.deskInvIssuerContacts),
-                    for (final x in withInvoice) ESelectItem(x.id, x.name, subtitle: shortAddress(x.invoiceAddress!)),
-                  ],
-                  onChanged: (id) {
-                    final x = withInvoice.where((x) => x.id == id).firstOrNull;
-                    if (x == null) return;
-                    setState(() {
-                      _payer.text = x.invoiceAddress!;
-                      _payerName = x.name;
-                      _failure = null;
-                    });
-                    _probe();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (payerErr == null && _capability == PeerCapability.noInvoices) ...[
-          SizedBox(height: Sp.x3),
-          ENotice(
-            tone: ETone.warn,
-            icon: EIcons.alert,
-            title: l.deskInvIssuerNoInvoices,
-            actions: [InvButton(label: l.deskInvIssuerUseFile, tooltip: l.deskInvIssuerSoon, onPressed: null)],
-          ),
-        ],
-        if (payerErr == null && _capability == PeerCapability.unknown) ...[
-          SizedBox(height: Sp.x3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(EIcons.info, size: Ctl.iconSm, color: c.dim),
-              SizedBox(width: Sp.x2),
-              Expanded(child: Text(l.deskInvIssuerUnknown, style: ts.small.copyWith(color: c.dim))),
-            ],
-          ),
-        ],
         SizedBox(height: Sp.x5),
         EField(
           label: l.deskInvIssuerAmount,
@@ -327,45 +226,35 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
             Expanded(child: Text(l.deskInvIssuerExpiry(hours), style: ts.bodyDim)),
           ],
         ),
-        SizedBox(height: Sp.x2),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(EIcons.monitor, size: Ctl.iconSm, color: c.dim),
-            SizedBox(width: Sp.x2),
-            Expanded(child: Text(l.deskInvOneDevice, style: ts.small.copyWith(color: c.dim))),
-          ],
-        ),
         if (_failure != null) ...[
           SizedBox(height: Sp.x4),
           ENotice(tone: ETone.risk, icon: EIcons.error, title: _failure!),
         ],
         SizedBox(height: Sp.x6),
-        Row(
+        Wrap(
+          spacing: Sp.x3,
+          runSpacing: Sp.x2,
           children: [
+            InvButton(label: l.reqNewSaveFile, icon: EIcons.file, width: InvW.md, onPressed: _busy ? null : _saveFile),
             InvButton(
-              label: l.deskInvIssuerIssue,
+              label: l.reqNewSend,
               icon: EIcons.request,
               kind: EBtnKind.primary,
               size: EBtnSize.md,
               width: InvW.md,
               busy: _busy,
-              onPressed: _busy || relayDown ? null : _request,
+              onPressed: _busy || relayDown || payers.isEmpty ? null : _request,
             ),
-            if (_submitted && (payerErr != null || amountErr != null)) ...[
-              SizedBox(width: Sp.x4),
-              Expanded(child: Text(l.deskInvIssuerFixFields, style: ts.small.copyWith(color: c.risk))),
-            ],
           ],
         ),
       ],
     );
 
     return EPage(
-      title: l.deskInvIssuerFormTitle,
+      title: l.reqNewTitle,
       width: EPageWidth.mid,
       onBack: () => ref.read(deskNavProvider.notifier).back(),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [first, SizedBox(height: Sp.x5), EPanel(child: form)]),
+      child: EPanel(child: form),
     );
   }
 }

@@ -108,9 +108,6 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
   Future<void> decline(String slateId) => _then(_api.declineInvoice(slateId));
   Future<void> cancelPayment(String slateId) => _then(_api.cancelInvoicePayment(slateId));
   Future<SelfSend> spendToSelf(String slateId) => _then(_api.spendCancelledToSelf(slateId));
-  Future<String> rotate() => _then(_api.rotateInvoiceAddress());
-  Future<void> trust(String address, String label, {String? contactId}) => _then(_api.trustSender(address, label, contactId: contactId));
-  Future<void> untrust(String address) => _then(_api.untrustSender(address));
   Future<void> setExpiry(Duration expiry) => _then(_api.setInvoiceExpiry(expiry));
   Future<PeerCapability> capability(String address) => _api.peerCapability(address);
 

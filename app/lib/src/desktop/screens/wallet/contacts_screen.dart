@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
-import '../../data/invoice_state.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../app/tour.dart';
+import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
-import '../invoices/invoice_address.dart' show copyInvoiceAddress;
-import '../invoices/invoice_parts.dart';
+import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds;
+import '../../../ui/method_names.dart' show recipientMethodWord;
+import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
+import '../../data/pairing_state.dart';
+import '../pairing/pair_screens.dart';
 import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
@@ -132,7 +135,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final shown =
         [
           for (final x in all)
-            if (q.isEmpty || x.name.toLowerCase().contains(q) || x.address.toLowerCase().contains(q)) x,
+            if (q.isEmpty || x.name.toLowerCase().contains(q) || x.addresses.any((a) => a.toLowerCase().contains(q))) x,
         ]..sort(
           (a, b) => _sort == _Sort.name
               ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
@@ -239,6 +242,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       title: l.deskConTitle,
       width: EPageWidth.full,
       actions: [
+        if (ref.watch(deskPairsProvider)) ...[
+          if (ref.watch(deskPendingPairingsProvider).isNotEmpty)
+            EButton.ghost(
+              label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
+              icon: EIcons.clock,
+              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
+            ),
+          EButton.ghost(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair)),
+        ],
         if (_adding || _editing)
           EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
         else
@@ -358,7 +370,7 @@ class _Pic extends StatelessWidget {
   }
 }
 
-class _ContactRow extends StatefulWidget {
+class _ContactRow extends ConsumerStatefulWidget {
   const _ContactRow({required this.contact, required this.selected, required this.onTap, required this.onDouble});
 
   final Contact contact;
@@ -367,10 +379,10 @@ class _ContactRow extends StatefulWidget {
   final VoidCallback onDouble;
 
   @override
-  State<_ContactRow> createState() => _ContactRowState();
+  ConsumerState<_ContactRow> createState() => _ContactRowState();
 }
 
-class _ContactRowState extends State<_ContactRow> {
+class _ContactRowState extends ConsumerState<_ContactRow> {
   bool _hover = false;
 
   @override
@@ -400,12 +412,18 @@ class _ContactRowState extends State<_ContactRow> {
                     name: x.name,
                     address: x.address,
                     note: x.note,
-                    nameTrailing: x.favourite
-                        ? Padding(
+                    nameTrailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (x.favourite)
+                          Padding(
                             padding: EdgeInsets.only(left: Sp.x1),
                             child: Icon(EIcons.star, size: 14.u, color: c.accentText),
-                          )
-                        : null,
+                          ),
+                        if (ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id)) : null case final p?)
+                          Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true)),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -433,11 +451,8 @@ class _ContactDetail extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[]).where((t) => t.counterparty == x.address).toList();
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
-    final kind = switch (addressKindOf(x.address)) {
-      AddressKind.tor => l.deskConAddrTor,
-      AddressKind.http => l.deskConAddrHttp,
-      _ => l.deskConAddrEpicbox,
-    };
+    final pairs = ref.watch(deskPairsProvider);
+    final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -450,7 +465,16 @@ class _ContactDetail extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Semantics(header: true, child: Text(x.name, style: ts.h2)),
-                  if (last != null) Text(l.deskConLastTx(whenText(l, last)), style: ts.small),
+                  SizedBox(height: Sp.x1),
+                  Wrap(
+                    spacing: Sp.x2,
+                    runSpacing: Sp.x1,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (pairing != null) TrustBadge(pairing),
+                      if (last != null) Text(l.deskConLastTx(whenText(l, last)), style: ts.small),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -482,12 +506,12 @@ class _ContactDetail extends ConsumerWidget {
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
               onPressed: () async {
-                final ok = await showDeleteContactDialog(context, x);
+                final ok = await showDeleteContactDialog(context, x, paired: pairing != null);
                 if (ok != true || !context.mounted) return;
-                final stopTrust = await _askStopTrusting(context, ref, x);
                 try {
+                  // Deleting a paired contact removes this wallet's pairing with it (C-19).
+                  if (pairing != null) await deskPairingCall(ref, (api) => api.removePairing(pairing.id));
                   await ref.read(deskProvider.notifier).deleteContact(x.id);
-                  if (stopTrust != null) await ref.read(deskInvoicesProvider.notifier).untrust(stopTrust.address);
                 } on Object catch (e) {
                   if (context.mounted) showEToast(context, l.deskConNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
                   return;
@@ -499,12 +523,27 @@ class _ContactDetail extends ConsumerWidget {
           ],
         ),
         SizedBox(height: Sp.x6),
-        Text(kind, style: ts.label),
+        Text(l.contactAddresses, style: ts.label),
         SizedBox(height: 6.u),
-        EAddress(x.address),
+        ESetGroup(
+          gap: false,
+          rows: [
+            for (final k in x.kinds)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                child: Row(
+                  children: [
+                    EBadge.kind(k, l: l),
+                    SizedBox(width: Sp.x3),
+                    Expanded(child: EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)))),
+                  ],
+                ),
+              ),
+          ],
+        ),
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
-        // Invoices (docs/invoices/flow.md §7): their invoice address, trust, request, share.
-        if (ref.watch(deskApiProvider).supportsInvoices) ...[SizedBox(height: Sp.x6), _ContactInvoices(contact: x)],
+        // Pairing (RFC 0002): trust, Seal payments, Allow invoices, the relay, Remove pairing.
+        if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing)],
         SizedBox(height: Sp.x6),
         Row(
           children: [
@@ -553,14 +592,32 @@ class _ContactForm extends ConsumerStatefulWidget {
   ConsumerState<_ContactForm> createState() => _ContactFormState();
 }
 
+/// One address field: its text and the kind another field already holds when this one was
+/// given the same kind (Keep the old one or Replace it).
+class _AddrField {
+  _AddrField([String? text]) : text = TextEditingController(text: text);
+
+  final TextEditingController text;
+  final FocusNode focus = FocusNode();
+  RecipientKind? clash;
+
+  void dispose() {
+    text.dispose();
+    focus.dispose();
+  }
+}
+
+/// The form in the detail pane (SPEC 2.5, desktop): Name, one field per address with its kind
+/// badge and ×, a dashed free field while a kind is free, Note.
 class _ContactFormState extends ConsumerState<_ContactForm> {
   late final _name = TextEditingController(text: widget.contact?.name);
-  late final _address = TextEditingController(text: widget.contact?.address);
+  late final List<_AddrField> _fields = [
+    for (final a in widget.contact?.addresses ?? const <String>[]) _AddrField(a),
+    _AddrField(),
+  ];
   late final _note = TextEditingController(text: widget.contact?.note);
-  late final _invoice = TextEditingController(text: widget.contact?.invoiceAddress);
   late bool _picture = widget.contact?.hasPicture ?? false;
   final _nameFocus = FocusNode();
-  final _addressFocus = FocusNode();
 
   /// Fields left with something in them: their errors show from then on.
   final Set<String> _touched = {};
@@ -571,18 +628,28 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   @override
   void initState() {
     super.initState();
-    void watch(FocusNode f, String key, TextEditingController ctl) => f.addListener(() {
-      if (!f.hasFocus && ctl.text.trim().isNotEmpty) setState(() => _touched.add(key));
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus && _name.text.trim().isNotEmpty) setState(() => _touched.add('name'));
     });
-    watch(_nameFocus, 'name', _name);
-    watch(_addressFocus, 'address', _address);
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    for (final f in _fields) {
+      f.dispose();
+    }
+    _note.dispose();
+    _nameFocus.dispose();
+    super.dispose();
   }
 
   String? get _nameError => _name.text.trim().isEmpty ? context.l10n.deskConErrName : null;
-  /// One error for every form that is not an address: "Not a recognised address" (spec 7).
-  String? get _addressError {
-    final a = _address.text.trim();
-    if (a.isEmpty) return context.l10n.deskConErrAddressEmpty;
+
+  /// The kind [f] holds when its text is a valid address this build sends to, else null.
+  RecipientKind? _kindOf(_AddrField f) {
+    final a = f.text.text.trim();
+    if (a.isEmpty) return null;
     final p = parseAddress(a, ref.read(deskApiProvider));
     final allowed = switch (p.kind) {
       AddressKind.tor => DeskFeatures.tor,
@@ -590,46 +657,68 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       AddressKind.epicbox => true,
       AddressKind.none => false,
     };
-    return allowed && p.complete ? null : context.l10n.deskConErrAddressInvalid;
+    if (!allowed || !p.complete) return null;
+    return parseRecipient(p.canonical).kind;
   }
 
-  String? _shown(String key, String? error) => _tried || _touched.contains(key) ? error : null;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _address.dispose();
-    _note.dispose();
-    _invoice.dispose();
-    _nameFocus.dispose();
-    _addressFocus.dispose();
-    super.dispose();
+  String? _errorOf(_AddrField f) {
+    final l = context.l10n;
+    if (f.clash != null) return l.addrDuplicateType(_name.text.trim().isEmpty ? l.contactTitle : _name.text.trim(), recipientMethodWord(l, f.clash!));
+    if (f.text.text.trim().isEmpty) return null;
+    return _kindOf(f) == null ? l.deskConErrAddressInvalid : null;
   }
 
-  /// Their invoice address, when given: an Epicbox address, not this contact's payments one.
-  String? get _invoiceError {
-    final t = _invoice.text.trim();
-    if (t.isEmpty) return null;
-    final p = parseAddress(t, ref.read(deskApiProvider));
-    return p.kind == AddressKind.epicbox && p.complete ? null : context.l10n.deskInvIssuerPayerInvalid;
+  List<RecipientKind> get _free => [
+    for (final k in contactKinds)
+      if (!_fields.any((f) => _kindOf(f) == k)) k,
+  ];
+
+  void _changed(_AddrField f) {
+    final kind = _kindOf(f);
+    f.clash = kind != null && _fields.any((o) => o != f && _kindOf(o) == kind) ? kind : null;
+    // One empty field stays at the end while a kind is free.
+    final empties = _fields.where((x) => x.text.text.trim().isEmpty).toList();
+    if (empties.isEmpty && _free.isNotEmpty) _fields.add(_AddrField());
+    while (_fields.where((x) => x.text.text.trim().isEmpty).length > 1) {
+      final extra = _fields.lastWhere((x) => x.text.text.trim().isEmpty && x != f);
+      _fields.remove(extra);
+      extra.dispose();
+    }
+    setState(() {});
   }
 
-  /// The contact's address of [kind] when the edited field is not of that kind, so saving
-  /// one address keeps the others.
-  String? _kept(RecipientKind kind) {
-    final c = widget.contact;
-    if (c == null) return null;
-    final edited = parseRecipient(_address.text).kind;
-    final first = parseRecipient(c.address).kind;
-    return kind == edited || kind == first ? null : c.addressOf(kind);
+  void _remove(_AddrField f) {
+    _fields.remove(f);
+    f.dispose();
+    if (!_fields.any((x) => x.text.text.trim().isEmpty)) _fields.add(_AddrField());
+    setState(() {});
+  }
+
+  void _keepOld(_AddrField f) {
+    f.text.clear();
+    f.clash = null;
+    _changed(f);
+  }
+
+  void _replace(_AddrField f) {
+    final old = _fields.firstWhere((o) => o != f && _kindOf(o) == f.clash);
+    old.text.text = f.text.text;
+    _remove(f);
   }
 
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
-    if (_addressError != null) return _addressFocus.requestFocus();
-    if (_invoiceError != null) return;
-    // The address was checked as text above; saving only stores it and never reaches out.
+    final filled = [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f];
+    if (filled.isEmpty || filled.any((f) => _errorOf(f) != null)) return;
+    String? of(RecipientKind kind) {
+      for (final f in filled) {
+        if (_kindOf(f) == kind) return parseAddress(f.text.text, ref.read(deskApiProvider)).canonical;
+      }
+      return null;
+    }
+
+    // The addresses were checked as text above; saving only stores them and never reaches out.
     setState(() {
       _saving = true;
       _saveError = null;
@@ -639,19 +728,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       id = await ref
           .read(deskProvider.notifier)
           .saveContact(
-            // The field edits the contact's first address; its other ones stay.
             Contact(
               id: widget.contact?.id ?? '',
               name: _name.text.trim(),
-              epicbox: _kept(RecipientKind.epicbox),
-              http: _kept(RecipientKind.http),
-              tor: _kept(RecipientKind.tor),
-              address: parseAddress(_address.text, ref.read(deskApiProvider)).canonical,
+              epicbox: of(RecipientKind.epicbox),
+              http: of(RecipientKind.http),
+              tor: of(RecipientKind.tor),
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
               favourite: widget.contact?.favourite ?? false,
               lastUsed: widget.contact?.lastUsed,
               hasPicture: _picture,
-              invoiceAddress: _invoice.text.trim().isEmpty ? null : _invoice.text.trim(),
             ),
           );
     } on Object catch (e) {
@@ -663,25 +749,22 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       }
       return;
     }
-    // A trusted contact renamed: its invoices carry the new name (flow.md §7).
-    final address = parseAddress(_address.text, ref.read(deskApiProvider)).canonical;
-    final invoice = _invoice.text.trim().isEmpty ? null : _invoice.text.trim();
-    final trusted = trustedOf(ref.read(deskInvoicesProvider), address, invoice);
-    if (trusted != null && trusted.label != _name.text.trim()) {
-      await ref.read(deskInvoicesProvider.notifier).trust(trusted.address, _name.text.trim(), contactId: id);
-    }
     if (mounted) widget.onDone(id);
   }
 
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final c = context.dc;
     final l = context.l10n;
-    final nameError = _shown('name', _nameError);
-    final addressError = _shown('address', _addressError);
+    final nameError = _tried || _touched.contains('name') ? _nameError : null;
+    final free = _free;
+    final noAddress = _tried && _fields.every((f) => f.text.text.trim().isEmpty);
     // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
     // A form with typed changes holds Back (mouse, Alt+Left).
-    final dirty = _name.text != (widget.contact?.name ?? '') || _address.text != (widget.contact?.address ?? '') || _note.text != (widget.contact?.note ?? '');
+    final dirty = _name.text != (widget.contact?.name ?? '') ||
+        _note.text != (widget.contact?.note ?? '') ||
+        [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f.text.text.trim()].join('|') != (widget.contact?.addresses ?? const []).join('|');
     return DeskStepBack(
       onBack: dirty ? () {} : null,
       child: EForm(
@@ -731,21 +814,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
         ),
         SizedBox(height: Sp.x5),
-        EField(
-          label: l.deskConFieldAddress,
-          error: addressError,
-          child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),
-        ),
-        if (ref.watch(deskApiProvider).supportsInvoices) ...[
-          SizedBox(height: Sp.x5),
-          EField(
-            // No Optional tag: at 560 px and 150 % the label row has no room for it.
-            label: context.l10n.deskInvSetAddressLabel,
-            help: context.l10n.deskInvIssuerPayerHelp,
-            error: _tried ? _invoiceError : null,
-            child: EInput(controller: _invoice, mono: true, invalid: _tried && _invoiceError != null, onChanged: (_) => setState(() {})),
-          ),
+        Text(l.contactAddresses, style: ts.label),
+        SizedBox(height: Sp.x2),
+        for (final f in _fields) ...[
+          if (f.text.text.trim().isNotEmpty || free.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(bottom: Sp.x3),
+              child: _addressField(l, c, f, free, noAddress && f == _fields.first),
+            ),
         ],
+        Text(l.addrDesktopRule, style: ts.small),
         SizedBox(height: Sp.x5),
         EField(
           label: l.deskConNote,
@@ -763,7 +841,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           runSpacing: Sp.x2,
           children: [
             EButton(label: l.commonCancel, tabStop: false, onPressed: () => widget.onDone(null)),
-            EButton.primary(label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _save),
+            EButton.primary(label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _fields.any((f) => f.clash != null) ? null : _save),
           ],
         ),
       ],
@@ -771,38 +849,53 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     ),
     );
   }
-}
 
-/// The trusted entry of a contact, by key: their invoice address when given, else the
-/// payments address. LEPIC's list is the only copy.
-TrustedSender? trustedOf(InvoiceBook? book, String address, String? invoiceAddress) {
-  if (book == null) return null;
-  return (invoiceAddress == null ? null : book.trustedFor(invoiceAddress)) ?? book.trustedFor(address);
-}
-
-/// For a trusted contact about to be deleted: asks whether to stop trusting it. Returns the
-/// entry to remove, or null when the contact is not trusted or the user keeps it trusted.
-Future<TrustedSender?> _askStopTrusting(BuildContext context, WidgetRef ref, Contact x) async {
-  final t = trustedOf(ref.read(deskInvoicesProvider), x.address, x.invoiceAddress);
-  if (t == null) return null;
-  final l = context.l10n;
-  final stop = await showEDialog<bool>(
-    context,
-    builder: (ctx) => EDialog(
-      title: l.deskInvSetRemoveTitle(t.label),
-      description: l.deskInvSetRemoveBody(t.label),
-      icon: EIcons.trusted,
-      actions: [
-        InvButton(label: l.deskInvSetKeep, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(false)),
-        InvButton(label: l.deskInvSetRemove, kind: EBtnKind.danger, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(true)),
+  Widget _addressField(AppLocalizations l, DeskColors c, _AddrField f, List<RecipientKind> free, bool missing) {
+    final kind = _kindOf(f);
+    final empty = f.text.text.trim().isEmpty;
+    final error = missing ? l.deskConErrAddressEmpty : (_tried || !f.focus.hasFocus ? _errorOf(f) : (f.clash != null ? _errorOf(f) : null));
+    final hint = empty && _fields.length > 1 && free.isNotEmpty ? l.addrDesktopThird(recipientMethodWord(l, free.first)) : l.deskConFieldAddress;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        EField(
+          label: kind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, kind)),
+          error: error,
+          child: EInput(
+            controller: f.text,
+            focusNode: f.focus,
+            mono: true,
+            hint: hint,
+            invalid: error != null,
+            onChanged: (_) => _changed(f),
+            trailing: kind == null
+                ? null
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      EBadge.kind(kind, l: l),
+                      EIconButton(icon: EIcons.close, label: l.addrRemove(recipientMethodWord(l, kind)), size: EBtnSize.inline, onPressed: () => _remove(f)),
+                    ],
+                  ),
+          ),
+        ),
+        if (f.clash != null) ...[
+          SizedBox(height: Sp.x2),
+          Wrap(
+            spacing: Sp.x2,
+            children: [
+              EButton(label: l.addrKeepOld, size: EBtnSize.sm, onPressed: () => _keepOld(f)),
+              EButton.primary(label: l.addrReplace, size: EBtnSize.sm, onPressed: () => _replace(f)),
+            ],
+          ),
+        ],
       ],
-    ),
-  );
-  return stop == true ? t : null;
+    );
+  }
 }
 
-/// Asks before deleting a contact.
-Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showEDialog<bool>(
+/// Asks before deleting a contact; a [paired] one says its pairing goes too.
+Future<bool?> showDeleteContactDialog(BuildContext context, Contact x, {bool paired = false}) => showEDialog<bool>(
   context,
   builder: (context) {
     final l = context.l10n;
@@ -810,7 +903,7 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showED
       title: l.deskConDeleteTitle(x.name),
       icon: EIcons.trash,
       tone: ETone.risk,
-      description: l.deskConDeleteBody,
+      description: paired ? '${l.deskConDeleteBody}\n\n${l.contactDeletePaired(x.name)}' : l.deskConDeleteBody,
       actions: [
         EButton(label: l.deskConKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
         EButton(label: l.deskConDeleteAction, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
@@ -819,63 +912,172 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showED
   },
 );
 
-/// A contact's invoices: their invoice address, whether they may bill this wallet, and the two
-/// actions (docs/invoices/flow.md §7).
-class _ContactInvoices extends ConsumerWidget {
-  const _ContactInvoices({required this.contact});
+/// A contact's Pairing (SPEC 2.4, desktop): Not paired with Pair; or the status row (Verified
+/// with the date and Check again, or Paired, not verified with Check the words), Seal
+/// payments and Allow invoices with their info, Delivered via, Remove pairing; the keys-changed
+/// and relay notices above it; Issue an invoice for a verified contact that pays requests.
+class DeskPairingBlock extends ConsumerStatefulWidget {
+  const DeskPairingBlock({super.key, required this.contact, required this.pairing});
 
   final Contact contact;
+  final PairingRecord? pairing;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DeskPairingBlock> createState() => _DeskPairingBlockState();
+}
+
+class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
+  bool _busy = false;
+
+  Future<void> _run(Future<void> Function() call) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await call();
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
-    final x = contact;
-    final book = ref.watch(deskInvoicesProvider);
-    if (book == null) return const SizedBox.shrink();
-    final entry = trustedOf(book, x.address, x.invoiceAddress);
-    final trusted = entry != null;
-    final epicbox = addressKindOf(x.address) == AddressKind.epicbox;
-    final n = ref.read(deskInvoicesProvider.notifier);
+    final x = widget.contact;
+    final p = widget.pairing;
+    final nav = ref.read(deskNavProvider.notifier);
+    if (p == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.contactPairing, style: ts.label),
+          SizedBox(height: Sp.x2),
+          ESetGroup(
+            gap: false,
+            rows: [
+              ESetRow(
+                title: l.pairNotPaired,
+                text: l.pairNotPairedHint,
+                control: EButton(label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    final name = x.name;
+    final verified = p.state == PairingState.verified;
+    final changed = p.state == PairingState.keysChanged;
+    final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
+    final locked = _busy || paused || changed;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.deskInvSetContactSection, style: ts.label),
+        if (changed) ...[
+          ENotice(
+            title: l.contactKeysChangedTitle(name),
+            text: l.contactKeysChangedBody,
+            tone: ETone.warn,
+            actionsBelow: true,
+            actions: [
+              EButton.primary(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
+              EButton(label: l.contactKeepOldKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.keepOld)))),
+              EButton(label: l.contactUseNewKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.useNew)))),
+            ],
+          ),
+          SizedBox(height: Sp.x4),
+        ],
+        if (p.relayDown && !paused) ...[
+          ENotice(title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
+          SizedBox(height: Sp.x4),
+        ],
+        if (p.seal == SealMode.degraded && !changed) ...[
+          ENotice(title: l.contactSealDegradedTitle(name), text: l.contactSealDegradedBody(name), tone: ETone.info),
+          SizedBox(height: Sp.x4),
+        ],
+        if (paused) ...[
+          ENotice(title: l.contactPausedEpicboxOff, text: l.contactPausedEpicboxOffBody, tone: ETone.info, icon: Icons.pause_circle_outline),
+          SizedBox(height: Sp.x4),
+        ],
+        Text(l.contactPairing, style: ts.label),
         SizedBox(height: Sp.x2),
         ESetGroup(
+          gap: false,
           rows: [
-            ESetRow(
-              title: l.deskInvSetTheirInvoice,
-              text: x.invoiceAddress == null ? l.deskInvSetTheirInvoiceNone : null,
-              below: x.invoiceAddress == null ? null : EAddress(x.invoiceAddress!),
-            ),
-            if (epicbox)
+            if (!changed)
               ESetRow(
-                title: l.deskInvSetTrustedSwitch,
-                text: l.deskInvSetTrustedSwitchHelp,
-                control: ESwitch(
-                  value: trusted,
-                  semanticLabel: l.deskInvSetTrustedSwitch,
-                  onChanged: (v) => v ? n.trust(x.invoiceAddress ?? x.address, x.name, contactId: x.id) : n.untrust(entry?.address ?? x.address),
+                title: verified ? l.trustVerified : l.trustPaired,
+                text: verified && p.verifiedAt != null ? l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)) : null,
+                control: EButton(
+                  label: verified ? l.contactCheckAgain : l.sasTitle,
+                  size: EBtnSize.sm,
+                  onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: verified),
                 ),
+              )
+            else
+              ESetRow(title: l.trustKeysChanged, text: l.contactKeysChangedStatus),
+            ESetRow(
+              title: l.contactSealPayments,
+              text: changed ? l.contactPausedUntilChecked : null,
+              hint: l.contactSealInfo(name),
+              control: ESwitch(
+                value: !changed && p.seal != SealMode.off,
+                semanticLabel: l.contactSealPayments,
+                onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
               ),
+            ),
+            ESetRow(
+              title: l.contactAllowInvoices,
+              text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
+              hint: l.contactAllowInfo(name),
+              control: ESwitch(
+                value: verified && p.allowInvoices,
+                semanticLabel: l.contactAllowInvoices,
+                onChanged: locked || !verified
+                    ? null
+                    : (v) => _run(() async {
+                        final declined = await deskPairingCall(ref, (api) => api.setAllowInvoices(p.id, v));
+                        if (!v && mounted) {
+                          showEToast(this.context, l.invSetSwitchedOff(name), text: declined > 0 ? l.invSetDeclinedCount(declined) : null, tone: ETone.info);
+                        }
+                      }),
+              ),
+            ),
+            ESetRow(title: paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay)),
           ],
         ),
         SizedBox(height: Sp.x3),
         Wrap(
           spacing: Sp.x2,
           runSpacing: Sp.x2,
-          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            InvButton(
-              label: l.deskInvIssueAction,
-              icon: EIcons.request,
-              width: InvW.lg,
-              tooltip: x.invoiceAddress == null ? l.deskInvSetIssueNeeds : null,
-              onPressed: x.invoiceAddress == null ? null : () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoiceIssue, x),
+            if (verified && p.caps.paysInvoices && ref.watch(deskApiProvider).supportsInvoices)
+              EButton(label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
+            EButton(
+              label: l.contactRemovePairing,
+              kind: EBtnKind.danger,
+              size: EBtnSize.sm,
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      final sure = await showEDialog<bool>(
+                        context,
+                        builder: (ctx) => EDialog(
+                          title: l.contactRemovePairingTitle(name),
+                          description: l.contactRemovePairingBody(name),
+                          tone: ETone.risk,
+                          icon: EIcons.trash,
+                          actions: [
+                            EButton(label: l.contactKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+                            EButton(label: l.contactRemove, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+                          ],
+                        ),
+                      );
+                      if (sure == true) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+                    },
             ),
-            InvButton(label: l.deskInvSetShare, icon: EIcons.invoiceAddress, width: InvW.lg, onPressed: () => copyInvoiceAddress(context, book.invoiceAddress)),
-            if (x.invoiceAddress == null) Text(l.deskInvSetIssueNeeds, style: ts.small),
           ],
         ),
       ],

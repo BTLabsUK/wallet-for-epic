@@ -1,4 +1,4 @@
-/// Requests › To pay: the inbox of invoices from trusted senders and the payments to settle
+/// Requests › To pay: the inbox of invoices from paired contacts the user allows and the payments to settle
 /// (docs/invoices/flow.md §4.2, §4.4, §4.5). Answered invoices leave it; paid ones live in Activity,
 /// and one opened from there shows under Paid, selected. Owned by the payer part.
 library;
@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
+import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/invoice_state.dart';
+import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 import 'pay_dialogs.dart';
@@ -58,8 +60,7 @@ class PayTab extends ConsumerWidget {
               title: l.deskInvPayerEmptyTitle,
               text: l.deskInvPayerEmptyText,
               actions: [
-                ELink(label: l.deskInvPayerTrustService, onPressed: trust),
-                ELink(label: l.deskInvPayerYourInvoiceAddress, onPressed: trust),
+                ELink(label: l.invoicesEmptyAction, onPressed: trust),
               ],
             ),
           )
@@ -76,10 +77,6 @@ class PayTab extends ConsumerWidget {
               ],
             ),
           ),
-        ],
-        if (book.dropped > 0) ...[
-          SizedBox(height: Sp.x3),
-          _DroppedLine(count: book.dropped, onTrust: trust),
         ],
       ],
     );
@@ -137,7 +134,8 @@ class _WaitingRow extends ConsumerWidget {
                   children: [
                     Flexible(child: Text(i.label, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                     SizedBox(width: Sp.x1),
-                    Icon(EIcons.trusted, size: Ctl.iconSm, color: c.dim, semanticLabel: l.invoiceSettingsServicesTitle),
+                    if (i.pairingId != null)
+                      if (ref.watch(deskPairingByIdProvider(i.pairingId!)) case final p?) TrustBadge(p, short: true),
                   ],
                 ),
                 Text(
@@ -262,31 +260,6 @@ class _PaidRow extends ConsumerWidget {
             SizedBox(width: Sp.x4),
             InvButton(label: l.deskInvPayerView, kind: EBtnKind.ghost, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _DroppedLine extends StatelessWidget {
-  const _DroppedLine({required this.count, required this.onTrust});
-
-  final int count;
-  final VoidCallback onTrust;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final c = context.dc;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x1),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: Sp.x2,
-        children: [
-          Icon(EIcons.shield, size: Ctl.iconSm, color: c.dim),
-          Text(l.deskInvPayerDropped(count), style: context.ts.small),
-          ELink(label: l.deskInvPayerTrustService, onPressed: onTrust),
         ],
       ),
     );

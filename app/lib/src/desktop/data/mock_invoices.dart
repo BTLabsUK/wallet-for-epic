@@ -12,12 +12,11 @@ enum ProtoNet {
   relayDown,
 }
 
-const _invoiceAddr0 = 'esJnV4kq8TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7a@epicbox.epiccash.com';
 const _coffeeAddr = 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com';
-const _hostAddr = 'esH9stVpsN7mQ6wE5rTyU4iP3pA2sD1fG9hJ8kL7zX6cV5bN4m@epicbox.epiccash.com';
-const _annaInvoice = 'esAnnaJnv9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3q@epicbox.epiccash.com';
-const _piotrInvoice = 'esPiotrJnv3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rH@epicbox.epicnet.us';
-const _olaInvoice = 'esQkaStock8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xH@epicbox.epiccash.com';
+const _northwindAddr = 'esNw7kq8TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7a@relay.northwind.example';
+const _annaAddr = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+const _tomAddr = 'es2oC3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9UuzHYD@epicbox.epiccash.com';
+const _olaAddr = 'esQka2kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com';
 
 /// The mock's invoices: both sides' state machines, a clock the prototype moves, and the
 /// "other side" the Prototype panel plays (a payer who pays or declines, a service that bills,
@@ -37,14 +36,10 @@ class InvoiceProto {
 
   ProtoNet net = ProtoNet.online;
 
-  String invoiceAddress = _invoiceAddr0;
-  int invoiceIndex = 1;
   Duration expiry = defaultInvoiceExpiry;
-  int dropped = 0;
   DateTime? lastCheck;
   InvoiceCheck check = InvoiceCheck.ok;
   String? checkProblem;
-  final List<TrustedSender> trusted = [];
   final List<IncomingInvoice> toPay = [];
   final List<IssuedRequest> sent = [];
   int _slate = 0;
@@ -67,39 +62,32 @@ class InvoiceProto {
   void reset({bool notify = true}) {
     offset = Duration.zero;
     net = ProtoNet.online;
-    invoiceAddress = _invoiceAddr0;
-    invoiceIndex = 1;
     expiry = defaultInvoiceExpiry;
-    dropped = 2;
     lastCheck = now.subtract(const Duration(minutes: 2));
     check = InvoiceCheck.ok;
     checkProblem = null;
     _slate = 0;
-    trusted
-      ..clear()
-      ..addAll([
-        TrustedSender(address: _coffeeAddr, label: 'Coffee Roasters', since: DateTime(2026, 9, 2), contactId: 'c5'),
-        TrustedSender(address: _hostAddr, label: 'EpicNode hosting', since: DateTime(2026, 6, 18)),
-        TrustedSender(address: _w._contacts[0].address, label: 'Anna Kowalska', since: DateTime(2026, 8, 30), contactId: 'c1'),
-      ]);
     toPay
       ..clear()
       ..addAll([
         IncomingInvoice(
           slateId: _newSlate(),
-          senderAddress: _hostAddr,
-          label: 'EpicNode hosting',
-          amount: _epic(18),
-          fee: _epic(0.006),
-          message: 'VPS hosting, November. Invoice 2026-11-0042',
+          senderAddress: _northwindAddr,
+          label: 'Northwind Exchange',
+          pairingId: mockNorthwindPairing,
+          reference: 'Deposit · ref NW-48213',
+          amount: _epic(250),
+          fee: _epic(0.008),
+          message: 'Deposit to your Northwind account',
           receivedAt: now.subtract(const Duration(hours: 2, minutes: 40)),
-          expiresAt: now.add(const Duration(hours: 21, minutes: 20)),
+          expiresAt: now.add(const Duration(hours: 14, minutes: 55)),
           state: PayState.waiting,
         ),
         IncomingInvoice(
           slateId: _newSlate(),
           senderAddress: _coffeeAddr,
-          label: 'Coffee Roasters',
+          label: 'Merchant: Coffee',
+          pairingId: mockCoffeePairing,
           amount: _epic(12.5),
           fee: _epic(0.006),
           message: 'Order #4471: 1 kg Huila, ground',
@@ -111,7 +99,8 @@ class InvoiceProto {
         IncomingInvoice(
           slateId: _w._txs.firstWhere((t) => t.id == 37).slateId,
           senderAddress: _coffeeAddr,
-          label: 'Coffee Roasters',
+          label: 'Merchant: Coffee',
+          pairingId: mockCoffeePairing,
           amount: _epic(3.2),
           fee: _epic(0.006),
           message: 'Flat white and croissant',
@@ -128,8 +117,8 @@ class InvoiceProto {
         IssuedRequest(
           slateId: _newSlate(),
           txId: 141,
-          payerAddress: _piotrInvoice,
-          payerName: 'Piotr Nowak',
+          payerAddress: _tomAddr,
+          payerName: 'Tom',
           amount: _epic(150),
           message: 'Logo work, October',
           issuedAt: now.subtract(const Duration(hours: 1, minutes: 50)),
@@ -140,7 +129,7 @@ class InvoiceProto {
         IssuedRequest(
           slateId: _w._txs.firstWhere((t) => t.id == 39).slateId,
           txId: 39,
-          payerAddress: _annaInvoice,
+          payerAddress: _annaAddr,
           payerName: 'Anna Kowalska',
           amount: _epic(25),
           message: 'Lunch, thanks',
@@ -170,13 +159,9 @@ class InvoiceProto {
 
   InvoiceBook book() => InvoiceBook(
     now: now,
-    invoiceAddress: _onRelay(invoiceAddress),
-    invoiceIndex: invoiceIndex,
-    trusted: List.unmodifiable(trusted),
     toPay: List.unmodifiable(toPay),
     sent: List.unmodifiable(sent),
     expiry: expiry,
-    dropped: dropped,
     lastCheck: lastCheck,
     check: check,
     checkProblem: checkProblem,
@@ -198,10 +183,12 @@ class InvoiceProto {
 
   IssuedRequest request(PaymentRequestDraft d) {
     if (net == ProtoNet.relayDown) throw const InvoiceError(InvoiceProblem.notDelivered, 'The invoice did not reach the Epicbox server. Nothing was sent.');
+    final payer = _w.pairing.records.where((r) => r.id == d.pairingId).firstOrNull;
+    if (payer == null || payer.state != PairingState.verified) throw const InvoiceError(InvoiceProblem.invalid, 'The contact cannot be sent requests.');
     final r = IssuedRequest(
       slateId: _newSlate(),
       txId: _w._nextId++,
-      payerAddress: d.payerAddress.trim(),
+      payerAddress: payer.paymentsAddress ?? '',
       payerName: d.payerName,
       amount: d.amount,
       message: d.message,
@@ -264,26 +251,10 @@ class InvoiceProto {
     return i;
   }
 
-  String rotate() {
-    invoiceIndex++;
-    invoiceAddress = 'esJnV${invoiceIndex}x9TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7@epicbox.epiccash.com';
-    return _onRelay(invoiceAddress);
-  }
-
-  /// [address] on the relay in use: the invoice address carries the relay, as LEPIC builds it.
-  String _onRelay(String address) => '${address.split('@').first}@${_w._epicbox}';
-
-  void trust(String address, String label, String? contactId) {
-    trusted.removeWhere((t) => addressKey(t.address) == addressKey(address));
-    trusted.add(TrustedSender(address: address.trim(), label: label.trim(), since: now, contactId: contactId));
-  }
-
-  void untrust(String address) => trusted.removeWhere((t) => addressKey(t.address) == addressKey(address));
-
   PeerCapability capability(String address) {
     final key = addressKey(address);
-    if (key == addressKey(_olaInvoice)) return PeerCapability.noInvoices;
-    if (key == addressKey(_annaInvoice) || key == addressKey(_piotrInvoice)) return PeerCapability.lepic;
+    if (key == addressKey(_olaAddr)) return PeerCapability.noInvoices;
+    if (key == addressKey(_annaAddr) || key == addressKey(_tomAddr)) return PeerCapability.lepic;
     return PeerCapability.unknown;
   }
 
@@ -322,7 +293,8 @@ class InvoiceProto {
     _changed();
   }
 
-  /// A trusted service bills this wallet. [same] repeats the last paid bill's sender and amount.
+  /// A paired contact the user allows bills this wallet. [same] repeats the last paid bill's
+  /// sender and amount.
   void billArrives({bool same = false}) {
     if (same) {
       final last = toPay.where((i) => i.state.paid).fold<IncomingInvoice?>(null, (a, b) => a == null || (b.answeredAt ?? b.receivedAt).isAfter(a.answeredAt ?? a.receivedAt) ? b : a);
@@ -332,6 +304,8 @@ class InvoiceProto {
           slateId: _newSlate(),
           senderAddress: last.senderAddress,
           label: last.label,
+          pairingId: last.pairingId,
+          reference: last.reference,
           amount: last.amount,
           fee: last.fee,
           message: last.message,
@@ -345,7 +319,8 @@ class InvoiceProto {
         IncomingInvoice(
           slateId: _newSlate(),
           senderAddress: _coffeeAddr,
-          label: trustedLabel(_coffeeAddr) ?? 'Coffee Roasters',
+          label: 'Merchant: Coffee',
+          pairingId: mockCoffeePairing,
           amount: _epic(7.8),
           fee: _epic(0.006),
           message: cleanInvoiceText('Order #4502: 250 g Sidamo\u202e, beans'),
@@ -355,15 +330,6 @@ class InvoiceProto {
         ),
       );
     }
-    lastCheck = now;
-    _changed();
-  }
-
-  String? trustedLabel(String address) => trusted.where((t) => addressKey(t.address) == addressKey(address)).firstOrNull?.label;
-
-  /// A sender not on the trusted list writes to the invoice address: ignored unread.
-  void untrustedWrites() {
-    dropped++;
     lastCheck = now;
     _changed();
   }

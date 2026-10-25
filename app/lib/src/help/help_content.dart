@@ -63,7 +63,6 @@ class HelpTopic {
     this.short,
     this.body, {
     this.handshake = false,
-    this.invoiceFlow = false,
     this.id = '',
   });
 
@@ -74,9 +73,6 @@ class HelpTopic {
 
   /// The handshake stepper goes under the body.
   final bool handshake;
-
-  /// The invoice flow diagram goes under the body.
-  final bool invoiceFlow;
 
   /// A stable name other screens open the topic by; see [HelpId].
   final String id;
@@ -95,8 +91,9 @@ const helpSections = <HelpSection>[
   (id: 'trouble', title: 'When something goes wrong', lede: 'The usual causes, and what to do.', art: 'help-trouble'),
 ];
 
-/// Help › Invoices: shown when the wallet supports invoices, before "When something goes wrong".
-const invoiceHelpSection = 'invoices';
+/// Help › Pairing (RFC 0002): shown when the wallet pairs, before "When something goes wrong".
+/// It holds the invoice topic too: invoices come only from paired contacts.
+const pairingHelpSection = 'pairing';
 
 /// The ids screens open Help by ([HelpTopic.id]).
 /// The topics that explain a part Advanced hides, by id: Help lists and finds them only while
@@ -135,9 +132,11 @@ abstract final class HelpId {
   static const modes = 'modes';
   static const methods = 'methods';
   static const trouble = 'trouble';
+  static const pairing = 'pairing';
+  static const pairingWords = 'pairing-words';
+  static const checkWords = 'check-words';
   static const invoices = 'invoices';
-  static const trusted = 'trusted';
-  static const invoiceAddress = 'invoice-address';
+  static const pairingRestore = 'pairing-restore';
 }
 
 /// Which app shows the help: the words differ where the device does.
@@ -508,59 +507,56 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   ];
 }
 
-/// The three invoice topics, with [confirmations] as the open wallet counts them. Localized,
-/// unlike the rest, as the invoice flow was written for all five languages. The strings name the
-/// desktop's places; on the phone [_phoneInvoicePlace] gives each the phone's own.
-List<HelpTopic> invoiceHelpTopics(
-  AppLocalizations l,
-  int confirmations, {
-  HelpPlatform platform = HelpPlatform.desktop,
-}) {
+/// Help › Pairing's five topics (SPEC 2.11). Localized, unlike the rest, as they were written
+/// for all six languages with the screens. The strings name the desktop's places; on the phone
+/// [_phonePairingPlace] gives each the phone's own.
+List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = HelpPlatform.desktop}) {
   String t(String text) => platform == HelpPlatform.phone
-      ? text.replaceAllMapped(RegExp(r'\[\[(.+?)\]\]'), (m) => _phoneInvoicePlace(l, m.group(1)!, m.group(0)!))
+      ? text.replaceAllMapped(RegExp(r'\[\[(.+?)\]\]'), (m) => _phonePairingPlace(l, m.group(1)!, m.group(0)!))
       : text;
+  const s = pairingHelpSection;
   return [
-    HelpTopic(
-      invoiceHelpSection,
-      l.deskInvHelpFlowTitle,
-      l.deskInvHelpFlowShort,
-      [
-        HelpBlock.p(t(l.deskInvHelpFlowIntro)),
-        HelpBlock.ol([t(l.deskInvHelpFlowStep1), t(l.deskInvHelpFlowStep2), t(l.deskInvHelpFlowStep3), t(l.deskInvHelpFlowStep4(confirmations))]),
-        HelpBlock.p(t(l.deskInvHelpFlowNever)),
-        HelpBlock.p(t(l.deskInvHelpFlowIssued)),
-      ],
-      invoiceFlow: true,
-      id: HelpId.invoices,
-    ),
-    HelpTopic(invoiceHelpSection, l.deskInvHelpTrustTitle, l.deskInvHelpTrustShort, [
-      HelpBlock.p(t(l.deskInvHelpTrustP1)),
-      HelpBlock.p(t(l.deskInvHelpTrustP2)),
-      HelpBlock.p(t(l.deskInvHelpTrustP3)),
-      HelpBlock.ul([t(l.deskInvHelpTrustWhere1), t(l.deskInvHelpTrustWhere2), t(l.deskInvHelpTrustWhere3)]),
-    ], id: HelpId.trusted),
-    HelpTopic(invoiceHelpSection, l.deskInvHelpAddrTitle, l.deskInvHelpAddrShort, [
-      HelpBlock.p(t(l.deskInvHelpAddrP1)),
-      HelpBlock.p(t(l.deskInvHelpAddrP2)),
-      HelpBlock.p(t(l.deskInvHelpAddrP3)),
-      HelpBlock.ul([t(l.deskInvHelpAddrWhere1), t(l.deskInvHelpAddrWhere2)]),
-    ], id: HelpId.invoiceAddress),
+    HelpTopic(s, l.helpPairWhatTitle, l.helpPairWhatShort, [
+      HelpBlock.p(t(l.helpPairWhatP1)),
+      HelpBlock.p(t(l.helpPairWhatP2)),
+      HelpBlock.ol([t(l.helpPairWhatStep1), t(l.helpPairWhatStep2), t(l.helpPairWhatStep3)]),
+      HelpBlock.p(t(l.helpPairWhatP3)),
+    ], id: HelpId.pairing),
+    HelpTopic(s, l.helpPairWhyTitle, l.helpPairWhyShort, [
+      HelpBlock.p(t(l.helpPairWhyP1)),
+      HelpBlock.p(t(l.helpPairWhyP2)),
+      HelpBlock.p(t(l.helpPairWhyP3)),
+    ], id: HelpId.checkWords),
+    HelpTopic(s, l.helpPairWordsTitle, l.helpPairWordsShort, [
+      HelpBlock.p(t(l.helpPairWordsP1)),
+      HelpBlock.p(t(l.helpPairWordsP2)),
+      HelpBlock.p(t(l.helpPairWordsP3)),
+    ], id: HelpId.pairingWords),
+    HelpTopic(s, l.helpPairInvTitle, l.helpPairInvShort, [
+      HelpBlock.p(t(l.helpPairInvP1)),
+      HelpBlock.p(t(l.helpPairInvP2)),
+      HelpBlock.p(t(l.helpPairInvP3)),
+      HelpBlock.p(t(l.helpPairInvP4)),
+    ], id: HelpId.invoices),
+    HelpTopic(s, l.helpPairRestoreTitle, l.helpPairRestoreShort, [
+      HelpBlock.p(t(l.helpPairRestoreP1)),
+      HelpBlock.p(t(l.helpPairRestoreP2)),
+      HelpBlock.p(t(l.helpPairRestoreP3)),
+      HelpBlock.p(t(l.helpPairRestoreP4)),
+    ], id: HelpId.pairingRestore),
   ];
 }
 
-/// The phone's place for one of the invoice strings' desktop places [inner] (the text between
-/// `[[` and `]]`; [whole] with them): the Invoices screen's sections, and the Wallet page's row.
-String _phoneInvoicePlace(AppLocalizations l, String inner, String whole) {
+/// The phone's place for one of the pairing strings' desktop places [inner] (the text between
+/// `[[` and `]]`; [whole] with them).
+String _phonePairingPlace(AppLocalizations l, String inner, String whole) {
   final bar = inner.indexOf('|');
   final target = bar < 0 ? inner : inner.substring(bar + 1).trim();
-  String link(List<String> label, String place) => '[[${label.join(' › ')}|$place]]';
+  final label = bar < 0 ? null : inner.substring(0, bar).trim();
+  String link(List<String> words, String place) => '[[${label ?? words.join(' › ')}|$place]]';
   return switch (target) {
     'Invoices › Pay' => link([l.invoicesTitle, l.invoicesToPaySection], 'Invoices › To pay'),
-    'Invoices › Issue' => link([l.invoicesTitle, l.invoicesSentSection], 'Invoices › Requests you sent'),
-    'Settings › Invoices' => link(
-      [l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices],
-      'Settings › Wallet › Invoice address and trusted services',
-    ),
+    'Settings › Invoices' => link([l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices], 'Settings › Wallet › Invoices'),
     _ => whole,
   };
 }

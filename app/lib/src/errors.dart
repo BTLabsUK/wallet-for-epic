@@ -1,6 +1,7 @@
 import 'advanced.dart' show NetworkMode;
 import 'l10n.dart';
 import 'network_gate.dart';
+import 'pairing_text.dart';
 import 'wallet_service.dart';
 
 /// Turns anything thrown by the wallet layer into a sentence for the user, in [l]'s language.
@@ -61,6 +62,10 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.mixedQrCodes ||
       WalletErrorKind.invalidQrCode ||
       WalletErrorKind.qrCodeTooLarge => l.errorInvalidSlate,
+      WalletErrorKind.pairingFailed => pairingFailureText(
+        l,
+        pairingFailureOf(error) ?? PairingFailure.invalid,
+      ),
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

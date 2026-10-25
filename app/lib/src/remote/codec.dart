@@ -231,7 +231,6 @@ final WireCodec<Contact> contactWire = _object<Contact>(
     'http': v.http,
     'tor': v.tor,
     'note': v.note,
-    'invoiceAddress': v.invoiceAddress,
   },
   (r) => Contact(
     id: r.of('id', stringWire),
@@ -240,7 +239,6 @@ final WireCodec<Contact> contactWire = _object<Contact>(
     http: r.of('http', optString),
     tor: r.of('tor', optString),
     note: r.of('note', optString),
-    invoiceAddress: r.of('invoiceAddress', optString),
   ),
 );
 
@@ -372,6 +370,8 @@ final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
     'conflicts': listOf(importConflictWire).encode(v.conflicts),
     'applied': v.applied,
     'replaced': v.replaced,
+    'pairingsAdded': v.pairingsAdded,
+    'pairingsOtherDevice': v.pairingsOtherDevice,
   },
   (r) => ImportReport(
     merged: r.of('merged', intWire),
@@ -382,6 +382,8 @@ final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
         r.of('conflicts', nullable(listOf(importConflictWire))) ?? const [],
     applied: r.of('applied', nullable(boolWire)) ?? true,
     replaced: r.of('replaced', optInt) ?? 0,
+    pairingsAdded: r.of('pairingsAdded', optInt) ?? 0,
+    pairingsOtherDevice: r.of('pairingsOtherDevice', optInt) ?? 0,
   ),
 );
 
@@ -591,22 +593,6 @@ final WireCodec<TxEntry> txEntryWire = _object<TxEntry>(
   ),
 );
 
-final WireCodec<TrustedService> trustedServiceWire = _object<TrustedService>(
-  'TrustedService',
-  (v) => {
-    'address': v.address,
-    'label': v.label,
-    'since': v.since?.millisecondsSinceEpoch,
-  },
-  (r) => TrustedService(
-    address: r.of('address', stringWire),
-    label: r.of('label', optString),
-    since: r.of('since', optInt) == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(r.of('since', optInt)!),
-  ),
-);
-
 final WireCodec<PendingInvoice> pendingInvoiceWire = _object<PendingInvoice>(
   'PendingInvoice',
   (v) => {
@@ -616,6 +602,8 @@ final WireCodec<PendingInvoice> pendingInvoiceWire = _object<PendingInvoice>(
     'message': v.message,
     'receivedAt': timeWire.encode(v.receivedAt),
     'expiresAt': timeWire.encode(v.expiresAt),
+    'pairingId': v.pairingId,
+    'reference': v.reference,
   },
   (r) => PendingInvoice(
     slateId: r.of('slateId', stringWire),
@@ -624,6 +612,8 @@ final WireCodec<PendingInvoice> pendingInvoiceWire = _object<PendingInvoice>(
     message: r.of('message', optString),
     receivedAt: r.of('receivedAt', timeWire),
     expiresAt: r.of('expiresAt', timeWire),
+    pairingId: r.of('pairingId', optString),
+    reference: r.of('reference', optString),
   ),
 );
 
@@ -637,6 +627,8 @@ final WireCodec<PaidInvoice> paidInvoiceWire = _object<PaidInvoice>(
     'status': invoiceStatusWire.encode(v.status),
     'txId': v.txId,
     'kernelExcess': v.kernelExcess,
+    'pairingId': v.pairingId,
+    'reference': v.reference,
   },
   (r) => PaidInvoice(
     slateId: r.of('slateId', stringWire),
@@ -646,6 +638,8 @@ final WireCodec<PaidInvoice> paidInvoiceWire = _object<PaidInvoice>(
     status: r.of('status', invoiceStatusWire),
     txId: r.of('txId', optInt),
     kernelExcess: r.of('kernelExcess', optString),
+    pairingId: r.of('pairingId', optString),
+    reference: r.of('reference', optString),
   ),
 );
 
@@ -733,13 +727,18 @@ final WireCodec<PaymentsDrainReport> paymentsDrainReportWire =
       ),
     );
 
-/// An open session as the server names it: its handle and [WalletSession.supportsInvoices].
-typedef SessionRef = ({String handle, bool invoices});
+/// An open session as the server names it: its handle, [WalletSession.supportsInvoices] and
+/// whether its core pairs ([PairingApi.supported]).
+typedef SessionRef = ({String handle, bool invoices, bool pairing});
 
 final WireCodec<SessionRef> sessionRefWire = _object<SessionRef>(
   'SessionRef',
-  (v) => {'s': v.handle, 'invoices': v.invoices},
-  (r) => (handle: r.of('s', stringWire), invoices: r.of('invoices', boolWire)),
+  (v) => {'s': v.handle, 'invoices': v.invoices, 'pairing': v.pairing},
+  (r) => (
+    handle: r.of('s', stringWire),
+    invoices: r.of('invoices', boolWire),
+    pairing: r.of('pairing', nullable(boolWire)) ?? false,
+  ),
 );
 
 /// [WalletService.createWithPin]'s record, with the session as a [SessionRef].
@@ -754,5 +753,145 @@ final WireCodec<PinWalletRef> pinWalletRefWire = _object<PinWalletRef>(
   (r) => (
     session: r.of('session', sessionRefWire),
     sealedPassword: r.of('sealedPassword', stringWire),
+  ),
+);
+
+// Pairing (RFC 0002).
+
+final WireCodec<PairingState> pairingStateWire = enumWire('PairingState', PairingState.values);
+final WireCodec<PairingKind> pairingKindWire = enumWire('PairingKind', PairingKind.values);
+final WireCodec<SealMode> sealModeWire = enumWire('SealMode', SealMode.values);
+final WireCodec<PairingWay> pairingWayWire = enumWire('PairingWay', PairingWay.values);
+final WireCodec<PairingCheck> pairingCheckWire = enumWire('PairingCheck', PairingCheck.values);
+final WireCodec<KeysChoice> keysChoiceWire = enumWire('KeysChoice', KeysChoice.values);
+final WireCodec<PairingFailure> pairingFailureWire = enumWire('PairingFailure', PairingFailure.values);
+final WireCodec<PairingEventKind> pairingEventKindWire = enumWire('PairingEventKind', PairingEventKind.values);
+final WireCodec<DateTime?> optTime = nullable(timeWire);
+
+final WireCodec<SasWord> sasWordWire = _object<SasWord>(
+  'SasWord',
+  (v) => {'emoji': v.emoji, 'name': v.name},
+  (r) => SasWord(r.of('emoji', stringWire), r.of('name', stringWire)),
+);
+
+final WireCodec<PairingRecord> pairingRecordWire = _object<PairingRecord>(
+  'PairingRecord',
+  (v) => {
+    'id': v.id,
+    'state': pairingStateWire.encode(v.state),
+    'way': pairingWayWire.encode(v.way),
+    'inviter': v.inviter,
+    'createdAt': timeWire.encode(v.createdAt),
+    'name': v.name,
+    'label': v.label,
+    'kind': pairingKindWire.encode(v.kind),
+    'caps': v.caps.bits,
+    'sas': listOf(sasWordWire).encode(v.sas),
+    'verifiedAt': optTime.encode(v.verifiedAt),
+    'checkSkipped': v.checkSkipped,
+    'allowInvoices': v.allowInvoices,
+    'asksInvoices': v.asksInvoices,
+    'seal': sealModeWire.encode(v.seal),
+    'homeRelay': v.homeRelay,
+    'contactId': v.contactId,
+    'paymentsAddress': v.paymentsAddress,
+    'lastSealedIn': optTime.encode(v.lastSealedIn),
+    'expiresAt': optTime.encode(v.expiresAt),
+    'inviteLink': v.inviteLink,
+    'inviteWords': listOf(sasWordWire).encode(v.inviteWords),
+    'relayDown': v.relayDown,
+    'otherDevice': v.otherDevice,
+  },
+  (r) => PairingRecord(
+    id: r.of('id', stringWire),
+    state: r.of('state', pairingStateWire),
+    way: r.of('way', pairingWayWire),
+    inviter: r.of('inviter', boolWire),
+    createdAt: r.of('createdAt', timeWire),
+    name: r.of('name', optString),
+    label: r.of('label', optString),
+    kind: r.of('kind', pairingKindWire),
+    caps: PairingCaps.fromBits(r.of('caps', intWire)),
+    sas: r.of('sas', listOf(sasWordWire)),
+    verifiedAt: r.of('verifiedAt', optTime),
+    checkSkipped: r.of('checkSkipped', boolWire),
+    allowInvoices: r.of('allowInvoices', boolWire),
+    asksInvoices: r.of('asksInvoices', boolWire),
+    seal: r.of('seal', sealModeWire),
+    homeRelay: r.of('homeRelay', stringWire),
+    contactId: r.of('contactId', optString),
+    paymentsAddress: r.of('paymentsAddress', optString),
+    lastSealedIn: r.of('lastSealedIn', optTime),
+    expiresAt: r.of('expiresAt', optTime),
+    inviteLink: r.of('inviteLink', optString),
+    inviteWords: r.of('inviteWords', listOf(sasWordWire)),
+    relayDown: r.of('relayDown', boolWire),
+    otherDevice: r.of('otherDevice', boolWire),
+  ),
+);
+
+final WireCodec<PairingInvitePreview> pairingPreviewWire = _object<PairingInvitePreview>(
+  'PairingInvitePreview',
+  (v) => {
+    'token': v.token,
+    'name': v.name,
+    'expiresAt': timeWire.encode(v.expiresAt),
+    'kind': pairingKindWire.encode(v.kind),
+    'asksInvoices': v.asksInvoices,
+    'homeRelay': v.homeRelay,
+    'wordsAvailable': v.wordsAvailable,
+  },
+  (r) => PairingInvitePreview(
+    token: r.of('token', stringWire),
+    name: r.of('name', stringWire),
+    expiresAt: r.of('expiresAt', timeWire),
+    kind: r.of('kind', pairingKindWire),
+    asksInvoices: r.of('asksInvoices', boolWire),
+    homeRelay: r.of('homeRelay', stringWire),
+    wordsAvailable: r.of('wordsAvailable', boolWire),
+  ),
+);
+
+final WireCodec<PairingCard> pairingCardWire = _object<PairingCard>(
+  'PairingCard',
+  (v) => {'id': v.id, 'link': v.link},
+  (r) => PairingCard(id: r.of('id', stringWire), link: r.of('link', stringWire)),
+);
+
+final WireCodec<PairingStray> pairingStrayWire = _object<PairingStray>(
+  'PairingStray',
+  (v) => {'id': v.id, 'inviteId': v.inviteId, 'name': v.name},
+  (r) => PairingStray(id: r.of('id', stringWire), inviteId: r.of('inviteId', stringWire), name: r.of('name', stringWire)),
+);
+
+final WireCodec<PairingEvent> pairingEventWire = _object<PairingEvent>(
+  'PairingEvent',
+  (v) => {
+    'kind': pairingEventKindWire.encode(v.kind),
+    'pairingId': v.pairingId,
+    'name': v.name,
+    'failure': nullable(pairingFailureWire).encode(v.failure),
+    'slateId': v.slateId,
+    'amount': optBigInt.encode(v.amount),
+    'count': v.count,
+  },
+  (r) => PairingEvent(
+    r.of('kind', pairingEventKindWire),
+    pairingId: r.of('pairingId', optString),
+    name: r.of('name', stringWire),
+    failure: r.of('failure', nullable(pairingFailureWire)),
+    slateId: r.of('slateId', optString),
+    amount: r.of('amount', optBigInt),
+    count: r.of('count', intWire),
+  ),
+);
+
+final WireCodec<OpenedSlate> openedSlateWire = _object<OpenedSlate>(
+  'OpenedSlate',
+  (v) => {'slateJson': v.slateJson, 'pairingId': v.pairingId, 'sealed': v.sealed},
+  (r) => OpenedSlate(
+    slateJson: r.of('slateJson', stringWire),
+    pairingId: r.of('pairingId', optString),
+    sealed: r.of('sealed', boolWire),
   ),
 );

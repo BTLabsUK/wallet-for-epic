@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../contacts.dart' show contactsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../pairing_providers.dart';
 import '../amount.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
@@ -22,8 +24,8 @@ import 'common.dart';
 import 'invoice_rows.dart';
 import 'invoices_screen.dart';
 import 'net_block.dart';
+import 'pairing/pairing_parts.dart';
 import 'pin.dart';
-import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -85,10 +87,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
       .read(noticeProvider.notifier)
       .show(text, level: level, tag: _invoiceTag(_invoice.slateId));
 
-  String _service() => invoiceServiceName(
+  String _service() => invoiceSenderName(
     context.l10n,
-    ref.read(trustedServicesProvider).value ?? const [],
-    _invoice.senderAddress,
+    ref.read(pairingsProvider).value ?? const [],
+    ref.read(contactsProvider).value ?? const [],
+    _invoice.pairingId,
   );
 
   Future<void> _approve() async {
@@ -204,9 +207,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final t = context.tokens;
-    final services =
-        ref.watch(trustedServicesProvider).value ?? const <TrustedService>[];
-    final service = invoiceServiceName(l, services, _invoice.senderAddress);
+    final pairing = _invoice.pairingId == null ? null : ref.watch(pairingByIdProvider(_invoice.pairingId!));
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final service = invoiceSenderName(l, ref.watch(pairingsProvider).value ?? const [], contacts, _invoice.pairingId);
+    // A name the contact chose, not the user's own, is marked as its claim.
+    final claimed = pairing != null && !contacts.any((c) => c.id == pairing.contactId);
     final pending = ref.watch(pendingInvoicesProvider).value;
     final now = ref.watch(invoiceClockProvider)();
     final unsent = _unsent;
@@ -292,8 +297,8 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           );
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.invoiceReviewTitle)),
-      idle: _busy ? SlotProgress(label: l.invoiceReviewTitle) : null,
+      appBar: AppBar(title: Text(l.reqTitle)),
+      idle: _busy ? SlotProgress(label: l.reqTitle) : null,
       body: ScreenBody(
         bottom: block == NetBlock.none
             ? bottom
@@ -303,13 +308,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                 children: [NetBlockNote(block), bottom],
               ),
         children: [
-          // The service, by the user's own label; its key shortened, never the relay's name.
+          // The contact, by the user's own name for it; its key shortened, never the relay's
+          // name. Sealed: it came through the contact's mailbox, sealed and signed.
           Row(
             children: [
-              const GlyphTile(
-                size: 40,
-                child: Icon(Icons.receipt_long_outlined),
-              ),
+              PairAvatar(name: service, kind: pairing?.kind ?? PairingKind.person, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -318,12 +321,21 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                     Semantics(
                       header: true,
                       child: Text(
-                        service,
+                        l.reqRequests(service),
                         style: theme.textTheme.titleMedium,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (pairing != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 2),
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [const SealedBadge(), TrustBadge(pairing), if (claimed) const ClaimedNameBadge()],
+                        ),
+                      ),
                     Text(
                       _shortKey(_invoice.senderAddress),
                       style: mono.copyWith(color: t.dim),
@@ -342,6 +354,9 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             ),
           const SizedBox(height: 20),
           _Fact(label: l.invoicesExpires, child: expiry),
+          if (invoiceMessageLine(_invoice.reference) case final reference?)
+            // The contact's own words for it, as untrusted as the message.
+            _Fact(label: l.reqReference, child: Text(reference, maxLines: 2)),
           if (message != null)
             // Hostile text: plain, its controls and line breaks gone, never a link.
             _Fact(label: l.invoicesMessage, child: Text(message, maxLines: 3)),
@@ -660,9 +675,12 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final t = context.tokens;
-    final services =
-        ref.watch(trustedServicesProvider).value ?? const <TrustedService>[];
-    final service = invoiceServiceName(l, services, paid.senderAddress);
+    final service = invoiceSenderName(
+      l,
+      ref.watch(pairingsProvider).value ?? const [],
+      ref.watch(contactsProvider).value ?? const [],
+      paid.pairingId,
+    );
     final message = invoiceMessageLine(paid.message);
 
     Widget warning(String text, Widget? action) => EdgeCard(

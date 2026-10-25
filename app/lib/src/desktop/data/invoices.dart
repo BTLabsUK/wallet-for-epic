@@ -42,7 +42,7 @@ String cleanInvoiceText(String? text, {int? max}) {
 /// Where a request this wallet sent stands (flow.md §3.3). Only [waiting] moves to the
 /// endings; [paid] → [confirming] → [completed] follow the chain.
 enum RequestState {
-  /// Delivered to the payer's invoice address, no answer yet. It can be withdrawn.
+  /// Delivered to the payer's mailbox, no answer yet. It can be withdrawn.
   waiting,
 
   /// The payer paid; this wallet finalized the payment and is posting it.
@@ -80,7 +80,7 @@ enum RequestState {
   bool get paidOut => this == paid || this == confirming || this == completed || this == notPosted;
 }
 
-/// A request this wallet sent: [payerAddress] (their invoice address) is asked for [amount].
+/// A request this wallet sent: the paired contact at [payerAddress] is asked for [amount].
 /// The payment arrives on this wallet's payments address. Nothing about it spends.
 @immutable
 class IssuedRequest {
@@ -105,7 +105,7 @@ class IssuedRequest {
   final int txId;
   final String payerAddress;
 
-  /// The contact whose invoice address it is; null for an address typed in.
+  /// The contact asked; null when it is no longer in the address book.
   final String? payerName;
   final int amount;
   final String? message;
@@ -193,13 +193,15 @@ enum PayState {
   bool get cancellable => this == notDelivered || this == withdrawnAfterPay || this == pastTtl;
 }
 
-/// An invoice a trusted sender billed this wallet with.
+/// An invoice a paired contact the user allows billed this wallet with.
 @immutable
 class IncomingInvoice {
   const IncomingInvoice({
     required this.slateId,
     required this.senderAddress,
     required this.label,
+    this.pairingId,
+    this.reference,
     required this.amount,
     required this.fee,
     required this.receivedAt,
@@ -215,12 +217,18 @@ class IncomingInvoice {
 
   final String slateId;
 
-  /// The trusted list's stored address for the sender (matched on the key), never the
-  /// message's own `from`.
+  /// The address the invoice came from, for display; the sender is [pairingId].
   final String senderAddress;
 
-  /// The user's label for the sender from the trusted list, never a name from the invoice.
+  /// The name of the contact whose pairing signed it (the address-book name, else the name
+  /// it chose), never a name from the invoice.
   final String label;
+
+  /// The pairing that sent it; null only on a core without pairing.
+  final String? pairingId;
+
+  /// What the contact says it is for (a deposit reference). Untrusted, cleaned.
+  final String? reference;
   final int amount;
 
   /// The fee this wallet pays on top, as estimated for the amount.
@@ -257,6 +265,8 @@ class IncomingInvoice {
     slateId: slateId,
     senderAddress: senderAddress,
     label: label,
+    pairingId: pairingId,
+    reference: reference,
     amount: amount,
     fee: fee,
     message: message,
@@ -271,20 +281,6 @@ class IncomingInvoice {
   );
 }
 
-/// A sender allowed to send invoices to the invoice address, by its full payments address; the
-/// label is the user's. A contact's switch adds and removes the contact's address here.
-@immutable
-class TrustedSender {
-  const TrustedSender({required this.address, required this.label, required this.since, this.contactId});
-
-  final String address;
-  final String label;
-  final DateTime since;
-
-  /// The contact this entry belongs to; null for a service with no contact.
-  final String? contactId;
-}
-
 /// What LEPIC learned of a payer's wallet (U-20 `peer_capability`).
 enum PeerCapability {
   /// Nothing known yet.
@@ -297,7 +293,7 @@ enum PeerCapability {
   noInvoices,
 }
 
-/// The last check of the invoice address (the drain) and the payments address.
+/// The last check of the paired contacts' mailboxes (the collect) and the payments address.
 enum InvoiceCheck { ok, checking, failed }
 
 /// Everything the Invoices page, Settings › Invoices and the badges show, read at [now]
@@ -306,13 +302,9 @@ enum InvoiceCheck { ok, checking, failed }
 class InvoiceBook {
   const InvoiceBook({
     required this.now,
-    required this.invoiceAddress,
-    required this.invoiceIndex,
-    required this.trusted,
     required this.toPay,
     required this.sent,
     this.expiry = defaultInvoiceExpiry,
-    this.dropped = 0,
     this.lastCheck,
     this.check = InvoiceCheck.ok,
     this.checkProblem,
@@ -320,23 +312,12 @@ class InvoiceBook {
 
   final DateTime now;
 
-  /// This wallet's invoice address: give it only to senders it trusts; not for payments.
-  final String invoiceAddress;
-
-  /// Its derivation index (1 or higher); Rotate moves to the next one. Null when the wallet
-  /// does not say.
-  final int? invoiceIndex;
-  final List<TrustedSender> trusted;
-
   /// Invoices received: waiting ones and those answered (paid, declined, ended).
   final List<IncomingInvoice> toPay;
 
   /// Requests sent, newest first.
   final List<IssuedRequest> sent;
   final Duration expiry;
-
-  /// Messages from senders not on the trusted list that the last checks ignored unread.
-  final int dropped;
   final DateTime? lastCheck;
   final InvoiceCheck check;
 
@@ -346,13 +327,9 @@ class InvoiceBook {
   /// The same book read at [now] (a countdown tick; nothing reloaded).
   InvoiceBook at(DateTime now) => InvoiceBook(
     now: now,
-    invoiceAddress: invoiceAddress,
-    invoiceIndex: invoiceIndex,
-    trusted: trusted,
     toPay: toPay,
     sent: sent,
     expiry: expiry,
-    dropped: dropped,
     lastCheck: lastCheck,
     check: check,
     checkProblem: checkProblem,
@@ -361,13 +338,9 @@ class InvoiceBook {
   /// The same book with the check's state replaced (a drain started, failed or ended).
   InvoiceBook withCheck(InvoiceCheck check, {String? problem}) => InvoiceBook(
     now: now,
-    invoiceAddress: invoiceAddress,
-    invoiceIndex: invoiceIndex,
-    trusted: trusted,
     toPay: toPay,
     sent: sent,
     expiry: expiry,
-    dropped: dropped,
     lastCheck: lastCheck,
     check: check,
     checkProblem: problem,
@@ -394,11 +367,6 @@ class InvoiceBook {
 
   List<IssuedRequest> get openRequests => [for (final r in sent) if (r.state == RequestState.waiting) r];
 
-  TrustedSender? trustedFor(String address) {
-    final key = addressKey(address);
-    return trusted.where((t) => addressKey(t.address) == key).firstOrNull;
-  }
-
   IncomingInvoice? invoice(String slateId) => toPay.where((i) => i.slateId == slateId).firstOrNull;
   IssuedRequest? request(String slateId) => sent.where((r) => r.slateId == slateId).firstOrNull;
 
@@ -414,20 +382,20 @@ class InvoiceBook {
             p.slateId != i.slateId &&
             p.state.paid &&
             p.state != PayState.cancelled &&
-            addressKey(p.senderAddress) == addressKey(i.senderAddress) &&
+            (p.pairingId != null ? p.pairingId == i.pairingId : addressKey(p.senderAddress) == addressKey(i.senderAddress)) &&
             p.amount == i.amount &&
             now.difference(p.answeredAt ?? p.receivedAt) < const Duration(hours: 48),
       )
       .firstOrNull;
 }
 
-/// What Request a payment hands over.
+/// What Request a payment hands over: the paired contact to ask, the amount and a message.
 @immutable
 class PaymentRequestDraft {
-  const PaymentRequestDraft({required this.payerAddress, required this.amount, this.message, this.payerName});
+  const PaymentRequestDraft({required this.pairingId, required this.amount, this.message, this.payerName});
 
-  /// The payer's invoice address.
-  final String payerAddress;
+  /// The pairing of the contact asked to pay (verified, its card pays invoices).
+  final String pairingId;
   final String? payerName;
   final int amount;
   final String? message;

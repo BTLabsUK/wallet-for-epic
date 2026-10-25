@@ -44,12 +44,6 @@ final List<DeskShot> invoiceReqShots = [
     route: DeskRoute.invoiceIssue,
     prepare: (c, _) async => c.read(deskNavProvider.notifier).reset(DeskRoute.invoiceIssue, _contact(c, 'c7')),
   ),
-  DeskShot(
-    id: 'inv-req-05-form-own-address',
-    title: 'Issue form: own address refused',
-    route: DeskRoute.invoiceIssue,
-    prepare: (c, _) async => c.read(deskNavProvider.notifier).reset(DeskRoute.invoiceIssue, _proto(c).invoiceAddress),
-  ),
   const DeskShot(
     id: 'inv-req-06-form-http',
     title: 'Issue form: HTTP address refused on Epicbox',

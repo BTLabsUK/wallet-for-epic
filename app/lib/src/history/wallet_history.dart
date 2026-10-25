@@ -41,7 +41,6 @@ Contact _contact(ContactRec c) => Contact(
   http: c.http,
   tor: c.tor,
   note: c.note,
-  invoiceAddress: c.invoiceAddress,
 );
 
 Contact _fromShared(ContactFields c) => Contact(
@@ -51,7 +50,6 @@ Contact _fromShared(ContactFields c) => Contact(
   http: c.http,
   tor: c.tor,
   note: c.note,
-  invoiceAddress: c.invoiceAddress,
 );
 
 ContactRec _recOf(ContactFields c) => ContactRec(
@@ -61,7 +59,6 @@ ContactRec _recOf(ContactFields c) => ContactRec(
   http: c.http,
   tor: c.tor,
   note: c.note,
-  invoiceAddress: c.invoiceAddress,
 );
 
 String? _trimmed(String? s) {
@@ -244,7 +241,6 @@ class WalletHistory {
             http: http,
             tor: tor,
             note: _trimmed(contact.note),
-            invoiceAddress: _trimmed(contact.invoiceAddress),
           ),
         ),
       );
@@ -256,7 +252,6 @@ class WalletHistory {
       http: http,
       tor: tor,
       note: _trimmed(contact.note),
-      invoiceAddress: _trimmed(contact.invoiceAddress),
     );
     await _store.update((m) {
       final i = m.contacts.indexWhere((c) => c.id == rec.id);
@@ -274,35 +269,6 @@ class WalletHistory {
   Future<void> deleteContact(String id) =>
       _shared?.delete(id) ??
       _store.update((m) => m.contacts.removeWhere((c) => c.id == id));
-
-  /// [addresses], the wallet's trusted invoice services, with the labels kept here. An address
-  /// with no label here (the file was lost) comes back with none.
-  List<TrustedService> trustedServices(List<String> addresses) => [
-    for (final a in addresses)
-      TrustedService(address: a, label: meta.serviceLabels[a.trim()]),
-  ];
-
-  /// Stores [label] for the service at [address]. A blank label is refused.
-  Future<void> setServiceLabel(String address, String label) async {
-    final text = label.trim();
-    if (text.isEmpty) throw _invalid('the service needs a label');
-    await _store.update((m) => m.serviceLabels[address.trim()] = text);
-  }
-
-  Future<void> removeServiceLabel(String address) =>
-      _store.update((m) => m.serviceLabels.remove(address.trim()));
-
-  /// The index of the current invoice address; 1 until the first rotation.
-  int get invoiceIndex => meta.invoiceIndex ?? 1;
-
-  /// Records a rotation to [index], which must be above the current one: an abandoned
-  /// invoice address is never used again.
-  Future<void> setInvoiceIndex(int index) async {
-    if (index <= invoiceIndex) {
-      throw _invalid('the invoice index only moves forward');
-    }
-    await _store.update((m) => m.invoiceIndex = index);
-  }
 
   /// What this install recorded of the invoice it approved under [slateId], or null.
   PaidInvoiceRec? paidInvoiceRecord(String slateId) =>
@@ -385,8 +351,6 @@ class WalletHistory {
       final shared? => [for (final c in shared.list()) _recOf(c)],
       null => [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
     },
-    serviceLabels: {...meta.serviceLabels},
-    invoiceIndex: meta.invoiceIndex,
   );
 
   /// Merges an opened history file of this wallet into the archive. A record known from an
@@ -437,7 +401,6 @@ class WalletHistory {
             http: _trimmed(c.http),
             tor: _trimmed(c.tor),
             note: _trimmed(c.note),
-            invoiceAddress: _trimmed(c.invoiceAddress),
           ),
         );
         n++;
@@ -452,6 +415,8 @@ class WalletHistory {
       conflicts: report.conflicts,
       applied: report.applied,
       replaced: report.replaced,
+      pairingsAdded: report.pairingsAdded,
+      pairingsOtherDevice: report.pairingsOtherDevice,
     );
   }
 
@@ -634,18 +599,6 @@ class WalletHistory {
       }
     }
 
-    // A label set here wins over the file's; the index only moves forward, so an older
-    // file never brings back an abandoned invoice address.
-    payload.serviceLabels.forEach((a, l) {
-      final address = a.trim(), label = l.trim();
-      if (address.isNotEmpty && label.isNotEmpty) {
-        m.serviceLabels.putIfAbsent(address, () => label);
-      }
-    });
-    final index = payload.invoiceIndex;
-    if (index != null && index > (m.invoiceIndex ?? 1)) {
-      m.invoiceIndex = index;
-    }
     // A contact comes in unless one here already holds one of its addresses; with the shared
     // address book, [importPayload] adds them there.
     for (final c in _shared == null ? payload.contacts : const <ContactRec>[]) {
@@ -670,8 +623,7 @@ class WalletHistory {
           http: c.http,
           tor: c.tor,
           note: c.note,
-          invoiceAddress: c.invoiceAddress,
-        ),
+                ),
       );
       contactsAdded++;
     }

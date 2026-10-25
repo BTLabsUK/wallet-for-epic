@@ -384,16 +384,30 @@ FakeWalletSession _previewSession() {
       txId: 28,
     ),
   ]);
-  // Two invoices from a trusted service, and two requests this wallet sent.
-  session
-      .addTrustedService(address: biller, label: 'Northwind Exchange')
+  // Pairings (RFC 0002): Anna verified, Tom paired and not checked yet, and Northwind Exchange
+  // verified with its invoices allowed; then two invoices from it and two requests this
+  // wallet sent.
+  session.pairing
+    ..autoAnswerAfter = const Duration(seconds: 6)
+    ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: anna, verifiedAt: now.subtract(const Duration(days: 4)))
+    ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired, checkSkipped: true)
+    ..seedPaired(
+      name: 'Northwind Exchange',
+      kind: PairingKind.exchange,
+      caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
+      allowInvoices: true,
+      paymentsAddress: biller,
+      relay: 'relay.northwind.example',
+    );
+  Future<void>.value()
       .then((_) {
         session
           ..relayInvoice(
             from: biller,
             slateId: 'inv-1042',
             amount: _epic(42.5),
-            message: 'Order 1042: 2 x hosting, October',
+            message: 'Deposit to your Northwind account',
+            reference: 'Deposit · ref NW-48213',
             expiresIn: const Duration(hours: 23, minutes: 12),
           )
           ..relayInvoice(

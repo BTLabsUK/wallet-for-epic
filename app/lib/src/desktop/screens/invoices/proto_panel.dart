@@ -104,7 +104,6 @@ class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
             _group('Invoices to pay: a service', [
               ('New invoice', 'Coffee Roasters billed you.', (p) => p.billArrives()),
               ('Same bill again', 'The last paid bill arrived again.', (p) => p.billArrives(same: true)),
-              ('Untrusted sender', 'A sender you do not trust wrote; ignored unread.', (p) => p.untrustedWrites()),
               ('Service withdraws', 'The service withdrew an invoice.', (p) => p.serviceWithdraws()),
               ('Service posts', 'The service posted your payment.', (p) => p.servicePosts()),
             ]),

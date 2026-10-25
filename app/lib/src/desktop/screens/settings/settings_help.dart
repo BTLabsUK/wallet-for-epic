@@ -8,7 +8,8 @@ import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
-import 'help_invoices.dart';
+import '../../data/pairing_state.dart' show deskPairsProvider;
+import 'help_pairing.dart';
 import 'help_places.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
@@ -86,7 +87,7 @@ class SettingsHelpScreen extends ConsumerStatefulWidget {
 class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   late final _query = TextEditingController(text: widget.arg is String ? widget.arg as String : '');
   final _focus = FocusNode(debugLabel: 'help search');
-  final _sectionKeys = {for (final s in [...helpSections.map((s) => s.id), invoiceHelpSection]) s: GlobalKey(debugLabel: 'help $s')};
+  final _sectionKeys = {for (final s in [...helpSections.map((s) => s.id), pairingHelpSection]) s: GlobalKey(debugLabel: 'help $s')};
   final _logsKey = GlobalKey(debugLabel: 'help logs');
 
   @override
@@ -147,16 +148,16 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final words = queryWords(_query.text);
     final searching = words.isNotEmpty;
     final confirmations = deskMinConfirmations(ref);
-    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final pairs = ref.watch(deskPairsProvider);
     final lang = deskHelpLanguage(ref);
     final lh = helpStrings(lang);
     // The topics of a part Advanced hides go with it (Outputs).
-    final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (invoices) ...invoiceHelpTopics(lh, confirmations, platform: HelpPlatform.desktop)];
-    // The invoices section goes before "When something goes wrong".
+    final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (pairs) ...pairingHelpTopics(lh, platform: HelpPlatform.desktop)];
+    // The Pairing section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
       for (final s in localizedHelpSections(lang)) ...[
-        if (s.id == 'trouble' && invoices)
-          ((id: invoiceHelpSection, title: invoiceHelpTitle(lh), lede: invoiceHelpLede(lh), art: ''), InvoiceHelpMark(width: 120.u)),
+        if (s.id == 'trouble' && pairs)
+          ((id: pairingHelpSection, title: pairingHelpTitle(lh), lede: pairingHelpLede(lh), art: ''), PairingHelpMark(width: 120.u)),
         (s, HelpArt(s.art, width: 120.u)),
       ],
     ];
@@ -480,7 +481,6 @@ class _TopicState extends ConsumerState<_Topic> {
                     children: [
                       for (final b in t.body) _Block(block: b, words: widget.words, style: answer),
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
-                      if (t.invoiceFlow) ...[SizedBox(height: Sp.x2), InvoiceFlowDiagram(confirmations: deskMinConfirmations(ref))],
                     ],
                   ),
                 ),

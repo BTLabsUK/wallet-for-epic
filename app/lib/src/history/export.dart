@@ -49,11 +49,9 @@ class HistoryPayload {
     this.lastConfirmedHeight,
     List<Record>? txs,
     List<ContactRec>? contacts,
-    Map<String, String>? serviceLabels,
-    this.invoiceIndex,
+    this.pairings,
   }) : txs = txs ?? [],
-       contacts = contacts ?? [],
-       serviceLabels = serviceLabels ?? {};
+       contacts = contacts ?? [];
 
   /// Reads a payload as serde reads it. Throws [MetaFormatException] for a wrong shape.
   factory HistoryPayload.fromJson(Object? json) {
@@ -75,13 +73,9 @@ class HistoryPayload {
     if (height != null && (height is! int || height < 0)) {
       throw const MetaFormatException('last_confirmed_height');
     }
-    final index = m['invoice_index'];
-    if (index != null && (index is! int || index < 1 || index > 0xffffffff)) {
-      throw const MetaFormatException('invoice_index');
-    }
-    final labels = m['service_labels'] == null
-        ? const <String, Object?>{}
-        : asObject(m['service_labels'], 'service_labels');
+    final pairings = m['pairings'] == null
+        ? null
+        : asObject(m['pairings'], 'pairings');
     return HistoryPayload(
       format: str('format'),
       version: version,
@@ -92,13 +86,7 @@ class HistoryPayload {
       lastConfirmedHeight: height == null ? null : BigInt.from(height as int),
       txs: [for (final r in list('txs')) Record.fromJson(r)],
       contacts: [for (final c in list('contacts')) ContactRec.fromJson(c)],
-      serviceLabels: labels.map(
-        (k, v) => MapEntry(
-          k,
-          v is String ? v : throw const MetaFormatException('service label'),
-        ),
-      ),
-      invoiceIndex: index as int?,
+      pairings: pairings,
     );
   }
 
@@ -116,14 +104,11 @@ class HistoryPayload {
   final List<Record> txs;
   final List<ContactRec> contacts;
 
-  /// The user's labels of trusted invoice services, by address ([Meta.serviceLabels]).
-  final Map<String, String> serviceLabels;
+  /// The wallet's pairing backup (RFC 0002 10.5): the core's own versioned object, carried
+  /// as it is. Null when the wallet has no pairings or its core none.
+  final Map<String, Object?>? pairings;
 
-  /// The current invoice address index ([Meta.invoiceIndex]), so a restore with this file
-  /// keeps the address services were given. Null when the wallet never rotated.
-  final int? invoiceIndex;
-
-  // The invoice fields only when set, so a file without invoices stays as the old core wrote it.
+  // The pairings only when set, so a file without them stays as the old core wrote it.
   Map<String, Object?> toJson() => {
     'format': format,
     'version': version,
@@ -134,8 +119,7 @@ class HistoryPayload {
     'last_confirmed_height': lastConfirmedHeight,
     'txs': [for (final r in txs) r.toJson()],
     'contacts': [for (final c in contacts) c.toJson()],
-    if (serviceLabels.isNotEmpty) 'service_labels': {...serviceLabels},
-    'invoice_index': ?invoiceIndex,
+    'pairings': ?pairings,
   };
 
   List<int> encode() => utf8.encode(encodeJson(toJson()));

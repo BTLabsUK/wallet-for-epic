@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../models.dart';
+import '../pairing_api.dart';
 import '../wallet_service.dart'
     show PinWallet, WalletService, WalletSession, onionAddressFormat;
 import 'channel.dart';
@@ -429,7 +430,7 @@ class RemoteWalletService implements WalletService {
   }
 
   RemoteWalletSession _session(SessionRef ref) =>
-      RemoteWalletSession._(this, ref.handle, ref.invoices);
+      RemoteWalletSession._(this, ref.handle, ref.invoices, ref.pairing);
 
   Future<WalletSession> _open(String member, Map<String, Object?> params) =>
       _call(member, params, sessionRefWire).then(_session);
@@ -564,7 +565,9 @@ class RemoteWalletService implements WalletService {
 
 /// A session held by the server under [handle].
 class RemoteWalletSession implements WalletSession {
-  RemoteWalletSession._(this._service, this.handle, this.supportsInvoices);
+  RemoteWalletSession._(this._service, this.handle, this.supportsInvoices, bool pairs) {
+    pairing = pairs ? RemotePairing._(this) : const NoPairing();
+  }
 
   final RemoteWalletService _service;
 
@@ -574,6 +577,10 @@ class RemoteWalletSession implements WalletSession {
   /// As the server reported it when the session opened.
   @override
   final bool supportsInvoices;
+
+  /// [RemotePairing] when the server's core pairs, else [NoPairing].
+  @override
+  late final PairingApi pairing;
 
   Future<T> _call<T>(
     SessionMember member,
@@ -1020,35 +1027,6 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
-  Future<String> invoiceAddress() =>
-      _call(SessionMember.invoiceAddress, stringWire);
-
-  @override
-  Future<String> rotateInvoiceAddress() =>
-      _call(SessionMember.rotateInvoiceAddress, stringWire);
-
-  @override
-  Future<int> invoiceAddressIndex() =>
-      _call(SessionMember.invoiceAddressIndex, intWire);
-
-  @override
-  Future<List<TrustedService>> trustedServices() =>
-      _call(SessionMember.trustedServices, listOf(trustedServiceWire));
-
-  @override
-  Future<TrustedService> addTrustedService({
-    required String address,
-    required String label,
-  }) => _call(SessionMember.addTrustedService, trustedServiceWire, {
-    'address': address,
-    'label': label,
-  });
-
-  @override
-  Future<void> removeTrustedService({required String address}) =>
-      _call(SessionMember.removeTrustedService, voidWire, {'address': address});
-
-  @override
   Future<InvoiceDrainReport> drainInvoices() =>
       _call(SessionMember.drainInvoices, invoiceDrainReportWire);
 
@@ -1130,4 +1108,168 @@ class RemoteWalletSession implements WalletSession {
     peerCapabilityWire,
     {'address': address},
   );
+}
+
+/// The server session's [WalletSession.pairing], call for call.
+class RemotePairing implements PairingApi {
+  RemotePairing._(this._session);
+
+  final RemoteWalletSession _session;
+
+  Future<T> _call<T>(SessionMember member, WireCodec<T> result, [Map<String, Object?> params = const {}]) =>
+      _session._call(member, result, params);
+
+  @override
+  bool get supported => true;
+
+  @override
+  Future<List<PairingRecord>> pairings() => _call(SessionMember.pairingList, listOf(pairingRecordWire));
+
+  @override
+  Future<PairingRecord?> pairing(String id) => _call(SessionMember.pairingGet, nullable(pairingRecordWire), {'id': id});
+
+  @override
+  Future<PairingRecord?> pairingForContact(String contactId) =>
+      _call(SessionMember.pairingForContact, nullable(pairingRecordWire), {'contactId': contactId});
+
+  @override
+  Future<List<PairingStray>> strays() => _call(SessionMember.pairingStrays, listOf(pairingStrayWire));
+
+  @override
+  Future<void> removeStray(String id) => _call(SessionMember.pairingRemoveStray, voidWire, {'id': id});
+
+  @override
+  Future<PairingRecord> makeInvite({
+    required String name,
+    required Duration expiry,
+    bool words = false,
+    String? label,
+    String? contactId,
+  }) => _call(SessionMember.pairingMakeInvite, pairingRecordWire, {
+    'name': name,
+    'expirySecs': expiry.inSeconds,
+    'words': words,
+    'label': label,
+    'contactId': contactId,
+  });
+
+  @override
+  Future<void> cancelInvite(String id) => _call(SessionMember.pairingCancelInvite, voidWire, {'id': id});
+
+  @override
+  Future<PairingRecord> openReply(String link) => _call(SessionMember.pairingOpenReply, pairingRecordWire, {'link': link});
+
+  @override
+  Future<String> confirmLink(String id) => _call(SessionMember.pairingConfirmLink, stringWire, {'id': id});
+
+  @override
+  Future<PairingInvitePreview> openInvite(String link) =>
+      _call(SessionMember.pairingOpenInvite, pairingPreviewWire, {'link': link});
+
+  @override
+  Future<PairingInvitePreview> openWords(List<String> words) =>
+      _call(SessionMember.pairingOpenWords, pairingPreviewWire, {'words': words});
+
+  @override
+  Future<PairingRecord> acceptInvite({
+    required String token,
+    required String name,
+    bool allowInvoices = false,
+    String? contactId,
+    bool byHand = false,
+  }) => _call(SessionMember.pairingAccept, pairingRecordWire, {
+    'token': token,
+    'name': name,
+    'allowInvoices': allowInvoices,
+    'contactId': contactId,
+    'byHand': byHand,
+  });
+
+  @override
+  Future<String> replyLink(String id) => _call(SessionMember.pairingReplyLink, stringWire, {'id': id});
+
+  @override
+  Future<PairingRecord> openConfirm(String link) => _call(SessionMember.pairingOpenConfirm, pairingRecordWire, {'link': link});
+
+  @override
+  Future<PairingCard> showCard({required String name}) => _call(SessionMember.pairingShowCard, pairingCardWire, {'name': name});
+
+  @override
+  Future<PairingRecord> scanCard({required String cardId, required String text}) =>
+      _call(SessionMember.pairingScanCard, pairingRecordWire, {'cardId': cardId, 'text': text});
+
+  @override
+  Future<PairingRecord?> checkWords(String id, PairingCheck check) => _call(
+    SessionMember.pairingCheckWords,
+    nullable(pairingRecordWire),
+    {'id': id, 'check': pairingCheckWire.encode(check)},
+  );
+
+  @override
+  Future<int> collect() => _call(SessionMember.pairingCollect, intWire);
+
+  @override
+  Future<void> removePairing(String id) => _call(SessionMember.pairingRemove, voidWire, {'id': id});
+
+  @override
+  Future<PairingRecord> setSeal(String id, bool on) => _call(SessionMember.pairingSetSeal, pairingRecordWire, {'id': id, 'on': on});
+
+  @override
+  Future<int> setAllowInvoices(String id, bool on) => _call(SessionMember.pairingSetAllowInvoices, intWire, {'id': id, 'on': on});
+
+  @override
+  Future<PairingRecord> attach(String id, String? contactId) =>
+      _call(SessionMember.pairingAttach, pairingRecordWire, {'id': id, 'contactId': contactId});
+
+  @override
+  Future<PairingRecord> resolveKeysChanged(String id, KeysChoice choice) => _call(
+    SessionMember.pairingResolveKeys,
+    pairingRecordWire,
+    {'id': id, 'choice': keysChoiceWire.encode(choice)},
+  );
+
+  @override
+  Future<IssuedInvoice> requestPayment({required String id, required BigInt amount, String? message}) => _call(
+    SessionMember.pairingRequestPayment,
+    issuedInvoiceWire,
+    {'id': id, 'amount': bigIntWire.encode(amount), 'message': message},
+  );
+
+  @override
+  Future<Slate> requestFile({required BigInt amount, String? message}) => _call(
+    SessionMember.pairingRequestFile,
+    slateWire,
+    {'amount': bigIntWire.encode(amount), 'message': message},
+  );
+
+  @override
+  Future<String> sealSlate({required String id, required String slateJson}) =>
+      _call(SessionMember.pairingSealSlate, stringWire, {'id': id, 'slateJson': slateJson});
+
+  @override
+  Future<OpenedSlate> openSlate(String text) => _call(SessionMember.pairingOpenSlate, openedSlateWire, {'text': text});
+
+  @override
+  Future<TxEntry> sendViaMailbox({
+    required String id,
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    String? message,
+    SendOptions? options,
+  }) => _call(SessionMember.pairingSendViaMailbox, txEntryWire, {
+    'id': id,
+    'amount': bigIntWire.encode(amount),
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+    'message': message,
+    'options': optSendOptions.encode(options),
+  });
+
+  @override
+  Future<String> plainSlate(String txKey) => _call(SessionMember.pairingPlainSlate, stringWire, {'key': txKey});
+
+  @override
+  Future<int> useImportedPairings() => _call(SessionMember.pairingUseImported, intWire);
+
+  @override
+  Stream<PairingEvent> events() => _session._stream(SessionMember.pairingEvents, pairingEventWire);
 }

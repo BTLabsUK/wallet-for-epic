@@ -13,7 +13,7 @@ import '../../desk_l10n.dart';
 import '../../app/tour.dart' show TourTarget;
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
-import '../settings/help_invoices.dart' show HelpAt;
+import '../settings/help_pairing.dart' show HelpAt;
 import 'invoice_parts.dart';
 import 'issue_tab.dart';
 import 'pay_tab.dart';

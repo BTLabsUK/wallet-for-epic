@@ -1,183 +1,126 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
+/// Settings › Wallet › Invoices (SPEC 2.7): who may ask this wallet to pay. Since RFC 0002
+/// that is a paired, verified contact with Allow invoices on; the screen lists the paired
+/// contacts with their switch and offers Pair with a shop or exchange. Time to pay stays a
+/// readout under Advanced. Nothing here pays: each request waits on the Invoices screen.
+library;
 
-import '../app_log.dart';
-import '../contacts.dart' show RecipientKind, parseRecipient;
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
-import '../models.dart';
-import '../providers.dart';
-import '../scan/scan_checks.dart' show addressOfScan;
+import '../pairing_providers.dart';
+import '../wallet_service.dart';
 import 'common.dart';
-import 'contacts_screen.dart' show LiveFieldError;
-import 'scan_screen.dart';
+import 'contacts_screen.dart';
+import 'pairing/pair_check.dart';
+import 'pairing/pair_screen.dart';
+import 'pairing/pairing_parts.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
-/// Settings > Invoices: the invoice address the user hands to services, and the services
-/// allowed to bill it (UP-14). Only reached when the open wallet supports invoices.
-///
-/// Nothing here pays. A trusted service may only send invoices; each one waits for the user
-/// on the Invoices screen.
+/// Keys for tests.
+const Key invoiceSettingsPairKey = ValueKey('invoice-settings-pair');
+
+/// The key of the Allow invoices switch of the pairing [id].
+Key invoiceSettingsSwitchKey(String id) => ValueKey('invoice-settings-allow-$id');
+
 class InvoiceSettingsScreen extends ConsumerStatefulWidget {
   const InvoiceSettingsScreen({super.key});
 
   @override
-  ConsumerState<InvoiceSettingsScreen> createState() =>
-      _InvoiceSettingsScreenState();
+  ConsumerState<InvoiceSettingsScreen> createState() => _InvoiceSettingsScreenState();
 }
 
 class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
-  bool _rotating = false;
+  final Set<String> _busy = {};
 
-  void _say(String message, {required NoticeLevel level}) =>
-      ref.read(noticeProvider.notifier).show(message, level: level);
-
-  Future<void> _add() => Navigator.of(context).push<void>(
-    MaterialPageRoute<void>(builder: (_) => const TrustedServiceAddScreen()),
-  );
-
-  Future<void> _remove(TrustedService service) async {
-    final name = _serviceName(service);
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(pairNetProvider) == PairNet.epicboxOff && ref.read(pairedProvider).isNotEmpty) {
         final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.invoiceSettingsRemoveTitle(name)),
-          content: Text(l.invoiceSettingsRemoveBody),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.invoiceSettingsKeep),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.invoiceSettingsRemoveConfirm),
-            ),
-          ],
-        );
-      },
-    );
-    if (sure != true || !mounted) return;
-    try {
-      await ref.read(trustedServicesProvider.notifier).remove(service.address);
-      if (mounted) {
-        _say(
-          context.l10n.invoiceSettingsRemoved(name),
-          level: NoticeLevel.success,
-        );
+        ref.read(noticeProvider.notifier).show('${l.contactPausedEpicboxOff}. ${l.invSetPausedBody}', level: NoticeLevel.info);
       }
-    } catch (error) {
-      logWarn('invoices', 'removing a trusted service failed: $error');
-      if (mounted) {
-        _say(describeError(context.l10n, error), level: NoticeLevel.error);
-      }
-    }
+    });
   }
 
-  Future<void> _rotate() async {
-    if (_rotating) return;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.invoiceSettingsRotateTitle),
-          content: Text(l.invoiceSettingsRotateBody),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.invoiceSettingsKeep),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.invoiceSettingsRotateConfirm),
-            ),
-          ],
-        );
-      },
-    );
-    if (sure != true || !mounted) return;
-    setState(() => _rotating = true);
+  void _pair() => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PairScreen()));
+
+  Future<void> _set(PairingRecord r, String name, bool on) async {
+    final l = context.l10n;
+    final notices = ref.read(noticeProvider.notifier);
+    setState(() => _busy.add(r.id));
     try {
-      await rotateInvoiceAddress(ref);
-      if (mounted) {
-        _say(context.l10n.invoiceSettingsRotated, level: NoticeLevel.success);
+      final declined = await pairingCall(ref, (api) => api.setAllowInvoices(r.id, on));
+      if (!on) {
+        notices.show(
+          declined > 0 ? '${l.invSetSwitchedOff(name)} ${l.invSetDeclinedCount(declined)}' : l.invSetSwitchedOff(name),
+          level: NoticeLevel.info,
+        );
       }
     } catch (error) {
-      logWarn('invoices', 'rotating the invoice address failed: $error');
-      if (mounted) {
-        _say(describeError(context.l10n, error), level: NoticeLevel.error);
-      }
+      notices.show(describeError(l, error), level: NoticeLevel.error);
     } finally {
-      if (mounted) setState(() => _rotating = false);
+      if (mounted) setState(() => _busy.remove(r.id));
     }
   }
 
-  /// The user's label, or the short address when the label was lost.
-  String _serviceName(TrustedService s) => s.label ?? shortAddress(s.address);
+  Future<void> _addToContacts(PairingRecord r) async {
+    final saved = await Navigator.of(context).push<Contact>(
+      MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress)),
+    );
+    if (saved == null || !mounted) return;
+    await pairingCall(ref, (api) => api.attach(r.id, saved.id));
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final address = ref.watch(invoiceAddressProvider);
-    final services = ref.watch(trustedServicesProvider);
+    final t = context.tokens;
+    final paired = ref.watch(pairedProvider);
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
+    final loading = ref.watch(pairingsProvider).isLoading;
+    final pairButton = OutlinedButton.icon(
+      key: invoiceSettingsPairKey,
+      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+      icon: const Icon(Icons.storefront_outlined),
+      label: Text(l.invSetPairShop),
+      onPressed: _pair,
+    );
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.invoiceSettingsTitle)),
+      idle: loading ? SlotProgress(label: l.invSetTitle) : null,
+      appBar: AppBar(title: Text(l.invSetTitle)),
       body: ScreenBody(
         children: [
-          _SectionTitle(l.invoiceSettingsAddressTitle),
-          Text(l.invoiceSettingsAddressBody),
-          const SizedBox(height: 16),
-          switch (address) {
-            AsyncData(value: final a?) => _InvoiceAddress(address: a),
-            AsyncError(:final error) => ErrorText(describeError(l, error)),
-            AsyncData() => const SizedBox.shrink(),
-            _ => const LinearProgressIndicator(),
-          },
-          const SizedBox(height: 24),
-          _SectionTitle(l.invoiceSettingsServicesTitle),
-          switch (services) {
-            AsyncData(:final value) when value.isEmpty => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(l.invoiceSettingsNoServices),
-            ),
-            AsyncData(:final value) => Column(
+          PairLead(l.invSetLead),
+          if (paired.isEmpty && !loading)
+            EmptyState(
+              icon: const Icon(Icons.shield_outlined),
+              message: l.invSetEmpty,
+              action: FilledButton.icon(
+                key: invoiceSettingsPairKey,
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                icon: const Icon(Icons.storefront_outlined),
+                label: Text(l.invSetPairShop),
+                onPressed: _pair,
+              ),
+            )
+          else ...[
+            PairSection(l.invSetPaired),
+            PairCard(
               children: [
-                for (final s in value)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.storefront_outlined),
-                    title: Text(_serviceName(s)),
-                    subtitle: Text(
-                      shortAddress(s.address),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      tooltip: l.invoiceSettingsRemoveTooltip(_serviceName(s)),
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () => _remove(s),
-                    ),
-                  ),
+                for (final r in paired) _row(l, t, r, contacts, paused),
               ],
             ),
-            AsyncError(:final error) => ErrorText(describeError(l, error)),
-            _ => const LinearProgressIndicator(),
-          },
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            onPressed: _add,
-            icon: const Icon(Icons.add),
-            label: Text(l.invoiceSettingsAddService),
-          ),
-          // Rotation and the dropped count are technical; the simple path never needs them.
+            const SizedBox(height: 16),
+            pairButton,
+          ],
+          // How long an invoice stays payable is technical: the simple path never needs it.
           Advanced(
             feature: AdvancedFeature.technicalDetails,
             child: Column(
@@ -187,16 +130,9 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 const Divider(),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.autorenew),
-                  title: Text(l.invoiceSettingsRotate),
-                  subtitle: Text(l.invoiceSettingsRotateHint),
-                  enabled: !_rotating,
-                  onTap: _rotate,
-                ),
-                Readout(
-                  l.invoiceSettingsDropped(
-                    ref.watch(droppedInvoiceMessagesProvider),
-                  ),
+                  leading: const Icon(Icons.schedule),
+                  title: Text(l.invSetTimeToPay),
+                  subtitle: Text(l.invSetTimeToPayHint(invoiceExpiry.inHours)),
                 ),
               ],
             ),
@@ -205,235 +141,70 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
       ),
     );
   }
-}
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _row(AppLocalizations l, WalletTokens t, PairingRecord r, List<Contact> contacts, bool paused) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The invoice address as a QR code in Receive's style, with the address and Copy.
-class _InvoiceAddress extends ConsumerWidget {
-  const _InvoiceAddress({required this.address});
-
-  final String address;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final t = context.tokens;
-    final l = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Center(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              // Dark modules on white scan reliably in either theme, as on Receive.
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(t.radiusSmall),
-              border: Border.all(color: t.line),
-            ),
-            child: Semantics(
-              label: l.invoiceSettingsQrLabel,
-              image: true,
-              child: SizedBox.square(
-                dimension: 200,
-                child: PrettyQrView.data(data: address),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Copy and the QR code always carry the full address; on screen it is short unless
-        // Advanced options is on, as on Receive.
-        SelectableText(
-          AdvancedOptions.has(context, AdvancedFeature.serverDetails)
-              ? address
-              : shortAddress(address, ownServer: ownEpicboxServer(ref)),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge?.copyWith(fontFamily: t.monoFamily),
-        ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: () =>
-              copyText(context, address, l.invoiceSettingsAddressCopied),
-          icon: const Icon(Icons.copy),
-          label: Text(l.commonCopy),
-        ),
-      ],
-    );
-  }
-}
-
-/// Adds a trusted service: the full epicbox address it shows (pasted or scanned) and the
-/// user's own label for it. Pops when saved.
-class TrustedServiceAddScreen extends ConsumerStatefulWidget {
-  const TrustedServiceAddScreen({super.key});
-
-  @override
-  ConsumerState<TrustedServiceAddScreen> createState() =>
-      _TrustedServiceAddScreenState();
-}
-
-class _TrustedServiceAddScreenState
-    extends ConsumerState<TrustedServiceAddScreen> {
-  final _label = TextEditingController();
-  final _address = TextEditingController();
-  String? _labelError;
-  String? _addressError;
-  String? _error;
-  bool _busy = false;
-
-  @override
-  void dispose() {
-    _label.dispose();
-    _address.dispose();
-    super.dispose();
-  }
-
-  Future<void> _paste() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text?.trim();
-    if (text == null || text.isEmpty) return;
-    _address.text = text;
-    setState(() => _addressError = null);
-  }
-
-  Future<void> _scan() async {
-    final text = await ref.read(qrScannerProvider).scan(context);
-    if (text == null || !mounted) return;
-    _address.text = parseRecipient(
-      addressOfScan(ref.read(walletServiceProvider), text),
-    ).address;
-    setState(() => _addressError = null);
-  }
-
-  /// Null for a full epicbox address, else why not. A wallet URL is no service address.
-  String? _checkAddress(AppLocalizations l, String text) {
-    if (text.trim().isEmpty) return l.invoiceSettingsAddressMissing;
-    final recipient = parseRecipient(text);
-    final valid =
-        recipient.kind == RecipientKind.epicbox &&
-        ref
-            .read(walletServiceProvider)
-            .validateEpicboxAddress(address: recipient.address);
-    return valid
-        ? null
-        : l.contactsAddressInvalid('es5x…@epicbox.epiccash.com');
-  }
-
-  Future<void> _save() async {
-    if (_busy) return;
-    final l = context.l10n;
-    final label = _label.text.trim();
-    setState(() {
-      _labelError = label.isEmpty ? l.invoiceSettingsLabelMissing : null;
-      _addressError = _checkAddress(l, _address.text);
-      _error = null;
-    });
-    if (_labelError != null || _addressError != null) return;
-    setState(() => _busy = true);
-    try {
-      final added = await ref
-          .read(trustedServicesProvider.notifier)
-          .add(address: parseRecipient(_address.text).address, label: label);
-      if (!mounted) return;
-      ref
-          .read(noticeProvider.notifier)
-          .show(
-            context.l10n.invoiceSettingsAdded(added.label ?? label),
-            level: NoticeLevel.success,
-          );
-      Navigator.pop(context);
-    } catch (error) {
-      logWarn('invoices', 'adding a trusted service failed: $error');
-      if (mounted) setState(() => _error = describeError(context.l10n, error));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final scan = offersQrScan(ref);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.invoiceSettingsAddTitle)),
-      body: ScreenBody(
-        bottom: BusyButton(
-          label: l.invoiceSettingsAddButton,
-          busy: _busy,
-          onPressed: _save,
-        ),
-        children: [
-          Text(l.invoiceSettingsAddExplanation),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _label,
-            textCapitalization: TextCapitalization.words,
-            onChanged: (_) => setState(() => _labelError = null),
-            decoration: InputDecoration(
-              labelText: l.invoiceSettingsLabelLabel,
-              error: _labelError == null ? null : LiveFieldError(_labelError!),
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _address,
-            autocorrect: false,
-            enableSuggestions: false,
-            minLines: 1,
-            maxLines: null,
-            onChanged: (_) => setState(() => _addressError = null),
-            decoration: InputDecoration(
-              labelText: l.invoiceSettingsServiceAddressLabel,
-              error: _addressError == null
-                  ? null
-                  : LiveFieldError(_addressError!),
-              border: const OutlineInputBorder(),
-              suffixIcon: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: l.commonPaste,
-                    icon: const Icon(Icons.content_paste),
-                    onPressed: _paste,
+    final contact = r.contactId == null ? null : contacts.where((c) => c.id == r.contactId).firstOrNull;
+    final name = contact?.name ?? r.shownName;
+    final verified = r.state == PairingState.verified;
+    final orphan = contact == null;
+    final subtitle = orphan
+        ? l.pairNotInContacts
+        : verified
+        ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff)
+        : l.contactCheckWordsFirst;
+    return Opacity(
+      opacity: verified || orphan ? 1 : 0.6,
+      child: MergeSemantics(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 8, 8, 8),
+            child: Row(
+              children: [
+                PairAvatar(name: name, kind: r.kind),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(name, style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                      if (orphan)
+                        Wrap(
+                          spacing: 4,
+                          children: [
+                            TextButton(onPressed: () => _addToContacts(r), child: Text(l.pairAddToContacts)),
+                            TextButton(
+                              style: TextButton.styleFrom(foregroundColor: t.risk),
+                              onPressed: () => pairingCall(ref, (api) => api.removePairing(r.id)),
+                              child: Text(l.contactRemovePairing),
+                            ),
+                          ],
+                        )
+                      else if (!verified && r.state == PairingState.paired)
+                        TextButton(
+                          onPressed: () => Navigator.of(context).push<void>(
+                            MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id)),
+                          ),
+                          child: Text(l.sasTitle),
+                        ),
+                    ],
                   ),
-                  if (scan)
-                    IconButton(
-                      tooltip: l.scanQrTooltip,
-                      icon: const Icon(Icons.qr_code_scanner),
-                      onPressed: _scan,
-                    ),
-                ],
-              ),
+                ),
+                Semantics(
+                  label: l.invSetAllowFor(name),
+                  child: Switch(
+                    key: invoiceSettingsSwitchKey(r.id),
+                    value: verified && r.allowInvoices,
+                    onChanged: !verified || paused || _busy.contains(r.id) ? null : (v) => _set(r, name, v),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          if (_error != null) ErrorText(_error!),
-        ],
+        ),
       ),
     );
   }

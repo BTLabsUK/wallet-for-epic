@@ -14226,4 +14226,1428 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskImpWrongTypePasted => '粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。';
+
+  @override
+  String get pairTitle => 'Pair';
+
+  @override
+  String pairWithName(String name) {
+    return 'Pair with $name';
+  }
+
+  @override
+  String get pairLead =>
+      'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.';
+
+  @override
+  String get pairInPerson => 'In person';
+
+  @override
+  String get pairInPersonHint => 'Show your code and scan theirs';
+
+  @override
+  String get pairOnline => 'Online';
+
+  @override
+  String get pairOnlineHint => 'Send an invite link, or read out pairing words';
+
+  @override
+  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+
+  @override
+  String get pairEnter => 'Enter link or words';
+
+  @override
+  String get pairEnterHint =>
+      'Paste an invite link or type the words you were given';
+
+  @override
+  String get pairNotPaired => 'Not paired';
+
+  @override
+  String get pairNotPairedHint =>
+      'Pair to seal payment files and allow invoices.';
+
+  @override
+  String get pairInPersonTitle => 'Pair in person';
+
+  @override
+  String get pairShowMyCode => 'Show my code';
+
+  @override
+  String get pairScanTheirs => 'Scan theirs';
+
+  @override
+  String get pairShowCodeCaption => 'Let them scan this, then scan theirs.';
+
+  @override
+  String get pairScanCaption =>
+      'Both of you scan. The words check opens when both codes are in.';
+
+  @override
+  String get pairScanPrompt => 'Point the camera at their code';
+
+  @override
+  String get pairSeenAs => 'They will see you as';
+
+  @override
+  String get pairUseWords => 'Use words instead';
+
+  @override
+  String get pairCameraDeniedTitle => 'The camera is not allowed';
+
+  @override
+  String get pairCameraDeniedBody =>
+      'Allow the camera to scan, or use words instead.';
+
+  @override
+  String get pairOpenSettings => 'Open settings';
+
+  @override
+  String get pairWordsTitle => 'Pairing words';
+
+  @override
+  String get pairWordsLead =>
+      'Read these to them, in this order. Their wallet finds the invite from the words.';
+
+  @override
+  String get pairWordsGoodFor => 'Good for 10 minutes';
+
+  @override
+  String pairWordsLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get pairWordsLastMinute => 'Less than a minute left';
+
+  @override
+  String get pairWordsFooter =>
+      'Whoever has these words can answer this invite until it expires. Check the words together afterwards.';
+
+  @override
+  String get pairWordsNew => 'New words';
+
+  @override
+  String get pairWordsCopy => 'Copy words';
+
+  @override
+  String get pairWordsExpiredTitle => 'These words have expired';
+
+  @override
+  String get pairWordsExpiredBody => 'Make new ones and read them out again.';
+
+  @override
+  String get pairWordsNeedEpicbox =>
+      'Pairing words need Epicbox, so they are not offered now.';
+
+  @override
+  String pairWordsDesktopChip(String time) {
+    return 'Words: $time left';
+  }
+
+  @override
+  String get pairEnterLead =>
+      'Paste the invite link, or type the five words you were given.';
+
+  @override
+  String get pairEnterField => 'Invite link or words';
+
+  @override
+  String get pairEnterNotFound =>
+      'No invite found for these words. Check them, or ask for new ones.';
+
+  @override
+  String get pairEnterTryAgain => 'Try again';
+
+  @override
+  String get pairEnterDesktopHint =>
+      'A pasted link or typed words do what a scan does on the phone.';
+
+  @override
+  String get pairEnterDesktopPlaceholder =>
+      'Paste the invite link, or type the five words';
+
+  @override
+  String get pairOnlineTitle => 'Pair online';
+
+  @override
+  String get pairOnlineLead =>
+      'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+
+  @override
+  String get pairOnlineLeadByHand =>
+      'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.';
+
+  @override
+  String get pairExpiresIn => 'Invite expires in';
+
+  @override
+  String get pairExpiry1h => '1 hour';
+
+  @override
+  String get pairExpiry24h => '24 hours';
+
+  @override
+  String get pairExpiry7d => '7 days';
+
+  @override
+  String get pairWhatTheyReceive => 'What they receive';
+
+  @override
+  String pairShareText(String name, String link, String date) {
+    return '$name wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n$link\n\nExpires $date.';
+  }
+
+  @override
+  String get pairShareWarning =>
+      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+
+  @override
+  String get pairShareInvite => 'Share invite';
+
+  @override
+  String get pairCopyInvite => 'Copy invite';
+
+  @override
+  String get pairUseWordsShort => 'Use words';
+
+  @override
+  String get pairInviteSentTitle => 'Invite sent';
+
+  @override
+  String pairInviteSentBody(String name) {
+    return 'Pairing finishes when $name’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+  }
+
+  @override
+  String pairInviteExpiresIn(String time) {
+    return 'Expires in $time';
+  }
+
+  @override
+  String get pairCancelInvite => 'Cancel invite';
+
+  @override
+  String pairCancelInviteTitle(String name) {
+    return 'Cancel the invite to $name?';
+  }
+
+  @override
+  String pairCancelInviteBody(String name) {
+    return 'Their wallet will see “$name cancelled this invite” if they open it later.';
+  }
+
+  @override
+  String pairIncomingTitle(String name) {
+    return 'Pair with $name?';
+  }
+
+  @override
+  String get pairNameClaimed => 'Name chosen by them · not checked yet';
+
+  @override
+  String get pairNameClaimedShort => 'Name chosen by them';
+
+  @override
+  String pairCallsThemselves(String name) {
+    return 'Calls themselves “$name”';
+  }
+
+  @override
+  String pairIncomingBody(String name) {
+    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+  }
+
+  @override
+  String pairIncomingAllowInvoices(String name) {
+    return 'Allow $name to request payments';
+  }
+
+  @override
+  String get pairIncomingAllowHint =>
+      'Turns on after you check the words. Nothing is paid without your PIN.';
+
+  @override
+  String get pairNotNow => 'Not now';
+
+  @override
+  String pairWaitingTitle(String name) {
+    return 'Waiting for $name’s wallet…';
+  }
+
+  @override
+  String get pairWaitingBody =>
+      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+
+  @override
+  String get pairWaitingFor => 'Checking for 1 hour';
+
+  @override
+  String get pairSendByHand => 'Send by hand';
+
+  @override
+  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+
+  @override
+  String get pairRelayUnreachableBody => 'Send your answer by hand?';
+
+  @override
+  String get pairRelayUnreachableTor =>
+      'Can’t reach the relay over Tor. Send your answer by hand?';
+
+  @override
+  String get pairByHandTitle => 'Send by hand';
+
+  @override
+  String pairByHandLead(String name) {
+    return 'Send this back to $name on any channel. Their wallet finishes the pairing when it opens it.';
+  }
+
+  @override
+  String get pairByHandYourAnswer => 'Your answer';
+
+  @override
+  String pairByHandFooter(String name) {
+    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+  }
+
+  @override
+  String pairConfirmByHandLead(String name) {
+    return 'Send this back to $name. Their wallet shows the words check when it opens it.';
+  }
+
+  @override
+  String get pairExpiredTitle => 'This invite has expired';
+
+  @override
+  String pairExpiredBody(String name) {
+    return 'Ask $name for a new one.';
+  }
+
+  @override
+  String get pairUsedTitle => 'This invite was already used';
+
+  @override
+  String get pairUsedBody => 'Ask for a new one.';
+
+  @override
+  String pairCancelledTitle(String name) {
+    return '$name cancelled this invite';
+  }
+
+  @override
+  String get pairCancelledBody => 'Nothing was stored.';
+
+  @override
+  String pairNoAnswerTitle(String name) {
+    return 'No answer from $name';
+  }
+
+  @override
+  String get pairNoAnswerBody =>
+      'The invite may have been cancelled. Ask for a new one, or pair in person.';
+
+  @override
+  String get pairChangedTitle => 'This invite was changed on the way';
+
+  @override
+  String pairChangedBody(String name) {
+    return 'Nothing was stored. Pair again, in person or with a fresh invite from $name.';
+  }
+
+  @override
+  String get pairNewerTitle => 'Update Epic Cash to open this';
+
+  @override
+  String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
+
+  @override
+  String get pairNewerFileBody => 'The file was sealed by a newer wallet.';
+
+  @override
+  String get pairCheckForUpdates => 'Check for updates';
+
+  @override
+  String pairSecondReplyTitle(String name) {
+    return 'Someone else also answered $name’s invite. See Pending invites.';
+  }
+
+  @override
+  String get pairSecondReplyBody =>
+      'If you didn’t share it with them, remove them.';
+
+  @override
+  String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
+
+  @override
+  String get sasTitle => 'Check the words';
+
+  @override
+  String sasLead(String name) {
+    return '$name’s wallet shows the same four. Compare them on a call or in person.';
+  }
+
+  @override
+  String sasLeadExchange(String name) {
+    return 'The $name page shows the same four. Compare them, then confirm on both sides.';
+  }
+
+  @override
+  String sasLeadRecheck(String name) {
+    return '$name’s wallet shows these under $name › Check the words. Compare them on a call or in person.';
+  }
+
+  @override
+  String get sasMatch => 'They match';
+
+  @override
+  String get sasNoMatch => 'They don’t match';
+
+  @override
+  String get sasSkip => 'Skip for now';
+
+  @override
+  String get sasLater => 'Later';
+
+  @override
+  String sasMatchedTitle(String name) {
+    return '$name is verified';
+  }
+
+  @override
+  String sasMatchedBody(String name) {
+    return 'Payment files and invoices with $name are sealed from now on.';
+  }
+
+  @override
+  String get sasNoMatchTitle => 'The words don’t match';
+
+  @override
+  String get sasNoMatchBody =>
+      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+
+  @override
+  String get sasStopPairing => 'Stop pairing';
+
+  @override
+  String sasSkippedTitle(String name) {
+    return 'Paired with $name';
+  }
+
+  @override
+  String sasSkippedBody(String name) {
+    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+  }
+
+  @override
+  String get sasCheckNow => 'Check now';
+
+  @override
+  String get sasAllowAfterMatch => 'On once you confirm the words match.';
+
+  @override
+  String sasAllowInvoicesHint(String name) {
+    return '$name’s wallet can ask you to pay. Nothing is paid without your PIN.';
+  }
+
+  @override
+  String get trustVerified => 'Verified';
+
+  @override
+  String get trustPaired => 'Paired, not verified';
+
+  @override
+  String get trustPairedShort => 'Paired';
+
+  @override
+  String get trustKeysChanged => 'Keys changed';
+
+  @override
+  String get trustSealed => 'Sealed';
+
+  @override
+  String trustSealedFor(String name) {
+    return 'Sealed for $name';
+  }
+
+  @override
+  String get trustAllowsInvoices => 'Allows invoices';
+
+  @override
+  String get contactTitle => 'Contact';
+
+  @override
+  String get contactAddresses => 'Addresses';
+
+  @override
+  String get contactPairing => 'Pairing';
+
+  @override
+  String get contactShowCode => 'Show code';
+
+  @override
+  String contactWordsChecked(String date) {
+    return 'Words checked $date';
+  }
+
+  @override
+  String get contactCheckAgain => 'Check again';
+
+  @override
+  String get contactCheckWordsAgain => 'Check the words again';
+
+  @override
+  String get contactSealPayments => 'Seal payments';
+
+  @override
+  String contactSealInfo(String name) {
+    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+  }
+
+  @override
+  String contactSealInfoMore(String name) {
+    return 'Off, a payment file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+  }
+
+  @override
+  String get contactAllowInvoices => 'Allow invoices';
+
+  @override
+  String contactAllowInfo(String name) {
+    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+  }
+
+  @override
+  String get contactAllowInfoMore =>
+      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+
+  @override
+  String get contactCheckWordsFirst => 'Check the words first';
+
+  @override
+  String get contactPausedUntilChecked => 'Paused until you check the words';
+
+  @override
+  String contactDeliveredVia(String relay) {
+    return 'Delivered via $relay';
+  }
+
+  @override
+  String contactRelayDownTitle(String name) {
+    return '$name’s relay isn’t answering';
+  }
+
+  @override
+  String get contactRelayDownBody =>
+      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+
+  @override
+  String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
+
+  @override
+  String get contactPausedEpicboxOffBody => 'Sealed files still work.';
+
+  @override
+  String get contactRemovePairing => 'Remove pairing';
+
+  @override
+  String contactRemovePairingTitle(String name) {
+    return 'Remove the pairing with $name?';
+  }
+
+  @override
+  String contactRemovePairingBody(String name) {
+    return 'Sealed payments and invoices from $name will stop. Their addresses stay in your contacts.';
+  }
+
+  @override
+  String get contactKeep => 'Keep';
+
+  @override
+  String get contactRemove => 'Remove';
+
+  @override
+  String contactKeysChangedTitle(String name) {
+    return '$name’s keys changed';
+  }
+
+  @override
+  String get contactKeysChangedBody =>
+      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+
+  @override
+  String get contactKeysChangedStatus => 'sealing and invoices paused';
+
+  @override
+  String get contactKeepOldKeys => 'Keep the old keys';
+
+  @override
+  String get contactUseNewKeys => 'Use the new keys';
+
+  @override
+  String contactKeysBack(String name) {
+    return '$name’s keys are back.';
+  }
+
+  @override
+  String get contactKeysBackBody => 'Nothing changed for you.';
+
+  @override
+  String contactSealDegradedTitle(String name) {
+    return 'The last payment to $name went plain';
+  }
+
+  @override
+  String contactSealDegradedBody(String name) {
+    return 'The next one asks Seal or plain. Sealing turns itself back on when $name’s wallet answers sealed.';
+  }
+
+  @override
+  String get addrField => 'Address';
+
+  @override
+  String addrFieldTyped(String type) {
+    return '$type address';
+  }
+
+  @override
+  String get addrAddAnother => 'Add another address';
+
+  @override
+  String addrOneFree(String type) {
+    return 'One more type is free: $type.';
+  }
+
+  @override
+  String addrDuplicateType(String name, String type) {
+    return '$name already has this kind of address ($type).';
+  }
+
+  @override
+  String get addrKeepOld => 'Keep the old one';
+
+  @override
+  String get addrReplace => 'Replace it';
+
+  @override
+  String addrDesktopThird(String type) {
+    return 'Paste a $type address, or leave empty';
+  }
+
+  @override
+  String get addrDesktopRule =>
+      'One address per type. The third field appears only while a type is free.';
+
+  @override
+  String get pendingTitle => 'Pending invites';
+
+  @override
+  String pendingRowHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invites waiting for an answer',
+      one: '1 invite waiting for an answer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pendingLink(String time) {
+    return 'Link · expires in $time';
+  }
+
+  @override
+  String pendingWords(String time) {
+    return 'Pairing words · expires in $time';
+  }
+
+  @override
+  String get pendingExpired => 'Expired';
+
+  @override
+  String get pendingInviteAgain => 'Invite again';
+
+  @override
+  String pendingWaitingConfirm(String time) {
+    return 'Waiting for their confirmation · $time';
+  }
+
+  @override
+  String get pendingPairedCheck => 'Paired · check the words';
+
+  @override
+  String get pendingEmpty =>
+      'No invites waiting. An invite shows here until the other wallet answers it.';
+
+  @override
+  String get pendingShareAgain => 'Share again';
+
+  @override
+  String get pendingShowWords => 'Show words';
+
+  @override
+  String get pendingCopyLink => 'Copy link';
+
+  @override
+  String get invSetTitle => 'Invoices';
+
+  @override
+  String get invSetLead =>
+      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+
+  @override
+  String get invSetPaired => 'Paired contacts';
+
+  @override
+  String get invSetAllowed => 'Allowed';
+
+  @override
+  String get invSetOff => 'Off';
+
+  @override
+  String get invSetPairShop => 'Pair with a shop or exchange';
+
+  @override
+  String get invSetEmpty =>
+      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+
+  @override
+  String get invSetPausedBody =>
+      'Requests wait on the relay and arrive when it is back on.';
+
+  @override
+  String invSetSwitchedOff(String name) {
+    return 'Invoices from $name are off.';
+  }
+
+  @override
+  String invSetDeclinedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open requests were declined.',
+      one: '1 open request was declined.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invSetTimeToPay => 'Time to pay';
+
+  @override
+  String invSetTimeToPayHint(int hours) {
+    return '$hours hours · how long an invoice stays payable';
+  }
+
+  @override
+  String get invoicesEmptyAction => 'Paired contacts';
+
+  @override
+  String get reqTitle => 'Review request';
+
+  @override
+  String reqRequests(String name) {
+    return '$name requests';
+  }
+
+  @override
+  String reqAsksYouToPay(String name) {
+    return '$name asks you to pay';
+  }
+
+  @override
+  String reqSealedSigned(String name) {
+    return 'Sealed to this wallet and signed by $name';
+  }
+
+  @override
+  String get reqReference => 'Reference';
+
+  @override
+  String reqDepositRef(String ref) {
+    return 'Deposit · ref $ref';
+  }
+
+  @override
+  String reqWithdrawalRef(String ref) {
+    return 'Withdrawal · ref $ref';
+  }
+
+  @override
+  String get reqDeliveredVia => 'Delivered via';
+
+  @override
+  String reqPaidWaiting(String name) {
+    return 'Paid. Waiting for $name to post';
+  }
+
+  @override
+  String get reqPaidWaitingBody =>
+      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+
+  @override
+  String get reqTlPaid => 'Paid';
+
+  @override
+  String reqTlDelivered(String name) {
+    return 'Delivered to $name’s relay';
+  }
+
+  @override
+  String reqTlAnswerDelivered(String name) {
+    return 'Answer delivered to $name’s relay';
+  }
+
+  @override
+  String reqTlPosted(String name) {
+    return 'Posted by $name';
+  }
+
+  @override
+  String get reqTlPostedHint => 'Usually within minutes';
+
+  @override
+  String get reqTlConfirming => 'Confirming';
+
+  @override
+  String reqTlConfirmingHint(int n, int total) {
+    return '$n of $total confirmations';
+  }
+
+  @override
+  String get reqTlConfirmed => 'Confirmed';
+
+  @override
+  String reqTlWaiting(String time) {
+    return 'Waiting $time';
+  }
+
+  @override
+  String reqNotPostedTitle(String name) {
+    return '$name has not posted yet';
+  }
+
+  @override
+  String get reqNotPostedBody =>
+      'Send again delivers the same payment once more. It cannot be paid twice.';
+
+  @override
+  String get reqSendAgain => 'Send again';
+
+  @override
+  String reqUnreachableTitle(String name) {
+    return 'Couldn’t reach $name yet';
+  }
+
+  @override
+  String get reqUnreachableBody =>
+      'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
+
+  @override
+  String get reqRelayRetrying => 'Relay not answering · retrying';
+
+  @override
+  String reqWithdrewTitle(String name) {
+    return '$name withdrew the request';
+  }
+
+  @override
+  String get reqWithdrewBody => 'Your funds are unlocked. Nothing was paid.';
+
+  @override
+  String reqWithdrewUnpaid(String name) {
+    return '$name withdrew this request';
+  }
+
+  @override
+  String get reqDeclined => 'Declined';
+
+  @override
+  String reqTwoSame(String name, int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
+      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reqTooMany(String name) {
+    return '$name sent too many requests.';
+  }
+
+  @override
+  String get reqTooManyBody =>
+      'Extra ones were dropped. Turn its invoices off if this keeps happening.';
+
+  @override
+  String reqWithdrawalFrom(String name) {
+    return 'Withdrawal from $name';
+  }
+
+  @override
+  String reqReceivedWaiting(String name) {
+    return 'Received. Waiting for $name to post';
+  }
+
+  @override
+  String get reqReceivedWaitingBody =>
+      'Nothing to do. The exchange posts it; confirmations follow.';
+
+  @override
+  String get reqNewTitle => 'New request';
+
+  @override
+  String get reqNewLead =>
+      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+
+  @override
+  String get reqNewTo => 'To';
+
+  @override
+  String get reqNewToHint =>
+      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+
+  @override
+  String get reqNewSaveFile => 'Save as file';
+
+  @override
+  String get reqNewSend => 'Send request';
+
+  @override
+  String sendViaMailbox(String name) {
+    return 'Send through $name’s mailbox';
+  }
+
+  @override
+  String sendViaMailboxHint(String relay) {
+    return 'Sealed. Delivered via $relay';
+  }
+
+  @override
+  String sendSealedTitle(String name) {
+    return 'Sealed for $name';
+  }
+
+  @override
+  String sendSealedBody(String name) {
+    return 'Only $name’s wallet can open this file. Send it any way you like, then open the file they send back.';
+  }
+
+  @override
+  String get sendSealOrPlainTitle => 'Seal this file?';
+
+  @override
+  String sendSealOrPlainBody(String name) {
+    return 'The last file to $name went plain. Sealed is the default again.';
+  }
+
+  @override
+  String get sendSealedOption => 'Sealed';
+
+  @override
+  String sendSealedOptionHint(String name) {
+    return 'Only $name’s wallet can read it';
+  }
+
+  @override
+  String get sendPlainOption => 'Plain';
+
+  @override
+  String get sendPlainOptionHint => 'Anyone with the file can read it';
+
+  @override
+  String sendCantOpenTitle(String name) {
+    return '$name can’t open sealed files?';
+  }
+
+  @override
+  String get sendCantOpenBody =>
+      'Send as plain instead resends the same payment unsealed. It is still one payment.';
+
+  @override
+  String get sendAsPlain => 'Send as plain instead';
+
+  @override
+  String get sendAsPlainTitle => 'Send as plain instead?';
+
+  @override
+  String get sendAsPlainBody =>
+      'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.';
+
+  @override
+  String get sendKeepSealed => 'Keep sealed';
+
+  @override
+  String get sendPlain => 'Send as plain';
+
+  @override
+  String sendNotHeardTitle(String name) {
+    return 'Not heard from $name’s wallet in 90 days';
+  }
+
+  @override
+  String sendNotHeardBody(String name) {
+    return '$name will need Epic Cash to open this file.';
+  }
+
+  @override
+  String get sendPlainShort => 'Send plain';
+
+  @override
+  String get openSealedOtherTitle =>
+      'This was sealed for another wallet or install';
+
+  @override
+  String get openSealedOtherBody =>
+      'It cannot be opened here. Ask the sender to send it again.';
+
+  @override
+  String get openArrivedUnsealed => 'This arrived unsealed.';
+
+  @override
+  String openArrivedUnsealedBody(String name) {
+    return '$name chose plain for this file.';
+  }
+
+  @override
+  String noticePairingReplied(String name) {
+    return '$name answered your invite. Check the words together.';
+  }
+
+  @override
+  String noticePairingConfirmed(String name) {
+    return 'Paired with $name. Check the words together.';
+  }
+
+  @override
+  String noticeRequest(String name, String amount) {
+    return '$name requests $amount EPIC. Review under Invoices.';
+  }
+
+  @override
+  String noticeWithdrawal(String amount, String name) {
+    return 'Received $amount EPIC from $name. Waiting for it to post.';
+  }
+
+  @override
+  String noticeKeysChanged(String name) {
+    return '$name’s keys changed. Check the words again before paying.';
+  }
+
+  @override
+  String noticeRelayDown(String name) {
+    return '$name’s relay isn’t answering. Retrying.';
+  }
+
+  @override
+  String noticeWithdrew(String name) {
+    return '$name withdrew the request. Your funds are unlocked.';
+  }
+
+  @override
+  String get restoreUseContactsTitle => 'Use your contacts on this device?';
+
+  @override
+  String restoreUseContactsBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count pairings in this backup were used on another device. Your other device should stop using them.',
+      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restoreUseHere => 'Use them here';
+
+  @override
+  String restorePairingsOnOtherDevice(int count) {
+    return '$count · on another device';
+  }
+
+  @override
+  String get restoreDone => 'History restored.';
+
+  @override
+  String restoreDoneBody(String payments, String contacts, String pairings) {
+    return 'Payments: $payments. Contacts: $contacts. Pairings: $pairings.';
+  }
+
+  @override
+  String get pairInviteSentBodyAnyone =>
+      'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.';
+
+  @override
+  String get pairInvalidLink => 'This is not a pairing link';
+
+  @override
+  String get pairInvalidBody =>
+      'Check that the whole link was copied, or ask for a new one.';
+
+  @override
+  String get pairOwnCode => 'This is your own code';
+
+  @override
+  String get pairOwnCodeBody => 'Scan the code on the other phone.';
+
+  @override
+  String get pairUnnamedInvite => 'Open invite';
+
+  @override
+  String get pairSeenAsMissing => 'Enter the name they will see.';
+
+  @override
+  String get pairSeenAsTooLong => 'Use a shorter name.';
+
+  @override
+  String get pairSeenAsEdit => 'Change the name they will see';
+
+  @override
+  String get pairCodeLabel => 'Your pairing code';
+
+  @override
+  String get pairWordsLabel => 'Your pairing words';
+
+  @override
+  String get pairWordsEnteredLabel => 'Words entered';
+
+  @override
+  String pairWordSlot(int n) {
+    return 'Word $n, not entered';
+  }
+
+  @override
+  String get pairSuggestions => 'Suggestions';
+
+  @override
+  String get pairCopied => 'Copied';
+
+  @override
+  String get pairPaste => 'Paste';
+
+  @override
+  String get pairInPersonDone => 'Codes scanned';
+
+  @override
+  String get pairEpicboxOffNotice =>
+      'Paused while Epicbox is off. The invite and the answer travel by hand.';
+
+  @override
+  String get pairWaitingTitleShort => 'Pairing';
+
+  @override
+  String get pairClosed => 'Close';
+
+  @override
+  String get sasWordsLabel => 'The four words';
+
+  @override
+  String sasDialogTitle(String name) {
+    return 'Check the words with $name';
+  }
+
+  @override
+  String get trustNotPaired => 'Not paired';
+
+  @override
+  String get contactMore => 'More';
+
+  @override
+  String get contactEdit => 'Edit';
+
+  @override
+  String get contactDelete => 'Delete contact';
+
+  @override
+  String contactInfoAbout(String label) {
+    return 'About $label';
+  }
+
+  @override
+  String contactCopyAddress(String type) {
+    return 'Copy $type address';
+  }
+
+  @override
+  String contactDeletePaired(String name) {
+    return 'Deleting $name also removes the pairing. Sealed payments and invoices from them stop.';
+  }
+
+  @override
+  String get contactNoAddresses => 'No addresses saved.';
+
+  @override
+  String addrRemove(String type) {
+    return 'Remove $type address';
+  }
+
+  @override
+  String addrAlreadySaved(String name) {
+    return 'This address is already saved as $name.';
+  }
+
+  @override
+  String get sendVia => 'Send via';
+
+  @override
+  String get invSetLeadDesktop =>
+      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+
+  @override
+  String get invSetRowAllowed => 'Verified · allowed';
+
+  @override
+  String get invSetRowCheckFirst =>
+      'Paired, not verified · check the words first';
+
+  @override
+  String invSetAllowFor(String name) {
+    return 'Allow invoices from $name';
+  }
+
+  @override
+  String get reqNoPayers =>
+      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+
+  @override
+  String get reqPickContact => 'Choose a contact';
+
+  @override
+  String get reqFileSaved => 'Request saved as a file';
+
+  @override
+  String reqSent(String name) {
+    return 'Request sent to $name';
+  }
+
+  @override
+  String get reqFileTitle => 'Payment request';
+
+  @override
+  String get reqFileBody =>
+      'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.';
+
+  @override
+  String noticeOutboxStuck(String name) {
+    return 'Couldn’t reach $name yet. Your funds are safe.';
+  }
+
+  @override
+  String noticeTooMany(String name) {
+    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+  }
+
+  @override
+  String get noticeOpen => 'Open';
+
+  @override
+  String get noticeCheckWords => 'Check the words';
+
+  @override
+  String get noticeView => 'View';
+
+  @override
+  String get restorePairings => 'Pairings';
+
+  @override
+  String sendSealedNote(String name) {
+    return 'Sealed for $name: only their wallet can open the file.';
+  }
+
+  @override
+  String get sendSealChoice => 'Seal this file';
+
+  @override
+  String get pairingDesktopShowCodeLead =>
+      'Let them scan this with their phone, or read them the pairing words.';
+
+  @override
+  String get pairingDesktopInviteLead =>
+      'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.';
+
+  @override
+  String get pairingInviteOnline => 'Invite online';
+
+  @override
+  String get pairUseHere => 'Use here';
+
+  @override
+  String pairSaveContactTitle(String name) {
+    return 'Save $name in your contacts?';
+  }
+
+  @override
+  String get pairSaveNewContact => 'Save as a new contact';
+
+  @override
+  String get pairAddToAContact => 'Add to a contact';
+
+  @override
+  String get pairPickContactTitle => 'Add to which contact?';
+
+  @override
+  String pairSavedAs(String name) {
+    return 'Saved as $name.';
+  }
+
+  @override
+  String pairContactAlreadyPaired(String name) {
+    return '$name already has a pairing. Adding this one checks whether the keys are the same.';
+  }
+
+  @override
+  String pairDurDays(int days, int hours) {
+    return '$days d $hours h';
+  }
+
+  @override
+  String pairDurHours(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String pairDurMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get pairDurUnderMinute => 'under a minute';
+
+  @override
+  String get pairBack => 'Back';
+
+  @override
+  String get pairNotInContacts => 'Not in contacts';
+
+  @override
+  String get pairAddToContacts => 'Add to contacts';
+
+  @override
+  String get helpPairingSection => 'Pairing';
+
+  @override
+  String get helpPairingLede =>
+      'Pair once; payment files and invoices with that contact are sealed.';
+
+  @override
+  String get helpPairWhatTitle => 'What pairing is';
+
+  @override
+  String get helpPairWhatShort =>
+      'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.';
+
+  @override
+  String get helpPairWhatP1 =>
+      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+
+  @override
+  String get helpPairWhatP2 =>
+      'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+
+  @override
+  String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
+
+  @override
+  String get helpPairWhatStep2 =>
+      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+
+  @override
+  String get helpPairWhatStep3 =>
+      'Check the words together, then **They match**.';
+
+  @override
+  String get helpPairWhatP3 =>
+      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
+
+  @override
+  String get helpPairWhyTitle => 'Why check the words';
+
+  @override
+  String get helpPairWhyShort =>
+      'The four words prove the pairing reached the right wallet and not someone in between.';
+
+  @override
+  String get helpPairWhyP1 =>
+      'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.';
+
+  @override
+  String get helpPairWhyP2 =>
+      'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.';
+
+  @override
+  String get helpPairWhyP3 =>
+      'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
+
+  @override
+  String get helpPairWordsTitle => 'Pairing words';
+
+  @override
+  String get helpPairWordsShort =>
+      'Five pictures with names stand in for a link when there is nothing to scan or paste.';
+
+  @override
+  String get helpPairWordsP1 =>
+      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+
+  @override
+  String get helpPairWordsP2 =>
+      'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.';
+
+  @override
+  String get helpPairWordsP3 =>
+      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+
+  @override
+  String get helpPairInvTitle => 'Invoices from paired contacts';
+
+  @override
+  String get helpPairInvShort =>
+      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+
+  @override
+  String get helpPairInvP1 =>
+      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+
+  @override
+  String get helpPairInvP2 =>
+      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+
+  @override
+  String get helpPairInvP3 =>
+      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+
+  @override
+  String get helpPairInvP4 =>
+      'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.';
+
+  @override
+  String get helpPairRestoreTitle => 'What a restore does';
+
+  @override
+  String get helpPairRestoreShort =>
+      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+
+  @override
+  String get helpPairRestoreP1 =>
+      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+
+  @override
+  String get helpPairRestoreP2 =>
+      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+
+  @override
+  String get helpPairRestoreP3 =>
+      'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.';
+
+  @override
+  String get helpPairRestoreP4 =>
+      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
 }

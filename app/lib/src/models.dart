@@ -54,9 +54,8 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// Their invoice address, where requests to them go; null when not known. Optional in the
-  /// record, so a file written before it still reads.
-  final String? invoiceAddress;
+  // No pairing here: the address book is shared by every wallet on the device, a pairing is
+  // one wallet's. The wallet's pairing record names its contact ([PairingRecord.contactId]).
 
   Contact({
     required this.id,
@@ -66,7 +65,6 @@ class Contact {
     String? http,
     String? tor,
     this.note,
-    this.invoiceAddress,
   }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
        http = _blank(http) ?? _ofKind(address, RecipientKind.http),
        tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
@@ -103,25 +101,28 @@ class Contact {
     id: id,
     name: name,
     note: note,
-    invoiceAddress: invoiceAddress,
     epicbox: kind == RecipientKind.epicbox ? value : epicbox,
     http: kind == RecipientKind.http ? value : http,
     tor: kind == RecipientKind.tor ? value : tor,
   );
 
   /// This contact with another id, name or note; [clearNote] removes the note.
-  Contact copyWith({String? id, String? name, String? note, bool clearNote = false}) => Contact(
+  Contact copyWith({
+    String? id,
+    String? name,
+    String? note,
+    bool clearNote = false,
+  }) => Contact(
     id: id ?? this.id,
     name: name ?? this.name,
     note: clearNote ? null : note ?? this.note,
     epicbox: epicbox,
     http: http,
     tor: tor,
-    invoiceAddress: invoiceAddress,
   );
 
   @override
-  int get hashCode => Object.hash(id, name, note, epicbox, http, tor, invoiceAddress);
+  int get hashCode => Object.hash(id, name, note, epicbox, http, tor);
 
   @override
   bool operator ==(Object other) =>
@@ -133,8 +134,7 @@ class Contact {
           note == other.note &&
           epicbox == other.epicbox &&
           http == other.http &&
-          tor == other.tor &&
-          invoiceAddress == other.invoiceAddress;
+          tor == other.tor;
 }
 
 /// The kinds of contact address in the order a contact lists them: Epicbox, Link · HTTP,
@@ -487,6 +487,13 @@ class ImportReport {
   /// Fields the user chose the file's value for.
   final int replaced;
 
+  /// Pairings the file brought back (RFC 10.5).
+  final int pairingsAdded;
+
+  /// Of those, the ones the file says were in use on another device: they wait for
+  /// [PairingApi.useImportedPairings] before this device collects for them (RFC 9.5).
+  final int pairingsOtherDevice;
+
   const ImportReport({
     required this.merged,
     required this.added,
@@ -495,6 +502,8 @@ class ImportReport {
     this.conflicts = const [],
     this.applied = true,
     this.replaced = 0,
+    this.pairingsAdded = 0,
+    this.pairingsOtherDevice = 0,
   });
 
   @override
@@ -505,7 +514,9 @@ class ImportReport {
       contactsAdded.hashCode ^
       Object.hashAll(conflicts) ^
       applied.hashCode ^
-      replaced.hashCode;
+      replaced.hashCode ^
+      pairingsAdded.hashCode ^
+      pairingsOtherDevice.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -518,7 +529,9 @@ class ImportReport {
           contactsAdded == other.contactsAdded &&
           _listEquals(conflicts, other.conflicts) &&
           applied == other.applied &&
-          replaced == other.replaced;
+          replaced == other.replaced &&
+          pairingsAdded == other.pairingsAdded &&
+          pairingsOtherDevice == other.pairingsOtherDevice;
 }
 
 /// The longest label [WalletSession.setTxLabel] keeps, in characters.
@@ -1752,6 +1765,9 @@ enum WalletErrorKind {
 
   /// A payment QR that holds more than the wallet accepts.
   qrCodeTooLarge,
+
+  /// A pairing step did not go through; the message is a [PairingFailure] name.
+  pairingFailed,
   io,
   other,
 }
@@ -1760,49 +1776,25 @@ enum WalletErrorKind {
 /// relay checks the signature with the key, never the domain, so the domain proves nothing.
 String epicboxKey(String address) => address.trim().split('@').first;
 
-/// A service the user allows to send invoices to their invoice address, by the full epicbox
-/// address the service shows. The wallet stores the address; the label is the app's, kept in
-/// `wfe_meta.json` by address. It is null only when that file lost it.
-class TrustedService {
-  final String address;
-  final String? label;
-
-  /// When the service was allowed, from the wallet's list; null where the list has no date.
-  final DateTime? since;
-
-  const TrustedService({required this.address, this.label, this.since});
-
-  @override
-  int get hashCode => address.hashCode ^ label.hashCode ^ since.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TrustedService &&
-          address == other.address &&
-          label == other.label &&
-          since == other.since;
-}
-
-/// The label the user gave the service at [address], matched on the key. Never anything the
-/// invoice says about itself.
-String? serviceLabel(List<TrustedService> services, String address) {
-  final key = epicboxKey(address);
-  return services.where((s) => epicboxKey(s.address) == key).firstOrNull?.label;
-}
-
 /// The longest an invoice may stay open (UP-14); the default is 24 h. One that asks for more
 /// is dropped.
 const Duration maxInvoiceExpiry = Duration(hours: 48);
 
-/// An invoice from a trusted service, parked until the user approves or declines it. Nothing
-/// pays it but a call the user makes after the PIN or biometric gate.
+/// An invoice from a paired contact the user allows, parked until the user approves or
+/// declines it. Nothing pays it but a call the user makes after the PIN or biometric gate.
 class PendingInvoice {
   final String slateId;
 
-  /// The epicbox address the invoice came from. Its key (before `@`) signed the message; the
-  /// relay part after it is what the sender wrote, so match services on the key only.
+  /// The address the invoice came from, for display only: its sender is [pairingId].
   final String senderAddress;
+
+  /// The pairing whose key signed it (RFC 11.2); its record names the sender. Null only on a
+  /// core without pairing.
+  final String? pairingId;
+
+  /// What the contact says the request is for (a deposit reference), untrusted like
+  /// [message].
+  final String? reference;
 
   /// What the service asks for, in the smallest unit. Paying needs this exact amount.
   final BigInt amount;
@@ -1821,6 +1813,8 @@ class PendingInvoice {
     this.message,
     required this.receivedAt,
     required this.expiresAt,
+    this.pairingId,
+    this.reference,
   });
 
   bool isExpiredAt(DateTime now) => !now.isBefore(expiresAt);
@@ -1838,7 +1832,9 @@ class PendingInvoice {
       amount.hashCode ^
       message.hashCode ^
       receivedAt.hashCode ^
-      expiresAt.hashCode;
+      expiresAt.hashCode ^
+      pairingId.hashCode ^
+      reference.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1849,7 +1845,9 @@ class PendingInvoice {
           amount == other.amount &&
           message == other.message &&
           receivedAt == other.receivedAt &&
-          expiresAt == other.expiresAt;
+          expiresAt == other.expiresAt &&
+          pairingId == other.pairingId &&
+          reference == other.reference;
 }
 
 /// Where an invoice the user approved stands.
@@ -1874,6 +1872,10 @@ enum InvoiceStatus {
 class PaidInvoice {
   final String slateId;
   final String senderAddress;
+
+  /// The pairing that sent the invoice, as on [PendingInvoice.pairingId].
+  final String? pairingId;
+  final String? reference;
   final BigInt amount;
   final String? message;
   final InvoiceStatus status;
@@ -1892,12 +1894,16 @@ class PaidInvoice {
     required this.status,
     this.txId,
     this.kernelExcess,
+    this.pairingId,
+    this.reference,
   });
 
   PaidInvoice withStatus(InvoiceStatus status, {String? kernelExcess}) =>
       PaidInvoice(
         slateId: slateId,
         senderAddress: senderAddress,
+        pairingId: pairingId,
+        reference: reference,
         amount: amount,
         message: message,
         status: status,
@@ -2358,3 +2364,479 @@ class WalletSummary {
 /// here, in plain Dart, so the wallet core (lepic_wallet_service.dart and what it imports)
 /// builds without Flutter.
 const int defaultMinimumConfirmations = 3;
+
+// Pairing (LEPIC RFC 0002): two wallets pair once, then payment files and invoices between
+// them are sealed. The core keeps the records; these are the app's view of them. Event and
+// record fields carry ids and names, never keys or secrets (RFC 10.4).
+
+/// Where a pairing stands (RFC 7.6, 10.2).
+enum PairingState {
+  /// This wallet made an invite nobody has answered yet.
+  pendingInvite,
+
+  /// This wallet answered an invite and waits for the inviter's confirm.
+  pendingReply,
+
+  /// Paired; the four words are not checked yet ("Paired, not verified").
+  paired,
+
+  /// Paired and the user confirmed the four words match.
+  verified,
+
+  /// A key check found other keys for a known contact: sealing and invoices pause until the
+  /// user checks the words again or keeps the old or the new keys (RFC 7.8, cases C-12).
+  keysChanged;
+
+  /// Paired in some form: a peer card is held.
+  bool get isPaired => this == PairingState.paired || this == PairingState.verified || this == PairingState.keysChanged;
+
+  bool get isPending => this == PairingState.pendingInvite || this == PairingState.pendingReply;
+}
+
+/// What the other side's card says it is (card tag 03).
+enum PairingKind { person, shop, exchange }
+
+/// Seal payments for a contact (RFC 7.6, 9.3).
+enum SealMode {
+  /// Payment files to the contact are sealed (the default).
+  on,
+
+  /// The user turned it off: files are plain.
+  off,
+
+  /// The last file went plain after the contact could not open a sealed one; the next send
+  /// asks, sealed preselected, and the next sealed answer turns it back on.
+  degraded,
+}
+
+/// How a pairing began.
+enum PairingWay {
+  /// Each phone scanned the other's code.
+  inPerson,
+
+  /// An invite link, shared or pasted.
+  link,
+
+  /// Five pairing words, read out or typed.
+  words,
+}
+
+/// What the user decided on the four words.
+enum PairingCheck { match, mismatch, skip }
+
+/// What the user chose for a contact whose keys changed (RFC 7.8).
+enum KeysChoice { keepOld, useNew }
+
+/// One entry of the word table: an emoji and its name (`sas_table.dart`).
+class SasWord {
+  const SasWord(this.emoji, this.name);
+
+  final String emoji;
+  final String name;
+
+  @override
+  int get hashCode => Object.hash(emoji, name);
+
+  @override
+  bool operator ==(Object other) => other is SasWord && emoji == other.emoji && name == other.name;
+
+  @override
+  String toString() => '$emoji $name';
+}
+
+/// What the other side's card says its wallet does (card tag 0B).
+class PairingCaps {
+  const PairingCaps({
+    this.opensSealed = true,
+    this.paysInvoices = true,
+    this.issuesInvoices = false,
+    this.sharedInbox = false,
+    this.sendsWithdrawals = false,
+  });
+
+  /// From the card's u16 bits: 0 opens sealed files, 1 pays invoices, 2 issues invoices, 3 a
+  /// service's shared inbox, 4 sends withdrawals.
+  factory PairingCaps.fromBits(int bits) => PairingCaps(
+    opensSealed: bits & 1 != 0,
+    paysInvoices: bits & 2 != 0,
+    issuesInvoices: bits & 4 != 0,
+    sharedInbox: bits & 8 != 0,
+    sendsWithdrawals: bits & 16 != 0,
+  );
+
+  final bool opensSealed;
+  final bool paysInvoices;
+  final bool issuesInvoices;
+  final bool sharedInbox;
+  final bool sendsWithdrawals;
+
+  int get bits =>
+      (opensSealed ? 1 : 0) | (paysInvoices ? 2 : 0) | (issuesInvoices ? 4 : 0) | (sharedInbox ? 8 : 0) | (sendsWithdrawals ? 16 : 0);
+
+  @override
+  int get hashCode => bits;
+
+  @override
+  bool operator ==(Object other) => other is PairingCaps && bits == other.bits;
+}
+
+/// One pairing, as the core keeps it (RFC 7.6), pending ones included.
+class PairingRecord {
+  const PairingRecord({
+    required this.id,
+    required this.state,
+    required this.way,
+    required this.inviter,
+    required this.createdAt,
+    this.name,
+    this.label,
+    this.kind = PairingKind.person,
+    this.caps = const PairingCaps(),
+    this.sas = const [],
+    this.verifiedAt,
+    this.checkSkipped = false,
+    this.allowInvoices = false,
+    this.asksInvoices = false,
+    this.seal = SealMode.on,
+    this.homeRelay = '',
+    this.contactId,
+    this.paymentsAddress,
+    this.lastSealedIn,
+    this.expiresAt,
+    this.inviteLink,
+    this.inviteWords = const [],
+    this.relayDown = false,
+    this.otherDevice = false,
+  });
+
+  /// The record's local id: never sent, never a key.
+  final String id;
+  final PairingState state;
+  final PairingWay way;
+
+  /// This wallet made the invite (A); false when it answered one (B) or paired in person.
+  final bool inviter;
+  final DateTime createdAt;
+
+  /// The name the other side chose for itself (its card's claim), null until it is known.
+  /// Never trusted: the user's own label is the address-book contact's name.
+  final String? name;
+
+  /// For an invite this wallet made: the name of whom it is for, when the user started it
+  /// from a contact. Shown in Pending invites.
+  final String? label;
+  final PairingKind kind;
+  final PairingCaps caps;
+
+  /// The four words of the check; empty until paired.
+  final List<SasWord> sas;
+  final DateTime? verifiedAt;
+
+  /// The user chose Skip for now on the words.
+  final bool checkSkipped;
+
+  /// The contact may send this wallet requests to pay. Only on for a [PairingState.verified]
+  /// record (RFC 11.1).
+  final bool allowInvoices;
+
+  /// The invite asked to allow invoices (an exchange's): preselected, effective only once the
+  /// words match.
+  final bool asksInvoices;
+  final SealMode seal;
+
+  /// The relay the contact delivers through ("Delivered via"), `domain[:port]`.
+  final String homeRelay;
+
+  /// The address-book contact this pairing is attached to (RFC 7.6 `app_contact`), or null.
+  /// The only link between the two: the shared address book knows nothing of pairings.
+  final String? contactId;
+
+  /// The contact's ordinary Epicbox address from its card (tag 09), for plain sends.
+  final String? paymentsAddress;
+
+  /// When the last sealed message from the contact opened.
+  final DateTime? lastSealedIn;
+
+  /// For a pending invite or answer: when it stops being answered.
+  final DateTime? expiresAt;
+
+  /// For an invite this wallet made: the link, to share or copy again.
+  final String? inviteLink;
+
+  /// For an invite offered as pairing words: the five words.
+  final List<SasWord> inviteWords;
+
+  /// The contact's relay is not answering (RFC 8.4 backoff, cases C-05).
+  final bool relayDown;
+
+  /// Imported from a backup whose pairings were in use on another device and not yet taken
+  /// over here (RFC 9.5).
+  final bool otherDevice;
+
+  /// The name to show: the label, else the claimed name, else empty.
+  String get shownName => label ?? name ?? '';
+
+  /// Allow invoices can be switched on.
+  bool get canAllowInvoices => state == PairingState.verified;
+
+  /// Seal and invoices are paused until the user decides on changed keys.
+  bool get paused => state == PairingState.keysChanged;
+
+  /// Payment files to the contact are sealed now.
+  bool get seals => state.isPaired && !paused && seal != SealMode.off && caps.opensSealed;
+
+  /// Waiting for the user to check the words after pairing.
+  bool get awaitsCheck => state == PairingState.paired && !checkSkipped;
+
+  bool expiredAt(DateTime now) => expiresAt != null && !now.isBefore(expiresAt!);
+
+  PairingRecord copyWith({
+    PairingState? state,
+    String? name,
+    String? label,
+    List<SasWord>? sas,
+    DateTime? verifiedAt,
+    bool clearVerified = false,
+    bool? checkSkipped,
+    bool? allowInvoices,
+    SealMode? seal,
+    String? contactId,
+    bool clearContact = false,
+    DateTime? lastSealedIn,
+    DateTime? expiresAt,
+    bool? relayDown,
+    bool? otherDevice,
+    String? homeRelay,
+    PairingCaps? caps,
+    PairingKind? kind,
+    String? paymentsAddress,
+  }) => PairingRecord(
+    id: id,
+    state: state ?? this.state,
+    way: way,
+    inviter: inviter,
+    createdAt: createdAt,
+    name: name ?? this.name,
+    label: label ?? this.label,
+    kind: kind ?? this.kind,
+    caps: caps ?? this.caps,
+    sas: sas ?? this.sas,
+    verifiedAt: clearVerified ? null : verifiedAt ?? this.verifiedAt,
+    checkSkipped: checkSkipped ?? this.checkSkipped,
+    allowInvoices: allowInvoices ?? this.allowInvoices,
+    asksInvoices: asksInvoices,
+    seal: seal ?? this.seal,
+    homeRelay: homeRelay ?? this.homeRelay,
+    contactId: clearContact ? null : contactId ?? this.contactId,
+    paymentsAddress: paymentsAddress ?? this.paymentsAddress,
+    lastSealedIn: lastSealedIn ?? this.lastSealedIn,
+    expiresAt: expiresAt ?? this.expiresAt,
+    inviteLink: inviteLink,
+    inviteWords: inviteWords,
+    relayDown: relayDown ?? this.relayDown,
+    otherDevice: otherDevice ?? this.otherDevice,
+  );
+}
+
+/// An invite opened from a link or pairing words, before the user answers it (RFC 7.2).
+class PairingInvitePreview {
+  const PairingInvitePreview({
+    required this.token,
+    required this.name,
+    required this.expiresAt,
+    this.kind = PairingKind.person,
+    this.asksInvoices = false,
+    this.homeRelay = '',
+    this.wordsAvailable = true,
+  });
+
+  /// Opaque: hands the opened invite back to [PairingApi.acceptInvite].
+  final String token;
+
+  /// The name the inviter chose: a claim, not checked yet.
+  final String name;
+  final DateTime expiresAt;
+  final PairingKind kind;
+
+  /// The invite asks the user to allow the inviter's invoices (an exchange's, RFC 12.2).
+  final bool asksInvoices;
+  final String homeRelay;
+
+  /// The relay the answer goes to is reachable now; false sends the answer by hand.
+  final bool wordsAvailable;
+}
+
+/// This wallet's code for in-person pairing (RFC 7.4): a fresh card per showing.
+class PairingCard {
+  const PairingCard({required this.id, required this.link});
+
+  /// Opaque: names the card to [PairingApi.scanCard], so both scans pair one slot.
+  final String id;
+
+  /// `epiccash://contact/1/…`, for the QR code.
+  final String link;
+}
+
+/// Why a pairing step did not go through. The core's `WalletError` carries it as
+/// [WalletErrorKind.pairingFailed] with the name as message; [pairingFailureOf] reads it.
+enum PairingFailure {
+  /// The invite's time ran out (C-14).
+  expired,
+
+  /// The invite was answered already (C-15).
+  alreadyUsed,
+
+  /// The inviter cancelled it.
+  cancelled,
+
+  /// No confirm within an hour (C-16).
+  noAnswer,
+
+  /// The confirm did not match the invite's commitment: changed on the way.
+  changedOnTheWay,
+
+  /// Made by a newer wallet.
+  newerVersion,
+
+  /// The words open no invite (C-33).
+  notFound,
+
+  /// Not a pairing link, or damaged (C-28: a partial scan).
+  invalid,
+
+  /// No relay could be reached for the answer or the words.
+  relayUnreachable,
+
+  /// The card scanned is this wallet's own.
+  ownCard,
+
+  /// A sealed file for another wallet or install (RFC 9.5).
+  sealedForOther,
+}
+
+/// The [PairingFailure] behind [error], or null for any other error.
+PairingFailure? pairingFailureOf(Object error) {
+  if (error is! WalletError || error.kind != WalletErrorKind.pairingFailed) return null;
+  return PairingFailure.values.asNameMap()[error.message] ?? PairingFailure.invalid;
+}
+
+/// The error a pairing call throws for [failure].
+WalletError pairingError(PairingFailure failure) => WalletError(kind: WalletErrorKind.pairingFailed, message: failure.name);
+
+/// What the engine tells the app about pairings (RFC 10.4). Fields carry ids, names and
+/// amounts, never keys.
+enum PairingEventKind {
+  /// The inviter: someone answered the invite; the words check is next.
+  replied,
+
+  /// The answerer: the inviter confirmed; the words check is next.
+  confirmed,
+
+  /// A pending pairing ended without pairing ([PairingEvent.failure] says why).
+  failed,
+
+  /// A paired contact's card changed (higher seq).
+  contactUpdated,
+
+  /// A re-pair found the old keys: nothing changed for the user.
+  keysRestored,
+
+  /// A key check found other keys (C-12).
+  keysChanged,
+
+  /// A sealed message from a contact opened.
+  sealedReceived,
+
+  /// A sealed file was for another wallet or install.
+  sealedUnopenable,
+
+  /// A contact the user allows sent a request to pay.
+  invoiceFromContact,
+
+  /// A contact sent a withdrawal; the wallet answered it.
+  withdrawalFromContact,
+
+  /// A contact's relay stopped answering.
+  homeRelayUnreachable,
+
+  /// A message waiting in the outbox reached the contact's relay.
+  outboxDelivered,
+
+  /// A message has not reached the contact's relay for a day.
+  outboxStuck,
+
+  /// A second wallet answered an invite that was already used (C-15).
+  secondReply,
+
+  /// Same-amount requests from one contact within 10 minutes.
+  duplicateRequests,
+
+  /// A contact went over the parked-invoice cap; extra requests were dropped.
+  tooManyRequests,
+
+  /// A contact withdrew a request (before or after it was paid).
+  requestWithdrawn,
+}
+
+class PairingEvent {
+  const PairingEvent(
+    this.kind, {
+    this.pairingId,
+    this.name = '',
+    this.failure,
+    this.slateId,
+    this.amount,
+    this.count = 0,
+  });
+
+  final PairingEventKind kind;
+  final String? pairingId;
+
+  /// The contact's name as the app shows it (its label, else its claimed name).
+  final String name;
+  final PairingFailure? failure;
+  final String? slateId;
+  final BigInt? amount;
+  final int count;
+
+  @override
+  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count);
+
+  @override
+  bool operator ==(Object other) =>
+      other is PairingEvent &&
+      kind == other.kind &&
+      pairingId == other.pairingId &&
+      name == other.name &&
+      failure == other.failure &&
+      slateId == other.slateId &&
+      amount == other.amount &&
+      count == other.count;
+}
+
+/// A second answer to an invite already used, kept only to show it (C-15): nothing is stored.
+class PairingStray {
+  const PairingStray({required this.id, required this.inviteId, required this.name});
+
+  final String id;
+
+  /// The pairing that took the invite.
+  final String inviteId;
+
+  /// The name the second answer claimed.
+  final String name;
+}
+
+/// A payment file or paste as [PairingApi.openSlate] opened it.
+class OpenedSlate {
+  const OpenedSlate({required this.slateJson, this.pairingId, this.sealed = false});
+
+  /// The slate inside, as the engine reads a plain file.
+  final String slateJson;
+
+  /// The paired contact it came from (sealed, or plain from a known card), or null.
+  final String? pairingId;
+
+  /// It was sealed. False with a [pairingId] is a paired contact's plain file.
+  final bool sealed;
+}

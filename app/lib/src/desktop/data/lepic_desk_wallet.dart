@@ -41,6 +41,7 @@ import '../../node/node_settings.dart' show NodeSettings;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../network_gate.dart';
+import '../../pairing_text.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
@@ -135,6 +136,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.invoiceChanged => l.deskErrInvoiceChanged,
     core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
+    core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -1897,7 +1899,6 @@ class LepicDeskWallet implements DeskWalletApi {
           note: c.note,
           favourite: favourites.contains(c.id),
           lastUsed: [for (final a in c.addresses) lastUsed(a)].nonNulls.fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a),
-          invoiceAddress: c.invoiceAddress,
         ),
     ];
   }
@@ -2528,7 +2529,6 @@ class LepicDeskWallet implements DeskWalletApi {
           http: contact.http,
           tor: contact.tor,
           note: contact.note,
-          invoiceAddress: contact.invoiceAddress,
         ),
       );
       final favourites = await _favourites();
@@ -2681,7 +2681,7 @@ class LepicDeskWallet implements DeskWalletApi {
               (!rec.containsKey('name') || c.name == rec['name']) &&
               (!rec.containsKey('note') || c.note == rec['note']);
           if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
-            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note, invoiceAddress: c.invoiceAddress));
+            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
             seeds[s.id] = _seedRecord(c.id, s);
             changed = true;
           }
@@ -3775,9 +3775,9 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> dismissHistoryReminder(DateTime when) => _setMeta({'historyReminderDismissedAt': when.millisecondsSinceEpoch ~/ 1000});
 
   // ---- Invoices over Epicbox (docs/invoices/flow.md). The shared session's invoice calls,
-  // mapped onto the desktop's own types (invoices.dart), not renamed. LEPIC keeps the invoice
-  // address, the trusted list and the waiting invoices; the session keeps labels and what
-  // became of each invoice in `wfe_meta.json`. Nothing here pays but [payInvoice], whose only
+  // mapped onto the desktop's own types (invoices.dart), not renamed. LEPIC keeps the
+  // pairings and the waiting invoices; the session keeps what became of each invoice in
+  // `wfe_meta.json`. Nothing here pays but [payInvoice], whose only
   // caller is Review's Approve, after the password; no event, drain or timer leads to it (P-2).
 
   /// Drains on a timer and on focus while a wallet is open ([_startInvoices]).
@@ -3798,8 +3798,6 @@ class LepicDeskWallet implements DeskWalletApi {
     _invoiceExpiry = secs is int && secs > 0 ? Duration(seconds: secs > maxInvoiceExpiry.inSeconds ? maxInvoiceExpiry.inSeconds : secs) : defaultInvoiceExpiry;
   }
 
-  /// Messages from senders not on the trusted list ignored unread since the unlock.
-  int _invoiceDropped = 0;
   DateTime? _invoiceCheckedAt;
   InvoiceCheck _invoiceCheck = InvoiceCheck.ok;
   String? _invoiceProblem;
@@ -3856,7 +3854,6 @@ class LepicDeskWallet implements DeskWalletApi {
     unawaited(_issuerSub?.cancel());
     _issuerSub = null;
     if (!forget) return;
-    _invoiceDropped = 0;
     _invoiceCheckedAt = null;
     _invoiceCheck = InvoiceCheck.ok;
     _invoiceProblem = null;
@@ -3873,11 +3870,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// An issued invoice waits for its payer and nothing listens on the payments address.
   bool _paymentsWanted() => _listener == null && (_entries ?? const <core.TxEntry>[]).any((e) => e.awaitingPayer);
 
-  /// Drains the invoice address (the session sweeps after it) and records the check.
+  /// Collects the contacts' mailboxes (the session sweeps after it) and records the check.
   Future<void> _drainInvoices(core.WalletSession session) async {
     final r = await session.drainInvoices();
     if (_session != session) return;
-    _invoiceDropped += r.dropped;
     _invoiceCheckedAt = DateTime.now();
     if (r.parked > 0 || r.notices > 0 || r.finalized > 0) await _reload();
     _changed();
@@ -3968,11 +3964,21 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// The contact [address] belongs to, by key: their invoice address or their payments address.
+  /// The contact [address] belongs to: one of its addresses, by key.
   static Contact? _contactFor(List<Contact> contacts, String address) {
     if (address.isEmpty) return null;
     final key = addressKey(address);
-    return contacts.where((c) => (c.invoiceAddress != null && addressKey(c.invoiceAddress!) == key) || addressKey(c.address) == key).firstOrNull;
+    return contacts.where((c) => c.addresses.any((a) => addressKey(a) == key)).firstOrNull;
+  }
+
+  /// The name the app shows for the pairing [id]: its contact's, else the name it chose.
+  static String? _pairedName(List<core.PairingRecord> pairings, List<Contact> contacts, String? id) {
+    if (id == null) return null;
+    final r = pairings.where((p) => p.id == id).firstOrNull;
+    if (r == null) return null;
+    final contact = contacts.where((c) => c.id == r.contactId).firstOrNull;
+    final name = contact?.name ?? r.shownName;
+    return name.isEmpty ? null : name;
   }
 
   @override
@@ -3987,27 +3993,13 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<InvoiceBook> _invoiceBook(core.WalletSession session) async {
     final now = DateTime.now();
-    var address = '';
-    try {
-      address = await session.invoiceAddress();
-    } on core.WalletError catch (e) {
-      // No relay set: LEPIC has no invoice address yet.
-      logWarn('invoices', 'invoice address: ${e.kind.name}');
-    }
-    int? index;
-    try {
-      index = await session.invoiceAddressIndex();
-    } on core.WalletError catch (e) {
-      logWarn('invoices', 'invoice address index: ${e.kind.name}');
-    }
-    final services = await session.trustedServices();
+    final pairings = await session.pairing.pairings();
     final people = await _contactsOr();
     final entries = _entries ?? await session.transactions(refresh: false);
     final minConf = _minConf.toInt();
-    // The label is the user's, from the trusted list by key; never a name from the invoice (P-6).
-    String labelOf(String sender) => core.serviceLabel(services, sender) ?? shortAddress(sender, compact: true);
-    String storedAddress(String sender) =>
-        services.where((s) => core.epicboxKey(s.address) == core.epicboxKey(sender)).firstOrNull?.address ?? sender;
+    // The name is the user's contact's, or the pairing's own; never a name from the invoice (P-6).
+    String labelOf(String? pairingId, String sender) =>
+        _pairedName(pairings, people, pairingId) ?? shortAddress(sender, compact: true);
 
     final waiting = <IncomingInvoice>[];
     for (final p in await session.pendingInvoices()) {
@@ -4024,8 +4016,10 @@ class LepicDeskWallet implements DeskWalletApi {
       waiting.add(
         IncomingInvoice(
           slateId: p.slateId,
-          senderAddress: storedAddress(p.senderAddress),
-          label: labelOf(p.senderAddress),
+          senderAddress: p.senderAddress,
+          label: labelOf(p.pairingId, p.senderAddress),
+          pairingId: p.pairingId,
+          reference: _line(p.reference),
           amount: amount,
           fee: fee ?? 0,
           message: _line(p.message),
@@ -4050,8 +4044,10 @@ class LepicDeskWallet implements DeskWalletApi {
       paid.add(
         IncomingInvoice(
           slateId: slateId,
-          senderAddress: storedAddress(record.senderAddress),
-          label: labelOf(record.senderAddress),
+          senderAddress: record.senderAddress,
+          label: labelOf(record.pairingId, record.senderAddress),
+          pairingId: record.pairingId,
+          reference: _line(record.reference),
           amount: record.amount.toInt(),
           fee: tx.fee,
           message: _line(record.message),
@@ -4074,21 +4070,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
     return InvoiceBook(
       now: now,
-      invoiceAddress: address,
-      invoiceIndex: index,
-      trusted: [
-        for (final s in services)
-          TrustedSender(
-            address: s.address,
-            label: s.label ?? shortAddress(s.address, compact: true),
-            since: s.since ?? DateTime.fromMillisecondsSinceEpoch(0),
-            contactId: _contactFor(people, s.address)?.id,
-          ),
-      ],
       toPay: [...waiting, ...paid, for (final i in _endedUnpaid.values) if (!waiting.any((w) => w.slateId == i.slateId)) i],
       sent: sent,
       expiry: _invoiceExpiry,
-      dropped: _invoiceDropped,
       lastCheck: _invoiceCheckedAt,
       check: _invoiceCheck,
       checkProblem: _invoiceProblem,
@@ -4117,7 +4101,7 @@ class LepicDeskWallet implements DeskWalletApi {
     );
   }
 
-  /// One check of the invoice address and, with the listener off, the payments address.
+  /// One collect of the contacts' mailboxes and, with the listener off, the payments address.
   @override
   Future<InvoiceBook> checkInvoices() async {
     final session = _open;
@@ -4140,7 +4124,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _open;
     try {
       // A request the relay did not take is cancelled by the session: nothing was sent.
-      final r = await session.issueInvoice(amount: BigInt.from(draft.amount), address: draft.payerAddress.trim(), message: draft.message);
+      final r = await session.pairing.requestPayment(id: draft.pairingId, amount: BigInt.from(draft.amount), message: draft.message);
       await _reload();
       final e = (_entries ?? const <core.TxEntry>[]).where((t) => t.id == r.txId).firstOrNull;
       final request = _request(r, e, await _contactsOr(), minConf: _minConf.toInt());
@@ -4308,36 +4292,9 @@ class LepicDeskWallet implements DeskWalletApi {
     return sent;
   }
 
+  // The open wallet's pairing; nothing while locked.
   @override
-  Future<String> rotateInvoiceAddress() async {
-    try {
-      final address = await _open.rotateInvoiceAddress();
-      _changed();
-      return address;
-    } on core.WalletError catch (e) {
-      throw invoiceError(e);
-    }
-  }
-
-  @override
-  Future<void> trustSender(String address, String label, {String? contactId}) async {
-    try {
-      await _open.addTrustedService(address: address.trim(), label: label);
-    } on core.WalletError catch (e) {
-      throw invoiceError(e);
-    }
-    _changed();
-  }
-
-  @override
-  Future<void> untrustSender(String address) async {
-    try {
-      await _open.removeTrustedService(address: address.trim());
-    } on core.WalletError catch (e) {
-      throw invoiceError(e);
-    }
-    _changed();
-  }
+  core.PairingApi get pairing => _session?.pairing ?? const core.NoPairing();
 
   @override
   Future<void> setInvoiceExpiry(Duration expiry) async {

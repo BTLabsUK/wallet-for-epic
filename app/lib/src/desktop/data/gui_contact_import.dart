@@ -97,7 +97,6 @@ Future<ContactImport> importGuiContacts(core.WalletSession session, gui.LegacyGu
           http: was.http ?? c.http,
           tor: was.tor ?? c.tor,
           note: (was.note ?? '').trim().isEmpty ? c.note : was.note,
-          invoiceAddress: was.invoiceAddress,
         ),
       );
       merged++;

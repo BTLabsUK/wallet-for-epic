@@ -1056,8 +1056,8 @@ WalletSession? _invoiceSession(Ref ref) {
   return session != null && session.supportsInvoices ? session : null;
 }
 
-/// Pending invoices of the open wallet, oldest first. The first read drains the invoice
-/// address, and so does [PendingInvoicesNotifier.refresh] (pull to refresh, opening the
+/// Pending invoices of the open wallet, oldest first. The first read collects the paired
+/// contacts' mailboxes, and so does [PendingInvoicesNotifier.refresh] (pull to refresh, opening the
 /// screen, app start); nothing listens on it in the background. An invoice drops out of the
 /// list when its time runs out.
 final pendingInvoicesProvider =
@@ -1080,9 +1080,6 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     }
     final report = await session.drainInvoices();
     if (!ref.mounted) return const [];
-    if (report.dropped > 0) {
-      ref.read(droppedInvoiceMessagesProvider.notifier).add(report.dropped);
-    }
     // A receipt or a withdrawal changes what a paid invoice's details show.
     if (report.notices > 0) ref.invalidate(paidInvoiceProvider);
     return _unexpired(await session.pendingInvoices());
@@ -1129,82 +1126,6 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
 final pendingInvoiceCountProvider = Provider.autoDispose<int>(
   (ref) => ref.watch(pendingInvoicesProvider).value?.length ?? 0,
 );
-
-/// Messages the drains of this session dropped unread (senders not on the list, notices from
-/// anyone but the invoice's service). Shown under Advanced only; the user is never told.
-final droppedInvoiceMessagesProvider =
-    NotifierProvider<DroppedInvoiceMessagesNotifier, int>(
-      DroppedInvoiceMessagesNotifier.new,
-    );
-
-class DroppedInvoiceMessagesNotifier extends Notifier<int> {
-  @override
-  int build() {
-    ref.watch(sessionProvider);
-    return 0;
-  }
-
-  void add(int dropped) => state += dropped;
-}
-
-/// The invoice address the user hands to services, or null without invoices.
-final invoiceAddressProvider = FutureProvider.autoDispose<String?>((ref) {
-  _watchRelay(ref);
-  final session = _invoiceSession(ref);
-  return session?.invoiceAddress();
-});
-
-/// Moves to a new invoice address. The old one is abandoned: services need the new one.
-Future<String> rotateInvoiceAddress(WidgetRef ref) async {
-  final session = ref.read(sessionProvider);
-  if (session == null) throw StateError('Wallet is locked');
-  final address = await session.rotateInvoiceAddress();
-  logInfo('invoices', 'invoice address rotated');
-  ref.invalidate(invoiceAddressProvider);
-  return address;
-}
-
-/// Trusted services with the user's labels from `wfe_meta.json`.
-final trustedServicesProvider =
-    AsyncNotifierProvider.autoDispose<
-      TrustedServicesNotifier,
-      List<TrustedService>
-    >(TrustedServicesNotifier.new);
-
-class TrustedServicesNotifier extends AsyncNotifier<List<TrustedService>> {
-  @override
-  Future<List<TrustedService>> build() async {
-    final session = _invoiceSession(ref);
-    if (session == null) return const [];
-    return session.trustedServices();
-  }
-
-  WalletSession get _session =>
-      _invoiceSession(ref) ?? (throw StateError('No wallet with invoices'));
-
-  /// Allows the service at [address] under [label]. Throws [WalletError] for an address that
-  /// is not an epicbox address.
-  Future<TrustedService> add({
-    required String address,
-    required String label,
-  }) async {
-    final added = await _session.addTrustedService(
-      address: address,
-      label: label,
-    );
-    logInfo('invoices', 'trusted service added');
-    ref.invalidateSelf();
-    await future;
-    return added;
-  }
-
-  Future<void> remove(String address) async {
-    await _session.removeTrustedService(address: address);
-    logInfo('invoices', 'trusted service removed');
-    ref.invalidateSelf();
-    await future;
-  }
-}
 
 /// The invoice behind the transaction with that slate id, once paid, or null. Reloads when
 /// a receipt or a withdrawal for it arrives: LEPIC reports those as events, which may come

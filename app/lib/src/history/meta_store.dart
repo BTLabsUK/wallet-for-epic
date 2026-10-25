@@ -134,7 +134,6 @@ class ContactRec {
     String? http,
     String? tor,
     this.note,
-    this.invoiceAddress,
   }) : epicbox = epicbox ?? _kindOf(address, RecipientKind.epicbox),
        http = http ?? _kindOf(address, RecipientKind.http),
        tor = tor ?? _kindOf(address, RecipientKind.tor);
@@ -157,7 +156,6 @@ class ContactRec {
       http: byKind ? http : (kind == RecipientKind.http ? address : null),
       tor: byKind ? tor : (kind == RecipientKind.tor ? address : null),
       note: _optStr(m['note'], 'contact note'),
-      invoiceAddress: _optStr(m['invoice_address'], 'contact invoice address'),
     );
   }
 
@@ -167,9 +165,6 @@ class ContactRec {
   String? http;
   String? tor;
   String? note;
-
-  /// Written only when set, so a file without it stays as the old core wrote it.
-  String? invoiceAddress;
 
   String get address => epicbox ?? tor ?? http ?? '';
 
@@ -182,7 +177,6 @@ class ContactRec {
       _put(out, 'tor', tor);
     }
     _put(out, 'note', note);
-    _put(out, 'invoice_address', invoiceAddress);
     return out;
   }
 }
@@ -612,13 +606,10 @@ class Meta {
     Map<String, BigInt>? kernelHeights,
     Map<String, BigInt>? blockTimeMisses,
     this.cacheNode,
-    Map<String, String>? serviceLabels,
-    this.invoiceIndex,
     Map<String, PaidInvoiceRec>? paidInvoices,
     Map<String, IssuedInvoiceRec>? issuedInvoices,
     Map<String, ManualRec>? manual,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
-       serviceLabels = SplayTreeMap.of(serviceLabels ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -666,11 +657,6 @@ class Meta {
         ),
       ),
       cacheNode: _optStr(m['cache_node'], 'cache_node'),
-      serviceLabels: map('service_labels')
-          .map((k, v) => MapEntry(k, _str(v, 'service label'))),
-      invoiceIndex: m['invoice_index'] == null
-          ? null
-          : _u32(m['invoice_index'], 'invoice_index'),
       paidInvoices: map('paid_invoices')
           .map((k, v) => MapEntry(k, PaidInvoiceRec.fromJson(v))),
       issuedInvoices: map('issued_invoices')
@@ -692,7 +678,7 @@ class Meta {
   final SplayTreeMap<String, String> notes;
 
   /// What the user entered beyond notes (labels; sender and method of restored rows), by
-  /// transaction key. Written only when not empty, as [serviceLabels].
+  /// transaction key. Written only when not empty, as [paidInvoices].
   final SplayTreeMap<String, ManualRec> manual;
   final List<ContactRec> contacts;
 
@@ -706,17 +692,8 @@ class Meta {
   final SplayTreeMap<String, BigInt> blockTimeMisses;
   final String? cacheNode;
 
-  /// The user's labels of trusted invoice services, by the full epicbox address. The wallet
-  /// keeps the addresses; only these names are the app's. Written only when not empty, so a
-  /// file without invoices stays as the old core wrote it.
-  final SplayTreeMap<String, String> serviceLabels;
-
-  /// The address index of the current invoice address (1 or higher), which the seed does not
-  /// hold. Null until the first rotation: the wallet starts at 1.
-  int? invoiceIndex;
-
-  /// Invoices the user approved, by slate id. Written only when not empty, as
-  /// [serviceLabels]. Not part of a history file: they describe this install's replies.
+  /// Invoices the user approved, by slate id. Written only when not empty, so a file
+  /// without invoices stays as the old core wrote it. Not part of a history file: they describe this install's replies.
   final SplayTreeMap<String, PaidInvoiceRec> paidInvoices;
 
   /// Invoices this wallet issued, by slate id. Written only when not empty, and not part of
@@ -749,8 +726,6 @@ class Meta {
       };
     }
     _put(out, 'cache_node', cacheNode);
-    if (serviceLabels.isNotEmpty) out['service_labels'] = {...serviceLabels};
-    _put(out, 'invoice_index', invoiceIndex);
     if (paidInvoices.isNotEmpty) {
       out['paid_invoices'] = {
         for (final e in paidInvoices.entries) e.key: e.value.toJson(),

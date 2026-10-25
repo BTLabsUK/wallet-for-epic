@@ -59,7 +59,7 @@ Future<bool> switchServersLive(
   );
   // The session may have been locked while the switch ran; then the next open reads the save.
   if (container.read(sessionProvider) != session) return true;
-  // Own addresses carry the relay (addressProvider and invoiceAddressProvider read again), and
+  // The own address carries the relay (addressProvider reads it again), and
   // push follows it.
   container.read(walletConfigProvider.notifier).select(next);
   if (relayChanged) {

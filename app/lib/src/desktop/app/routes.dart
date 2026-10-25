@@ -35,13 +35,18 @@ enum DeskRoute {
   invoiceReview(section: DeskSection.invoices),
   outputs(section: DeskSection.outputs),
   contacts(section: DeskSection.contacts),
+
+  /// Pairing (RFC 0002): the Pair page (a [Contact] to attach to) and Pending invites.
+  pair(section: DeskSection.contacts),
+  pairPending(section: DeskSection.contacts),
   settingsNode(section: DeskSection.settings),
   settingsReceiving(section: DeskSection.settings),
 
   /// The one Tor switch and the status site (`settings_privacy.dart`).
   settingsPrivacy(section: DeskSection.settings),
 
-  /// Invoices (docs/invoices/flow.md §1, §2): the invoice address, trusted senders, a new address, time to pay.
+  /// Invoices: the paired contacts allowed to bill this wallet, Pair with a shop or exchange,
+  /// time to pay.
   settingsInvoices(section: DeskSection.settings),
   settingsAppearance(section: DeskSection.settings),
   settingsAccount(section: DeskSection.settings),

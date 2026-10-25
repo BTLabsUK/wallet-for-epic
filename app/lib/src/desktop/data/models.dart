@@ -459,7 +459,6 @@ class Contact {
     this.favourite = false,
     this.lastUsed,
     this.hasPicture = false,
-    this.invoiceAddress,
   }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
        http = _blank(http) ?? _ofKind(address, RecipientKind.http),
        tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
@@ -489,9 +488,6 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// Their invoice address, where requests to them go (`invoices.dart`); null when not known.
-  /// Whether they may send this wallet invoices is the trusted list's, by [address]'s key.
-  final String? invoiceAddress;
 
   /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP.
   String get address => epicbox ?? tor ?? http ?? '';
@@ -521,7 +517,6 @@ class Contact {
     favourite: favourite ?? this.favourite,
     lastUsed: lastUsed ?? this.lastUsed,
     hasPicture: hasPicture,
-    invoiceAddress: invoiceAddress,
   );
 }
 

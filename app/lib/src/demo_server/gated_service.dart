@@ -556,27 +556,9 @@ class GatedWalletSession implements WalletSession {
   @override
   bool get supportsInvoices => _inner.supportsInvoices;
 
+  // Pairing needs no PIN and no Argon2id run of the wallet's: it passes straight through.
   @override
-  Future<String> invoiceAddress() => _inner.invoiceAddress();
-
-  @override
-  Future<String> rotateInvoiceAddress() => _inner.rotateInvoiceAddress();
-
-  @override
-  Future<int> invoiceAddressIndex() => _inner.invoiceAddressIndex();
-
-  @override
-  Future<List<TrustedService>> trustedServices() => _inner.trustedServices();
-
-  @override
-  Future<TrustedService> addTrustedService({
-    required String address,
-    required String label,
-  }) => _inner.addTrustedService(address: address, label: label);
-
-  @override
-  Future<void> removeTrustedService({required String address}) =>
-      _inner.removeTrustedService(address: address);
+  PairingApi get pairing => _inner.pairing;
 
   @override
   Future<InvoiceDrainReport> drainInvoices() => _inner.drainInvoices();

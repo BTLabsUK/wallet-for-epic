@@ -1933,9 +1933,9 @@
   "@invoicesChecking": {
     "description": "Screen-reader label of the progress line while the Invoices screen fetches new invoices."
   },
-  "invoicesEmpty": "No invoices are waiting. When a service you trust bills you, the invoice appears here, and nothing is paid until you approve it.",
+  "invoicesEmpty": "No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
   "@invoicesEmpty": {
-    "description": "Shown on the Invoices screen when no invoice waits."
+    "description": "Invoices › To pay empty state (replaces today’s invoicesEmpty)."
   },
   "invoicesUnnamedService": "Unnamed service",
   "@invoicesUnnamedService": {
@@ -3945,13 +3945,13 @@
   "@settingsSectionInvoices": {
     "description": "Settings section header for invoices from trusted services."
   },
-  "settingsInvoices": "Invoice address and trusted services",
+  "settingsInvoices": "Invoices",
   "@settingsInvoices": {
-    "description": "Settings row that opens the invoice settings."
+    "description": "Settings › Wallet row (replaces ‘Invoice address and trusted services’)."
   },
-  "settingsInvoicesSubtitle": "A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.",
+  "settingsInvoicesSubtitle": "Who may ask you to pay",
   "@settingsInvoicesSubtitle": {
-    "description": "Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN."
+    "description": "Row subtitle; the info icon opens invSetLead."
   },
   "invoiceSettingsTitle": "Invoices",
   "@invoiceSettingsTitle": {
@@ -19681,5 +19681,2171 @@
   "deskImpWrongTypePasted": "The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.",
   "@deskImpWrongTypePasted": {
     "description": "Text of that notice when the text pasted into Send (not a file) is not a transaction."
+  },
+  "pairTitle": "Pair",
+  "@pairTitle": {
+    "description": "Title of the Pair screen and the Contacts action. The feature is called Pairing; verbs: Pair, Paired, Verified."
+  },
+  "pairWithName": "Pair with {name}",
+  "@pairWithName": {
+    "description": "Button or title for pairing with a named contact or service.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairLead": "Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.",
+  "@pairLead": {
+    "description": "Lead text on the Pair screen, phone and desktop. The only explanation on the screen."
+  },
+  "pairInPerson": "In person",
+  "@pairInPerson": {
+    "description": "Pair screen: first way in."
+  },
+  "pairInPersonHint": "Show your code and scan theirs",
+  "@pairInPersonHint": {
+    "description": "Subtitle of In person."
+  },
+  "pairOnline": "Online",
+  "@pairOnline": {
+    "description": "Pair screen: second way in."
+  },
+  "pairOnlineHint": "Send an invite link, or read out pairing words",
+  "@pairOnlineHint": {
+    "description": "Subtitle of Online."
+  },
+  "pairOfflineHint": "You’re offline. Pair in person instead.",
+  "@pairOfflineHint": {
+    "description": "Subtitle of Online while the wallet is Offline; the row is disabled. Also the docked notice on the Pair screen."
+  },
+  "pairEnter": "Enter link or words",
+  "@pairEnter": {
+    "description": "Pair screen: third way in; also the title of that screen."
+  },
+  "pairEnterHint": "Paste an invite link or type the words you were given",
+  "@pairEnterHint": {
+    "description": "Subtitle of Enter link or words."
+  },
+  "pairNotPaired": "Not paired",
+  "@pairNotPaired": {
+    "description": "Contact page: the Pairing block of a contact without a pairing."
+  },
+  "pairNotPairedHint": "Pair to seal payment files and allow invoices.",
+  "@pairNotPairedHint": {
+    "description": "Contact page: under Not paired."
+  },
+  "pairInPersonTitle": "Pair in person",
+  "@pairInPersonTitle": {
+    "description": "App bar of the in-person screen."
+  },
+  "pairShowMyCode": "Show my code",
+  "@pairShowMyCode": {
+    "description": "Segment 1 of the in-person screen."
+  },
+  "pairScanTheirs": "Scan theirs",
+  "@pairScanTheirs": {
+    "description": "Segment 2 of the in-person screen."
+  },
+  "pairShowCodeCaption": "Let them scan this, then scan theirs.",
+  "@pairShowCodeCaption": {
+    "description": "Under the QR code."
+  },
+  "pairScanCaption": "Both of you scan. The words check opens when both codes are in.",
+  "@pairScanCaption": {
+    "description": "Under the camera view."
+  },
+  "pairScanPrompt": "Point the camera at their code",
+  "@pairScanPrompt": {
+    "description": "Inside the camera view."
+  },
+  "pairSeenAs": "They will see you as",
+  "@pairSeenAs": {
+    "description": "Label of the name field on the in-person and online screens."
+  },
+  "pairUseWords": "Use words instead",
+  "@pairUseWords": {
+    "description": "Button on the in-person screen and the camera-denied state."
+  },
+  "pairCameraDeniedTitle": "The camera is not allowed",
+  "@pairCameraDeniedTitle": {
+    "description": "Notice title when camera permission is denied."
+  },
+  "pairCameraDeniedBody": "Allow the camera to scan, or use words instead.",
+  "@pairCameraDeniedBody": {
+    "description": "Notice body when camera permission is denied (cases file C-28)."
+  },
+  "pairOpenSettings": "Open settings",
+  "@pairOpenSettings": {
+    "description": "Button on the camera-denied notice."
+  },
+  "pairWordsTitle": "Pairing words",
+  "@pairWordsTitle": {
+    "description": "App bar of the pairing-words screen; also the Help topic title."
+  },
+  "pairWordsLead": "Read these to them, in this order. Their wallet finds the invite from the words.",
+  "@pairWordsLead": {
+    "description": "Lead on the pairing-words screen."
+  },
+  "pairWordsGoodFor": "Good for 10 minutes",
+  "@pairWordsGoodFor": {
+    "description": "Status line under the five words."
+  },
+  "pairWordsLeft": "{time} left",
+  "@pairWordsLeft": {
+    "description": "Countdown readout, mono, e.g. 9:32 left.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pairWordsLastMinute": "Less than a minute left",
+  "@pairWordsLastMinute": {
+    "description": "Status line in the last minute, warn colour."
+  },
+  "pairWordsFooter": "Whoever has these words can answer this invite until it expires. Check the words together afterwards.",
+  "@pairWordsFooter": {
+    "description": "Small print under the words."
+  },
+  "pairWordsNew": "New words",
+  "@pairWordsNew": {
+    "description": "Button: make a fresh invite and words."
+  },
+  "pairWordsCopy": "Copy words",
+  "@pairWordsCopy": {
+    "description": "Button: copies the five emoji and names as text."
+  },
+  "pairWordsExpiredTitle": "These words have expired",
+  "@pairWordsExpiredTitle": {
+    "description": "Notice title after 10 minutes."
+  },
+  "pairWordsExpiredBody": "Make new ones and read them out again.",
+  "@pairWordsExpiredBody": {
+    "description": "Notice body after 10 minutes."
+  },
+  "pairWordsNeedEpicbox": "Pairing words need Epicbox, so they are not offered now.",
+  "@pairWordsNeedEpicbox": {
+    "description": "Small print on Pair online while Epicbox is off."
+  },
+  "pairWordsDesktopChip": "Words: {time} left",
+  "@pairWordsDesktopChip": {
+    "description": "Chip in the desktop Show my code panel header.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pairEnterLead": "Paste the invite link, or type the five words you were given.",
+  "@pairEnterLead": {
+    "description": "Lead on Enter link or words."
+  },
+  "pairEnterField": "Invite link or words",
+  "@pairEnterField": {
+    "description": "Field label."
+  },
+  "pairEnterNotFound": "No invite found for these words. Check them, or ask for new ones.",
+  "@pairEnterNotFound": {
+    "description": "Field error when the words open nothing (cases file)."
+  },
+  "pairEnterTryAgain": "Try again",
+  "@pairEnterTryAgain": {
+    "description": "Primary button after the not-found error."
+  },
+  "pairEnterDesktopHint": "A pasted link or typed words do what a scan does on the phone.",
+  "@pairEnterDesktopHint": {
+    "description": "Small print under the desktop field."
+  },
+  "pairEnterDesktopPlaceholder": "Paste the invite link, or type the five words",
+  "@pairEnterDesktopPlaceholder": {
+    "description": "Placeholder of the desktop field."
+  },
+  "pairOnlineTitle": "Pair online",
+  "@pairOnlineTitle": {
+    "description": "App bar of the online-invite screen."
+  },
+  "pairOnlineLead": "Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.",
+  "@pairOnlineLead": {
+    "description": "Lead on Pair online."
+  },
+  "pairOnlineLeadByHand": "Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.",
+  "@pairOnlineLeadByHand": {
+    "description": "Lead on Pair online while Epicbox is off."
+  },
+  "pairExpiresIn": "Invite expires in",
+  "@pairExpiresIn": {
+    "description": "Label of the expiry segments."
+  },
+  "pairExpiry1h": "1 hour",
+  "@pairExpiry1h": {
+    "description": "Expiry option."
+  },
+  "pairExpiry24h": "24 hours",
+  "@pairExpiry24h": {
+    "description": "Expiry option, default."
+  },
+  "pairExpiry7d": "7 days",
+  "@pairExpiry7d": {
+    "description": "Expiry option."
+  },
+  "pairWhatTheyReceive": "What they receive",
+  "@pairWhatTheyReceive": {
+    "description": "Label above the share text preview."
+  },
+  "pairShareText": "{name} wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n{link}\n\nExpires {date}.",
+  "@pairShareText": {
+    "description": "The shared invite text. The link only; no code. {date} is the expiry date and time.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "link": {
+        "type": "String",
+        "example": "epiccash://pair/1/eyJm…b71a"
+      },
+      "date": {
+        "type": "String",
+        "example": "26 Oct, 09:41"
+      }
+    }
+  },
+  "pairShareWarning": "Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.",
+  "@pairShareWarning": {
+    "description": "Small print under the preview."
+  },
+  "pairShareInvite": "Share invite",
+  "@pairShareInvite": {
+    "description": "Primary button: the OS share sheet (phone)."
+  },
+  "pairCopyInvite": "Copy invite",
+  "@pairCopyInvite": {
+    "description": "Desktop: copies the share text."
+  },
+  "pairUseWordsShort": "Use words",
+  "@pairUseWordsShort": {
+    "description": "Secondary button on Pair online."
+  },
+  "pairInviteSentTitle": "Invite sent",
+  "@pairInviteSentTitle": {
+    "description": "After sharing."
+  },
+  "pairInviteSentBody": "Pairing finishes when {name}’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.",
+  "@pairInviteSentBody": {
+    "description": "After sharing.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairInviteExpiresIn": "Expires in {time}",
+  "@pairInviteExpiresIn": {
+    "description": "Countdown chip after sharing.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pairCancelInvite": "Cancel invite",
+  "@pairCancelInvite": {
+    "description": "Button and menu item."
+  },
+  "pairCancelInviteTitle": "Cancel the invite to {name}?",
+  "@pairCancelInviteTitle": {
+    "description": "Confirm dialog title.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairCancelInviteBody": "Their wallet will see “{name} cancelled this invite” if they open it later.",
+  "@pairCancelInviteBody": {
+    "description": "Confirm dialog body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairIncomingTitle": "Pair with {name}?",
+  "@pairIncomingTitle": {
+    "description": "Sheet or dialog title when an invite opens.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairNameClaimed": "Name chosen by them · not checked yet",
+  "@pairNameClaimed": {
+    "description": "Chip under the name in the incoming sheet."
+  },
+  "pairNameClaimedShort": "Name chosen by them",
+  "@pairNameClaimedShort": {
+    "description": "Chip on the words check."
+  },
+  "pairCallsThemselves": "Calls themselves “{name}”",
+  "@pairCallsThemselves": {
+    "description": "Contact page, when the claimed name differs from the label.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairIncomingBody": "Once paired, payment files and invoices between you and {name} are sealed. You check the words together next.",
+  "@pairIncomingBody": {
+    "description": "Incoming sheet body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairIncomingAllowInvoices": "Allow {name} to request payments",
+  "@pairIncomingAllowInvoices": {
+    "description": "Switch in the incoming sheet for an invite that asks to allow invoices; off until the user turns it on (the claimed name is not checked).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairIncomingAllowHint": "Turns on after you check the words. Nothing is paid without your PIN.",
+  "@pairIncomingAllowHint": {
+    "description": "Under that switch."
+  },
+  "pairNotNow": "Not now",
+  "@pairNotNow": {
+    "description": "Secondary button of the incoming sheet."
+  },
+  "pairWaitingTitle": "Waiting for {name}’s wallet…",
+  "@pairWaitingTitle": {
+    "description": "Waiting screen title.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairWaitingBody": "Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.",
+  "@pairWaitingBody": {
+    "description": "Waiting screen body."
+  },
+  "pairWaitingFor": "Checking for 1 hour",
+  "@pairWaitingFor": {
+    "description": "Countdown line on the waiting screen."
+  },
+  "pairSendByHand": "Send by hand",
+  "@pairSendByHand": {
+    "description": "Button on the waiting screen and the relay notice."
+  },
+  "pairRelayUnreachableTitle": "Can’t reach the relay",
+  "@pairRelayUnreachableTitle": {
+    "description": "Notice on the waiting screen (cases file)."
+  },
+  "pairRelayUnreachableBody": "Send your answer by hand?",
+  "@pairRelayUnreachableBody": {
+    "description": "Notice body."
+  },
+  "pairRelayUnreachableTor": "Can’t reach the relay over Tor. Send your answer by hand?",
+  "@pairRelayUnreachableTor": {
+    "description": "The same notice with Epicbox over Tor on."
+  },
+  "pairByHandTitle": "Send by hand",
+  "@pairByHandTitle": {
+    "description": "Screen title."
+  },
+  "pairByHandLead": "Send this back to {name} on any channel. Their wallet finishes the pairing when it opens it.",
+  "@pairByHandLead": {
+    "description": "Lead.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairByHandYourAnswer": "Your answer",
+  "@pairByHandYourAnswer": {
+    "description": "Label above the reply link."
+  },
+  "pairByHandFooter": "The answer is sealed to {name}’s invite. Nobody else can read it, and it works once.",
+  "@pairByHandFooter": {
+    "description": "Small print.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairConfirmByHandLead": "Send this back to {name}. Their wallet shows the words check when it opens it.",
+  "@pairConfirmByHandLead": {
+    "description": "The inviter’s by-hand confirm screen, same layout.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairExpiredTitle": "This invite has expired",
+  "@pairExpiredTitle": {
+    "description": "Outcome."
+  },
+  "pairExpiredBody": "Ask {name} for a new one.",
+  "@pairExpiredBody": {
+    "description": "Outcome body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairUsedTitle": "This invite was already used",
+  "@pairUsedTitle": {
+    "description": "Outcome."
+  },
+  "pairUsedBody": "Ask for a new one.",
+  "@pairUsedBody": {
+    "description": "Outcome body."
+  },
+  "pairCancelledTitle": "{name} cancelled this invite",
+  "@pairCancelledTitle": {
+    "description": "Outcome.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairCancelledBody": "Nothing was stored.",
+  "@pairCancelledBody": {
+    "description": "Outcome body."
+  },
+  "pairNoAnswerTitle": "No answer from {name}",
+  "@pairNoAnswerTitle": {
+    "description": "Outcome after 1 hour.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairNoAnswerBody": "The invite may have been cancelled. Ask for a new one, or pair in person.",
+  "@pairNoAnswerBody": {
+    "description": "Outcome body."
+  },
+  "pairChangedTitle": "This invite was changed on the way",
+  "@pairChangedTitle": {
+    "description": "Outcome when the commitment does not match."
+  },
+  "pairChangedBody": "Nothing was stored. Pair again, in person or with a fresh invite from {name}.",
+  "@pairChangedBody": {
+    "description": "Outcome body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairNewerTitle": "Update Epic Cash to open this",
+  "@pairNewerTitle": {
+    "description": "Outcome for a newer invite, envelope or file."
+  },
+  "pairNewerInviteBody": "This invite was made by a newer wallet.",
+  "@pairNewerInviteBody": {
+    "description": "Outcome body."
+  },
+  "pairNewerFileBody": "The file was sealed by a newer wallet.",
+  "@pairNewerFileBody": {
+    "description": "Outcome body for a file."
+  },
+  "pairCheckForUpdates": "Check for updates",
+  "@pairCheckForUpdates": {
+    "description": "Button."
+  },
+  "pairSecondReplyTitle": "Someone else also answered {name}’s invite. See Pending invites.",
+  "@pairSecondReplyTitle": {
+    "description": "Docked notice when a used invite gets a second answer; its action opens Pending invites.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairSecondReplyBody": "If you didn’t share it with them, remove them.",
+  "@pairSecondReplyBody": {
+    "description": "Notice body."
+  },
+  "pairAnsweredSameInvite": "Answered the same invite · not stored",
+  "@pairAnsweredSameInvite": {
+    "description": "Pending row subtitle for the second replier."
+  },
+  "sasTitle": "Check the words",
+  "@sasTitle": {
+    "description": "Screen and dialog title; also the Help topic and the contact-page action."
+  },
+  "sasLead": "{name}’s wallet shows the same four. Compare them on a call or in person.",
+  "@sasLead": {
+    "description": "Lead of the check.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasLeadExchange": "The {name} page shows the same four. Compare them, then confirm on both sides.",
+  "@sasLeadExchange": {
+    "description": "Lead when pairing with a service that shows the words on its site.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasLeadRecheck": "{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.",
+  "@sasLeadRecheck": {
+    "description": "Lead when re-checking from the contact page.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasMatch": "They match",
+  "@sasMatch": {
+    "description": "Primary button."
+  },
+  "sasNoMatch": "They don’t match",
+  "@sasNoMatch": {
+    "description": "Outlined button."
+  },
+  "sasSkip": "Skip for now",
+  "@sasSkip": {
+    "description": "Text button."
+  },
+  "sasLater": "Later",
+  "@sasLater": {
+    "description": "Text button on a re-check."
+  },
+  "sasMatchedTitle": "{name} is verified",
+  "@sasMatchedTitle": {
+    "description": "Result title.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasMatchedBody": "Payment files and invoices with {name} are sealed from now on.",
+  "@sasMatchedBody": {
+    "description": "Result body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasNoMatchTitle": "The words don’t match",
+  "@sasNoMatchTitle": {
+    "description": "Dialog title."
+  },
+  "sasNoMatchBody": "Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.",
+  "@sasNoMatchBody": {
+    "description": "Dialog body (cases file)."
+  },
+  "sasStopPairing": "Stop pairing",
+  "@sasStopPairing": {
+    "description": "Dialog action, red."
+  },
+  "sasSkippedTitle": "Paired with {name}",
+  "@sasSkippedTitle": {
+    "description": "Result title after Skip.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasSkippedBody": "Payment files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.",
+  "@sasSkippedBody": {
+    "description": "Result body after Skip.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sasCheckNow": "Check now",
+  "@sasCheckNow": {
+    "description": "Button after Skip."
+  },
+  "sasAllowAfterMatch": "On once you confirm the words match.",
+  "@sasAllowAfterMatch": {
+    "description": "Under the Allow invoices switch on the exchange check."
+  },
+  "sasAllowInvoicesHint": "{name}’s wallet can ask you to pay. Nothing is paid without your PIN.",
+  "@sasAllowInvoicesHint": {
+    "description": "Under Allow invoices on the result screen.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "trustVerified": "Verified",
+  "@trustVerified": {
+    "description": "Badge text."
+  },
+  "trustPaired": "Paired, not verified",
+  "@trustPaired": {
+    "description": "Badge text."
+  },
+  "trustPairedShort": "Paired",
+  "@trustPairedShort": {
+    "description": "Badge text at narrow width."
+  },
+  "trustKeysChanged": "Keys changed",
+  "@trustKeysChanged": {
+    "description": "Badge text."
+  },
+  "trustSealed": "Sealed",
+  "@trustSealed": {
+    "description": "Chip text."
+  },
+  "trustSealedFor": "Sealed for {name}",
+  "@trustSealedFor": {
+    "description": "Chip on Send and the payment file.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "trustAllowsInvoices": "Allows invoices",
+  "@trustAllowsInvoices": {
+    "description": "Contact row subtitle for a contact with Allow invoices on."
+  },
+  "contactTitle": "Contact",
+  "@contactTitle": {
+    "description": "App bar of the contact page."
+  },
+  "contactAddresses": "Addresses",
+  "@contactAddresses": {
+    "description": "Section head."
+  },
+  "contactPairing": "Pairing",
+  "@contactPairing": {
+    "description": "Section head."
+  },
+  "contactShowCode": "Show code",
+  "@contactShowCode": {
+    "description": "Button: the contact’s QR."
+  },
+  "contactWordsChecked": "Words checked {date}",
+  "@contactWordsChecked": {
+    "description": "Desktop status row subtitle.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "26 Oct, 09:41"
+      }
+    }
+  },
+  "contactCheckAgain": "Check again",
+  "@contactCheckAgain": {
+    "description": "Desktop status row button; phone menu item: Check the words again."
+  },
+  "contactCheckWordsAgain": "Check the words again",
+  "@contactCheckWordsAgain": {
+    "description": "Phone menu item."
+  },
+  "contactSealPayments": "Seal payments",
+  "@contactSealPayments": {
+    "description": "Switch label. Label only; the info icon explains."
+  },
+  "contactSealInfo": "Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.",
+  "@contactSealInfo": {
+    "description": "Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactSealInfoMore": "Off, a payment file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.",
+  "@contactSealInfoMore": {
+    "description": "Second paragraph of the Seal payments info sheet.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactAllowInvoices": "Allow invoices",
+  "@contactAllowInvoices": {
+    "description": "Switch label."
+  },
+  "contactAllowInfo": "{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.",
+  "@contactAllowInfo": {
+    "description": "Info sheet / tooltip for Allow invoices.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactAllowInfoMore": "Only a Verified contact can be allowed: checking the words rules out a swapped invite.",
+  "@contactAllowInfoMore": {
+    "description": "Second paragraph."
+  },
+  "contactCheckWordsFirst": "Check the words first",
+  "@contactCheckWordsFirst": {
+    "description": "Under a disabled Allow invoices switch."
+  },
+  "contactPausedUntilChecked": "Paused until you check the words",
+  "@contactPausedUntilChecked": {
+    "description": "Under the switches in the keys-changed state."
+  },
+  "contactDeliveredVia": "Delivered via {relay}",
+  "@contactDeliveredVia": {
+    "description": "Readout of the contact’s own relay: the relay of the mailbox in their card (RFC 7.4, 8.3). For a service, its relay.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "contactRelayDownTitle": "{name}’s relay isn’t answering",
+  "@contactRelayDownTitle": {
+    "description": "Notice on the contact page (cases file C-05).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactRelayDownBody": "Retrying. Requests and payments wait until it answers; nothing is lost.",
+  "@contactRelayDownBody": {
+    "description": "Notice body."
+  },
+  "contactPausedEpicboxOff": "Paused while Epicbox is off",
+  "@contactPausedEpicboxOff": {
+    "description": "Readout and docked notice on the contact page and Settings › Invoices."
+  },
+  "contactPausedEpicboxOffBody": "Sealed files still work.",
+  "@contactPausedEpicboxOffBody": {
+    "description": "Docked notice body on the contact page."
+  },
+  "contactRemovePairing": "Remove pairing",
+  "@contactRemovePairing": {
+    "description": "Text button, red."
+  },
+  "contactRemovePairingTitle": "Remove the pairing with {name}?",
+  "@contactRemovePairingTitle": {
+    "description": "Confirm title (cases file).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactRemovePairingBody": "Sealed payments and invoices from {name} will stop. Their addresses stay in your contacts.",
+  "@contactRemovePairingBody": {
+    "description": "Confirm body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactKeep": "Keep",
+  "@contactKeep": {
+    "description": "Confirm secondary."
+  },
+  "contactRemove": "Remove",
+  "@contactRemove": {
+    "description": "Confirm primary, red."
+  },
+  "contactKeysChangedTitle": "{name}’s keys changed",
+  "@contactKeysChangedTitle": {
+    "description": "Notice title (binding text from the review).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactKeysChangedBody": "This can mean they use a different wallet now, or someone else is using their name. Check the words again.",
+  "@contactKeysChangedBody": {
+    "description": "Notice body under the keys-changed title (binding text from the review; the app cannot know the contact's pronoun, so English says they/their). Languages without a safe pronoun use none."
+  },
+  "contactKeysChangedStatus": "sealing and invoices paused",
+  "@contactKeysChangedStatus": {
+    "description": "Status row readout in the keys-changed state."
+  },
+  "contactKeepOldKeys": "Keep the old keys",
+  "@contactKeepOldKeys": {
+    "description": "Button."
+  },
+  "contactUseNewKeys": "Use the new keys",
+  "@contactUseNewKeys": {
+    "description": "Button."
+  },
+  "contactKeysBack": "{name}’s keys are back.",
+  "@contactKeysBack": {
+    "description": "Notice title after a re-pair found the old keys.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactKeysBackBody": "Nothing changed for you.",
+  "@contactKeysBackBody": {
+    "description": "Notice body."
+  },
+  "contactSealDegradedTitle": "The last payment to {name} went plain",
+  "@contactSealDegradedTitle": {
+    "description": "Notice on the contact page.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactSealDegradedBody": "The next one asks Seal or plain. Sealing turns itself back on when {name}’s wallet answers sealed.",
+  "@contactSealDegradedBody": {
+    "description": "Notice body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "addrField": "Address",
+  "@addrField": {
+    "description": "Empty address field label."
+  },
+  "addrFieldTyped": "{type} address",
+  "@addrFieldTyped": {
+    "description": "Field label once the type is detected, e.g. Epicbox address.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "addrAddAnother": "Add another address",
+  "@addrAddAnother": {
+    "description": "Text button under the last filled field, only while a type is free."
+  },
+  "addrOneFree": "One more type is free: {type}.",
+  "@addrOneFree": {
+    "description": "Small print under Add another address.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "addrDuplicateType": "{name} already has this kind of address ({type}).",
+  "@addrDuplicateType": {
+    "description": "Field error when a second address of the same type is pasted.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "addrKeepOld": "Keep the old one",
+  "@addrKeepOld": {
+    "description": "Button under the duplicate-type error."
+  },
+  "addrReplace": "Replace it",
+  "@addrReplace": {
+    "description": "Button under the duplicate-type error."
+  },
+  "addrDesktopThird": "Paste a {type} address, or leave empty",
+  "@addrDesktopThird": {
+    "description": "Desktop: placeholder of the free third field.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "addrDesktopRule": "One address per type. The third field appears only while a type is free.",
+  "@addrDesktopRule": {
+    "description": "Desktop small print."
+  },
+  "pendingTitle": "Pending invites",
+  "@pendingTitle": {
+    "description": "Screen title and the Contacts row."
+  },
+  "pendingRowHint": "{count, plural, =1{1 invite waiting for an answer} other{{count} invites waiting for an answer}}",
+  "@pendingRowHint": {
+    "description": "Contacts row subtitle.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingLink": "Link · expires in {time}",
+  "@pendingLink": {
+    "description": "Row subtitle.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pendingWords": "Pairing words · expires in {time}",
+  "@pendingWords": {
+    "description": "Row subtitle.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pendingExpired": "Expired",
+  "@pendingExpired": {
+    "description": "Row subtitle, warn colour; the date follows."
+  },
+  "pendingInviteAgain": "Invite again",
+  "@pendingInviteAgain": {
+    "description": "Row button."
+  },
+  "pendingWaitingConfirm": "Waiting for their confirmation · {time}",
+  "@pendingWaitingConfirm": {
+    "description": "Row subtitle for an incoming pairing awaiting the confirm.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "pendingPairedCheck": "Paired · check the words",
+  "@pendingPairedCheck": {
+    "description": "Row subtitle once the reply opened."
+  },
+  "pendingEmpty": "No invites waiting. An invite shows here until the other wallet answers it.",
+  "@pendingEmpty": {
+    "description": "Empty state."
+  },
+  "pendingShareAgain": "Share again",
+  "@pendingShareAgain": {
+    "description": "Row menu."
+  },
+  "pendingShowWords": "Show words",
+  "@pendingShowWords": {
+    "description": "Row menu and desktop button."
+  },
+  "pendingCopyLink": "Copy link",
+  "@pendingCopyLink": {
+    "description": "Desktop row button."
+  },
+  "invSetTitle": "Invoices",
+  "@invSetTitle": {
+    "description": "Screen title."
+  },
+  "invSetLead": "A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.",
+  "@invSetLead": {
+    "description": "Lead. Desktop says ‘for the wallet password’."
+  },
+  "invSetPaired": "Paired contacts",
+  "@invSetPaired": {
+    "description": "Section title."
+  },
+  "invSetAllowed": "Allowed",
+  "@invSetAllowed": {
+    "description": "Row subtitle when on."
+  },
+  "invSetOff": "Off",
+  "@invSetOff": {
+    "description": "Row subtitle when off."
+  },
+  "invSetPairShop": "Pair with a shop or exchange",
+  "@invSetPairShop": {
+    "description": "Button; opens Pair."
+  },
+  "invSetEmpty": "No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.",
+  "@invSetEmpty": {
+    "description": "Empty state."
+  },
+  "invSetPausedBody": "Requests wait on the relay and arrive when it is back on.",
+  "@invSetPausedBody": {
+    "description": "Docked notice body while Epicbox is off."
+  },
+  "invSetSwitchedOff": "Invoices from {name} are off.",
+  "@invSetSwitchedOff": {
+    "description": "Notice when the switch goes off.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "invSetDeclinedCount": "{count, plural, =1{1 open request was declined.} other{{count} open requests were declined.}}",
+  "@invSetDeclinedCount": {
+    "description": "Notice body when open requests existed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invSetTimeToPay": "Time to pay",
+  "@invSetTimeToPay": {
+    "description": "Advanced row (kept)."
+  },
+  "invSetTimeToPayHint": "{hours} hours · how long an invoice stays payable",
+  "@invSetTimeToPayHint": {
+    "description": "Advanced row subtitle.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "invoicesEmptyAction": "Paired contacts",
+  "@invoicesEmptyAction": {
+    "description": "Empty-state button; opens Settings › Wallet › Invoices."
+  },
+  "reqTitle": "Review request",
+  "@reqTitle": {
+    "description": "Screen title (replaces Review invoice for requests from paired contacts)."
+  },
+  "reqRequests": "{name} requests",
+  "@reqRequests": {
+    "description": "Header line; the amount follows.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqAsksYouToPay": "{name} asks you to pay",
+  "@reqAsksYouToPay": {
+    "description": "Desktop header.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqSealedSigned": "Sealed to this wallet and signed by {name}",
+  "@reqSealedSigned": {
+    "description": "Desktop line next to the chips.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqReference": "Reference",
+  "@reqReference": {
+    "description": "Row label."
+  },
+  "reqDepositRef": "Deposit · ref {ref}",
+  "@reqDepositRef": {
+    "description": "Reference readout for a deposit.",
+    "placeholders": {
+      "ref": {
+        "type": "String",
+        "example": "NW-48213"
+      }
+    }
+  },
+  "reqWithdrawalRef": "Withdrawal · ref {ref}",
+  "@reqWithdrawalRef": {
+    "description": "Reference readout for a withdrawal.",
+    "placeholders": {
+      "ref": {
+        "type": "String",
+        "example": "NW-48213"
+      }
+    }
+  },
+  "reqDeliveredVia": "Delivered via",
+  "@reqDeliveredVia": {
+    "description": "Desktop row label."
+  },
+  "reqPaidWaiting": "Paid. Waiting for {name} to post",
+  "@reqPaidWaiting": {
+    "description": "Edge card title after paying.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqPaidWaitingBody": "Your part is done. The exchange finalizes and posts; this closes on its own.",
+  "@reqPaidWaitingBody": {
+    "description": "Edge card body."
+  },
+  "reqTlPaid": "Paid",
+  "@reqTlPaid": {
+    "description": "Timeline step."
+  },
+  "reqTlDelivered": "Delivered to {name}’s relay",
+  "@reqTlDelivered": {
+    "description": "Timeline step.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqTlAnswerDelivered": "Answer delivered to {name}’s relay",
+  "@reqTlAnswerDelivered": {
+    "description": "Timeline step for a withdrawal.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqTlPosted": "Posted by {name}",
+  "@reqTlPosted": {
+    "description": "Timeline step.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqTlPostedHint": "Usually within minutes",
+  "@reqTlPostedHint": {
+    "description": "Timeline detail while current."
+  },
+  "reqTlConfirming": "Confirming",
+  "@reqTlConfirming": {
+    "description": "Timeline step."
+  },
+  "reqTlConfirmingHint": "{n} of {total} confirmations",
+  "@reqTlConfirmingHint": {
+    "description": "Timeline detail.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reqTlConfirmed": "Confirmed",
+  "@reqTlConfirmed": {
+    "description": "Timeline step."
+  },
+  "reqTlWaiting": "Waiting {time}",
+  "@reqTlWaiting": {
+    "description": "Timeline detail for a step that is late.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "9:32"
+      }
+    }
+  },
+  "reqNotPostedTitle": "{name} has not posted yet",
+  "@reqNotPostedTitle": {
+    "description": "After 2 hours delivered but not posted.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqNotPostedBody": "Send again delivers the same payment once more. It cannot be paid twice.",
+  "@reqNotPostedBody": {
+    "description": "Body."
+  },
+  "reqSendAgain": "Send again",
+  "@reqSendAgain": {
+    "description": "Button."
+  },
+  "reqUnreachableTitle": "Couldn’t reach {name} yet",
+  "@reqUnreachableTitle": {
+    "description": "After 24 hours undelivered (cases file).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqUnreachableBody": "Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.",
+  "@reqUnreachableBody": {
+    "description": "Body."
+  },
+  "reqRelayRetrying": "Relay not answering · retrying",
+  "@reqRelayRetrying": {
+    "description": "Timeline detail."
+  },
+  "reqWithdrewTitle": "{name} withdrew the request",
+  "@reqWithdrewTitle": {
+    "description": "After a signed withdrawn notice.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqWithdrewBody": "Your funds are unlocked. Nothing was paid.",
+  "@reqWithdrewBody": {
+    "description": "Body when the payment was cancelled."
+  },
+  "reqWithdrewUnpaid": "{name} withdrew this request",
+  "@reqWithdrewUnpaid": {
+    "description": "For an unpaid request; the row is removed.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqDeclined": "Declined",
+  "@reqDeclined": {
+    "description": "Status after the user declined."
+  },
+  "reqTwoSame": "{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}",
+  "@reqTwoSame": {
+    "description": "Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "250"
+      }
+    }
+  },
+  "reqTooMany": "{name} sent too many requests.",
+  "@reqTooMany": {
+    "description": "Docked notice when the parked-invoice cap is hit.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqTooManyBody": "Extra ones were dropped. Turn its invoices off if this keeps happening.",
+  "@reqTooManyBody": {
+    "description": "Body."
+  },
+  "reqWithdrawalFrom": "Withdrawal from {name}",
+  "@reqWithdrawalFrom": {
+    "description": "Payment title for an incoming withdrawal.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqReceivedWaiting": "Received. Waiting for {name} to post",
+  "@reqReceivedWaiting": {
+    "description": "Edge card title for a withdrawal.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqReceivedWaitingBody": "Nothing to do. The exchange posts it; confirmations follow.",
+  "@reqReceivedWaitingBody": {
+    "description": "Body."
+  },
+  "reqNewTitle": "New request",
+  "@reqNewTitle": {
+    "description": "Request form title."
+  },
+  "reqNewLead": "Ask a paired contact to pay you, or save the request as a file for anyone.",
+  "@reqNewLead": {
+    "description": "Request form lead (also the Receive hint)."
+  },
+  "reqNewTo": "To",
+  "@reqNewTo": {
+    "description": "Field label: the paired contact."
+  },
+  "reqNewToHint": "Paired contacts whose wallet pays requests. Anyone else: save the request as a file.",
+  "@reqNewToHint": {
+    "description": "Under the To field."
+  },
+  "reqNewSaveFile": "Save as file",
+  "@reqNewSaveFile": {
+    "description": "Secondary button."
+  },
+  "reqNewSend": "Send request",
+  "@reqNewSend": {
+    "description": "Primary button."
+  },
+  "sendViaMailbox": "Send through {name}’s mailbox",
+  "@sendViaMailbox": {
+    "description": "Switch on Send for a paired contact over Epicbox.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendViaMailboxHint": "Sealed. Delivered via {relay}",
+  "@sendViaMailboxHint": {
+    "description": "Under that switch.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "sendSealedTitle": "Sealed for {name}",
+  "@sendSealedTitle": {
+    "description": "Payment file screen title.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendSealedBody": "Only {name}’s wallet can open this file. Send it any way you like, then open the file they send back.",
+  "@sendSealedBody": {
+    "description": "Payment file screen body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendSealOrPlainTitle": "Seal this file?",
+  "@sendSealOrPlainTitle": {
+    "description": "Chooser after a plain fallback (seal degraded)."
+  },
+  "sendSealOrPlainBody": "The last file to {name} went plain. Sealed is the default again.",
+  "@sendSealOrPlainBody": {
+    "description": "Chooser body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendSealedOption": "Sealed",
+  "@sendSealedOption": {
+    "description": "Chooser option."
+  },
+  "sendSealedOptionHint": "Only {name}’s wallet can read it",
+  "@sendSealedOptionHint": {
+    "description": "Chooser option hint.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendPlainOption": "Plain",
+  "@sendPlainOption": {
+    "description": "Chooser option."
+  },
+  "sendPlainOptionHint": "Anyone with the file can read it",
+  "@sendPlainOptionHint": {
+    "description": "Chooser option hint."
+  },
+  "sendCantOpenTitle": "{name} can’t open sealed files?",
+  "@sendCantOpenTitle": {
+    "description": "Edge card on a sealed send with no answer.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendCantOpenBody": "Send as plain instead resends the same payment unsealed. It is still one payment.",
+  "@sendCantOpenBody": {
+    "description": "Body."
+  },
+  "sendAsPlain": "Send as plain instead",
+  "@sendAsPlain": {
+    "description": "Button."
+  },
+  "sendAsPlainTitle": "Send as plain instead?",
+  "@sendAsPlainTitle": {
+    "description": "Confirm title."
+  },
+  "sendAsPlainBody": "The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.",
+  "@sendAsPlainBody": {
+    "description": "Confirm body (cases file: explains that anyone with the file can read it)."
+  },
+  "sendKeepSealed": "Keep sealed",
+  "@sendKeepSealed": {
+    "description": "Confirm secondary."
+  },
+  "sendPlain": "Send as plain",
+  "@sendPlain": {
+    "description": "Confirm primary."
+  },
+  "sendNotHeardTitle": "Not heard from {name}’s wallet in 90 days",
+  "@sendNotHeardTitle": {
+    "description": "Edge card on Send (RFC 9.4).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendNotHeardBody": "{name} will need Epic Cash to open this file.",
+  "@sendNotHeardBody": {
+    "description": "Body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendPlainShort": "Send plain",
+  "@sendPlainShort": {
+    "description": "Button on that card."
+  },
+  "openSealedOtherTitle": "This was sealed for another wallet or install",
+  "@openSealedOtherTitle": {
+    "description": "Opening a file that does not match (RFC 9.5)."
+  },
+  "openSealedOtherBody": "It cannot be opened here. Ask the sender to send it again.",
+  "@openSealedOtherBody": {
+    "description": "Body."
+  },
+  "openArrivedUnsealed": "This arrived unsealed.",
+  "@openArrivedUnsealed": {
+    "description": "Docked notice when a paired contact sent plain."
+  },
+  "openArrivedUnsealedBody": "{name} chose plain for this file.",
+  "@openArrivedUnsealedBody": {
+    "description": "Body.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticePairingReplied": "{name} answered your invite. Check the words together.",
+  "@noticePairingReplied": {
+    "description": "PairingReplied (inviter).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticePairingConfirmed": "Paired with {name}. Check the words together.",
+  "@noticePairingConfirmed": {
+    "description": "PairingConfirmed (invitee).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeRequest": "{name} requests {amount} EPIC. Review under Invoices.",
+  "@noticeRequest": {
+    "description": "Docked notice for InvoiceFromContact; its action opens the request.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "amount": {
+        "type": "String",
+        "example": "250"
+      }
+    }
+  },
+  "noticeWithdrawal": "Received {amount} EPIC from {name}. Waiting for it to post.",
+  "@noticeWithdrawal": {
+    "description": "Docked notice for WithdrawalFromContact.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "250"
+      },
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeKeysChanged": "{name}’s keys changed. Check the words again before paying.",
+  "@noticeKeysChanged": {
+    "description": "Docked notice for ContactKeysChanged; its action opens the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeRelayDown": "{name}’s relay isn’t answering. Retrying.",
+  "@noticeRelayDown": {
+    "description": "Docked notice for HomeRelayUnreachable.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeWithdrew": "{name} withdrew the request. Your funds are unlocked.",
+  "@noticeWithdrew": {
+    "description": "Docked notice when a contact withdrew a paid request.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "restoreUseContactsTitle": "Use your contacts on this device?",
+  "@restoreUseContactsTitle": {
+    "description": "Dialog on importing a backup whose pairings were used elsewhere (RFC 9.5)."
+  },
+  "restoreUseContactsBody": "{count, plural, =1{1 pairing in this backup was used on another device. Your other device should stop using it.} other{{count} pairings in this backup were used on another device. Your other device should stop using them.}}",
+  "@restoreUseContactsBody": {
+    "description": "Dialog body.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreUseHere": "Use them here",
+  "@restoreUseHere": {
+    "description": "Dialog primary."
+  },
+  "restorePairingsOnOtherDevice": "{count} · on another device",
+  "@restorePairingsOnOtherDevice": {
+    "description": "Import summary row readout.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreDone": "History restored.",
+  "@restoreDone": {
+    "description": "Notice title."
+  },
+  "restoreDoneBody": "Payments: {payments}. Contacts: {contacts}. Pairings: {pairings}.",
+  "@restoreDoneBody": {
+    "description": "Notice body after a history restore: what came back, as counts.",
+    "placeholders": {
+      "payments": {
+        "type": "String",
+        "example": "184"
+      },
+      "contacts": {
+        "type": "String",
+        "example": "12"
+      },
+      "pairings": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "pairInviteSentBodyAnyone": "Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.",
+  "@pairInviteSentBodyAnyone": {
+    "description": "After sharing an invite made for nobody in particular."
+  },
+  "pairInvalidLink": "This is not a pairing link",
+  "@pairInvalidLink": {
+    "description": "Outcome title for text that holds no pairing invite, answer or code (also a partial scan, cases C-28)."
+  },
+  "pairInvalidBody": "Check that the whole link was copied, or ask for a new one.",
+  "@pairInvalidBody": {
+    "description": "Outcome body for an unreadable pairing link."
+  },
+  "pairOwnCode": "This is your own code",
+  "@pairOwnCode": {
+    "description": "Outcome when the wallet scans or opens its own code or invite."
+  },
+  "pairOwnCodeBody": "Scan the code on the other phone.",
+  "@pairOwnCodeBody": {
+    "description": "Outcome body for the wallet's own code."
+  },
+  "pairUnnamedInvite": "Open invite",
+  "@pairUnnamedInvite": {
+    "description": "Pending invites row title for an invite made for nobody in particular."
+  },
+  "pairSeenAsMissing": "Enter the name they will see.",
+  "@pairSeenAsMissing": {
+    "description": "Field error when They will see you as is empty."
+  },
+  "pairSeenAsTooLong": "Use a shorter name.",
+  "@pairSeenAsTooLong": {
+    "description": "Field error when the name is over 48 bytes."
+  },
+  "pairSeenAsEdit": "Change the name they will see",
+  "@pairSeenAsEdit": {
+    "description": "Tooltip of the edit icon in They will see you as."
+  },
+  "pairCodeLabel": "Your pairing code",
+  "@pairCodeLabel": {
+    "description": "Screen reader label of the in-person QR code."
+  },
+  "pairWordsLabel": "Your pairing words",
+  "@pairWordsLabel": {
+    "description": "Group label of the five pairing words."
+  },
+  "pairWordsEnteredLabel": "Words entered",
+  "@pairWordsEnteredLabel": {
+    "description": "Group label of the five tiles that fill while typing."
+  },
+  "pairWordSlot": "Word {n}, not entered",
+  "@pairWordSlot": {
+    "description": "Screen reader label of an empty word slot.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pairSuggestions": "Suggestions",
+  "@pairSuggestions": {
+    "description": "Group label of the completion chips under the words field."
+  },
+  "pairCopied": "Copied",
+  "@pairCopied": {
+    "description": "Notice after copying an invite, words or an answer link."
+  },
+  "pairPaste": "Paste",
+  "@pairPaste": {
+    "description": "Tooltip of the paste icon in the link or words field."
+  },
+  "pairInPersonDone": "Codes scanned",
+  "@pairInPersonDone": {
+    "description": "Screen reader announcement when the camera read the other code."
+  },
+  "pairEpicboxOffNotice": "Paused while Epicbox is off. The invite and the answer travel by hand.",
+  "@pairEpicboxOffNotice": {
+    "description": "Docked info notice on Pair online while Epicbox is off."
+  },
+  "pairWaitingTitleShort": "Pairing",
+  "@pairWaitingTitleShort": {
+    "description": "App bar title of the waiting and result screens."
+  },
+  "pairClosed": "Close",
+  "@pairClosed": {
+    "description": "Button on the waiting and outcome screens."
+  },
+  "sasWordsLabel": "The four words",
+  "@sasWordsLabel": {
+    "description": "Group label of the four words of the check."
+  },
+  "sasDialogTitle": "Check the words with {name}",
+  "@sasDialogTitle": {
+    "description": "Desktop dialog title of the words check.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "trustNotPaired": "Not paired",
+  "@trustNotPaired": {
+    "description": "Badge text for a contact without a pairing (desktop rows that need a word)."
+  },
+  "contactMore": "More",
+  "@contactMore": {
+    "description": "Tooltip of the contact page more menu."
+  },
+  "contactEdit": "Edit",
+  "@contactEdit": {
+    "description": "Tooltip of the contact page edit button."
+  },
+  "contactDelete": "Delete contact",
+  "@contactDelete": {
+    "description": "Contact page more menu: delete."
+  },
+  "contactInfoAbout": "About {label}",
+  "@contactInfoAbout": {
+    "description": "Tooltip and screen reader label of an info icon beside a switch.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Seal payments"
+      }
+    }
+  },
+  "contactCopyAddress": "Copy {type} address",
+  "@contactCopyAddress": {
+    "description": "Tooltip of an address row copy button.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "contactDeletePaired": "Deleting {name} also removes the pairing. Sealed payments and invoices from them stop.",
+  "@contactDeletePaired": {
+    "description": "Extra line in the delete confirm of a paired contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactNoAddresses": "No addresses saved.",
+  "@contactNoAddresses": {
+    "description": "Contact page Addresses when the contact has none (a paired service)."
+  },
+  "addrRemove": "Remove {type} address",
+  "@addrRemove": {
+    "description": "Tooltip of the × in an address field.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "addrAlreadySaved": "This address is already saved as {name}.",
+  "@addrAlreadySaved": {
+    "description": "Hint when the address belongs to another contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendVia": "Send via",
+  "@sendVia": {
+    "description": "Label of the method segments on Send for a contact with several addresses."
+  },
+  "invSetLeadDesktop": "A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.",
+  "@invSetLeadDesktop": {
+    "description": "Desktop Settings › Invoices lead."
+  },
+  "invSetRowAllowed": "Verified · allowed",
+  "@invSetRowAllowed": {
+    "description": "Desktop Settings › Invoices row subtitle."
+  },
+  "invSetRowCheckFirst": "Paired, not verified · check the words first",
+  "@invSetRowCheckFirst": {
+    "description": "Desktop Settings › Invoices row subtitle for an unverified contact."
+  },
+  "invSetAllowFor": "Allow invoices from {name}",
+  "@invSetAllowFor": {
+    "description": "Screen reader label of a Settings › Invoices switch.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqNoPayers": "No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.",
+  "@reqNoPayers": {
+    "description": "Request form when no verified contact can pay requests."
+  },
+  "reqPickContact": "Choose a contact",
+  "@reqPickContact": {
+    "description": "Placeholder of the To field."
+  },
+  "reqFileSaved": "Request saved as a file",
+  "@reqFileSaved": {
+    "description": "Notice after Save as file."
+  },
+  "reqSent": "Request sent to {name}",
+  "@reqSent": {
+    "description": "Notice after Send request.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "reqFileTitle": "Payment request",
+  "@reqFileTitle": {
+    "description": "Title of the request file screen."
+  },
+  "reqFileBody": "Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.",
+  "@reqFileBody": {
+    "description": "Body of the request file screen."
+  },
+  "noticeOutboxStuck": "Couldn’t reach {name} yet. Your funds are safe.",
+  "@noticeOutboxStuck": {
+    "description": "Docked warning for OutboxStuck.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeTooMany": "{name} sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.",
+  "@noticeTooMany": {
+    "description": "Docked warning when a contact went over the request cap.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "noticeOpen": "Open",
+  "@noticeOpen": {
+    "description": "Action of a pairing notice that opens its screen."
+  },
+  "noticeCheckWords": "Check the words",
+  "@noticeCheckWords": {
+    "description": "Action of the paired notice: opens the words check."
+  },
+  "noticeView": "View",
+  "@noticeView": {
+    "description": "Action of a request notice."
+  },
+  "restorePairings": "Pairings",
+  "@restorePairings": {
+    "description": "Import summary row label."
+  },
+  "sendSealedNote": "Sealed for {name}: only their wallet can open the file.",
+  "@sendSealedNote": {
+    "description": "Under the recipient on Send when the file method seals.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendSealChoice": "Seal this file",
+  "@sendSealChoice": {
+    "description": "Screen reader label of the Sealed / Plain chooser."
+  },
+  "pairingDesktopShowCodeLead": "Let them scan this with their phone, or read them the pairing words.",
+  "@pairingDesktopShowCodeLead": {
+    "description": "Desktop Show my code panel lead."
+  },
+  "pairingDesktopInviteLead": "Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.",
+  "@pairingDesktopInviteLead": {
+    "description": "Desktop Invite online panel lead."
+  },
+  "pairingInviteOnline": "Invite online",
+  "@pairingInviteOnline": {
+    "description": "Desktop panel title."
+  },
+  "pairUseHere": "Use here",
+  "@pairUseHere": {
+    "description": "Desktop restore dialog primary (short)."
+  },
+  "pairSaveContactTitle": "Save {name} in your contacts?",
+  "@pairSaveContactTitle": {
+    "description": "Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairSaveNewContact": "Save as a new contact",
+  "@pairSaveNewContact": {
+    "description": "Button: make an address-book contact for this pairing."
+  },
+  "pairAddToAContact": "Add to a contact",
+  "@pairAddToAContact": {
+    "description": "Button: attach this pairing to an existing contact the user picks."
+  },
+  "pairPickContactTitle": "Add to which contact?",
+  "@pairPickContactTitle": {
+    "description": "Title of the contact picker for attaching a pairing."
+  },
+  "pairSavedAs": "Saved as {name}.",
+  "@pairSavedAs": {
+    "description": "Notice after a pairing was saved to or added to a contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairContactAlreadyPaired": "{name} already has a pairing. Adding this one checks whether the keys are the same.",
+  "@pairContactAlreadyPaired": {
+    "description": "Hint in the picker for a contact that is paired already (RFC 7.8).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairDurDays": "{days} d {hours} h",
+  "@pairDurDays": {
+    "description": "A time span of a day or more, short units, in countdowns (\"Invite expires in 6 d 23 h\").",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "pairDurHours": "{hours} h {minutes} min",
+  "@pairDurHours": {
+    "description": "A time span of an hour or more, short units.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "pairDurMinutes": "{minutes} min",
+  "@pairDurMinutes": {
+    "description": "A time span under an hour, short units.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "pairDurUnderMinute": "under a minute",
+  "@pairDurUnderMinute": {
+    "description": "A time span under a minute."
+  },
+  "pairBack": "Back",
+  "@pairBack": {
+    "description": "Secondary action of the words-don't-match dialog: back to the check."
+  },
+  "pairNotInContacts": "Not in contacts",
+  "@pairNotInContacts": {
+    "description": "Subtitle of a pairing whose address-book contact was deleted (the address book is shared by every wallet on the device)."
+  },
+  "pairAddToContacts": "Add to contacts",
+  "@pairAddToContacts": {
+    "description": "Action on a pairing whose contact was deleted: saves a new contact with its address."
+  },
+  "helpPairingSection": "Pairing",
+  "@helpPairingSection": {
+    "description": "Help section title."
+  },
+  "helpPairingLede": "Pair once; payment files and invoices with that contact are sealed.",
+  "@helpPairingLede": {
+    "description": "Help section lede."
+  },
+  "helpPairWhatTitle": "What pairing is",
+  "@helpPairWhatTitle": {
+    "description": "Topic 1 title."
+  },
+  "helpPairWhatShort": "Pair once with someone; after that, payment files and invoices between the two wallets are sealed.",
+  "@helpPairWhatShort": {
+    "description": "Topic 1 lede."
+  },
+  "helpPairWhatP1": "Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.",
+  "@helpPairWhatP1": {
+    "description": "Topic 1."
+  },
+  "helpPairWhatP2": "After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.",
+  "@helpPairWhatP2": {
+    "description": "Topic 1."
+  },
+  "helpPairWhatStep1": "Open [[Contacts]] and choose **Pair**.",
+  "@helpPairWhatStep1": {
+    "description": "Topic 1 step."
+  },
+  "helpPairWhatStep2": "In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.",
+  "@helpPairWhatStep2": {
+    "description": "Topic 1 step."
+  },
+  "helpPairWhatStep3": "Check the words together, then **They match**.",
+  "@helpPairWhatStep3": {
+    "description": "Topic 1 step."
+  },
+  "helpPairWhatP3": "Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.",
+  "@helpPairWhatP3": {
+    "description": "Topic 1."
+  },
+  "helpPairWhyTitle": "Why check the words",
+  "@helpPairWhyTitle": {
+    "description": "Topic 2 title."
+  },
+  "helpPairWhyShort": "The four words prove the pairing reached the right wallet and not someone in between.",
+  "@helpPairWhyShort": {
+    "description": "Topic 2 lede."
+  },
+  "helpPairWhyP1": "Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.",
+  "@helpPairWhyP1": {
+    "description": "Topic 2."
+  },
+  "helpPairWhyP2": "Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.",
+  "@helpPairWhyP2": {
+    "description": "Topic 2."
+  },
+  "helpPairWhyP3": "If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.",
+  "@helpPairWhyP3": {
+    "description": "Topic 2."
+  },
+  "helpPairWordsTitle": "Pairing words",
+  "@helpPairWordsTitle": {
+    "description": "Topic 3 title."
+  },
+  "helpPairWordsShort": "Five pictures with names stand in for a link when there is nothing to scan or paste.",
+  "@helpPairWordsShort": {
+    "description": "Topic 3 lede."
+  },
+  "helpPairWordsP1": "When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.",
+  "@helpPairWordsP1": {
+    "description": "Topic 3."
+  },
+  "helpPairWordsP2": "The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.",
+  "@helpPairWordsP2": {
+    "description": "Topic 3."
+  },
+  "helpPairWordsP3": "Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.",
+  "@helpPairWordsP3": {
+    "description": "Topic 3."
+  },
+  "helpPairInvTitle": "Invoices from paired contacts",
+  "@helpPairInvTitle": {
+    "description": "Topic 4 title."
+  },
+  "helpPairInvShort": "Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.",
+  "@helpPairInvShort": {
+    "description": "Topic 4 lede."
+  },
+  "helpPairInvP1": "A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
+  "@helpPairInvP1": {
+    "description": "Topic 4."
+  },
+  "helpPairInvP2": "A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.",
+  "@helpPairInvP2": {
+    "description": "Topic 4."
+  },
+  "helpPairInvP3": "Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.",
+  "@helpPairInvP3": {
+    "description": "Topic 4."
+  },
+  "helpPairInvP4": "An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.",
+  "@helpPairInvP4": {
+    "description": "Topic 4."
+  },
+  "helpPairRestoreTitle": "What a restore does",
+  "@helpPairRestoreTitle": {
+    "description": "Topic 5 title."
+  },
+  "helpPairRestoreShort": "Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.",
+  "@helpPairRestoreShort": {
+    "description": "Topic 5 lede."
+  },
+  "helpPairRestoreP1": "With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.",
+  "@helpPairRestoreP1": {
+    "description": "Topic 5."
+  },
+  "helpPairRestoreP2": "Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.",
+  "@helpPairRestoreP2": {
+    "description": "Help › Pairing › What a restore does, paragraph 2."
+  },
+  "helpPairRestoreP3": "A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.",
+  "@helpPairRestoreP3": {
+    "description": "Topic 5."
+  },
+  "helpPairRestoreP4": "Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.",
+  "@helpPairRestoreP4": {
+    "description": "Topic 5."
   }
 }

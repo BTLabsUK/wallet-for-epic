@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../desk_l10n.dart';
+import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
 import '../../data/invoice_state.dart';
+import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 import 'pay_dialogs.dart';
@@ -28,14 +30,14 @@ class InvoiceReviewScreen extends ConsumerWidget {
     final invoice = arg is String ? book?.invoice(arg! as String) : null;
     if (book == null) {
       return EPage(
-        title: l.invoiceReviewTitle,
+        title: l.reqTitle,
         onBack: back,
         child: Padding(padding: EdgeInsets.symmetric(vertical: Sp.x10), child: const Center(child: ESpinner())),
       );
     }
     if (invoice == null) {
       return EPage(
-        title: l.invoiceReviewTitle,
+        title: l.reqTitle,
         onBack: back,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +50,7 @@ class InvoiceReviewScreen extends ConsumerWidget {
       );
     }
     return EPage(
-      title: l.invoiceReviewTitle,
+      title: l.reqTitle,
       onBack: back,
       child: _Review(invoice: invoice, book: book, onBack: back),
     );
@@ -87,7 +89,7 @@ class _Review extends ConsumerWidget {
     final open = i.state == PayState.waiting && i.expiresAt.isAfter(book.now);
     final short = open && spendable != null && spendable < i.total;
     final same = open ? book.samePaidBefore(i) : null;
-    final trusted = book.trustedFor(i.senderAddress);
+    final pairing = i.pairingId == null ? null : ref.watch(deskPairingByIdProvider(i.pairingId!));
     final message = cleanInvoiceText(i.message);
     final tag = Localizations.localeOf(context).toLanguageTag();
 
@@ -180,15 +182,16 @@ class _Review extends ConsumerWidget {
                   ECopyButton(text: i.senderAddress, label: l.deskInvPayerPaysTo),
                 ],
               ),
-              Row(
+              // Sealed: it came through the contact's mailbox, sealed and signed by it.
+              Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x1,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(EIcons.trusted, size: Ctl.iconSm, color: c.dim),
-                  SizedBox(width: Sp.x1),
-                  Flexible(
-                    child: Text(
-                      trusted == null ? i.label : l.deskInvPayerTrustedSince(trusted.label, DateFormat.yMMMd(tag).format(trusted.since)),
-                      style: ts.small,
-                    ),
+                  if (pairing != null) ...[const SealedBadge(), TrustBadge(pairing)],
+                  Text(
+                    pairing?.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(DateFormat.yMMMd(tag).format(pairing!.verifiedAt!))}',
+                    style: ts.small,
                   ),
                 ],
               ),

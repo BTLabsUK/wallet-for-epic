@@ -6,7 +6,6 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -516,24 +515,6 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     _ => null,
   };
   return state == null ? null : (slateId: slateId, state: state);
-}
-
-/// [label] as LEPIC stores it beside a sender: no control characters, at most 64 bytes, cut
-/// on a character boundary. The app's full label stays in `wfe_meta.json`.
-String lepicSenderLabel(String label) {
-  final clean = label
-      .replaceAll(RegExp(r'[\u0000-\u001f\u007f-\u009f]'), ' ')
-      .trim();
-  final out = StringBuffer();
-  var bytes = 0;
-  for (final rune in clean.runes) {
-    final char = String.fromCharCode(rune);
-    final size = utf8.encode(char).length;
-    if (bytes + size > 64) break;
-    out.write(char);
-    bytes += size;
-  }
-  return out.toString().trim();
 }
 
 /// The local transaction id in a history key this service made (`l:<id>`).
@@ -1109,9 +1090,7 @@ class LepicWalletSession implements WalletSession {
     ContactStore? contacts,
   }) async {
     final history = await WalletHistory.open(dataDir, chain, contacts: contacts);
-    final session = LepicWalletSession(wallet, history: history);
-    await session.restoreInvoiceIndex();
-    return session;
+    return LepicWalletSession(wallet, history: history);
   }
 
   final lepic.EpicWallet _wallet;
@@ -1819,9 +1798,6 @@ class LepicWalletSession implements WalletSession {
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
           useBackup: useBackup,
         );
-        if (!report.applied) return report;
-        // The file may carry the invoice index from before a restore.
-        await restoreInvoiceIndex();
         return report;
       });
 
@@ -1991,115 +1967,15 @@ class LepicWalletSession implements WalletSession {
     if (!_invoiceEvents.isClosed) _invoiceEvents.add(event);
   }
 
-  /// Gives LEPIC the invoice index the archive kept, or records LEPIC's when it is ahead, so
-  /// a restored wallet with its history file keeps the address services were given. Never
-  /// fails the caller: without a relay LEPIC has no invoice address, and the app still opens.
-  Future<void> restoreInvoiceIndex() async {
-    try {
-      final current = await _wallet.invoiceAddressIndex();
-      final kept = _history.meta.invoiceIndex;
-      if (kept != null && kept > current) {
-        await _wallet.setInvoiceAddressIndex(index: kept);
-        logInfo('invoices', 'invoice address index restored');
-      } else if (current > _history.invoiceIndex) {
-        await _history.setInvoiceIndex(current);
-      }
-    } on lepic.WalletError catch (error) {
-      logWarn('invoices', 'invoice index not synced: ${error.kind.name}');
-    } on WalletError catch (error) {
-      logWarn('invoices', 'invoice index not recorded: ${error.kind.name}');
-    }
-  }
-
   @override
   bool get supportsInvoices => true;
 
+  // STUB until phase 2 of the pairing work (U-24): LEPIC's binding has no pairing calls yet,
+  // so this wallet pairs with nobody and every pairing screen stays hidden
+  // ([PairingApi.supported] false). The export carries no pairing backup either. Phase 2
+  // replaces this with an adapter over the regenerated binding.
   @override
-  Future<String> invoiceAddress() => _guard(_wallet.invoiceAddress);
-
-  @override
-  Future<int> invoiceAddressIndex() => _guard(_wallet.invoiceAddressIndex);
-
-  @override
-  Future<String> rotateInvoiceAddress() => _guard(() async {
-    final address = await _wallet.rotateInvoiceAddress();
-    final index = await _wallet.invoiceAddressIndex();
-    if (index > _history.invoiceIndex) await _history.setInvoiceIndex(index);
-    return address;
-  });
-
-  @override
-  Future<List<TrustedService>> trustedServices() => _guard(() async {
-    final senders = await _wallet.invoiceSenders();
-    final labelled = _history.trustedServices([
-      for (final s in senders) s.address,
-    ]);
-    return [
-      for (var i = 0; i < senders.length; i++)
-        TrustedService(
-          address: senders[i].address,
-          label: labelled[i].label != null || senders[i].label.isEmpty
-              ? labelled[i].label
-              : senders[i].label,
-          since: DateTime.fromMillisecondsSinceEpoch(
-            senders[i].addedAtMs.toInt(),
-          ),
-        ),
-    ];
-  });
-
-  @override
-  Future<TrustedService> addTrustedService({
-    required String address,
-    required String label,
-  }) => _guard(() async {
-    final a = address.trim();
-    final name = label.trim();
-    if (name.isEmpty) {
-      throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
-        message: 'the service needs a label',
-      );
-    }
-    final key = epicboxKey(a);
-    final own = [
-      await _wallet.epicboxAddress(),
-      await _wallet.invoiceAddress(),
-    ];
-    if (own.any((o) => epicboxKey(o) == key)) {
-      throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
-        message: 'this is one of your own addresses',
-      );
-    }
-    final previous = [
-      for (final s in await _wallet.invoiceSenders())
-        if (epicboxKey(s.address) == key && s.address != a) s.address,
-    ];
-    final sender = await _wallet.allowInvoiceSender(
-      address: a,
-      label: lepicSenderLabel(name),
-    );
-    for (final p in previous) {
-      await _history.removeServiceLabel(p);
-    }
-    await _history.setServiceLabel(sender.address, name);
-    return TrustedService(
-      address: sender.address,
-      label: name,
-      since: DateTime.fromMillisecondsSinceEpoch(sender.addedAtMs.toInt()),
-    );
-  });
-
-  @override
-  Future<void> removeTrustedService({required String address}) =>
-      _guard(() async {
-        final key = epicboxKey(address);
-        await _wallet.removeInvoiceSender(address: address.trim());
-        for (final a in _history.meta.serviceLabels.keys.toList()) {
-          if (epicboxKey(a) == key) await _history.removeServiceLabel(a);
-        }
-      });
+  PairingApi get pairing => const NoPairing();
 
   @override
   Future<InvoiceDrainReport> drainInvoices() => _epicboxGuard('invoice drain', () async {
@@ -2360,11 +2236,7 @@ class LepicWalletSession implements WalletSession {
       );
     }
     final key = epicboxKey(to);
-    final own = [
-      await _wallet.epicboxAddress(),
-      await _wallet.invoiceAddress(),
-    ];
-    if (own.any((o) => epicboxKey(o) == key)) {
+    if (epicboxKey(await _wallet.epicboxAddress()) == key) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'this is one of your own addresses',

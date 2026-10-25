@@ -2428,10 +2428,10 @@ abstract class AppLocalizations {
   /// **'Checking for invoices'**
   String get invoicesChecking;
 
-  /// Shown on the Invoices screen when no invoice waits.
+  /// Invoices › To pay empty state (replaces today’s invoicesEmpty).
   ///
   /// In en, this message translates to:
-  /// **'No invoices are waiting. When a service you trust bills you, the invoice appears here, and nothing is paid until you approve it.'**
+  /// **'No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.'**
   String get invoicesEmpty;
 
   /// Name shown for a trusted service whose label was lost. Never the name the invoice gives itself.
@@ -4906,16 +4906,16 @@ abstract class AppLocalizations {
   /// **'Invoices'**
   String get settingsSectionInvoices;
 
-  /// Settings row that opens the invoice settings.
+  /// Settings › Wallet row (replaces ‘Invoice address and trusted services’).
   ///
   /// In en, this message translates to:
-  /// **'Invoice address and trusted services'**
+  /// **'Invoices'**
   String get settingsInvoices;
 
-  /// Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN.
+  /// Row subtitle; the info icon opens invSetLead.
   ///
   /// In en, this message translates to:
-  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.'**
+  /// **'Who may ask you to pay'**
   String get settingsInvoicesSubtitle;
 
   /// Title of the invoice settings screen.
@@ -23833,6 +23833,2214 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.'**
   String get deskImpWrongTypePasted;
+
+  /// Title of the Pair screen and the Contacts action. The feature is called Pairing; verbs: Pair, Paired, Verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get pairTitle;
+
+  /// Button or title for pairing with a named contact or service.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with {name}'**
+  String pairWithName(String name);
+
+  /// Lead text on the Pair screen, phone and desktop. The only explanation on the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.'**
+  String get pairLead;
+
+  /// Pair screen: first way in.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get pairInPerson;
+
+  /// Subtitle of In person.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your code and scan theirs'**
+  String get pairInPersonHint;
+
+  /// Pair screen: second way in.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get pairOnline;
+
+  /// Subtitle of Online.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an invite link, or read out pairing words'**
+  String get pairOnlineHint;
+
+  /// Subtitle of Online while the wallet is Offline; the row is disabled. Also the docked notice on the Pair screen.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re offline. Pair in person instead.'**
+  String get pairOfflineHint;
+
+  /// Pair screen: third way in; also the title of that screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter link or words'**
+  String get pairEnter;
+
+  /// Subtitle of Enter link or words.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an invite link or type the words you were given'**
+  String get pairEnterHint;
+
+  /// Contact page: the Pairing block of a contact without a pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paired'**
+  String get pairNotPaired;
+
+  /// Contact page: under Not paired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair to seal payment files and allow invoices.'**
+  String get pairNotPairedHint;
+
+  /// App bar of the in-person screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair in person'**
+  String get pairInPersonTitle;
+
+  /// Segment 1 of the in-person screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my code'**
+  String get pairShowMyCode;
+
+  /// Segment 2 of the in-person screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan theirs'**
+  String get pairScanTheirs;
+
+  /// Under the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Let them scan this, then scan theirs.'**
+  String get pairShowCodeCaption;
+
+  /// Under the camera view.
+  ///
+  /// In en, this message translates to:
+  /// **'Both of you scan. The words check opens when both codes are in.'**
+  String get pairScanCaption;
+
+  /// Inside the camera view.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at their code'**
+  String get pairScanPrompt;
+
+  /// Label of the name field on the in-person and online screens.
+  ///
+  /// In en, this message translates to:
+  /// **'They will see you as'**
+  String get pairSeenAs;
+
+  /// Button on the in-person screen and the camera-denied state.
+  ///
+  /// In en, this message translates to:
+  /// **'Use words instead'**
+  String get pairUseWords;
+
+  /// Notice title when camera permission is denied.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera is not allowed'**
+  String get pairCameraDeniedTitle;
+
+  /// Notice body when camera permission is denied (cases file C-28).
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the camera to scan, or use words instead.'**
+  String get pairCameraDeniedBody;
+
+  /// Button on the camera-denied notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get pairOpenSettings;
+
+  /// App bar of the pairing-words screen; also the Help topic title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing words'**
+  String get pairWordsTitle;
+
+  /// Lead on the pairing-words screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Read these to them, in this order. Their wallet finds the invite from the words.'**
+  String get pairWordsLead;
+
+  /// Status line under the five words.
+  ///
+  /// In en, this message translates to:
+  /// **'Good for 10 minutes'**
+  String get pairWordsGoodFor;
+
+  /// Countdown readout, mono, e.g. 9:32 left.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String pairWordsLeft(String time);
+
+  /// Status line in the last minute, warn colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute left'**
+  String get pairWordsLastMinute;
+
+  /// Small print under the words.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever has these words can answer this invite until it expires. Check the words together afterwards.'**
+  String get pairWordsFooter;
+
+  /// Button: make a fresh invite and words.
+  ///
+  /// In en, this message translates to:
+  /// **'New words'**
+  String get pairWordsNew;
+
+  /// Button: copies the five emoji and names as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy words'**
+  String get pairWordsCopy;
+
+  /// Notice title after 10 minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'These words have expired'**
+  String get pairWordsExpiredTitle;
+
+  /// Notice body after 10 minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Make new ones and read them out again.'**
+  String get pairWordsExpiredBody;
+
+  /// Small print on Pair online while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing words need Epicbox, so they are not offered now.'**
+  String get pairWordsNeedEpicbox;
+
+  /// Chip in the desktop Show my code panel header.
+  ///
+  /// In en, this message translates to:
+  /// **'Words: {time} left'**
+  String pairWordsDesktopChip(String time);
+
+  /// Lead on Enter link or words.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the invite link, or type the five words you were given.'**
+  String get pairEnterLead;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite link or words'**
+  String get pairEnterField;
+
+  /// Field error when the words open nothing (cases file).
+  ///
+  /// In en, this message translates to:
+  /// **'No invite found for these words. Check them, or ask for new ones.'**
+  String get pairEnterNotFound;
+
+  /// Primary button after the not-found error.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get pairEnterTryAgain;
+
+  /// Small print under the desktop field.
+  ///
+  /// In en, this message translates to:
+  /// **'A pasted link or typed words do what a scan does on the phone.'**
+  String get pairEnterDesktopHint;
+
+  /// Placeholder of the desktop field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the invite link, or type the five words'**
+  String get pairEnterDesktopPlaceholder;
+
+  /// App bar of the online-invite screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair online'**
+  String get pairOnlineTitle;
+
+  /// Lead on Pair online.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.'**
+  String get pairOnlineLead;
+
+  /// Lead on Pair online while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.'**
+  String get pairOnlineLeadByHand;
+
+  /// Label of the expiry segments.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite expires in'**
+  String get pairExpiresIn;
+
+  /// Expiry option.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get pairExpiry1h;
+
+  /// Expiry option, default.
+  ///
+  /// In en, this message translates to:
+  /// **'24 hours'**
+  String get pairExpiry24h;
+
+  /// Expiry option.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get pairExpiry7d;
+
+  /// Label above the share text preview.
+  ///
+  /// In en, this message translates to:
+  /// **'What they receive'**
+  String get pairWhatTheyReceive;
+
+  /// The shared invite text. The link only; no code. {date} is the expiry date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n{link}\n\nExpires {date}.'**
+  String pairShareText(String name, String link, String date);
+
+  /// Small print under the preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.'**
+  String get pairShareWarning;
+
+  /// Primary button: the OS share sheet (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Share invite'**
+  String get pairShareInvite;
+
+  /// Desktop: copies the share text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy invite'**
+  String get pairCopyInvite;
+
+  /// Secondary button on Pair online.
+  ///
+  /// In en, this message translates to:
+  /// **'Use words'**
+  String get pairUseWordsShort;
+
+  /// After sharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite sent'**
+  String get pairInviteSentTitle;
+
+  /// After sharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing finishes when {name}’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.'**
+  String pairInviteSentBody(String name);
+
+  /// Countdown chip after sharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {time}'**
+  String pairInviteExpiresIn(String time);
+
+  /// Button and menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invite'**
+  String get pairCancelInvite;
+
+  /// Confirm dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the invite to {name}?'**
+  String pairCancelInviteTitle(String name);
+
+  /// Confirm dialog body.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet will see “{name} cancelled this invite” if they open it later.'**
+  String pairCancelInviteBody(String name);
+
+  /// Sheet or dialog title when an invite opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with {name}?'**
+  String pairIncomingTitle(String name);
+
+  /// Chip under the name in the incoming sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Name chosen by them · not checked yet'**
+  String get pairNameClaimed;
+
+  /// Chip on the words check.
+  ///
+  /// In en, this message translates to:
+  /// **'Name chosen by them'**
+  String get pairNameClaimedShort;
+
+  /// Contact page, when the claimed name differs from the label.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls themselves “{name}”'**
+  String pairCallsThemselves(String name);
+
+  /// Incoming sheet body.
+  ///
+  /// In en, this message translates to:
+  /// **'Once paired, payment files and invoices between you and {name} are sealed. You check the words together next.'**
+  String pairIncomingBody(String name);
+
+  /// Switch in the incoming sheet for an invite that asks to allow invoices; off until the user turns it on (the claimed name is not checked).
+  ///
+  /// In en, this message translates to:
+  /// **'Allow {name} to request payments'**
+  String pairIncomingAllowInvoices(String name);
+
+  /// Under that switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns on after you check the words. Nothing is paid without your PIN.'**
+  String get pairIncomingAllowHint;
+
+  /// Secondary button of the incoming sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pairNotNow;
+
+  /// Waiting screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}’s wallet…'**
+  String pairWaitingTitle(String name);
+
+  /// Waiting screen body.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.'**
+  String get pairWaitingBody;
+
+  /// Countdown line on the waiting screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for 1 hour'**
+  String get pairWaitingFor;
+
+  /// Button on the waiting screen and the relay notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Send by hand'**
+  String get pairSendByHand;
+
+  /// Notice on the waiting screen (cases file).
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t reach the relay'**
+  String get pairRelayUnreachableTitle;
+
+  /// Notice body.
+  ///
+  /// In en, this message translates to:
+  /// **'Send your answer by hand?'**
+  String get pairRelayUnreachableBody;
+
+  /// The same notice with Epicbox over Tor on.
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t reach the relay over Tor. Send your answer by hand?'**
+  String get pairRelayUnreachableTor;
+
+  /// Screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Send by hand'**
+  String get pairByHandTitle;
+
+  /// Lead.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this back to {name} on any channel. Their wallet finishes the pairing when it opens it.'**
+  String pairByHandLead(String name);
+
+  /// Label above the reply link.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get pairByHandYourAnswer;
+
+  /// Small print.
+  ///
+  /// In en, this message translates to:
+  /// **'The answer is sealed to {name}’s invite. Nobody else can read it, and it works once.'**
+  String pairByHandFooter(String name);
+
+  /// The inviter’s by-hand confirm screen, same layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this back to {name}. Their wallet shows the words check when it opens it.'**
+  String pairConfirmByHandLead(String name);
+
+  /// Outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'This invite has expired'**
+  String get pairExpiredTitle;
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask {name} for a new one.'**
+  String pairExpiredBody(String name);
+
+  /// Outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'This invite was already used'**
+  String get pairUsedTitle;
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a new one.'**
+  String get pairUsedBody;
+
+  /// Outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} cancelled this invite'**
+  String pairCancelledTitle(String name);
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was stored.'**
+  String get pairCancelledBody;
+
+  /// Outcome after 1 hour.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer from {name}'**
+  String pairNoAnswerTitle(String name);
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'The invite may have been cancelled. Ask for a new one, or pair in person.'**
+  String get pairNoAnswerBody;
+
+  /// Outcome when the commitment does not match.
+  ///
+  /// In en, this message translates to:
+  /// **'This invite was changed on the way'**
+  String get pairChangedTitle;
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was stored. Pair again, in person or with a fresh invite from {name}.'**
+  String pairChangedBody(String name);
+
+  /// Outcome for a newer invite, envelope or file.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Epic Cash to open this'**
+  String get pairNewerTitle;
+
+  /// Outcome body.
+  ///
+  /// In en, this message translates to:
+  /// **'This invite was made by a newer wallet.'**
+  String get pairNewerInviteBody;
+
+  /// Outcome body for a file.
+  ///
+  /// In en, this message translates to:
+  /// **'The file was sealed by a newer wallet.'**
+  String get pairNewerFileBody;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get pairCheckForUpdates;
+
+  /// Docked notice when a used invite gets a second answer; its action opens Pending invites.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else also answered {name}’s invite. See Pending invites.'**
+  String pairSecondReplyTitle(String name);
+
+  /// Notice body.
+  ///
+  /// In en, this message translates to:
+  /// **'If you didn’t share it with them, remove them.'**
+  String get pairSecondReplyBody;
+
+  /// Pending row subtitle for the second replier.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered the same invite · not stored'**
+  String get pairAnsweredSameInvite;
+
+  /// Screen and dialog title; also the Help topic and the contact-page action.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words'**
+  String get sasTitle;
+
+  /// Lead of the check.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet shows the same four. Compare them on a call or in person.'**
+  String sasLead(String name);
+
+  /// Lead when pairing with a service that shows the words on its site.
+  ///
+  /// In en, this message translates to:
+  /// **'The {name} page shows the same four. Compare them, then confirm on both sides.'**
+  String sasLeadExchange(String name);
+
+  /// Lead when re-checking from the contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.'**
+  String sasLeadRecheck(String name);
+
+  /// Primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'They match'**
+  String get sasMatch;
+
+  /// Outlined button.
+  ///
+  /// In en, this message translates to:
+  /// **'They don’t match'**
+  String get sasNoMatch;
+
+  /// Text button.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get sasSkip;
+
+  /// Text button on a re-check.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get sasLater;
+
+  /// Result title.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is verified'**
+  String sasMatchedTitle(String name);
+
+  /// Result body.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment files and invoices with {name} are sealed from now on.'**
+  String sasMatchedBody(String name);
+
+  /// Dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'The words don’t match'**
+  String get sasNoMatchTitle;
+
+  /// Dialog body (cases file).
+  ///
+  /// In en, this message translates to:
+  /// **'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.'**
+  String get sasNoMatchBody;
+
+  /// Dialog action, red.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop pairing'**
+  String get sasStopPairing;
+
+  /// Result title after Skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired with {name}'**
+  String sasSkippedTitle(String name);
+
+  /// Result body after Skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.'**
+  String sasSkippedBody(String name);
+
+  /// Button after Skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Check now'**
+  String get sasCheckNow;
+
+  /// Under the Allow invoices switch on the exchange check.
+  ///
+  /// In en, this message translates to:
+  /// **'On once you confirm the words match.'**
+  String get sasAllowAfterMatch;
+
+  /// Under Allow invoices on the result screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet can ask you to pay. Nothing is paid without your PIN.'**
+  String sasAllowInvoicesHint(String name);
+
+  /// Badge text.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get trustVerified;
+
+  /// Badge text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired, not verified'**
+  String get trustPaired;
+
+  /// Badge text at narrow width.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired'**
+  String get trustPairedShort;
+
+  /// Badge text.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys changed'**
+  String get trustKeysChanged;
+
+  /// Chip text.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed'**
+  String get trustSealed;
+
+  /// Chip on Send and the payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed for {name}'**
+  String trustSealedFor(String name);
+
+  /// Contact row subtitle for a contact with Allow invoices on.
+  ///
+  /// In en, this message translates to:
+  /// **'Allows invoices'**
+  String get trustAllowsInvoices;
+
+  /// App bar of the contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactTitle;
+
+  /// Section head.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses'**
+  String get contactAddresses;
+
+  /// Section head.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing'**
+  String get contactPairing;
+
+  /// Button: the contact’s QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get contactShowCode;
+
+  /// Desktop status row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Words checked {date}'**
+  String contactWordsChecked(String date);
+
+  /// Desktop status row button; phone menu item: Check the words again.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get contactCheckAgain;
+
+  /// Phone menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words again'**
+  String get contactCheckWordsAgain;
+
+  /// Switch label. Label only; the info icon explains.
+  ///
+  /// In en, this message translates to:
+  /// **'Seal payments'**
+  String get contactSealPayments;
+
+  /// Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.'**
+  String contactSealInfo(String name);
+
+  /// Second paragraph of the Seal payments info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Off, a payment file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.'**
+  String contactSealInfoMore(String name);
+
+  /// Switch label.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow invoices'**
+  String get contactAllowInvoices;
+
+  /// Info sheet / tooltip for Allow invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.'**
+  String contactAllowInfo(String name);
+
+  /// Second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a Verified contact can be allowed: checking the words rules out a swapped invite.'**
+  String get contactAllowInfoMore;
+
+  /// Under a disabled Allow invoices switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words first'**
+  String get contactCheckWordsFirst;
+
+  /// Under the switches in the keys-changed state.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused until you check the words'**
+  String get contactPausedUntilChecked;
+
+  /// Readout of the contact’s own relay: the relay of the mailbox in their card (RFC 7.4, 8.3). For a service, its relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered via {relay}'**
+  String contactDeliveredVia(String relay);
+
+  /// Notice on the contact page (cases file C-05).
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s relay isn’t answering'**
+  String contactRelayDownTitle(String name);
+
+  /// Notice body.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrying. Requests and payments wait until it answers; nothing is lost.'**
+  String get contactRelayDownBody;
+
+  /// Readout and docked notice on the contact page and Settings › Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Epicbox is off'**
+  String get contactPausedEpicboxOff;
+
+  /// Docked notice body on the contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed files still work.'**
+  String get contactPausedEpicboxOffBody;
+
+  /// Text button, red.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove pairing'**
+  String get contactRemovePairing;
+
+  /// Confirm title (cases file).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the pairing with {name}?'**
+  String contactRemovePairingTitle(String name);
+
+  /// Confirm body.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed payments and invoices from {name} will stop. Their addresses stay in your contacts.'**
+  String contactRemovePairingBody(String name);
+
+  /// Confirm secondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get contactKeep;
+
+  /// Confirm primary, red.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get contactRemove;
+
+  /// Notice title (binding text from the review).
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s keys changed'**
+  String contactKeysChangedTitle(String name);
+
+  /// Notice body under the keys-changed title (binding text from the review; the app cannot know the contact's pronoun, so English says they/their). Languages without a safe pronoun use none.
+  ///
+  /// In en, this message translates to:
+  /// **'This can mean they use a different wallet now, or someone else is using their name. Check the words again.'**
+  String get contactKeysChangedBody;
+
+  /// Status row readout in the keys-changed state.
+  ///
+  /// In en, this message translates to:
+  /// **'sealing and invoices paused'**
+  String get contactKeysChangedStatus;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the old keys'**
+  String get contactKeepOldKeys;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the new keys'**
+  String get contactUseNewKeys;
+
+  /// Notice title after a re-pair found the old keys.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s keys are back.'**
+  String contactKeysBack(String name);
+
+  /// Notice body.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed for you.'**
+  String get contactKeysBackBody;
+
+  /// Notice on the contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'The last payment to {name} went plain'**
+  String contactSealDegradedTitle(String name);
+
+  /// Notice body.
+  ///
+  /// In en, this message translates to:
+  /// **'The next one asks Seal or plain. Sealing turns itself back on when {name}’s wallet answers sealed.'**
+  String contactSealDegradedBody(String name);
+
+  /// Empty address field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get addrField;
+
+  /// Field label once the type is detected, e.g. Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} address'**
+  String addrFieldTyped(String type);
+
+  /// Text button under the last filled field, only while a type is free.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another address'**
+  String get addrAddAnother;
+
+  /// Small print under Add another address.
+  ///
+  /// In en, this message translates to:
+  /// **'One more type is free: {type}.'**
+  String addrOneFree(String type);
+
+  /// Field error when a second address of the same type is pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} already has this kind of address ({type}).'**
+  String addrDuplicateType(String name, String type);
+
+  /// Button under the duplicate-type error.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the old one'**
+  String get addrKeepOld;
+
+  /// Button under the duplicate-type error.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace it'**
+  String get addrReplace;
+
+  /// Desktop: placeholder of the free third field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a {type} address, or leave empty'**
+  String addrDesktopThird(String type);
+
+  /// Desktop small print.
+  ///
+  /// In en, this message translates to:
+  /// **'One address per type. The third field appears only while a type is free.'**
+  String get addrDesktopRule;
+
+  /// Screen title and the Contacts row.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending invites'**
+  String get pendingTitle;
+
+  /// Contacts row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invite waiting for an answer} other{{count} invites waiting for an answer}}'**
+  String pendingRowHint(int count);
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · expires in {time}'**
+  String pendingLink(String time);
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing words · expires in {time}'**
+  String pendingWords(String time);
+
+  /// Row subtitle, warn colour; the date follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get pendingExpired;
+
+  /// Row button.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite again'**
+  String get pendingInviteAgain;
+
+  /// Row subtitle for an incoming pairing awaiting the confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their confirmation · {time}'**
+  String pendingWaitingConfirm(String time);
+
+  /// Row subtitle once the reply opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired · check the words'**
+  String get pendingPairedCheck;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No invites waiting. An invite shows here until the other wallet answers it.'**
+  String get pendingEmpty;
+
+  /// Row menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Share again'**
+  String get pendingShareAgain;
+
+  /// Row menu and desktop button.
+  ///
+  /// In en, this message translates to:
+  /// **'Show words'**
+  String get pendingShowWords;
+
+  /// Desktop row button.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get pendingCopyLink;
+
+  /// Screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get invSetTitle;
+
+  /// Lead. Desktop says ‘for the wallet password’.
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.'**
+  String get invSetLead;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired contacts'**
+  String get invSetPaired;
+
+  /// Row subtitle when on.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get invSetAllowed;
+
+  /// Row subtitle when off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get invSetOff;
+
+  /// Button; opens Pair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with a shop or exchange'**
+  String get invSetPairShop;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.'**
+  String get invSetEmpty;
+
+  /// Docked notice body while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests wait on the relay and arrive when it is back on.'**
+  String get invSetPausedBody;
+
+  /// Notice when the switch goes off.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices from {name} are off.'**
+  String invSetSwitchedOff(String name);
+
+  /// Notice body when open requests existed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 open request was declined.} other{{count} open requests were declined.}}'**
+  String invSetDeclinedCount(int count);
+
+  /// Advanced row (kept).
+  ///
+  /// In en, this message translates to:
+  /// **'Time to pay'**
+  String get invSetTimeToPay;
+
+  /// Advanced row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours · how long an invoice stays payable'**
+  String invSetTimeToPayHint(int hours);
+
+  /// Empty-state button; opens Settings › Wallet › Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired contacts'**
+  String get invoicesEmptyAction;
+
+  /// Screen title (replaces Review invoice for requests from paired contacts).
+  ///
+  /// In en, this message translates to:
+  /// **'Review request'**
+  String get reqTitle;
+
+  /// Header line; the amount follows.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} requests'**
+  String reqRequests(String name);
+
+  /// Desktop header.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks you to pay'**
+  String reqAsksYouToPay(String name);
+
+  /// Desktop line next to the chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed to this wallet and signed by {name}'**
+  String reqSealedSigned(String name);
+
+  /// Row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get reqReference;
+
+  /// Reference readout for a deposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit · ref {ref}'**
+  String reqDepositRef(String ref);
+
+  /// Reference readout for a withdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal · ref {ref}'**
+  String reqWithdrawalRef(String ref);
+
+  /// Desktop row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered via'**
+  String get reqDeliveredVia;
+
+  /// Edge card title after paying.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Waiting for {name} to post'**
+  String reqPaidWaiting(String name);
+
+  /// Edge card body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your part is done. The exchange finalizes and posts; this closes on its own.'**
+  String get reqPaidWaitingBody;
+
+  /// Timeline step.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get reqTlPaid;
+
+  /// Timeline step.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered to {name}’s relay'**
+  String reqTlDelivered(String name);
+
+  /// Timeline step for a withdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer delivered to {name}’s relay'**
+  String reqTlAnswerDelivered(String name);
+
+  /// Timeline step.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted by {name}'**
+  String reqTlPosted(String name);
+
+  /// Timeline detail while current.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually within minutes'**
+  String get reqTlPostedHint;
+
+  /// Timeline step.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get reqTlConfirming;
+
+  /// Timeline detail.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total} confirmations'**
+  String reqTlConfirmingHint(int n, int total);
+
+  /// Timeline step.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get reqTlConfirmed;
+
+  /// Timeline detail for a step that is late.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting {time}'**
+  String reqTlWaiting(String time);
+
+  /// After 2 hours delivered but not posted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has not posted yet'**
+  String reqNotPostedTitle(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again delivers the same payment once more. It cannot be paid twice.'**
+  String get reqNotPostedBody;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get reqSendAgain;
+
+  /// After 24 hours undelivered (cases file).
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t reach {name} yet'**
+  String reqUnreachableTitle(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.'**
+  String get reqUnreachableBody;
+
+  /// Timeline detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Relay not answering · retrying'**
+  String get reqRelayRetrying;
+
+  /// After a signed withdrawn notice.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} withdrew the request'**
+  String reqWithdrewTitle(String name);
+
+  /// Body when the payment was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your funds are unlocked. Nothing was paid.'**
+  String get reqWithdrewBody;
+
+  /// For an unpaid request; the row is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} withdrew this request'**
+  String reqWithdrewUnpaid(String name);
+
+  /// Status after the user declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get reqDeclined;
+
+  /// Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}'**
+  String reqTwoSame(String name, int count, String amount);
+
+  /// Docked notice when the parked-invoice cap is hit.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} sent too many requests.'**
+  String reqTooMany(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra ones were dropped. Turn its invoices off if this keeps happening.'**
+  String get reqTooManyBody;
+
+  /// Payment title for an incoming withdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal from {name}'**
+  String reqWithdrawalFrom(String name);
+
+  /// Edge card title for a withdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Received. Waiting for {name} to post'**
+  String reqReceivedWaiting(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to do. The exchange posts it; confirmations follow.'**
+  String get reqReceivedWaitingBody;
+
+  /// Request form title.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get reqNewTitle;
+
+  /// Request form lead (also the Receive hint).
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a paired contact to pay you, or save the request as a file for anyone.'**
+  String get reqNewLead;
+
+  /// Field label: the paired contact.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get reqNewTo;
+
+  /// Under the To field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.'**
+  String get reqNewToHint;
+
+  /// Secondary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as file'**
+  String get reqNewSaveFile;
+
+  /// Primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get reqNewSend;
+
+  /// Switch on Send for a paired contact over Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Send through {name}’s mailbox'**
+  String sendViaMailbox(String name);
+
+  /// Under that switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed. Delivered via {relay}'**
+  String sendViaMailboxHint(String relay);
+
+  /// Payment file screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed for {name}'**
+  String sendSealedTitle(String name);
+
+  /// Payment file screen body.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {name}’s wallet can open this file. Send it any way you like, then open the file they send back.'**
+  String sendSealedBody(String name);
+
+  /// Chooser after a plain fallback (seal degraded).
+  ///
+  /// In en, this message translates to:
+  /// **'Seal this file?'**
+  String get sendSealOrPlainTitle;
+
+  /// Chooser body.
+  ///
+  /// In en, this message translates to:
+  /// **'The last file to {name} went plain. Sealed is the default again.'**
+  String sendSealOrPlainBody(String name);
+
+  /// Chooser option.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed'**
+  String get sendSealedOption;
+
+  /// Chooser option hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {name}’s wallet can read it'**
+  String sendSealedOptionHint(String name);
+
+  /// Chooser option.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain'**
+  String get sendPlainOption;
+
+  /// Chooser option hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with the file can read it'**
+  String get sendPlainOptionHint;
+
+  /// Edge card on a sealed send with no answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can’t open sealed files?'**
+  String sendCantOpenTitle(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as plain instead resends the same payment unsealed. It is still one payment.'**
+  String get sendCantOpenBody;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as plain instead'**
+  String get sendAsPlain;
+
+  /// Confirm title.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as plain instead?'**
+  String get sendAsPlainTitle;
+
+  /// Confirm body (cases file: explains that anyone with the file can read it).
+  ///
+  /// In en, this message translates to:
+  /// **'The file will not be sealed: anyone who gets it can read the amount and the addresses in it. It is the same payment, so it cannot be paid twice.'**
+  String get sendAsPlainBody;
+
+  /// Confirm secondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep sealed'**
+  String get sendKeepSealed;
+
+  /// Confirm primary.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as plain'**
+  String get sendPlain;
+
+  /// Edge card on Send (RFC 9.4).
+  ///
+  /// In en, this message translates to:
+  /// **'Not heard from {name}’s wallet in 90 days'**
+  String sendNotHeardTitle(String name);
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will need Epic Cash to open this file.'**
+  String sendNotHeardBody(String name);
+
+  /// Button on that card.
+  ///
+  /// In en, this message translates to:
+  /// **'Send plain'**
+  String get sendPlainShort;
+
+  /// Opening a file that does not match (RFC 9.5).
+  ///
+  /// In en, this message translates to:
+  /// **'This was sealed for another wallet or install'**
+  String get openSealedOtherTitle;
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'It cannot be opened here. Ask the sender to send it again.'**
+  String get openSealedOtherBody;
+
+  /// Docked notice when a paired contact sent plain.
+  ///
+  /// In en, this message translates to:
+  /// **'This arrived unsealed.'**
+  String get openArrivedUnsealed;
+
+  /// Body.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} chose plain for this file.'**
+  String openArrivedUnsealedBody(String name);
+
+  /// PairingReplied (inviter).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} answered your invite. Check the words together.'**
+  String noticePairingReplied(String name);
+
+  /// PairingConfirmed (invitee).
+  ///
+  /// In en, this message translates to:
+  /// **'Paired with {name}. Check the words together.'**
+  String noticePairingConfirmed(String name);
+
+  /// Docked notice for InvoiceFromContact; its action opens the request.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} requests {amount} EPIC. Review under Invoices.'**
+  String noticeRequest(String name, String amount);
+
+  /// Docked notice for WithdrawalFromContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {amount} EPIC from {name}. Waiting for it to post.'**
+  String noticeWithdrawal(String amount, String name);
+
+  /// Docked notice for ContactKeysChanged; its action opens the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s keys changed. Check the words again before paying.'**
+  String noticeKeysChanged(String name);
+
+  /// Docked notice for HomeRelayUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s relay isn’t answering. Retrying.'**
+  String noticeRelayDown(String name);
+
+  /// Docked notice when a contact withdrew a paid request.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} withdrew the request. Your funds are unlocked.'**
+  String noticeWithdrew(String name);
+
+  /// Dialog on importing a backup whose pairings were used elsewhere (RFC 9.5).
+  ///
+  /// In en, this message translates to:
+  /// **'Use your contacts on this device?'**
+  String get restoreUseContactsTitle;
+
+  /// Dialog body.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 pairing in this backup was used on another device. Your other device should stop using it.} other{{count} pairings in this backup were used on another device. Your other device should stop using them.}}'**
+  String restoreUseContactsBody(int count);
+
+  /// Dialog primary.
+  ///
+  /// In en, this message translates to:
+  /// **'Use them here'**
+  String get restoreUseHere;
+
+  /// Import summary row readout.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · on another device'**
+  String restorePairingsOnOtherDevice(int count);
+
+  /// Notice title.
+  ///
+  /// In en, this message translates to:
+  /// **'History restored.'**
+  String get restoreDone;
+
+  /// Notice body after a history restore: what came back, as counts.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments: {payments}. Contacts: {contacts}. Pairings: {pairings}.'**
+  String restoreDoneBody(String payments, String contacts, String pairings);
+
+  /// After sharing an invite made for nobody in particular.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.'**
+  String get pairInviteSentBodyAnyone;
+
+  /// Outcome title for text that holds no pairing invite, answer or code (also a partial scan, cases C-28).
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a pairing link'**
+  String get pairInvalidLink;
+
+  /// Outcome body for an unreadable pairing link.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that the whole link was copied, or ask for a new one.'**
+  String get pairInvalidBody;
+
+  /// Outcome when the wallet scans or opens its own code or invite.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your own code'**
+  String get pairOwnCode;
+
+  /// Outcome body for the wallet's own code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on the other phone.'**
+  String get pairOwnCodeBody;
+
+  /// Pending invites row title for an invite made for nobody in particular.
+  ///
+  /// In en, this message translates to:
+  /// **'Open invite'**
+  String get pairUnnamedInvite;
+
+  /// Field error when They will see you as is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the name they will see.'**
+  String get pairSeenAsMissing;
+
+  /// Field error when the name is over 48 bytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a shorter name.'**
+  String get pairSeenAsTooLong;
+
+  /// Tooltip of the edit icon in They will see you as.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the name they will see'**
+  String get pairSeenAsEdit;
+
+  /// Screen reader label of the in-person QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pairing code'**
+  String get pairCodeLabel;
+
+  /// Group label of the five pairing words.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pairing words'**
+  String get pairWordsLabel;
+
+  /// Group label of the five tiles that fill while typing.
+  ///
+  /// In en, this message translates to:
+  /// **'Words entered'**
+  String get pairWordsEnteredLabel;
+
+  /// Screen reader label of an empty word slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {n}, not entered'**
+  String pairWordSlot(int n);
+
+  /// Group label of the completion chips under the words field.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get pairSuggestions;
+
+  /// Notice after copying an invite, words or an answer link.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get pairCopied;
+
+  /// Tooltip of the paste icon in the link or words field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get pairPaste;
+
+  /// Screen reader announcement when the camera read the other code.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes scanned'**
+  String get pairInPersonDone;
+
+  /// Docked info notice on Pair online while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Epicbox is off. The invite and the answer travel by hand.'**
+  String get pairEpicboxOffNotice;
+
+  /// App bar title of the waiting and result screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing'**
+  String get pairWaitingTitleShort;
+
+  /// Button on the waiting and outcome screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get pairClosed;
+
+  /// Group label of the four words of the check.
+  ///
+  /// In en, this message translates to:
+  /// **'The four words'**
+  String get sasWordsLabel;
+
+  /// Desktop dialog title of the words check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words with {name}'**
+  String sasDialogTitle(String name);
+
+  /// Badge text for a contact without a pairing (desktop rows that need a word).
+  ///
+  /// In en, this message translates to:
+  /// **'Not paired'**
+  String get trustNotPaired;
+
+  /// Tooltip of the contact page more menu.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get contactMore;
+
+  /// Tooltip of the contact page edit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get contactEdit;
+
+  /// Contact page more menu: delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contact'**
+  String get contactDelete;
+
+  /// Tooltip and screen reader label of an info icon beside a switch.
+  ///
+  /// In en, this message translates to:
+  /// **'About {label}'**
+  String contactInfoAbout(String label);
+
+  /// Tooltip of an address row copy button.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy {type} address'**
+  String contactCopyAddress(String type);
+
+  /// Extra line in the delete confirm of a paired contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting {name} also removes the pairing. Sealed payments and invoices from them stop.'**
+  String contactDeletePaired(String name);
+
+  /// Contact page Addresses when the contact has none (a paired service).
+  ///
+  /// In en, this message translates to:
+  /// **'No addresses saved.'**
+  String get contactNoAddresses;
+
+  /// Tooltip of the × in an address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {type} address'**
+  String addrRemove(String type);
+
+  /// Hint when the address belongs to another contact.
+  ///
+  /// In en, this message translates to:
+  /// **'This address is already saved as {name}.'**
+  String addrAlreadySaved(String name);
+
+  /// Label of the method segments on Send for a contact with several addresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Send via'**
+  String get sendVia;
+
+  /// Desktop Settings › Invoices lead.
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.'**
+  String get invSetLeadDesktop;
+
+  /// Desktop Settings › Invoices row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified · allowed'**
+  String get invSetRowAllowed;
+
+  /// Desktop Settings › Invoices row subtitle for an unverified contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired, not verified · check the words first'**
+  String get invSetRowCheckFirst;
+
+  /// Screen reader label of a Settings › Invoices switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow invoices from {name}'**
+  String invSetAllowFor(String name);
+
+  /// Request form when no verified contact can pay requests.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.'**
+  String get reqNoPayers;
+
+  /// Placeholder of the To field.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a contact'**
+  String get reqPickContact;
+
+  /// Notice after Save as file.
+  ///
+  /// In en, this message translates to:
+  /// **'Request saved as a file'**
+  String get reqFileSaved;
+
+  /// Notice after Send request.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to {name}'**
+  String reqSent(String name);
+
+  /// Title of the request file screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request'**
+  String get reqFileTitle;
+
+  /// Body of the request file screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this file to whoever should pay. Their wallet signs it and sends a file back; open that file here to finish.'**
+  String get reqFileBody;
+
+  /// Docked warning for OutboxStuck.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t reach {name} yet. Your funds are safe.'**
+  String noticeOutboxStuck(String name);
+
+  /// Docked warning when a contact went over the request cap.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.'**
+  String noticeTooMany(String name);
+
+  /// Action of a pairing notice that opens its screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get noticeOpen;
+
+  /// Action of the paired notice: opens the words check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words'**
+  String get noticeCheckWords;
+
+  /// Action of a request notice.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get noticeView;
+
+  /// Import summary row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairings'**
+  String get restorePairings;
+
+  /// Under the recipient on Send when the file method seals.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed for {name}: only their wallet can open the file.'**
+  String sendSealedNote(String name);
+
+  /// Screen reader label of the Sealed / Plain chooser.
+  ///
+  /// In en, this message translates to:
+  /// **'Seal this file'**
+  String get sendSealChoice;
+
+  /// Desktop Show my code panel lead.
+  ///
+  /// In en, this message translates to:
+  /// **'Let them scan this with their phone, or read them the pairing words.'**
+  String get pairingDesktopShowCodeLead;
+
+  /// Desktop Invite online panel lead.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.'**
+  String get pairingDesktopInviteLead;
+
+  /// Desktop panel title.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite online'**
+  String get pairingInviteOnline;
+
+  /// Desktop restore dialog primary (short).
+  ///
+  /// In en, this message translates to:
+  /// **'Use here'**
+  String get pairUseHere;
+
+  /// Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {name} in your contacts?'**
+  String pairSaveContactTitle(String name);
+
+  /// Button: make an address-book contact for this pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a new contact'**
+  String get pairSaveNewContact;
+
+  /// Button: attach this pairing to an existing contact the user picks.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to a contact'**
+  String get pairAddToAContact;
+
+  /// Title of the contact picker for attaching a pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to which contact?'**
+  String get pairPickContactTitle;
+
+  /// Notice after a pairing was saved to or added to a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as {name}.'**
+  String pairSavedAs(String name);
+
+  /// Hint in the picker for a contact that is paired already (RFC 7.8).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} already has a pairing. Adding this one checks whether the keys are the same.'**
+  String pairContactAlreadyPaired(String name);
+
+  /// A time span of a day or more, short units, in countdowns ("Invite expires in 6 d 23 h").
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d {hours} h'**
+  String pairDurDays(int days, int hours);
+
+  /// A time span of an hour or more, short units.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String pairDurHours(int hours, int minutes);
+
+  /// A time span under an hour, short units.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String pairDurMinutes(int minutes);
+
+  /// A time span under a minute.
+  ///
+  /// In en, this message translates to:
+  /// **'under a minute'**
+  String get pairDurUnderMinute;
+
+  /// Secondary action of the words-don't-match dialog: back to the check.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get pairBack;
+
+  /// Subtitle of a pairing whose address-book contact was deleted (the address book is shared by every wallet on the device).
+  ///
+  /// In en, this message translates to:
+  /// **'Not in contacts'**
+  String get pairNotInContacts;
+
+  /// Action on a pairing whose contact was deleted: saves a new contact with its address.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to contacts'**
+  String get pairAddToContacts;
+
+  /// Help section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing'**
+  String get helpPairingSection;
+
+  /// Help section lede.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair once; payment files and invoices with that contact are sealed.'**
+  String get helpPairingLede;
+
+  /// Topic 1 title.
+  ///
+  /// In en, this message translates to:
+  /// **'What pairing is'**
+  String get helpPairWhatTitle;
+
+  /// Topic 1 lede.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair once with someone; after that, payment files and invoices between the two wallets are sealed.'**
+  String get helpPairWhatShort;
+
+  /// Topic 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.'**
+  String get helpPairWhatP1;
+
+  /// Topic 1.
+  ///
+  /// In en, this message translates to:
+  /// **'After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.'**
+  String get helpPairWhatP2;
+
+  /// Topic 1 step.
+  ///
+  /// In en, this message translates to:
+  /// **'Open [[Contacts]] and choose **Pair**.'**
+  String get helpPairWhatStep1;
+
+  /// Topic 1 step.
+  ///
+  /// In en, this message translates to:
+  /// **'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.'**
+  String get helpPairWhatStep2;
+
+  /// Topic 1 step.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words together, then **They match**.'**
+  String get helpPairWhatStep3;
+
+  /// Topic 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.'**
+  String get helpPairWhatP3;
+
+  /// Topic 2 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why check the words'**
+  String get helpPairWhyTitle;
+
+  /// Topic 2 lede.
+  ///
+  /// In en, this message translates to:
+  /// **'The four words prove the pairing reached the right wallet and not someone in between.'**
+  String get helpPairWhyShort;
+
+  /// Topic 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets show the same four pictures and names after pairing. They come from the two wallets’ keys, so a pairing that someone changed on the way shows different words on the two screens.'**
+  String get helpPairWhyP1;
+
+  /// Topic 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.'**
+  String get helpPairWhyP2;
+
+  /// Topic 2.
+  ///
+  /// In en, this message translates to:
+  /// **'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.'**
+  String get helpPairWhyP3;
+
+  /// Topic 3 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing words'**
+  String get helpPairWordsTitle;
+
+  /// Topic 3 lede.
+  ///
+  /// In en, this message translates to:
+  /// **'Five pictures with names stand in for a link when there is nothing to scan or paste.'**
+  String get helpPairWordsShort;
+
+  /// Topic 3.
+  ///
+  /// In en, this message translates to:
+  /// **'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.'**
+  String get helpPairWordsP1;
+
+  /// Topic 3.
+  ///
+  /// In en, this message translates to:
+  /// **'The words only find the invite. Whoever has them is in the same position as someone who received the link, so check the four words together afterwards as usual.'**
+  String get helpPairWordsP2;
+
+  /// Topic 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.'**
+  String get helpPairWordsP3;
+
+  /// Topic 4 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices from paired contacts'**
+  String get helpPairInvTitle;
+
+  /// Topic 4 lede.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.'**
+  String get helpPairInvShort;
+
+  /// Topic 4.
+  ///
+  /// In en, this message translates to:
+  /// **'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
+  String get helpPairInvP1;
+
+  /// Topic 4.
+  ///
+  /// In en, this message translates to:
+  /// **'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.'**
+  String get helpPairInvP2;
+
+  /// Topic 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.'**
+  String get helpPairInvP3;
+
+  /// Topic 4.
+  ///
+  /// In en, this message translates to:
+  /// **'An exchange that pairs with you deposits and withdraws this way. Deposit: the exchange asks, you approve, the exchange posts. Withdrawal: the exchange sends the payment, your wallet answers on its own, the exchange posts.'**
+  String get helpPairInvP4;
+
+  /// Topic 5 title.
+  ///
+  /// In en, this message translates to:
+  /// **'What a restore does'**
+  String get helpPairRestoreTitle;
+
+  /// Topic 5 lede.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.'**
+  String get helpPairRestoreShort;
+
+  /// Topic 5.
+  ///
+  /// In en, this message translates to:
+  /// **'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.'**
+  String get helpPairRestoreP1;
+
+  /// Help › Pairing › What a restore does, paragraph 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.'**
+  String get helpPairRestoreP2;
+
+  /// Topic 5.
+  ///
+  /// In en, this message translates to:
+  /// **'A contact sees **Keys changed** only when the phrase is a different one. That can mean a new wallet, or someone else using the name. Check the words again before trusting it.'**
+  String get helpPairRestoreP3;
+
+  /// Topic 5.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
+  String get helpPairRestoreP4;
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,7 @@ import '../screens/invoices/issue_invoice_screen.dart';
 import '../screens/invoices/invoices_screen.dart';
 import '../screens/invoices/review_screen.dart';
 import '../screens/onboarding/create_screen.dart';
+import '../screens/pairing/pair_screens.dart';
 import '../screens/onboarding/import_wallets_screen.dart';
 import '../screens/onboarding/restore_screen.dart';
 import '../screens/onboarding/setup_screen.dart';
@@ -52,6 +53,8 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.invoiceReview => InvoiceReviewScreen(arg: a),
     DeskRoute.outputs => OutputsScreen(arg: a),
     DeskRoute.contacts => ContactsScreen(arg: a),
+    DeskRoute.pair => DeskPairScreen(arg: a),
+    DeskRoute.pairPending => DeskPendingScreen(arg: a),
     DeskRoute.settingsNode => SettingsNodeScreen(arg: a),
     DeskRoute.settingsReceiving => SettingsReceivingScreen(arg: a),
     DeskRoute.settingsPrivacy => SettingsPrivacyScreen(arg: a),

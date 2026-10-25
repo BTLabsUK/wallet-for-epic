@@ -10,7 +10,9 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
+import '../../models.dart' show PairingCaps, PairingKind, PairingState, SealMode;
 import '../../network_gate.dart';
+import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
@@ -26,6 +28,13 @@ export 'invoices.dart' show InvoiceError, InvoiceProblem;
 part 'mock_invoices.dart';
 
 const _epicboxKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
+
+/// The prototype's pairings, by id: who is paired and how (SPEC 2.4's states).
+const mockAnnaPairing = 'p-anna';
+const mockNorthwindPairing = 'p-northwind';
+const mockCoffeePairing = 'p-coffee';
+const mockTomPairing = 'p-tom';
+const mockMartaPairing = 'p-marta';
 
 DateTime _ago({int days = 0, int hours = 0, int minutes = 0}) =>
     DateTime(2026, 10, 21, 14, 30).subtract(Duration(days: days, hours: hours, minutes: minutes));
@@ -55,13 +64,15 @@ class MockDeskWallet implements DeskWalletApi {
   int _nextId = 40;
 
   final List<Contact> _contacts = [
-    Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1), hasPicture: true, invoiceAddress: _annaInvoice),
+    Contact(id: 'c1', name: 'Anna Kowalska', address: _annaAddr, http: 'https://pay.example.net:3415', favourite: true, lastUsed: _ago(days: 1), hasPicture: true),
     Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
     Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
-    Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', note: 'Home server'),
-    Contact(id: 'c5', name: 'Merchant: Coffee', address: 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com'),
-    Contact(id: 'c6', name: 'Piotr Nowak', address: 'esPn4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us', note: 'Design work', invoiceAddress: _piotrInvoice),
-    Contact(id: 'c7', name: 'Ola Wiśniewska', note: 'Stock wallet', address: 'esQka2kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com', invoiceAddress: _olaInvoice),
+    Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', epicbox: _tomAddr, note: 'Home server'),
+    Contact(id: 'c5', name: 'Merchant: Coffee', address: _coffeeAddr),
+    Contact(id: 'c6', name: 'Piotr Nowak', address: 'esPn4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us', tor: 'mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd.onion', note: 'Design work'),
+    Contact(id: 'c7', name: 'Ola Wiśniewska', note: 'Stock wallet', address: _olaAddr),
+    Contact(id: 'c8', name: 'Northwind Exchange', address: _northwindAddr),
+    Contact(id: 'c9', name: 'Marta W.', address: 'esQka2Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com'),
     // Seeded into every new wallet (spec 9).
     Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
   ];
@@ -706,7 +717,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
     _contacts.add(
-      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture, invoiceAddress: contact.invoiceAddress),
+      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
     );
     return id;
   }
@@ -946,26 +957,40 @@ class MockDeskWallet implements DeskWalletApi {
     return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: i.total - 700000, fee: 700000, inputCount: 1, outputCount: 1);
   }
 
+  /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
+  /// pairings. The Prototype panel and the tour drive its other side.
   @override
-  Future<String> rotateInvoiceAddress() async {
-    await _wait(0.8);
-    final a = proto.rotate();
-    proto._changed();
-    return a;
-  }
+  late final FakePairing pairing = _seedPairing(FakePairing());
 
-  @override
-  Future<void> trustSender(String address, String label, {String? contactId}) async {
-    await _wait(0.3);
-    proto.trust(address, label, contactId);
-    proto._changed();
-  }
-
-  @override
-  Future<void> untrustSender(String address) async {
-    await _wait(0.3);
-    proto.untrust(address);
-    proto._changed();
+  FakePairing _seedPairing(FakePairing p) {
+    p.clock = () => proto.now;
+    p.homeRelay = _epicbox;
+    p.seedPaired(id: mockAnnaPairing, name: 'Anna', contactId: 'c1', paymentsAddress: _annaAddr, verifiedAt: DateTime(2026, 10, 20));
+    p.seedPaired(
+      id: mockNorthwindPairing,
+      name: 'Northwind Exchange',
+      contactId: 'c8',
+      kind: PairingKind.exchange,
+      caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
+      allowInvoices: true,
+      paymentsAddress: _northwindAddr,
+      relay: 'relay.northwind.example',
+      verifiedAt: DateTime(2026, 10, 20),
+    );
+    p.seedPaired(
+      id: mockCoffeePairing,
+      name: 'Coffee Roasters',
+      contactId: 'c5',
+      kind: PairingKind.shop,
+      caps: const PairingCaps(issuesInvoices: true),
+      allowInvoices: true,
+      paymentsAddress: _coffeeAddr,
+      relay: 'epicbox.stackwallet.com',
+      verifiedAt: DateTime(2026, 9, 2),
+    );
+    p.seedPaired(id: mockTomPairing, name: 'Tom', contactId: 'c4', state: PairingState.paired, paymentsAddress: _tomAddr, seal: SealMode.degraded, checkSkipped: true);
+    p.seedPaired(id: mockMartaPairing, name: 'Marta', contactId: 'c9', state: PairingState.keysChanged, verifiedAt: DateTime(2026, 8, 30));
+    return p;
   }
 
   @override
