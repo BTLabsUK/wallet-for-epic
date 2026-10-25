@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/l10n.dart' show appLanguages;
@@ -5,6 +6,11 @@ import 'package:epic_wallet/src/legacy/gui_rules.dart';
 import 'package:epic_wallet/src/legacy_gui_profile.dart';
 import 'package:epic_wallet/src/legacy_wallets.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// [path] with '/' between its parts: the app joins with the platform's separator, the tests
+/// with '/', so paths compare by their parts (Windows, item 28).
+String _p(String path) => path.replaceAll(r'\', '/');
+
 
 /// The fixture trees of test/fixtures/legacy_gui are copied to a temp home per test (their paths
 /// filled in), with the IndexedDB folders real Chromium wrote (tool/legacy_gui_fixtures.py) put
@@ -26,7 +32,9 @@ void main() {
       final dest = File('$to${e.path.substring(from.length)}');
       await dest.parent.create(recursive: true);
       if (e.path.endsWith('.json')) {
-        final text = (await e.readAsString()).replaceAll('@HOME@', home).replaceAll('@ROOT@', '$home/.epic-gui');
+        // As JSON strings: a Windows path's backslashes would be escapes (item 28).
+        String inJson(String s) => jsonEncode(s).substring(1, jsonEncode(s).length - 1);
+        final text = (await e.readAsString()).replaceAll('@HOME@', inJson(home)).replaceAll('@ROOT@', inJson('$home/.epic-gui'));
         await dest.writeAsString(text);
       } else {
         await e.copy(dest.path);
@@ -41,7 +49,7 @@ void main() {
 
   Future<LegacyWallet> walletAt(String path) async {
     final scan = await findLegacyWallets(roots: roots());
-    return scan.wallets.firstWhere((w) => w.path == path, orElse: () => throw StateError('no wallet at $path'));
+    return scan.wallets.firstWhere((w) => _p(w.path) == _p(path), orElse: () => throw StateError('no wallet at $path'));
   }
 
   Future<Map<String, String>> hashes(List<String> dirs) async => {for (final d in dirs) d: await folderHash(d)};

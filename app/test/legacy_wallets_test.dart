@@ -4,6 +4,13 @@ import 'dart:io';
 import 'package:epic_wallet/src/legacy_wallets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// [path] with '/' between its parts: the app joins with the platform's separator, the tests
+/// with '/', so paths compare by their parts (Windows, item 28).
+String _p(String path) => path.replaceAll(r'\', '/');
+
+/// Symlinks need administrator rights on Windows, and chmod is POSIX.
+final Object _posixOnly = Platform.isWindows ? 'POSIX links and modes' : false;
+
 /// Fixture trees live in temp dirs only; no real wallet is ever opened.
 void main() {
   late Directory tmp;
@@ -60,7 +67,7 @@ void main() {
     expect(s.network.tag, isNull);
     expect(t.network, LegacyNetwork.floo);
     expect(t.network.tag, 'Floonet');
-    expect(s.seedPath, '$a/wallet_data/wallet.seed');
+    expect(_p(s.seedPath), _p('$a/wallet_data/wallet.seed'));
     expect(s.sizeBytes, 'alpha'.length + 'db-alpha'.length);
     expect(s.lastUsed, isNotNull);
     expect(s.contacts, isNull);
@@ -153,7 +160,7 @@ void main() {
     expect(pick.message, 'Blockchain data, not a wallet.');
     final next = await inspectFolder('$epic/main/chain_data');
     expect(next.chainOnly, isTrue);
-    expect(next.wallets.single.path, '$epic/main');
+    expect(_p(next.wallets.single.path), _p('$epic/main'));
     await expectUnchanged(before);
   });
 
@@ -167,7 +174,7 @@ void main() {
     final one = await inspectFolder(w);
     expect(one.wallets.single.source, LegacySource.picked);
     expect(one.message, isNull);
-    expect((await inspectFolder('$w/wallet_data/db')).wallets.single.path, w);
+    expect(_p((await inspectFolder('$w/wallet_data/db')).wallets.single.path), _p(w));
     expect((await inspectFolder('$home/many')).wallets, hasLength(2));
     final none = await inspectFolder('$home/empty');
     expect(none.wallets, isEmpty);
@@ -190,7 +197,7 @@ void main() {
     expect(f.refusal, LegacyRefusal.links);
     expect(f.refusal!.text, "This wallet's folder has links in it; copy it by hand or restore from the phrase.");
     await expectUnchanged(before);
-  });
+  }, skip: _posixOnly);
 
   test('the wallet folder, wallet_data or wallet_tor being a link refuses it', () async {
     final real = await wallet('$home/real/main', seed: 'real');
@@ -204,10 +211,10 @@ void main() {
     await Directory(w2).create(recursive: true);
     await Link('$w2/wallet_data').create('$home/other/wallet_data');
     final scan2 = await findLegacyWallets(roots: roots());
-    final linked = scan2.wallets.singleWhere((w) => w.path == w2);
+    final linked = scan2.wallets.singleWhere((w) => _p(w.path) == _p(w2));
     expect(linked.hasLinks, isTrue);
     expect(linked.copyable, isFalse);
-  });
+  }, skip: _posixOnly);
 
   test('an unreadable part of wallet_data refuses the wallet as incomplete', () async {
     final w = await wallet('$home/.epic/main', seed: 'inc');
@@ -224,7 +231,7 @@ void main() {
     expect(f.copyable, isFalse);
     expect(f.refusal, LegacyRefusal.incomplete);
     expect(f.refusal!.text, isNotEmpty);
-  });
+  }, skip: _posixOnly);
 
   test('displayLabel names a network-folder label by its source', () async {
     await wallet('$home/.epic/main', seed: 'a');
@@ -369,6 +376,6 @@ void main() {
       final h2 = await folderHash(d);
       await Link('$d/ln').create('$d/wallet_data');
       expect(await folderHash(d), isNot(h2));
-    });
+    }, skip: _posixOnly);
   });
 }
