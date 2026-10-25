@@ -2344,7 +2344,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restorePhraseHelper =>
-      'Wszystkie słowa (od 12 do 24) oddzielone spacjami.';
+      'Wszystkie słowa (12, 15, 18, 21 lub 24) oddzielone spacjami.';
 
   @override
   String get restoreStartHeading => 'Początek skanowania';
@@ -2400,8 +2400,93 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restoreOpenWallet => 'Otwórz portfel';
 
   @override
-  String get restoreRescanLater =>
-      'Pełne ponowne skanowanie możesz później uruchomić w Ustawieniach.';
+  String get restoreUnfinishedTitle => 'Przywracanie nieukończone';
+
+  @override
+  String get restoreUnfinishedRunning =>
+      'Wyszukiwanie środków tego portfela od bloku 0. Odbieranie i wysyłanie będą dostępne, gdy to się zakończy.';
+
+  @override
+  String get restoreUnfinishedOffline =>
+      'Skanowanie będzie kontynuowane po wyłączeniu trybu offline.';
+
+  @override
+  String get restoreUnfinishedFailed =>
+      'Skanowanie zatrzymało się i zostanie automatycznie powtórzone. Odbieranie i wysyłanie pozostają niedostępne, dopóki się nie zakończy.';
+
+  @override
+  String get errorRestoreScanRequired =>
+      'Przywracanie nieukończone. Odbieranie i wysyłanie będą dostępne, gdy skanowanie widoczne na ekranie głównym się zakończy.';
+
+  @override
+  String get restoreScanStop => 'Zatrzymaj';
+
+  @override
+  String get restoreScanScreenOn =>
+      'Ekran pozostaje włączony podczas skanowania.';
+
+  @override
+  String get restoreScanStopped =>
+      'Zatrzymano. Odbieranie i wysyłanie będą dostępne dopiero po zakończeniu tego skanowania; będzie ono kontynuowane z ekranu głównego.';
+
+  @override
+  String get restoreScanUnfinished =>
+      'Skanowanie zatrzymało się przed końcem. Odbieranie i wysyłanie będą dostępne dopiero po jego zakończeniu: spróbuj ponownie tutaj albo otwórz portfel, a będzie kontynuowane z ekranu głównego.';
+
+  @override
+  String get restoreFinishOnHome =>
+      'Środki od wybranego początku zostały znalezione. Skanowanie od bloku 0 kończy teraz przywracanie na ekranie głównym; odbieranie i wysyłanie będą dostępne, gdy się zakończy.';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      'Baza danych portfela była uszkodzona i została odbudowana z frazy. Skanowanie przywraca środki; szczegóły płatności, notatki i etykiety wracają tylko z kopii historii.';
+
+  @override
+  String get restoreRebuiltImportText =>
+      'Kopia historii przywraca odbiorców płatności, notatki i etykiety.';
+
+  @override
+  String get restoreReplaceLead =>
+      'Fraza przywraca portfel w miejsce portfela na tym telefonie. Nic się nie zmienia, zanim fraza nie zostanie sprawdzona, a zamiana potwierdzona.';
+
+  @override
+  String get restoreReplacePinReason =>
+      'Wpisz PIN, aby zastąpić ten portfel. Przywrócony portfel zachowa ten PIN.';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return 'Słowo $position, „$word”, nie występuje na liście słów.';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Ta fraza ma $count słowa. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.',
+      many:
+          'Ta fraza ma $count słów. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.',
+      few:
+          'Ta fraza ma $count słowa. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.',
+      one:
+          'Ta fraza ma $count słowo. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum =>
+      'Każde słowo jest na liście słów, ale fraza się nie zgadza. Jedno słowo jest błędne albo w złym miejscu.';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return 'Portfel nie został usunięty. $error Odblokuj go i spróbuj ponownie w Ustawieniach.';
+  }
+
+  @override
+  String get historyBackupExportCarries =>
+      'Zawiera też kontakty i ich gwiazdki. Faktury i ustawienia nie są w niej zapisane.';
 
   @override
   String get restoreDoneIconLabel => 'Gotowe';
@@ -2437,7 +2522,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'Przywrócenie z frazy zastępuje ten portfel: najpierw zostanie usunięty, potem wpisuje się frazę portfela do przywrócenia.';
+      'Ten portfel zostanie usunięty, a jego miejsce zajmie portfel z wpisanej frazy, z tym samym PIN-em.';
 
   @override
   String get firstRunSecuring => 'Zabezpieczanie portfela…';

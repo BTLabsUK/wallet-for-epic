@@ -2239,7 +2239,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restorePhraseHelper =>
-      'Alle Wörter (12 bis 24), durch Leerzeichen getrennt.';
+      'Alle Wörter (12, 15, 18, 21 oder 24), durch Leerzeichen getrennt.';
 
   @override
   String get restoreStartHeading => 'Beginn des Scans';
@@ -2295,8 +2295,89 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreOpenWallet => 'Wallet öffnen';
 
   @override
-  String get restoreRescanLater =>
-      'Einen vollständigen neuen Scan können Sie später in den Einstellungen starten.';
+  String get restoreUnfinishedTitle => 'Wiederherstellung nicht abgeschlossen';
+
+  @override
+  String get restoreUnfinishedRunning =>
+      'Das Guthaben dieser Wallet wird ab Block 0 gesucht. Empfangen und Senden sind möglich, sobald dies abgeschlossen ist.';
+
+  @override
+  String get restoreUnfinishedOffline =>
+      'Der Scan wird fortgesetzt, sobald der Offline-Modus ausgeschaltet ist.';
+
+  @override
+  String get restoreUnfinishedFailed =>
+      'Der Scan wurde abgebrochen und wird automatisch erneut gestartet. Empfangen und Senden bleiben gesperrt, bis er abgeschlossen ist.';
+
+  @override
+  String get errorRestoreScanRequired =>
+      'Wiederherstellung nicht abgeschlossen. Empfangen und Senden sind möglich, sobald der auf der Startseite angezeigte Scan beendet ist.';
+
+  @override
+  String get restoreScanStop => 'Stoppen';
+
+  @override
+  String get restoreScanScreenOn =>
+      'Der Bildschirm bleibt an, solange dies läuft.';
+
+  @override
+  String get restoreScanStopped =>
+      'Gestoppt. Empfangen und Senden sind erst möglich, wenn dieser Scan abgeschlossen ist; er läuft von der Startseite weiter.';
+
+  @override
+  String get restoreScanUnfinished =>
+      'Der Scan wurde vor dem Ende abgebrochen. Empfangen und Senden sind erst möglich, wenn er abgeschlossen ist: Versuchen Sie es hier erneut oder öffnen Sie die Wallet, dann läuft er von der Startseite weiter.';
+
+  @override
+  String get restoreFinishOnHome =>
+      'Das Guthaben ab dem gewählten Start wurde gefunden. Ein Scan ab Block 0 schließt die Wiederherstellung jetzt auf der Startseite ab; Empfangen und Senden sind möglich, sobald er beendet ist.';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      'Die Wallet-Datenbank war beschädigt und wurde aus der Phrase neu aufgebaut. Ein Scan holt das Guthaben zurück; Zahlungsdetails, Notizen und Bezeichnungen kommen nur aus einer Verlaufssicherung zurück.';
+
+  @override
+  String get restoreRebuiltImportText =>
+      'Eine Verlaufssicherung holt zurück, wer bezahlt wurde, Notizen und Bezeichnungen.';
+
+  @override
+  String get restoreReplaceLead =>
+      'Die Phrase stellt eine Wallet anstelle der Wallet auf diesem Smartphone wieder her. Es ändert sich nichts, bevor die Phrase geprüft und der Austausch bestätigt ist.';
+
+  @override
+  String get restoreReplacePinReason =>
+      'Geben Sie Ihre PIN ein, um diese Wallet zu ersetzen. Die wiederhergestellte Wallet behält diese PIN.';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return 'Wort $position, „$word“, steht nicht in der Wortliste.';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Diese Phrase hat $count Wörter. Eine Wiederherstellungsphrase hat 12, 15, 18, 21 oder 24.',
+      one:
+          'Diese Phrase hat $count Wort. Eine Wiederherstellungsphrase hat 12, 15, 18, 21 oder 24.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum =>
+      'Jedes Wort steht in der Wortliste, aber die Phrase stimmt nicht. Ein Wort ist falsch oder an der falschen Stelle.';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return 'Wallet nicht gelöscht. $error Entsperren Sie sie und versuchen Sie es in den Einstellungen erneut.';
+  }
+
+  @override
+  String get historyBackupExportCarries =>
+      'Sie enthält auch die Kontakte und ihre Favoriten-Markierung. Rechnungen und Einstellungen sind nicht enthalten.';
 
   @override
   String get restoreDoneIconLabel => 'Fertig';
@@ -2332,7 +2413,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'Mit Phrase wiederherstellen ersetzt diese Wallet: Sie wird zuerst gelöscht, danach wird die Phrase der wiederherzustellenden Wallet eingegeben.';
+      'Diese Wallet wird gelöscht, und die Wallet der eingegebenen Phrase tritt an ihre Stelle, mit derselben PIN.';
 
   @override
   String get firstRunSecuring => 'Ihre Wallet wird gesichert…';

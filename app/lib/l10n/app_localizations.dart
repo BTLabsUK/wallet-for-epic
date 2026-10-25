@@ -3217,7 +3217,7 @@ abstract class AppLocalizations {
   /// Help under the recovery phrase field. The words themselves are always English.
   ///
   /// In en, this message translates to:
-  /// **'All the words (12 to 24), separated by spaces.'**
+  /// **'All the words (12, 15, 18, 21 or 24), separated by spaces.'**
   String get restorePhraseHelper;
 
   /// Heading above the choice of a start date or a start block for the scan of the blockchain for the wallet's funds.
@@ -3310,11 +3310,119 @@ abstract class AppLocalizations {
   /// **'Open wallet'**
   String get restoreOpenWallet;
 
-  /// No description provided for @restoreRescanLater.
+  /// Heading of the Home card while the core's restore scan from block 0 has not finished; the state's name everywhere.
   ///
   /// In en, this message translates to:
-  /// **'You can run a full rescan later from Settings.'**
-  String get restoreRescanLater;
+  /// **'Restore not finished'**
+  String get restoreUnfinishedTitle;
+
+  /// Home card line while the restore scan runs or starts; the bar and the percent line follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for this wallet\'s funds from block 0. Receiving and sending open when this ends.'**
+  String get restoreUnfinishedRunning;
+
+  /// Home card line while Offline mode (Advanced) stops the restore scan from running.
+  ///
+  /// In en, this message translates to:
+  /// **'The scan goes on when Offline mode is off.'**
+  String get restoreUnfinishedOffline;
+
+  /// Home card line after the restore scan failed; the described error and a Try again button (launchTryAgain) follow.
+  ///
+  /// In en, this message translates to:
+  /// **'The scan stopped and is retried by itself. Receiving and sending stay closed until it finishes.'**
+  String get restoreUnfinishedFailed;
+
+  /// Error for the core's RestoreScanRequired: Receive, Send or an invoice tried before the restore scan from block 0 finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore not finished. Receiving and sending open when the scan shown on Home ends.'**
+  String get errorRestoreScanRequired;
+
+  /// Button on the restore scan step: stops the scan and keeps the wallet; the scan carries on from Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get restoreScanStop;
+
+  /// Secondary line on the restore scan step: the app holds a wake lock during the scan.
+  ///
+  /// In en, this message translates to:
+  /// **'The screen stays on while this runs.'**
+  String get restoreScanScreenOn;
+
+  /// Restore scan step after Stop; buttons Try again and Open wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped. Receiving and sending open only when this scan finishes; it carries on from Home.'**
+  String get restoreScanStopped;
+
+  /// Restore scan step after a failure; the described error, then Try again and Open wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The scan stopped before the end. Receiving and sending open only when it finishes: try again here, or open the wallet and it carries on from Home.'**
+  String get restoreScanUnfinished;
+
+  /// Restore done screen, only after a restore from a date or height: why Home shows a running scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.'**
+  String get restoreFinishOnHome;
+
+  /// Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.'**
+  String get unlockDatabaseRebuilt;
+
+  /// Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow.
+  ///
+  /// In en, this message translates to:
+  /// **'A history backup brings back who was paid, notes and labels.'**
+  String get restoreRebuiltImportText;
+
+  /// Lead line of the Restore screen when opened from Settings › Wallet › Restore from a phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'The phrase restores a wallet in place of the one on this phone. Nothing changes before the phrase checks out and the replacement is confirmed.'**
+  String get restoreReplaceLead;
+
+  /// PIN prompt reason in Settings › Restore after the warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN to replace this wallet. The restored wallet keeps this PIN.'**
+  String get restoreReplacePinReason;
+
+  /// Phrase error: the word at 1-based {position} is not a BIP39 word. Same text as deskOnbRestoreBadWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {position}, “{word}”, is not in the word list.'**
+  String restorePhraseUnknownWord(int position, String word);
+
+  /// Phrase error: wrong number of words; {count} is what was typed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{This phrase has 1 word. A recovery phrase has 12, 15, 18, 21 or 24.} other{This phrase has {count} words. A recovery phrase has 12, 15, 18, 21 or 24.}}'**
+  String restorePhraseWordCount(int count);
+
+  /// Phrase error: right count, all words known, checksum fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Every word is in the word list, but the phrase does not check out. A word is wrong or out of order.'**
+  String get restorePhraseChecksum;
+
+  /// Persistent error notice on the launch screen after Settings › Delete this wallet (or Restore from a phrase) could not remove the wallet; {error} is the described core error, a full sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not deleted. {error} Unlock and try again from Settings.'**
+  String deleteFailedNotice(String error);
+
+  /// Second line of the Export history backup sheet: what else the file holds and what it does not.
+  ///
+  /// In en, this message translates to:
+  /// **'It also holds the contacts and their stars. Invoices and settings are not in it.'**
+  String get historyBackupExportCarries;
 
   /// Screen-reader label of the check icon above 'Your wallet is restored'.
   ///
@@ -3376,10 +3484,10 @@ abstract class AppLocalizations {
   /// **'Restore from a phrase'**
   String get firstRunRestore;
 
-  /// First paragraph of the delete warning when it opens from Settings › Wallet › Restore from a phrase: the phone keeps one wallet per network, so the restore deletes this one first.
+  /// First paragraph of the removal warning when it opens from Settings › Wallet › Restore from a phrase, after the phrase checked out.
   ///
   /// In en, this message translates to:
-  /// **'Restoring from a phrase replaces this wallet: it is deleted first, then the phrase of the wallet to restore is entered.'**
+  /// **'This wallet is removed and the wallet of the typed phrase takes its place, with the same PIN.'**
   String get settingsRestoreReplaces;
 
   /// Shown after the PIN while the wallet is locked under it.

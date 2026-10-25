@@ -7,13 +7,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
+import '../phrase_problem.dart';
 import '../providers.dart';
+import '../restore_scan.dart';
+import '../secure_screen.dart' show keepScreenOn;
+import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'settings_history.dart';
+import 'settings_sections.dart' show DeleteWalletDialog;
+import 'wallet_delete.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -48,7 +54,12 @@ String normalizePhrase(String input) =>
 
 /// Restores a wallet from its recovery phrase, protects it with a PIN, then scans the chain.
 class RestoreScreen extends ConsumerStatefulWidget {
-  const RestoreScreen({super.key});
+  const RestoreScreen({super.key, this.replace = false});
+
+  /// Settings › Restore from a phrase: the open wallet is replaced. The phrase comes first;
+  /// once it checks out, the delete warning and the PIN confirm, and the wallet is deleted and
+  /// restored in one step with the same PIN. Back before that leaves the wallet as it is.
+  final bool replace;
 
   @override
   ConsumerState<RestoreScreen> createState() => _RestoreScreenState();
@@ -60,6 +71,11 @@ enum _StartBy { date, height }
 
 /// The key of the "Start from a date or height" link, for tests.
 const Key restoreStartLinkKey = ValueKey('restore-start-link');
+
+/// The restore scan's Stop, Try again and Open wallet buttons, for tests.
+const Key restoreStopKey = ValueKey('restore-stop');
+const Key restoreRetryKey = ValueKey('restore-retry');
+const Key restoreOpenKey = ValueKey('restore-open');
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
@@ -76,8 +92,35 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   /// is not behind the Recheck from a height switch.
   bool _startOpen = false;
 
+  /// [RestoreScreen.replace]: the old wallet is deleted now, so Back and Continue work as on a
+  /// first run.
+  bool _replaced = false;
+
+  /// The restore runs its own scan; the Home one waits until this screen is gone.
+  late final RestoreScanNotifier _restoreScan;
+  bool _released = false;
+
+  /// Leaving the app does not count towards auto-lock while this screen is up: a lock at the
+  /// scan's end skipped the history backup offer.
+  final Completer<void> _autoLockHold = Completer<void>();
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreScan = ref.read(restoreScanProvider.notifier)..hold();
+    // After the first frame: a provider may not change while the tree builds.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _released) return;
+      unawaited(
+        ref.read(autoLockHoldProvider.notifier).during(() => _autoLockHold.future),
+      );
+    });
+  }
+
   @override
   void dispose() {
+    _release();
+    unawaited(keepScreenOn(false));
     // Drop the phrase from the controller and the state, so they no longer point at it.
     _phrase.clear();
     _validPhrase = '';
@@ -86,13 +129,39 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     super.dispose();
   }
 
-  void _checkPhrase() {
+  void _release() {
+    if (_released) return;
+    _released = true;
+    _restoreScan.release();
+    if (!_autoLockHold.isCompleted) _autoLockHold.complete();
+  }
+
+  /// To Home, where an unfinished restore goes on by itself.
+  void _openWallet() {
+    _release();
+    goHome(context);
+  }
+
+  /// The core refused [phrase]: which word, the count, or the check bits.
+  String _phraseError(AppLocalizations l, String phrase) {
+    final problem = phraseProblem(phrase);
+    return switch (problem.kind) {
+      PhraseProblemKind.word => l.restorePhraseUnknownWord(
+        problem.position!,
+        problem.word!,
+      ),
+      PhraseProblemKind.count => l.restorePhraseWordCount(problem.count),
+      PhraseProblemKind.checksum => l.restorePhraseChecksum,
+    };
+  }
+
+  Future<void> _checkPhrase() async {
     final l = context.l10n;
     final service = ref.read(walletServiceProvider);
     final phrase = normalizePhrase(_phrase.text);
     String? problem;
     if (!service.validateMnemonic(phrase: phrase)) {
-      problem = l.errorInvalidMnemonic;
+      problem = _phraseError(l, phrase);
     }
     // The start choice is offered to everyone behind a small link; until it is opened the scan
     // covers the whole chain.
@@ -112,6 +181,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       setState(() => _error = problem);
       return;
     }
+    if (widget.replace && !_replaced) {
+      setState(() => _error = null);
+      return _replace(phrase, startHeight);
+    }
     _phrase.clear();
     setState(() {
       _validPhrase = phrase;
@@ -119,6 +192,67 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _error = null;
       _step = _RestoreStep.pin;
     });
+  }
+
+  /// Settings › Restore from a phrase, once the phrase checked out: the delete warning and the
+  /// PIN, then the old wallet goes and the phrase's wallet comes with the same PIN (and
+  /// biometrics when they were on). Cancel at either leaves everything as it was.
+  Future<void> _replace(String phrase, BigInt? startHeight) async {
+    final config = ref.read(walletConfigProvider);
+    final session = ref.read(sessionProvider);
+    if (config == null || session == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const DeleteWalletDialog(restore: true),
+    );
+    if (confirmed != true || !mounted) return;
+    final vault = ref.read(vaultProvider);
+    final pin = await askPin<String>(
+      context,
+      reason: context.l10n.restoreReplacePinReason,
+      allowBiometrics: false,
+      action: (pin) async {
+        await vault.checkPin(session, config, pin);
+        return pin;
+      },
+    );
+    if (pin == null || !mounted) return;
+    final biometrics = await vault.biometricsEnabled(config.chain);
+    _phrase.clear();
+    setState(() {
+      _validPhrase = phrase;
+      _height = startHeight;
+      _busy = true;
+      _step = _RestoreStep.pin;
+    });
+    try {
+      // The old wallet's scan writes to its files until it ends; the user chose to replace it.
+      await _stopScan();
+      await deleteWalletEverywhere(ref, config);
+    } catch (error) {
+      if (mounted) leaveAfterFailedDelete(context, ref, error);
+      return;
+    }
+    _replaced = true;
+    if (!mounted) return;
+    await _restore(pin, biometrics);
+  }
+
+  /// Stops a running scan and waits (at most 30 s) until it has ended.
+  Future<void> _stopScan() async {
+    if (!ref.read(scanProvider).running) return;
+    final ended = Completer<void>();
+    final watch = ref.listenManual(scanProvider.select((s) => s.running), (_, running) {
+      if (!running && !ended.isCompleted) ended.complete();
+    });
+    ref.read(scanProvider.notifier).stop();
+    try {
+      await ended.future.timeout(const Duration(seconds: 30));
+    } on TimeoutException {
+      // The delete waits for the core's calls to end in any case.
+    } finally {
+      watch.close();
+    }
   }
 
   Future<void> _restore(String pin, bool useBiometrics) async {
@@ -155,17 +289,30 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       }
       await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;
-      setState(() => _step = _RestoreStep.scan);
-      final scanned = await ref
-          .read(scanProvider.notifier)
-          .run(startHeight: _height);
-      if (scanned && mounted) {
-        setState(() => _step = _RestoreStep.importOffer);
-      }
+      await _scan();
     } catch (error) {
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// The restore's scan, from the start the user chose. The screen stays on meanwhile, so
+  /// Android does not cut the network; Try again goes on from the last stored page.
+  Future<void> _scan() async {
+    setState(() {
+      _error = null;
+      _step = _RestoreStep.scan;
+    });
+    unawaited(keepScreenOn(true));
+    final bool scanned;
+    try {
+      scanned = await ref.read(scanProvider.notifier).run(startHeight: _height);
+    } finally {
+      unawaited(keepScreenOn(false));
+    }
+    if (scanned && mounted) {
+      setState(() => _step = _RestoreStep.importOffer);
     }
   }
 
@@ -183,6 +330,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           ErrorText(_error!),
           TextButton(
             onPressed: () => setState(() {
+              // The phrase that checked out comes back, so nothing is typed twice.
+              if (_validPhrase.isNotEmpty) _phrase.text = _validPhrase;
               _error = null;
               _step = _RestoreStep.phrase;
             }),
@@ -201,12 +350,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       glow: _step == _RestoreStep.importOffer ? heroGlow : null,
       appBar: AppBar(
         title: Text(l.restoreTitle),
-        // Reached by replacing the first-run screen, so back means starting over there.
+        // Reached by replacing the first-run screen, so back means starting over there; from
+        // Settings, back to Settings while the wallet is still there.
         leading: _step == _RestoreStep.phrase
             ? BackButton(
-                onPressed: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
-                ),
+                onPressed: () => widget.replace && !_replaced
+                    ? Navigator.of(context).pop()
+                    : Navigator.of(context).pushReplacement(
+                        MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+                      ),
               )
             : null,
         automaticallyImplyLeading: false,
@@ -227,6 +379,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final l = context.l10n;
     final advanced = _startOpen;
     return [
+      // From Settings: nothing changes before the phrase checks out and the user confirms.
+      if (widget.replace && !_replaced) ...[
+        Text(l.restoreReplaceLead),
+        const SizedBox(height: 16),
+      ],
       TextField(
         controller: _phrase,
         minLines: 3,
@@ -324,18 +481,24 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ),
       const SizedBox(height: 8),
       Text(l.restoreImportExplanation, textAlign: TextAlign.center),
+      // From a start height the funds after it are found; the scan from block 0 finishes the
+      // restore from Home before receiving and sending open.
+      if (_height != null) ...[
+        const SizedBox(height: 8),
+        Text(l.restoreFinishOnHome, textAlign: TextAlign.center),
+      ],
       const SizedBox(height: 24),
       BusyButton(
         label: l.restoreImportButton,
         onPressed: () async {
           final imported = await importHistoryBackup(context, ref);
-          if (imported && mounted) goHome(context);
+          if (imported && mounted) _openWallet();
         },
       ),
       const SizedBox(height: 8),
       OutlinedButton(
         style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: () => goHome(context),
+        onPressed: _openWallet,
         child: Text(l.restoreImportNotNow),
       ),
       const SizedBox(height: 8),
@@ -346,19 +509,40 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   List<Widget> _scanView(BuildContext context) {
     final l = context.l10n;
     final scan = ref.watch(scanProvider);
+    final outline = OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48));
     return [
       Text(l.restoreScanIntro, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 16),
       ScanProgressView(scan: scan),
       if (_error != null) ErrorText(_error!),
-      if (!scan.running) ...[
+      if (scan.running) ...[
+        const SizedBox(height: 8),
+        Text(l.restoreScanScreenOn, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 16),
+        OutlinedButton(
+          key: restoreStopKey,
+          style: outline,
+          onPressed: () => ref.read(scanProvider.notifier).stop(),
+          child: Text(l.restoreScanStop),
+        ),
+      ] else ...[
+        // Stopped or failed: the wallet is there, but cannot receive or send until the scan
+        // finishes; Home goes on with it.
+        const SizedBox(height: 8),
+        Text(scan.stopped ? l.restoreScanStopped : l.restoreScanUnfinished),
         const SizedBox(height: 16),
         BusyButton(
-          label: l.restoreOpenWallet,
-          onPressed: () => goHome(context),
+          key: restoreRetryKey,
+          label: l.launchTryAgain,
+          onPressed: _scan,
         ),
         const SizedBox(height: 8),
-        Text(l.restoreRescanLater),
+        OutlinedButton(
+          key: restoreOpenKey,
+          style: outline,
+          onPressed: _openWallet,
+          child: Text(l.restoreOpenWallet),
+        ),
       ],
     ];
   }

@@ -643,6 +643,9 @@ class FakeWalletService implements WalletService {
   /// Data directories passed to [deleteWallet].
   final List<String> deletedWallets = [];
 
+  /// When set, [deleteWallet] throws it and deletes nothing.
+  WalletError? deleteError;
+
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
 
@@ -856,6 +859,7 @@ class FakeWalletService implements WalletService {
 
   @override
   Future<void> deleteWallet({required WalletConfig config}) async {
+    if (deleteError case final error?) throw error;
     existingWallets.remove(config.dataDir);
     deletedWallets.add(config.dataDir);
     pinFailureCount = 0;
@@ -918,10 +922,20 @@ class FakeWalletService implements WalletService {
       );
     }
     _checkPin(pin, sealedPassword);
+    if (damageOnNextOpen) {
+      // The core sets the damaged database aside; the next open rebuilds it with the flag set.
+      damageOnNextOpen = false;
+      session.restoreScanPending = true;
+      throw const WalletError(kind: WalletErrorKind.damagedDatabase, message: 'database damaged');
+    }
     session.owner = this;
     session.openedConfig = config;
     return session;
   }
+
+  /// When set, the next [openWithPin] reports a damaged database once, as the core does
+  /// before it rebuilds one.
+  bool damageOnNextOpen = false;
 
   @override
   Future<int> pinFailures({required WalletConfig config}) async =>

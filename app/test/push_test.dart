@@ -859,6 +859,31 @@ void main() {
     );
   });
 
+  // R17: a deleted wallet's address stops getting pushes.
+  group('delete', () {
+    testWidgets('before the delete: unregister and drop the token; the switch stays', (
+      tester,
+    ) async {
+      final h = _Harness(wanted: true);
+      await h.pump(tester);
+      h.posts.clear();
+      await h.controller.beforeDelete();
+      await h.settle(tester);
+      expect(h.postActions, ['unregister']);
+      expect(h.order, contains('deleteToken'));
+      expect(h.wantedNow, isTrue, reason: 'the next wallet registers again');
+      expect(h.container.read(pushControllerProvider), isFalse);
+    });
+
+    testWidgets('not wanted: nothing is sent', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.controller.beforeDelete();
+      await h.settle(tester);
+      expect(h.posts, isEmpty);
+    });
+  });
+
   group('the switch', () {
     testWidgets('off, Tor off: unregister, drop the token, say so', (
       tester,

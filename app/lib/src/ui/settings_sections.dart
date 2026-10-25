@@ -24,7 +24,6 @@ import '../price.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../settings.dart';
-import '../slate_files.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
@@ -59,6 +58,9 @@ import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
+import 'wallet_delete.dart';
+
+export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
@@ -69,10 +71,6 @@ const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
 const bool projectRepoPublic = false;
 const String epicCashUrl = 'https://epiccash.com';
 
-/// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
-final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
-  (ref) => clearSharedFiles,
-);
 
 /// The app version and the core's: the installed package's on Android, else the one this
 /// build was made from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit
@@ -425,10 +423,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   }
 
   /// Deletes this wallet after the warning dialog and the PIN, then starts over on the first
-  /// screen; with [thenRestore], on the restore from a phrase instead. The phone keeps one
-  /// wallet per network, so a restore replaces this wallet and takes the same safety as
-  /// Delete.
-  Future<void> _deleteWallet({bool thenRestore = false}) async {
+  /// screen. A delete that fails after the wallet closed leaves for the launch screen.
+  Future<void> _deleteWallet() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     // A scan writes to the wallet's files until it ends.
@@ -438,7 +434,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     }
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => DeleteWalletDialog(restore: thenRestore),
+      builder: (_) => const DeleteWalletDialog(),
     );
     if (confirmed != true || !mounted) return;
     final session = ref.read(sessionProvider);
@@ -460,34 +456,26 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     }
     await _run(() async {
       try {
-        ref.read(sessionProvider.notifier).lock();
-        // The core waits until every call on this wallet has ended before it removes the files.
-        await ref.read(walletServiceProvider).deleteWallet(config: config);
-        await ref.read(vaultProvider).forget(config.chain);
-        await ref
-            .read(appSettingsProvider.notifier)
-            .forgetHistoryBackup(config.chain);
-        try {
-          await ref.read(sharedFilesCleanupProvider)();
-        } catch (error) {
-          // Leftover copies in the cache are harmless next to a deleted wallet; keep going.
-          logWarn('delete', 'clearing shared files failed: $error');
-        }
+        await deleteWalletEverywhere(ref, config);
         if (!mounted) return;
-        // Restore's Back leads to the launch screen, as from the first screen.
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute<void>(
-            builder: (_) =>
-                thenRestore ? const RestoreScreen() : const LaunchScreen(),
-          ),
+          MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
           (_) => false,
         );
       } catch (error) {
-        if (mounted) {
-          _say(describeError(context.l10n, error), level: NoticeLevel.error);
-        }
+        if (mounted) leaveAfterFailedDelete(context, ref, error);
       }
     });
+  }
+
+  /// Restore from a phrase replaces this wallet (one per network): the phrase comes first, and
+  /// the wallet is deleted only once it checks out and the user confirmed with the PIN
+  /// (`restore_screen.dart`, [RestoreScreen.replace]). Back before that leaves it as it is.
+  void _restoreFromPhrase() {
+    if (ref.read(walletConfigProvider) == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const RestoreScreen(replace: true)),
+    );
   }
 
   @override
@@ -749,14 +737,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
       const Divider(height: 24),
       // Restore from a phrase replaces this wallet (one per network), so it sits with Delete
-      // and goes through its warning and PIN. Help names this place.
+      // and goes through its warning and PIN once the phrase checks out. Help names this place.
       if (!demo)
         ListTile(
           key: settingsRestoreKey,
           leading: const Icon(Icons.restore),
           title: Text(l.firstRunRestore),
           enabled: !_busy,
-          onTap: () => _deleteWallet(thenRestore: true),
+          onTap: _restoreFromPhrase,
         ),
       ListTile(
         leading: Icon(Icons.delete_forever, color: error),
@@ -1523,8 +1511,10 @@ class _RescanDialogState extends State<_RescanDialog> {
           return;
         }
         start = height;
+      // Block 0, not 1: only a scan from block 0 finishes a restore (restore_scan.dart), and
+      // it goes on from where a stopped one of the same start left off.
       case _RescanFrom.start:
-        start = BigInt.one;
+        start = BigInt.zero;
     }
     Navigator.pop(context, start);
   }

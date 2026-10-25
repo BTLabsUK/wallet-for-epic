@@ -2588,7 +2588,7 @@
   "@restorePhraseLabel": {
     "description": "Label of the field where the user types the 12 or 24 words."
   },
-  "restorePhraseHelper": "All the words (12 to 24), separated by spaces.",
+  "restorePhraseHelper": "All the words (12, 15, 18, 21 or 24), separated by spaces.",
   "@restorePhraseHelper": {
     "description": "Help under the recovery phrase field. The words themselves are always English."
   },
@@ -2652,7 +2652,104 @@
   "@restoreOpenWallet": {
     "description": "Button after the scan that goes to the wallet's home screen."
   },
-  "restoreRescanLater": "You can run a full rescan later from Settings.",
+  "restoreUnfinishedTitle": "Restore not finished",
+  "@restoreUnfinishedTitle": {
+    "description": "Heading of the Home card while the core's restore scan from block 0 has not finished; the state's name everywhere."
+  },
+  "restoreUnfinishedRunning": "Looking for this wallet's funds from block 0. Receiving and sending open when this ends.",
+  "@restoreUnfinishedRunning": {
+    "description": "Home card line while the restore scan runs or starts; the bar and the percent line follow."
+  },
+  "restoreUnfinishedOffline": "The scan goes on when Offline mode is off.",
+  "@restoreUnfinishedOffline": {
+    "description": "Home card line while Offline mode (Advanced) stops the restore scan from running."
+  },
+  "restoreUnfinishedFailed": "The scan stopped and is retried by itself. Receiving and sending stay closed until it finishes.",
+  "@restoreUnfinishedFailed": {
+    "description": "Home card line after the restore scan failed; the described error and a Try again button (launchTryAgain) follow."
+  },
+  "errorRestoreScanRequired": "Restore not finished. Receiving and sending open when the scan shown on Home ends.",
+  "@errorRestoreScanRequired": {
+    "description": "Error for the core's RestoreScanRequired: Receive, Send or an invoice tried before the restore scan from block 0 finished."
+  },
+  "restoreScanStop": "Stop",
+  "@restoreScanStop": {
+    "description": "Button on the restore scan step: stops the scan and keeps the wallet; the scan carries on from Home."
+  },
+  "restoreScanScreenOn": "The screen stays on while this runs.",
+  "@restoreScanScreenOn": {
+    "description": "Secondary line on the restore scan step: the app holds a wake lock during the scan."
+  },
+  "restoreScanStopped": "Stopped. Receiving and sending open only when this scan finishes; it carries on from Home.",
+  "@restoreScanStopped": {
+    "description": "Restore scan step after Stop; buttons Try again and Open wallet."
+  },
+  "restoreScanUnfinished": "The scan stopped before the end. Receiving and sending open only when it finishes: try again here, or open the wallet and it carries on from Home.",
+  "@restoreScanUnfinished": {
+    "description": "Restore scan step after a failure; the described error, then Try again and Open wallet."
+  },
+  "restoreFinishOnHome": "Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.",
+  "@restoreFinishOnHome": {
+    "description": "Restore done screen, only after a restore from a date or height: why Home shows a running scan."
+  },
+  "unlockDatabaseRebuilt": "The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.",
+  "@unlockDatabaseRebuilt": {
+    "description": "Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0."
+  },
+  "restoreRebuiltImportText": "A history backup brings back who was paid, notes and labels.",
+  "@restoreRebuiltImportText": {
+    "description": "Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow."
+  },
+  "restoreReplaceLead": "The phrase restores a wallet in place of the one on this phone. Nothing changes before the phrase checks out and the replacement is confirmed.",
+  "@restoreReplaceLead": {
+    "description": "Lead line of the Restore screen when opened from Settings › Wallet › Restore from a phrase."
+  },
+  "restoreReplacePinReason": "Enter your PIN to replace this wallet. The restored wallet keeps this PIN.",
+  "@restoreReplacePinReason": {
+    "description": "PIN prompt reason in Settings › Restore after the warning."
+  },
+  "restorePhraseUnknownWord": "Word {position}, “{word}”, is not in the word list.",
+  "@restorePhraseUnknownWord": {
+    "description": "Phrase error: the word at 1-based {position} is not a BIP39 word. Same text as deskOnbRestoreBadWord.",
+    "placeholders": {
+      "position": {
+        "type": "int",
+        "example": "7"
+      },
+      "word": {
+        "type": "String",
+        "example": "abandom"
+      }
+    }
+  },
+  "restorePhraseWordCount": "{count, plural, =1{This phrase has 1 word. A recovery phrase has 12, 15, 18, 21 or 24.} other{This phrase has {count} words. A recovery phrase has 12, 15, 18, 21 or 24.}}",
+  "@restorePhraseWordCount": {
+    "description": "Phrase error: wrong number of words; {count} is what was typed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "23"
+      }
+    }
+  },
+  "restorePhraseChecksum": "Every word is in the word list, but the phrase does not check out. A word is wrong or out of order.",
+  "@restorePhraseChecksum": {
+    "description": "Phrase error: right count, all words known, checksum fails."
+  },
+  "deleteFailedNotice": "Wallet not deleted. {error} Unlock and try again from Settings.",
+  "@deleteFailedNotice": {
+    "description": "Persistent error notice on the launch screen after Settings › Delete this wallet (or Restore from a phrase) could not remove the wallet; {error} is the described core error, a full sentence.",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "The wallet is busy. Try again in a moment."
+      }
+    }
+  },
+  "historyBackupExportCarries": "It also holds the contacts and their stars. Invoices and settings are not in it.",
+  "@historyBackupExportCarries": {
+    "description": "Second line of the Export history backup sheet: what else the file holds and what it does not."
+  },
   "restoreDoneIconLabel": "Done",
   "@restoreDoneIconLabel": {
     "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
@@ -2684,9 +2781,9 @@
   "@firstRunRestore": {
     "description": "Button on the first screen, and row in Settings › Wallet, that opens the restore from a recovery phrase instead of making a new wallet."
   },
-  "settingsRestoreReplaces": "Restoring from a phrase replaces this wallet: it is deleted first, then the phrase of the wallet to restore is entered.",
+  "settingsRestoreReplaces": "This wallet is removed and the wallet of the typed phrase takes its place, with the same PIN.",
   "@settingsRestoreReplaces": {
-    "description": "First paragraph of the delete warning when it opens from Settings › Wallet › Restore from a phrase: the phone keeps one wallet per network, so the restore deletes this one first."
+    "description": "First paragraph of the removal warning when it opens from Settings › Wallet › Restore from a phrase, after the phrase checked out."
   },
   "firstRunSecuring": "Securing your wallet…",
   "@firstRunSecuring": {

@@ -330,6 +330,44 @@ class PushController extends Notifier<bool> {
     }
   }
 
+  // Delete.
+
+  /// Before the wallet is deleted: takes this phone's registration back from the relay, so
+  /// pushes for the deleted wallet's address stop. With the wallet open, an unregister it signs
+  /// (within [pushTorOnCap]); either way the device token goes too, which ends a registration
+  /// the relay still holds (Forgot PIN has no open wallet to sign with). The next wallet
+  /// registers with a fresh token. The Settings switch stays as it is.
+  Future<void> beforeDelete() async {
+    if (!await _available()) return;
+    final session = ref.read(sessionProvider);
+    final token = _registered ?? ref.read(pushProvider).token;
+    final wanted = await _wanted();
+    _registered = null;
+    state = false;
+    try {
+      await Future.wait([
+        () async {
+          // A registration still going out finishes first, so it cannot land after this.
+          await _work;
+          if (session != null && token != null) {
+            logInfo('push', 'wallet deleted: unregistering');
+            await _registration.unregister(session, token, timeout: pushTorOnCap);
+          }
+        }(),
+        if (wanted || token != null)
+          () async {
+            final push = ref.read(pushProvider.notifier);
+            // Not started in this run (Forgot PIN on a cold start): the token lives on in
+            // Firebase all the same. Permission was given when notifications were turned on.
+            if (wanted) await push.start();
+            await push.deleteToken();
+          }(),
+      ]).timeout(pushTorOnCap);
+    } catch (error) {
+      logWarn('push', 'before delete: ${error.runtimeType}');
+    }
+  }
+
   // The Tor switch.
 
   /// Before tor starts: unregister over the clearnet and drop the device token, within

@@ -2332,7 +2332,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restorePhraseLabel => 'Фраза восстановления';
 
   @override
-  String get restorePhraseHelper => 'Все слова (от 12 до 24) через пробел.';
+  String get restorePhraseHelper =>
+      'Все слова (12, 15, 18, 21 или 24) через пробел.';
 
   @override
   String get restoreStartHeading => 'Начало сканирования';
@@ -2388,8 +2389,92 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreOpenWallet => 'Открыть кошелёк';
 
   @override
-  String get restoreRescanLater =>
-      'Полное повторное сканирование можно запустить позже в настройках.';
+  String get restoreUnfinishedTitle => 'Восстановление не завершено';
+
+  @override
+  String get restoreUnfinishedRunning =>
+      'Поиск средств этого кошелька с блока 0. Получение и отправка станут доступны после завершения.';
+
+  @override
+  String get restoreUnfinishedOffline =>
+      'Сканирование продолжится, когда офлайн-режим будет выключен.';
+
+  @override
+  String get restoreUnfinishedFailed =>
+      'Сканирование остановилось и будет повторено автоматически. Получение и отправка недоступны, пока оно не завершится.';
+
+  @override
+  String get errorRestoreScanRequired =>
+      'Восстановление не завершено. Получение и отправка станут доступны, когда закончится сканирование, показанное на главном экране.';
+
+  @override
+  String get restoreScanStop => 'Остановить';
+
+  @override
+  String get restoreScanScreenOn => 'Экран не гаснет, пока идёт сканирование.';
+
+  @override
+  String get restoreScanStopped =>
+      'Остановлено. Получение и отправка станут доступны только после завершения этого сканирования; оно продолжится с главного экрана.';
+
+  @override
+  String get restoreScanUnfinished =>
+      'Сканирование остановилось раньше конца. Получение и отправка станут доступны только после его завершения: повторите здесь или откройте кошелёк, и оно продолжится с главного экрана.';
+
+  @override
+  String get restoreFinishOnHome =>
+      'Средства после выбранного начала найдены. Сканирование с блока 0 завершает восстановление на главном экране; получение и отправка станут доступны после его окончания.';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      'База данных кошелька была повреждена и создана заново по фразе. Сканирование возвращает средства; детали платежей, заметки и метки вернутся только из резервной копии истории.';
+
+  @override
+  String get restoreRebuiltImportText =>
+      'Резервная копия истории возвращает получателей платежей, заметки и метки.';
+
+  @override
+  String get restoreReplaceLead =>
+      'Фраза восстанавливает кошелёк вместо кошелька на этом телефоне. Ничего не меняется, пока фраза не проверена и замена не подтверждена.';
+
+  @override
+  String get restoreReplacePinReason =>
+      'Введите PIN-код, чтобы заменить этот кошелёк. Восстановленный кошелёк сохранит этот PIN-код.';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return 'Слова $position («$word») нет в списке слов.';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'В этой фразе $count слова. Во фразе восстановления 12, 15, 18, 21 или 24 слова.',
+      many:
+          'В этой фразе $count слов. Во фразе восстановления 12, 15, 18, 21 или 24 слова.',
+      few:
+          'В этой фразе $count слова. Во фразе восстановления 12, 15, 18, 21 или 24 слова.',
+      one:
+          'В этой фразе $count слово. Во фразе восстановления 12, 15, 18, 21 или 24 слова.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum =>
+      'Все слова есть в списке, но фраза не сходится. Одно слово неверно или стоит не на своём месте.';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return 'Кошелёк не удалён. $error Разблокируйте его и повторите попытку в настройках.';
+  }
+
+  @override
+  String get historyBackupExportCarries =>
+      'В ней также контакты и их отметки «избранное». Счета и настройки в неё не входят.';
 
   @override
   String get restoreDoneIconLabel => 'Готово';
@@ -2424,7 +2509,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'Восстановление по фразе заменяет этот кошелёк: сначала он будет удалён, затем вводится фраза восстанавливаемого кошелька.';
+      'Этот кошелёк будет удалён, и его место займёт кошелёк введённой фразы, с тем же PIN-кодом.';
 
   @override
   String get firstRunSecuring => 'Защищаем кошелёк…';
