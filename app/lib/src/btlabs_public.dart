@@ -1142,7 +1142,7 @@ DateTime _ts(Object? v) {
 final _packageRe = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _versionRe = RegExp(r'^[0-9]+\.[0-9]+\.[0-9]+$');
 final _sha256Re = RegExp(r'^[0-9a-f]{64}$');
-final _pageRe = RegExp(r'^https://github\.com/(BTLabs-EPIC|blacktyger)/');
+final _pageRe = RegExp(r'^https://github\.com/BTLabs-EPIC/');
 final _desktopFileRe = RegExp(r'^https://examples\.btlabs\.uk/epic-cash-wallets/downloads/[A-Za-z0-9][A-Za-z0-9._-]*$');
 const _abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'universal'];
 const _systems = ['windows', 'linux', 'macos'];

@@ -211,14 +211,15 @@ void main() {
     expect(isDeskUpdatePage(deskReleasesUrl), isTrue);
   });
 
-  test('download pages: https on the project accounts only', () {
+  test('download pages: https on the project account only', () {
     expect(isDeskUpdatePage('https://github.com/BTLabs-EPIC/epic-wallet/releases'), isTrue);
-    expect(isDeskUpdatePage('https://github.com/blacktyger/wallet-for-epic/releases/latest'), isTrue);
-    expect(isDeskUpdatePage('https://GitHub.com/blacktyger/x'), isTrue);
-    expect(isDeskUpdatePage('http://github.com/blacktyger/x'), isFalse);
+    expect(isDeskUpdatePage('https://GitHub.com/BTLabs-EPIC/x'), isTrue);
+    expect(isDeskUpdatePage('http://github.com/BTLabs-EPIC/x'), isFalse);
     expect(isDeskUpdatePage('https://github.com/someone/x'), isFalse);
-    expect(isDeskUpdatePage('https://github.com/blacktyger.evil/x'), isFalse);
-    expect(isDeskUpdatePage('https://user@github.com/blacktyger/x'), isFalse);
+    // The developer's own account is no download place any more.
+    expect(isDeskUpdatePage('https://github.com/blacktyger/wallet-for-epic/releases/latest'), isFalse);
+    expect(isDeskUpdatePage('https://github.com/BTLabs-EPIC.evil/x'), isFalse);
+    expect(isDeskUpdatePage('https://user@github.com/BTLabs-EPIC/x'), isFalse);
     expect(isDeskUpdatePage('https://example.com/get'), isFalse);
   });
 

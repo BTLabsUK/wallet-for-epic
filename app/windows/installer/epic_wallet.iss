@@ -3,7 +3,7 @@
 ; /DAppVersion (pubspec.yaml's YY.MM.patch, https://docs.btlabs.uk/developers/releases/). Per-user
 ; (PrivilegesRequired=lowest): everything goes in the user's profile.
 ;
-; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: [UninstallDelete]
+; The wallet's data (%USERPROFILE%\.epic_cash_desktop) is never touched: [UninstallDelete]
 ; names only Setup's own mark next to the app, [InstallDelete] only old shortcut files, and Inno
 ; removes only the files it installed.
 ;
@@ -38,7 +38,7 @@
   #define FileVersion AppVersion + ".0"
 #endif
 
-#define AppMutexName "Local\com.blacktyger.EpicWallet.single"
+#define AppMutexName "Local\uk.btlabs.epiccash.desktop.single"
 
 [Setup]
 ; Fixed for good: a new GUID would make an upgrade install beside the old version.
@@ -79,7 +79,7 @@ SetupWindowTitle=%1 Setup
 UninstallAppFullTitle=%1 Uninstall
 SetupAppRunningError=%1 is open.%n%nClose it, then click OK to continue, or Cancel to exit.
 UninstallAppRunningError=%1 is open.%n%nClose it, then click OK to continue, or Cancel to exit.
-ConfirmUninstall=Remove %1?%n%nRemoves the app from its folder and its shortcuts.%nWallet data in AppData\Roaming\com.blacktyger\EpicWallet stays.
+ConfirmUninstall=Remove %1?%n%nRemoves the app from its folder and its shortcuts.%nWallet data in the .epic_cash_desktop folder stays.
 UninstalledAll=%1 was removed.%n%nWallet data was kept.
 StatusExtractFiles=Copying files...
 StatusCreateIcons=Creating shortcuts...

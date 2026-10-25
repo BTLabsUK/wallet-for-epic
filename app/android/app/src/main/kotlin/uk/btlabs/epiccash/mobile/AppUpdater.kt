@@ -1,4 +1,4 @@
-package com.blacktyger.epic_wallet
+package uk.btlabs.epiccash.mobile
 
 import android.app.Activity
 import android.app.PendingIntent

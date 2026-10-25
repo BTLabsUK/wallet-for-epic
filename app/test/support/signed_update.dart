@@ -40,7 +40,7 @@ Map<String, Object?> testApk({
 
 /// The payload of a manifest: valid by default, issued 2026-10-01, expiring 2027-04-01.
 Map<String, Object?> testUpdatePayload({
-  String packageName = 'com.blacktyger.epic_wallet',
+  String packageName = 'uk.btlabs.epiccash.mobile',
   String versionName = '1.0.1',
   String? notes = 'Fixes',
   List<Map<String, Object?>>? apks,

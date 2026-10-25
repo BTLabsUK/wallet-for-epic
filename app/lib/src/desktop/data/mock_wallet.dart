@@ -225,7 +225,7 @@ class MockDeskWallet implements DeskWalletApi {
       throw const DeskError('The old password is short. Choose a new one of at least $minPasswordLength characters.', newPasswordNeeded: true);
     }
     final name = _oldWallets.where((w) => w.id == id).firstOrNull?.name ?? 'Backup 2024';
-    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.local/share/epic-wallet/wallets/imp-$id/mainnet', network: 'mainnet');
+    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.epic_cash_desktop/wallets/imp-$id/mainnet', network: 'mainnet');
     _wallets.add(entry);
     _current = entry.id;
     _imported.add(entry.id);
@@ -366,7 +366,7 @@ class MockDeskWallet implements DeskWalletApi {
     }
     final label = name.trim().isEmpty ? 'Wallet $n' : name.trim();
     final id = 'new-${_wallets.length}-${DateTime.now().microsecondsSinceEpoch}';
-    _wallets.add(WalletEntry(id: id, name: label, folder: '~/.local/share/epic-wallet/wallets/$id/mainnet', network: 'mainnet'));
+    _wallets.add(WalletEntry(id: id, name: label, folder: '~/.epic_cash_desktop/wallets/$id/mainnet', network: 'mainnet'));
     _current = id;
     return id;
   }

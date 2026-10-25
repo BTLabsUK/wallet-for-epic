@@ -17,10 +17,10 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../app_log.dart';
 import '../../btlabs_public.dart' show WalletDesktopFile;
+import '../../data_folder_io.dart' show appCacheDirectory;
 import '../../net/tor_net.dart';
 
 /// Why a download stopped.
@@ -426,7 +426,7 @@ final deskUpdateMarksProvider = Provider<Future<DeskUpdateMarks> Function()?>((r
   if (kIsWeb || !Platform.isWindows) return null;
   return () async => DeskUpdateMarks(
     setup: File('${File(Platform.resolvedExecutable).parent.path}\\$deskSetupMarkName'),
-    target: File('${(await getApplicationCacheDirectory()).path}\\update-target'),
+    target: File('${(await appCacheDirectory()).path}\\update-target'),
   );
 });
 
@@ -438,9 +438,9 @@ final deskUpdateApplierProvider = Provider<DeskUpdateApplier?>((ref) {
   return null;
 });
 
-/// Where downloads go: the app's cache folder (never the wallet's data folder).
+/// Where downloads go: `cache/updates` in the app's data folder (appCacheDirectory), never a wallet's folder.
 final deskUpdateDirProvider = Provider<Future<Directory> Function()>(
-  (ref) => () async => Directory('${(await getApplicationCacheDirectory()).path}${Platform.pathSeparator}updates'),
+  (ref) => () async => Directory('${(await appCacheDirectory()).path}${Platform.pathSeparator}updates'),
 );
 
 /// Downloads a release file and returns it verified; tests replace it.

@@ -4,7 +4,7 @@
 #include <windows.h>
 
 // Where the window opens and what it remembers: its size, position and maximised state, kept in
-// HKCU\Software\com.blacktyger\EpicWallet (value "WindowPlacement"), all in physical pixels.
+// HKCU\Software\BT Labs\Epic Cash Desktop (value "WindowPlacement"), all in physical pixels.
 
 struct WindowStart {
   RECT frame;

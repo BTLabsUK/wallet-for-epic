@@ -538,8 +538,8 @@ Future<void> main(List<String> a) async {
 
     test('the installer script waits for the app and opens it again for that run only', () {
       final iss = File('windows/installer/epic_wallet.iss').readAsStringSync();
-      expect(iss, contains('#define AppMutexName "Local\\com.blacktyger.EpicWallet.single"'));
-      expect(File('windows/runner/main.cpp').readAsStringSync(), contains('L"Local\\\\com.blacktyger.EpicWallet.single"'));
+      expect(iss, contains('#define AppMutexName "Local\\uk.btlabs.epiccash.desktop.single"'));
+      expect(File('windows/runner/main.cpp').readAsStringSync(), contains('L"Local\\\\uk.btlabs.epiccash.desktop.single"'));
       expect(iss, contains("ExpandConstant('{param:UPDATEFROMAPP|0}') = '1'"));
       expect(iss, contains("CheckForMutexes('{#AppMutexName}')"));
       expect(iss, contains('Flags: nowait; Check: FromApp'));

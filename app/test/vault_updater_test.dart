@@ -293,7 +293,7 @@ void main() {
 
   group('readUpdateManifest', () {
     const app = InstalledApp(
-      packageName: 'com.blacktyger.epic_wallet',
+      packageName: 'uk.btlabs.epiccash.mobile',
       versionCode: 2001,
       versionName: '1.0.0',
       abis: ['arm64-v8a', 'armeabi-v7a'],
@@ -921,7 +921,7 @@ void main() {
           status: 'failed',
           message:
               'INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package '
-              'com.blacktyger.epic_wallet signatures do not match newer version; ignoring!',
+              'uk.btlabs.epiccash.mobile signatures do not match newer version; ignoring!',
         ));
         await pumpEventQueue();
         var state = container.read(updateProvider);
@@ -1171,7 +1171,7 @@ class _FakeUpdatePlatform implements UpdatePlatform {
 
   @override
   Future<InstalledApp> installedApp() async => InstalledApp(
-    packageName: 'com.blacktyger.epic_wallet',
+    packageName: 'uk.btlabs.epiccash.mobile',
     versionCode: 2001,
     versionName: '1.0.0',
     abis: const ['arm64-v8a'],

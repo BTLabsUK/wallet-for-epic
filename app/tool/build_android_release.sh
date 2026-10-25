@@ -13,7 +13,7 @@
 #
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
 # updater refuses a verified manifest whose packageName differs from the installed app's
-# (lib/src/updater.dart), so this build never offers the 1.x builds (com.blacktyger.epic_wallet).
+# (lib/src/updater.dart), so this build never offers another app's builds.
 set -euo pipefail
 
 app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -25,7 +25,7 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 "$app_dir/../tools/version.sh" check >/dev/null || { "$app_dir/../tools/version.sh" check; exit 1; }
 version="$("$app_dir/../tools/version.sh" name)"
 want_code="$("$app_dir/../tools/version.sh" code)"
-want_package=com.blacktyger.epiccashmobile
+want_package=uk.btlabs.epiccash.mobile
 want_label="Epic Cash Mobile"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
 # (5fdcc602...259d0e); later builds never are.
