@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -145,8 +146,15 @@ void main() {
   testWidgets('the Transactions page turns Tor on from the guide (F30)', (tester) async {
     final api = _Wallet();
     final container = await _pump(tester, const SettingsReceivingScreen(), api: api);
-    await tester.tap(find.byKey(const ValueKey('st-switch-http')));
+    // Link · HTTP on (its one switch since the methods split) shows the HTTP group with its
+    // reach choice.
+    await tester.runAsync(() async {
+      final n = container.read(deskProvider.notifier);
+      await n.saveSettings(container.read(deskProvider).settings.copyWith(payments: const PaymentPrefs(linkHttp: true)));
+    });
     await tester.pump(const Duration(milliseconds: 600));
+    await tester.ensureVisible(find.text('From the internet'));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('From the internet'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(InternetGuide), findsOneWidget);
