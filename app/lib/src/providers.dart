@@ -714,7 +714,9 @@ class ListenerNotifier extends Notifier<ListenerState> {
       return const ListenerState(offline: true, status: 'Offline mode');
     }
     // Epicbox off (Settings › Transactions): the same, and the header shows Epicbox as off.
-    if (ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox)) == false) {
+    // Settings not read yet count as on (the default), so their arrival does not restart the
+    // listener that just started.
+    if (ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox ?? true)) == false) {
       unawaited(session.stopListener().catchError((Object _) {}));
       return const ListenerState(stopped: true, status: 'Epicbox off');
     }
