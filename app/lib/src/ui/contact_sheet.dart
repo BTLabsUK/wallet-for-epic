@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
 import '../errors.dart';
+import '../initials.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import 'common.dart';
@@ -21,16 +22,11 @@ const Key contactSheetSendKey = ValueKey('contact-sheet-send');
 const Key contactSheetEditKey = ValueKey('contact-sheet-edit');
 const Key contactSheetDeleteKey = ValueKey('contact-sheet-delete');
 
-/// Two letters for [name]: the first letters of its first two words, else its first two
-/// letters, in upper case. `?` for a name with nothing in it.
+/// Two letters for [name] ([nameInitials]: letters and digits only), `?` for a name with
+/// none.
 String contactInitials(String name) {
-  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-  if (words.isEmpty) return '?';
-  if (words.length > 1) {
-    return (words.first.characters.first + words.elementAt(1).characters.first)
-        .toUpperCase();
-  }
-  return words.first.characters.take(2).toString().toUpperCase();
+  final letters = nameInitials(name);
+  return letters.isEmpty ? '?' : letters;
 }
 
 /// How the app reaches [address]: `Epicbox`, `Link · HTTP` for an http(s) address, `Link ·

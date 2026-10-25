@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart';
 import '../../ui/theme/brand.dart' show MarkedQr;
+import '../../initials.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../data/models.dart';
 import '../data/state.dart';
@@ -22,12 +23,10 @@ class EAvatar extends StatelessWidget {
   final double? _size;
   double get size => _size ?? 32.u;
 
+  /// Letters only ([nameInitials]): "Wallet (epic program)" is WE, never "W(".
   static String initials(String name) {
-    final parts = name.trim().split(RegExp(r'[\s_:-]+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '·';
-    final a = parts.first[0];
-    final b = parts.length > 1 ? parts[1][0] : (parts.first.length > 1 ? parts.first[1] : '');
-    return (a + b).toUpperCase();
+    final letters = nameInitials(name);
+    return letters.isEmpty ? '·' : letters;
   }
 
   @override

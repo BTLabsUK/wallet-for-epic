@@ -10,6 +10,7 @@ import '../amount.dart';
 import '../contacts.dart';
 import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
+import '../initials.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
@@ -3651,7 +3652,8 @@ class _Initial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final name = this.name?.trim();
+    // Its first letter: brackets, punctuation and emoji never show.
+    final letter = nameInitials(name ?? '', count: 1);
     return ExcludeSemantics(
       child: Container(
         width: 40,
@@ -3662,10 +3664,10 @@ class _Initial extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: t.lineStrong),
         ),
-        child: name == null || name.isEmpty
+        child: letter.isEmpty
             ? Icon(Icons.person_outline, size: 20, color: t.dim)
             : Text(
-                name.characters.first.toUpperCase(),
+                letter,
                 style: Theme.of(context).textTheme.titleSmall
                     ?.copyWith(color: t.text),
               ),
