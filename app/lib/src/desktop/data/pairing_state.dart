@@ -102,16 +102,25 @@ final deskPairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?
 final deskSeenAsProvider = NotifierProvider<DeskSeenAs, String>(DeskSeenAs.new);
 
 class DeskSeenAs extends Notifier<String> {
-  @override
-  String build() => ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs));
+  Timer? _save;
 
-  /// Keeps [name] in the settings, as the phone keeps it on the device.
-  Future<void> set(String name) async {
+  @override
+  String build() {
+    ref.onDispose(() => _save?.cancel());
+    return ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs));
+  }
+
+  /// Takes [name] at once and keeps it in the settings once typing pauses, as the phone keeps
+  /// it on the device.
+  void set(String name) {
     final shown = name.trim();
     if (shown == state) return;
     state = shown;
-    final desk = ref.read(deskProvider.notifier);
-    await desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown));
+    _save?.cancel();
+    _save = Timer(const Duration(milliseconds: 600), () {
+      final desk = ref.read(deskProvider.notifier);
+      desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown)).ignore();
+    });
   }
 }
 

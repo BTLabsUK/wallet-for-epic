@@ -112,7 +112,6 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       return;
     }
     _needName = false;
-    unawaited(ref.read(deskSeenAsProvider.notifier).set(_seenAs));
     if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
       setState(() => _codeError = l.pairWordsNeedEpicbox);
       return;
@@ -135,7 +134,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     }
   }
 
-  void _nameChanged() => setState(() {});
+  void _nameChanged() {
+    ref.read(deskSeenAsProvider.notifier).set(_name.text);
+    setState(() {});
+  }
 
   /// The typed words, by table name or emoji.
   List<String> get _words => _enter.text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
@@ -169,7 +171,6 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       setState(() => _triedInvite = true);
       return;
     }
-    unawaited(ref.read(deskSeenAsProvider.notifier).set(_seenAs));
     try {
       final invite = await deskPairingCall(
         ref,

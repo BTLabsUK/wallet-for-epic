@@ -267,12 +267,13 @@ void main() {
       tester,
     ) async {
       await open(tester);
+      // Short on the page; in full under Show code.
       expect(
         find.descendant(
           of: find.byType(ContactPage),
           matching: find.textContaining('a' * 50, findRichText: true),
         ),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.text('Coffee club'), findsOneWidget);
       expect(find.text(_l.contactAddresses), findsOneWidget);
@@ -280,6 +281,7 @@ void main() {
       await tester.tap(find.text(_l.contactsShowCode));
       await tester.pumpAndSettle();
       expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.textContaining('a' * 50, findRichText: true), findsWidgets);
     });
 
     testWidgets('on a phone Send sits above the navigation bar, 48 dp tall', (
