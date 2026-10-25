@@ -4350,6 +4350,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     // A request nobody paid yet is not on its way to the chain: it waits for the payer, as the
     // mock keeps it (windows-05 read "posted" in its technical details).
     core.TxStatus.awaitingConfirmation when e.awaitingPayer => TxState.waitingRecipient,
+    // A payment answered here waits for its sender to finalize and post it: not on the network
+    // yet (it read "Waiting for a block"). A paid request is this wallet's to post, so posted.
+    core.TxStatus.awaitingConfirmation when height == null && e.kind == core.TxKind.received && !e.isRequest => TxState.waitingRecipient,
     core.TxStatus.awaitingConfirmation => height == null ? TxState.posted : TxState.confirming,
     core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };

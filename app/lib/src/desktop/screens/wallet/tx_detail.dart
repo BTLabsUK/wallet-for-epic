@@ -393,7 +393,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           _Step(l.deskTxStepSpendable, _S.done, ''),
       ];
     }
-    final signed = t.state != TxState.waitingRecipient;
+    // An incoming payment is on record only once this wallet signed it; it then waits for the
+    // sender to post it.
+    final signed = t.incoming || t.state != TxState.waitingRecipient;
+    final waitingSender = t.incoming && t.state == TxState.waitingRecipient;
     final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
@@ -405,7 +408,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         signed ? hm(const Duration(seconds: 40)) : '',
         sub: signed ? null : (t.method == TxMethod.file ? l.deskTxStepWaitingFile : l.deskTxStepWaitingRecipient),
       ),
-      _Step(l.deskTxStepPosted, posted ? _S.done : _S.todo, posted ? hm(const Duration(minutes: 1)) : ''),
+      _Step(
+        l.deskTxStepPosted,
+        posted ? _S.done : (waitingSender ? _S.now : _S.todo),
+        posted ? hm(const Duration(minutes: 1)) : '',
+        sub: waitingSender ? l.deskTxStatusWaitingSender : null,
+      ),
       _Step(
         l.deskTxStepConfirming,
         done ? _S.done : (inBlock ? _S.now : _S.todo),
