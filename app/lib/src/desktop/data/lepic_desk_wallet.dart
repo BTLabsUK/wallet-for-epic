@@ -1604,6 +1604,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
       final due = await _meta(key);
+      if (_session != session) return;
       if (!_rescanning && due['scanPending'] == true) {
         var finished = false;
         try {
@@ -1625,6 +1626,8 @@ class LepicDeskWallet implements DeskWalletApi {
           _notice = null;
         }
       }
+      // Locked meanwhile: the session is gone, and a call on it would fail outside any catch.
+      if (_session != session) return;
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
         if (_session != session) return;
         _syncProgress = 0.5 + p.percent / 200;
@@ -1642,7 +1645,9 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         _changed();
       }
+      if (_session != session) return;
       await _importHistoryOnce(session, key);
+      if (_session != session) return;
       _entries = await session.transactions(refresh: false);
       _lastUpdate = DateTime.now();
       _syncError = _nodeHealth == ServiceHealth.down ? DeskError.l10n((l) => l.deskErrNodeNoAnswer) : null;
