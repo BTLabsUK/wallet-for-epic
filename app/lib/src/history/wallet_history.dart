@@ -424,8 +424,7 @@ class WalletHistory {
       var n = 0;
       for (final c in payload.contacts) {
         final theirs = {
-          for (final a in [c.epicbox, c.http, c.tor])
-            if (_trimmed(a) case final t?) t,
+          for (final a in [c.epicbox, c.http, c.tor]) ?_trimmed(a),
         };
         if (theirs.isEmpty || c.name.trim().isEmpty) continue;
         if (list.any((e) => e.addresses.any((a) => theirs.contains(a.trim())))) continue;
@@ -651,8 +650,7 @@ class WalletHistory {
     // address book, [importPayload] adds them there.
     for (final c in _shared == null ? payload.contacts : const <ContactRec>[]) {
       final theirs = {
-        for (final a in [c.epicbox, c.http, c.tor])
-          if (_trimmed(a) case final t?) t,
+        for (final a in [c.epicbox, c.http, c.tor]) ?_trimmed(a),
       };
       if (m.contacts.any(
         (e) => [e.epicbox, e.http, e.tor].any(
