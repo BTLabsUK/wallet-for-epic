@@ -19,6 +19,9 @@ enum DeskRoute {
   unlock(bare: true),
   importWallets(bare: true),
 
+  /// Forgot password: the wallet's phrase sets a new one ([ResetPasswordArg]).
+  resetPassword(bare: true),
+
   // In the shell.
   overview(section: DeskSection.overview),
   activity(section: DeskSection.activity),

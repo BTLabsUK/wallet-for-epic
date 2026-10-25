@@ -9,7 +9,7 @@ import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
-import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
+import '../settings/backup.dart' show HistoryImportOffer, HistoryReminder, historyBackupProvider;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
@@ -96,7 +96,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final notices = <Widget>[
       if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
-      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null) HistoryReminder(state: backup),
+      if (ref.watch(historyBackupProvider).value case final backup? when backup.importOffer) const HistoryImportOffer(),
+      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       if (starting) const _Steps(),
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
         ENotice(

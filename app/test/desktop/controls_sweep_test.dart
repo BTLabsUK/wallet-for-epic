@@ -146,6 +146,9 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) =>
+      _r('resetPassword', () => _m.resetPassword(id, phrase: phrase, newPassword: newPassword));
+  @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) =>
       _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase, startHeight: startHeight));
   @override
@@ -298,6 +301,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
   @override
   Future<void> dismissHistoryReminder(DateTime when) => _r('dismissHistoryReminder', () => _m.dismissHistoryReminder(when));
+  @override
+  Future<void> dismissHistoryImportOffer() => _r('dismissHistoryImportOffer', _m.dismissHistoryImportOffer);
 
   // Invoices: hidden in the sweep (the prototype's screens have their own shots).
   @override

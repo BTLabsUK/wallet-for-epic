@@ -188,6 +188,18 @@ class MockDeskWallet implements DeskWalletApi {
     if (i >= 0) _wallets[i] = _with(_wallets[i], name: label.trim());
   }
 
+  /// The mock knows no phrase: one starting with "legal" is another wallet's.
+  @override
+  Future<void> dismissHistoryImportOffer() async {}
+
+  @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async {
+    await _wait(3);
+    if (phrase.firstOrNull == 'legal') throw const DeskError('This recovery phrase belongs to another wallet. Nothing was changed.', wrongPhrase: true);
+    _remembered.remove(id);
+    _current = id;
+  }
+
   @override
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
     await _wait(2);

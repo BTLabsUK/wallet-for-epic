@@ -13,6 +13,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
+import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'setup_screen.dart' show SetupFirstRun, setupSkippedThisSession;
 
 /// What [UnlockScreen] starts on, for the screenshot tour.
@@ -351,6 +352,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         title: l.deskOnbUnlockTitle,
         lead: l.deskOnbUnlockLead,
         alternatives: [
+          // The wallet's phrase sets a new password (R4).
+          if (selected != null && !selected.missing)
+            ELink(key: const ValueKey('unlock-forgot'), label: l.deskFpLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
           if (DeskFeatures.multiWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(

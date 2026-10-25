@@ -16296,4 +16296,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskErrPhraseMismatch =>
       'This recovery phrase belongs to another wallet. Nothing was changed.';
+
+  @override
+  String get deskFpLink => 'Forgot password?';
+
+  @override
+  String get deskFpSide => 'New password';
+
+  @override
+  String deskFpWordsLead(String name) {
+    return 'Type the recovery phrase of $name. It sets a new password; the history, notes and labels stay, and nothing is scanned again.';
+  }
+
+  @override
+  String get deskFpStepPassword => 'New password';
+
+  @override
+  String deskFpPasswordLead(String name) {
+    return 'The phrase is checked against $name before anything changes.';
+  }
+
+  @override
+  String get deskFpSave => 'Set new password';
+
+  @override
+  String get deskFpChanging => 'Setting the new password…';
+
+  @override
+  String get deskFpNotChanged => 'Password not changed';
+
+  @override
+  String get deskFpDone => 'New password set. Unlock with it.';
+
+  @override
+  String get deskFpSameAction => 'Set a new password';
+
+  @override
+  String get deskOnbSameNoteReset =>
+      'Open asks for that wallet\'s password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.';
+
+  @override
+  String get deskErrResetNoDatabase =>
+      'This wallet has no history yet. Delete it and restore it from the phrase instead.';
+
+  @override
+  String get deskOnbRestoreName => 'Wallet name (optional)';
+
+  @override
+  String get deskOnbRestoreNameHint => 'e.g. Savings';
+
+  @override
+  String get deskRsImportOfferTitle => 'Import a history backup?';
+
+  @override
+  String get deskRsImportOfferText =>
+      'The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.';
+
+  @override
+  String get deskRsImportOfferAction => 'Import a history backup';
 }

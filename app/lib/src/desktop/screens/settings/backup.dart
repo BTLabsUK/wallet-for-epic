@@ -703,6 +703,45 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
   }
 }
 
+// ---- The import offer of a restored wallet on Overview (R13).
+
+/// A wallet restored from its phrase has its funds back but not its notes, senders or labels:
+/// Overview offers the history backup import once (the phone's restore offer), until it is
+/// done or Not now.
+class HistoryImportOffer extends ConsumerWidget {
+  const HistoryImportOffer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    Future<void> answered() async {
+      await ref.read(deskApiProvider).dismissHistoryImportOffer();
+      ref.invalidate(historyBackupProvider);
+    }
+
+    return LayoutBuilder(builder: (context, box) => ENotice(
+      key: const ValueKey('history-import-offer'),
+      icon: EIcons.archive,
+      title: l.deskRsImportOfferTitle,
+      text: l.deskRsImportOfferText,
+      actionsBelow: box.maxWidth < 640.u,
+      actions: [
+        EButton.ghost(label: l.deskSetBackupNotNow, size: EBtnSize.inline, onPressed: answered),
+        EButton(
+          label: l.deskRsImportOfferAction,
+          icon: EIcons.upload,
+          size: EBtnSize.inline,
+          onPressed: () async {
+            // An import that went in answers the offer (LepicDeskWallet.importHistory).
+            await showImportHistoryDialog(context);
+            ref.invalidate(historyBackupProvider);
+          },
+        ),
+      ],
+    ));
+  }
+}
+
 // ---- The reminder on Overview (F33).
 
 /// The history backup reminder for the notice stack on Overview: shown while

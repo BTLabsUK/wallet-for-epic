@@ -25609,6 +25609,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This recovery phrase belongs to another wallet. Nothing was changed.'**
   String get deskErrPhraseMismatch;
+
+  /// Unlock: link under the form that opens Forgot password for the selected wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get deskFpLink;
+
+  /// Forgot password: the side panel title of the flow.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get deskFpSide;
+
+  /// Forgot password: lead of the phrase step.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the recovery phrase of {name}. It sets a new password; the history, notes and labels stay, and nothing is scanned again.'**
+  String deskFpWordsLead(String name);
+
+  /// Forgot password: second step's name and title.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get deskFpStepPassword;
+
+  /// Forgot password: lead of the new-password step.
+  ///
+  /// In en, this message translates to:
+  /// **'The phrase is checked against {name} before anything changes.'**
+  String deskFpPasswordLead(String name);
+
+  /// Forgot password: primary button on the new-password step.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get deskFpSave;
+
+  /// Forgot password: progress title and stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting the new password…'**
+  String get deskFpChanging;
+
+  /// Forgot password: title when it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password not changed'**
+  String get deskFpNotChanged;
+
+  /// Unlock: green notice after Forgot password set a new password.
+  ///
+  /// In en, this message translates to:
+  /// **'New password set. Unlock with it.'**
+  String get deskFpDone;
+
+  /// Restore > This wallet is already here: button that opens Forgot password with the phrase typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new password'**
+  String get deskFpSameAction;
+
+  /// Restore > This wallet is already here: note under the wallet card.
+  ///
+  /// In en, this message translates to:
+  /// **'Open asks for that wallet\'s password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.'**
+  String get deskOnbSameNoteReset;
+
+  /// Forgot password: error when the wallet folder holds no database to keep.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet has no history yet. Delete it and restore it from the phrase instead.'**
+  String get deskErrResetNoDatabase;
+
+  /// Restore > password step: label of the optional wallet name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name (optional)'**
+  String get deskOnbRestoreName;
+
+  /// Restore > password step: hint in the wallet name field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Savings'**
+  String get deskOnbRestoreNameHint;
+
+  /// Overview: notice title after a wallet was restored from its phrase; offers to import a .wfeh history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a history backup?'**
+  String get deskRsImportOfferTitle;
+
+  /// Overview: notice text of the import offer after a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.'**
+  String get deskRsImportOfferText;
+
+  /// Overview: button in the import offer; opens the history backup import.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a history backup'**
+  String get deskRsImportOfferAction;
 }
 
 class _AppLocalizationsDelegate

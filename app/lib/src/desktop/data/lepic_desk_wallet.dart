@@ -1438,6 +1438,50 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async {
+    _checkPassword(newPassword);
+    final mnemonic = _mnemonicOf(phrase);
+    if (!_service.validateMnemonic(phrase: mnemonic)) throw DeskError.l10n((l) => l.deskErrPhraseInvalid, wrongPhrase: true);
+    final entry = await _entry(id);
+    if (_session != null && _openEntry?.id == id) await lock();
+    final config = await _configOf(entry);
+    logInfo('desk', 'password reset asked');
+    final until = DateTime.now().add(deleteWaitAtMost);
+    while (true) {
+      try {
+        await _service.resetPassword(config: config, mnemonic: mnemonic, newPassword: newPassword);
+        break;
+      } on core.WalletError catch (e) {
+        // A wallet just locked is let go by the core a moment later.
+        if (e.kind == core.WalletErrorKind.walletBusy && DateTime.now().isBefore(until)) {
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          continue;
+        }
+        logWarn('desk', 'password reset: ${e.kind.name}');
+        throw switch (e.kind) {
+          core.WalletErrorKind.invalidArgument => DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength)),
+          core.WalletErrorKind.walletNotFound => DeskError.l10n((l) => l.deskErrResetNoDatabase),
+          core.WalletErrorKind.phraseMismatch => DeskError.l10n((l) => l.deskErrPhraseMismatch, wrongPhrase: true),
+          core.WalletErrorKind.invalidMnemonic => DeskError.l10n((l) => l.deskErrPhraseInvalid, wrongPhrase: true),
+          _ => _deskError(e),
+        };
+      }
+    }
+    logInfo('desk', 'password reset');
+    await _remember.forget(id);
+    _selectedId = id;
+    // The core checked the phrase against this wallet: a wallet made before the app kept
+    // fingerprints gets one now, so a restore of the same phrase finds it.
+    if (entry.phraseFingerprint == null) {
+      try {
+        await (await registry()).setPhraseFingerprint(id, phraseFingerprint(mnemonic));
+      } on Object catch (e) {
+        logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
+      }
+    }
+  }
+
+  @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
     _checkPassword(password);
     final mnemonic = _mnemonicOf(phrase);
@@ -1446,7 +1490,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (same != null) throw DeskError.l10n((l) => l.deskErrAlreadyHere(same.name), sameWallet: same);
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
-      await _make(name, {'scanPending': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
+      await _make(name, {'scanPending': true, 'historyOffer': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
       }, fingerprintOf: (_) => phraseFingerprint(mnemonic));
@@ -3980,6 +4024,9 @@ class LepicDeskWallet implements DeskWalletApi {
   // are the shared ones (`history/`, the core session), so a phone file opens here and back.
 
   @override
+  Future<void> dismissHistoryImportOffer() => _setMeta({'historyOffer': false});
+
+  @override
   Future<HistoryBackupState> historyBackupState() async {
     final session = _open;
     final txs = await session.transactions(refresh: false);
@@ -3997,6 +4044,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await _setMeta({'historyReminderFirstSeenAt': firstSeenAt});
     }
     return HistoryBackupState(
+      importOffer: meta['historyOffer'] == true,
       lastExport: exportedAt == null ? null : DateTime.fromMillisecondsSinceEpoch(exportedAt * 1000),
       unbacked: unbacked,
       reminder: deskPaymentsNotInBackup(
@@ -4047,6 +4095,8 @@ class LepicDeskWallet implements DeskWalletApi {
         return HistoryImport(conflicts: r.conflicts, applied: false);
       }
       logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
+      // A restored wallet's offer to import is answered (R13).
+      await _setMeta({'historyOffer': false});
       await _reload();
       return HistoryImport(
         merged: r.merged,

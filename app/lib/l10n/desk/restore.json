@@ -71,5 +71,83 @@
   "deskErrPhraseMismatch": "This recovery phrase belongs to another wallet. Nothing was changed.",
   "@deskErrPhraseMismatch": {
     "description": "Forgot password: error when the typed phrase is valid but not this wallet's."
+  },
+  "deskFpLink": "Forgot password?",
+  "@deskFpLink": {
+    "description": "Unlock: link under the form that opens Forgot password for the selected wallet."
+  },
+  "deskFpSide": "New password",
+  "@deskFpSide": {
+    "description": "Forgot password: the side panel title of the flow."
+  },
+  "deskFpWordsLead": "Type the recovery phrase of {name}. It sets a new password; the history, notes and labels stay, and nothing is scanned again.",
+  "@deskFpWordsLead": {
+    "description": "Forgot password: lead of the phrase step.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskFpStepPassword": "New password",
+  "@deskFpStepPassword": {
+    "description": "Forgot password: second step's name and title."
+  },
+  "deskFpPasswordLead": "The phrase is checked against {name} before anything changes.",
+  "@deskFpPasswordLead": {
+    "description": "Forgot password: lead of the new-password step.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskFpSave": "Set new password",
+  "@deskFpSave": {
+    "description": "Forgot password: primary button on the new-password step."
+  },
+  "deskFpChanging": "Setting the new password…",
+  "@deskFpChanging": {
+    "description": "Forgot password: progress title and stage."
+  },
+  "deskFpNotChanged": "Password not changed",
+  "@deskFpNotChanged": {
+    "description": "Forgot password: title when it failed."
+  },
+  "deskFpDone": "New password set. Unlock with it.",
+  "@deskFpDone": {
+    "description": "Unlock: green notice after Forgot password set a new password."
+  },
+  "deskFpSameAction": "Set a new password",
+  "@deskFpSameAction": {
+    "description": "Restore > This wallet is already here: button that opens Forgot password with the phrase typed."
+  },
+  "deskOnbSameNoteReset": "Open asks for that wallet's password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.",
+  "@deskOnbSameNoteReset": {
+    "description": "Restore > This wallet is already here: note under the wallet card."
+  },
+  "deskErrResetNoDatabase": "This wallet has no history yet. Delete it and restore it from the phrase instead.",
+  "@deskErrResetNoDatabase": {
+    "description": "Forgot password: error when the wallet folder holds no database to keep."
+  },
+  "deskOnbRestoreName": "Wallet name (optional)",
+  "@deskOnbRestoreName": {
+    "description": "Restore > password step: label of the optional wallet name field."
+  },
+  "deskOnbRestoreNameHint": "e.g. Savings",
+  "@deskOnbRestoreNameHint": {
+    "description": "Restore > password step: hint in the wallet name field."
+  },
+  "deskRsImportOfferTitle": "Import a history backup?",
+  "@deskRsImportOfferTitle": {
+    "description": "Overview: notice title after a wallet was restored from its phrase; offers to import a .wfeh history backup."
+  },
+  "deskRsImportOfferText": "The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.",
+  "@deskRsImportOfferText": {
+    "description": "Overview: notice text of the import offer after a restore."
+  },
+  "deskRsImportOfferAction": "Import a history backup",
+  "@deskRsImportOfferAction": {
+    "description": "Overview: button in the import offer; opens the history backup import."
   }
 }

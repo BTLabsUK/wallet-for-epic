@@ -9,6 +9,7 @@ import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import 'phrase_grid.dart';
+import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'same_wallet_dialog.dart';
 import 'setup_screen.dart' show SetupFirstRun;
 import 'unlock_screen.dart' show UnlockPick;
@@ -40,6 +41,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   static const _sample =
       'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor'; // l10n-ok: sample recovery words
 
+  final _name = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
@@ -92,6 +94,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   void dispose() {
+    _name.dispose();
     _password.dispose();
     _confirm.dispose();
     _fromHeight.dispose();
@@ -143,11 +146,16 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   }
 
   /// "This wallet is already here": Open it goes to Unlock with [wallet] selected (the open
-  /// wallet, if any, is locked first); Cancel leaves the phrase on the grid.
+  /// wallet, if any, is locked first); a new password goes to Forgot password with the phrase
+  /// typed here (R4); Cancel leaves the phrase on the grid.
   Future<void> _offerExisting(WalletEntry wallet) async {
     setState(() => _step = RestoreStep.words);
-    final open = await showSameWalletDialog(context, wallet);
-    if (!open || !mounted) return;
+    final choice = await showSameWalletDialog(context, wallet);
+    if (choice == SameWalletChoice.cancel || !mounted) return;
+    if (choice == SameWalletChoice.newPassword) {
+      ref.read(deskNavProvider.notifier).go(DeskRoute.resetPassword, ResetPasswordArg(wallet.id, phrase: _entry.phrase));
+      return;
+    }
     if (ref.read(deskProvider).account != null) {
       await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
@@ -166,6 +174,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       final api = ref.read(deskApiProvider);
       final before = {for (final w in await api.wallets()) w.id};
       await api.restoreWallet(
+        name: _name.text.trim(),
         password: _password.text,
         phrase: _entry.phrase,
         startHeight: _startHeight,
@@ -246,6 +255,20 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 NetNote(flow.network, l.deskOnbCreateTestNote),
                 SizedBox(height: Sp.x5),
               ],
+              // Optional: without it the wallet is "Wallet N" in the list (R23).
+              EField(
+                label: l.deskOnbRestoreName,
+                child: EInput(
+                  key: const ValueKey('restore-name'),
+                  controller: _name,
+                  hint: l.deskOnbRestoreNameHint,
+                  semanticLabel: l.deskOnbRestoreName,
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [LengthLimitingTextInputFormatter(32)],
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              SizedBox(height: Sp.x5),
               AccountForm(
                 password: _password,
                 confirm: _confirm,

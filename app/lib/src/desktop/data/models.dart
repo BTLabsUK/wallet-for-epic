@@ -752,7 +752,11 @@ class ScanCounts {
 /// and the Overview reminder (F33).
 @immutable
 class HistoryBackupState {
-  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet'});
+  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet', this.importOffer = false});
+
+  /// A wallet restored from its phrase that has not answered "Import a history backup?" yet
+  /// (R13): Overview offers the import, or Not now.
+  final bool importOffer;
 
   /// The last export saved; null: never.
   final DateTime? lastExport;
@@ -857,12 +861,12 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false})
     : _text = null;
 
   /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
   /// [message] keeps its English for logs.
-  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false})
     : message = text(englishStrings),
       _text = text;
 
@@ -873,6 +877,9 @@ class DeskError implements Exception {
   /// The message in [l]'s language; English for an error made with a plain [message].
   String text(AppLocalizations l) => _text?.call(l) ?? message;
   final bool wrongPassword;
+
+  /// Forgot password: the phrase is not this wallet's (another wallet's, or no phrase at all).
+  final bool wrongPhrase;
 
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
   /// flow offers to open it instead.

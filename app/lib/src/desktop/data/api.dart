@@ -105,6 +105,13 @@ abstract interface class DeskWalletApi {
   /// before the password step, so a phrase already here opens that wallet instead.
   Future<WalletEntry?> walletWithPhrase(List<String> words);
 
+  /// Forgot password (R4): [phrase] must be wallet [id]'s own recovery phrase; then its
+  /// password becomes [newPassword]. The history, notes and labels stay, and nothing is scanned
+  /// again. An open [id] is locked first (the core changes only a closed wallet). Another
+  /// wallet's phrase throws a [DeskError] and changes nothing; a remembered password of [id]
+  /// is forgotten.
+  Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword});
+
   /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
   /// with [DeskError.sameWallet] set and makes nothing.
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});
@@ -346,6 +353,10 @@ abstract interface class DeskWalletApi {
 
   /// "Not now" on the reminder, at [when].
   Future<void> dismissHistoryReminder(DateTime when);
+
+  /// "Not now" on the restored wallet's import offer ([HistoryBackupState.importOffer]); an
+  /// import that went in answers it too.
+  Future<void> dismissHistoryImportOffer();
 
   // Invoices over Epicbox (docs/invoices/flow.md on plan/invoices; types in invoices.dart).
   // Everything shows only when [supportsInvoices].
