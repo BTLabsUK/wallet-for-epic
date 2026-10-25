@@ -151,6 +151,14 @@ void main() {
       expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
     });
 
+    testWidgets('Offline with a public node: Direct · File is not held by the node sync, and says it uses the node (LNX-7)', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file, amount: '1', nodeSync: -1), advanced: _offline);
+      // nodeSync -1: the node does not answer, as when Offline stops polling it.
+      expect(find.text('Node not synced'), findsNothing);
+      expect(find.byKey(const ValueKey('file-offline-node')), findsOneWidget);
+      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
+    });
+
     testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
       expect(segment(tester, 'Epicbox').enabled, isFalse);

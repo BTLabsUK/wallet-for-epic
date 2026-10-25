@@ -307,6 +307,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Null while the node is usable; otherwise how far its sync is (0..1), or -1 when it does not answer.
   double? _nodeBlock(DeskState st) {
+    // Offline on a node that is not local: nothing polls it, but a file still runs through it
+    // (the Offline rework), with the note that it does (LNX-7).
+    if (_method == TxMethod.file && deskOfflineUsesNode(st)) return null;
     if (_args.nodeSync != null) return _args.nodeSync;
     final s = st.status;
     if (s == null) return -1;
@@ -1085,6 +1088,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         text: node >= 0 ? l.deskSendNodeSyncingPct((node * 100).round()) : l.deskSendNodeSyncing,
         tone: ETone.warn,
         icon: EIcons.server,
+      );
+    }
+    if (_method == TxMethod.file && deskOfflineUsesNode(st)) {
+      // As Receive and Finalize say it: the file reads and posts through the node in use.
+      return ENotice(
+        key: const ValueKey('file-offline-node'),
+        title: l.advHomeOffline,
+        text: l.netOfflineNodeHint,
+        tone: ETone.info,
+        icon: EIcons.info,
       );
     }
     final way = _torWay(st);
