@@ -214,7 +214,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             SizedBox(height: Sp.x5),
           ],
           if (_error != null) ...[
-            ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? l.deskImpFailedDetail(_detail!.text(l)) : (_error == ImportError.wrongType && _pasted ? l.deskImpWrongTypePasted : _error!.text(l)), tone: ETone.risk, icon: EIcons.error),
+            ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? _failedText(l, _detail!.text(l)) : (_error == ImportError.wrongType && _pasted ? l.deskImpWrongTypePasted : _error!.text(l)), tone: ETone.risk, icon: EIcons.error),
             SizedBox(height: Sp.x5),
           ],
           if (_response != null)
@@ -259,4 +259,12 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       ),
     );
   }
+}
+
+/// Why signing a file failed. An unfinished restore says only that (the file is fine); other
+/// reasons follow the usual lead, without a second full stop.
+String _failedText(AppLocalizations l, String detail) {
+  if (detail == l.deskErrRestoreScanRequired) return detail;
+  final bare = detail.endsWith('.') || detail.endsWith('。') ? detail.substring(0, detail.length - 1) : detail;
+  return l.deskImpFailedDetail(bare);
 }
