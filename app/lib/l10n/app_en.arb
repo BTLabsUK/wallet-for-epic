@@ -12331,7 +12331,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet's password. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it asks for that wallet's password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },
@@ -18879,10 +18879,6 @@
       }
     }
   },
-  "deskSetupSkipSave": "Continue without saving",
-  "@deskSetupSkipSave": {
-    "description": "Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far."
-  },
   "deskSetupResumeLead": "Setup was not finished last time. The wallet reads the chain and sends through an Epic node.",
   "@deskSetupResumeLead": {
     "description": "Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead."
@@ -21514,155 +21510,153 @@
   "@deskInvIssuerToAnyone": {
     "description": "Issuer card title of a payment request saved as a file for anyone (LNX3-10): its own sentence, not deskInvIssuerTo with reqToAnyone."
   },
-  "deskRsRunningTitle": "Searching the chain for this wallet's funds",
-  "@deskRsRunningTitle": {
-    "description": "Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, before it reports a percentage."
+  "deskErrRestoreScanRequired": "Restore not finished. Receiving and sending open when the scan of the chain ends.",
+  "@deskErrRestoreScanRequired": {
+    "description": "Error for the core's RestoreScanRequired on the desktop (Receive, Send, invoices)."
   },
-  "deskRsRunningPercent": "Searching the chain for this wallet's funds · {percent} %",
-  "@deskRsRunningPercent": {
-    "description": "Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, with how far it is.",
+  "deskSetupSkip": "Skip setup",
+  "@deskSetupSkip": {
+    "description": "Footer button on every Setup step; leaves Setup without saving."
+  },
+  "deskOvRestoreTitle": "Restore not finished",
+  "@deskOvRestoreTitle": {
+    "description": "Overview panel title while the core's restore scan from block 0 has not finished."
+  },
+  "deskOvRestoreRunning": "Looking for this wallet's funds on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
+  "@deskOvRestoreRunning": {
+    "description": "Overview panel text while the restore scan runs; a progress bar follows."
+  },
+  "deskOvRestoreAfterHeight": "Funds after block {height} are in. Earlier blocks are being checked; receiving and sending open when that finishes.",
+  "@deskOvRestoreAfterHeight": {
+    "description": "Overview panel text when the restore started from a block height and the earlier blocks are scanned now.",
     "placeholders": {
-      "percent": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOvRestoreWaiting": "The scan waits for the network.",
+  "@deskOvRestoreWaiting": {
+    "description": "Overview panel text while the restore scan cannot run (Offline mode or no node); deskNetOfflineReason may follow."
+  },
+  "deskOvRestoreFailed": "The scan stopped before the end. Receiving and sending stay closed until it finishes.",
+  "@deskOvRestoreFailed": {
+    "description": "Overview panel text after the restore scan failed; Try again follows."
+  },
+  "deskOvRestoreProgress": "Restore scan progress",
+  "@deskOvRestoreProgress": {
+    "description": "Semantics label of the progress bar in the restore panel."
+  },
+  "deskSetRescanRestoreRunning": "The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.",
+  "@deskSetRescanRestoreRunning": {
+    "description": "Recheck page line while the restore scan runs (replaces the generic \"a scan is already running\"); progress follows."
+  },
+  "deskSetRescanStartHeading": "Where to start",
+  "@deskSetRescanStartHeading": {
+    "description": "Heading of the start-choice radio group on the Recheck page."
+  },
+  "deskSetRescanRecent": "Recent blocks",
+  "@deskSetRescanRecent": {
+    "description": "Recheck start choice: from 100 blocks before the last scanned one (default)."
+  },
+  "deskSetRescanRecentHint": "From 100 blocks before the last one scanned. Enough after a failed send or a balance that looks wrong.",
+  "@deskSetRescanRecentHint": {
+    "description": "Hint under Recent blocks."
+  },
+  "deskSetRescanFromHeight": "From a block height",
+  "@deskSetRescanFromHeight": {
+    "description": "Recheck start choice; same text as the phone's settingsRescanFromHeight."
+  },
+  "deskSetRescanHeightInvalid": "Enter a block height of 1 or more.",
+  "@deskSetRescanHeightInvalid": {
+    "description": "Field error for the Recheck start height; same text as the phone's settingsRescanHeightInvalid."
+  },
+  "deskSetRescanWholeChain": "The whole chain",
+  "@deskSetRescanWholeChain": {
+    "description": "Recheck start choice: from block 0; same text as the phone's settingsRescanWholeChain."
+  },
+  "deskSetRescanWholeChainHint": "From the first block. Finds everything and takes long. Also finishes an unfinished restore.",
+  "@deskSetRescanWholeChainHint": {
+    "description": "Hint under The whole chain."
+  },
+  "deskOnbForgotLink": "Forgot password?",
+  "@deskOnbForgotLink": {
+    "description": "Text link on Unlock; opens Set a new password."
+  },
+  "deskOnbForgotTitle": "Set a new password",
+  "@deskOnbForgotTitle": {
+    "description": "Side title of the forgot-password page."
+  },
+  "deskOnbForgotLead": "The recovery phrase of {name} replaces its password. History, notes and labels stay; no scan is needed.",
+  "@deskOnbForgotLead": {
+    "description": "Lead of the phrase step; {name} is the wallet shown on Unlock. ⚠ de \"Labels\": use the word the desktop tx-label feature uses in German.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbForgotPasswordLead": "The phrase checks out. Choose the new password that unlocks this wallet on this computer.",
+  "@deskOnbForgotPasswordLead": {
+    "description": "Lead of the password step."
+  },
+  "deskOnbForgotSet": "Set password",
+  "@deskOnbForgotSet": {
+    "description": "Primary button of the password step."
+  },
+  "deskOnbForgotOtherWallet": "This phrase belongs to another wallet, not to {name}. Nothing was changed.",
+  "@deskOnbForgotOtherWallet": {
+    "description": "Firm error on the grid when the phrase's fingerprint is not the wallet's.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbSameNewPassword": "Set a new password",
+  "@deskOnbSameNewPassword": {
+    "description": "Third button of the \"already here\" dialog; replaces that wallet's password with this phrase."
+  },
+  "deskSetupSkipKeeps": "Skip keeps the node and Epicbox settings as they are.",
+  "@deskSetupSkipKeeps": {
+    "description": "Helper line next to Skip; deskSetupLaterNote follows it."
+  },
+  "deskSetupMarkNotCleared": "Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup leaves it.",
+  "@deskSetupMarkNotCleared": {
+    "description": "Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOvRestoredImportTitle": "Bring back payment details?",
+  "@deskOvRestoredImportTitle": {
+    "description": "Title of the history-backup offer after the first unlock of a restored wallet."
+  },
+  "deskOvRestoredImportBody": "The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.",
+  "@deskOvRestoredImportBody": {
+    "description": "Body of the offer."
+  },
+  "deskOvRestoredImportButton": "Import a history backup",
+  "@deskOvRestoredImportButton": {
+    "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
+  },
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Backup.",
+  "@deskOvRestoredImportLater": {
+    "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
+  },
+  "deskOnbRestoreNameLabel": "Wallet name (optional)",
+  "@deskOnbRestoreNameLabel": {
+    "description": "Label of the name field on the Restore password step."
+  },
+  "deskOnbRestoreNameHelp": "Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet {number}.",
+  "@deskOnbRestoreNameHelp": {
+    "description": "Helper under the name field; {number} is the next free default number. ⚠ Check the app's existing default-name string for the translated \"Wallet {n}\" form and reuse its wording.",
+    "placeholders": {
+      "number": {
         "type": "int"
       }
     }
-  },
-  "deskRsRunningText": "Receiving and sending open when the scan ends. The wallet can stay open meanwhile.",
-  "@deskRsRunningText": {
-    "description": "Overview: small text under the restore scan's progress bar."
-  },
-  "deskRsRunningFromHeight": "From the start height first, then from block 0. Receiving and sending open when both end.",
-  "@deskRsRunningFromHeight": {
-    "description": "Overview: small text under the progress bar while a restore that was given a start height scans from it; the scan from block 0 follows by itself."
-  },
-  "deskRsWaitingTitle": "The restore scan waits for the network",
-  "@deskRsWaitingTitle": {
-    "description": "Overview: notice title when a restored wallet's scan cannot run because the app is Offline."
-  },
-  "deskRsWaitingText": "It starts when Offline is turned off. Until then the balance shows what is on this computer.",
-  "@deskRsWaitingText": {
-    "description": "Overview: notice text when a restored wallet's scan waits for Offline to end."
-  },
-  "deskRsFailedTitle": "The restore scan did not finish",
-  "@deskRsFailedTitle": {
-    "description": "Overview: notice title when the scan a restore needs stopped with an error; also the toast title when Try again fails."
-  },
-  "deskRsFailedText": "Receiving and sending wait for it. It also starts again with the next block.",
-  "@deskRsFailedText": {
-    "description": "Overview: notice text when the restore scan stopped with an error."
-  },
-  "deskRsTryAgain": "Try again",
-  "@deskRsTryAgain": {
-    "description": "Overview: button in the notice when the restore scan stopped; runs it again."
-  },
-  "deskRsSendWaits": "Sending opens when the restore scan ends.",
-  "@deskRsSendWaits": {
-    "description": "Small text under the buttons on Overview while Send is disabled until the restore scan ends."
-  },
-  "deskRsRecheckWaits": "Recheck balance can start when the restore scan has ended.",
-  "@deskRsRecheckWaits": {
-    "description": "Settings > Recheck balance: small text under the disabled Start button while the restore scan runs."
-  },
-  "deskSetRescanFrom": "Start from",
-  "@deskSetRescanFrom": {
-    "description": "Settings > Recheck balance: label of the choice where the scan starts (Advanced > Recheck from a height)."
-  },
-  "deskSetRescanFromRecent": "Recent blocks",
-  "@deskSetRescanFromRecent": {
-    "description": "Settings > Recheck balance: choice that scans from a little before the last scan's end (the default)."
-  },
-  "deskErrRestoreScanRequired": "The restore scan has not finished yet. Receiving and sending open when it ends.",
-  "@deskErrRestoreScanRequired": {
-    "description": "Error when the wallet refuses to receive or send because the scan a restore needs has not finished."
-  },
-  "deskSetupSkip": "Skip for now",
-  "@deskSetupSkip": {
-    "description": "First-run Setup: button on every step that leaves Setup without saving; the stored or default node and Epicbox stay."
-  },
-  "deskSetupMarkStays": "Setup may open again at the next start",
-  "@deskSetupMarkStays": {
-    "description": "First-run Setup: toast title when the app could not note that Setup was done or skipped; the reason follows."
-  },
-  "deskErrPhraseMismatch": "This recovery phrase belongs to another wallet. Nothing was changed.",
-  "@deskErrPhraseMismatch": {
-    "description": "Forgot password: error when the typed phrase is valid but not this wallet's."
-  },
-  "deskFpLink": "Forgot password?",
-  "@deskFpLink": {
-    "description": "Unlock: link under the form that opens Forgot password for the selected wallet."
-  },
-  "deskFpSide": "New password",
-  "@deskFpSide": {
-    "description": "Forgot password: the side panel title of the flow."
-  },
-  "deskFpWordsLead": "Type the recovery phrase of {name}. It sets a new password; the history, notes and labels stay, and nothing is scanned again.",
-  "@deskFpWordsLead": {
-    "description": "Forgot password: lead of the phrase step.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskFpStepPassword": "New password",
-  "@deskFpStepPassword": {
-    "description": "Forgot password: second step's name and title."
-  },
-  "deskFpPasswordLead": "The phrase is checked against {name} before anything changes.",
-  "@deskFpPasswordLead": {
-    "description": "Forgot password: lead of the new-password step.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "deskFpSave": "Set new password",
-  "@deskFpSave": {
-    "description": "Forgot password: primary button on the new-password step."
-  },
-  "deskFpChanging": "Setting the new password…",
-  "@deskFpChanging": {
-    "description": "Forgot password: progress title and stage."
-  },
-  "deskFpNotChanged": "Password not changed",
-  "@deskFpNotChanged": {
-    "description": "Forgot password: title when it failed."
-  },
-  "deskFpDone": "New password set. Unlock with it.",
-  "@deskFpDone": {
-    "description": "Unlock: green notice after Forgot password set a new password."
-  },
-  "deskFpSameAction": "Set a new password",
-  "@deskFpSameAction": {
-    "description": "Restore > This wallet is already here: button that opens Forgot password with the phrase typed."
-  },
-  "deskOnbSameNoteReset": "Open asks for that wallet's password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.",
-  "@deskOnbSameNoteReset": {
-    "description": "Restore > This wallet is already here: note under the wallet card."
-  },
-  "deskErrResetNoDatabase": "This wallet has no history yet. Delete it and restore it from the phrase instead.",
-  "@deskErrResetNoDatabase": {
-    "description": "Forgot password: error when the wallet folder holds no database to keep."
-  },
-  "deskOnbRestoreName": "Wallet name (optional)",
-  "@deskOnbRestoreName": {
-    "description": "Restore > password step: label of the optional wallet name field."
-  },
-  "deskOnbRestoreNameHint": "e.g. Savings",
-  "@deskOnbRestoreNameHint": {
-    "description": "Restore > password step: hint in the wallet name field."
-  },
-  "deskRsImportOfferTitle": "Import a history backup?",
-  "@deskRsImportOfferTitle": {
-    "description": "Overview: notice title after a wallet was restored from its phrase; offers to import a .wfeh history backup."
-  },
-  "deskRsImportOfferText": "The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.",
-  "@deskRsImportOfferText": {
-    "description": "Overview: notice text of the import offer after a restore."
-  },
-  "deskRsImportOfferAction": "Import a history backup",
-  "@deskRsImportOfferAction": {
-    "description": "Overview: button in the import offer; opens the history backup import."
   }
 }

@@ -82,7 +82,7 @@
   "deskOnbSameTitle": "此钱包已在这里",
   "deskOnbSameBody": "此助记词属于列表中的一个钱包。没有添加任何内容。",
   "deskOnbSameWallet": "钱包",
-  "deskOnbSameNote": "“打开”会要求输入该钱包的密码。“取消”会把助记词保留在输入框中。",
+  "deskOnbSameNote": "“打开”会要求输入该钱包的密码。“设置新密码”会用此助记词替换密码。“取消”会把助记词保留在输入框中。",
   "deskOnbSameOpen": "打开",
   "deskOnbUnlockWhoWindows": "使用此 Windows 账户的任何人都能打开此钱包。",
   "deskOnbUnlockWho": "使用此账户的任何人都能打开此钱包。",

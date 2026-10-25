@@ -54,6 +54,19 @@ class _Stops extends MockDeskWallet {
   }
 }
 
+/// The mock, keeping where each scan started.
+class _Starts extends MockDeskWallet {
+  _Starts() : super(delay: const Duration(milliseconds: 10));
+
+  final List<BigInt?> starts = [];
+
+  @override
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) {
+    starts.add(startHeight);
+    return super.rescan(deleteUnconfirmed: deleteUnconfirmed, startHeight: startHeight);
+  }
+}
+
 /// The mock, failing its scan.
 class _Fails extends MockDeskWallet {
   _Fails() : super(delay: const Duration(milliseconds: 10));
@@ -86,6 +99,42 @@ void main() {
       await tester.pump(const Duration(milliseconds: 5));
     }
   }
+
+  testWidgets('R20: the start choices pass recent (no height), a typed height, or the whole chain (0)', (tester) async {
+    final api = _Starts();
+    await pump(tester, api);
+    expect(find.text('Where to start'), findsOneWidget);
+    expect(find.text('Recent blocks'), findsOneWidget);
+    Future<void> start() async {
+      await tester.tap(find.widgetWithText(EButton, 'Start'));
+      await run(tester, const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(EButton, 'Start again'));
+      await tester.pump();
+      await api.stopRescan();
+      await run(tester, const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+    }
+
+    await start();
+    await tester.tap(find.byKey(const ValueKey('rescan-from-height')));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await tester.pump();
+    expect(find.text('Enter a block height of 1 or more.'), findsOneWidget, reason: 'an empty height is refused under the field');
+    await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await run(tester, const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await run(tester, const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expect(api.starts.first, isNull);
+    expect(api.starts.where((h) => h != null), [BigInt.from(2800000), BigInt.zero]);
+  });
 
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
     await pump(tester);

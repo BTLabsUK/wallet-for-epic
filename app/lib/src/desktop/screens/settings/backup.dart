@@ -703,42 +703,36 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
   }
 }
 
-// ---- The import offer of a restored wallet on Overview (R13).
+// ---- The import offer of a restored wallet (R13, copy D6).
 
-/// A wallet restored from its phrase has its funds back but not its notes, senders or labels:
-/// Overview offers the history backup import once (the phone's restore offer), until it is
-/// done or Not now.
-class HistoryImportOffer extends ConsumerWidget {
-  const HistoryImportOffer({super.key});
+/// A wallet restored from its phrase (or rebuilt from a damaged database) has its funds back but
+/// not who was paid, fees or notes: Overview asks once, at the first unlock, whether to import a
+/// history backup. Asked is answered: Not now leaves it to Settings › This wallet › Backup.
+Future<void> showHistoryImportOffer(BuildContext context, WidgetRef ref) async {
+  await ref.read(deskApiProvider).dismissHistoryImportOffer();
+  ref.invalidate(historyBackupProvider);
+  if (!context.mounted) return;
+  final import = await showEDialog<bool>(context, builder: (_) => const HistoryImportOfferDialog()) ?? false;
+  if (import && context.mounted) await showImportHistoryDialog(context);
+}
+
+class HistoryImportOfferDialog extends StatelessWidget {
+  const HistoryImportOfferDialog({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l = context.l10n;
-    Future<void> answered() async {
-      await ref.read(deskApiProvider).dismissHistoryImportOffer();
-      ref.invalidate(historyBackupProvider);
-    }
-
-    return LayoutBuilder(builder: (context, box) => ENotice(
+    return EDialog(
       key: const ValueKey('history-import-offer'),
+      title: l.deskOvRestoredImportTitle,
+      description: l.deskOvRestoredImportBody,
       icon: EIcons.archive,
-      title: l.deskRsImportOfferTitle,
-      text: l.deskRsImportOfferText,
-      actionsBelow: box.maxWidth < 640.u,
+      body: Text(l.deskOvRestoredImportLater, style: context.ts.small),
       actions: [
-        EButton.ghost(label: l.deskSetBackupNotNow, size: EBtnSize.inline, onPressed: answered),
-        EButton(
-          label: l.deskRsImportOfferAction,
-          icon: EIcons.upload,
-          size: EBtnSize.inline,
-          onPressed: () async {
-            // An import that went in answers the offer (LepicDeskWallet.importHistory).
-            await showImportHistoryDialog(context);
-            ref.invalidate(historyBackupProvider);
-          },
-        ),
+        EButton.ghost(label: l.deskSetBackupNotNow, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(label: l.deskOvRestoredImportButton, icon: EIcons.upload, onPressed: () => Navigator.pop(context, true)),
       ],
-    ));
+    );
   }
 }
 

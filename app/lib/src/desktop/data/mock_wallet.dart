@@ -195,7 +195,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> resetPassword(String id, {required List<String> phrase, required String newPassword}) async {
     await _wait(3);
-    if (phrase.firstOrNull == 'legal') throw const DeskError('This recovery phrase belongs to another wallet. Nothing was changed.', wrongPhrase: true);
+    if (phrase.firstOrNull == 'legal') throw const DeskError('This phrase belongs to another wallet. Nothing was changed.', wrongPhrase: true);
     _remembered.remove(id);
     _current = id;
   }

@@ -60,12 +60,12 @@ class SameWalletDialog extends StatelessWidget {
             ),
           ),
           SizedBox(height: Sp.x3),
-          Text(l.deskOnbSameNoteReset, style: ts.small),
+          Text(l.deskOnbSameNote, style: ts.small),
         ],
       ),
       actions: [
         EButton.ghost(label: l.commonCancel, onPressed: () => Navigator.pop(context, SameWalletChoice.cancel)),
-        EButton(key: const ValueKey('same-wallet-new-password'), label: l.deskFpSameAction, onPressed: () => Navigator.pop(context, SameWalletChoice.newPassword)),
+        EButton(key: const ValueKey('same-wallet-new-password'), label: l.deskOnbSameNewPassword, onPressed: () => Navigator.pop(context, SameWalletChoice.newPassword)),
         EButton.primary(label: l.deskOnbSameOpen, onPressed: () => Navigator.pop(context, SameWalletChoice.open)),
       ],
     );

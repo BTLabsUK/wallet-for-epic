@@ -14940,7 +14940,7 @@ abstract class AppLocalizations {
   /// Note in that dialog. 'Open it' and 'Cancel' are the two buttons below.
   ///
   /// In en, this message translates to:
-  /// **'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.'**
+  /// **'Open it asks for that wallet\'s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.'**
   String get deskOnbSameNote;
 
   /// Primary button of that dialog: go to the existing wallet's unlock. Short.
@@ -22784,12 +22784,6 @@ abstract class AppLocalizations {
   /// **'{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.'**
   String deskSetupSaveFailedText(String reason);
 
-  /// Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue without saving'**
-  String get deskSetupSkipSave;
-
   /// Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead.
   ///
   /// In en, this message translates to:
@@ -25508,209 +25502,191 @@ abstract class AppLocalizations {
   /// **'Invoice for anyone with the file'**
   String get deskInvIssuerToAnyone;
 
-  /// Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, before it reports a percentage.
+  /// Error for the core's RestoreScanRequired on the desktop (Receive, Send, invoices).
   ///
   /// In en, this message translates to:
-  /// **'Searching the chain for this wallet\'s funds'**
-  String get deskRsRunningTitle;
+  /// **'Restore not finished. Receiving and sending open when the scan of the chain ends.'**
+  String get deskErrRestoreScanRequired;
 
-  /// Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, with how far it is.
+  /// Footer button on every Setup step; leaves Setup without saving.
   ///
   /// In en, this message translates to:
-  /// **'Searching the chain for this wallet\'s funds · {percent} %'**
-  String deskRsRunningPercent(int percent);
+  /// **'Skip setup'**
+  String get deskSetupSkip;
 
-  /// Overview: small text under the restore scan's progress bar.
+  /// Overview panel title while the core's restore scan from block 0 has not finished.
   ///
   /// In en, this message translates to:
-  /// **'Receiving and sending open when the scan ends. The wallet can stay open meanwhile.'**
-  String get deskRsRunningText;
+  /// **'Restore not finished'**
+  String get deskOvRestoreTitle;
 
-  /// Overview: small text under the progress bar while a restore that was given a start height scans from it; the scan from block 0 follows by itself.
+  /// Overview panel text while the restore scan runs; a progress bar follows.
   ///
   /// In en, this message translates to:
-  /// **'From the start height first, then from block 0. Receiving and sending open when both end.'**
-  String get deskRsRunningFromHeight;
+  /// **'Looking for this wallet\'s funds on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.'**
+  String get deskOvRestoreRunning;
 
-  /// Overview: notice title when a restored wallet's scan cannot run because the app is Offline.
+  /// Overview panel text when the restore started from a block height and the earlier blocks are scanned now.
   ///
   /// In en, this message translates to:
-  /// **'The restore scan waits for the network'**
-  String get deskRsWaitingTitle;
+  /// **'Funds after block {height} are in. Earlier blocks are being checked; receiving and sending open when that finishes.'**
+  String deskOvRestoreAfterHeight(String height);
 
-  /// Overview: notice text when a restored wallet's scan waits for Offline to end.
+  /// Overview panel text while the restore scan cannot run (Offline mode or no node); deskNetOfflineReason may follow.
   ///
   /// In en, this message translates to:
-  /// **'It starts when Offline is turned off. Until then the balance shows what is on this computer.'**
-  String get deskRsWaitingText;
+  /// **'The scan waits for the network.'**
+  String get deskOvRestoreWaiting;
 
-  /// Overview: notice title when the scan a restore needs stopped with an error; also the toast title when Try again fails.
+  /// Overview panel text after the restore scan failed; Try again follows.
   ///
   /// In en, this message translates to:
-  /// **'The restore scan did not finish'**
-  String get deskRsFailedTitle;
+  /// **'The scan stopped before the end. Receiving and sending stay closed until it finishes.'**
+  String get deskOvRestoreFailed;
 
-  /// Overview: notice text when the restore scan stopped with an error.
+  /// Semantics label of the progress bar in the restore panel.
   ///
   /// In en, this message translates to:
-  /// **'Receiving and sending wait for it. It also starts again with the next block.'**
-  String get deskRsFailedText;
+  /// **'Restore scan progress'**
+  String get deskOvRestoreProgress;
 
-  /// Overview: button in the notice when the restore scan stopped; runs it again.
+  /// Recheck page line while the restore scan runs (replaces the generic "a scan is already running"); progress follows.
   ///
   /// In en, this message translates to:
-  /// **'Try again'**
-  String get deskRsTryAgain;
+  /// **'The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.'**
+  String get deskSetRescanRestoreRunning;
 
-  /// Small text under the buttons on Overview while Send is disabled until the restore scan ends.
+  /// Heading of the start-choice radio group on the Recheck page.
   ///
   /// In en, this message translates to:
-  /// **'Sending opens when the restore scan ends.'**
-  String get deskRsSendWaits;
+  /// **'Where to start'**
+  String get deskSetRescanStartHeading;
 
-  /// Settings > Recheck balance: small text under the disabled Start button while the restore scan runs.
-  ///
-  /// In en, this message translates to:
-  /// **'Recheck balance can start when the restore scan has ended.'**
-  String get deskRsRecheckWaits;
-
-  /// Settings > Recheck balance: label of the choice where the scan starts (Advanced > Recheck from a height).
-  ///
-  /// In en, this message translates to:
-  /// **'Start from'**
-  String get deskSetRescanFrom;
-
-  /// Settings > Recheck balance: choice that scans from a little before the last scan's end (the default).
+  /// Recheck start choice: from 100 blocks before the last scanned one (default).
   ///
   /// In en, this message translates to:
   /// **'Recent blocks'**
-  String get deskSetRescanFromRecent;
+  String get deskSetRescanRecent;
 
-  /// Error when the wallet refuses to receive or send because the scan a restore needs has not finished.
+  /// Hint under Recent blocks.
   ///
   /// In en, this message translates to:
-  /// **'The restore scan has not finished yet. Receiving and sending open when it ends.'**
-  String get deskErrRestoreScanRequired;
+  /// **'From 100 blocks before the last one scanned. Enough after a failed send or a balance that looks wrong.'**
+  String get deskSetRescanRecentHint;
 
-  /// First-run Setup: button on every step that leaves Setup without saving; the stored or default node and Epicbox stay.
+  /// Recheck start choice; same text as the phone's settingsRescanFromHeight.
   ///
   /// In en, this message translates to:
-  /// **'Skip for now'**
-  String get deskSetupSkip;
+  /// **'From a block height'**
+  String get deskSetRescanFromHeight;
 
-  /// First-run Setup: toast title when the app could not note that Setup was done or skipped; the reason follows.
+  /// Field error for the Recheck start height; same text as the phone's settingsRescanHeightInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Setup may open again at the next start'**
-  String get deskSetupMarkStays;
+  /// **'Enter a block height of 1 or more.'**
+  String get deskSetRescanHeightInvalid;
 
-  /// Forgot password: error when the typed phrase is valid but not this wallet's.
+  /// Recheck start choice: from block 0; same text as the phone's settingsRescanWholeChain.
   ///
   /// In en, this message translates to:
-  /// **'This recovery phrase belongs to another wallet. Nothing was changed.'**
-  String get deskErrPhraseMismatch;
+  /// **'The whole chain'**
+  String get deskSetRescanWholeChain;
 
-  /// Unlock: link under the form that opens Forgot password for the selected wallet.
+  /// Hint under The whole chain.
+  ///
+  /// In en, this message translates to:
+  /// **'From the first block. Finds everything and takes long. Also finishes an unfinished restore.'**
+  String get deskSetRescanWholeChainHint;
+
+  /// Text link on Unlock; opens Set a new password.
   ///
   /// In en, this message translates to:
   /// **'Forgot password?'**
-  String get deskFpLink;
+  String get deskOnbForgotLink;
 
-  /// Forgot password: the side panel title of the flow.
-  ///
-  /// In en, this message translates to:
-  /// **'New password'**
-  String get deskFpSide;
-
-  /// Forgot password: lead of the phrase step.
-  ///
-  /// In en, this message translates to:
-  /// **'Type the recovery phrase of {name}. It sets a new password; the history, notes and labels stay, and nothing is scanned again.'**
-  String deskFpWordsLead(String name);
-
-  /// Forgot password: second step's name and title.
-  ///
-  /// In en, this message translates to:
-  /// **'New password'**
-  String get deskFpStepPassword;
-
-  /// Forgot password: lead of the new-password step.
-  ///
-  /// In en, this message translates to:
-  /// **'The phrase is checked against {name} before anything changes.'**
-  String deskFpPasswordLead(String name);
-
-  /// Forgot password: primary button on the new-password step.
-  ///
-  /// In en, this message translates to:
-  /// **'Set new password'**
-  String get deskFpSave;
-
-  /// Forgot password: progress title and stage.
-  ///
-  /// In en, this message translates to:
-  /// **'Setting the new password…'**
-  String get deskFpChanging;
-
-  /// Forgot password: title when it failed.
-  ///
-  /// In en, this message translates to:
-  /// **'Password not changed'**
-  String get deskFpNotChanged;
-
-  /// Unlock: green notice after Forgot password set a new password.
-  ///
-  /// In en, this message translates to:
-  /// **'New password set. Unlock with it.'**
-  String get deskFpDone;
-
-  /// Restore > This wallet is already here: button that opens Forgot password with the phrase typed.
+  /// Side title of the forgot-password page.
   ///
   /// In en, this message translates to:
   /// **'Set a new password'**
-  String get deskFpSameAction;
+  String get deskOnbForgotTitle;
 
-  /// Restore > This wallet is already here: note under the wallet card.
+  /// Lead of the phrase step; {name} is the wallet shown on Unlock. ⚠ de "Labels": use the word the desktop tx-label feature uses in German.
   ///
   /// In en, this message translates to:
-  /// **'Open asks for that wallet\'s password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.'**
-  String get deskOnbSameNoteReset;
+  /// **'The recovery phrase of {name} replaces its password. History, notes and labels stay; no scan is needed.'**
+  String deskOnbForgotLead(String name);
 
-  /// Forgot password: error when the wallet folder holds no database to keep.
+  /// Lead of the password step.
   ///
   /// In en, this message translates to:
-  /// **'This wallet has no history yet. Delete it and restore it from the phrase instead.'**
-  String get deskErrResetNoDatabase;
+  /// **'The phrase checks out. Choose the new password that unlocks this wallet on this computer.'**
+  String get deskOnbForgotPasswordLead;
 
-  /// Restore > password step: label of the optional wallet name field.
+  /// Primary button of the password step.
   ///
   /// In en, this message translates to:
-  /// **'Wallet name (optional)'**
-  String get deskOnbRestoreName;
+  /// **'Set password'**
+  String get deskOnbForgotSet;
 
-  /// Restore > password step: hint in the wallet name field.
+  /// Firm error on the grid when the phrase's fingerprint is not the wallet's.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Savings'**
-  String get deskOnbRestoreNameHint;
+  /// **'This phrase belongs to another wallet, not to {name}. Nothing was changed.'**
+  String deskOnbForgotOtherWallet(String name);
 
-  /// Overview: notice title after a wallet was restored from its phrase; offers to import a .wfeh history backup.
+  /// Third button of the "already here" dialog; replaces that wallet's password with this phrase.
   ///
   /// In en, this message translates to:
-  /// **'Import a history backup?'**
-  String get deskRsImportOfferTitle;
+  /// **'Set a new password'**
+  String get deskOnbSameNewPassword;
 
-  /// Overview: notice text of the import offer after a restore.
+  /// Helper line next to Skip; deskSetupLaterNote follows it.
   ///
   /// In en, this message translates to:
-  /// **'The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.'**
-  String get deskRsImportOfferText;
+  /// **'Skip keeps the node and Epicbox settings as they are.'**
+  String get deskSetupSkipKeeps;
 
-  /// Overview: button in the import offer; opens the history backup import.
+  /// Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup leaves it.'**
+  String deskSetupMarkNotCleared(String reason);
+
+  /// Title of the history-backup offer after the first unlock of a restored wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring back payment details?'**
+  String get deskOvRestoredImportTitle;
+
+  /// Body of the offer.
+  ///
+  /// In en, this message translates to:
+  /// **'The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.'**
+  String get deskOvRestoredImportBody;
+
+  /// Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton.
   ///
   /// In en, this message translates to:
   /// **'Import a history backup'**
-  String get deskRsImportOfferAction;
+  String get deskOvRestoredImportButton;
+
+  /// Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Later under Settings › This wallet › Backup.'**
+  String get deskOvRestoredImportLater;
+
+  /// Label of the name field on the Restore password step.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name (optional)'**
+  String get deskOnbRestoreNameLabel;
+
+  /// Helper under the name field; {number} is the next free default number. ⚠ Check the app's existing default-name string for the translated "Wallet {n}" form and reuse its wording.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet {number}.'**
+  String deskOnbRestoreNameHelp(int number);
 }
 
 class _AppLocalizationsDelegate

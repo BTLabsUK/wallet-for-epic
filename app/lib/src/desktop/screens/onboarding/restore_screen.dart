@@ -77,6 +77,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         _entry.paste(sample.text);
       }
     }
+    _loadNames();
     switch (_step) {
       case RestoreStep.wordsFilled:
         _entry.paste(_sample);
@@ -101,6 +102,22 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     _entry.removeListener(_onEntry);
     _entry.dispose();
     super.dispose();
+  }
+
+  /// The N of the "Wallet N" an unnamed restore gets: the first one no listed wallet has.
+  int _nextNumber = 1;
+
+  Future<void> _loadNames() async {
+    try {
+      final names = {for (final w in await ref.read(deskApiProvider).wallets()) w.name};
+      var n = 1;
+      while (names.contains('Wallet $n')) { // l10n-ok: the stored default name
+        n++;
+      }
+      if (mounted) setState(() => _nextNumber = n);
+    } on Object {
+      // The help keeps 1.
+    }
   }
 
   bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text && _fromHeightOk;
@@ -257,12 +274,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               ],
               // Optional: without it the wallet is "Wallet N" in the list (R23).
               EField(
-                label: l.deskOnbRestoreName,
+                label: l.deskOnbRestoreNameLabel,
+                help: l.deskOnbRestoreNameHelp(_nextNumber),
                 child: EInput(
                   key: const ValueKey('restore-name'),
                   controller: _name,
-                  hint: l.deskOnbRestoreNameHint,
-                  semanticLabel: l.deskOnbRestoreName,
+                  semanticLabel: l.deskOnbRestoreNameLabel,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [LengthLimitingTextInputFormatter(32)],
                   onChanged: (_) => setState(() {}),

@@ -10,7 +10,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
-import '../wallet/restore_scan_panel.dart';
+import '../wallet/restore_scan_panel.dart' show RestoreScanProgress;
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
@@ -99,7 +99,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       case _From.height:
         final h = BigInt.tryParse(_height.text.trim());
         if (h == null || h < BigInt.one) {
-          setState(() => _heightError = l.settingsRescanHeightInvalid);
+          setState(() => _heightError = l.deskSetRescanHeightInvalid);
           return (start: null, ok: false);
         }
         return (start: h, ok: true);
@@ -201,7 +201,6 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (restoreRuns) ...[RestoreScanPanel(scan: restore!), SizedBox(height: Sp.x4)],
           ESetGroup(
             title: l.deskSetFrameRescan,
             rows: [
@@ -214,45 +213,57 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (reason != null) Text(reason, key: const ValueKey('rescan-net-blocked'), style: ts.small),
-                            if (restoreRuns) Text(l.deskRsRecheckWaits, key: const ValueKey('rescan-restore-runs'), style: ts.small),
-                            if (choice) ...[
+                            if (restoreRuns) ...[
+                              Text(l.deskSetRescanRestoreRunning, key: const ValueKey('rescan-restore-runs'), style: ts.small),
                               SizedBox(height: Sp.x2),
-                              EField(
-                                label: l.deskSetRescanFrom,
-                                child: ESegmented<_From>(
-                                  key: const ValueKey('rescan-from'),
-                                  segments: [
-                                    ESegment(_From.recent, l.deskSetRescanFromRecent),
-                                    ESegment(_From.wholeChain, l.settingsRescanWholeChain),
-                                    ESegment(_From.height, l.settingsRescanFromHeight),
-                                  ],
-                                  value: _from,
-                                  onChanged: (v) => setState(() {
-                                    _from = v;
+                              RestoreScanProgress(percent: restore!.percent),
+                            ],
+                            if (choice) ...[
+                              SizedBox(height: Sp.x3),
+                              Semantics(header: true, child: Text(l.deskSetRescanStartHeading, style: ts.label)),
+                              SizedBox(height: Sp.x2),
+                              // One choice, as radio buttons are (EChoiceCard is a mutually exclusive group).
+                              for (final (from, title, hint) in [
+                                (_From.recent, l.deskSetRescanRecent, l.deskSetRescanRecentHint),
+                                (_From.height, l.deskSetRescanFromHeight, null),
+                                (_From.wholeChain, l.deskSetRescanWholeChain, l.deskSetRescanWholeChainHint),
+                              ]) ...[
+                                EChoiceCard(
+                                  key: ValueKey('rescan-from-${from.name}'),
+                                  title: title,
+                                  description: hint,
+                                  selected: _from == from,
+                                  onTap: () => setState(() {
+                                    _from = from;
                                     _heightError = null;
                                   }),
                                 ),
-                              ),
-                              if (_from == _From.height) ...[
-                                SizedBox(height: Sp.x3),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: 240.u),
-                                  child: EField(
-                                    label: l.settingsRescanStartHeight,
-                                    error: _heightError,
-                                    child: EInput(
-                                      key: const ValueKey('rescan-height'),
-                                      controller: _height,
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                      invalid: _heightError != null,
-                                      onChanged: (_) => setState(() => _heightError = null),
-                                      onSubmitted: (_) => _start(),
+                                if (from == _From.height && _from == _From.height)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: Sp.x2, left: Sp.x4),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(maxWidth: 240.u),
+                                      child: EField(
+                                        label: l.deskOnbRestoreFromLabel,
+                                        error: _heightError,
+                                        child: EInput(
+                                          key: const ValueKey('rescan-height'),
+                                          controller: _height,
+                                          mono: true,
+                                          autofocus: true,
+                                          semanticLabel: l.deskOnbRestoreFromLabel,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                          invalid: _heightError != null,
+                                          onChanged: (_) => setState(() => _heightError = null),
+                                          onSubmitted: (_) => _start(),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                SizedBox(height: Sp.x2),
                               ],
-                              SizedBox(height: Sp.x3),
+                              SizedBox(height: Sp.x2),
                             ],
                             if (DeskFeatures.rescanRepair && choice) ...[
                             ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),

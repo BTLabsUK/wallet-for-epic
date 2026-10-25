@@ -354,7 +354,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         alternatives: [
           // The wallet's phrase sets a new password (R4).
           if (selected != null && !selected.missing)
-            ELink(key: const ValueKey('unlock-forgot'), label: l.deskFpLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
+            ELink(key: const ValueKey('unlock-forgot'), label: l.deskOnbForgotLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
           if (DeskFeatures.multiWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(

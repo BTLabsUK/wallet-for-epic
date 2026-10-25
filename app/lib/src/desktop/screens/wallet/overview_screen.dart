@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +11,7 @@ import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
-import '../settings/backup.dart' show HistoryImportOffer, HistoryReminder, historyBackupProvider;
+import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
@@ -40,6 +42,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _restarting = false;
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
+
+  /// The history import offer was asked on this Overview (R13).
+  bool _importOffered = false;
 
   /// Asks the node now, as 6.1.6's refresh does; says so when it could not.
   Future<void> _refresh() async {
@@ -93,10 +98,16 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
+    // A restored wallet's first unlock asks once about its history backup (R13).
+    if (demo == null && !_importOffered && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
+      _importOffered = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(showHistoryImportOffer(context, ref));
+      });
+    }
     final notices = <Widget>[
       if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
-      if (ref.watch(historyBackupProvider).value case final backup? when backup.importOffer) const HistoryImportOffer(),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       if (starting) const _Steps(),
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
@@ -174,8 +185,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               updating: !offline && (starting || syncing || loading || walletSync),
               offline: offline,
               asOfBlock: syncing ? _walletTip : null,
-              sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem || restore != null,
-              restoring: restore != null,
+              sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
             ),
           ),
           SizedBox(height: Sp.x2),
@@ -282,7 +292,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.restoring = false, this.offline = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.offline = false});
 
   final Balance? balance;
   final bool empty;
@@ -294,9 +304,6 @@ class _BalancePanel extends ConsumerWidget {
 
   /// The node is not synced: Send waits, and says why.
   final bool sendBlocked;
-
-  /// A restore's scan has not ended: Send waits for it, and says so.
-  final bool restoring;
 
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
@@ -335,7 +342,7 @@ class _BalancePanel extends ConsumerWidget {
           SizedBox(height: Sp.x2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 240.u),
-            child: Text(restoring ? l.deskRsSendWaits : l.deskOvSendWaits, style: ts.small),
+            child: Text(l.deskOvSendWaits, style: ts.small),
           ),
         ],
       ],

@@ -672,22 +672,25 @@ class ServiceStatus {
 }
 
 /// Where the scan a restore owes stands ([ServiceStatus.restoreScan]): it runs (or is about to),
-/// it waits for the network (Offline), or it stopped with an error or did not finish and waits
-/// for Try again ([DeskWalletApi.syncNow]).
+/// it waits for the network (Offline, or the node does not answer), or it stopped with an error
+/// or did not finish and waits for Try again ([DeskWalletApi.syncNow]).
 enum RestoreScanState { running, waiting, failed }
 
 @immutable
 class RestoreScan {
-  const RestoreScan(this.state, {this.percent, this.fromHeight = false});
+  const RestoreScan(this.state, {this.percent, this.fromHeight, this.offline = false});
 
   final RestoreScanState state;
 
   /// 0 to 100 while it runs and the core has said how far; null otherwise.
   final int? percent;
 
-  /// The scan running now starts at the height typed at Restore; the scan from block 0 follows
-  /// by itself.
-  final bool fromHeight;
+  /// The height typed at Restore, while the scan from block 0 the core still owes runs after the
+  /// scan from it ended (copy D1: "Funds after block N are in"); null otherwise.
+  final int? fromHeight;
+
+  /// It waits because Offline mode is on (not for a node that does not answer).
+  final bool offline;
 }
 
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).

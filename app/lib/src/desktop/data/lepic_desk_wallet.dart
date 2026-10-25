@@ -138,7 +138,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
     core.WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
-    core.WalletErrorKind.phraseMismatch => l.deskErrPhraseMismatch,
+    core.WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -1001,7 +1001,7 @@ class LepicDeskWallet implements DeskWalletApi {
       logWarn('desk', 'wallet database damaged; rebuilding');
       _notice = deskStrings.deskErrDbDamaged;
       // A rebuild scans the whole chain: never from a start height kept since a restore (R21).
-      await _setMeta({'scanPending': true, 'scanFrom': null}, metaKey);
+      await _setMeta({'scanPending': true, 'scanFrom': null, 'historyOffer': true}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
       } on core.WalletError catch (e2) {
@@ -1015,6 +1015,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // app was closed before the scan-due note was written (R6).
     _restoreFailed = false;
     _restoreUnfinished = false;
+    _dueAfterHeight = null;
     _restoreDue = await _restoreFlag(session) || (await _meta(metaKey))['scanPending'] == true;
     await _routeEpicbox(session);
     if (!NetGate.offline) unawaited(_resendUndelivered(session));
@@ -1460,8 +1461,7 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'password reset: ${e.kind.name}');
         throw switch (e.kind) {
           core.WalletErrorKind.invalidArgument => DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength)),
-          core.WalletErrorKind.walletNotFound => DeskError.l10n((l) => l.deskErrResetNoDatabase),
-          core.WalletErrorKind.phraseMismatch => DeskError.l10n((l) => l.deskErrPhraseMismatch, wrongPhrase: true),
+          core.WalletErrorKind.phraseMismatch => DeskError.l10n((l) => l.deskOnbForgotOtherWallet(entry.label), wrongPhrase: true),
           core.WalletErrorKind.invalidMnemonic => DeskError.l10n((l) => l.deskErrPhraseInvalid, wrongPhrase: true),
           _ => _deskError(e),
         };
@@ -1814,7 +1814,6 @@ class LepicDeskWallet implements DeskWalletApi {
         while (true) {
           var finished = false;
           _scanningDue = true;
-          _dueFromHeight = start != null;
           _duePercent = null;
           _changed();
           try {
@@ -1835,7 +1834,6 @@ class LepicDeskWallet implements DeskWalletApi {
             logInfo('desk', 'due scan skipped: a scan is already running');
           } finally {
             _scanningDue = false;
-            _dueFromHeight = false;
           }
           if (_session != session) return;
           // A scan stopped before its end stays due.
@@ -1849,6 +1847,8 @@ class LepicDeskWallet implements DeskWalletApi {
             _restoreUnfinished = true;
             break;
           }
+          // The funds after the typed height are in; the earlier blocks come now.
+          _dueAfterHeight = start.toInt();
           start = null;
         }
       }
@@ -3865,9 +3865,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// unlock and after every scan.
   bool _restoreDue = false;
 
-  /// The due scan running now starts at Restore's height, and how far it is.
-  bool _dueFromHeight = false;
+  /// How far the due scan running now is, and the height a restore scanned from before it.
   int? _duePercent;
+  int? _dueAfterHeight;
 
   /// The due scan stopped with an error; Try again ([syncNow]) runs it again.
   bool _restoreFailed = false;
@@ -3893,16 +3893,18 @@ class LepicDeskWallet implements DeskWalletApi {
     await _setMeta({'scanPending': false, 'scanFrom': null}, key);
     _notice = null;
     _restoreDue = await _restoreFlag(session);
+    if (!_restoreDue) _dueAfterHeight = null;
   }
 
   /// [ServiceStatus.restoreScan].
   RestoreScan? get _restoreView {
     if (_session == null) return null;
-    if (_scanningDue) return RestoreScan(RestoreScanState.running, percent: _duePercent, fromHeight: _dueFromHeight);
+    if (_scanningDue) return RestoreScan(RestoreScanState.running, percent: _duePercent, fromHeight: _dueAfterHeight);
     if (!_restoreDue) return null;
-    if (_nodeOff) return const RestoreScan(RestoreScanState.waiting);
+    if (_nodeOff) return const RestoreScan(RestoreScanState.waiting, offline: true);
+    if (_restoreFailed && _nodeHealth == ServiceHealth.down) return const RestoreScan(RestoreScanState.waiting);
     if (_restoreFailed || _restoreUnfinished) return const RestoreScan(RestoreScanState.failed);
-    return const RestoreScan(RestoreScanState.running);
+    return RestoreScan(RestoreScanState.running, fromHeight: _dueAfterHeight);
   }
   bool _rescanStopAsked = false;
   Completer<void>? _rescanEnded;

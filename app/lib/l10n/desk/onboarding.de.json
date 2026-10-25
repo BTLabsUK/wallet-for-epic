@@ -82,7 +82,7 @@
   "deskOnbSameTitle": "Diese Wallet ist schon vorhanden",
   "deskOnbSameBody": "Die Phrase gehört zu einer Wallet in der Liste. Es wurde nichts hinzugefügt.",
   "deskOnbSameWallet": "Wallet",
-  "deskOnbSameNote": "„Öffnen“ fragt nach dem Passwort dieser Wallet. „Abbrechen“ lässt die Phrase im Raster.",
+  "deskOnbSameNote": "„Öffnen“ fragt nach dem Passwort dieser Wallet. „Neues Passwort festlegen“ ersetzt es mit dieser Phrase. „Abbrechen“ lässt die Phrase im Raster.",
   "deskOnbSameOpen": "Öffnen",
   "deskOnbUnlockWhoWindows": "Jeder, der dieses Windows-Konto nutzt, kann diese Wallet öffnen.",
   "deskOnbUnlockWho": "Jeder, der dieses Benutzerkonto nutzt, kann diese Wallet öffnen.",

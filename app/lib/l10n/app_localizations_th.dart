@@ -9283,7 +9283,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'เปิดกระเป๋าเงิน จะถามรหัสผ่านของกระเป๋าเงินนั้น ยกเลิก จะเก็บวลีไว้ในตาราง';
+      'เปิดกระเป๋าเงิน จะถามรหัสผ่านของกระเป๋าเงินนั้น ตั้งรหัสผ่านใหม่ จะใช้วลีนี้แทนรหัสผ่าน ยกเลิก จะเก็บวลีไว้ในตาราง';
 
   @override
   String get deskOnbSameOpen => 'เปิดกระเป๋าเงิน';
@@ -14103,9 +14103,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetupSkipSave => 'ดำเนินการต่อโดยไม่บันทึก';
-
-  @override
   String get deskSetupResumeLead =>
       'การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic';
 
@@ -15934,121 +15931,115 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvIssuerToAnyone => 'ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์';
 
   @override
-  String get deskRsRunningTitle =>
-      'Searching the chain for this wallet\'s funds';
-
-  @override
-  String deskRsRunningPercent(int percent) {
-    return 'Searching the chain for this wallet\'s funds · $percent %';
-  }
-
-  @override
-  String get deskRsRunningText =>
-      'Receiving and sending open when the scan ends. The wallet can stay open meanwhile.';
-
-  @override
-  String get deskRsRunningFromHeight =>
-      'From the start height first, then from block 0. Receiving and sending open when both end.';
-
-  @override
-  String get deskRsWaitingTitle => 'The restore scan waits for the network';
-
-  @override
-  String get deskRsWaitingText =>
-      'It starts when Offline is turned off. Until then the balance shows what is on this computer.';
-
-  @override
-  String get deskRsFailedTitle => 'The restore scan did not finish';
-
-  @override
-  String get deskRsFailedText =>
-      'Receiving and sending wait for it. It also starts again with the next block.';
-
-  @override
-  String get deskRsTryAgain => 'Try again';
-
-  @override
-  String get deskRsSendWaits => 'Sending opens when the restore scan ends.';
-
-  @override
-  String get deskRsRecheckWaits =>
-      'Recheck balance can start when the restore scan has ended.';
-
-  @override
-  String get deskSetRescanFrom => 'Start from';
-
-  @override
-  String get deskSetRescanFromRecent => 'Recent blocks';
-
-  @override
   String get deskErrRestoreScanRequired =>
-      'The restore scan has not finished yet. Receiving and sending open when it ends.';
+      'การกู้คืนยังไม่เสร็จ เมื่อสแกนบล็อกเชนเสร็จจึงรับและส่งได้';
 
   @override
-  String get deskSetupSkip => 'Skip for now';
+  String get deskSetupSkip => 'ข้ามการตั้งค่า';
 
   @override
-  String get deskSetupMarkStays => 'Setup may open again at the next start';
+  String get deskOvRestoreTitle => 'การกู้คืนยังไม่เสร็จ';
 
   @override
-  String get deskErrPhraseMismatch =>
-      'This recovery phrase belongs to another wallet. Nothing was changed.';
+  String get deskOvRestoreRunning =>
+      'กำลังค้นหายอดเงินของกระเป๋านี้บนบล็อกเชนตั้งแต่บล็อกแรก EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
 
   @override
-  String get deskFpLink => 'Forgot password?';
-
-  @override
-  String get deskFpSide => 'New password';
-
-  @override
-  String deskFpWordsLead(String name) {
-    return 'Type the recovery phrase of $name. It sets a new password; the history, notes and labels stay, and nothing is scanned again.';
+  String deskOvRestoreAfterHeight(String height) {
+    return 'พบยอดเงินหลังบล็อก $height แล้ว กำลังตรวจบล็อกก่อนหน้า เมื่อเสร็จจึงรับและส่งได้';
   }
 
   @override
-  String get deskFpStepPassword => 'New password';
+  String get deskOvRestoreWaiting => 'การสแกนรอการเชื่อมต่อเครือข่าย';
 
   @override
-  String deskFpPasswordLead(String name) {
-    return 'The phrase is checked against $name before anything changes.';
+  String get deskOvRestoreFailed =>
+      'การสแกนหยุดก่อนจบ รับและส่งไม่ได้จนกว่าจะสแกนเสร็จ';
+
+  @override
+  String get deskOvRestoreProgress => 'ความคืบหน้าการสแกนกู้คืน';
+
+  @override
+  String get deskSetRescanRestoreRunning =>
+      'กำลังสแกนหลังกู้คืน: อ่านบล็อกเชนตั้งแต่บล็อกแรก ตรวจยอดใหม่ได้เมื่อสแกนเสร็จ';
+
+  @override
+  String get deskSetRescanStartHeading => 'เริ่มจากตรงไหน';
+
+  @override
+  String get deskSetRescanRecent => 'บล็อกล่าสุด';
+
+  @override
+  String get deskSetRescanRecentHint =>
+      'จาก 100 บล็อกก่อนบล็อกล่าสุดที่สแกน เพียงพอหลังส่งไม่สำเร็จหรือยอดดูไม่ถูก';
+
+  @override
+  String get deskSetRescanFromHeight => 'จากความสูงบล็อก';
+
+  @override
+  String get deskSetRescanHeightInvalid => 'ใส่ความสูงบล็อกตั้งแต่ 1 ขึ้นไป';
+
+  @override
+  String get deskSetRescanWholeChain => 'ทั้งบล็อกเชน';
+
+  @override
+  String get deskSetRescanWholeChainHint =>
+      'ตั้งแต่บล็อกแรก พบทุกอย่างแต่ใช้เวลานาน และทำให้การกู้คืนที่ค้างอยู่เสร็จด้วย';
+
+  @override
+  String get deskOnbForgotLink => 'ลืมรหัสผ่าน?';
+
+  @override
+  String get deskOnbForgotTitle => 'ตั้งรหัสผ่านใหม่';
+
+  @override
+  String deskOnbForgotLead(String name) {
+    return 'วลีกู้คืนของ $name ใช้แทนรหัสผ่านได้ ประวัติ บันทึก และป้ายกำกับยังอยู่ ไม่ต้องสแกน';
   }
 
   @override
-  String get deskFpSave => 'Set new password';
+  String get deskOnbForgotPasswordLead =>
+      'วลีถูกต้อง เลือกรหัสผ่านใหม่สำหรับปลดล็อกกระเป๋านี้บนคอมพิวเตอร์นี้';
 
   @override
-  String get deskFpChanging => 'Setting the new password…';
+  String get deskOnbForgotSet => 'ตั้งรหัสผ่าน';
 
   @override
-  String get deskFpNotChanged => 'Password not changed';
+  String deskOnbForgotOtherWallet(String name) {
+    return 'วลีนี้เป็นของกระเป๋าอื่น ไม่ใช่ $name ไม่มีอะไรเปลี่ยน';
+  }
 
   @override
-  String get deskFpDone => 'New password set. Unlock with it.';
+  String get deskOnbSameNewPassword => 'ตั้งรหัสผ่านใหม่';
 
   @override
-  String get deskFpSameAction => 'Set a new password';
+  String get deskSetupSkipKeeps =>
+      'การข้ามจะคงการตั้งค่าโหนดและ Epicbox ไว้ตามเดิม';
 
   @override
-  String get deskOnbSameNoteReset =>
-      'Open asks for that wallet\'s password. Forgotten it? This phrase sets a new one; the history stays. Cancel keeps the phrase on the grid.';
+  String deskSetupMarkNotCleared(String reason) {
+    return 'บันทึกว่าตั้งค่าเสร็จไม่ได้: $reason ครั้งหน้าอาจแสดงอีก กด ข้ามการตั้งค่า เพื่อออก';
+  }
 
   @override
-  String get deskErrResetNoDatabase =>
-      'This wallet has no history yet. Delete it and restore it from the phrase instead.';
+  String get deskOvRestoredImportTitle => 'นำรายละเอียดรายการกลับมา?';
 
   @override
-  String get deskOnbRestoreName => 'Wallet name (optional)';
+  String get deskOvRestoredImportBody =>
+      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋านี้จะนำกลับมาได้ คือไฟล์ .wfeh ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
 
   @override
-  String get deskOnbRestoreNameHint => 'e.g. Savings';
+  String get deskOvRestoredImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
 
   @override
-  String get deskRsImportOfferTitle => 'Import a history backup?';
+  String get deskOvRestoredImportLater =>
+      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง';
 
   @override
-  String get deskRsImportOfferText =>
-      'The restore brings back the funds. Notes, senders, labels and contacts come back from a history backup (.wfeh) of this wallet.';
+  String get deskOnbRestoreNameLabel => 'ชื่อกระเป๋า (ไม่บังคับ)';
 
   @override
-  String get deskRsImportOfferAction => 'Import a history backup';
+  String deskOnbRestoreNameHelp(int number) {
+    return 'แสดงบนหน้าปลดล็อกและแถบด้านข้าง หากไม่ตั้ง จะใช้ชื่อ “Wallet $number”';
+  }
 }

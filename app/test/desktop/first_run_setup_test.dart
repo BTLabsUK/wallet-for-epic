@@ -322,10 +322,10 @@ void main() {
     await end(tester);
   });
 
-  /// A first run's Save that fails offers to skip it: Unlock opens and stays, also when the
+  /// A first run offers Skip from the start, also after a Save that failed: Unlock opens and stays, also when the
   /// setup mark cannot be cleared. Never back into the same Setup (the 26.10.15 loop).
   for (final stuck in [false, true]) {
-    testWidgets('Save fails on a first run → the notice offers to skip → Unlock${stuck ? ' (mark not cleared)' : ''}', (tester) async {
+    testWidgets('Save fails on a first run → Skip setup → Unlock${stuck ? ' (mark not cleared)' : ''}', (tester) async {
       final refusing = _Refusing(markStuck: stuck);
       final log = MemoryLogSink();
       AppLog.use(log);
@@ -342,7 +342,7 @@ void main() {
       await wait(tester, 800);
       expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'pending: Unlock sends it to Setup');
       final l = lookupAppLocalizations(const Locale('en'));
-      expect(find.text(l.deskSetupSkipSave), findsNothing, reason: 'no way out before a Save failed');
+      expect(find.byKey(const ValueKey('setup-skip')), findsOneWidget, reason: 'Skip from the first step (R11)');
       expect(find.text(l.deskSetupResumeLead), findsOneWidget, reason: 'a resumed Setup says so');
       await tester.tap(find.text('Continue'));
       await wait(tester, 1000);
@@ -355,7 +355,7 @@ void main() {
       // The failure is in the log, with its kind (item 27).
       expect(log.lines.where((line) => line.contains('setup not saved (first run)')), isNotEmpty, reason: log.lines.join('\n'));
       await tester.pump(const Duration(seconds: 5)); // the toast goes
-      await tester.tap(find.text(l.deskSetupSkipSave));
+      await tester.tap(find.byKey(const ValueKey('setup-skip')));
       await wait(tester, 800);
       expect(container.read(deskNavProvider).route, DeskRoute.unlock);
       expect(await tester.runAsync(() => refusing.setupPending(added.id)), stuck ? isTrue : isFalse);

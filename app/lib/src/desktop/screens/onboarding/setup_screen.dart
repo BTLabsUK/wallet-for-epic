@@ -257,7 +257,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       await ref.read(deskApiProvider).setSetupPending(id, false);
     } on Object catch (e) {
       logWarn('desk', 'setup mark not cleared: ${e.runtimeType}');
-      if (mounted) showEToast(context, context.l10n.deskSetupMarkStays, text: deskErrorText(e, context.l10n), tone: ETone.warn);
+      if (mounted) showEToast(context, context.l10n.deskSetupMarkNotCleared(_noStop(deskErrorText(e, context.l10n))), tone: ETone.warn);
     }
     return mounted;
   }
@@ -288,6 +288,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, first.added);
   }
+
+  /// [reason] for a sentence that adds its own full stop.
+  static String _noStop(String reason) => reason.endsWith('.') || reason.endsWith('。') ? reason.substring(0, reason.length - 1) : reason;
 
   void _to(SetupStep s) => setState(() => _step = s);
 
@@ -353,10 +356,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 alignment: Alignment.centerLeft,
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
-            : Text(l.deskSetupLaterNote, style: ts.caption),
+            : Text(_first != null ? '${l.deskSetupSkipKeeps} ${l.deskSetupLaterNote}' : l.deskSetupLaterNote, style: ts.caption),
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them (R11).
-          if (_first != null && _saveFailed == null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
+          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
           if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
@@ -602,7 +605,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           title: l.deskSetupSaveFailedTitle,
           // The string adds the full stop.
           text: l.deskSetupSaveFailedText(failed.endsWith('.') || failed.endsWith('。') ? failed.substring(0, failed.length - 1) : failed),
-          actions: [EButton.ghost(label: l.deskSetupSkipSave, onPressed: _busy ? null : _skip)],
         ),
         SizedBox(height: Sp.x4),
         panel,

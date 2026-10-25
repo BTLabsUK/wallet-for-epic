@@ -133,7 +133,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       if (!mounted) return;
       await ref.read(deskApiProvider).resetPassword(id, phrase: _entry.phrase, newPassword: _password.text);
       if (!mounted) return;
-      _toUnlock(notice: context.l10n.deskFpDone);
+      _toUnlock(notice: context.l10n.deskSetDlgPwChanged);
     } on Object catch (e) {
       logWarn('desk', 'password not reset: ${e.runtimeType}');
       if (!mounted) return;
@@ -162,9 +162,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         return DeskStepBack(
           onBack: () {},
           child: ProgressView(
-            title: _failure != null ? l.deskFpNotChanged : l.deskFpChanging,
-            failureTitle: l.deskFpNotChanged,
-            stages: [if (_locking) Stage('lock', l.deskOnbCreateLocking), Stage('reset', l.deskFpChanging)],
+            title: _failure != null ? l.deskErrPasswordNotChanged : l.deskOnbForgotTitle,
+            failureTitle: l.deskErrPasswordNotChanged,
+            stages: [if (_locking) Stage('lock', l.deskOnbCreateLocking), Stage('reset', l.deskOnbForgotTitle)],
             current: 'reset',
             failed: 'reset',
             failure: _failure,
@@ -180,13 +180,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         return DeskStepBack(
           onBack: () => setState(() => _step = _Step.words),
           child: EOnbFrame(
-            sideTitle: l.deskFpSide,
-            steps: railOf([l.deskOnbStepPhrase, l.deskFpStepPassword], 1),
-            title: l.deskFpStepPassword,
-            lead: l.deskFpPasswordLead(name),
+            sideTitle: l.deskOnbForgotTitle,
+            steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
+            title: l.deskSetDlgPwNew,
+            lead: l.deskOnbForgotPasswordLead,
             actions: [
               backButton(() => setState(() => _step = _Step.words)),
-              EButton.primary(key: const ValueKey('reset-password-save'), label: l.deskFpSave, onPressed: _passwordOk ? _reset : null),
+              EButton.primary(key: const ValueKey('reset-password-save'), label: l.deskOnbForgotSet, onPressed: _passwordOk ? _reset : null),
             ],
             child: AccountForm(password: _password, confirm: _confirm, passwordError: pe, confirmError: ce, onChanged: () => setState(() {}), onSubmit: _passwordOk ? _reset : null),
           ),
@@ -214,10 +214,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       _ => (l.deskOnbRestoreStaysHere, null),
     };
     return EOnbFrame(
-      sideTitle: l.deskFpSide,
-      steps: railOf([l.deskOnbStepPhrase, l.deskFpStepPassword], 0),
+      sideTitle: l.deskOnbForgotTitle,
+      steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
       title: l.deskOnbStepPhrase,
-      lead: l.deskFpWordsLead(name),
+      lead: l.deskOnbForgotLead(name),
       actions: [
         backButton(() => _toUnlock()),
         EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
