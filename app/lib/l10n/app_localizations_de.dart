@@ -14849,6 +14849,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop =>
+      'Gilt, nachdem Sie die Wörter geprüft haben. Ohne das Wallet-Passwort wird nichts bezahlt.';
+
+  @override
   String get pairIncomingAllowHint =>
       'Gilt, nachdem Sie die Wörter geprüft haben. Ohne Ihre PIN wird nichts bezahlt.';
 
@@ -15090,6 +15094,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => 'Rechnungen erlauben';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return 'Die Wallet von $name kann Ihnen Zahlungsanforderungen senden. Jede wartet unter Rechnungen auf Ihre Zustimmung und das Wallet-Passwort. Nichts wird von selbst bezahlt.';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -15924,6 +15933,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wenn die Wörter abweichen, tippen Sie **Sie stimmen nicht überein**. Die Kopplung wird auf dieser Seite verworfen. Koppeln Sie erneut, persönlich oder mit einer neuen Einladung.';
 
   @override
+  String get helpPairWhyP4 =>
+      'Die Namen der Wörter bleiben in jeder Sprache englisch, damit zwei Personen, deren Wallets verschiedene Sprachen nutzen, sie trotzdem vergleichen können.';
+
+  @override
   String get helpPairWordsTitle => 'Kopplungswörter';
 
   @override
@@ -16002,4 +16015,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return '$payments Zahlungen, $contacts Kontakte und $pairings Kopplungen sind zurück.';
   }
+
+  @override
+  String get deskConPickForPairing =>
+      'Die Kopplung kommt zu dem Kontakt, den Sie wählen.';
 }

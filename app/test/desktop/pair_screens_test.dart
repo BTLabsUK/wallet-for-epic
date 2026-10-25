@@ -1,5 +1,7 @@
 // The desktop's Pair page (SPEC 2.1-2.3, desktop): the code with its words, an online invite
 // copied with the name they will see, a pasted invite answered, and Pending invites.
+import 'dart:async';
+
 import 'package:epic_wallet/src/advanced.dart' show AdvancedPrefs, NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
@@ -9,7 +11,8 @@ import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice
 import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/invoices/review_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
-import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsScreen;
+import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs, ContactsScreen;
+import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart' show showContactPicker;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_invoices.dart' show InvoiceSettingsBlock;
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -323,6 +326,7 @@ void main() {
         slateId: 'aaaaaaaa-0000-4000-8000-00000000f0e0',
         senderAddress: 'esA',
         label: 'Floo C',
+        reference: 'DEMO-1042',
         amount: 8000000,
         fee: 0,
         feeKnown: false,
@@ -345,6 +349,9 @@ void main() {
     await _real(tester);
     expect(find.text(_l.deskInvPayerFee), findsOneWidget);
     expect(find.text('—'), findsNWidgets(2), reason: 'the fee and the total');
+    // The reference, as the phone shows it (PAIR-LNX-10).
+    expect(find.text(_l.reqReference), findsOneWidget);
+    expect(find.text('DEMO-1042'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -393,6 +400,33 @@ void main() {
     expect(find.widgetWithText(EButton, _l.pairSaveNewContact), findsOneWidget);
     expect(find.widgetWithText(EButton, _l.contactRemovePairing), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a contact saved without an address keeps none: a new name saves (PAIR-AND-9)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    final id = (await tester.runAsync(() => _c.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Floo C'))))!;
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: ContactsScreen(arg: ContactsArgs(selectedId: id, editing: true)))),
+      ),
+    );
+    await _real(tester);
+    final name = find.descendant(of: find.widgetWithText(EField, _l.deskConFieldName), matching: find.byType(EditableText));
+    await tester.enterText(name.first, 'Floo Cee');
+    await tester.tap(find.widgetWithText(EButton, _l.deskConSave));
+    await _real(tester);
+    expect(find.text(_l.deskConErrAddressEmpty), findsNothing);
+    expect(_c.read(deskProvider).contacts!.firstWhere((c) => c.id == id).name, 'Floo Cee');
+  });
+
+  testWidgets('Add to a contact: the picker says the pairing joins the contact, not Send\'s line (PAIR-LNX-11)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    final ctx = tester.element(find.byType(SizedBox).first);
+    unawaited(showContactPicker(ctx, description: _l.deskConPickForPairing));
+    await _real(tester);
+    expect(find.text(_l.deskConPickForPairing), findsOneWidget);
+    expect(find.text(_l.deskSendPickDesc), findsNothing);
   });
 
   testWidgets('the name others see is kept in the settings', (tester) async {

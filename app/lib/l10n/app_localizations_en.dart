@@ -14672,6 +14672,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop =>
+      'Turns on after you check the words. Nothing is paid without the wallet password.';
+
+  @override
   String get pairIncomingAllowHint =>
       'Turns on after you check the words. Nothing is paid without your PIN.';
 
@@ -14909,6 +14913,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => 'Allow invoices';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -15736,6 +15745,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.';
 
   @override
+  String get helpPairWhyP4 =>
+      'The word names stay in English in every language, so two people whose wallets use different languages can still compare them.';
+
+  @override
   String get helpPairWordsTitle => 'Pairing words';
 
   @override
@@ -15814,4 +15827,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return '$payments payments, $contacts contacts and $pairings pairings are back.';
   }
+
+  @override
+  String get deskConPickForPairing =>
+      'The pairing is added to the contact you choose.';
 }

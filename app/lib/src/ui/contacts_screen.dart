@@ -634,7 +634,10 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
         final text = f.text.text.trim();
         f.error = text.isEmpty ? null : checkContactAddress(l, service, text);
       }
-      if (!widget.addressOptional && _fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
+      // A contact saved without one (from a pairing) may stay so: only a new plain contact
+      // needs an address (PAIR-AND-9).
+      final optional = widget.addressOptional || (widget.contact?.addresses.isEmpty ?? false);
+      if (!optional && _fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
       _error = null;
     });
     if (_nameError != null || _fields.any((f) => f.error != null || f.clash != null)) return;

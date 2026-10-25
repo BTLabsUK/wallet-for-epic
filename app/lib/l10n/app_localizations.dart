@@ -23222,6 +23222,12 @@ abstract class AppLocalizations {
   /// **'Allow {name} to request payments'**
   String pairIncomingAllowInvoices(String name);
 
+  /// pairIncomingAllowHint on the desktop, which pays with the wallet password, not a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns on after you check the words. Nothing is paid without the wallet password.'**
+  String get pairIncomingAllowHintDesktop;
+
   /// Under that switch.
   ///
   /// In en, this message translates to:
@@ -23605,6 +23611,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow invoices'**
   String get contactAllowInvoices;
+
+  /// contactAllowInfo on the desktop, which pays with the wallet password, not a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.'**
+  String contactAllowInfoDesktop(String name);
 
   /// Info sheet / tooltip for Allow invoices.
   ///
@@ -24848,6 +24860,12 @@ abstract class AppLocalizations {
   /// **'If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.'**
   String get helpPairWhyP3;
 
+  /// Help › Pairing › Why check the words: the SAS word names are English on purpose, for comparing across languages.
+  ///
+  /// In en, this message translates to:
+  /// **'The word names stay in English in every language, so two people whose wallets use different languages can still compare them.'**
+  String get helpPairWhyP4;
+
   /// Topic 3 title.
   ///
   /// In en, this message translates to:
@@ -24973,6 +24991,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{payments} payments, {contacts} contacts and {pairings} pairings are back.'**
   String restoreDoneBody(int payments, int contacts, int pairings);
+
+  /// Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'The pairing is added to the contact you choose.'**
+  String get deskConPickForPairing;
 }
 
 class _AppLocalizationsDelegate

@@ -14386,6 +14386,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop =>
+      'เปิดใช้หลังจากคุณตรวจคำ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงิน';
+
+  @override
   String get pairIncomingAllowHint =>
       'เปิดใช้หลังจากคุณตรวจคำ ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ';
 
@@ -14625,6 +14629,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => 'อนุญาตใบแจ้งหนี้';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return 'กระเป๋าเงินของ $name ส่งคำขอชำระเงินถึงคุณได้ แต่ละรายการรอที่ ใบแจ้งหนี้ ให้คุณอนุมัติและใส่รหัสผ่านกระเป๋าเงิน ไม่มีการชำระเอง';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -15445,6 +15454,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'หากคำต่างกัน ให้แตะ **ไม่ตรงกัน** การจับคู่จะถูกทิ้งที่ฝั่งนี้ จับคู่อีกครั้งแบบพบตัว หรือด้วยคำเชิญใหม่';
 
   @override
+  String get helpPairWhyP4 =>
+      'ชื่อของคำจะเป็นภาษาอังกฤษในทุกภาษา เพื่อให้คนสองคนที่ใช้กระเป๋าเงินคนละภาษายังเทียบกันได้';
+
+  @override
   String get helpPairWordsTitle => 'คำจับคู่';
 
   @override
@@ -15523,4 +15536,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return 'การชำระเงิน $payments รายการ ผู้ติดต่อ $contacts รายการ และการจับคู่ $pairings รายการกลับมาแล้ว';
   }
+
+  @override
+  String get deskConPickForPairing =>
+      'การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก';
 }

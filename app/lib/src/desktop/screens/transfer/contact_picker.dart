@@ -38,15 +38,18 @@ bool contactSendable(Contact c) => switch (addressKindOf(c.address)) {
 };
 
 /// Opens the contact picker over the current page; resolves to the chosen contact or null.
-Future<Contact?> showContactPicker(BuildContext context) => showEDialog<Contact>(context, builder: (_) => const ContactPickerDialog());
+/// [description] says what the pick is for; Send's line by default.
+Future<Contact?> showContactPicker(BuildContext context, {String? description}) =>
+    showEDialog<Contact>(context, builder: (_) => ContactPickerDialog(description: description));
 
 /// For the screenshot tour: the picker, result ignored.
 Future<void> showContactPickerDialog(BuildContext context) => showContactPicker(context);
 
 class ContactPickerDialog extends ConsumerStatefulWidget {
-  const ContactPickerDialog({super.key, this.query = ''});
+  const ContactPickerDialog({super.key, this.query = '', this.description});
 
   final String query;
+  final String? description;
 
   @override
   ConsumerState<ContactPickerDialog> createState() => _ContactPickerDialogState();
@@ -108,7 +111,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
     }
     return EDialog(
       title: l.deskSendPickTitle,
-      description: l.deskSendPickDesc,
+      description: widget.description ?? l.deskSendPickDesc,
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

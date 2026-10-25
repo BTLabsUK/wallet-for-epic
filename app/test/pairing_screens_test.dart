@@ -471,6 +471,45 @@ void main() {
     });
   });
 
+  testWidgets('a contact saved without an address keeps none: its name and note change and save (PAIR-AND-9)', (tester) async {
+    final h = _Harness();
+    final saved = await h.session.saveContact(contact: Contact(id: '', name: 'Floo C'));
+    await h.pump(tester, ContactEditScreen(contact: saved));
+    await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel).first, 'Floo Cee');
+    await tester.tap(find.text(_l.contactsSave));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.contactsAddressMissing), findsNothing);
+    expect((await h.session.contacts()).single.name, 'Floo Cee');
+  });
+
+  testWidgets('a new plain contact still needs an address (PAIR-AND-9)', (tester) async {
+    final h = _Harness();
+    await h.pump(tester, const ContactEditScreen());
+    await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel).first, 'Nobody');
+    await tester.tap(find.text(_l.contactsSave));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.contactsAddressMissing), findsOneWidget);
+    expect(await h.session.contacts(), isEmpty);
+  });
+
+  testWidgets('a scan of the same card again replaces the unchecked one; the row has Remove (PAIR-AND-7)', (tester) async {
+    final h = _Harness();
+    final first = await h.api.scanCard(cardId: (await h.api.showCard(name: 'the owner')).id, text: h.api.cardLinkFrom('Ola'));
+    final second = await h.api.scanCard(cardId: (await h.api.showCard(name: 'the owner')).id, text: h.api.cardLinkFrom('Ola'));
+    await dropOlderInPersonPairings(h.api, second);
+    expect(await h.api.pairing(first.id), isNull);
+    expect((await h.api.pairing(second.id))!.state, PairingState.paired);
+    await h.pump(tester, const PendingInvitesScreen());
+    expect(find.text('Ola'), findsOneWidget);
+    await tester.tap(find.byKey(pendingRowMenuKey(second.id)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.contactRemovePairing));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, _l.contactRemove).last);
+    await tester.pumpAndSettle();
+    expect(await h.api.pairing(second.id), isNull);
+  });
+
   group('Pending invites', () {
     testWidgets('empty: says how an invite gets here', (tester) async {
       final h = _Harness();

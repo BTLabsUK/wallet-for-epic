@@ -526,6 +526,7 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       HelpBlock.p(t(l.helpPairWhyP1)),
       HelpBlock.p(t(l.helpPairWhyP2)),
       HelpBlock.p(t(l.helpPairWhyP3)),
+      HelpBlock.p(t(l.helpPairWhyP4)),
     ], id: HelpId.checkWords),
     HelpTopic(s, l.helpPairWordsTitle, l.helpPairWordsShort, [
       HelpBlock.p(t(l.helpPairWordsP1)),

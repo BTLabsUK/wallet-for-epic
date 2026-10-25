@@ -48,5 +48,6 @@
   "deskConDeleteTitle": "Usunąć kontakt {name}?",
   "deskConDeleteBody": "Adres i notatka kontaktu zostaną usunięte z tego portfela. Wcześniejsze transakcje zostaną w Aktywności. Tego nie można cofnąć.",
   "deskConKeep": "Zachowaj kontakt",
-  "deskConDeleteAction": "Usuń kontakt"
+  "deskConDeleteAction": "Usuń kontakt",
+  "deskConPickForPairing": "Parowanie zostanie dodane do wybranego kontaktu."
 }

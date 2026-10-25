@@ -86,7 +86,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // The explanation stays before the buttons on every row.
-            EInfoHint(l.contactAllowInfo(name)),
+            EInfoHint(l.contactAllowInfoDesktop(name)),
             SizedBox(width: Sp.x3),
             if (changed) ...[
               EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id, recheck: true)),

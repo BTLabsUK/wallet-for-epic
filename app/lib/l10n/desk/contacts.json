@@ -234,5 +234,9 @@
   "deskConDeleteAction": "Delete contact",
   "@deskConDeleteAction": {
     "description": "Danger button in the delete dialog. Short."
+  },
+  "deskConPickForPairing": "The pairing is added to the contact you choose.",
+  "@deskConPickForPairing": {
+    "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
   }
 }

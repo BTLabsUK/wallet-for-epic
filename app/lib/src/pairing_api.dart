@@ -353,3 +353,21 @@ String? pairingLinkIn(String text) {
   final m = RegExp(r'epiccash://(?:pair|pair-reply|pair-confirm|contact)/[A-Za-z0-9_\-/=]+', caseSensitive: false).firstMatch(text);
   return m?.group(0);
 }
+
+/// After an in-person pairing [fresh]: removes the older in-person pairings with the same
+/// name that were never checked and sit in no contact, the leftovers of an abandoned scan or
+/// a card shown again, so Pending invites lists one row per person (PAIR-AND-7). A verified
+/// or saved pairing is never touched. Best effort: a failure leaves the old row.
+Future<void> dropOlderInPersonPairings(PairingApi api, PairingRecord fresh) async {
+  final name = (fresh.name ?? '').trim();
+  if (name.isEmpty) return;
+  try {
+    for (final r in await api.pairings()) {
+      if (r.id == fresh.id || r.way != PairingWay.inPerson || r.state != PairingState.paired) continue;
+      if (r.contactId != null || (r.name ?? '').trim() != name) continue;
+      await api.removePairing(r.id);
+    }
+  } on Object {
+    // The rows stay; each has Remove.
+  }
+}

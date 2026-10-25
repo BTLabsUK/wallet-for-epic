@@ -26,6 +26,9 @@ const Key pendingCheckKey = ValueKey('pending-check');
 const Key pendingRemoveStrayKey = ValueKey('pending-remove-stray');
 const Key pendingRemoveReplyKey = ValueKey('pending-remove-reply');
 
+/// The menu of a pairing whose words wait to be checked, by its id.
+Key pendingRowMenuKey(String id) => ValueKey('pending-row-menu-$id');
+
 class PendingInvitesScreen extends ConsumerWidget {
   const PendingInvitesScreen({super.key});
 
@@ -187,10 +190,24 @@ class _PendingRow extends ConsumerWidget {
           avatar: avatar,
           title: name,
           subtitle: Text(l.pendingPairedCheck),
-          trailing: FilledButton(
-            key: pendingCheckKey,
-            onPressed: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))),
-            child: Text(l.contactCheckAgain),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton(
+                key: pendingCheckKey,
+                onPressed: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))),
+                child: Text(l.contactCheckAgain),
+              ),
+              // An abandoned scan need not be checked to go (PAIR-AND-7).
+              PopupMenuButton<String>(
+                key: pendingRowMenuKey(r.id),
+                tooltip: l.contactMore,
+                onSelected: (_) async {
+                  if (await confirmRemovePairing(context, name)) await pairingCall(ref, (api) => api.removePairing(r.id));
+                },
+                itemBuilder: (context) => [PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk)))],
+              ),
+            ],
           ),
         );
     }

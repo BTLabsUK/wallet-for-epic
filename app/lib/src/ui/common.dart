@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../amount.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
+import '../pairing_providers.dart' show pairingNameProvider;
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -907,6 +908,19 @@ String? contactName(WidgetRef ref, String? address) {
   return contacts == null ? null : contactNameFor(contacts, address);
 }
 
+/// The name of [tx]'s other side: the saved contact of its address, else, for a payment of
+/// a paired contact's request, that pairing's name: its counterparty is the contact's
+/// mailbox, which no address-book entry holds (PAIR-AND-5).
+String? txPartyName(WidgetRef ref, TxEntry tx) {
+  final saved = contactName(ref, tx.counterparty);
+  final slate = tx.slateId;
+  if (saved != null || slate == null || tx.flow != TxFlow.invoice || !txAmount(tx).outgoing) return saved;
+  final pairingId = ref.watch(paidInvoiceProvider(slate)).value?.pairingId;
+  if (pairingId == null) return null;
+  final name = ref.watch(pairingNameProvider(pairingId));
+  return name.isEmpty ? null : name;
+}
+
 /// The badge with a transaction's status: warn while it waits for the other side, info while
 /// it confirms or its sender reports it posted (the icon beside it shows the progress, so no
 /// spinner), neutral once it is over (completed, from a backup, cancelled).
@@ -1458,7 +1472,7 @@ class TxTile extends ConsumerWidget {
         ? null
         : approxFiat(l, amount, display, short: true);
     final theme = Theme.of(context);
-    final name = contactName(ref, tx.counterparty);
+    final name = txPartyName(ref, tx);
     final title = txTitle(
       l,
       tx,

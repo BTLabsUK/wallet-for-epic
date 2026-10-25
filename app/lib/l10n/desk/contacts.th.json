@@ -48,5 +48,6 @@
   "deskConDeleteTitle": "ลบ {name} ไหม?",
   "deskConDeleteBody": "ที่อยู่และบันทึกของผู้ติดต่อจะถูกลบออกจากกระเป๋าเงินนี้ ธุรกรรมที่ผ่านมายังอยู่ในประวัติ ย้อนกลับไม่ได้",
   "deskConKeep": "เก็บไว้",
-  "deskConDeleteAction": "ลบผู้ติดต่อ"
+  "deskConDeleteAction": "ลบผู้ติดต่อ",
+  "deskConPickForPairing": "การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก"
 }

@@ -15123,6 +15123,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop =>
+      'Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez hasła portfela.';
+
+  @override
   String get pairIncomingAllowHint =>
       'Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez twojego PIN-u.';
 
@@ -15362,6 +15366,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => 'Zezwól na faktury';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return 'Portfel $name może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i hasło portfela. Nic nie płaci się samo.';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -16207,6 +16216,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Jeśli słowa się różnią, dotknij **Nie zgadzają się**. Parowanie zostaje odrzucone po tej stronie. Sparuj się ponownie, osobiście lub z nowym zaproszeniem.';
 
   @override
+  String get helpPairWhyP4 =>
+      'Nazwy słów pozostają po angielsku w każdym języku, aby dwie osoby, których portfele działają w różnych językach, mogły je porównać.';
+
+  @override
   String get helpPairWordsTitle => 'Słowa parowania';
 
   @override
@@ -16285,4 +16298,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return 'Wróciły płatności: $payments, kontakty: $contacts i parowania: $pairings.';
   }
+
+  @override
+  String get deskConPickForPairing =>
+      'Parowanie zostanie dodane do wybranego kontaktu.';
 }

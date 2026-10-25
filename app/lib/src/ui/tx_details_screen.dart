@@ -532,7 +532,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
-    final name = contactName(ref, counterparty);
+    final name = txPartyName(ref, tx);
     final fiat = tx.status == TxStatus.cancelled
         ? null
         : approxFiat(l, amount, display);

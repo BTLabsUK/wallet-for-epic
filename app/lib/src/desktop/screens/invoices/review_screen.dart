@@ -209,6 +209,9 @@ class _Review extends ConsumerWidget {
             ],
           ),
         ),
+        // What the contact says it is for, as the phone shows it (PAIR-LNX-10). Untrusted text.
+        if (cleanInvoiceText(i.reference) case final reference when reference.isNotEmpty)
+          (l.reqReference, Text(reference, style: ts.body, maxLines: 2, overflow: TextOverflow.ellipsis)),
         (l.deskInvPayerExpires, open ? InvCountdown(expiresAt: i.expiresAt, now: book.now, style: ts.body) : Text(invWhen(context, i.expiresAt))),
         (l.deskInvPayerLockHeight, Text(l.deskInvPayerLockNone)),
       ]),

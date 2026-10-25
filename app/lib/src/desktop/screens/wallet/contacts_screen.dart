@@ -787,11 +787,15 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _remove(f);
   }
 
+  /// A contact saved without an address (from a pairing) may stay so; only a new one needs
+  /// an address (PAIR-AND-9).
+  bool get _addressOptional => widget.contact != null && widget.contact!.addresses.isEmpty;
+
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
     final filled = [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f];
-    if (filled.isEmpty || filled.any((f) => _errorOf(f) != null)) return;
+    if ((filled.isEmpty && !_addressOptional) || filled.any((f) => _errorOf(f) != null)) return;
     String? of(RecipientKind kind) {
       for (final f in filled) {
         if (_kindOf(f) == kind) return parseAddress(f.text.text, ref.read(deskApiProvider)).canonical;
@@ -840,7 +844,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final l = context.l10n;
     final nameError = _tried || _touched.contains('name') ? _nameError : null;
     final free = _free;
-    final noAddress = _tried && _fields.every((f) => f.text.text.trim().isEmpty);
+    final noAddress = _tried && !_addressOptional && _fields.every((f) => f.text.text.trim().isEmpty);
     // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
     // A form with typed changes holds Back (mouse, Alt+Left).
     final dirty = _name.text != (widget.contact?.name ?? '') ||
@@ -1113,7 +1117,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             ESetRow(
               title: l.contactAllowInvoices,
               text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
-              hint: l.contactAllowInfo(name),
+              hint: l.contactAllowInfoDesktop(name),
               control: ESwitch(
                 value: verified && p.allowInvoices,
                 semanticLabel: l.contactAllowInvoices,

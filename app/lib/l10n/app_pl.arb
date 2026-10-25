@@ -3890,6 +3890,7 @@
   "pairCallsThemselves": "Przedstawia się jako „{name}”",
   "pairIncomingBody": "Po sparowaniu pliki płatności i faktury między tobą a {name} są zapieczętowane. Następnie sprawdzicie razem słowa.",
   "pairIncomingAllowInvoices": "Zezwól {name} na prośby o płatność",
+  "pairIncomingAllowHintDesktop": "Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez hasła portfela.",
   "pairIncomingAllowHint": "Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez twojego PIN-u.",
   "pairNotNow": "Nie teraz",
   "pairWaitingTitle": "Czekam na portfel {name}…",
@@ -3954,6 +3955,7 @@
   "contactSealInfo": "Płatności i faktury z {name} są szyfrowane od końca do końca. Tylko portfel {name} może je odczytać.",
   "contactSealInfoMore": "Po wyłączeniu plik płatności dla {name} jest jawny: każdy, kto go dostanie, może go odczytać. Wyłącz tylko wtedy, gdy portfel {name} nie otwiera zapieczętowanych plików.",
   "contactAllowInvoices": "Zezwól na faktury",
+  "contactAllowInfoDesktop": "Portfel {name} może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i hasło portfela. Nic nie płaci się samo.",
   "contactAllowInfo": "Portfel {name} może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i PIN. Nic nie płaci się samo.",
   "contactAllowInfoMore": "Zezwolić można tylko zweryfikowanemu kontaktowi: sprawdzenie słów wyklucza podmienione zaproszenie.",
   "contactCheckWordsFirst": "Najpierw sprawdź słowa",
@@ -4161,6 +4163,7 @@
   "helpPairWhyP1": "Po sparowaniu oba portfele pokazują te same cztery obrazki z nazwami. Powstają z kluczy obu portfeli, więc parowanie zmienione po drodze pokaże na dwóch ekranach różne słowa.",
   "helpPairWhyP2": "Porównajcie je przez telefon lub osobiście, a potem dotknij **Zgadzają się**. Kontakt staje się **Zweryfikowany**. **Pomiń na razie** zostawia go jako **Sparowany, niezweryfikowany**: pliki płatności są nadal zapieczętowane, ale kontakt nie może wysyłać faktur, dopóki słowa nie zostaną sprawdzone.",
   "helpPairWhyP3": "Jeśli słowa się różnią, dotknij **Nie zgadzają się**. Parowanie zostaje odrzucone po tej stronie. Sparuj się ponownie, osobiście lub z nowym zaproszeniem.",
+  "helpPairWhyP4": "Nazwy słów pozostają po angielsku w każdym języku, aby dwie osoby, których portfele działają w różnych językach, mogły je porównać.",
   "helpPairWordsTitle": "Słowa parowania",
   "helpPairWordsShort": "Pięć obrazków z nazwami zastępuje link, gdy nie ma czego zeskanować ani wkleić.",
   "helpPairWordsP1": "Gdy jeden portfel nie ma aparatu albo zaproszenia nie da się wysłać jako linku, zapraszający portfel pokazuje pięć słów parowania. Druga osoba wpisuje ich nazwy w **Wpisz link lub słowa**; pole uzupełnia każdą nazwę po kilku literach. Słowa są ważne przez 10 minut.",
@@ -4181,5 +4184,6 @@
   "pairNameForCode": "Wpisz nazwę, którą zobaczy druga strona, a tutaj pojawi się twój kod.",
   "pairYourNamePlaceholder": "Twoje imię",
   "restoreDone": "Historia przywrócona.",
-  "restoreDoneBody": "Wróciły płatności: {payments}, kontakty: {contacts} i parowania: {pairings}."
+  "restoreDoneBody": "Wróciły płatności: {payments}, kontakty: {contacts} i parowania: {pairings}.",
+  "deskConPickForPairing": "Parowanie zostanie dodane do wybranego kontaktu."
 }

@@ -39,6 +39,7 @@ const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
 const Key deskCheckSkipKey = ValueKey('desk-check-skip');
 const Key deskPendingRemoveKey = ValueKey('desk-pending-remove');
+const Key deskPendingRemovePairedKey = ValueKey('desk-pending-remove-paired');
 const Key deskSavedNewKey = ValueKey('desk-saved-new');
 const Key deskSavedAddToKey = ValueKey('desk-saved-add-to');
 const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
@@ -515,6 +516,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
         if (own == null && name.isEmpty) throw pairingError(PairingFailure.invalid);
         final card = own ?? await api.showCard(name: name);
         final r = await deskPairingCall(ref, (a) => a.scanCard(cardId: card.id, text: text));
+        await deskPairingCall(ref, (a) => dropOlderInPersonPairings(a, r));
         ref.read(deskOwnCardProvider.notifier).set(null);
         if (own == null && context.mounted) {
           await showEDialog<void>(context, builder: (_) => _CardBackDialog(name: r.shownName, link: card.link));
@@ -648,7 +650,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
               rows: [
                 ESetRow(
                   title: l.pairIncomingAllowInvoices(p.name),
-                  text: l.pairIncomingAllowHint,
+                  text: l.pairIncomingAllowHintDesktop,
                   control: ESwitch(value: _allow, semanticLabel: l.pairIncomingAllowInvoices(p.name), onChanged: _busy ? null : (v) => setState(() => _allow = v)),
                 ),
               ],
@@ -796,7 +798,8 @@ Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, Pairi
     contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
     name = saved;
   } else {
-    final picked = await showContactPicker(context);
+    // Not Send's picker: the pairing joins the contact (PAIR-LNX-11).
+    final picked = await showContactPicker(context, description: context.l10n.deskConPickForPairing);
     if (picked == null) return false;
     contactId = picked.id;
     name = picked.name;
@@ -1141,7 +1144,21 @@ class DeskPendingScreen extends ConsumerWidget {
             ),
           ],
         ),
-        _ => (l.pendingPairedCheck, [EButton.primary(label: l.contactCheckAgain, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id))]),
+        _ => (
+          l.pendingPairedCheck,
+          [
+            EButton.primary(label: l.contactCheckAgain, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
+            // An abandoned pairing need not be checked to go (PAIR-AND-7).
+            EButton(
+              key: deskPendingRemovePairedKey,
+              label: l.contactRemove,
+              size: EBtnSize.sm,
+              onPressed: () async {
+                if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+              },
+            ),
+          ],
+        ),
       };
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),

@@ -750,6 +750,8 @@ void main() {
       expect(find.byType(TxStatusChip), findsNothing, reason: 'the request block says where it stands');
       expect(find.text(_l.txDetailsWaitingEpicbox), findsNothing);
       expect(find.text(_l.txDetailsCancelPayment), findsNothing, reason: 'Cancel comes once its time runs out');
+      // Named by its pairing, never by the mailbox it was paid to (PAIR-AND-5).
+      expect(find.descendant(of: find.byType(AppBar), matching: find.textContaining('Floo C')), findsOneWidget);
     });
 
     testWidgets('show the service and message, waiting for the receipt', (
@@ -758,7 +760,7 @@ void main() {
       final h = await paid(tester);
       await details(tester, h);
       expect(find.text(_l.invoiceDetailsSection), findsOneWidget);
-      expect(find.text('My Exchange'), findsOneWidget);
+      expect(find.text('My Exchange'), findsWidgets, reason: 'the block, and the title names it (PAIR-AND-5)');
       expect(find.text('Order 1042'), findsOneWidget);
       expect(
         find.text(_l.invoiceDetailsReplied('My Exchange')),

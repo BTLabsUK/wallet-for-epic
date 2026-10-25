@@ -19262,6 +19262,10 @@
       }
     }
   },
+  "pairIncomingAllowHintDesktop": "Turns on after you check the words. Nothing is paid without the wallet password.",
+  "@pairIncomingAllowHintDesktop": {
+    "description": "pairIncomingAllowHint on the desktop, which pays with the wallet password, not a PIN."
+  },
   "pairIncomingAllowHint": "Turns on after you check the words. Nothing is paid without your PIN.",
   "@pairIncomingAllowHint": {
     "description": "Under that switch."
@@ -19643,6 +19647,16 @@
   "contactAllowInvoices": "Allow invoices",
   "@contactAllowInvoices": {
     "description": "Switch label."
+  },
+  "contactAllowInfoDesktop": "{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.",
+  "@contactAllowInfoDesktop": {
+    "description": "contactAllowInfo on the desktop, which pays with the wallet password, not a PIN.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
   },
   "contactAllowInfo": "{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.",
   "@contactAllowInfo": {
@@ -20904,6 +20918,11 @@
   "@helpPairWhyP3": {
     "description": "Topic 2."
   },
+  "helpPairWhyP4": "The word names stay in English in every language, so two people whose wallets use different languages can still compare them.",
+  "@helpPairWhyP4": {
+    "description": "Help › Pairing › Why check the words: the SAS word names are English on purpose, for comparing across languages."
+  },
+
   "helpPairWordsTitle": "Pairing words",
   "@helpPairWordsTitle": {
     "description": "Topic 3 title."
@@ -20998,5 +21017,9 @@
         "type": "int"
       }
     }
+  },
+  "deskConPickForPairing": "The pairing is added to the contact you choose.",
+  "@deskConPickForPairing": {
+    "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
   }
 }

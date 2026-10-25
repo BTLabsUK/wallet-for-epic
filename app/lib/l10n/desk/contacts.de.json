@@ -48,5 +48,6 @@
   "deskConDeleteTitle": "{name} löschen?",
   "deskConDeleteBody": "Adresse und Notiz des Kontakts werden aus dieser Wallet entfernt. Frühere Transaktionen bleiben unter Aktivität. Das lässt sich nicht rückgängig machen.",
   "deskConKeep": "Kontakt behalten",
-  "deskConDeleteAction": "Kontakt löschen"
+  "deskConDeleteAction": "Kontakt löschen",
+  "deskConPickForPairing": "Die Kopplung kommt zu dem Kontakt, den Sie wählen."
 }

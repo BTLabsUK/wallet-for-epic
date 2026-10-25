@@ -15085,6 +15085,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop =>
+      'Включится после проверки слов. Без пароля кошелька ничего не оплачивается.';
+
+  @override
   String get pairIncomingAllowHint =>
       'Включится после проверки слов. Без вашего PIN ничего не оплачивается.';
 
@@ -15325,6 +15329,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => 'Разрешить счета';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return 'Кошелёк $name может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего одобрения и пароля кошелька. Само по себе ничего не оплачивается.';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -16166,6 +16175,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Если слова различаются, нажмите **Не совпадают**. Сопряжение удаляется с этой стороны. Повторите сопряжение лично или с новым приглашением.';
 
   @override
+  String get helpPairWhyP4 =>
+      'Названия слов остаются на английском во всех языках, чтобы их могли сравнить и люди, чьи кошельки работают на разных языках.';
+
+  @override
   String get helpPairWordsTitle => 'Слова сопряжения';
 
   @override
@@ -16244,4 +16257,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return 'Вернулись платежи: $payments, контакты: $contacts и сопряжения: $pairings.';
   }
+
+  @override
+  String get deskConPickForPairing =>
+      'Сопряжение будет добавлено к выбранному контакту.';
 }

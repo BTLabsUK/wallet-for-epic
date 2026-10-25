@@ -13888,6 +13888,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get pairIncomingAllowHintDesktop => '核对词语后开启。没有钱包密码不会付款。';
+
+  @override
   String get pairIncomingAllowHint => '核对词语后开启。没有你的 PIN 不会付款。';
 
   @override
@@ -14120,6 +14123,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactAllowInvoices => '允许账单';
+
+  @override
+  String contactAllowInfoDesktop(String name) {
+    return '$name 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和钱包密码。不会自动付款。';
+  }
 
   @override
   String contactAllowInfo(String name) {
@@ -14909,6 +14917,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairWhyP3 => '如果词语不同，点按**不一致**。此端会丢弃该配对。请重新配对，当面或使用新的邀请。';
 
   @override
+  String get helpPairWhyP4 => '这些词语的名称在所有语言中都保持英文，因此使用不同语言钱包的两个人也能核对。';
+
+  @override
   String get helpPairWordsTitle => '配对词';
 
   @override
@@ -14981,4 +14992,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String restoreDoneBody(int payments, int contacts, int pairings) {
     return '已恢复 $payments 笔付款、$contacts 个联系人和 $pairings 个配对。';
   }
+
+  @override
+  String get deskConPickForPairing => '配对将添加到你选择的联系人。';
 }

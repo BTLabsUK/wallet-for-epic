@@ -1849,10 +1849,11 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<Contact> saveContact({required Contact contact}) async {
-    if (contact.name.trim().isEmpty || contact.addresses.isEmpty) {
+    // As the wallet's book: a name is required, an address not (a contact a pairing pays).
+    if (contact.name.trim().isEmpty) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
-        message: 'the contact needs a name and an address',
+        message: 'the contact needs a name',
       );
     }
     final stored = Contact(
@@ -2516,6 +2517,8 @@ class FakeWalletSession implements WalletSession {
         numInputs: 1,
         counterparty: invoice.senderAddress,
         cancellable: true,
+        // As LEPIC marks an invoice payment.
+        flow: TxFlow.invoice,
       ),
     );
     final paid = PaidInvoice(

@@ -3890,6 +3890,7 @@
   "pairCallsThemselves": "Nennt sich „{name}“",
   "pairIncomingBody": "Nach dem Koppeln sind Zahlungsdateien und Rechnungen zwischen Ihnen und {name} versiegelt. Als Nächstes prüfen Sie gemeinsam die Wörter.",
   "pairIncomingAllowInvoices": "{name} Zahlungsanforderungen erlauben",
+  "pairIncomingAllowHintDesktop": "Gilt, nachdem Sie die Wörter geprüft haben. Ohne das Wallet-Passwort wird nichts bezahlt.",
   "pairIncomingAllowHint": "Gilt, nachdem Sie die Wörter geprüft haben. Ohne Ihre PIN wird nichts bezahlt.",
   "pairNotNow": "Nicht jetzt",
   "pairWaitingTitle": "Warten auf die Wallet von {name}…",
@@ -3954,6 +3955,7 @@
   "contactSealInfo": "Zahlungen und Rechnungen mit {name} sind Ende-zu-Ende verschlüsselt. Nur deren Wallet kann sie lesen.",
   "contactSealInfoMore": "Ausgeschaltet ist eine Zahlungsdatei an {name} unversiegelt: Wer die Datei bekommt, kann sie lesen. Schalten Sie es nur aus, wenn die Wallet von {name} keine versiegelten Dateien öffnen kann.",
   "contactAllowInvoices": "Rechnungen erlauben",
+  "contactAllowInfoDesktop": "Die Wallet von {name} kann Ihnen Zahlungsanforderungen senden. Jede wartet unter Rechnungen auf Ihre Zustimmung und das Wallet-Passwort. Nichts wird von selbst bezahlt.",
   "contactAllowInfo": "Die Wallet von {name} kann Ihnen Zahlungsanforderungen senden. Jede wartet unter Rechnungen auf Ihre Zustimmung und PIN. Nichts wird von selbst bezahlt.",
   "contactAllowInfoMore": "Nur ein verifizierter Kontakt kann erlaubt werden: Die Wortprüfung schließt eine vertauschte Einladung aus.",
   "contactCheckWordsFirst": "Zuerst die Wörter prüfen",
@@ -4161,6 +4163,7 @@
   "helpPairWhyP1": "Nach dem Koppeln zeigen beide Wallets dieselben vier Bilder mit Namen. Sie entstehen aus den Schlüsseln der beiden Wallets, daher zeigt eine unterwegs veränderte Kopplung auf den beiden Bildschirmen verschiedene Wörter.",
   "helpPairWhyP2": "Vergleichen Sie sie am Telefon oder persönlich und tippen Sie dann **Sie stimmen überein**. Der Kontakt wird **Verifiziert**. **Vorerst überspringen** lässt ihn bei **Gekoppelt, nicht verifiziert**: Zahlungsdateien sind trotzdem versiegelt, aber der Kontakt kann erst Rechnungen senden, wenn die Wörter geprüft sind.",
   "helpPairWhyP3": "Wenn die Wörter abweichen, tippen Sie **Sie stimmen nicht überein**. Die Kopplung wird auf dieser Seite verworfen. Koppeln Sie erneut, persönlich oder mit einer neuen Einladung.",
+  "helpPairWhyP4": "Die Namen der Wörter bleiben in jeder Sprache englisch, damit zwei Personen, deren Wallets verschiedene Sprachen nutzen, sie trotzdem vergleichen können.",
   "helpPairWordsTitle": "Kopplungswörter",
   "helpPairWordsShort": "Fünf Bilder mit Namen ersetzen einen Link, wenn es nichts zu scannen oder einzufügen gibt.",
   "helpPairWordsP1": "Wenn eine Wallet keine Kamera hat oder sich die Einladung nicht als Link senden lässt, zeigt die einladende Wallet fünf Kopplungswörter. Die andere Person tippt die Namen unter **Link oder Wörter eingeben**; das Feld ergänzt jeden Namen nach wenigen Buchstaben. Die Wörter sind 10 Minuten gültig.",
@@ -4181,5 +4184,6 @@
   "pairNameForCode": "Geben Sie den Namen ein, den die andere Seite sieht; dann erscheint hier Ihr Code.",
   "pairYourNamePlaceholder": "Ihr Name",
   "restoreDone": "Verlauf wiederhergestellt.",
-  "restoreDoneBody": "{payments} Zahlungen, {contacts} Kontakte und {pairings} Kopplungen sind zurück."
+  "restoreDoneBody": "{payments} Zahlungen, {contacts} Kontakte und {pairings} Kopplungen sind zurück.",
+  "deskConPickForPairing": "Die Kopplung kommt zu dem Kontakt, den Sie wählen."
 }

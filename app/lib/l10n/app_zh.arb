@@ -3890,6 +3890,7 @@
   "pairCallsThemselves": "自称“{name}”",
   "pairIncomingBody": "配对后，你与 {name} 之间的付款文件和账单都会被密封。接下来你们一起核对词语。",
   "pairIncomingAllowInvoices": "允许 {name} 请求付款",
+  "pairIncomingAllowHintDesktop": "核对词语后开启。没有钱包密码不会付款。",
   "pairIncomingAllowHint": "核对词语后开启。没有你的 PIN 不会付款。",
   "pairNotNow": "暂不",
   "pairWaitingTitle": "正在等待 {name} 的钱包…",
@@ -3954,6 +3955,7 @@
   "contactSealInfo": "与 {name} 的付款和账单采用端到端加密。只有对方的钱包能读取。",
   "contactSealInfoMore": "关闭后，发给 {name} 的付款文件为明文：拿到文件的任何人都能读取。仅当 {name} 的钱包无法打开密封文件时才关闭。",
   "contactAllowInvoices": "允许账单",
+  "contactAllowInfoDesktop": "{name} 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和钱包密码。不会自动付款。",
   "contactAllowInfo": "{name} 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和 PIN。不会自动付款。",
   "contactAllowInfoMore": "只能允许已验证的联系人：核对词语可排除被调换的邀请。",
   "contactCheckWordsFirst": "请先核对词语",
@@ -4161,6 +4163,7 @@
   "helpPairWhyP1": "配对后，两个钱包都会显示相同的四个图片和名称。它们来自两个钱包的密钥，因此在途中被更改的配对会在两个屏幕上显示不同的词。",
   "helpPairWhyP2": "通过电话或当面比较，然后点按**一致**。联系人变为**已验证**。**暂时跳过**会保留为**已配对，未验证**：付款文件仍会密封，但在核对词语之前，该联系人不能发送账单。",
   "helpPairWhyP3": "如果词语不同，点按**不一致**。此端会丢弃该配对。请重新配对，当面或使用新的邀请。",
+  "helpPairWhyP4": "这些词语的名称在所有语言中都保持英文，因此使用不同语言钱包的两个人也能核对。",
   "helpPairWordsTitle": "配对词",
   "helpPairWordsShort": "在无法扫描或粘贴时，五个带名称的图片可代替链接。",
   "helpPairWordsP1": "当一个钱包没有相机，或邀请无法以链接发送时，发出邀请的钱包会显示五个配对词。对方在**输入链接或词**中输入它们的名称；输入几个字母后，输入框会补全名称。这些词 10 分钟内有效。",
@@ -4181,5 +4184,6 @@
   "pairNameForCode": "输入对方会看到的名字，你的码就会显示在这里。",
   "pairYourNamePlaceholder": "你的名字",
   "restoreDone": "历史已恢复。",
-  "restoreDoneBody": "已恢复 {payments} 笔付款、{contacts} 个联系人和 {pairings} 个配对。"
+  "restoreDoneBody": "已恢复 {payments} 笔付款、{contacts} 个联系人和 {pairings} 个配对。",
+  "deskConPickForPairing": "配对将添加到你选择的联系人。"
 }
