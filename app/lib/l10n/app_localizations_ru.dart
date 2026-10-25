@@ -16542,4 +16542,68 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => 'Открыть Дополнительно';
+
+  @override
+  String get contactNoAddressPaired => 'Платежи идут через сопряжение';
+
+  @override
+  String get contactSendKeysChanged => 'Перед отправкой проверьте слова.';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return 'Кошелёк $name не принимает платежи через сопряжение. Попросите адрес.';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return 'Через сопряжение с $name';
+  }
+
+  @override
+  String get sendClearRecipient => 'Очистить получателя';
+
+  @override
+  String get sendQueuedEpicboxOff =>
+      'Epicbox выключен. Платёж ждёт здесь и уйдёт, когда Epicbox снова включится.';
+
+  @override
+  String get sendQueue => 'Поставить платёж в очередь';
+
+  @override
+  String get sendQueuedHeadline => 'Платёж в очереди';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'Он уйдёт, когда Epicbox снова включится. Ответ $name придёт тем же путём.';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return 'Ждёт: $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return 'Отправлено через почтовый ящик $name';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return 'Ответ от $name';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return 'Проверка почтового ящика $name';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return 'Ждёт подписи: $name';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return 'У $name нет адреса Link.';
+  }
 }

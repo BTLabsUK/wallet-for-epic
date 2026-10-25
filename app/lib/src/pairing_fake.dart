@@ -781,15 +781,21 @@ class FakePairing implements PairingApi {
     _require('sendViaMailbox');
     final r = _get(id);
     final s = session;
-    if (s == null || r.paymentsAddress == null || !r.seals) throw pairingUnsupported('sendViaMailbox');
+    // As LEPIC: the paired state and the card's "opens sealed", not the seal switch. A contact
+    // with no address takes it too.
+    if (s == null || !r.paysByMailbox) throw pairingUnsupported('sendViaMailbox');
     calls.add('sendViaMailbox');
-    return s.sendEpicbox(
+    // The post failed: LEPIC cancels the payment it made, so nothing is left holding coins.
+    if (s.sendError case final error?) throw error;
+    final tx = await s.sendEpicbox(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
-      address: r.paymentsAddress!,
+      address: r.paymentsAddress ?? '',
       message: message,
       options: options,
     );
+    if (tx.slateId case final slateId?) slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
+    return tx;
   }
 
   /// Every [collect], by its trigger.

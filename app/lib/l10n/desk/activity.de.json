@@ -34,5 +34,6 @@
   "deskActStageSpendable": "Verfügbar",
   "deskActStageSpendableText": "{needed, plural, one{Nach {needed} Bestätigung, etwa {needed} Minute.} other{Nach {needed} Bestätigungen, etwa {needed} Minuten.}}",
   "deskActShowAddress": "Adresse anzeigen",
-  "deskActReceiveFile": "Datei empfangen"
+  "deskActReceiveFile": "Datei empfangen",
+  "deskTxStatusWaitingFor": "Wartet auf Signatur von {name}"
 }

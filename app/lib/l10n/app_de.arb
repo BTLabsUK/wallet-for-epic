@@ -4228,5 +4228,20 @@
   "expPairingOffBody": "Einschalten unter Einstellungen › Erweitert.",
   "expInvoicesOffTitle": "Rechnungen sind experimentell",
   "expInvoicesOffBody": "Einschalten unter Einstellungen › Erweitert.",
-  "expOpenAdvanced": "Erweitert öffnen"
+  "expOpenAdvanced": "Erweitert öffnen",
+  "contactNoAddressPaired": "Zahlungen laufen über die Kopplung",
+  "contactSendKeysChanged": "Vor dem Senden die Wörter prüfen.",
+  "contactSendNoSealed": "Die Wallet von {name} nimmt keine Zahlungen über die Kopplung an. Nach einer Adresse fragen.",
+  "sendRecipientPairing": "Über die Kopplung mit {name}",
+  "sendClearRecipient": "Empfänger entfernen",
+  "sendQueuedEpicboxOff": "Epicbox ist aus. Die Zahlung wartet hier und geht raus, sobald Epicbox wieder an ist.",
+  "sendQueue": "Zahlung einreihen",
+  "sendQueuedHeadline": "Zahlung eingereiht",
+  "sendQueuedBody": "Sie geht raus, sobald Epicbox wieder an ist. Die Antwort von {name} kommt auf demselben Weg zurück.",
+  "txStatusWaitingFor": "Wartet auf {name}",
+  "txStepSentMailbox": "Über das Postfach von {name} gesendet",
+  "txStepAnswerFrom": "Antwort von {name}",
+  "txStepCollecting": "Postfach von {name} wird geprüft",
+  "deskTxStatusWaitingFor": "Wartet auf Signatur von {name}",
+  "deskSendContactNoLink": "{name} hat keine Link-Adresse."
 }

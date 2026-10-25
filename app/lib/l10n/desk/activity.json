@@ -158,5 +158,15 @@
   "deskActReceiveFile": "Receive a file",
   "@deskActReceiveFile": {
     "description": "Ghost button in the empty state of Activity: opens the page to import a payment file."
+  },
+  "deskTxStatusWaitingFor": "Waiting for {name} to sign",
+  "@deskTxStatusWaitingFor": {
+    "description": "Activity row and detail status of a payment through a paired contact's mailbox, waiting for the contact to sign.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
   }
 }

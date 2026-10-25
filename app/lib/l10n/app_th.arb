@@ -4228,5 +4228,20 @@
   "expPairingOffBody": "เปิดได้ที่ การตั้งค่า › ขั้นสูง",
   "expInvoicesOffTitle": "ใบแจ้งหนี้เป็นฟีเจอร์ทดลอง",
   "expInvoicesOffBody": "เปิดได้ที่ การตั้งค่า › ขั้นสูง",
-  "expOpenAdvanced": "เปิดขั้นสูง"
+  "expOpenAdvanced": "เปิดขั้นสูง",
+  "contactNoAddressPaired": "การชำระเงินผ่านการจับคู่",
+  "contactSendKeysChanged": "ตรวจคำก่อนส่ง",
+  "contactSendNoSealed": "กระเป๋าของ {name} ไม่รับการชำระเงินผ่านการจับคู่ ขอที่อยู่แทน",
+  "sendRecipientPairing": "ผ่านการจับคู่กับ {name}",
+  "sendClearRecipient": "ล้างผู้รับ",
+  "sendQueuedEpicboxOff": "Epicbox ปิดอยู่ การชำระเงินรออยู่ที่นี่และจะส่งออกเมื่อเปิด Epicbox อีกครั้ง",
+  "sendQueue": "เข้าคิวการชำระเงิน",
+  "sendQueuedHeadline": "การชำระเงินเข้าคิวแล้ว",
+  "sendQueuedBody": "จะส่งออกเมื่อเปิด Epicbox อีกครั้ง คำตอบของ {name} จะกลับมาทางเดียวกัน",
+  "txStatusWaitingFor": "รอ {name}",
+  "txStepSentMailbox": "ส่งผ่านกล่องรับของ {name} แล้ว",
+  "txStepAnswerFrom": "คำตอบจาก {name}",
+  "txStepCollecting": "กำลังตรวจกล่องรับของ {name}",
+  "deskTxStatusWaitingFor": "รอ {name} ลงนาม",
+  "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link"
 }

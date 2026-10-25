@@ -165,5 +165,6 @@
   "deskSendMessageBytes": "{used} / {max} Byte",
   "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
   "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
-  "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden."
+  "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.",
+  "deskSendContactNoLink": "{name} hat keine Link-Adresse."
 }

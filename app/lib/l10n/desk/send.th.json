@@ -165,5 +165,6 @@
   "deskSendMessageBytes": "{used} / {max} ไบต์",
   "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง",
   "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
-  "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้"
+  "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้",
+  "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link"
 }

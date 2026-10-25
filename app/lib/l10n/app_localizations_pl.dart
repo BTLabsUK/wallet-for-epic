@@ -16581,4 +16581,68 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => 'Otwórz Zaawansowane';
+
+  @override
+  String get contactNoAddressPaired => 'Płatności idą przez parowanie';
+
+  @override
+  String get contactSendKeysChanged => 'Przed wysłaniem sprawdź słowa.';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return 'Portfel $name nie przyjmuje płatności przez parowanie. Poproś o adres.';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return 'Przez parowanie z $name';
+  }
+
+  @override
+  String get sendClearRecipient => 'Wyczyść odbiorcę';
+
+  @override
+  String get sendQueuedEpicboxOff =>
+      'Epicbox jest wyłączony. Płatność czeka tutaj i wyjdzie, gdy Epicbox znów będzie włączony.';
+
+  @override
+  String get sendQueue => 'Dodaj płatność do kolejki';
+
+  @override
+  String get sendQueuedHeadline => 'Płatność w kolejce';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'Wyjdzie, gdy Epicbox znów będzie włączony. Odpowiedź $name wróci tą samą drogą.';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return 'Czeka na: $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return 'Wysłano przez skrzynkę $name';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return 'Odpowiedź od $name';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return 'Sprawdzanie skrzynki $name';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return 'Czeka na podpis: $name';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return '$name nie ma adresu Link.';
+  }
 }

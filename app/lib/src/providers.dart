@@ -1006,12 +1006,14 @@ class ShellTabNotifier extends Notifier<ShellTab> {
 
 /// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two
 /// hand-offs of the same text apart. A payment code ([request]) also brings an amount, a note
-/// and where it came from ([origin]); it only fills the form.
+/// and where it came from ([origin]); it only fills the form. [pairingId] is a paired contact
+/// with no address, paid through its mailbox; [text] is empty then.
 typedef RecipientHandoff = ({
   int id,
   String text,
   PaymentRequest? request,
   CodeOrigin? origin,
+  String? pairingId,
 });
 
 /// The latest [RecipientHandoff], until the Send form that took it is cleared.
@@ -1031,7 +1033,11 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
 
   /// Hands over [text] as the recipient; [origin] when it came from a scan, paste or link.
   void hand(String text, {CodeOrigin? origin}) =>
-      state = (id: _next++, text: text, request: null, origin: origin);
+      state = (id: _next++, text: text, request: null, origin: origin, pairingId: null);
+
+  /// Hands over the pairing [pairingId] as the recipient: a contact with no address.
+  void handPairing(String pairingId) =>
+      state = (id: _next++, text: '', request: null, origin: null, pairingId: pairingId);
 
   /// Hands over a payment code: Send fills the address, the amount and the note.
   void handRequest(PaymentRequest request, CodeOrigin origin) => state = (
@@ -1039,6 +1045,7 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
     text: request.recipient.address,
     request: request,
     origin: origin,
+    pairingId: null,
   );
 
   void clear() => state = null;

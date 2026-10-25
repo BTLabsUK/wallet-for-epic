@@ -34,5 +34,6 @@
   "deskActStageSpendable": "可用",
   "deskActStageSpendableText": "{needed, plural, other{{needed} 个确认之后，约 {needed} 分钟。}}",
   "deskActShowAddress": "显示地址",
-  "deskActReceiveFile": "接收文件"
+  "deskActReceiveFile": "接收文件",
+  "deskTxStatusWaitingFor": "等待 {name} 签名"
 }

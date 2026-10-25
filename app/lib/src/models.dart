@@ -2672,6 +2672,10 @@ class PairingRecord {
   /// Payment files to the contact are sealed now.
   bool get seals => state.isPaired && !paused && seal != SealMode.off && caps.opensSealed;
 
+  /// A payment can go through the contact's mailbox (RFC 9.1): paired or verified, and its
+  /// wallet opens sealed messages. The seal switch plays no part.
+  bool get paysByMailbox => (state == PairingState.paired || state == PairingState.verified) && caps.opensSealed;
+
   /// Waiting for the user to check the words after pairing.
   bool get awaitsCheck => state == PairingState.paired && !checkSkipped;
 
@@ -2868,6 +2872,10 @@ enum PairingEventKind {
 
   /// A contact withdrew a request (before or after it was paid).
   requestWithdrawn,
+
+  /// A contact's answer to a payment sent through its mailbox was finalized and posted
+  /// ([PairingEvent.slateId]); may come again for the same payment.
+  paymentFinalized,
 }
 
 class PairingEvent {

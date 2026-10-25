@@ -15219,4 +15219,67 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => '打开高级';
+
+  @override
+  String get contactNoAddressPaired => '付款通过配对进行';
+
+  @override
+  String get contactSendKeysChanged => '发送前请先核对词语。';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return '$name 的钱包不接受通过配对的付款。请索要地址。';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return '通过与 $name 的配对';
+  }
+
+  @override
+  String get sendClearRecipient => '清除收款方';
+
+  @override
+  String get sendQueuedEpicboxOff => 'Epicbox 已关闭。付款在此等待，Epicbox 重新开启后发出。';
+
+  @override
+  String get sendQueue => '排队付款';
+
+  @override
+  String get sendQueuedHeadline => '付款已排队';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'Epicbox 重新开启后发出。$name 的回复也经同一途径返回。';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return '等待 $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return '已通过 $name 的信箱发送';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return '$name 的回复';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return '正在查看 $name 的信箱';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return '等待 $name 签名';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return '$name 没有 Link 地址。';
+  }
 }

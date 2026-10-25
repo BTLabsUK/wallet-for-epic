@@ -25255,6 +25255,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Advanced'**
   String get expOpenAdvanced;
+
+  /// Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no address).
+  ///
+  /// In en, this message translates to:
+  /// **'Payments go through the pairing'**
+  String get contactNoAddressPaired;
+
+  /// Line under a disabled Send on the page of a pairing-only contact whose keys changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words before sending.'**
+  String get contactSendKeysChanged;
+
+  /// Line under a disabled Send on the page of a pairing-only contact whose wallet cannot open sealed messages.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet does not take payments through the pairing. Ask for an address.'**
+  String contactSendNoSealed(String name);
+
+  /// Send recipient card, review and transaction facts: the recipient is a paired contact with no address, reached through the pairing. Never an address.
+  ///
+  /// In en, this message translates to:
+  /// **'Through {name}’s pairing'**
+  String sendRecipientPairing(String name);
+
+  /// Tooltip of the × on Send's recipient card: back to the empty To field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear recipient'**
+  String get sendClearRecipient;
+
+  /// Review card when a payment through a contact's mailbox is made while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox is off. The payment waits here and goes out when Epicbox is back on.'**
+  String get sendQueuedEpicboxOff;
+
+  /// Review button instead of Send when a mailbox payment waits for Epicbox to be on again.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue payment'**
+  String get sendQueue;
+
+  /// Result headline after a mailbox payment was queued while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment queued'**
+  String get sendQueuedHeadline;
+
+  /// Result body after a mailbox payment was queued while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'It goes out when Epicbox is back on. {name}’s answer comes back the same way.'**
+  String sendQueuedBody(String name);
+
+  /// Status of a payment through a paired contact's mailbox, waiting for the contact's answer (row and detail).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}'**
+  String txStatusWaitingFor(String name);
+
+  /// Transaction detail timeline: step 1 of a payment through the contact's mailbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent through {name}’s mailbox'**
+  String txStepSentMailbox(String name);
+
+  /// Transaction detail timeline: step 2, the contact's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer from {name}'**
+  String txStepAnswerFrom(String name);
+
+  /// Transaction detail timeline: the detail of step 2 while the answer is awaited.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {name}’s mailbox'**
+  String txStepCollecting(String name);
+
+  /// Activity row and detail status of a payment through a paired contact's mailbox, waiting for the contact to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to sign'**
+  String deskTxStatusWaitingFor(String name);
+
+  /// Tooltip of the disabled Link · HTTP and Link · Tor segments when the recipient is a paired contact with no address.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no Link address.'**
+  String deskSendContactNoLink(String name);
 }
 
 class _AppLocalizationsDelegate

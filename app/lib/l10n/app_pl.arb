@@ -4228,5 +4228,20 @@
   "expPairingOffBody": "Można je włączyć w Ustawienia › Zaawansowane.",
   "expInvoicesOffTitle": "Faktury są eksperymentalne",
   "expInvoicesOffBody": "Można je włączyć w Ustawienia › Zaawansowane.",
-  "expOpenAdvanced": "Otwórz Zaawansowane"
+  "expOpenAdvanced": "Otwórz Zaawansowane",
+  "contactNoAddressPaired": "Płatności idą przez parowanie",
+  "contactSendKeysChanged": "Przed wysłaniem sprawdź słowa.",
+  "contactSendNoSealed": "Portfel {name} nie przyjmuje płatności przez parowanie. Poproś o adres.",
+  "sendRecipientPairing": "Przez parowanie z {name}",
+  "sendClearRecipient": "Wyczyść odbiorcę",
+  "sendQueuedEpicboxOff": "Epicbox jest wyłączony. Płatność czeka tutaj i wyjdzie, gdy Epicbox znów będzie włączony.",
+  "sendQueue": "Dodaj płatność do kolejki",
+  "sendQueuedHeadline": "Płatność w kolejce",
+  "sendQueuedBody": "Wyjdzie, gdy Epicbox znów będzie włączony. Odpowiedź {name} wróci tą samą drogą.",
+  "txStatusWaitingFor": "Czeka na: {name}",
+  "txStepSentMailbox": "Wysłano przez skrzynkę {name}",
+  "txStepAnswerFrom": "Odpowiedź od {name}",
+  "txStepCollecting": "Sprawdzanie skrzynki {name}",
+  "deskTxStatusWaitingFor": "Czeka na podpis: {name}",
+  "deskSendContactNoLink": "{name} nie ma adresu Link."
 }

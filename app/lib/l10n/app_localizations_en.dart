@@ -16078,4 +16078,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => 'Open Advanced';
+
+  @override
+  String get contactNoAddressPaired => 'Payments go through the pairing';
+
+  @override
+  String get contactSendKeysChanged => 'Check the words before sending.';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return '$name’s wallet does not take payments through the pairing. Ask for an address.';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return 'Through $name’s pairing';
+  }
+
+  @override
+  String get sendClearRecipient => 'Clear recipient';
+
+  @override
+  String get sendQueuedEpicboxOff =>
+      'Epicbox is off. The payment waits here and goes out when Epicbox is back on.';
+
+  @override
+  String get sendQueue => 'Queue payment';
+
+  @override
+  String get sendQueuedHeadline => 'Payment queued';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'It goes out when Epicbox is back on. $name’s answer comes back the same way.';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return 'Waiting for $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return 'Sent through $name’s mailbox';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return 'Answer from $name';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return 'Checking $name’s mailbox';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return 'Waiting for $name to sign';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return '$name has no Link address.';
+  }
 }

@@ -838,5 +838,15 @@
         "type": "String"
       }
     }
+  },
+  "deskSendContactNoLink": "{name} has no Link address.",
+  "@deskSendContactNoLink": {
+    "description": "Tooltip of the disabled Link · HTTP and Link · Tor segments when the recipient is a paired contact with no address.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
   }
 }

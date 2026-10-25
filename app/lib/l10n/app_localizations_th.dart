@@ -15773,4 +15773,68 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => 'เปิดขั้นสูง';
+
+  @override
+  String get contactNoAddressPaired => 'การชำระเงินผ่านการจับคู่';
+
+  @override
+  String get contactSendKeysChanged => 'ตรวจคำก่อนส่ง';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return 'กระเป๋าของ $name ไม่รับการชำระเงินผ่านการจับคู่ ขอที่อยู่แทน';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return 'ผ่านการจับคู่กับ $name';
+  }
+
+  @override
+  String get sendClearRecipient => 'ล้างผู้รับ';
+
+  @override
+  String get sendQueuedEpicboxOff =>
+      'Epicbox ปิดอยู่ การชำระเงินรออยู่ที่นี่และจะส่งออกเมื่อเปิด Epicbox อีกครั้ง';
+
+  @override
+  String get sendQueue => 'เข้าคิวการชำระเงิน';
+
+  @override
+  String get sendQueuedHeadline => 'การชำระเงินเข้าคิวแล้ว';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'จะส่งออกเมื่อเปิด Epicbox อีกครั้ง คำตอบของ $name จะกลับมาทางเดียวกัน';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return 'รอ $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return 'ส่งผ่านกล่องรับของ $name แล้ว';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return 'คำตอบจาก $name';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return 'กำลังตรวจกล่องรับของ $name';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return 'รอ $name ลงนาม';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return '$name ไม่มีที่อยู่ Link';
+  }
 }

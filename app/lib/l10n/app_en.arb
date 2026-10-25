@@ -21270,5 +21270,119 @@
   "expOpenAdvanced": "Open Advanced",
   "@expOpenAdvanced": {
     "description": "Button of those sheets: opens Settings › Advanced"
+  },
+  "contactNoAddressPaired": "Payments go through the pairing",
+  "@contactNoAddressPaired": {
+    "description": "Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no address)."
+  },
+  "contactSendKeysChanged": "Check the words before sending.",
+  "@contactSendKeysChanged": {
+    "description": "Line under a disabled Send on the page of a pairing-only contact whose keys changed."
+  },
+  "contactSendNoSealed": "{name}’s wallet does not take payments through the pairing. Ask for an address.",
+  "@contactSendNoSealed": {
+    "description": "Line under a disabled Send on the page of a pairing-only contact whose wallet cannot open sealed messages.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendRecipientPairing": "Through {name}’s pairing",
+  "@sendRecipientPairing": {
+    "description": "Send recipient card, review and transaction facts: the recipient is a paired contact with no address, reached through the pairing. Never an address.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendClearRecipient": "Clear recipient",
+  "@sendClearRecipient": {
+    "description": "Tooltip of the × on Send's recipient card: back to the empty To field."
+  },
+  "sendQueuedEpicboxOff": "Epicbox is off. The payment waits here and goes out when Epicbox is back on.",
+  "@sendQueuedEpicboxOff": {
+    "description": "Review card when a payment through a contact's mailbox is made while Epicbox is off."
+  },
+  "sendQueue": "Queue payment",
+  "@sendQueue": {
+    "description": "Review button instead of Send when a mailbox payment waits for Epicbox to be on again."
+  },
+  "sendQueuedHeadline": "Payment queued",
+  "@sendQueuedHeadline": {
+    "description": "Result headline after a mailbox payment was queued while Epicbox is off."
+  },
+  "sendQueuedBody": "It goes out when Epicbox is back on. {name}’s answer comes back the same way.",
+  "@sendQueuedBody": {
+    "description": "Result body after a mailbox payment was queued while Epicbox is off.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "txStatusWaitingFor": "Waiting for {name}",
+  "@txStatusWaitingFor": {
+    "description": "Status of a payment through a paired contact's mailbox, waiting for the contact's answer (row and detail).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "txStepSentMailbox": "Sent through {name}’s mailbox",
+  "@txStepSentMailbox": {
+    "description": "Transaction detail timeline: step 1 of a payment through the contact's mailbox.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "txStepAnswerFrom": "Answer from {name}",
+  "@txStepAnswerFrom": {
+    "description": "Transaction detail timeline: step 2, the contact's answer.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "txStepCollecting": "Checking {name}’s mailbox",
+  "@txStepCollecting": {
+    "description": "Transaction detail timeline: the detail of step 2 while the answer is awaited.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "deskTxStatusWaitingFor": "Waiting for {name} to sign",
+  "@deskTxStatusWaitingFor": {
+    "description": "Activity row and detail status of a payment through a paired contact's mailbox, waiting for the contact to sign.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "deskSendContactNoLink": "{name} has no Link address.",
+  "@deskSendContactNoLink": {
+    "description": "Tooltip of the disabled Link · HTTP and Link · Tor segments when the recipient is a paired contact with no address.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
   }
 }

@@ -13,8 +13,10 @@ import '../../pairing_providers.dart';
 import '../../payment_prefs.dart';
 import '../../settings.dart';
 import '../../wallet_service.dart';
+import '../badge.dart';
 import '../method_names.dart';
 import '../net_block.dart' show methodOffReason;
+import '../status_icons.dart' show EpicGlyphs;
 import '../theme/tokens.dart';
 import 'pairing_parts.dart';
 
@@ -121,6 +123,158 @@ class SendPairingLine extends ConsumerWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Keys of the pairing recipient (a contact with no address), for tests.
+const Key sendPairingCardKey = ValueKey('send-pairing-card');
+const Key sendPairingClearKey = ValueKey('send-pairing-clear');
+const Key sendPairingReadoutKey = ValueKey('send-pairing-readout');
+const Key sendPairingCheckKey = ValueKey('send-pairing-check');
+
+/// Send's recipient when it is a paired contact with no address (DESIGN 1.2): in the To slot,
+/// the avatar, the name with its trust badge and "Through Anna's pairing", never an address;
+/// [onClear] (×) goes back to the empty To field.
+class PairingRecipientCard extends StatelessWidget {
+  const PairingRecipientCard({super.key, required this.pairing, required this.name, this.onClear});
+
+  final PairingRecord pairing;
+  final String name;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return Container(
+      key: sendPairingCardKey,
+      padding: EdgeInsetsDirectional.fromSTEB(12, 10, onClear == null ? 12 : 0, 10),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.line),
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+      ),
+      child: Row(
+        children: [
+          PairAvatar(name: name, kind: pairing.kind, size: 40),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(name, style: theme.textTheme.titleSmall?.copyWith(color: t.text)),
+                    TrustBadge(pairing, short: true),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(l.sendRecipientPairing(name), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+              ],
+            ),
+          ),
+          if (onClear case final clear?)
+            IconButton(
+              key: sendPairingClearKey,
+              tooltip: l.sendClearRecipient,
+              icon: Icon(Icons.close, color: t.dim),
+              onPressed: clear,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A [PairSwitchRow] without the switch: the mailbox a pairing-only contact is paid through,
+/// as a fact. [paused] while Epicbox is off: the payment waits.
+class PairReadoutRow extends StatelessWidget {
+  const PairReadoutRow({super.key, required this.label, required this.hint, this.paused = false});
+
+  final String label;
+  final String hint;
+  final bool paused;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return Semantics(
+      container: true,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
+          child: Row(
+            children: [
+              Icon(paused ? Icons.pause : EpicGlyphs.sealed, size: 20, color: paused ? t.warn : t.dim),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: t.text)),
+                    Text(hint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Under the pairing recipient: the Sealed badge and the mailbox readout ("Send through Anna's
+/// mailbox", "Sealed. Delivered via …", or "Paused while Epicbox is off"). When the pairing
+/// can no longer take a payment (keys changed meanwhile, or a card that does not open sealed
+/// messages), a warn notice with Check the words instead.
+class SendPairingMailbox extends ConsumerWidget {
+  const SendPairingMailbox({super.key, required this.pairing, required this.name, required this.onCheck});
+
+  final PairingRecord pairing;
+  final String name;
+  final VoidCallback onCheck;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    if (!pairing.paysByMailbox) {
+      final changed = pairing.state == PairingState.keysChanged;
+      return PairEdgeNotice(
+        key: sendPairingReadoutKey,
+        tone: BadgeTone.warn,
+        title: changed ? l.contactKeysChangedTitle(name) : l.contactSendNoSealed(name),
+        body: changed ? l.contactKeysChangedBody : null,
+        actions: [
+          if (changed) OutlinedButton(key: sendPairingCheckKey, onPressed: onCheck, child: Text(l.noticeCheckWords)),
+        ],
+      );
+    }
+    final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(alignment: AlignmentDirectional.centerStart, child: SealedBadge(name: name)),
+        const SizedBox(height: 8),
+        PairCard(
+          key: sendPairingReadoutKey,
+          children: [
+            PairReadoutRow(
+              label: l.sendViaMailbox(name),
+              hint: paused ? l.contactPausedEpicboxOff : l.sendViaMailboxHint(pairing.homeRelay),
+              paused: paused,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -34,5 +34,6 @@
   "deskActStageSpendable": "ใช้ได้",
   "deskActStageSpendableText": "{needed, plural, other{หลังยืนยันครบ {needed} ครั้ง ประมาณ {needed} นาที}}",
   "deskActShowAddress": "แสดงที่อยู่",
-  "deskActReceiveFile": "รับไฟล์"
+  "deskActReceiveFile": "รับไฟล์",
+  "deskTxStatusWaitingFor": "รอ {name} ลงนาม"
 }

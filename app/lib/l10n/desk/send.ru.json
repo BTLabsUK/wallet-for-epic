@@ -165,5 +165,6 @@
   "deskSendMessageBytes": "{used} / {max} байт",
   "deskSendMessageTooLong": "Сообщение длиннее {max} байт. Сократите его.",
   "deskSendRelayUnknownTitle": "Неизвестный сервер Epicbox",
-  "deskSendRelayUnknownText": "Приложение не знает сервер {relay}. Проверьте адрес перед отправкой. Отправить всё равно можно."
+  "deskSendRelayUnknownText": "Приложение не знает сервер {relay}. Проверьте адрес перед отправкой. Отправить всё равно можно.",
+  "deskSendContactNoLink": "У {name} нет адреса Link."
 }

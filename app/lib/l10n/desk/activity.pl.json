@@ -34,5 +34,6 @@
   "deskActStageSpendable": "Do wydania",
   "deskActStageSpendableText": "{needed, plural, one{Po {needed} potwierdzeniu, czyli po około {needed} minucie.} few{Po {needed} potwierdzeniach, czyli po około {needed} minutach.} many{Po {needed} potwierdzeniach, czyli po około {needed} minutach.} other{Po {needed} potwierdzenia, czyli po około {needed} minuty.}}",
   "deskActShowAddress": "Pokaż adres",
-  "deskActReceiveFile": "Odbierz plik"
+  "deskActReceiveFile": "Odbierz plik",
+  "deskTxStatusWaitingFor": "Czeka na podpis: {name}"
 }

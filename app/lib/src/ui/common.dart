@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../amount.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
-import '../pairing_providers.dart' show pairingNameProvider;
+import '../pairing_providers.dart' show pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -41,11 +41,14 @@ void goHome(BuildContext context) {
 }
 
 /// Shows [tab] of the wallet shell and closes every screen over it. With [recipient] (a
-/// scanned code, Send again), the Send form takes it as the recipient.
-void showShellTab(BuildContext context, ShellTab tab, {String? recipient}) {
+/// scanned code, Send again), the Send form takes it as the recipient; with [pairingTo], the
+/// paired contact with no address, paid through its mailbox.
+void showShellTab(BuildContext context, ShellTab tab, {String? recipient, String? pairingTo}) {
   final container = ProviderScope.containerOf(context, listen: false);
   if (recipient != null) {
     container.read(sendRecipientProvider.notifier).hand(recipient);
+  } else if (pairingTo != null) {
+    container.read(sendRecipientProvider.notifier).handPairing(pairingTo);
   }
   container.read(shellTabProvider.notifier).go(tab);
   Navigator.of(context).popUntil((route) => route.isFirst);
@@ -681,17 +684,20 @@ TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
   };
 }
 
-/// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …
+/// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …; `Waiting for Anna` for a
+/// payment through the mailbox of the paired contact [pairedWith] ([txMailboxName]).
 String txStatusLabel(
   AppLocalizations l,
   TxEntry tx,
   BigInt? tip, {
   int? target,
   DateTime? now,
+  String? pairedWith,
 }) => switch (txPhase(tx, tip, target: target)) {
   TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
   TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
     l.txStatusStalled,
+  TxPhase.waitingRecipient when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   // The sender's word, not the chain's: never Received before a block.
   TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
@@ -775,6 +781,7 @@ class TxStatusLine extends ConsumerWidget {
                     tip,
                     target: target,
                     now: now,
+                    pairedWith: txMailboxName(ref, tx),
                   ),
                   style: phase == TxPhase.confirming || reported
                       ? base?.copyWith(color: t.info)
@@ -802,12 +809,17 @@ class TxStatusLine extends ConsumerWidget {
 /// A payment's progress for [StatusTimeline], or null where a timeline would add nothing to
 /// the status text: cancelled payments, backup records, mining rewards, restored or imported
 /// rows. The current step names what the wallet waits for ("Waiting for recipient").
+///
+/// A payment through a paired contact's [mailbox] names it (DESIGN 1.2): "Sent through Anna's
+/// mailbox" with its relay (or, paused while Epicbox is off, still current: it waits in the
+/// outbox), then "Answer from Anna", "Checking Anna's mailbox" while it is awaited.
 List<TimelineStep>? txTimeline(
   AppLocalizations l,
   TxEntry tx,
   BigInt? tip, {
   int? target,
   DateTime? now,
+  ({String name, String relay, bool paused})? mailbox,
 }) {
   if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
   final phase = txPhase(tx, tip, target: target);
@@ -867,6 +879,30 @@ List<TimelineStep>? txTimeline(
     };
   }
   if (at == null) return null;
+  if (mailbox != null && _outgoingKind(tx)) {
+    final (:name, :relay, :paused) = mailbox;
+    final queued = paused && at == 1;
+    final answer = l.txStepAnswerFrom(name);
+    return [
+      TimelineStep(
+        l.txStepSentMailbox(name),
+        queued ? TimelineState.current : TimelineState.done,
+        detail: queued ? l.contactPausedEpicboxOff : (relay.isEmpty ? null : l.contactDeliveredVia(relay)),
+      ),
+      if (queued)
+        TimelineStep(answer, TimelineState.todo)
+      else if (at == 1)
+        TimelineStep(answer, TimelineState.current, detail: l.txStepCollecting(name))
+      else
+        TimelineStep(answer, TimelineState.done),
+      for (final (i, (done, now, todo)) in steps.indexed.skip(2))
+        i < at
+            ? TimelineStep(done, TimelineState.done)
+            : i == at
+            ? TimelineStep(now, TimelineState.current)
+            : TimelineStep(todo, TimelineState.todo),
+    ];
+  }
   return [
     for (final (i, (done, now, todo)) in steps.indexed)
       i < at
@@ -914,8 +950,23 @@ String? contactName(WidgetRef ref, String? address) {
 String? txPartyName(WidgetRef ref, TxEntry tx) {
   final saved = contactName(ref, tx.counterparty);
   final slate = tx.slateId;
-  if (saved != null || slate == null || tx.flow != TxFlow.invoice || !txAmount(tx).outgoing) return saved;
+  if (saved != null || slate == null || !txAmount(tx).outgoing) return saved;
+  if (tx.flow != TxFlow.invoice) return txMailboxName(ref, tx);
   final pairingId = ref.watch(paidInvoiceProvider(slate)).value?.pairingId;
+  if (pairingId == null) return null;
+  final name = ref.watch(pairingNameProvider(pairingId));
+  return name.isEmpty ? null : name;
+}
+
+/// The paired contact a payment went to through its mailbox (RFC 9.1, a send with no address),
+/// by name, or null. Lists ask only for a payment still waiting for its answer, as each ask
+/// reads the wallet's payments; [any] asks for any such send (one detail page).
+String? txMailboxName(WidgetRef ref, TxEntry tx, {bool any = false}) {
+  final slate = tx.slateId;
+  if (slate == null || tx.counterparty != null || tx.kind != TxKind.sent) return null;
+  if (!any && tx.status != TxStatus.awaitingRecipient) return null;
+  if (!ref.watch(pairingSupportedProvider)) return null;
+  final pairingId = ref.watch(pairingSlateProvider(slate)).value?.pairingId;
   if (pairingId == null) return null;
   final name = ref.watch(pairingNameProvider(pairingId));
   return name.isEmpty ? null : name;
@@ -944,7 +995,7 @@ class TxStatusChip extends ConsumerWidget {
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
     return EBadge(
-      txStatusLabel(context.l10n, tx, tip, target: target, now: now),
+      txStatusLabel(context.l10n, tx, tip, target: target, now: now, pairedWith: txMailboxName(ref, tx)),
       tone: tone,
     );
   }
@@ -1517,6 +1568,7 @@ class TxTile extends ConsumerWidget {
                 tip,
                 target: confirmationsTargetOf(ref),
                 now: now,
+                pairedWith: txMailboxName(ref, tx),
               ),
               hidden: display.hidden,
               label: tx.label,

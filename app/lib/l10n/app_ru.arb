@@ -4228,5 +4228,20 @@
   "expPairingOffBody": "Включается в Настройки › Дополнительно.",
   "expInvoicesOffTitle": "Счета — экспериментальная функция",
   "expInvoicesOffBody": "Включаются в Настройки › Дополнительно.",
-  "expOpenAdvanced": "Открыть Дополнительно"
+  "expOpenAdvanced": "Открыть Дополнительно",
+  "contactNoAddressPaired": "Платежи идут через сопряжение",
+  "contactSendKeysChanged": "Перед отправкой проверьте слова.",
+  "contactSendNoSealed": "Кошелёк {name} не принимает платежи через сопряжение. Попросите адрес.",
+  "sendRecipientPairing": "Через сопряжение с {name}",
+  "sendClearRecipient": "Очистить получателя",
+  "sendQueuedEpicboxOff": "Epicbox выключен. Платёж ждёт здесь и уйдёт, когда Epicbox снова включится.",
+  "sendQueue": "Поставить платёж в очередь",
+  "sendQueuedHeadline": "Платёж в очереди",
+  "sendQueuedBody": "Он уйдёт, когда Epicbox снова включится. Ответ {name} придёт тем же путём.",
+  "txStatusWaitingFor": "Ждёт: {name}",
+  "txStepSentMailbox": "Отправлено через почтовый ящик {name}",
+  "txStepAnswerFrom": "Ответ от {name}",
+  "txStepCollecting": "Проверка почтового ящика {name}",
+  "deskTxStatusWaitingFor": "Ждёт подписи: {name}",
+  "deskSendContactNoLink": "У {name} нет адреса Link."
 }

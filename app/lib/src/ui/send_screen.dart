@@ -8,7 +8,8 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
-import '../pairing_providers.dart' show pairingName;
+import '../pairing_providers.dart'
+    show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../initials.dart';
@@ -41,6 +42,7 @@ import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
+import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_parts.dart';
 import 'pairing/send_pairing.dart';
 import 'status_icons.dart';
@@ -56,7 +58,7 @@ import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart' show TimelineState, TimelineStep;
+import 'theme/protocol.dart' show EdgeCard, TimelineState, TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -176,6 +178,11 @@ const Key sendTryAgainKey = ValueKey('send-try-again');
 const Key sendUnknownRelayKey = ValueKey('send-unknown-relay');
 const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
 
+/// The review's card that a mailbox payment waits while Epicbox is off, and the tracker's
+/// "Payment queued", for tests.
+const Key sendQueuedCardKey = ValueKey('send-queued-card');
+const Key sendQueuedHeadlineKey = ValueKey('send-queued-headline');
+
 /// Send's method selector, and the tag beside the To label after the method followed the
 /// address, for tests.
 const Key sendMethodsKey = ValueKey('send-methods');
@@ -273,12 +280,20 @@ class _Sent {
     required this.to,
     this.reviewedFee,
     this.noteSaved = true,
+    this.pairingId,
+    this.queued = false,
   });
 
   /// The payment as the send returned it; the tracker follows it in [homeProvider].
   final TxEntry tx;
   final BigInt amount;
   final Recipient to;
+
+  /// Sent through the mailbox of this pairing (a contact with no address; [to] is empty).
+  final String? pairingId;
+
+  /// Made while Epicbox was off: it waits in the outbox until Epicbox is on again.
+  final bool queued;
 
   /// The fee the review showed, to compare with the one charged.
   final BigInt? reviewedFee;
@@ -482,7 +497,10 @@ class _SendViewState extends ConsumerState<SendView> {
     super.initState();
     _recipientFocus.addListener(_recipientFocusChanged);
     final handoff = ref.read(sendRecipientProvider);
-    if (handoff != null) {
+    if (handoff != null && handoff.pairingId != null) {
+      _handoff = handoff.id;
+      _pairingTo = handoff.pairingId;
+    } else if (handoff != null) {
       _handoff = handoff.id;
       final request = handoff.request;
       final to = parseRecipient(
@@ -510,7 +528,7 @@ class _SendViewState extends ConsumerState<SendView> {
     );
     // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
     // settings load on their own, so a form still untouched takes them when they arrive.
-    if (handoff == null || !recipientShaped(parseRecipient(handoff.text))) {
+    if (handoff == null || (handoff.pairingId == null && !recipientShaped(parseRecipient(handoff.text)))) {
       _startOn(ref.read(appSettingsProvider).value?.payments.startMethod);
       if (!_startApplied) {
         ref.listenManual(
@@ -519,6 +537,7 @@ class _SendViewState extends ConsumerState<SendView> {
             if (start == null || _startApplied || !mounted) return;
             if (_stage != SendStage.recipient ||
                 _recipient.text.isNotEmpty ||
+                _pairingTo != null ||
                 _method != TransferMethod.epicbox) {
               return;
             }
@@ -551,7 +570,7 @@ class _SendViewState extends ConsumerState<SendView> {
       return payments.offers(_viaQr ? MethodKind.directQr : MethodKind.directFile);
     }
     if (_stage != SendStage.recipient) return true;
-    if (recipientShaped(parseRecipient(_recipient.text))) return true;
+    if (_pairingTo != null || recipientShaped(parseRecipient(_recipient.text))) return true;
     return switch (_method) {
       TransferMethod.epicbox => payments.epicbox,
       TransferMethod.direct => payments.offersFamily(MethodFamily.link),
@@ -604,6 +623,8 @@ class _SendViewState extends ConsumerState<SendView> {
   /// only a problem with [required], when the user tries to go on.
   String? _recipientProblem(String text, {bool required = false}) {
     final l = context.l10n;
+    // A pairing recipient has no address to check: its card says whether it can be paid.
+    if (_pairingTo != null) return null;
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
     final to = parseRecipient(text);
     // A whole address of another kind has moved the method already; text that does not fit
@@ -812,6 +833,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_holdsPayment) {
       _laterRequest = (request: request, origin: origin);
       _laterRecipient = null;
+      _laterPairing = null;
       return;
     }
     if (_stage == SendStage.fileAmount) {
@@ -873,10 +895,62 @@ class _SendViewState extends ConsumerState<SendView> {
         builder: (_) => const ContactsScreen(pick: true),
       ),
     );
-    if (contact != null && mounted) {
-      _setRecipient(contactSendAddress(contact, _payments.offers));
-    }
+    if (contact == null || !mounted) return;
+    _useContact(contact);
   }
+
+  /// The pairing a contact with no address is paid through, when the wallet pairs.
+  PairingRecord? _pairingOnly(Contact contact, {bool watch = false}) {
+    if (contact.addresses.isNotEmpty) return null;
+    if (!(watch ? ref.watch(pairingSupportedProvider) : ref.read(pairingSupportedProvider))) return null;
+    return watch ? ref.watch(contactPairingProvider(contact.id)) : ref.read(contactPairingProvider(contact.id));
+  }
+
+  /// [contact] as the recipient: its address whose method is on, or its pairing.
+  void _useContact(Contact contact) {
+    if (_pairingOnly(contact) case final pairing?) {
+      _setPairing(pairing.id);
+      return;
+    }
+    _setRecipient(contactSendAddress(contact, _payments.offers));
+  }
+
+  /// The recipient is the pairing [id], a contact with no address: its card takes the To
+  /// field's place and the payment goes through its mailbox. Over a payment in progress, the
+  /// next form takes it.
+  void _setPairing(String id) {
+    if (_holdsPayment) {
+      _laterPairing = id;
+      _laterRecipient = null;
+      _laterRequest = null;
+      return;
+    }
+    _closeChecks();
+    _tagTimer?.cancel();
+    setState(() {
+      _recipient.clear();
+      _lastTo = '';
+      _leaveRequest();
+      _pairingTo = id;
+      _viaMailbox = false;
+      _plainHttpOk = false;
+      _method = TransferMethod.epicbox;
+      _viaQr = false;
+      _switchedTo = null;
+      _tagOn = false;
+      // Not held (above): the amount, the review or the file route go back to the recipient.
+      _stage = SendStage.recipient;
+      _recipientError = null;
+      _error = null;
+    });
+  }
+
+  /// × on the pairing card: back to the empty To field.
+  void _clearPairing() => setState(() {
+    _pairingTo = null;
+    _recipientError = null;
+    _error = null;
+  });
 
   /// Fills the recipient and checks it at once, as after a paste.
   void _setRecipient(String text, {CodeOrigin? origin}) {
@@ -886,8 +960,10 @@ class _SendViewState extends ConsumerState<SendView> {
       _laterRecipient = text;
       _laterOrigin = origin;
       _laterRequest = null;
+      _laterPairing = null;
       return;
     }
+    _pairingTo = null;
     _recipient.text = parseRecipient(text).address;
     _plainHttpOk = false;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
@@ -1158,8 +1234,11 @@ class _SendViewState extends ConsumerState<SendView> {
     _checks = null;
   }
 
-  EpicboxRelay? get _relay =>
-      recipientRelay(parseRecipient(_recipient.text).address);
+  /// The recipient's relay for the review's check; none for a pairing recipient, whose
+  /// mailbox payment LEPIC holds in its outbox until the relay takes it.
+  EpicboxRelay? get _relay => _pairingTo != null
+      ? null
+      : recipientRelay(parseRecipient(_recipient.text).address);
 
   /// Asks the wallet for the fee again (outputs may have changed since the last estimate)
   /// while [sendPreflightProvider] checks the node and epicbox, then shows the review.
@@ -1317,6 +1396,15 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
+    // Through the paired contact's mailbox, sealed (RFC 9.1): a contact with no address, or
+    // one whose switch the user turned on. Read now: the screen may be gone after the await.
+    final pairingTo = _pairingTo;
+    final mailbox = pairingTo != null
+        ? _toPairing(watch: false)
+        : (_viaMailbox ? sendPairingFor(ref, to.address, watch: false) : null);
+    if (pairingTo != null && mailbox == null) return;
+    final pairingApi = ref.read(pairingApiProvider);
+    final queued = _queues(watch: false);
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
       final minimum = ref.read(countedConfirmationsProvider);
@@ -1329,11 +1417,9 @@ class _SendViewState extends ConsumerState<SendView> {
       )).spendable;
       final TxEntry tx;
       try {
-        // Through the paired contact's mailbox, sealed (RFC 9.1), when the user chose it.
-        final mailbox = _viaMailbox ? sendPairingFor(ref, to.address) : null;
         tx = await hold.during(
           () => mailbox != null
-              ? session.pairing.sendViaMailbox(
+              ? pairingApi.sendViaMailbox(
                   id: mailbox.id,
                   amount: amount,
                   minimumConfirmations: ref.read(countedConfirmationsProvider),
@@ -1411,6 +1497,8 @@ class _SendViewState extends ConsumerState<SendView> {
             to: to,
             reviewedFee: reviewed.fee,
             noteSaved: noteSaved,
+            pairingId: pairingTo,
+            queued: queued,
           );
           _stage = SendStage.sent;
         });
@@ -1945,10 +2033,14 @@ class _SendViewState extends ConsumerState<SendView> {
     final later = _laterRecipient;
     final laterOrigin = _laterOrigin;
     final laterRequest = _laterRequest;
+    final laterPairing = _laterPairing;
     // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
     final handoff = ref.read(sendRecipientProvider.notifier);
     widget.onDone();
-    if (laterRequest != null) {
+    if (laterPairing != null) {
+      _laterPairing = null;
+      handoff.handPairing(laterPairing);
+    } else if (laterRequest != null) {
       _laterRequest = null;
       _laterRecipient = null;
       handoff.handRequest(laterRequest.request, laterRequest.origin);
@@ -1978,6 +2070,28 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Send through the paired contact's mailbox instead of its payments address (RFC 9.1).
   bool _viaMailbox = false;
 
+  /// A paired contact with no address, paid through its mailbox (DESIGN 1.2): the pairing's
+  /// id. Its card takes the To field's place; the To text stays empty.
+  String? _pairingTo;
+
+  /// A pairing handed over while a payment is held, for the next form.
+  String? _laterPairing;
+
+  /// [_pairingTo]'s record, watched in a build; null without one, or once it is removed.
+  PairingRecord? _toPairing({bool watch = true}) {
+    final id = _pairingTo;
+    if (id == null) return null;
+    return watch ? ref.watch(pairingByIdProvider(id)) : ref.read(pairingByIdProvider(id));
+  }
+
+  /// The name of the pairing [id]: its contact's, else the one it chose.
+  String _pairingNameOf(String id, {bool watch = true}) =>
+      watch ? ref.watch(pairingNameProvider(id)) : ref.read(pairingNameProvider(id));
+
+  /// A mailbox payment made now waits in the outbox: Epicbox is off (LEPIC queues it).
+  bool _queues({bool watch = true}) =>
+      _pairingTo != null && (watch ? ref.watch(pairNetProvider) : ref.read(pairNetProvider)) == PairNet.epicboxOff;
+
   /// The file route seals for the paired contact the recipient belongs to (SPEC 2.9) unless
   /// the user chose plain ("Seal this file?", or Send plain from the 90-day hint).
   bool _filePlain = false;
@@ -1992,7 +2106,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// recipient not paired, or Seal payments off.
   PairingRecord? _fileSealTarget({bool watch = true}) {
     if (_viaQr) return null;
-    final r = sendPairingFor(ref, _recipient.text.trim(), watch: watch);
+    final r = _pairingTo != null ? _toPairing(watch: watch) : sendPairingFor(ref, _recipient.text.trim(), watch: watch);
     return r != null && r.seals ? r : null;
   }
 
@@ -2036,7 +2150,15 @@ class _SendViewState extends ConsumerState<SendView> {
     final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
     // A method off in Settings › Transactions holds the send too: Epicbox, or the Link method
     // the address picks (a pasted onion with Link · Tor off says so, never a silent refusal).
-    _block = watchNetBlock(context, ref, localNode: localNode && direct, method: _sendMethod);
+    // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
+    // payment"); Offline and Tor still hold it.
+    _block = watchNetBlock(context, ref, localNode: localNode && direct, method: _pairingTo != null ? null : _sendMethod);
+    // The pairing went (removed elsewhere): back to the To field.
+    if (_pairingTo != null && _toPairing() == null && ref.watch(pairingsProvider).hasValue && !_holdsPayment) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pairingTo != null && _toPairing(watch: false) == null) _clearPairing();
+      });
+    }
     // A file or QR Payment is made, finalized and posted through the node in use, which
     // Offline allows on any node (the note under the button says so).
     _postBlock = watchNetBlock(context, ref, localNode: true);
@@ -2064,7 +2186,9 @@ class _SendViewState extends ConsumerState<SendView> {
       if (handoff == null || handoff.id == _handoff) return;
       _handoff = handoff.id;
       final request = handoff.request;
-      if (request != null) {
+      if (handoff.pairingId case final id?) {
+        _setPairing(id);
+      } else if (request != null) {
         _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
       } else {
         _setRecipient(handoff.text, origin: handoff.origin);
@@ -2276,11 +2400,12 @@ class _SendViewState extends ConsumerState<SendView> {
     final segments = [
       // Epicbox off (Settings › Transactions) hides it too; a pasted Epicbox address brings it
       // back for this send, where the note says it is off.
-      if (selected == TransferMethod.epicbox || payments.epicbox)
+      if (selected == TransferMethod.epicbox || payments.epicbox || _pairingTo != null)
         segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
       // Link · HTTP and Link · Tor both off hide it; a pasted http or onion address brings it
       // back for this send, where the note names the method that is off.
-      if (selected == TransferMethod.direct || payments.offersFamily(MethodFamily.link))
+      // A pairing recipient has no Link address.
+      if (selected == TransferMethod.direct || (payments.offersFamily(MethodFamily.link) && _pairingTo == null))
         segment(TransferMethod.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
       if (selected == TransferMethod.qr || (payments.directQr && offersQrPayment(ref)))
         segment(TransferMethod.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
@@ -2350,6 +2475,29 @@ class _SendViewState extends ConsumerState<SendView> {
     final matches = _nameMatches(text);
     final shape = sendAddressShape(l, _method);
     final way = _wayOf(_toRoute);
+    final pairing = _toPairing();
+    if (pairing != null) {
+      final name = _pairingNameOf(pairing.id);
+      return [
+        _header(context, l.sendStepMethod, step: 1),
+        ..._methodHead(context, _method),
+        Semantics(
+          label: l.sendToLabel,
+          container: true,
+          child: PairingRecipientCard(pairing: pairing, name: name, onClear: _clearPairing),
+        ),
+        const SizedBox(height: 8),
+        SendPairingMailbox(
+          pairing: pairing,
+          name: name,
+          onCheck: () => Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
+          ),
+        ),
+        const SizedBox(height: 4),
+        _recipientButtons(scan),
+      ];
+    }
     return [
       _header(context, l.sendStepMethod, step: 1),
       ..._methodHead(context, _method),
@@ -2448,36 +2596,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ],
         ),
-      Wrap(
-        spacing: 8,
-        children: [
-          Tooltip(
-            message: l.commonPaste,
-            child: TextButton.icon(
-              icon: const Icon(Icons.content_paste),
-              label: Text(l.commonPaste),
-              onPressed: _paste,
-            ),
-          ),
-          if (scan)
-            Tooltip(
-              message: l.scanQrTooltip,
-              child: TextButton.icon(
-                icon: const Icon(Icons.qr_code_scanner),
-                label: Text(l.sendScanButton),
-                onPressed: _scan,
-              ),
-            ),
-          Tooltip(
-            message: l.sendChooseContactTooltip,
-            child: TextButton.icon(
-              icon: const Icon(Icons.contacts),
-              label: Text(l.sendContactsButton),
-              onPressed: _pickContact,
-            ),
-          ),
-        ],
-      ),
+      _recipientButtons(scan),
       if (valid) ...[
         const SizedBox(height: 8),
         RecipientCard(
@@ -2500,8 +2619,9 @@ class _SendViewState extends ConsumerState<SendView> {
           _RecentRow(
             address: contactSendAddress(contact, _payments.offers),
             name: contact.name,
-            onTap: () =>
-                _setRecipient(contactSendAddress(contact, _payments.offers)),
+            // A contact with no address: through its pairing, never an empty address.
+            subtitle: _pairingOnly(contact, watch: true) == null ? null : l.sendRecipientPairing(contact.name),
+            onTap: () => _useContact(contact),
           ),
       ],
       if (text.isEmpty && recent.isNotEmpty) ...[
@@ -2524,9 +2644,50 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
+  /// Paste, Scan (where the phone scans) and Contacts under the recipient.
+  Widget _recipientButtons(bool scan) {
+    final l = context.l10n;
+    return Wrap(
+      spacing: 8,
+      children: [
+        Tooltip(
+          message: l.commonPaste,
+          child: TextButton.icon(
+            icon: const Icon(Icons.content_paste),
+            label: Text(l.commonPaste),
+            onPressed: _paste,
+          ),
+        ),
+        if (scan)
+          Tooltip(
+            message: l.scanQrTooltip,
+            child: TextButton.icon(
+              icon: const Icon(Icons.qr_code_scanner),
+              label: Text(l.sendScanButton),
+              onPressed: _scan,
+            ),
+          ),
+        Tooltip(
+          message: l.sendChooseContactTooltip,
+          child: TextButton.icon(
+            icon: const Icon(Icons.contacts),
+            label: Text(l.sendContactsButton),
+            onPressed: _pickContact,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// A pairing recipient can be paid while paired or verified and its wallet opens sealed
+  /// messages; keys that changed meanwhile hold Continue until the words are checked.
+  bool get _hasRecipient => _pairingTo != null
+      ? _toPairing()?.paysByMailbox ?? false
+      : _recipient.text.trim().isNotEmpty;
+
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: _recipient.text.trim().isEmpty || _block != NetBlock.none
+    onPressed: !_hasRecipient || _block != NetBlock.none
         ? null
         : _toAmount,
   );
@@ -2754,7 +2915,10 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       Align(
         alignment: AlignmentDirectional.centerStart,
-        child: _ToChip(address: address, name: _contactName(address)),
+        child: _ToChip(
+          address: address,
+          name: _pairingTo == null ? _contactName(address) : _pairingNameOf(_pairingTo!),
+        ),
       ),
       _TorNotice(
         way: _wayOf(sendRoute(parseRecipient(_recipient.text))),
@@ -2794,6 +2958,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final currency =
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final to = parseRecipient(_recipient.text);
+    final pairing = _toPairing();
+    final queued = _queues();
     final checks = ref.watch(sendPreflightProvider(_relay));
     final overTor = to.kind == RecipientKind.tor;
     final overHttp = to.kind == RecipientKind.http;
@@ -2815,8 +2981,9 @@ class _SendViewState extends ConsumerState<SendView> {
             )
           : l.sendTorNotReached(sendTtlDays);
     } else {
-      // The relay is named: a mistyped domain is the usual reason it never answers.
-      final relayName = _relay?.label ?? '';
+      // The relay is named: a mistyped domain is the usual reason it never answers. A
+      // pairing's mailbox is on the contact's own relay.
+      final relayName = _pairingTo != null ? (_toPairing()?.homeRelay ?? '') : (_relay?.label ?? '');
       failed = _nothingStored
           ? l.sendRelayDown(relayName)
           : _undelivered == null
@@ -2839,13 +3006,25 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         const SizedBox(height: 12),
       ],
-      RecipientCard(
-        address: to.address,
-        name: _contactName(to.address),
-        host: _activeOrigin != null && to.kind != RecipientKind.epicbox
-            ? directHostOf(to.address)
-            : null,
-      ),
+      if (pairing != null) ...[
+        // The mailbox is never shown as an address.
+        PairingRecipientCard(pairing: pairing, name: _pairingNameOf(pairing.id)),
+        const SizedBox(height: 8),
+        SendPairingMailbox(
+          pairing: pairing,
+          name: _pairingNameOf(pairing.id),
+          onCheck: () => Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
+          ),
+        ),
+      ] else
+        RecipientCard(
+          address: to.address,
+          name: _contactName(to.address),
+          host: _activeOrigin != null && to.kind != RecipientKind.epicbox
+              ? directHostOf(to.address)
+              : null,
+        ),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       Text(
@@ -2927,6 +3106,7 @@ class _SendViewState extends ConsumerState<SendView> {
         tor: tor,
         http: overHttp,
         way: way,
+        queued: queued,
       ),
       // An address whose relay the app does not know may be mistyped: a warning, not a block.
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
@@ -2948,6 +3128,25 @@ class _SendViewState extends ConsumerState<SendView> {
             : l.sendCancelRuleDirect,
         style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
       ),
+      // Epicbox off: the mailbox payment waits in the outbox until it is on again.
+      if (queued && !_sendFailed) ...[
+        const SizedBox(height: 12),
+        EdgeCard(
+          key: sendQueuedCardKey,
+          edge: t.info,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, size: 20, color: t.info),
+                const SizedBox(width: 10),
+                Expanded(child: Text(l.sendQueuedEpicboxOff, style: theme.textTheme.bodyMedium)),
+              ],
+            ),
+          ),
+        ),
+      ],
     ];
   }
 
@@ -2958,8 +3157,10 @@ class _SendViewState extends ConsumerState<SendView> {
     // Without a node answer the send could not be built or posted, and a connection that
     // waits for Tor or needs it does not go.
     final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
+    // A pairing whose keys changed meanwhile holds the send until the words are checked.
+    final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
-        checks.ready && !_busy && torGoes(way) && _block == NetBlock.none;
+        checks.ready && !_busy && torGoes(way) && _block == NetBlock.none && pairs;
     final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
@@ -3045,7 +3246,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ] else ...[
           BusyButton(
-            label: l.sendReviewSendButton(amount),
+            label: _queues() ? l.sendQueue : l.sendReviewSendButton(amount),
             busy: _busy,
             onPressed: canSend ? _send : null,
           ),
@@ -3083,15 +3284,18 @@ class _SendViewState extends ConsumerState<SendView> {
       // sent twice.
       return [NotPostedNotice(tx: live)];
     }
-    final name = _contactName(sent.to.address);
+    final pairingId = sent.pairingId;
+    final name = pairingId != null ? _pairingNameOf(pairingId) : _contactName(sent.to.address);
     final who = name ?? shortAddress(sent.to.address);
     final at = sendTrackerStep(track);
     final confirmations = txConfirmations(live, tip) ?? 0;
+    final sentLabel = name == null
+        ? l.sendTrackSent
+        : pairingId != null
+        ? l.txStepSentMailbox(name)
+        : l.sendTrackSentTo(name);
     final labels = <(String done, String now)>[
-      (
-        name == null ? l.sendTrackSent : l.sendTrackSentTo(name),
-        name == null ? l.sendTrackSent : l.sendTrackSentTo(name),
-      ),
+      (sentLabel, sentLabel),
       (
         name == null ? l.sendTrackSigned : l.sendTrackSignedBy(name),
         name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name),
@@ -3143,6 +3347,20 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ),
       const SizedBox(height: 24),
+      // Made while Epicbox was off: it waits in the outbox.
+      if (sent.queued && name != null && waiting) ...[
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            l.sendQueuedHeadline,
+            key: sendQueuedHeadlineKey,
+            style: theme.textTheme.titleMedium?.copyWith(color: t.text),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(l.sendQueuedBody(name), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+        const SizedBox(height: 16),
+      ],
       if (delivered) ...[
         Semantics(
           liveRegion: true,
@@ -3970,10 +4188,13 @@ class _ToChip extends StatelessWidget {
 
 /// One recent recipient: their name where known, else the short address.
 class _RecentRow extends StatelessWidget {
-  const _RecentRow({required this.address, this.name, required this.onTap});
+  const _RecentRow({required this.address, this.name, this.subtitle, required this.onTap});
 
   final String address;
   final String? name;
+
+  /// Words in place of the short address (a contact paid through its pairing).
+  final String? subtitle;
   final VoidCallback onTap;
 
   @override
@@ -3992,6 +4213,8 @@ class _RecentRow extends StatelessWidget {
       ),
       subtitle: name == null
           ? null
+          : subtitle != null
+          ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
           : Text(
               shortAddress(address),
               maxLines: 1,
@@ -4018,7 +4241,12 @@ class _ReadyLine extends ConsumerWidget {
     this.tor,
     this.http = false,
     this.way = TorWay.clearnet,
+    this.queued = false,
   });
+
+  /// A mailbox payment waits in the outbox while Epicbox is off: the listener being down is
+  /// expected then, and the review's card says what happens.
+  final bool queued;
 
   /// How the payment's connection goes with the Tor switch as it is.
   final TorWay way;
@@ -4116,7 +4344,7 @@ class _ReadyLine extends ConsumerWidget {
         t.dim,
         null,
       ),
-      _ when checks.listener == CheckOutcome.failed => (
+      _ when checks.listener == CheckOutcome.failed && !queued => (
         Icon(Icons.sync, size: 18, color: t.dim),
         l.sendListenerDown,
         t.dim,

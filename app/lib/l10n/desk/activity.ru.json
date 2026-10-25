@@ -34,5 +34,6 @@
   "deskActStageSpendable": "Доступно",
   "deskActStageSpendableText": "{needed, plural, one{После {needed} подтверждения, примерно через {needed} минуту.} few{После {needed} подтверждений, примерно через {needed} минуты.} many{После {needed} подтверждений, примерно через {needed} минут.} other{После {needed} подтверждения, примерно через {needed} минуты.}}",
   "deskActShowAddress": "Показать адрес",
-  "deskActReceiveFile": "Получить файл"
+  "deskActReceiveFile": "Получить файл",
+  "deskTxStatusWaitingFor": "Ждёт подписи: {name}"
 }

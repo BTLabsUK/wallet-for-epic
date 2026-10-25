@@ -37,6 +37,8 @@ const Key contactPageInvoicesKey = ValueKey('contact-page-invoices');
 const Key contactPageRemovePairingKey = ValueKey('contact-page-remove-pairing');
 const Key contactPageCheckKey = ValueKey('contact-page-check');
 const Key contactPageStarKey = ValueKey('contact-page-star');
+const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
+const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
 
 /// Two letters for [name] ([nameInitials]: letters and digits only), `?` for a name with
 /// none.
@@ -134,9 +136,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     return all?.where((c) => c.id == widget.contactId).firstOrNull ?? (all == null ? widget.initial : null);
   }
 
-  /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it.
-  void _send(Contact contact) =>
-      showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
+  /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it;
+  /// a contact with no address, through its pairing's mailbox.
+  void _send(Contact contact, PairingRecord? pairing) => contact.addresses.isEmpty && pairing != null
+      ? showShellTab(context, ShellTab.send, pairingTo: pairing.id)
+      : showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
 
   void _edit(Contact contact) => Navigator.of(
     context,
@@ -248,9 +252,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       ),
       body: ScreenBody(
         children: [
-          _Header(contact: contact, pairing: pairing, starred: starred, onSend: () => _send(contact), onCode: () => _showCode(contact)),
+          _Header(contact: contact, pairing: pairing, starred: starred, onSend: () => _send(contact, pairing), onCode: () => _showCode(contact)),
           PairSection(l.contactAddresses),
-          _Addresses(contact: contact),
+          _Addresses(contact: contact, pairing: pairing),
           if (pairs) ...[
             PairSection(l.contactPairing),
             if (pairing == null)
@@ -351,7 +355,7 @@ class _Header extends ConsumerWidget {
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 icon: const Icon(Icons.north_east, size: 18),
                 label: Text(l.contactsSendAction),
-                onPressed: contact.addresses.isEmpty ? null : onSend,
+                onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
               ),
             ),
             const SizedBox(width: 8),
@@ -365,21 +369,54 @@ class _Header extends ConsumerWidget {
             ),
           ],
         ),
+        // A contact with only a pairing that cannot take a payment now: why Send is off.
+        if (contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
+          const SizedBox(height: 4),
+          Text(
+            p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),
+            key: contactPageSendReasonKey,
+            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+        ],
       ],
     );
   }
 }
 
-/// One row per address: the kind badge, the short address in mono, Copy.
+/// One row per address: the kind badge, the short address in mono, Copy. A contact with only
+/// a pairing gets one row saying payments go through it (dim while it cannot take one).
 class _Addresses extends StatelessWidget {
-  const _Addresses({required this.contact});
+  const _Addresses({required this.contact, this.pairing});
 
   final Contact contact;
+  final PairingRecord? pairing;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
+    final p = pairing;
+    if (contact.addresses.isEmpty && p != null) {
+      final color = p.caps.opensSealed ? t.text : t.dim;
+      return PairCard(
+        children: [
+          ConstrainedBox(
+            key: contactPageViaPairingKey,
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+              child: Row(
+                children: [
+                  Icon(EpicGlyphs.sealed, size: 20, color: t.dim),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(l.contactNoAddressPaired, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color))),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: TextStyle(color: t.dim));
     return PairCard(
       children: [

@@ -63,7 +63,8 @@ bool pairingEventOnScreen(PairingEvent e) =>
     PairingEventKind.duplicateRequests => (text: l.reqTwoSame(name, e.count, epic(e.amount)), level: NoticeLevel.warning),
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
-    PairingEventKind.contactUpdated || PairingEventKind.sealedReceived || PairingEventKind.outboxDelivered => null,
+    // The payment's row and tracker move on by themselves.
+    PairingEventKind.contactUpdated || PairingEventKind.sealedReceived || PairingEventKind.outboxDelivered || PairingEventKind.paymentFinalized => null,
   };
 }
 
@@ -129,8 +130,11 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
 
   void _show(PairingEvent e) {
     final l = context.l10n;
-    // A withdrawal or a withdrawn request changes the wallet's transactions.
-    if (e.kind == PairingEventKind.withdrawalFromContact || e.kind == PairingEventKind.requestWithdrawn) {
+    // A withdrawal, a withdrawn request or a mailbox payment's answer changes the wallet's
+    // transactions.
+    if (e.kind == PairingEventKind.withdrawalFromContact ||
+        e.kind == PairingEventKind.requestWithdrawn ||
+        e.kind == PairingEventKind.paymentFinalized) {
       ref.invalidate(homeProvider);
     }
     // A request from a contact: an open Invoices screen lists it now (PAIR-AND-3).

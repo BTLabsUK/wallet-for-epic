@@ -7,6 +7,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../network.dart' show EpicboxRelay;
+import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdProvider, pairingSlateProvider;
 import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
 import '../wallet_service.dart';
@@ -15,7 +16,9 @@ import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
+import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_notices.dart' show pairingNewsOnScreen, pairingSlateNoticeTag;
+import 'pairing/pairing_parts.dart' show PairEdgeNotice;
 import 'pairing/withdrawal_block.dart';
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
@@ -562,7 +565,16 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
-    final name = txPartyName(ref, tx);
+    // A send through a paired contact's mailbox (no address): the contact, never the mailbox.
+    final mailboxName = txMailboxName(ref, tx, any: true);
+    final mailboxPairing = mailboxName == null
+        ? null
+        : switch (ref.watch(pairingSlateProvider(tx.slateId!)).value) {
+            final slate? => ref.watch(pairingByIdProvider(slate.pairingId)),
+            null => null,
+          };
+    final mailboxWaiting = mailboxName != null && tx.status == TxStatus.awaitingRecipient;
+    final name = txPartyName(ref, tx) ?? mailboxName;
     final fiat = tx.status == TxStatus.cancelled
         ? null
         : approxFiat(l, amount, display);
@@ -665,7 +677,45 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
                     Text(txExplanation(l, tx, tip, now: now, target: target)),
-                    if (txTimeline(l, tx, tip, target: target, now: now) case final steps?) ...[
+                    // Waiting for a paired contact's answer: its relay silent, or its keys
+                    // changed meanwhile.
+                    if (mailboxWaiting && mailboxPairing != null && mailboxPairing.state == PairingState.keysChanged) ...[
+                      const SizedBox(height: 12),
+                      PairEdgeNotice(
+                        tone: BadgeTone.warn,
+                        title: l.contactKeysChangedTitle(mailboxName),
+                        body: l.contactKeysChangedBody,
+                        actions: [
+                          OutlinedButton(
+                            onPressed: () => Navigator.of(context).push<void>(
+                              MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: mailboxPairing.id, recheck: true)),
+                            ),
+                            child: Text(l.noticeCheckWords),
+                          ),
+                        ],
+                      ),
+                    ] else if (mailboxWaiting && (mailboxPairing?.relayDown ?? false)) ...[
+                      const SizedBox(height: 12),
+                      PairEdgeNotice(
+                        tone: BadgeTone.warn,
+                        title: l.contactRelayDownTitle(mailboxName),
+                        body: l.contactRelayDownBody,
+                      ),
+                    ],
+                    if (txTimeline(
+                      l,
+                      tx,
+                      tip,
+                      target: target,
+                      now: now,
+                      mailbox: mailboxName == null
+                          ? null
+                          : (
+                              name: mailboxName,
+                              relay: mailboxPairing?.homeRelay ?? '',
+                              paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+                            ),
+                    ) case final steps?) ...[
                       const SizedBox(height: 16),
                       StatusTimeline(steps: steps),
                     ],
@@ -833,7 +883,12 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               tag: tx.manualFields.contains(ManualField.counterparty)
                   ? ManualTag(editedAtUnix: tx.manualEditedAtUnix, from: true)
                   : null,
-            ),
+            )
+          // Through the pairing: the method and the contact, no address (DESIGN 1.2).
+          else if (mailboxName != null) ...[
+            _DetailRow(label: l.sendMethodLabel, value: MethodIcons.fullName(l, MethodKind.epicbox)),
+            _DetailRow(label: l.txDetailsSentTo, value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}'),
+          ],
           if (fee != null && outgoing)
             _DetailRow(
               label: l.txDetailsFee,

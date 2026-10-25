@@ -16270,4 +16270,68 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get expOpenAdvanced => 'Erweitert öffnen';
+
+  @override
+  String get contactNoAddressPaired => 'Zahlungen laufen über die Kopplung';
+
+  @override
+  String get contactSendKeysChanged => 'Vor dem Senden die Wörter prüfen.';
+
+  @override
+  String contactSendNoSealed(String name) {
+    return 'Die Wallet von $name nimmt keine Zahlungen über die Kopplung an. Nach einer Adresse fragen.';
+  }
+
+  @override
+  String sendRecipientPairing(String name) {
+    return 'Über die Kopplung mit $name';
+  }
+
+  @override
+  String get sendClearRecipient => 'Empfänger entfernen';
+
+  @override
+  String get sendQueuedEpicboxOff =>
+      'Epicbox ist aus. Die Zahlung wartet hier und geht raus, sobald Epicbox wieder an ist.';
+
+  @override
+  String get sendQueue => 'Zahlung einreihen';
+
+  @override
+  String get sendQueuedHeadline => 'Zahlung eingereiht';
+
+  @override
+  String sendQueuedBody(String name) {
+    return 'Sie geht raus, sobald Epicbox wieder an ist. Die Antwort von $name kommt auf demselben Weg zurück.';
+  }
+
+  @override
+  String txStatusWaitingFor(String name) {
+    return 'Wartet auf $name';
+  }
+
+  @override
+  String txStepSentMailbox(String name) {
+    return 'Über das Postfach von $name gesendet';
+  }
+
+  @override
+  String txStepAnswerFrom(String name) {
+    return 'Antwort von $name';
+  }
+
+  @override
+  String txStepCollecting(String name) {
+    return 'Postfach von $name wird geprüft';
+  }
+
+  @override
+  String deskTxStatusWaitingFor(String name) {
+    return 'Wartet auf Signatur von $name';
+  }
+
+  @override
+  String deskSendContactNoLink(String name) {
+    return '$name hat keine Link-Adresse.';
+  }
 }
