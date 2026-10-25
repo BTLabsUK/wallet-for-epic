@@ -61,6 +61,8 @@ void main() {
     const allowed = {
       'lib/src/vault.dart',
       'lib/src/history/meta_store.dart',
+      // The shared address book's file, opened only by LepicWalletService like the store above.
+      'lib/src/contact_store.dart',
       'lib/src/updater.dart',
       'lib/src/ui/feedback_screen.dart',
       // gzip for the sealed report, sent only from the feedback screen above.

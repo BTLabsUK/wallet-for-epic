@@ -51,8 +51,8 @@ class ContactImport {
 
   @override
   String toString() =>
-      'ContactImport(added: $added, merged: $merged, already: $alreadySaved, skipped: $skipped, '
-      'left out: $addressesLeftOut, unreadable: $unreadable, failed: $failed)';
+      'ContactImport(added: $added, merged: $merged, already: $alreadySaved, skipped: $skipped, ' // l10n-ok: for the log
+      'left out: $addressesLeftOut, unreadable: $unreadable, failed: $failed)'; // l10n-ok
 }
 
 /// Adds the old GUI's contacts of one wallet to the address book of [session] (shared by every
