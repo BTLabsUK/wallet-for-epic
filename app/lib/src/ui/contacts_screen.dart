@@ -449,7 +449,7 @@ class _ContactRow extends ConsumerWidget {
       color: t.dim,
     );
     final Widget reach;
-    if (pairing != null && pairing.allowInvoices) {
+    if (pairing != null && pairing.allowInvoices && ref.watch(invoicesOnProvider)) {
       reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
     } else if (several) {
       reach = Wrap(spacing: 4, runSpacing: 4, children: [for (final k in contact.kinds) EBadge.kind(k, l: l)]);

@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../demo.dart';
 import '../../l10n.dart';
+import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
 import '../../settings.dart';
 import '../contacts_screen.dart';
@@ -232,7 +233,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
       widget.stepList ??
       debugPhoneTourSteps ??
       phoneTourSteps(
-        invoices: ref.read(sessionProvider)?.supportsInvoices ?? false,
+        invoices: ref.read(invoicesShownProvider),
       );
 
   /// The step being opened, and the one the card shows: they differ while the next screen

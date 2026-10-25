@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ import 'qr_show_screen.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'pairing/experimental_off.dart';
 
 /// The [SlateFile.name] of payment text pasted on Receive.
 const String pastedSlateName = 'pasted';
@@ -120,6 +123,11 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   Future<bool> _open() async {
     final api = ref.read(pairingApiProvider);
     final sealed = isSealedText(_file.json);
+    // A sealed file needs Pairing; off (Settings › Advanced) it says so and opens nothing.
+    if (sealed && !ref.read(pairingOnProvider)) {
+      if (mounted) unawaited(showExperimentalOffSheet(context, ref));
+      return false;
+    }
     if (!api.supported) return true;
     try {
       final opened = await api.openSlate(_file.json);
@@ -226,7 +234,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final response = await session.receiveSlate(slateJson: _file.json);
     if (mounted) setState(() => _response = response);
     // A plain file can name its paired sender only once it is received.
-    if (session.pairing.supported && !_toldUnsealed) {
+    if (ref.read(pairingSupportedProvider) && !_toldUnsealed) {
       try {
         final slate = await session.pairing.slateOf(response.slateId);
         final from = slate == null ? null : await session.pairing.pairing(slate.pairingId);

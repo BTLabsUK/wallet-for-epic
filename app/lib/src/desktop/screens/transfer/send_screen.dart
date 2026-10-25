@@ -636,7 +636,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
       // Pairing off (Settings › Advanced): says it is experimental and where to turn it on.
-      case PairingLink() when !ref.read(deskPairingOnProvider) && ref.read(deskApiProvider).pairing.supported:
+      case PairingLink() when !ref.read(deskPairingOnProvider):
         showExperimentalOffDialog(context, ref);
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
         fieldError((l) => l.scanPairingUnavailable);

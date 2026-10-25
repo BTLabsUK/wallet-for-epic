@@ -687,7 +687,12 @@ bool helpPlaceGoes(String place, {AdvancedPrefs? prefs}) {
   final to = helpPlaceDestination(place);
   if (to == null) return false;
   if (prefs == null) return true;
-  return to != HelpPhonePlace.outputs || prefs.has(AdvancedFeature.outputs);
+  return switch (to) {
+    HelpPhonePlace.outputs => prefs.has(AdvancedFeature.outputs),
+    // Invoices off (Settings › Advanced › Experimental): its places read as terms.
+    HelpPhonePlace.invoices => prefs.invoicesOn,
+    _ => !place.endsWith('› Invoices') || prefs.invoicesOn,
+  };
 }
 
 /// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.

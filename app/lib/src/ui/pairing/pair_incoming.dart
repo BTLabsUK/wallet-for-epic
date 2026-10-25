@@ -188,7 +188,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
           ),
           const SizedBox(height: 14),
           Text(l.pairIncomingBody(p.name), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-          if (p.asksInvoices) ...[
+          if (p.asksInvoices && ref.watch(invoicesOnProvider)) ...[
             const SizedBox(height: 14),
             PairCard(
               children: [

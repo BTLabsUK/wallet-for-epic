@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
-import '../pairing_providers.dart' show pairingSupportedProvider;
+import '../pairing_providers.dart' show pairingOnProvider, pairingSupportedProvider;
 import '../payment_prefs.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart';
@@ -23,6 +23,7 @@ import 'receive_screen.dart' show scanSlateQr;
 import 'scan_result_sheet.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
+import 'pairing/experimental_off.dart';
 
 /// The methods on in Settings › Transactions, which pick the address a code or a contact
 /// fills in.
@@ -86,6 +87,9 @@ Future<void> openScannedCode(
       }
     case SlateText(:final text):
       await _showSlateText(context, text);
+    // Pairing off (Settings › Advanced): it is experimental, and where to turn it on.
+    case PairingLink() when !ref.read(pairingOnProvider):
+      await showExperimentalOffSheet(context, ref);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):
       await openPairingLink(context, ref, text);
     case PairingLink(:final text):

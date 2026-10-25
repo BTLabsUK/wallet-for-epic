@@ -102,7 +102,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     super.initState();
     _lifecycle;
     ref.listenManual<WalletSession?>(
-      sessionProvider,
+      invoiceSessionProvider,
       (_, session) => _subscribe(session),
       fireImmediately: true,
     );
@@ -126,8 +126,8 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
   }
 
   Future<void> _drain() async {
-    final session = ref.read(sessionProvider);
-    if (!mounted || session == null || !session.supportsInvoices) return;
+    final session = ref.read(invoiceSessionProvider);
+    if (!mounted || session == null) return;
     try {
       await ref.read(pendingInvoicesProvider.notifier).refresh();
     } catch (_) {
@@ -358,8 +358,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(sessionProvider);
-    if (session == null || !session.supportsInvoices) {
+    // Invoices off (Settings › Advanced) or none on this core: no entry, nothing drained.
+    final session = ref.watch(invoiceSessionProvider);
+    if (session == null) {
       return const SizedBox.shrink();
     }
     // Watched even when hidden: it is what drains the invoice address at start.

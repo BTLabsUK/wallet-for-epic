@@ -21,6 +21,7 @@ import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
+import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -630,7 +631,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final scan = ref.watch(scanProvider);
     final demo = ref.watch(demoModeProvider);
     // Invoices only on a core that has them (UP-14); until then no entry at all.
-    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+    final invoices = ref.watch(invoicesShownProvider);
     final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
     final outputsSubtitle = outputs == null
         ? null

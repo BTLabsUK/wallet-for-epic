@@ -24,6 +24,7 @@ import 'wallet_service.dart';
 
 export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
+import 'pairing_providers.dart' show invoiceSessionProvider;
 
 final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
@@ -1053,10 +1054,7 @@ final invoiceClockProvider = Provider<DateTime Function()>(
 );
 
 /// The open wallet when it handles invoices, else null.
-WalletSession? _invoiceSession(Ref ref) {
-  final session = ref.watch(sessionProvider);
-  return session != null && session.supportsInvoices ? session : null;
-}
+WalletSession? _invoiceSession(Ref ref) => ref.watch(invoiceSessionProvider);
 
 /// Pending invoices of the open wallet, oldest first. The first read collects the paired
 /// contacts' mailboxes, and so does [PendingInvoicesNotifier.refresh] (pull to refresh, opening the
@@ -1262,7 +1260,7 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
   Future<void> drain() async {
     if (!ref.mounted || _running) return;
     final session = ref.read(sessionProvider);
-    if (session == null || !session.supportsInvoices || NetGate.offline) return;
+    if (session == null || ref.read(invoiceSessionProvider) != session || NetGate.offline) return;
     _running = true;
     try {
       final report = await session.drainPayments();

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
 import '../l10n.dart';
+import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
@@ -342,7 +343,7 @@ class HomeDestinations extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+    final invoices = ref.watch(invoicesShownProvider);
     final toPay = invoices
         ? ref.watch(pendingInvoicesProvider).value?.length ?? 0
         : 0;

@@ -277,7 +277,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: id, recheck: true)));
 }
 
-class _Header extends StatelessWidget {
+class _Header extends ConsumerWidget {
   const _Header({required this.contact, required this.pairing, required this.starred, required this.onSend, required this.onCode});
 
   final Contact contact;
@@ -287,7 +287,7 @@ class _Header extends StatelessWidget {
   final VoidCallback onCode;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
@@ -329,7 +329,7 @@ class _Header extends StatelessWidget {
                       runSpacing: 4,
                       children: [
                         TrustBadge(p),
-                        if (p.allowInvoices) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
+                        if (p.allowInvoices && ref.watch(invoicesOnProvider)) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
                       ],
                     ),
                   ],
@@ -615,7 +615,8 @@ class _PairingBlock extends ConsumerWidget {
               hint: changed ? l.contactPausedUntilChecked : null,
               onChanged: switchesLocked ? null : setSeal,
             ),
-            PairSwitchRow(
+            // Invoices off (Settings › Advanced): the switch is not offered; what it holds stays.
+            if (ref.watch(invoicesOnProvider)) PairSwitchRow(
               switchKey: contactPageInvoicesKey,
               label: l.contactAllowInvoices,
               info: allowInfo,

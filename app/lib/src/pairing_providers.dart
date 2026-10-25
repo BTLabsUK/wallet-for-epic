@@ -25,6 +25,17 @@ final invoicesOnProvider = Provider<bool>(
   (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.invoicesOn)) ?? false,
 );
 
+/// The open wallet when it handles invoices and Invoices is on, else null: every invoice
+/// provider, screen and notice reads it, so Invoices off shows and checks nothing.
+final invoiceSessionProvider = Provider<WalletSession?>((ref) {
+  if (!ref.watch(invoicesOnProvider)) return null;
+  final session = ref.watch(sessionProvider);
+  return session != null && session.supportsInvoices ? session : null;
+});
+
+/// Whether invoices show: [invoiceSessionProvider] has a wallet.
+final invoicesShownProvider = Provider<bool>((ref) => ref.watch(invoiceSessionProvider) != null);
+
 /// The open wallet's pairing, or [NoPairing] while locked, on a core without it, or while
 /// Pairing is off ([pairingOnProvider]).
 final pairingApiProvider = Provider<PairingApi>((ref) {
