@@ -714,7 +714,7 @@ Future<void> showHistoryImportOffer(BuildContext context, WidgetRef ref) async {
   ref.invalidate(historyBackupProvider);
   if (!context.mounted) return;
   final import = await showEDialog<bool>(context, builder: (_) => const HistoryImportOfferDialog()) ?? false;
-  if (import && context.mounted) await importAfterWarning(context, ref, () => showImportHistoryDialog(context));
+  if (import && context.mounted) await showImportHistoryDialog(context);
 }
 
 class HistoryImportOfferDialog extends StatelessWidget {
