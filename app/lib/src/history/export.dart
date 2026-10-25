@@ -2,9 +2,15 @@
 /// `app/rust/src/core/export.rs`; the encryption is LEPIC's (`EpicWallet.sealAppData`), in the
 /// same `WFEH` version 1 format, so files of the old core open and the other way round.
 ///
-/// The payload holds only public or user-entered data ([Record], contacts and their stars,
-/// invoice service labels, the invoice address index). Never in it:
-/// keys, the seed or phrase, the password, the PIN or its sealed text, node secrets.
+/// The payload holds what the user built up that the recovery phrase and a scan cannot give
+/// back: payments with their notes and labels ([Record]), invoices both ways, the shared
+/// address book with this wallet's stars, pairings, the wallet's name and the app's settings
+/// worth restoring. Never in it: keys, the seed or phrase, the password, the PIN or its sealed
+/// text, addresses the seed derives, push tokens, node secrets.
+///
+/// Version 2 added the invoices, the wallet's name, the settings and, per record, its flow,
+/// pairing and slate messages. Version 1 files still open; apps that read only version 1
+/// refuse a version 2 file as newer.
 library;
 
 import 'dart:convert';
@@ -14,7 +20,7 @@ import 'merge.dart' show userFieldName;
 import 'meta_store.dart';
 
 const String historyFormat = 'wfe-history';
-const int historyPayloadVersion = 1;
+const int historyPayloadVersion = 2;
 
 /// The old core's sentences for history files. `errors.dart` translates them by this text.
 const String historyNotOurs = 'This is not a history file exported by this app';
@@ -51,9 +57,15 @@ class HistoryPayload {
     List<ContactRec>? contacts,
     this.pairings,
     List<String>? favourites,
+    Map<String, IssuedInvoiceRec>? issuedInvoices,
+    Map<String, PaidInvoiceRec>? paidInvoices,
+    this.walletName,
+    this.settings,
   }) : txs = txs ?? [],
        contacts = contacts ?? [],
-       favourites = favourites ?? [];
+       favourites = favourites ?? [],
+       issuedInvoices = issuedInvoices ?? {},
+       paidInvoices = paidInvoices ?? {};
 
   /// This payload with [pairings], the core's pairing backup.
   HistoryPayload withPairings(Map<String, Object?>? pairings) => HistoryPayload(
@@ -68,6 +80,30 @@ class HistoryPayload {
     contacts: contacts,
     pairings: pairings,
     favourites: favourites,
+    issuedInvoices: issuedInvoices,
+    paidInvoices: paidInvoices,
+    walletName: walletName,
+    settings: settings,
+  );
+
+  /// This payload with the wallet's [walletName] and the app's [settings], which only the app
+  /// knows.
+  HistoryPayload withExtras({String? walletName, Map<String, Object?>? settings}) => HistoryPayload(
+    format: format,
+    version: version,
+    chain: chain,
+    walletFp: walletFp,
+    exportedAtUnix: exportedAtUnix,
+    appVersion: appVersion,
+    lastConfirmedHeight: lastConfirmedHeight,
+    txs: txs,
+    contacts: contacts,
+    pairings: pairings,
+    favourites: favourites,
+    issuedInvoices: issuedInvoices,
+    paidInvoices: paidInvoices,
+    walletName: walletName,
+    settings: settings,
   );
 
   /// Reads a payload as serde reads it. Throws [MetaFormatException] for a wrong shape.
@@ -93,6 +129,10 @@ class HistoryPayload {
     final pairings = m['pairings'] == null
         ? null
         : asObject(m['pairings'], 'pairings');
+    Map<String, Object?> map(String k) =>
+        m[k] == null ? const {} : asObject(m[k], k);
+    final name = map('wallet')['name'];
+    if (name != null && name is! String) throw const MetaFormatException('wallet name');
     return HistoryPayload(
       format: str('format'),
       version: version,
@@ -108,6 +148,10 @@ class HistoryPayload {
         for (final f in list('favourites'))
           f is String ? f : throw const MetaFormatException('favourites'),
       ],
+      issuedInvoices: map('issued_invoices').map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
+      paidInvoices: map('paid_invoices').map((k, v) => MapEntry(k, PaidInvoiceRec.fromJson(v))),
+      walletName: name as String?,
+      settings: m['settings'] == null ? null : asObject(m['settings'], 'settings'),
     );
   }
 
@@ -133,6 +177,18 @@ class HistoryPayload {
   /// a file without stars stays as older apps wrote it; older apps read past it.
   final List<String> favourites;
 
+  /// What became of the invoices this wallet issued and paid, by slate id, as the archive keeps
+  /// them ([Meta.issuedInvoices], [Meta.paidInvoices]). Version 2.
+  final Map<String, IssuedInvoiceRec> issuedInvoices;
+  final Map<String, PaidInvoiceRec> paidInvoices;
+
+  /// The wallet's name where the app names wallets (the desktop). Version 2.
+  final String? walletName;
+
+  /// The app's settings worth restoring, as the app wrote them (`backup_settings.dart`); this
+  /// layer carries them as they are. Version 2.
+  final Map<String, Object?>? settings;
+
   // The pairings only when set, so a file without them stays as the old core wrote it.
   Map<String, Object?> toJson() => {
     'format': format,
@@ -146,6 +202,12 @@ class HistoryPayload {
     'contacts': [for (final c in contacts) c.toJson()],
     'pairings': ?pairings,
     if (favourites.isNotEmpty) 'favourites': favourites,
+    if (issuedInvoices.isNotEmpty)
+      'issued_invoices': {for (final e in issuedInvoices.entries) e.key: e.value.toJson()},
+    if (paidInvoices.isNotEmpty)
+      'paid_invoices': {for (final e in paidInvoices.entries) e.key: e.value.toJson()},
+    if (walletName != null) 'wallet': {'name': walletName},
+    'settings': ?settings,
   };
 
   List<int> encode() => utf8.encode(encodeJson(toJson()));

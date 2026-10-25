@@ -111,7 +111,7 @@ void main() {
     await _pump(tester, _opener(showExportHistoryDialog));
     await _open(tester);
     expect(find.text('48 payments, 6 contacts'), findsOneWidget);
-    expect(find.text('Keys, the recovery phrase, the password'), findsOneWidget);
+    expect(find.text('The recovery phrase, keys, the password'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Save as…'));
     await tester.pumpAndSettle();
     expect(find.text('Saved'), findsOneWidget);
@@ -148,14 +148,16 @@ void main() {
   testWidgets('import: the counts, then Nothing new for the same file', (tester) async {
     await _pump(tester, _opener(showImportHistoryDialog));
     await _open(tester);
-    expect(find.text('A file from this wallet (the same recovery phrase), on Mainnet'), findsOneWidget);
+    expect(
+      find.text('A file from this wallet (the same recovery phrase), on Mainnet. Restore the wallet from its phrase first.'),
+      findsOneWidget,
+    );
     await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
     await tester.pumpAndSettle();
     expect(find.text('Imported'), findsOneWidget);
-    expect(find.text('Details restored'), findsOneWidget);
-    expect(find.text('Older payments added'), findsOneWidget);
-    expect(find.text('Contacts added'), findsOneWidget);
-    expect(find.text('Already here'), findsOneWidget);
+    // One summary of what came back.
+    expect(find.textContaining('Restored: '), findsOneWidget);
+    expect(find.textContaining('records were already here'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Done'));
     await tester.pumpAndSettle();
     await _open(tester);

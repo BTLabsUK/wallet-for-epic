@@ -504,7 +504,16 @@ class WalletDispatcher {
       s.setFavouriteContact(id: p.of('id', stringWire), favourite: p.of('favourite', boolWire)),
       voidWire,
     ),
-    SessionMember.exportHistory => _once(s.exportHistory(), bytesWire),
+    SessionMember.exportHistory => _once(
+      s.exportHistory(
+        walletName: p.of('walletName', optString),
+        settings: switch (p.of('settings', optString)) {
+          final String text => jsonDecode(text) is Map<String, Object?> ? jsonDecode(text) as Map<String, Object?> : null,
+          null => null,
+        },
+      ),
+      bytesWire,
+    ),
     SessionMember.exportHistoryCsv => _once(s.exportHistoryCsv(), stringWire),
     SessionMember.importHistory => _once(
       s.importHistory(

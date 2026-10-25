@@ -38,6 +38,7 @@ import 'server_picker.dart'
     show localNodeStatusProvider, networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
 import 'server_tile.dart';
 import 'status.dart' hide NodeStatus;
+import 'relay_blocked.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
@@ -596,6 +597,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     // The health is the server's; the wallet's own connection to it can be down while the
     // server is up. Then the row in use says so, with Retry, which restarts the listener.
     final relayNotConnected = !_node && epicboxNotConnected(ref);
+    final relayBlocked = !_node && epicboxBlocked(ref);
 
     // The field's helper: what typing does now.
     final String? helper;
@@ -723,7 +725,12 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           onTap: () => _pick(e.value, choice),
           onRemove: () => _remove(e, choice),
         ),
-        if (relayNotConnected &&
+        if (relayBlocked && _same(e.value, current))
+          const Padding(
+            padding: EdgeInsetsDirectional.only(start: 8, bottom: 4),
+            child: RelayBlockedNote(center: false),
+          )
+        else if (relayNotConnected &&
             _same(e.value, current) &&
             e.state == NodeHealthState.healthy)
           NotConnectedLine(
@@ -1164,6 +1171,12 @@ bool epicboxNotConnected(WidgetRef ref) {
   final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
   return epicbox == null || epicbox == EpicboxState.offline;
 }
+
+/// Whether this network blocks the open wallet's relay, as the status shows it: then the row in
+/// use says so and offers another relay ([RelayBlockedNote]) instead of [NotConnectedLine].
+bool epicboxBlocked(WidgetRef ref) =>
+    ref.watch(sessionProvider) != null &&
+    ref.watch(walletStatusProvider.select((s) => s.epicbox)) == EpicboxState.blocked;
 
 /// Under the Epicbox server in use while the monitor says it is up and this wallet is not
 /// connected to it: "Server up · not connected" and Retry, which restarts the listener.

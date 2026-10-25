@@ -1832,7 +1832,7 @@ class LepicWalletSession implements WalletSession {
   /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
   /// with the same recovery phrase opens it.
   @override
-  Future<Uint8List> exportHistory() => _guard(() async {
+  Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) => _guard(() async {
     final payload = _history.exportPayload(
       await _live(),
       walletFp: walletFingerprint(await _wallet.epicboxAddress()),
@@ -1841,7 +1841,9 @@ class LepicWalletSession implements WalletSession {
           .lastConfirmedHeight,
     );
     final pairings = await _pairing.exportBackup();
-    return _wallet.sealAppData(payload: (pairings == null ? payload : payload.withPairings(pairings)).encode());
+    final full = (pairings == null ? payload : payload.withPairings(pairings))
+        .withExtras(walletName: walletName, settings: settings);
+    return _wallet.sealAppData(payload: full.encode());
   });
 
   @override
@@ -2268,6 +2270,22 @@ class LepicWalletSession implements WalletSession {
         kernelExcess: paid.kernelExcess,
       );
     }
+    // One a history backup brought back: shown as recorded, never resent.
+    final live = [for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0)];
+    for (final t in _history.transactions(live)) {
+      if (t.source == TxSource.wallet || t.slateId != slateId) continue;
+      final paid = paidInvoiceOf(t, status: record?.status, kernelExcess: record?.kernelExcess);
+      if (paid == null) continue;
+      return PaidInvoice(
+        slateId: paid.slateId,
+        senderAddress: paid.senderAddress,
+        pairingId: t.pairingId,
+        amount: paid.amount,
+        message: paid.message,
+        status: paid.status,
+        kernelExcess: paid.kernelExcess,
+      );
+    }
     return null;
   }
 
@@ -2284,11 +2302,21 @@ class LepicWalletSession implements WalletSession {
 
   /// The requests in LEPIC's store, newest first, with the states the archive recorded.
   Future<List<IssuedInvoice>> _requests() async {
-    final requests = requestsOf([
+    final live = [
       for (final d in await _wallet.transactions())
         lepicTxEntry(d, sending: _sending > 0),
+    ];
+    // With the ended requests a history backup brought back, which LEPIC no longer holds as
+    // requests (a paid one's output may be a row a scan found).
+    final requests = requestsOf([
+      ...live,
+      for (final t in _history.transactions(live))
+        if (t.source != TxSource.wallet && t.isRequest) t,
     ], _history.issuedInvoiceState);
-    return [for (final r in requests) r.withPairing(await _contactOfTx(r.txId))];
+    return [
+      for (final r in requests)
+        if (r.txId case final id?) r.withPairing(await _contactOfTx(id)) else r,
+    ];
   }
 
   /// The paired contact a transaction was sealed to or from; once known it never changes, so
@@ -2351,7 +2379,7 @@ class LepicWalletSession implements WalletSession {
         state == IssuedInvoiceState.bounced) {
       if (!issued.withdrawable) return;
       try {
-        await _wallet.cancelTransaction(txId: issued.txId);
+        await _wallet.cancelTransaction(txId: issued.txId!);
       } on lepic.WalletError catch (error) {
         // The sweep cancels it when its time runs out.
         logWarn(
@@ -2448,7 +2476,10 @@ class LepicWalletSession implements WalletSession {
     final requests = await _requests();
     return [
       for (final i in requests)
-        if (i.state != IssuedInvoiceState.waiting &&
+        // Only a request LEPIC holds settles here: one a history backup brought back is not
+        // news, so it raises no notice.
+        if (i.txId != null &&
+            i.state != IssuedInvoiceState.waiting &&
             _history.issuedInvoiceState(i.slateId) ==
                 IssuedInvoiceState.waiting)
           await _settledAs(i)
@@ -2485,7 +2516,7 @@ class LepicWalletSession implements WalletSession {
             );
           }
           // LEPIC sends a LEPIC payer the `withdrawn` notice.
-          await _wallet.cancelTransaction(txId: issued.txId);
+          await _wallet.cancelTransaction(txId: issued.txId!);
           await _settleIssued(
             slateId,
             IssuedInvoiceState.withdrawn,

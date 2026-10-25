@@ -10,14 +10,18 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
+import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
+import '../../backup_settings.dart' show mergeServerLists;
+import '../../server_list.dart' show ServerKind, ServerList;
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
+import 'backup_settings_desk.dart';
 import 'http_address.dart';
 import 'invoices.dart';
 import 'phrase_check.dart';
@@ -73,6 +77,10 @@ class MockDeskWallet implements DeskWalletApi {
   String _node = 'https://node.btlabs.uk';
   String _epicbox = 'epicbox.epiccash.com';
   bool _listening = true;
+
+  /// The tour and the tests: the network blocks the relay in use, and [epicboxInstead] is the one offered.
+  bool epicboxBlocked = false;
+  EpicboxRelay? epicboxInstead;
   bool _http = false;
   int _nextId = 40;
 
@@ -603,7 +611,9 @@ class MockDeskWallet implements DeskWalletApi {
       nodeHealth: node.health,
       nodeHeight: 2914414,
       epicbox: box,
-      epicboxHealth: _listening ? box.health : ServiceHealth.off,
+      epicboxHealth: _listening ? (epicboxBlocked ? ServiceHealth.down : box.health) : ServiceHealth.off,
+      epicboxBlocked: _listening && epicboxBlocked,
+      epicboxInstead: _listening && epicboxBlocked ? epicboxInstead : null,
       httpListener: _http ? ServiceHealth.ok : ServiceHealth.off,
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
       torCanSend: _settings.tor,
@@ -834,6 +844,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> useEpicbox(String domain) async {
     await _wait();
     _epicbox = domain;
+    epicboxBlocked = false;
   }
 
   @override
@@ -1229,6 +1240,53 @@ class MockDeskWallet implements DeskWalletApi {
     if (_historyImported) return const HistoryImport(skipped: 46);
     _historyImported = true;
     return const HistoryImport(merged: 3, added: 2, skipped: 41, contactsAdded: 1);
+  }
+
+  /// This wallet's lists, own Epicbox server and deleted seed contacts as a backup restores
+  /// them ([restoreBackupItems]); tests read and set them.
+  ServerList nodeList = const ServerList();
+  ServerList relayList = const ServerList();
+  String? ownRelay;
+  final Set<String> seedsDeleted = {};
+
+  @override
+  Future<DeskBackupSettings> backupSettings() async => DeskBackupSettings(
+    chain: 'mainnet',
+    mine: deskBackupMap(
+      _settings,
+      chain: 'mainnet',
+      outputs: _prefs,
+      node: _node,
+      relay: ownRelay ?? _epicbox,
+      nodeList: nodeList,
+      relayList: relayList,
+      ownNodes: [for (final n in _nodes) if (n.own) n],
+      invoiceExpiry: proto.expiry,
+      seedsDeleted: seedsDeleted,
+      ownRelay: ownRelay,
+    ),
+    defaults: deskBackupMap(
+      const DeskSettings(),
+      chain: 'mainnet',
+      outputs: const OutputPrefs(),
+      node: 'https://node.btlabs.uk',
+      relay: 'epicbox.epiccash.com',
+      nodeList: const ServerList(),
+      relayList: const ServerList(),
+      ownNodes: const [],
+      invoiceExpiry: defaultInvoiceExpiry,
+      seedsDeleted: const [],
+    ),
+  );
+
+  @override
+  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) async {
+    if (nodeList != null) this.nodeList = mergeServerLists(ServerKind.node, this.nodeList, nodeList);
+    if (relayList != null) this.relayList = mergeServerLists(ServerKind.relay, this.relayList, relayList);
+    if (ownRelay != null) this.ownRelay = ownRelay.relay;
+    for (final id in seedsDeleted ?? const <String>[]) {
+      if (this.seedsDeleted.add(id) && id == 'btlabs') _contacts.removeWhere((c) => c.id == 'btlabs');
+    }
   }
 
   @override

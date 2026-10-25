@@ -16,6 +16,8 @@ import '../../../log.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../history/backup_summary.dart';
+import '../../data/backup_settings_desk.dart';
 import '../../data/pairing_state.dart' show deskPairingCall;
 import '../../widgets/kit.dart';
 import 'history_conflicts.dart';
@@ -358,7 +360,7 @@ class ImportHistoryDialog extends ConsumerStatefulWidget {
   const ImportHistoryDialog({super.key, this.doneDemo});
 
   /// Opens with this result (screenshots).
-  final ({String name, HistoryImport result})? doneDemo;
+  final ({String name, HistoryImport result, int settings, bool walletName})? doneDemo;
 
   @override
   ConsumerState<ImportHistoryDialog> createState() => _ImportHistoryDialogState();
@@ -366,7 +368,7 @@ class ImportHistoryDialog extends ConsumerStatefulWidget {
 
 class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
   String? _reading;
-  late ({String name, HistoryImport result})? _done = widget.doneDemo;
+  late ({String name, HistoryImport result, int settings, bool walletName})? _done = widget.doneDemo;
   HistoryFileError? _refused;
   String? _failed;
 
@@ -388,7 +390,36 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
         if (choices == null || !mounted) return;
         result = await api.importHistory(file.bytes, useBackup: choices);
       }
-      if (mounted) setState(() => _done = (name: file.name, result: result));
+      // The settings and the wallet's name: those still as the app came are taken; any the user
+      // changed here that the file has otherwise ask once for all.
+      var settings = 0;
+      var named = false;
+      if (mounted) {
+        final plan = await planDeskBackupSettings(ref, result);
+        if (!mounted) return;
+        var take = false;
+        if (plan.conflicts.isNotEmpty) {
+          final l = context.l10n;
+          take = await showEDialog<bool>(
+                context,
+                builder: (ctx) => EDialog(
+                  title: l.backupSettingsTitle,
+                  description: l.backupSettingsBody(plan.conflicts.length),
+                  icon: EIcons.settings,
+                  actions: [
+                    EButton(label: l.backupSettingsKeepMine, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+                    EButton.primary(label: l.backupSettingsUseBackup, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+                  ],
+                ),
+              ) ==
+              true;
+          if (!mounted) return;
+        }
+        named = plan.values(takeConflicts: take).containsKey(BackupItem.walletName);
+        final changed = await applyDeskBackupSettings(ref, plan, takeConflicts: take);
+        settings = named ? changed - 1 : changed;
+      }
+      if (mounted) setState(() => _done = (name: file.name, result: result, settings: settings, walletName: named));
       ref.invalidate(historyBackupProvider);
       // Pairings used on another device wait until the user takes them over here (RFC 9.5).
       if (result.pairingsOtherDevice > 0 && mounted) {
@@ -423,24 +454,6 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
     }
   }
 
-  Widget _count(BuildContext context, int value, String label, [String? sub]) {
-    final c = context.dc;
-    final ts = context.ts;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.u, vertical: Sp.x3),
-      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$value', style: ts.h3.copyWith(fontSize: 22.u, fontFeatures: const [FontFeature.tabularFigures()])),
-          SizedBox(height: 2.u),
-          Text(label, style: ts.strong.copyWith(fontSize: 13.u)),
-          if (sub != null) Text(sub, style: ts.caption),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
@@ -452,15 +465,21 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
     final List<Widget> actions;
     if (done != null) {
       final r = done.result;
-      final tiles = [
-        if (r.merged > 0) _count(context, r.merged, l.deskSetBackupDetailsRestored, l.deskSetBackupDetailsRestoredSub),
-        if (r.added > 0) _count(context, r.added, l.deskSetBackupOlderAdded, l.deskSetBackupOlderAddedSub),
-        if (r.contactsAdded > 0) _count(context, r.contactsAdded, l.deskSetBackupContactsAdded),
-        if (r.pairingsAdded > 0)
-          _count(context, r.pairingsAdded, l.restorePairings, r.pairingsOtherDevice > 0 ? l.restorePairingsOnOtherDevice(r.pairingsOtherDevice) : null),
-        if (r.skipped > 0) _count(context, r.skipped, l.deskSetBackupAlreadyHere, l.deskSetBackupUnchanged),
-      ];
-      body = r.nothingNew
+      // One summary of what came back, as on the phone.
+      final summary = backupRestoredText(
+        l,
+        payments: r.merged + r.added,
+        notes: r.notesAdded,
+        labels: r.labelsAdded,
+        contacts: r.contactsAdded,
+        stars: r.starsAdded,
+        pairings: r.pairingsAdded,
+        invoices: r.invoicesAdded,
+        settings: done.settings > 0,
+        walletName: done.walletName,
+        alreadyHere: r.skipped,
+      );
+      body = r.nothingNew && done.settings == 0 && !done.walletName
           ? _Done(
               l.deskSetBackupNothingNew,
               _withName(l.deskSetBackupNothingNewBody(_slot), done.name, ts.mono(size: 13.u, color: context.dc.text)),
@@ -470,13 +489,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
               children: [
                 _Done(l.deskSetBackupImported, _mono(context, done.name)),
                 SizedBox(height: Sp.x3),
-                if (r.replaced > 0) ...[Text(l.deskHistImportedReplaced(r.replaced), style: ts.small), SizedBox(height: Sp.x3)],
-                LayoutBuilder(
-                  builder: (context, box) {
-                    final w = (box.maxWidth - Sp.x3) / 2;
-                    return Wrap(spacing: Sp.x3, runSpacing: Sp.x3, children: [for (final t in tiles) SizedBox(width: w, child: t)]);
-                  },
-                ),
+                Text(summary, style: ts.body),
+                if (r.replaced > 0) ...[SizedBox(height: Sp.x3), Text(l.deskHistImportedReplaced(r.replaced), style: ts.small)],
               ],
             );
       actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];

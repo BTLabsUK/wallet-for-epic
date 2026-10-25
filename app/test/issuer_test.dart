@@ -307,7 +307,7 @@ void main() {
       reopened.invoiceHistory.close();
     });
 
-    test('are not part of a history file', () async {
+    test('travel in a history file (version 2), with their state', () async {
       final history = await WalletHistory.open(dir.path, Chain.floonet);
       final s = FakeWalletSession(invoiceHistory: history);
       await s.issueToContact(amount: five, address: payer);
@@ -316,7 +316,8 @@ void main() {
         walletFp: 'fp',
         appVersion: 'test',
       );
-      expect(utf8.decode(payload.encode()), isNot(contains('issued')));
+      final json = jsonDecode(utf8.decode(payload.encode())) as Map<String, dynamic>;
+      expect((json['issued_invoices'] as Map).values.single, {'state': 'waiting'});
       history.close();
     });
   });

@@ -507,7 +507,8 @@ class GatedWalletSession implements WalletSession {
       _inner.setFavouriteContact(id: id, favourite: favourite);
 
   @override
-  Future<Uint8List> exportHistory() => _inner.exportHistory();
+  Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) =>
+      _inner.exportHistory(walletName: walletName, settings: settings);
 
   @override
   Future<String> exportHistoryCsv() => _inner.exportHistoryCsv();

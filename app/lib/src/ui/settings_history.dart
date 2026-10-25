@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contacts.dart' show contactsProvider, favouriteContactsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show pairingsProvider;
@@ -20,6 +21,8 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import '../history/backup_summary.dart';
+import 'backup_settings_phone.dart';
 import 'common.dart';
 import 'history_conflicts.dart';
 
@@ -114,55 +117,6 @@ String historyFileName(Chain chain, DateTime day, String extension) {
   String two(int v) => v.toString().padLeft(2, '0');
   return 'epic-history-${chain.name}-${day.year}${two(day.month)}'
       '${two(day.day)}.$extension';
-}
-
-/// The import counts in plain words, naming only the counts above zero.
-String describeImport(AppLocalizations l, ImportReport report) {
-  final (m, a, s, c) = (
-    report.merged,
-    report.added,
-    report.skipped,
-    report.contactsAdded,
-  );
-  return switch ((m > 0, a > 0, s > 0, c > 0)) {
-    (false, false, false, false) => l.historyBackupImportNothingNew,
-    (true, false, false, false) => l.historyBackupImportMerged(m),
-    (false, true, false, false) => l.historyBackupImportAdded(a),
-    (true, true, false, false) => l.historyBackupImportMergedAdded(m, a),
-    (false, false, true, false) => l.historyBackupImportSkipped(s),
-    (true, false, true, false) => l.historyBackupImportMergedSkipped(m, s),
-    (false, true, true, false) => l.historyBackupImportAddedSkipped(a, s),
-    (true, true, true, false) => l.historyBackupImportMergedAddedSkipped(
-      m,
-      a,
-      s,
-    ),
-    (false, false, false, true) => l.historyBackupImportContacts(c),
-    (true, false, false, true) => l.historyBackupImportMergedContacts(m, c),
-    (false, true, false, true) => l.historyBackupImportAddedContacts(a, c),
-    (true, true, false, true) => l.historyBackupImportMergedAddedContacts(
-      m,
-      a,
-      c,
-    ),
-    (false, false, true, true) => l.historyBackupImportSkippedContacts(s, c),
-    (true, false, true, true) => l.historyBackupImportMergedSkippedContacts(
-      m,
-      s,
-      c,
-    ),
-    (false, true, true, true) => l.historyBackupImportAddedSkippedContacts(
-      a,
-      s,
-      c,
-    ),
-    (true, true, true, true) => l.historyBackupImportMergedAddedSkippedContacts(
-      m,
-      a,
-      s,
-      c,
-    ),
-  };
 }
 
 void _say(BuildContext context, String message, {required NoticeLevel level}) {
@@ -272,6 +226,37 @@ Future<bool> handOverFile(
   return done;
 }
 
+/// What a history backup holds, told where the user exports it: not the recovery phrase,
+/// and a restore takes the phrase first, then this file.
+String backupFileNote(AppLocalizations l) =>
+    '${l.backupFileHolds} ${l.backupFileNoPhrase} ${l.backupFileRestoreOrder}\n${l.historyBackupExportNote}';
+
+/// "Use the settings from this backup?" for [n] settings the user changed here that the file
+/// has otherwise. True takes the backup's.
+Future<bool> _askSettings(BuildContext context, int n) async {
+  final use = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final l = context.l10n;
+      return AlertDialog(
+        title: Text(l.backupSettingsTitle),
+        content: Text(l.backupSettingsBody(n)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.backupSettingsKeepMine),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.backupSettingsUseBackup),
+          ),
+        ],
+      );
+    },
+  );
+  return use == true;
+}
+
 /// Exports the encrypted history backup. Returns true once the file was handed over.
 Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
   final session = ref.read(sessionProvider);
@@ -283,7 +268,7 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
     final snapshot = HistoryExportSnapshot.of(
       await session.transactions(refresh: false),
     );
-    final bytes = await session.exportHistory();
+    final bytes = await session.exportHistory(settings: await collectPhoneBackupSettings(ref));
     if (!context.mounted) return false;
     final name = historyFileName(
       config.chain,
@@ -296,8 +281,8 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
       name: name,
       bytes: bytes,
       title: l.historyBackupExportTitle,
-      // What a restore gets back from it, and what it does not (invoices, settings).
-      note: '${l.historyBackupExportNote}\n${l.historyBackupExportCarries}',
+      // What the file holds, that it is not the recovery phrase, and the order of a restore.
+      note: backupFileNote(l),
     );
     // uihome: the home reminder counts what changed since this export.
     if (saved) {
@@ -391,35 +376,49 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
       if (choices == null) return false;
       report = await session.importHistory(data: bytes, useBackup: choices);
     }
-    ref.invalidate(homeProvider);
+    // Everything an import can bring back, shown fresh.
+    ref
+      ..invalidate(homeProvider)
+      ..invalidate(contactsProvider)
+      ..invalidate(favouriteContactsProvider)
+      ..invalidate(issuedInvoicesProvider)
+      ..invalidate(pendingInvoicesProvider)
+      ..invalidate(pairingsProvider);
+    // The settings: those still as the app came are taken; one the user changed here that
+    // differs from the file asks once for all.
+    var settingsChanged = 0;
+    final fileSettings = report.settings;
+    if (fileSettings != null && context.mounted) {
+      final plan = await planPhoneBackupSettings(ref, fileSettings);
+      if (!context.mounted) return true;
+      var takeConflicts = false;
+      if (plan.conflicts.isNotEmpty) {
+        takeConflicts = await _askSettings(context, plan.conflicts.length);
+        if (!context.mounted) return true;
+      }
+      settingsChanged = await applyPhoneBackupSettings(ref, plan, takeConflicts: takeConflicts);
+    }
     if (context.mounted) {
-      // The total, and how many of them were in use on another device.
-      final other = report.pairingsOtherDevice;
-      final pairings = report.pairingsAdded == 0
-          ? null
-          : '${l.restorePairings}: ${other == 0
-                ? report.pairingsAdded
-                : other == report.pairingsAdded
-                ? l.restorePairingsOnOtherDevice(other)
-                : '${report.pairingsAdded}, ${l.restorePairingsOnOtherDevice(other)}'}';
+      // One summary of what came back.
       await _tell(
         context,
         l.historyBackupImportedTitle,
         [
-          describeImport(l, report),
+          backupRestoredText(
+            l,
+            payments: report.merged + report.added,
+            notes: report.notesAdded,
+            labels: report.labelsAdded,
+            contacts: report.contactsAdded,
+            stars: report.starsAdded,
+            pairings: report.pairingsAdded,
+            invoices: report.invoicesAdded,
+            settings: settingsChanged > 0,
+            alreadyHere: report.skipped,
+          ),
           if (report.replaced > 0) l.histImportedReplaced(report.replaced),
-          ?pairings,
         ].join(' '),
       );
-    }
-    // A restore that brought pairings back says what came back (SPEC 2.12).
-    if (report.pairingsAdded > 0 && context.mounted) {
-      ref
-          .read(noticeProvider.notifier)
-          .show(
-            '${l.restoreDone} ${l.restoreDoneBody(report.merged + report.added, report.contactsAdded, report.pairingsAdded)}',
-            level: NoticeLevel.success,
-          );
     }
     // Pairings used on another device wait until the user takes them over here (RFC 9.5).
     if (report.pairingsOtherDevice > 0 && context.mounted) {

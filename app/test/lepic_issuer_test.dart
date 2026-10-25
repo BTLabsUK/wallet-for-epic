@@ -694,8 +694,8 @@ void main() {
       final b = await ask(five);
       final c = await ask(five);
       wallet
-        ..setStatus(a.txId, lepic.TxStatus.posted)
-        ..setStatus(b.txId, lepic.TxStatus.cancelled);
+        ..setStatus(a.txId!, lepic.TxStatus.posted)
+        ..setStatus(b.txId!, lepic.TxStatus.cancelled);
       final states = {
         for (final i in await session.issuedInvoices()) i.slateId: i.state,
       };
@@ -716,7 +716,7 @@ void main() {
 
     test('a single request is caught up too, for its details', () async {
       final a = await ask(five);
-      wallet.setStatus(a.txId, lepic.TxStatus.posted);
+      wallet.setStatus(a.txId!, lepic.TxStatus.posted);
       expect(
         (await session.issuedInvoice(slateId: a.slateId))!.state,
         IssuedInvoiceState.paid,

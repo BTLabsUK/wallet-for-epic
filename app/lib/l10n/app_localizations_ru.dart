@@ -441,7 +441,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorHistoryOtherWallet =>
-      'Этот файл истории относится к другому кошельку.';
+      'Этот файл принадлежит другому кошельку. Открыть его может только кошелёк, восстановленный по той же фразе восстановления.';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
@@ -1075,7 +1075,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get historyBackupExportNote =>
-      'Резервная копия истории содержит платежи на текущий момент. После новых платежей экспортируйте её снова.';
+      'Копия содержит всё на текущий момент. После новых платежей или изменений экспортируйте её снова.';
 
   @override
   String get historyBackupCsvTitle => 'Экспорт в CSV';
@@ -1088,7 +1088,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyBackupCsvConfirm => 'Экспортировать CSV';
 
   @override
-  String get historyBackupImportedTitle => 'История импортирована';
+  String get historyBackupImportedTitle => 'Копия импортирована';
 
   @override
   String historyBackupImportFailed(String reason) {
@@ -1098,358 +1098,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get historyBackupImportNothingNew =>
       'В резервной копии нет ничего нового.';
-
-  @override
-  String historyBackupImportMerged(int merged) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportAdded(int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedAdded(int merged, int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportSkipped(int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedSkipped(int merged, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedSkipped(int added, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportContacts(int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedContacts(int merged, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedContacts(int added, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportSkippedContacts(int skipped, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged платежа дополнены данными из копии',
-      many: '$merged платежей дополнены данными из копии',
-      few: '$merged платежа дополнены данными из копии',
-      one: '$merged платёж дополнен данными из копии',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added старых платежа добавлены',
-      many: '$added старых платежей добавлены',
-      few: '$added старых платежа добавлены',
-      one: '$added старый платёж добавлен',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped записи уже были в кошельке',
-      many: '$skipped записей уже были в кошельке',
-      few: '$skipped записи уже были в кошельке',
-      one: '$skipped запись уже была в кошельке',
-    );
-    String _temp3 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts контакта добавлены',
-      many: '$contacts контактов добавлены',
-      few: '$contacts контакта добавлены',
-      one: '$contacts контакт добавлен',
-    );
-    return '$_temp0, $_temp1, $_temp2, $_temp3.';
-  }
 
   @override
   String get homeLockTooltip => 'Заблокировать кошелёк';
@@ -1769,6 +1417,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get statusEpicboxOffline => 'Epicbox не подключён';
+
+  @override
+  String get statusEpicboxBlocked => 'Epicbox заблокирован';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return 'Переключиться на $host';
+  }
+
+  @override
+  String get netStatusBlocked => 'Заблокирован';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -2452,7 +2116,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreRebuiltImportText =>
-      'Резервная копия истории возвращает получателей платежей, заметки и метки.';
+      'Резервная копия истории возвращает историю платежей, контакты, счета и настройки.';
 
   @override
   String get restoreReplaceLead =>
@@ -2494,10 +2158,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportCarries =>
-      'В ней также контакты и их отметки «избранное». Счета и настройки в неё не входят.';
-
-  @override
   String get restoreDoneIconLabel => 'Готово';
 
   @override
@@ -2505,7 +2165,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'В блокчейне хранится ваш баланс, но не получатели платежей, комиссии и заметки. Если вы экспортировали резервную копию истории из этого кошелька, импортируйте её сейчас, чтобы вернуть их. Это файл .wfeh, который вы отправили или сохранили вне старого телефона.';
+      'Фраза восстановления вернула баланс. Резервная копия истории возвращает историю платежей, контакты, счета и настройки этого кошелька. Если вы её экспортировали, импортируйте сейчас: это файл, который вы отправили или сохранили вне старого телефона.';
 
   @override
   String get restoreImportButton => 'Импортировать резервную копию истории';
@@ -6258,7 +5918,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса. Выключено, пока включён Tor: регистрация раскрыла бы адрес телефона.';
+      'Экспериментально: может измениться или давать сбои. Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса. Выключено, пока включён Tor: регистрация раскрыла бы адрес телефона.';
 
   @override
   String get settingsPushPaused => 'Приостановлено, пока включён Tor';
@@ -6290,10 +5950,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'Уведомления выключены';
-
-  @override
-  String get pushNoticeAvailable =>
-      'Уведомления доступны в Настройки › Дополнительно.';
 
   @override
   String get torWayOver => 'Через Tor';
@@ -11351,7 +11007,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupExportHint =>
-      'Платежи с подробностями и контакты — в файле, который открывает только кошелёк с этой фразой восстановления. Одна фраза возвращает баланс, но не записи.';
+      'История платежей, контакты, счета и настройки в файле, который откроет только кошелёк с этой фразой восстановления. Сама фраза возвращает баланс, но не их.';
 
   @override
   String get deskSetBackupExporting => 'Экспорт…';
@@ -11364,7 +11020,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupImportHint =>
-      'Добавляет резервную копию этого кошелька в «Активность». Ничего не удаляется; повторный импорт того же файла ничего не меняет.';
+      'Возвращает из копии историю платежей, контакты, счета и настройки этого кошелька. Ничего не удаляется; тот же файл дважды ничего не меняет.';
 
   @override
   String get deskSetBackupImportButton => 'Импорт…';
@@ -11411,31 +11067,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupInFileSub =>
-      'Кто кому платил, комиссии, заметки, ID слейтов';
+      'Кто кому платил, комиссии, заметки и метки; счета; настройки';
 
   @override
   String get deskSetBackupNotIn => 'Не входит';
 
   @override
-  String get deskSetBackupNotInValue => 'Ключи, фраза восстановления, пароль';
+  String get deskSetBackupNotInValue => 'Фраза восстановления, ключи, пароль';
 
   @override
   String get deskSetBackupOpensWith => 'Откроет';
 
   @override
   String get deskSetBackupOpensWithValue =>
-      'Этот кошелёк или восстановленный по его фразе';
+      'Этот кошелёк или кошелёк, восстановленный по его фразе восстановления';
 
   @override
   String get deskSetBackupFile => 'Файл';
 
   @override
   String get deskSetBackupFileNote =>
-      'Файл содержит платежи на текущий момент. После новых платежей экспортируйте снова.';
+      'Файл содержит всё на текущий момент. После новых платежей или изменений экспортируйте его снова.';
 
   @override
   String get deskSetBackupExportDesc =>
-      'Файл с платежами этого кошелька, их подробностями и контактами. Открыть его может только кошелёк с той же фразой восстановления.';
+      'Файл с историей платежей, контактами, счетами и настройками этого кошелька. Сам по себе он кошелёк не восстановит: сначала восстановите по фразе восстановления, затем импортируйте этот файл.';
 
   @override
   String get deskSetBackupSaved => 'Сохранено';
@@ -11458,29 +11114,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupOpenDialogTitle => 'Открыть резервную копию истории';
-
-  @override
-  String get deskSetBackupDetailsRestored => 'Подробности восстановлены';
-
-  @override
-  String get deskSetBackupDetailsRestoredSub =>
-      'Платежам, которые уже здесь, вернулись контрагент, комиссия или заметка';
-
-  @override
-  String get deskSetBackupOlderAdded => 'Добавлены старые платежи';
-
-  @override
-  String get deskSetBackupOlderAddedSub =>
-      'Их больше не было в списке; показаны как «Из резервной копии»';
-
-  @override
-  String get deskSetBackupContactsAdded => 'Добавлены контакты';
-
-  @override
-  String get deskSetBackupAlreadyHere => 'Уже здесь';
-
-  @override
-  String get deskSetBackupUnchanged => 'Без изменений';
 
   @override
   String get deskSetBackupNothingNew => 'Ничего нового';
@@ -11506,14 +11139,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupBringsBackValue =>
-      'Кто кому платил, комиссии и заметки платежей, которые уже здесь; старые платежи, пропавшие из списка; контакты';
+      'Детали и заметки платежей, старые платежи, которых нет в списке, контакты, счета и настройки';
 
   @override
   String get deskSetBackupNeeds => 'Нужен';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'Файл из этого кошелька (та же фраза восстановления), сеть $network';
+    return 'Файл этого кошелька (та же фраза восстановления), сеть $network. Сначала восстановите кошелёк по его фразе.';
   }
 
   @override
@@ -11528,7 +11161,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupImportDesc =>
-      'Добавляет резервную копию истории этого кошелька в «Активность». Ничего не удаляется, и повторный импорт того же файла ничего не меняет.';
+      'Возвращает историю платежей, контакты, счета и настройки этого кошелька. Ничего не удаляется, и тот же файл дважды ничего не меняет.';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'Сохранить платежи в CSV';
@@ -16393,14 +16026,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairYourNamePlaceholder => 'Ваше имя';
 
   @override
-  String get restoreDone => 'История восстановлена.';
-
-  @override
-  String restoreDoneBody(int payments, int contacts, int pairings) {
-    return 'Вернулись платежи: $payments, контакты: $contacts и сопряжения: $pairings.';
-  }
-
-  @override
   String get deskConPickForPairing =>
       'Сопряжение будет добавлено к выбранному контакту.';
 
@@ -16942,11 +16567,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'Вернуть детали платежей?';
+  String get deskOvRestoredImportTitle => 'Вернуть историю и настройки?';
 
   @override
   String get deskOvRestoredImportBody =>
-      'В блокчейне хранится баланс, но не получатели платежей, комиссии и заметки. Их возвращает резервная копия истории, экспортированная из этого кошелька: файл .wfeh, сохранённый вне старого компьютера.';
+      'Фраза восстановления вернула баланс. Резервная копия истории, экспортированная из этого кошелька, возвращает историю платежей, контакты, счета и настройки: это файл, сохранённый вне старого компьютера.';
 
   @override
   String get deskOvRestoredImportButton =>
@@ -17085,6 +16710,258 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот ответ относится к другому запросу. Отсканируйте ответ на этот.';
 
   @override
+  String get backupFileHolds =>
+      'Этот файл содержит историю платежей, контакты, счета и настройки этого кошелька.';
+
+  @override
+  String get backupFileNoPhrase =>
+      'Он не содержит фразу восстановления и сам по себе не восстановит кошелёк.';
+
+  @override
+  String get backupFileRestoreOrder =>
+      'Чтобы восстановить: сначала введите фразу восстановления, затем импортируйте этот файл.';
+
+  @override
+  String get backupImportLead =>
+      'Возвращает историю платежей, контакты, счета и настройки этого кошелька. Сначала восстановите кошелёк по его фразе восстановления.';
+
+  @override
+  String backupRestoredSummary(String items) {
+    return 'Восстановлено: $items.';
+  }
+
+  @override
+  String get backupListSeparator => ', ';
+
+  @override
+  String get backupListLastSeparator => ' и ';
+
+  @override
+  String backupRestoredPayments(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n платежа',
+      many: '$n платежей',
+      few: '$n платежа',
+      one: '$n платёж',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredNotes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n заметки',
+      many: '$n заметок',
+      few: '$n заметки',
+      one: '$n заметка',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredLabels(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n метки',
+      many: '$n меток',
+      few: '$n метки',
+      one: '$n метка',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredContacts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n контакта',
+      many: '$n контактов',
+      few: '$n контакта',
+      one: '$n контакт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredStars(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n избранных контакта',
+      many: '$n избранных контактов',
+      few: '$n избранных контакта',
+      one: '$n избранный контакт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredPairings(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n сопряжения',
+      many: '$n сопряжений',
+      few: '$n сопряжения',
+      one: '$n сопряжение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredInvoices(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n счёта',
+      many: '$n счетов',
+      few: '$n счёта',
+      one: '$n счёт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupRestoredSettings => 'настройки';
+
+  @override
+  String get backupRestoredWalletName => 'название кошелька';
+
+  @override
+  String backupRestoredAlreadyHere(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n записи уже были здесь.',
+      many: '$n записей уже были здесь.',
+      few: '$n записи уже были здесь.',
+      one: '$n запись уже была здесь.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupSettingsTitle => 'Использовать настройки из этой копии?';
+
+  @override
+  String backupSettingsBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n настройки здесь отличаются от копии.',
+      many: '$n настроек здесь отличаются от копии.',
+      few: '$n настройки здесь отличаются от копии.',
+      one: '$n настройка здесь отличается от копии.',
+    );
+    return '$_temp0 Остальное из копии уже импортировано.';
+  }
+
+  @override
+  String get backupSettingsUseBackup => 'Из копии';
+
+  @override
+  String get backupSettingsKeepMine => 'Оставить мои';
+
+  @override
+  String get backupFromOtherWallet =>
+      'Этот файл принадлежит другому кошельку. Открыть его может только кошелёк, восстановленный по той же фразе восстановления.';
+
+  @override
+  String get deskEpicboxBlockedWord => 'Заблокирован';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'Переключиться на $host';
+  }
+
+  @override
+  String get deskSlotNow => 'Сейчас';
+
+  @override
+  String get deskSlotHelp => 'Справка';
+
+  @override
+  String get deskSlotOffline => 'Режим офлайн';
+
+  @override
+  String get deskSlotOfflineDetail => 'ничего не отправляется и не принимается';
+
+  @override
+  String get deskSlotScanning => 'Сканирование цепочки';
+
+  @override
+  String get deskSlotScanWaits => 'Сканирование ждёт сети';
+
+  @override
+  String get deskSlotScanStopped => 'Сканирование остановлено';
+
+  @override
+  String get deskSlotTryAgain => 'Повторить';
+
+  @override
+  String get deskSlotSending => 'Отправка платежа';
+
+  @override
+  String get deskSlotPaymentOut => 'Платёж в пути';
+
+  @override
+  String get deskSlotPaymentIn => 'Платёж поступает';
+
+  @override
+  String get deskSlotPaymentsOut => 'Платежи в пути';
+
+  @override
+  String get deskSlotPaymentsMoving => 'Платежи в пути';
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done из $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'ждёт блока';
+
+  @override
+  String get deskSlotRequests => 'Новые запросы';
+
+  @override
+  String get deskSlotNodeStarting => 'Запуск локального узла';
+
+  @override
+  String get deskSlotNodeSyncing => 'Синхронизация локального узла';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'Доступно обновление, $version. Показывает обновление.';
+  }
+
+  @override
+  String get deskSlotOpenAdvanced => 'Открыть «Дополнительно»';
+
+  @override
+  String get deskSlotOpenRecheck => 'Открыть «Сверка баланса»';
+
+  @override
+  String get deskSlotOpenSend => 'Открыть «Отправить»';
+
+  @override
+  String get deskSlotOpenActivity => 'Открыть в «Активности»';
+
+  @override
+  String get deskSlotOpenInvoices => 'Открыть «Счета»';
+
+  @override
   String deskBarMenu(String app) {
     return 'Меню $app';
   }
@@ -17162,67 +17039,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskBarKeyList => 'Этот список';
 
   @override
-  String get deskSlotNow => 'Сейчас';
-
-  @override
-  String get deskSlotHelp => 'Справка';
-
-  @override
-  String get deskSlotOffline => 'Режим офлайн';
-
-  @override
-  String get deskSlotOfflineDetail => 'ничего не отправляется и не принимается';
-
-  @override
-  String get deskSlotScanning => 'Сканирование цепочки';
-
-  @override
-  String get deskSlotScanWaits => 'Сканирование ждёт сети';
-
-  @override
-  String get deskSlotScanStopped => 'Сканирование остановлено';
-
-  @override
-  String get deskSlotTryAgain => 'Повторить';
-
-  @override
-  String get deskSlotSending => 'Отправка платежа';
-
-  @override
-  String get deskSlotPaymentOut => 'Платёж в пути';
-
-  @override
-  String get deskSlotPaymentIn => 'Платёж поступает';
-
-  @override
-  String get deskSlotPaymentsOut => 'Платежи в пути';
-
-  @override
-  String get deskSlotPaymentsMoving => 'Платежи в пути';
-
-  @override
-  String deskSlotOf(String done, String needed) {
-    return '$done из $needed';
-  }
-
-  @override
-  String get deskSlotWaitingBlock => 'ждёт блока';
-
-  @override
-  String get deskSlotRequests => 'Новые запросы';
-
-  @override
-  String get deskSlotNodeStarting => 'Запуск локального узла';
-
-  @override
-  String get deskSlotNodeSyncing => 'Синхронизация локального узла';
-
-  @override
-  String deskSlotUpdateDot(String version) {
-    return 'Доступно обновление, $version. Показывает обновление.';
-  }
-
-  @override
   String get deskBarCopyBuild => 'Скопировать сведения о сборке';
 
   @override
@@ -17242,21 +17058,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'Версия $version. Сборка для разработки. Щелчок копирует сведения о сборке.';
   }
-
-  @override
-  String get deskSlotOpenAdvanced => 'Открыть «Дополнительно»';
-
-  @override
-  String get deskSlotOpenRecheck => 'Открыть «Сверка баланса»';
-
-  @override
-  String get deskSlotOpenSend => 'Открыть «Отправить»';
-
-  @override
-  String get deskSlotOpenActivity => 'Открыть в «Активности»';
-
-  @override
-  String get deskSlotOpenInvoices => 'Открыть «Счета»';
 
   @override
   String get deskBarKeyMenu => 'Открыть меню приложения';

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../connection_state.dart';
 import '../l10n.dart';
+import '../network.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart' show groupDigits;
@@ -12,8 +13,9 @@ import 'theme/tokens.dart';
 /// Where the node stands for the open wallet.
 enum NodeState { online, syncing, connecting, offline }
 
-/// Where the epicbox listener stands.
-enum EpicboxState { online, connecting, offline }
+/// Where the epicbox listener stands. [blocked]: not connected because this network blocks the
+/// relay (relay_block.dart); it shows at once and stays, without flipping to connecting.
+enum EpicboxState { online, connecting, offline, blocked }
 
 /// The node row of the header: its state, and what its tooltip tells.
 class NodeStatus {
@@ -101,6 +103,8 @@ WalletStatus walletStatus({
       ? null
       : listener.connected
       ? EpicboxState.online
+      : listener.blocked
+      ? EpicboxState.blocked
       : listener.lost && !waitingForTor
       ? EpicboxState.offline
       : EpicboxState.connecting;
@@ -210,6 +214,12 @@ _Face _epicboxFace(
       l.statusEpicboxOffline,
       t.risk,
       l.homeEpicboxOffline,
+    ),
+    EpicboxState.blocked => (
+      EpicGlyphs.epicbox,
+      l.statusEpicboxBlocked,
+      t.risk,
+      l.epicboxBlockedBody(config == null ? 'Epicbox' : relayLabel(config)),
     ),
   };
   final detail = [
@@ -440,7 +450,7 @@ class StatusIcon extends StatelessWidget {
   final dot = switch (state) {
     EpicboxState.online => StatusDot.ok,
     EpicboxState.connecting => StatusDot.busy,
-    EpicboxState.offline => StatusDot.bad,
+    EpicboxState.offline || EpicboxState.blocked => StatusDot.bad,
   };
   return (icon: f.icon, dot: dot, word: net.word, detail: f.detail);
 }
@@ -571,9 +581,18 @@ NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
       color: t.risk,
       word: l.netStatusNotConnected,
     ),
+    EpicboxState.blocked => (
+      level: SignalLevel.one,
+      color: t.risk,
+      word: l.netStatusBlocked,
+    ),
     null => (level: SignalLevel.none, color: t.dim, word: l.netStatusOff),
   };
 }
+
+/// The wallet's relay as addresses write it: the host, with the port only when it is not 443.
+String relayLabel(WalletConfig config) =>
+    EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label;
 
 /// A server address as the screen shows it: the host only, with the port only when it is not
 /// the scheme's default. Text that is no address comes back as it is.

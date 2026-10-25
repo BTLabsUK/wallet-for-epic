@@ -48,9 +48,12 @@ import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
+import '../../relay_block.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
+import '../../backup_settings.dart' show mergeServerLists;
 import '../../server_list.dart' show ServerKind, ServerList;
+import '../../server_list_store.dart' show builtInRelaysFor;
 import '../../seed_contacts.dart';
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName, uniqueFileName;
@@ -63,6 +66,7 @@ import '../../wallet_service.dart' as core;
 import 'addresses.dart';
 import 'api.dart';
 import 'backup_reminder.dart';
+import 'backup_settings_desk.dart';
 import 'desk_store.dart';
 import 'desk_update.dart' show deskAppVersion;
 import 'features.dart';
@@ -422,6 +426,18 @@ class LepicDeskWallet implements DeskWalletApi {
   /// does not turn that back into Online.
   bool _nodeNotReady = false;
   ServiceHealth _epicboxHealth = ServiceHealth.off;
+
+  /// Counts the listener's refused handshakes (relay_block.dart); [_epicboxBlocked] once the
+  /// network is shown to block the relay. Steady until a connection, a stop or a switch of relay
+  /// ([_clearBlocked]); the listener keeps trying by itself.
+  final RelayBlockWatch _blockWatch = RelayBlockWatch();
+  bool _epicboxBlocked = false;
+
+  /// The relay to offer while blocked ([relayInstead]); null when none is left.
+  EpicboxRelay? _blockedInstead;
+
+  /// Relays this network blocked since the wallet opened: never offered again.
+  final Set<EpicboxRelay> _blockedRelays = {};
   double? _syncProgress;
   DateTime? _lastUpdate;
   String? _notice;
@@ -1214,6 +1230,8 @@ class LepicDeskWallet implements DeskWalletApi {
     _stall = StallRetry();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
+    _clearBlocked();
+    _blockedRelays.clear();
     session?.dispose();
   }
 
@@ -2248,6 +2266,19 @@ class LepicDeskWallet implements DeskWalletApi {
     ];
   }
 
+  /// The desktop keeps a wallet's stars itself ([_favouritesKey]); a history backup carries the
+  /// session's, so the session is given these first, for an export to seal and an import to add to.
+  Future<void> _starsToSession(core.WalletSession session) async {
+    final mine = await _favourites();
+    final theirs = (await session.favouriteContacts()).toSet();
+    for (final id in mine.difference(theirs)) {
+      await session.setFavouriteContact(id: id, favourite: true);
+    }
+    for (final id in theirs.difference(mine)) {
+      await session.setFavouriteContact(id: id, favourite: false);
+    }
+  }
+
   Future<Set<String>> _favourites() async {
     final j = await _store.readJson(_favouritesKey);
     return j is List ? {for (final v in j) '$v'} : <String>{};
@@ -2276,6 +2307,8 @@ class LepicDeskWallet implements DeskWalletApi {
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
       epicboxViaTor: _epicboxOverTor && _settings.tor && await _findTor() != null,
+      epicboxBlocked: _epicboxBlocked && _epicboxHealth == ServiceHealth.down,
+      epicboxInstead: _epicboxBlocked && _epicboxHealth == ServiceHealth.down ? _blockedInstead : null,
       torSlowStart: _torHealth == ServiceHealth.checking &&
           !_torCanSend &&
           _torStartedAt != null &&
@@ -3626,13 +3659,16 @@ class LepicDeskWallet implements DeskWalletApi {
         switch (e.kind) {
           case core.ListenerEventKind.connected:
             _epicboxHealth = ServiceHealth.ok;
+            _clearBlocked();
           case core.ListenerEventKind.disconnected:
             _epicboxHealth = ServiceHealth.down;
+            _relayMaybeBlocked(e.reason ?? e.message);
           case core.ListenerEventKind.received || core.ListenerEventKind.finalized || core.ListenerEventKind.expired:
             unawaited(_reload());
           case core.ListenerEventKind.stopped:
             _epicboxHealth = ServiceHealth.off;
             _listener = null;
+            _clearBlocked();
           case core.ListenerEventKind.repeated || core.ListenerEventKind.error || core.ListenerEventKind.delayed:
             logInfo('desk', 'listener ${e.kind.name}');
         }
@@ -3642,9 +3678,50 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
         _epicboxHealth = ServiceHealth.down;
         _listener = null;
+        _clearBlocked();
         _changed();
       },
     );
+  }
+
+  /// One failed connection of the Epicbox listener, with its [reason]. Only a direct connection
+  /// counts: over Tor the network never sees the relay's name, so "this network blocks it"
+  /// would be wrong. Once blocked it stays so until [_clearBlocked]; the health stays down, so
+  /// the line does not flip between Connecting and Not answering.
+  void _relayMaybeBlocked(String? reason) {
+    if (_epicboxOverTor && _settings.tor) return _clearBlocked();
+    if (_epicboxBlocked || !_blockWatch.failed(reason)) return;
+    final c = _config;
+    if (c == null) return;
+    final blocked = EpicboxRelay(host: c.epicboxDomain, port: c.epicboxPort);
+    _epicboxBlocked = true;
+    _blockedInstead = null;
+    _blockedRelays.add(blocked);
+    logInfo('desk', 'epicbox relay blocked by the network');
+    unawaited(_offerInstead(blocked));
+  }
+
+  void _clearBlocked() {
+    _blockWatch.reset();
+    _epicboxBlocked = false;
+    _blockedInstead = null;
+  }
+
+  /// Sets [_blockedInstead]: the first other relay the monitor saw up, else the first built-in
+  /// it did not list; the monitor not answering leaves only the built-in ones.
+  Future<void> _offerInstead(EpicboxRelay blocked) async {
+    List<RelayStatus>? listed;
+    final dir = relayDirectory;
+    if (dir != null && preset.statusChain != null && statusSite.on) {
+      try {
+        listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
+      } on Object catch (e) {
+        logWarn('desk', 'epicbox instead: ${e.runtimeType}');
+      }
+    }
+    if (!_epicboxBlocked) return;
+    _blockedInstead = relayInstead(blocked, mergePublicRelays(listed, builtIn: builtInRelaysFor(preset)), skip: _blockedRelays);
+    _changed();
   }
 
   @override
@@ -3739,6 +3816,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // Tor only keeps Epicbox on tor: off would let it go direct.
     if (!on && NetGate.torOnly) return;
     _epicboxOverTor = on;
+    _clearBlocked();
     await _session?.setEpicboxOverTor(on);
     _changed();
   }
@@ -3767,6 +3845,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on && NetGate.torOnly) throw DeskError.l10n((l) => l.deskSetAdvModeTorOnlyText);
     if (on && NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     _settings = _settings.copyWith(tor: on);
+    _clearBlocked();
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) {
@@ -3987,6 +4066,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await sub.cancel();
     _epicboxHealth = ServiceHealth.off;
+    _clearBlocked();
     _changed();
   }
 
@@ -4201,8 +4281,17 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<Uint8List> exportHistory() async {
+    final session = _open;
+    Map<String, Object?>? settings;
     try {
-      return await _open.exportHistory();
+      settings = (await backupSettings()).mine;
+    } on Object catch (e) {
+      // The history matters more: the file goes without settings.
+      logWarn('desk', 'backup settings not read: ${e.runtimeType}');
+    }
+    try {
+      await _starsToSession(session);
+      return await session.exportHistory(walletName: _openEntry?.label, settings: settings);
     } on core.WalletError catch (e) {
       logWarn('desk', 'history export: ${e.kind.name}');
       throw _deskError(e);
@@ -4227,11 +4316,18 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) async {
     if (data.length > maxDeskHistoryBytes) throw HistoryFileError.l10n(HistoryFileProblem.tooLarge, (l) => l.deskErrHistTooLarge);
     try {
-      final r = await _open.importHistory(data: data, useBackup: useBackup);
+      final session = _open;
+      await _starsToSession(session);
+      final r = await session.importHistory(data: data, useBackup: useBackup);
       if (!r.applied) {
         logInfo('desk', 'history import waits for ${r.conflicts.length} choices');
         return HistoryImport(conflicts: r.conflicts, applied: false);
       }
+      // The file's stars, which the session put in its archive, join this wallet's.
+      final stars = await _favourites();
+      final before = stars.length;
+      stars.addAll(await session.favouriteContacts());
+      if (stars.length != before && _session == session) await _store.writeJson(_favouritesKey, stars.toList());
       logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
       // A restored wallet's offer to import is answered (R13).
       await _setMeta({'historyOffer': false});
@@ -4244,6 +4340,13 @@ class LepicDeskWallet implements DeskWalletApi {
         replaced: r.replaced,
         pairingsAdded: r.pairingsAdded,
         pairingsOtherDevice: r.pairingsOtherDevice,
+        notesAdded: r.notesAdded,
+        labelsAdded: r.labelsAdded,
+        detailsAdded: r.detailsAdded,
+        invoicesAdded: r.invoicesAdded,
+        starsAdded: r.starsAdded,
+        walletName: r.walletName,
+        settings: r.settings,
       );
     } on core.WalletError catch (e) {
       logWarn('desk', 'history import refused: ${e.kind.name}');
@@ -4269,6 +4372,107 @@ class LepicDeskWallet implements DeskWalletApi {
       throw _deskError(e);
     }
     await _reload();
+  }
+
+  @override
+  Future<DeskBackupSettings> backupSettings() async {
+    final entry = _openEntry;
+    final node = await _builtInOn() ? await _secrets.read(_beforeBuiltInKey) : await _nodeUrl();
+    final ownNodes = <NodeServer>[
+      if (await _store.readJson(DeskStore.nodesKey) case final List list)
+        for (final o in list.whereType<Map<String, dynamic>>())
+          if (o['url'] is String) NodeServer(url: o['url'] as String, label: o['label'] is String ? o['label'] as String : '', own: true),
+    ];
+    final secs = (await _meta())[_invoiceExpiryKey];
+    final expiry = secs is int && secs > 0 ? Duration(seconds: secs > maxInvoiceExpiry.inSeconds ? maxInvoiceExpiry.inSeconds : secs) : defaultInvoiceExpiry;
+    final autostart = await _store.autostart(entry?.walletId);
+    final first = _builtInBoxes.first;
+    return DeskBackupSettings(
+      chain: _chain,
+      mine: deskBackupMap(
+        _settings.copyWith(epicboxAutostart: autostart.epicbox, torAutostart: autostart.tor),
+        chain: _chain,
+        outputs: await _store.outputPrefs(entry?.walletId),
+        node: node,
+        relay: (await _relay()).label,
+        nodeList: await _store.serverList(ServerKind.node, _chain) ?? const ServerList(),
+        relayList: await _store.serverList(ServerKind.relay, _chain) ?? const ServerList(),
+        ownNodes: ownNodes,
+        invoiceExpiry: expiry,
+        seedsDeleted: [
+          for (final e in (await _seedRecords()).entries)
+            if (e.value['deleted'] == true) e.key,
+        ],
+        ownRelay: (await _ownRelay(entry))?.label,
+      ),
+      defaults: deskBackupMap(
+        const DeskSettings(),
+        chain: _chain,
+        outputs: const OutputPrefs(),
+        node: preset.nodeUrl,
+        relay: EpicboxRelay(host: first.domain, port: first.port).label,
+        nodeList: const ServerList(),
+        relayList: const ServerList(),
+        ownNodes: const [],
+        invoiceExpiry: defaultInvoiceExpiry,
+        seedsDeleted: const [],
+      ),
+    );
+  }
+
+  @override
+  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) async {
+    for (final (kind, list) in [(ServerKind.node, nodeList), (ServerKind.relay, relayList)]) {
+      if (list == null) continue;
+      final now = await _store.serverList(kind, _chain) ?? const ServerList();
+      final next = mergeServerLists(kind, now, list);
+      if (next != now) await _store.saveServerList(kind, _chain, next);
+    }
+    final entry = _openEntry;
+    if (ownRelay != null && entry != null) {
+      final relay = ownRelay.relay == null ? null : EpicboxRelay.parse(ownRelay.relay!);
+      await _setMeta({'epicbox': relay?.label}, _metaKey(entry.walletId));
+    }
+    final session = _session;
+    if (seedsDeleted == null || seedsDeleted.isEmpty || session == null) return;
+    final key = _metaKey(entry?.walletId);
+    final gone = <String>[];
+    await _seedLocked(() async {
+      if (_session != session) return;
+      final seeds = await _seedRecords(key);
+      final stored = {for (final c in await session.contacts()) c.id: c};
+      var changed = false;
+      for (final id in seedsDeleted) {
+        // Only the contacts the app ships with have records.
+        final seed = bundledSeedContacts.where((c) => c.id == id).firstOrNull;
+        final rec = seeds[id];
+        if (seed == null || rec?['deleted'] == true) continue;
+        if (rec == null) {
+          seeds[id] = {..._seedRecord('', seed), 'contact': null, 'deleted': true};
+        } else {
+          // Deleted again only when it is still as the app wrote it: an edit makes it the user's.
+          final c = stored[rec['contact']];
+          final untouched = c != null &&
+              c.address == rec['address'] &&
+              (!rec.containsKey('name') || c.name == rec['name']) &&
+              (!rec.containsKey('note') || c.note == rec['note']);
+          if (untouched) {
+            await session.deleteContact(id: c.id);
+            gone.add(c.id);
+          }
+          seeds[id] = {...rec, 'deleted': true};
+        }
+        changed = true;
+      }
+      if (changed && _session == session) await _setMeta({'seeds': seeds}, key);
+    });
+    if (gone.isNotEmpty) {
+      final favourites = await _favourites();
+      final before = favourites.length;
+      favourites.removeAll(gone);
+      if (favourites.length != before && _session == session) await _store.writeJson(_favouritesKey, favourites.toList());
+    }
+    _changed();
   }
 
   @override
@@ -4611,9 +4815,14 @@ class LepicDeskWallet implements DeskWalletApi {
       );
     }
 
+    // A request a history backup brought back has no local id: its row is found by slate id,
+    // with the id Activity gives it ([_txs]).
     final sent = [
       for (final r in await session.issuedInvoices())
-        _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf, pairings: pairings),
+        if (r.txId != null)
+          _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf, pairings: pairings)
+        else if (entries.indexWhere((e) => e.source != core.TxSource.wallet && e.slateId == r.slateId && e.isRequest) case final i when i >= 0)
+          _request(r, entries[i], people, minConf: minConf, pairings: pairings, fallbackId: entries[i].id ?? -1 - i),
     ];
 
     return InvoiceBook(
@@ -4639,11 +4848,12 @@ class LepicDeskWallet implements DeskWalletApi {
     List<Contact> people, {
     required int minConf,
     List<core.PairingRecord> pairings = const [],
+    int fallbackId = -1,
   }) {
-    final tx = e == null ? null : deskTx(e, tip: _tip, minConf: minConf, fallbackId: -1);
+    final tx = e == null ? null : deskTx(e, tip: _tip, minConf: minConf, fallbackId: fallbackId);
     return IssuedRequest(
       slateId: r.slateId,
-      txId: r.txId,
+      txId: r.txId ?? fallbackId,
       payerAddress: r.payerAddress,
       payerName: _pairedName(pairings, people, r.pairingId) ?? _contactFor(people, r.payerAddress)?.name,
       amount: r.amount.toInt(),
@@ -4983,6 +5193,10 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     // A request nobody paid yet is not on its way to the chain: it waits for the payer, as the
     // mock keeps it (windows-05 read "posted" in its technical details).
     core.TxStatus.awaitingConfirmation when e.awaitingPayer => TxState.waitingRecipient,
+    // One a history backup brought back still open: never paid as far as anyone here knows,
+    // so an asked amount, not a payment on its way.
+    core.TxStatus.awaitingConfirmation when e.isRequest && height == null && e.source != core.TxSource.wallet =>
+      TxState.waitingRecipient,
     // A payment answered here waits for its sender to finalize and post it: not on the network
     // yet (it read "Waiting for a block"). A paid request is this wallet's to post, so posted.
     core.TxStatus.awaitingConfirmation when height == null && e.kind == core.TxKind.received && !e.isRequest => TxState.waitingRecipient,

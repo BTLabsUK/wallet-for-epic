@@ -96,6 +96,7 @@ final List<DeskShot> transferShots = [
     route: DeskRoute.receive,
     arg: ReceiveArgs(epicbox: RxEpicbox.down, http: RxHttp.failed, tor: RxTor.failed),
   ),
+  const DeskShot(id: '17z-receive-epicbox-blocked', title: 'Receive, the network blocks the Epicbox server', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.blocked)),
   const DeskShot(id: '17f-receive-wide', title: 'Receive at 1440x900', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1440, height: 900),
   const DeskShot(id: '17g-receive-qr-epicbox', title: 'Receive, Epicbox QR shown', route: DeskRoute.receive, arg: ReceiveArgs(qr: RxQr.epicbox), width: 1440, height: 900),
   const DeskShot(id: '17h-receive-qr-http', title: 'Receive, HTTP QR shown', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, qr: RxQr.http), width: 1280, height: 900),

@@ -16,6 +16,7 @@ import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
 import '../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../network.dart' show EpicboxRelay;
 import '../../relay_directory.dart' show ServerIcon;
 
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
@@ -605,6 +606,8 @@ class ServiceStatus {
     this.torIncluded = true,
     this.torSlowStart = false,
     this.epicboxViaTor = false,
+    this.epicboxBlocked = false,
+    this.epicboxInstead,
     this.epicboxOwn = false,
     this.syncProgress,
     this.scanning = false,
@@ -655,6 +658,14 @@ class ServiceStatus {
   /// it waits for tor and never goes directly, so an [epicboxHealth] of checking or down then
   /// means "Connecting via Tor".
   final bool epicboxViaTor;
+
+  /// This network ends the TLS handshake with [epicbox] twice in a row (relay_block.dart): the
+  /// relay is up, a filter on the way answers for it. Steady until a connection, a stop or a
+  /// switch of relay; the state line says it and offers [epicboxInstead]. Direct only.
+  final bool epicboxBlocked;
+
+  /// The relay to offer while [epicboxBlocked] (relayInstead); null when none is left.
+  final EpicboxRelay? epicboxInstead;
 
   /// The open wallet has its own Epicbox server (an import that kept the older app's): a
   /// change in Settings applies to this wallet only.
@@ -795,6 +806,13 @@ class HistoryImport {
     this.replaced = 0,
     this.pairingsAdded = 0,
     this.pairingsOtherDevice = 0,
+    this.notesAdded = 0,
+    this.labelsAdded = 0,
+    this.detailsAdded = 0,
+    this.invoicesAdded = 0,
+    this.starsAdded = 0,
+    this.walletName,
+    this.settings,
   });
 
   /// Payments already here that got details back.
@@ -822,7 +840,36 @@ class HistoryImport {
   final int pairingsAdded;
   final int pairingsOtherDevice;
 
-  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0 && replaced == 0 && pairingsAdded == 0;
+  /// Notes, labels, and a scan-found payment's sender or method the file filled in where this
+  /// wallet had none.
+  final int notesAdded;
+  final int labelsAdded;
+  final int detailsAdded;
+
+  /// Invoices (issued or paid) whose outcome the file brought back.
+  final int invoicesAdded;
+
+  /// Contacts this wallet starred again.
+  final int starsAdded;
+
+  /// The wallet's name the file carries; [planDeskBackupSettings] offers it.
+  final String? walletName;
+
+  /// The settings the file carries (`backup_settings.dart`), null for a file without any;
+  /// [planDeskBackupSettings] plans them.
+  final Map<String, Object?>? settings;
+
+  bool get nothingNew =>
+      merged == 0 &&
+      added == 0 &&
+      contactsAdded == 0 &&
+      replaced == 0 &&
+      pairingsAdded == 0 &&
+      notesAdded == 0 &&
+      labelsAdded == 0 &&
+      detailsAdded == 0 &&
+      invoicesAdded == 0 &&
+      starsAdded == 0;
 }
 
 /// Why a history backup file was refused.

@@ -204,7 +204,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2)),
+        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
       ),
     ),
   ),
@@ -222,7 +222,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1)),
+        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
       ),
     ),
   ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
+import '../../../network.dart' show EpicboxRelay;
 import '../../../network_gate.dart' show NetBlock;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
@@ -18,7 +19,7 @@ import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import '../settings/settings_advanced.dart' show openAdvanced;
 
-enum RxEpicbox { on, off, down }
+enum RxEpicbox { on, off, down, blocked }
 
 enum RxHttp { off, on, starting, failed }
 
@@ -90,7 +91,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   ServiceStatus? _status(ServiceStatus? s) {
     final a = _args;
     if (s == null || a == null) return s;
-    final epicbox = a.epicbox == RxEpicbox.down ? ServiceHealth.down : s.epicboxHealth;
+    final blocked = a.epicbox == RxEpicbox.blocked;
+    final epicbox = a.epicbox == RxEpicbox.down || blocked ? ServiceHealth.down : s.epicboxHealth;
     final http = switch (a.http) {
       RxHttp.starting => ServiceHealth.checking,
       RxHttp.failed => ServiceHealth.down,
@@ -107,6 +109,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       nodeHeight: s.nodeHeight,
       epicbox: s.epicbox,
       epicboxHealth: epicbox,
+      epicboxBlocked: blocked || s.epicboxBlocked,
+      epicboxInstead: blocked ? const EpicboxRelay(host: 'epicbox.stackwallet.com') : s.epicboxInstead, // l10n-ok: tour demo relay
       httpListener: http,
       tor: tor,
       httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
@@ -432,7 +436,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         Text(l.deskRecvCheckSix, style: ts.caption),
         SizedBox(height: Sp.x4),
         if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
-        if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
+        if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
         // Invoices (docs/invoices/flow.md §1): ask someone to pay; the invoice address never shows here.
         if (ref.watch(deskInvoicesShownProvider) && ref.watch(deskPairsProvider)) ...[
           SizedBox(height: Sp.x5),

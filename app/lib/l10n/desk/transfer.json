@@ -219,5 +219,29 @@
   "deskImpOpenAnother": "Open another file",
   "@deskImpOpenAnother": {
     "description": "Import page, after a request file was paid and its answer saved: start over with another file. Not \"sign\": paying a request spent money."
+  },
+  "deskEpicboxBlockedWord": "Blocked",
+  "@deskEpicboxBlockedWord": {
+    "description": "The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence."
+  },
+  "deskEpicboxBlockedText": "This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.",
+  "@deskEpicboxBlockedText": {
+    "description": "Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskEpicboxBlockedSwitch": "Switch to {host}",
+  "@deskEpicboxBlockedSwitch": {
+    "description": "Button of the blocked-relay notice: one tap moves the wallet to another Epicbox server, no confirmation. {host} is that server's host name.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
   }
 }

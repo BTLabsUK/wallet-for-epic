@@ -793,7 +793,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorHistoryOtherWallet.
   ///
   /// In en, this message translates to:
-  /// **'This history file belongs to a different wallet.'**
+  /// **'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.'**
   String get errorHistoryOtherWallet;
 
   /// Network names stay as given (Mainnet, Floonet, Usernet).
@@ -1720,7 +1720,7 @@ abstract class AppLocalizations {
   /// Text in the export sheet under its title.
   ///
   /// In en, this message translates to:
-  /// **'History backups hold payments up to now. Export again after new payments.'**
+  /// **'The backup holds everything up to now. Export again after new payments or changes.'**
   String get historyBackupExportNote;
 
   /// Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file.
@@ -1744,7 +1744,7 @@ abstract class AppLocalizations {
   /// Title of the dialog with the result of a history backup import.
   ///
   /// In en, this message translates to:
-  /// **'History imported'**
+  /// **'Backup imported'**
   String get historyBackupImportedTitle;
 
   /// Error notice when a history backup could not be imported; reason is the error, a whole sentence.
@@ -1758,117 +1758,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The backup held nothing new.'**
   String get historyBackupImportNothingNew;
-
-  /// Import result. The historyBackupImport… messages are one sentence per combination of counts, each count shown only when above zero: merged payments already in the list got their note, address and fee back from the backup; added older payments were not in the list; skipped records were imported before; contacts went into the address book.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}.'**
-  String historyBackupImportMerged(int merged);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{added, plural, =1{1 older payment added} other{{added} older payments added}}.'**
-  String historyBackupImportAdded(int added);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}.'**
-  String historyBackupImportMergedAdded(int merged, int added);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.'**
-  String historyBackupImportSkipped(int skipped);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.'**
-  String historyBackupImportMergedSkipped(int merged, int skipped);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.'**
-  String historyBackupImportAddedSkipped(int added, int skipped);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.'**
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  );
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportContacts(int contacts);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportMergedContacts(int merged, int contacts);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportAddedContacts(int added, int contacts);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  );
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportSkippedContacts(int skipped, int contacts);
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  );
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  );
-
-  /// Import result; see historyBackupImportMerged.
-  ///
-  /// In en, this message translates to:
-  /// **'{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.'**
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  );
 
   /// Tooltip of the app-bar button that closes the wallet and returns to the PIN screen.
   ///
@@ -2373,6 +2262,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Epicbox not connected'**
   String get statusEpicboxOffline;
+
+  /// Status beside the Epicbox icon, also what a screen reader says: this network (a filter on it) blocks the wallet's Epicbox server, so the wallet cannot connect. Never name a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox blocked'**
+  String get statusEpicboxBlocked;
+
+  /// Status sheet, Receive and the Epicbox server list: this network refuses every secure connection to {host}, the wallet's Epicbox server (seen as a refused TLS handshake). A filter on the network (a provider's or router's DNS filter) is the usual cause; another server or a private DNS (Android Settings › Private DNS) gets around it. Short, impersonal, never names a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.'**
+  String epicboxBlockedBody(String host);
+
+  /// Button under that sentence: moves the wallet to the Epicbox server {host} in one tap, with no question; the line under it says the address changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String epicboxSwitchTo(String host);
+
+  /// Network status card, Epicbox row: this network blocks the wallet's Epicbox server. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get netStatusBlocked;
 
   /// First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.
   ///
@@ -3415,7 +3328,7 @@ abstract class AppLocalizations {
   /// Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow.
   ///
   /// In en, this message translates to:
-  /// **'A history backup brings back who was paid, notes and labels.'**
+  /// **'A history backup brings back payment history, contacts, invoices and settings.'**
   String get restoreRebuiltImportText;
 
   /// Lead line of the Restore screen when opened from Settings › Wallet › Restore from a phrase.
@@ -3454,12 +3367,6 @@ abstract class AppLocalizations {
   /// **'Wallet not deleted. {error} Unlock and try again from Settings.'**
   String deleteFailedNotice(String error);
 
-  /// Second line of the Export history backup sheet: what else the file holds and what it does not.
-  ///
-  /// In en, this message translates to:
-  /// **'It also holds the contacts and their stars. Invoices and settings are not in it.'**
-  String get historyBackupExportCarries;
-
   /// Screen-reader label of the check icon above 'Your wallet is restored'.
   ///
   /// In en, this message translates to:
@@ -3472,10 +3379,10 @@ abstract class AppLocalizations {
   /// **'Your wallet is restored'**
   String get restoreDoneTitle;
 
-  /// Offer to import a payment-history backup after a restore. Keep .wfeh, the backup file's extension, as it is.
+  /// Offer to import a history backup on the phone restore screen, once the restore from the phrase is done.
   ///
   /// In en, this message translates to:
-  /// **'The chain holds your balance, but not who you paid, fees or notes. If you exported a history backup from this wallet, import it now to get them back. It is the .wfeh file you shared or saved outside your old phone.'**
+  /// **'The recovery phrase brought back the balance. A history backup brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.'**
   String get restoreImportExplanation;
 
   /// No description provided for @restoreImportButton.
@@ -9480,7 +9387,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Notifications switch: what a notification tells, what the message carries, why Tor turns it off. BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
+  /// **'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
   String get settingsNotificationsHint;
 
   /// State line under the Notifications switch while it is on and Tor is on.
@@ -9536,12 +9443,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications off'**
   String get pushNoticeOff;
-
-  /// One-time reminder, about a minute after the first unlock, that notifications exist.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications are available in Settings › Advanced.'**
-  String get pushNoticeAvailable;
 
   /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
   ///
@@ -17304,7 +17205,7 @@ abstract class AppLocalizations {
   /// Settings > Backup: hint under the Export history backup row.
   ///
   /// In en, this message translates to:
-  /// **'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.'**
+  /// **'Payment history, contacts, invoices and settings, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not these.'**
   String get deskSetBackupExportHint;
 
   /// Settings > Backup: button label while the export dialog is open. Short.
@@ -17328,7 +17229,7 @@ abstract class AppLocalizations {
   /// Settings > Backup: hint under the Import history backup row.
   ///
   /// In en, this message translates to:
-  /// **'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.'**
+  /// **'Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.'**
   String get deskSetBackupImportHint;
 
   /// Settings > Backup: button that opens the import dialog. Short.
@@ -17382,7 +17283,7 @@ abstract class AppLocalizations {
   /// Export history dialog: small text under the counts of what the file holds.
   ///
   /// In en, this message translates to:
-  /// **'Who paid what, fees, notes, slate ids'**
+  /// **'Who paid what, fees, notes and labels; invoices; settings'**
   String get deskSetBackupInFileSub;
 
   /// Export history dialog: label of the row listing what the file does not hold. Narrow label column.
@@ -17394,7 +17295,7 @@ abstract class AppLocalizations {
   /// Export history dialog: what the file does not contain.
   ///
   /// In en, this message translates to:
-  /// **'Keys, the recovery phrase, the password'**
+  /// **'The recovery phrase, keys, the password'**
   String get deskSetBackupNotInValue;
 
   /// Export history dialog: label of the row saying which wallet can open the file. Narrow label column.
@@ -17406,7 +17307,7 @@ abstract class AppLocalizations {
   /// Export history dialog: which wallets can open the file.
   ///
   /// In en, this message translates to:
-  /// **'This wallet, or one restored from its phrase'**
+  /// **'This wallet, or one restored from its recovery phrase'**
   String get deskSetBackupOpensWithValue;
 
   /// Export dialog: label of the row with the file name. Narrow label column.
@@ -17418,13 +17319,13 @@ abstract class AppLocalizations {
   /// Export history dialog: note under the list.
   ///
   /// In en, this message translates to:
-  /// **'The file holds payments up to now. Export again after new payments.'**
+  /// **'The file holds everything up to now. Export again after new payments or changes.'**
   String get deskSetBackupFileNote;
 
   /// Export history dialog: description under the title.
   ///
   /// In en, this message translates to:
-  /// **'A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.'**
+  /// **'A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.'**
   String get deskSetBackupExportDesc;
 
   /// Export dialogs: title of the success block once the file is saved.
@@ -17469,48 +17370,6 @@ abstract class AppLocalizations {
   /// **'Open history backup'**
   String get deskSetBackupOpenDialogTitle;
 
-  /// Import result tile title: count of payments that got details back.
-  ///
-  /// In en, this message translates to:
-  /// **'Details restored'**
-  String get deskSetBackupDetailsRestored;
-
-  /// Import result tile text under "Details restored".
-  ///
-  /// In en, this message translates to:
-  /// **'Payments already here got their counterparty, fee or note back'**
-  String get deskSetBackupDetailsRestoredSub;
-
-  /// Import result tile title: count of payments added from the backup.
-  ///
-  /// In en, this message translates to:
-  /// **'Older payments added'**
-  String get deskSetBackupOlderAdded;
-
-  /// Import result tile text under "Older payments added". "From backup" is a label shown in Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Not in the list any more; shown as From backup'**
-  String get deskSetBackupOlderAddedSub;
-
-  /// Import result tile title: count of contacts added.
-  ///
-  /// In en, this message translates to:
-  /// **'Contacts added'**
-  String get deskSetBackupContactsAdded;
-
-  /// Import result tile title: count of records that were already in the wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Already here'**
-  String get deskSetBackupAlreadyHere;
-
-  /// Import result tile text under "Already here".
-  ///
-  /// In en, this message translates to:
-  /// **'Unchanged'**
-  String get deskSetBackupUnchanged;
-
   /// Import dialog: title of the success block when the file brought nothing new.
   ///
   /// In en, this message translates to:
@@ -17550,7 +17409,7 @@ abstract class AppLocalizations {
   /// Import dialog: what the import restores.
   ///
   /// In en, this message translates to:
-  /// **'Who paid what, fees and notes of payments already here; older payments the list lost; contacts'**
+  /// **'Payment details and notes, older payments the list lost, contacts, invoices and settings'**
   String get deskSetBackupBringsBackValue;
 
   /// Import dialog: label of the row saying what file is needed. Narrow label column.
@@ -17562,7 +17421,7 @@ abstract class AppLocalizations {
   /// Import dialog: what file the import needs. {network} is the network name, e.g. "Mainnet".
   ///
   /// In en, this message translates to:
-  /// **'A file from this wallet (the same recovery phrase), on {network}'**
+  /// **'A file from this wallet (the same recovery phrase), on {network}. Restore the wallet from its phrase first.'**
   String deskSetBackupNeedsValue(String network);
 
   /// Import dialog: label of the row saying what the import never does. Narrow label column.
@@ -17586,7 +17445,7 @@ abstract class AppLocalizations {
   /// Import history dialog: description under the title.
   ///
   /// In en, this message translates to:
-  /// **'Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.'**
+  /// **'Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.'**
   String get deskSetBackupImportDesc;
 
   /// Title of the system Save dialog when exporting the CSV.
@@ -25178,18 +25037,6 @@ abstract class AppLocalizations {
   /// **'Your name'**
   String get pairYourNamePlaceholder;
 
-  /// Notice title after a history backup was imported with pairings.
-  ///
-  /// In en, this message translates to:
-  /// **'History restored.'**
-  String get restoreDone;
-
-  /// Notice body after a history backup was imported with pairings.
-  ///
-  /// In en, this message translates to:
-  /// **'{payments} payments, {contacts} contacts and {pairings} pairings are back.'**
-  String restoreDoneBody(int payments, int contacts, int pairings);
-
   /// Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient.
   ///
   /// In en, this message translates to:
@@ -25865,13 +25712,13 @@ abstract class AppLocalizations {
   /// Title of the history-backup offer after the first unlock of a restored wallet.
   ///
   /// In en, this message translates to:
-  /// **'Bring back payment details?'**
+  /// **'Bring back history and settings?'**
   String get deskOvRestoredImportTitle;
 
   /// Body of the offer.
   ///
   /// In en, this message translates to:
-  /// **'The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.'**
+  /// **'The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.'**
   String get deskOvRestoredImportBody;
 
   /// Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton.
@@ -26090,6 +25937,300 @@ abstract class AppLocalizations {
   /// **'This reply answers a different request. Scan the reply to this one.'**
   String get reqQrWrongReply;
 
+  /// Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export.
+  ///
+  /// In en, this message translates to:
+  /// **'This file holds this wallet\'s payment history, contacts, invoices and settings.'**
+  String get backupFileHolds;
+
+  /// Export of the history backup, sentence 2: the file has no recovery phrase and cannot restore the wallet alone.
+  ///
+  /// In en, this message translates to:
+  /// **'It does not hold the recovery phrase and cannot restore the wallet on its own.'**
+  String get backupFileNoPhrase;
+
+  /// Export of the history backup, sentence 3: the order of a restore, the phrase first, then this file.
+  ///
+  /// In en, this message translates to:
+  /// **'To restore: enter the recovery phrase first, then import this file.'**
+  String get backupFileRestoreOrder;
+
+  /// Short lead on the import step of the history backup (both apps): what it brings back; restore from the phrase first.
+  ///
+  /// In en, this message translates to:
+  /// **'Brings back this wallet\'s payment history, contacts, invoices and settings. Restore the wallet from its recovery phrase first.'**
+  String get backupImportLead;
+
+  /// The one summary after a history backup import. {items} is a list such as "12 payments, 5 notes and settings", joined with backupListSeparator and backupListLastSeparator from the backupRestored… items.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored: {items}.'**
+  String backupRestoredSummary(String items);
+
+  /// Joins the items of a short list in a sentence, all but the last join: ", " in English. Keep the spaces the language needs.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get backupListSeparator;
+
+  /// Joins the last two items of a short list in a sentence: " and " in English. Keep the spaces the language needs.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get backupListLastSeparator;
+
+  /// Item of the backupRestoredSummary list: payments restored. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 payment} other{{n} payments}}'**
+  String backupRestoredPayments(int n);
+
+  /// Item of the backupRestoredSummary list: payment notes restored. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 note} other{{n} notes}}'**
+  String backupRestoredNotes(int n);
+
+  /// Item of the backupRestoredSummary list: payment labels restored. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 label} other{{n} labels}}'**
+  String backupRestoredLabels(int n);
+
+  /// Item of the backupRestoredSummary list: contacts added to the address book. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 contact} other{{n} contacts}}'**
+  String backupRestoredContacts(int n);
+
+  /// Item of the backupRestoredSummary list: contacts that got their star back. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 starred contact} other{{n} starred contacts}}'**
+  String backupRestoredStars(int n);
+
+  /// Item of the backupRestoredSummary list: paired contacts restored. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 pairing} other{{n} pairings}}'**
+  String backupRestoredPairings(int n);
+
+  /// Item of the backupRestoredSummary list: invoices and payment requests restored. Lowercase, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 invoice} other{{n} invoices}}'**
+  String backupRestoredInvoices(int n);
+
+  /// Item of the backupRestoredSummary list, no number: the settings were restored. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'settings'**
+  String get backupRestoredSettings;
+
+  /// Item of the backupRestoredSummary list, no number: the wallet name was restored (desktop). Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'the wallet name'**
+  String get backupRestoredWalletName;
+
+  /// Sentence after backupRestoredSummary: how many records of the backup were in the wallet already.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 record was already here.} other{{n} records were already here.}}'**
+  String backupRestoredAlreadyHere(int n);
+
+  /// Title of the one question an import asks when settings changed here differ from the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the settings from this backup?'**
+  String get backupSettingsTitle;
+
+  /// Text of the settings question: how many settings differ; everything else in the backup is already imported.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 setting here differs from the backup.} other{{n} settings here differ from the backup.}} The rest of the backup is already imported.'**
+  String backupSettingsBody(int n);
+
+  /// Button of the settings question: take the settings from the backup. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the backup\'s'**
+  String get backupSettingsUseBackup;
+
+  /// Button of the settings question: keep the settings of this wallet. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep mine'**
+  String get backupSettingsKeepMine;
+
+  /// Import error: the file was exported by a different wallet (another recovery phrase). Same text as errorHistoryOtherWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.'**
+  String get backupFromOtherWallet;
+
+  /// The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get deskEpicboxBlockedWord;
+
+  /// Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.'**
+  String deskEpicboxBlockedText(String host);
+
+  /// Button of the blocked-relay notice: one tap moves the wallet to another Epicbox server, no confirmation. {host} is that server's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String deskEpicboxBlockedSwitch(String host);
+
+  /// Screen-reader name of the sidebar's bottom slot, which shows what is going on now (a scan, an update, a payment on its way).
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get deskSlotNow;
+
+  /// Small link at the bottom of the sidebar: opens Settings › Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get deskSlotHelp;
+
+  /// Sidebar slot line: Offline mode is on (Settings › Advanced). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get deskSlotOffline;
+
+  /// After 'Offline mode' on the same short line: what it means.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing is sent or received'**
+  String get deskSlotOfflineDetail;
+
+  /// Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning the chain'**
+  String get deskSlotScanning;
+
+  /// Sidebar slot line: the scan the wallet owes waits for the network (Offline mode, or the node does not answer).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan waits for the network'**
+  String get deskSlotScanWaits;
+
+  /// Sidebar slot line: the scan stopped with an error; 'Try again' follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan stopped'**
+  String get deskSlotScanStopped;
+
+  /// Action word after 'Scan stopped' in the sidebar slot; a click opens the scan page.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskSlotTryAgain;
+
+  /// Sidebar slot line while a payment is being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending payment'**
+  String get deskSlotSending;
+
+  /// Sidebar slot line: a payment this wallet sent is posted and confirming; '2 of 3' (confirmations) follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment on its way'**
+  String get deskSlotPaymentOut;
+
+  /// Sidebar slot line: a payment to this wallet is confirming; '1 of 3' (confirmations) follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment arriving'**
+  String get deskSlotPaymentIn;
+
+  /// Sidebar slot line: several sent payments are confirming (the least advanced one's count follows).
+  ///
+  /// In en, this message translates to:
+  /// **'Payments on their way'**
+  String get deskSlotPaymentsOut;
+
+  /// Sidebar slot line: several payments, sent and received, are confirming. Short: the sidebar is narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments confirming'**
+  String get deskSlotPaymentsMoving;
+
+  /// Confirmations so far of those needed, after a payment line: '2 of 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {needed}'**
+  String deskSlotOf(String done, String needed);
+
+  /// After 'Payment on its way' while the payment is posted but in no block yet.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for a block'**
+  String get deskSlotWaitingBlock;
+
+  /// Sidebar slot line: invoices that need an answer; the count follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'New requests'**
+  String get deskSlotRequests;
+
+  /// Sidebar slot line: the local node on this computer is starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node starting'**
+  String get deskSlotNodeStarting;
+
+  /// Sidebar slot line: the local node is syncing the chain; its progress follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node syncing'**
+  String get deskSlotNodeSyncing;
+
+  /// Screen-reader label of the small dot at the bottom of the sidebar when an update is out. {version} e.g. 26.10.17.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available, {version}. Shows the update.'**
+  String deskSlotUpdateDot(String version);
+
+  /// Tooltip line of a sidebar slot line: where its click goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Advanced settings'**
+  String get deskSlotOpenAdvanced;
+
+  /// Tooltip line of the slot's scan line: opens the Recheck balance page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Recheck balance'**
+  String get deskSlotOpenRecheck;
+
+  /// Tooltip line of the slot's sending line: opens Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Send'**
+  String get deskSlotOpenSend;
+
+  /// Tooltip line of the slot's payment line: opens the payment in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Activity'**
+  String get deskSlotOpenActivity;
+
+  /// Tooltip line of the slot's requests line: opens Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Invoices'**
+  String get deskSlotOpenInvoices;
+
   /// Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, Epic Cash Desktop.
   ///
   /// In en, this message translates to:
@@ -26234,120 +26375,6 @@ abstract class AppLocalizations {
   /// **'This list'**
   String get deskBarKeyList;
 
-  /// Screen-reader name of the sidebar's bottom slot, which shows what is going on now (a scan, an update, a payment on its way).
-  ///
-  /// In en, this message translates to:
-  /// **'Now'**
-  String get deskSlotNow;
-
-  /// Small link at the bottom of the sidebar: opens Settings › Help.
-  ///
-  /// In en, this message translates to:
-  /// **'Help'**
-  String get deskSlotHelp;
-
-  /// Sidebar slot line: Offline mode is on (Settings › Advanced). Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline mode'**
-  String get deskSlotOffline;
-
-  /// After 'Offline mode' on the same short line: what it means.
-  ///
-  /// In en, this message translates to:
-  /// **'nothing is sent or received'**
-  String get deskSlotOfflineDetail;
-
-  /// Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot.
-  ///
-  /// In en, this message translates to:
-  /// **'Scanning the chain'**
-  String get deskSlotScanning;
-
-  /// Sidebar slot line: the scan the wallet owes waits for the network (Offline mode, or the node does not answer).
-  ///
-  /// In en, this message translates to:
-  /// **'Scan waits for the network'**
-  String get deskSlotScanWaits;
-
-  /// Sidebar slot line: the scan stopped with an error; 'Try again' follows.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan stopped'**
-  String get deskSlotScanStopped;
-
-  /// Action word after 'Scan stopped' in the sidebar slot; a click opens the scan page.
-  ///
-  /// In en, this message translates to:
-  /// **'Try again'**
-  String get deskSlotTryAgain;
-
-  /// Sidebar slot line while a payment is being sent.
-  ///
-  /// In en, this message translates to:
-  /// **'Sending payment'**
-  String get deskSlotSending;
-
-  /// Sidebar slot line: a payment this wallet sent is posted and confirming; '2 of 3' (confirmations) follows.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment on its way'**
-  String get deskSlotPaymentOut;
-
-  /// Sidebar slot line: a payment to this wallet is confirming; '1 of 3' (confirmations) follows.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment arriving'**
-  String get deskSlotPaymentIn;
-
-  /// Sidebar slot line: several sent payments are confirming (the least advanced one's count follows).
-  ///
-  /// In en, this message translates to:
-  /// **'Payments on their way'**
-  String get deskSlotPaymentsOut;
-
-  /// Sidebar slot line: several payments, sent and received, are confirming. Short: the sidebar is narrow.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments confirming'**
-  String get deskSlotPaymentsMoving;
-
-  /// Confirmations so far of those needed, after a payment line: '2 of 3'.
-  ///
-  /// In en, this message translates to:
-  /// **'{done} of {needed}'**
-  String deskSlotOf(String done, String needed);
-
-  /// After 'Payment on its way' while the payment is posted but in no block yet.
-  ///
-  /// In en, this message translates to:
-  /// **'waiting for a block'**
-  String get deskSlotWaitingBlock;
-
-  /// Sidebar slot line: invoices that need an answer; the count follows after a dot.
-  ///
-  /// In en, this message translates to:
-  /// **'New requests'**
-  String get deskSlotRequests;
-
-  /// Sidebar slot line: the local node on this computer is starting.
-  ///
-  /// In en, this message translates to:
-  /// **'Local node starting'**
-  String get deskSlotNodeStarting;
-
-  /// Sidebar slot line: the local node is syncing the chain; its progress follows after a dot.
-  ///
-  /// In en, this message translates to:
-  /// **'Local node syncing'**
-  String get deskSlotNodeSyncing;
-
-  /// Screen-reader label of the small dot at the bottom of the sidebar when an update is out. {version} e.g. 26.10.17.
-  ///
-  /// In en, this message translates to:
-  /// **'Update available, {version}. Shows the update.'**
-  String deskSlotUpdateDot(String version);
-
   /// App menu item (title bar): copies the running build (version, rebuild, commit, core, system) for a bug report.
   ///
   /// In en, this message translates to:
@@ -26377,36 +26404,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}. A development build. Click copies the build info.'**
   String deskBarBuildTipDev(String version);
-
-  /// Tooltip line of a sidebar slot line: where its click goes.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Advanced settings'**
-  String get deskSlotOpenAdvanced;
-
-  /// Tooltip line of the slot's scan line: opens the Recheck balance page.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Recheck balance'**
-  String get deskSlotOpenRecheck;
-
-  /// Tooltip line of the slot's sending line: opens Send.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Send'**
-  String get deskSlotOpenSend;
-
-  /// Tooltip line of the slot's payment line: opens the payment in Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Open in Activity'**
-  String get deskSlotOpenActivity;
-
-  /// Tooltip line of the slot's requests line: opens Invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Invoices'**
-  String get deskSlotOpenInvoices;
 
   /// Keyboard-shortcuts row: F10 opens the app menu in the title bar.
   ///

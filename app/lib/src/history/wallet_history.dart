@@ -440,6 +440,12 @@ class WalletHistory {
       for (final id in meta.favourites)
         if ((_shared?.list().map((c) => c.id) ?? meta.contacts.map((c) => c.id)).contains(id)) id,
     ],
+    issuedInvoices: {
+      for (final e in meta.issuedInvoices.entries) e.key: IssuedInvoiceRec.fromJson(e.value.toJson()),
+    },
+    paidInvoices: {
+      for (final e in meta.paidInvoices.entries) e.key: PaidInvoiceRec.fromJson(e.value.toJson()),
+    },
   );
 
   /// Merges an opened history file of this wallet into the archive. A record known from an
@@ -480,18 +486,14 @@ class WalletHistory {
     // The file's contacts go to the shared address book, by the same rule.
     final added = await shared.update((list) => mergeBackupContacts(list, payload.contacts, addressChecks));
     final stars = _favouritesIn(payload, shared.list());
-    if (stars.isNotEmpty) await _store.update((m) => m.favourites.addAll(stars));
-    return ImportReport(
-      merged: report.merged,
-      added: report.added,
-      skipped: report.skipped,
-      contactsAdded: added,
-      conflicts: report.conflicts,
-      applied: report.applied,
-      replaced: report.replaced,
-      pairingsAdded: report.pairingsAdded,
-      pairingsOtherDevice: report.pairingsOtherDevice,
-    );
+    final starred = stars.isEmpty
+        ? 0
+        : await _store.update((m) {
+            final before = m.favourites.length;
+            m.favourites.addAll(stars);
+            return m.favourites.length - before;
+          });
+    return report.copyWith(contactsAdded: added, starsAdded: starred);
   }
 
   /// The import itself, on [m]. With [useBackup] null it only finds conflicts: the report
@@ -506,6 +508,7 @@ class WalletHistory {
     AddressChecks checks,
   ) {
     var merged = 0, added = 0, skipped = 0, contactsAdded = 0;
+    var details = 0, starsAdded = 0;
     // Records whose user fields are applied once the rows are merged with the new records,
     // with the key of the row a record not kept in the archive goes to.
     final userData = <(Record, String?, {bool userOnly})>[];
@@ -603,6 +606,7 @@ class WalletHistory {
         if (mine == null) {
           write(theirs);
           filled = true;
+          if (f == ManualField.counterparty || f == ManualField.transport) details++;
           return;
         }
         if (rec.declined[f.name] == hash(theirs)) return;
@@ -682,7 +686,34 @@ class WalletHistory {
       m.contacts
         ..clear()
         ..addAll([for (final c in book) _recOf(c)]);
+      final before = m.favourites.length;
       m.favourites.addAll(_favouritesIn(payload, book));
+      starsAdded = m.favourites.length - before;
+    }
+    // Notes and labels the rows show now and had nowhere before, whether the file's record
+    // carries them or they landed on a row from its user fields.
+    final after = mergeHistory(live, m);
+    int gained(String? Function(MergedTx t) field) {
+      final had = {
+        for (final t in shown)
+          if (field(t) != null) ...{t.key, ...t.aliases},
+      };
+      return after.where((t) => field(t) != null && !{t.key, ...t.aliases}.any(had.contains)).length;
+    }
+
+    final notes = gained((t) => t.note);
+    final labels = gained((t) => t.label);
+    // What became of the invoices: what this install recorded wins, the file fills the rest.
+    var invoices = 0;
+    for (final e in payload.issuedInvoices.entries) {
+      if (m.issuedInvoices.containsKey(e.key)) continue;
+      m.issuedInvoices[e.key] = IssuedInvoiceRec.fromJson(e.value.toJson());
+      invoices++;
+    }
+    for (final e in payload.paidInvoices.entries) {
+      if (m.paidInvoices.containsKey(e.key)) continue;
+      m.paidInvoices[e.key] = PaidInvoiceRec.fromJson(e.value.toJson());
+      invoices++;
     }
     return ImportReport(
       merged: merged,
@@ -692,6 +723,13 @@ class WalletHistory {
       conflicts: useBackup == null ? conflicts : const [],
       applied: useBackup != null || conflicts.isEmpty,
       replaced: replaced,
+      notesAdded: notes,
+      labelsAdded: labels,
+      detailsAdded: details,
+      invoicesAdded: invoices,
+      starsAdded: starsAdded,
+      walletName: payload.walletName,
+      settings: payload.settings,
     );
   }
 

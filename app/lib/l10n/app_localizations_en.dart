@@ -429,7 +429,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorHistoryOtherWallet =>
-      'This history file belongs to a different wallet.';
+      'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
@@ -1039,7 +1039,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyBackupExportNote =>
-      'History backups hold payments up to now. Export again after new payments.';
+      'The backup holds everything up to now. Export again after new payments or changes.';
 
   @override
   String get historyBackupCsvTitle => 'Export CSV';
@@ -1052,7 +1052,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyBackupCsvConfirm => 'Export CSV';
 
   @override
-  String get historyBackupImportedTitle => 'History imported';
+  String get historyBackupImportedTitle => 'Backup imported';
 
   @override
   String historyBackupImportFailed(String reason) {
@@ -1061,294 +1061,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyBackupImportNothingNew => 'The backup held nothing new.';
-
-  @override
-  String historyBackupImportMerged(int merged) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportAdded(int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedAdded(int merged, int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportSkipped(int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedSkipped(int merged, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedSkipped(int added, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportContacts(int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0.';
-  }
-
-  @override
-  String historyBackupImportMergedContacts(int merged, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportAddedContacts(int added, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportSkippedContacts(int skipped, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1.';
-  }
-
-  @override
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1, $_temp2.';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: '$merged payments got their details back',
-      one: '1 payment got their details back',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: '$added older payments added',
-      one: '1 older payment added',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: '$skipped records were already here',
-      one: '1 record was already here',
-    );
-    String _temp3 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: '$contacts contacts added',
-      one: '1 contact added',
-    );
-    return '$_temp0, $_temp1, $_temp2, $_temp3.';
-  }
 
   @override
   String get homeLockTooltip => 'Lock wallet';
@@ -1663,6 +1375,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusEpicboxOffline => 'Epicbox not connected';
+
+  @override
+  String get statusEpicboxBlocked => 'Epicbox blocked';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return 'This network blocks $host. A network filter may be the cause. Try another Epicbox server or a private DNS.';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return 'Switch to $host';
+  }
+
+  @override
+  String get netStatusBlocked => 'Blocked';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -2334,7 +2062,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreRebuiltImportText =>
-      'A history backup brings back who was paid, notes and labels.';
+      'A history backup brings back payment history, contacts, invoices and settings.';
 
   @override
   String get restoreReplaceLead =>
@@ -2372,10 +2100,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportCarries =>
-      'It also holds the contacts and their stars. Invoices and settings are not in it.';
-
-  @override
   String get restoreDoneIconLabel => 'Done';
 
   @override
@@ -2383,7 +2107,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'The chain holds your balance, but not who you paid, fees or notes. If you exported a history backup from this wallet, import it now to get them back. It is the .wfeh file you shared or saved outside your old phone.';
+      'The recovery phrase brought back the balance. A history backup brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.';
 
   @override
   String get restoreImportButton => 'Import a history backup';
@@ -6066,7 +5790,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
+      'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
 
   @override
   String get settingsPushPaused => 'Paused while Tor is on';
@@ -6098,10 +5822,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'Notifications off';
-
-  @override
-  String get pushNoticeAvailable =>
-      'Notifications are available in Settings › Advanced.';
 
   @override
   String get torWayOver => 'Over Tor';
@@ -11012,7 +10732,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupExportHint =>
-      'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.';
+      'Payment history, contacts, invoices and settings, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not these.';
 
   @override
   String get deskSetBackupExporting => 'Exporting…';
@@ -11025,7 +10745,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupImportHint =>
-      'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.';
+      'Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.';
 
   @override
   String get deskSetBackupImportButton => 'Import…';
@@ -11067,32 +10787,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetBackupInFileSub => 'Who paid what, fees, notes, slate ids';
+  String get deskSetBackupInFileSub =>
+      'Who paid what, fees, notes and labels; invoices; settings';
 
   @override
   String get deskSetBackupNotIn => 'Not in it';
 
   @override
   String get deskSetBackupNotInValue =>
-      'Keys, the recovery phrase, the password';
+      'The recovery phrase, keys, the password';
 
   @override
   String get deskSetBackupOpensWith => 'Opens with';
 
   @override
   String get deskSetBackupOpensWithValue =>
-      'This wallet, or one restored from its phrase';
+      'This wallet, or one restored from its recovery phrase';
 
   @override
   String get deskSetBackupFile => 'File';
 
   @override
   String get deskSetBackupFileNote =>
-      'The file holds payments up to now. Export again after new payments.';
+      'The file holds everything up to now. Export again after new payments or changes.';
 
   @override
   String get deskSetBackupExportDesc =>
-      'A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.';
+      'A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.';
 
   @override
   String get deskSetBackupSaved => 'Saved';
@@ -11115,29 +10836,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupOpenDialogTitle => 'Open history backup';
-
-  @override
-  String get deskSetBackupDetailsRestored => 'Details restored';
-
-  @override
-  String get deskSetBackupDetailsRestoredSub =>
-      'Payments already here got their counterparty, fee or note back';
-
-  @override
-  String get deskSetBackupOlderAdded => 'Older payments added';
-
-  @override
-  String get deskSetBackupOlderAddedSub =>
-      'Not in the list any more; shown as From backup';
-
-  @override
-  String get deskSetBackupContactsAdded => 'Contacts added';
-
-  @override
-  String get deskSetBackupAlreadyHere => 'Already here';
-
-  @override
-  String get deskSetBackupUnchanged => 'Unchanged';
 
   @override
   String get deskSetBackupNothingNew => 'Nothing new';
@@ -11163,14 +10861,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupBringsBackValue =>
-      'Who paid what, fees and notes of payments already here; older payments the list lost; contacts';
+      'Payment details and notes, older payments the list lost, contacts, invoices and settings';
 
   @override
   String get deskSetBackupNeeds => 'Needs';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'A file from this wallet (the same recovery phrase), on $network';
+    return 'A file from this wallet (the same recovery phrase), on $network. Restore the wallet from its phrase first.';
   }
 
   @override
@@ -11185,7 +10883,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupImportDesc =>
-      'Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.';
+      'Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'Save payments as CSV';
@@ -15957,14 +15655,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairYourNamePlaceholder => 'Your name';
 
   @override
-  String get restoreDone => 'History restored.';
-
-  @override
-  String restoreDoneBody(int payments, int contacts, int pairings) {
-    return '$payments payments, $contacts contacts and $pairings pairings are back.';
-  }
-
-  @override
   String get deskConPickForPairing =>
       'The pairing is added to the contact you choose.';
 
@@ -16473,11 +16163,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'Bring back payment details?';
+  String get deskOvRestoredImportTitle => 'Bring back history and settings?';
 
   @override
   String get deskOvRestoredImportBody =>
-      'The chain holds the balance, but not who was paid, fees or notes. A history backup exported from this wallet brings them back: the .wfeh file saved outside the old computer.';
+      'The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.';
 
   @override
   String get deskOvRestoredImportButton => 'Import a history backup';
@@ -16614,6 +16304,240 @@ class AppLocalizationsEn extends AppLocalizations {
       'This reply answers a different request. Scan the reply to this one.';
 
   @override
+  String get backupFileHolds =>
+      'This file holds this wallet\'s payment history, contacts, invoices and settings.';
+
+  @override
+  String get backupFileNoPhrase =>
+      'It does not hold the recovery phrase and cannot restore the wallet on its own.';
+
+  @override
+  String get backupFileRestoreOrder =>
+      'To restore: enter the recovery phrase first, then import this file.';
+
+  @override
+  String get backupImportLead =>
+      'Brings back this wallet\'s payment history, contacts, invoices and settings. Restore the wallet from its recovery phrase first.';
+
+  @override
+  String backupRestoredSummary(String items) {
+    return 'Restored: $items.';
+  }
+
+  @override
+  String get backupListSeparator => ', ';
+
+  @override
+  String get backupListLastSeparator => ' and ';
+
+  @override
+  String backupRestoredPayments(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n payments',
+      one: '1 payment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredNotes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n notes',
+      one: '1 note',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredLabels(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n labels',
+      one: '1 label',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredContacts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n contacts',
+      one: '1 contact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredStars(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n starred contacts',
+      one: '1 starred contact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredPairings(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pairings',
+      one: '1 pairing',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredInvoices(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n invoices',
+      one: '1 invoice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupRestoredSettings => 'settings';
+
+  @override
+  String get backupRestoredWalletName => 'the wallet name';
+
+  @override
+  String backupRestoredAlreadyHere(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n records were already here.',
+      one: '1 record was already here.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupSettingsTitle => 'Use the settings from this backup?';
+
+  @override
+  String backupSettingsBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n settings here differ from the backup.',
+      one: '1 setting here differs from the backup.',
+    );
+    return '$_temp0 The rest of the backup is already imported.';
+  }
+
+  @override
+  String get backupSettingsUseBackup => 'Use the backup\'s';
+
+  @override
+  String get backupSettingsKeepMine => 'Keep mine';
+
+  @override
+  String get backupFromOtherWallet =>
+      'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.';
+
+  @override
+  String get deskEpicboxBlockedWord => 'Blocked';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'This network blocks $host. A network filter may be the cause. Try another Epicbox server or a private DNS.';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'Switch to $host';
+  }
+
+  @override
+  String get deskSlotNow => 'Now';
+
+  @override
+  String get deskSlotHelp => 'Help';
+
+  @override
+  String get deskSlotOffline => 'Offline mode';
+
+  @override
+  String get deskSlotOfflineDetail => 'nothing is sent or received';
+
+  @override
+  String get deskSlotScanning => 'Scanning the chain';
+
+  @override
+  String get deskSlotScanWaits => 'Scan waits for the network';
+
+  @override
+  String get deskSlotScanStopped => 'Scan stopped';
+
+  @override
+  String get deskSlotTryAgain => 'Try again';
+
+  @override
+  String get deskSlotSending => 'Sending payment';
+
+  @override
+  String get deskSlotPaymentOut => 'Payment on its way';
+
+  @override
+  String get deskSlotPaymentIn => 'Payment arriving';
+
+  @override
+  String get deskSlotPaymentsOut => 'Payments on their way';
+
+  @override
+  String get deskSlotPaymentsMoving => 'Payments confirming';
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done of $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'waiting for a block';
+
+  @override
+  String get deskSlotRequests => 'New requests';
+
+  @override
+  String get deskSlotNodeStarting => 'Local node starting';
+
+  @override
+  String get deskSlotNodeSyncing => 'Local node syncing';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'Update available, $version. Shows the update.';
+  }
+
+  @override
+  String get deskSlotOpenAdvanced => 'Open Advanced settings';
+
+  @override
+  String get deskSlotOpenRecheck => 'Open Recheck balance';
+
+  @override
+  String get deskSlotOpenSend => 'Open Send';
+
+  @override
+  String get deskSlotOpenActivity => 'Open in Activity';
+
+  @override
+  String get deskSlotOpenInvoices => 'Open Invoices';
+
+  @override
   String deskBarMenu(String app) {
     return '$app menu';
   }
@@ -16691,67 +16615,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskBarKeyList => 'This list';
 
   @override
-  String get deskSlotNow => 'Now';
-
-  @override
-  String get deskSlotHelp => 'Help';
-
-  @override
-  String get deskSlotOffline => 'Offline mode';
-
-  @override
-  String get deskSlotOfflineDetail => 'nothing is sent or received';
-
-  @override
-  String get deskSlotScanning => 'Scanning the chain';
-
-  @override
-  String get deskSlotScanWaits => 'Scan waits for the network';
-
-  @override
-  String get deskSlotScanStopped => 'Scan stopped';
-
-  @override
-  String get deskSlotTryAgain => 'Try again';
-
-  @override
-  String get deskSlotSending => 'Sending payment';
-
-  @override
-  String get deskSlotPaymentOut => 'Payment on its way';
-
-  @override
-  String get deskSlotPaymentIn => 'Payment arriving';
-
-  @override
-  String get deskSlotPaymentsOut => 'Payments on their way';
-
-  @override
-  String get deskSlotPaymentsMoving => 'Payments confirming';
-
-  @override
-  String deskSlotOf(String done, String needed) {
-    return '$done of $needed';
-  }
-
-  @override
-  String get deskSlotWaitingBlock => 'waiting for a block';
-
-  @override
-  String get deskSlotRequests => 'New requests';
-
-  @override
-  String get deskSlotNodeStarting => 'Local node starting';
-
-  @override
-  String get deskSlotNodeSyncing => 'Local node syncing';
-
-  @override
-  String deskSlotUpdateDot(String version) {
-    return 'Update available, $version. Shows the update.';
-  }
-
-  @override
   String get deskBarCopyBuild => 'Copy build info';
 
   @override
@@ -16771,21 +16634,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'Version $version. A development build. Click copies the build info.';
   }
-
-  @override
-  String get deskSlotOpenAdvanced => 'Open Advanced settings';
-
-  @override
-  String get deskSlotOpenRecheck => 'Open Recheck balance';
-
-  @override
-  String get deskSlotOpenSend => 'Open Send';
-
-  @override
-  String get deskSlotOpenActivity => 'Open in Activity';
-
-  @override
-  String get deskSlotOpenInvoices => 'Open Invoices';
 
   @override
   String get deskBarKeyMenu => 'Open the app menu';

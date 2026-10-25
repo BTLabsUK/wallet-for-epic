@@ -16,6 +16,7 @@ import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
 import 'net/node_peers.dart';
 import 'network_gate.dart';
+import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
 import 'stall_retry.dart';
 import 'vault.dart';
@@ -667,6 +668,7 @@ class ListenerState {
     this.status,
     this.last,
     this.offline = false,
+    this.blocked = false,
   });
 
   /// Subscribed at the relay, so incoming payments and responses arrive.
@@ -686,6 +688,10 @@ class ListenerState {
 
   /// The latest payment event (received, finalized or failed), for a one-off notice.
   final ListenerEvent? last;
+
+  /// Not connected because this network blocks the relay: its TLS handshake is refused with
+  /// an alert, attempt after attempt (relay_block.dart). Only for a direct connection.
+  final bool blocked;
 }
 
 /// Runs the epicbox listener while a wallet is open, and refreshes balances when it receives or
@@ -724,6 +730,13 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// Self-heal restarts since the listener was last connected: each doubles the next wait.
   int _heals = 0;
 
+  /// Counts refused handshakes in a row, for [ListenerState.blocked].
+  final RelayBlockWatch _block = RelayBlockWatch();
+
+  /// The relays this network blocked while the wallet was open, so another is offered next
+  /// (relay_block_phone.dart).
+  final Set<EpicboxRelay> blockedRelays = {};
+
   static const String _connecting = 'Connecting to the epicbox relay…';
 
   @override
@@ -735,6 +748,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
       _healTimer?.cancel();
       _healTimer = null;
       _heals = 0;
+      _block.reset();
     });
     if (session == null) return const ListenerState();
     // Offline: nothing listens; leaving it rebuilds this, which starts the listener again.
@@ -772,7 +786,9 @@ class ListenerNotifier extends Notifier<ListenerState> {
   void _heal(ListenerState now) {
     // Armed only by a listener that said it is down (lost or stopped): one still making its
     // first connection is LEPIC's to finish, and says "disconnected" when that attempt fails.
-    if (now.connected || now.offline || !(now.lost || now.stopped)) {
+    // A blocked relay is not healed: a restart changes nothing but the status, which would
+    // flip to connecting and back; LEPIC keeps trying and connects once the block goes.
+    if (now.connected || now.offline || now.blocked || !(now.lost || now.stopped)) {
       _healTimer?.cancel();
       _healTimer = null;
       if (now.connected) _heals = 0;
@@ -785,7 +801,9 @@ class ListenerNotifier extends Notifier<ListenerState> {
       _healTimer = null;
       if (!ref.mounted) return;
       final state = this.state;
-      if (state.connected || state.offline || !(state.lost || state.stopped)) return;
+      if (state.connected || state.offline || state.blocked || !(state.lost || state.stopped)) {
+        return;
+      }
       // A connection held for Tor while it starts is not down: it waits as long as tor does.
       final torWait =
           ref.exists(phoneTorProvider) &&
@@ -813,6 +831,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
   Future<void> wake(String why) async {
     if (!_down || state.stopped || state.offline) return;
     if (state.connected && why != 'network') return;
+    // Blocked here stays blocked on a resume; another network may not block it.
+    if (state.blocked && why != 'network') return;
     logInfo('listener', 'reconnect on $why');
     await restart();
   }
@@ -876,6 +896,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
     final old = _events;
     final ended = _ended;
     _events = null;
+    _block.reset();
     state = ListenerState(status: _connecting, last: state.last);
     logInfo('listener', 'restart');
     try {
@@ -905,11 +926,33 @@ class ListenerNotifier extends Notifier<ListenerState> {
     _listen(session);
   }
 
+  /// One failed connection, with LEPIC's [reason]: whether this network now blocks the relay
+  /// ([RelayBlockWatch]). Over Tor it is not this network's doing, so never.
+  bool _blockedBy(String reason) {
+    final overTor =
+        ref.exists(phoneTorProvider) &&
+        torWay(TorRoute.epicbox, phoneTorState(ref.read(phoneTorProvider))) ==
+            TorWay.overTor;
+    if (overTor) {
+      _block.reset();
+      return false;
+    }
+    final was = state.blocked;
+    if (!_block.failed(reason)) return false;
+    final config = ref.read(walletConfigProvider);
+    if (config != null) {
+      blockedRelays.add(EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort));
+    }
+    if (!was) logWarn('listener', 'this network blocks the relay (refused handshake): $reason');
+    return true;
+  }
+
   void _onEvent(ListenerEvent event) {
     switch (event.kind) {
       case ListenerEventKind.connected:
         if (!state.connected) logInfo('listener', 'epicbox subscribed');
         _down = false;
+        _block.reset();
         state = ListenerState(connected: true, last: state.last);
       case ListenerEventKind.disconnected:
         // LEPIC sends one per failed attempt, between its backoff waits.
@@ -925,6 +968,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
         _down = true;
         state = ListenerState(
           lost: true,
+          blocked: _blockedBy(reason),
           status: 'Reconnecting to the relay: ${event.message}',
           last: state.last,
         );
@@ -945,6 +989,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
           connected: state.connected,
           lost: state.lost,
           stopped: state.stopped,
+          blocked: state.blocked,
           status: state.status,
           last: event,
         );

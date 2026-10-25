@@ -427,7 +427,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get errorHistoryDamaged => 'ไฟล์ประวัตินี้เสียหาย';
 
   @override
-  String get errorHistoryOtherWallet => 'ไฟล์ประวัตินี้เป็นของกระเป๋าเงินอื่น';
+  String get errorHistoryOtherWallet =>
+      'ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
@@ -1026,7 +1027,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get historyBackupExportNote =>
-      'ข้อมูลสำรองประวัติเก็บรายการถึงปัจจุบันเท่านั้น ส่งออกใหม่หลังมีรายการใหม่';
+      'ข้อมูลสำรองเก็บทุกอย่างถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่หรือการเปลี่ยนแปลง';
 
   @override
   String get historyBackupCsvTitle => 'ส่งออก CSV';
@@ -1039,7 +1040,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get historyBackupCsvConfirm => 'ส่งออก CSV';
 
   @override
-  String get historyBackupImportedTitle => 'นำเข้าประวัติแล้ว';
+  String get historyBackupImportedTitle => 'นำเข้าข้อมูลสำรองแล้ว';
 
   @override
   String historyBackupImportFailed(String reason) {
@@ -1048,262 +1049,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get historyBackupImportNothingNew => 'ข้อมูลสำรองไม่มีอะไรใหม่';
-
-  @override
-  String historyBackupImportMerged(int merged) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String historyBackupImportAdded(int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String historyBackupImportMergedAdded(int merged, int added) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportSkipped(int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String historyBackupImportMergedSkipped(int merged, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportAddedSkipped(int added, int skipped) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkipped(
-    int merged,
-    int added,
-    int skipped,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    return '$_temp0, $_temp1, $_temp2';
-  }
-
-  @override
-  String historyBackupImportContacts(int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String historyBackupImportMergedContacts(int merged, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportAddedContacts(int added, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportMergedAddedContacts(
-    int merged,
-    int added,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1, $_temp2';
-  }
-
-  @override
-  String historyBackupImportSkippedContacts(int skipped, int contacts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1';
-  }
-
-  @override
-  String historyBackupImportMergedSkippedContacts(
-    int merged,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1, $_temp2';
-  }
-
-  @override
-  String historyBackupImportAddedSkippedContacts(
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1, $_temp2';
-  }
-
-  @override
-  String historyBackupImportMergedAddedSkippedContacts(
-    int merged,
-    int added,
-    int skipped,
-    int contacts,
-  ) {
-    String _temp0 = intl.Intl.pluralLogic(
-      merged,
-      locale: localeName,
-      other: 'กู้รายละเอียดคืน $merged รายการ',
-    );
-    String _temp1 = intl.Intl.pluralLogic(
-      added,
-      locale: localeName,
-      other: 'เพิ่มรายการเก่า $added รายการ',
-    );
-    String _temp2 = intl.Intl.pluralLogic(
-      skipped,
-      locale: localeName,
-      other: 'มีอยู่แล้ว $skipped รายการ',
-    );
-    String _temp3 = intl.Intl.pluralLogic(
-      contacts,
-      locale: localeName,
-      other: 'เพิ่มผู้ติดต่อ $contacts ราย',
-    );
-    return '$_temp0, $_temp1, $_temp2, $_temp3';
-  }
 
   @override
   String get homeLockTooltip => 'ล็อกกระเป๋าเงิน';
@@ -1615,6 +1360,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get statusEpicboxOffline => 'ไม่ได้เชื่อมต่อ Epicbox';
+
+  @override
+  String get statusEpicboxBlocked => 'Epicbox ถูกบล็อก';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return 'เครือข่ายนี้บล็อก $host อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return 'สลับไปที่ $host';
+  }
+
+  @override
+  String get netStatusBlocked => 'ถูกบล็อก';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -2270,7 +2031,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreRebuiltImportText =>
-      'ข้อมูลสำรองประวัติจะนำข้อมูลว่าจ่ายให้ใคร บันทึก และป้ายกำกับกลับมา';
+      'ข้อมูลสำรองประวัติจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา';
 
   @override
   String get restoreReplaceLead =>
@@ -2305,10 +2066,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportCarries =>
-      'ไฟล์ยังเก็บผู้ติดต่อและดาวที่ติดไว้ด้วย แต่ไม่รวมใบแจ้งหนี้และการตั้งค่า';
-
-  @override
   String get restoreDoneIconLabel => 'เสร็จสิ้น';
 
   @override
@@ -2316,7 +2073,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าคุณจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ถ้าเคยส่งออกข้อมูลสำรองประวัติจากกระเป๋าเงินนี้ ให้นำเข้าตอนนี้เพื่อได้ข้อมูลคืน คือไฟล์ .wfeh ที่คุณแชร์หรือบันทึกไว้นอกโทรศัพท์เครื่องเก่า';
+      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ข้อมูลสำรองประวัติจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา ถ้าเคยส่งออกไว้ ให้นำเข้าตอนนี้: คือไฟล์ที่คุณแชร์หรือบันทึกไว้นอกโทรศัพท์เครื่องเก่า';
 
   @override
   String get restoreImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
@@ -5942,7 +5699,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
+      'ฟีเจอร์ทดลอง: อาจเปลี่ยนแปลงหรือทำงานผิดพลาด แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
 
   @override
   String get settingsPushPaused => 'หยุดชั่วคราวขณะเปิด Tor';
@@ -5974,9 +5731,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'ปิดการแจ้งเตือนแล้ว';
-
-  @override
-  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า › ขั้นสูง';
 
   @override
   String get torWayOver => 'ผ่าน Tor';
@@ -10784,7 +10538,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupExportHint =>
-      'รายการพร้อมรายละเอียดและผู้ติดต่อ ในไฟล์ที่เปิดได้เฉพาะกระเป๋าเงินที่มีวลีกู้คืนนี้ วลีอย่างเดียวได้คืนแค่ยอดคงเหลือ ไม่ได้คืนบันทึกรายการ';
+      'ประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่า ในไฟล์ที่เปิดได้เฉพาะกระเป๋าเงินที่มีวลีกู้คืนนี้ วลีอย่างเดียวนำยอดคงเหลือกลับมา แต่ไม่รวมสิ่งเหล่านี้';
 
   @override
   String get deskSetBackupExporting => 'กำลังส่งออก…';
@@ -10797,7 +10551,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupImportHint =>
-      'รวมข้อมูลสำรองของกระเป๋าเงินนี้เข้ากับประวัติ ไม่มีอะไรถูกลบ และนำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
+      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมาจากข้อมูลสำรอง ไม่มีอะไรถูกลบ นำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
 
   @override
   String get deskSetBackupImportButton => 'นำเข้า…';
@@ -10838,31 +10592,31 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupInFileSub =>
-      'ใครจ่ายอะไร ค่าธรรมเนียม บันทึก slate ID';
+      'ใครจ่ายอะไร ค่าธรรมเนียม บันทึก และป้ายกำกับ; ใบแจ้งหนี้; การตั้งค่า';
 
   @override
   String get deskSetBackupNotIn => 'ไม่มีในไฟล์';
 
   @override
-  String get deskSetBackupNotInValue => 'คีย์ วลีกู้คืน รหัสผ่าน';
+  String get deskSetBackupNotInValue => 'วลีกู้คืน กุญแจ รหัสผ่าน';
 
   @override
   String get deskSetBackupOpensWith => 'เปิดได้ด้วย';
 
   @override
   String get deskSetBackupOpensWithValue =>
-      'กระเป๋าเงินนี้ หรือที่กู้คืนจากวลีเดียวกัน';
+      'กระเป๋าเงินนี้ หรือกระเป๋าเงินที่กู้คืนจากวลีกู้คืนของมัน';
 
   @override
   String get deskSetBackupFile => 'ไฟล์';
 
   @override
   String get deskSetBackupFileNote =>
-      'ไฟล์เก็บรายการถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่';
+      'ไฟล์เก็บทุกอย่างถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่หรือการเปลี่ยนแปลง';
 
   @override
   String get deskSetBackupExportDesc =>
-      'ไฟล์ที่มีรายการของกระเป๋าเงินนี้ พร้อมรายละเอียดและผู้ติดต่อ เปิดได้เฉพาะกระเป๋าเงินที่มีวลีกู้คืนเดียวกัน';
+      'ไฟล์ที่มีประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้ ไฟล์กู้คืนกระเป๋าเงินด้วยตัวเองไม่ได้: กู้คืนจากวลีกู้คืนก่อน แล้วจึงนำเข้าไฟล์นี้';
 
   @override
   String get deskSetBackupSaved => 'บันทึกแล้ว';
@@ -10885,29 +10639,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupOpenDialogTitle => 'เปิดข้อมูลสำรองประวัติ';
-
-  @override
-  String get deskSetBackupDetailsRestored => 'กู้รายละเอียดคืนแล้ว';
-
-  @override
-  String get deskSetBackupDetailsRestoredSub =>
-      'รายการที่มีอยู่แล้วได้คู่ธุรกรรม ค่าธรรมเนียม หรือบันทึกคืน';
-
-  @override
-  String get deskSetBackupOlderAdded => 'เพิ่มรายการเก่าแล้ว';
-
-  @override
-  String get deskSetBackupOlderAddedSub =>
-      'ไม่อยู่ในรายการแล้ว แสดงเป็น จากข้อมูลสำรอง';
-
-  @override
-  String get deskSetBackupContactsAdded => 'เพิ่มผู้ติดต่อแล้ว';
-
-  @override
-  String get deskSetBackupAlreadyHere => 'มีอยู่แล้ว';
-
-  @override
-  String get deskSetBackupUnchanged => 'ไม่เปลี่ยนแปลง';
 
   @override
   String get deskSetBackupNothingNew => 'ไม่มีอะไรใหม่';
@@ -10933,14 +10664,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupBringsBackValue =>
-      'ใครจ่ายอะไร ค่าธรรมเนียมและบันทึกของรายการที่มีอยู่ รายการเก่าที่หายไปจากรายการ และผู้ติดต่อ';
+      'รายละเอียดและบันทึกของรายการ รายการเก่าที่หายจากรายชื่อ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่า';
 
   @override
   String get deskSetBackupNeeds => 'ต้องใช้';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'ไฟล์จากกระเป๋าเงินนี้ (วลีกู้คืนเดียวกัน) บน $network';
+    return 'ไฟล์จากกระเป๋าเงินนี้ (วลีกู้คืนเดียวกัน) บน $network กู้คืนกระเป๋าเงินจากวลีกู้คืนก่อน';
   }
 
   @override
@@ -10954,7 +10685,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupImportDesc =>
-      'รวมข้อมูลสำรองประวัติของกระเป๋าเงินนี้เข้ากับประวัติ ไม่มีอะไรถูกลบ และนำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
+      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา ไม่มีอะไรถูกลบ และนำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'บันทึกรายการเป็น CSV';
@@ -15668,14 +15399,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairYourNamePlaceholder => 'ชื่อของคุณ';
 
   @override
-  String get restoreDone => 'กู้คืนประวัติแล้ว';
-
-  @override
-  String restoreDoneBody(int payments, int contacts, int pairings) {
-    return 'การชำระเงิน $payments รายการ ผู้ติดต่อ $contacts รายการ และการจับคู่ $pairings รายการกลับมาแล้ว';
-  }
-
-  @override
   String get deskConPickForPairing =>
       'การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก';
 
@@ -16169,11 +15892,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'นำรายละเอียดรายการกลับมา?';
+  String get deskOvRestoredImportTitle => 'นำประวัติและการตั้งค่ากลับมา?';
 
   @override
   String get deskOvRestoredImportBody =>
-      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋าเงินนี้จะนำกลับมาได้ คือไฟล์ .wfeh ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
+      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋าเงินนี้จะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา: คือไฟล์ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
 
   @override
   String get deskOvRestoredImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
@@ -16308,6 +16031,231 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqQrWrongReply => 'คำตอบนี้เป็นของคำขออื่น สแกนคำตอบของคำขอนี้';
 
   @override
+  String get backupFileHolds =>
+      'ไฟล์นี้เก็บประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้';
+
+  @override
+  String get backupFileNoPhrase =>
+      'ไฟล์ไม่มีวลีกู้คืน และกู้คืนกระเป๋าเงินด้วยตัวเองไม่ได้';
+
+  @override
+  String get backupFileRestoreOrder =>
+      'การกู้คืน: ใส่วลีกู้คืนก่อน แล้วจึงนำเข้าไฟล์นี้';
+
+  @override
+  String get backupImportLead =>
+      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา กู้คืนกระเป๋าเงินจากวลีกู้คืนก่อน';
+
+  @override
+  String backupRestoredSummary(String items) {
+    return 'กู้คืนแล้ว: $items';
+  }
+
+  @override
+  String get backupListSeparator => ', ';
+
+  @override
+  String get backupListLastSeparator => ' และ ';
+
+  @override
+  String backupRestoredPayments(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'การชำระเงิน $n รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredNotes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'บันทึก $n รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredLabels(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ป้ายกำกับ $n รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredContacts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ผู้ติดต่อ $n ราย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredStars(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ผู้ติดต่อติดดาว $n ราย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredPairings(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'การจับคู่ $n รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupRestoredInvoices(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ใบแจ้งหนี้ $n ใบ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupRestoredSettings => 'การตั้งค่า';
+
+  @override
+  String get backupRestoredWalletName => 'ชื่อกระเป๋าเงิน';
+
+  @override
+  String backupRestoredAlreadyHere(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ส่วนอีก $n รายการมีอยู่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupSettingsTitle => 'ใช้การตั้งค่าจากข้อมูลสำรองนี้?';
+
+  @override
+  String backupSettingsBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'การตั้งค่าที่นี่ $n รายการต่างจากข้อมูลสำรอง',
+    );
+    return '$_temp0 ส่วนที่เหลือของข้อมูลสำรองนำเข้าแล้ว';
+  }
+
+  @override
+  String get backupSettingsUseBackup => 'ใช้ของข้อมูลสำรอง';
+
+  @override
+  String get backupSettingsKeepMine => 'เก็บของฉัน';
+
+  @override
+  String get backupFromOtherWallet =>
+      'ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน';
+
+  @override
+  String get deskEpicboxBlockedWord => 'ถูกบล็อก';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'เครือข่ายนี้บล็อก $host อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'สลับไปที่ $host';
+  }
+
+  @override
+  String get deskSlotNow => 'ตอนนี้';
+
+  @override
+  String get deskSlotHelp => 'ช่วยเหลือ';
+
+  @override
+  String get deskSlotOffline => 'โหมดออฟไลน์';
+
+  @override
+  String get deskSlotOfflineDetail => 'ไม่มีการส่งหรือรับ';
+
+  @override
+  String get deskSlotScanning => 'กำลังสแกนเชน';
+
+  @override
+  String get deskSlotScanWaits => 'การสแกนรอเครือข่าย';
+
+  @override
+  String get deskSlotScanStopped => 'การสแกนหยุดแล้ว';
+
+  @override
+  String get deskSlotTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskSlotSending => 'กำลังส่งการชำระเงิน';
+
+  @override
+  String get deskSlotPaymentOut => 'การชำระเงินกำลังดำเนินการ';
+
+  @override
+  String get deskSlotPaymentIn => 'การชำระเงินกำลังเข้ามา';
+
+  @override
+  String get deskSlotPaymentsOut => 'การชำระเงินกำลังดำเนินการ';
+
+  @override
+  String get deskSlotPaymentsMoving => 'กำลังยืนยันการชำระ';
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done จาก $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'รอบล็อก';
+
+  @override
+  String get deskSlotRequests => 'คำขอใหม่';
+
+  @override
+  String get deskSlotNodeStarting => 'โหนดในเครื่องกำลังเริ่ม';
+
+  @override
+  String get deskSlotNodeSyncing => 'โหนดในเครื่องกำลังซิงก์';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'มีอัปเดต $version แสดงการอัปเดต';
+  }
+
+  @override
+  String get deskSlotOpenAdvanced => 'เปิดการตั้งค่าขั้นสูง';
+
+  @override
+  String get deskSlotOpenRecheck => 'เปิดตรวจยอดใหม่';
+
+  @override
+  String get deskSlotOpenSend => 'เปิดส่ง';
+
+  @override
+  String get deskSlotOpenActivity => 'เปิดในประวัติ';
+
+  @override
+  String get deskSlotOpenInvoices => 'เปิดใบแจ้งหนี้';
+
+  @override
   String deskBarMenu(String app) {
     return 'เมนู $app';
   }
@@ -16385,67 +16333,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskBarKeyList => 'รายการนี้';
 
   @override
-  String get deskSlotNow => 'ตอนนี้';
-
-  @override
-  String get deskSlotHelp => 'ช่วยเหลือ';
-
-  @override
-  String get deskSlotOffline => 'โหมดออฟไลน์';
-
-  @override
-  String get deskSlotOfflineDetail => 'ไม่มีการส่งหรือรับ';
-
-  @override
-  String get deskSlotScanning => 'กำลังสแกนเชน';
-
-  @override
-  String get deskSlotScanWaits => 'การสแกนรอเครือข่าย';
-
-  @override
-  String get deskSlotScanStopped => 'การสแกนหยุดแล้ว';
-
-  @override
-  String get deskSlotTryAgain => 'ลองอีกครั้ง';
-
-  @override
-  String get deskSlotSending => 'กำลังส่งการชำระเงิน';
-
-  @override
-  String get deskSlotPaymentOut => 'การชำระเงินกำลังดำเนินการ';
-
-  @override
-  String get deskSlotPaymentIn => 'การชำระเงินกำลังเข้ามา';
-
-  @override
-  String get deskSlotPaymentsOut => 'การชำระเงินกำลังดำเนินการ';
-
-  @override
-  String get deskSlotPaymentsMoving => 'กำลังยืนยันการชำระ';
-
-  @override
-  String deskSlotOf(String done, String needed) {
-    return '$done จาก $needed';
-  }
-
-  @override
-  String get deskSlotWaitingBlock => 'รอบล็อก';
-
-  @override
-  String get deskSlotRequests => 'คำขอใหม่';
-
-  @override
-  String get deskSlotNodeStarting => 'โหนดในเครื่องกำลังเริ่ม';
-
-  @override
-  String get deskSlotNodeSyncing => 'โหนดในเครื่องกำลังซิงก์';
-
-  @override
-  String deskSlotUpdateDot(String version) {
-    return 'มีอัปเดต $version แสดงการอัปเดต';
-  }
-
-  @override
   String get deskBarCopyBuild => 'คัดลอกข้อมูลบิลด์';
 
   @override
@@ -16465,21 +16352,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskBarBuildTipDev(String version) {
     return 'เวอร์ชัน $version บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์';
   }
-
-  @override
-  String get deskSlotOpenAdvanced => 'เปิดการตั้งค่าขั้นสูง';
-
-  @override
-  String get deskSlotOpenRecheck => 'เปิดตรวจยอดใหม่';
-
-  @override
-  String get deskSlotOpenSend => 'เปิดส่ง';
-
-  @override
-  String get deskSlotOpenActivity => 'เปิดในประวัติ';
-
-  @override
-  String get deskSlotOpenInvoices => 'เปิดใบแจ้งหนี้';
 
   @override
   String get deskBarKeyMenu => 'เปิดเมนูแอป';

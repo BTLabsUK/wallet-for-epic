@@ -217,7 +217,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   String _headWord(AppLocalizations l, TxMethod m, ServiceStatus status, DeskSettings s, MethodLine line) {
     switch (m) {
       case TxMethod.epicbox:
-        if (status.epicboxHealth == ServiceHealth.down) {
+        if (status.epicboxHealth == ServiceHealth.down && !status.epicboxBlocked) {
           final way = torWay(TorRoute.epicbox, torStateOf(s, status));
           if (way != TorWay.wait && way != TorWay.blocked) return l.deskSetRecvHeadStopped;
         }
@@ -496,7 +496,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               !ebOff && status.epicboxHealth != ServiceHealth.off,
               ebLine,
               enabled: !ebOff,
-              notice: !ebOff && status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice() : null,
+              notice: !ebOff && status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
             ),
             _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(

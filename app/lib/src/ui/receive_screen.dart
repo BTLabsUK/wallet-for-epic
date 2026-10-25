@@ -35,6 +35,7 @@ import 'receive_http_card.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'qr_scan_screen.dart';
+import 'relay_blocked.dart';
 import 'request_qr_screen.dart' show openQrRequest;
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
@@ -757,7 +758,8 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
 }
 
 /// Where the epicbox listener stands, in one quiet line. Offline or stopped, it says what that
-/// means for receiving and offers Retry, which restarts the listener.
+/// means for receiving and offers Retry, which restarts the listener. Blocked by this network,
+/// it says so and offers another relay in one tap ([RelayBlockedNote]).
 class _EpicboxLine extends ConsumerWidget {
   const _EpicboxLine();
 
@@ -769,9 +771,12 @@ class _EpicboxLine extends ConsumerWidget {
     // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
     final offline = epicbox == null || epicbox == EpicboxState.offline;
+    final blocked = epicbox == EpicboxState.blocked;
     final (IconData icon, String word, Color color) =
         epicbox == EpicboxState.online
         ? (EpicGlyphs.epicbox, l.statusEpicboxOnline, t.ok)
+        : blocked
+        ? (EpicGlyphs.epicbox, l.statusEpicboxBlocked, t.risk)
         : offline
         ? (EpicGlyphs.epicbox, l.statusEpicboxOffline, t.risk)
         : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
@@ -821,6 +826,10 @@ class _EpicboxLine extends ConsumerWidget {
               onPressed: () => ref.read(listenerProvider.notifier).restart(),
             ),
           ),
+        ],
+        if (blocked) ...[
+          const SizedBox(height: 4),
+          const RelayBlockedNote(),
         ],
       ],
     );

@@ -980,8 +980,11 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
-  Future<Uint8List> exportHistory() =>
-      _call(SessionMember.exportHistory, bytesWire);
+  Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) =>
+      _call(SessionMember.exportHistory, bytesWire, {
+        'walletName': walletName,
+        'settings': settings == null ? null : jsonEncode(settings),
+      });
 
   @override
   Future<String> exportHistoryCsv() =>

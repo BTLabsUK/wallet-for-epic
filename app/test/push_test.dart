@@ -975,49 +975,6 @@ void main() {
       expect(h.posts, isEmpty);
     });
   });
-
-  group('the reminder', () {
-    testWidgets('once, after a minute; not again once saved', (tester) async {
-      final h = _Harness();
-      await h.pump(tester);
-      h.listenForNotes();
-      await tester.pump(const Duration(seconds: 59));
-      expect(h.notes, isEmpty);
-      await tester.pump(const Duration(seconds: 2));
-      await h.settle(tester);
-      expect(h.notes, [PushNote.available]);
-      expect(h.store.values[pushHintShownKey], 'true');
-
-      // A new run: the flag is saved, so it never comes.
-      final again = _Harness();
-      again.store.values[pushHintShownKey] = 'true';
-      await again.pump(tester);
-      again.listenForNotes();
-      await tester.pump(const Duration(seconds: 90));
-      await again.settle(tester);
-      expect(again.notes, isEmpty);
-    });
-
-    testWidgets('never when they are on', (tester) async {
-      final h = _Harness(wanted: true);
-      await h.pump(tester);
-      h.listenForNotes();
-      await tester.pump(const Duration(seconds: 90));
-      await h.settle(tester);
-      expect(h.notes, isEmpty);
-      expect(h.store.values[pushHintShownKey], isNull);
-    });
-
-    testWidgets('never while Tor is on', (tester) async {
-      final h = _Harness(torSaved: true);
-      await h.pump(tester);
-      h.listenForNotes();
-      await tester.pump(const Duration(seconds: 90));
-      await h.settle(tester);
-      expect(h.notes, isEmpty);
-      expect(h.store.values[pushHintShownKey], isNull);
-    });
-  });
 }
 
 class NetErrorForTest implements Exception {

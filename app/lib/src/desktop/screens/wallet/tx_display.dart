@@ -22,7 +22,8 @@ String whoOf(AppLocalizations l, Tx t) {
   // A scan find names no one until the user types a sender (then the address, as for any row).
   if (t.foundByScan && t.counterparty == null) return foundTexts(l, t).label;
   final cp = t.counterparty;
-  if (cp == null && t.fromBackup) return t.incoming ? l.deskTxReceived : l.deskTxSent;
+  // An invoice from a backup with no address (asked by file) is named as the live one is.
+  if (cp == null && t.fromBackup && !t.isInvoice) return t.incoming ? l.deskTxReceived : l.deskTxSent;
   if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
   if (t.method == TxMethod.file) return cp;
   // An invoice's other side is an Epicbox address: first six and last six, no host.

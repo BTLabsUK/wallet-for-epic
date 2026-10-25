@@ -494,6 +494,25 @@ class ImportReport {
   /// [PairingApi.useImportedPairings] before this device collects for them (RFC 9.5).
   final int pairingsOtherDevice;
 
+  /// Notes, labels, and a scan-found payment's sender or method the file filled in where
+  /// this wallet had none.
+  final int notesAdded;
+  final int labelsAdded;
+  final int detailsAdded;
+
+  /// Invoices (issued or paid) whose outcome the file brought back.
+  final int invoicesAdded;
+
+  /// Contacts this wallet starred again.
+  final int starsAdded;
+
+  /// The wallet's name the file carries, for the app to give back where it names wallets.
+  final String? walletName;
+
+  /// The app settings the file carries (`backup_settings.dart`), for the app to apply; null
+  /// for a file without any.
+  final Map<String, Object?>? settings;
+
   const ImportReport({
     required this.merged,
     required this.added,
@@ -504,32 +523,61 @@ class ImportReport {
     this.replaced = 0,
     this.pairingsAdded = 0,
     this.pairingsOtherDevice = 0,
+    this.notesAdded = 0,
+    this.labelsAdded = 0,
+    this.detailsAdded = 0,
+    this.invoicesAdded = 0,
+    this.starsAdded = 0,
+    this.walletName,
+    this.settings,
   });
 
-  /// This report with [added] pairings, [otherDevice] of them maybe in use elsewhere too.
-  ImportReport withPairings(int added, {int otherDevice = 0}) => ImportReport(
+  ImportReport copyWith({
+    int? contactsAdded,
+    int? starsAdded,
+    int? pairingsAdded,
+    int? pairingsOtherDevice,
+  }) => ImportReport(
     merged: merged,
-    added: this.added,
+    added: added,
     skipped: skipped,
-    contactsAdded: contactsAdded,
+    contactsAdded: contactsAdded ?? this.contactsAdded,
     conflicts: conflicts,
     applied: applied,
     replaced: replaced,
-    pairingsAdded: added,
-    pairingsOtherDevice: otherDevice,
+    pairingsAdded: pairingsAdded ?? this.pairingsAdded,
+    pairingsOtherDevice: pairingsOtherDevice ?? this.pairingsOtherDevice,
+    notesAdded: notesAdded,
+    labelsAdded: labelsAdded,
+    detailsAdded: detailsAdded,
+    invoicesAdded: invoicesAdded,
+    starsAdded: starsAdded ?? this.starsAdded,
+    walletName: walletName,
+    settings: settings,
   );
 
+  /// This report with [added] pairings, [otherDevice] of them maybe in use elsewhere too.
+  ImportReport withPairings(int added, {int otherDevice = 0}) =>
+      copyWith(pairingsAdded: added, pairingsOtherDevice: otherDevice);
+
   @override
-  int get hashCode =>
-      merged.hashCode ^
-      added.hashCode ^
-      skipped.hashCode ^
-      contactsAdded.hashCode ^
-      Object.hashAll(conflicts) ^
-      applied.hashCode ^
-      replaced.hashCode ^
-      pairingsAdded.hashCode ^
-      pairingsOtherDevice.hashCode;
+  int get hashCode => Object.hash(
+    merged,
+    added,
+    skipped,
+    contactsAdded,
+    Object.hashAll(conflicts),
+    applied,
+    replaced,
+    pairingsAdded,
+    pairingsOtherDevice,
+    notesAdded,
+    labelsAdded,
+    detailsAdded,
+    invoicesAdded,
+    starsAdded,
+    walletName,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -544,7 +592,14 @@ class ImportReport {
           applied == other.applied &&
           replaced == other.replaced &&
           pairingsAdded == other.pairingsAdded &&
-          pairingsOtherDevice == other.pairingsOtherDevice;
+          pairingsOtherDevice == other.pairingsOtherDevice &&
+          notesAdded == other.notesAdded &&
+          labelsAdded == other.labelsAdded &&
+          detailsAdded == other.detailsAdded &&
+          invoicesAdded == other.invoicesAdded &&
+          starsAdded == other.starsAdded &&
+          walletName == other.walletName &&
+          jsonEncode(settings) == jsonEncode(other.settings);
 }
 
 /// The longest label [WalletSession.setTxLabel] keeps, in characters.
@@ -2219,8 +2274,9 @@ enum IssuedInvoiceState {
 class IssuedInvoice {
   final String slateId;
 
-  /// Local id of the invoice's transaction, for a withdrawal.
-  final int txId;
+  /// Local id of the invoice's transaction, for a withdrawal. Null for a request a history
+  /// backup brought back: LEPIC no longer holds it, so it is shown and never acted on.
+  final int? txId;
   final String payerAddress;
 
   /// The paired contact asked (RFC 11.2), when the engine names it; its mailbox is never
@@ -2250,8 +2306,8 @@ class IssuedInvoice {
     this.pairingId,
   });
 
-  /// Only an unpaid, unanswered invoice can be withdrawn.
-  bool get withdrawable => state == IssuedInvoiceState.waiting;
+  /// Only an unpaid, unanswered invoice this wallet still holds can be withdrawn.
+  bool get withdrawable => state == IssuedInvoiceState.waiting && txId != null;
 
   /// Saved as a payment file for anyone ([PairingApi.requestFile]): no payer address and no
   /// paired contact.
@@ -2315,8 +2371,20 @@ String? _receiverMessage(TxEntry tx) =>
 /// cancelled, expired. The payer is LEPIC's counterparty, empty when it kept none.
 IssuedInvoice? issuedInvoiceOf(TxEntry tx, {IssuedInvoiceState? recorded}) {
   final slateId = tx.slateId;
-  final txId = tx.id;
-  if (!tx.isRequest || slateId == null || txId == null) return null;
+  // Only a request LEPIC made holds an id it can act on; one a history backup brought back,
+  // perhaps onto a row a scan found, is shown and never acted on.
+  final txId = tx.source == TxSource.wallet ? tx.id : null;
+  if (!tx.isRequest || slateId == null) return null;
+  if (txId == null) {
+    // From a history backup: shown with the end the backup recorded, or paid when its payment
+    // is on the chain (a request paid by file is settled only later). One still open when the
+    // backup was made cannot be finished here; its history row says it is from a backup.
+    final onChain = tx.status == TxStatus.confirmed || tx.blockHeight != null;
+    if (recorded == null || recorded == IssuedInvoiceState.waiting) {
+      if (!onChain || tx.status == TxStatus.cancelled) return null;
+      recorded = IssuedInvoiceState.paid;
+    }
+  }
   final issuedAt = DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000);
   final fromTx = tx.status == TxStatus.cancelled
       ? IssuedInvoiceState.expired
@@ -2334,6 +2402,7 @@ IssuedInvoice? issuedInvoiceOf(TxEntry tx, {IssuedInvoiceState? recorded}) {
     state: recorded == null || recorded == IssuedInvoiceState.waiting
         ? fromTx
         : recorded,
+    pairingId: tx.pairingId,
   );
 }
 
@@ -2350,7 +2419,7 @@ List<IssuedInvoice> requestsOf(
           ?issuedInvoiceOf(t, recorded: recorded(t.slateId)),
     ]..sort((a, b) {
       final byTime = b.issuedAt.compareTo(a.issuedAt);
-      return byTime != 0 ? byTime : b.txId.compareTo(a.txId);
+      return byTime != 0 ? byTime : (b.txId ?? -1).compareTo(a.txId ?? -1);
     });
 
 /// The invoice [tx] paid, from LEPIC's transaction, or null when it paid none. [status] and
@@ -2370,7 +2439,7 @@ PaidInvoice? paidInvoiceOf(
     amount: tx.amountDebited - tx.amountCredited - (tx.fee ?? BigInt.zero),
     message: _receiverMessage(tx),
     status: status ?? InvoiceStatus.replied,
-    txId: tx.id,
+    txId: tx.source == TxSource.wallet ? tx.id : null,
     kernelExcess: kernelExcess,
   );
 }

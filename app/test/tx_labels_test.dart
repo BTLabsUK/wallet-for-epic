@@ -532,7 +532,7 @@ void main() {
       // Only the first call, without choices, was made: nothing was applied.
       expect(h.session.lastUseBackup, isNull);
       expect(h.session.importConflicts, isNotEmpty);
-      expect(find.text('History imported'), findsNothing);
+      expect(find.text('Backup imported'), findsNothing);
     });
   });
 }

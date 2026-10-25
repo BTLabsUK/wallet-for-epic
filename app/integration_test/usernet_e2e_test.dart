@@ -409,7 +409,7 @@ void main() {
         'WFE_E2E step=restored after ${DateTime.now().difference(started)}',
       );
       await _tapText(tester, 'Import a history backup');
-      await _pumpUntil(tester, find.text('History imported'));
+      await _pumpUntil(tester, find.text('Backup imported'));
       await _tapText(tester, 'OK');
       await _pumpUntil(tester, find.byKey(balanceFigureKey));
 
