@@ -529,9 +529,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           null => false,
         };
 
+    // A withdrawal from a paired exchange has its own steps (WithdrawalBlock).
+    final withdrawal = withdrawalOf(ref, tx);
     return SlotScaffold(
       appBar: AppBar(
-        title: Text(switch (withdrawalOf(ref, tx)) {
+        title: Text(switch (withdrawal) {
           final w? => l.reqWithdrawalFrom(w.name),
           null => txHeading(l, tx, contactName: name),
         }),
@@ -578,9 +580,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 children: [
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
-                  Text(txExplanation(l, tx, tip, now: now, target: target)),
-                  if (txTimeline(l, tx, tip, target: target, now: now)
-                      case final steps?) ...[
+                  if (withdrawal == null) Text(txExplanation(l, tx, tip, now: now, target: target)),
+                  if (withdrawal == null)
+                    if (txTimeline(l, tx, tip, target: target, now: now)
+                        case final steps?) ...[
                     const SizedBox(height: 16),
                     StatusTimeline(steps: steps),
                   ],

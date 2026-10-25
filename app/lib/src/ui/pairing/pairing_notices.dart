@@ -10,12 +10,14 @@ import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
+import '../../providers.dart' show homeProvider;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
 import 'pair_check.dart';
 import 'pending_invites.dart';
+import '../tx_details_screen.dart';
 
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
@@ -63,6 +65,10 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> {
 
   void _show(PairingEvent e) {
     final l = context.l10n;
+    // A withdrawal or a withdrawn request changes the wallet's transactions.
+    if (e.kind == PairingEventKind.withdrawalFromContact || e.kind == PairingEventKind.requestWithdrawn) {
+      ref.invalidate(homeProvider);
+    }
     final notice = pairingNoticeOf(l, e);
     if (notice == null) return;
     final id = e.pairingId;
@@ -79,6 +85,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> {
       PairingEventKind.invoiceFromContact ||
       PairingEventKind.duplicateRequests ||
       PairingEventKind.tooManyRequests => NoticeAction(l.noticeView, () => _push(const InvoicesScreen())),
+      PairingEventKind.withdrawalFromContact when e.slateId != null =>
+        NoticeAction(l.noticeView, () => _push(TxDetailsScreen(txKey: 's:${e.slateId}'))),
       _ => null,
     };
     ref.read(noticeProvider.notifier).show(notice.text, level: notice.level, action: action);
