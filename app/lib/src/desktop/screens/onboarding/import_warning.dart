@@ -1,4 +1,5 @@
-/// The warning before the first import of wallets or files from older software or backups:
+/// The warning before the first import of wallets from older software (Welcome and All wallets
+/// › Import wallets; our own history backup needs none):
 /// an early version, the import only reads, have a backup of every wallet, at your own risk.
 /// It shows once per install ([DeskSettings.importWarningSeen], saved with the app's
 /// settings in the data folder); Help › Keeping the wallet safe › Before you import keeps the

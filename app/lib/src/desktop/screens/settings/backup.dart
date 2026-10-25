@@ -18,7 +18,6 @@ import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show deskPairingCall;
 import '../../widgets/kit.dart';
-import '../onboarding/import_warning.dart';
 import 'history_conflicts.dart';
 
 /// The open wallet's backup record; read again when the transactions change.
@@ -126,7 +125,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
               label: l.deskSetBackupImportButton,
               icon: EIcons.upload,
               size: EBtnSize.sm,
-              onPressed: busy != null ? null : () => importAfterWarning(context, ref, () => _run(_Busy.import, showImportHistoryDialog)),
+              onPressed: busy != null ? null : () => _run(_Busy.import, showImportHistoryDialog),
             ),
           ),
         ),
