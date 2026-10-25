@@ -325,7 +325,9 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
   ProviderSubscription<DeskLocation>? sub;
   sub = container.listen(deskNavProvider, (prev, next) {
     if (prev?.route != next.route) {
-      shown.close();
+      // Every toast of the screen goes, the queued ones too: closing a queued one by its
+      // controller is not allowed.
+      messenger.clearSnackBars();
       sub?.close();
       sub = null;
     }
