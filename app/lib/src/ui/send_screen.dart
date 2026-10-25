@@ -2411,7 +2411,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       if (_tagOn && _switchedTo != null)
         _SwitchAnnouncement(method: _switchedTo!),
-      _TorNotice(way: way),
+      _TorNotice(way: way, onion: parseRecipient(_recipient.text).kind == RecipientKind.tor),
       // A saved contact: Send via its other addresses; paired, its trust and the seal.
       if (valid)
         SendPairingLine(
@@ -2756,7 +2756,10 @@ class _SendViewState extends ConsumerState<SendView> {
         alignment: AlignmentDirectional.centerStart,
         child: _ToChip(address: address, name: _contactName(address)),
       ),
-      _TorNotice(way: _wayOf(sendRoute(parseRecipient(_recipient.text)))),
+      _TorNotice(
+        way: _wayOf(sendRoute(parseRecipient(_recipient.text))),
+        onion: parseRecipient(_recipient.text).kind == RecipientKind.tor,
+      ),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       ..._amountFields(context, file: false),
@@ -3806,9 +3809,12 @@ class _TorTag extends StatelessWidget {
 /// Tor." with Turn on Tor, which keeps the form), or Tor on but not connected ("Tor is not
 /// connected." with Retry and Turn Tor off). Nothing falls back to the clearnet.
 class _TorNotice extends ConsumerWidget {
-  const _TorNotice({required this.way});
+  const _TorNotice({required this.way, this.onion = false});
 
   final TorWay way;
+
+  /// To holds an onion: a Link · Tor payment, whose own switch comes before Tor.
+  final bool onion;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -3823,6 +3829,8 @@ class _TorNotice extends ConsumerWidget {
     }
     // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
     if (watchNetBlock(context, ref) == NetBlock.offline) return const SizedBox.shrink();
+    // Link · Tor switched off: the form's off line comes first, Tor alone would not send it.
+    if (onion && watchNetBlock(context, ref, method: MethodKind.linkTor) == NetBlock.methodOff) return const SizedBox.shrink();
     final tor = ref.read(phoneTorProvider.notifier);
     final blocked = way == TorWay.blocked;
     final quiet = TextButton.styleFrom(minimumSize: const Size(48, 44));

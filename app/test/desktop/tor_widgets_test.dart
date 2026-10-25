@@ -105,7 +105,9 @@ void main() {
       await tester.enterText(find.byType(EditableText).first, _onion);
       await tester.pumpAndSettle();
       expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsOneWidget);
+      // Link · Tor is off here: that comes first, before Tor (Tor alone would not send it).
+      expect(find.textContaining('Link · Tor'), findsWidgets);
+      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
     }, skip: _skip);
   });
 }

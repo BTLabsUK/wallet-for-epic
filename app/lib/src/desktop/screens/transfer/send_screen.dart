@@ -1310,7 +1310,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                   ),
           ),
           // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
-          if (_torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline) ...[
+          // Link · Tor switched off: that comes first, Tor alone would not send it.
+          if (_torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline && _netBlock(st) != NetBlock.methodOff) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),
