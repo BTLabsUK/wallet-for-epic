@@ -1113,6 +1113,15 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     await future;
   }
 
+  /// Reads the wallet's waiting invoices again without a drain: one that arrived another way
+  /// (a paired contact's mailbox) or a drain's own event (PAIR-AND-3).
+  Future<void> reload() async {
+    final session = _invoiceSession(ref);
+    if (session == null || !state.hasValue) return;
+    final fresh = await session.pendingInvoices();
+    if (ref.mounted) state = AsyncData(_unexpired(fresh));
+  }
+
   /// Takes an invoice the user paid or declined off the list, without another drain.
   void answered(String slateId) {
     final shown = state.value;

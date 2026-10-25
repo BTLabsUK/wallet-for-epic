@@ -19,6 +19,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'invoice_request_screen.dart';
+import 'invoice_review_screen.dart';
 import 'invoice_rows.dart';
 import 'settings_invoices.dart';
 import 'theme/brand.dart';
@@ -145,7 +146,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         );
     switch (event.kind) {
       case InvoiceEventKind.received:
-        view(l.invoiceNoticeReceived, NoticeLevel.info, _openInvoices);
+        // An open Invoices screen lists it at once, not on its next visit (PAIR-AND-3).
+        ref.read(pendingInvoicesProvider.notifier).reload().ignore();
+        view(l.invoiceNoticeReceived, NoticeLevel.info, () => _openInvoice(event.slateId));
       case InvoiceEventKind.posted:
         view(
           l.invoiceNoticePosted,
@@ -247,6 +250,23 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     if (!mounted) return;
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen()));
+  }
+
+  /// The invoice [slateId] to review, from the fresh list; the list when it is not in it.
+  Future<void> _openInvoice(String slateId) async {
+    // The notice outlives home: a lock replaces it with the unlock screen.
+    if (!mounted) return;
+    List<PendingInvoice> list = const [];
+    try {
+      list = await ref.read(pendingInvoicesProvider.future);
+    } catch (_) {
+      // The list says why.
+    }
+    if (!mounted) return;
+    final invoice = list.where((i) => i.slateId == slateId).firstOrNull;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => invoice == null ? const InvoicesScreen() : InvoiceReviewScreen(invoice: invoice)),
+    );
   }
 
   /// The payment of [slateId] in home's list, reloaded once when the list lacks it.

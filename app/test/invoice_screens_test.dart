@@ -314,6 +314,25 @@ void main() {
       },
     );
 
+    testWidgets('an invoice arriving while Invoices is open: listed at once, View opens it (PAIR-AND-3)', (tester) async {
+      final h = _Harness();
+      // Paired before: only the invoice is new.
+      h.session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
+      await h.pump(tester, const HomeScreen());
+      await tester.tap(_invoicesTile);
+      await tester.pumpAndSettle();
+      expect(find.text('My Exchange'), findsNothing);
+      // It arrives another way than this screen's drain (a contact's mailbox), with its event.
+      await h.invoice(slateId: 'late');
+      await tester.runAsync(() => h.session.drainInvoices());
+      await tester.pumpAndSettle();
+      expect(find.text('My Exchange'), findsOneWidget, reason: 'the open list shows it');
+      expect(_notice(tester), _l.invoiceNoticeReceived);
+      await tester.tap(find.text(_l.homeNoticeView));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.reqTitle), findsOneWidget, reason: 'View opens that invoice');
+    });
+
     testWidgets('opens the list', (tester) async {
       final h = _Harness();
       await h.invoice();

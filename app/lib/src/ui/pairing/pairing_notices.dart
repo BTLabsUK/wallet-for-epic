@@ -12,7 +12,7 @@ import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
-import '../../providers.dart' show homeProvider;
+import '../../providers.dart' show homeProvider, pendingInvoicesProvider;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
@@ -129,6 +129,10 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // A withdrawal or a withdrawn request changes the wallet's transactions.
     if (e.kind == PairingEventKind.withdrawalFromContact || e.kind == PairingEventKind.requestWithdrawn) {
       ref.invalidate(homeProvider);
+    }
+    // A request from a contact: an open Invoices screen lists it now (PAIR-AND-3).
+    if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
+      ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
     final notice = pairingNoticeOf(l, e);
     if (notice == null || pairingEventOnScreen(e)) return;
