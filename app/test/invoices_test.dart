@@ -1,10 +1,7 @@
 // The invoice service layer (I-01) against the fake: drains, pay, decline, expiry, a failed
-// reply, labels and the invoice index in wfe_meta.json, and the providers over them.
-import 'dart:convert';
+// reply, invoices only from paired contacts with Allow invoices on, and the providers over them.
 import 'dart:io';
 
-import 'package:epic_wallet/src/history/export.dart';
-import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -36,6 +33,10 @@ FakeWalletSession funded({WalletHistory? history}) => FakeWalletSession(
   ),
 );
 
+/// [address] as a verified paired contact named [name] with Allow invoices on: its invoices park.
+PairingRecord allow(FakeWalletSession s, String address, String name) =>
+    s.pairing.seedPaired(name: name, allowInvoices: true, paymentsAddress: address);
+
 Matcher invalidArgument(String text) => throwsA(
   isA<WalletError>()
       .having((e) => e.kind, 'kind', WalletErrorKind.invalidArgument)
@@ -66,7 +67,7 @@ void main() {
       s.clock = () => now;
       events = [];
       s.invoiceEvents().listen(events.add);
-      await s.addTrustedService(address: shop, label: 'Shop');
+      allow(s, shop, 'Shop');
     });
 
     test('a drain parks invoices from trusted services only', () async {
@@ -253,7 +254,7 @@ void main() {
     });
 
     test('notices count only from the invoice\'s own service', () async {
-      await s.addTrustedService(address: exchange, label: 'Exchange');
+      allow(s, exchange, 'Exchange');
       s.relayInvoice(from: shop, slateId: 'paid', amount: eight);
       s.relayInvoice(from: shop, slateId: 'open', amount: eight);
       await s.drainInvoices();
@@ -329,41 +330,31 @@ void main() {
       expect(s.cancelledTxIds, isEmpty, reason: 'the user confirms a cancel');
     });
 
-    test('trusted services: validated, replaced by key, removed', () async {
-      await expectLater(
-        s.addTrustedService(address: 'shop.example', label: 'Shop'),
-        invalidArgument('not an epicbox address'),
-      );
-      await expectLater(
-        s.addTrustedService(address: exchange, label: '  '),
-        invalidArgument('needs a label'),
-      );
-
-      // The same key on another relay replaces the entry and its label.
-      final moved = addr('S', relay: 'epicbox.epicnet.us');
-      await s.addTrustedService(address: moved, label: 'Shop US');
-      final services = await s.trustedServices();
-      expect(services, [
-        TrustedService(
-          address: moved,
-          label: 'Shop US',
-          since: services.single.since,
-        ),
-      ]);
-      expect(
-        services.single.since,
-        isNotNull,
-        reason: 'the fake dates the entry',
-      );
-      expect(s.invoiceHistory.meta.serviceLabels.keys, [moved]);
-
-      await s.removeTrustedService(address: shop);
-      expect(await s.trustedServices(), isEmpty);
-      expect(s.invoiceHistory.meta.serviceLabels, isEmpty);
-
-      // Removed: the next invoice is dropped.
+    test('Allow invoices off declines the open requests and drops the next', () async {
+      final paired = s.pairing.records.single;
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
+      await s.drainInvoices();
+      expect(await s.pairing.setAllowInvoices(paired.id, false), 1);
+      expect(await s.pendingInvoices(), isEmpty);
+      expect(s.declinedInvoices, ['i1']);
+      s.relayInvoice(from: shop, slateId: 'i2', amount: eight);
       expect((await s.drainInvoices()).dropped, 1);
+      expect(s.invoicePayments, 0);
+    });
+
+    test('a paired contact not verified cannot be allowed', () async {
+      final r = s.pairing.seedPaired(name: 'Tom', state: PairingState.paired, paymentsAddress: exchange);
+      await expectLater(s.pairing.setAllowInvoices(r.id, true), invalidArgument('check the words'));
+      s.relayInvoice(from: exchange, slateId: 'x1', amount: eight);
+      expect((await s.drainInvoices()).dropped, 1);
+    });
+
+    test('a parked invoice carries its pairing and reference', () async {
+      s.relayInvoice(from: shop, slateId: 'i1', amount: eight, reference: 'NW-48213');
+      await s.drainInvoices();
+      final invoice = (await s.pendingInvoices()).single;
+      expect(invoice.pairingId, s.pairing.records.single.id);
+      expect(invoice.reference, 'NW-48213');
     });
 
     test('a core without invoices refuses every call', () async {
@@ -375,175 +366,6 @@ void main() {
         throwsA(isA<WalletError>()),
       );
       expect(() => s.invoiceEvents(), throwsA(isA<WalletError>()));
-    });
-  });
-
-  group('labels and the invoice index in wfe_meta.json', () {
-    late Directory dir;
-    setUp(
-      () async => dir = await Directory.systemTemp.createTemp('wfe-invoice-'),
-    );
-    tearDown(() async {
-      if (dir.existsSync()) await dir.delete(recursive: true);
-    });
-
-    test('labels are kept by address across a reopen', () async {
-      final first = await WalletHistory.open(dir.path, Chain.mainnet);
-      final s1 = funded(history: first);
-      await s1.addTrustedService(address: shop, label: 'Shop');
-      await s1.addTrustedService(address: exchange, label: 'Exchange');
-      first.close();
-
-      // The wallet keeps the addresses; the app's file brings the names back.
-      final second = await WalletHistory.open(dir.path, Chain.mainnet);
-      final s2 = funded(history: second)..allowlist.addAll(s1.allowlist);
-      expect(await s2.trustedServices(), [
-        TrustedService(address: shop, label: 'Shop'),
-        TrustedService(address: exchange, label: 'Exchange'),
-      ]);
-      expect(
-        serviceLabel(
-          await s2.trustedServices(),
-          addr('X', relay: 'other.relay'),
-        ),
-        'Exchange',
-      );
-      expect(serviceLabel(await s2.trustedServices(), stranger), isNull);
-
-      // An address whose label the file lost comes back without one.
-      s2.allowlist.add(stranger);
-      expect(
-        (await s2.trustedServices()).last,
-        TrustedService(address: stranger),
-      );
-      second.close();
-    });
-
-    test(
-      'the invoice index lives in the file and only moves forward',
-      () async {
-        final first = await WalletHistory.open(dir.path, Chain.mainnet);
-        final s1 = funded(history: first);
-        expect(
-          await s1.invoiceAddress(),
-          FakeWalletSession.fakeInvoiceAddress(1),
-        );
-        expect(
-          File('${dir.path}/$metaFileName').existsSync(),
-          isFalse,
-          reason: 'index 1 is the default',
-        );
-
-        final rotated = await s1.rotateInvoiceAddress();
-        expect(rotated, FakeWalletSession.fakeInvoiceAddress(2));
-        expect(await s1.invoiceAddress(), rotated);
-        expect(
-          File('${dir.path}/$metaFileName').readAsStringSync(),
-          contains('"invoice_index":2'),
-        );
-        await expectLater(
-          first.setInvoiceIndex(2),
-          invalidArgument('only moves forward'),
-        );
-        first.close();
-
-        final second = await WalletHistory.open(dir.path, Chain.mainnet);
-        expect(second.invoiceIndex, 2);
-        expect(await funded(history: second).invoiceAddress(), rotated);
-        second.close();
-      },
-    );
-
-    test('labels and the index travel in the history backup', () async {
-      final a = await WalletHistory.open(dir.path, Chain.mainnet);
-      addTearDown(a.close);
-      await a.setServiceLabel(shop, 'Shop');
-      await a.setInvoiceIndex(3);
-      final file = a
-          .exportPayload(const [], walletFp: 'fp', appVersion: 't')
-          .encode();
-
-      // A restore: a new directory, an empty archive, the same wallet.
-      final dirB = await Directory.systemTemp.createTemp('wfe-invoice-b-');
-      addTearDown(() => dirB.delete(recursive: true));
-      final b = await WalletHistory.open(dirB.path, Chain.mainnet);
-      await b.setServiceLabel(exchange, 'Exchange');
-      await b.importPayload(
-        HistoryPayload.decode(file),
-        const [],
-        walletFp: 'fp',
-      );
-      expect(b.invoiceIndex, 3);
-      expect(b.meta.serviceLabels, {shop: 'Shop', exchange: 'Exchange'});
-
-      // Again, after the user renamed one and rotated on: neither goes back.
-      await b.setServiceLabel(shop, 'My shop');
-      await b.setInvoiceIndex(5);
-      await b.importPayload(
-        HistoryPayload.decode(file),
-        const [],
-        walletFp: 'fp',
-      );
-      expect(b.invoiceIndex, 5);
-      expect(b.meta.serviceLabels[shop], 'My shop');
-      b.close();
-
-      // On disk too.
-      final reopened = await WalletHistory.open(dirB.path, Chain.mainnet);
-      addTearDown(reopened.close);
-      expect(reopened.invoiceIndex, 5);
-      expect(reopened.meta.serviceLabels, {
-        shop: 'My shop',
-        exchange: 'Exchange',
-      });
-    });
-
-    test('a backup without invoices carries no invoice fields', () async {
-      final a = await WalletHistory.open(dir.path, Chain.mainnet);
-      addTearDown(a.close);
-      final text = utf8.decode(
-        a.exportPayload(const [], walletFp: 'fp', appVersion: 't').encode(),
-      );
-      expect(text, isNot(contains('invoice_index')));
-      expect(text, isNot(contains('service_labels')));
-    });
-
-    test('a backup with bad invoice fields is damaged', () {
-      List<int> payload(String extra) => utf8.encode(
-        '{"format":"wfe-history","version":1,"chain":"Mainnet","wallet_fp":"fp",'
-        '"exported_at_unix":1,"app_version":"t","txs":[],"contacts":[]$extra}',
-      );
-      expect(HistoryPayload.decode(payload('')).invoiceIndex, isNull);
-      expect(
-        HistoryPayload.decode(payload(',"invoice_index":4')).invoiceIndex,
-        4,
-      );
-      for (final bad in [
-        ',"invoice_index":0',
-        ',"invoice_index":-1',
-        ',"invoice_index":"2"',
-        ',"service_labels":[]',
-        ',"service_labels":{"a":1}',
-      ]) {
-        expect(
-          () => HistoryPayload.decode(payload(bad)),
-          throwsA(
-            isA<WalletError>().having(
-              (e) => e.message,
-              'message',
-              historyDamaged,
-            ),
-          ),
-          reason: bad,
-        );
-      }
-    });
-
-    test('a label is found despite stray whitespace', () async {
-      final h = await WalletHistory.open(dir.path, Chain.mainnet);
-      addTearDown(h.close);
-      await h.setServiceLabel(' $shop ', 'Shop');
-      expect(h.trustedServices(['$shop\n']).single.label, 'Shop');
     });
   });
 
@@ -566,7 +388,7 @@ void main() {
 
     test('the first read drains, and so does a refresh', () async {
       start();
-      await s.addTrustedService(address: shop, label: 'Shop');
+      allow(s, shop, 'Shop');
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
       s.relayInvoice(from: stranger, slateId: 'junk', amount: eight);
       container.listen(pendingInvoiceCountProvider, (_, _) {});
@@ -578,14 +400,12 @@ void main() {
 
       expect([for (final i in await pending()) i.slateId], ['i1']);
       expect(container.read(pendingInvoiceCountProvider), 1);
-      expect(container.read(droppedInvoiceMessagesProvider), 1);
 
       s.relayInvoice(from: shop, slateId: 'i2', amount: eight);
       s.relayInvoice(from: stranger, slateId: 'junk2', amount: eight);
       await container.read(pendingInvoicesProvider.notifier).refresh();
       expect(container.read(pendingInvoicesProvider).value, hasLength(2));
       expect(container.read(pendingInvoiceCountProvider), 2);
-      expect(container.read(droppedInvoiceMessagesProvider), 2);
 
       container.read(pendingInvoicesProvider.notifier).answered('i1');
       expect(
@@ -599,7 +419,7 @@ void main() {
 
     test('an expired invoice drops out as its time passes', () async {
       start();
-      await s.addTrustedService(address: shop, label: 'Shop');
+      allow(s, shop, 'Shop');
       s.relayInvoice(
         from: shop,
         slateId: 'soon',
@@ -618,33 +438,11 @@ void main() {
       );
     });
 
-    test('trusted services and the invoice address', () async {
-      start();
-      container.listen(trustedServicesProvider, (_, _) {});
-      final notifier = container.read(trustedServicesProvider.notifier);
-      expect(await container.read(trustedServicesProvider.future), isEmpty);
-      await notifier.add(address: shop, label: 'Shop');
-      final listed = container.read(trustedServicesProvider).value!;
-      expect([for (final t in listed) (t.address, t.label)], [(shop, 'Shop')]);
-      await expectLater(
-        notifier.add(address: 'nonsense', label: 'x'),
-        invalidArgument('not an epicbox address'),
-      );
-      await notifier.remove(shop);
-      expect(container.read(trustedServicesProvider).value, isEmpty);
-
-      container.listen(invoiceAddressProvider, (_, _) {});
-      expect(
-        await container.read(invoiceAddressProvider.future),
-        FakeWalletSession.fakeInvoiceAddress(1),
-      );
-    });
-
     test(
       'a receipt reaches the paid invoice\'s details on the next drain',
       () async {
         start();
-        await s.addTrustedService(address: shop, label: 'Shop');
+        allow(s, shop, 'Shop');
         s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
         await pending();
         await s.payInvoice(slateId: 'i1', amount: eight);
@@ -673,10 +471,6 @@ void main() {
       () async {
         start(supported: false);
         expect(await pending(), isEmpty);
-        container.listen(trustedServicesProvider, (_, _) {});
-        expect(await container.read(trustedServicesProvider.future), isEmpty);
-        container.listen(invoiceAddressProvider, (_, _) {});
-        expect(await container.read(invoiceAddressProvider.future), isNull);
         container.listen(paidInvoiceProvider('i1'), (_, _) {});
         expect(await container.read(paidInvoiceProvider('i1').future), isNull);
         expect(container.read(pendingInvoiceCountProvider), 0);
@@ -685,11 +479,10 @@ void main() {
 
     test('no invoice event, drain or notice leads to a payment', () async {
       start();
-      await s.addTrustedService(address: shop, label: 'Shop');
+      allow(s, shop, 'Shop');
       final seen = <InvoiceEvent>[];
       s.invoiceEvents().listen(seen.add);
       container.listen(pendingInvoiceCountProvider, (_, _) {});
-      container.listen(trustedServicesProvider, (_, _) {});
       container.listen(paidInvoiceProvider('i1'), (_, _) {});
       for (var n = 0; n < 3; n++) {
         s.relayInvoice(from: shop, slateId: 'i$n', amount: eight);

@@ -27,6 +27,9 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 
 const _mode = String.fromEnvironment('WFE_E2E');
+
+/// Set once the LEPIC session pairs (U-24); the run pairs with the CLI wallet then.
+const _lepicPairs = bool.fromEnvironment('WFE_E2E_PAIRING');
 const _service = String.fromEnvironment('WFE_SERVICE_ADDRESS');
 
 /// The CLI's invoice address, where the app's requests go.
@@ -259,32 +262,9 @@ void main() {
       expect(_session(tester).supportsInvoices, isTrue);
       debugPrint('WFE_E2E payments=${await _session(tester).epicboxAddress()}');
 
-      // 2. Settings > Invoices: the invoice address, and the service as trusted.
-      await _tap(tester, find.byTooltip('Settings'));
-      await _tapText(tester, 'Invoice address and trusted services');
-      final invoiceAddress = await _session(tester).invoiceAddress();
-      expect(invoiceAddress, isNot(await _session(tester).epicboxAddress()));
-      // Shown short unless Advanced options is on, as on Receive.
-      await _pumpUntil(
-        tester,
-        find.byWidgetPredicate(
-          (w) =>
-              w is SelectableText &&
-              (w.data ?? '').startsWith(invoiceAddress.substring(0, 6)),
-        ),
-      );
-      await _tapText(tester, 'Add a service');
-      await _enter(tester, 'Name', _label);
-      await _enter(tester, "The service's epicbox address", _service);
-      await _tapText(tester, 'Add service');
-      await _pumpUntil(tester, find.text('$_label can now send you invoices.'));
-      expect(
-        (await _session(tester).trustedServices()).single,
-        const TrustedService(address: _service, label: _label),
-      );
-      debugPrint('WFE_E2E invoice-address=$invoiceAddress');
+      // 2. Invoices come only from a paired contact (RFC 0002). Pairing with the CLI wallet
+      // needs LEPIC's pairing calls (U-24); until then the run stops here (see skip below).
       step('trusted');
-      await _backHome(tester);
 
       // 3. The faucet's 10 EPIC, spendable after 10 blocks.
       await _waitFor(
@@ -431,7 +411,9 @@ void main() {
       _container(tester).read(sessionProvider.notifier).lock();
       await tester.pumpWidget(const SizedBox.shrink());
     },
+    // Needs pairing in the LEPIC session (phase 2, U-24): the invoice address it used is gone.
     skip:
+        !_lepicPairs ||
         _mode != 'floonet-invoices' ||
         _service.isEmpty ||
         _payerInvoices.isEmpty,

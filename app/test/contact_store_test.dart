@@ -53,12 +53,12 @@ void main() {
       expect(identical(s, await ContactStore.open(tmp.path)), isTrue);
       await s.saveAll(add: const [
         ContactFields(name: 'Alice', epicbox: _a, note: 'line 1\nline 2'),
-        ContactFields(name: 'Bob', http: 'https://bob.example', invoiceAddress: _b),
+        ContactFields(name: 'Bob', http: 'https://bob.example'),
       ]);
       final json = jsonDecode(await file().readAsString()) as Map<String, dynamic>;
       expect(json['version'], 1);
       expect((json['contacts'] as List).first, containsPair('epicbox', _a));
-      expect((json['contacts'] as List).last, containsPair('invoice_address', _b));
+      expect(((json['contacts'] as List).last as Map).containsKey('invoice_address'), isFalse);
       expect(await File('${file().path}.tmp').exists(), isFalse);
       final again = await reopen();
       expect(again.list(), s.list());

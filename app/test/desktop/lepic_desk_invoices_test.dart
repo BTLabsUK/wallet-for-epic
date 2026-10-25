@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/address_format.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
@@ -422,22 +423,19 @@ void main() {
       await support.delete(recursive: true);
     });
 
-    test('a waiting invoice reads as one to pay: the trusted label and stored address, the fee', () async {
+    test('a waiting invoice reads as one to pay: the stored address, the fee, no name from the invoice', () async {
       lepicWallet.park('inv-1', 12000, message: 'Order\u202e 42\nthanks');
       final book = await wallet.invoices();
       final i = book.invoice('inv-1')!;
       expect(i.state, PayState.waiting);
-      expect(i.label, 'Shop', reason: 'from the trusted list by key, never the invoice');
+      // Without a pairing (LEPIC's is a stub until U-24) the name is the short address.
+      expect(i.label, shortAddress(_shop, compact: true), reason: 'never a name from the invoice');
       expect(i.senderAddress, _shop, reason: 'the stored address, not the relay part it came from');
       expect(i.fee, 700000);
       expect(i.message, 'Order 42 thanks');
       expect(book.waiting.single.slateId, 'inv-1');
-      expect(book.trusted.single.label, 'Shop');
-      expect(book.trusted.single.since, DateTime.fromMillisecondsSinceEpoch(1790000000000));
-      expect(book.invoiceAddress, 'esOwnInvoiceKey@epicbox.example');
       await wallet.invoices();
       expect(lepicWallet.feeEstimates, 1, reason: 'a read does not estimate the fee again');
-      expect(book.invoiceIndex, 1, reason: 'from LEPIC; Settings asks a restored wallet to hand it out again');
     });
 
     test('pay: a wrong password pays nothing; the right one pays the invoice\'s own amount once', () async {

@@ -17,7 +17,6 @@ import 'package:lepic/lepic.dart' as lepic;
 const _password = 'test-pass-1234';
 const _payments = 'esOwnPaymentsKey@epicbox.example';
 const _shop = 'esShopKey@epicbox.example';
-const _shopInvoice = 'esShopInvoiceKey@epicbox.example';
 
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) => lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
@@ -169,31 +168,10 @@ void main() {
     await support.delete(recursive: true);
   });
 
-  test('a contact keeps its invoice address, and the trusted entry finds the contact by it', () async {
-    lepicWallet.senders.add(lepic.InvoiceSender(address: _shopInvoice, label: 'Shop', addedAtMs: 1790000000000));
-    final id = await wallet!.saveContact(Contact(id: '', name: 'Shop', address: _shop, invoiceAddress: _shopInvoice));
+  test('a contact keeps one address of each kind', () async {
+    final id = await wallet!.saveContact(Contact(id: '', name: 'Shop', epicbox: _shop, http: 'http://10.0.0.2:3415'));
     final saved = (await wallet!.contacts()).firstWhere((c) => c.id == id);
-    expect(saved.id, id);
-    expect(saved.invoiceAddress, _shopInvoice);
-    final book = await wallet!.invoices();
-    expect(book.trusted.single.contactId, id, reason: 'matched by the invoice address, not the payments one');
-    expect(book.trustedFor(_shopInvoice), isNotNull);
-  });
-
-  test('a contact without an invoice address reads as before, and is matched by its payments key', () async {
-    lepicWallet.senders.add(lepic.InvoiceSender(address: _shop, label: 'Shop', addedAtMs: 1790000000000));
-    final id = await wallet!.saveContact(Contact(id: '', name: 'Shop', address: _shop));
-    expect((await wallet!.contacts()).firstWhere((c) => c.id == id).invoiceAddress, isNull);
-    expect((await wallet!.invoices()).trusted.single.contactId, id);
-  });
-
-  test('trusting and untrusting go to LEPIC\'s list, read back by key', () async {
-    await wallet!.trustSender(_shopInvoice, 'Shop');
-    expect(lepicWallet.senders.single.address, _shopInvoice);
-    expect((await wallet!.invoices()).trustedFor('esShopInvoiceKey@other.relay'), isNotNull);
-    await wallet!.untrustSender(_shopInvoice);
-    expect(lepicWallet.senders, isEmpty);
-    expect((await wallet!.invoices()).trusted, isEmpty);
+    expect((saved.epicbox, saved.http, saved.tor), (_shop, 'http://10.0.0.2:3415', null));
   });
 
   test('the invoice expiry is stored with the wallet and read back after a restart', () async {

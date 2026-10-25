@@ -5,7 +5,7 @@
 import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/recipient.dart';
-import 'package:epic_wallet/src/ui/contact_sheet.dart';
+import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/method_names.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';

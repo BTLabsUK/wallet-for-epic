@@ -116,10 +116,6 @@ void main() {
           invalidArgument('own addresses'),
         );
         await expectLater(
-          s.issueInvoice(amount: five, address: await s.invoiceAddress()),
-          invalidArgument('own addresses'),
-        );
-        await expectLater(
           s.issueInvoice(amount: BigInt.zero, address: payer),
           invalidArgument('above zero'),
         );

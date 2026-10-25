@@ -117,7 +117,7 @@ class _Harness {
     validatedWithNode: true,
   );
 
-  /// Trusts the shop as "My Exchange" and relays one invoice from it.
+  /// Pairs the shop as "My Exchange" with Allow invoices on and relays one invoice from it.
   Future<void> invoice({
     String slateId = 'inv-1',
     num amount = 8,
@@ -125,7 +125,7 @@ class _Harness {
     Duration expiresIn = const Duration(hours: 24),
   }) async {
     if (session.allowlist.isEmpty) {
-      await session.addTrustedService(address: _shop, label: 'My Exchange');
+      session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
     }
     session.relayInvoice(
       from: _shop,
@@ -180,7 +180,7 @@ class _Harness {
     await pump(tester, const InvoicesScreen());
     await tester.tap(find.text('My Exchange'));
     await tester.pumpAndSettle();
-    expect(find.text(_l.invoiceReviewTitle), findsOneWidget);
+    expect(find.text(_l.reqTitle), findsOneWidget);
   }
 
   /// Taps Approve and answers the PIN dialog with [pin], or cancels it when null.
@@ -332,9 +332,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const InvoicesScreen());
-      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
-      expect(find.text(_l.invoicesToPayEmptyCaption), findsOneWidget);
-      await tester.tap(find.text(_l.invoiceSettingsServicesTitle));
+      expect(find.text(_l.invoicesEmpty), findsOneWidget);
+      await tester.tap(find.text(_l.invoicesEmptyAction));
       await tester.pumpAndSettle();
       expect(find.byType(InvoiceSettingsScreen), findsOneWidget);
       await tester.pageBack();
@@ -348,7 +347,7 @@ void main() {
       expect(find.text(_l.invoicesNewRequest), findsNWidgets(2));
       await tester.tap(find.byKey(invoicesNewRequestKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.requestTitle), findsOneWidget);
+      expect(find.text(_l.reqNewTitle), findsOneWidget);
     });
 
     testWidgets('counts each segment', (tester) async {
@@ -395,7 +394,7 @@ void main() {
       // The message's first line follows the time left.
       expect(_rich('Order 1042'), findsNWidgets(2));
       expect(find.textContaining('binance'), findsNothing);
-      expect(find.text(_l.invoicesToPayEmpty), findsNothing);
+      expect(find.text(_l.invoicesEmpty), findsNothing);
     });
 
     testWidgets('drains when opened and on pull to refresh', (tester) async {
@@ -422,7 +421,7 @@ void main() {
       await tester.pump(const Duration(minutes: 1));
       await tester.pumpAndSettle();
       expect(find.text('My Exchange'), findsNothing);
-      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesEmpty), findsOneWidget);
     });
 
     testWidgets('names a service with a lost label without the invoice', (
@@ -553,7 +552,7 @@ void main() {
         await h.review(tester);
         await h.approve(tester, pin: null);
         expect(h.session.invoicePayments, 0);
-        expect(find.text(_l.invoiceReviewTitle), findsOneWidget);
+        expect(find.text(_l.reqTitle), findsOneWidget);
         await h.approve(tester, pin: '000000');
         expect(
           find.text(_l.invoicePinReason),
@@ -581,8 +580,8 @@ void main() {
           _epic(8) + h.session.fee,
         );
         expect(_notice(tester), _l.invoicePaidNotice('My Exchange'));
-        expect(find.text(_l.invoiceReviewTitle), findsNothing);
-        expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
+        expect(find.text(_l.reqTitle), findsNothing);
+        expect(find.text(_l.invoicesEmpty), findsOneWidget);
       },
     );
 
@@ -643,7 +642,7 @@ void main() {
       expect(h.session.deliveredReplies, ['inv-1']);
       expect(h.session.invoicePayments, 1, reason: 'approved once');
       expect(_notice(tester), _l.invoicePaidNotice('My Exchange'));
-      expect(find.text(_l.invoiceReviewTitle), findsNothing);
+      expect(find.text(_l.reqTitle), findsNothing);
     });
 
     testWidgets('decline confirms, tells the service and pays nothing', (
@@ -665,7 +664,7 @@ void main() {
       expect(h.session.declinedInvoices, ['inv-1']);
       expect(h.session.invoicePayments, 0);
       expect(_notice(tester), _l.invoiceDeclinedNotice);
-      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesEmpty), findsOneWidget);
     });
 
     testWidgets('an invoice withdrawn while open can no longer be answered', (

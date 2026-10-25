@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
@@ -319,13 +320,9 @@ class _Recorder implements DeskWalletApi {
   Future<void> cancelInvoicePayment(String slateId) => _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId));
   @override
   Future<SelfSend> spendCancelledToSelf(String slateId) => _r('spendCancelledToSelf', () => _m.spendCancelledToSelf(slateId));
+  // Pairing calls go to the pairing API, not through the recorder.
   @override
-  Future<String> rotateInvoiceAddress() => _r('rotateInvoiceAddress', _m.rotateInvoiceAddress);
-  @override
-  Future<void> trustSender(String address, String label, {String? contactId}) =>
-      _r('trustSender', () => _m.trustSender(address, label, contactId: contactId));
-  @override
-  Future<void> untrustSender(String address) => _r('untrustSender', () => _m.untrustSender(address));
+  PairingApi get pairing => _m.pairing;
   @override
   Future<void> setInvoiceExpiry(Duration expiry) => _r('setInvoiceExpiry', () => _m.setInvoiceExpiry(expiry));
   @override

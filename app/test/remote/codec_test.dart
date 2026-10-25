@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:epic_wallet/src/models.dart';
+import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/remote/codec.dart';
 import 'package:epic_wallet/src/remote/local_checks.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -263,19 +264,23 @@ void main() {
       expect(bare.fee, isNull);
       expect(bare.flow, TxFlow.payment);
       roundTrip(listOf(txEntryWire), [fullTx(), bareTx()], byValue: false);
-      roundTrip(
-        trustedServiceWire,
-        const TrustedService(address: 'a@b', label: 'Shop'),
+      // A pairing record crosses with every field; compared through its re-encoding.
+      final full = FakePairing().seedPaired(
+        name: 'Anna',
+        id: 'p1',
+        kind: PairingParty.exchange,
+        allowInvoices: true,
+        contactId: 'c1',
+        relay: 'relay.example',
+        caps: const PairingCaps(issuesInvoices: true),
+        relayDown: true,
       );
-      roundTrip(
-        trustedServiceWire,
-        TrustedService(
-          address: 'a@b',
-          label: 'Shop',
-          since: DateTime.fromMillisecondsSinceEpoch(1790000000000),
-        ),
-      );
-      roundTrip(trustedServiceWire, const TrustedService(address: 'a@b'));
+      final back = roundTrip(pairingRecordWire, full, byValue: false);
+      expect(back.sas, full.sas);
+      expect(back.caps, full.caps);
+      expect((back.kind, back.allowInvoices, back.contactId, back.homeRelay, back.relayDown),
+          (PairingParty.exchange, true, 'c1', 'relay.example', true));
+      roundTrip(listOf(pairingRecordWire), [full], byValue: false);
       roundTrip(
         pendingInvoiceWire,
         PendingInvoice(

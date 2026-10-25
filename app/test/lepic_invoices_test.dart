@@ -1,10 +1,9 @@
 // The LEPIC adapter's invoice calls over a stand-in `EpicWallet` that keeps the invoice
-// address, allowlist and waiting invoices as LEPIC does. No native library is loaded.
+// waiting invoices as LEPIC does. No native library is loaded.
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -233,16 +232,6 @@ class _InvoiceWallet implements lepic.EpicWallet {
     }
     declined.add(slateId);
   }
-}
-
-/// A restored wallet whose history file opens to [payload].
-class _ImportingWallet extends _InvoiceWallet {
-  _ImportingWallet(this.payload);
-
-  final Uint8List payload;
-
-  @override
-  Future<Uint8List> openAppData({required List<int> file}) async => payload;
 }
 
 lepic.WalletEvent _event(
@@ -577,150 +566,11 @@ void main() {
     });
   });
 
-  group('trusted services', () {
-    test(
-      'LEPIC gets the address and a short label, the app keeps its own',
-      () async {
-        final long = 'Shop ${'x' * 80}';
-        final added = await session.addTrustedService(
-          address: ' $_shop ',
-          label: long,
-        );
-        final since = DateTime.fromMillisecondsSinceEpoch(1790000000000);
-        expect(added, TrustedService(address: _shop, label: long, since: since));
-        expect(wallet.senders.single.address, _shop);
-        expect(wallet.senders.single.label.length, 64);
-        expect(await session.trustedServices(), [
-          TrustedService(address: _shop, label: long, since: since),
-        ]);
-      },
-    );
-
-    test('LEPIC\'s label stands in when the app lost its own', () async {
-      wallet.senders.add(
-        const lepic.InvoiceSender(address: _shop, label: 'Shop', addedAtMs: 0),
-      );
-      expect(await session.trustedServices(), [
-        TrustedService(
-          address: _shop,
-          label: 'Shop',
-          since: DateTime.fromMillisecondsSinceEpoch(0),
-        ),
-      ]);
-    });
-
-    test('the same key at another relay replaces the entry', () async {
-      await session.addTrustedService(address: _shop, label: 'Shop');
-      await session.addTrustedService(
-        address: 'shopKey@other.example',
-        label: 'Shop 2',
-      );
-      expect(await session.trustedServices(), [
-        TrustedService(
-          address: 'shopKey@other.example',
-          label: 'Shop 2',
-          since: DateTime.fromMillisecondsSinceEpoch(1790000000000),
-        ),
-      ]);
-    });
-
-    test('the wallet\'s own addresses are refused', () async {
-      for (final own in [_payments, 'ownKey1@epicbox.example']) {
-        await expectLater(
-          session.addTrustedService(address: own, label: 'me'),
-          throwsA(
-            isA<WalletError>().having(
-              (e) => e.kind,
-              'kind',
-              WalletErrorKind.invalidArgument,
-            ),
-          ),
-        );
-      }
-      expect(wallet.senders, isEmpty);
-    });
-
-    test('remove drops the sender and its label', () async {
-      await session.addTrustedService(address: _shop, label: 'Shop');
-      await session.removeTrustedService(address: _shop);
-      expect(wallet.senders, isEmpty);
-      expect(await session.trustedServices(), isEmpty);
-    });
-  });
-
-  group('the invoice index', () {
+  group('the history archive', () {
     late Directory dir;
 
     setUp(() => dir = Directory.systemTemp.createTempSync('wfe-invoice-'));
     tearDown(() => dir.deleteSync(recursive: true));
-
-    test(
-      'a rotation is kept in wfe_meta.json and given back after a restore',
-      () async {
-        final history = await WalletHistory.open(dir.path, Chain.floonet);
-        final first = LepicWalletSession(wallet, history: history);
-        expect(await first.rotateInvoiceAddress(), 'ownKey2@epicbox.example');
-        expect(await first.rotateInvoiceAddress(), 'ownKey3@epicbox.example');
-        first.dispose();
-
-        // A restore from the phrase: LEPIC starts at 1 again.
-        final restored = _InvoiceWallet();
-        final again = LepicWalletSession(
-          restored,
-          history: await WalletHistory.open(dir.path, Chain.floonet),
-        );
-        await again.restoreInvoiceIndex();
-        expect(restored.index, 3);
-        expect(await again.invoiceAddress(), 'ownKey3@epicbox.example');
-        again.dispose();
-      },
-    );
-
-    test('LEPIC ahead of the archive is recorded', () async {
-      final history = await WalletHistory.open(dir.path, Chain.floonet);
-      wallet.index = 4;
-      final s = LepicWalletSession(wallet, history: history);
-      await s.restoreInvoiceIndex();
-      expect(history.invoiceIndex, 4);
-      s.dispose();
-    });
-
-    test('opening a wallet gives LEPIC the kept index', () async {
-      final history = await WalletHistory.open(dir.path, Chain.floonet);
-      await history.setInvoiceIndex(3);
-      history.close();
-      final restored = _InvoiceWallet();
-      final s = await LepicWalletSession.openOn(
-        restored,
-        dir.path,
-        Chain.floonet,
-      );
-      expect(restored.index, 3);
-      s.dispose();
-    });
-
-    test('importing a history file gives LEPIC its index', () async {
-      final payload = HistoryPayload(
-        chain: chainName(Chain.floonet),
-        walletFp: walletFingerprint(_payments),
-        exportedAtUnix: 1790000000,
-        appVersion: historyAppVersion,
-        invoiceIndex: 3,
-      );
-      final restored = _ImportingWallet(Uint8List.fromList(payload.encode()));
-      final s = LepicWalletSession(
-        restored,
-        history: await WalletHistory.open(dir.path, Chain.floonet),
-      );
-      await s.importHistory(data: Uint8List.fromList([1, 2, 3]));
-      expect(restored.index, 3);
-      s.dispose();
-    });
-
-    test('without a relay the wallet still opens', () async {
-      wallet.indexError = lepic.WalletErrorKind.unsupported;
-      await session.restoreInvoiceIndex();
-    });
 
     test('a paid invoice survives a reopen', () async {
       final s = LepicWalletSession(
@@ -740,10 +590,5 @@ void main() {
       expect(await reopened.paidInvoice(slateId: 'inv-1'), paid);
       reopened.dispose();
     });
-  });
-
-  test('a sender label for LEPIC has no control characters', () {
-    expect(lepicSenderLabel(' a\u0000b\nc '), 'a b c');
-    expect(lepicSenderLabel('é' * 40).length, 32);
   });
 }

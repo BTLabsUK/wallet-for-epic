@@ -24,10 +24,10 @@ void main() {
             if (p.place) (id: t.id, label: p.text, target: p.target),
   ];
 
-  /// All of Help for [lang]: the topics (with and without Tor) and the invoice topics.
+  /// All of Help for [lang]: the topics (with and without Tor) and the pairing topics.
   List<HelpTopic> topicsOf(String lang, HelpPlatform platform, {bool tor = true}) => [
     ...localizedHelpTopics(lang, 3, platform: platform, tor: tor),
-    ...invoiceHelpTopics(helpStrings(lang), 3, platform: platform),
+    ...pairingHelpTopics(helpStrings(lang), platform: platform),
   ];
 
   /// What each part of an English place is called in the UI, in the language of [l]. A part may be
@@ -65,7 +65,6 @@ void main() {
     'Contacts': {l.settingsContacts, l.deskShellNavContacts},
     'Invoices': {l.invoicesTitle, l.deskInvNav, l.deskInvSetTitle},
     'To pay': {l.invoicesToPaySection},
-    'Requests you sent': {l.invoicesSentSection},
     'Pay': {l.deskInvTabPay},
     'Issue': {l.deskInvTabIssue},
     // The transaction's own words in Activity: not a screen's name.

@@ -1,4 +1,5 @@
-// The phone's Contacts screen and contact sheet (spec §3), against FakeWalletSession.
+// The phone's Contacts screen and contact page (spec §3, pairing SPEC 2.5), against
+// FakeWalletSession.
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -6,7 +7,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/contact_sheet.dart';
+import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
@@ -251,14 +252,14 @@ void main() {
     });
   });
 
-  group('sheet', () {
+  group('page', () {
     Future<_Harness> open(WidgetTester tester) async {
       final h = _Harness();
       await h.add('Alice Smith', _alice, note: 'Coffee club');
       await h.pump(tester, const ContactsScreen());
       await tester.tap(find.text('Alice Smith'));
       await tester.pumpAndSettle();
-      expect(find.byType(BottomSheet), findsOneWidget);
+      expect(find.byType(ContactPage), findsOneWidget);
       return h;
     }
 
@@ -268,50 +269,40 @@ void main() {
       await open(tester);
       expect(
         find.descendant(
-          of: find.byType(BottomSheet),
+          of: find.byType(ContactPage),
           matching: find.textContaining('a' * 50, findRichText: true),
         ),
         findsOneWidget,
       );
-      expect(find.text('Coffee club'), findsNWidgets(2));
+      expect(find.text('Coffee club'), findsOneWidget);
+      expect(find.text(_l.contactAddresses), findsOneWidget);
       expect(find.byType(MarkedQr), findsNothing);
       await tester.tap(find.text(_l.contactsShowCode));
       await tester.pumpAndSettle();
       expect(find.byType(MarkedQr), findsOneWidget);
-      await tester.tap(find.text(_l.contactsHideCode));
-      await tester.pumpAndSettle();
-      expect(find.byType(MarkedQr), findsNothing);
     });
 
-    testWidgets('on a phone the actions sit above the navigation bar, 48 dp tall', (
+    testWidgets('on a phone Send sits above the navigation bar, 48 dp tall', (
       tester,
     ) async {
-      // A 24 dp status bar and a 48 dp navigation bar on the harness's 360 × 780 dp phone.
       tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
       tester.view.viewPadding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
       await open(tester);
       final limit = tester.view.physicalSize.height / tester.view.devicePixelRatio - 48;
-      for (final key in [contactSheetSendKey, contactSheetEditKey, contactSheetDeleteKey]) {
-        final rect = tester.getRect(find.byKey(key));
-        expect(rect.height, greaterThanOrEqualTo(48), reason: '$key');
-        expect(rect.bottom, lessThanOrEqualTo(limit), reason: '$key under the bar');
-        final hit = tester.hitTestOnBinding(rect.center);
-        expect(
-          hit.path.map((e) => e.target),
-          contains(tester.renderObject(find.byKey(key))),
-          reason: '$key is covered',
-        );
-      }
+      final rect = tester.getRect(find.byKey(contactPageSendKey));
+      expect(rect.height, greaterThanOrEqualTo(48));
+      expect(rect.bottom, lessThanOrEqualTo(limit));
+      expect(tester.getRect(find.byKey(contactPageEditKey)).height, greaterThanOrEqualTo(48));
     });
 
     testWidgets('Send hands the address to the Send tab', (tester) async {
       final h = await open(tester);
-      await tester.tap(find.byKey(contactSheetSendKey));
+      await tester.tap(find.byKey(contactPageSendKey));
       await tester.pumpAndSettle();
       final c = h.container(tester);
       expect(c.read(shellTabProvider), ShellTab.send);
       expect(c.read(sendRecipientProvider)?.text, _alice);
-      expect(find.byType(BottomSheet), findsNothing);
+      expect(find.byType(ContactPage), findsNothing);
     });
 
     for (final (name, address) in [('http', _http), ('onion', _onion)]) {
@@ -319,7 +310,7 @@ void main() {
         final h = _Harness();
         await h.pump(tester, const ContactEditScreen());
         await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel), 'Dan');
-        await tester.enterText(find.widgetWithText(TextField, _l.contactsAddressLabel), address);
+        await tester.enterText(find.widgetWithText(TextField, _l.addrField), address);
         await tester.tap(find.text(_l.contactsSave));
         await tester.pumpAndSettle();
         expect(find.textContaining('not a valid'), findsNothing);
@@ -329,25 +320,29 @@ void main() {
 
     testWidgets('Edit opens the edit screen', (tester) async {
       await open(tester);
-      await tester.tap(find.byKey(contactSheetEditKey));
+      await tester.tap(find.byKey(contactPageEditKey));
       await tester.pumpAndSettle();
-      expect(find.byType(BottomSheet), findsNothing);
       expect(find.text(_l.contactsEditTitle), findsOneWidget);
     });
 
+    Future<void> delete(WidgetTester tester) async {
+      await tester.tap(find.byKey(contactPageMoreKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(contactPageDeleteKey));
+      await tester.pumpAndSettle();
+    }
+
     testWidgets('Delete asks first; Cancel keeps it', (tester) async {
       final h = await open(tester);
-      await tester.tap(find.byKey(contactSheetDeleteKey));
-      await tester.pumpAndSettle();
+      await delete(tester);
       expect(find.text(_l.contactsDeleteTitle('Alice Smith')), findsOneWidget);
       expect(find.text(_l.contactsDeleteConfirmBody), findsOneWidget);
       await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();
       expect(h.session.contactsValue, hasLength(1));
-      expect(find.byType(BottomSheet), findsOneWidget);
+      expect(find.byType(ContactPage), findsOneWidget);
 
-      await tester.tap(find.byKey(contactSheetDeleteKey));
-      await tester.pumpAndSettle();
+      await delete(tester);
       await tester.tap(
         find.descendant(
           of: find.byType(AlertDialog),
@@ -356,7 +351,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(h.session.contactsValue, isEmpty);
-      expect(find.byType(BottomSheet), findsNothing);
+      expect(find.byType(ContactPage), findsNothing);
       expect(find.text(_l.contactsEmptyTitle), findsOneWidget);
     });
   });

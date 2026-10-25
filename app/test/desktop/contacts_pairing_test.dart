@@ -1,16 +1,19 @@
-// A contact's Trusted switch reads LEPIC's list by key, a rename updates the trusted label, and
-// deleting a trusted contact asks whether to stop trusting it.
+// A contact's Pairing block on the desktop (SPEC 2.4): Verified with its switches, Allow
+// invoices off for a contact not verified, keys changed, Not paired with Pair, and deleting a
+// paired contact removes this wallet's pairing too.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/wallet_service.dart' show PairingApi;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 
-// Anna (c1) is on the mock's trusted list by her payments address; Piotr (c6) has an invoice
-// address and is not trusted.
+// The mock pairs Anna (c1, verified), Tom (c4, paired, not verified) and Marta (c9, keys
+// changed); Piotr (c6) is not paired.
 late ProviderContainer _c;
 
 Future<void> _real(WidgetTester tester, [int ms = 400]) async {
@@ -42,70 +45,67 @@ Future<void> _open(WidgetTester tester, ContactsArgs arg) async {
   await tester.pump(const Duration(milliseconds: 600));
 }
 
-ESwitch _switch(WidgetTester tester) => tester.widget<ESwitch>(find.byType(ESwitch).first);
+final _l = englishStrings;
+
+PairingApi get _pairing => (_c.read(deskApiProvider) as MockDeskWallet).pairing;
+
+ESwitch _switchOf(WidgetTester tester, String label) =>
+    tester.widget<ESwitch>(find.byWidgetPredicate((w) => w is ESwitch && w.semanticLabel == label));
 
 void main() {
-  testWidgets('the switch is on for a contact on LEPIC\'s list and follows a change of it', (tester) async {
+  testWidgets('a verified contact: Verified, the date, both switches on', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c1'));
-    expect(_switch(tester).value, isTrue);
-    await tester.runAsync(() => _c.read(deskInvoicesProvider.notifier).untrust(_c.read(deskInvoicesProvider)!.trusted.firstWhere((t) => t.contactId == 'c1').address));
+    expect(find.text(_l.contactPairing), findsOneWidget);
+    expect(find.text(_l.trustVerified), findsWidgets);
+    expect(find.text(_l.contactCheckAgain), findsOneWidget);
+    expect(_switchOf(tester, _l.contactSealPayments).value, isTrue);
+    final allow = _switchOf(tester, _l.contactAllowInvoices);
+    allow.onChanged!(!allow.value);
     await _real(tester);
-    expect(_switch(tester).value, isFalse, reason: 'read from the list, not kept apart');
+    expect((await tester.runAsync(() => _pairing.pairing(mockAnnaPairing)))!.allowInvoices, !allow.value);
   });
 
-  testWidgets('turning it on trusts the invoice address when the contact has one', (tester) async {
+  testWidgets('a contact not verified: Allow invoices waits for the words check', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c4'));
+    expect(find.text(_l.trustPaired), findsWidgets);
+    expect(find.text(_l.contactCheckWordsFirst), findsOneWidget);
+    expect(_switchOf(tester, _l.contactAllowInvoices).onChanged, isNull);
+  });
+
+  testWidgets('keys changed: the notice with its three ways out, both switches paused', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c9'));
+    expect(find.text(_l.contactKeysChangedTitle('Marta W.')), findsOneWidget);
+    expect(find.text(_l.contactKeysChangedBody), findsOneWidget);
+    for (final t in [_l.sasTitle, _l.contactKeepOldKeys, _l.contactUseNewKeys]) {
+      expect(find.text(t), findsWidgets, reason: t);
+    }
+    expect(find.text(_l.contactPausedUntilChecked), findsNWidgets(2));
+  });
+
+  testWidgets('a contact not paired offers Pair', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c6'));
-    expect(_switch(tester).value, isFalse);
-    final piotr = _c.read(deskProvider).contacts!.firstWhere((x) => x.id == 'c6');
-    _switch(tester).onChanged!(true);
-    await _real(tester);
-    final entry = _c.read(deskInvoicesProvider)!.trusted.firstWhere((t) => t.contactId == 'c6');
-    expect(entry.address, piotr.invoiceAddress);
-    expect(_switch(tester).value, isTrue);
+    expect(find.text(_l.pairNotPaired), findsOneWidget);
+    expect(find.text(_l.pairNotPairedHint), findsOneWidget);
   });
 
-  testWidgets('renaming a trusted contact updates the trusted label', (tester) async {
-    await _open(tester, const ContactsArgs(selectedId: 'c1', editing: true));
-    final name = find.descendant(of: find.widgetWithText(EField, 'Name'), matching: find.byType(EditableText));
-    await tester.enterText(name, 'Anna K.');
-    await tester.pump();
-    await tester.tap(find.text('Save contact'));
-    await _real(tester, 800);
-    expect(_c.read(deskInvoicesProvider)!.trusted.firstWhere((t) => t.contactId == 'c1').label, 'Anna K.');
-  });
-
-  testWidgets('deleting a trusted contact asks about trust; Remove stops it', (tester) async {
+  testWidgets('deleting a paired contact says the pairing goes, and removes it', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c1'));
     await tester.tap(find.text('Delete'));
     await tester.pump(const Duration(milliseconds: 400));
+    expect(find.textContaining(_l.contactDeletePaired('Anna Kowalska')), findsOneWidget);
     await tester.tap(find.text('Delete contact'));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Stop trusting Anna Kowalska?'), findsOneWidget);
-    await tester.tap(find.text('Remove'));
     await _real(tester, 800);
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c1'), isFalse);
-    expect(_c.read(deskInvoicesProvider)!.trusted.any((t) => t.contactId == 'c1'), isFalse);
+    expect(await tester.runAsync(() => _pairing.pairing(mockAnnaPairing)), isNull);
   });
 
-  testWidgets('Keep deletes the contact and leaves the sender trusted', (tester) async {
-    await _open(tester, const ContactsArgs(selectedId: 'c1'));
-    await tester.tap(find.text('Delete'));
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.tap(find.text('Delete contact'));
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.tap(find.text('Keep'));
-    await _real(tester, 800);
-    expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c1'), isFalse);
-    expect(_c.read(deskInvoicesProvider)!.trusted.any((t) => t.label == 'Anna Kowalska'), isTrue);
-  });
-
-  testWidgets('an untrusted contact is deleted without the question', (tester) async {
+  testWidgets('a contact not paired is deleted without the pairing line', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c6'));
     await tester.tap(find.text('Delete'));
     await tester.pump(const Duration(milliseconds: 400));
+    expect(find.textContaining(_l.contactDeletePaired('Piotr Nowak')), findsNothing);
     await tester.tap(find.text('Delete contact'));
     await _real(tester, 800);
-    expect(find.textContaining('Stop trusting'), findsNothing);
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c6'), isFalse);
   });
 }

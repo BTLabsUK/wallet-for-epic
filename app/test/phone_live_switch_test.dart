@@ -203,23 +203,18 @@ void main() {
     expect(w.container.read(listenerProvider).last?.txId, 7);
   });
 
-  testWidgets('after a live relay switch the shown addresses carry the new relay: Receive and '
-      'the invoice address, even while a page showing them stays open', (tester) async {
+  testWidgets('after a live relay switch the shown address carries the new relay, even while '
+      'a page showing it stays open', (tester) async {
     final w = await _open(tester);
-    w.session.invoicesSupported = true;
-    // Settings › Wallet › Invoices and Receive watch these; held here as an open page holds them.
-    final invoice = w.container.listen(invoiceAddressProvider, (_, _) {});
+    // Receive watches it; held here as an open page holds it.
     final receive = w.container.listen(addressProvider, (_, _) {});
-    expect(await w.container.read(invoiceAddressProvider.future), endsWith('@epicbox.epiccash.com'));
     expect(await w.container.read(addressProvider.future), endsWith('@epicbox.epiccash.com'));
 
     await _offer(tester, 'relay.example.org');
     await _switch(tester);
 
     _stillOpen(w);
-    expect(await w.container.read(invoiceAddressProvider.future), endsWith('@relay.example.org'));
     expect(await w.container.read(addressProvider.future), endsWith('@relay.example.org'));
-    invoice.close();
     receive.close();
   });
 

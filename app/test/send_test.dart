@@ -16,7 +16,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/centered_body.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/contact_sheet.dart';
+import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -1568,9 +1568,9 @@ void main() {
       expect(find.text('Bob'), findsNothing);
       await _enter(tester, 'Name or address', '');
 
-      // A tap opens the contact's sheet; Edit opens the form.
+      // A tap opens the contact's page; Edit opens the form.
       await _tap(tester, find.text('Bob'));
-      await _tap(tester, find.byKey(contactSheetEditKey));
+      await _tap(tester, find.byKey(contactPageEditKey));
       expect(find.text('Edit contact'), findsOneWidget);
       await _enter(tester, 'Name', 'Robert');
       await _tap(tester, find.text('Save contact'));
@@ -1578,7 +1578,8 @@ void main() {
       expect(find.text('Bob'), findsNothing);
 
       await _tap(tester, find.text('Robert'));
-      await _tap(tester, find.byKey(contactSheetDeleteKey));
+      await _tap(tester, find.byKey(contactPageMoreKey));
+      await _tap(tester, find.byKey(contactPageDeleteKey));
       expect(find.text('Delete Robert?'), findsOneWidget);
       await _tap(
         tester,

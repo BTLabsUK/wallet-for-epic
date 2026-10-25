@@ -280,12 +280,12 @@ void main() {
       final s = await openSession();
       expect(s.supportsInvoices, false);
       await expectLater(
-        s.invoiceAddress(),
+        s.drainInvoices(),
         throwsA(
           isA<WalletError>().having(
             (e) => e.message,
             'message',
-            invoicesUnsupported('invoiceAddress').message,
+            invoicesUnsupported('drainInvoices').message,
           ),
         ),
       );
@@ -654,31 +654,10 @@ void main() {
 
     test('invoices the wallet pays', () async {
       final s = await openSession();
-      final index = session.invoiceHistory.invoiceIndex;
-      expect(
-        await s.invoiceAddress(),
-        FakeWalletSession.fakeInvoiceAddress(index),
-      );
-      expect(
-        await s.rotateInvoiceAddress(),
-        FakeWalletSession.fakeInvoiceAddress(index + 1),
-      );
-      expect(session.invoiceHistory.invoiceIndex, index + 1);
-      expect(await s.invoiceAddressIndex(), index + 1);
-      final added = await s.addTrustedService(
-        address: serviceAddress,
-        label: 'Shop',
-      );
-      expect(added.since, isNotNull, reason: 'the date it was trusted crosses too');
-      expect(
-        added,
-        TrustedService(address: serviceAddress, label: 'Shop', since: added.since),
-      );
-      expect(await s.trustedServices(), [added]);
-      await expectLater(
-        s.addTrustedService(address: 'bad', label: 'x'),
-        throwsKind(WalletErrorKind.invalidArgument),
-      );
+      // Invoices park only from a verified paired contact with Allow invoices on.
+      final shop = session.pairing.seedPaired(name: 'Shop', allowInvoices: true, paymentsAddress: serviceAddress);
+      expect((await s.pairing.pairingForContact('none')), isNull);
+      expect([for (final p in await s.pairing.pairings()) p.id], [shop.id]);
 
       final events = <InvoiceEvent>[];
       final sub = s.invoiceEvents().listen(events.add);
@@ -705,6 +684,7 @@ void main() {
           message: 'order 7',
           receivedAt: now,
           expiresAt: now.add(const Duration(hours: 24)),
+          pairingId: shop.id,
         ),
       );
       await expectLater(
@@ -742,8 +722,36 @@ void main() {
       ]);
       await sub.cancel();
 
-      await s.removeTrustedService(address: serviceAddress);
-      expect(await s.trustedServices(), isEmpty);
+      expect(await s.pairing.setAllowInvoices(shop.id, false), 0);
+      expect((await s.pairing.pairing(shop.id))!.allowInvoices, isFalse);
+    });
+
+    test('pairing crosses the wire, events too', () async {
+      final s = await openSession();
+      expect(s.pairing.supported, isTrue);
+      final events = <PairingEvent>[];
+      final sub = s.pairing.events().listen(events.add);
+      await settle();
+      final invite = await s.pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+      expect(invite.state, PairingState.pendingInvite);
+      expect(invite.inviteLink, isNotNull);
+      session.pairing.answerInvite(invite.id, name: 'Anna');
+      await settle();
+      expect(events.map((e) => e.kind), contains(PairingEventKind.replied));
+      final paired = (await s.pairing.pairing(invite.id))!;
+      expect(paired.state, PairingState.paired);
+      expect(paired.sas, hasLength(sasWordCount));
+      final verified = await s.pairing.checkWords(invite.id, PairingCheck.match);
+      expect(verified!.state, PairingState.verified);
+      expect((await s.pairing.setSeal(invite.id, false)).seal, SealMode.off);
+      expect(await s.pairing.setAllowInvoices(invite.id, true), 0);
+      await expectLater(
+        s.pairing.makeInvite(name: '', expiry: const Duration(hours: 1)),
+        throwsKind(WalletErrorKind.invalidArgument),
+      );
+      await s.pairing.removePairing(invite.id);
+      expect(await s.pairing.pairings(), isEmpty);
+      await sub.cancel();
     });
 
     test('invoices the wallet issues', () async {
