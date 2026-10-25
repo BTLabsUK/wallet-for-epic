@@ -3053,11 +3053,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Accept the payment, then show your reply the same way.';
 
   @override
-  String get receiveQrTitle => 'Standing next to the sender?';
+  String get receiveQrTitle => 'Next to the other phone?';
 
   @override
   String get receiveQrBody =>
-      'Scan the code on their phone, accept the payment, then show your reply.';
+      'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.';
 
   @override
   String get txQrLine =>
@@ -16484,4 +16484,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbForgotRestoreInstead => 'Restore from the phrase';
+
+  @override
+  String get qrShowTitleRequest => 'Payment request';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount from a phone next to you';
+  }
+
+  @override
+  String get qrHiddenBodyRequest =>
+      'Whoever scans it can pay this request. Show it only to the person paying.';
+
+  @override
+  String get qrStatusRequestHidden => 'Show this to the person paying.';
+
+  @override
+  String get qrStatusRequestShowing =>
+      'Waiting for them to scan and approve. Then scan their reply.';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return 'Payment request QR code, $state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return 'To whoever asked for $amount';
+  }
+
+  @override
+  String get qrHiddenBodyPaid =>
+      'Show it to the phone that asked for the payment. Only that wallet can use it.';
+
+  @override
+  String get qrStatusPaidHidden => 'Show this to whoever asked.';
+
+  @override
+  String get qrStatusPaidShowing => 'Waiting for them to scan and post it.';
+
+  @override
+  String get qrStatusPaid => 'Paid.';
+
+  @override
+  String get reqToQr => 'Show as QR to a phone nearby';
+
+  @override
+  String reqQrSummary(String amount) {
+    return 'Whoever scans the code can pay $amount. Scan their reply here to finish. The request expires in 24 h.';
+  }
+
+  @override
+  String get reqShowQr => 'Show as QR';
+
+  @override
+  String get receiveQrRequest => 'Request an amount';
+
+  @override
+  String get expInvoicesTurnOn => 'Turn on Invoices';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      'Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.';
+
+  @override
+  String get reqQrPaidTitle => 'Paid';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount paid and posted to the network.';
+  }
+
+  @override
+  String get reqQrNew => 'New request';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      'This request is already paid. Nothing was taken from this phone: its payment stays on hold until they cancel it in Activity, or it runs out after a day.';
+
+  @override
+  String get reqFromQrTitle => 'Payment request from a QR code';
+
+  @override
+  String get reqFromQrWarn =>
+      'Not from a paired contact. Nothing in the code says who made it: pay only the person or shop in front of you, and check the amount.';
+
+  @override
+  String get reqQrMessageLabel => 'Message in the code';
+
+  @override
+  String get reqApproveShowAnswer => 'Approve and show reply';
+
+  @override
+  String get reqQrAnswerTitle => 'Approved';
+
+  @override
+  String get reqQrAnswerLead =>
+      'Whoever asked scans the reply and posts the payment. Until then it waits in Activity as \"Waiting for recipient\".';
+
+  @override
+  String get reqExpired =>
+      'This request has expired. Ask for a new one. Nothing was paid.';
+
+  @override
+  String get reqOtherChain =>
+      'This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.';
+
+  @override
+  String get reqQrOpenNote =>
+      'Open in Invoices › Sent for 24 h, then it expires.';
+
+  @override
+  String get reqQrWrongReply =>
+      'This reply answers a different request. Scan the reply to this one.';
 }

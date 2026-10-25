@@ -211,6 +211,12 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   /// can (DESIGN §3.3, §3.4). With Invoices off (Settings › Advanced) it opens nothing and the
   /// screen says Invoices are experimental ([_invoicesOff]).
   Future<String Function(AppLocalizations l)?> _requestProblem(SlateInfo info) async {
+    // A request scanned from a QR is paid like any send: no switch, only a core that pays
+    // requests. Its answer, scanned by whoever asked, still needs Invoices on.
+    if (widget.scanned && info.stage == SlateStage.request && _sealedText == null) {
+      final session = ref.read(sessionProvider);
+      return session == null || session.supportsRequestFiles ? null : (AppLocalizations l) => l.qrScanNotPayment;
+    }
     // The settings are read first: the screen can open before they are loaded.
     final settings = await ref.read(appSettingsProvider.future);
     if (!settings.advanced.invoicesOn) {
@@ -237,6 +243,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
     return switch (issued.state) {
       IssuedInvoiceState.waiting => null,
+      // A second payer's answer to a code shown in person: say what it means for them.
+      IssuedInvoiceState.paid when widget.scanned => (AppLocalizations l) => l.reqQrAlreadyPaid,
       IssuedInvoiceState.paid => (AppLocalizations l) => l.reqFileAlreadyPaid,
       _ => (AppLocalizations l) => l.reqFileEnded,
     };
@@ -256,7 +264,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           json: _file.json,
           info: info,
           pairingId: _sealedText != null ? _sealedFrom?.id : null,
-          pasted: widget.pasted,
+          pasted: widget.pasted && !widget.scanned,
+          scanned: widget.scanned,
         ),
       ),
     );
@@ -556,14 +565,17 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
                 ),
           style: theme.textTheme.bodyLarge,
         ),
-        const SizedBox(height: 8),
-        Text(
-          receiving
-              ? (widget.scanned
-                    ? l.slateIncomingSendHintQr
-                    : l.slateIncomingSendHint)
-              : l.slateIncomingResponseHint,
-        ),
+        // What to do next, only while it can be done: never above a refusal.
+        if (_error == null) ...[
+          const SizedBox(height: 8),
+          Text(
+            receiving
+                ? (widget.scanned
+                      ? l.slateIncomingSendHintQr
+                      : l.slateIncomingSendHint)
+                : l.slateIncomingResponseHint,
+          ),
+        ],
         if (message != null) ...[
           const SizedBox(height: 16),
           Text(

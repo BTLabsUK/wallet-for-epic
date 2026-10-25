@@ -2859,10 +2859,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodReceiveQrLine => '接受付款，再用同样的方式显示你的回复。';
 
   @override
-  String get receiveQrTitle => '就在发送方身边？';
+  String get receiveQrTitle => '就在对方手机旁边？';
 
   @override
-  String get receiveQrBody => '扫描发送方手机上的二维码，接受付款，再显示你的回复。';
+  String get receiveQrBody => '扫描对方屏幕上的付款并显示你的回复，或者请求一个金额，显示成二维码让对方扫描。';
 
   @override
   String get txQrLine => '面对面付款或收款，用屏幕上的二维码。';
@@ -15594,4 +15594,110 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbForgotRestoreInstead => '用助记词恢复';
+
+  @override
+  String get qrShowTitleRequest => '付款请求';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount，来自你身边的手机';
+  }
+
+  @override
+  String get qrHiddenBodyRequest => '谁扫到，谁就能支付这个请求。只给付款的人看。';
+
+  @override
+  String get qrStatusRequestHidden => '把它给付款的人看。';
+
+  @override
+  String get qrStatusRequestShowing => '等待对方扫描并批准。然后扫描对方的回复。';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return '付款请求二维码，$state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return '发给请求 $amount 的一方';
+  }
+
+  @override
+  String get qrHiddenBodyPaid => '只给发出付款请求的手机看。只有那个钱包能使用它。';
+
+  @override
+  String get qrStatusPaidHidden => '把它给请求方看。';
+
+  @override
+  String get qrStatusPaidShowing => '等待对方扫描并广播。';
+
+  @override
+  String get qrStatusPaid => '已付款。';
+
+  @override
+  String get reqToQr => '显示为二维码给身边的手机';
+
+  @override
+  String reqQrSummary(String amount) {
+    return '谁扫到二维码，谁就能支付 $amount。在这里扫描对方的回复即可完成。请求在 24 小时后过期。';
+  }
+
+  @override
+  String get reqShowQr => '显示为二维码';
+
+  @override
+  String get receiveQrRequest => '请求金额';
+
+  @override
+  String get expInvoicesTurnOn => '开启账单';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      '请求金额属于账单功能。账单是实验性功能，仍可能变化。可在此开启，或稍后在 设置 › 高级 中开启。';
+
+  @override
+  String get reqQrPaidTitle => '已付款';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount 已付款并广播到网络。';
+  }
+
+  @override
+  String get reqQrNew => '新请求';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      '此请求已付款。这部手机没有被扣款：它的付款会保持锁定，直到对方在交易记录中取消，或一天后过期。';
+
+  @override
+  String get reqFromQrTitle => '来自二维码的付款请求';
+
+  @override
+  String get reqFromQrWarn =>
+      '不是来自已配对的联系人。二维码中没有任何信息说明是谁发出的：只向你面前的人或店铺付款，并核对金额。';
+
+  @override
+  String get reqQrMessageLabel => '二维码中的留言';
+
+  @override
+  String get reqApproveShowAnswer => '批准并显示回复';
+
+  @override
+  String get reqQrAnswerTitle => '已批准';
+
+  @override
+  String get reqQrAnswerLead => '请求方扫描回复后广播付款。在此之前，它会在交易记录中显示为“等待接收方”。';
+
+  @override
+  String get reqExpired => '此请求已过期。请对方重新发起。未付款。';
+
+  @override
+  String get reqOtherChain => '此请求属于另一个 Epic 网络，或者它的时限与本网络不符。未付款。';
+
+  @override
+  String get reqQrOpenNote => '在 账单 › 已发送 中保留 24 小时，之后过期。';
+
+  @override
+  String get reqQrWrongReply => '此回复属于另一个请求。请扫描针对这个请求的回复。';
 }

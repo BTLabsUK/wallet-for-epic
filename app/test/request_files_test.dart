@@ -381,6 +381,7 @@ void main() {
       await h.open(tester, answer);
       expect(find.text(_l.reqFileEnded), findsOneWidget);
       expect(find.text(_l.slateFinishPayment), findsNothing);
+      expect(find.text(_l.slateIncomingResponseHint), findsNothing, reason: 'no "finish it" above a refusal');
     });
 
     testWidgets('an answer to a request this wallet does not have: the risk card and Close', (tester) async {

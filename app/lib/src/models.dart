@@ -1837,6 +1837,10 @@ enum WalletErrorKind {
   /// The invoice or its answer differs from what was stored for it. Nothing was paid.
   invoiceChanged,
 
+  /// The invoice's time limit (or height) does not fit this chain: made on another network, or
+  /// by a wallet whose node is far off. Nothing was paid.
+  invoiceNotForThisChain,
+
   /// A wallet is still open on another network, or a call on this wallet is still running
   /// (network switch, delete). Waiting a moment and trying again usually works.
   chainBusy,

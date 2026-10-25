@@ -27,6 +27,7 @@ import 'invoices_screen.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
 import 'pin.dart';
+import 'qr_show_screen.dart' show QrShowDone, showPaidReplyQr;
 import 'slate_file_screen.dart' show SlateFileResult;
 import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
@@ -352,7 +353,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          _ReviewAmount(amount: _invoice.amount),
+          ReviewAmount(amount: _invoice.amount),
           if (fiat != null)
             Text(
               fiat,
@@ -440,8 +441,13 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
 
 /// A refusal of a payment request file or its answer, worded for the screens (DESIGN §3.3,
 /// §3.4); null for any other failure. LEPIC ends an unpaid file request after its expiry.
-String Function(AppLocalizations l)? requestFileRefusal(Object error) => switch (error) {
+///
+/// A request [scanned] from a QR says more: it expired, or its time limit does not fit this
+/// network (a code made on another network, or a clock far off).
+String Function(AppLocalizations l)? requestFileRefusal(Object error, {bool scanned = false}) => switch (error) {
   WalletError(kind: WalletErrorKind.invoiceAlreadyPaid) => (l) => l.reqFileAlreadyPaid,
+  WalletError(kind: WalletErrorKind.invoiceNotForThisChain) => (l) => l.reqOtherChain,
+  WalletError(kind: WalletErrorKind.paymentExpired) when scanned => (l) => l.reqExpired,
   WalletError(kind: WalletErrorKind.paymentExpired || WalletErrorKind.invoiceNotFound) => (l) => l.reqFileEnded,
   _ => null,
 };
@@ -451,6 +457,7 @@ const Key requestFileWarnKey = ValueKey('request-file-warn');
 const Key requestFileApproveKey = ValueKey('request-file-approve');
 const Key requestFileNotNowKey = ValueKey('request-file-not-now');
 const Key requestFileMessageKey = ValueKey('request-file-message');
+const Key requestQrShowAnswerKey = ValueKey('request-qr-show-answer');
 
 /// A payment request opened from a file (DESIGN §3.3). The file is untrusted: nothing says
 /// who made it, so a warn card says so, unless a paired contact sealed it ([pairingId]); its
@@ -464,6 +471,7 @@ class RequestFileReviewScreen extends ConsumerStatefulWidget {
     required this.info,
     this.pairingId,
     this.pasted = false,
+    this.scanned = false,
   });
 
   /// The request (I1) as plain slate JSON.
@@ -475,6 +483,10 @@ class RequestFileReviewScreen extends ConsumerStatefulWidget {
 
   /// The text was pasted: the answer can be copied too.
   final bool pasted;
+
+  /// The request was scanned from a QR code (Direct · QR Payment): the answer goes back as a QR,
+  /// shown as soon as it is signed, and no switch is asked for.
+  final bool scanned;
 
   @override
   ConsumerState<RequestFileReviewScreen> createState() => _RequestFileReviewScreenState();
@@ -543,9 +555,11 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           _paid = paid;
           _sealedAnswer = sealed;
         });
+        // In person the other phone waits for the answer: it shows at once.
+        if (widget.scanned) unawaited(_showReply(paid));
       }
     } catch (error) {
-      final refused = requestFileRefusal(error);
+      final refused = requestFileRefusal(error, scanned: widget.scanned);
       if (refused != null) {
         if (mounted) setState(() => _refused = refused);
       } else {
@@ -556,6 +570,12 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     }
   }
 
+  /// The answer as a QR for whoever asked; Done there closes this screen too.
+  Future<void> _showReply(PaidRequestFile paid) async {
+    final result = await showPaidReplyQr(context, json: paid.json, amount: paid.amount, slateId: paid.slateId);
+    if (result is QrShowDone && mounted) Navigator.pop(context, true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -564,6 +584,50 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final pairing = widget.pairingId == null ? null : ref.watch(pairingByIdProvider(widget.pairingId!));
     final paid = _paid;
+    if (paid != null && widget.scanned) {
+      // Back from the reply QR without Done: the answer can be shown again.
+      return SlotScaffold(
+        appBar: AppBar(title: Text(l.reqTitle)),
+        body: ScreenBody(
+          bottom: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FilledButton.icon(
+                key: requestQrShowAnswerKey,
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                icon: const Icon(Icons.qr_code_2),
+                label: Text(l.qrShowReplyAsQr),
+                onPressed: () => _showReply(paid),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(l.commonDone),
+              ),
+            ],
+          ),
+          children: [
+            Row(
+              children: [
+                GlyphTile(size: 48, child: Icon(Icons.check_circle_outline, color: t.ok)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(l.reqQrAnswerTitle, style: theme.textTheme.titleMedium),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ReviewAmount(amount: paid.amount),
+            const SizedBox(height: 12),
+            Text(l.reqQrAnswerLead),
+          ],
+        ),
+      );
+    }
     if (paid != null) {
       final sealed = _sealedAnswer;
       final name = sealed != null ? sealedFileName(paid.slateId) : responseFileName(paid.slateId);
@@ -613,7 +677,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
             if (refused == null)
               BusyButton(
                 key: requestFileApproveKey,
-                label: l.reqApproveSaveAnswer,
+                label: widget.scanned ? l.reqApproveShowAnswer : l.reqApproveSaveAnswer,
                 busy: _busy,
                 onPressed: !_busy && short == null ? _approve : null,
               ),
@@ -661,12 +725,18 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           else ...[
             Row(
               children: [
-                GlyphTile(size: 48, child: Icon(Icons.description_outlined, color: t.accentText)),
+                GlyphTile(
+                  size: 48,
+                  child: Icon(widget.scanned ? Icons.qr_code_2 : Icons.description_outlined, color: t.accentText),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: Text(l.reqFromFileTitle, style: theme.textTheme.titleMedium),
+                    child: Text(
+                      widget.scanned ? l.reqFromQrTitle : l.reqFromFileTitle,
+                      style: theme.textTheme.titleMedium,
+                    ),
                   ),
                 ),
               ],
@@ -677,18 +747,18 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
               edge: t.warn,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(l.reqFromFileWarn),
+                child: Text(widget.scanned ? l.reqFromQrWarn : l.reqFromFileWarn),
               ),
             ),
           ],
           const SizedBox(height: 24),
-          _ReviewAmount(amount: _info.amount),
+          ReviewAmount(amount: _info.amount),
           if (fiat != null) Text(fiat, style: theme.textTheme.titleMedium?.copyWith(color: t.dim)),
           const SizedBox(height: 20),
           if (message != null)
             // Hostile text: plain, its controls and line breaks gone, never a link.
             _Fact(
-              label: l.reqFileMessageLabel,
+              label: widget.scanned ? l.reqQrMessageLabel : l.reqFileMessageLabel,
               child: Text(message, key: requestFileMessageKey, maxLines: 3, overflow: TextOverflow.ellipsis),
             ),
           if (refused == null)
@@ -737,8 +807,8 @@ String _shortKey(String address) {
 
 /// The invoice's amount in the display face at 34, with every decimal, and a small gold
 /// EPIC after it.
-class _ReviewAmount extends StatelessWidget {
-  const _ReviewAmount({required this.amount});
+class ReviewAmount extends StatelessWidget {
+  const ReviewAmount({super.key, required this.amount});
 
   final BigInt amount;
 

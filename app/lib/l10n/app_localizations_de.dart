@@ -3095,11 +3095,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nehmen Sie die Zahlung an und zeigen Sie dann Ihre Antwort auf dieselbe Weise.';
 
   @override
-  String get receiveQrTitle => 'Neben dem Absender?';
+  String get receiveQrTitle => 'Neben dem anderen Smartphone?';
 
   @override
   String get receiveQrBody =>
-      'Scannen Sie den Code auf dem Smartphone des Absenders, nehmen Sie die Zahlung an und zeigen Sie dann Ihre Antwort.';
+      'Scannen Sie eine Zahlung von deren Bildschirm und zeigen Sie Ihre Antwort, oder fordern Sie einen Betrag an und zeigen Sie ihn als Code zum Scannen.';
 
   @override
   String get txQrLine =>
@@ -16680,4 +16680,120 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbForgotRestoreInstead => 'Aus der Phrase wiederherstellen';
+
+  @override
+  String get qrShowTitleRequest => 'Zahlungsanforderung';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount von einem Smartphone neben Ihnen';
+  }
+
+  @override
+  String get qrHiddenBodyRequest =>
+      'Wer ihn scannt, kann diese Anforderung bezahlen. Zeigen Sie ihn nur der zahlenden Person.';
+
+  @override
+  String get qrStatusRequestHidden => 'Zeigen Sie dies der zahlenden Person.';
+
+  @override
+  String get qrStatusRequestShowing =>
+      'Warten, bis die Gegenseite scannt und zustimmt. Scannen Sie dann deren Antwort.';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return 'Zahlungsanforderungs-QR-Code, $state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return 'An die Person, die $amount angefordert hat';
+  }
+
+  @override
+  String get qrHiddenBodyPaid =>
+      'Zeigen Sie ihn dem Smartphone, das die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.';
+
+  @override
+  String get qrStatusPaidHidden =>
+      'Zeigen Sie dies der Person, die angefragt hat.';
+
+  @override
+  String get qrStatusPaidShowing =>
+      'Warten, bis die Gegenseite scannt und die Zahlung sendet.';
+
+  @override
+  String get qrStatusPaid => 'Bezahlt.';
+
+  @override
+  String get reqToQr => 'Als QR einem Smartphone in der Nähe zeigen';
+
+  @override
+  String reqQrSummary(String amount) {
+    return 'Wer den Code scannt, kann $amount zahlen. Scannen Sie hier deren Antwort, um abzuschließen. Die Anforderung läuft in 24 h ab.';
+  }
+
+  @override
+  String get reqShowQr => 'Als QR anzeigen';
+
+  @override
+  String get receiveQrRequest => 'Betrag anfordern';
+
+  @override
+  String get expInvoicesTurnOn => 'Rechnungen einschalten';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      'Beträge anzufordern gehört zu Rechnungen. Diese sind experimentell und können sich noch ändern. Schalten Sie sie hier ein oder später unter Einstellungen › Erweitert.';
+
+  @override
+  String get reqQrPaidTitle => 'Bezahlt';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount bezahlt und an das Netzwerk gesendet.';
+  }
+
+  @override
+  String get reqQrNew => 'Neue Anforderung';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      'Diese Anforderung ist bereits bezahlt. Von diesem Smartphone wurde nichts abgebucht: Die Zahlung bleibt dort zurückgehalten, bis sie in der Aktivität storniert wird oder nach einem Tag abläuft.';
+
+  @override
+  String get reqFromQrTitle => 'Zahlungsanforderung aus einem QR-Code';
+
+  @override
+  String get reqFromQrWarn =>
+      'Nicht von einem gekoppelten Kontakt. Nichts im Code zeigt, wer ihn erstellt hat: Zahlen Sie nur an die Person oder das Geschäft vor Ihnen, und prüfen Sie den Betrag.';
+
+  @override
+  String get reqQrMessageLabel => 'Nachricht im Code';
+
+  @override
+  String get reqApproveShowAnswer => 'Zustimmen und Antwort zeigen';
+
+  @override
+  String get reqQrAnswerTitle => 'Zugestimmt';
+
+  @override
+  String get reqQrAnswerLead =>
+      'Die Person, die angefragt hat, scannt die Antwort und sendet die Zahlung. Bis dahin wartet sie in der Aktivität als „Wartet auf Empfänger“.';
+
+  @override
+  String get reqExpired =>
+      'Diese Anforderung ist abgelaufen. Bitten Sie um eine neue. Es wurde nichts bezahlt.';
+
+  @override
+  String get reqOtherChain =>
+      'Diese Anforderung gehört zu einem anderen Epic-Netzwerk, oder ihre Frist passt nicht zu diesem. Es wurde nichts bezahlt.';
+
+  @override
+  String get reqQrOpenNote =>
+      '24 h offen unter Rechnungen › Gesendet, dann läuft sie ab.';
+
+  @override
+  String get reqQrWrongReply =>
+      'Diese Antwort gehört zu einer anderen Anforderung. Scannen Sie die Antwort auf diese.';
 }

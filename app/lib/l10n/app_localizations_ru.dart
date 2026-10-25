@@ -3199,11 +3199,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Примите платёж, затем покажите свой ответ так же.';
 
   @override
-  String get receiveQrTitle => 'Рядом с отправителем?';
+  String get receiveQrTitle => 'Рядом с другим телефоном?';
 
   @override
   String get receiveQrBody =>
-      'Отсканируйте код на телефоне отправителя, примите платёж и покажите свой ответ.';
+      'Отсканируйте платёж с их экрана и покажите свой ответ, или запросите сумму и покажите её кодом для сканирования.';
 
   @override
   String get txQrLine =>
@@ -16954,4 +16954,119 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbForgotRestoreInstead => 'Восстановить по фразе';
+
+  @override
+  String get qrShowTitleRequest => 'Запрос на оплату';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount с телефона рядом с вами';
+  }
+
+  @override
+  String get qrHiddenBodyRequest =>
+      'Тот, кто его отсканирует, сможет оплатить этот запрос. Показывайте его только тому, кто платит.';
+
+  @override
+  String get qrStatusRequestHidden => 'Покажите это тому, кто платит.';
+
+  @override
+  String get qrStatusRequestShowing =>
+      'Ждём, пока они отсканируют и одобрят. Затем отсканируйте их ответ.';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return 'QR-код запроса на оплату, $state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return 'Тому, кто запросил $amount';
+  }
+
+  @override
+  String get qrHiddenBodyPaid =>
+      'Покажите его телефону, который запросил платёж. Использовать его сможет только тот кошелёк.';
+
+  @override
+  String get qrStatusPaidHidden => 'Покажите это тому, кто запросил.';
+
+  @override
+  String get qrStatusPaidShowing =>
+      'Ждём, пока они отсканируют и отправят его в сеть.';
+
+  @override
+  String get qrStatusPaid => 'Оплачено.';
+
+  @override
+  String get reqToQr => 'Показать как QR телефону рядом';
+
+  @override
+  String reqQrSummary(String amount) {
+    return 'Тот, кто отсканирует код, сможет оплатить $amount. Отсканируйте здесь их ответ, чтобы завершить. Запрос истекает через 24 ч.';
+  }
+
+  @override
+  String get reqShowQr => 'Показать как QR';
+
+  @override
+  String get receiveQrRequest => 'Запросить сумму';
+
+  @override
+  String get expInvoicesTurnOn => 'Включить счета';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      'Запрос суммы — часть счетов, экспериментальной функции, которая ещё может измениться. Включите их здесь или позже в Настройки › Дополнительно.';
+
+  @override
+  String get reqQrPaidTitle => 'Оплачено';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount оплачено и отправлено в сеть.';
+  }
+
+  @override
+  String get reqQrNew => 'Новый запрос';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      'Этот запрос уже оплачен. С этого телефона ничего не списано: его платёж остаётся на удержании, пока его не отменят в Активности или он не истечёт через день.';
+
+  @override
+  String get reqFromQrTitle => 'Запрос на оплату из QR-кода';
+
+  @override
+  String get reqFromQrWarn =>
+      'Не от сопряжённого контакта. Ничто в коде не говорит, кто его создал: платите только человеку или магазину перед вами и проверьте сумму.';
+
+  @override
+  String get reqQrMessageLabel => 'Сообщение в коде';
+
+  @override
+  String get reqApproveShowAnswer => 'Одобрить и показать ответ';
+
+  @override
+  String get reqQrAnswerTitle => 'Одобрено';
+
+  @override
+  String get reqQrAnswerLead =>
+      'Тот, кто запросил, сканирует ответ и отправляет платёж в сеть. До тех пор он ждёт в Активности как «Ждёт получателя».';
+
+  @override
+  String get reqExpired =>
+      'Этот запрос истёк. Попросите новый. Ничего не оплачено.';
+
+  @override
+  String get reqOtherChain =>
+      'Этот запрос принадлежит другой сети Epic, или его срок не подходит этой сети. Ничего не оплачено.';
+
+  @override
+  String get reqQrOpenNote =>
+      'Открыт в Счета › Отправленные 24 ч, затем истекает.';
+
+  @override
+  String get reqQrWrongReply =>
+      'Этот ответ относится к другому запросу. Отсканируйте ответ на этот.';
 }

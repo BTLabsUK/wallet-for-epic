@@ -4483,13 +4483,13 @@ abstract class AppLocalizations {
   /// Title of the QR card on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Standing next to the sender?'**
+  /// **'Next to the other phone?'**
   String get receiveQrTitle;
 
   /// Text of the QR card on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Scan the code on their phone, accept the payment, then show your reply.'**
+  /// **'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.'**
   String get receiveQrBody;
 
   /// Settings › Transactions: one line under the QR switch.
@@ -25879,6 +25879,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore from the phrase'**
   String get deskOnbForgotRestoreInstead;
+
+  /// Title of the screen that shows a payment request as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request'**
+  String get qrShowTitleRequest;
+
+  /// Line under the amount on the request QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} from a phone next to you'**
+  String qrShowSubRequest(String amount);
+
+  /// Card text while the request QR is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans it can pay this request. Show it only to the person paying.'**
+  String get qrHiddenBodyRequest;
+
+  /// Status line, request QR hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the person paying.'**
+  String get qrStatusRequestHidden;
+
+  /// Status line, request QR showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for them to scan and approve. Then scan their reply.'**
+  String get qrStatusRequestShowing;
+
+  /// Spoken label of the request QR card.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request QR code, {state}'**
+  String qrSemanticsRequest(String state);
+
+  /// Line under the amount on the payer's reply QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'To whoever asked for {amount}'**
+  String qrShowSubPaid(String amount);
+
+  /// Card text while the payer's reply QR is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the phone that asked for the payment. Only that wallet can use it.'**
+  String get qrHiddenBodyPaid;
+
+  /// Status line, payer's reply QR hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to whoever asked.'**
+  String get qrStatusPaidHidden;
+
+  /// Status line, payer's reply QR showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for them to scan and post it.'**
+  String get qrStatusPaidShowing;
+
+  /// Status line once the paid request is confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid.'**
+  String get qrStatusPaid;
+
+  /// Payer picker row: show the request as a QR to a phone next to you.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as QR to a phone nearby'**
+  String get reqToQr;
+
+  /// Summary above the button when the request goes as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans the code can pay {amount}. Scan their reply here to finish. The request expires in 24 h.'**
+  String reqQrSummary(String amount);
+
+  /// Button that makes the request and shows it as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as QR'**
+  String get reqShowQr;
+
+  /// Receive › Direct · QR card button: make a payment request and show it as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Request an amount'**
+  String get receiveQrRequest;
+
+  /// Primary button of the sheet shown when a QR request needs Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Invoices'**
+  String get expInvoicesTurnOn;
+
+  /// Body of the sheet shown when a QR request needs Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.'**
+  String get expInvoicesOffQrBody;
+
+  /// Title of the merchant's receipt after the reply was scanned and posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get reqQrPaidTitle;
+
+  /// Receipt headline.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} paid and posted to the network.'**
+  String reqQrPaidHeadline(String amount);
+
+  /// Receipt button: start the next request.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get reqQrNew;
+
+  /// Merchant scanned a second reply to a request already finished.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is already paid. Nothing was taken from this phone: its payment stays on hold until they cancel it in Activity, or it runs out after a day.'**
+  String get reqQrAlreadyPaid;
+
+  /// Customer review title for a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request from a QR code'**
+  String get reqFromQrTitle;
+
+  /// Warn card on a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Not from a paired contact. Nothing in the code says who made it: pay only the person or shop in front of you, and check the amount.'**
+  String get reqFromQrWarn;
+
+  /// Label of the merchant's note on a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Message in the code'**
+  String get reqQrMessageLabel;
+
+  /// Customer's approve button for a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and show reply'**
+  String get reqApproveShowAnswer;
+
+  /// Customer's page after the reply QR was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get reqQrAnswerTitle;
+
+  /// Customer's page after the reply QR was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever asked scans the reply and posts the payment. Until then it waits in Activity as \"Waiting for recipient\".'**
+  String get reqQrAnswerLead;
+
+  /// Customer: the scanned request is past its time.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has expired. Ask for a new one. Nothing was paid.'**
+  String get reqExpired;
+
+  /// Customer: the scanned request's time limit does not fit this network.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.'**
+  String get reqOtherChain;
+
+  /// Dim line on the request page: where the request stays and for how long.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Invoices › Sent for 24 h, then it expires.'**
+  String get reqQrOpenNote;
+
+  /// Merchant scanned a reply to a different request.
+  ///
+  /// In en, this message translates to:
+  /// **'This reply answers a different request. Scan the reply to this one.'**
+  String get reqQrWrongReply;
 }
 
 class _AppLocalizationsDelegate

@@ -89,6 +89,59 @@ Future<QrShowResult?> showReplyQr(
   ),
 );
 
+/// Opens a payment request (I1) as a QR for the payer: [json] is the request's text, [finish]
+/// what the scan of their reply does with it (finish and post).
+Future<QrShowResult?> showRequestQr(
+  BuildContext context, {
+  required String json,
+  required BigInt amount,
+  required String slateId,
+  bool scanEnabled = true,
+  QrFinish? finish,
+}) => Navigator.of(context).push<QrShowResult>(
+  MaterialPageRoute<QrShowResult>(
+    builder: (_) => QrShowScreen.request(
+      json: json,
+      amount: amount,
+      slateId: slateId,
+      scanEnabled: scanEnabled,
+      finish: finish,
+    ),
+  ),
+);
+
+/// Opens the payer's answer (I2) to a payment request as a QR for whoever asked.
+Future<QrShowResult?> showPaidReplyQr(
+  BuildContext context, {
+  required String json,
+  required BigInt amount,
+  String? slateId,
+}) => Navigator.of(context).push<QrShowResult>(
+  MaterialPageRoute<QrShowResult>(
+    builder: (_) =>
+        QrShowScreen.paid(json: json, amount: amount, slateId: slateId),
+  ),
+);
+
+/// Whose code the show screen holds. A [payment] and a [request] are shown first, and their
+/// screen scans the reply; a [reply] and a [paid] answer are shown back, and end with Done.
+enum QrShowRole {
+  /// The sender's payment (S1).
+  payment,
+
+  /// The receiver's reply to a payment (S2).
+  reply,
+
+  /// A payment request (I1), shown by whoever asks.
+  request,
+
+  /// The payer's answer to a request (I2), shown back to whoever asked.
+  paid;
+
+  /// The code answers one the other phone showed: the screen ends with Done.
+  bool get answers => this == reply || this == paid;
+}
+
 /// What the QR card shows.
 enum QrShowPhase { hidden, countdown, showing, timedOut, away }
 
@@ -103,14 +156,22 @@ typedef QrStatus = ({String text, QrStatusTone tone});
 /// What the show screen says about where the payment stands and what to do next. [tx] is the
 /// payment in the wallet's history, when it is there: for a reply it moves from received, waiting
 /// for the sender to post, through posted and confirming, to received.
+///
+/// [role] tells a request and its paid answer from a payment and its reply; without it, [reply]
+/// picks between the payment's two.
 QrStatus qrShowStatus(
   AppLocalizations l, {
   required bool reply,
   required QrShowPhase phase,
+  QrShowRole? role,
   TxEntry? tx,
   BigInt? tip,
   int? target,
 }) {
+  final who = role ?? (reply ? QrShowRole.reply : QrShowRole.payment);
+  // The payer's answer is a payment out that waits for whoever asked to post it: only the chain
+  // says it was.
+  if (who == QrShowRole.paid && tx != null && (txConfirmations(tx, tip) ?? 0) == 0) tx = null;
   if (tx != null) {
     switch (txPhase(tx, tip, target: target)) {
       case TxPhase.confirming:
@@ -122,7 +183,10 @@ QrStatus qrShowStatus(
           tone: QrStatusTone.info,
         );
       case TxPhase.completed:
-        return (text: l.qrStatusReceived, tone: QrStatusTone.ok);
+        return (
+          text: who == QrShowRole.paid ? l.qrStatusPaid : l.qrStatusReceived,
+          tone: QrStatusTone.ok,
+        );
       case TxPhase.waitingSender when reply && phase == QrShowPhase.showing:
         return (text: l.qrStatusReceivedWaiting, tone: QrStatusTone.info);
       default:
@@ -131,11 +195,21 @@ QrStatus qrShowStatus(
   }
   return switch (phase) {
     QrShowPhase.hidden || QrShowPhase.countdown => (
-      text: reply ? l.qrStatusReplyHidden : l.qrStatusSendHidden,
+      text: switch (who) {
+        QrShowRole.payment => l.qrStatusSendHidden,
+        QrShowRole.reply => l.qrStatusReplyHidden,
+        QrShowRole.request => l.qrStatusRequestHidden,
+        QrShowRole.paid => l.qrStatusPaidHidden,
+      },
       tone: QrStatusTone.plain,
     ),
     QrShowPhase.showing => (
-      text: reply ? l.qrStatusReplyShowing : l.qrStatusSendShowing,
+      text: switch (who) {
+        QrShowRole.payment => l.qrStatusSendShowing,
+        QrShowRole.reply => l.qrStatusReplyShowing,
+        QrShowRole.request => l.qrStatusRequestShowing,
+        QrShowRole.paid => l.qrStatusPaidShowing,
+      },
       tone: QrStatusTone.info,
     ),
     QrShowPhase.timedOut ||
@@ -145,8 +219,16 @@ QrStatus qrShowStatus(
 
 /// Whether the payment is posted: from there the code has done its work, and the screen shows
 /// the progress instead of a hidden code to show again.
-bool qrPaymentPosted(TxEntry? tx, BigInt? tip, int? target) =>
+bool qrPaymentPosted(
+  TxEntry? tx,
+  BigInt? tip,
+  int? target, {
+  QrShowRole role = QrShowRole.payment,
+}) =>
     tx != null &&
+    // The payer's own answer reads as on its way from the moment it is signed: only a block
+    // says whoever asked posted it.
+    (role != QrShowRole.paid || (txConfirmations(tx, tip) ?? 0) > 0) &&
     switch (txPhase(tx, tip, target: target)) {
       TxPhase.confirming || TxPhase.completed => true,
       _ => false,
@@ -225,14 +307,34 @@ class QrShowScreen extends ConsumerStatefulWidget {
     this.slateId,
     this.scanEnabled = true,
     this.finish,
-  }) : reply = false;
+  }) : role = QrShowRole.payment;
 
   const QrShowScreen.reply({
     super.key,
     required this.json,
     required this.amount,
     this.slateId,
-  }) : reply = true,
+  }) : role = QrShowRole.reply,
+       scanEnabled = true,
+       finish = null;
+
+  /// A payment request (I1); scanning the payer's answer finishes it with [finish].
+  const QrShowScreen.request({
+    super.key,
+    required this.json,
+    required this.amount,
+    this.slateId,
+    this.scanEnabled = true,
+    this.finish,
+  }) : role = QrShowRole.request;
+
+  /// The payer's answer (I2) to a request.
+  const QrShowScreen.paid({
+    super.key,
+    required this.json,
+    required this.amount,
+    this.slateId,
+  }) : role = QrShowRole.paid,
        scanEnabled = true,
        finish = null;
 
@@ -246,8 +348,11 @@ class QrShowScreen extends ConsumerStatefulWidget {
   final String json;
   final BigInt amount;
 
-  /// True for the reply, false for the payment.
-  final bool reply;
+  /// Whose code this is.
+  final QrShowRole role;
+
+  /// True for a code that answers one the other phone showed: the reply, or a paid answer.
+  bool get reply => role.answers;
 
   /// Whether the payment's "Scan their reply" works: the network mode may stop it.
   final bool scanEnabled;
@@ -469,9 +574,11 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               .watch(homeProvider.select((h) => h.value?.transactions))
               ?.where((x) => x.slateId == widget.slateId)
               .firstOrNull;
+    final role = widget.role;
     final status = qrShowStatus(
       l,
       reply: reply,
+      role: role,
       phase: _phase,
       tx: tx,
       tip: tipHeight(ref),
@@ -482,6 +589,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       tx,
       tipHeight(ref),
       confirmationsTargetOf(ref),
+      role: role,
     );
     final showing = _phase == QrShowPhase.showing && !done;
     final counting = _phase == QrShowPhase.countdown && !done;
@@ -494,7 +602,12 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       ),
       const SizedBox(height: 2),
       Text(
-        reply ? l.qrShowSubReply(amount) : l.qrShowSubPayment(amount),
+        switch (role) {
+          QrShowRole.payment => l.qrShowSubPayment(amount),
+          QrShowRole.reply => l.qrShowSubReply(amount),
+          QrShowRole.request => l.qrShowSubRequest(amount),
+          QrShowRole.paid => l.qrShowSubPaid(amount),
+        },
         textAlign: TextAlign.center,
         style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
       ),
@@ -506,11 +619,17 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       else
         _RingBox(
           card: card,
-          label: reply
-              ? l.qrSemanticsReply(showing ? l.qrStateShowing : l.qrStateHidden)
-              : l.qrSemanticsPayment(
-                  showing ? l.qrStateShowing : l.qrStateHidden,
-                ),
+          label: switch (role) {
+            QrShowRole.payment => l.qrSemanticsPayment(
+              showing ? l.qrStateShowing : l.qrStateHidden,
+            ),
+            QrShowRole.request => l.qrSemanticsRequest(
+              showing ? l.qrStateShowing : l.qrStateHidden,
+            ),
+            QrShowRole.reply || QrShowRole.paid => l.qrSemanticsReply(
+              showing ? l.qrStateShowing : l.qrStateHidden,
+            ),
+          },
           phase: _phase,
           reply: reply,
           frames: _frames,
@@ -621,7 +740,11 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       glow: heroGlow,
       breathing: showing,
       appBar: AppBar(
-        title: Text(reply ? l.qrShowTitleReply : l.qrShowTitlePayment),
+        title: Text(switch (role) {
+          QrShowRole.payment => l.qrShowTitlePayment,
+          QrShowRole.request => l.qrShowTitleRequest,
+          QrShowRole.reply || QrShowRole.paid => l.qrShowTitleReply,
+        }),
       ),
       body: SafeArea(
         child: Center(
@@ -962,10 +1085,15 @@ class _Cover extends StatelessWidget {
       case QrShowPhase.showing:
         icon = Icons.qr_code_2;
         title = l.qrHiddenTitle;
-        body =
-            context.findAncestorStateOfType<_QrShowScreenState>()!.widget.reply
-            ? l.qrHiddenBodyReply
-            : l.qrHiddenBodyPayment;
+        body = switch (context
+            .findAncestorStateOfType<_QrShowScreenState>()!
+            .widget
+            .role) {
+          QrShowRole.payment => l.qrHiddenBodyPayment,
+          QrShowRole.reply => l.qrHiddenBodyReply,
+          QrShowRole.request => l.qrHiddenBodyRequest,
+          QrShowRole.paid => l.qrHiddenBodyPaid,
+        };
       case QrShowPhase.countdown:
         return Center(
           child: Semantics(

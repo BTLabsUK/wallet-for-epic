@@ -3223,11 +3223,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przyjmij płatność, potem pokaż swoją odpowiedź w ten sam sposób.';
 
   @override
-  String get receiveQrTitle => 'Stoisz obok nadawcy?';
+  String get receiveQrTitle => 'Stoisz obok drugiego telefonu?';
 
   @override
   String get receiveQrBody =>
-      'Zeskanuj kod na telefonie nadawcy, przyjmij płatność i pokaż swoją odpowiedź.';
+      'Zeskanuj płatność z ich ekranu i pokaż swoją odpowiedź, albo poproś o kwotę i pokaż ją jako kod do zeskanowania.';
 
   @override
   String get txQrLine =>
@@ -16992,4 +16992,118 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbForgotRestoreInstead => 'Przywróć z frazy';
+
+  @override
+  String get qrShowTitleRequest => 'Prośba o płatność';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount od telefonu obok ciebie';
+  }
+
+  @override
+  String get qrHiddenBodyRequest =>
+      'Kto go zeskanuje, może opłacić tę prośbę. Pokaż go tylko osobie, która płaci.';
+
+  @override
+  String get qrStatusRequestHidden => 'Pokaż to osobie, która płaci.';
+
+  @override
+  String get qrStatusRequestShowing =>
+      'Czekam, aż zeskanują i zatwierdzą. Potem zeskanuj ich odpowiedź.';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return 'Kod QR prośby o płatność, $state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return 'Dla osoby, która prosiła o $amount';
+  }
+
+  @override
+  String get qrHiddenBodyPaid =>
+      'Pokaż go telefonowi, który prosił o płatność. Tylko ten portfel może go użyć.';
+
+  @override
+  String get qrStatusPaidHidden => 'Pokaż to osobie, która prosiła.';
+
+  @override
+  String get qrStatusPaidShowing => 'Czekam, aż zeskanują i wyślą do sieci.';
+
+  @override
+  String get qrStatusPaid => 'Zapłacono.';
+
+  @override
+  String get reqToQr => 'Pokaż jako QR telefonowi obok';
+
+  @override
+  String reqQrSummary(String amount) {
+    return 'Kto zeskanuje kod, może zapłacić $amount. Zeskanuj tu ich odpowiedź, by dokończyć. Prośba wygasa za 24 h.';
+  }
+
+  @override
+  String get reqShowQr => 'Pokaż jako QR';
+
+  @override
+  String get receiveQrRequest => 'Poproś o kwotę';
+
+  @override
+  String get expInvoicesTurnOn => 'Włącz faktury';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      'Proszenie o kwotę jest częścią faktur, które są eksperymentalne i mogą się jeszcze zmienić. Włącz je tutaj albo później w Ustawienia › Zaawansowane.';
+
+  @override
+  String get reqQrPaidTitle => 'Zapłacono';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount zapłacone i wysłane do sieci.';
+  }
+
+  @override
+  String get reqQrNew => 'Nowa prośba';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      'Ta prośba jest już opłacona. Z tego telefonu nic nie pobrano: jego płatność pozostaje wstrzymana, dopóki nie zostanie anulowana w Aktywności albo nie wygaśnie po dniu.';
+
+  @override
+  String get reqFromQrTitle => 'Prośba o płatność z kodu QR';
+
+  @override
+  String get reqFromQrWarn =>
+      'Nie od sparowanego kontaktu. Nic w kodzie nie wskazuje, kto go utworzył: zapłać tylko osobie lub sklepowi przed tobą i sprawdź kwotę.';
+
+  @override
+  String get reqQrMessageLabel => 'Wiadomość w kodzie';
+
+  @override
+  String get reqApproveShowAnswer => 'Zatwierdź i pokaż odpowiedź';
+
+  @override
+  String get reqQrAnswerTitle => 'Zatwierdzono';
+
+  @override
+  String get reqQrAnswerLead =>
+      'Osoba, która prosiła, skanuje odpowiedź i wysyła płatność do sieci. Do tego czasu płatność czeka w Aktywności jako „Czeka na odbiorcę”.';
+
+  @override
+  String get reqExpired =>
+      'Ta prośba wygasła. Poproś o nową. Nic nie zostało zapłacone.';
+
+  @override
+  String get reqOtherChain =>
+      'Ta prośba należy do innej sieci Epic albo jej termin nie pasuje do tej sieci. Nic nie zostało zapłacone.';
+
+  @override
+  String get reqQrOpenNote =>
+      'Otwarta w Faktury › Wysłane przez 24 h, potem wygasa.';
+
+  @override
+  String get reqQrWrongReply =>
+      'Ta odpowiedź dotyczy innej prośby. Zeskanuj odpowiedź na tę.';
 }

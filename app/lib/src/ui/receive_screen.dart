@@ -35,6 +35,7 @@ import 'receive_http_card.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'qr_scan_screen.dart';
+import 'request_qr_screen.dart' show openQrRequest;
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
 import 'net_block.dart';
@@ -1016,6 +1017,19 @@ class _QrCard extends ConsumerWidget {
               label: Text(l.qrScanPayment),
               onPressed: () => scanSlateQr(context, ref),
             ),
+            // Asking for an amount: a request shown as a QR (it turns Invoices on first).
+            if (ref.watch(sessionProvider.select((s) => s?.supportsRequestFiles ?? false))) ...[
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                key: receiveQrRequestKey,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                icon: const Icon(Icons.request_quote_outlined),
+                label: Text(l.receiveQrRequest),
+                onPressed: () => openQrRequest(context, ref),
+              ),
+            ],
             if (offlineNode)
               const Padding(
                 padding: EdgeInsets.only(top: 4),
@@ -1118,6 +1132,7 @@ class _FileCard extends ConsumerWidget {
 
 /// The key of the Scan payment QR button of Receive's file card, for tests.
 const Key receiveScanQrKey = ValueKey('receive-scan-qr');
+const Key receiveQrRequestKey = ValueKey('receive-qr-request');
 
 /// The key of Receive's empty state when every method is off, for tests.
 const Key receiveNoMethodsKey = ValueKey('receive-no-methods');
