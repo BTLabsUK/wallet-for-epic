@@ -1,12 +1,19 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../contact_store.dart' show ContactFields;
+import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
+import '../../data/history_files.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
 import '../settings/backup.dart' show historyBackupProvider;
 import 'activity_screen.dart';
 import 'contacts_screen.dart';
+import 'contacts_transfer.dart' show deskImportContacts;
 import 'outputs_dialogs.dart';
 import 'outputs_screen.dart';
 import 'overview_screen.dart';
@@ -174,6 +181,13 @@ final List<DeskShot> walletShots = [
     arg: ContactsArgs(selectedId: 'c1'),
   ),
   const DeskShot(id: '21d-contacts-loading', title: 'Contacts, loading', route: DeskRoute.contacts, arg: ContactsArgs(loading: true)),
+  DeskShot(
+    id: '21e-dlg-contacts-import',
+    title: 'Import contacts, what it does',
+    route: DeskRoute.contacts,
+    prepare: (c, _) async => _contactsFile(c),
+    dialog: deskImportContacts,
+  ),
   const DeskShot(id: '37-add-contact', title: 'New contact', route: DeskRoute.contacts, arg: ContactsArgs(adding: true)),
   const DeskShot(
     id: '37b-edit-contact',
@@ -227,3 +241,22 @@ final List<Output> _afterSplit = [
   for (var i = 0; i < 4; i++) _out(20 + i, 289.1805375, OutputStatus.unconfirmed, 0, 0, i == 0 ? 45 : 44, finalizing: true),
 ];
 final Balance _afterSplitBalance = _bal(0, confirming: 25, locked: 1156.73215, finalizing: 1169.22215);
+
+/// The next Import contacts picks a file with Anna (gaining a Tor address), a new contact, one
+/// already here and a floonet one.
+void _contactsFile(ProviderContainer c) {
+  final book = c.read(deskProvider).contacts!;
+  String epicbox(String id) => book.firstWhere((x) => x.id == id).epicbox!;
+  final file = encodeContactsFile(
+    [
+      ContactFields(name: 'Anna', epicbox: epicbox('c1'), tor: '${'q' * 55}d.onion'), // l10n-ok
+      ContactFields(name: 'Exchange deposit', epicbox: epicbox('c3')), // l10n-ok
+      const ContactFields(name: 'Lena Fischer', epicbox: 'esLf4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epiccash.com'), // l10n-ok
+      const ContactFields(name: 'Test', epicbox: 'zz1234@flooepicbox.btlabs.uk'), // l10n-ok
+    ],
+    network: c.read(deskApiProvider).network,
+    now: DateTime(2026, 10, 25),
+  );
+  final files = c.read(deskHistoryFilesProvider);
+  if (files is MockDeskHistoryFiles) files.picks.add((name: 'epic-cash-contacts-2026-10-25.json', bytes: Uint8List.fromList(utf8.encode(file)))); // l10n-ok
+}

@@ -13,6 +13,7 @@ import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
+import 'contacts_transfer.dart';
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_screen.dart';
@@ -27,6 +28,9 @@ import 'tour/tour_target.dart';
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
 const Key contactsPendingKey = ValueKey('contacts-pending');
+const Key contactsMoreKey = ValueKey('contacts-more');
+const Key contactsImportKey = ValueKey('contacts-import');
+const Key contactsExportKey = ValueKey('contacts-export');
 
 /// The row menu of a pairing in no contact, by its id.
 Key contactsOrphanMenuKey(String id) => ValueKey('contacts-orphan-menu-$id');
@@ -124,6 +128,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
     final pending = pairs ? ref.watch(pendingPairingsProvider).length : 0;
     final orphans = pairs ? ref.watch(orphanPairingsProvider) : const <PairingRecord>[];
+    final canExport = contacts.value?.any((c) => c.addresses.isNotEmpty) ?? false;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {
@@ -148,6 +153,26 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             icon: const Icon(Icons.person_add_alt),
             onPressed: _add,
           ),
+          if (!widget.pick)
+            PopupMenuButton<String>(
+              key: contactsMoreKey,
+              tooltip: l.contactMore,
+              onSelected: (v) => v == 'import' ? importContacts(context, ref) : exportContacts(context, ref),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  key: contactsImportKey,
+                  value: 'import',
+                  child: ListTile(leading: const Icon(Icons.file_download_outlined), title: Text(l.contactsImport)),
+                ),
+                PopupMenuItem(
+                  key: contactsExportKey,
+                  value: 'export',
+                  // A contact without an address is a pairing's, which the file never carries.
+                  enabled: canExport,
+                  child: ListTile(enabled: canExport, leading: const Icon(Icons.file_upload_outlined), title: Text(l.contactsExport)),
+                ),
+              ],
+            ),
           const SizedBox(width: 4),
         ],
       ),
@@ -364,6 +389,18 @@ class _OrphanRow extends ConsumerWidget {
   }
 }
 
+/// The small star after a starred contact's name, as the desktop shows it: an icon with a
+/// label, so it is not colour alone.
+class ContactStar extends StatelessWidget {
+  const ContactStar({super.key, this.size = 14});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      Icon(Icons.star_rounded, size: size, color: context.tokens.accentText, semanticLabel: context.l10n.contactStarred);
+}
+
 /// A letter over the contacts whose names start with it.
 class _LetterHead extends StatelessWidget {
   const _LetterHead(this.letter);
@@ -402,6 +439,7 @@ class _ContactRow extends ConsumerWidget {
     final theme = Theme.of(context);
     final note = contact.note?.trim();
     final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
+    final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final address = shortAddress(contact.address);
     final at = address.indexOf('@');
@@ -458,6 +496,7 @@ class _ContactRow extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (starred) ...[const SizedBox(width: 4), const ContactStar()],
                         const SizedBox(width: 8),
                         // Paired: its trust badge; not paired: how it is reached (SPEC 2.1).
                         if (pairing != null)

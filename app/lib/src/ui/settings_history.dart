@@ -190,14 +190,18 @@ Future<void> _tell(BuildContext context, String title, String message) =>
 enum _Destination { device, share }
 
 /// Offers "Save to device", and "Share" where the platform can, then hands the file over.
-/// Returns true once it was saved or shared.
-Future<bool> _handOver(
+/// Returns true once it was saved or shared. [saveDialogTitle] titles the system save dialog
+/// (the history backup's by default); [doneNotice], when given, is the success notice after a
+/// save or a share instead of the file name saved after a save only. Also used for contacts files.
+Future<bool> handOverFile(
   BuildContext context,
   WidgetRef ref, {
   required String name,
   required Uint8List bytes,
   required String title,
   String? note,
+  String? saveDialogTitle,
+  String? doneNotice,
 }) async {
   final l = context.l10n;
   final files = ref.read(historyFilesProvider);
@@ -251,13 +255,15 @@ Future<bool> _handOver(
           _Destination.device => files.save(
             name: name,
             bytes: bytes,
-            dialogTitle: l.historyBackupSaveDialogTitle,
+            dialogTitle: saveDialogTitle ?? l.historyBackupSaveDialogTitle,
           ),
           _Destination.share => files.share(name: name, bytes: bytes),
         },
       );
-  // The share sheet is its own confirmation; a save into a folder is silent otherwise.
-  if (done && destination == _Destination.device && context.mounted) {
+  if (done && doneNotice != null && context.mounted) {
+    _say(context, doneNotice, level: NoticeLevel.success);
+  } else if (done && destination == _Destination.device && context.mounted) {
+    // The share sheet is its own confirmation; a save into a folder is silent otherwise.
     _say(context, l.historyBackupSaved(name), level: NoticeLevel.success);
   }
   return done;
@@ -281,7 +287,7 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
       ref.read(clockProvider)(),
       'wfeh',
     );
-    final saved = await _handOver(
+    final saved = await handOverFile(
       context,
       ref,
       name: name,
@@ -343,7 +349,7 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
       ref.read(clockProvider)(),
       'csv',
     );
-    final saved = await _handOver(
+    final saved = await handOverFile(
       context,
       ref,
       name: name,

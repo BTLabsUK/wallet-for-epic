@@ -16,8 +16,9 @@ abstract interface class DeskHistoryFiles {
   Future<String?> save({required String name, required Uint8List bytes, required String title});
 
   /// The file the user picks, or null when the dialog was closed. A file too large to be a
-  /// history backup throws a [HistoryFileError] before it is read.
-  Future<({String name, Uint8List bytes})?> pick({required String title});
+  /// history backup (or larger than [maxBytes]) throws a [HistoryFileError] before it is read.
+  /// [extensions] are the kinds offered: history backups by default, `json` for contacts.
+  Future<({String name, Uint8List bytes})?> pick({required String title, List<String> extensions = const ['wfeh'], int? maxBytes});
 }
 
 class SystemDeskHistoryFiles implements DeskHistoryFiles {
@@ -31,11 +32,11 @@ class SystemDeskHistoryFiles implements DeskHistoryFiles {
   }
 
   @override
-  Future<({String name, Uint8List bytes})?> pick({required String title}) async {
-    final file = await FilePicker.pickFile(dialogTitle: title, type: FileType.custom, allowedExtensions: const ['wfeh']);
+  Future<({String name, Uint8List bytes})?> pick({required String title, List<String> extensions = const ['wfeh'], int? maxBytes}) async {
+    final file = await FilePicker.pickFile(dialogTitle: title, type: FileType.custom, allowedExtensions: extensions);
     if (file == null) return null;
     final length = await file.length();
-    if (length != null && length > maxDeskHistoryBytes) throw tooLargeHistoryFile;
+    if (length != null && length > (maxBytes ?? maxDeskHistoryBytes)) throw tooLargeHistoryFile;
     return (name: file.name, bytes: await file.readAsBytes());
   }
 }
@@ -65,7 +66,7 @@ class MockDeskHistoryFiles implements DeskHistoryFiles {
   }
 
   @override
-  Future<({String name, Uint8List bytes})?> pick({required String title}) async {
+  Future<({String name, Uint8List bytes})?> pick({required String title, List<String> extensions = const ['wfeh'], int? maxBytes}) async {
     final next = picks.isEmpty ? (name: 'epic-history-mainnet-20261003.wfeh', bytes: Uint8List(8)) : picks.removeAt(0);
     if (next is Exception || next is Error) throw next!;
     return next as ({String name, Uint8List bytes})?;

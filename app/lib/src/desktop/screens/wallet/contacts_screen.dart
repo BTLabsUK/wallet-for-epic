@@ -13,6 +13,7 @@ import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/pairing_state.dart';
 import '../pairing/pair_screens.dart';
+import 'contacts_transfer.dart';
 import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
@@ -122,6 +123,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       return EPage(
         title: l.deskConTitle,
         width: EPageWidth.narrow,
+        // Import contacts fills an empty book.
+        actions: const [ContactsMoreButton()],
         child: Container(
           decoration: panel,
           child: _Empty(onAdd: _add),
@@ -272,6 +275,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
         else
           EButton.primary(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
+        const ContactsMoreButton(),
       ],
       child: split
           // The list and the detail are one unit (docs/plans/w7-layout.md R1): same top and bottom.

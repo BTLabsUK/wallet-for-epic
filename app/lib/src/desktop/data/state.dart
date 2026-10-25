@@ -457,6 +457,18 @@ class DeskController extends Notifier<DeskState> {
     final contacts = await api.contacts();
     state = state.copyWith(contacts: contacts);
   }
+
+  /// Saves [contacts] (an import: new ones with an empty id, saved ones with what they gain)
+  /// and reloads the list once, also when a save fails part way.
+  Future<void> saveContacts(Iterable<Contact> contacts) async {
+    try {
+      for (final c in contacts) {
+        await api.saveContact(c);
+      }
+    } finally {
+      state = state.copyWith(contacts: await api.contacts());
+    }
+  }
 }
 
 final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.new);

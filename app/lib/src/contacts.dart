@@ -97,6 +97,35 @@ class ContactsNotifier extends AsyncNotifier<List<Contact>> {
   }
 }
 
+/// The contacts this wallet starred, by id. The address book is shared by every wallet on the
+/// device; the star is this wallet's (`wfe_meta.json`), as the desktop keeps it. Empty while
+/// locked.
+final favouriteContactsProvider = AsyncNotifierProvider<FavouriteContactsNotifier, Set<String>>(
+  FavouriteContactsNotifier.new,
+);
+
+class FavouriteContactsNotifier extends AsyncNotifier<Set<String>> {
+  @override
+  Future<Set<String>> build() async {
+    final session = ref.watch(sessionProvider);
+    return session == null ? <String>{} : {...await session.favouriteContacts()};
+  }
+
+  /// Stars or unstars [id]: shown at once, put back if the write fails.
+  Future<void> set(String id, bool favourite) async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final was = state.value ?? const <String>{};
+    state = AsyncData(favourite ? {...was, id} : ({...was}..remove(id)));
+    try {
+      await session.setFavouriteContact(id: id, favourite: favourite);
+    } catch (_) {
+      state = AsyncData(was);
+      rethrow;
+    }
+  }
+}
+
 /// The contact saved under [address], any of its addresses, if any. Addresses compare
 /// without surrounding whitespace; epicbox addresses and URLs are case-sensitive in their key
 /// part, so case counts.

@@ -36,6 +36,7 @@ const Key contactPageSealKey = ValueKey('contact-page-seal');
 const Key contactPageInvoicesKey = ValueKey('contact-page-invoices');
 const Key contactPageRemovePairingKey = ValueKey('contact-page-remove-pairing');
 const Key contactPageCheckKey = ValueKey('contact-page-check');
+const Key contactPageStarKey = ValueKey('contact-page-star');
 
 /// Two letters for [name] ([nameInitials]: letters and digits only), `?` for a name with
 /// none.
@@ -206,6 +207,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     }
     final pairs = ref.watch(pairingSupportedProvider);
     final pairing = pairs ? ref.watch(contactPairingProvider(contact.id)) : null;
+    final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     return SlotScaffold(
       appBar: AppBar(
         title: Text(l.contactTitle),
@@ -215,11 +217,20 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             key: contactPageMoreKey,
             tooltip: l.contactMore,
             onSelected: (v) => switch (v) {
+              'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
               'check' when pairing != null => _openCheck(pairing.id),
               'delete' => _delete(contact, pairing),
               _ => null,
             },
             itemBuilder: (context) => [
+              PopupMenuItem(
+                key: contactPageStarKey,
+                value: 'star',
+                child: ListTile(
+                  leading: Icon(starred ? Icons.star_rounded : Icons.star_outline_rounded),
+                  title: Text(starred ? l.contactUnstar : l.contactStar),
+                ),
+              ),
               if (pairing != null)
                 PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.contactCheckWordsAgain))),
               PopupMenuItem(
@@ -237,7 +248,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       ),
       body: ScreenBody(
         children: [
-          _Header(contact: contact, pairing: pairing, onSend: () => _send(contact), onCode: () => _showCode(contact)),
+          _Header(contact: contact, pairing: pairing, starred: starred, onSend: () => _send(contact), onCode: () => _showCode(contact)),
           PairSection(l.contactAddresses),
           _Addresses(contact: contact),
           if (pairs) ...[
@@ -267,10 +278,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.contact, required this.pairing, required this.onSend, required this.onCode});
+  const _Header({required this.contact, required this.pairing, required this.starred, required this.onSend, required this.onCode});
 
   final Contact contact;
   final PairingRecord? pairing;
+  final bool starred;
   final VoidCallback onSend;
   final VoidCallback onCode;
 
@@ -294,8 +306,17 @@ class _Header extends StatelessWidget {
                 children: [
                   Semantics(
                     header: true,
-                    child: Text(
-                      contact.name,
+                    child: Text.rich(
+                      TextSpan(
+                        text: contact.name,
+                        children: [
+                          if (starred)
+                            const WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Padding(padding: EdgeInsetsDirectional.only(start: 6), child: ContactStar(size: 18)),
+                            ),
+                        ],
+                      ),
                       style: theme.textTheme.headlineSmall?.copyWith(fontFamily: t.headFamily, fontSize: 22),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
