@@ -326,14 +326,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// adapter refuses any other). A file is never held: Offline lets it use the node in use
   /// ([deskOfflineUsesNode] says so on the screen). A method whose switch is off (Settings ›
   /// Transactions) holds it too ([NetBlock.methodOff]): a pasted address of that kind picks
-  /// the method and the notice says it is off.
+  /// the method and the notice says it is off. Until To holds an address, Link is held only
+  /// when both its methods are off: the address decides between Link · HTTP and Link · Tor.
   NetBlock _netBlock(DeskState st) => _method == TxMethod.file
       ? NetBlock.none
       : deskNetBlock(
           st,
           nodeOnly: _method == TxMethod.http,
           epicbox: _method == TxMethod.epicbox,
-          offered: st.settings.payments.offers(methodKindOf(_method)),
+          offered: _method != TxMethod.epicbox && _to.text.trim().isEmpty
+              ? st.settings.payments.offersFamily(MethodFamily.link)
+              : st.settings.payments.offers(methodKindOf(_method)),
         );
 
   /// The method this send goes by, for its name and its switch.
@@ -1181,7 +1184,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 (st.settings.payments.offersFamily(MethodFamily.link) || _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
-            if (st.settings.payments.directFile || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
+            // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
+            // turned off on purpose is no failure, and File Transfer keeps its own switch).
+            if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))
               ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile), tooltip: fileTip),
           ],
           value: _segmentOf(_method),

@@ -414,6 +414,28 @@ void main() {
       expect(_selected<TxMethod>(tester), TxMethod.http);
     });
 
+    testWidgets('LNX-1: Epicbox switched off is no failure, so File Transfer off stays off', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.off), payments: const PaymentPrefs(epicbox: false, linkTor: true, directFile: false));
+      expect(_segments<TxMethod>(tester), isNot(contains('Direct · File')));
+      expect(_segments<TxMethod>(tester), contains('Link'));
+    });
+
+    testWidgets('LNX-1: a failed Epicbox still offers the file fallback with File Transfer off', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
+      expect(_segments<TxMethod>(tester), contains('Direct · File'));
+    });
+
+    testWidgets('LNX-1b: Link with an empty To and only Link · Tor on names no method as off', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.http), payments: const PaymentPrefs(linkTor: true));
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(find.textContaining('Link · HTTP is off'), findsNothing);
+      // The address decides: an http one with Link · HTTP off says so.
+      await tester.enterText(find.byType(EditableText).first, 'https://wallet.example.org');
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+    });
+
     testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
       expect(_segments<TxMethod>(tester), contains('Direct · File'));
