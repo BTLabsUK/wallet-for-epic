@@ -120,6 +120,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       final e = next.value;
       if (e != null && mounted) _show(e);
     });
+    // A contact whose keys came back docks the notice on its page, whenever that opens.
+    ref.listenManual(keysBackProvider, (_, _) {});
   }
 
   void _push(Widget screen) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => screen));

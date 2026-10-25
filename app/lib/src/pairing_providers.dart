@@ -109,6 +109,24 @@ final pairingStraysProvider = FutureProvider<List<PairingStray>>((ref) {
 /// The pairing events of the open wallet, for the notices.
 final pairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(pairingApiProvider).events());
 
+/// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
+/// docks "keys are back" until OK (SPEC 2.4). [PairingNotices] keeps it listening.
+final keysBackProvider = NotifierProvider<KeysBack, Set<String>>(KeysBack.new);
+
+class KeysBack extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    final sub = ref.watch(pairingApiProvider).events().listen((e) {
+      final id = e.pairingId;
+      if (e.kind == PairingEventKind.keysRestored && id != null) state = {...state, id};
+    });
+    ref.onDispose(sub.cancel);
+    return const {};
+  }
+
+  void close(String id) => state = {...state}..remove(id);
+}
+
 /// The name the user shows when pairing ("They will see you as"), remembered on the device.
 final pairingSeenAsProvider = AsyncNotifierProvider<PairingSeenAs, String>(PairingSeenAs.new);
 

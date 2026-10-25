@@ -666,6 +666,18 @@ void main() {
       expect(find.text(_l.contactKeysChangedTitle('Anna')), findsNothing);
     });
 
+    testWidgets('keys back while the page is open: the page docks the notice until OK (PAIR-LNX-15)', (tester) async {
+      final h = await open(tester);
+      expect(find.text(_l.contactKeysBack('Anna')), findsNothing);
+      h.api.restoreKeys('p1');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactKeysBack('Anna')), findsOneWidget);
+      expect(find.text(_l.contactKeysBackBody), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, _l.commonOk));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactKeysBack('Anna')), findsNothing);
+    });
+
     testWidgets('Remove pairing asks first; the contact stays', (tester) async {
       final h = await open(tester);
       await tester.ensureVisible(find.byKey(contactPageRemovePairingKey));

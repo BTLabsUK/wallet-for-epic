@@ -474,6 +474,7 @@ class _PairingBlock extends ConsumerWidget {
     final changed = p.state == PairingState.keysChanged;
     final verified = p.state == PairingState.verified;
     final notices = ref.read(noticeProvider.notifier);
+    final back = ref.watch(keysBackProvider).contains(p.id);
 
     Future<void> setSeal(bool on) => run(() async {
       await pairingCall(ref, (api) => api.setSeal(p.id, on));
@@ -562,6 +563,15 @@ class _PairingBlock extends ConsumerWidget {
               OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.keepOld), child: Text(l.contactKeepOldKeys)),
               OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.useNew), child: Text(l.contactUseNewKeys)),
             ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (back && !changed) ...[
+          PairEdgeNotice(
+            tone: BadgeTone.ok,
+            title: l.contactKeysBack(name),
+            body: l.contactKeysBackBody,
+            actions: [TextButton(onPressed: () => ref.read(keysBackProvider.notifier).close(p.id), child: Text(l.commonOk))],
           ),
           const SizedBox(height: 12),
         ],
