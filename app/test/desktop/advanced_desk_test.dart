@@ -159,6 +159,14 @@ void main() {
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
+    testWidgets('Offline with a public node: Link\'s summary gives the Offline reason the banner gives, not the node sync (LNX-15)', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _offline);
+      expect(find.text('Waiting for the node to sync.'), findsNothing);
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
+      // The banner and the summary's line.
+      expect(find.text('Offline mode is on in Advanced.'), findsNWidgets(2));
+    });
+
     testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion', amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
