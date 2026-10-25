@@ -42,7 +42,7 @@ void main() {
     expect(formatEpic(nano), '1,281.52615');
   });
 
-  for (final (lang, key) in [('de', 'Wiederherstellungsphrase'), ('pl', 'Fraza odzyskiwania'), ('de', 'Guthaben neu prüfen')]) {
+  for (final (lang, key) in [('de', 'Seed-Phrase'), ('pl', 'Fraza odzyskiwania'), ('de', 'Guthaben neu prüfen')]) {
     testWidgets('$lang settings sections are whole at 1280x800', (tester) async {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1;

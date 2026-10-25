@@ -118,7 +118,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('st-switch-http')));
+    await tester.tap(find.byKey(const ValueKey('st-offer-linkHttp')));
     await tester.pumpAndSettle();
     expect(find.text('http://127.0.0.1:3415'), findsNothing);
     expect(find.byType(EAddress), findsNothing);

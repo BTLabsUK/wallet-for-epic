@@ -76,6 +76,13 @@ void main() {
 
   group('Send to an onion', () {
     testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {
+      // Link · Tor on in Settings › Transactions, so the one thing missing is Tor itself.
+      await tester.runAsync(() async {
+        final n = container.read(deskProvider.notifier);
+        await n.refresh();
+        final s = container.read(deskProvider).settings;
+        await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
+      });
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
       // Under Link, an onion needs Tor.
       expect(find.text('Needs Tor'), findsOneWidget);
