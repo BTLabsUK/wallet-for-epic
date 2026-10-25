@@ -11,6 +11,7 @@ import '../../contacts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../pairing_text.dart' show sameNamedContact;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
@@ -30,6 +31,7 @@ const Key checkAllowKey = ValueKey('check-allow');
 const Key resultAllowKey = ValueKey('result-allow');
 const Key resultSaveNewKey = ValueKey('result-save-new');
 const Key resultAddToKey = ValueKey('result-add-to');
+const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
 /// words again": Later instead of Skip for now. [inPerson]: the camera saw the other phone.
@@ -304,7 +306,19 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     }
     final name = ref.watch(pairingNameProvider(record.id));
     final verified = record.state == PairingState.verified;
-    final saved = record.contactId != null && (ref.watch(contactsProvider).value ?? const <Contact>[]).any((c) => c.id == record.contactId);
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final saved = record.contactId != null && contacts.any((c) => c.id == record.contactId);
+    // A contact of the name it chose (a restore or re-pair): one tap attaches it, and the key
+    // check finds whether its keys are back (PAIR-LNX-7).
+    final pairings = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
+    final suggested = saved
+        ? null
+        : sameNamedContact<Contact>(
+            record,
+            contacts,
+            (c) => c.name,
+            paired: (c) => pairings.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
+          );
     final done = FilledButton(
       key: checkDoneKey,
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -385,6 +399,14 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                     children: [
                       Text(l.pairSaveContactTitle(name), style: theme.textTheme.titleSmall),
                       const SizedBox(height: 10),
+                      if (suggested != null) ...[
+                        FilledButton(
+                          key: resultAddToNamedKey,
+                          onPressed: _busy ? null : () => _attach(record, suggested),
+                          child: Text(l.pairAddToNamed(suggested.name), textAlign: TextAlign.center),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       // Two halves of the card's width, the same gutter on both sides.
                       Row(
                         children: [

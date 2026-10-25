@@ -4135,6 +4135,7 @@
   "pairingInviteOnline": "Пригласить онлайн",
   "pairSaveContactTitle": "Сохранить {name} в контактах?",
   "pairSaveNewContact": "Сохранить как новый контакт",
+  "pairAddToNamed": "Добавить к контакту {name}",
   "pairAddToAContact": "Добавить к контакту",
   "pairSavedAs": "Сохранено как {name}.",
   "pairDurDays": "{days} д {hours} ч",

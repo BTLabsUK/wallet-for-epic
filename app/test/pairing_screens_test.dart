@@ -353,6 +353,36 @@ void main() {
       expect(find.text(_l.pairSaveContactTitle('Anna')), findsNothing);
     });
 
+    testWidgets('a re-pair: a contact of its name with an old pairing is offered first, and Add to starts the key check (PAIR-LNX-7)', (tester) async {
+      final h = _Harness();
+      final anna = await h.session.saveContact(contact: Contact(id: '', name: ' anna  ', address: _anna));
+      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
+      await open(tester, h);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(resultAddToNamedKey), findsOneWidget);
+      expect(find.text(_l.pairAddToNamed(anna.name)), findsOneWidget);
+      expect(find.byKey(resultSaveNewKey), findsOneWidget, reason: 'the other choices stay');
+      expect(find.byKey(resultAddToKey), findsOneWidget);
+      await tester.tap(find.byKey(resultAddToNamedKey));
+      await tester.pumpAndSettle();
+      expect(h.api.calls, contains('attach'));
+      // The fake's key check found the old keys: the new pairing folded into the old one.
+      expect(await h.api.pairing('p1'), isNull);
+      expect((await h.api.pairing('old'))!.contactId, anna.id);
+    });
+
+    testWidgets('no contact of its name, or two unpaired ones: nothing is suggested (PAIR-LNX-7)', (tester) async {
+      final h = _Harness();
+      await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
+      await h.session.saveContact(contact: Contact(id: '', name: 'ANNA', address: 'esOtherKeyForAnnaTwo@epicbox.example'));
+      await open(tester, h);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(resultAddToNamedKey), findsNothing);
+      expect(find.byKey(resultSaveNewKey), findsOneWidget);
+    });
+
     testWidgets('They don\'t match asks, then drops the pairing', (tester) async {
       final h = _Harness();
       await open(tester, h);

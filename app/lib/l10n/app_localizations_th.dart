@@ -15345,6 +15345,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairSaveNewContact => 'บันทึกเป็นผู้ติดต่อใหม่';
 
   @override
+  String pairAddToNamed(String name) {
+    return 'เพิ่มในผู้ติดต่อ $name';
+  }
+
+  @override
   String get pairAddToAContact => 'เพิ่มในผู้ติดต่อ';
 
   @override

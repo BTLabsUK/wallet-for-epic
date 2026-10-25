@@ -16065,6 +16065,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairSaveNewContact => 'Сохранить как новый контакт';
 
   @override
+  String pairAddToNamed(String name) {
+    return 'Добавить к контакту $name';
+  }
+
+  @override
   String get pairAddToAContact => 'Добавить к контакту';
 
   @override

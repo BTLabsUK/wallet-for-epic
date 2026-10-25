@@ -16106,6 +16106,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairSaveNewContact => 'Zapisz jako nowy kontakt';
 
   @override
+  String pairAddToNamed(String name) {
+    return 'Dodaj do kontaktu $name';
+  }
+
+  @override
   String get pairAddToAContact => 'Dodaj do kontaktu';
 
   @override

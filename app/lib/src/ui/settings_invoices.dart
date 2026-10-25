@@ -11,6 +11,7 @@ import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart';
+import '../pairing_text.dart' show sameNamedContact;
 import '../wallet_service.dart';
 import 'common.dart';
 import 'pairing/pair_check.dart';
@@ -79,6 +80,13 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     if (contact == null || !mounted) return;
     final l = context.l10n;
     await pairingCall(ref, (api) => api.attach(r.id, contact.id));
+    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+  }
+
+  Future<void> _attachTo(PairingRecord r, Contact contact) async {
+    final l = context.l10n;
+    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
+    if (!mounted) return;
     ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
   }
 
@@ -157,6 +165,11 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     final name = contact?.name ?? r.shownName;
     final verified = r.state == PairingState.verified;
     final orphan = contact == null;
+    // A contact of the name it chose comes first: a re-pair's key check starts there (PAIR-LNX-7).
+    final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
+    final suggested = orphan
+        ? sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired))
+        : null;
     // Keys changed, as the contact page shows it: the risk badge, paused until the words match.
     final changed = r.state == PairingState.keysChanged;
     final subtitle = changed
@@ -204,6 +217,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 key: invoiceSettingsMenuKey(r.id),
                 tooltip: l.contactMore,
                 onSelected: (v) => switch (v) {
+                  'named' when suggested != null => _attachTo(r, suggested),
                   'new' => _attach(r, asNew: true),
                   'add' => _attach(r, asNew: false),
                   'check' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id, recheck: changed))),
@@ -213,6 +227,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 itemBuilder: (context) => [
                   if (checkWords) PopupMenuItem(value: 'check', child: Text(l.sasTitle)),
                   if (orphan) ...[
+                    if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
                     PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
                     PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
                   ],

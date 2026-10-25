@@ -4135,6 +4135,7 @@
   "pairingInviteOnline": "在线邀请",
   "pairSaveContactTitle": "将 {name} 保存到联系人？",
   "pairSaveNewContact": "保存为新联系人",
+  "pairAddToNamed": "添加到联系人 {name}",
   "pairAddToAContact": "添加到联系人",
   "pairSavedAs": "已保存为 {name}。",
   "pairDurDays": "{days} 天 {hours} 小时",

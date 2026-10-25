@@ -15636,6 +15636,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairSaveNewContact => 'Save as a new contact';
 
   @override
+  String pairAddToNamed(String name) {
+    return 'Add to $name';
+  }
+
+  @override
   String get pairAddToAContact => 'Add to a contact';
 
   @override

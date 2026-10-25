@@ -42,6 +42,7 @@ const Key deskPendingRemoveKey = ValueKey('desk-pending-remove');
 const Key deskSavedNewKey = ValueKey('desk-saved-new');
 const Key deskSavedAddToKey = ValueKey('desk-saved-add-to');
 const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
+const Key deskSavedAddToNamedKey = ValueKey('desk-saved-add-to-named');
 
 /// The contact's (or the invite's) initials in the desktop avatar; [icon] instead for an
 /// invite nobody named yet (PAIR-LNX-8).
@@ -849,6 +850,26 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
   }
 }
 
+/// The contact of the name the pairing [r] chose, to offer first (a restore or a re-pair:
+/// attaching it starts the key check, PAIR-LNX-7); null when there is none or several.
+Contact? deskSuggestedContact(WidgetRef ref, PairingRecord r) {
+  final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
+  if (r.contactId != null && contacts.any((c) => c.id == r.contactId)) return null;
+  final all = ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[];
+  return sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired));
+}
+
+/// Attaches the pairing [r] to [contact], the user's one-tap choice of [deskSuggestedContact].
+Future<void> deskAttachPairing(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
+  final l = context.l10n;
+  try {
+    await deskPairingCall(ref, (api) => api.attach(r.id, contact.id));
+    if (context.mounted) showEToast(context, l.pairSavedAs(contact.name), tone: ETone.ok);
+  } catch (error) {
+    if (context.mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
+  }
+}
+
 /// The name field of the Save as a new contact form, for tests.
 const Key deskSaveContactNameKey = ValueKey('desk-save-contact-name');
 
@@ -994,6 +1015,8 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       if (await deskPutPairingInContacts(context, ref, r, asNew: asNew) && context.mounted) Navigator.pop(context);
     }
 
+    final suggested = r == null ? null : deskSuggestedContact(ref, r);
+
     return EDialog(
       title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
       tone: verified ? ETone.ok : ETone.warn,
@@ -1011,7 +1034,20 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       actions: [
         EButton.ghost(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
         EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => put(asNew: false)),
-        EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true)),
+        if (suggested == null)
+          EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true))
+        else ...[
+          EButton(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true)),
+          EButton.primary(
+            key: deskSavedAddToNamedKey,
+            label: l.pairAddToNamed(suggested.name),
+            size: EBtnSize.sm,
+            onPressed: () async {
+              await deskAttachPairing(context, ref, r!, suggested);
+              if (context.mounted) Navigator.pop(context);
+            },
+          ),
+        ],
       ],
     );
   }

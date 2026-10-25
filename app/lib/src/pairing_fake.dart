@@ -655,6 +655,7 @@ class FakePairing implements PairingApi {
   @override
   Future<PairingRecord> attach(String id, String? contactId) async {
     _require('attach');
+    calls.add('attach');
     final fresh = _get(id);
     final old = contactId == null ? null : records.where((r) => r.contactId == contactId && r.id != id).firstOrNull;
     if (old != null && old.state.isPaired) {

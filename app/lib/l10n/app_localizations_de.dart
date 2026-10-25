@@ -15823,6 +15823,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairSaveNewContact => 'Als neuen Kontakt speichern';
 
   @override
+  String pairAddToNamed(String name) {
+    return 'Zu $name hinzufügen';
+  }
+
+  @override
   String get pairAddToAContact => 'Zu einem Kontakt hinzufügen';
 
   @override

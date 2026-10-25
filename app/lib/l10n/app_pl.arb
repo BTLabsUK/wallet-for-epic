@@ -4135,6 +4135,7 @@
   "pairingInviteOnline": "Zaproś online",
   "pairSaveContactTitle": "Zapisać {name} w kontaktach?",
   "pairSaveNewContact": "Zapisz jako nowy kontakt",
+  "pairAddToNamed": "Dodaj do kontaktu {name}",
   "pairAddToAContact": "Dodaj do kontaktu",
   "pairSavedAs": "Zapisano jako {name}.",
   "pairDurDays": "{days} d {hours} godz.",

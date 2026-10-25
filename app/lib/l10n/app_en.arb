@@ -20767,6 +20767,16 @@
   "@pairSaveNewContact": {
     "description": "Button: make an address-book contact for this pairing."
   },
+  "pairAddToNamed": "Add to {name}",
+  "@pairAddToNamed": {
+    "description": "First choice on the words-check result (and an orphan pairing's row) when an address-book contact has the name the pairing chose: attaches it there, which starts the key check of a re-pair. Offered, never done on its own.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "pairAddToAContact": "Add to a contact",
   "@pairAddToAContact": {
     "description": "Button: attach this pairing to an existing contact the user picks."

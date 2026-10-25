@@ -165,6 +165,31 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('a re-pair: the result offers the contact of its name first, and Add to starts the key check (PAIR-LNX-7)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    final id = (await tester.runAsync(() => _c.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Ola'))))!;
+    _pairing.seedPaired(id: 'old-ola', name: 'Ola', state: PairingState.verified, contactId: id);
+    _c.invalidate(deskPairingsProvider);
+    await _seenAs(tester, 'the owner');
+    await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+    await tester.tap(find.byKey(deskPairCopyCardKey));
+    await _real(tester);
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskCheckMatchKey));
+    await _real(tester);
+    expect(find.text(_l.pairAddToNamed('Ola')), findsOneWidget);
+    expect(find.byKey(deskSavedNewKey), findsOneWidget);
+    await tester.tap(find.byKey(deskSavedAddToNamedKey));
+    await _real(tester);
+    expect(_pairing.calls, contains('attach'));
+    final all = (await tester.runAsync(_pairing.pairings))!.where((r) => r.name == 'Ola').toList();
+    expect(all.single.id, 'old-ola', reason: 'the old keys are back: the new pairing folded into the old one');
+    expect(find.byType(DeskPairedSaveDialog), findsNothing);
+  });
+
   testWidgets('Copy my card link first: their card then goes straight to the words', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');

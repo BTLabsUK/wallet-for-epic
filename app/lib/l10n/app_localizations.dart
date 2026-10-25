@@ -24692,6 +24692,12 @@ abstract class AppLocalizations {
   /// **'Save as a new contact'**
   String get pairSaveNewContact;
 
+  /// First choice on the words-check result (and an orphan pairing's row) when an address-book contact has the name the pairing chose: attaches it there, which starts the key check of a re-pair. Offered, never done on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to {name}'**
+  String pairAddToNamed(String name);
+
   /// Button: attach this pairing to an existing contact the user picks.
   ///
   /// In en, this message translates to:

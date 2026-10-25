@@ -66,6 +66,9 @@ class InvoiceSettingsBlock extends ConsumerWidget {
                 runSpacing: Sp.x2,
                 children: [
                   // The user picks how it goes in the contacts; nothing is saved without the form.
+                  // A contact of its name comes first: a re-pair's key check starts there.
+                  if (deskSuggestedContact(ref, r) case final c?)
+                    EButton.primary(label: l.pairAddToNamed(c.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, c)),
                   EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
                   EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
                   EButton(

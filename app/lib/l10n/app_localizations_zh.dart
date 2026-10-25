@@ -14816,6 +14816,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairSaveNewContact => '保存为新联系人';
 
   @override
+  String pairAddToNamed(String name) {
+    return '添加到联系人 $name';
+  }
+
+  @override
   String get pairAddToAContact => '添加到联系人';
 
   @override

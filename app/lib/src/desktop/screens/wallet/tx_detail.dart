@@ -6,7 +6,7 @@ import '../../../models.dart' show SlatePurpose;
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
-import '../pairing/pair_screens.dart' show deskPutPairingInContacts;
+import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
@@ -756,6 +756,8 @@ class _PairedFrom extends ConsumerWidget {
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
+              if (deskSuggestedContact(ref, r) case final c?)
+                EButton.primary(label: l.pairAddToNamed(c.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, c)),
               EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
               EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
             ],

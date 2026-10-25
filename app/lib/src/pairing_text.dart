@@ -55,3 +55,18 @@ String pairingClock(Duration left) {
 
 /// The five pairing [words] as one line to copy: each emoji and its name.
 String pairingWordsText(List<SasWord> words) => words.map((w) => '${w.emoji} ${w.name}').join('  ');
+
+/// The address-book contact a new pairing [record] most likely belongs to: the one whose name
+/// is the name it chose, ignoring case and spaces. One with a pairing of its own comes first
+/// (a restore or a re-pair, whose key check starts once the user attaches it); several
+/// unpaired ones of that name are no suggestion. Only offered, never attached on its own
+/// (PAIR-LNX-7).
+T? sameNamedContact<T>(PairingRecord record, Iterable<T> contacts, String Function(T) nameOf, {required bool Function(T) paired}) {
+  String norm(String s) => s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  final names = {for (final n in [record.name, record.label]) if (n != null && norm(n).isNotEmpty) norm(n)};
+  if (names.isEmpty) return null;
+  final same = [for (final c in contacts) if (names.contains(norm(nameOf(c)))) c];
+  final withPairing = same.where(paired).toList();
+  if (withPairing.length == 1) return withPairing.single;
+  return withPairing.isEmpty && same.length == 1 ? same.single : null;
+}
