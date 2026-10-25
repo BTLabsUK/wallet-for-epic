@@ -38,6 +38,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   bool _busy = false;
   bool _biometrics = false;
 
+  /// The biometric prompt is up. The PIN field stays usable meanwhile: a prompt the system
+  /// never answers (AND-8) must not hold the screen.
+  bool _reading = false;
+
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
   DateTime? _checkAt;
 
@@ -128,7 +132,26 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _unlockWithBiometrics() async {
-    await _attempt((vault, config) => vault.unlockWithBiometrics(config));
+    final config = ref.read(walletConfigProvider);
+    if (config == null || _busy || _reading) return;
+    final vault = ref.read(vaultProvider);
+    setState(() => _reading = true);
+    final String? pin;
+    try {
+      pin = await vault.readBiometricPin(config.chain);
+    } finally {
+      if (mounted) setState(() => _reading = false);
+    }
+    // Unlocked with the PIN meanwhile, or gone.
+    if (!mounted || _busy || ref.read(sessionProvider) != null) return;
+    if (pin == null) {
+      // Dismissed, or the copy is gone after a new enrollment.
+      final still = await vault.biometricsEnabled(config.chain);
+      if (mounted) setState(() => _biometrics = still);
+      return;
+    }
+    final String found = pin;
+    await _attempt((vault, config) => vault.unlockWithBiometricPin(config, found));
   }
 
   Future<void> _unlockWithPin(String pin) async {
@@ -285,7 +308,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               ),
               icon: const Icon(Icons.fingerprint),
               label: Text(l.pinUseBiometrics),
-              onPressed: _busy ? null : _unlockWithBiometrics,
+              onPressed: _busy || _reading ? null : _unlockWithBiometrics,
             ),
           ],
           // Forgot PIN ends a demo; it stays away while the demo PIN fills in, and comes back

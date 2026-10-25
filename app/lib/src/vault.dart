@@ -290,6 +290,12 @@ class WalletVault {
   Future<WalletSession?> unlockWithBiometrics(WalletConfig config) async {
     final pin = await readBiometricPin(config.chain);
     if (pin == null) return null;
+    return unlockWithBiometricPin(config, pin);
+  }
+
+  /// Opens the wallet with [pin], read by [readBiometricPin]. A copy that no longer opens
+  /// turns biometrics off and throws [PinRejected].
+  Future<WalletSession> unlockWithBiometricPin(WalletConfig config, String pin) async {
     try {
       return await unlock(config, pin);
     } on PinRejected {

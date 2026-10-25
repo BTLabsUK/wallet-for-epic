@@ -559,6 +559,25 @@ void main() {
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
+    testWidgets('a biometric prompt that never answers leaves the PIN usable (AND-8)', (
+      tester,
+    ) async {
+      final service = _existing();
+      final device = _Device(biometrics: true, sealedMainnet: true);
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = _pin;
+      final hold = device.bio.hold = Completer<void>();
+      await _pumpApp(tester, service, device);
+      expect(device.bio.prompts, 1);
+      expect(find.byKey(balanceFigureKey), findsNothing);
+      await _unlockToHome(tester);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      // The prompt answering late changes nothing.
+      hold.complete();
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
     testWidgets('a biometric copy that no longer opens turns biometrics off', (
       tester,
     ) async {

@@ -213,6 +213,9 @@ class MemoryBiometricStore implements BiometricStore {
 
   /// How often [delete] was called: the real store can prompt for it.
   int deletes = 0;
+
+  /// Set: [read] waits for it, as a prompt the system never answers.
+  Completer<void>? hold;
   final Map<String, String> values = {};
 
   void _prompt() {
@@ -226,6 +229,7 @@ class MemoryBiometricStore implements BiometricStore {
   @override
   Future<String?> read(String key) async {
     _prompt();
+    await hold?.future;
     return values[key];
   }
 
