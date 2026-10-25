@@ -182,7 +182,14 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.withdrawalFromContact when e.slateId != null => pairingSlateNoticeTag(e.slateId!),
       _ => null,
     };
-    ref.read(noticeProvider.notifier).show(notice.text, level: notice.level, action: action, tag: tag);
+    // Old keys not checked is news the user must not miss: it stays until closed (PAIR-AND-16).
+    ref.read(noticeProvider.notifier).show(
+      notice.text,
+      level: notice.level,
+      action: action,
+      tag: tag,
+      persistent: e.kind == PairingEventKind.keyCheckRefused,
+    );
   }
 
   @override
