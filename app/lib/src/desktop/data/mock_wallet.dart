@@ -58,7 +58,11 @@ abstract interface class MockBacked {
 MockDeskWallet? mockBehind(DeskWalletApi api) => api is MockDeskWallet ? api : (api is MockBacked ? (api as MockBacked).mock : null);
 
 class MockDeskWallet implements DeskWalletApi {
-  MockDeskWallet({this.delay = const Duration(milliseconds: 350)});
+  MockDeskWallet({this.delay = const Duration(milliseconds: 350), this.seedInvoices = true});
+
+  /// Whether the history lists the invoices prototype's rows. A new install, with Invoices off,
+  /// has none, so the screenshot tours leave them out of the shots that run with it off.
+  final bool seedInvoices;
 
   final Duration delay;
   final _rng = Random(7);
@@ -449,7 +453,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<List<Tx>> transactions() async {
     await _wait(0.5);
     proto;
-    return List.unmodifiable(_txs);
+    return List.unmodifiable(seedInvoices ? _txs : _txs.where((t) => t.flow != TxFlow.invoice));
   }
 
   @override
