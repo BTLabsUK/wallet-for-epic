@@ -144,6 +144,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.phraseMismatch,
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
