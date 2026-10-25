@@ -68,6 +68,12 @@ Future<void> _pump(WidgetTester tester, Tx tx, _Desk desk) async {
 
 Finder get _cancelButton => find.widgetWithText(EButton, 'Cancel');
 
+/// Unmounts the detail and lets Riverpod's auto-dispose timer run before the test ends.
+Future<void> _end(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox());
+  await tester.pump(const Duration(milliseconds: 1));
+}
+
 void main() {
   group('the Cancel button', () {
     testWidgets('is offered for an incoming payment the core can cancel', (tester) async {
@@ -84,6 +90,7 @@ void main() {
       expect(_cancelButton, findsNothing);
       await _pump(tester, _tx(incoming: true, state: TxState.cancelled), _Desk());
       expect(_cancelButton, findsNothing);
+      await _end(tester);
     });
 
     testWidgets('a send only while it waits for the recipient', (tester) async {
