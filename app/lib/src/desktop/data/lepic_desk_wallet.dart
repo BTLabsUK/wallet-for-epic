@@ -4329,8 +4329,11 @@ class LepicDeskWallet implements DeskWalletApi {
     await _nodeNoticeSub?.cancel();
     await _node?.stop();
     step('node stopped');
-    await _changes.close();
-    await _invoiceNotices.close();
+    // Not awaited: a broadcast stream's close ends only once every listener got its done
+    // event, and Riverpod pauses a provider nobody watches (the invoice notices on the unlock
+    // screen), so after a lock the close never ended and closing waited its 40 s (LNX-4).
+    unawaited(_changes.close());
+    unawaited(_invoiceNotices.close());
     step('done');
   }
 }
