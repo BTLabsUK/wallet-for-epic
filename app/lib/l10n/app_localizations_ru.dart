@@ -5918,7 +5918,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса. Выключено, пока включён Tor: регистрация раскрыла бы адрес телефона.';
+      'Экспериментально: может измениться или давать сбои. Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса. Выключено, пока включён Tor: регистрация раскрыла бы адрес телефона.';
 
   @override
   String get settingsPushPaused => 'Приостановлено, пока включён Tor';
@@ -5950,10 +5950,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'Уведомления выключены';
-
-  @override
-  String get pushNoticeAvailable =>
-      'Уведомления доступны в Настройки › Дополнительно.';
 
   @override
   String get torWayOver => 'Через Tor';
