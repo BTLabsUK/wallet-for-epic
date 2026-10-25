@@ -450,6 +450,9 @@ class ReceiveView extends ConsumerWidget {
                 child: _ReceivePage(
                   height: math.max(0, viewport.maxHeight - 2 * padding),
                   leastCode: receiveQrMinSize + _AddressQr.frame,
+                  // Link's cards without a code start under the tabs: centred they left a
+                  // band of empty page above the tip.
+                  centre: tab != ReceiveTab.direct || code != null,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -477,21 +480,26 @@ class _ReceivePage extends MultiChildRenderObjectWidget {
   const _ReceivePage({
     required this.height,
     required this.leastCode,
+    this.centre = true,
     required super.children,
   });
 
   final double height;
   final double leastCode;
 
+  /// The part under the tabs centred in the room left; else at the top.
+  final bool centre;
+
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderReceivePage(height, leastCode);
+      _RenderReceivePage(height, leastCode, centre);
 
   @override
   void updateRenderObject(BuildContext context, _RenderReceivePage render) {
     render
       ..height = height
-      ..leastCode = leastCode;
+      ..leastCode = leastCode
+      ..centre = centre;
   }
 }
 
@@ -501,7 +509,14 @@ class _RenderReceivePage extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _ReceivePageData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _ReceivePageData> {
-  _RenderReceivePage(this._height, this._leastCode);
+  _RenderReceivePage(this._height, this._leastCode, this._centre);
+
+  bool _centre;
+  set centre(bool value) {
+    if (value == _centre) return;
+    _centre = value;
+    markNeedsLayout();
+  }
 
   double _height;
   set height(double value) {
@@ -561,7 +576,7 @@ class _RenderReceivePage extends RenderBox
     size = constraints.constrain(Size(width, math.max(_height, used)));
     // The tabs stay at the top; the rest is centred in the room under them.
     final head = children.first;
-    var y = head.size.height + (size.height - used) / 2;
+    var y = head.size.height + (_centre ? (size.height - used) / 2 : 0);
     (head.parentData! as _ReceivePageData).offset = Offset.zero;
     for (final child in children.skip(1)) {
       (child.parentData! as _ReceivePageData).offset = Offset(
