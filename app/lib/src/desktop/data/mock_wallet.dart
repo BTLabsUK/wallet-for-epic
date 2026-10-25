@@ -48,6 +48,15 @@ ServerIcon mockServerIcon(String hash) => ServerIcon(
   urls: {for (final px in const [128, 256]) px: Uri.parse('https://status.btlabs.uk/api/v1/icons/$hash-$px.png')},
 );
 
+/// A test double that delegates to a [MockDeskWallet] (a recorder): the tour's prepare steps
+/// reach the mock behind it.
+abstract interface class MockBacked {
+  MockDeskWallet get mock;
+}
+
+/// The mock wallet behind [api], when there is one.
+MockDeskWallet? mockBehind(DeskWalletApi api) => api is MockDeskWallet ? api : (api is MockBacked ? (api as MockBacked).mock : null);
+
 class MockDeskWallet implements DeskWalletApi {
   MockDeskWallet({this.delay = const Duration(milliseconds: 350)});
 

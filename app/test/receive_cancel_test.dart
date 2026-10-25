@@ -261,7 +261,7 @@ void main() {
       expect(h.session.cancelledTxIds, [9]);
       expect(_notice(tester), _l.txDetailsCancelRefusedOnNetwork);
       expect(_noticeLevel(tester), NoticeLevel.info);
-      expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget, reason: 'still waiting, still there');
+      expect(find.byKey(txDetailsCancelReceiveKey), findsNothing, reason: 'the network has it: Cancel stays away for this visit');
     });
 
     testWidgets('a send waiting for its recipient keeps its Cancel and words', (tester) async {

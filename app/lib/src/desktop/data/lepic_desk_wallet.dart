@@ -4502,6 +4502,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     amount: amount < 0 ? 0 : amount,
     fee: sent ? fee : 0,
     created: DateTime.fromMillisecondsSinceEpoch(e.timeUnix * 1000),
+    startedAt: DateTime.fromMillisecondsSinceEpoch(e.createdAtUnix * 1000),
     confirmations: confirmations,
     confirmationsNeeded: minConf,
     counterparty: to,

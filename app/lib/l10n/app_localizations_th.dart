@@ -1787,6 +1787,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return 'ชำระแล้ว เครือข่ายยืนยันการชำระให้ $service แล้ว';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return '$service ยังไม่ได้รับการชำระเงิน ลองอีกครั้ง จะส่งซ้ำโดยไม่ต้องอนุมัติใหม่';
   }

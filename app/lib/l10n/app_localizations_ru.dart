@@ -1956,6 +1956,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return 'Оплачено. Сеть подтвердила платёж для $service.';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return 'Сервис $service ещё не получил ваш платёж. «Повторить» отправит его снова, без повторного одобрения.';
   }

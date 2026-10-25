@@ -745,7 +745,17 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
               PairEdgeNotice(tone: BadgeTone.info, title: l.reqWithdrewTitle(service), body: l.reqWithdrewBody),
             _ => null,
           };
-    final status = pairedState ?? switch (paid.status) {
+    // Confirmed on the network: done, whatever the contact last reported (PAIR-AND-18).
+    final status = widget.tx.status == TxStatus.confirmed
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.check_circle_outline, color: t.ok, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.invoiceDetailsConfirmed(service))),
+            ],
+          )
+        : pairedState ?? switch (paid.status) {
       // Still not on the network a while after paying, though the wallet sent the reply again
       // by itself (windows-05, stall_retry.dart): Stalled, with Send again.
       InvoiceStatus.replied when invoicePaymentStalled(widget.tx, now) => warning(

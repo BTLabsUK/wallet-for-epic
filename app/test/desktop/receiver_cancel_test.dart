@@ -167,10 +167,11 @@ void main() {
       await tester.tap(_cancelButton);
       await tester.pumpAndSettle();
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('leaves your balance'), findsOneWidget);
+      // The phone's words: never spendable, so nothing "leaves your balance" (LNX2-1).
+      expect(find.textContaining('leaves your balance'), findsNothing);
+      expect(find.textContaining('may already have posted'), findsOneWidget);
       expect(find.textContaining('asks the node first'), findsOneWidget);
-      expect(find.textContaining('pool or a block'), findsOneWidget);
-      expect(find.textContaining('may still arrive'), findsOneWidget);
+      expect(find.textContaining('about a week'), findsOneWidget);
       expect(find.textContaining('locked amount'), findsNothing);
       await tester.tap(find.text('Keep'));
       await tester.pumpAndSettle();
@@ -192,7 +193,7 @@ void main() {
   });
 
   group('the result', () {
-    testWidgets('a refusal shows the toast and leaves the row', (tester) async {
+    testWidgets('a refusal is news, not an error: the info toast, and the row stays (LNX2-2)', (tester) async {
       final desk = _Desk(refuse: true);
       await _pump(tester, _tx(incoming: true), desk);
       await tester.tap(_cancelButton);
@@ -200,10 +201,10 @@ void main() {
       await tester.tap(find.text('Cancel payment'));
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
-      expect(find.text('Not cancelled'), findsOneWidget);
-      expect(find.text(cancelRefusedText), findsOneWidget);
+      expect(find.text('Not cancelled: the network already has this payment. It completes when the blockchain confirms it.'), findsOneWidget);
+      expect(find.text(cancelRefusedText), findsNothing, reason: 'not the red error toast');
       expect(find.text('Transaction cancelled'), findsNothing);
-      expect(_cancelButton, findsOneWidget, reason: 'the payment is still there to try again');
+      expect(_cancelButton, findsNothing, reason: 'the node has it: Cancel stays away for this visit');
     });
 
     testWidgets('a cancel that goes through says so', (tester) async {

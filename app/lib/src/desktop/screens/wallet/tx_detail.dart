@@ -8,7 +8,7 @@ import '../../../l10n.dart' show acceptedAgoText;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/lepic_desk_wallet.dart' show cancelRefusedText, deskErrorText;
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
 import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';
@@ -45,6 +45,9 @@ class TxDetail extends ConsumerStatefulWidget {
 
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
+
+  /// The node already had this receive when Cancel was asked: Cancel stays away for this visit.
+  bool _onNetwork = false;
 
   /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
   /// "accepted N minutes ago" line and the hold's end move without a refresh.
@@ -99,7 +102,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
-          TxState.cancelled => l.deskTxNowCancelled,
+          // A cancelled receive is still watched for about a week, as on the phone.
+          TxState.cancelled => t.incoming ? l.txDetailsCancelledIncoming : l.deskTxNowCancelled,
         };
 
   /// The core's own fields: ids, height, kernel, status and type.
@@ -165,6 +169,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
+      // The node already has a receive: not a failure, the payment is on its way (as the phone says).
+      if (widget.tx.incoming && e is DeskError && e.message == cancelRefusedText) {
+        setState(() => _onNetwork = true);
+        showEToast(context, context.l10n.txDetailsCancelRefusedOnNetwork, tone: ETone.info);
+        unawaited(ref.read(deskProvider.notifier).refresh());
+        return;
+      }
       showEToast(context, context.l10n.deskTxNotCancelled, text: deskErrorText(e, context.l10n), tone: ETone.risk);
       return;
     }
@@ -191,13 +202,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // reports it posted, Cancel stays away and the status box says why (incomingCancelAt).
     final waitingIncoming = t.incoming && t.state == TxState.waitingRecipient && !t.fromBackup && !t.isInvoice && t.cancellable;
     final hold = waitingIncoming
-        ? incomingCancelAt(signedAt: t.created, now: ref.watch(deskClockProvider)(), senderReportsPosted: t.senderPosted)
+        ? incomingCancelAt(signedAt: t.startedAt ?? t.created, now: ref.watch(deskClockProvider)(), senderReportsPosted: t.senderPosted)
         : null;
     _tickWhile(hold != null && !hold.offered && !hold.senderReportsPosted);
     final cancelable = !t.fromBackup &&
         !t.isInvoice &&
         (t.incoming
-            ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed && (hold?.offered ?? true)
+            ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed && (hold?.offered ?? true) && !_onNetwork
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     // A send through a paired contact's mailbox (no address; LEPIC keeps it as an export):
     // its answer comes back by itself, so there is no file to finalize.
@@ -572,7 +583,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   ];
 
   List<_Step> _steps(AppLocalizations l, Tx t) {
-    final at = t.created;
+    // The steps happened when this wallet took the slate, not when the block came (LNX2-3).
+    final at = t.startedAt ?? t.created;
     String hm(Duration d) => timeOf(Tx(id: 0, slateId: '', direction: t.direction, state: t.state, method: t.method, amount: 0, fee: 0, created: at.add(d)));
     if (t.coinbase || t.foundByScan) {
       final left = coinbaseMaturity - t.confirmations;
@@ -753,7 +765,7 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
       icon: EIcons.cancel,
       tone: ETone.risk,
       description: t.incoming
-          ? l.deskTxCancelIncomingBody(formatEpicL(l, t.amount), whoOf(l, t))
+          ? l.txDetailsCancelReceiveBody
           : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
       actions: [
         EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),

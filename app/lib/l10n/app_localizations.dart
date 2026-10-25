@@ -2590,6 +2590,12 @@ abstract class AppLocalizations {
   /// **'{service} reports it posted the payment. It completes once the network confirms it.'**
   String invoiceDetailsPosted(String service);
 
+  /// An invoice payment that confirmed on the network (PAIR-AND-18): replaces the posted line.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. The network confirmed the payment to {service}.'**
+  String invoiceDetailsConfirmed(String service);
+
   /// Paid invoice's details when the payment could not be delivered to the service. 'Retry' is the button below: use the same word as invoiceRetry. service is the name the user gave the service.
   ///
   /// In en, this message translates to:

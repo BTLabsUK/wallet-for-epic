@@ -716,11 +716,13 @@ class HistoryReminder extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final n = state.reminder ?? 0;
-    return ENotice(
+    // A narrow window puts the two buttons under the text instead of past the edge.
+    return LayoutBuilder(builder: (context, box) => ENotice(
       tone: ETone.warn,
       icon: EIcons.archive,
       title: state.lastExport == null ? l.deskSetBackupReminderNever(n) : l.deskSetBackupReminderChanged(n),
       text: l.deskSetBackupReminderBody,
+      actionsBelow: box.maxWidth < 640.u,
       actions: [
         EButton.ghost(
           label: l.deskSetBackupNotNow,
@@ -732,6 +734,6 @@ class HistoryReminder extends ConsumerWidget {
         ),
         EButton(label: l.deskSetBackupExportTitle, icon: EIcons.download, size: EBtnSize.inline, onPressed: () => showExportHistoryDialog(context)),
       ],
-    );
+    ));
   }
 }

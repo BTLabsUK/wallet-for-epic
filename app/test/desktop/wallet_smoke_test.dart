@@ -60,6 +60,11 @@ void main() {
           ),
         );
         await tester.pump(const Duration(milliseconds: 600));
+        // What the shot adds to the mock first (a payment in its Cancel hold, …), as the tour does.
+        if (shot.prepare != null) {
+          await tester.runAsync(() => shot.prepare!(container, tester.element(find.byType(Scaffold))));
+          await tester.pump(const Duration(milliseconds: 600));
+        }
         if (shot.dialog != null) {
           final ctx = tester.element(find.byType(Scaffold));
           shot.dialog!(ctx);

@@ -81,10 +81,13 @@ const Set<String> _reads = {
 };
 
 /// The mock wallet, with every call recorded by name.
-class _Recorder implements DeskWalletApi {
+class _Recorder implements DeskWalletApi, MockBacked {
   _Recorder();
 
   final _m = MockDeskWallet(delay: Duration.zero);
+
+  @override
+  MockDeskWallet get mock => _m;
   final List<String> calls = [];
 
   @override

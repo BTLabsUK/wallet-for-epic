@@ -265,6 +265,7 @@ class Tx {
     this.notPosted = false,
     this.undelivered = false,
     this.confirmedAt,
+    this.startedAt,
     this.detail,
     this.flow = TxFlow.payment,
     this.toSelf = false,
@@ -361,6 +362,10 @@ class Tx {
   final bool senderPosted;
   final DateTime? confirmedAt;
 
+  /// When this wallet made or took in the slate; [created] becomes the block's time once it
+  /// confirms (LNX2-3). Null: [created].
+  final DateTime? startedAt;
+
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
   /// from, or what the blockchain says against the older wallet.
   final String? detail;
@@ -421,6 +426,7 @@ class Tx {
       notPosted: notPosted,
       undelivered: undelivered,
       confirmedAt: confirmedAt,
+      startedAt: startedAt,
       detail: detail,
       flow: flow,
       toSelf: toSelf,

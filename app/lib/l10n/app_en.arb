@@ -2102,6 +2102,16 @@
       }
     }
   },
+  "invoiceDetailsConfirmed": "Paid. The network confirmed the payment to {service}.",
+  "@invoiceDetailsConfirmed": {
+    "description": "An invoice payment that confirmed on the network (PAIR-AND-18): replaces the posted line.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "Northwind"
+      }
+    }
+  },
   "invoiceDetailsReplyFailed": "{service} has not received your payment yet. Retry sends it again; you do not approve it again.",
   "@invoiceDetailsReplyFailed": {
     "description": "Paid invoice's details when the payment could not be delivered to the service. 'Retry' is the button below: use the same word as invoiceRetry. service is the name the user gave the service.",

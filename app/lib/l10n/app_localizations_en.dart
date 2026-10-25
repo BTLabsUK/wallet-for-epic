@@ -1840,6 +1840,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return 'Paid. The network confirmed the payment to $service.';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return '$service has not received your payment yet. Retry sends it again; you do not approve it again.';
   }

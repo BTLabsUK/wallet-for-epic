@@ -1731,6 +1731,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return '已付款。网络已确认这笔付给 $service 的付款。';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return '$service 尚未收到你的付款。点“重试”会再次发送，无需再次批准。';
   }

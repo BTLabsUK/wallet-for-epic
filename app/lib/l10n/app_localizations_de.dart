@@ -1857,6 +1857,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return 'Bezahlt. Das Netzwerk hat die Zahlung an $service bestätigt.';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return '$service hat Ihre Zahlung noch nicht erhalten. „Erneut senden“ schickt sie noch einmal, ohne dass Sie erneut zustimmen.';
   }

@@ -28,22 +28,19 @@ Tx _tx(BuildContext context, int id) {
 
 /// Adds the mock's payment whose sender reports it posted, and shows it.
 Future<void> _senderPosted(ProviderContainer c, BuildContext _) async {
-  final api = c.read(deskApiProvider);
-  if (api is MockDeskWallet) api.addSenderPostedDemo();
+  mockBehind(c.read(deskApiProvider))?.addSenderPostedDemo();
   await c.read(deskProvider.notifier).refresh();
 }
 
 /// Adds the mock's incoming payment inside its Cancel hold (5 minutes after this wallet
 /// signed), or past it (40 minutes), and shows it.
 Future<void> _receiveHold(ProviderContainer c, BuildContext _) async {
-  final api = c.read(deskApiProvider);
-  if (api is MockDeskWallet) api.addReceiveCancelDemo(id: MockDeskWallet.receiveHoldDemoId, ago: const Duration(minutes: 5));
+  mockBehind(c.read(deskApiProvider))?.addReceiveCancelDemo(id: MockDeskWallet.receiveHoldDemoId, ago: const Duration(minutes: 5));
   await c.read(deskProvider.notifier).refresh();
 }
 
 Future<void> _receiveOffered(ProviderContainer c, BuildContext _) async {
-  final api = c.read(deskApiProvider);
-  if (api is MockDeskWallet) api.addReceiveCancelDemo(id: MockDeskWallet.receiveOfferedDemoId, ago: const Duration(minutes: 40));
+  mockBehind(c.read(deskApiProvider))?.addReceiveCancelDemo(id: MockDeskWallet.receiveOfferedDemoId, ago: const Duration(minutes: 40));
   await c.read(deskProvider.notifier).refresh();
 }
 

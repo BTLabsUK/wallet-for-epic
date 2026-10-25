@@ -1967,6 +1967,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsConfirmed(String service) {
+    return 'Zapłacono. Sieć potwierdziła płatność dla $service.';
+  }
+
+  @override
   String invoiceDetailsReplyFailed(String service) {
     return 'Serwis $service nie otrzymał jeszcze twojej płatności. „Ponów” wyśle ją jeszcze raz, bez ponownego zatwierdzania.';
   }

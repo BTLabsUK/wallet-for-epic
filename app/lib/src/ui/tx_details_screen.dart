@@ -273,6 +273,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
 
   bool _busy = false;
 
+  /// The node already had this receive when Cancel was asked: it is on its way, so Cancel
+  /// stays away for this visit.
+  bool _onNetwork = false;
+
   /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
   /// "accepted N minutes ago" line and the hold's end move without a refresh.
   Timer? _minute;
@@ -530,7 +534,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             : describeError(context.l10n, error),
         level: onNetwork ? NoticeLevel.info : NoticeLevel.error,
       );
-      if (onNetwork) await _reload();
+      if (onNetwork) {
+        setState(() => _onNetwork = true);
+        await _reload();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -620,7 +627,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     // An incoming payment this wallet signed: for receiveCancelHold after, and while its sender
     // reports it posted, Cancel stays away and one line says why (incomingCancelOf).
     final incoming = incomingCancelOf(tx, now: now);
-    final cancel = cancellable && incoming.offered;
+    final cancel = cancellable && incoming.offered && !_onNetwork;
     final cancelHeld = cancellable && !incoming.offered;
     _tickWhile(cancelHeld && !incoming.senderReportsPosted);
     // What the status card offers beside the status.
@@ -881,7 +888,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   : l.txDetailsReceivedFrom,
               address: counterparty,
               name: name,
-              canSendAgain: outgoing && tx.status == TxStatus.confirmed,
+              // An invoice is paid again by a new invoice, not a send to its address (PAIR-AND-18).
+              canSendAgain: outgoing && tx.status == TxStatus.confirmed && paidInvoice == null,
               tag: tx.manualFields.contains(ManualField.counterparty)
                   ? ManualTag(editedAtUnix: tx.manualEditedAtUnix, from: true)
                   : null,
