@@ -35,7 +35,7 @@ Future<void> _review(ProviderContainer c, IncomingInvoice i) async {
   c.read(deskNavProvider.notifier).go(DeskRoute.invoiceReview, i.slateId);
 }
 
-Future<void> _coffee(ProviderContainer c) async => _review(c, await _waiting(c, label: 'Coffee Roasters'));
+Future<void> _coffee(ProviderContainer c) async => _review(c, await _waiting(c, label: 'Merchant: Coffee'));
 Future<void> _openCoffee(ProviderContainer c, BuildContext _) => _coffee(c);
 
 /// Both waiting invoices paid, so a payment can be withdrawn or run past its time.
@@ -49,11 +49,11 @@ Future<void> _payBoth(ProviderContainer c) async {
 IncomingInvoice _shown(BuildContext ctx, bool Function(IncomingInvoice) test) =>
     ProviderScope.containerOf(ctx, listen: false).read(deskInvoicesProvider)!.toPay.firstWhere(test);
 
-bool _coffeeWaiting(IncomingInvoice i) => i.label == 'Coffee Roasters' && i.state == PayState.waiting;
+bool _coffeeWaiting(IncomingInvoice i) => i.label == 'Merchant: Coffee' && i.state == PayState.waiting;
 
 /// Paid Coffee 12.5, run past its time (25 h): Not on chain, offered for cancel.
 Future<void> _pastTtl(ProviderContainer c) async {
-  await _pay(c, await _waiting(c, label: 'Coffee Roasters'));
+  await _pay(c, await _waiting(c, label: 'Merchant: Coffee'));
   _proto(c).advance(const Duration(hours: 25));
   await _reload(c);
 }
@@ -113,7 +113,7 @@ final List<DeskShot> invoicePayShots = [
     title: 'Review: expired while open',
     route: DeskRoute.invoices,
     prepare: (c, ctx) async {
-      final i = await _waiting(c, label: 'Coffee Roasters');
+      final i = await _waiting(c, label: 'Merchant: Coffee');
       _proto(c).advance(const Duration(hours: 4));
       await _review(c, i);
     },
@@ -123,7 +123,7 @@ final List<DeskShot> invoicePayShots = [
     title: 'Review: read-only, the service withdrew it',
     route: DeskRoute.invoices,
     prepare: (c, ctx) async {
-      final i = await _waiting(c, label: 'EpicNode hosting');
+      final i = await _waiting(c, label: 'Northwind Exchange');
       _proto(c).serviceWithdraws();
       await _review(c, i);
     },
