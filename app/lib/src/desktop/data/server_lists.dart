@@ -11,6 +11,7 @@ library;
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../log.dart';
 import '../../network.dart' show EpicboxRelay;
 import '../../server_list.dart';
 import 'desk_node.dart';
@@ -87,7 +88,14 @@ class DeskServerListController extends Notifier<ServerList?> {
     list = list.absorb(kind, s.public);
     final inUse = s.inUse;
     if (inUse != null && inUse.isNotEmpty && !list.has(kind, inUse)) list = list.add(kind, inUse);
-    await _set(list);
+    try {
+      await _set(list);
+    } on Object catch (e) {
+      // Runs by itself when a panel opens: a store that cannot be written (a read-only or
+      // full disk) keeps the list shown and says so in the log, never as an uncaught error
+      // (WIN-4). The user's own changes still report their failure.
+      logWarn('desk', 'server list not saved: ${e.runtimeType}');
+    }
   }
 
   Future<void> add(String value, {int? at}) async => _set((state ?? const ServerList()).add(kind, value, at: at));

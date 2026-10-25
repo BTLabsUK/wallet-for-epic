@@ -1647,7 +1647,8 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
-      await _tap(tester, find.text('Direct · File'));
+      // The tab's label may break at its " · "; its tooltip keeps the whole name.
+      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
       await _tap(tester, find.text('Open file'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));

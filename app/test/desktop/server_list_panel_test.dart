@@ -308,6 +308,15 @@ void main() {
       expect(await DeskStore(secrets).serverList(ServerKind.relay, 'mainnet'), n.state, reason: 'kept in the desk store');
     });
 
+    test('a store that cannot be written: the list still shows, sync never throws (WIN-4)', () async {
+      secrets = _RefusingStore();
+      final c = make();
+      addTearDown(c.dispose);
+      final n = c.read(deskServerListProvider(ServerKind.relay).notifier);
+      await n.sync(const DeskServerSource(public: ['a.example'], inUse: 'a.example'));
+      expect(n.state!.entries, ['a.example']);
+    });
+
     test('the first list carries the old My nodes and removedNodes; later starts read what was kept', () async {
       final old = [
         const NodeServer(url: _btlabs, label: 'BT Labs'),
@@ -334,4 +343,10 @@ void main() {
       expect(nodePanelRows(const [NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true)]).single.operator, 'Home node');
     });
   });
+}
+
+/// A secret store whose writes fail, as a read-only store file does on Windows.
+class _RefusingStore extends MemorySecretStore {
+  @override
+  Future<void> write(String key, String value) async => throw const FileSystemException('MoveFileEx failed (5)');
 }
