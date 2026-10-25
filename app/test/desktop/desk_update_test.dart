@@ -541,7 +541,10 @@ Future<void> main(List<String> a) async {
       expect(iss, contains('#define AppMutexName "Local\\uk.btlabs.epiccash.desktop.single"'));
       expect(File('windows/runner/main.cpp').readAsStringSync(), contains('L"Local\\\\uk.btlabs.epiccash.desktop.single"'));
       expect(iss, contains("ExpandConstant('{param:UPDATEFROMAPP|0}') = '1'"));
-      expect(iss, contains("CheckForMutexes('{#AppMutexName}')"));
+      // A running 26.10.15 or older holds the mutex under the old id: Setup waits for it too (WIN-1).
+      expect(iss, contains('#define OldAppMutexName "Local\\com.blacktyger.EpicWallet.single"'));
+      expect(iss, contains('AppMutex={#AppMutexName},{#OldAppMutexName}'));
+      expect(iss, contains("CheckForMutexes('{#AppMutexName},{#OldAppMutexName}')"));
       expect(iss, contains('Flags: nowait; Check: FromApp'));
       expect(iss, contains('if FromApp and not InstallDone'), reason: 'a failed or cancelled install opens the app again');
     });

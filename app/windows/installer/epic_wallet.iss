@@ -39,6 +39,9 @@
 #endif
 
 #define AppMutexName "Local\uk.btlabs.epiccash.desktop.single"
+; The same mutex under the app's old id (26.10.15 and before): an update from one of those must
+; wait for it too, or Setup finds its files in use.
+#define OldAppMutexName "Local\com.blacktyger.EpicWallet.single"
 
 [Setup]
 ; Fixed for good: a new GUID would make an upgrade install beside the old version.
@@ -48,8 +51,8 @@ AppVersion={#AppVersion}
 VersionInfoVersion={#FileVersion}
 AppPublisher=BT Labs
 ; The app's single-instance mutex (windows\runner\main.cpp): Setup and the uninstaller wait for
-; the app to close instead of replacing files under it.
-AppMutex={#AppMutexName}
+; the app to close instead of replacing files under it; the old name too, for an older version.
+AppMutex={#AppMutexName},{#OldAppMutexName}
 DefaultDirName={%USERPROFILE}\Apps\EpicWallet
 DisableDirPage=yes
 DisableProgramGroupPage=yes
@@ -542,7 +545,7 @@ begin
     waits here for the app to close (up to a minute) rather than showing "is open". }
   if FromApp then begin
     Waited := 0;
-    while CheckForMutexes('{#AppMutexName}') and (Waited < 60000) do begin
+    while CheckForMutexes('{#AppMutexName},{#OldAppMutexName}') and (Waited < 60000) do begin
       Sleep(250);
       Waited := Waited + 250;
     end;
