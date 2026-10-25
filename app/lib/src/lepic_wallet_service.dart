@@ -2697,14 +2697,31 @@ class _LepicPairing implements PairingApi {
   );
 
   @override
-  Future<PairingInvitePreview> openInvite(String link) =>
-      _call(() async => _preview(link.trim(), await _w.pairingPreview(link: link.trim())));
+  Future<PairingInvitePreview> openInvite(String link) => _call(() async {
+    final preview = await _w.pairingPreview(link: link.trim());
+    await _refuseOwn(link.trim(), preview);
+    return _preview(link.trim(), preview);
+  });
 
   @override
   Future<PairingInvitePreview> openWords(List<String> words) => _call(() async {
     final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode());
+    await _refuseOwn(found.link, found.preview);
     return _preview(found.link, found.preview);
   });
+
+  /// This wallet's own invite, opened here: refused before "Pair with …?" (PAIR-AND-2), which
+  /// LEPIC would only refuse on the answer. Known by its link while this run made it, else by
+  /// a pending invite of this wallet with the same name and expiry to the second (the link
+  /// carries seconds).
+  Future<void> _refuseOwn(String link, lepic.InvitePreview p) async {
+    if (_inviteLinks.values.contains(link)) throw pairingError(PairingFailure.ownCard);
+    for (final mine in await _w.pairingsPending()) {
+      if (mine.inviter && mine.inviteName == p.claimedName && mine.expiresAtMs.toInt() ~/ 1000 == p.expiresAtMs.toInt() ~/ 1000) {
+        throw pairingError(PairingFailure.ownCard);
+      }
+    }
+  }
 
   @override
   Future<PairingRecord> acceptInvite({

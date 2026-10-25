@@ -111,6 +111,18 @@ void main() {
     expect(answered.single.asksInvoices, isFalse, reason: 'Allow invoices is off until the user turns it on');
   });
 
+  testWidgets('this wallet\'s own invite pasted: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    final mine = (await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24))))!;
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), mine.inviteLink!);
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairOwnCode), findsOneWidget);
+    expect(find.text(_l.pairIncomingTitle('the owner')), findsNothing);
+  });
+
   testWidgets('the whole shared invite message, its lines run together by the field, opens the invite (PAIR-LNX-1)', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');

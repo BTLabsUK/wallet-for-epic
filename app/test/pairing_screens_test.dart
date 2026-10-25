@@ -265,6 +265,19 @@ void main() {
       expect(field.controller!.text, '${word.name} ');
     });
 
+    testWidgets('this wallet\'s own invite: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {
+      final h = _Harness();
+      final mine = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+      await h.pump(tester, const EnterLinkScreen());
+      await tester.enterText(find.byKey(pairEnterFieldKey), mine.inviteLink!);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairEnterGoKey));
+      await _frames(tester);
+      expect(find.text(_l.pairOwnCode), findsOneWidget);
+      expect(find.text(_l.pairIncomingTitle('the owner')), findsNothing);
+      expect(h.api.records.single.state, PairingState.pendingInvite, reason: 'nothing answered');
+    });
+
     testWidgets('an invite link opens the incoming invite; Pair answers and waits', (tester) async {
       final h = _Harness();
       await h.pump(tester, const EnterLinkScreen());

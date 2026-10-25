@@ -139,6 +139,25 @@ void main() {
     expect(await anna.pairing.pairings(), isEmpty);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
+  test('a wallet opening its own invite is refused before the answer, also after a restart (PAIR-AND-2)', () async {
+    final (anna, w) = await wallet();
+    final (carl, _) = await wallet();
+    final invite = await anna.pairing.makeInvite(name: 'Anna', expiry: const Duration(days: 1));
+    Future<PairingFailure?> failureOf(Future<Object?> call) async {
+      try {
+        await call;
+        return null;
+      } catch (e) {
+        return pairingFailureOf(e);
+      }
+    }
+
+    expect(await failureOf(anna.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
+    final again = LepicWalletSession(w);
+    expect(await failureOf(again.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
+    expect((await carl.pairing.openInvite(invite.inviteLink!)).name, 'Anna');
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
+
   test('two phones pair in person by their cards, with no relay', () async {
     final (anna, _) = await wallet();
     final (carl, _) = await wallet();
