@@ -220,7 +220,9 @@ void main() {
   });
 
   testWidgets('Epicbox: a pick opens the confirm; Cancel keeps the relay; a relay that does not answer adds nothing; Switch switches', (tester) async {
-    await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen));
+    // Transactions has the payment methods and Send above the Epicbox panel now: a taller
+    // window keeps the panel's foot (Added …, Switch) on screen.
+    await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), size: const Size(1280, 1500));
     const warning = 'Switching changes your address. Senders need the new one.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;

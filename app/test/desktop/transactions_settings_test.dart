@@ -471,12 +471,13 @@ void main() {
     });
 
     testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), payments: const PaymentPrefs(epicbox: false));
+      // Mining pool payouts has only an Epicbox address (Anna has a Link · HTTP one too).
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', amount: '1'), payments: const PaymentPrefs(epicbox: false));
       final epicbox = tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>).first).segments.firstWhere((s) => s.label == 'Epicbox');
       expect(epicbox.enabled, isFalse);
       expect(epicbox.tooltip, 'Epicbox is off in Settings › Transactions.');
       expect(find.byKey(const ValueKey('send-epicbox-off')), findsOneWidget);
-      expect(find.text('Anna Kowalska has only an Epicbox address.'), findsOneWidget);
+      expect(find.text('Mining pool payouts has only an Epicbox address.'), findsOneWidget);
     });
 
     testWidgets('Epicbox not connected keeps the file fallback with the switch off', (tester) async {

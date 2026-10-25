@@ -173,7 +173,8 @@ void main() {
     expect(find.textContaining('e.g. @epicbox'), findsNothing);
     for (final bad in ['http://', 'esShort', 'nonsense.onion', 'hello world']) {
       await tester.enterText(_input('Name'), 'Ann');
-      await tester.enterText(_input('Address'), bad);
+      // The form adds a second Address field once the first holds text: the first is the one tested.
+      await tester.enterText(_input('Address').first, bad);
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));

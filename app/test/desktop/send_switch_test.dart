@@ -43,7 +43,9 @@ void main() {
 
   TxMethod method(WidgetTester tester) => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value;
   Finder to() => find.byType(EditableText).first;
-  Finder tag() => find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.text('Link'));
+  // The tag names the method the address chose (Link · HTTP or Link · Tor, never the family alone).
+  Finder tag([String family = 'Link']) =>
+      find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.textContaining(family));
 
   /// Types [text] one character at a time; the method after each.
   Future<List<TxMethod>> type(WidgetTester tester, String text) async {
@@ -68,7 +70,7 @@ void main() {
     await tester.enterText(to(), _epicbox);
     await tester.pump();
     expect(method(tester), TxMethod.epicbox);
-    expect(find.text('Via Epicbox'), findsOneWidget);
+    expect(tag('Epicbox'), findsOneWidget);
     expect(find.text(_epicbox), findsOneWidget, reason: 'the field keeps its text');
     await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
