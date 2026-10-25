@@ -198,8 +198,9 @@ class ReceiveView extends ConsumerWidget {
         : LayoutBuilder(
             builder: (context, box) {
               // Icon above the label, every label at one size (PH-1): the selected tab changes
-              // colour only. Room per tab: its share, less the padding and the dividers.
-              final style = Theme.of(context).textTheme.labelMedium!;
+              // colour (the button's own, accent when selected) and weight, never size. Measured
+              // at the heavier weight. Room per tab: its share, less the padding and dividers.
+              final style = Theme.of(context).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w600);
               final fit = fitTabLabels(
                 context,
                 [for (final s in tabSegments) s.label],
@@ -223,7 +224,11 @@ class ReceiveView extends ConsumerWidget {
                             maxLines: 2,
                             softWrap: false,
                             textAlign: TextAlign.center,
-                            style: style.copyWith(fontSize: fit.size),
+                            // No colour here: the button's selected and unselected colours.
+                            style: TextStyle(
+                              fontSize: fit.size,
+                              fontWeight: s.value == tab ? FontWeight.w600 : FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
