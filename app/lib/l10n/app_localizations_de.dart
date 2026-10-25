@@ -4857,6 +4857,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverNotResponding => 'Antwortet nicht';
 
   @override
+  String get serverLocalNotReachable =>
+      'Von diesem Computer aus nicht erreichbar';
+
+  @override
   String get serverHealthy => 'Funktioniert';
 
   @override

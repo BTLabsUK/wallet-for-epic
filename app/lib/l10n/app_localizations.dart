@@ -7437,6 +7437,12 @@ abstract class AppLocalizations {
   /// **'Not responding'**
   String get serverNotResponding;
 
+  /// Node list row: a node on this computer or the local network (a 192.168.x, 10.x or .local address) did not answer the app's own check. Says that this device cannot reach it (often the node only listens on its own 127.0.0.1), not that the node is down.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable from this computer'**
+  String get serverLocalNotReachable;
+
   /// Screen reader: the monitor saw the server healthy.
   ///
   /// In en, this message translates to:

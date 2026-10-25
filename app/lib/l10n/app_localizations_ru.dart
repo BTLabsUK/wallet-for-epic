@@ -4956,6 +4956,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverNotResponding => 'Не отвечает';
 
   @override
+  String get serverLocalNotReachable => 'Недоступен с этого компьютера';
+
+  @override
   String get serverHealthy => 'Исправен';
 
   @override

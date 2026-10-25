@@ -4531,6 +4531,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverNotResponding => '无响应';
 
   @override
+  String get serverLocalNotReachable => '无法从这台电脑访问';
+
+  @override
   String get serverHealthy => '正常';
 
   @override

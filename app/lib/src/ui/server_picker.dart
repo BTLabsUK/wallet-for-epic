@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../network.dart';
+import '../providers.dart' show askNodeTip, sessionProvider, walletServiceProvider;
 import '../relay_directory.dart';
 import 'launch_screen.dart';
 import 'server_list_sheet.dart' show showEpicboxListSheet, showNodeListSheet;
@@ -31,6 +32,36 @@ final publicNodeStatusProvider = FutureProvider.autoDispose.family<List<NodeStat
     return (directory as NodeDirectory).nodes(chain);
   },
 );
+
+/// A node on this phone or the local network ([isLocalNodeUrl]), asked from this phone:
+/// status.btlabs.uk cannot reach it, so its row never takes the monitor's word. Healthy when
+/// it gives its tip within [localNodeProbeTimeout], else down.
+final localNodeStatusProvider = FutureProvider.autoDispose.family<NodeStatus, ({String url, NetworkPreset preset})>(
+  (ref, k) async {
+    final watch = Stopwatch()..start();
+    try {
+      final tip = await askNodeTip(
+        ref.read(walletServiceProvider),
+        ref.read(sessionProvider),
+        k.preset.config(dataDir: '', nodeUrl: k.url),
+      ).timeout(localNodeProbeTimeout);
+      return NodeStatus(
+        url: k.url,
+        healthy: true,
+        verified: false,
+        state: NodeHealthState.healthy,
+        height: tip.height.toInt(),
+        latencyMs: watch.elapsedMilliseconds,
+        nodeVersion: tip.nodeVersion,
+      );
+    } on Object {
+      return NodeStatus(url: k.url, healthy: false, verified: false, state: NodeHealthState.down);
+    }
+  },
+);
+
+/// How long [localNodeStatusProvider] waits for a local node.
+const localNodeProbeTimeout = Duration(seconds: 10);
 
 /// status.btlabs.uk's view of the chain as a whole (its tip, nodes up, last block).
 final networkStatusProvider = FutureProvider.autoDispose.family<NetworkStatus, NetworkPreset>((

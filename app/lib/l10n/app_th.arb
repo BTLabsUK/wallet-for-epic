@@ -1215,6 +1215,7 @@
   "serverBehindShort": "−{count}",
   "serverBehindLabel": "{count, plural, other{ตามหลัง {count} บล็อก}}",
   "serverNotResponding": "ไม่ตอบสนอง",
+  "serverLocalNotReachable": "เข้าถึงไม่ได้จากคอมพิวเตอร์เครื่องนี้",
   "serverHealthy": "ปกติ",
   "serverDegraded": "ไม่เสถียร",
   "serverHealthNone": "ไม่ทราบสถานะ",

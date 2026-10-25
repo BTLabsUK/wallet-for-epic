@@ -4791,6 +4791,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverNotResponding => 'Not responding';
 
   @override
+  String get serverLocalNotReachable => 'Not reachable from this computer';
+
+  @override
   String get serverHealthy => 'Healthy';
 
   @override

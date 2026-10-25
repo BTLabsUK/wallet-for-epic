@@ -33,6 +33,17 @@ Future<Uint8List?> _fixtureIcon(Uri url) async {
   return f.existsSync() ? f.readAsBytesSync() : null;
 }
 
+/// The mock wallet with its own LAN node (http://10.0.1.24:3413) not answering its check.
+class _LanDown extends MockDeskWallet {
+  _LanDown() : super(delay: Duration.zero);
+
+  @override
+  Future<List<NodeServer>> nodes() async => [
+    for (final n in await super.nodes())
+      n.url.contains('192.168.') ? NodeServer(url: n.url, label: n.label, health: ServiceHealth.down, own: true) : n,
+  ];
+}
+
 const _btlabs = 'https://node.btlabs.uk';
 const _epicnet = 'https://node.epicnet.us:3413';
 const _epiccash = 'https://node.epiccash.com:3413';
@@ -193,6 +204,27 @@ void main() {
     expect(find.text('In use. Switch first.'), findsOneWidget);
     expect(nodes(), contains(_btlabs));
     expect(container.read(deskProvider).status!.node.url, _btlabs, reason: 'never a silent switch');
+    await end(tester);
+  });
+
+  testWidgets('a local node that does not answer its check reads "Not reachable from this computer"; a public one "Not responding"', (tester) async {
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        deskApiProvider.overrideWithValue(_LanDown()),
+        deskNodeProvider.overrideWithValue(MockDeskNode()),
+        deskStoreProvider.overrideWithValue(DeskStore(secrets)),
+        deskBootProvider.overrideWithValue(const DeskBoot()),
+        relayProbeProvider.overrideWithValue(probe),
+        serverIconFetchProvider.overrideWithValue(_fixtureIcon),
+      ],
+    );
+    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
+    expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
+    expect(says('http://10.0.1.24:3413', 'Not responding'), findsNothing);
+    expect(says('https://epic-node.iniaku.my.id', 'Not responding'), findsOneWidget);
+    expect(says('https://epic-node.iniaku.my.id', 'Not reachable'), findsNothing);
     await end(tester);
   });
 

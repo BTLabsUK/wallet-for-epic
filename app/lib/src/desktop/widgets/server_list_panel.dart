@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../legacy/gui_rules.dart' show isPrivateHost;
+import '../../net/local_address.dart' show isLocalNodeUrl;
 import '../../node/node_info.dart' show compareVersions;
 import '../../relay_directory.dart' show NodeHealthState;
 import '../../ui/server_tile.dart';
@@ -83,6 +84,10 @@ class PanelServer {
   final bool isDefault;
 
   bool get down => state == NodeHealthState.down;
+
+  /// A node on this computer or the local network ([isLocalNodeUrl]): the wallet's own check
+  /// is its only state, and down reads "Not reachable from this computer".
+  bool get local => isLocalNodeUrl(value);
 }
 
 /// A value without its scheme and trailing slash: what a row and the field show.
@@ -991,7 +996,7 @@ class _Row extends StatelessWidget {
       if (kind == ServerKind.node && !down && s.behind != null)
         s.behind! <= 0 ? (l.deskKitAtTip, c.ok, false) : (l.deskKitBehind(s.behind!, digitsText(l, s.behind!)), c.warn, false),
       if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (l.deskSetFrameHealthSlow, c.warn, false),
-      if (down) (l.deskSetFrameNotResponding, c.risk, false),
+      if (down) (kind == ServerKind.node && s.local ? l.serverLocalNotReachable : l.deskSetFrameNotResponding, c.risk, false),
       if (s.state == null) (s.checking ? l.deskSetFrameChecking : l.deskSlHealthUnknown, c.dim, false),
       if (s.operator != null && s.operator!.isNotEmpty) (s.operator!, dim, false),
       if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),

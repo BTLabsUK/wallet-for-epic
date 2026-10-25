@@ -1215,6 +1215,7 @@
   "serverBehindShort": "−{count}",
   "serverBehindLabel": "{count, plural, one{{count} blok w tyle} few{{count} bloki w tyle} many{{count} bloków w tyle} other{{count} bloku w tyle}}",
   "serverNotResponding": "Nie odpowiada",
+  "serverLocalNotReachable": "Niedostępny z tego komputera",
   "serverHealthy": "Sprawny",
   "serverDegraded": "Ograniczony",
   "serverHealthNone": "Stan nieznany",

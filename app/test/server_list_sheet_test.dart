@@ -828,6 +828,44 @@ void main() {
     });
   });
 
+  group('a node on the local network', () {
+    const lan = 'http://10.0.0.138:4413';
+
+    testWidgets('is asked from this phone, never judged by the monitor: no answer reads "Not '
+        'reachable from this computer"; a public node the monitor finds down "Not responding"', (
+      tester,
+    ) async {
+      final env = _Env(
+        store: _store({'app.myNodes.mainnet': '["$lan"]'}),
+        directory: _Directory(
+          nodeList: const [
+            NodeStatus(url: _epicnet, healthy: false, verified: true, state: NodeHealthState.down),
+            // The monitor's word on a local address is never taken.
+            NodeStatus(url: lan, healthy: true, verified: false, state: NodeHealthState.healthy),
+          ],
+        ),
+      );
+      env.service.nodeTipFails = const NetError('connection refused');
+      await _pump(tester, ServerKind.node, env);
+      expect(env.service.nodeTipCalls, 1, reason: 'the local node is checked from here, once');
+      expect(_inRow(lan, 'Not reachable from this computer'), findsOneWidget);
+      expect(_inRow(lan, 'Not responding'), findsNothing);
+      expect(_inRow(lan, 'Healthy'), findsNothing);
+      expect(_inRow(_epicnet, 'Not responding'), findsOneWidget);
+      expect(_inRow(_epicnet, 'Not reachable'), findsNothing);
+      await _timers(tester);
+    });
+
+    testWidgets('one that answers its check is not marked down', (tester) async {
+      final env = _Env(store: _store({'app.myNodes.mainnet': '["$lan"]'}));
+      await _pump(tester, ServerKind.node, env);
+      expect(env.service.nodeTipCalls, 1);
+      expect(_inRow(lan, 'Not reachable'), findsNothing);
+      expect(_inRow(lan, 'Not responding'), findsNothing);
+      await _timers(tester);
+    });
+  });
+
   group('lists from older versions', () {
     test('the key names the lists are stored under', () {
       expect(serverListKey(ServerKind.node, Chain.mainnet), 'app.serverList.node.mainnet');

@@ -27,6 +27,7 @@ import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
 import '../server_list_store.dart';
 import '../server_switch.dart';
+import '../net/local_address.dart' show isLocalNodeUrl;
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'badge.dart';
@@ -34,7 +35,7 @@ import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'notices.dart';
 import 'server_picker.dart'
-    show networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
+    show localNodeStatusProvider, networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
 import 'server_tile.dart';
 import 'status.dart' hide NodeStatus;
 import 'theme/protocol.dart';
@@ -112,6 +113,7 @@ class _Entry {
     this.relay,
     this.icon,
     required this.directoryAnswered,
+    this.local = false,
   });
 
   final String value;
@@ -129,6 +131,10 @@ class _Entry {
 
   /// Whether the directory answered at all: a row it did not list says "Health unknown".
   final bool directoryAnswered;
+
+  /// A node on this phone or the local network ([isLocalNodeUrl]): its state is this phone's
+  /// own check ([localNodeStatusProvider]), and down reads "Not reachable from this computer".
+  final bool local;
 
   NodeHealthState? get state => node != null
       ? node!.state
@@ -430,7 +436,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         for (final v in list.entries)
           () {
             final p = public.where((n) => _same(n.url, v)).firstOrNull;
-            final s = p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
+            // A local node is asked from this phone; the monitor cannot reach it.
+            final local = isLocalNodeUrl(v);
+            final s = local
+                ? ref.watch(localNodeStatusProvider((url: v, preset: preset))).value
+                : p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
             final operator = p?.operator ?? s?.operator;
             return _Entry(
               value: v,
@@ -439,7 +449,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               tileName: s?.operator ?? operator,
               node: s,
               icon: serverIconFor(s?.icon, s?.operator ?? operator, known),
-              directoryAnswered: nodes is AsyncData,
+              directoryAnswered: !local && nodes is AsyncData,
+              local: local,
             );
           }(),
       ];
@@ -789,7 +800,7 @@ class _ServerRow extends StatelessWidget {
     final healthWord = switch (state) {
       NodeHealthState.healthy => l.serverHealthy,
       NodeHealthState.degraded => l.serverDegraded,
-      NodeHealthState.down => l.serverNotResponding,
+      NodeHealthState.down => e.local ? l.serverLocalNotReachable : l.serverNotResponding,
       _ => l.serverHealthNone,
     };
     final n = e.node;
@@ -809,7 +820,7 @@ class _ServerRow extends StatelessWidget {
       if (current) l.serverCurrent,
       if (tip != null) tip.text,
       if (state == NodeHealthState.degraded) l.serverDegraded,
-      if (down) l.serverNotResponding,
+      if (down) e.local ? l.serverLocalNotReachable : l.serverNotResponding,
       if (unknown) l.serverHealthNone,
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
@@ -1069,7 +1080,7 @@ class _Facts extends StatelessWidget {
               text: facts[i],
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
-                  : facts[i] == l.serverNotResponding
+                  : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachable
                   ? TextStyle(color: t.risk)
                   : facts[i] == l.serverDegraded
                   ? TextStyle(color: t.warn)
