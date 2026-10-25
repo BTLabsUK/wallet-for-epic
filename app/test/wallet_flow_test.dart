@@ -68,12 +68,21 @@ class _NoPrice implements PriceSource {
 }
 
 /// Everything the app keeps outside the wallet, in memory.
+/// A biometric store whose read fails as no prompt can (a store the system cannot open).
+class _BrokenBio extends MemoryBiometricStore {
+  _BrokenBio() : super(available: true);
+
+  @override
+  Future<String?> read(String key) async => throw StateError('keystore unavailable');
+}
+
 class _Device {
   _Device({
     bool biometrics = false,
     this.sealedMainnet = false,
     bool advanced = false,
-  }) : bio = MemoryBiometricStore(available: biometrics) {
+    MemoryBiometricStore? bio,
+  }) : bio = bio ?? MemoryBiometricStore(available: biometrics) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealedMainnet) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
@@ -555,6 +564,18 @@ void main() {
       await _pumpApp(tester, service, device);
       expect(find.byKey(balanceFigureKey), findsNothing);
       expect(find.text('Use biometrics'), findsOneWidget);
+      await _unlockToHome(tester);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
+    testWidgets('a biometric read that fails says so under the field and leaves the PIN usable', (
+      tester,
+    ) async {
+      final service = _existing();
+      final device = _Device(sealedMainnet: true, bio: _BrokenBio());
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      await _pumpApp(tester, service, device);
+      expect(tester.takeException(), isNull);
       await _unlockToHome(tester);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });

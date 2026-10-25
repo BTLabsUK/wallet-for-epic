@@ -139,6 +139,11 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final String? pin;
     try {
       pin = await vault.readBiometricPin(config.chain);
+    } on Object catch (error) {
+      // As an unlock that failed: said under the field, the PIN still usable.
+      logWarn('unlock', 'biometric read failed: ${describeError(englishStrings, error)}');
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+      return;
     } finally {
       if (mounted) setState(() => _reading = false);
     }
