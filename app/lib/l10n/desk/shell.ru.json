@@ -18,7 +18,7 @@
   "deskRailStopped": "Остановлен",
   "deskRailPortInternet": "Порт {port} · из интернета",
   "deskRailPortLocal": "Порт {port} · только этот компьютер",
-  "deskRailOpenHttp": "Открыть приём: Link · HTTP",
+  "deskRailOpenHttp": "Открыть приём: Ссылка · HTTP",
   "deskRailTorNotInBuild": "Нет в этой сборке",
   "deskRailStartingDots": "Запуск…",
   "deskRailTorSlow": "{problem}. Отправка работает.",

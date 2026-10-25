@@ -18,7 +18,7 @@
   "deskRailStopped": "已停止",
   "deskRailPortInternet": "端口 {port} · 可从互联网访问",
   "deskRailPortLocal": "端口 {port} · 仅限本机",
-  "deskRailOpenHttp": "打开 Link · HTTP 接收设置",
+  "deskRailOpenHttp": "打开 链接 · HTTP 接收设置",
   "deskRailTorNotInBuild": "此版本不含 Tor",
   "deskRailStartingDots": "正在启动…",
   "deskRailTorSlow": "{problem}。发送不受影响。",

@@ -4293,7 +4293,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabFile => 'Файл';
 
   @override
-  String get receiveTorAddressLabel => 'Адрес Link · Tor';
+  String get receiveTorAddressLabel => 'Адрес Ссылка · Tor';
 
   @override
   String get receiveTorQrLabel => 'QR-код вашего адреса Tor';
@@ -5263,19 +5263,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Link · HTTP';
+  String get methodDirectHttp => 'Ссылка · HTTP';
 
   @override
-  String get methodDirectTor => 'Link · Tor';
+  String get methodDirectTor => 'Ссылка · Tor';
 
   @override
   String get methodFile => 'Передача файла';
 
   @override
-  String get methodShortHttp => 'Link · HTTP';
+  String get methodShortHttp => 'Ссылка · HTTP';
 
   @override
-  String get methodShortTor => 'Link · Tor';
+  String get methodShortTor => 'Ссылка · Tor';
 
   @override
   String get methodShortQr => 'Напрямую · QR';
@@ -5316,11 +5316,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodArtLabelHttp =>
-      'Link · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Ссылка · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get methodArtLabelTor =>
-      'Link · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Ссылка · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get methodArtLabelFile =>
@@ -5398,24 +5398,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendToHint => 'Адрес или контакт';
 
   @override
-  String get sendSwitchedHttp => 'Link · HTTP';
+  String get sendSwitchedHttp => 'Ссылка · HTTP';
 
   @override
   String get sendSwitchedEpicbox => 'Через Epicbox';
 
   @override
-  String get sendSwitchedTorAnnounce => 'Адрес Tor. Выбран способ Link · Tor.';
+  String get sendSwitchedTorAnnounce =>
+      'Адрес Tor. Выбран способ Ссылка · Tor.';
 
   @override
   String get sendSwitchedHttpAnnounce =>
-      'Адрес HTTP. Выбран способ Link · HTTP.';
+      'Адрес HTTP. Выбран способ Ссылка · HTTP.';
 
   @override
   String get sendSwitchedEpicboxAnnounce =>
       'Адрес Epicbox. Выбран способ Epicbox.';
 
   @override
-  String get sendReviewMethodHttp => 'Link · HTTP, прямо в кошелёк';
+  String get sendReviewMethodHttp => 'Ссылка · HTTP, прямо в кошелёк';
 
   @override
   String get sendCancelRuleEpicbox =>
@@ -6700,20 +6701,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor. Получать платежи на адрес Tor позволяет переключатель Link · Tor в «Транзакциях».';
+      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor. Получать платежи на адрес Tor позволяет переключатель Ссылка · Tor в «Транзакциях».';
 
   @override
   String get receiveTabDirect => 'Ссылка';
 
   @override
-  String get receiveDirectNeedsTor => 'Для приёма через Link · Tor нужен Tor.';
+  String get receiveDirectNeedsTor =>
+      'Для приёма через Ссылка · Tor нужен Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
       'Пока отправители используют адрес Epicbox.';
 
   @override
-  String get receiveHttpTitle => 'Адрес Link · HTTP';
+  String get receiveHttpTitle => 'Адрес Ссылка · HTTP';
 
   @override
   String get receiveHttpLanLine =>
@@ -6741,7 +6743,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveHttpHideQr => 'Скрыть QR';
 
   @override
-  String get receiveHttpQrLabel => 'QR-код адреса Link · HTTP';
+  String get receiveHttpQrLabel => 'QR-код адреса Ссылка · HTTP';
 
   @override
   String get netStatusOverTor => 'через Tor';
@@ -7697,10 +7699,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
   @override
-  String get deskRecvHttpAddress => 'Адрес Link · HTTP';
+  String get deskRecvHttpAddress => 'Адрес Ссылка · HTTP';
 
   @override
-  String get deskRecvCopyHttp => 'Копировать адрес Link · HTTP';
+  String get deskRecvCopyHttp => 'Копировать адрес Ссылка · HTTP';
 
   @override
   String deskRecvHttpPublic(int port) {
@@ -7720,14 +7722,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvDirectTor => 'Адрес Link · Tor';
+  String get deskRecvDirectTor => 'Адрес Ссылка · Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvTorAddress => 'Адрес Link · Tor';
+  String get deskRecvTorAddress => 'Адрес Ссылка · Tor';
 
   @override
   String get deskRecvCopyTor => 'Копировать адрес Tor';
@@ -8177,7 +8179,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'Link · HTTP идёт через обычный интернет, не через Tor.';
+      'Ссылка · HTTP идёт через обычный интернет, не через Tor.';
 
   @override
   String get deskSendClear => 'Очистить';
@@ -8343,11 +8345,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Link · HTTP (кошелёк получателя должен быть открыт)';
+      'Ссылка · HTTP (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaTor =>
-      'Link · Tor (кошелёк получателя должен быть открыт)';
+      'Ссылка · Tor (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaFile => 'Файл транзакции';
@@ -8843,10 +8845,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAddrEpicbox => 'Адрес Epicbox';
 
   @override
-  String get deskConAddrTor => 'Адрес Link · Tor';
+  String get deskConAddrTor => 'Адрес Ссылка · Tor';
 
   @override
-  String get deskConAddrHttp => 'Адрес Link · HTTP';
+  String get deskConAddrHttp => 'Адрес Ссылка · HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -10951,7 +10953,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Открыть приём: Link · HTTP';
+  String get deskRailOpenHttp => 'Открыть приём: Ссылка · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Нет в этой сборке';
@@ -11237,11 +11239,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Link · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Ссылка · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Link · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Ссылка · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -13359,7 +13361,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Link · HTTP, приём';
+  String get deskSetRecvHttpTitle => 'Ссылка · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13370,7 +13372,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Платежи напрямую из другого кошелька вместо этого приходят на адрес Link · Tor.';
+      'Платежи напрямую из другого кошелька вместо этого приходят на адрес Ссылка · Tor.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Настройки приватности';
@@ -14736,7 +14738,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Режим «Только Tor» отключает приём по Link · HTTP: обычный адрес раскрыл бы этот компьютер.';
+      'Режим «Только Tor» отключает приём по Ссылка · HTTP: обычный адрес раскрыл бы этот компьютер.';
 
   @override
   String get deskSetAdvOfflineNote =>
@@ -15032,7 +15034,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txLinkHttpHint =>
-      'Link · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Link · HTTP в «Отправить» и «Получить».';
+      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
 
   @override
   String get txLinkTorLine =>
@@ -15040,7 +15042,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txLinkTorHint =>
-      'Link · Tor платит прямо в кошелёк по адресу onion и даёт этому телефону адрес Tor, на который ему можно платить. Оба кошелька должны быть открыты. Нужен Tor: переключатель Tor в «Приватность и сеть» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Link · Tor в «Отправить» и «Получить».';
+      'Ссылка · Tor платит прямо в кошелёк по адресу onion и даёт этому телефону адрес Tor, на который ему можно платить. Оба кошелька должны быть открыты. Нужен Tor: переключатель Tor в «Приватность и сеть» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить» и «Получить».';
 
   @override
   String get txLinkTorNeedsTor =>
@@ -15224,7 +15226,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Link · HTTP в «Отправить», а его адрес — в «Получить».';
+      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
 
   @override
   String get deskSetTxFileHint =>
@@ -15348,7 +15350,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
 
   @override
-  String get deskSetRecvTorTitle => 'Link · Tor, приём';
+  String get deskSetRecvTorTitle => 'Ссылка · Tor, приём';
 
   @override
   String get deskSetRecvTorText =>
@@ -15356,7 +15358,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetTxTorHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по адресу onion, через Tor, без сервера посередине. Работает, только пока оба кошелька открыты. Нужен Tor: переключатель Tor в разделе «Приватность» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Link · Tor в «Отправить», а его адрес — в «Получить».';
+      'Платите и получайте платежи напрямую от кошелька к кошельку по адресу onion, через Tor, без сервера посередине. Работает, только пока оба кошелька открыты. Нужен Tor: переключатель Tor в разделе «Приватность» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить», а его адрес — в «Получить».';
 
   @override
   String get deskSetTxTorNeedsTor =>
@@ -15367,7 +15369,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Хотя бы один способ оплаты должен остаться включённым.';
 
   @override
-  String get deskRecvTorOffTitle => 'Для приёма через Link · Tor нужен Tor.';
+  String get deskRecvTorOffTitle => 'Для приёма через Ссылка · Tor нужен Tor.';
 
   @override
   String get deskRecvTorOffText =>

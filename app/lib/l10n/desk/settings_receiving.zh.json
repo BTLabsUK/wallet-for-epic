@@ -17,10 +17,10 @@
   "deskSetRecvEpicboxServerHint": "由哪个服务器为此地址暂存付款。双方钱包可以使用不同的服务器。",
   "deskSetRecvSwitchingServer": "正在切换 Epicbox 服务器…",
   "deskSetRecvListNote": "状态来自 status.btlabs.uk，每隔几分钟检查一次。",
-  "deskSetRecvHttpTitle": "Link · HTTP 接收",
+  "deskSetRecvHttpTitle": "链接 · HTTP 接收",
   "deskSetRecvHttpText": "本钱包打开时，直接从另一个钱包经此电脑的网址接收。",
   "deskSetRecvHttpOffTitle": "Tor 开启时关闭",
-  "deskSetRecvHttpOffText": "直接来自另一个钱包的付款会改为发送到 Link · Tor 地址。",
+  "deskSetRecvHttpOffText": "直接来自另一个钱包的付款会改为发送到 链接 · Tor 地址。",
   "deskSetRecvPrivacySettings": "隐私设置",
   "deskSetHttpNotChanged": "未更改",
   "deskSetHttpPortError": "端口必须在 1 到 65535 之间",
@@ -47,6 +47,6 @@
   "deskSetHttpTurnOnTor": "开启 Tor",
   "deskSetHttpExposed": "只开放接收 API。明文 HTTP 不加密。",
   "deskSetHttpBackLocal": "改回仅限本机",
-  "deskSetRecvTorTitle": "Link · Tor 接收",
+  "deskSetRecvTorTitle": "链接 · Tor 接收",
   "deskSetRecvTorText": "钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。"
 }

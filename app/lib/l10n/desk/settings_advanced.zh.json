@@ -24,7 +24,7 @@
   "deskSetAdvModeTorOnlyText": "所有连接都经过 Tor。没有 Tor 时，钱包保持离线并会提示。",
   "deskSetAdvModeOffline": "离线",
   "deskSetAdvModeOfflineText": "只限这台电脑和你的本地网络。你的节点继续运行；它的对等节点是节点本身的设置。",
-  "deskSetAdvTorOnlyNote": "“仅 Tor”会关闭 Link · HTTP 接收：普通地址会暴露这台电脑。",
+  "deskSetAdvTorOnlyNote": "“仅 Tor”会关闭 链接 · HTTP 接收：普通地址会暴露这台电脑。",
   "deskSetAdvOfflineNote": "Epicbox、Tor 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。",
   "deskSetAdvNotInBuild": "此版本不含",
   "deskSetAdvReset": "再次全部隐藏",
