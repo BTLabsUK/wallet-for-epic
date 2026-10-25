@@ -9529,6 +9529,10 @@
   "@deskSendHintSent": {
     "description": "Line under the Review send button after a send went out."
   },
+  "deskSendHintQueued": "Queued. Enter a new amount and recipient to send again.",
+  "@deskSendHintQueued": {
+    "description": "Line under the Review send button after a payment to a pairing was queued while Epicbox is off: it goes out when Epicbox is back on."
+  },
   "deskSendHintNode": "Waiting for the node to sync.",
   "@deskSendHintNode": {
     "description": "Line under the Review send button while the node syncs."

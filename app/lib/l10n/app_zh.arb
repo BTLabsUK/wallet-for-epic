@@ -2269,6 +2269,7 @@
   "deskSendPrivacyOff": "隐私 · Dandelion++ 已关闭",
   "deskSendDandelionText": "交易在扩散前会先经过几个随机节点，因此网络无法判断它来自哪里。",
   "deskSendHintSent": "已发送。如需再次发送，请输入新的金额和接收方。",
+  "deskSendHintQueued": "已排队。如需再次发送，请输入新的金额和接收方。",
   "deskSendHintNode": "等待节点同步。",
   "deskSendHintEpicbox": "等待 Epicbox 连接。",
   "deskSendHintTorWait": "等待 Tor 连接。",

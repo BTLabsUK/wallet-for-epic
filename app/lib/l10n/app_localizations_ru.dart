@@ -7617,6 +7617,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправлено. Чтобы отправить снова, введите новую сумму и получателя.';
 
   @override
+  String get deskSendHintQueued =>
+      'В очереди. Чтобы отправить снова, введите новую сумму и получателя.';
+
+  @override
   String get deskSendHintNode => 'Ждём синхронизации узла.';
 
   @override
@@ -16567,7 +16571,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Epicbox выключен. Платёж ждёт здесь и уйдёт, когда Epicbox снова включится.';
 
   @override
-  String get sendQueue => 'Поставить платёж в очередь';
+  String get sendQueue => 'В очередь';
 
   @override
   String get sendQueuedHeadline => 'Платёж в очереди';

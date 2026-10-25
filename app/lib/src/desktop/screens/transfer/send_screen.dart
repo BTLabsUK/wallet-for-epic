@@ -1540,7 +1540,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final fee = n > 0 ? (_fee ?? 0) : 0;
     final nodeBlocked = _nodeBlock(st) != null;
     final hint = switch (null) {
-      _ when res is SendDone => l.deskSendHintSent,
+      _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
       _ when _netBlock(st) == NetBlock.offline || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,

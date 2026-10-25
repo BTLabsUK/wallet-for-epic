@@ -7384,6 +7384,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sent. Enter a new amount and recipient to send again.';
 
   @override
+  String get deskSendHintQueued =>
+      'Queued. Enter a new amount and recipient to send again.';
+
+  @override
   String get deskSendHintNode => 'Waiting for the node to sync.';
 
   @override

@@ -2061,6 +2061,7 @@
   "deskSendPrivacyOff": "Privatsphäre · Dandelion++ aus",
   "deskSendDandelionText": "Leitet die Transaktion über einige zufällige Nodes, bevor sie sich verbreitet, sodass das Netzwerk nicht erkennt, woher sie kam.",
   "deskSendHintSent": "Gesendet. Geben Sie einen neuen Betrag und Empfänger ein, um erneut zu senden.",
+  "deskSendHintQueued": "Eingereiht. Geben Sie einen neuen Betrag und Empfänger ein, um erneut zu senden.",
   "deskSendHintNode": "Warten, bis der Node synchronisiert ist.",
   "deskSendHintEpicbox": "Warten auf die Verbindung zu Epicbox.",
   "deskSendHintTorWait": "Warten auf die Verbindung zu Tor.",

@@ -6975,6 +6975,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendHintSent => '已发送。如需再次发送，请输入新的金额和接收方。';
 
   @override
+  String get deskSendHintQueued => '已排队。如需再次发送，请输入新的金额和接收方。';
+
+  @override
   String get deskSendHintNode => '等待节点同步。';
 
   @override

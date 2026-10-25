@@ -11547,6 +11547,12 @@ abstract class AppLocalizations {
   /// **'Sent. Enter a new amount and recipient to send again.'**
   String get deskSendHintSent;
 
+  /// Line under the Review send button after a payment to a pairing was queued while Epicbox is off: it goes out when Epicbox is back on.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued. Enter a new amount and recipient to send again.'**
+  String get deskSendHintQueued;
+
   /// Line under the Review send button while the node syncs.
   ///
   /// In en, this message translates to:

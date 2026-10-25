@@ -7226,6 +7226,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่งแล้ว ใส่จำนวนและผู้รับใหม่เพื่อส่งอีกครั้ง';
 
   @override
+  String get deskSendHintQueued =>
+      'เข้าคิวแล้ว ใส่จำนวนและผู้รับใหม่เพื่อส่งอีกครั้ง';
+
+  @override
   String get deskSendHintNode => 'รอโหนดซิงก์';
 
   @override

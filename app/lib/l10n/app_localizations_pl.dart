@@ -7652,6 +7652,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wysłano. Wpisz nową kwotę i odbiorcę, aby wysłać ponownie.';
 
   @override
+  String get deskSendHintQueued =>
+      'W kolejce. Wpisz nową kwotę i odbiorcę, aby wysłać ponownie.';
+
+  @override
   String get deskSendHintNode => 'Oczekiwanie na synchronizację węzła.';
 
   @override
