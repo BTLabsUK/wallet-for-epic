@@ -412,7 +412,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               title: l.deskSetTxStart,
               hint: l.deskSetTxStartHint,
               // Sized to its words: three segments with the family names do not fit the
-              // fixed row control.
+              // fixed row control. In a narrow window or long words they go under the title.
+              wrap: true,
               control: ESegmented<MethodKind>(
                 segments: [for (final m in offered) ESegment(m, _startName(l, m), icon: m.family == MethodFamily.link ? MethodIcons.family(MethodFamily.link) : MethodIcons.of(m))],
                 value: offered.contains(start) ? start : offered.firstOrNull ?? MethodKind.epicbox,

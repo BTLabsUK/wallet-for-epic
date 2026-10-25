@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
 
 export '../../ui/badge.dart';
 
@@ -545,7 +546,7 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below, this.leading, this.badge});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
@@ -563,6 +564,10 @@ class ESetRow extends StatelessWidget {
   final IconData? hintIcon;
   final Widget? control;
   final bool stacked;
+
+  /// For a control sized to its words (it is no [ERowControl]): beside the words while both
+  /// fit on one line, under them when a narrow window, big text or long words leave no room.
+  final bool wrap;
 
   /// Extra content under the row (status line, expanded options).
   final Widget? below;
@@ -627,7 +632,9 @@ class ESetRow extends StatelessWidget {
           if (stacked || control == null) ...[
             words,
             if (control != null) ...[SizedBox(height: Sp.x3), control!],
-          ] else
+          ] else if (wrap)
+            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: 160.u, children: [words, control!])
+          else
             Row(
               children: [
                 Expanded(child: words),
@@ -644,6 +651,125 @@ class ESetRow extends StatelessWidget {
 
 /// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
 /// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
+/// [ESetRow.wrap]'s layout: the control at its own width at the right with the words in the
+/// rest, while that leaves the words [minWords]; otherwise the control under the words.
+class _WrapRow extends MultiChildRenderObjectWidget {
+  const _WrapRow({required this.gap, required this.runGap, required this.minWords, required super.children});
+
+  final double gap;
+  final double runGap;
+  final double minWords;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderWrapRow(gap, runGap, minWords);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderWrapRow renderObject) => renderObject
+    ..gap = gap
+    ..runGap = runGap
+    ..minWords = minWords;
+}
+
+class _WrapRowData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderWrapRow extends RenderBox
+    with ContainerRenderObjectMixin<RenderBox, _WrapRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _WrapRowData> {
+  _RenderWrapRow(this._gap, this._runGap, this._minWords);
+
+  double _gap;
+  set gap(double v) {
+    if (v == _gap) return;
+    _gap = v;
+    markNeedsLayout();
+  }
+
+  double _runGap;
+  set runGap(double v) {
+    if (v == _runGap) return;
+    _runGap = v;
+    markNeedsLayout();
+  }
+
+  double _minWords;
+  set minWords(double v) {
+    if (v == _minWords) return;
+    _minWords = v;
+    markNeedsLayout();
+  }
+
+  RenderBox get _words => firstChild!;
+  RenderBox get _control => lastChild!;
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _WrapRowData) child.parentData = _WrapRowData();
+  }
+
+  bool _fits(double width, double control) => control + _gap + _minWords <= width;
+
+  @override
+  double computeMinIntrinsicWidth(double height) => [_words.getMinIntrinsicWidth(height), _control.getMinIntrinsicWidth(height)].reduce((a, b) => a > b ? a : b);
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => _words.getMaxIntrinsicWidth(height) + _gap + _control.getMaxIntrinsicWidth(height);
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height(width, (b, w) => b.getMinIntrinsicHeight(w));
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height(width, (b, w) => b.getMaxIntrinsicHeight(w));
+
+  double _height(double width, double Function(RenderBox, double) h) {
+    final cw = _control.getMaxIntrinsicWidth(double.infinity);
+    if (_fits(width, cw)) {
+      final a = h(_words, width - cw - _gap);
+      final b = h(_control, cw);
+      return a > b ? a : b;
+    }
+    return h(_words, width) + _runGap + h(_control, width);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final width = constraints.maxWidth;
+    final c = _control.getDryLayout(BoxConstraints(maxWidth: width));
+    if (_fits(width, c.width)) {
+      final w = _words.getDryLayout(BoxConstraints.tightFor(width: width - c.width - _gap));
+      return constraints.constrain(Size(width, w.height > c.height ? w.height : c.height));
+    }
+    final w = _words.getDryLayout(BoxConstraints.tightFor(width: width));
+    return constraints.constrain(Size(width, w.height + _runGap + c.height));
+  }
+
+  @override
+  void performLayout() {
+    final width = constraints.maxWidth;
+    _control.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
+    final c = _control.size;
+    final wd = _words.parentData! as _WrapRowData;
+    final cd = _control.parentData! as _WrapRowData;
+    if (_fits(width, c.width)) {
+      // On one line, both centred on it, as the plain row does.
+      _words.layout(BoxConstraints.tightFor(width: width - c.width - _gap), parentUsesSize: true);
+      final h = _words.size.height > c.height ? _words.size.height : c.height;
+      wd.offset = Offset(0, (h - _words.size.height) / 2);
+      cd.offset = Offset(width - c.width, (h - c.height) / 2);
+      size = constraints.constrain(Size(width, h));
+    } else {
+      _words.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
+      wd.offset = Offset.zero;
+      cd.offset = Offset(0, _words.size.height + _runGap);
+      size = constraints.constrain(Size(width, _words.size.height + _runGap + c.height));
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
+}
+
 class EInfoHint extends StatefulWidget {
   const EInfoHint(this.text, {super.key, this.title, this.icon});
 

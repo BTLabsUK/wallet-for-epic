@@ -25,7 +25,9 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             title: l.deskSetAppearTheme,
             hint: l.deskSetAppearThemeHint,
             // At least the wide control; wider when a language's words need it, the three
-            // segments equal and every word whole (LNX-11).
+            // segments equal and every word whole (LNX-11). Under the title when that is
+            // wider than the row leaves.
+            wrap: true,
             control: ConstrainedBox(
               constraints: BoxConstraints(minWidth: Ctl.rowWide),
               child: IntrinsicWidth(

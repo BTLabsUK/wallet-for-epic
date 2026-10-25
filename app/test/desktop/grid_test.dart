@@ -133,6 +133,8 @@ void _expectRowControls(WidgetTester tester, String what) {
   for (final e in find.byType(ESetRow).evaluate()) {
     final row = e.widget as ESetRow;
     if (row.control == null || row.stacked) continue;
+    // A control sized to its words (Theme, Send starts on) wraps under the title instead.
+    if (row.wrap) continue;
     final inRow = find.descendant(of: find.byWidget(row), matching: find.byWidget(row.control!));
     final ok = [ERowControl, ESwitch, EBadge].any((t) => find.descendant(of: inRow, matching: find.byType(t), matchRoot: true).evaluate().isNotEmpty);
     expect(ok, isTrue, reason: '$what: the control of "${row.title ?? row.text}" is not an ERowControl');
@@ -144,7 +146,10 @@ void _expectRowControls(WidgetTester tester, String what) {
       final row = e.widget as ESetRow;
       if (row.control == null || row.stacked) continue;
       final ctl = find.descendant(of: find.byWidget(row), matching: find.byWidget(row.control!)).evaluate().first;
-      edges.add(_rect(ctl.renderObject! as RenderBox).right);
+      final r = _rect(ctl.renderObject! as RenderBox);
+      // A wrap row whose control went under the title has no right edge to share.
+      if (row.wrap && r.top >= _rect(find.descendant(of: find.byWidget(row), matching: find.text(row.title!)).evaluate().first.renderObject! as RenderBox).bottom) continue;
+      edges.add(r.right);
     }
     for (final x in edges) {
       expect(x, moreOrLessEquals(edges.first, epsilon: 0.5), reason: '$what: right edges in "${(g.widget as ESetGroup).title}": $edges');
