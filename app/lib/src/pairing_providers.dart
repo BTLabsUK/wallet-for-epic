@@ -105,13 +105,28 @@ final pairingSeenAsProvider = AsyncNotifierProvider<PairingSeenAs, String>(Pairi
 class PairingSeenAs extends AsyncNotifier<String> {
   static const key = 'pairing.seen_as';
 
+  Timer? _save;
+
   @override
-  Future<String> build() async => await ref.read(secretStoreProvider).read(key) ?? '';
+  Future<String> build() async {
+    ref.onDispose(() => _save?.cancel());
+    return await ref.read(secretStoreProvider).read(key) ?? '';
+  }
 
   Future<void> set(String name) async {
+    _save?.cancel();
     final text = name.trim();
     state = AsyncData(text);
     await ref.read(secretStoreProvider).write(key, text);
+  }
+
+  /// The name being typed: current for the screens at once, kept once typing pauses (the
+  /// screen may close first, PAIR-AND-1).
+  void type(String name) {
+    final text = name.trim();
+    state = AsyncData(text);
+    _save?.cancel();
+    _save = Timer(const Duration(milliseconds: 600), () => set(text).ignore());
   }
 }
 

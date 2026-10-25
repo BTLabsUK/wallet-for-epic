@@ -197,6 +197,20 @@ void main() {
       expect(h.api.records, isEmpty);
     });
 
+    testWidgets('a name typed and Share tapped at once, keyboard still up: the invite carries it (PAIR-AND-1)', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, const PairOnlineScreen());
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Ola');
+      await tester.pump();
+      await tester.tap(find.byKey(pairShareKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairSeenAsMissing), findsNothing);
+      expect(h.api.records.single.state, PairingState.pendingInvite);
+      expect(h.files.sharedTexts.single, startsWith('Ola '));
+      await tester.pump(const Duration(seconds: 1));
+      expect(h.store.values['pairing.seen_as'], 'Ola', reason: 'kept once typing paused');
+    });
+
     testWidgets('Cancel invite asks first, then cancels', (tester) async {
       final h = _Harness();
       await h.pump(tester, const PairOnlineScreen());

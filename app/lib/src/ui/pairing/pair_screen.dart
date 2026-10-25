@@ -138,7 +138,8 @@ class SeenAsField extends ConsumerStatefulWidget {
   /// Takes the focus when no name is kept yet: the screen needs one before it can go on.
   final bool autofocus;
 
-  /// After the user changed the name (on submit or when the field loses focus).
+  /// After the user changed the name: on submit, when the field loses focus, or once typing
+  /// pauses. The name itself is current at every key, for a button tapped with the keyboard up.
   final ValueChanged<String>? onChanged;
   final String? error;
 
@@ -150,6 +151,10 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
   final _text = TextEditingController();
   final _focus = FocusNode();
   bool _loaded = false;
+  Timer? _pause;
+
+  /// The name [SeenAsField.onChanged] last told.
+  String? _committed;
 
   @override
   void initState() {
@@ -161,16 +166,29 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
 
   @override
   void dispose() {
+    _pause?.cancel();
     _text.dispose();
     _focus.dispose();
     super.dispose();
   }
 
   void _commit() {
+    _pause?.cancel();
     final name = _text.text.trim();
-    if (name == (ref.read(pairingSeenAsProvider).value ?? '')) return;
+    if (name == (_committed ?? ref.read(pairingSeenAsProvider).value ?? '')) return;
+    _committed = name;
     ref.read(pairingSeenAsProvider.notifier).set(name);
     widget.onChanged?.call(name);
+  }
+
+  /// Every key: the screens read the name at once (Share invite tapped with the keyboard up,
+  /// PAIR-AND-1); it is kept, and [SeenAsField.onChanged] told, once typing pauses.
+  void _typed(String text) {
+    ref.read(pairingSeenAsProvider.notifier).type(text);
+    _pause?.cancel();
+    _pause = Timer(const Duration(milliseconds: 700), () {
+      if (mounted) _commit();
+    });
   }
 
   @override
@@ -179,6 +197,7 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
     final saved = ref.watch(pairingSeenAsProvider).value;
     if (!_loaded && saved != null) {
       _loaded = true;
+      _committed = saved;
       _text.text = saved;
       if (widget.autofocus && saved.trim().isEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -193,6 +212,7 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
       textCapitalization: TextCapitalization.words,
       maxLength: 48,
       buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
+      onChanged: _typed,
       onSubmitted: (_) => _commit(),
       decoration: InputDecoration(
         labelText: l.pairSeenAs,
