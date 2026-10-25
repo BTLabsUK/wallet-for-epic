@@ -2376,9 +2376,14 @@ IssuedInvoice? issuedInvoiceOf(TxEntry tx, {IssuedInvoiceState? recorded}) {
   final txId = tx.source == TxSource.wallet ? tx.id : null;
   if (!tx.isRequest || slateId == null) return null;
   if (txId == null) {
-    // From a history backup: shown only with the end the backup recorded. One still open when
-    // the backup was made cannot be finished here; its history row says it is from a backup.
-    if (recorded == null || recorded == IssuedInvoiceState.waiting) return null;
+    // From a history backup: shown with the end the backup recorded, or paid when its payment
+    // is on the chain (a request paid by file is settled only later). One still open when the
+    // backup was made cannot be finished here; its history row says it is from a backup.
+    final onChain = tx.status == TxStatus.confirmed || tx.blockHeight != null;
+    if (recorded == null || recorded == IssuedInvoiceState.waiting) {
+      if (!onChain || tx.status == TxStatus.cancelled) return null;
+      recorded = IssuedInvoiceState.paid;
+    }
   }
   final issuedAt = DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000);
   final fromTx = tx.status == TxStatus.cancelled

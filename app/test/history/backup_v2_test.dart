@@ -167,6 +167,16 @@ void main() {
       expect((again.invoicesAdded, again.added), (0, 0));
     });
 
+    test('a request paid by file, still recorded as waiting, is listed as paid', () async {
+      final before = WalletHistory.memory();
+      await before.putIssuedInvoice('inv1');
+      final file = HistoryPayload.decode(before.exportPayload([_request()], walletFp: 'fp', appVersion: 't').encode());
+      final after = WalletHistory.memory();
+      await after.importPayload(file, const [], walletFp: 'fp');
+      final listed = requestsOf(after.transactions(const []), after.issuedInvoiceState);
+      expect(listed.map((i) => (i.slateId, i.state, i.txId)), [('inv1', IssuedInvoiceState.paid, null)]);
+    });
+
     test('what this install recorded wins over the file', () async {
       final h = WalletHistory.memory();
       await h.putIssuedInvoice('inv1');
