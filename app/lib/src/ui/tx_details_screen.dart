@@ -119,6 +119,7 @@ String txExplanation(
   BigInt? tip, {
   DateTime? now,
   int? target,
+  bool mailbox = false,
 }) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
@@ -136,7 +137,8 @@ String txExplanation(
     TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
       tooLong,
     ),
-    TxPhase.waitingRecipient when _isEpicboxAddress(tx.counterparty) =>
+    // Through a paired contact's mailbox: an Epicbox payment, though kept as an export.
+    TxPhase.waitingRecipient when mailbox || _isEpicboxAddress(tx.counterparty) =>
       l.txDetailsWaitingEpicbox,
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
@@ -676,7 +678,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (!ownSteps) ...[
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
-                    Text(txExplanation(l, tx, tip, now: now, target: target)),
+                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null)),
                     // Waiting for a paired contact's answer: its relay silent, or its keys
                     // changed meanwhile.
                     if (mailboxWaiting && mailboxPairing != null && mailboxPairing.state == PairingState.keysChanged) ...[
