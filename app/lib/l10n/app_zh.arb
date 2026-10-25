@@ -3990,5 +3990,6 @@
   "deskSetTxTorNeedsTor": "Tor 已关闭。请在“隐私”中开启，才能通过 Tor 地址收款。",
   "deskSetTxLastMethod": "至少保留一种付款方式开启。",
   "deskTxStatusSenderPosted": "发送方称已广播",
-  "deskTxNowSenderPosted": "已签名并发回。发送方称已广播到网络；区块链确认后即完成。"
+  "deskTxNowSenderPosted": "已签名并发回。发送方称已广播到网络；区块链确认后即完成。",
+  "deskImpWrongTypePasted": "粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。"
 }

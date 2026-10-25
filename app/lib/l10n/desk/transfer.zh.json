@@ -30,6 +30,7 @@
   "deskFinChooseFile": "选择文件",
   "deskImpWrongType": "不是交易文件",
   "deskImpWrongTypeText": "该文件不是交易文件。请选择发送方提供的 .slate 或 .tx 文件。",
+  "deskImpWrongTypePasted": "粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。",
   "deskImpUnreadable": "无法读取文件",
   "deskImpUnreadableText": "无法读取该文件。文件可能已损坏，或仍在复制中。",
   "deskImpNoPlace": "未签名",

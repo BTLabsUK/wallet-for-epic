@@ -3100,7 +3100,7 @@
   "deskSetFrameAppearance": "Darstellung",
   "deskSetFrameThisWallet": "Diese Wallet",
   "deskSetFrameAllWallets": "Alle Wallets",
-  "deskSetFramePhrase": "Wiederherstellungsphrase",
+  "deskSetFramePhrase": "Seed-Phrase",
   "deskSetFrameRescan": "Guthaben neu prüfen",
   "deskSetFrameAbout": "Über",
   "deskSetFrameHelp": "Hilfe",
@@ -3990,5 +3990,6 @@
   "deskSetTxTorNeedsTor": "Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
   "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet.",
   "deskTxStatusSenderPosted": "Laut Absender gesendet",
-  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt."
+  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt.",
+  "deskImpWrongTypePasted": "Der eingefügte Text ist keine Transaktion. Fügen Sie den ganzen Text des Absenders ein oder wählen Sie seine Datei."
 }

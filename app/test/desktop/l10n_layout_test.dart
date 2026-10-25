@@ -13,6 +13,8 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/shots.dart';
+import 'package:epic_wallet/l10n/app_localizations.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +55,35 @@ void main() {
     }
   });
 
+  // LNX-10, LNX-11: every language, the Settings sub-navigation and the Theme segments.
+  for (final lang in ['en', 'de', 'pl', 'ru', 'th', 'zh']) {
+    testWidgets('$lang: Settings names never break inside a word; Theme labels show whole', (tester) async {
+      final shot = shots.firstWhere((s) => s.id == '24-settings-appearance');
+      await _pumpShot(tester, shot, lang, check: (l) {
+        for (final name in [
+          l.deskSetFrameNode, l.deskSetFrameTransactions, l.deskSetFramePrivacy, l.deskSetFrameAppearance,
+          l.deskSetFrameThisWallet, l.deskSetFrameAllWallets, l.deskSetFramePhrase, l.deskSetFrameRescan,
+          l.deskSetFrameAdvanced, l.deskSetFrameAbout, l.deskSetFrameHelp,
+        ]) {
+          for (final p in _paragraphs(tester, name)) {
+            // Thai and Chinese break between words without spaces; the others only at a space or hyphen.
+            if (lang == 'th' || lang == 'zh') continue;
+            for (final end in _lineEnds(p, name.length)) {
+              expect(name[end - 1] == ' ' || name[end - 1] == '-' || name[end] == ' ', isTrue, reason: '"$name" breaks at $end');
+            }
+          }
+        }
+        for (final word in [l.deskSetAppearSystem, l.deskSetAppearDark, l.deskSetAppearLight]) {
+          final ps = _paragraphs(tester, word);
+          expect(ps, isNotEmpty, reason: word);
+          for (final p in ps) {
+            expect(p.didExceedMaxLines, isFalse, reason: '"$word" is cut');
+          }
+        }
+      });
+    });
+  }
+
   for (final lang in ['de', 'ru', 'th']) {
     group(lang, () {
       for (final shot in shots) {
@@ -62,7 +93,7 @@ void main() {
   }
 }
 
-Future<void> _pumpShot(WidgetTester tester, DeskShot shot, String lang) async {
+Future<void> _pumpShot(WidgetTester tester, DeskShot shot, String lang, {void Function(AppLocalizations l)? check}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -86,6 +117,26 @@ Future<void> _pumpShot(WidgetTester tester, DeskShot shot, String lang) async {
   }
   expect(Localizations.localeOf(tester.element(find.byType(DeskRoot))).languageCode, lang);
   expect(tester.takeException(), isNull);
+  check?.call(lookupAppLocalizations(Locale(lang)));
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(seconds: 1));
+}
+
+/// The laid-out paragraphs that show exactly [text].
+List<RenderParagraph> _paragraphs(WidgetTester tester, String text) => [
+  for (final e in find.byType(RichText).evaluate())
+    if ((e.widget as RichText).text.toPlainText() == text) e.renderObject! as RenderParagraph,
+];
+
+/// Where [p]'s lines end, before the end of its [length] characters: its text laid out again
+/// at its width.
+Set<int> _lineEnds(RenderParagraph p, int length) {
+  final painter = TextPainter(text: p.text, textDirection: p.textDirection, textScaler: p.textScaler, maxLines: p.maxLines)
+    ..layout(maxWidth: p.size.width + 0.01);
+  final ends = {
+    for (var i = 0; i < length; i++)
+      if (painter.getLineBoundary(TextPosition(offset: i)).end case final end when end > 0 && end < length) end,
+  };
+  painter.dispose();
+  return ends;
 }

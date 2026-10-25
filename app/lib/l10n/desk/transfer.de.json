@@ -30,6 +30,7 @@
   "deskFinChooseFile": "Datei wählen",
   "deskImpWrongType": "Keine Transaktionsdatei",
   "deskImpWrongTypeText": "Die Datei ist keine Transaktionsdatei. Wählen Sie die .slate- oder .tx-Datei, die Ihnen der Absender gegeben hat.",
+  "deskImpWrongTypePasted": "Der eingefügte Text ist keine Transaktion. Fügen Sie den ganzen Text des Absenders ein oder wählen Sie seine Datei.",
   "deskImpUnreadable": "Datei nicht lesbar",
   "deskImpUnreadableText": "Die Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt oder wird noch kopiert.",
   "deskImpNoPlace": "Nichts signiert",

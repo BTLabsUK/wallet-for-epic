@@ -12092,7 +12092,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetFrameAllWallets => 'Alle Wallets';
 
   @override
-  String get deskSetFramePhrase => 'Wiederherstellungsphrase';
+  String get deskSetFramePhrase => 'Seed-Phrase';
 
   @override
   String get deskSetFrameRescan => 'Guthaben neu prüfen';
@@ -15220,4 +15220,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskTxNowSenderPosted =>
       'Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt.';
+
+  @override
+  String get deskImpWrongTypePasted =>
+      'Der eingefügte Text ist keine Transaktion. Fügen Sie den ganzen Text des Absenders ein oder wählen Sie seine Datei.';
 }

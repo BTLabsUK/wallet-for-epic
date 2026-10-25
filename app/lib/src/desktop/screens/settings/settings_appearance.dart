@@ -24,8 +24,11 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ESetRow(
             title: l.deskSetAppearTheme,
             hint: l.deskSetAppearThemeHint,
-            control: ERowControl(
-              wide: true,
+            // At least the wide control; wider when a language's words need it, the three
+            // segments equal and every word whole (LNX-11).
+            control: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: Ctl.rowWide),
+              child: IntrinsicWidth(
               child: ESegmented<ThemeChoice>(
               stretch: true,
               segments: [
@@ -35,6 +38,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
               ],
               value: s.theme,
               onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
+            ),
             ),
             ),
           ),

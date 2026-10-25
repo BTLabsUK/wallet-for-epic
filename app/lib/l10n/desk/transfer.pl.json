@@ -30,6 +30,7 @@
   "deskFinChooseFile": "Wybierz plik",
   "deskImpWrongType": "To nie plik transakcji",
   "deskImpWrongTypeText": "Ten plik nie jest plikiem transakcji. Wybierz plik .slate lub .tx od nadawcy.",
+  "deskImpWrongTypePasted": "Wklejony tekst nie jest transakcją. Wklej cały tekst od nadawcy albo wybierz jego plik.",
   "deskImpUnreadable": "Nie można odczytać pliku",
   "deskImpUnreadableText": "Nie udało się odczytać pliku. Może być uszkodzony albo wciąż kopiowany.",
   "deskImpNoPlace": "Nic nie podpisano",

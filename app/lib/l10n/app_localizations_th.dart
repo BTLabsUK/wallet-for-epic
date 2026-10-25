@@ -14753,4 +14753,8 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskTxNowSenderPosted =>
       'ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
+
+  @override
+  String get deskImpWrongTypePasted =>
+      'ข้อความที่วางไม่ใช่ธุรกรรม วางข้อความทั้งหมดที่ผู้ส่งให้มา หรือเลือกไฟล์ของผู้ส่ง';
 }

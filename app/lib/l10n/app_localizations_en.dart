@@ -15037,4 +15037,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskTxNowSenderPosted =>
       'Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.';
+
+  @override
+  String get deskImpWrongTypePasted =>
+      'The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.';
 }

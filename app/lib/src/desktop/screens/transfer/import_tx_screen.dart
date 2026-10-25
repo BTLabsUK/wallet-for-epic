@@ -52,6 +52,9 @@ class ImportTxScreen extends ConsumerStatefulWidget {
 
 class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   bool _busy = false;
+
+  /// What was signed came as pasted text, not a file: its error says so (LNX-3).
+  bool _pasted = false;
   String? _response;
   ImportError? _error;
 
@@ -66,7 +69,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     if (a is ImportArgs && a.done) _response = 'invoice_0042.response.slate';
     if (a is ImportArgs) _error = a.error;
     final text = a is ImportArgs ? a.text : null;
-    if (text != null) WidgetsBinding.instance.addPostFrameCallback((_) => _receive(() => ref.read(deskApiProvider).receiveText(text)));
+    if (text != null) WidgetsBinding.instance.addPostFrameCallback((_) => _receive(() => ref.read(deskApiProvider).receiveText(text), pasted: true));
   }
 
   Future<void> _pick() async {
@@ -77,9 +80,10 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   }
 
   /// Signs what [receive] reads and shows the answer, or why not.
-  Future<void> _receive(Future<ReceivedFile> Function() receive, {bool mock = false}) async {
+  Future<void> _receive(Future<ReceivedFile> Function() receive, {bool mock = false, bool pasted = false}) async {
     if (!mounted) return;
     setState(() {
+      _pasted = pasted;
       _busy = true;
       _error = null;
       _detail = null;
@@ -141,7 +145,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             SizedBox(height: Sp.x5),
           ],
           if (_error != null) ...[
-            ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? l.deskImpFailedDetail(_detail!.text(l)) : _error!.text(l), tone: ETone.risk, icon: EIcons.error),
+            ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? l.deskImpFailedDetail(_detail!.text(l)) : (_error == ImportError.wrongType && _pasted ? l.deskImpWrongTypePasted : _error!.text(l)), tone: ETone.risk, icon: EIcons.error),
             SizedBox(height: Sp.x5),
           ],
           if (_response != null)

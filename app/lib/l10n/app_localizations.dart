@@ -23827,6 +23827,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.'**
   String get deskTxNowSenderPosted;
+
+  /// Text of that notice when the text pasted into Send (not a file) is not a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.'**
+  String get deskImpWrongTypePasted;
 }
 
 class _AppLocalizationsDelegate

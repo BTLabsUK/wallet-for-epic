@@ -30,6 +30,7 @@
   "deskFinChooseFile": "เลือกไฟล์",
   "deskImpWrongType": "ไม่ใช่ไฟล์ธุรกรรม",
   "deskImpWrongTypeText": "ไฟล์นี้ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .slate หรือ .tx ที่ผู้ส่งให้มา",
+  "deskImpWrongTypePasted": "ข้อความที่วางไม่ใช่ธุรกรรม วางข้อความทั้งหมดที่ผู้ส่งให้มา หรือเลือกไฟล์ของผู้ส่ง",
   "deskImpUnreadable": "อ่านไฟล์ไม่ได้",
   "deskImpUnreadableText": "อ่านไฟล์ไม่ได้ ไฟล์อาจเสียหายหรือยังคัดลอกไม่เสร็จ",
   "deskImpNoPlace": "ไม่ได้ลงนาม",

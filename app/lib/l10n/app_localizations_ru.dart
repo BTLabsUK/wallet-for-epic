@@ -15454,4 +15454,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskTxNowSenderPosted =>
       'Подписано и возвращено. По словам отправителя, отправлено в сеть; платёж будет выполнен, когда блокчейн его подтвердит.';
+
+  @override
+  String get deskImpWrongTypePasted =>
+      'Вставленный текст не является транзакцией. Вставьте весь текст от отправителя или выберите его файл.';
 }

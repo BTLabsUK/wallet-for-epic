@@ -14223,4 +14223,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted => '已签名并发回。发送方称已广播到网络；区块链确认后即完成。';
+
+  @override
+  String get deskImpWrongTypePasted => '粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。';
 }

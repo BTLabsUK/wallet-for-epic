@@ -43,10 +43,12 @@ class _PastedWallet extends MockDeskWallet {
   _PastedWallet() : super(delay: Duration.zero);
 
   final texts = <String>[];
+  bool notSlate = false;
 
   @override
   Future<ReceivedFile> receiveText(String text) {
     texts.add(text);
+    if (notSlate) throw DeskError.l10n((l) => l.deskErrNotTxFile2);
     return super.receiveText(text);
   }
 }
@@ -287,6 +289,22 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(api.texts, ['{"ver":"4:3"}']);
     expect(find.text('Response saved'), findsOneWidget);
+  });
+
+  testWidgets('pasted text that is no transaction says so about text, not a file (LNX-3)', (tester) async {
+    final api = _PastedWallet()..notSlate = true;
+    final c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: ImportTxScreen(arg: ImportArgs(text: 'BEGINSLATEPACK. x. ENDSLATEPACK.')))),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.'), findsOneWidget);
+    expect(find.textContaining('.slate'), findsNothing);
   });
 
   testWidgets('a link opens Send filled the same way, "From a link" on the review', (tester) async {

@@ -135,6 +135,10 @@
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
+  "deskImpWrongTypePasted": "The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.",
+  "@deskImpWrongTypePasted": {
+    "description": "Text of that notice when the text pasted into Send (not a file) is not a transaction."
+  },
   "deskImpUnreadable": "File not readable",
   "@deskImpUnreadable": {
     "description": "Title of the error notice on the Sign a transaction file page: the file could not be read."

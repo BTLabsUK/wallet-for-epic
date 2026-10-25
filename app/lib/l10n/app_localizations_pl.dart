@@ -15491,4 +15491,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskTxNowSenderPosted =>
       'Podpisana i odesłana. Według nadawcy opublikowana w sieci; zakończy się, gdy blockchain ją potwierdzi.';
+
+  @override
+  String get deskImpWrongTypePasted =>
+      'Wklejony tekst nie jest transakcją. Wklej cały tekst od nadawcy albo wybierz jego plik.';
 }
