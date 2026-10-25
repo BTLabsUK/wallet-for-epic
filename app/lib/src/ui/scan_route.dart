@@ -29,8 +29,6 @@ bool looksLikeCode(String text) =>
     RegExp(r'^\s*(epic|epiccash|ur):', caseSensitive: false).hasMatch(text) ||
     classifyScan(text, check: (_) => AddressVerdict.invalid) is SlateText;
 
-/// Whether [request] carries more than its address: an amount, a note, a name, or a part that
-/// was dropped. A bare `epic:<address>` is handled as the address alone.
 /// The methods on in Settings › Transactions, which pick the address a code or a contact
 /// fills in.
 PaymentPrefs sendPayments(WidgetRef ref) =>
@@ -39,6 +37,8 @@ PaymentPrefs sendPayments(WidgetRef ref) =>
         ? PaymentPrefs.phoneDefaults
         : PaymentPrefs.defaults);
 
+/// Whether [request] carries more than its address: an amount, a note, a name, or a part that
+/// was dropped. A bare `epic:<address>` is handled as the address alone.
 bool requestCarriesMore(PaymentRequest request) =>
     request.amount != null ||
     request.note != null ||
