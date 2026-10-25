@@ -2211,7 +2211,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'กำลังค้นหายอดเงินของกระเป๋านี้ตั้งแต่บล็อก 0 เมื่อเสร็จจึงรับและส่งได้';
+      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้ตั้งแต่บล็อก 0 เมื่อเสร็จจึงรับและส่งได้';
 
   @override
   String get restoreUnfinishedOffline =>
@@ -2237,7 +2237,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreScanUnfinished =>
-      'การสแกนหยุดก่อนจบ จะรับและส่งได้เมื่อสแกนเสร็จเท่านั้น ลองอีกครั้งที่นี่ หรือเปิดกระเป๋าแล้วสแกนจะดำเนินต่อจากหน้าหลัก';
+      'การสแกนหยุดก่อนจบ จะรับและส่งได้เมื่อสแกนเสร็จเท่านั้น ลองอีกครั้งที่นี่ หรือเปิดกระเป๋าเงินแล้วสแกนจะดำเนินต่อจากหน้าหลัก';
 
   @override
   String get restoreFinishOnHome =>
@@ -2245,7 +2245,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'ฐานข้อมูลกระเป๋าเสียหายและถูกสร้างใหม่จากวลีแล้ว การสแกนจะนำยอดเงินกลับมา ส่วนรายละเอียดรายการ บันทึก และป้ายกำกับจะกลับมาได้จากข้อมูลสำรองประวัติเท่านั้น';
+      'ฐานข้อมูลกระเป๋าเงินเสียหายและถูกสร้างใหม่จากวลีแล้ว การสแกนจะนำยอดเงินกลับมา ส่วนรายละเอียดรายการ บันทึก และป้ายกำกับจะกลับมาได้จากข้อมูลสำรองประวัติเท่านั้น';
 
   @override
   String get restoreRebuiltImportText =>
@@ -2253,11 +2253,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreReplaceLead =>
-      'วลีนี้จะกู้คืนกระเป๋ามาแทนกระเป๋าบนโทรศัพท์นี้ จะไม่มีอะไรเปลี่ยนจนกว่าวลีจะผ่านการตรวจและยืนยันการแทนที่';
+      'วลีนี้จะกู้คืนกระเป๋าเงินมาแทนกระเป๋าเงินบนโทรศัพท์นี้ จะไม่มีอะไรเปลี่ยนจนกว่าวลีจะผ่านการตรวจและยืนยันการแทนที่';
 
   @override
   String get restoreReplacePinReason =>
-      'ใส่ PIN เพื่อแทนที่กระเป๋านี้ กระเป๋าที่กู้คืนจะใช้ PIN นี้ต่อ';
+      'ใส่ PIN เพื่อแทนที่กระเป๋าเงินนี้ กระเป๋าเงินที่กู้คืนจะใช้ PIN นี้ต่อ';
 
   @override
   String restorePhraseUnknownWord(int position, String word) {
@@ -2280,7 +2280,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deleteFailedNotice(String error) {
-    return 'ยังไม่ได้ลบกระเป๋า $error ปลดล็อกแล้วลองอีกครั้งใน การตั้งค่า';
+    return 'ยังไม่ได้ลบกระเป๋าเงิน $error ปลดล็อกแล้วลองอีกครั้งใน การตั้งค่า';
   }
 
   @override
@@ -2320,7 +2320,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'กระเป๋านี้จะถูกลบ และกระเป๋าของวลีที่ใส่จะมาแทน โดยใช้ PIN เดิม';
+      'กระเป๋าเงินนี้จะถูกลบ และกระเป๋าเงินของวลีที่ใส่จะมาแทน โดยใช้ PIN เดิม';
 
   @override
   String get firstRunSecuring => 'กำลังรักษาความปลอดภัยกระเป๋าเงิน…';
@@ -12983,11 +12983,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrOldLinks =>
-      'โฟลเดอร์ของกระเป๋านี้มีลิงก์อยู่ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
+      'โฟลเดอร์ของกระเป๋าเงินนี้มีลิงก์อยู่ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
 
   @override
   String get deskErrOldIncomplete =>
-      'อ่านโฟลเดอร์ของกระเป๋านี้ได้ไม่ครบ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
+      'อ่านโฟลเดอร์ของกระเป๋าเงินนี้ได้ไม่ครบ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
 
   @override
   String get deskErrOldSeedTooLarge =>
@@ -16016,7 +16016,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbImportRelayLead(String old) {
-    return 'แอปเดิมรับผ่าน $old ใครที่บันทึกที่อยู่ของกระเป๋านี้ไว้จะส่งไปที่นั่น';
+    return 'แอปเดิมรับผ่าน $old ใครที่บันทึกที่อยู่ของกระเป๋าเงินนี้ไว้จะส่งไปที่นั่น';
   }
 
   @override
@@ -16026,7 +16026,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayKeepHint =>
-      'ที่อยู่เหมือนเดิม เซิร์ฟเวอร์จะถูกเพิ่มในรายการ Epicbox และใช้กับกระเป๋านี้';
+      'ที่อยู่เหมือนเดิม เซิร์ฟเวอร์จะถูกเพิ่มในรายการ Epicbox และใช้กับกระเป๋าเงินนี้';
 
   @override
   String deskOnbImportRelayApp(String current) {
@@ -16054,7 +16054,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRecvEpicboxOwnHint =>
-      'กระเป๋านี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋านี้เท่านั้น';
+      'กระเป๋าเงินนี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋าเงินนี้เท่านั้น';
 
   @override
   String get deskErrRestoreScanRequired =>
@@ -16068,7 +16068,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'กำลังค้นหายอดเงินของกระเป๋านี้บนบล็อกเชนตั้งแต่บล็อกแรก EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
+      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้บนบล็อกเชนตั้งแต่บล็อกแรก EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -16125,14 +16125,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbForgotPasswordLead =>
-      'วลีถูกต้อง เลือกรหัสผ่านใหม่สำหรับปลดล็อกกระเป๋านี้บนคอมพิวเตอร์นี้';
+      'วลีถูกต้อง เลือกรหัสผ่านใหม่สำหรับปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้';
 
   @override
   String get deskOnbForgotSet => 'ตั้งรหัสผ่าน';
 
   @override
   String deskOnbForgotOtherWallet(String name) {
-    return 'วลีนี้เป็นของกระเป๋าอื่น ไม่ใช่ $name ไม่มีอะไรเปลี่ยน';
+    return 'วลีนี้เป็นของกระเป๋าเงินอื่น ไม่ใช่ $name ไม่มีอะไรเปลี่ยน';
   }
 
   @override
@@ -16152,7 +16152,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋านี้จะนำกลับมาได้ คือไฟล์ .wfeh ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
+      'บล็อกเชนเก็บยอดคงเหลือ แต่ไม่ได้เก็บว่าจ่ายให้ใคร ค่าธรรมเนียม หรือบันทึก ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋าเงินนี้จะนำกลับมาได้ คือไฟล์ .wfeh ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
 
   @override
   String get deskOvRestoredImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
@@ -16162,7 +16162,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง';
 
   @override
-  String get deskOnbRestoreNameLabel => 'ชื่อกระเป๋า (ไม่บังคับ)';
+  String get deskOnbRestoreNameLabel => 'ชื่อกระเป๋าเงิน (ไม่บังคับ)';
 
   @override
   String deskOnbRestoreNameHelp(int number) {
@@ -16171,7 +16171,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbForgotNoCheck =>
-      'ไฟล์ของกระเป๋านี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม';
+      'ไฟล์ของกระเป๋าเงินนี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม';
 
   @override
   String deskOnbForgotRestoreHint(String name) {
