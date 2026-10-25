@@ -19,6 +19,7 @@ import 'method_names.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
+import 'scan_route.dart' show sendPayments;
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -107,7 +108,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     return all?.where((c) => c.id == widget.contactId).firstOrNull ?? (all == null ? widget.initial : null);
   }
 
-  void _send(Contact contact) => showShellTab(context, ShellTab.send, recipient: contact.address);
+  /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it.
+  void _send(Contact contact) =>
+      showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
 
   void _edit(Contact contact) => Navigator.of(
     context,

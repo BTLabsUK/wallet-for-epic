@@ -390,7 +390,7 @@ String localDayTime(AppLocalizations l, DateTime t) => l.dateWithTime(localDay(l
 /// Copies [text] and confirms with a toast.
 Future<void> copyToClipboard(BuildContext context, String text, String toast) async {
   await Clipboard.setData(ClipboardData(text: text));
-  if (context.mounted) showEToast(context, toast);
+  if (context.mounted) showEToast(context, toast, tone: ETone.ok);
 }
 
 /// Opens [text]: a pairing link (invite, answer, confirm, card) or five pairing words. The
@@ -786,7 +786,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       if (r != null && check == PairingCheck.match && _allow) await deskPairingCall(ref, (api) => api.setAllowInvoices(r.id, true));
       if (!mounted) return;
       Navigator.pop(context);
-      if (check == PairingCheck.match) showEToast(context, l.sasMatchedTitle(name), text: l.sasMatchedBody(name));
+      if (check == PairingCheck.match) showEToast(context, l.sasMatchedTitle(name), text: l.sasMatchedBody(name), tone: ETone.ok);
       if (check == PairingCheck.skip && !widget.recheck) showEToast(context, l.sasSkippedTitle(name), text: l.sasSkippedBody(name), tone: ETone.warn);
     } catch (error) {
       if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);

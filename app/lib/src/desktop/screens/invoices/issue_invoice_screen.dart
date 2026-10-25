@@ -107,7 +107,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           .read(deskInvoicesProvider.notifier)
           .request(PaymentRequestDraft(pairingId: to, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: _msg));
       if (!mounted) return;
-      showEToast(context, l.reqSent(name));
+      showEToast(context, l.reqSent(name), tone: ETone.ok);
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);
     } on InvoiceError catch (e) {
       if (!mounted) return;
@@ -140,7 +140,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
         bytes: Uint8List.fromList(utf8.encode(slate.json)),
         title: l.reqFileTitle,
       );
-      if (mounted && path != null) showEToast(context, l.reqFileSaved, text: path);
+      if (mounted && path != null) showEToast(context, l.reqFileSaved, text: path, tone: ETone.ok);
     } on Object catch (e) {
       if (mounted) setState(() => _failure = deskErrorText(e, l));
     } finally {
