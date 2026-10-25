@@ -133,7 +133,7 @@ class _Entry {
   final bool directoryAnswered;
 
   /// A node on this phone or the local network ([isLocalNodeUrl]): its state is this phone's
-  /// own check ([localNodeStatusProvider]), and down reads "Not reachable from this computer".
+  /// own check ([localNodeStatusProvider]), and down reads "Not reachable from this phone".
   final bool local;
 
   NodeHealthState? get state => node != null
@@ -800,7 +800,7 @@ class _ServerRow extends StatelessWidget {
     final healthWord = switch (state) {
       NodeHealthState.healthy => l.serverHealthy,
       NodeHealthState.degraded => l.serverDegraded,
-      NodeHealthState.down => e.local ? l.serverLocalNotReachable : l.serverNotResponding,
+      NodeHealthState.down => e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
       _ => l.serverHealthNone,
     };
     final n = e.node;
@@ -820,7 +820,7 @@ class _ServerRow extends StatelessWidget {
       if (current) l.serverCurrent,
       if (tip != null) tip.text,
       if (state == NodeHealthState.degraded) l.serverDegraded,
-      if (down) e.local ? l.serverLocalNotReachable : l.serverNotResponding,
+      if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
       if (unknown) l.serverHealthNone,
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
@@ -1080,7 +1080,7 @@ class _Facts extends StatelessWidget {
               text: facts[i],
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
-                  : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachable
+                  : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachablePhone
                   ? TextStyle(color: t.risk)
                   : facts[i] == l.serverDegraded
                   ? TextStyle(color: t.warn)

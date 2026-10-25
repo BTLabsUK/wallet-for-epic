@@ -1216,6 +1216,7 @@
   "serverBehindLabel": "{count, plural, other{落后 {count} 个区块}}",
   "serverNotResponding": "无响应",
   "serverLocalNotReachable": "无法从这台电脑访问",
+  "serverLocalNotReachablePhone": "无法从这部手机访问",
   "serverHealthy": "正常",
   "serverDegraded": "性能下降",
   "serverHealthNone": "状态未知",

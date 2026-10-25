@@ -7443,6 +7443,12 @@ abstract class AppLocalizations {
   /// **'Not reachable from this computer'**
   String get serverLocalNotReachable;
 
+  /// Phone node list row, the phone wording of serverLocalNotReachable: a node on the local network did not answer this phone's own check. Says that this phone cannot reach it, not that the node is down.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable from this phone'**
+  String get serverLocalNotReachablePhone;
+
   /// Screen reader: the monitor saw the server healthy.
   ///
   /// In en, this message translates to:

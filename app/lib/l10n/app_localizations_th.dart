@@ -4686,7 +4686,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverNotResponding => 'ไม่ตอบสนอง';
 
   @override
-  String get serverLocalNotReachable => 'เข้าถึงไม่ได้จากคอมพิวเตอร์เครื่องนี้';
+  String get serverLocalNotReachable => 'เข้าถึงจากคอมพิวเตอร์เครื่องนี้ไม่ได้';
+
+  @override
+  String get serverLocalNotReachablePhone =>
+      'เข้าถึงจากโทรศัพท์เครื่องนี้ไม่ได้';
 
   @override
   String get serverHealthy => 'ปกติ';

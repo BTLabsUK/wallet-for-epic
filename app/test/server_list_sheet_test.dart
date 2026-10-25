@@ -848,7 +848,7 @@ void main() {
       env.service.nodeTipFails = const NetError('connection refused');
       await _pump(tester, ServerKind.node, env);
       expect(env.service.nodeTipCalls, 1, reason: 'the local node is checked from here, once');
-      expect(_inRow(lan, 'Not reachable from this computer'), findsOneWidget);
+      expect(_inRow(lan, 'Not reachable from this phone'), findsOneWidget);
       expect(_inRow(lan, 'Not responding'), findsNothing);
       expect(_inRow(lan, 'Healthy'), findsNothing);
       expect(_inRow(_epicnet, 'Not responding'), findsOneWidget);

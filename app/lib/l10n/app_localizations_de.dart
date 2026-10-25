@@ -4861,6 +4861,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Von diesem Computer aus nicht erreichbar';
 
   @override
+  String get serverLocalNotReachablePhone =>
+      'Von diesem Smartphone aus nicht erreichbar';
+
+  @override
   String get serverHealthy => 'Funktioniert';
 
   @override

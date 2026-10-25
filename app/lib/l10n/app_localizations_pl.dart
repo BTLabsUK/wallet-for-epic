@@ -4980,7 +4980,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverNotResponding => 'Nie odpowiada';
 
   @override
-  String get serverLocalNotReachable => 'Niedostępny z tego komputera';
+  String get serverLocalNotReachable => 'Nieosiągalny z tego komputera';
+
+  @override
+  String get serverLocalNotReachablePhone => 'Nieosiągalny z tego telefonu';
 
   @override
   String get serverHealthy => 'Sprawny';

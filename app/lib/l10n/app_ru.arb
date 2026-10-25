@@ -1216,6 +1216,7 @@
   "serverBehindLabel": "{count, plural, one{отстаёт на {count} блок} few{отстаёт на {count} блока} many{отстаёт на {count} блоков} other{отстаёт на {count} блока}}",
   "serverNotResponding": "Не отвечает",
   "serverLocalNotReachable": "Недоступен с этого компьютера",
+  "serverLocalNotReachablePhone": "Недоступен с этого телефона",
   "serverHealthy": "Исправен",
   "serverDegraded": "Работает с перебоями",
   "serverHealthNone": "Состояние неизвестно",

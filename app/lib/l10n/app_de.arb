@@ -1216,6 +1216,7 @@
   "serverBehindLabel": "{count, plural, one{{count} Block zurück} other{{count} Blöcke zurück}}",
   "serverNotResponding": "Antwortet nicht",
   "serverLocalNotReachable": "Von diesem Computer aus nicht erreichbar",
+  "serverLocalNotReachablePhone": "Von diesem Smartphone aus nicht erreichbar",
   "serverHealthy": "Funktioniert",
   "serverDegraded": "Eingeschränkt",
   "serverHealthNone": "Zustand unbekannt",
