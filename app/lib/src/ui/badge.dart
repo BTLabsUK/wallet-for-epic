@@ -134,6 +134,7 @@ class EBadge extends StatelessWidget {
     this.semanticsLabel,
     this.tooltip,
     this.liveRegion = false,
+    this.wrap = false,
   }) : assert(label != null || semanticsLabel != null, 'A glyph-only badge needs semanticsLabel');
 
   /// The kind of an address: the method's glyph ([MethodIcons], the one icon per method) and
@@ -148,7 +149,8 @@ class EBadge extends StatelessWidget {
       dot = false,
       semanticsLabel = compact ? MethodIcons.fullName(l, MethodKind.ofRecipient(kind)) : null,
       tooltip = tooltip ?? (compact ? MethodIcons.fullName(l, MethodKind.ofRecipient(kind)) : null),
-      liveRegion = false;
+      liveRegion = false,
+      wrap = false;
 
   /// On (ok, filled dot) or off (neutral, ring): [label] carries the word, from the screen's
   /// own strings ("On", "Off", "Always on").
@@ -157,7 +159,8 @@ class EBadge extends StatelessWidget {
       tone = on ? BadgeTone.ok : BadgeTone.neutral,
       busy = false,
       dot = true,
-      semanticsLabel = null;
+      semanticsLabel = null,
+      wrap = false;
 
   /// How a connection goes over Tor: the Tor glyph, ok over Tor, a spinner while Tor starts,
   /// risk when Tor is not connected, neutral on the clearnet. [label] carries the words.
@@ -171,7 +174,8 @@ class EBadge extends StatelessWidget {
       },
       busy = way == TorWay.wait,
       dot = false,
-      semanticsLabel = null;
+      semanticsLabel = null,
+      wrap = false;
 
   final String? label;
   final IconData? icon;
@@ -191,6 +195,10 @@ class EBadge extends StatelessWidget {
 
   /// Announced when it appears or changes.
   final bool liveRegion;
+
+  /// A sentence-long [label] that breaks onto more lines instead of being cut: the claimed-name
+  /// chip in a narrow sheet.
+  final bool wrap;
 
   /// The method glyph of [kind]: [MethodIcons] is the source.
   static IconData kindIcon(RecipientKind kind) => MethodIcons.of(MethodKind.ofRecipient(kind));
@@ -241,7 +249,9 @@ class EBadge extends StatelessWidget {
         if (glyph != null && words != null) SizedBox(width: px(icon == null && !busy ? 6 : 4)),
         if (words != null)
           Flexible(
-            child: Text(words, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: textStyle),
+            child: wrap
+                ? Text(words, style: textStyle)
+                : Text(words, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: textStyle),
           ),
       ],
     );

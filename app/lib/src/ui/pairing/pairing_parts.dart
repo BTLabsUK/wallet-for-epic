@@ -273,7 +273,8 @@ class ClaimedNameBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = _l10n(context);
-    return EBadge(long ? l.pairNameClaimed : l.pairNameClaimedShort, icon: Icons.person_outline);
+    // The long one is a sentence: it wraps in a narrow sheet rather than lose its end.
+    return EBadge(long ? l.pairNameClaimed : l.pairNameClaimedShort, icon: Icons.person_outline, wrap: long);
   }
 }
 

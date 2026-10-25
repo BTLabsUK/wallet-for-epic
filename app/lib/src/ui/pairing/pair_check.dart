@@ -392,27 +392,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           const SizedBox(height: 12),
           // The result's badge is the big one (SPEC): the same badge, scaled up.
           Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
-          if (verified) ...[
-            const SizedBox(height: 20),
-            PairCard(
-              children: [
-                PairSwitchRow(
-                  label: l.contactSealPayments,
-                  info: '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}',
-                  value: record.seal != SealMode.off,
-                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v))),
-                ),
-                PairSwitchRow(
-                  switchKey: resultAllowKey,
-                  label: l.contactAllowInvoices,
-                  info: '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}',
-                  hint: l.sasAllowInvoicesHint(name),
-                  value: record.allowInvoices,
-                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v))),
-                ),
-              ],
-            ),
-          ],
+          // Where it goes first: at 360 dp the choices show without scrolling.
           if (!saved) ...[
             const SizedBox(height: 20),
             PairCard(
@@ -454,6 +434,27 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
+          ],
+          if (verified) ...[
+            const SizedBox(height: 20),
+            PairCard(
+              children: [
+                PairSwitchRow(
+                  label: l.contactSealPayments,
+                  info: '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}',
+                  value: record.seal != SealMode.off,
+                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v))),
+                ),
+                PairSwitchRow(
+                  switchKey: resultAllowKey,
+                  label: l.contactAllowInvoices,
+                  info: '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}',
+                  hint: l.sasAllowInvoicesHint(name),
+                  value: record.allowInvoices,
+                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v))),
                 ),
               ],
             ),
