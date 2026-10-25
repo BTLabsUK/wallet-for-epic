@@ -406,15 +406,18 @@ void main() {
       );
     });
 
-    testWidgets('Link: the onion to hand out, no Turn on Tor', (tester) async {
+    testWidgets('Link with Tor off: no onion to hand out, the needs-Tor and offline lines, no Turn on Tor (AND-2)', (tester) async {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
-      expect(find.byKey(receiveTorAddressKey), findsOneWidget);
+      expect(find.byKey(receiveTorAddressKey), findsNothing);
+      expect(find.byType(MarkedQr), findsNothing);
+      expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
       expect(
         find.text("Can't receive this way while Offline mode is on."),
         findsOneWidget,
       );
+      expect(find.text('Senders use the Epicbox address meanwhile.'), findsNothing);
       expect(find.byKey(receiveTurnOnTorKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
     });
@@ -501,7 +504,7 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
       expect(_status('Tor · Starting…'), findsOneWidget);
-      expect(find.text('Your link'), findsOneWidget);
+      expect(find.text('Link · Tor address'), findsOneWidget);
       expect(find.text(h.session.onion), findsOneWidget);
       final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
       expect(qr.data, h.session.onion);

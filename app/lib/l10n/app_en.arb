@@ -5119,9 +5119,9 @@
   "@receiveTabFile": {
     "description": "Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone."
   },
-  "receiveTorAddressLabel": "Your link",
+  "receiveTorAddressLabel": "Link · Tor address",
   "@receiveTorAddressLabel": {
-    "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it."
+    "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab, named like the Link · HTTP card (receiveHttpTitle); a tap on the card copies it."
   },
   "receiveTorQrLabel": "QR code of your Tor address",
   "@receiveTorQrLabel": {

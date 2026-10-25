@@ -1043,7 +1043,7 @@
   "receiveTabEpicbox": "Epicbox",
   "receiveTabTor": "Tor",
   "receiveTabFile": "Файл",
-  "receiveTorAddressLabel": "Ваша ссылка",
+  "receiveTorAddressLabel": "Адрес Link · Tor",
   "receiveTorQrLabel": "QR-код вашего адреса Tor",
   "torReceivingTitle": "Приём через Tor",
   "torHonestLine": "Приём через Tor работает, пока приложение открыто или ненадолго в фоне.",

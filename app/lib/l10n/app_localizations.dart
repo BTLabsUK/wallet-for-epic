@@ -6400,10 +6400,10 @@ abstract class AppLocalizations {
   /// **'File'**
   String get receiveTabFile;
 
-  /// Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it.
+  /// Caption above the wallet's full Tor address (the onion address) on the Receive tab, named like the Link · HTTP card (receiveHttpTitle); a tap on the card copies it.
   ///
   /// In en, this message translates to:
-  /// **'Your link'**
+  /// **'Link · Tor address'**
   String get receiveTorAddressLabel;
 
   /// Screen reader label of the QR code of the wallet's Tor address.

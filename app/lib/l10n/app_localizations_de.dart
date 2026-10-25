@@ -4204,7 +4204,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveTabFile => 'Datei';
 
   @override
-  String get receiveTorAddressLabel => 'Ihr Link';
+  String get receiveTorAddressLabel => 'Link · Tor-Adresse';
 
   @override
   String get receiveTorQrLabel => 'QR-Code Ihrer Tor-Adresse';

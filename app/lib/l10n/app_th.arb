@@ -1043,7 +1043,7 @@
   "receiveTabEpicbox": "Epicbox",
   "receiveTabTor": "Tor",
   "receiveTabFile": "ไฟล์",
-  "receiveTorAddressLabel": "ลิงก์ของคุณ",
+  "receiveTorAddressLabel": "ที่อยู่ Link · Tor",
   "receiveTorQrLabel": "QR Code ของที่อยู่ Tor",
   "torReceivingTitle": "รับผ่าน Tor",
   "torHonestLine": "การรับผ่าน Tor ทำงานขณะเปิดแอปอยู่หรืออยู่เบื้องหลังช่วงสั้นๆ",

@@ -1043,7 +1043,7 @@
   "receiveTabEpicbox": "Epicbox",
   "receiveTabTor": "Tor",
   "receiveTabFile": "文件",
-  "receiveTorAddressLabel": "你的链接",
+  "receiveTorAddressLabel": "Link · Tor 地址",
   "receiveTorQrLabel": "你的 Tor 地址二维码",
   "torReceivingTitle": "Tor 接收",
   "torHonestLine": "Tor 收款仅在应用打开或短暂处于后台时有效。",

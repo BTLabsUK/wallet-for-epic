@@ -3905,7 +3905,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveTabFile => '文件';
 
   @override
-  String get receiveTorAddressLabel => '你的链接';
+  String get receiveTorAddressLabel => 'Link · Tor 地址';
 
   @override
   String get receiveTorQrLabel => '你的 Tor 地址二维码';

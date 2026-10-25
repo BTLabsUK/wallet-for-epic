@@ -236,11 +236,13 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && torState == TorState.off && !offline) {
-      // No Link · Tor receiving without Tor; Link · HTTP's card under it while that is on.
+    } else if (tab == ReceiveTab.direct && torState == TorState.off) {
+      // No Link · Tor receiving without Tor, and no onion to hand out: Tor never runs in
+      // Offline either (AND-2). Link · HTTP's card under it while that is on.
       above = column([
         strip,
-        _DirectNeedsTor(epicbox: payments.epicbox),
+        _DirectNeedsTor(epicbox: payments.epicbox, offline: offline),
+        if (offline) offlineNote,
         const SizedBox(height: 8),
       ]);
       code = null;
@@ -738,9 +740,13 @@ const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 /// Epicbox address works meanwhile (while [epicbox] is on), and Turn on Tor (the one switch,
 /// as in Settings › Privacy).
 class _DirectNeedsTor extends ConsumerWidget {
-  const _DirectNeedsTor({required this.epicbox});
+  const _DirectNeedsTor({required this.epicbox, this.offline = false});
 
   final bool epicbox;
+
+  /// Offline mode: Tor does not run and nothing arrives, so no way to turn it on here and no
+  /// pointer to the Epicbox address; the offline line follows.
+  final bool offline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -755,7 +761,7 @@ class _DirectNeedsTor extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyLarge,
         ),
-        if (epicbox) ...[
+        if (epicbox && !offline) ...[
           const SizedBox(height: 4),
           Text(
             l.receiveDirectMeanwhile,
@@ -763,21 +769,24 @@ class _DirectNeedsTor extends ConsumerWidget {
             style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
           ),
         ],
-        const SizedBox(height: 12),
-        FilledButton.tonalIcon(
-          key: receiveTurnOnTorKey,
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
-          icon: const Icon(torIcon),
-          label: Text(l.torTurnOn),
-          onPressed: () =>
-              ref.read(phoneTorProvider.notifier).setReceiving(true),
-        ),
-        TextButton(
-          key: torSettingsLinkKey,
-          style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-          onPressed: () => openPrivacySettings(context),
-          child: Text(l.torSettingsLink),
-        ),
+        if (!offline) ...[
+          const SizedBox(height: 12),
+          FilledButton.tonalIcon(
+            key: receiveTurnOnTorKey,
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
+            icon: const Icon(torIcon),
+            label: Text(l.torTurnOn),
+            onPressed: () =>
+                ref.read(phoneTorProvider.notifier).setReceiving(true),
+          ),
+          TextButton(
+            key: torSettingsLinkKey,
+            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+            onPressed: () => openPrivacySettings(context),
+            child: Text(l.torSettingsLink),
+          ),
+        ] else
+          const SizedBox(height: 8),
       ],
     );
   }

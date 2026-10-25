@@ -4047,7 +4047,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveTabFile => 'ไฟล์';
 
   @override
-  String get receiveTorAddressLabel => 'ลิงก์ของคุณ';
+  String get receiveTorAddressLabel => 'ที่อยู่ Link · Tor';
 
   @override
   String get receiveTorQrLabel => 'QR Code ของที่อยู่ Tor';

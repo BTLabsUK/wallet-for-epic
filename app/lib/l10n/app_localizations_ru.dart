@@ -4293,7 +4293,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabFile => 'Файл';
 
   @override
-  String get receiveTorAddressLabel => 'Ваша ссылка';
+  String get receiveTorAddressLabel => 'Адрес Link · Tor';
 
   @override
   String get receiveTorQrLabel => 'QR-код вашего адреса Tor';

@@ -1043,7 +1043,7 @@
   "receiveTabEpicbox": "Epicbox",
   "receiveTabTor": "Tor",
   "receiveTabFile": "Datei",
-  "receiveTorAddressLabel": "Ihr Link",
+  "receiveTorAddressLabel": "Link · Tor-Adresse",
   "receiveTorQrLabel": "QR-Code Ihrer Tor-Adresse",
   "torReceivingTitle": "Empfang über Tor",
   "torHonestLine": "Tor-Empfang funktioniert, solange die App geöffnet oder kurz im Hintergrund ist.",
