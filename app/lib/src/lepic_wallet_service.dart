@@ -144,8 +144,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
-    // Only resetPassword returns it, which the phone does not call.
-    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.phraseMismatch,
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
@@ -1042,15 +1041,19 @@ class LepicWalletService implements WalletService {
     await MetaStore.deleteFiles(config.dataDir);
   });
 
-  /// Until the binding carries `reset_password` (LEPIC fix/restore-scan): refused.
   @override
   Future<void> resetPassword({
     required WalletConfig config,
     required String mnemonic,
     required String newPassword,
-  }) async => throw const WalletError(
-    kind: WalletErrorKind.other,
-    message: 'this build cannot reset a password yet',
+  }) => _guard(
+    () async => lepic.resetPassword(
+      runtime: _runtime,
+      config: await _config(config),
+      store: await _store(config),
+      mnemonic: mnemonic,
+      newPassword: newPassword,
+    ),
   );
 }
 
@@ -1702,10 +1705,8 @@ class LepicWalletSession implements WalletSession {
     if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
   }
 
-  /// Until the binding carries `restore_scan_required` (LEPIC fix/restore-scan), the app learns
-  /// of the flag from the core's refusals only, so this answers false.
   @override
-  Future<bool> restoreScanRequired() async => false;
+  Future<bool> restoreScanRequired() => _guard(_wallet.restoreScanRequired);
 
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.
