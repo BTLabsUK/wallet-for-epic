@@ -4368,5 +4368,8 @@
   "backupSettingsBody": "{n, plural, one{{n} ustawienie tutaj różni się od kopii.} few{{n} ustawienia tutaj różnią się od kopii.} many{{n} ustawień tutaj różni się od kopii.} other{{n} ustawienia tutaj różni się od kopii.}} Reszta kopii jest już zaimportowana.",
   "backupSettingsUseBackup": "Z kopii",
   "backupSettingsKeepMine": "Zachowaj moje",
-  "backupFromOtherWallet": "Ten plik należy do innego portfela. Otworzy go tylko portfel przywrócony z tej samej frazy odzyskiwania."
+  "backupFromOtherWallet": "Ten plik należy do innego portfela. Otworzy go tylko portfel przywrócony z tej samej frazy odzyskiwania.",
+  "deskEpicboxBlockedWord": "Zablokowany",
+  "deskEpicboxBlockedText": "Ta sieć blokuje {host}. Przyczyną może być filtr sieciowy. Spróbuj innego serwera Epicbox lub prywatnego DNS.",
+  "deskEpicboxBlockedSwitch": "Przełącz na {host}"
 }

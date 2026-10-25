@@ -49,5 +49,8 @@
   "deskImpBusy": "Podpisywanie pliku",
   "deskImpChoose": "Wybierz plik transakcji",
   "deskImpChooseText": "Portfel go podpisze i zapisze odpowiedź dla nadawcy.",
-  "deskImpOpenAnother": "Otwórz kolejny plik"
+  "deskImpOpenAnother": "Otwórz kolejny plik",
+  "deskEpicboxBlockedWord": "Zablokowany",
+  "deskEpicboxBlockedText": "Ta sieć blokuje {host}. Przyczyną może być filtr sieciowy. Spróbuj innego serwera Epicbox lub prywatnego DNS.",
+  "deskEpicboxBlockedSwitch": "Przełącz na {host}"
 }

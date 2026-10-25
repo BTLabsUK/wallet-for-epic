@@ -16650,4 +16650,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get backupFromOtherWallet =>
       'Diese Datei gehört zu einer anderen Wallet. Nur die aus derselben Wiederherstellungsphrase wiederhergestellte Wallet kann sie öffnen.';
+
+  @override
+  String get deskEpicboxBlockedWord => 'Blockiert';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'Dieses Netzwerk blockiert $host. Ursache kann ein Netzwerkfilter sein. Versuchen Sie einen anderen Epicbox-Server oder ein privates DNS.';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'Zu $host wechseln';
+  }
 }

@@ -49,5 +49,8 @@
   "deskImpBusy": "กำลังลงนามไฟล์",
   "deskImpChoose": "เลือกไฟล์ธุรกรรม",
   "deskImpChooseText": "กระเป๋าเงินจะลงนามและบันทึกไฟล์ตอบกลับให้ผู้ส่ง",
-  "deskImpOpenAnother": "เปิดไฟล์อื่น"
+  "deskImpOpenAnother": "เปิดไฟล์อื่น",
+  "deskEpicboxBlockedWord": "ถูกบล็อก",
+  "deskEpicboxBlockedText": "เครือข่ายนี้บล็อก {host} อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว",
+  "deskEpicboxBlockedSwitch": "สลับไปที่ {host}"
 }

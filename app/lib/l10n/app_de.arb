@@ -4368,5 +4368,8 @@
   "backupSettingsBody": "{n, plural, =1{1 Einstellung hier unterscheidet sich von der Sicherung.} other{{n} Einstellungen hier unterscheiden sich von der Sicherung.}} Der Rest der Sicherung ist bereits importiert.",
   "backupSettingsUseBackup": "Die der Sicherung",
   "backupSettingsKeepMine": "Meine behalten",
-  "backupFromOtherWallet": "Diese Datei gehört zu einer anderen Wallet. Nur die aus derselben Wiederherstellungsphrase wiederhergestellte Wallet kann sie öffnen."
+  "backupFromOtherWallet": "Diese Datei gehört zu einer anderen Wallet. Nur die aus derselben Wiederherstellungsphrase wiederhergestellte Wallet kann sie öffnen.",
+  "deskEpicboxBlockedWord": "Blockiert",
+  "deskEpicboxBlockedText": "Dieses Netzwerk blockiert {host}. Ursache kann ein Netzwerkfilter sein. Versuchen Sie einen anderen Epicbox-Server oder ein privates DNS.",
+  "deskEpicboxBlockedSwitch": "Zu {host} wechseln"
 }

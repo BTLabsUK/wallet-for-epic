@@ -16875,4 +16875,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get backupFromOtherWallet =>
       'Этот файл принадлежит другому кошельку. Открыть его может только кошелёк, восстановленный по той же фразе восстановления.';
+
+  @override
+  String get deskEpicboxBlockedWord => 'Заблокирован';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или персональный DNS-сервер.';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'Переключиться на $host';
+  }
 }

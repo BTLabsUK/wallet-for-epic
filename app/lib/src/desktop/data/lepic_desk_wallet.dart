@@ -48,10 +48,12 @@ import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
+import '../../relay_block.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../backup_settings.dart' show mergeServerLists;
 import '../../server_list.dart' show ServerKind, ServerList;
+import '../../server_list_store.dart' show builtInRelaysFor;
 import '../../seed_contacts.dart';
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName, uniqueFileName;
@@ -424,6 +426,18 @@ class LepicDeskWallet implements DeskWalletApi {
   /// does not turn that back into Online.
   bool _nodeNotReady = false;
   ServiceHealth _epicboxHealth = ServiceHealth.off;
+
+  /// Counts the listener's refused handshakes (relay_block.dart); [_epicboxBlocked] once the
+  /// network is shown to block the relay. Steady until a connection, a stop or a switch of relay
+  /// ([_clearBlocked]); the listener keeps trying by itself.
+  final RelayBlockWatch _blockWatch = RelayBlockWatch();
+  bool _epicboxBlocked = false;
+
+  /// The relay to offer while blocked ([relayInstead]); null when none is left.
+  EpicboxRelay? _blockedInstead;
+
+  /// Relays this network blocked since the wallet opened: never offered again.
+  final Set<EpicboxRelay> _blockedRelays = {};
   double? _syncProgress;
   DateTime? _lastUpdate;
   String? _notice;
@@ -1216,6 +1230,8 @@ class LepicDeskWallet implements DeskWalletApi {
     _stall = StallRetry();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
+    _clearBlocked();
+    _blockedRelays.clear();
     session?.dispose();
   }
 
@@ -2291,6 +2307,8 @@ class LepicDeskWallet implements DeskWalletApi {
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
       epicboxViaTor: _epicboxOverTor && _settings.tor && await _findTor() != null,
+      epicboxBlocked: _epicboxBlocked && _epicboxHealth == ServiceHealth.down,
+      epicboxInstead: _epicboxBlocked && _epicboxHealth == ServiceHealth.down ? _blockedInstead : null,
       torSlowStart: _torHealth == ServiceHealth.checking &&
           !_torCanSend &&
           _torStartedAt != null &&
@@ -3641,13 +3659,16 @@ class LepicDeskWallet implements DeskWalletApi {
         switch (e.kind) {
           case core.ListenerEventKind.connected:
             _epicboxHealth = ServiceHealth.ok;
+            _clearBlocked();
           case core.ListenerEventKind.disconnected:
             _epicboxHealth = ServiceHealth.down;
+            _relayMaybeBlocked(e.reason ?? e.message);
           case core.ListenerEventKind.received || core.ListenerEventKind.finalized || core.ListenerEventKind.expired:
             unawaited(_reload());
           case core.ListenerEventKind.stopped:
             _epicboxHealth = ServiceHealth.off;
             _listener = null;
+            _clearBlocked();
           case core.ListenerEventKind.repeated || core.ListenerEventKind.error || core.ListenerEventKind.delayed:
             logInfo('desk', 'listener ${e.kind.name}');
         }
@@ -3657,9 +3678,50 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
         _epicboxHealth = ServiceHealth.down;
         _listener = null;
+        _clearBlocked();
         _changed();
       },
     );
+  }
+
+  /// One failed connection of the Epicbox listener, with its [reason]. Only a direct connection
+  /// counts: over Tor the network never sees the relay's name, so "this network blocks it"
+  /// would be wrong. Once blocked it stays so until [_clearBlocked]; the health stays down, so
+  /// the line does not flip between Connecting and Not answering.
+  void _relayMaybeBlocked(String? reason) {
+    if (_epicboxOverTor && _settings.tor) return _clearBlocked();
+    if (_epicboxBlocked || !_blockWatch.failed(reason)) return;
+    final c = _config;
+    if (c == null) return;
+    final blocked = EpicboxRelay(host: c.epicboxDomain, port: c.epicboxPort);
+    _epicboxBlocked = true;
+    _blockedInstead = null;
+    _blockedRelays.add(blocked);
+    logInfo('desk', 'epicbox relay blocked by the network');
+    unawaited(_offerInstead(blocked));
+  }
+
+  void _clearBlocked() {
+    _blockWatch.reset();
+    _epicboxBlocked = false;
+    _blockedInstead = null;
+  }
+
+  /// Sets [_blockedInstead]: the first other relay the monitor saw up, else the first built-in
+  /// it did not list; the monitor not answering leaves only the built-in ones.
+  Future<void> _offerInstead(EpicboxRelay blocked) async {
+    List<RelayStatus>? listed;
+    final dir = relayDirectory;
+    if (dir != null && preset.statusChain != null && statusSite.on) {
+      try {
+        listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
+      } on Object catch (e) {
+        logWarn('desk', 'epicbox instead: ${e.runtimeType}');
+      }
+    }
+    if (!_epicboxBlocked) return;
+    _blockedInstead = relayInstead(blocked, mergePublicRelays(listed, builtIn: builtInRelaysFor(preset)), skip: _blockedRelays);
+    _changed();
   }
 
   @override
@@ -3754,6 +3816,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // Tor only keeps Epicbox on tor: off would let it go direct.
     if (!on && NetGate.torOnly) return;
     _epicboxOverTor = on;
+    _clearBlocked();
     await _session?.setEpicboxOverTor(on);
     _changed();
   }
@@ -3782,6 +3845,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on && NetGate.torOnly) throw DeskError.l10n((l) => l.deskSetAdvModeTorOnlyText);
     if (on && NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     _settings = _settings.copyWith(tor: on);
+    _clearBlocked();
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) {
@@ -4002,6 +4066,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await sub.cancel();
     _epicboxHealth = ServiceHealth.off;
+    _clearBlocked();
     _changed();
   }
 

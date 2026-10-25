@@ -20,8 +20,18 @@ EpicboxServer? healthiestOtherEpicbox(DeskState st) {
 
 /// Our Epicbox server does not answer: one line, and a one-click switch to the healthiest other
 /// server. Never switched by itself. The same words on Send and Receive.
+///
+/// When the network blocks the relay ([ServiceStatus.epicboxBlocked]) it says so instead, with
+/// one button that moves to [ServiceStatus.epicboxInstead] at once (no confirmation) and, under
+/// it, that the Epicbox address changes. [sentence] false: the screen's state line already says
+/// it (Receive, Settings), so only the button and the caption show.
 class EpicboxDownNotice extends ConsumerStatefulWidget {
-  const EpicboxDownNotice({super.key});
+  const EpicboxDownNotice({super.key, this.sentence = true, this.status});
+
+  final bool sentence;
+
+  /// The status to read instead of the wallet's (the tour's laid-over state).
+  final ServiceStatus? status;
 
   @override
   ConsumerState<EpicboxDownNotice> createState() => _EpicboxDownNoticeState();
@@ -42,11 +52,44 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     }
   }
 
+  Widget _blocked(AppLocalizations l, ServiceStatus s) {
+    final instead = s.epicboxInstead;
+    final ts = context.ts;
+    final button = instead == null
+        ? null
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              EButton(
+                key: const ValueKey('epicbox-blocked-switch'),
+                label: l.deskEpicboxBlockedSwitch(instead.host),
+                icon: EIcons.swap,
+                size: widget.sentence ? EBtnSize.inline : EBtnSize.md,
+                busy: _busy,
+                onPressed: _busy ? null : () => _switch(instead.label),
+              ),
+              SizedBox(height: Sp.x2),
+              Text(l.slSwitchBody, style: ts.caption),
+            ],
+          );
+    if (!widget.sentence) return button ?? const SizedBox.shrink();
+    return ENotice(
+      key: const ValueKey('epicbox-blocked'),
+      title: l.deskEpicboxBlockedWord,
+      text: l.deskEpicboxBlockedText(s.epicbox.domain),
+      tone: ETone.risk,
+      icon: EIcons.antenna,
+      below: button,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
-    final other = healthiestOtherEpicbox(st);
     final l = context.l10n;
+    final s = widget.status ?? st.status;
+    if (s != null && s.epicboxBlocked) return _blocked(l, s);
+    final other = healthiestOtherEpicbox(st);
     return ENotice(
       title: l.deskSendEpicboxDownTitle,
       text: other == null ? l.deskSendEpicboxDownWait : l.deskSendEpicboxSwitchTo(other.domain),
