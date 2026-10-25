@@ -25063,6 +25063,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not cancelled: the network already has this payment. It completes when the blockchain confirms it.'**
   String get txDetailsCancelRefusedOnNetwork;
+
+  /// Contact page More menu item: star this contact (only in this wallet). Short; same word as the desktop's Star button.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get contactStar;
+
+  /// Contact page More menu item: remove the star from this contact. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstar'**
+  String get contactUnstar;
+
+  /// Screen reader label of the small star after a starred contact's name (list, picker, contact page). Not shown as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Starred'**
+  String get contactStarred;
+
+  /// Contacts list menu item, and the title of the file dialog: import contacts from a contacts file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import contacts'**
+  String get contactsImport;
+
+  /// Contacts list menu item, and the title of the save dialog: export the address book (names, addresses, notes) to a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export contacts'**
+  String get contactsExport;
+
+  /// Success notice after the contacts file was saved or shared.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 contact exported} other{{count} contacts exported}}'**
+  String contactsExported(int count);
+
+  /// Title of the confirm sheet/dialog after a contacts file was read, before anything is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Import contacts?'**
+  String get contactsImportTitle;
+
+  /// Import confirm line: contacts in the file that are not here yet and will be added.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new contact} other{{count} new contacts}}'**
+  String contactsImportNew(int count);
+
+  /// Import confirm line: contacts already saved here that gain an address or a note they lacked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 contact here gets an address or note} other{{count} contacts here get an address or note}}'**
+  String contactsImportMerged(int count);
+
+  /// Import confirm line: contacts in the file already saved here, nothing to add.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 already here} other{{count} already here}}'**
+  String contactsImportSame(int count);
+
+  /// Import confirm line: contacts in the file left out because none of their addresses is valid for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 left out: no address this wallet can send to} other{{count} left out: no address this wallet can send to}}'**
+  String contactsImportLeftOut(int count);
+
+  /// Import confirm line: contacts in the file left out because their address is for another network (mainnet vs floonet).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 left out: address for another network} other{{count} left out: addresses for another network}}'**
+  String contactsImportOtherNet(int count);
+
+  /// Small print on the import confirm: the import never changes a saved contact's name, address or note.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing you saved is changed.'**
+  String get contactsImportKeeps;
+
+  /// Button on the import confirm that saves the contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get contactsImportDo;
+
+  /// Import confirm, when every contact in the file is already here: nothing to import.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to import. These contacts are all here already.'**
+  String get contactsImportNothing;
+
+  /// Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.
+  ///
+  /// In en, this message translates to:
+  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}'**
+  String contactsImported(int added, int same);
+
+  /// Success notice after an import when none of the file's contacts was already there.
+  ///
+  /// In en, this message translates to:
+  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}'**
+  String contactsImportedAdded(int added);
+
+  /// Import error: the picked file is not JSON or not a contacts file.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not a contacts file.'**
+  String get contactsImportNotFile;
+
+  /// Import error: a contacts file whose list is missing or has a row without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be read. It may be damaged.'**
+  String get contactsImportDamaged;
+
+  /// Import error: the contacts file was made by a newer version of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This file was made by a newer Epic Cash. Update to import it.'**
+  String get contactsImportNewer;
+
+  /// Import error: the contacts file holds no contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'The file holds no contacts.'**
+  String get contactsImportEmpty;
+
+  /// Import error: the contacts file is for another network (e.g. a floonet address book in a mainnet wallet).
+  ///
+  /// In en, this message translates to:
+  /// **'These contacts are for another network. None can be used here.'**
+  String get contactsImportAllOtherNet;
 }
 
 class _AppLocalizationsDelegate

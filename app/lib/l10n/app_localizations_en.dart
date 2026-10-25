@@ -15905,4 +15905,144 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txDetailsCancelRefusedOnNetwork =>
       'Not cancelled: the network already has this payment. It completes when the blockchain confirms it.';
+
+  @override
+  String get contactStar => 'Star';
+
+  @override
+  String get contactUnstar => 'Unstar';
+
+  @override
+  String get contactStarred => 'Starred';
+
+  @override
+  String get contactsImport => 'Import contacts';
+
+  @override
+  String get contactsExport => 'Export contacts';
+
+  @override
+  String contactsExported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts exported',
+      one: '1 contact exported',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportTitle => 'Import contacts?';
+
+  @override
+  String contactsImportNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new contacts',
+      one: '1 new contact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts here get an address or note',
+      one: '1 contact here gets an address or note',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportSame(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count already here',
+      one: '1 already here',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count left out: no address this wallet can send to',
+      one: '1 left out: no address this wallet can send to',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportOtherNet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count left out: addresses for another network',
+      one: '1 left out: address for another network',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportKeeps => 'Nothing you saved is changed.';
+
+  @override
+  String get contactsImportDo => 'Import';
+
+  @override
+  String get contactsImportNothing =>
+      'Nothing to import. These contacts are all here already.';
+
+  @override
+  String contactsImported(int added, int same) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added contacts added',
+      one: '1 contact added',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      same,
+      locale: localeName,
+      other: '$same already there',
+      one: '1 already there',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String contactsImportedAdded(int added) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added contacts added',
+      one: '1 contact added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportNotFile => 'That file is not a contacts file.';
+
+  @override
+  String get contactsImportDamaged =>
+      'The file could not be read. It may be damaged.';
+
+  @override
+  String get contactsImportNewer =>
+      'This file was made by a newer Epic Cash. Update to import it.';
+
+  @override
+  String get contactsImportEmpty => 'The file holds no contacts.';
+
+  @override
+  String get contactsImportAllOtherNet =>
+      'These contacts are for another network. None can be used here.';
 }

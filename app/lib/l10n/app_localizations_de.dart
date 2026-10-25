@@ -16093,4 +16093,146 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get txDetailsCancelRefusedOnNetwork =>
       'Nicht storniert: das Netzwerk hat diese Zahlung bereits. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
+
+  @override
+  String get contactStar => 'Favorit';
+
+  @override
+  String get contactUnstar => 'Kein Favorit';
+
+  @override
+  String get contactStarred => 'Favorit';
+
+  @override
+  String get contactsImport => 'Kontakte importieren';
+
+  @override
+  String get contactsExport => 'Kontakte exportieren';
+
+  @override
+  String contactsExported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte exportiert',
+      one: '$count Kontakt exportiert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportTitle => 'Kontakte importieren?';
+
+  @override
+  String contactsImportNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count neue Kontakte',
+      one: '$count neuer Kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vorhandene Kontakte erhalten eine Adresse oder Notiz',
+      one: '$count vorhandener Kontakt erhält eine Adresse oder Notiz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportSame(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bereits vorhanden',
+      one: '$count bereits vorhanden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count ausgelassen: keine Adresse, an die diese Wallet senden kann',
+      one: '$count ausgelassen: keine Adresse, an die diese Wallet senden kann',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportOtherNet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ausgelassen: Adressen für ein anderes Netzwerk',
+      one: '$count ausgelassen: Adresse für ein anderes Netzwerk',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportKeeps =>
+      'Gespeicherte Kontakte bleiben unverändert.';
+
+  @override
+  String get contactsImportDo => 'Importieren';
+
+  @override
+  String get contactsImportNothing =>
+      'Nichts zu importieren. Diese Kontakte sind alle schon vorhanden.';
+
+  @override
+  String contactsImported(int added, int same) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added Kontakte hinzugefügt',
+      one: '$added Kontakt hinzugefügt',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      same,
+      locale: localeName,
+      other: '$same bereits vorhanden',
+      one: '$same bereits vorhanden',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String contactsImportedAdded(int added) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added Kontakte hinzugefügt',
+      one: '$added Kontakt hinzugefügt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportNotFile => 'Diese Datei ist keine Kontaktdatei.';
+
+  @override
+  String get contactsImportDamaged =>
+      'Die Datei konnte nicht gelesen werden. Sie ist möglicherweise beschädigt.';
+
+  @override
+  String get contactsImportNewer =>
+      'Diese Datei stammt von einer neueren Version von Epic Cash. Aktualisieren Sie, um sie zu importieren.';
+
+  @override
+  String get contactsImportEmpty => 'Die Datei enthält keine Kontakte.';
+
+  @override
+  String get contactsImportAllOtherNet =>
+      'Diese Kontakte gehören zu einem anderen Netzwerk. Keiner kann hier verwendet werden.';
 }

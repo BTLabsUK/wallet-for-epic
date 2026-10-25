@@ -15610,4 +15610,134 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txDetailsCancelRefusedOnNetwork =>
       'ไม่ได้ยกเลิก เครือข่ายมีรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
+
+  @override
+  String get contactStar => 'ติดดาว';
+
+  @override
+  String get contactUnstar => 'เลิกติดดาว';
+
+  @override
+  String get contactStarred => 'ติดดาวแล้ว';
+
+  @override
+  String get contactsImport => 'นำเข้าผู้ติดต่อ';
+
+  @override
+  String get contactsExport => 'ส่งออกผู้ติดต่อ';
+
+  @override
+  String contactsExported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ส่งออกผู้ติดต่อ $count รายแล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportTitle => 'นำเข้าผู้ติดต่อไหม';
+
+  @override
+  String contactsImportNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ผู้ติดต่อใหม่ $count ราย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ผู้ติดต่อที่มีอยู่ $count รายจะได้ที่อยู่หรือโน้ตเพิ่ม',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportSame(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'มีอยู่แล้ว $count ราย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ข้าม $count ราย: ไม่มีที่อยู่ที่กระเป๋าเงินนี้ส่งไปได้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportOtherNet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ข้าม $count ราย: ที่อยู่ของเครือข่ายอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportKeeps => 'ผู้ติดต่อที่บันทึกไว้จะไม่ถูกเปลี่ยน';
+
+  @override
+  String get contactsImportDo => 'นำเข้า';
+
+  @override
+  String get contactsImportNothing =>
+      'ไม่มีอะไรให้นำเข้า ผู้ติดต่อเหล่านี้มีอยู่แล้วทั้งหมด';
+
+  @override
+  String contactsImported(int added, int same) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: 'เพิ่มผู้ติดต่อ $added ราย',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      same,
+      locale: localeName,
+      other: 'มีอยู่แล้ว $same ราย',
+    );
+    return '$_temp0 $_temp1';
+  }
+
+  @override
+  String contactsImportedAdded(int added) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: 'เพิ่มผู้ติดต่อ $added รายแล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportNotFile => 'ไฟล์นี้ไม่ใช่ไฟล์ผู้ติดต่อ';
+
+  @override
+  String get contactsImportDamaged => 'อ่านไฟล์ไม่ได้ ไฟล์อาจเสียหาย';
+
+  @override
+  String get contactsImportNewer =>
+      'ไฟล์นี้สร้างจาก Epic Cash เวอร์ชันใหม่กว่า อัปเดตก่อนจึงจะนำเข้าได้';
+
+  @override
+  String get contactsImportEmpty => 'ไฟล์นี้ไม่มีผู้ติดต่อ';
+
+  @override
+  String get contactsImportAllOtherNet =>
+      'ผู้ติดต่อเหล่านี้เป็นของเครือข่ายอื่น ใช้ที่นี่ไม่ได้เลย';
 }

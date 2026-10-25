@@ -15061,4 +15061,131 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelRefusedOnNetwork => '未取消：网络中已有这笔付款。区块链确认后即完成。';
+
+  @override
+  String get contactStar => '加星标';
+
+  @override
+  String get contactUnstar => '取消星标';
+
+  @override
+  String get contactStarred => '已加星标';
+
+  @override
+  String get contactsImport => '导入联系人';
+
+  @override
+  String get contactsExport => '导出联系人';
+
+  @override
+  String contactsExported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已导出 $count 个联系人',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportTitle => '导入联系人？';
+
+  @override
+  String contactsImportNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个新联系人',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个已有联系人将补充地址或备注',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportSame(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个已存在',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '跳过 $count 个：没有本钱包可发送的地址',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportOtherNet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '跳过 $count 个：其他网络的地址',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportKeeps => '已保存的联系人不会被更改。';
+
+  @override
+  String get contactsImportDo => '导入';
+
+  @override
+  String get contactsImportNothing => '没有可导入的内容。这些联系人都已存在。';
+
+  @override
+  String contactsImported(int added, int same) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '已添加 $added 个联系人',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      same,
+      locale: localeName,
+      other: '$same 个已存在',
+    );
+    return '$_temp0，$_temp1';
+  }
+
+  @override
+  String contactsImportedAdded(int added) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '已添加 $added 个联系人',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportNotFile => '该文件不是联系人文件。';
+
+  @override
+  String get contactsImportDamaged => '无法读取该文件，文件可能已损坏。';
+
+  @override
+  String get contactsImportNewer => '该文件由更新版本的 Epic Cash 创建。请更新后再导入。';
+
+  @override
+  String get contactsImportEmpty => '该文件中没有联系人。';
+
+  @override
+  String get contactsImportAllOtherNet => '这些联系人属于其他网络，此处均无法使用。';
 }

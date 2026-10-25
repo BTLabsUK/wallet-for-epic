@@ -21091,5 +21091,145 @@
   "txDetailsCancelRefusedOnNetwork": "Not cancelled: the network already has this payment. It completes when the blockchain confirms it.",
   "@txDetailsCancelRefusedOnNetwork": {
     "description": "Info notice when a cancel of an incoming payment was refused because the node's pool or chain holds it."
+  },
+  "contactStar": "Star",
+  "@contactStar": {
+    "description": "Contact page More menu item: star this contact (only in this wallet). Short; same word as the desktop's Star button."
+  },
+  "contactUnstar": "Unstar",
+  "@contactUnstar": {
+    "description": "Contact page More menu item: remove the star from this contact. Short."
+  },
+  "contactStarred": "Starred",
+  "@contactStarred": {
+    "description": "Screen reader label of the small star after a starred contact's name (list, picker, contact page). Not shown as text."
+  },
+  "contactsImport": "Import contacts",
+  "@contactsImport": {
+    "description": "Contacts list menu item, and the title of the file dialog: import contacts from a contacts file."
+  },
+  "contactsExport": "Export contacts",
+  "@contactsExport": {
+    "description": "Contacts list menu item, and the title of the save dialog: export the address book (names, addresses, notes) to a file."
+  },
+  "contactsExported": "{count, plural, =1{1 contact exported} other{{count} contacts exported}}",
+  "@contactsExported": {
+    "description": "Success notice after the contacts file was saved or shared.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportTitle": "Import contacts?",
+  "@contactsImportTitle": {
+    "description": "Title of the confirm sheet/dialog after a contacts file was read, before anything is saved."
+  },
+  "contactsImportNew": "{count, plural, =1{1 new contact} other{{count} new contacts}}",
+  "@contactsImportNew": {
+    "description": "Import confirm line: contacts in the file that are not here yet and will be added.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportMerged": "{count, plural, =1{1 contact here gets an address or note} other{{count} contacts here get an address or note}}",
+  "@contactsImportMerged": {
+    "description": "Import confirm line: contacts already saved here that gain an address or a note they lacked.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportSame": "{count, plural, =1{1 already here} other{{count} already here}}",
+  "@contactsImportSame": {
+    "description": "Import confirm line: contacts in the file already saved here, nothing to add.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportLeftOut": "{count, plural, =1{1 left out: no address this wallet can send to} other{{count} left out: no address this wallet can send to}}",
+  "@contactsImportLeftOut": {
+    "description": "Import confirm line: contacts in the file left out because none of their addresses is valid for this wallet.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportOtherNet": "{count, plural, =1{1 left out: address for another network} other{{count} left out: addresses for another network}}",
+  "@contactsImportOtherNet": {
+    "description": "Import confirm line: contacts in the file left out because their address is for another network (mainnet vs floonet).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "contactsImportKeeps": "Nothing you saved is changed.",
+  "@contactsImportKeeps": {
+    "description": "Small print on the import confirm: the import never changes a saved contact's name, address or note."
+  },
+  "contactsImportDo": "Import",
+  "@contactsImportDo": {
+    "description": "Button on the import confirm that saves the contacts."
+  },
+  "contactsImportNothing": "Nothing to import. These contacts are all here already.",
+  "@contactsImportNothing": {
+    "description": "Import confirm, when every contact in the file is already here: nothing to import."
+  },
+  "contactsImported": "{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}",
+  "@contactsImported": {
+    "description": "Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.",
+    "placeholders": {
+      "added": {
+        "type": "int",
+        "example": "3"
+      },
+      "same": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "contactsImportedAdded": "{added, plural, =1{1 contact added} other{{added} contacts added}}",
+  "@contactsImportedAdded": {
+    "description": "Success notice after an import when none of the file's contacts was already there.",
+    "placeholders": {
+      "added": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "contactsImportNotFile": "That file is not a contacts file.",
+  "@contactsImportNotFile": {
+    "description": "Import error: the picked file is not JSON or not a contacts file."
+  },
+  "contactsImportDamaged": "The file could not be read. It may be damaged.",
+  "@contactsImportDamaged": {
+    "description": "Import error: a contacts file whose list is missing or has a row without a name."
+  },
+  "contactsImportNewer": "This file was made by a newer Epic Cash. Update to import it.",
+  "@contactsImportNewer": {
+    "description": "Import error: the contacts file was made by a newer version of the app."
+  },
+  "contactsImportEmpty": "The file holds no contacts.",
+  "@contactsImportEmpty": {
+    "description": "Import error: the contacts file holds no contacts."
+  },
+  "contactsImportAllOtherNet": "These contacts are for another network. None can be used here.",
+  "@contactsImportAllOtherNet": {
+    "description": "Import error: the contacts file is for another network (e.g. a floonet address book in a mainnet wallet)."
   }
 }

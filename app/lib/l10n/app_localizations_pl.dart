@@ -16388,4 +16388,162 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txDetailsCancelRefusedOnNetwork =>
       'Nie anulowano: sieć już ma tę płatność. Zakończy się, gdy blockchain ją potwierdzi.';
+
+  @override
+  String get contactStar => 'Oznacz gwiazdką';
+
+  @override
+  String get contactUnstar => 'Usuń gwiazdkę';
+
+  @override
+  String get contactStarred => 'Oznaczony gwiazdką';
+
+  @override
+  String get contactsImport => 'Importuj kontakty';
+
+  @override
+  String get contactsExport => 'Eksportuj kontakty';
+
+  @override
+  String contactsExported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wyeksportowano $count kontaktu',
+      many: 'Wyeksportowano $count kontaktów',
+      few: 'Wyeksportowano $count kontakty',
+      one: 'Wyeksportowano $count kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportTitle => 'Zaimportować kontakty?';
+
+  @override
+  String contactsImportNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nowego kontaktu',
+      many: '$count nowych kontaktów',
+      few: '$count nowe kontakty',
+      one: '$count nowy kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zapisanego kontaktu dostanie adres lub notatkę',
+      many: '$count zapisanych kontaktów dostanie adres lub notatkę',
+      few: '$count zapisane kontakty dostaną adres lub notatkę',
+      one: '$count zapisany kontakt dostanie adres lub notatkę',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportSame(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count już zapisanego',
+      many: '$count już zapisanych',
+      few: '$count już zapisane',
+      one: '$count już zapisany',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pominięto $count: brak adresu, na który ten portfel może wysłać',
+      many: 'Pominięto $count: brak adresu, na który ten portfel może wysłać',
+      few: 'Pominięto $count: brak adresu, na który ten portfel może wysłać',
+      one: 'Pominięto $count: brak adresu, na który ten portfel może wysłać',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String contactsImportOtherNet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pominięto $count: adresy innej sieci',
+      many: 'Pominięto $count: adresy innej sieci',
+      few: 'Pominięto $count: adresy innej sieci',
+      one: 'Pominięto $count: adres innej sieci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportKeeps => 'Zapisane kontakty pozostają bez zmian.';
+
+  @override
+  String get contactsImportDo => 'Importuj';
+
+  @override
+  String get contactsImportNothing =>
+      'Nie ma czego importować. Wszystkie te kontakty są już zapisane.';
+
+  @override
+  String contactsImported(int added, int same) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: 'Dodano $added kontaktu',
+      many: 'Dodano $added kontaktów',
+      few: 'Dodano $added kontakty',
+      one: 'Dodano $added kontakt',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      same,
+      locale: localeName,
+      other: '$same już było',
+      many: '$same już było',
+      few: '$same już były',
+      one: '$same już był',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String contactsImportedAdded(int added) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: 'Dodano $added kontaktu',
+      many: 'Dodano $added kontaktów',
+      few: 'Dodano $added kontakty',
+      one: 'Dodano $added kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsImportNotFile => 'Ten plik nie jest plikiem kontaktów.';
+
+  @override
+  String get contactsImportDamaged =>
+      'Nie udało się odczytać pliku. Może być uszkodzony.';
+
+  @override
+  String get contactsImportNewer =>
+      'Ten plik pochodzi z nowszej wersji Epic Cash. Zaktualizuj aplikację, aby go zaimportować.';
+
+  @override
+  String get contactsImportEmpty => 'Plik nie zawiera kontaktów.';
+
+  @override
+  String get contactsImportAllOtherNet =>
+      'Te kontakty są z innej sieci. Żadnego nie można tu użyć.';
 }
