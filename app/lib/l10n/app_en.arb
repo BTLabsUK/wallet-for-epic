@@ -8217,7 +8217,7 @@
   "@receiveHttpTitle": {
     "description": "Title of the HTTP address card on the phone’s Receive › Link tab."
   },
-  "receiveHttpLanLine": "For wallets on this Wi-Fi network, while the app is open.",
+  "receiveHttpLanLine": "For wallets on this Wi-Fi network, while this wallet is open.",
   "@receiveHttpLanLine": {
     "description": "Line under the HTTP address on the phone’s Receive › Link tab: who can reach it."
   },

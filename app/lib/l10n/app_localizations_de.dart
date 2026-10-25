@@ -6581,7 +6581,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveHttpLanLine =>
-      'For wallets on this Wi-Fi network, while the app is open.';
+      'For wallets on this Wi-Fi network, while this wallet is open.';
 
   @override
   String get receiveHttpNoNetwork =>

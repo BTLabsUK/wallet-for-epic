@@ -406,14 +406,12 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               key: const ValueKey('st-start-method'),
               title: l.deskSetTxStart,
               hint: l.deskSetTxStartHint,
-              control: ERowControl(
-                wide: true,
-                child: ESegmented<MethodKind>(
-                  stretch: true,
-                  segments: [for (final m in offered) ESegment(m, _startName(l, m), icon: m.family == MethodFamily.link ? MethodIcons.family(MethodFamily.link) : MethodIcons.of(m))],
-                  value: offered.contains(start) ? start : offered.firstOrNull ?? MethodKind.epicbox,
-                  onChanged: (m) => _savePayments((x) => x.copyWith(defaultMethod: m)),
-                ),
+              // Sized to its words: three segments with the family names do not fit the
+              // fixed row control.
+              control: ESegmented<MethodKind>(
+                segments: [for (final m in offered) ESegment(m, _startName(l, m), icon: m.family == MethodFamily.link ? MethodIcons.family(MethodFamily.link) : MethodIcons.of(m))],
+                value: offered.contains(start) ? start : offered.firstOrNull ?? MethodKind.epicbox,
+                onChanged: (m) => _savePayments((x) => x.copyWith(defaultMethod: m)),
               ),
             ),
           if (options) ...[

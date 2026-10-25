@@ -10212,7 +10212,7 @@ abstract class AppLocalizations {
   /// Line under the HTTP address on the phone’s Receive › Link tab: who can reach it.
   ///
   /// In en, this message translates to:
-  /// **'For wallets on this Wi-Fi network, while the app is open.'**
+  /// **'For wallets on this Wi-Fi network, while this wallet is open.'**
   String get receiveHttpLanLine;
 
   /// The HTTP address card on the phone’s Receive › Link tab when the phone has no Wi-Fi (or other local network) address.
