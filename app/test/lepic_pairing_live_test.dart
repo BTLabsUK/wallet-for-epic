@@ -1,6 +1,7 @@
 // Live: pairing (RFC 0002) through the app's LEPIC adapter on the real library, with LEPIC's
 // mock chain and mock relay: an invite answered and its words checked, in person by cards,
-// a request to a verified contact paid and finalized, a sealed payment file there and back,
+// a request to a verified contact paid and finalized, a payment through a contact's mailbox,
+// a sealed payment file there and back,
 // and the pairings carried by the history backup to a restored install. Needs LEPIC's mock
 // build of the Linux library (the shipped one has no mock chain; MockChain::new refuses), made
 // from the pinned clone into a folder of your own:
@@ -233,6 +234,49 @@ void main() {
     expect(tx.slateId, slate.slateId);
     expect(chain.pushedCount(), 1);
     expect((await anna.pairing.slateOf(slate.slateId))?.pairingId, ids.aSide);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
+
+  test('a payment through a paired contact\'s mailbox needs no address, is answered and posted', () async {
+    final (anna, _) = await wallet(funded: 10);
+    final (ben, _) = await wallet();
+    final ids = await pair(anna, ben);
+    final told = <PairingEvent>[];
+    final sub = anna.pairing.events().listen(told.add);
+
+    final tx = await anna.pairing.sendViaMailbox(id: ids.aSide, amount: BigInt.from(2) * _epic, minimumConfirmations: BigInt.one, message: 'rent');
+    expect(tx.kind, TxKind.sent);
+    expect(tx.status, TxStatus.awaitingRecipient);
+    // The mailbox is never an address.
+    expect(tx.counterparty, isNull);
+    expect((await anna.pairing.slateOf(tx.slateId!))?.pairingId, ids.aSide);
+
+    for (var i = 0; i < 3 && chain.pushedCount() == 0; i++) {
+      await ben.pairing.collect(trigger: PairingCollectTrigger.pull);
+      await anna.pairing.collect(trigger: PairingCollectTrigger.foreground);
+      await _settle();
+    }
+    expect(chain.pushedCount(), 1);
+    for (var i = 0; i < 25 && !told.any((e) => e.kind == PairingEventKind.paymentFinalized); i++) {
+      await _settle();
+    }
+    await sub.cancel();
+    expect({for (final e in told) if (e.kind == PairingEventKind.paymentFinalized) (e.pairingId, e.slateId)}, {(ids.aSide, tx.slateId)});
+    final after = (await anna.transactions(refresh: false)).firstWhere((t) => t.slateId == tx.slateId);
+    expect(after.status, TxStatus.awaitingConfirmation);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
+
+  test('a mailbox payment to a pairing that is gone is refused before anything is held', () async {
+    final (anna, _) = await wallet(funded: 10);
+    final (ben, _) = await wallet();
+    final ids = await pair(anna, ben);
+    await anna.pairing.removePairing(ids.aSide);
+    final before = (await anna.summary(refresh: false, minimumConfirmations: BigInt.one)).spendable;
+    await expectLater(
+      anna.pairing.sendViaMailbox(id: ids.aSide, amount: _epic, minimumConfirmations: BigInt.one),
+      throwsA(isA<WalletError>()),
+    );
+    expect((await anna.summary(refresh: false, minimumConfirmations: BigInt.one)).spendable, before);
+    expect((await anna.transactions(refresh: false)).where((t) => t.kind == TxKind.sent), isEmpty);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('the history backup brings the pairings back on a restored install', () async {

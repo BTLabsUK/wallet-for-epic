@@ -2977,16 +2977,20 @@ class _LepicPairing implements PairingApi {
     String? message,
     SendOptions? options,
   }) => _call(() async {
-    // The payment is made here and posted sealed to the contact's mailbox (RFC 9.1); the
-    // answer comes back by collecting.
-    final slate = await _w.createSendSlate(
+    // LEPIC checks the pairing before it locks anything, makes the payment and queues it
+    // sealed for the contact's mailbox (RFC 9.1), posted when relays may be reached; one it
+    // could not queue it cancels. The answer comes back by collecting.
+    final sent = await _w.contactSend(
+      contactId: id,
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
       options: await _s._optionsFor(amount, minimumConfirmations, options),
+      purpose: lepic.SlatePurpose.payment,
+      relayMode: lepicRelayMode(),
     );
-    await _w.contactPostSlate(contactId: id, txId: slate.txId, purpose: lepic.SlatePurpose.payment, relayMode: lepicRelayMode());
-    return _s._entry(slate.txId);
+    _slates[sent.slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
+    return _s._entry(sent.txId);
   });
 
   @override
@@ -3028,6 +3032,9 @@ class _LepicPairing implements PairingApi {
       }
     }
     if (e.kind == lepic.WalletEventKind.contactKeysChanged && id != null) _checking.remove(id);
+    if (e.kind == lepic.WalletEventKind.contactPaymentFinalized && id != null && slateId != null) {
+      _slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
+    }
     if (e.kind == lepic.WalletEventKind.withdrawalFromContact && id != null && slateId != null) {
       _slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.withdrawal, reference: e.reference);
     }
@@ -3051,6 +3058,7 @@ class _LepicPairing implements PairingApi {
       lepic.WalletEventKind.sealedUnopenable => PairingEventKind.sealedUnopenable,
       lepic.WalletEventKind.outboxDelivered => PairingEventKind.outboxDelivered,
       lepic.WalletEventKind.outboxStuck => PairingEventKind.outboxStuck,
+      lepic.WalletEventKind.contactPaymentFinalized => PairingEventKind.paymentFinalized,
       _ => null,
     };
     if (kind == null || _events.isClosed) return;
