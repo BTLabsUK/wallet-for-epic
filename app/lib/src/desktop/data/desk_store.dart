@@ -189,14 +189,26 @@ class DeskStore {
     if (saved.tourSeen && !s.tourSeen) logDebug('desk', 'settings save kept tourSeen=true over a stale false');
     await writeJson(
       settingsKey,
-      deskSettingsToJson(s.copyWith(publicMode: saved.publicMode, httpPort: saved.httpPort, tourSeen: s.tourSeen || saved.tourSeen)),
+      deskSettingsToJson(
+        s.copyWith(
+          publicMode: saved.publicMode,
+          httpPort: saved.httpPort,
+          tourSeen: s.tourSeen || saved.tourSeen,
+          importWarningSeen: s.importWarningSeen || saved.importWarningSeen,
+        ),
+      ),
     );
   }
 
   /// Saves [DeskSettings.tourSeen] alone, over what is stored now.
-  Future<void> saveTourSeen() async {
+  Future<void> saveTourSeen() => _saveFlag('tourSeen');
+
+  /// Saves [DeskSettings.importWarningSeen] alone, over what is stored now.
+  Future<void> saveImportWarningSeen() => _saveFlag('importWarningSeen');
+
+  Future<void> _saveFlag(String key) async {
     final json = await readJson(settingsKey);
-    await writeJson(settingsKey, {...?(json is Map<String, dynamic> ? json : null), 'tourSeen': true});
+    await writeJson(settingsKey, {...?(json is Map<String, dynamic> ? json : null), key: true});
   }
 
   /// The settings screens' choices ([SettingsPrefs.toJson]); Start HTTP with the wallet is the
@@ -259,6 +271,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'newLookSeen': s.newLookSeen,
   'internetGuideSeen': s.internetGuideSeen,
   'tourSeen': s.tourSeen,
+  'importWarningSeen': s.importWarningSeen,
   'useStatusSite': s.useStatusSite,
   'autoLock': s.autoLockMinutes,
   'autoLockOn': s.autoLockOn,
@@ -280,6 +293,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final seen = j['newLookSeen'];
   final guide = j['internetGuideSeen'];
   final tour = j['tourSeen'];
+  final importWarned = j['importWarningSeen'];
   final site = j['useStatusSite'];
   // The key before 26.10.13 held a value nothing read: it is not taken over.
   final lock = j['autoLock'];
@@ -297,6 +311,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     newLookSeen: seen is bool ? seen : d.newLookSeen,
     internetGuideSeen: guide is bool ? guide : d.internetGuideSeen,
     tourSeen: tour is bool ? tour : d.tourSeen,
+    importWarningSeen: importWarned is bool ? importWarned : d.importWarningSeen,
     useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
     advanced: AdvancedPrefs.fromJson(j['advanced']),

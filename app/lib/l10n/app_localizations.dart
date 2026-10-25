@@ -1633,6 +1633,42 @@ abstract class AppLocalizations {
   /// **'Save payment history'**
   String get historyBackupSaveDialogTitle;
 
+  /// Title of the one-time warning shown before the first import of wallets or files from older software or backups.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you import'**
+  String get importWarnTitle;
+
+  /// Import warning, sentence 1: the app is new.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an early version of a new app.'**
+  String get importWarnEarly;
+
+  /// Import warning, sentence 2: the import only reads the old files.
+  ///
+  /// In en, this message translates to:
+  /// **'Import only reads your old wallets and files and never deletes or changes them.'**
+  String get importWarnReads;
+
+  /// Import warning, sentence 3: have a backup (recovery phrase and wallet files) of every wallet first.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you continue, make sure you have a backup of every wallet: its recovery phrase, and its wallet files if you keep them.'**
+  String get importWarnBackup;
+
+  /// Import warning, sentence 4: at your own risk, no liability for losses.
+  ///
+  /// In en, this message translates to:
+  /// **'You import at your own risk, and we take no responsibility for any loss.'**
+  String get importWarnRisk;
+
+  /// Label of the checkbox the user ticks before Continue is enabled in the import warning.
+  ///
+  /// In en, this message translates to:
+  /// **'I have a backup of every wallet'**
+  String get importWarnAck;
+
   /// Title of the system file picker for a payment-history backup (desktop only).
   ///
   /// In en, this message translates to:

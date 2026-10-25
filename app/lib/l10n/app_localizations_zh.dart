@@ -946,6 +946,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupSaveDialogTitle => '保存交易记录';
 
   @override
+  String get importWarnTitle => '导入之前';
+
+  @override
+  String get importWarnEarly => '这是一个新应用的早期版本。';
+
+  @override
+  String get importWarnReads => '导入只会读取你的旧钱包和文件，绝不会删除或更改它们。';
+
+  @override
+  String get importWarnBackup => '继续之前，请确认每个钱包都有备份：它的助记词，以及你保留的钱包文件。';
+
+  @override
+  String get importWarnRisk => '导入的风险由你自行承担，我们对任何损失不负责任。';
+
+  @override
+  String get importWarnAck => '每个钱包我都有备份';
+
+  @override
   String get historyBackupOpenDialogTitle => '打开交易记录备份';
 
   @override

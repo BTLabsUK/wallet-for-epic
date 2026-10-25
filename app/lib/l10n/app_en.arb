@@ -1153,6 +1153,30 @@
   "@historyBackupSaveDialogTitle": {
     "description": "Title of the system save dialog for a payment-history file (desktop only)."
   },
+  "importWarnTitle": "Before you import",
+  "@importWarnTitle": {
+    "description": "Title of the one-time warning shown before the first import of wallets or files from older software or backups."
+  },
+  "importWarnEarly": "This is an early version of a new app.",
+  "@importWarnEarly": {
+    "description": "Import warning, sentence 1: the app is new."
+  },
+  "importWarnReads": "Import only reads your old wallets and files and never deletes or changes them.",
+  "@importWarnReads": {
+    "description": "Import warning, sentence 2: the import only reads the old files."
+  },
+  "importWarnBackup": "Before you continue, make sure you have a backup of every wallet: its recovery phrase, and its wallet files if you keep them.",
+  "@importWarnBackup": {
+    "description": "Import warning, sentence 3: have a backup (recovery phrase and wallet files) of every wallet first."
+  },
+  "importWarnRisk": "You import at your own risk, and we take no responsibility for any loss.",
+  "@importWarnRisk": {
+    "description": "Import warning, sentence 4: at your own risk, no liability for losses."
+  },
+  "importWarnAck": "I have a backup of every wallet",
+  "@importWarnAck": {
+    "description": "Label of the checkbox the user ticks before Continue is enabled in the import warning."
+  },
   "historyBackupOpenDialogTitle": "Open history backup",
   "@historyBackupOpenDialogTitle": {
     "description": "Title of the system file picker for a payment-history backup (desktop only)."

@@ -225,6 +225,18 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.backup,
     ),
+    const HelpTopic(
+      'safety',
+      '导入之前',
+      '导入只会读取旧钱包和文件。请先为每个钱包做好备份；导入的风险由你自行承担。',
+      [
+        HelpBlock.p('这是一个新应用的早期版本。'),
+        HelpBlock.p('导入只会读取你的旧钱包和文件，绝不会删除或更改它们。'),
+        HelpBlock.p('继续之前，请确认每个钱包都有备份：它的助记词，以及你保留的钱包文件。'),
+        HelpBlock.p('导入的风险由你自行承担，任何损失概不负责。'),
+      ],
+      id: HelpId.importWarning,
+    ),
     HelpTopic(
       'network',
       phone ? '节点' : '节点：公共节点或本地节点',

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
+import 'import_warning.dart';
 import 'onboarding_parts.dart';
 
 const _defaultFolder = '~/.config/Epic Cash Desktop'; // l10n-ok: a path
@@ -88,7 +89,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 description: l.deskOnbWelcomeImportSub,
                 icon: EIcons.folderOpen,
                 selected: false,
-                onTap: () => nav.go(DeskRoute.importWallets),
+                onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
               ),
             ],
             SizedBox(height: Sp.x3),

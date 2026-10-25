@@ -988,6 +988,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyBackupSaveDialogTitle => 'Save payment history';
 
   @override
+  String get importWarnTitle => 'Before you import';
+
+  @override
+  String get importWarnEarly => 'This is an early version of a new app.';
+
+  @override
+  String get importWarnReads =>
+      'Import only reads your old wallets and files and never deletes or changes them.';
+
+  @override
+  String get importWarnBackup =>
+      'Before you continue, make sure you have a backup of every wallet: its recovery phrase, and its wallet files if you keep them.';
+
+  @override
+  String get importWarnRisk =>
+      'You import at your own risk, and we take no responsibility for any loss.';
+
+  @override
+  String get importWarnAck => 'I have a backup of every wallet';
+
+  @override
   String get historyBackupOpenDialogTitle => 'Open history backup';
 
   @override

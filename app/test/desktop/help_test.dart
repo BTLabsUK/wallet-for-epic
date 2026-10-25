@@ -39,7 +39,7 @@ void main() {
       'When something goes wrong',
       'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 20 : 19));
+    expect(topics, hasLength(DeskFeatures.tor ? 21 : 20));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);

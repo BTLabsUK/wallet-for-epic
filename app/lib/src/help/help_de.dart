@@ -227,6 +227,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.backup,
     ),
+    const HelpTopic(
+      'safety',
+      'Bevor Sie importieren',
+      'Der Import liest ältere Wallets und Dateien nur. Sichern Sie zuerst jede Wallet; Sie importieren auf eigenes Risiko.',
+      [
+        HelpBlock.p('Dies ist eine frühe Version einer neuen App.'),
+        HelpBlock.p('Der Import liest Ihre alten Wallets und Dateien nur; er löscht oder ändert sie nie.'),
+        HelpBlock.p('Stellen Sie vor dem Fortfahren sicher, dass Sie von jeder Wallet eine Sicherung haben: ihre Wiederherstellungsphrase und, falls Sie sie aufbewahren, ihre Wallet-Dateien.'),
+        HelpBlock.p('Sie importieren auf eigenes Risiko; für Verluste wird keine Verantwortung übernommen.'),
+      ],
+      id: HelpId.importWarning,
+    ),
     HelpTopic(
       'network',
       phone ? 'Nodes' : 'Nodes: ein öffentlicher oder ein lokaler',

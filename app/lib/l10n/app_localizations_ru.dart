@@ -1024,6 +1024,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyBackupSaveDialogTitle => 'Сохранить историю платежей';
 
   @override
+  String get importWarnTitle => 'Перед импортом';
+
+  @override
+  String get importWarnEarly => 'Это ранняя версия нового приложения.';
+
+  @override
+  String get importWarnReads =>
+      'Импорт только читает ваши старые кошельки и файлы; он никогда не удаляет и не изменяет их.';
+
+  @override
+  String get importWarnBackup =>
+      'Прежде чем продолжить, убедитесь, что у вас есть резервная копия каждого кошелька: его фраза восстановления и, если вы их храните, файлы кошелька.';
+
+  @override
+  String get importWarnRisk =>
+      'Вы импортируете на свой риск; мы не несём ответственности за какие-либо потери.';
+
+  @override
+  String get importWarnAck => 'У меня есть резервная копия каждого кошелька';
+
+  @override
   String get historyBackupOpenDialogTitle => 'Открыть резервную копию истории';
 
   @override
