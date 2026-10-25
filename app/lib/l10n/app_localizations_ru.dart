@@ -700,7 +700,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Отменено. Кошелёк ещё около недели следит за сетью; если отправитель опубликует платёж за это время, он всё же поступит.';
+      'Отменено. Если отправитель опубликует платёж позже, он всё равно поступит.';
 
   @override
   String get txDetailsFromBackup =>
@@ -812,7 +812,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Отправитель, возможно, уже опубликовал платёж. Кошелёк сначала спрашивает узел и отменяет только платёж, которого нет в сети. Если отправитель опубликует его в течение примерно недели после отмены, он всё равно поступит.';
+      'Отправитель, возможно, уже опубликовал платёж. Кошелёк сначала спрашивает узел и отменяет только платёж, которого нет в сети. Если отправитель опубликует его позже, он всё равно поступит.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -9374,7 +9374,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC от $who уйдут из баланса. Кошелёк сначала спросит узел и откажет, если платёж уже в пуле узла или в блоке. Если отправитель опубликует его позже, он всё равно может прийти.';
+    return '$amount EPIC от $who уйдут из баланса. Кошелёк сначала спросит узел и откажет, если платёж уже в пуле узла или в блоке. Если отправитель опубликует его позже, он всё равно поступит.';
   }
 
   @override

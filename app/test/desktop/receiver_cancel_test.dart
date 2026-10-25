@@ -171,7 +171,8 @@ void main() {
       expect(find.textContaining('leaves your balance'), findsNothing);
       expect(find.textContaining('may already have posted'), findsOneWidget);
       expect(find.textContaining('asks the node first'), findsOneWidget);
-      expect(find.textContaining('about a week'), findsOneWidget);
+      expect(find.textContaining('posts it later, it still arrives'), findsOneWidget);
+      expect(find.textContaining('week'), findsNothing);
       expect(find.textContaining('locked amount'), findsNothing);
       await tester.tap(find.text('Keep'));
       await tester.pumpAndSettle();
@@ -216,6 +217,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
       expect(find.text('Transaction cancelled'), findsOneWidget);
+    });
+
+    testWidgets('a cancelled receive says a late post still arrives; a cancelled send does not', (tester) async {
+      await _pump(tester, _tx(incoming: true, state: TxState.cancelled), _Desk());
+      expect(find.text('Cancelled. If the sender posts it later, it still arrives.'), findsOneWidget);
+      await _pump(tester, _tx(incoming: false, state: TxState.cancelled), _Desk());
+      expect(find.text('Cancelled.'), findsOneWidget);
+      expect(find.textContaining('still arrives'), findsNothing);
     });
   });
 

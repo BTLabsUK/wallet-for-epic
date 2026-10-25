@@ -1099,10 +1099,10 @@ abstract class AppLocalizations {
   /// **'It could not be delivered to the recipient, so the wallet cancelled it at once. Nothing was sent, and the funds are spendable again.'**
   String get txDetailsCancelledUndelivered;
 
-  /// Payment details, status explanation of a cancelled receive.
+  /// Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.'**
+  /// **'Cancelled. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelledIncoming;
 
   /// Payment details, status explanation of an unfinished payment imported from a history backup file.
@@ -1243,10 +1243,10 @@ abstract class AppLocalizations {
   /// **'Cancel payment?'**
   String get txDetailsCancelTitle;
 
-  /// Cancel dialog text for a pending receive. Rescan means scanning the blockchain for the wallet's funds again.
+  /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
   ///
   /// In en, this message translates to:
-  /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.'**
+  /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelReceiveBody;
 
   /// Cancel dialog text for a pending send.
@@ -14316,7 +14316,7 @@ abstract class AppLocalizations {
   /// Body of the dialog that asks before cancelling an incoming payment.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.'**
+  /// **'{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.'**
   String deskTxCancelIncomingBody(String amount, String who);
 
   /// Body of the dialog that asks before cancelling an outgoing payment.

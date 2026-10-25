@@ -642,8 +642,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '这笔付款无法送达接收方，因此钱包已立即将其取消。没有发送任何资金，这些资金已恢复可用。';
 
   @override
-  String get txDetailsCancelledIncoming =>
-      '已取消。钱包仍会关注网络约一周；如果发送方在此期间广播，付款仍会到账。';
+  String get txDetailsCancelledIncoming => '已取消。如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
   String get txDetailsFromBackup =>
@@ -743,7 +742,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      '发送方可能已经广播了这笔付款。钱包会先询问节点，只取消网络中没有的付款。如果发送方在取消后约一周内广播，付款仍会到账。';
+      '发送方可能已经广播了这笔付款。钱包会先询问节点，只取消网络中没有的付款。如果发送方之后广播，付款仍会到账。';
 
   @override
   String get txDetailsCancelSendBody => '取消这笔付款并解锁其资金？仅在接收方尚未完成时这样做。';
@@ -8600,7 +8599,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '来自 $who 的 $amount EPIC 将从你的余额中移除。钱包会先询问节点；如果这笔付款已在节点的交易池或区块中，则拒绝取消。如果发送方之后广播了它，款项仍可能到账。';
+    return '来自 $who 的 $amount EPIC 将从你的余额中移除。钱包会先询问节点；如果这笔付款已在节点的交易池或区块中，则拒绝取消。如果发送方之后广播，付款仍会到账。';
   }
 
   @override

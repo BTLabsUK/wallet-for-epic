@@ -102,8 +102,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
-          // A cancelled receive is still watched for about a week, as on the phone.
-          TxState.cancelled => t.incoming ? l.txDetailsCancelledIncoming : l.deskTxNowCancelled,
+          // The wallet keeps looking for a cancelled receive, so a late post still arrives.
+          TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
+          TxState.cancelled => l.deskTxNowCancelled,
         };
 
   /// The core's own fields: ids, height, kernel, status and type.

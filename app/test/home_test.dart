@@ -1993,7 +1993,7 @@ void main() {
       await _tap(tester, find.byKey(txDetailsCancelReceiveKey));
       expect(find.text('Cancel payment?'), findsOneWidget);
       expect(find.textContaining('may already have posted'), findsOneWidget);
-      expect(find.textContaining('about a week'), findsOneWidget);
+      expect(find.textContaining('posts it later, it still arrives'), findsOneWidget);
       await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(h.session.cancelledTxIds, [7]);
     });

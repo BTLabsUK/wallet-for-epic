@@ -662,7 +662,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'ยกเลิกแล้ว กระเป๋าเงินจะยังติดตามเครือข่ายอีกประมาณหนึ่งสัปดาห์ ถ้าผู้ส่งเผยแพร่ในช่วงนั้น รายการจะเข้าในที่สุด';
+      'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
   String get txDetailsFromBackup =>
@@ -765,7 +765,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'ผู้ส่งอาจเผยแพร่รายการนี้ไปแล้ว กระเป๋าเงินจะถามโหนดก่อนและยกเลิกเฉพาะรายการที่เครือข่ายยังไม่มี ถ้าผู้ส่งเผยแพร่ภายในประมาณหนึ่งสัปดาห์หลังจากนั้น รายการจะยังเข้า';
+      'ผู้ส่งอาจเผยแพร่รายการนี้ไปแล้ว กระเป๋าเงินจะถามโหนดก่อนและยกเลิกเฉพาะรายการที่เครือข่ายยังไม่มี ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -8898,7 +8898,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC จาก $who จะออกจากยอดคงเหลือ กระเป๋าเงินจะถามโหนดก่อน และไม่ยกเลิกถ้ารายการอยู่ใน pool ของโหนดหรืออยู่ในบล็อกแล้ว ถ้าผู้ส่งส่งเข้าเครือข่ายภายหลัง เงินอาจยังเข้า';
+    return '$amount EPIC จาก $who จะออกจากยอดคงเหลือ กระเป๋าเงินจะถามโหนดก่อน และไม่ยกเลิกถ้ารายการอยู่ใน pool ของโหนดหรืออยู่ในบล็อกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
   }
 
   @override

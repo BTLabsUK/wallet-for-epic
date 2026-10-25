@@ -703,7 +703,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Anulowano. Portfel obserwuje sieć jeszcze około tygodnia; jeśli nadawca opublikuje płatność w tym czasie, mimo wszystko dotrze.';
+      'Anulowano. Jeśli nadawca opublikuje płatność później, i tak dotrze.';
 
   @override
   String get txDetailsFromBackup =>
@@ -815,7 +815,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją w ciągu około tygodnia po anulowaniu, i tak dotrze.';
+      'Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją później, i tak dotrze.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -9407,7 +9407,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC od $who zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, może jednak dotrzeć.';
+    return '$amount EPIC od $who zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, i tak dotrze.';
   }
 
   @override

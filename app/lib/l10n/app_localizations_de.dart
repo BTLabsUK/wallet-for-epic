@@ -680,7 +680,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Storniert. Die Wallet beobachtet das Netzwerk noch etwa eine Woche; veröffentlicht der Absender sie in dieser Zeit, trifft sie doch noch ein.';
+      'Storniert. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 
   @override
   String get txDetailsFromBackup =>
@@ -786,7 +786,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Der Absender hat sie möglicherweise schon veröffentlicht. Die Wallet fragt zuerst den Node und storniert nur eine Zahlung, die das Netzwerk nicht hat. Veröffentlicht der Absender sie danach innerhalb von etwa einer Woche, trifft sie trotzdem ein.';
+      'Der Absender hat sie möglicherweise schon veröffentlicht. Die Wallet fragt zuerst den Node und storniert nur eine Zahlung, die das Netzwerk nicht hat. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -9200,7 +9200,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC von $who verlassen Ihr Guthaben. Die Wallet fragt zuerst den Node und lehnt ab, wenn die Zahlung schon in seinem Pool oder in einem Block ist. Sendet der Absender sie später, kann sie trotzdem ankommen.';
+    return '$amount EPIC von $who verlassen Ihr Guthaben. Die Wallet fragt zuerst den Node und lehnt ab, wenn die Zahlung schon in seinem Pool oder in einem Block ist. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
   }
 
   @override

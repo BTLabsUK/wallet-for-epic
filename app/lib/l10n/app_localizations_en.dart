@@ -673,7 +673,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.';
+      'Cancelled. If the sender posts it later, it still arrives.';
 
   @override
   String get txDetailsFromBackup =>
@@ -779,7 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.';
+      'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -9086,7 +9086,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC from $who leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.';
+    return '$amount EPIC from $who leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.';
   }
 
   @override

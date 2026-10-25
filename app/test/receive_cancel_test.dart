@@ -238,7 +238,8 @@ void main() {
       expect(find.text(_l.txDetailsCancelTitle), findsOneWidget);
       expect(find.text(_l.txDetailsCancelReceiveBody), findsOneWidget);
       expect(find.textContaining('asks the node first'), findsOneWidget);
-      expect(find.textContaining('about a week'), findsOneWidget);
+      expect(find.textContaining('posts it later, it still arrives'), findsOneWidget);
+      expect(find.textContaining('week'), findsNothing);
       await tester.tap(find.text(_l.txDetailsCancelKeep));
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, isEmpty);

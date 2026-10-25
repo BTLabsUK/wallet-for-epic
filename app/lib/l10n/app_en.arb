@@ -759,9 +759,9 @@
   "@txDetailsCancelledUndelivered": {
     "description": "Payment details, why a send is cancelled: it never reached the recipient."
   },
-  "txDetailsCancelledIncoming": "Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.",
+  "txDetailsCancelledIncoming": "Cancelled. If the sender posts it later, it still arrives.",
   "@txDetailsCancelledIncoming": {
-    "description": "Payment details, status explanation of a cancelled receive."
+    "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
   },
   "txDetailsFromBackup": "This payment comes from a history backup and was not finished when the backup was made. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.",
   "@txDetailsFromBackup": {
@@ -885,9 +885,9 @@
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
-  "txDetailsCancelReceiveBody": "The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.",
+  "txDetailsCancelReceiveBody": "The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.",
   "@txDetailsCancelReceiveBody": {
-    "description": "Cancel dialog text for a pending receive. Rescan means scanning the blockchain for the wallet's funds again."
+    "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
   },
   "txDetailsCancelSendBody": "Cancel this payment and unlock its funds? Only do this if the recipient has not finished it.",
   "@txDetailsCancelSendBody": {
@@ -11832,7 +11832,7 @@
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
   },
-  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.",
+  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.",
   "@deskTxCancelIncomingBody": {
     "description": "Body of the dialog that asks before cancelling an incoming payment.",
     "placeholders": {
