@@ -391,7 +391,7 @@ void main() {
       );
       final byKey = {for (final l in lines.skip(1)) l.split(',')[7]: l};
       expect(byKey['a'], endsWith(",'=Rent,Epicbox,label"));
-      expect(byKey[''], endsWith(',,Link Payment · Tor,method;note'));
+      expect(byKey[''], endsWith(',,Link · Tor,method;note'));
     });
 
     test('a .wfeh carries labels of every row and the archive keeps none in records', () async {

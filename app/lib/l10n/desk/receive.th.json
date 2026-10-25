@@ -1,7 +1,7 @@
 {
   "deskRecvTitle": "รับ",
   "deskRecvReceiving": "การรับเงิน",
-  "deskRecvNameFile": "ไฟล์",
+  "deskRecvNameFile": "โดยตรง · โอนไฟล์",
   "deskRecvTurnOnFailed": "ไม่ได้เปิด {method}",
   "deskRecvTurnOffFailed": "ไม่ได้ปิด {method}",
   "deskRecvOtherWays": "วิธีรับเงินอื่น",
@@ -28,15 +28,15 @@
   "deskRecvCopyEpicbox": "คัดลอกที่อยู่ Epicbox",
   "deskRecvEpicboxIntro": "แชร์เพื่อรับเงิน ใช้ได้แม้กระเป๋าเงินปิดอยู่: เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้จนกว่ากระเป๋าเงินจะกลับมา",
   "deskRecvCheckSix": "เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย",
-  "deskRecvHttpAddress": "ลิงก์ · ที่อยู่ HTTP",
-  "deskRecvCopyHttp": "คัดลอกที่อยู่ HTTP",
+  "deskRecvHttpAddress": "ที่อยู่ Link · HTTP",
+  "deskRecvCopyHttp": "คัดลอกที่อยู่ Link · HTTP",
   "deskRecvHttpPublic": "ที่อยู่สาธารณะของเราเตอร์ ผู้ส่งบนอินเทอร์เน็ตใช้ได้เมื่อเราเตอร์ forward พอร์ต {port} แล้ว",
   "deskRecvHttpLocal": "โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม",
   "deskRecvHttpIntro": "ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่ ใช้ได้บนคอมพิวเตอร์นี้เท่านั้น เว้นแต่ตั้งค่าไว้เป็นอื่น",
   "deskRecvHttpTorHint": "เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน",
-  "deskRecvDirectTor": "ลิงก์ · ที่อยู่ Tor",
+  "deskRecvDirectTor": "ที่อยู่ Link · Tor",
   "deskRecvTorIntro": "ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว",
-  "deskRecvTorAddress": "ลิงก์ · ที่อยู่ Tor",
+  "deskRecvTorAddress": "ที่อยู่ Link · Tor",
   "deskRecvCopyTor": "คัดลอกที่อยู่ Tor",
   "deskRecvTorOnion": "บางกระเป๋าเงินแสดงที่อยู่โดยไม่มี .onion ซึ่งเป็นที่อยู่เดียวกัน",
   "deskRecvFiles": "ไฟล์ธุรกรรม",
@@ -45,5 +45,7 @@
   "deskRecvOpen": "เปิด",
   "deskRecvFinalizeTitle": "ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ",
   "deskRecvFinalizeText": "การส่งด้วยไฟล์ได้ไฟล์ตอบกลับมาแล้ว การทำให้เสร็จจะส่งรายการเข้าเครือข่าย",
-  "deskRecvSwitchLabel": "{title}, การรับเงิน"
+  "deskRecvSwitchLabel": "{title}, การรับเงิน",
+  "deskRecvTorOffTitle": "การรับผ่าน Link · Tor ต้องใช้ Tor",
+  "deskRecvTorOffText": "ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor"
 }

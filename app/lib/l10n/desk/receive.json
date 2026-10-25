@@ -7,7 +7,7 @@
   "@deskRecvReceiving": {
     "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
   },
-  "deskRecvNameFile": "File",
+  "deskRecvNameFile": "Direct · File Transfer",
   "@deskRecvNameFile": {
     "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
   },
@@ -186,7 +186,7 @@
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
-  "deskRecvCopyHttp": "Copy HTTP address",
+  "deskRecvCopyHttp": "Copy Link · HTTP address",
   "@deskRecvCopyHttp": {
     "description": "Label of the copy button next to the HTTP address."
   },

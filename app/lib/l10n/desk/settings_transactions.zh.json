@@ -1,10 +1,13 @@
 {
   "deskSetFrameTransactions": "交易",
   "deskSetTxMethods": "付款方式",
-  "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。文件仍然可用。",
-  "deskSetTxDirectHint": "钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“链接付款”，并在“接收”中加入它的地址。",
-  "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。",
+  "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。",
+  "deskSetTxDirectHint": "通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 Link · HTTP，并在“接收”中加入它的地址。",
+  "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件传输”，并在“接收”中加入文件步骤。",
   "deskSetTxSend": "发送",
   "deskSetTxStart": "发送默认方式",
-  "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。"
+  "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。",
+  "deskSetTxTorHint": "通过 onion 地址、经由 Tor 在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。需要 Tor：“隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”中加入 Link · Tor，并在“接收”中加入它的地址。",
+  "deskSetTxTorNeedsTor": "Tor 已关闭。请在“隐私”中开启，才能通过 Tor 地址收款。",
+  "deskSetTxLastMethod": "至少保留一种付款方式开启。"
 }

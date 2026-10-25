@@ -83,7 +83,7 @@
   "@deskSetHelpSender": {
     "description": "Tag in the 'How a transaction travels' diagram: the sending wallet. One short word."
   },
-  "deskSetHelpFile": "File",
+  "deskSetHelpFile": "File Transfer",
   "@deskSetHelpFile": {
     "description": "Tag in the 'How a transaction travels' diagram: the transaction file in between. One short word."
   },

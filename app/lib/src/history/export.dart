@@ -253,15 +253,15 @@ const String csvHeader =
 
 
 /// The method as the CSV names it, in English like the rest of the file: `Epicbox`,
-/// `Link Payment · HTTP`, `Link Payment · Tor` or `File` for the transports LEPIC names `epicbox`, `http`,
+/// `Link · HTTP`, `Link · Tor` or `Direct · File Transfer` for the transports LEPIC names `epicbox`, `http`,
 /// `tor` and `file`; empty when the transport is not known. A name this app does not know stays
 /// as it is.
 String methodWord(String? transport) => switch (transport) {
   null => '',
   'epicbox' => 'Epicbox',
-  'http' => 'Link Payment · HTTP',
-  'tor' => 'Link Payment · Tor',
-  'file' => 'File',
+  'http' => 'Link · HTTP',
+  'tor' => 'Link · Tor',
+  'file' => 'Direct · File Transfer',
   final other => other,
 };
 

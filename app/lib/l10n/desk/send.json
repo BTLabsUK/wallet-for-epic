@@ -395,7 +395,7 @@
   "@deskSendEpicboxOff": {
     "description": "Title of the warning notice on Send when Epicbox receiving is off."
   },
-  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.",
+  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
   },
@@ -431,7 +431,7 @@
   "@deskSendMethodDirect": {
     "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
   },
-  "deskSendMethodFile": "File",
+  "deskSendMethodFile": "Direct · File",
   "@deskSendMethodFile": {
     "description": "Name of the File send method (a transaction file), in the method selector. Short."
   },
@@ -475,7 +475,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Link to http(s) addresses goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link · HTTP goes over the clearnet, not Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -635,7 +635,7 @@
   "@deskSendTagDirect": {
     "description": "Small tag next to the To label after the method switched to Link by itself. Short."
   },
-  "deskSendTagFile": "File",
+  "deskSendTagFile": "Direct · File",
   "@deskSendTagFile": {
     "description": "Small tag next to the To label after the method switched to File. Short."
   },
@@ -647,7 +647,7 @@
   "@deskSendSwitchedDirect": {
     "description": "Screen reader announcement when the method switched to Link by itself."
   },
-  "deskSendSwitchedFile": "File address. Method set to File.",
+  "deskSendSwitchedFile": "File address. Method set to Direct · File.",
   "@deskSendSwitchedFile": {
     "description": "Screen reader announcement when the method switched to File."
   },
@@ -680,11 +680,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Link Payment · HTTP (their wallet must be open)",
+  "deskSendViaDirect": "Link · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Link send over http(s)."
   },
-  "deskSendViaTor": "Link Payment · Tor (their wallet must be open)",
+  "deskSendViaTor": "Link · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },

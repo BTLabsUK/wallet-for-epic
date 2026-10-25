@@ -3016,7 +3016,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodArtLabelQr =>
-      'QR-Zahlung: Ein Code wandert von einem Smartphone zum Smartphone daneben';
+      'Direkt · QR-Zahlung: Ein Code wandert von einem Smartphone zum Smartphone daneben';
 
   @override
   String get methodSendQrTitle => 'Für ein Smartphone neben Ihnen.';
@@ -3048,11 +3048,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'QR-Zahlung zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR-Zahlung zu Senden und Empfangen hinzu.';
 
   @override
-  String get advTransactionFiles => 'Transaktionsdateien';
+  String get advTransactionFiles => 'Dateiübertragung';
 
   @override
   String get advTransactionFilesHint =>
-      'Fügt unter Einstellungen › Transaktionen einen Schalter Datei hinzu: mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.';
+      'Fügt unter Einstellungen › Transaktionen die Dateiübertragung hinzu: mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.';
 
   @override
   String get sendQrTitle => 'QR-Zahlung';
@@ -3998,7 +3998,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakeRelay => 'Server';
 
   @override
-  String get handshakeFile => 'Datei';
+  String get handshakeFile => 'Dateiübertragung';
 
   @override
   String get handshakeBack =>
@@ -5148,13 +5148,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Link-Zahlung · HTTP';
+  String get methodDirectHttp => 'Link · HTTP';
 
   @override
-  String get methodDirectTor => 'Link-Zahlung · Tor';
+  String get methodDirectTor => 'Link · Tor';
 
   @override
-  String get methodFile => 'Datei';
+  String get methodFile => 'Dateiübertragung';
 
   @override
   String get methodShortHttp => 'Link · HTTP';
@@ -5163,10 +5163,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodShortTor => 'Link · Tor';
 
   @override
-  String get methodShortQr => 'QR';
+  String get methodShortQr => 'Direkt · QR';
 
   @override
-  String get methodShortFile => 'Direct · File';
+  String get methodShortFile => 'Direkt · Datei';
 
   @override
   String get methodGroupHttp => 'HTTP';
@@ -5175,13 +5175,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodGroupTor => 'Tor';
 
   @override
-  String get methodDirectQr => 'Direct · QR Payment';
+  String get methodDirectQr => 'Direkt · QR-Zahlung';
 
   @override
-  String get methodDirectFile => 'Direct · File Transfer';
+  String get methodDirectFile => 'Direkt · Dateiübertragung';
 
   @override
-  String get methodDirectFamily => 'Direct';
+  String get methodDirectFamily => 'Direkt';
 
   @override
   String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
@@ -5201,15 +5201,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodArtLabelHttp =>
-      'HTTP: Die Zahlung geht direkt an die Wallet der Gegenseite, die geöffnet sein muss';
+      'Link · HTTP: Die Zahlung geht direkt an die Wallet der Gegenseite, die geöffnet sein muss';
 
   @override
   String get methodArtLabelTor =>
-      'Tor: Die Zahlung geht direkt an die Wallet der Gegenseite, über das Tor-Netzwerk';
+      'Link · Tor: Die Zahlung geht direkt an die Wallet der Gegenseite, über das Tor-Netzwerk';
 
   @override
   String get methodArtLabelFile =>
-      'Datei: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
+      'Direkt · Dateiübertragung: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
 
   @override
   String get methodSendEpicboxTitle => 'Die Gegenseite kann offline sein.';
@@ -5283,25 +5283,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendToHint => 'Adresse oder Kontakt';
 
   @override
-  String get sendSwitchedHttp => 'Über HTTP';
+  String get sendSwitchedHttp => 'Link · HTTP';
 
   @override
   String get sendSwitchedEpicbox => 'Über Epicbox';
 
   @override
   String get sendSwitchedTorAnnounce =>
-      'Tor-Adresse. Methode auf Tor gestellt.';
+      'Tor-Adresse. Methode auf Link · Tor gestellt.';
 
   @override
   String get sendSwitchedHttpAnnounce =>
-      'HTTP-Adresse. Methode auf HTTP gestellt.';
+      'HTTP-Adresse. Methode auf Link · HTTP gestellt.';
 
   @override
   String get sendSwitchedEpicboxAnnounce =>
       'Epicbox-Adresse. Methode auf Epicbox gestellt.';
 
   @override
-  String get sendReviewMethodHttp => 'HTTP, direkt zur Wallet';
+  String get sendReviewMethodHttp => 'Link · HTTP, direkt zur Wallet';
 
   @override
   String get sendCancelRuleEpicbox =>
@@ -5714,7 +5714,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvIssuerEpicbox => 'Epicbox';
 
   @override
-  String get deskInvIssuerFile => 'Datei';
+  String get deskInvIssuerFile => 'Direkt · Datei';
 
   @override
   String get deskInvIssuerDirect => 'Link';
@@ -6503,21 +6503,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Link-Zahlung: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Link: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String methodArtSpokenLink(String method) {
-    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+    return '$method: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
   }
 
   @override
   String methodArtSpokenQr(String method) {
-    return '$method: a code passes from one phone to the phone next to it';
+    return '$method: Ein Code wandert von einem Smartphone zum Smartphone daneben';
   }
 
   @override
   String methodArtSpokenFile(String method) {
-    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+    return '$method: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
   }
 
   @override
@@ -6579,48 +6579,49 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Unter einer Tor-Adresse bezahlt zu werden, steuert der Schalter Link · Tor unter Transaktionen.';
 
   @override
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Link-Empfang benötigt Tor.';
+  String get receiveDirectNeedsTor =>
+      'Der Empfang über Link · Tor benötigt Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
       'Absender nutzen bis dahin die Epicbox-Adresse.';
 
   @override
-  String get receiveHttpTitle => 'Link · HTTP address';
+  String get receiveHttpTitle => 'Link · HTTP-Adresse';
 
   @override
   String get receiveHttpLanLine =>
-      'For wallets on this Wi-Fi network, while this wallet is open.';
+      'Für Wallets in diesem WLAN, solange diese Wallet geöffnet ist.';
 
   @override
   String get receiveHttpNoNetwork =>
-      'Not on a Wi-Fi network. No address to hand out.';
+      'Nicht in einem WLAN. Keine Adresse zum Weitergeben.';
 
   @override
-  String get receiveHttpOffWhileTor => 'Off while Tor is on.';
+  String get receiveHttpOffWhileTor => 'Aus, solange Tor an ist.';
 
   @override
   String receiveHttpPortInUse(String port) {
-    return 'Port $port is used by another program.';
+    return 'Port $port wird von einem anderen Programm benutzt.';
   }
 
   @override
-  String get receiveHttpFailed => 'Could not start.';
+  String get receiveHttpFailed => 'Konnte nicht gestartet werden.';
 
   @override
-  String get receiveHttpShowQr => 'Show QR';
+  String get receiveHttpShowQr => 'QR anzeigen';
 
   @override
-  String get receiveHttpHideQr => 'Hide QR';
+  String get receiveHttpHideQr => 'QR ausblenden';
 
   @override
-  String get receiveHttpQrLabel => 'QR code of the Link · HTTP address';
+  String get receiveHttpQrLabel => 'QR-Code der Link · HTTP-Adresse';
 
   @override
   String get netStatusOverTor => 'über Tor';
@@ -7468,7 +7469,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskRecvReceiving => 'Empfang';
 
   @override
-  String get deskRecvNameFile => 'Datei';
+  String get deskRecvNameFile => 'Direkt · Dateiübertragung';
 
   @override
   String deskRecvTurnOnFailed(String method) {
@@ -7569,10 +7570,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
   @override
-  String get deskRecvHttpAddress => 'Link-Zahlung · HTTP-Adresse';
+  String get deskRecvHttpAddress => 'Link · HTTP-Adresse';
 
   @override
-  String get deskRecvCopyHttp => 'HTTP-Adresse kopieren';
+  String get deskRecvCopyHttp => 'Link · HTTP-Adresse kopieren';
 
   @override
   String deskRecvHttpPublic(int port) {
@@ -7592,14 +7593,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
 
   @override
-  String get deskRecvDirectTor => 'Link-Zahlung · Tor-Adresse';
+  String get deskRecvDirectTor => 'Link · Tor-Adresse';
 
   @override
   String get deskRecvTorIntro =>
       'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.';
 
   @override
-  String get deskRecvTorAddress => 'Link-Zahlung · Tor-Adresse';
+  String get deskRecvTorAddress => 'Link · Tor-Adresse';
 
   @override
   String get deskRecvCopyTor => 'Tor-Adresse kopieren';
@@ -7964,7 +7965,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendEpicboxOffText =>
-      'Zahlungen über Epicbox funktionieren, sobald der Epicbox-Empfang an ist. Senden Sie bis dahin per Datei.';
+      'Zahlungen über Epicbox funktionieren, sobald der Epicbox-Empfang an ist. Nutzen Sie bis dahin Direkt · Dateiübertragung.';
 
   @override
   String get deskSendEpicboxTurnOn => 'Epicbox-Empfang einschalten';
@@ -7990,7 +7991,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendMethodDirect => 'Link';
 
   @override
-  String get deskSendMethodFile => 'Datei';
+  String get deskSendMethodFile => 'Direkt · Datei';
 
   @override
   String get deskSendTo => 'An';
@@ -8026,7 +8027,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'Direkt an http(s)-Adressen läuft über das Clearnet, nicht über Tor.';
+      'Link · HTTP läuft über das Clearnet, nicht über Tor.';
 
   @override
   String get deskSendClear => 'Entfernen';
@@ -8151,7 +8152,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendTagDirect => 'Link';
 
   @override
-  String get deskSendTagFile => 'Datei';
+  String get deskSendTagFile => 'Direkt · Datei';
 
   @override
   String get deskSendTagEpicbox => 'Über Epicbox';
@@ -8162,7 +8163,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendSwitchedFile =>
-      'Datei-Adresse. Methode auf Datei gestellt.';
+      'Datei-Adresse. Methode auf Direkt · Datei gestellt.';
 
   @override
   String get deskSendSwitchedEpicbox =>
@@ -8194,11 +8195,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Link-Zahlung · HTTP (die Wallet des Empfängers muss geöffnet sein)';
+      'Link · HTTP (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaTor =>
-      'Link-Zahlung · Tor (die Wallet des Empfängers muss geöffnet sein)';
+      'Link · Tor (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaFile => 'Transaktionsdatei';
@@ -8686,10 +8687,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox-Adresse';
 
   @override
-  String get deskConAddrTor => 'Link-Zahlung · Tor-Adresse';
+  String get deskConAddrTor => 'Link · Tor-Adresse';
 
   @override
-  String get deskConAddrHttp => 'Link-Zahlung · HTTP-Adresse';
+  String get deskConAddrHttp => 'Link · HTTP-Adresse';
 
   @override
   String get deskConNote => 'Notiz';
@@ -9443,7 +9444,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOvFinalize => 'Abschließen';
 
   @override
-  String get deskTxMethodFile => 'Datei';
+  String get deskTxMethodFile => 'Direkt · Datei';
 
   @override
   String get deskTxMiningReward => 'Mining-Belohnung';
@@ -10746,7 +10747,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Link-Zahlung · HTTP-Empfang öffnen';
+  String get deskRailOpenHttp => 'Link · HTTP-Empfang öffnen';
 
   @override
   String get deskRailTorNotInBuild => 'Nicht in dieser Version';
@@ -11028,15 +11029,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Link-Zahlung · HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Link · HTTP: Die Zahlung geht direkt an die Wallet der Gegenseite, die geöffnet sein muss';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Link-Zahlung · Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
+      'Link · Tor: Die Zahlung geht direkt an die Wallet der Gegenseite, über das Tor-Netzwerk';
 
   @override
   String get deskKitHeroLabelFile =>
-      'Datei: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
+      'Direkt · Dateiübertragung: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
 
   @override
   String get deskKitReachCheck => 'Prüfen';
@@ -11417,7 +11418,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitMethodTorStoppedDetail => 'Tor wurde beendet.';
 
   @override
-  String get deskKitMethodFiles => 'Dateien';
+  String get deskKitMethodFiles => 'Direkt · Dateiübertragung';
 
   @override
   String get deskKitChipOverTor => 'Über Tor';
@@ -13116,18 +13117,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zustand von status.btlabs.uk, alle paar Minuten geprüft.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Link-Zahlung · HTTP-Empfang';
+  String get deskSetRecvHttpTitle => 'Link · HTTP-Empfang';
 
   @override
   String get deskSetRecvHttpText =>
-      'Direkt von einer anderen Wallet, solange diese geöffnet ist.';
+      'Direkt von einer anderen Wallet an der Web-Adresse dieses Computers, solange diese Wallet geöffnet ist.';
 
   @override
   String get deskSetRecvHttpOffTitle => 'Aus, solange Tor an ist';
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Link-Zahlungen kommen stattdessen an der Tor-Adresse dieser Wallet an.';
+      'Zahlungen direkt von einer anderen Wallet kommen stattdessen an der Link · Tor-Adresse an.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Datenschutz-Einstellungen';
@@ -13812,7 +13813,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetHelpSender => 'Absender';
 
   @override
-  String get deskSetHelpFile => 'Datei';
+  String get deskSetHelpFile => 'Dateiübertragung';
 
   @override
   String get deskSetHelpRecipient => 'Empfänger';
@@ -14317,7 +14318,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz & Netzwerk einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es auf der Startseite. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: Mit einem Node in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen und Dateien nutzen; sonst sehen Sie Guthaben und Verlauf, wie zuletzt gesehen.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz & Netzwerk einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es auf der Startseite. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: Mit einem Node in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen und die Dateiübertragung nutzen; sonst sehen Sie Guthaben und Verlauf, wie zuletzt gesehen.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -14381,7 +14382,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Link-Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateiübertragung und Link-Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';
@@ -14462,7 +14463,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es in der Seitenleiste. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Mit einem Node hier oder in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen, über Direkt empfangen und Dateien nutzen; der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es in der Seitenleiste. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Mit einem Node hier oder in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen, über Link empfangen und die Dateiübertragung nutzen; der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14487,11 +14488,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Nur Tor schaltet den HTTP-Empfang aus: Eine einfache Adresse würde diesen Computer verraten.';
+      'Nur Tor schaltet den Link · HTTP-Empfang aus: Eine einfache Adresse würde diesen Computer verraten.';
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Link-Zahlung an lokale Adressen weiter.';
+      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateiübertragung und Link-Zahlungen an lokale Adressen weiter.';
 
   @override
   String get deskSetAdvNotInBuild => 'Nicht in dieser Version';
@@ -14728,7 +14729,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNetSendFileHint =>
-      'Eine Transaktionsdatei funktioniert weiterhin.';
+      'Die Dateiübertragung funktioniert weiterhin.';
 
   @override
   String get deskNetRecvOfflineText =>
@@ -14736,7 +14737,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNetRecvWaitTorText =>
-      'Der Empfang startet, sobald Tor verbunden ist. Eine Transaktionsdatei funktioniert weiterhin.';
+      'Der Empfang startet, sobald Tor verbunden ist. Die Dateiübertragung funktioniert weiterhin.';
 
   @override
   String get deskNetCantReceive => 'Offline kein Empfang möglich.';
@@ -14774,46 +14775,47 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txFamilyLinkLine =>
-      'Straight to the other wallet while both are open.';
+      'Direkt zur anderen Wallet, solange beide geöffnet sind.';
 
   @override
   String get txFamilyDirectLine =>
-      'Hand to hand, with no connection between the wallets.';
+      'Von Hand zu Hand, ohne Verbindung zwischen den Wallets.';
 
   @override
   String get txLinkHttpLine =>
-      'Pay web addresses; get paid from this Wi-Fi network.';
+      'An Web-Adressen zahlen; aus diesem WLAN bezahlt werden.';
 
   @override
   String get txLinkHttpHint =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+      'Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:3415) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt, aus dem Internet oder über Mobilfunk nicht erreichbar und aus, solange Tor an ist. Fügt Link · HTTP zu Senden und Empfangen hinzu.';
 
   @override
   String get txLinkTorLine =>
-      'Pay onion addresses; get paid at this phone’s Tor address.';
+      'An Onion-Adressen zahlen; unter der Tor-Adresse dieses Telefons bezahlt werden.';
 
   @override
   String get txLinkTorHint =>
-      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+      'Link · Tor zahlt direkt an eine Wallet unter einer Onion-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Beide Wallets müssen geöffnet sein. Braucht Tor: Der Tor-Schalter unter Datenschutz & Netzwerk leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und Empfangen hinzu.';
 
   @override
   String get txLinkTorNeedsTor =>
-      'Needs Tor. Turn it on under Privacy & network.';
+      'Braucht Tor. Schalten Sie es unter Datenschutz & Netzwerk ein.';
 
   @override
-  String get txLastMethodNotice => 'Keep at least one payment method on.';
+  String get txLastMethodNotice =>
+      'Mindestens eine Zahlungsmethode bleibt eingeschaltet.';
 
   @override
   String get txEpicboxHint =>
-      'Epicbox zahlt über ein Relay, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Relay, also keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen. QR-Zahlung und Dateien funktionieren weiter.';
+      'Epicbox zahlt über ein Relay, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Relay, also keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen. Die anderen Methoden funktionieren weiter.';
 
   @override
   String get txDirectLine =>
-      'An Onion- und Web-Adressen zahlen; unter der Tor-Adresse dieses Telefons bezahlt werden.';
+      'An Web- und Onion-Adressen zahlen; direkt von anderen Wallets bezahlt werden.';
 
   @override
   String get txDirectHint =>
-      'Link-Zahlung sendet unmittelbar an die andere Wallet unter einer Onion- oder Web-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Die Wallet auf der Gegenseite muss geöffnet sein, diese ebenfalls. Braucht Tor. Fügt Link-Zahlung zu Senden und Empfangen hinzu.';
+      'Link zahlt direkt an die andere Wallet unter einer Web- oder Onion-Adresse und lässt dieses Telefon auf demselben Weg bezahlt werden. Beide Wallets müssen geöffnet sein. HTTP funktioniert in diesem WLAN; Tor braucht Tor. Fügt Link zu Senden und Empfangen hinzu.';
 
   @override
   String get txFileLine =>
@@ -14821,7 +14823,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'Datei erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Nachricht, Mail, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt Datei zu Senden und Empfangen hinzu.';
+      'Die Dateiübertragung erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Nachricht, Mail, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt die Dateiübertragung zu Senden und Empfangen hinzu.';
 
   @override
   String get txStartHeader => 'Senden beginnt mit';
@@ -14891,7 +14893,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method is off in Settings › Transactions.';
+    return '$method ist in Einstellungen › Transaktionen ausgeschaltet.';
   }
 
   @override
@@ -14930,7 +14932,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendContactOnlyMethod(String name, String method) {
-    return '$name has only a $method address.';
+    return '$name hat nur eine Adresse für $method.';
   }
 
   @override
@@ -14969,15 +14971,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Dateien funktionieren weiter.';
+      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.';
 
   @override
   String get deskSetTxDirectHint =>
-      'Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Link-Zahlung zu Senden und seine Adresse zu Empfangen hinzu.';
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:3415), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.';
 
   @override
   String get deskSetTxFileHint =>
-      'Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt Datei zu Senden und die Dateischritte zu Empfangen hinzu.';
+      'Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu.';
 
   @override
   String get deskSetTxSend => 'Senden';
@@ -15103,29 +15105,30 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.';
 
   @override
-  String get deskSetRecvTorTitle => 'Link · Tor receiving';
+  String get deskSetRecvTorTitle => 'Link · Tor-Empfang';
 
   @override
   String get deskSetRecvTorText =>
-      'Straight from another wallet at this wallet’s Tor address, while it is open.';
+      'Direkt von einer anderen Wallet an der Tor-Adresse dieser Wallet, solange sie geöffnet ist.';
 
   @override
   String get deskSetTxTorHint =>
-      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.';
 
   @override
   String get deskSetTxTorNeedsTor =>
-      'Tor is off. Turn it on under Privacy to be paid at the Tor address.';
+      'Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.';
 
   @override
-  String get deskSetTxLastMethod => 'Keep at least one payment method on.';
+  String get deskSetTxLastMethod =>
+      'Mindestens eine Zahlungsmethode bleibt eingeschaltet.';
 
   @override
-  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+  String get deskRecvTorOffTitle => 'Der Empfang über Link · Tor benötigt Tor.';
 
   @override
   String get deskRecvTorOffText =>
-      'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+      'Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Datenschutz; er leitet die Verbindungen der Wallet über Tor.';
 
   @override
   String get deskSetupSaveFailedTitle => 'Einstellungen nicht gespeichert';

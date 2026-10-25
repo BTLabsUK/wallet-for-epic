@@ -1,10 +1,13 @@
 {
   "deskSetFrameTransactions": "Transakcje",
   "deskSetTxMethods": "Metody płatności",
-  "deskSetTxEpicboxHint": "Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pliki nadal działają.",
-  "deskSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Płatność linkiem do Wyślij, a jego adres do Odbierz.",
-  "deskSetTxFileHint": "Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.",
+  "deskSetTxEpicboxHint": "Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.",
+  "deskSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:3415), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.",
+  "deskSetTxFileHint": "Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Przesyłanie pliku do Wyślij, a kroki z plikami do Odbierz.",
   "deskSetTxSend": "Wyślij",
   "deskSetTxStart": "Wysyłanie zaczyna od",
-  "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij."
+  "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.",
+  "deskSetTxTorHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.",
+  "deskSetTxTorNeedsTor": "Tor jest wyłączony. Włącz go w Prywatności, aby przyjmować płatności na adres Tor.",
+  "deskSetTxLastMethod": "Przynajmniej jedna metoda płatności musi zostać włączona."
 }

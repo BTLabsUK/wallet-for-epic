@@ -17,10 +17,10 @@
   "deskSetRecvEpicboxServerHint": "Welcher Server Zahlungen für diese Adresse hält. Die beiden Wallets können verschiedene Server nutzen.",
   "deskSetRecvSwitchingServer": "Epicbox-Server wird gewechselt…",
   "deskSetRecvListNote": "Zustand von status.btlabs.uk, alle paar Minuten geprüft.",
-  "deskSetRecvHttpTitle": "Link-Zahlung · HTTP-Empfang",
-  "deskSetRecvHttpText": "Direkt von einer anderen Wallet, solange diese geöffnet ist.",
+  "deskSetRecvHttpTitle": "Link · HTTP-Empfang",
+  "deskSetRecvHttpText": "Direkt von einer anderen Wallet an der Web-Adresse dieses Computers, solange diese Wallet geöffnet ist.",
   "deskSetRecvHttpOffTitle": "Aus, solange Tor an ist",
-  "deskSetRecvHttpOffText": "Link-Zahlungen kommen stattdessen an der Tor-Adresse dieser Wallet an.",
+  "deskSetRecvHttpOffText": "Zahlungen direkt von einer anderen Wallet kommen stattdessen an der Link · Tor-Adresse an.",
   "deskSetRecvPrivacySettings": "Datenschutz-Einstellungen",
   "deskSetHttpNotChanged": "Nicht geändert",
   "deskSetHttpPortError": "Port muss zwischen 1 und 65535 liegen",
@@ -46,5 +46,7 @@
   "deskSetHttpNoRouterText": "Tor funktioniert von überall, ohne etwas weiterzuleiten.",
   "deskSetHttpTurnOnTor": "Tor einschalten",
   "deskSetHttpExposed": "Nur die Empfangs-API ist erreichbar. Einfaches HTTP ist nicht verschlüsselt.",
-  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“"
+  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“",
+  "deskSetRecvTorTitle": "Link · Tor-Empfang",
+  "deskSetRecvTorText": "Direkt von einer anderen Wallet an der Tor-Adresse dieser Wallet, solange sie geöffnet ist."
 }

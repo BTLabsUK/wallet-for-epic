@@ -2790,7 +2790,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodArtCaptionQr => '当面';
 
   @override
-  String get methodArtLabelQr => '二维码付款：一部手机上的码被身边的另一部手机扫描';
+  String get methodArtLabelQr => '直接 · 二维码付款：一部手机上的码被身边的另一部手机扫描';
 
   @override
   String get methodSendQrTitle => '给你身边的手机。';
@@ -2818,10 +2818,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '二维码付款会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码付款。';
 
   @override
-  String get advTransactionFiles => '交易文件';
+  String get advTransactionFiles => '文件传输';
 
   @override
-  String get advTransactionFilesHint => '在设置 › 交易中加入“文件”开关：用你自己传递的文件付款或收款。';
+  String get advTransactionFilesHint => '在设置 › 交易中加入“文件传输”：用你自己传递的文件付款或收款。';
 
   @override
   String get sendQrTitle => '二维码付款';
@@ -3717,7 +3717,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeRelay => '中继';
 
   @override
-  String get handshakeFile => '文件';
+  String get handshakeFile => '文件传输';
 
   @override
   String get handshakeBack => '对方钱包把它发回中继。';
@@ -4803,13 +4803,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => '链接付款 · HTTP';
+  String get methodDirectHttp => 'Link · HTTP';
 
   @override
-  String get methodDirectTor => '链接付款 · Tor';
+  String get methodDirectTor => 'Link · Tor';
 
   @override
-  String get methodFile => '文件';
+  String get methodFile => '文件传输';
 
   @override
   String get methodShortHttp => 'Link · HTTP';
@@ -4818,10 +4818,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodShortTor => 'Link · Tor';
 
   @override
-  String get methodShortQr => 'QR';
+  String get methodShortQr => '直接 · QR';
 
   @override
-  String get methodShortFile => 'Direct · File';
+  String get methodShortFile => '直接 · 文件';
 
   @override
   String get methodGroupHttp => 'HTTP';
@@ -4830,13 +4830,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodGroupTor => 'Tor';
 
   @override
-  String get methodDirectQr => 'Direct · QR Payment';
+  String get methodDirectQr => '直接 · 二维码付款';
 
   @override
-  String get methodDirectFile => 'Direct · File Transfer';
+  String get methodDirectFile => '直接 · 文件传输';
 
   @override
-  String get methodDirectFamily => 'Direct';
+  String get methodDirectFamily => '直接';
 
   @override
   String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
@@ -4855,13 +4855,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Epicbox：付款发送到 Epicbox 服务器，服务器暂存它，直到对方钱包上线';
 
   @override
-  String get methodArtLabelHttp => 'HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
+  String get methodArtLabelHttp => 'Link · HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
 
   @override
-  String get methodArtLabelTor => 'Tor：付款经由 Tor 网络直接发送到对方钱包';
+  String get methodArtLabelTor => 'Link · Tor：付款经由 Tor 网络直接发送到对方钱包';
 
   @override
-  String get methodArtLabelFile => '文件：交出交易文件，收回回复文件，然后由发送方完成';
+  String get methodArtLabelFile => '直接 · 文件传输：交出交易文件，收回回复文件，然后由发送方完成';
 
   @override
   String get methodSendEpicboxTitle => '对方可以不在线。';
@@ -4927,22 +4927,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendToHint => '地址或联系人';
 
   @override
-  String get sendSwitchedHttp => '经由 HTTP';
+  String get sendSwitchedHttp => 'Link · HTTP';
 
   @override
   String get sendSwitchedEpicbox => '经由 Epicbox';
 
   @override
-  String get sendSwitchedTorAnnounce => 'Tor 地址。方式已设为 Tor。';
+  String get sendSwitchedTorAnnounce => 'Tor 地址。方式已设为 Link · Tor。';
 
   @override
-  String get sendSwitchedHttpAnnounce => 'HTTP 地址。方式已设为 HTTP。';
+  String get sendSwitchedHttpAnnounce => 'HTTP 地址。方式已设为 Link · HTTP。';
 
   @override
   String get sendSwitchedEpicboxAnnounce => 'Epicbox 地址。方式已设为 Epicbox。';
 
   @override
-  String get sendReviewMethodHttp => 'HTTP，直达对方钱包';
+  String get sendReviewMethodHttp => 'Link · HTTP，直达对方钱包';
 
   @override
   String get sendCancelRuleEpicbox => '在等待对方期间可以取消。';
@@ -5326,7 +5326,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerEpicbox => 'Epicbox';
 
   @override
-  String get deskInvIssuerFile => '文件';
+  String get deskInvIssuerFile => '直接 · 文件';
 
   @override
   String get deskInvIssuerDirect => '链接';
@@ -6050,21 +6050,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
 
   @override
-  String get methodArtLabelDirect => '链接付款：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
+  String get methodArtLabelDirect => '链接：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
 
   @override
   String methodArtSpokenLink(String method) {
-    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+    return '$method：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
   }
 
   @override
   String methodArtSpokenQr(String method) {
-    return '$method: a code passes from one phone to the phone next to it';
+    return '$method：一部手机上的码被身边的另一部手机扫描';
   }
 
   @override
   String methodArtSpokenFile(String method) {
-    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+    return '$method：交出交易文件，收回回复文件，然后由发送方完成';
   }
 
   @override
@@ -6123,47 +6123,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。';
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。通过 Tor 地址收款由“交易”中的 Link · Tor 开关控制。';
 
   @override
   String get receiveTabDirect => '链接';
 
   @override
-  String get receiveDirectNeedsTor => '链接收款需要 Tor。';
+  String get receiveDirectNeedsTor => 'Link · Tor 收款需要 Tor。';
 
   @override
   String get receiveDirectMeanwhile => '在此期间，发送方使用 Epicbox 地址。';
 
   @override
-  String get receiveHttpTitle => 'Link · HTTP address';
+  String get receiveHttpTitle => 'Link · HTTP 地址';
 
   @override
-  String get receiveHttpLanLine =>
-      'For wallets on this Wi-Fi network, while this wallet is open.';
+  String get receiveHttpLanLine => '供此 Wi-Fi 网络中的钱包使用，本钱包保持打开时有效。';
 
   @override
-  String get receiveHttpNoNetwork =>
-      'Not on a Wi-Fi network. No address to hand out.';
+  String get receiveHttpNoNetwork => '未连接 Wi-Fi 网络，没有可提供的地址。';
 
   @override
-  String get receiveHttpOffWhileTor => 'Off while Tor is on.';
+  String get receiveHttpOffWhileTor => 'Tor 开启时关闭。';
 
   @override
   String receiveHttpPortInUse(String port) {
-    return 'Port $port is used by another program.';
+    return '端口 $port 已被其他程序占用。';
   }
 
   @override
-  String get receiveHttpFailed => 'Could not start.';
+  String get receiveHttpFailed => '无法启动。';
 
   @override
-  String get receiveHttpShowQr => 'Show QR';
+  String get receiveHttpShowQr => '显示二维码';
 
   @override
-  String get receiveHttpHideQr => 'Hide QR';
+  String get receiveHttpHideQr => '隐藏二维码';
 
   @override
-  String get receiveHttpQrLabel => 'QR code of the Link · HTTP address';
+  String get receiveHttpQrLabel => 'Link · HTTP 地址二维码';
 
   @override
   String get netStatusOverTor => '经由 Tor';
@@ -6966,7 +6964,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvReceiving => '接收';
 
   @override
-  String get deskRecvNameFile => '文件';
+  String get deskRecvNameFile => '直接 · 文件传输';
 
   @override
   String deskRecvTurnOnFailed(String method) {
@@ -7064,10 +7062,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvCheckSix => '念给别人核对时，请检查前六位和后六位字符。';
 
   @override
-  String get deskRecvHttpAddress => '链接付款 · HTTP 地址';
+  String get deskRecvHttpAddress => 'Link · HTTP 地址';
 
   @override
-  String get deskRecvCopyHttp => '复制 HTTP 地址';
+  String get deskRecvCopyHttp => '复制 Link · HTTP 地址';
 
   @override
   String deskRecvHttpPublic(int port) {
@@ -7084,13 +7082,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
 
   @override
-  String get deskRecvDirectTor => '链接付款 · Tor 地址';
+  String get deskRecvDirectTor => 'Link · Tor 地址';
 
   @override
   String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
 
   @override
-  String get deskRecvTorAddress => '链接付款 · Tor 地址';
+  String get deskRecvTorAddress => 'Link · Tor 地址';
 
   @override
   String get deskRecvCopyTor => '复制 Tor 地址';
@@ -7416,7 +7414,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendEpicboxOffText =>
-      '开启 Epicbox 接收后才能通过 Epicbox 发送。在此期间可以用文件发送。';
+      '开启 Epicbox 接收后才能通过 Epicbox 发送。在此期间可以使用 直接 · 文件传输。';
 
   @override
   String get deskSendEpicboxTurnOn => '开启 Epicbox 接收';
@@ -7440,7 +7438,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendMethodDirect => '链接';
 
   @override
-  String get deskSendMethodFile => '文件';
+  String get deskSendMethodFile => '直接 · 文件';
 
   @override
   String get deskSendTo => '接收方';
@@ -7473,7 +7471,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTurnOnTor => '开启 Tor';
 
   @override
-  String get deskSendHttpClearnet => '通过链接发送到 http(s) 地址时经由明网，而不是 Tor。';
+  String get deskSendHttpClearnet => 'Link · HTTP 经由明网，而不是 Tor。';
 
   @override
   String get deskSendClear => '清除';
@@ -7589,7 +7587,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTagDirect => '链接';
 
   @override
-  String get deskSendTagFile => '文件';
+  String get deskSendTagFile => '直接 · 文件';
 
   @override
   String get deskSendTagEpicbox => '经由 Epicbox';
@@ -7598,7 +7596,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendSwitchedDirect => '链接地址。方式已设为链接。';
 
   @override
-  String get deskSendSwitchedFile => '文件地址。方式已设为文件。';
+  String get deskSendSwitchedFile => '文件地址。方式已设为 直接 · 文件。';
 
   @override
   String get deskSendSwitchedEpicbox => 'Epicbox 地址。方式已设为 Epicbox。';
@@ -7626,10 +7624,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox（接收方可以不在线）';
 
   @override
-  String get deskSendViaDirect => '链接付款 · HTTP（对方钱包必须处于打开状态）';
+  String get deskSendViaDirect => 'Link · HTTP（对方钱包必须处于打开状态）';
 
   @override
-  String get deskSendViaTor => '链接付款 · Tor（对方钱包必须处于打开状态）';
+  String get deskSendViaTor => 'Link · Tor（对方钱包必须处于打开状态）';
 
   @override
   String get deskSendViaFile => '交易文件';
@@ -8086,10 +8084,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox 地址';
 
   @override
-  String get deskConAddrTor => '链接付款 · Tor 地址';
+  String get deskConAddrTor => 'Link · Tor 地址';
 
   @override
-  String get deskConAddrHttp => '链接付款 · HTTP 地址';
+  String get deskConAddrHttp => 'Link · HTTP 地址';
 
   @override
   String get deskConNote => '备注';
@@ -8809,7 +8807,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvFinalize => '完成交易';
 
   @override
-  String get deskTxMethodFile => '文件';
+  String get deskTxMethodFile => '直接 · 文件';
 
   @override
   String get deskTxMiningReward => '挖矿奖励';
@@ -10026,7 +10024,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => '打开链接 · HTTP 接收设置';
+  String get deskRailOpenHttp => '打开 Link · HTTP 接收设置';
 
   @override
   String get deskRailTorNotInBuild => '此版本不含 Tor';
@@ -10293,13 +10291,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Epicbox：付款发送到 Epicbox 服务器，由服务器暂存，直到接收方的钱包重新上线';
 
   @override
-  String get deskKitHeroLabelHttp => '链接付款 · HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
+  String get deskKitHeroLabelHttp => 'Link · HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
 
   @override
-  String get deskKitHeroLabelTor => '链接付款 · Tor：付款经由 Tor 网络直接发送到接收方的钱包';
+  String get deskKitHeroLabelTor => 'Link · Tor：付款经由 Tor 网络直接发送到对方钱包';
 
   @override
-  String get deskKitHeroLabelFile => '文件：交出一个交易文件，收回一个回复文件，然后由发送方完成交易';
+  String get deskKitHeroLabelFile => '直接 · 文件传输：交出交易文件，收回回复文件，然后由发送方完成';
 
   @override
   String get deskKitReachCheck => '检查';
@@ -10667,7 +10665,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitMethodTorStoppedDetail => 'Tor 已停止。';
 
   @override
-  String get deskKitMethodFiles => '文件';
+  String get deskKitMethodFiles => '直接 · 文件传输';
 
   @override
   String get deskKitChipOverTor => '经由 Tor';
@@ -12283,16 +12281,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
 
   @override
-  String get deskSetRecvHttpTitle => '链接付款 · HTTP 接收';
+  String get deskSetRecvHttpTitle => 'Link · HTTP 接收';
 
   @override
-  String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包接收。';
+  String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包经此电脑的网址接收。';
 
   @override
   String get deskSetRecvHttpOffTitle => 'Tor 开启时关闭';
 
   @override
-  String get deskSetRecvHttpOffText => '链接付款会改为发送到本钱包的 Tor 地址。';
+  String get deskSetRecvHttpOffText => '直接来自另一个钱包的付款会改为发送到 Link · Tor 地址。';
 
   @override
   String get deskSetRecvPrivacySettings => '隐私设置';
@@ -12932,7 +12930,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetHelpSender => '发送方';
 
   @override
-  String get deskSetHelpFile => '文件';
+  String get deskSetHelpFile => '文件传输';
 
   @override
   String get deskSetHelpRecipient => '接收方';
@@ -13407,7 +13405,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：如果你的网络中有节点，仍可向本地地址发送并使用文件；否则你看到的是上次看到的余额和记录。';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：如果你的网络中有节点，仍可向本地地址发送并使用文件传输；否则你看到的是上次看到的余额和记录。';
 
   @override
   String get advOutputs => '输出';
@@ -13467,7 +13465,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件以及向本地地址的链接发送仍可使用。节点自己的对等节点是节点本身的设置。';
+      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件传输以及向本地地址的链接发送仍可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get advReset => '再次全部隐藏';
@@ -13547,7 +13545,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“链接”接收并使用文件；内置节点会继续运行，它的对等节点是节点本身的设置。';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“链接”接收并使用文件传输；内置节点会继续运行，它的对等节点是节点本身的设置。';
 
   @override
   String get deskSetAdvModeStandard => '标准';
@@ -13569,11 +13567,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '只限这台电脑和你的本地网络。你的节点继续运行；它的对等节点是节点本身的设置。';
 
   @override
-  String get deskSetAdvTorOnlyNote => '“仅 Tor”会关闭 HTTP 接收：普通地址会暴露这台电脑。';
+  String get deskSetAdvTorOnlyNote => '“仅 Tor”会关闭 Link · HTTP 接收：普通地址会暴露这台电脑。';
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件以及向本地地址的“链接付款”仍可使用。';
+      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件传输以及向本地地址的“链接”发送仍可使用。';
 
   @override
   String get deskSetAdvNotInBuild => '此版本不含';
@@ -13786,13 +13784,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetOpenAdvanced => '打开“高级”';
 
   @override
-  String get deskNetSendFileHint => '交易文件仍然可用。';
+  String get deskNetSendFileHint => '文件传输仍然可用。';
 
   @override
   String get deskNetRecvOfflineText => '你的地址保持不变。离线模式关闭之前，什么都收不到。';
 
   @override
-  String get deskNetRecvWaitTorText => 'Tor 连接后才开始接收。交易文件仍然可用。';
+  String get deskNetRecvWaitTorText => 'Tor 连接后才开始接收。文件传输仍然可用。';
 
   @override
   String get deskNetCantReceive => '离线时无法接收。';
@@ -13828,53 +13826,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
-  String get txFamilyLinkLine =>
-      'Straight to the other wallet while both are open.';
+  String get txFamilyLinkLine => '直接发送到对方钱包，前提是双方都已打开。';
 
   @override
-  String get txFamilyDirectLine =>
-      'Hand to hand, with no connection between the wallets.';
+  String get txFamilyDirectLine => '当面传递，两个钱包之间无需连接。';
 
   @override
-  String get txLinkHttpLine =>
-      'Pay web addresses; get paid from this Wi-Fi network.';
+  String get txLinkHttpLine => '向网址付款；从这个 Wi-Fi 网络收款。';
 
   @override
   String get txLinkHttpHint =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+      'Link · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 Link · HTTP。';
 
   @override
-  String get txLinkTorLine =>
-      'Pay onion addresses; get paid at this phone’s Tor address.';
+  String get txLinkTorLine => '向 onion 地址付款；通过这部手机的 Tor 地址收款。';
 
   @override
   String get txLinkTorHint =>
-      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+      'Link · Tor 通过 onion 地址直接向对方钱包付款，并为这部手机提供一个可收款的 Tor 地址。双方钱包都必须打开。需要 Tor：“隐私与网络”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”和“接收”中加入 Link · Tor。';
 
   @override
-  String get txLinkTorNeedsTor =>
-      'Needs Tor. Turn it on under Privacy & network.';
+  String get txLinkTorNeedsTor => '需要 Tor。请在“隐私与网络”中开启。';
 
   @override
-  String get txLastMethodNotice => 'Keep at least one payment method on.';
+  String get txLastMethodNotice => '至少保留一种付款方式开启。';
 
   @override
   String get txEpicboxHint =>
-      'Epicbox 通过中继付款，所以对方的钱包不必打开。关闭后，钱包不连接任何中继：没有 Epicbox 付款、账单或通知。二维码付款和文件仍然可用。';
+      'Epicbox 通过中继付款，所以对方的钱包不必打开。关闭后，钱包不连接任何中继：没有 Epicbox 付款、账单或通知。其他方式仍可使用。';
 
   @override
-  String get txDirectLine => '向 onion 和网址付款；通过这部手机的 Tor 地址收款。';
+  String get txDirectLine => '向网址和 onion 地址付款；直接从其他钱包收款。';
 
   @override
   String get txDirectHint =>
-      '“链接付款”通过 onion 或网址直接发送给对方钱包，并为这部手机提供一个可收款的 Tor 地址。对方的钱包必须打开，这边也一样。需要 Tor。会在“发送”和“接收”中加入“链接付款”。';
+      '“链接”通过网址或 onion 地址直接向对方钱包付款，这部手机也能以同样方式收款。双方钱包都必须打开。HTTP 在这个 Wi-Fi 网络中可用；Tor 需要 Tor。会在“发送”和“接收”中加入“链接”。';
 
   @override
   String get txFileLine => '用你自己传递的文件付款或收款。';
 
   @override
   String get txFileHint =>
-      '“文件”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件”。';
+      '“文件传输”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件传输”。';
 
   @override
   String get txStartHeader => '发送默认方式';
@@ -13937,7 +13930,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method is off in Settings › Transactions.';
+    return '$method 已在设置 › 交易中关闭。';
   }
 
   @override
@@ -13972,7 +13965,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendContactOnlyMethod(String name, String method) {
-    return '$name has only a $method address.';
+    return '$name 只有 $method 的地址。';
   }
 
   @override
@@ -14007,15 +14000,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetTxEpicboxHint =>
-      '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。文件仍然可用。';
+      '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。';
 
   @override
   String get deskSetTxDirectHint =>
-      '钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“链接付款”，并在“接收”中加入它的地址。';
+      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 Link · HTTP，并在“接收”中加入它的地址。';
 
   @override
   String get deskSetTxFileHint =>
-      '通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。';
+      '通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件传输”，并在“接收”中加入文件步骤。';
 
   @override
   String get deskSetTxSend => '发送';
@@ -14128,29 +14121,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
 
   @override
-  String get deskSetRecvTorTitle => 'Link · Tor receiving';
+  String get deskSetRecvTorTitle => 'Link · Tor 接收';
 
   @override
-  String get deskSetRecvTorText =>
-      'Straight from another wallet at this wallet’s Tor address, while it is open.';
+  String get deskSetRecvTorText => '钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。';
 
   @override
   String get deskSetTxTorHint =>
-      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+      '通过 onion 地址、经由 Tor 在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。需要 Tor：“隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”中加入 Link · Tor，并在“接收”中加入它的地址。';
 
   @override
-  String get deskSetTxTorNeedsTor =>
-      'Tor is off. Turn it on under Privacy to be paid at the Tor address.';
+  String get deskSetTxTorNeedsTor => 'Tor 已关闭。请在“隐私”中开启，才能通过 Tor 地址收款。';
 
   @override
-  String get deskSetTxLastMethod => 'Keep at least one payment method on.';
+  String get deskSetTxLastMethod => '至少保留一种付款方式开启。';
 
   @override
-  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+  String get deskRecvTorOffTitle => 'Link · Tor 收款需要 Tor。';
 
   @override
   String get deskRecvTorOffText =>
-      'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+      'Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。';
 
   @override
   String get deskSetupSaveFailedTitle => '设置未保存';

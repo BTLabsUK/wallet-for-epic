@@ -71,7 +71,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use File Transfer; the built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -99,11 +99,11 @@
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
-  "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would reveal this computer.",
+  "deskSetAdvTorOnlyNote": "Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.",
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, File Transfer and Link sends to local addresses still work.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },
@@ -156,7 +156,7 @@
   "@deskNetOpenAdvanced": {
     "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
   },
-  "deskNetSendFileHint": "A transaction file still works.",
+  "deskNetSendFileHint": "File Transfer still works.",
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
@@ -164,7 +164,7 @@
   "@deskNetRecvOfflineText": {
     "description": "Text of the notice on Receive while Offline mode is on."
   },
-  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
+  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. File Transfer still works.",
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },

@@ -1,5 +1,5 @@
 // The one naming rule for a payment method on the desktop: Epicbox, Link · HTTP, Link · Tor
-// or File, in each language, in Activity, the details, the kind tag of an address and the receiving
+// or Direct · File Transfer, in each language, in Activity, the details, the kind tag of an address and the receiving
 // rail. HTTP and Tor are Link's transport and never a method on their own.
 import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/method_names.dart';
@@ -13,12 +13,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _names = <String, List<String>>{
-  'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'File'],
-  'de': ['Epicbox', 'Link-Zahlung · HTTP', 'Link · Tor', 'Datei'],
-  'pl': ['Epicbox', 'Płatność linkiem · HTTP', 'Płatność linkiem · Tor', 'Plik'],
-  'ru': ['Epicbox', 'Платёж по ссылке · HTTP', 'Платёж по ссылке · Tor', 'Файл'],
-  'zh': ['Epicbox', '链接付款 · HTTP', '链接付款 · Tor', '文件'],
-  'th': ['Epicbox', 'จ่ายผ่านลิงก์ · HTTP', 'จ่ายผ่านลิงก์ · Tor', 'ไฟล์'],
+  'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
+  'de': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direkt · Dateiübertragung'],
+  'pl': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Bezpośrednio · Przesyłanie pliku'],
+  'ru': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Напрямую · Передача файла'],
+  'zh': ['Epicbox', 'Link · HTTP', 'Link · Tor', '直接 · 文件传输'],
+  'th': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'โดยตรง · โอนไฟล์'],
 };
 
 Future<void> _pump(WidgetTester tester, Widget child, {Locale locale = const Locale('en')}) async {
@@ -80,7 +80,7 @@ void main() {
     testWidgets('the table names the method in the language', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 33), locale: const Locale('de'));
       expect(find.text('Link · Tor'), findsWidgets);
-      expect(find.text('Link · Tor'), findsNothing);
+      expect(find.text('Tor'), findsNothing);
     });
   });
 

@@ -1,7 +1,7 @@
 {
   "deskRecvTitle": "Получить",
   "deskRecvReceiving": "Приём",
-  "deskRecvNameFile": "Файл",
+  "deskRecvNameFile": "Напрямую · Передача файла",
   "deskRecvTurnOnFailed": "{method}: не удалось включить",
   "deskRecvTurnOffFailed": "{method}: не удалось выключить",
   "deskRecvOtherWays": "Другие способы приёма",
@@ -28,15 +28,15 @@
   "deskRecvCopyEpicbox": "Копировать адрес Epicbox",
   "deskRecvEpicboxIntro": "Поделитесь им, чтобы получить оплату. Работает и при закрытом кошельке: сервер Epicbox хранит платежи, пока кошелёк не вернётся.",
   "deskRecvCheckSix": "Читая его вслух, сверьте первые шесть и последние шесть символов.",
-  "deskRecvHttpAddress": "Ссылка · адрес HTTP",
-  "deskRecvCopyHttp": "Копировать адрес HTTP",
+  "deskRecvHttpAddress": "Адрес Link · HTTP",
+  "deskRecvCopyHttp": "Копировать адрес Link · HTTP",
   "deskRecvHttpPublic": "Публичный адрес вашего роутера. Отправители из интернета смогут им пользоваться, когда роутер перенаправит порт {port}.",
   "deskRecvHttpLocal": "На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Транзакции».",
   "deskRecvHttpIntro": "Напрямую из другого кошелька, пока этот открыт. Только на этом компьютере, если в настройках не указано иное.",
   "deskRecvHttpTorHint": "Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».",
-  "deskRecvDirectTor": "Ссылка · адрес Tor",
+  "deskRecvDirectTor": "Адрес Link · Tor",
   "deskRecvTorIntro": "Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».",
-  "deskRecvTorAddress": "Ссылка · адрес Tor",
+  "deskRecvTorAddress": "Адрес Link · Tor",
   "deskRecvCopyTor": "Копировать адрес Tor",
   "deskRecvTorOnion": "Некоторые кошельки показывают адрес без .onion; это один и тот же адрес.",
   "deskRecvFiles": "Файлы транзакций",
@@ -45,5 +45,7 @@
   "deskRecvOpen": "Открыть",
   "deskRecvFinalizeTitle": "Завершить по файлу ответа",
   "deskRecvFinalizeText": "На отправку файлом пришёл ответ. Завершение отправляет платёж в сеть.",
-  "deskRecvSwitchLabel": "{title}, приём"
+  "deskRecvSwitchLabel": "{title}, приём",
+  "deskRecvTorOffTitle": "Для приёма через Link · Tor нужен Tor.",
+  "deskRecvTorOffText": "Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Приватность; он направляет соединения кошелька через Tor."
 }

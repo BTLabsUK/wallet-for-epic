@@ -4381,7 +4381,7 @@ abstract class AppLocalizations {
   /// Spoken description of the QR method picture.
   ///
   /// In en, this message translates to:
-  /// **'QR Payment: a code passes from one phone to the phone next to it'**
+  /// **'Direct · QR Payment: a code passes from one phone to the phone next to it'**
   String get methodArtLabelQr;
 
   /// Bold line of the strip under Send's method selector when QR is chosen.
@@ -4435,13 +4435,13 @@ abstract class AppLocalizations {
   /// Advanced page switch name: transaction files (the File payment method).
   ///
   /// In en, this message translates to:
-  /// **'Transaction files'**
+  /// **'File Transfer'**
   String get advTransactionFiles;
 
   /// Advanced page: what the Transaction files switch shows.
   ///
   /// In en, this message translates to:
-  /// **'Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
+  /// **'Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
   String get advTransactionFilesHint;
 
   /// Title of Send's QR way.
@@ -6085,7 +6085,7 @@ abstract class AppLocalizations {
   /// How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'File Transfer'**
   String get handshakeFile;
 
   /// How it works, step 3 of the payment and the request: the other wallet sends it back to the relay.
@@ -6130,73 +6130,73 @@ abstract class AppLocalizations {
   /// **'Previous step'**
   String get handshakePrevious;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.'**
   String get handshakeLink1;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Their wallet adds its part, signs and answers on the same connection.'**
   String get handshakeLink2;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'You show your code.'**
   String get handshakeQr1;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'They scan it with their wallet.'**
   String get handshakeQr2;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Their wallet shows a reply code.'**
   String get handshakeQr3;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'You scan it.'**
   String get handshakeQr4;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Your wallet sends it to the network.'**
   String get handshakeQr5;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'They show their code.'**
   String get handshakeQrR1;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'You scan it with your wallet.'**
   String get handshakeQrR2;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Your wallet shows a reply code.'**
   String get handshakeQrR3;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'They scan it.'**
   String get handshakeQrR4;
 
-  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  /// How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side).
   ///
   /// In en, this message translates to:
   /// **'Their wallet sends it to the network.'**
@@ -7992,19 +7992,19 @@ abstract class AppLocalizations {
   /// Screen reader label of the HTTP picture.
   ///
   /// In en, this message translates to:
-  /// **'HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelHttp;
 
   /// Screen reader label of the Tor picture.
   ///
   /// In en, this message translates to:
-  /// **'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Link · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get methodArtLabelTor;
 
   /// Screen reader label of the File picture.
   ///
   /// In en, this message translates to:
-  /// **'File: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  /// **'Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes'**
   String get methodArtLabelFile;
 
   /// Send strip title for Epicbox.
@@ -8136,7 +8136,7 @@ abstract class AppLocalizations {
   /// Tag beside the To label for 3 s after the method moved to HTTP because of the address.
   ///
   /// In en, this message translates to:
-  /// **'Over HTTP'**
+  /// **'Link · HTTP'**
   String get sendSwitchedHttp;
 
   /// Tag beside the To label for 3 s after the method moved to Epicbox because of the address.
@@ -8148,13 +8148,13 @@ abstract class AppLocalizations {
   /// Read out when a Tor address moved the method to Tor.
   ///
   /// In en, this message translates to:
-  /// **'Tor address. Method set to Tor.'**
+  /// **'Tor address. Method set to Link · Tor.'**
   String get sendSwitchedTorAnnounce;
 
   /// Read out when an HTTP address moved the method to HTTP.
   ///
   /// In en, this message translates to:
-  /// **'HTTP address. Method set to HTTP.'**
+  /// **'HTTP address. Method set to Link · HTTP.'**
   String get sendSwitchedHttpAnnounce;
 
   /// Read out when an Epicbox address moved the method to Epicbox.
@@ -8166,7 +8166,7 @@ abstract class AppLocalizations {
   /// Review, Method row for an HTTP send.
   ///
   /// In en, this message translates to:
-  /// **'HTTP, straight to their wallet'**
+  /// **'Link · HTTP, straight to their wallet'**
   String get sendReviewMethodHttp;
 
   /// Review caption: when an Epicbox send can be cancelled.
@@ -8826,7 +8826,7 @@ abstract class AppLocalizations {
   /// Method: the request is saved as a file to hand over.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get deskInvIssuerFile;
 
   /// Method: the payment comes straight to this wallet over HTTP or Tor.
@@ -10053,7 +10053,7 @@ abstract class AppLocalizations {
   /// **'Link'**
   String get methodDirect;
 
-  /// Full name of the Link Payment method (Settings › Transactions, labels). The short chip name is methodDirect.
+  /// Retired: the old name of the Link family. No code reads it; see methodDirect (Link) and methodDirectHttp / methodDirectTor.
   ///
   /// In en, this message translates to:
   /// **'Link Payment'**
@@ -10074,7 +10074,7 @@ abstract class AppLocalizations {
   /// Screen reader label of the Link picture.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
 
   /// Screen reader label of the Link family's picture on Send and Receive. {method} is the family's name ("Link").
@@ -11634,7 +11634,7 @@ abstract class AppLocalizations {
   /// Name of the file method (transaction files) when read out in a screen reader line such as "File off".
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File Transfer'**
   String get deskRecvNameFile;
 
   /// Toast title when turning a receiving method on failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.
@@ -11802,7 +11802,7 @@ abstract class AppLocalizations {
   /// Label of the copy button next to the HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'Copy HTTP address'**
+  /// **'Copy Link · HTTP address'**
   String get deskRecvCopyHttp;
 
   /// Caption under the HTTP address when receiving from the internet is on. {port} is the port number.
@@ -12324,7 +12324,7 @@ abstract class AppLocalizations {
   /// Text of that notice.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.'**
+  /// **'Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.'**
   String get deskSendEpicboxOffText;
 
   /// Button in that notice.
@@ -12372,7 +12372,7 @@ abstract class AppLocalizations {
   /// Name of the File send method (a transaction file), in the method selector. Short.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get deskSendMethodFile;
 
   /// Label of the recipient field on Send.
@@ -12438,7 +12438,7 @@ abstract class AppLocalizations {
   /// Note under the recipient field when Tor is on and the address is http(s).
   ///
   /// In en, this message translates to:
-  /// **'Link to http(s) addresses goes over the clearnet, not Tor.'**
+  /// **'Link · HTTP goes over the clearnet, not Tor.'**
   String get deskSendHttpClearnet;
 
   /// Button on the card of the contact picked as recipient: clears the recipient.
@@ -12660,7 +12660,7 @@ abstract class AppLocalizations {
   /// Small tag next to the To label after the method switched to File. Short.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get deskSendTagFile;
 
   /// Small tag next to the To label after the method switched to Epicbox. Short.
@@ -12678,7 +12678,7 @@ abstract class AppLocalizations {
   /// Screen reader announcement when the method switched to File.
   ///
   /// In en, this message translates to:
-  /// **'File address. Method set to File.'**
+  /// **'File address. Method set to Direct · File.'**
   String get deskSendSwitchedFile;
 
   /// Screen reader announcement when the method switched to Epicbox by itself.
@@ -12720,13 +12720,13 @@ abstract class AppLocalizations {
   /// Value of the Via fact in the review dialog for a Link send over http(s).
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP (their wallet must be open)'**
+  /// **'Link · HTTP (their wallet must be open)'**
   String get deskSendViaDirect;
 
   /// Value of the Via fact in the review dialog for a Link send to an onion address.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor (their wallet must be open)'**
+  /// **'Link · Tor (their wallet must be open)'**
   String get deskSendViaTor;
 
   /// Value of the Via fact in the review dialog for a file send.
@@ -13554,13 +13554,13 @@ abstract class AppLocalizations {
   /// Label above the address in a contact's detail, for a Tor address.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor address'**
+  /// **'Link · Tor address'**
   String get deskConAddrTor;
 
   /// Label above the address in a contact's detail, for an HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP address'**
+  /// **'Link · HTTP address'**
   String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
@@ -14736,7 +14736,7 @@ abstract class AppLocalizations {
   /// Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get deskTxMethodFile;
 
   /// Who the other side of a transaction is when it is a mining reward. Activity table name column; short.
@@ -16770,7 +16770,7 @@ abstract class AppLocalizations {
   /// Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings.
   ///
   /// In en, this message translates to:
-  /// **'Open Link Payment · HTTP receiving'**
+  /// **'Open Link · HTTP receiving'**
   String get deskRailOpenHttp;
 
   /// Status word on the sidebar's Tor row when this build of the app does not include Tor.
@@ -17244,19 +17244,19 @@ abstract class AppLocalizations {
   /// Screen-reader description of the HTTP picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get deskKitHeroLabelHttp;
 
   /// Screen-reader description of the Tor picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Link · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get deskKitHeroLabelTor;
 
   /// Screen-reader description of the transaction-file picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'File: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  /// **'Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes'**
   String get deskKitHeroLabelFile;
 
   /// Small button of the internet-reachability notice in the HTTP receiving settings: check again. One word.
@@ -17784,7 +17784,7 @@ abstract class AppLocalizations {
   /// Bold status word of the transaction-file method line (no state).
   ///
   /// In en, this message translates to:
-  /// **'Files'**
+  /// **'Direct · File Transfer'**
   String get deskKitMethodFiles;
 
   /// Small chip on the Send and Receive pages: this method goes through Tor. Narrow chip: 2 short words.
@@ -21647,7 +21647,7 @@ abstract class AppLocalizations {
   /// Tag in the 'How a transaction travels' diagram: the transaction file in between. One short word.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'File Transfer'**
   String get deskSetHelpFile;
 
   /// Tag in the 'How a transaction travels' diagram: the receiving wallet. One short word.
@@ -22427,7 +22427,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Network header on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use File Transfer; otherwise you see your balance and history as last seen.'**
   String get advNetworkHint;
 
   /// Advanced switch: the Outputs page.
@@ -22535,7 +22535,7 @@ abstract class AppLocalizations {
   /// Note under the network choice while Offline is selected.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
+  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, File Transfer and Link sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
   String get advOfflineNote;
 
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
@@ -22679,7 +22679,7 @@ abstract class AppLocalizations {
   /// Hover card of the Network group on the Advanced page: what the three network modes do.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use File Transfer; the built-in node keeps running, as its own peers are the node\'s setting.'**
   String get deskSetAdvNetworkHint;
 
   /// Network mode: direct connections.
@@ -22721,13 +22721,13 @@ abstract class AppLocalizations {
   /// Note under the network choice while Tor only is selected.
   ///
   /// In en, this message translates to:
-  /// **'Tor only turns HTTP receiving off: a plain address would reveal this computer.'**
+  /// **'Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.'**
   String get deskSetAdvTorOnlyNote;
 
   /// Note under the chosen Offline mode on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.'**
+  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, File Transfer and Link sends to local addresses still work.'**
   String get deskSetAdvOfflineNote;
 
   /// Tag on a Tor mode when the build has no tor.
@@ -23081,7 +23081,7 @@ abstract class AppLocalizations {
   /// Second line of the notice on Send when the network mode holds Epicbox and Link sends.
   ///
   /// In en, this message translates to:
-  /// **'A transaction file still works.'**
+  /// **'File Transfer still works.'**
   String get deskNetSendFileHint;
 
   /// Text of the notice on Receive while Offline mode is on.
@@ -23093,7 +23093,7 @@ abstract class AppLocalizations {
   /// Text of the notice on Receive in Tor only mode while Tor is not connected yet.
   ///
   /// In en, this message translates to:
-  /// **'Receiving starts when Tor is connected. A transaction file still works.'**
+  /// **'Receiving starts when Tor is connected. File Transfer still works.'**
   String get deskNetRecvWaitTorText;
 
   /// Detail of the Epicbox state line on Receive while Offline mode is on.
@@ -23594,13 +23594,13 @@ abstract class AppLocalizations {
   /// **'Pasted'**
   String get sendOriginPasted;
 
-  /// Send review: caption over the host of a Link Payment (Direct) address that came from a code.
+  /// Send review: caption over the host of a Link address that came from a code.
   ///
   /// In en, this message translates to:
   /// **'Host'**
   String get sendDirectHost;
 
-  /// Send review: warning row for a Link Payment address over plain http to another device.
+  /// Send review: warning row for a Link · HTTP address over plain http to another device.
   ///
   /// In en, this message translates to:
   /// **'Not encrypted (plain HTTP)'**
