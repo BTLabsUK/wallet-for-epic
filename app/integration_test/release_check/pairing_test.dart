@@ -6,6 +6,8 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice;
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider;
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingApiProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
@@ -13,6 +15,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/widgets.dart' show EditableText;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -32,8 +35,17 @@ void main() {
     await settle(tester);
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
+    // A throwaway wallet: the phrase is shown but never read or kept.
+    await tapText(tester, 'Reveal phrase');
     await tapText(tester, 'Written down');
     await tapText(tester, 'Continue', last: true);
+    // Setup: node, Epicbox and Review with their defaults.
+    for (var i = 0; i < 4 && !hasText('Unlock wallet'); i++) {
+      await waitText(tester, RegExp(r'^(Continue|Save settings)$'));
+      await settle(tester, ms: 1000);
+      await tapText(tester, hasText('Save settings') ? 'Save settings' : 'Continue', last: true);
+      await settle(tester, ms: 3000);
+    }
     await waitText(tester, 'Unlock wallet');
     await typeIn(tester, 0, password);
     await tapText(tester, 'Unlock', last: true);
@@ -67,6 +79,12 @@ void main() {
     await settle(tester, ms: 800);
     await shot(tester, 'pair-02-incoming');
     record('the invite opens as Pair with RC Shop?', hasText('RC Shop'), texts().where((t) => t.contains('RC Shop')).take(2).join(' / '));
+    // A fresh wallet has no name others see yet: Pair asks for one first.
+    await tester.tap(find.byKey(deskIncomingPairKey));
+    await settle(tester);
+    record('Pair without a name asks for one', hasText('Enter the name they will see'), '');
+    await tester.enterText(find.byType(EditableText).last, 'RC Desk');
+    await settle(tester);
     await tester.tap(find.byKey(deskIncomingPairKey));
     await settle(tester, ms: 1500);
     await shot(tester, 'pair-03-waiting');
@@ -101,6 +119,8 @@ void main() {
     record('no pairing shows a payments address', mine.every((p) => p.paymentsAddress == null), '');
     await shot(tester, 'pair-05-verified');
 
+    if (verified?.state != PairingState.verified) return;
+
     // A request from the verified contact the desktop allows: it waits under Invoices › To pay.
     final desk = containerOf(tester).read(deskPairingApiProvider);
     final mineId = mine.firstWhere((p) => p.name == 'RC Shop').id;
@@ -108,13 +128,21 @@ void main() {
     final asked = await tester.runAsync(() => other.pairing.requestPayment(id: invite.id, amount: BigInt.from(12345678), message: 'RC order'));
     record('the other wallet asked for a payment', asked?.pairingId == invite.id, '${asked?.state.name}');
     containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.invoices);
+    final api = containerOf(tester).read(deskApiProvider);
+    var waiting = const <IncomingInvoice>[];
     final waitUntil = DateTime.now().add(const Duration(minutes: 3));
-    while (DateTime.now().isBefore(waitUntil) && !hasText('RC Shop')) {
+    while (DateTime.now().isBefore(waitUntil) && waiting.isEmpty) {
+      // The other side's collect also posts its outbox again.
+      await tester.runAsync(() => other.pairing.collect(trigger: PairingCollectTrigger.pull));
       await tester.runAsync(() => desk.collect(trigger: PairingCollectTrigger.pull));
+      waiting = (await tester.runAsync(() => api.invoices()))?.waiting ?? const [];
       await settle(tester, ms: 4000);
     }
+    await settle(tester, ms: 1500);
     await shot(tester, 'pair-06-to-pay');
-    record('the request waits to pay, named by the pairing', hasText('RC Shop'), texts().where((t) => t.contains('RC Shop') || t.contains('0.123')).take(3).join(' / '));
+    final row = waiting.where((i) => i.slateId == asked?.slateId).firstOrNull;
+    record('the request waits to pay, named by the pairing', row?.label == 'RC Shop' && row?.pairingId == mineId, '${waiting.length} waiting, label ${row?.label}, amount ${row?.amount}');
+    record('the To pay list shows it', textF(RegExp('RC Shop')).evaluate().isNotEmpty && hasText(RegExp(r'0[.,]12345678')), texts().where((t) => t.contains('RC Shop') || t.contains('0.123')).take(3).join(' / '));
     record('no Flutter errors', flutterErrors.isEmpty, flutterErrors.take(3).join(' / '));
   });
 }
