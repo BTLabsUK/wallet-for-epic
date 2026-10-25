@@ -479,6 +479,13 @@ class GatedWalletSession implements WalletSession {
       _inner.deleteContact(id: id);
 
   @override
+  Future<List<String>> favouriteContacts() => _inner.favouriteContacts();
+
+  @override
+  Future<void> setFavouriteContact({required String id, required bool favourite}) =>
+      _inner.setFavouriteContact(id: id, favourite: favourite);
+
+  @override
   Future<Uint8List> exportHistory() => _inner.exportHistory();
 
   @override

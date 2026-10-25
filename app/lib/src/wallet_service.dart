@@ -406,6 +406,13 @@ abstract interface class WalletSession {
 
   Future<void> deleteContact({required String id});
 
+  /// Ids of the contacts this wallet starred. The address book is shared; the star is this
+  /// wallet's, kept in its own archive.
+  Future<List<String>> favouriteContacts();
+
+  /// Stars ([favourite] true) or unstars the contact [id] in this wallet.
+  Future<void> setFavouriteContact({required String id, required bool favourite});
+
   /// Encrypted history file that only a wallet with the same recovery phrase can import.
   Future<Uint8List> exportHistory();
 
@@ -1876,8 +1883,21 @@ class FakeWalletSession implements WalletSession {
   }
 
   @override
-  Future<void> deleteContact({required String id}) async =>
-      contactsValue.removeWhere((c) => c.id == id);
+  Future<void> deleteContact({required String id}) async {
+    contactsValue.removeWhere((c) => c.id == id);
+    favourites.remove(id);
+  }
+
+  /// Starred contact ids, as [setFavouriteContact] stores them.
+  final Set<String> favourites = {};
+
+  @override
+  Future<List<String>> favouriteContacts() async => [...favourites];
+
+  @override
+  Future<void> setFavouriteContact({required String id, required bool favourite}) async {
+    favourite ? favourites.add(id) : favourites.remove(id);
+  }
 
   static const _exportMagic = 'FAKE-WFEH';
 

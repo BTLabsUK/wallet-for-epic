@@ -264,9 +264,18 @@ class WalletHistory {
     return _contact(rec);
   }
 
-  Future<void> deleteContact(String id) =>
-      _shared?.delete(id) ??
-      _store.update((m) => m.contacts.removeWhere((c) => c.id == id));
+  Future<void> deleteContact(String id) async {
+    await (_shared?.delete(id) ?? _store.update((m) => m.contacts.removeWhere((c) => c.id == id)));
+    if (meta.favourites.contains(id)) await setFavourite(id, false);
+  }
+
+  /// Ids of the contacts this wallet starred ([Meta.favourites]).
+  Set<String> favourites() => {...meta.favourites};
+
+  /// Stars or unstars the contact [id] in this wallet only.
+  Future<void> setFavourite(String id, bool favourite) => _store.update((m) {
+    favourite ? m.favourites.add(id) : m.favourites.remove(id);
+  });
 
   /// What this install recorded of the invoice it approved under [slateId], or null.
   PaidInvoiceRec? paidInvoiceRecord(String slateId) =>

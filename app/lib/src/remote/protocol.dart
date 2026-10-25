@@ -48,6 +48,8 @@ enum SessionMember {
   contacts,
   saveContact,
   deleteContact,
+  favouriteContacts,
+  setFavouriteContact,
   exportHistory,
   exportHistoryCsv,
   importHistory,

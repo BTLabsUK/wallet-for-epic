@@ -609,7 +609,9 @@ class Meta {
     Map<String, PaidInvoiceRec>? paidInvoices,
     Map<String, IssuedInvoiceRec>? issuedInvoices,
     Map<String, ManualRec>? manual,
+    Iterable<String>? favourites,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
+       favourites = SplayTreeSet.of(favourites ?? const []),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -662,6 +664,7 @@ class Meta {
       issuedInvoices: map('issued_invoices')
           .map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
       manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
+      favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
     );
   }
 
@@ -699,6 +702,11 @@ class Meta {
   /// Invoices this wallet issued, by slate id. Written only when not empty, and not part of
   /// a history file, as [paidInvoices].
   final SplayTreeMap<String, IssuedInvoiceRec> issuedInvoices;
+
+  /// Ids of the contacts this wallet starred. The address book is shared by every wallet on
+  /// the device; the star is this wallet's, as on the desktop. Written only when not empty, and
+  /// not part of a history file.
+  final SplayTreeSet<String> favourites;
 
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
@@ -739,6 +747,7 @@ class Meta {
     if (manual.isNotEmpty) {
       out['manual'] = {for (final e in manual.entries) e.key: e.value.toJson()};
     }
+    if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     return out;
   }
 

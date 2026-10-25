@@ -489,6 +489,11 @@ class WalletDispatcher {
       s.deleteContact(id: p.of('id', stringWire)),
       voidWire,
     ),
+    SessionMember.favouriteContacts => _once(s.favouriteContacts(), listOf(stringWire)),
+    SessionMember.setFavouriteContact => _once(
+      s.setFavouriteContact(id: p.of('id', stringWire), favourite: p.of('favourite', boolWire)),
+      voidWire,
+    ),
     SessionMember.exportHistory => _once(s.exportHistory(), bytesWire),
     SessionMember.exportHistoryCsv => _once(s.exportHistoryCsv(), stringWire),
     SessionMember.importHistory => _once(

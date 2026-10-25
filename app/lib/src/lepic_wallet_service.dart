@@ -1768,6 +1768,13 @@ class LepicWalletSession implements WalletSession {
   Future<void> deleteContact({required String id}) =>
       _history.deleteContact(id);
 
+  @override
+  Future<List<String>> favouriteContacts() async => [..._history.favourites()];
+
+  @override
+  Future<void> setFavouriteContact({required String id, required bool favourite}) =>
+      _history.setFavourite(id, favourite);
+
   /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
   /// with the same recovery phrase opens it.
   @override

@@ -938,6 +938,17 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.deleteContact, voidWire, {'id': id});
 
   @override
+  Future<List<String>> favouriteContacts() =>
+      _call(SessionMember.favouriteContacts, listOf(stringWire));
+
+  @override
+  Future<void> setFavouriteContact({required String id, required bool favourite}) => _call(
+    SessionMember.setFavouriteContact,
+    voidWire,
+    {'id': id, 'favourite': favourite},
+  );
+
+  @override
   Future<Uint8List> exportHistory() =>
       _call(SessionMember.exportHistory, bytesWire);
 
