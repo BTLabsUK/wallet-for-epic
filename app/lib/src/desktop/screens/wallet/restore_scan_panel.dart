@@ -56,18 +56,12 @@ class _RestoreScanPanelState extends ConsumerState<RestoreScanPanel> {
         );
       case RestoreScanState.running:
         final from = scan.fromHeight;
-        return Column(
+        return ENotice(
           key: const ValueKey('restore-scan-running'),
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ENotice(
-              icon: EIcons.scan,
-              title: l.deskOvRestoreTitle,
-              text: from == null ? l.deskOvRestoreRunning : l.deskOvRestoreAfterHeight(localInt(l, from)),
-            ),
-            SizedBox(height: Sp.x2),
-            RestoreScanProgress(percent: scan.percent),
-          ],
+          icon: EIcons.scan,
+          title: l.deskOvRestoreTitle,
+          text: from == null ? l.deskOvRestoreRunning : l.deskOvRestoreAfterHeight(localInt(l, from)),
+          below: RestoreScanProgress(percent: scan.percent),
         );
     }
   }

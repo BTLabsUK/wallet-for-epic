@@ -450,8 +450,9 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
       child: ExcludeSemantics(
         child: Text(
           notice.text,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+          // A persistent notice is read, not glanced at: it shows its whole text.
+          maxLines: notice.persistent ? null : 2,
+          overflow: notice.persistent ? null : TextOverflow.ellipsis,
           style: TextStyle(color: t.text),
         ),
       ),

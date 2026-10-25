@@ -212,10 +212,14 @@ class ENotice extends StatelessWidget {
     this.actions = const [],
     this.actionsBelow = false,
     this.textColor,
+    this.below,
   });
 
   final String title;
   final String? text;
+
+  /// Full-width content under the text, inside the panel (a progress bar).
+  final Widget? below;
 
   /// The text's colour when it is not the usual one (a payment request's dropped parts).
   final Color? textColor;
@@ -264,6 +268,10 @@ class ENotice extends StatelessWidget {
                 if (text != null) ...[
                   const SizedBox(height: 2),
                   Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
+                ],
+                if (below != null) ...[
+                  SizedBox(height: Sp.x2),
+                  SizedBox(width: double.infinity, child: below),
                 ],
                 if (actionsBelow && actions.isNotEmpty) ...[
                   SizedBox(height: Sp.x3),
