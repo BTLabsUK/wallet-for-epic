@@ -24122,6 +24122,12 @@ abstract class AppLocalizations {
   /// **'Ask a paired contact to pay you, or save the request as a file for anyone.'**
   String get reqNewLead;
 
+  /// Request form lead when this wallet cannot save a request as a file (LEPIC asks paired contacts only).
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a paired contact to pay you.'**
+  String get reqNewLeadContacts;
+
   /// Field label: the paired contact.
   ///
   /// In en, this message translates to:

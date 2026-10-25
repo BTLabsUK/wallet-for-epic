@@ -3825,6 +3825,9 @@ class LepicDeskWallet implements DeskWalletApi {
   bool get supportsInvoices => _session?.supportsInvoices ?? true;
 
   @override
+  bool get supportsRequestFiles => _session?.supportsRequestFiles ?? false;
+
+  @override
   Stream<InvoiceNotice> invoiceNotices() => _invoiceNotices.stream;
 
   /// A notice for the open screens; none once the app closed ([dispose]): a drain or an event

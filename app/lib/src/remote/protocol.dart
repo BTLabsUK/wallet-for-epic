@@ -123,6 +123,7 @@ const Set<String> localServiceMembers = {
 };
 const Set<String> localSessionMembers = {
   'supportsInvoices',
+  'supportsRequestFiles',
   // Reach other computers or open a port on the server; refused by the client.
   'sendHttp',
   'resendHttp',

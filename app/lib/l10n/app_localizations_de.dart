@@ -15449,6 +15449,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bitten Sie einen gekoppelten Kontakt um Zahlung oder speichern Sie die Anforderung als Datei für jede beliebige Person.';
 
   @override
+  String get reqNewLeadContacts =>
+      'Bitten Sie einen gekoppelten Kontakt um Zahlung.';
+
+  @override
   String get reqNewTo => 'An';
 
   @override

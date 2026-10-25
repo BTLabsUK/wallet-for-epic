@@ -430,7 +430,7 @@ class RemoteWalletService implements WalletService {
   }
 
   RemoteWalletSession _session(SessionRef ref) =>
-      RemoteWalletSession._(this, ref.handle, ref.invoices, ref.pairing);
+      RemoteWalletSession._(this, ref.handle, ref.invoices, ref.pairing, ref.requestFiles);
 
   Future<WalletSession> _open(String member, Map<String, Object?> params) =>
       _call(member, params, sessionRefWire).then(_session);
@@ -565,7 +565,7 @@ class RemoteWalletService implements WalletService {
 
 /// A session held by the server under [handle].
 class RemoteWalletSession implements WalletSession {
-  RemoteWalletSession._(this._service, this.handle, this.supportsInvoices, bool pairs) {
+  RemoteWalletSession._(this._service, this.handle, this.supportsInvoices, bool pairs, this.supportsRequestFiles) {
     pairing = pairs ? RemotePairing._(this) : const NoPairing();
   }
 
@@ -577,6 +577,10 @@ class RemoteWalletSession implements WalletSession {
   /// As the server reported it when the session opened.
   @override
   final bool supportsInvoices;
+
+  /// As the server reported it when the session opened.
+  @override
+  final bool supportsRequestFiles;
 
   /// [RemotePairing] when the server's core pairs, else [NoPairing].
   @override

@@ -331,6 +331,9 @@ abstract interface class DeskWalletApi {
   // Everything shows only when [supportsInvoices].
   bool get supportsInvoices;
 
+  /// A request can be saved as a payment file (the session's `supportsRequestFiles`).
+  bool get supportsRequestFiles;
+
   /// What the wallet learned of invoices by itself (paid, declined, expired, sent back,
   /// withdrawn), for a notice; the open wallet's only.
   Stream<InvoiceNotice> invoiceNotices();

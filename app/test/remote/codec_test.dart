@@ -350,6 +350,7 @@ void main() {
           slateId: 's',
           txId: 9,
           payerAddress: 'p',
+          pairingId: 'p1',
           amount: big,
           message: 'm',
           issuedAt: t1,
@@ -383,12 +384,17 @@ void main() {
         const IssuerEvent(kind: IssuerEventKind.expired, slateId: 's'),
       );
       roundTrip(
+        issuerEventWire,
+        const IssuerEvent(kind: IssuerEventKind.paid, slateId: 's', pairingId: 'p1'),
+      );
+      roundTrip(
         paymentsDrainReportWire,
         const PaymentsDrainReport(received: 1, finalized: 2, bounced: 3),
       );
-      roundTrip(sessionRefWire, (handle: 'h', invoices: true, pairing: true));
+      roundTrip(sessionRefWire, (handle: 'h', invoices: true, pairing: true, requestFiles: true));
+      roundTrip(sessionRefWire, (handle: 'h', invoices: true, pairing: true, requestFiles: false));
       roundTrip(pinWalletRefWire, (
-        session: (handle: 'h', invoices: false, pairing: false),
+        session: (handle: 'h', invoices: false, pairing: false, requestFiles: false),
         sealedPassword: 'sealed',
       ));
     });

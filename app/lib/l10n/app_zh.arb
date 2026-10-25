@@ -4040,6 +4040,7 @@
   "reqReceivedWaitingBody": "无需操作。交易所会发布；之后会有确认。",
   "reqNewTitle": "新请求",
   "reqNewLead": "请已配对的联系人付款，或将请求保存为文件发给任何人。",
+  "reqNewLeadContacts": "请已配对的联系人付款。",
   "reqNewTo": "收款对象",
   "reqNewToHint": "钱包可支付请求的已配对联系人。其他人：将请求保存为文件。",
   "reqNewSaveFile": "保存为文件",

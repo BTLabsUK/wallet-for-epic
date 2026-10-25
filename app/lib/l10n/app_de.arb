@@ -4040,6 +4040,7 @@
   "reqReceivedWaitingBody": "Nichts zu tun. Die Börse veröffentlicht; die Bestätigungen folgen.",
   "reqNewTitle": "Neue Anforderung",
   "reqNewLead": "Bitten Sie einen gekoppelten Kontakt um Zahlung oder speichern Sie die Anforderung als Datei für jede beliebige Person.",
+  "reqNewLeadContacts": "Bitten Sie einen gekoppelten Kontakt um Zahlung.",
   "reqNewTo": "An",
   "reqNewToHint": "Gekoppelte Kontakte, deren Wallet Anforderungen bezahlt. Alle anderen: Anforderung als Datei speichern.",
   "reqNewSaveFile": "Als Datei speichern",

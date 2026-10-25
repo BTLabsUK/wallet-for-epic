@@ -14978,6 +14978,9 @@ class AppLocalizationsTh extends AppLocalizations {
       'ขอให้ผู้ติดต่อที่จับคู่แล้วชำระเงินให้คุณ หรือบันทึกคำขอเป็นไฟล์สำหรับใครก็ได้';
 
   @override
+  String get reqNewLeadContacts => 'ขอให้ผู้ติดต่อที่จับคู่แล้วชำระเงินให้คุณ';
+
+  @override
   String get reqNewTo => 'ถึง';
 
   @override

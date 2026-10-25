@@ -20184,6 +20184,10 @@
   "@reqNewLead": {
     "description": "Request form lead (also the Receive hint)."
   },
+  "reqNewLeadContacts": "Ask a paired contact to pay you.",
+  "@reqNewLeadContacts": {
+    "description": "Request form lead when this wallet cannot save a request as a file (LEPIC asks paired contacts only)."
+  },
   "reqNewTo": "To",
   "@reqNewTo": {
     "description": "Field label: the paired contact."

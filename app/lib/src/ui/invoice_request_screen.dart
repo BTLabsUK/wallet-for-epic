@@ -352,6 +352,8 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final payers = requestPayers(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
     final to = payers.where((r) => r.id == _to).firstOrNull;
+    // LEPIC requests from paired contacts only: no file to save.
+    final byFile = ref.watch(sessionProvider)?.supportsRequestFiles ?? false;
     final amount = _parsedAmount;
     // What Send request does, once the payer and the amount are good.
     final summary = amount == null || to == null
@@ -386,16 +388,18 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             NetBlockNote(block),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    key: requestSaveFileKey,
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    icon: const Icon(Icons.description_outlined, size: 18),
-                    label: Text(l.reqNewSaveFile),
-                    onPressed: _busy ? null : _saveFile,
+                if (byFile) ...[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      key: requestSaveFileKey,
+                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                      icon: const Icon(Icons.description_outlined, size: 18),
+                      label: Text(l.reqNewSaveFile),
+                      onPressed: _busy ? null : _saveFile,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: BusyButton(
                     label: l.reqNewSend,
@@ -408,7 +412,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           ],
         ),
         children: [
-          PairLead(l.reqNewLead),
+          PairLead(byFile ? l.reqNewLead : l.reqNewLeadContacts),
           const SizedBox(height: 16),
           InkWell(
             key: requestPayerKey,

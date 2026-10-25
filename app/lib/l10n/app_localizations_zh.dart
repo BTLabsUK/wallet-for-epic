@@ -14458,6 +14458,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewLead => '请已配对的联系人付款，或将请求保存为文件发给任何人。';
 
   @override
+  String get reqNewLeadContacts => '请已配对的联系人付款。';
+
+  @override
   String get reqNewTo => '收款对象';
 
   @override

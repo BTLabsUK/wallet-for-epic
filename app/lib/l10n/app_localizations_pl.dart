@@ -15729,6 +15729,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik dla kogokolwiek.';
 
   @override
+  String get reqNewLeadContacts => 'Poproś sparowany kontakt o zapłatę.';
+
+  @override
   String get reqNewTo => 'Do';
 
   @override

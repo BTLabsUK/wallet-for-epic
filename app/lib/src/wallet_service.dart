@@ -488,6 +488,11 @@ abstract interface class WalletSession {
   /// True when this core handles invoices over epicbox.
   bool get supportsInvoices;
 
+  /// True when this core issues a request as a payment file for anyone
+  /// ([PairingApi.requestFile]). LEPIC requests only from paired contacts, so the screens
+  /// hide "Save as file" when this is false.
+  bool get supportsRequestFiles;
+
   /// Pairing (RFC 0002): [PairingApi.supported] says whether this core pairs.
   PairingApi get pairing;
 
@@ -2387,6 +2392,12 @@ class FakeWalletSession implements WalletSession {
 
   @override
   bool get supportsInvoices => invoicesSupported;
+
+  /// Off: requests go to paired contacts only, as on LEPIC.
+  bool requestFilesSupported = true;
+
+  @override
+  bool get supportsRequestFiles => invoicesSupported && requestFilesSupported;
 
   @override
   Future<InvoiceDrainReport> drainInvoices() async {

@@ -259,6 +259,15 @@ void main() {
       expect(_notice(tester), _l.reqFileSaved);
     });
 
+    testWidgets('a wallet that asks paired contacts only offers no file', (tester) async {
+      final h = _Harness()..pairPayer();
+      h.session.requestFilesSupported = false;
+      await h.pump(tester, const InvoiceRequestScreen(), tall: true);
+      expect(find.byKey(requestSaveFileKey), findsNothing);
+      expect(find.text(_l.reqNewLeadContacts), findsOneWidget);
+      expect(find.text(_l.reqNewLead), findsNothing);
+    });
+
     testWidgets('a contact not verified is not offered under To', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Tom', state: PairingState.paired, paymentsAddress: _payer);

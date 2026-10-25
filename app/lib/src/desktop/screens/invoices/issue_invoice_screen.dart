@@ -161,11 +161,13 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final bytes = _messageBytes;
     final hours = (book?.expiry ?? defaultInvoiceExpiry).inHours;
     final to = payers.where((r) => r.id == _to).firstOrNull;
+    // LEPIC requests from paired contacts only: no file to save.
+    final byFile = ref.watch(deskApiProvider).supportsRequestFiles;
 
     final form = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.reqNewLead, style: ts.bodyDim),
+        Text(byFile ? l.reqNewLead : l.reqNewLeadContacts, style: ts.bodyDim),
         SizedBox(height: Sp.x5),
         if (relayDown) ...[
           ENotice(tone: ETone.risk, icon: EIcons.epicbox, title: l.deskInvIssuerRelayDown),
@@ -235,7 +237,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           spacing: Sp.x3,
           runSpacing: Sp.x2,
           children: [
-            InvButton(label: l.reqNewSaveFile, icon: EIcons.file, width: InvW.md, onPressed: _busy ? null : _saveFile),
+            if (byFile) InvButton(label: l.reqNewSaveFile, icon: EIcons.file, width: InvW.md, onPressed: _busy ? null : _saveFile),
             InvButton(
               label: l.reqNewSend,
               icon: EIcons.request,

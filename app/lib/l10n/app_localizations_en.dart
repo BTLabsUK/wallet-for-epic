@@ -15264,6 +15264,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ask a paired contact to pay you, or save the request as a file for anyone.';
 
   @override
+  String get reqNewLeadContacts => 'Ask a paired contact to pay you.';
+
+  @override
   String get reqNewTo => 'To';
 
   @override

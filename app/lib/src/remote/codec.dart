@@ -727,17 +727,18 @@ final WireCodec<PaymentsDrainReport> paymentsDrainReportWire =
       ),
     );
 
-/// An open session as the server names it: its handle, [WalletSession.supportsInvoices] and
-/// whether its core pairs ([PairingApi.supported]).
-typedef SessionRef = ({String handle, bool invoices, bool pairing});
+/// An open session as the server names it: its handle, [WalletSession.supportsInvoices],
+/// whether its core pairs ([PairingApi.supported]) and [WalletSession.supportsRequestFiles].
+typedef SessionRef = ({String handle, bool invoices, bool pairing, bool requestFiles});
 
 final WireCodec<SessionRef> sessionRefWire = _object<SessionRef>(
   'SessionRef',
-  (v) => {'s': v.handle, 'invoices': v.invoices, 'pairing': v.pairing},
+  (v) => {'s': v.handle, 'invoices': v.invoices, 'pairing': v.pairing, 'requestFiles': v.requestFiles},
   (r) => (
     handle: r.of('s', stringWire),
     invoices: r.of('invoices', boolWire),
     pairing: r.of('pairing', nullable(boolWire)) ?? false,
+    requestFiles: r.of('requestFiles', nullable(boolWire)) ?? false,
   ),
 );
 

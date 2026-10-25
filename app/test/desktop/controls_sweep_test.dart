@@ -295,6 +295,9 @@ class _Recorder implements DeskWalletApi {
   // Invoices: hidden in the sweep (the prototype's screens have their own shots).
   @override
   bool get supportsInvoices => false;
+
+  @override
+  bool get supportsRequestFiles => false;
   @override
   Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();
   @override

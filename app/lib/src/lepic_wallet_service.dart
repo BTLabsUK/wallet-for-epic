@@ -2001,6 +2001,10 @@ class LepicWalletSession implements WalletSession {
   @override
   bool get supportsInvoices => true;
 
+  /// LEPIC issues no invoice as a file: requests go to paired contacts only.
+  @override
+  bool get supportsRequestFiles => false;
+
   late final _LepicPairing _pairing = _LepicPairing(this);
 
   @override

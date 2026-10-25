@@ -4040,6 +4040,7 @@
   "reqReceivedWaitingBody": "Nic nie musisz robić. Giełda publikuje płatność; potwierdzenia przyjdą później.",
   "reqNewTitle": "Nowa prośba",
   "reqNewLead": "Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik dla kogokolwiek.",
+  "reqNewLeadContacts": "Poproś sparowany kontakt o zapłatę.",
   "reqNewTo": "Do",
   "reqNewToHint": "Sparowane kontakty, których portfel opłaca prośby. Dla innych: zapisz prośbę jako plik.",
   "reqNewSaveFile": "Zapisz jako plik",

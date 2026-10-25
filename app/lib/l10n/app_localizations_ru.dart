@@ -15687,6 +15687,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Попросите сопряжённый контакт оплатить или сохраните запрос файлом для кого угодно.';
 
   @override
+  String get reqNewLeadContacts => 'Попросите сопряжённый контакт оплатить.';
+
+  @override
   String get reqNewTo => 'Кому';
 
   @override

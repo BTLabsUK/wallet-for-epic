@@ -556,6 +556,9 @@ class GatedWalletSession implements WalletSession {
   @override
   bool get supportsInvoices => _inner.supportsInvoices;
 
+  @override
+  bool get supportsRequestFiles => _inner.supportsRequestFiles;
+
   // Pairing needs no PIN and no Argon2id run of the wallet's: it passes straight through.
   @override
   PairingApi get pairing => _inner.pairing;

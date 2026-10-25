@@ -275,6 +275,7 @@ class WalletDispatcher {
       handle: _sessions.add(session),
       invoices: session.supportsInvoices,
       pairing: session.pairing.supported,
+      requestFiles: session.supportsRequestFiles,
     );
   }
 
