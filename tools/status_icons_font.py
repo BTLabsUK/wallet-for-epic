@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Builds app/assets/fonts/EpicStatusIcons.ttf from app/assets/icons/*.svg.
 
-The four status/method glyphs (Tor, Epicbox, Direct · HTTP, Node) ship as an icon font so they
-stay plain IconData (colour, size and find.byIcon work as for any Material icon). Needs
+The status, method and trust glyphs ship as an icon font so they stay plain IconData (colour,
+size and find.byIcon work as for any Material icon). Filled drawings (Tor, Epicbox, HTTP,
+Link) are read as they are; stroked ones (the pairing trust shields and the lock: 24 px grid,
+2 px round strokes, `stroke="currentColor"`) are outlined here first. Needs
 fonttools and skia-pathops (pip install --target DIR fonttools skia-pathops; PYTHONPATH=DIR).
 Run from the repo root; the code points are in app/lib/src/ui/status_icons.dart.
 """
@@ -16,7 +18,8 @@ from fontTools.pens.recordingPen import RecordingPen
 from fontTools.svgLib.path import parse_path
 import pathops
 
-ICONS = ['tor', 'epicbox', 'http', 'node', 'link']  # code points 0xE000 + index
+ICONS = ['tor', 'epicbox', 'http', 'node', 'link',  # code points 0xE000 + index
+         'trust-verified', 'trust-paired', 'trust-keys-changed', 'sealed']
 UPM = 1024
 S = UPM / 24.0
 
@@ -49,8 +52,38 @@ def shapes(name, svg):
         out.append((d, (sc, 0, 0, sc, tx, ty), 'evenodd' in tag))
     return out
 
+def stroked(svg):
+    """The outline of a stroked drawing: every path, rect and circle stroked 2 px with round
+    caps and joins, in font space."""
+    out = pathops.Path()
+    pen = out.getPen()
+    for tag in re.findall(r'<(?:path|rect|circle)[^>]*>', svg):
+        g = lambda k: float(re.search(r'\b' + k + r'="([\d.\-]+)"', tag).group(1))
+        if tag.startswith('<rect'):
+            rx = float(re.search(r'rx="([\d.]+)"', tag).group(1)) if 'rx=' in tag else 0
+            d = rrect(g('x'), g('y'), g('width'), g('height'), rx) if rx else (
+                f"M{g('x')} {g('y')}h{g('width')}v{g('height')}h{-g('width')}Z")
+        elif tag.startswith('<circle'):
+            d = circle(g('cx'), g('cy'), g('r'))
+        else:
+            d = re.search(r' d="([^"]+)"', tag).group(1)
+        line = pathops.Path()
+        parse_path(d, TransformPen(line.getPen(), (S, 0, 0, -S, 0, UPM)))
+        line.stroke(2 * S, pathops.LineCap.ROUND_CAP, pathops.LineJoin.ROUND_JOIN, 4)
+        line.convertConicsToQuads()
+        line.draw(pen)
+    out.simplify(fix_winding=True)
+    return out
+
 def glyph(name, svg):
     # SVG (y down) -> font (y up), via a nonzero-clean path from pathops.
+    if 'stroke="currentColor"' in svg:
+        path = stroked(svg)
+        rec = RecordingPen()
+        path.draw(rec)
+        tt = TTGlyphPen(None)
+        rec.replay(Cu2QuPen(tt, 1.0, reverse_direction=True))
+        return tt.glyph()
     path = pathops.Path()
     pen = path.getPen()
     for d, (a, _b, _c, _e, tx, ty), eo in shapes(name, svg):
@@ -74,7 +107,7 @@ def main():
     glyphs = {'.notdef': nd.glyph()}
     cmap, order = {}, ['.notdef']
     for i, n in enumerate(ICONS):
-        gname = f'icon_{n}'
+        gname = f'icon_{n}'.replace('-', '_')
         glyphs[gname] = glyph(n, Path(f'app/assets/icons/{n}.svg').read_text())
         cmap[0xE000 + i] = gname
         order.append(gname)

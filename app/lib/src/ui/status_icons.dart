@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-/// The five status and method glyphs (the Link family is the link), drawn from assets/icons/*.svg (Tor: Bootstrap Icons, MIT;
-/// Epicbox: Carbon, Apache-2.0; Direct · HTTP: Material Symbols, Apache-2.0; Node: ours,
-/// Apache-2.0) and built into assets/fonts/EpicStatusIcons.ttf by tools/status_icons_font.py.
+/// The status, method and trust glyphs (the Link family is the link), drawn from assets/icons/*.svg
+/// (Tor: Bootstrap Icons, MIT; Epicbox: Carbon, Apache-2.0; Direct · HTTP: Material Symbols,
+/// Apache-2.0; Node and the pairing shields and lock: ours, Apache-2.0) and built into
+/// assets/fonts/EpicStatusIcons.ttf by tools/status_icons_font.py.
 /// Plain [IconData], so colour, size and `find.byIcon` work as for any Material icon.
 abstract final class EpicGlyphs {
   static const _family = 'EpicStatusIcons';
@@ -11,4 +12,16 @@ abstract final class EpicGlyphs {
   static const http = IconData(0xE002, fontFamily: _family);
   static const node = IconData(0xE003, fontFamily: _family);
   static const link = IconData(0xE004, fontFamily: _family);
+
+  /// Pairing trust (RFC 0002 17.1): a shield with a check, Verified.
+  static const verified = IconData(0xE005, fontFamily: _family);
+
+  /// The outline shield: Paired, not verified.
+  static const paired = IconData(0xE006, fontFamily: _family);
+
+  /// The shield with a mark: Keys changed.
+  static const keysChanged = IconData(0xE007, fontFamily: _family);
+
+  /// The lock: Sealed.
+  static const sealed = IconData(0xE008, fontFamily: _family);
 }
