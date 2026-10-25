@@ -71,7 +71,7 @@ class GuiContactPlan {
 /// A GUI contact's addresses, by kind, as the app keeps them. [epicboxDomain] (and a port other
 /// than 443) completes a bare Epicbox key, as the epic wallet did with its own domain when it
 /// sent to one. The first valid address of a kind wins; [extra] counts the other valid ones.
-({Map<RecipientKind, String> byKind, int extra, bool hadText}) guiContactAddresses(
+({Map<RecipientKind, String> byKind, int extra}) guiContactAddresses(
   GuiContactRow row,
   AddressChecks checks, {
   String? epicboxDomain,
@@ -79,11 +79,9 @@ class GuiContactPlan {
 }) {
   final byKind = <RecipientKind, String>{};
   var extra = 0;
-  var hadText = false;
   for (final raw in [row.externalOne, row.externalTwo, row.onion]) {
     final text = raw?.trim() ?? '';
     if (text.isEmpty) continue;
-    hadText = true;
     final a = _address(text, checks, epicboxDomain: epicboxDomain, epicboxPort: epicboxPort);
     if (a == null) continue;
     final have = byKind[a.kind];
@@ -93,7 +91,7 @@ class GuiContactPlan {
       extra++;
     }
   }
-  return (byKind: byKind, extra: extra, hadText: hadText);
+  return (byKind: byKind, extra: extra);
 }
 
 /// [text] as an address of its kind, or null when it is none the wallet would send to.

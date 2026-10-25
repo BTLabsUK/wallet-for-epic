@@ -951,17 +951,29 @@ class LepicWalletService implements WalletService {
     lepic.EpicWallet wallet,
   ) async {
     try {
-      final dir = contactsDir;
       return (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
         config.chain,
-        contacts: dir == null ? null : await ContactStore.open(await dir()),
+        contacts: await _sharedContacts(),
       ))..nodeUrl = config.nodeUrl;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
       rethrow;
+    }
+  }
+
+  /// The shared address book, or null without [contactsDir]. A book that cannot be read (its
+  /// folder unreadable) never keeps a wallet from opening: the wallet then keeps its own list.
+  Future<ContactStore?> _sharedContacts() async {
+    final dir = contactsDir;
+    if (dir == null) return null;
+    try {
+      return await ContactStore.open(await dir());
+    } on Object catch (e) {
+      logWarn('contacts', 'the shared address book could not be opened (${e.runtimeType})');
+      return null;
     }
   }
 
