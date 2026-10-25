@@ -4361,7 +4361,7 @@
   "backupRestoredInvoices": "{n, plural, other{ใบแจ้งหนี้ {n} ใบ}}",
   "backupRestoredSettings": "การตั้งค่า",
   "backupRestoredWalletName": "ชื่อกระเป๋าเงิน",
-  "backupRestoredAlreadyHere": "{n, plural, other{มีอยู่แล้ว {n} รายการ}}",
+  "backupRestoredAlreadyHere": "{n, plural, other{ส่วนอีก {n} รายการมีอยู่แล้ว}}",
   "backupSettingsTitle": "ใช้การตั้งค่าจากข้อมูลสำรองนี้?",
   "backupSettingsBody": "{n, plural, other{การตั้งค่าที่นี่ {n} รายการต่างจากข้อมูลสำรอง}} ส่วนที่เหลือของข้อมูลสำรองนำเข้าแล้ว",
   "backupSettingsUseBackup": "ใช้ของข้อมูลสำรอง",

@@ -16132,7 +16132,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'มีอยู่แล้ว $n รายการ',
+      other: 'ส่วนอีก $n รายการมีอยู่แล้ว',
     );
     return '$_temp0';
   }

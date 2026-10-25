@@ -27,7 +27,7 @@
   "deskSetBackupNotIn": "Nicht enthalten",
   "deskSetBackupNotInValue": "Wiederherstellungsphrase, Schlüssel, Passwort",
   "deskSetBackupOpensWith": "Öffnen mit",
-  "deskSetBackupOpensWithValue": "Diese Wallet oder eine aus ihrer Wiederherstellungsphrase wiederhergestellte Wallet",
+  "deskSetBackupOpensWithValue": "Diese Wallet oder eine aus derselben Phrase wiederhergestellte",
   "deskSetBackupFile": "Datei",
   "deskSetBackupFileNote": "Die Datei enthält alles bis jetzt. Exportieren Sie nach neuen Zahlungen oder Änderungen erneut.",
   "deskSetBackupExportDesc": "Eine Datei mit Zahlungsverlauf, Kontakten, Rechnungen und Einstellungen dieser Wallet. Allein kann sie die Wallet nicht wiederherstellen: zuerst aus der Wiederherstellungsphrase wiederherstellen, dann diese Datei importieren.",

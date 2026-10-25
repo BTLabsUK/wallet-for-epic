@@ -10916,7 +10916,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupOpensWithValue =>
-      'Diese Wallet oder eine aus ihrer Wiederherstellungsphrase wiederhergestellte Wallet';
+      'Diese Wallet oder eine aus derselben Phrase wiederhergestellte';
 
   @override
   String get deskSetBackupFile => 'Datei';
