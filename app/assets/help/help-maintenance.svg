@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" width="160" height="96" role="img" aria-label="Maintenance: a folder of wallets, one of them swept away">
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M24 30h20l6 6h30a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z"/>
+  <path d="M32 50h18M32 58h12M32 66h16"/>
+</g>
+<g stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M134 22l-22 30"/>
+  <path d="M112 52l-10 6 4 12 14-6-8-12z" fill="#0D0D10"/>
+  <path d="M104 62l10 2M103 66l9 3"/>
+</g>
+</svg>

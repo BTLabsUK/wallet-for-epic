@@ -8,7 +8,7 @@ import '../theme/tokens.dart';
 class HelpArt extends StatelessWidget {
   const HelpArt(this.name, {super.key, required this.width});
 
-  /// help-start, help-how, help-safety, help-network, help-trouble or help-support.
+  /// help-start, help-how, help-safety, help-network, help-trouble, help-maintenance or help-support.
   final String name;
   final double width;
 

@@ -56,9 +56,11 @@ void main() {
     test('the phone and the desktop share the structure and most of the words', () {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
-      expect(desk, hasLength(19));
-      // The phone adds "What an address looks like" and keeps every desktop id.
-      expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id)));
+      expect(desk, hasLength(20));
+      // The phone adds "What an address looks like" and keeps every desktop id but the
+      // desktop-only folder cleanup.
+      expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id).where((id) => id != HelpId.cleanup)));
+      expect(phone.map((t) => t.id), isNot(contains(HelpId.cleanup)));
       expect(phone.where((t) => t.id == HelpId.addresses), hasLength(1));
       for (final t in phone) {
         expect(helpSections.map((s) => s.id), contains(t.section), reason: t.title);
@@ -123,10 +125,13 @@ void main() {
   });
 
   group('help screen', () {
-    testWidgets('the index lists every section and its topics', (tester) async {
+    testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      for (final s in helpSections) {
+      // Maintenance is desktop-only: the phone's index skips a section none of its topics uses.
+      final used = helpTopics(3, platform: HelpPlatform.phone).map((t) => t.section).toSet();
+      expect(used, isNot(contains('maintenance')));
+      for (final s in helpSections.where((s) => used.contains(s.id))) {
         await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list);
         expect(find.text(s.title), findsOneWidget);
       }

@@ -10,6 +10,7 @@ const List<HelpSection> helpSectionsDe = [
   (id: 'safety', title: 'Die Wallet schützen', lede: 'Die Wiederherstellungsphrase ist Sicherung und Schlüssel zugleich.', art: 'help-safety'),
   (id: 'network', title: 'Nodes und Epicbox', lede: 'Womit sich die Wallet verbindet, und Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Wenn etwas nicht klappt', lede: 'Die üblichen Ursachen und was zu tun ist.', art: 'help-trouble'),
+  (id: 'maintenance', title: 'Wartung', lede: 'Alte Wallet-Ordner und die Ordner früherer Versionen.', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -375,5 +376,25 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.trouble,
     ),
+    if (!phone)
+      const HelpTopic(
+        'maintenance',
+        'Alte Wallet-Ordner aufräumen',
+        '„Aus der Liste entfernen“ lässt den Ordner der Wallet auf der Festplatte. Löschen Sie ihn von Hand, mit notierter Wiederherstellungsphrase oder wenn die Wallet nicht mehr gebraucht wird.',
+        [
+          HelpBlock.p('**Aus der Liste entfernen** unter [[Einstellungen › Alle Wallets|Settings › All wallets]] nimmt eine Wallet aus der Liste, lässt ihren Ordner aber auf der Festplatte, und die Seite bietet sie unter **Aus der Liste entfernt** wieder an. Um den Ordner loszuwerden, löschen Sie ihn von Hand.'),
+          HelpBlock.p('**Wer einen Wallet-Ordner ohne seine Wiederherstellungsphrase löscht, verliert die EPIC darin.** Prüfen Sie zuerst die Wörter, oder stellen Sie sicher, dass die Wallet leer ist und nicht mehr gebraucht wird.'),
+          HelpBlock.ol([
+            'Öffnen Sie den Datenordner: mit **Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]], oder **.epic_cash_desktop** in Ihrem Benutzerordner (unter Windows **C:\\Users\\<Name>\\.epic_cash_desktop**).',
+            'Öffnen Sie **wallets**. Jede hinzugefügte Wallet hat einen eigenen Ordner mit einer langen Kennung als Namen; der Ordner der ersten Wallet heißt **mainnet**.',
+            'Zum Unterscheiden öffnen Sie einen Kennungsordner, darin den Ordner **mainnet**, und lesen **WALLET.txt**: Dort steht der Name der Wallet.',
+            'Stellen Sie sicher, dass Sie die Wiederherstellungsphrase dieser Wallet notiert haben oder dass sie keine EPIC enthält, die Sie behalten möchten.',
+            'Schließen Sie Epic Cash Desktop.',
+            'Löschen Sie nur diesen einen Kennungsordner. Lassen Sie **mainnet**, **wallets.json** und alles andere, wie es ist.',
+          ]),
+          HelpBlock.p('**Ordner früherer Versionen.** Versionen vor 26.10.16 hielten ihre Daten unter Linux in **~/.local/share/com.blacktyger.epicwallet** und unter Windows in **%APPDATA%\\com.blacktyger\\EpicWallet**. Sobald jede Wallet von dort in dieser App wiederhergestellt ist und ihr Guthaben zeigt, kann auch dieser alte Ordner weg.'),
+        ],
+        id: HelpId.cleanup,
+      ),
   ];
 }

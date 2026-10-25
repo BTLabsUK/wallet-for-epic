@@ -50,6 +50,7 @@ void main() {
     'Tor': {l.deskSetPrivTor},
     'This wallet': {l.deskSetFrameThisWallet},
     'Wallet folder': {l.deskSetAcctWalletFolder},
+    'App files': {l.deskSetAcctAppFiles},
     'All wallets': {l.deskSetFrameAllWallets},
     'Recovery phrase': {l.deskSetFramePhrase},
     'Receive': {l.homeReceiveButton, l.deskShellNavReceive},

@@ -38,6 +38,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › This wallet': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › Export history backup': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › Wallet folder': _page(DeskRoute.settingsAccount),
+  'Settings › This wallet › App files': _page(DeskRoute.settingsAccount),
   'Settings › All wallets': _page(DeskRoute.settingsWallets),
   'Settings › Recovery phrase': _page(DeskRoute.settingsPhrase),
   'Settings › Recheck balance': _page(DeskRoute.settingsRescan),

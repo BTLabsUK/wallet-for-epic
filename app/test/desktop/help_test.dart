@@ -1,4 +1,4 @@
-// F20: Help as the settings design draws it: the support bar first, five sections with their
+// F20: Help as the settings design draws it: the support bar first, six sections with their
 // art, lede and count, the topic set with bodies, search over the bodies, and the copy rules.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
@@ -30,15 +30,16 @@ Future<ProviderContainer> _pump(WidgetTester tester, {Object? arg}) async {
 void main() {
   final topics = helpTopicsFor(3);
 
-  test('the topic set: five sections, every topic in one, bodies with text', () {
+  test('the topic set: six sections, every topic in one, bodies with text', () {
     expect(helpSections.map((s) => s.title), [
       'Getting started',
       'How Epic Cash works',
       'Keeping the wallet safe',
       'Nodes and Epicbox',
       'When something goes wrong',
+      'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 19 : 18));
+    expect(topics, hasLength(DeskFeatures.tor ? 20 : 19));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);
@@ -74,7 +75,7 @@ void main() {
     expect(parts.where((p) => p.term).single.text, 'Save');
   });
 
-  testWidgets('the support bar first, then search, chips and the five sections with their art', (tester) async {
+  testWidgets('the support bar first, then search, chips and the six sections with their art', (tester) async {
     await _pump(tester);
     final report = tester.getTopLeft(find.text('Report a problem').first);
     expect(report.dy, lessThan(tester.getTopLeft(find.text('Search help')).dy));
@@ -85,8 +86,8 @@ void main() {
       expect(find.text(s.title), findsNWidgets(2), reason: 'chip and head');
     }
     expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
-    expect(find.text('1 topic'), findsOneWidget);
-    expect(find.byType(HelpArt), findsNWidgets(6));
+    expect(find.text('1 topic'), findsNWidgets(2), reason: 'Troubleshooting and Maintenance');
+    expect(find.byType(HelpArt), findsNWidgets(7));
   });
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {
