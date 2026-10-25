@@ -67,6 +67,7 @@ String describeError(AppLocalizations l, Object error) {
         pairingFailureOf(error) ?? PairingFailure.invalid,
       ),
       WalletErrorKind.restoreScanRequired ||
+      WalletErrorKind.phraseMismatch ||
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

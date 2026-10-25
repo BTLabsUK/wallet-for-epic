@@ -561,6 +561,21 @@ class RemoteWalletService implements WalletService {
     {'config': walletConfigWire.encode(config)},
     voidWire,
   );
+
+  @override
+  Future<void> resetPassword({
+    required WalletConfig config,
+    required String mnemonic,
+    required String newPassword,
+  }) => _call(
+    ServiceMember.resetPassword.name,
+    {
+      'config': walletConfigWire.encode(config),
+      'mnemonic': mnemonic,
+      'newPassword': newPassword,
+    },
+    voidWire,
+  );
 }
 
 /// A session held by the server under [handle].

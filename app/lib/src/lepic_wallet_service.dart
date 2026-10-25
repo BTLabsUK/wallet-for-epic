@@ -1039,6 +1039,17 @@ class LepicWalletService implements WalletService {
     // After LEPIC, which refuses while a wallet on the directory is open.
     await MetaStore.deleteFiles(config.dataDir);
   });
+
+  /// Until the binding carries `reset_password` (LEPIC fix/restore-scan): refused.
+  @override
+  Future<void> resetPassword({
+    required WalletConfig config,
+    required String mnemonic,
+    required String newPassword,
+  }) async => throw const WalletError(
+    kind: WalletErrorKind.other,
+    message: 'this build cannot reset a password yet',
+  );
 }
 
 /// What a history file names as the program that wrote it. Informational only.
