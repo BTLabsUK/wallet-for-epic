@@ -151,7 +151,21 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       _refetch?.cancel();
       _refetch = Timer(const Duration(milliseconds: 400), () => api.nodes().then(_setNodes, onError: (Object _) {}));
     });
-    api.epicboxes().then((b) => mounted ? setState(() => _boxes = b) : null);
+    api.epicboxes().then((b) {
+      if (!mounted) return;
+      setState(() {
+        _boxes = b;
+        // A test network's own server when mainnet's default is not among its servers.
+        if (_relay == defaultEpicboxHost) _relay = _defaultRelay(b);
+      });
+    });
+  }
+
+  /// The server a new wallet starts on: mainnet's default, or on a test network ([boxes]
+  /// without it) its first server (LNX-6).
+  static String _defaultRelay(List<EpicboxServer>? boxes) {
+    if (boxes == null || boxes.isEmpty || boxes.any((b) => b.domain == defaultEpicboxHost)) return defaultEpicboxHost;
+    return EpicboxRelay(host: boxes.first.domain, port: boxes.first.port).label;
   }
 
   /// On a first run, until the user picks: the healthiest, then fastest node whose check came
@@ -441,7 +455,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final ts = context.ts;
     final boxes = _boxes;
     final l = context.l10n;
-    final rows = relayPanelRows(boxes ?? const [], defaultHost: defaultEpicboxHost);
+    final rows = relayPanelRows(boxes ?? const [], defaultHost: _defaultRelay(boxes));
     final row = rows.where((r) => r.value == _relay).firstOrNull;
     // Ctrl+Enter is Continue; Enter on the server opens its list.
     return EForm(

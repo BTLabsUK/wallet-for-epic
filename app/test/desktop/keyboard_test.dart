@@ -23,11 +23,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
 
-Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? arg}) async {
+/// A test network's wallet layer: one Epicbox server of its own.
+class _Floonet extends MockDeskWallet {
+  _Floonet() : super(delay: Duration.zero);
+
+  @override
+  Future<List<EpicboxServer>> epicboxes() async => [EpicboxServer(domain: 'flooepicbox.btlabs.uk', port: 443, health: ServiceHealth.ok)];
+}
+
+Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? arg, MockDeskWallet? api}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))], retry: (_, _) => null);
+  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api ?? MockDeskWallet(delay: Duration.zero))], retry: (_, _) => null);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
   await tester.runAsync(() => advancedOn(container));
@@ -182,6 +190,13 @@ void main() {
       final name = _focusOrder(tabs);
       expect(name, containsAllInOrder(['field:null', 'button:Save contact']));
       expect(tabs, _noSecondary);
+      await _end(tester);
+    });
+
+    testWidgets('Setup › Epicbox on a test network starts on its own server (LNX-6)', (tester) async {
+      await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox, api: _Floonet());
+      expect(find.text('flooepicbox.btlabs.uk'), findsWidgets);
+      expect(find.text('epicbox.epiccash.com'), findsNothing);
       await _end(tester);
     });
 
