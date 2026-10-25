@@ -18629,7 +18629,7 @@
   "@advNetworkHeader": {
     "description": "Header over the network mode choice on the Advanced page."
   },
-  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use File Transfer; otherwise you see your balance and history as last seen.",
+  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.",
   "@advNetworkHint": {
     "description": "Info sheet behind the Network header on the Advanced page."
   },
@@ -18693,7 +18693,7 @@
   "@advModeOffline": {
     "description": "Network mode: no network."
   },
-  "advModeOfflineLine": "Only this phone and your local network. A node on your network still works; everything else waits until you switch back.",
+  "advModeOfflineLine": "Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.",
   "@advModeOfflineLine": {
     "description": "One line under the Offline network mode."
   },
@@ -18701,7 +18701,7 @@
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, File Transfer and Link sends to local addresses still work. The node's own peers are the node's setting.",
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node's own peers are the node's setting.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18797,7 +18797,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use File Transfer; the built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -18829,7 +18829,7 @@
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, File Transfer and Link sends to local addresses still work.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },

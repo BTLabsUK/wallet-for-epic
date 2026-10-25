@@ -14334,7 +14334,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz & Netzwerk einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es auf der Startseite. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: Mit einem Node in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen und die Dateiübertragung nutzen; sonst sehen Sie Guthaben und Verlauf, wie zuletzt gesehen.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz & Netzwerk einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es auf der Startseite. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: QR-Zahlung und Dateiübertragung funktionieren weiter über den verwendeten Node; mit einem Node in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen, und das Guthaben wird aktualisiert.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -14390,7 +14390,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Nur dieses Smartphone und Ihr lokales Netzwerk. Ein Node in Ihrem Netzwerk funktioniert weiter; alles andere wartet, bis Sie zurückschalten.';
+      'Nur dieses Smartphone und Ihr lokales Netzwerk. QR-Zahlung und Dateiübertragung funktionieren weiter über den verwendeten Node; alles andere wartet, bis Sie zurückschalten.';
 
   @override
   String get advTorOnlyNote =>
@@ -14398,7 +14398,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateiübertragung und Link-Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';
@@ -14479,7 +14479,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es in der Seitenleiste. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Mit einem Node hier oder in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen, über Link empfangen und die Dateiübertragung nutzen; der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es in der Seitenleiste. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Die Dateiübertragung funktioniert weiter über den verwendeten Node; mit einem Node hier oder in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen und über Link empfangen, und das Guthaben wird aktualisiert. Der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14508,7 +14508,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateiübertragung und Link-Zahlungen an lokale Adressen weiter.';
+      'Epicbox, Tor und Statusprüfungen pausieren. Die Dateiübertragung funktioniert weiter über den verwendeten Node, auch einen öffentlichen. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen.';
 
   @override
   String get deskSetAdvNotInBuild => 'Nicht in dieser Version';

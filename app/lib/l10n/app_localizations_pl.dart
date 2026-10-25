@@ -14602,7 +14602,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: z węzłem w twojej sieci nadal możesz wysyłać na adresy lokalne i używać przesyłania pliku; poza tym widzisz saldo i historię z ostatniego odczytu.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; z węzłem w twojej sieci możesz też wysyłać na adresy lokalne, a saldo się odświeża.';
 
   @override
   String get advOutputs => 'Wyjścia';
@@ -14658,7 +14658,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Tylko ten telefon i twoja sieć lokalna. Węzeł w twojej sieci nadal działa; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
+      'Tylko ten telefon i twoja sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
 
   @override
   String get advTorOnlyNote =>
@@ -14666,7 +14666,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, Przesyłanie pliku i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: używają używanego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14747,7 +14747,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: z węzłem tutaj lub w twojej sieci nadal możesz wysyłać na adresy lokalne, odbierać przez Link i używać przesyłania pliku; wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: Przesyłanie pliku nadal działa przez używany węzeł; z węzłem tutaj lub w twojej sieci możesz też wysyłać na adresy lokalne i odbierać przez Link, a saldo się odświeża. Wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
 
   @override
   String get deskSetAdvModeStandard => 'Standardowy';
@@ -14776,7 +14776,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, Przesyłanie pliku i wysyłki przez Link na adresy lokalne.';
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Przesyłanie pliku nadal działa przez używany węzeł, także publiczny. Z węzłem na tym komputerze lub w twojej sieci działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';

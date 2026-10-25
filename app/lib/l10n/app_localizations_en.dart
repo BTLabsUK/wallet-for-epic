@@ -14174,7 +14174,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use File Transfer; otherwise you see your balance and history as last seen.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -14230,7 +14230,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
+      'Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.';
 
   @override
   String get advTorOnlyNote =>
@@ -14238,7 +14238,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, File Transfer and Link sends to local addresses still work. The node\'s own peers are the node\'s setting.';
+      'Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node\'s own peers are the node\'s setting.';
 
   @override
   String get advReset => 'Hide everything again';
@@ -14319,7 +14319,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use File Transfer; the built-in node keeps running, as its own peers are the node\'s setting.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node\'s setting.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14348,7 +14348,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, File Transfer and Link sends to local addresses still work.';
+      'Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.';
 
   @override
   String get deskSetAdvNotInBuild => 'Not in this build';

@@ -13419,7 +13419,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：如果你的网络中有节点，仍可向本地地址发送并使用文件传输；否则你看到的是上次看到的余额和记录。';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：二维码付款和文件传输仍可通过正在使用的节点进行；如果你的网络中有节点，还可以向本地地址发送，余额也会刷新。';
 
   @override
   String get advOutputs => '输出';
@@ -13472,14 +13472,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeOffline => '离线';
 
   @override
-  String get advModeOfflineLine => '只限这部手机和你的本地网络。你网络中的节点仍可使用；其余一切会等到你切换回来。';
+  String get advModeOfflineLine =>
+      '只限这部手机和你的本地网络。二维码付款和文件传输仍可通过正在使用的节点进行；其余一切会等到你切换回来。';
 
   @override
   String get advTorOnlyNote => '“仅 Tor”会暂停通知：注册通知会暴露这部手机的地址。';
 
   @override
   String get advOfflineNote =>
-      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件传输以及向本地地址的链接发送仍可使用。节点自己的对等节点是节点本身的设置。';
+      '离线会暂停 Epicbox、Tor、状态检查和通知。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get advReset => '再次全部隐藏';
@@ -13559,7 +13560,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“链接”接收并使用文件传输；内置节点会继续运行，它的对等节点是节点本身的设置。';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：文件传输仍可通过正在使用的节点进行；如果这里或你的网络中有节点，还可以向本地地址发送并通过“链接”接收，余额也会刷新。内置节点会继续运行，它的对等节点是节点本身的设置。';
 
   @override
   String get deskSetAdvModeStandard => '标准';
@@ -13585,7 +13586,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件传输以及向本地地址的“链接”发送仍可使用。';
+      'Epicbox、Tor 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。';
 
   @override
   String get deskSetAdvNotInBuild => '此版本不含';
