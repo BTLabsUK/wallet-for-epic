@@ -2419,7 +2419,7 @@
   "deskOnbRestoreWait": "Das kann bis zu einer Minute dauern. Das Guthaben erscheint nach dem ersten Scan der Blockchain.",
   "deskOnbRestoreSide": "Wallet wiederherstellen",
   "deskOnbRestoreChoosePassword": "Passwort wählen",
-  "deskOnbRestorePasswordLead": "Die Phrase mit {count} Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt. Die Wallet öffnet sich nach der Wiederherstellung.",
+  "deskOnbRestorePasswordLead": "Die Phrase mit {count} Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.",
   "deskOnbRestoreNothingToPaste": "Nichts einzufügen: Die Zwischenablage enthält keine Wörter.",
   "deskOnbRestoreBadWord": "Wort {position}, „{word}“, steht nicht in der Wortliste.",
   "deskOnbRestoreAllOk": "{count, plural, one{{count} Wort ist gültig.} other{Alle {count} Wörter sind gültig.}}",

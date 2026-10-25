@@ -9675,7 +9675,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'Fraza z $count słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze. Portfel otworzy się po przywróceniu.';
+    return 'Fraza z $count słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze.';
   }
 
   @override

@@ -14772,7 +14772,7 @@ abstract class AppLocalizations {
   /// Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).
   ///
   /// In en, this message translates to:
-  /// **'The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.'**
+  /// **'The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer.'**
   String deskOnbRestorePasswordLead(int count);
 
   /// Status line under the phrase grid when Paste found no words on the clipboard.

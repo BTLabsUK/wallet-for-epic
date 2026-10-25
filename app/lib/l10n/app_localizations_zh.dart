@@ -8847,7 +8847,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return '这 $count 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。恢复完成后钱包会打开。';
+    return '这 $count 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。';
   }
 
   @override

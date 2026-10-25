@@ -9154,7 +9154,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'วลี $count คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้ กระเป๋าเงินจะเปิดเมื่อกู้คืนเสร็จ';
+    return 'วลี $count คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้';
   }
 
   @override

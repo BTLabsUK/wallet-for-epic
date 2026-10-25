@@ -9352,7 +9352,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.';
+    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer.';
   }
 
   @override

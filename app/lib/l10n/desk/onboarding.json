@@ -254,7 +254,7 @@
   "@deskOnbRestoreChoosePassword": {
     "description": "Title of the password step of the restore flow."
   },
-  "deskOnbRestorePasswordLead": "The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.",
+  "deskOnbRestorePasswordLead": "The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer.",
   "@deskOnbRestorePasswordLead": {
     "description": "Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).",
     "placeholders": {

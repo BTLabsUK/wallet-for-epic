@@ -1796,7 +1796,7 @@
   "deskOnbRestoreWait": "这最多需要一分钟。首次扫描区块链后会显示余额。",
   "deskOnbRestoreSide": "恢复钱包",
   "deskOnbRestoreChoosePassword": "设置密码",
-  "deskOnbRestorePasswordLead": "这 {count} 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。恢复完成后钱包会打开。",
+  "deskOnbRestorePasswordLead": "这 {count} 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。",
   "deskOnbRestoreNothingToPaste": "没有可粘贴的内容：剪贴板中没有单词。",
   "deskOnbRestoreBadWord": "第 {position} 个单词“{word}”不在词表中。",
   "deskOnbRestoreAllOk": "{count, plural, other{全部 {count} 个单词均有效。}}",

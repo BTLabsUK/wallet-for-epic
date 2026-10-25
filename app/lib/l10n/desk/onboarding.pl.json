@@ -59,7 +59,7 @@
   "deskOnbRestoreWait": "To może potrwać do minuty. Saldo pojawi się po pierwszym skanowaniu łańcucha.",
   "deskOnbRestoreSide": "Przywróć portfel",
   "deskOnbRestoreChoosePassword": "Wybierz hasło",
-  "deskOnbRestorePasswordLead": "Fraza z {count} słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze. Portfel otworzy się po przywróceniu.",
+  "deskOnbRestorePasswordLead": "Fraza z {count} słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze.",
   "deskOnbRestoreNothingToPaste": "Nie ma czego wkleić: w schowku nie ma słów.",
   "deskOnbRestoreBadWord": "Słowo {position}, „{word}”, nie występuje na liście słów.",
   "deskOnbRestoreAllOk": "{count, plural, one{{count} słowo jest poprawne.} few{Wszystkie {count} słowa są poprawne.} many{Wszystkie {count} słów jest poprawnych.} other{Wszystkie {count} słowa są poprawne.}}",

@@ -9469,7 +9469,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'Die Phrase mit $count Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt. Die Wallet öffnet sich nach der Wiederherstellung.';
+    return 'Die Phrase mit $count Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.';
   }
 
   @override

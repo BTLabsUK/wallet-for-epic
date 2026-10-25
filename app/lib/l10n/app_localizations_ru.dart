@@ -9641,7 +9641,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'Фраза из $count слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере. Кошелёк откроется после восстановления.';
+    return 'Фраза из $count слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере.';
   }
 
   @override

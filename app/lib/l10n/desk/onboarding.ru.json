@@ -59,7 +59,7 @@
   "deskOnbRestoreWait": "Это может занять до минуты. Баланс появится после первого сканирования блокчейна.",
   "deskOnbRestoreSide": "Восстановить кошелёк",
   "deskOnbRestoreChoosePassword": "Придумайте пароль",
-  "deskOnbRestorePasswordLead": "Фраза из {count} слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере. Кошелёк откроется после восстановления.",
+  "deskOnbRestorePasswordLead": "Фраза из {count} слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере.",
   "deskOnbRestoreNothingToPaste": "Нечего вставить: в буфере обмена нет слов.",
   "deskOnbRestoreBadWord": "Слова {position} («{word}») нет в списке слов.",
   "deskOnbRestoreAllOk": "{count, plural, one{Все {count} слово верны.} few{Все {count} слова верны.} many{Все {count} слов верны.} other{Все {count} слова верны.}}",

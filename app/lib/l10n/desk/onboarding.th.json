@@ -59,7 +59,7 @@
   "deskOnbRestoreWait": "อาจใช้เวลาถึงหนึ่งนาที ยอดคงเหลือจะแสดงหลังสแกนบล็อกเชนครั้งแรก",
   "deskOnbRestoreSide": "กู้คืนกระเป๋าเงิน",
   "deskOnbRestoreChoosePassword": "ตั้งรหัสผ่าน",
-  "deskOnbRestorePasswordLead": "วลี {count} คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้ กระเป๋าเงินจะเปิดเมื่อกู้คืนเสร็จ",
+  "deskOnbRestorePasswordLead": "วลี {count} คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้",
   "deskOnbRestoreNothingToPaste": "ไม่มีอะไรให้วาง: คลิปบอร์ดไม่มีคำ",
   "deskOnbRestoreBadWord": "คำที่ {position} “{word}” ไม่อยู่ในรายการคำ",
   "deskOnbRestoreAllOk": "{count, plural, other{ทั้ง {count} คำถูกต้อง}}",
