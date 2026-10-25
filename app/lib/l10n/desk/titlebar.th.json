@@ -22,5 +22,10 @@
   "deskBarKeyForward": "ไปข้างหน้า",
   "deskBarKeyClose": "ปิดเมนูหรือหน้าต่าง",
   "deskBarKeySubmit": "ทำคำสั่งหลักของแบบฟอร์ม",
-  "deskBarKeyList": "รายการนี้"
+  "deskBarKeyList": "รายการนี้",
+  "deskBarCopyBuild": "คัดลอกข้อมูลบิลด์",
+  "deskBarBuildCopied": "คัดลอกข้อมูลบิลด์แล้ว",
+  "deskBarBuildTip": "เวอร์ชัน {version} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
+  "deskBarBuildTipRebuild": "เวอร์ชัน {version} บิลด์ใหม่ {rebuild} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
+  "deskBarBuildTipDev": "เวอร์ชัน {version} บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์"
 }

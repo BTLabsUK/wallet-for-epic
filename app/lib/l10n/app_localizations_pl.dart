@@ -17197,4 +17197,90 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarKeyList => 'Ta lista';
+
+  @override
+  String get deskSlotNow => 'Teraz';
+
+  @override
+  String get deskSlotHelp => 'Pomoc';
+
+  @override
+  String get deskSlotOffline => 'Tryb offline';
+
+  @override
+  String get deskSlotOfflineDetail => 'nic nie jest wysyłane ani odbierane';
+
+  @override
+  String get deskSlotScanning => 'Skanowanie łańcucha';
+
+  @override
+  String get deskSlotScanWaits => 'Skanowanie czeka na sieć';
+
+  @override
+  String get deskSlotScanStopped => 'Skanowanie zatrzymane';
+
+  @override
+  String get deskSlotTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get deskSlotSending => 'Wysyłanie płatności';
+
+  @override
+  String get deskSlotPaymentOut => 'Płatność w drodze';
+
+  @override
+  String get deskSlotPaymentIn => 'Płatność nadchodzi';
+
+  @override
+  String deskSlotPaymentsOut(String count) {
+    return 'Płatności w drodze ($count)';
+  }
+
+  @override
+  String deskSlotPaymentsMoving(String count) {
+    return 'Płatności w potwierdzaniu ($count)';
+  }
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done z $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'czeka na blok';
+
+  @override
+  String get deskSlotRequests => 'Nowe żądania';
+
+  @override
+  String get deskSlotNodeStarting => 'Uruchamianie węzła lokalnego';
+
+  @override
+  String get deskSlotNodeSyncing => 'Synchronizacja węzła lokalnego';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'Dostępna aktualizacja, $version. Pokazuje aktualizację.';
+  }
+
+  @override
+  String get deskBarCopyBuild => 'Kopiuj informacje o wersji';
+
+  @override
+  String get deskBarBuildCopied => 'Skopiowano informacje o wersji';
+
+  @override
+  String deskBarBuildTip(String version, String commit) {
+    return 'Wersja $version, commit $commit. Kliknięcie kopiuje informacje o wersji.';
+  }
+
+  @override
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
+    return 'Wersja $version, przebudowa $rebuild, commit $commit. Kliknięcie kopiuje informacje o wersji.';
+  }
+
+  @override
+  String deskBarBuildTipDev(String version) {
+    return 'Wersja $version. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji.';
+  }
 }

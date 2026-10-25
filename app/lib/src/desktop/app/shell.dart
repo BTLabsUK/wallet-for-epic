@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../demo.dart' show devNetworksProvider;
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant;
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
@@ -21,7 +20,6 @@ import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
-import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
@@ -29,9 +27,9 @@ import 'desk_failover.dart';
 import 'rail.dart';
 import 'screens.dart';
 import 'close_guard.dart';
+import 'now_slot.dart';
 import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
-import 'update_notice.dart';
 
 export 'rail.dart' show ServiceRows;
 
@@ -396,22 +394,11 @@ class _Sidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final ts = context.ts;
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
     final invoices = ref.watch(deskInvoicesShownProvider);
     final toPay = ref.watch(deskInvoiceBadgeProvider);
-    final account = ref.watch(deskProvider.select((s) => s.account));
-    final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
-    final wallets = ref.watch(deskProvider.select((s) => s.wallets));
-    final locking = ref.watch(deskLockingProvider);
-    final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
-    final name = account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
     final l = context.l10n;
-    final lockLabel = l.deskShellLockWallet(deskKeys('L'));
-    final lockButton = locking
-        ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
-        : EIconButton(icon: EIcons.lock, label: lockLabel, size: compact ? EBtnSize.sm : EBtnSize.inline, onPressed: () => lockWallet(ref));
     return Semantics(
       container: true,
       label: l.deskShellMainNav,
@@ -465,89 +452,9 @@ class _Sidebar extends ConsumerWidget {
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.all(Sp.x3),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  DeskUpdateNotice(compact: compact),
-                  ServiceRows(compact: compact),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: Sp.x2),
-                    child: Divider(height: 1, thickness: 1, color: c.line),
-                  ),
-                  if (compact) ...[
-                    Center(child: lockButton),
-                    SizedBox(height: Sp.x2),
-                    _RailVersion(),
-                  ] else
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Tooltip(
-                            message: l.deskShellOpenWalletSettings,
-                            child: Semantics(
-                              button: true,
-                              label: l.deskShellOpenWalletSettingsNamed(name),
-                              excludeSemantics: true,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(Rad.sm),
-                                onTap: () => nav.go(DeskRoute.settingsAccount),
-                                child: Padding(
-                                  padding: EdgeInsets.all(Sp.x1),
-                                  child: Row(
-                                    children: [
-                                      EAvatar(name),
-                                      SizedBox(width: Sp.x3),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(name, style: ts.body.copyWith(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                                            if (ref.watch(devNetworksProvider)) Text(account?.network ?? '', style: ts.caption),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (canSwitch)
-                          EIconButton(
-                            icon: EIcons.swap,
-                            label: l.deskShellSwitchWallet,
-                            size: EBtnSize.inline,
-                            onPressed: locking ? null : () => switchWallet(ref),
-                          ),
-                        SizedBox(width: Sp.x1),
-                        lockButton,
-                      ],
-                    ),
-                  if (!compact) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Sp.x2),
-                      child: Divider(height: 1, thickness: 1, color: c.line),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          // "Wallet by {maker}": the maker's name is dimmer, wherever the language puts it.
-                          for (final (i, part) in l.deskShellWalletBy('\u0000').split('\u0000').indexed) ...[
-                            if (i > 0) TextSpan(text: 'BT Labs', style: TextStyle(color: c.dim)), // l10n-ok: company name
-                            TextSpan(text: part),
-                          ],
-                        ],
-                      ),
-                      style: ts.caption,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            // What goes on now, else Help · Report a problem (now_slot.dart). The wallet, the
+            // status and Lock are in the title bar.
+            NowSlot(compact: compact),
           ],
         ),
       ),
@@ -641,27 +548,6 @@ class _PhoneNav extends ConsumerWidget {
         destinations: [
           for (final (s, _, icon) in items)
             NavigationDestination(icon: Icon(icon), label: deskNavLabel(context.l10n, s)),
-        ],
-      ),
-    );
-  }
-}
-
-/// The version and build under the compact rail's lock button, on two lines to fit its width.
-class _RailVersion extends StatelessWidget {
-  const _RailVersion();
-
-  @override
-  Widget build(BuildContext context) {
-    final style = context.ts.caption.copyWith(fontSize: 10.u, height: 1.2);
-    return Semantics(
-      container: true,
-      label: context.l10n.deskShellVersion(deskVersion),
-      excludeSemantics: true,
-      child: Column(
-        children: [
-          Text(deskAppVersion, style: style, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
-          if (appBuildId.isNotEmpty) Text(appBuildId, style: style, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
         ],
       ),
     );

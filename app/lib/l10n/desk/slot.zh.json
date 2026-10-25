@@ -1,0 +1,21 @@
+{
+  "deskSlotNow": "当前",
+  "deskSlotHelp": "帮助",
+  "deskSlotOffline": "离线模式",
+  "deskSlotOfflineDetail": "不收发任何内容",
+  "deskSlotScanning": "正在扫描区块链",
+  "deskSlotScanWaits": "扫描正在等待网络",
+  "deskSlotScanStopped": "扫描已停止",
+  "deskSlotTryAgain": "重试",
+  "deskSlotSending": "正在发送付款",
+  "deskSlotPaymentOut": "付款途中",
+  "deskSlotPaymentIn": "付款到账中",
+  "deskSlotPaymentsOut": "付款途中（{count}）",
+  "deskSlotPaymentsMoving": "付款确认中（{count}）",
+  "deskSlotOf": "{done}/{needed}",
+  "deskSlotWaitingBlock": "等待区块",
+  "deskSlotRequests": "新请求",
+  "deskSlotNodeStarting": "本地节点正在启动",
+  "deskSlotNodeSyncing": "本地节点正在同步",
+  "deskSlotUpdateDot": "有可用更新 {version}。显示该更新。"
+}

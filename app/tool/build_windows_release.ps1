@@ -27,7 +27,10 @@ param(
     # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
     # The commit shown beside the version in the app (WFE_BUILD_ID); default: -Source's HEAD.
-    [string]$BuildId
+    [string]$BuildId,
+    # A rebuild of the same version (WFE_BUILD_TAG, e.g. r2); default: from the tag v<version>-rN
+    # on -Source's HEAD.
+    [string]$BuildTag
 )
 $ErrorActionPreference = 'Stop'
 $Source = (Resolve-Path $Source).Path
@@ -112,8 +115,11 @@ Set-Location $app
 flutter pub get
 if ($LASTEXITCODE) { throw 'pub get failed' }
 if (-not $BuildId) { $BuildId = (git -C $Source rev-parse --short=7 HEAD) }
-Write-Output "build id: $BuildId"
-flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId
+if (-not $BuildTag) {
+    foreach ($t in @(git -C $Source tag --points-at HEAD)) { if ($t -match '^v[\d.]+-(r\d+)$') { $BuildTag = $Matches[1] } }
+}
+Write-Output "build id: $BuildId $BuildTag"
+flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId --dart-define=WFE_BUILD_TAG=$BuildTag
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 $rel = Join-Path $app 'build\windows\x64\runner\Release'
 # A failed configure leaves only the exe here (install prefix pointed elsewhere): refuse that.

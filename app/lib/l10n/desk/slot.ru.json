@@ -1,0 +1,21 @@
+{
+  "deskSlotNow": "Сейчас",
+  "deskSlotHelp": "Справка",
+  "deskSlotOffline": "Режим офлайн",
+  "deskSlotOfflineDetail": "ничего не отправляется и не принимается",
+  "deskSlotScanning": "Сканирование цепочки",
+  "deskSlotScanWaits": "Сканирование ждёт сети",
+  "deskSlotScanStopped": "Сканирование остановлено",
+  "deskSlotTryAgain": "Повторить",
+  "deskSlotSending": "Отправка платежа",
+  "deskSlotPaymentOut": "Платёж в пути",
+  "deskSlotPaymentIn": "Платёж поступает",
+  "deskSlotPaymentsOut": "Платежи в пути ({count})",
+  "deskSlotPaymentsMoving": "Платежи подтверждаются ({count})",
+  "deskSlotOf": "{done} из {needed}",
+  "deskSlotWaitingBlock": "ждёт блока",
+  "deskSlotRequests": "Новые запросы",
+  "deskSlotNodeStarting": "Запуск локального узла",
+  "deskSlotNodeSyncing": "Синхронизация локального узла",
+  "deskSlotUpdateDot": "Доступно обновление, {version}. Показывает обновление."
+}

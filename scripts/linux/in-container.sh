@@ -14,7 +14,8 @@ fi
 echo "== flutter build linux --release -t $target"
 cd /work/app
 flutter pub get
-flutter build linux --release -t "$target" ${WFE_BUILD_ID:+--dart-define=WFE_BUILD_ID="$WFE_BUILD_ID"} "$@"
+flutter build linux --release -t "$target" ${WFE_BUILD_ID:+--dart-define=WFE_BUILD_ID="$WFE_BUILD_ID"} \
+  ${WFE_BUILD_TAG:+--dart-define=WFE_BUILD_TAG="$WFE_BUILD_TAG"} "$@"
 
 echo "== AppImage"
 bundle=/work/app/build/linux/x64/release/bundle

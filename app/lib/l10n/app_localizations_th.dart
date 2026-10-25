@@ -16383,4 +16383,90 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarKeyList => 'รายการนี้';
+
+  @override
+  String get deskSlotNow => 'ตอนนี้';
+
+  @override
+  String get deskSlotHelp => 'ช่วยเหลือ';
+
+  @override
+  String get deskSlotOffline => 'โหมดออฟไลน์';
+
+  @override
+  String get deskSlotOfflineDetail => 'ไม่มีการส่งหรือรับ';
+
+  @override
+  String get deskSlotScanning => 'กำลังสแกนเชน';
+
+  @override
+  String get deskSlotScanWaits => 'การสแกนรอเครือข่าย';
+
+  @override
+  String get deskSlotScanStopped => 'การสแกนหยุดแล้ว';
+
+  @override
+  String get deskSlotTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskSlotSending => 'กำลังส่งการชำระเงิน';
+
+  @override
+  String get deskSlotPaymentOut => 'การชำระเงินกำลังดำเนินการ';
+
+  @override
+  String get deskSlotPaymentIn => 'การชำระเงินกำลังเข้ามา';
+
+  @override
+  String deskSlotPaymentsOut(String count) {
+    return 'การชำระเงินกำลังดำเนินการ ($count)';
+  }
+
+  @override
+  String deskSlotPaymentsMoving(String count) {
+    return 'การชำระเงินกำลังยืนยัน ($count)';
+  }
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done จาก $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'รอบล็อก';
+
+  @override
+  String get deskSlotRequests => 'คำขอใหม่';
+
+  @override
+  String get deskSlotNodeStarting => 'โหนดในเครื่องกำลังเริ่ม';
+
+  @override
+  String get deskSlotNodeSyncing => 'โหนดในเครื่องกำลังซิงก์';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'มีอัปเดต $version แสดงการอัปเดต';
+  }
+
+  @override
+  String get deskBarCopyBuild => 'คัดลอกข้อมูลบิลด์';
+
+  @override
+  String get deskBarBuildCopied => 'คัดลอกข้อมูลบิลด์แล้ว';
+
+  @override
+  String deskBarBuildTip(String version, String commit) {
+    return 'เวอร์ชัน $version คอมมิต $commit คลิกเพื่อคัดลอกข้อมูลบิลด์';
+  }
+
+  @override
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
+    return 'เวอร์ชัน $version บิลด์ใหม่ $rebuild คอมมิต $commit คลิกเพื่อคัดลอกข้อมูลบิลด์';
+  }
+
+  @override
+  String deskBarBuildTipDev(String version) {
+    return 'เวอร์ชัน $version บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์';
+  }
 }

@@ -219,21 +219,30 @@ void main() {
     expect(quits, 0);
   });
 
-  testWidgets('in the sidebar above the statuses, and an icon in the narrow rail', (tester) async {
+  testWidgets("the sidebar's slot: a dot when an update is out, its line downloads; the rail keeps the dot", (tester) async {
     const shell = DeskShell(at: DeskLocation(DeskRoute.overview));
+    final dot = find.byKey(const ValueKey('now-update-dot'));
     await pump(tester, _state(DeskUpdatePhase.available), home: shell);
-    expect(notice(), findsOneWidget);
-    expect(tester.getBottomLeft(notice()).dy, lessThan(tester.getTopLeft(find.byKey(const ValueKey('rail'))).dy));
+    expect(notice(), findsNothing);
+    expect(dot, findsOneWidget);
+    await tester.tap(dot);
+    await tester.pumpAndSettle();
+    expect(dot, findsNothing);
+    await tester.tap(find.text('Update available'));
+    await tester.pump();
+    expect(fake.downloads, 1);
     await tester.pumpWidget(const SizedBox());
 
     await pump(tester, _state(DeskUpdatePhase.available), home: shell, size: const Size(900, 800));
-    expect(notice(), findsNothing);
-    final icon = find.widgetWithIcon(EIconButton, EIcons.download);
-    expect(icon, findsOneWidget);
-    expect(tester.widget<EIconButton>(icon).label, startsWith('Update available · $_v'));
-    await tester.tap(icon);
-    await tester.pump();
-    expect(fake.downloads, 1);
+    expect(dot, findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets("the sidebar's slot: Update ready is a line whose click restarts", (tester) async {
+    const shell = DeskShell(at: DeskLocation(DeskRoute.overview));
+    await pump(tester, _state(DeskUpdatePhase.ready), home: shell);
+    expect(find.byKey(const ValueKey('now-update-dot')), findsNothing);
+    expect(find.text('Restart to update'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 

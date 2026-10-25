@@ -26233,6 +26233,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This list'**
   String get deskBarKeyList;
+
+  /// Screen-reader name of the sidebar's bottom slot, which shows what is going on now (a scan, an update, a payment on its way).
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get deskSlotNow;
+
+  /// Small link at the bottom of the sidebar: opens Settings › Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get deskSlotHelp;
+
+  /// Sidebar slot line: Offline mode is on (Settings › Advanced). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get deskSlotOffline;
+
+  /// After 'Offline mode' on the same short line: what it means.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing is sent or received'**
+  String get deskSlotOfflineDetail;
+
+  /// Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning the chain'**
+  String get deskSlotScanning;
+
+  /// Sidebar slot line: the scan the wallet owes waits for the network (Offline mode, or the node does not answer).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan waits for the network'**
+  String get deskSlotScanWaits;
+
+  /// Sidebar slot line: the scan stopped with an error; 'Try again' follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan stopped'**
+  String get deskSlotScanStopped;
+
+  /// Action word after 'Scan stopped' in the sidebar slot; a click opens the scan page.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskSlotTryAgain;
+
+  /// Sidebar slot line while a payment is being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending payment'**
+  String get deskSlotSending;
+
+  /// Sidebar slot line: a payment this wallet sent is posted and confirming; '2 of 3' (confirmations) follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment on its way'**
+  String get deskSlotPaymentOut;
+
+  /// Sidebar slot line: a payment to this wallet is confirming; '1 of 3' (confirmations) follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment arriving'**
+  String get deskSlotPaymentIn;
+
+  /// Sidebar slot line: several sent payments are confirming. {count} is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments on their way ({count})'**
+  String deskSlotPaymentsOut(String count);
+
+  /// Sidebar slot line: several payments, sent and received, are confirming. {count} is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments confirming ({count})'**
+  String deskSlotPaymentsMoving(String count);
+
+  /// Confirmations so far of those needed, after a payment line: '2 of 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {needed}'**
+  String deskSlotOf(String done, String needed);
+
+  /// After 'Payment on its way' while the payment is posted but in no block yet.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for a block'**
+  String get deskSlotWaitingBlock;
+
+  /// Sidebar slot line: invoices that need an answer; the count follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'New requests'**
+  String get deskSlotRequests;
+
+  /// Sidebar slot line: the local node on this computer is starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node starting'**
+  String get deskSlotNodeStarting;
+
+  /// Sidebar slot line: the local node is syncing the chain; its progress follows after a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node syncing'**
+  String get deskSlotNodeSyncing;
+
+  /// Screen-reader label of the small dot at the bottom of the sidebar when an update is out. {version} e.g. 26.10.17.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available, {version}. Shows the update.'**
+  String deskSlotUpdateDot(String version);
+
+  /// App menu item (title bar): copies the running build (version, rebuild, commit, core, system) for a bug report.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy build info'**
+  String get deskBarCopyBuild;
+
+  /// Toast after the build info was copied; the copied line shows under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Build info copied'**
+  String get deskBarBuildCopied;
+
+  /// Tooltip of the small build label under the brand in the title bar. {version} e.g. 26.10.16, {commit} a short git commit like 810de1e.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}, commit {commit}. Click copies the build info.'**
+  String deskBarBuildTip(String version, String commit);
+
+  /// As deskBarBuildTip, for a rebuild of the same version. {rebuild} is e.g. r2.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}, rebuild {rebuild}, commit {commit}. Click copies the build info.'**
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit);
+
+  /// As deskBarBuildTip, for a development build without a commit.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}. A development build. Click copies the build info.'**
+  String deskBarBuildTipDev(String version);
 }
 
 class _AppLocalizationsDelegate

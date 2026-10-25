@@ -1,0 +1,21 @@
+{
+  "deskSlotNow": "Teraz",
+  "deskSlotHelp": "Pomoc",
+  "deskSlotOffline": "Tryb offline",
+  "deskSlotOfflineDetail": "nic nie jest wysyłane ani odbierane",
+  "deskSlotScanning": "Skanowanie łańcucha",
+  "deskSlotScanWaits": "Skanowanie czeka na sieć",
+  "deskSlotScanStopped": "Skanowanie zatrzymane",
+  "deskSlotTryAgain": "Spróbuj ponownie",
+  "deskSlotSending": "Wysyłanie płatności",
+  "deskSlotPaymentOut": "Płatność w drodze",
+  "deskSlotPaymentIn": "Płatność nadchodzi",
+  "deskSlotPaymentsOut": "Płatności w drodze ({count})",
+  "deskSlotPaymentsMoving": "Płatności w potwierdzaniu ({count})",
+  "deskSlotOf": "{done} z {needed}",
+  "deskSlotWaitingBlock": "czeka na blok",
+  "deskSlotRequests": "Nowe żądania",
+  "deskSlotNodeStarting": "Uruchamianie węzła lokalnego",
+  "deskSlotNodeSyncing": "Synchronizacja węzła lokalnego",
+  "deskSlotUpdateDot": "Dostępna aktualizacja, {version}. Pokazuje aktualizację."
+}

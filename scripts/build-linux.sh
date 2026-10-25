@@ -50,6 +50,8 @@ flutter_v="$(tr -d '[:space:]' < "$root/scripts/linux/flutter.version")"
 # WFE_WORKTREE=1 build of uncommitted changes says so.
 build_id="$(git -C "$root" rev-parse --short=7 HEAD)"
 if [[ "${WFE_WORKTREE:-0}" = 1 && -n "$(git -C "$root" status --porcelain)" ]]; then build_id+=-dirty; fi
+# A rebuild of the same version: r2 from the tag v<version>-r2 on HEAD (WFE_BUILD_TAG).
+build_tag="${WFE_BUILD_TAG:-$(git -C "$root" tag --points-at HEAD | sed -n 's/^v[0-9.]*-\(r[0-9][0-9]*\)$/\1/p' | head -1)}"
 
 docker build -q -t "$image" --build-arg "RUST_VERSION=$rust" --build-arg "FLUTTER_VERSION=$flutter_v" \
   "$root/scripts/linux" >/dev/null
@@ -92,7 +94,7 @@ docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-
   chown "$(id -u):$(id -g)" /t /b /p /h
 docker run --rm --user "$(id -u):$(id -g)" \
   -e WFE_TARGET="${WFE_TARGET:-lib/main_desktop.dart}" -e WFE_BUILD_LEPIC="${WFE_BUILD_LEPIC:-1}" \
-  -e WFE_BUILD_ID="$build_id" \
+  -e WFE_BUILD_ID="$build_id" -e WFE_BUILD_TAG="$build_tag" \
   -v "$work:/work" \
   -v wfe-linux-build:/work/app/build \
   -v "$src:/work/app/third_party/lepic" \

@@ -1,3 +1,4 @@
+import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -190,13 +191,13 @@ void main() {
     container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(
-        theme: buildDeskTheme(Brightness.dark),
-        home: Consumer(builder: (_, ref, _) => DeskShell(at: ref.watch(deskNavProvider))),
-      ),
+      child: const DeskApp(),
     ));
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.bySemanticsLabel(RegExp('^Open Epicbox receiving')));
+    // The status rows are in the title bar's status list.
+    await tester.tap(find.byKey(const ValueKey('bar-status')));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.byKey(const ValueKey('status-row-epicbox')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
     expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);

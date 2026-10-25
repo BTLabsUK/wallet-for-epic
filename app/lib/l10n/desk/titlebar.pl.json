@@ -22,5 +22,10 @@
   "deskBarKeyForward": "Dalej",
   "deskBarKeyClose": "Zamknij menu lub okno",
   "deskBarKeySubmit": "Wykonaj główną akcję formularza",
-  "deskBarKeyList": "Ta lista"
+  "deskBarKeyList": "Ta lista",
+  "deskBarCopyBuild": "Kopiuj informacje o wersji",
+  "deskBarBuildCopied": "Skopiowano informacje o wersji",
+  "deskBarBuildTip": "Wersja {version}, commit {commit}. Kliknięcie kopiuje informacje o wersji.",
+  "deskBarBuildTipRebuild": "Wersja {version}, przebudowa {rebuild}, commit {commit}. Kliknięcie kopiuje informacje o wersji.",
+  "deskBarBuildTipDev": "Wersja {version}. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji."
 }

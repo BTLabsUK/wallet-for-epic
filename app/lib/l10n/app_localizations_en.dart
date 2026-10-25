@@ -16689,4 +16689,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarKeyList => 'This list';
+
+  @override
+  String get deskSlotNow => 'Now';
+
+  @override
+  String get deskSlotHelp => 'Help';
+
+  @override
+  String get deskSlotOffline => 'Offline mode';
+
+  @override
+  String get deskSlotOfflineDetail => 'nothing is sent or received';
+
+  @override
+  String get deskSlotScanning => 'Scanning the chain';
+
+  @override
+  String get deskSlotScanWaits => 'Scan waits for the network';
+
+  @override
+  String get deskSlotScanStopped => 'Scan stopped';
+
+  @override
+  String get deskSlotTryAgain => 'Try again';
+
+  @override
+  String get deskSlotSending => 'Sending payment';
+
+  @override
+  String get deskSlotPaymentOut => 'Payment on its way';
+
+  @override
+  String get deskSlotPaymentIn => 'Payment arriving';
+
+  @override
+  String deskSlotPaymentsOut(String count) {
+    return 'Payments on their way ($count)';
+  }
+
+  @override
+  String deskSlotPaymentsMoving(String count) {
+    return 'Payments confirming ($count)';
+  }
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done of $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'waiting for a block';
+
+  @override
+  String get deskSlotRequests => 'New requests';
+
+  @override
+  String get deskSlotNodeStarting => 'Local node starting';
+
+  @override
+  String get deskSlotNodeSyncing => 'Local node syncing';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'Update available, $version. Shows the update.';
+  }
+
+  @override
+  String get deskBarCopyBuild => 'Copy build info';
+
+  @override
+  String get deskBarBuildCopied => 'Build info copied';
+
+  @override
+  String deskBarBuildTip(String version, String commit) {
+    return 'Version $version, commit $commit. Click copies the build info.';
+  }
+
+  @override
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
+    return 'Version $version, rebuild $rebuild, commit $commit. Click copies the build info.';
+  }
+
+  @override
+  String deskBarBuildTipDev(String version) {
+    return 'Version $version. A development build. Click copies the build info.';
+  }
 }

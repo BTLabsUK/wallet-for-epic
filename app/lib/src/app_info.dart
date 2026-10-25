@@ -12,6 +12,10 @@ const String appName = 'Epic Cash Desktop';
 /// one version apart.
 const String appBuildId = String.fromEnvironment('WFE_BUILD_ID');
 
+/// A rebuild of the same version, `r2` (`--dart-define=WFE_BUILD_TAG=...`, from the release tag
+/// `v<version>-r2` on the built commit); empty for the first build of a version.
+const String appBuildTag = String.fromEnvironment('WFE_BUILD_TAG');
+
 /// [version] with the build: `0.1.0 (ba10dec)`, or [version] alone without one.
 String withBuildId(String version) =>
     appBuildId.isEmpty ? version : '$version ($appBuildId)';

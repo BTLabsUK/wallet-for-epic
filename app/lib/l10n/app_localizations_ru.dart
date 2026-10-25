@@ -17160,4 +17160,90 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskBarKeyList => 'Этот список';
+
+  @override
+  String get deskSlotNow => 'Сейчас';
+
+  @override
+  String get deskSlotHelp => 'Справка';
+
+  @override
+  String get deskSlotOffline => 'Режим офлайн';
+
+  @override
+  String get deskSlotOfflineDetail => 'ничего не отправляется и не принимается';
+
+  @override
+  String get deskSlotScanning => 'Сканирование цепочки';
+
+  @override
+  String get deskSlotScanWaits => 'Сканирование ждёт сети';
+
+  @override
+  String get deskSlotScanStopped => 'Сканирование остановлено';
+
+  @override
+  String get deskSlotTryAgain => 'Повторить';
+
+  @override
+  String get deskSlotSending => 'Отправка платежа';
+
+  @override
+  String get deskSlotPaymentOut => 'Платёж в пути';
+
+  @override
+  String get deskSlotPaymentIn => 'Платёж поступает';
+
+  @override
+  String deskSlotPaymentsOut(String count) {
+    return 'Платежи в пути ($count)';
+  }
+
+  @override
+  String deskSlotPaymentsMoving(String count) {
+    return 'Платежи подтверждаются ($count)';
+  }
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done из $needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => 'ждёт блока';
+
+  @override
+  String get deskSlotRequests => 'Новые запросы';
+
+  @override
+  String get deskSlotNodeStarting => 'Запуск локального узла';
+
+  @override
+  String get deskSlotNodeSyncing => 'Синхронизация локального узла';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return 'Доступно обновление, $version. Показывает обновление.';
+  }
+
+  @override
+  String get deskBarCopyBuild => 'Скопировать сведения о сборке';
+
+  @override
+  String get deskBarBuildCopied => 'Сведения о сборке скопированы';
+
+  @override
+  String deskBarBuildTip(String version, String commit) {
+    return 'Версия $version, коммит $commit. Щелчок копирует сведения о сборке.';
+  }
+
+  @override
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
+    return 'Версия $version, пересборка $rebuild, коммит $commit. Щелчок копирует сведения о сборке.';
+  }
+
+  @override
+  String deskBarBuildTipDev(String version) {
+    return 'Версия $version. Сборка для разработки. Щелчок копирует сведения о сборке.';
+  }
 }

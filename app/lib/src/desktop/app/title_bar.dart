@@ -19,6 +19,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
 import '../../app_info.dart';
+import '../../app_version.dart' show coreVersion;
+import '../../wallet_backend.dart' show platformLabel;
+import '../data/desk_update.dart' show deskAppVersion;
 import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
 import '../desk_l10n.dart';
 import '../screens/onboarding/onboarding_parts.dart' show networkName;
@@ -117,7 +120,8 @@ class DeskWindowFrame extends ConsumerWidget {
             if (ref.watch(deskClosingProvider)) const Positioned.fill(child: _Closing()),
           ],
         );
-        return Overlay.wrap(child: ColoredBox(color: c.bg, child: body));
+        // Above the navigator there is no Material: the bar's text takes the app's style here.
+        return Overlay.wrap(child: Material(color: c.bg, child: body));
       },
     );
   }
@@ -334,7 +338,7 @@ class _Held extends StatelessWidget {
 
 /// Hover and pressed backgrounds for the bar's own buttons (brand, wallet chip, status).
 class _BarButton extends StatefulWidget {
-  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding});
+  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30});
 
   final String label;
   final String? tooltip;
@@ -342,6 +346,9 @@ class _BarButton extends StatefulWidget {
   final bool open;
   final EdgeInsetsGeometry? padding;
   final Widget child;
+
+  /// Before the interface scale.
+  final double height;
 
   @override
   State<_BarButton> createState() => _BarButtonState();
@@ -376,7 +383,7 @@ class _BarButtonState extends State<_BarButton> {
               focused: Focus.of(context).hasFocus,
               child: AnimatedContainer(
                 duration: Dur.fast,
-                height: 30.u,
+                height: widget.height.u,
                 padding: widget.padding,
                 decoration: BoxDecoration(
                   color: !enabled
@@ -396,7 +403,7 @@ class _BarButtonState extends State<_BarButton> {
       ),
     );
     if (widget.tooltip != null && !widget.open) button = Tooltip(message: widget.tooltip, child: button);
-    return Center(child: button);
+    return Center(widthFactor: 1, child: button);
   }
 }
 
@@ -430,6 +437,7 @@ Widget _menuItem(
     key: key,
     onPressed: onPressed,
     style: ButtonStyle(
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u)),
       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
@@ -523,41 +531,76 @@ class _Brand extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final l = context.l10n;
-    // Scaled down rather than cut where a language's font or a large scale makes it wider.
-    Widget lockup(bool chevron) => FittedBox(
+    final mark = AnimatedOpacity(
+      opacity: dim ? 0.7 : 1,
+      duration: Dur.base,
+      child: EpicMark(size: 20.u, color: dim ? c.accentDeep : null),
+    );
+    final chevron = Icon(EIcons.chevronDown, size: 16.u, color: c.faint);
+    // Mark, then "Epic Cash DESKTOP" over the room the build label takes (it is its own
+    // button, laid over that room). Scaled down rather than cut in a narrow window.
+    Widget lockup({required bool withChevron}) => FittedBox(
       fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
       child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedOpacity(
-          opacity: dim ? 0.7 : 1,
-          duration: Dur.base,
-          child: EpicMark(size: 20.u, color: dim ? c.accentDeep : null),
-        ),
-        if (!compact) ...[
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          mark,
           SizedBox(width: 9.u),
-          Text(
-            BrandWordmark.brand,
-            maxLines: 1,
-            style: context.ts.h3.copyWith(fontSize: Fs.md, height: 1, letterSpacing: -0.2 * deskScale, color: dim ? c.dim : c.text),
-          ),
-          Padding(
-            padding: EdgeInsetsDirectional.only(start: 6.u, top: 2.u),
-            child: Text(
-              BrandVariantWord.desktop,
-              maxLines: 1,
-              style: TextStyle(fontSize: 9, height: 1, fontWeight: FontWeight.w500, letterSpacing: 9 * 0.14 * deskScale, color: c.faint),
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    BrandWordmark.brand,
+                    maxLines: 1,
+                    style: context.ts.h3.copyWith(fontSize: Fs.md, height: 1.15, letterSpacing: -0.2 * deskScale, color: dim ? c.dim : c.text),
+                  ),
+                  Padding(
+                    padding: EdgeInsetsDirectional.only(start: 6.u, top: 2.u),
+                    child: Text(
+                      BrandVariantWord.desktop,
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 9, height: 1, fontWeight: FontWeight.w500, letterSpacing: 9 * 0.14 * deskScale, color: c.faint),
+                    ),
+                  ),
+                  if (withChevron) Padding(padding: EdgeInsetsDirectional.only(start: 2.u), child: chevron),
+                ],
+              ),
+              SizedBox(height: 2.u),
+              // The build label's room; the label itself is laid over it.
+              _BuildLabel(dim: dim, ghost: true),
+            ],
           ),
         ],
-        if (chevron) Padding(padding: EdgeInsetsDirectional.only(start: compact ? 0 : 2.u), child: Icon(EIcons.chevronDown, size: 16.u, color: c.faint)),
-      ],
-    ),
+      ),
     );
+    final Widget brand;
     if (!menu) {
-      return Semantics(label: appName, excludeSemantics: true, child: lockup(false));
+      brand = Semantics(label: appName, excludeSemantics: true, child: lockup(withChevron: false));
+    } else if (compact) {
+      // The rail: the mark alone, the build in its tooltip; Copy build info is in the menu.
+      brand = _appMenu(context, ref, Row(mainAxisSize: MainAxisSize.min, children: [mark, chevron]), tooltip: '$appName ${deskBuildLabel()}');
+      return brand;
+    } else {
+      brand = _appMenu(context, ref, lockup(withChevron: true));
     }
+    return Stack(
+      alignment: AlignmentDirectional.centerStart,
+      children: [
+        brand,
+        PositionedDirectional(start: 29.u - Sp.x1, bottom: 0, top: 0, child: Align(alignment: AlignmentDirectional.bottomStart, child: Padding(padding: EdgeInsets.only(bottom: 3.u), child: _BuildLabel(dim: dim)))),
+      ],
+    );
+  }
+
+  Widget _appMenu(BuildContext context, WidgetRef ref, Widget child, {String? tooltip}) {
+    final c = context.dc;
+    final l = context.l10n;
     final locking = ref.watch(deskLockingProvider);
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
@@ -568,16 +611,120 @@ class _Brand extends ConsumerWidget {
         _menuDivider(c),
         _menuItem(context, icon: EIcons.keyboard, label: l.deskBarShortcuts, keys: '?', onPressed: () => showDeskShortcuts()), // l10n-ok: the key
         _menuItem(context, icon: EIcons.info, label: l.deskBarAbout(appName), onPressed: () => _go(ref, DeskRoute.settingsAbout)),
+        _menuItem(context, key: const ValueKey('bar-menu-build'), icon: EIcons.copy, label: l.deskBarCopyBuild, onPressed: () => unawaited(copyBuildInfo())),
         _menuDivider(c),
         _menuItem(context, key: const ValueKey('bar-menu-quit'), icon: EIcons.logout, label: l.deskBarQuit, keys: deskKeys('Q'), onPressed: () => deskClose(ref)),
       ],
       builder: (context, m, open) => _BarButton(
         key: const ValueKey('bar-brand'),
         label: l.deskBarMenu(appName),
+        tooltip: tooltip,
         open: open,
+        height: 36,
         padding: EdgeInsetsDirectional.only(start: compact ? 4.u : 0, end: 4.u),
         onPressed: () => _toggle(m),
-        child: lockup(true),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// The running build in a few characters: `26.10.16 · r2 · 810de1e`; the version alone in a
+/// build without a commit (development).
+String deskBuildLabel() => [deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId].join(' · ');
+
+/// What Copy build info puts on the clipboard: the build, the core and the system.
+String deskBuildInfo() =>
+    '$appName $deskAppVersion${appBuildTag.isEmpty ? '' : ' $appBuildTag'}${appBuildId.isEmpty ? '' : ' ($appBuildId)'} · core $coreVersion · $platformLabel';
+
+/// Copies [deskBuildInfo] and says so.
+Future<void> copyBuildInfo() async {
+  final info = deskBuildInfo();
+  await Clipboard.setData(ClipboardData(text: info));
+  final shown = deskNavigatorKey.currentContext;
+  if (shown != null && shown.mounted) showEToast(shown, shown.l10n.deskBarBuildCopied, text: info, tone: ETone.ok);
+}
+
+/// The build under the lockup, small, mono, faint; a click copies the build info. [ghost] only
+/// takes its room (inside the brand button, under the real one).
+class _BuildLabel extends StatefulWidget {
+  const _BuildLabel({required this.dim, this.ghost = false});
+
+  final bool dim;
+  final bool ghost;
+
+  @override
+  State<_BuildLabel> createState() => _BuildLabelState();
+}
+
+class _BuildLabelState extends State<_BuildLabel> {
+  bool _hover = false;
+  bool _copied = false;
+  Timer? _flash;
+
+  @override
+  void dispose() {
+    _flash?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _copy() async {
+    await copyBuildInfo();
+    if (!mounted) return;
+    setState(() => _copied = true);
+    _flash?.cancel();
+    _flash = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final parts = deskBuildLabel().split(' · ');
+    final color = _copied ? c.ok : (_hover ? c.dim : c.faint);
+    final style = ts.mono(size: 10, color: color).copyWith(height: 1.2, letterSpacing: 10 * 0.06 * deskScale, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
+    final text = Text.rich(
+      TextSpan(
+        children: [
+          for (final (i, p) in parts.indexed) ...[
+            if (i > 0) TextSpan(text: ' · ', style: style.copyWith(color: c.lineField)), // l10n-ok: separator
+            TextSpan(text: p),
+          ],
+        ],
+      ),
+      maxLines: 1,
+      softWrap: false,
+      style: style,
+    );
+    final chip = AnimatedContainer(
+      duration: Dur.fast,
+      height: 16.u,
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(horizontal: Sp.x1),
+      decoration: BoxDecoration(color: _hover && !widget.ghost ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
+      child: text,
+    );
+    if (widget.ghost) return ExcludeSemantics(child: Opacity(opacity: 0, child: Transform.translate(offset: Offset(-Sp.x1, 0), child: chip)));
+    final tip = appBuildId.isEmpty
+        ? l.deskBarBuildTipDev(deskAppVersion)
+        : appBuildTag.isEmpty
+        ? l.deskBarBuildTip(deskAppVersion, appBuildId)
+        : l.deskBarBuildTipRebuild(deskAppVersion, appBuildTag, appBuildId);
+    return Tooltip(
+      message: tip,
+      child: Semantics(
+        button: true,
+        label: tip,
+        excludeSemantics: true,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hover = true),
+          onExit: (_) => setState(() => _hover = false),
+          child: GestureDetector(key: const ValueKey('bar-build'), onTap: () => unawaited(_copy()), child: chip),
+        ),
       ),
     );
   }
@@ -725,12 +872,12 @@ class _StatusCluster extends ConsumerWidget {
                       children: [
                         Center(child: Icon(i.icon, size: 17.u, color: dim || i.state == EState.off ? c.faint : c.dim)),
                         PositionedDirectional(
-                          end: 3.u,
-                          bottom: 3.u,
+                          end: 3.u - 2,
+                          bottom: 3.u - 2,
                           child: AnimatedContainer(
                             duration: Dur.base,
-                            width: 7.u,
-                            height: 7.u,
+                            width: 7.u + 4,
+                            height: 7.u + 4,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _dotColor(c, i.state).withValues(alpha: dim ? 0.6 : 1),
@@ -765,8 +912,10 @@ class _StatusRow extends StatelessWidget {
     final i = item;
     final mono = i.icon == EIcons.node || i.icon == EIcons.epicbox;
     return MenuItemButton(
+      key: ValueKey('status-row-${i.jump.name}'),
       onPressed: onTap,
       style: ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         minimumSize: WidgetStatePropertyAll(Size(288.u, 52.u)),
         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u, vertical: Sp.x2)),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
@@ -796,6 +945,7 @@ class _StatusRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(i.name, style: ts.strong.copyWith(height: 1.3)),
+              if (i.second != i.word && i.second != '–')
               Text(
                 i.second,
                 maxLines: 1,

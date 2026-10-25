@@ -22,5 +22,10 @@
   "deskBarKeyForward": "前进",
   "deskBarKeyClose": "关闭菜单或对话框",
   "deskBarKeySubmit": "执行表单的主要操作",
-  "deskBarKeyList": "此列表"
+  "deskBarKeyList": "此列表",
+  "deskBarCopyBuild": "复制构建信息",
+  "deskBarBuildCopied": "已复制构建信息",
+  "deskBarBuildTip": "版本 {version}，提交 {commit}。点击可复制构建信息。",
+  "deskBarBuildTipRebuild": "版本 {version}，重建 {rebuild}，提交 {commit}。点击可复制构建信息。",
+  "deskBarBuildTipDev": "版本 {version}。开发版本。点击可复制构建信息。"
 }

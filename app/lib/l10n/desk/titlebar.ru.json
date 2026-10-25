@@ -22,5 +22,10 @@
   "deskBarKeyForward": "Вперёд",
   "deskBarKeyClose": "Закрыть меню или окно",
   "deskBarKeySubmit": "Выполнить основное действие формы",
-  "deskBarKeyList": "Этот список"
+  "deskBarKeyList": "Этот список",
+  "deskBarCopyBuild": "Скопировать сведения о сборке",
+  "deskBarBuildCopied": "Сведения о сборке скопированы",
+  "deskBarBuildTip": "Версия {version}, коммит {commit}. Щелчок копирует сведения о сборке.",
+  "deskBarBuildTipRebuild": "Версия {version}, пересборка {rebuild}, коммит {commit}. Щелчок копирует сведения о сборке.",
+  "deskBarBuildTipDev": "Версия {version}. Сборка для разработки. Щелчок копирует сведения о сборке."
 }

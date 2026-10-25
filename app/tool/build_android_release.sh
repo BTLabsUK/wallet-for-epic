@@ -34,6 +34,8 @@ debug_cert=5fdcc602f907c83839b5b0a60d9ee15bb44d12411f8f1a67b28e92a95f259d0e
 out_dir="$(realpath -m "${1:-$app_dir/build/release-$version}")"
 # The commit, shown beside the version in Settings (lib/src/app_info.dart).
 build_id="$(git -C "$app_dir" rev-parse --short=7 HEAD)"
+# A rebuild of the same version: r2 from the tag v<version>-r2 on HEAD (WFE_BUILD_TAG).
+build_tag="${WFE_BUILD_TAG:-$(git -C "$app_dir" tag --points-at HEAD | sed -n 's/^v[0-9.]*-\(r[0-9][0-9]*\)$/\1/p' | head -1)}"
 
 bt="$(find "$ANDROID_HOME/build-tools" -maxdepth 1 -mindepth 1 -type d | sort -V | tail -1)"
 aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
@@ -65,7 +67,7 @@ emulator=()
 platforms=android-arm64
 [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
 flutter build apk --release --target-platform "$platforms" --split-per-abi \
-  --dart-define=WFE_BUILD_ID="$build_id"
+  --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag"
 cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version-arm64-v8a.apk"
 (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
 if [[ ${#emulator[@]} -gt 0 ]]; then

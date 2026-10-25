@@ -79,7 +79,12 @@ List<String> _segments<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(f
 T _selected<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).value;
 
 /// The sidebar's Link · HTTP row.
-final _railHttp = find.descendant(of: find.byKey(const ValueKey('rail')), matching: find.text('Link · HTTP'));
+// The HTTP status row, in the title bar's status list (opened first).
+Future<Finder> _railHttp(WidgetTester tester) async {
+  await tester.tap(find.byKey(const ValueKey('bar-status')));
+  await tester.pumpAndSettle();
+  return find.byKey(const ValueKey('status-row-http'));
+}
 
 Finder _offer(String m) => find.byKey(ValueKey('st-offer-$m'));
 
@@ -490,13 +495,13 @@ void main() {
     testWidgets('Link · HTTP off: no HTTP card and no HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive);
       expect(find.text('Link · HTTP address'), findsNothing);
-      expect(_railHttp, findsNothing);
+      expect(await _railHttp(tester), findsNothing);
     });
 
     testWidgets('Link · HTTP on: the HTTP card (no switch of its own) and the HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkHttp: true));
       expect(find.text('Link · HTTP address'), findsWidgets);
-      expect(_railHttp, findsOneWidget);
+      expect(await _railHttp(tester), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
     });
 

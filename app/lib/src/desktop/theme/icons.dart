@@ -64,6 +64,7 @@ abstract final class EIcons {
   static const translate = Icons.translate;
   static const palette = Icons.palette_outlined;
   static const help = Icons.help_outline;
+  static const offline = Icons.wifi_off_outlined;
   static const scan = Icons.manage_search;
   static const user = Icons.person_outline;
   static const userPlus = Icons.person_add_alt_outlined;

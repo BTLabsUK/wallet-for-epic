@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -127,10 +128,14 @@ void main() {
 
     testWidgets('Tor only without Tor: Node and Epicbox read Waiting for Tor', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _torOnly);
-      final rail = find.byKey(const ValueKey('rail'));
-      expect(find.descendant(of: rail, matching: find.text('Epicbox')), findsOneWidget);
-      // The word is in the hover card and the row's semantics; the row's own line is the host.
-      expect(find.bySemanticsLabel(RegExp('Waiting for Tor')), findsWidgets);
+      // The status rows are in the title bar's status list.
+      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('status-row-epicbox')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Waiting for Tor')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Waiting for Tor')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('overview-offline')), findsNothing);
     });
 

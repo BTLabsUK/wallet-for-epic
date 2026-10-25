@@ -77,14 +77,26 @@ void main() {
 
   Finder bar(String id) => find.byKey(ValueKey('bar-$id'));
 
+  // A send under way shows a moving bar in the sidebar, which never settles.
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  // The brand's upper row (its lower row is the build label, its own button).
+  Future<void> openMenu(WidgetTester tester) async {
+    await tester.tapAt(tester.getTopLeft(bar('brand')) + const Offset(10, 8));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('an open wallet: brand menu, wallet, status, lock and the window controls', (tester) async {
     await pump(tester);
     for (final id in ['brand', 'wallet', 'status', 'lock', 'min', 'max', 'close']) {
       expect(bar(id), findsOneWidget, reason: id);
     }
     // The brand opens the app menu with Lock and Quit and their shortcuts.
-    await tester.tap(bar('brand'));
-    await tester.pumpAndSettle();
+    await openMenu(tester);
     expect(find.byKey(const ValueKey('bar-menu-lock')), findsOneWidget);
     expect(find.text('Ctrl+Q'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
@@ -134,16 +146,16 @@ void main() {
     await tester.pump();
     // The system's close (Alt+F4, the taskbar) goes the same way as ✕.
     unawaited(window.close!());
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('A send is in progress'), findsOneWidget);
     expect(find.text('Keep open'), findsOneWidget);
     expect(find.text('Close when it finishes'), findsOneWidget);
     expect(deskHoldExit(), isTrue, reason: 'the exit listener answers cancel meanwhile');
     await tester.tap(find.text('Keep open'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     done.complete();
     await send;
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(quits, 0);
   });
 
@@ -153,19 +165,19 @@ void main() {
     final send = container.read(deskSendingProvider.notifier).during(() => done.future);
     await tester.pump();
     await tester.tap(bar('close'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Close when it finishes'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(quits, 0);
     expect(find.byTooltip('Closes when the send finishes'), findsOneWidget);
     // Ctrl+Q mid-send asks too, never quits at once.
     await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
     await tester.sendKeyEvent(LogicalKeyboardKey.keyQ);
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('A send is in progress'), findsOneWidget);
     await tester.tap(find.text('Close when it finishes'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(quits, 0);
     done.complete();
     await send;
@@ -190,5 +202,35 @@ void main() {
     await tester.tapAt(at);
     await tester.pumpAndSettle();
     expect(window.calls, contains('max'));
+  });
+
+  testWidgets('the sidebar slot rests on Help and Report a problem; the wallet shows once, in the bar', (tester) async {
+    await pump(tester);
+    expect(find.byKey(const ValueKey('now-help')), findsOneWidget);
+    expect(find.byKey(const ValueKey('now-report')), findsOneWidget);
+    expect(find.text('Main wallet'), findsOneWidget, reason: 'the sidebar no longer repeats the wallet');
+    expect(find.text('Wallet by BT Labs'), findsNothing);
+  });
+
+  testWidgets('the build label and Copy build info put the build on the clipboard', (tester) async {
+    String? copied;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') copied = (call.arguments as Map)['text'] as String?;
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await pump(tester);
+    expect(find.byKey(const ValueKey('bar-build')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bar-build')));
+    await tester.pump();
+    expect(copied, startsWith('Epic Cash Desktop '));
+    expect(copied, contains('core '));
+    await tester.pumpAndSettle();
+    copied = null;
+    await openMenu(tester);
+    await tester.tap(find.byKey(const ValueKey('bar-menu-build')));
+    await tester.pumpAndSettle();
+    expect(copied, startsWith('Epic Cash Desktop '));
+    expect(find.text('Build info copied'), findsOneWidget);
   });
 }

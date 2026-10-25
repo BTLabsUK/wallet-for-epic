@@ -15787,4 +15787,90 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarKeyList => '此列表';
+
+  @override
+  String get deskSlotNow => '当前';
+
+  @override
+  String get deskSlotHelp => '帮助';
+
+  @override
+  String get deskSlotOffline => '离线模式';
+
+  @override
+  String get deskSlotOfflineDetail => '不收发任何内容';
+
+  @override
+  String get deskSlotScanning => '正在扫描区块链';
+
+  @override
+  String get deskSlotScanWaits => '扫描正在等待网络';
+
+  @override
+  String get deskSlotScanStopped => '扫描已停止';
+
+  @override
+  String get deskSlotTryAgain => '重试';
+
+  @override
+  String get deskSlotSending => '正在发送付款';
+
+  @override
+  String get deskSlotPaymentOut => '付款途中';
+
+  @override
+  String get deskSlotPaymentIn => '付款到账中';
+
+  @override
+  String deskSlotPaymentsOut(String count) {
+    return '付款途中（$count）';
+  }
+
+  @override
+  String deskSlotPaymentsMoving(String count) {
+    return '付款确认中（$count）';
+  }
+
+  @override
+  String deskSlotOf(String done, String needed) {
+    return '$done/$needed';
+  }
+
+  @override
+  String get deskSlotWaitingBlock => '等待区块';
+
+  @override
+  String get deskSlotRequests => '新请求';
+
+  @override
+  String get deskSlotNodeStarting => '本地节点正在启动';
+
+  @override
+  String get deskSlotNodeSyncing => '本地节点正在同步';
+
+  @override
+  String deskSlotUpdateDot(String version) {
+    return '有可用更新 $version。显示该更新。';
+  }
+
+  @override
+  String get deskBarCopyBuild => '复制构建信息';
+
+  @override
+  String get deskBarBuildCopied => '已复制构建信息';
+
+  @override
+  String deskBarBuildTip(String version, String commit) {
+    return '版本 $version，提交 $commit。点击可复制构建信息。';
+  }
+
+  @override
+  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
+    return '版本 $version，重建 $rebuild，提交 $commit。点击可复制构建信息。';
+  }
+
+  @override
+  String deskBarBuildTipDev(String version) {
+    return '版本 $version。开发版本。点击可复制构建信息。';
+  }
 }

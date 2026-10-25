@@ -1,0 +1,21 @@
+{
+  "deskSlotNow": "Aktuell",
+  "deskSlotHelp": "Hilfe",
+  "deskSlotOffline": "Offline-Modus",
+  "deskSlotOfflineDetail": "nichts wird gesendet oder empfangen",
+  "deskSlotScanning": "Chain wird durchsucht",
+  "deskSlotScanWaits": "Durchsuchen wartet auf das Netzwerk",
+  "deskSlotScanStopped": "Durchsuchen angehalten",
+  "deskSlotTryAgain": "Erneut versuchen",
+  "deskSlotSending": "Zahlung wird gesendet",
+  "deskSlotPaymentOut": "Zahlung unterwegs",
+  "deskSlotPaymentIn": "Zahlung kommt an",
+  "deskSlotPaymentsOut": "Zahlungen unterwegs ({count})",
+  "deskSlotPaymentsMoving": "Zahlungen in Bestätigung ({count})",
+  "deskSlotOf": "{done} von {needed}",
+  "deskSlotWaitingBlock": "wartet auf einen Block",
+  "deskSlotRequests": "Neue Anfragen",
+  "deskSlotNodeStarting": "Lokaler Node startet",
+  "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
+  "deskSlotUpdateDot": "Update verfügbar, {version}. Zeigt das Update."
+}

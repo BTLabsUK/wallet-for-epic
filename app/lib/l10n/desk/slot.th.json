@@ -1,0 +1,21 @@
+{
+  "deskSlotNow": "ตอนนี้",
+  "deskSlotHelp": "ช่วยเหลือ",
+  "deskSlotOffline": "โหมดออฟไลน์",
+  "deskSlotOfflineDetail": "ไม่มีการส่งหรือรับ",
+  "deskSlotScanning": "กำลังสแกนเชน",
+  "deskSlotScanWaits": "การสแกนรอเครือข่าย",
+  "deskSlotScanStopped": "การสแกนหยุดแล้ว",
+  "deskSlotTryAgain": "ลองอีกครั้ง",
+  "deskSlotSending": "กำลังส่งการชำระเงิน",
+  "deskSlotPaymentOut": "การชำระเงินกำลังดำเนินการ",
+  "deskSlotPaymentIn": "การชำระเงินกำลังเข้ามา",
+  "deskSlotPaymentsOut": "การชำระเงินกำลังดำเนินการ ({count})",
+  "deskSlotPaymentsMoving": "การชำระเงินกำลังยืนยัน ({count})",
+  "deskSlotOf": "{done} จาก {needed}",
+  "deskSlotWaitingBlock": "รอบล็อก",
+  "deskSlotRequests": "คำขอใหม่",
+  "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
+  "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
+  "deskSlotUpdateDot": "มีอัปเดต {version} แสดงการอัปเดต"
+}
