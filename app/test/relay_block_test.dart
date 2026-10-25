@@ -7,8 +7,7 @@ import 'package:epic_wallet/src/relay_block.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 
 /// Word for word from the phone's log (26.10.16 r2, Virgin Media's filter proxy).
-const filtered =
-    'could not connect to the relay: received fatal alert: CloseNotify';
+const filtered = 'could not connect to the relay: received fatal alert: CloseNotify';
 
 void main() {
   test('a TLS alert during the handshake is a refused handshake', () {
@@ -69,26 +68,20 @@ void main() {
     });
 
     test('without the monitor, the first other built-in relay', () {
-      expect(
-        relayInstead(blocked, mergePublicRelays(null))?.host,
-        'epicbox.stackwallet.com',
-      );
+      expect(relayInstead(blocked, mergePublicRelays(null))?.host, 'epicbox.stackwallet.com');
     });
 
     test('skips relays this network blocked before; none left is null', () {
       final public = mergePublicRelays(null);
       expect(
-        relayInstead(blocked, public, skip: {
-          const EpicboxRelay(host: 'epicbox.stackwallet.com'),
-        })?.host,
+        relayInstead(
+          blocked,
+          public,
+          skip: {const EpicboxRelay(host: 'epicbox.stackwallet.com')},
+        )?.host,
         'epicbox.epicnet.us',
       );
-      expect(
-        relayInstead(blocked, public, skip: {
-          for (final r in public) r.relay,
-        }),
-        isNull,
-      );
+      expect(relayInstead(blocked, public, skip: {for (final r in public) r.relay}), isNull);
     });
   });
 }

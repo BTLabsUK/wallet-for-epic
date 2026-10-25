@@ -1307,6 +1307,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusEpicboxOffline => 'Epicbox 未连接';
 
   @override
+  String get statusEpicboxBlocked => 'Epicbox 被拦截';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return '切换到 $host';
+  }
+
+  @override
+  String get netStatusBlocked => '被拦截';
+
+  @override
   String statusNodeTestNetwork(String network) {
     return '$network，测试币';
   }

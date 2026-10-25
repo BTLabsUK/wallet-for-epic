@@ -1362,6 +1362,22 @@ class AppLocalizationsTh extends AppLocalizations {
   String get statusEpicboxOffline => 'ไม่ได้เชื่อมต่อ Epicbox';
 
   @override
+  String get statusEpicboxBlocked => 'Epicbox ถูกบล็อก';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return 'เครือข่ายนี้บล็อก $host อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return 'สลับไปที่ $host';
+  }
+
+  @override
+  String get netStatusBlocked => 'ถูกบล็อก';
+
+  @override
   String statusNodeTestNetwork(String network) {
     return '$network, เหรียญทดสอบ';
   }

@@ -1675,6 +1675,34 @@
   "@statusEpicboxOffline": {
     "description": "Status beside the Epicbox icon, also what a screen reader says: this wallet is not connected to its Epicbox server; it retries. About the wallet's connection, not the server."
   },
+  "statusEpicboxBlocked": "Epicbox blocked",
+  "@statusEpicboxBlocked": {
+    "description": "Status beside the Epicbox icon, also what a screen reader says: this network (a filter on it) blocks the wallet's Epicbox server, so the wallet cannot connect. Never name a provider."
+  },
+  "epicboxBlockedBody": "This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.",
+  "@epicboxBlockedBody": {
+    "description": "Status sheet, Receive and the Epicbox server list: this network refuses every secure connection to {host}, the wallet's Epicbox server (seen as a refused TLS handshake). A filter on the network (a provider's or router's DNS filter) is the usual cause; another server or a private DNS (Android Settings › Private DNS) gets around it. Short, impersonal, never names a provider.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "epicboxSwitchTo": "Switch to {host}",
+  "@epicboxSwitchTo": {
+    "description": "Button under that sentence: moves the wallet to the Epicbox server {host} in one tap, with no question; the line under it says the address changes.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "netStatusBlocked": "Blocked",
+  "@netStatusBlocked": {
+    "description": "Network status card, Epicbox row: this network blocks the wallet's Epicbox server. One word."
+  },
   "statusNodeTestNetwork": "{network}, test coins",
   "@statusNodeTestNetwork": {
     "description": "First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.",

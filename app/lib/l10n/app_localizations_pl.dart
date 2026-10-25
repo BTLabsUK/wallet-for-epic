@@ -1429,6 +1429,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get statusEpicboxOffline => 'Epicbox niepołączony';
 
   @override
+  String get statusEpicboxBlocked => 'Epicbox zablokowany';
+
+  @override
+  String epicboxBlockedBody(String host) {
+    return 'Ta sieć blokuje $host. Przyczyną może być filtr sieciowy. Spróbuj innego serwera Epicbox lub prywatnego DNS.';
+  }
+
+  @override
+  String epicboxSwitchTo(String host) {
+    return 'Przełącz na $host';
+  }
+
+  @override
+  String get netStatusBlocked => 'Zablokowany';
+
+  @override
   String statusNodeTestNetwork(String network) {
     return '$network, monety testowe';
   }

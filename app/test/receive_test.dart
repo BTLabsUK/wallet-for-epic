@@ -606,6 +606,70 @@ void main() {
       await _Harness(advanced: true).pump(tester);
       expect(find.text('Server: epicbox.epiccash.com:443'), findsOneWidget);
     });
+
+    // Report gwuouzfy: a network filter refuses every handshake with epicbox.epiccash.com.
+    const refused = 'could not connect to the relay: received fatal alert: CloseNotify';
+
+    testWidgets('blocked by the network: says so and switches to another relay in one tap', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      for (var i = 0; i < 2; i++) {
+        h.session.listenerEvents.add(
+          const ListenerEvent(
+            kind: ListenerEventKind.disconnected,
+            message: refused,
+            reason: refused,
+          ),
+        );
+      }
+      await tester.pumpAndSettle();
+      expect(find.text('Epicbox blocked'), findsOneWidget);
+      expect(
+        find.text(
+          'This network blocks epicbox.epiccash.com. A network filter may be the cause. '
+          'Try another Epicbox server or a private DNS.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
+      expect(find.textContaining('wait at epicbox'), findsNothing);
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+
+      await _tap(tester, find.text('Switch to epicbox.stackwallet.com'));
+      expect(h.session.serverSwitches.single.epicboxDomain, 'epicbox.stackwallet.com');
+      expect(
+        h.session.serverSwitches.single.nodeUrl,
+        h.container.read(networkChoiceProvider).value!.nodeUrl,
+        reason: 'the node stays',
+      );
+      // The listener moves to the new relay: the old one is stopped first.
+      await tester.pump(listenerStopWait);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('one refused handshake, or an ordinary outage, is not blocked', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      for (final reason in [
+        refused,
+        'could not connect to the relay: Connection refused (os error 111)',
+      ]) {
+        h.session.listenerEvents.add(
+          ListenerEvent(kind: ListenerEventKind.disconnected, message: reason, reason: reason),
+        );
+      }
+      await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
+      await tester.pumpAndSettle();
+      expect(find.text('Epicbox not connected'), findsOneWidget);
+      expect(find.text('Epicbox blocked'), findsNothing);
+      expect(find.textContaining('Switch to'), findsNothing);
+      expect(find.text('Retry'), findsOneWidget);
+    });
   });
 
   group('by file', () {

@@ -2263,6 +2263,30 @@ abstract class AppLocalizations {
   /// **'Epicbox not connected'**
   String get statusEpicboxOffline;
 
+  /// Status beside the Epicbox icon, also what a screen reader says: this network (a filter on it) blocks the wallet's Epicbox server, so the wallet cannot connect. Never name a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox blocked'**
+  String get statusEpicboxBlocked;
+
+  /// Status sheet, Receive and the Epicbox server list: this network refuses every secure connection to {host}, the wallet's Epicbox server (seen as a refused TLS handshake). A filter on the network (a provider's or router's DNS filter) is the usual cause; another server or a private DNS (Android Settings › Private DNS) gets around it. Short, impersonal, never names a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.'**
+  String epicboxBlockedBody(String host);
+
+  /// Button under that sentence: moves the wallet to the Epicbox server {host} in one tap, with no question; the line under it says the address changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String epicboxSwitchTo(String host);
+
+  /// Network status card, Epicbox row: this network blocks the wallet's Epicbox server. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get netStatusBlocked;
+
   /// First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.
   ///
   /// In en, this message translates to:

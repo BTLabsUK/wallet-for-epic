@@ -20,8 +20,7 @@ const int relayBlockedAfter = 2;
 bool refusedHandshake(String? reason) {
   if (reason == null) return false;
   final text = reason.toLowerCase();
-  return text.contains('could not connect to the relay') &&
-      text.contains('received fatal alert');
+  return text.contains('could not connect to the relay') && text.contains('received fatal alert');
 }
 
 /// Counts a listener's failed connections; [blocked] once [relayBlockedAfter] in a row were
