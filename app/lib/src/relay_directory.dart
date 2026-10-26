@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'models.dart' show Chain;
 import 'net/http.dart';
+import 'net/tor_switch.dart';
 import 'network.dart';
 import 'push_registration.dart' show PushRegistration;
 
@@ -448,12 +449,13 @@ abstract interface class NetworkDirectory {
   Future<NetworkStatus> network(String chain);
 }
 
-/// Reads the monitor with a short [timeout] and keeps each answer, or failure, for [fresh], so
-/// the lists do not ask again on every screen. The only way to the site: with [site] off it
-/// throws [NetError] without a request.
+/// Reads the monitor with a short [timeout] ([torTimeout] with the Tor switch on) and keeps each
+/// answer, or failure, for [fresh], so the lists do not ask again on every screen. The only way
+/// to the site: with [site] off it throws [NetError] without a request.
 class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   HttpRelayDirectory({
     this.timeout = const Duration(seconds: 4),
+    this.torTimeout = const Duration(seconds: 30),
     this.fresh = const Duration(minutes: 1),
     Future<HttpReply> Function(Uri url, {Duration timeout})? get,
     DateTime Function()? now,
@@ -463,6 +465,10 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
        _site = site ?? statusSite;
 
   final Duration timeout;
+
+  /// Over Tor the site is its onion: a first rendezvous takes several seconds and a warm one
+  /// about 3 s, so [timeout] would fail most fetches. Also covers the wait for tor to connect.
+  final Duration torTimeout;
   final Duration fresh;
   final Future<HttpReply> Function(Uri url, {Duration timeout}) _get;
   final DateTime Function() _now;
@@ -487,7 +493,8 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
     if (!await _site.allowed()) throw const NetError('status site off');
     final url = Uri.parse(relayStatusUrl)
         .replace(queryParameters: chain == 'mainnet' ? null : {'chain': chain});
-    final reply = await _get(url, timeout: timeout).timeout(timeout);
+    final limit = TorSwitch.on ? torTimeout : timeout;
+    final reply = await _get(url, timeout: limit).timeout(limit);
     if (reply.status != 200) throw NetError('status ${reply.status}');
     return reply.body;
   }

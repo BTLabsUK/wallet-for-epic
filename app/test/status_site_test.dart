@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/net/http.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/node/node_api.dart';
 import 'package:epic_wallet/src/node/node_info.dart';
@@ -110,6 +111,35 @@ void main() {
         expect(r.hosts, hasLength(1));
       });
     }
+  });
+
+  group('over Tor', () {
+    tearDown(() => TorSwitch.on = false);
+
+    // The site over Tor is its onion, about 3 s warm and more cold: the direct limit made
+    // "status.btlabs.uk not reachable" show with the site up (26.10.17).
+    Future<HttpReply> slow() => Future.delayed(const Duration(milliseconds: 150), () => HttpReply(200, _sample));
+
+    test('Tor on: a slow onion answer is read, not timed out', () async {
+      TorSwitch.on = true;
+      final r = _Recorder(reply: slow);
+      final dir = HttpRelayDirectory(
+        get: r.get,
+        timeout: const Duration(milliseconds: 30),
+        torTimeout: const Duration(seconds: 2),
+      );
+      expect(await dir.nodes('mainnet'), isNotEmpty);
+    });
+
+    test('Tor off: the short limit still applies', () async {
+      final r = _Recorder(reply: slow);
+      final dir = HttpRelayDirectory(
+        get: r.get,
+        timeout: const Duration(milliseconds: 30),
+        torTimeout: const Duration(seconds: 2),
+      );
+      await expectLater(dir.nodes('mainnet'), throwsA(isA<TimeoutException>()));
+    });
   });
 
   group('readers', () {
