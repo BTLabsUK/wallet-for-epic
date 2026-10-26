@@ -816,7 +816,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Отменить этот платёж и разблокировать его средства? Делайте это, только если получатель его не завершил.';
+      'Кошелёк получателя не может завершить этот платёж без вашего. Отмена освобождает ваши монеты.';
 
   @override
   String get txDetailsCancelKeep => 'Оставить';
@@ -1711,7 +1711,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer больше не сможет его оплатить. Это нельзя отменить.';
+    return '$payer больше не сможет его оплатить. Ничего не оплачено, монеты не перемещаются. Это нельзя отменить.';
   }
 
   @override
@@ -5053,10 +5053,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
 
   @override
-  String get sendCancelPossibleWhileWaiting =>
-      'Возможно, пока платёж ждёт получателя.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
@@ -5361,7 +5357,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer больше не сможет его оплатить.';
+    return '$payer больше не сможет его оплатить. Ничего не оплачено, монеты не перемещаются.';
   }
 
   @override
@@ -9158,7 +9154,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC для $who. Заблокированная сумма вернётся в баланс. Если получатель уже завершил платёж, он всё равно может подтвердиться.';
+    return '$amount EPIC для $who. Кошелёк получателя не может завершить платёж без вашего: заблокированная сумма вернётся в баланс.';
   }
 
   @override
@@ -17061,4 +17057,36 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => 'Открыть меню приложения';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      'Другая сторона хранит ваш подписанный платёж и ещё может его отправить, пока эти монеты не будут потрачены снова. Отмена освобождает ваши монеты здесь.';
+
+  @override
+  String get cancelMoreInHelp => 'Подробнее в справке';
+
+  @override
+  String get cancelNoteSendWaiting =>
+      'Ещё не отправлено в сеть: отмена освобождает ваши монеты.';
+
+  @override
+  String get cancelNoteNotPosted =>
+      'Ещё не в сети: отмена освобождает ваши монеты. Кошелёк сначала проверяет сеть.';
+
+  @override
+  String get cancelNoteDirectFailed =>
+      'До получателя ничего не дошло: отмена освобождает ваши монеты.';
+
+  @override
+  String get cancelNoteRequestPaid =>
+      'Другая сторона хранит ваш подписанный платёж и ещё может его отправить. Отмена освобождает ваши монеты здесь.';
+
+  @override
+  String get cancelNoteRequestWithdraw =>
+      'Ничего не оплачено: отзыв не перемещает монеты.';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '$amount EPIC для $who. Оба кошелька его подписали, но сеть его не приняла. Кошелёк сначала спрашивает узел и отказывает, если платёж уже в сети; иначе заблокированная сумма вернётся в баланс.';
+  }
 }

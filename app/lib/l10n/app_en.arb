@@ -889,9 +889,9 @@
   "@txDetailsCancelReceiveBody": {
     "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
   },
-  "txDetailsCancelSendBody": "Cancel this payment and unlock its funds? Only do this if the recipient has not finished it.",
+  "txDetailsCancelSendBody": "The recipient's wallet cannot finish this payment without yours. Cancelling frees your coins.",
   "@txDetailsCancelSendBody": {
-    "description": "Cancel dialog text for a pending send."
+    "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature."
   },
   "txDetailsCancelKeep": "Keep",
   "@txDetailsCancelKeep": {
@@ -2066,7 +2066,7 @@
   "@issuedWithdrawTitle": {
     "description": "Title of the confirm before a request is withdrawn."
   },
-  "issuedWithdrawBody": "{payer} can no longer pay it. This cannot be undone.",
+  "issuedWithdrawBody": "{payer} can no longer pay it. Nothing has been paid, so no coins move. This cannot be undone.",
   "@issuedWithdrawBody": {
     "description": "Body of the withdraw confirm. payer is the contact's name or the start of their address.",
     "placeholders": {
@@ -6381,10 +6381,6 @@
   "@sendPlainHttpBody": {
     "description": "Dialog text before a send over plain http to another device."
   },
-  "sendCancelPossibleWhileWaiting": "Possible while the payment waits for the recipient.",
-  "@sendCancelPossibleWhileWaiting": {
-    "description": "Payment details: caption under Cancel payment."
-  },
   "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
   "@receiveEpicboxCaption": {
     "description": "Receive, Epicbox tab: caption under the address."
@@ -6763,7 +6759,7 @@
   "@deskInvIssuerWithdrawTitle": {
     "description": "Confirm dialog title."
   },
-  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it.",
+  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it. Nothing has been paid, so no coins move.",
   "@deskInvIssuerWithdrawBody": {
     "description": "Confirm dialog text.",
     "placeholders": {
@@ -11821,9 +11817,9 @@
       }
     }
   },
-  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.",
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient's wallet cannot finish it without yours: the locked amount returns to the balance.",
   "@deskTxCancelOutgoingBody": {
-    "description": "Body of the dialog that asks before cancelling an outgoing payment.",
+    "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.",
     "placeholders": {
       "amount": {
         "type": "String",
@@ -22218,5 +22214,47 @@
   "deskBarKeyMenu": "Open the app menu",
   "@deskBarKeyMenu": {
     "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
+  },
+  "txDetailsCancelRequestBody": "The other side holds your signed payment and could still post it until these coins are spent again. Cancelling frees your coins here.",
+  "@txDetailsCancelRequestBody": {
+    "description": "Body of the dialog that asks before cancelling the payment of a request this wallet paid (the issuer finalizes it). Not certain: LEPIC asks the node first."
+  },
+  "cancelMoreInHelp": "More in Help",
+  "@cancelMoreInHelp": {
+    "description": "Link after the quiet line beside every Cancel button: opens Help › Cancelling a payment at the matching heading. Short."
+  },
+  "cancelNoteSendWaiting": "Not posted yet: cancelling frees your coins.",
+  "@cancelNoteSendWaiting": {
+    "description": "Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain."
+  },
+  "cancelNoteNotPosted": "Not on the network yet: cancelling frees your coins. The wallet checks the network first.",
+  "@cancelNoteNotPosted": {
+    "description": "Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it."
+  },
+  "cancelNoteDirectFailed": "Nothing reached the recipient: cancelling frees your coins.",
+  "@cancelNoteDirectFailed": {
+    "description": "Quiet line beside Cancel payment / Cancel and pay with a file on the Send screen after a delivery failed. Certain."
+  },
+  "cancelNoteRequestPaid": "The other side holds your signed payment and could still post it. Cancelling frees your coins here.",
+  "@cancelNoteRequestPaid": {
+    "description": "Quiet line beside Cancel payment on a request this wallet paid. Not certain."
+  },
+  "cancelNoteRequestWithdraw": "Nothing has been paid: withdrawing moves no coins.",
+  "@cancelNoteRequestWithdraw": {
+    "description": "Quiet line beside Withdraw on a request this wallet sent and nobody paid yet. Certain."
+  },
+  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.",
+  "@deskTxCancelNotPostedBody": {
+    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Not certain.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
   }
 }

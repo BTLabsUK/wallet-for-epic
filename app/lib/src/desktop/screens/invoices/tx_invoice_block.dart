@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpAnchor;
+import '../wallet/cancel_note.dart';
 import 'invoice_actions.dart';
 import 'invoice_parts.dart';
 import 'issuer_actions.dart';
@@ -109,6 +111,14 @@ class TxInvoiceBlock extends ConsumerWidget {
               ELink(label: l.deskInvActOpen, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, slate)),
             ],
           ),
+          // What Withdraw or Cancel does here, with the way to the Help topic (DeskCancelNote).
+          if (r?.state == RequestState.waiting) ...[
+            SizedBox(height: Sp.x2),
+            DeskCancelNote(text: l.cancelNoteRequestWithdraw, anchor: HelpAnchor.requests),
+          ] else if (i?.state.cancellable ?? false) ...[
+            SizedBox(height: Sp.x2),
+            DeskCancelNote(text: l.cancelNoteRequestPaid, anchor: HelpAnchor.requests),
+          ],
         ],
       ),
     );

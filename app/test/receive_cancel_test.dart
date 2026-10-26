@@ -269,7 +269,8 @@ void main() {
       final h = _Harness(_waiting(ago: const Duration(minutes: 2), kind: TxKind.sent, status: TxStatus.awaitingRecipient));
       await h.pump(tester);
       expect(find.widgetWithText(OutlinedButton, _l.txDetailsCancelPayment), findsOneWidget);
-      expect(find.text(_l.sendCancelPossibleWhileWaiting), findsOneWidget);
+      expect(find.text(_l.cancelNoteSendWaiting), findsOneWidget);
+      expect(find.byKey(txDetailsCancelNoteKey), findsOneWidget);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
     });
   });

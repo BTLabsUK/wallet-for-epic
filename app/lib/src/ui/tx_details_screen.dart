@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
@@ -226,6 +228,7 @@ const Key txDetailsMoreKey = ValueKey('tx-details-more');
 /// The receive's Cancel, once its hold is over, and the line that stands in for it before.
 const Key txDetailsCancelReceiveKey = ValueKey('tx-details-cancel-receive');
 const Key txDetailsCancelHoldKey = ValueKey('tx-details-cancel-hold');
+const Key txDetailsCancelNoteKey = ValueKey('tx-details-cancel-note');
 
 /// Everything known about one transaction, with its note, contact and cancel.
 class TxDetailsScreen extends ConsumerStatefulWidget {
@@ -486,14 +489,27 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final id = tx.id;
     if (id == null) return;
     final receive = !txAmount(tx).outgoing;
+    // A request this wallet paid: the issuer holds a copy it can finish, so the words differ.
+    final paidRequest = !receive && tx.slateId != null && ref.read(paidInvoiceProvider(tx.slateId!)).value != null;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         final l = context.l10n;
+        final theme = Theme.of(context);
         return AlertDialog(
           title: Text(l.txDetailsCancelTitle),
-          content: Text(
-            receive ? l.txDetailsCancelReceiveBody : l.txDetailsCancelSendBody,
+          content: CancelNote(
+            text: receive
+                ? l.txDetailsCancelReceiveBody
+                : paidRequest
+                ? l.txDetailsCancelRequestBody
+                : l.txDetailsCancelSendBody,
+            anchor: receive
+                ? HelpAnchor.receiving
+                : paidRequest
+                ? HelpAnchor.requests
+                : HelpAnchor.sending,
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           actions: [
             TextButton(
@@ -793,31 +809,28 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                             ),
                     ),
                     const SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        outgoing
-                            ? l.sendCancelPossibleWhileWaiting
-                            : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
-                        textAlign: TextAlign.end,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                    // What this Cancel does, with the way to the Help topic (CancelNote).
+                    CancelNote(
+                      key: txDetailsCancelNoteKey,
+                      text: outgoing
+                          ? (paidInvoice != null ? l.cancelNoteRequestPaid : l.cancelNoteSendWaiting)
+                          : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
+                      anchor: outgoing
+                          ? (paidInvoice != null ? HelpAnchor.requests : HelpAnchor.sending)
+                          : HelpAnchor.receiving,
+                      alignment: WrapAlignment.end,
                     ),
                   ],
                   // Inside the hold, or while the sender reports it posted: no button, the
                   // line says when Cancel comes (receiveCancelHold).
                   if (cancelHeld) ...[
                     const SizedBox(height: 8),
-                    Text(
-                      incoming.senderReportsPosted
+                    CancelNote(
+                      key: txDetailsCancelHoldKey,
+                      text: incoming.senderReportsPosted
                           ? l.txDetailsCancelWhileReported
                           : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelHold(incoming.holdMinutesLeft)}',
-                      key: txDetailsCancelHoldKey,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      anchor: HelpAnchor.receiving,
                     ),
                   ],
                 ],

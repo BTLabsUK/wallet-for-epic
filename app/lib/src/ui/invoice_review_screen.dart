@@ -6,6 +6,8 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
@@ -1176,10 +1178,18 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
       InvoiceStatus.withdrawn => warning(
         l.invoiceDetailsWithdrawn(service),
         widget.tx.cancellable && widget.onCancel != null
-            ? OutlinedButton.icon(
-                icon: const Icon(Icons.cancel_outlined),
-                label: Text(l.txDetailsCancelPayment),
-                onPressed: widget.onCancel,
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: Text(l.txDetailsCancelPayment),
+                    onPressed: widget.onCancel,
+                  ),
+                  const SizedBox(height: 4),
+                  // The issuer holds a copy it can finish: what this Cancel does (CancelNote).
+                  CancelNote(text: l.cancelNoteRequestPaid, anchor: HelpAnchor.requests, alignment: WrapAlignment.end),
+                ],
               )
             : null,
       ),

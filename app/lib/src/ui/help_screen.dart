@@ -89,9 +89,10 @@ bool helpMatches(HelpTopic topic, List<String> words) {
   return words.every(hay.contains);
 }
 
-/// Opens Help: the index, or [topic]'s page straight away ([HelpId]).
-Future<void> openHelp(BuildContext context, [String? topic]) => Navigator.of(context).push<void>(
-  MaterialPageRoute<void>(builder: (_) => HelpScreen(topic: topic)),
+/// Opens Help: the index, or [topic]'s page straight away ([HelpId]), scrolled to [anchor]
+/// ([HelpAnchor]) when the topic has that heading.
+Future<void> openHelp(BuildContext context, [String? topic, String? anchor]) => Navigator.of(context).push<void>(
+  MaterialPageRoute<void>(builder: (_) => HelpScreen(topic: topic, anchor: anchor)),
 );
 
 /// A small help button for a screen's app bar or a label's row: opens [topic]'s page.
@@ -118,10 +119,13 @@ class HelpButton extends StatelessWidget {
 /// Help: the search field over the sections and their topics. With [topic], that topic's page
 /// opens over the index at once, so Back lands on the index.
 class HelpScreen extends ConsumerStatefulWidget {
-  const HelpScreen({super.key, this.topic});
+  const HelpScreen({super.key, this.topic, this.anchor});
 
   /// The topic to open on arrival, by [HelpTopic.id].
   final String? topic;
+
+  /// The heading of that topic to scroll to ([HelpBlock.anchor]).
+  final String? anchor;
 
   @override
   ConsumerState<HelpScreen> createState() => _HelpScreenState();
@@ -137,13 +141,14 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     super.dispose();
   }
 
-  void _openTopic(HelpTopic topic, List<HelpTopic> all, String lang) {
+  void _openTopic(HelpTopic topic, List<HelpTopic> all, String lang, {String? anchor}) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => HelpTopicScreen(
           topic: topic,
           section: _sectionsFor(all, lang).firstWhere((s) => s.id == topic.section),
           related: [for (final t in all) if (t.section == topic.section && t != topic) t],
+          anchor: anchor,
         ),
       ),
     );
@@ -163,7 +168,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
       final t = topics.where((t) => t.id == widget.topic).firstOrNull;
       if (t != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _openTopic(t, topics, lang);
+          if (mounted) _openTopic(t, topics, lang, anchor: widget.anchor);
         });
       }
     }
@@ -480,13 +485,54 @@ class _StillStuck extends ConsumerWidget {
 }
 
 /// One topic as a page: the section as an overline, the title, the short answer, the body,
-/// the handshake sheet for the handshake topic, then the section's other topics.
-class HelpTopicScreen extends StatelessWidget {
-  const HelpTopicScreen({super.key, required this.topic, required this.section, this.related = const []});
+/// the handshake sheet for the handshake topic, then the section's other topics. With [anchor],
+/// the page arrives scrolled to that heading ([HelpBlock.anchor]).
+class HelpTopicScreen extends StatefulWidget {
+  const HelpTopicScreen({super.key, required this.topic, required this.section, this.related = const [], this.anchor});
 
   final HelpTopic topic;
   final HelpSection section;
   final List<HelpTopic> related;
+  final String? anchor;
+
+  @override
+  State<HelpTopicScreen> createState() => _HelpTopicScreenState();
+}
+
+class _HelpTopicScreenState extends State<HelpTopicScreen> {
+  HelpTopic get topic => widget.topic;
+  HelpSection get section => widget.section;
+  List<HelpTopic> get related => widget.related;
+
+  /// The requested heading's key, once it is built.
+  final _anchorKey = GlobalKey(debugLabel: 'help anchor');
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.anchor != null && topic.body.any((b) => b.anchor == widget.anchor)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToAnchor(0));
+    }
+  }
+
+  /// Scrolls until the heading is built and then to it: the page is a lazy list, so a heading
+  /// below the first screen has no context until the list reaches it.
+  void _scrollToAnchor(int attempt) {
+    if (!mounted) return;
+    final ctx = _anchorKey.currentContext;
+    final instant = MediaQuery.of(context).disableAnimations;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: instant || attempt > 0 ? Duration.zero : const Duration(milliseconds: 250), curve: Curves.easeOut);
+      return;
+    }
+    if (attempt > 20) return;
+    final scroll = PrimaryScrollController.maybeOf(context);
+    if (scroll == null || !scroll.hasClients) return;
+    final pos = scroll.position;
+    if (pos.pixels >= pos.maxScrollExtent) return;
+    scroll.jumpTo((pos.pixels + pos.viewportDimension).clamp(0, pos.maxScrollExtent).toDouble());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToAnchor(attempt + 1));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -506,7 +552,7 @@ class HelpTopicScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Divider(height: 1, color: t.line),
           const SizedBox(height: 16),
-          for (final b in topic.body) HelpBlockView(block: b, style: body),
+          for (final b in topic.body) HelpBlockView(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null, block: b, style: body),
           if (topic.handshake)
             Align(
               alignment: Alignment.centerLeft,
@@ -574,6 +620,12 @@ class HelpBlockView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const gap = EdgeInsets.only(bottom: 12);
+    if (block.kind == HelpBlockKind.h) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        child: Semantics(header: true, child: Text(block.text, style: Theme.of(context).textTheme.titleMedium)),
+      );
+    }
     if (block.kind == HelpBlockKind.p) {
       return Padding(padding: gap, child: Text.rich(_rich(context, block.text)));
     }

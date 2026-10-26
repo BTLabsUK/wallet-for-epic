@@ -14,6 +14,8 @@ import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInCo
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
+import 'cancel_note.dart';
+import '../../../help/help_content.dart' show HelpAnchor;
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -324,7 +326,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
                     if (hold != null) ...[
                       SizedBox(height: Sp.x1),
-                      Text(_holdLine(l, hold), key: const ValueKey('tx-cancel-hold'), style: ts.small.copyWith(color: c.faint)),
+                      DeskCancelNote(key: const ValueKey('tx-cancel-hold'), text: _holdLine(l, hold), anchor: HelpAnchor.receiving),
                     ],
                   ],
                 ),
@@ -462,7 +464,23 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _cancel,
                 ),
-              const Spacer(),
+              if (cancelable && (!t.incoming || hold == null)) ...[
+                SizedBox(width: Sp.x3),
+                // What this Cancel does, with the way to the Help topic (an incoming payment's
+                // line sits in the status box above).
+                Expanded(
+                  child: DeskCancelNote(
+                    key: const ValueKey('tx-cancel-note'),
+                    text: t.incoming
+                        ? l.txDetailsCancelOffered
+                        : t.notPosted
+                        ? l.cancelNoteNotPosted
+                        : l.cancelNoteSendWaiting,
+                    anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending,
+                  ),
+                ),
+              ] else
+                const Spacer(),
               if (t.undelivered)
                 EButton.primary(
                   label: context.l10n.deskTxSendAgain,
@@ -762,13 +780,18 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
   context,
   builder: (context) {
     final l = context.l10n;
+    // A send the recipient has not answered is certain to cancel; one the node refused after
+    // both signed, and a received payment, are checked against the network first.
     return EDialog(
       title: t.incoming ? l.deskTxCancelIncomingTitle : l.deskTxCancelOutgoingTitle,
       icon: EIcons.cancel,
       tone: ETone.risk,
       description: t.incoming
           ? l.txDetailsCancelReceiveBody
+          : t.notPosted
+          ? l.deskTxCancelNotPostedBody(formatEpicL(l, t.amount), whoOf(l, t))
           : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
+      body: DeskCancelNote(anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending, inDialog: true),
       actions: [
         EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
         EButton(label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),

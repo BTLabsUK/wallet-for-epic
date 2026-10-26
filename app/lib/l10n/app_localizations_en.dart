@@ -783,7 +783,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Cancel this payment and unlock its funds? Only do this if the recipient has not finished it.';
+      'The recipient\'s wallet cannot finish this payment without yours. Cancelling frees your coins.';
 
   @override
   String get txDetailsCancelKeep => 'Keep';
@@ -1661,7 +1661,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer can no longer pay it. This cannot be undone.';
+    return '$payer can no longer pay it. Nothing has been paid, so no coins move. This cannot be undone.';
   }
 
   @override
@@ -4939,10 +4939,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.';
 
   @override
-  String get sendCancelPossibleWhileWaiting =>
-      'Possible while the payment waits for the recipient.';
-
-  @override
   String get receiveEpicboxCaption =>
       'When reading it out, check the first six and last six characters.';
 
@@ -5234,7 +5230,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer can no longer pay it.';
+    return '$payer can no longer pay it. Nothing has been paid, so no coins move.';
   }
 
   @override
@@ -8929,7 +8925,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC to $who. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.';
+    return '$amount EPIC to $who. The recipient\'s wallet cannot finish it without yours: the locked amount returns to the balance.';
   }
 
   @override
@@ -16637,4 +16633,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => 'Open the app menu';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      'The other side holds your signed payment and could still post it until these coins are spent again. Cancelling frees your coins here.';
+
+  @override
+  String get cancelMoreInHelp => 'More in Help';
+
+  @override
+  String get cancelNoteSendWaiting =>
+      'Not posted yet: cancelling frees your coins.';
+
+  @override
+  String get cancelNoteNotPosted =>
+      'Not on the network yet: cancelling frees your coins. The wallet checks the network first.';
+
+  @override
+  String get cancelNoteDirectFailed =>
+      'Nothing reached the recipient: cancelling frees your coins.';
+
+  @override
+  String get cancelNoteRequestPaid =>
+      'The other side holds your signed payment and could still post it. Cancelling frees your coins here.';
+
+  @override
+  String get cancelNoteRequestWithdraw =>
+      'Nothing has been paid: withdrawing moves no coins.';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '$amount EPIC to $who. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.';
+  }
 }

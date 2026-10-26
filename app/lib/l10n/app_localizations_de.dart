@@ -790,7 +790,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Diese Zahlung stornieren und den Betrag freigeben? Tun Sie das nur, wenn der Empfänger sie nicht abgeschlossen hat.';
+      'Die Wallet des Empfängers kann diese Zahlung ohne Ihre nicht abschließen. Stornieren gibt Ihre Coins frei.';
 
   @override
   String get txDetailsCancelKeep => 'Behalten';
@@ -1679,7 +1679,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer kann sie dann nicht mehr bezahlen. Das lässt sich nicht rückgängig machen.';
+    return '$payer kann sie dann nicht mehr bezahlen. Nichts wurde bezahlt, also bewegen sich keine Coins. Das lässt sich nicht rückgängig machen.';
   }
 
   @override
@@ -5011,10 +5011,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
 
   @override
-  String get sendCancelPossibleWhileWaiting =>
-      'Möglich, solange die Zahlung auf die Gegenseite wartet.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
@@ -5308,7 +5304,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer kann sie dann nicht mehr bezahlen.';
+    return '$payer kann sie dann nicht mehr bezahlen. Nichts wurde bezahlt, also bewegen sich keine Coins.';
   }
 
   @override
@@ -9045,7 +9041,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC an $who. Der gesperrte Betrag kehrt ins Guthaben zurück. Hat der Empfänger sie schon abgeschlossen, kann sie trotzdem bestätigt werden.';
+    return '$amount EPIC an $who. Die Wallet des Empfängers kann sie ohne Ihre nicht abschließen: Der gesperrte Betrag kehrt ins Guthaben zurück.';
   }
 
   @override
@@ -16836,4 +16832,36 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => 'App-Menü öffnen';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden, bis diese Coins wieder ausgegeben sind. Stornieren gibt Ihre Coins hier frei.';
+
+  @override
+  String get cancelMoreInHelp => 'Mehr in der Hilfe';
+
+  @override
+  String get cancelNoteSendWaiting =>
+      'Noch nicht ins Netzwerk gesendet: Stornieren gibt Ihre Coins frei.';
+
+  @override
+  String get cancelNoteNotPosted =>
+      'Noch nicht im Netzwerk: Stornieren gibt Ihre Coins frei. Die Wallet prüft zuerst das Netzwerk.';
+
+  @override
+  String get cancelNoteDirectFailed =>
+      'Beim Empfänger ist nichts angekommen: Stornieren gibt Ihre Coins frei.';
+
+  @override
+  String get cancelNoteRequestPaid =>
+      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden. Stornieren gibt Ihre Coins hier frei.';
+
+  @override
+  String get cancelNoteRequestWithdraw =>
+      'Nichts wurde bezahlt: Zurückziehen bewegt keine Coins.';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '$amount EPIC an $who. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.';
+  }
 }

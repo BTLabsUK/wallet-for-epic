@@ -27,7 +27,7 @@
   "deskInvIssuerEnded": "ใบแจ้งหนี้นี้สิ้นสุดโดยไม่ได้รับชำระ ไม่มีเงินเข้า",
   "deskInvIssuerWithdraw": "เรียกคืน",
   "deskInvIssuerWithdrawTitle": "เรียกคืนใบแจ้งหนี้นี้ไหม?",
-  "deskInvIssuerWithdrawBody": "{payer} จะชำระใบแจ้งหนี้นี้ไม่ได้อีก",
+  "deskInvIssuerWithdrawBody": "{payer} จะชำระใบแจ้งหนี้นี้ไม่ได้อีก ยังไม่มีการชำระ จึงไม่มีเหรียญย้ายไปไหน",
   "deskInvIssuerKeep": "เก็บไว้",
   "deskInvIssuerWithdrawn": "เรียกคืนใบแจ้งหนี้แล้ว",
   "deskInvIssuerRepost": "ส่งอีกครั้ง",

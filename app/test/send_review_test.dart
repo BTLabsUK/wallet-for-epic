@@ -519,7 +519,10 @@ void main() {
       await _tap(tester, find.text('Add a note'));
       expect(find.widgetWithText(TextField, 'Note'), findsOneWidget);
 
-      // The help loops its animation, so it never settles while open.
+      // The help loops its animation, so it never settles while open. Reaching the note scrolled
+      // the step's header under the app bar: scroll back to the top first.
+      await tester.drag(find.descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable)).first, const Offset(0, 800));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('How paying by file works'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
@@ -986,6 +989,8 @@ void main() {
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
       await _tap(tester, find.text('Cancel and pay with a file'));
+      // The error ends the list, below the fold when the bottom area is tall.
+      await _reach(tester, find.byType(ErrorText));
       expect(find.byType(ErrorText), findsOneWidget);
       expect(find.text('Cancel and pay with a file'), findsNothing);
       expect(find.text('Leave it for now'), findsNothing);

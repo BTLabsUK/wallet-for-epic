@@ -12,11 +12,19 @@ import '../advanced.dart';
 /// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
 /// the reader sees, then the English place the link goes to.
 class HelpBlock {
-  const HelpBlock.p(String text) : kind = HelpBlockKind.p, items = const [], _text = text;
-  const HelpBlock.ol(this.items) : kind = HelpBlockKind.ol, _text = null;
-  const HelpBlock.ul(this.items) : kind = HelpBlockKind.ul, _text = null;
+  const HelpBlock.p(String text) : kind = HelpBlockKind.p, items = const [], _text = text, anchor = '';
+  const HelpBlock.ol(this.items) : kind = HelpBlockKind.ol, _text = null, anchor = '';
+  const HelpBlock.ul(this.items) : kind = HelpBlockKind.ul, _text = null, anchor = '';
+
+  /// A heading inside a long topic. [anchor] names it for links from other screens
+  /// ([HelpAnchor]); a translation keeps the English anchor.
+  const HelpBlock.h(String text, {required this.anchor}) : kind = HelpBlockKind.h, items = const [], _text = text;
 
   final HelpBlockKind kind;
+
+  /// The heading's stable name, for a link that opens the topic at this heading; empty for the
+  /// other blocks.
+  final String anchor;
 
   /// The list items; empty for a paragraph.
   final List<String> items;
@@ -26,7 +34,7 @@ class HelpBlock {
   String get text => _text ?? items.join('\n');
 }
 
-enum HelpBlockKind { p, ol, ul }
+enum HelpBlockKind { p, ol, ul, h }
 
 /// One piece of [helpInline]: the [text] to show, and for a place the [target], the English place
 /// the link goes to (the text itself when the place has no `|`; empty for anything else).
@@ -146,6 +154,15 @@ abstract final class HelpId {
   static const pairingRestore = 'pairing-restore';
   static const cleanup = 'cleanup';
   static const importWarning = 'import-warning';
+  static const cancel = 'cancel';
+}
+
+/// The headings of [HelpId.cancel] ("Cancelling a payment"), which the quiet line beside every
+/// Cancel button opens the topic at ([HelpBlock.h]).
+abstract final class HelpAnchor {
+  static const sending = 'sending';
+  static const receiving = 'receiving';
+  static const requests = 'requests';
 }
 
 /// Which app shows the help: the words differ where the device does.
@@ -194,7 +211,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.ol(['Open [[Send]] and paste the recipient\'s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', 'Press **Review send**, check, then **Send … EPIC**.']),
         const HelpBlock.p('Now the recipient\'s wallet has to answer (see "Why does a transaction need both sides?"). Over Epicbox they do not have to be online right now: the payment waits until their wallet opens. Meanwhile the outputs it uses are locked, so they cannot be spent twice.'),
         HelpBlock.p('When their answer comes back, the wallet finishes the transaction and posts it to the network by itself. It is final after $confirmations confirmations.'),
-        HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for the recipient". Ask them to open their wallet. If the answer never comes, cancel the send in $cancelPlace to unlock the outputs. A send is never cancelled by itself.'),
+        HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for the recipient". Ask them to open their wallet. If the answer never comes, cancel the send in $cancelPlace to unlock the outputs. A send nobody answers cancels by itself after about a day.'),
         if (phone)
           const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Link address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.')
         else
@@ -526,6 +543,28 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,
+    ),
+    HelpTopic(
+      'trouble',
+      'Cancelling a payment',
+      'When Cancel is certain, when it is not, and what happens to the coins.',
+      [
+        const HelpBlock.h('Sending', anchor: HelpAnchor.sending),
+        const HelpBlock.p('A payment you send waits for the other wallet to answer. While it waits, Cancel is certain: nothing can reach the network without your wallet, and the coins are yours again at once. The other wallet may still show the payment as waiting, but it cannot finish it.'),
+        const HelpBlock.p('Once the answer is in, your wallet finishes the payment and posts it to the network in one step. A posted payment cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network refused it, the wallet offers to post it again or to cancel. That cancel asks the network first and goes ahead only when the network does not have the payment.'),
+        const HelpBlock.p('A payment that stays unanswered cancels by itself after about a day (1,440 blocks), and the coins are free again. This holds for Epicbox, Link and Direct payments alike: Cancel is certain until the other side\'s answer is in your wallet.'),
+        HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again; a cancelled payment cannot go through later.'),
+        const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
+        const HelpBlock.p('When a payment arrives, your wallet answers at once, and nothing of yours is locked. From then on the sender\'s wallet finishes and posts it, usually within minutes, so Cancel stays out of the way for 15 minutes, and longer while the sender reports it posted.'),
+        const HelpBlock.p('After that, Cancel is a tidy-up for a payment the sender never posted. It is not certain: the wallet asks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
+        const HelpBlock.h('Requests (experimental)', anchor: HelpAnchor.requests),
+        const HelpBlock.p('A request you sent holds no coins until it is paid. Withdraw it any time before then: the payer can no longer pay it, and nothing moves. A request nobody pays expires after 24 hours. A request shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
+        if (phone)
+          const HelpBlock.p('A request you paid is the other way round: the other side holds your signed payment and finishes it. Cancel comes once its time runs out, about a day after you paid, or sooner when the other side withdraws it. Cancelling frees the coins here, but the other side could still post the payment until these coins are spent again.')
+        else
+          const HelpBlock.p('A request you paid is the other way round: the other side holds your signed payment and finishes it. Cancel comes once its time runs out, about a day after you paid, or sooner when the other side withdraws it. Cancelling frees the coins here, but the other side could still post the payment until these coins are spent again. Sending them to yourself, offered with the cancel, makes it final.'),
+      ],
+      id: HelpId.cancel,
     ),
     if (!phone)
       const HelpTopic(

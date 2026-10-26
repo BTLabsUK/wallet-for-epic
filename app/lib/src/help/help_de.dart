@@ -56,7 +56,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', 'Drücken Sie **Zahlung prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**.']),
         const HelpBlock.p('Jetzt muss die Wallet des Empfängers antworten (siehe „Warum braucht eine Transaktion beide Seiten?“). Über Epicbox muss der Empfänger nicht gerade online sein: Die Zahlung wartet, bis seine Wallet geöffnet wird. Bis dahin sind die verwendeten Outputs gesperrt, damit sie nicht doppelt ausgegeben werden.'),
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Transaktion ab und sendet sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
-        HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf den Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung wird nie von selbst storniert.'),
+        HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf den Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
         if (phone)
           const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
@@ -388,6 +388,28 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Eine Aktion ist ausgegraut und nennt „Offline-Modus“ oder „Wartet auf Tor“.** Offline oder Nur Tor ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück oder warten Sie, bis Tor verbunden ist.'),
       ],
       id: HelpId.trouble,
+    ),
+    HelpTopic(
+      'trouble',
+      'Eine Zahlung stornieren',
+      'Wann Stornieren sicher ist, wann nicht, und was mit den Coins geschieht.',
+      [
+        const HelpBlock.h('Senden', anchor: HelpAnchor.sending),
+        const HelpBlock.p('Eine Zahlung, die Sie senden, wartet auf die Antwort der anderen Wallet. Solange sie wartet, ist Stornieren sicher: Ohne Ihre Wallet kann nichts ins Netzwerk gelangen, und die Coins gehören sofort wieder Ihnen. Die andere Wallet zeigt die Zahlung vielleicht noch als wartend, kann sie aber nicht abschließen.'),
+        const HelpBlock.p('Sobald die Antwort da ist, schließt Ihre Wallet die Zahlung ab und sendet sie in einem Schritt ins Netzwerk. Eine gesendete Zahlung lässt sich nicht stornieren, rückgängig machen oder erstatten; nur der Empfänger kann sie zurückzahlen. Hat das Netzwerk sie abgelehnt, bietet die Wallet an, sie erneut zu senden oder zu stornieren. Dieses Stornieren fragt zuerst das Netzwerk und geht nur weiter, wenn das Netzwerk die Zahlung nicht hat.'),
+        const HelpBlock.p('Eine Zahlung, die unbeantwortet bleibt, storniert sich nach etwa einem Tag (1.440 Blöcken) von selbst, und die Coins sind wieder frei. Das gilt für Epicbox-, Link- und Direkt-Zahlungen gleichermaßen: Stornieren ist sicher, bis die Antwort der anderen Seite in Ihrer Wallet ist.'),
+        HelpBlock.p('**Eine Zahlung scheint festzuhängen.** Meist ist die andere Wallet offline. Warten Sie, oder stornieren Sie sie unter $cancelPlace und senden Sie neu; eine stornierte Zahlung kann später nicht mehr durchgehen.'),
+        const HelpBlock.h('Empfangen', anchor: HelpAnchor.receiving),
+        const HelpBlock.p('Kommt eine Zahlung an, antwortet Ihre Wallet sofort, und nichts von Ihnen ist gesperrt. Von da an schließt die Wallet des Absenders sie ab und sendet sie ins Netzwerk, meist innerhalb von Minuten. Darum bleibt Stornieren 15 Minuten lang aus dem Weg, und länger, solange der Absender meldet, dass er gesendet hat.'),
+        const HelpBlock.p('Danach ist Stornieren ein Aufräumen für eine Zahlung, die der Absender nie gesendet hat. Es ist nicht sicher: Die Wallet fragt zuerst das Netzwerk und lehnt ab, wenn die Zahlung schon dort ist. Eine stornierte Zahlung bleibt im Blick. Sendet der Absender sie später doch, kommt sie trotzdem an und erscheint als empfangen.'),
+        const HelpBlock.h('Zahlungsanforderungen (experimentell)', anchor: HelpAnchor.requests),
+        const HelpBlock.p('Eine Anforderung, die Sie gesendet haben, hält keine Coins, bis sie bezahlt ist. Ziehen Sie sie vorher jederzeit zurück: Der Zahler kann sie dann nicht mehr bezahlen, und nichts bewegt sich. Eine Anforderung, die niemand bezahlt, läuft nach 24 Stunden ab. Eine als QR-Code gezeigte Anforderung kann einmal bezahlt werden; ein zweiter Scan wird abgelehnt, es wird also nichts doppelt bezahlt.'),
+        if (phone)
+          const HelpBlock.p('Eine Anforderung, die Sie bezahlt haben, ist umgekehrt: Die andere Seite hält Ihre signierte Zahlung und schließt sie ab. Stornieren kommt, wenn ihre Zeit abläuft, etwa einen Tag nach dem Bezahlen, oder früher, wenn die andere Seite sie zurückzieht. Stornieren gibt die Coins hier frei, aber die andere Seite könnte die Zahlung noch senden, bis diese Coins wieder ausgegeben sind.')
+        else
+          const HelpBlock.p('Eine Anforderung, die Sie bezahlt haben, ist umgekehrt: Die andere Seite hält Ihre signierte Zahlung und schließt sie ab. Stornieren kommt, wenn ihre Zeit abläuft, etwa einen Tag nach dem Bezahlen, oder früher, wenn die andere Seite sie zurückzieht. Stornieren gibt die Coins hier frei, aber die andere Seite könnte die Zahlung noch senden, bis diese Coins wieder ausgegeben sind. Sie an sich selbst zu senden, was mit dem Stornieren angeboten wird, macht es endgültig.'),
+      ],
+      id: HelpId.cancel,
     ),
     if (!phone)
       const HelpTopic(

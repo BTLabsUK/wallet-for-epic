@@ -27,7 +27,7 @@
   "deskInvIssuerEnded": "Этот счёт завершился без оплаты. Ничего не поступило.",
   "deskInvIssuerWithdraw": "Отозвать",
   "deskInvIssuerWithdrawTitle": "Отозвать этот счёт?",
-  "deskInvIssuerWithdrawBody": "{payer} больше не сможет его оплатить.",
+  "deskInvIssuerWithdrawBody": "{payer} больше не сможет его оплатить. Ничего не оплачено, монеты не перемещаются.",
   "deskInvIssuerKeep": "Оставить",
   "deskInvIssuerWithdrawn": "Счёт отозван.",
   "deskInvIssuerRepost": "Отправить снова",

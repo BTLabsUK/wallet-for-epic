@@ -8,6 +8,8 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
@@ -95,9 +97,14 @@ Future<bool> confirmWithdraw(
     context: context,
     builder: (context) {
       final l = context.l10n;
+      final theme = Theme.of(context);
       return AlertDialog(
         title: Text(l.issuedWithdrawTitle),
-        content: Text(l.issuedWithdrawBody(payer)),
+        content: CancelNote(
+          text: l.issuedWithdrawBody(payer),
+          anchor: HelpAnchor.requests,
+          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -813,7 +820,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
               child: Padding(padding: const EdgeInsets.all(12), child: Text(l.reqFileWaitingCard)),
             ),
           ],
-          if (invoice.withdrawable)
+          if (invoice.withdrawable) ...[
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: OutlinedButton.icon(
@@ -822,6 +829,9 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
                 onPressed: _busy ? null : () => _withdraw(invoice),
               ),
             ),
+            // A request holds no coins: what Withdraw does (CancelNote).
+            CancelNote(text: l.cancelNoteRequestWithdraw, anchor: HelpAnchor.requests, alignment: WrapAlignment.end),
+          ],
         ],
       ),
     );
