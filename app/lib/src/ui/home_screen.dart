@@ -311,11 +311,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       now: ref.read(clockProvider)(),
       tip: data.summary.lastConfirmedHeight,
       minConfirmations: data.summary.minimumConfirmations.toInt(),
+      steps: ref.read(blockWatchProvider),
     );
   }
 
   void _tipTick() {
     if (!mounted) return;
+    final data = ref.read(homeProvider).value;
+    if (data != null) {
+      ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
+    }
     if (_tipPace.tick(_pace())) _checkTip();
   }
 
@@ -340,7 +345,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (back) ref.read(stallRetryProvider).nodeBack();
       if (tip.height > shown || back) {
         _autoRefresh();
-      } else if (home.value?.transactions.any((t) => postingNow(t, ref.read(clockProvider)())) ?? false) {
+      } else if (home.value?.transactions.any((t) => postingNow(t, ref.read(clockProvider)(), ref.read(blockWatchProvider))) ?? false) {
         // Being posted: read the list again, so "Not on the network" does not wait for a block.
         unawaited(ref.read(homeProvider.notifier).relist());
       }

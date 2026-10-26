@@ -107,15 +107,7 @@ class StallRetry {
       _nodeBack = false;
       for (final tx in list) {
         if (awaitsChain(tx)) {
-          // From when it was finalized, when known: a payment whose post the app did not live
-          // to make (killed, or closed) goes out at the next opening, not a wait later.
-          final finalized = tx.finalizedAtUnix;
-          final from = _seen.putIfAbsent(
-            tx.key,
-            () => finalized != null && finalized * 1000 < now.millisecondsSinceEpoch
-                ? DateTime.fromMillisecondsSinceEpoch(finalized * 1000)
-                : now,
-          );
+          final from = _seen.putIfAbsent(tx.key, () => now);
           // Back after an outage: a post the node refused goes again now. A payment that is
           // posted and waiting gains nothing from it, and keeps its waits.
           if (!(back && tx.repostable) && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;

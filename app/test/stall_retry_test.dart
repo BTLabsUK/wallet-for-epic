@@ -120,27 +120,6 @@ void main() {
     expect(await at(const Duration(minutes: 6)), isFalse, reason: 'once, then the waits again');
   });
 
-  test('a payment finalized before the app last closed is posted again at the opening', () async {
-    final killed = fakeTx(
-      key: 'killed',
-      id: 7,
-      slateId: 'killed',
-      kind: TxKind.sent,
-      status: TxStatus.awaitingConfirmation,
-      createdAtUnix: _unix(_t0),
-      finalizedAtUnix: _unix(_t0),
-      kernelExcess: '08abc',
-      repostable: true,
-    );
-    final session = FakeWalletSession(transactions: [killed]);
-    final retry = StallRetry();
-    expect(
-      await retry.run(session, session.transactionsValue, _t0.add(const Duration(minutes: 20))),
-      isTrue,
-    );
-    expect(session.repostedKeys, ['killed']);
-  });
-
   test('a paid invoice\'s answer goes again a few times, then it reads Stalled', () async {
     final tx = _invoicePayment('0a9b35d2');
     final session = FakeWalletSession(transactions: [tx]);

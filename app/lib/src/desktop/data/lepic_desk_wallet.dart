@@ -2111,6 +2111,7 @@ class LepicDeskWallet implements DeskWalletApi {
     now: DateTime.now(),
     tip: BigInt.from(_tip),
     minConfirmations: _minConf.toInt(),
+    steps: _blockWaits,
   );
 
   /// The wait notes last shown, so a window that passes with no block (and so no sync) still
@@ -2118,8 +2119,9 @@ class LepicDeskWallet implements DeskWalletApi {
   int? _waitsShown;
 
   void _tipTick() {
-    if (_tipPace.tick(_pace())) unawaited(_checkTip());
     final entries = _entries;
+    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
+    if (_tipPace.tick(_pace())) unawaited(_checkTip());
     if (entries == null) return;
     final waits = Object.hashAll(entries.map(_waitOf));
     if (_waitsShown != null && waits != _waitsShown) _changed();
@@ -2156,7 +2158,7 @@ class LepicDeskWallet implements DeskWalletApi {
       // A new block: confirmations move, payments may have landed.
       if (grew && _summary != null) {
         unawaited(sync());
-      } else if ((_entries ?? const <core.TxEntry>[]).any((e) => postingNow(e, DateTime.now()))) {
+      } else if ((_entries ?? const <core.TxEntry>[]).any((e) => postingNow(e, DateTime.now(), _blockWaits))) {
         // Being posted: read the list again, so "Not on the network" does not wait for a block.
         unawaited(_reload());
       }

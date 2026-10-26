@@ -214,9 +214,9 @@ void main() {
       finalizedAtUnix: _ago(ago),
       repostable: repostable,
     );
-    expect(postingNow(at(const Duration(seconds: 2)), _now), isTrue);
-    expect(postingNow(at(postingFor), _now), isFalse, reason: 'a refused post keeps Not posted');
-    expect(postingNow(at(const Duration(seconds: 2), repostable: false), _now), isFalse);
+    expect(postingNow(at(const Duration(seconds: 2)), _now, null), isTrue);
+    expect(postingNow(at(postingFor), _now, null), isFalse, reason: 'a refused post keeps Not posted');
+    expect(postingNow(at(const Duration(seconds: 2), repostable: false), _now, null), isFalse);
   });
 
   test('a receive still waiting for its sender keeps saying so; one the sender reports posted gets the note', () {
@@ -248,5 +248,17 @@ void main() {
   test('the step keeps every pace exact', () {
     expect(TipPacer(normal: const Duration(seconds: 15)).step, const Duration(seconds: 1));
     expect(TipPacer(normal: const Duration(seconds: 30)).step, const Duration(seconds: 2));
+  });
+
+  test('a change the list shows (finalized, posted) restarts the watch, as LEPIC keeps no finalize time', () {
+    final waiting = fakeTx(key: 's', kind: TxKind.sent, status: TxStatus.awaitingRecipient, createdAtUnix: _ago(const Duration(minutes: 20)));
+    final finalized = fakeTx(key: 's', kind: TxKind.sent, status: TxStatus.awaitingConfirmation, createdAtUnix: waiting.createdAtUnix, kernelExcess: '08ab', repostable: true);
+    final watch = BlockWatch()..saw([waiting], _tip, now: _now.subtract(const Duration(seconds: 10)));
+    WatchPace pace(TxEntry t) => watchPace(t, now: _now, tip: _tip, minConfirmations: 3, steps: watch);
+    expect(pace(waiting), WatchPace.none, reason: 'first seen is no step');
+    watch.saw([finalized], _tip, now: _now.subtract(const Duration(seconds: 3)));
+    expect(pace(finalized), WatchPace.fast);
+    expect(postingNow(finalized, _now, watch), isTrue);
+    expect(postingNow(finalized, _now.add(postingFor), watch), isFalse);
   });
 }
