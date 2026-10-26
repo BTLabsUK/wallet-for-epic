@@ -777,7 +777,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'ยกเลิกรายการนี้และปลดล็อกยอดเงินไหม? ทำเฉพาะเมื่อผู้รับยังไม่ได้ทำรายการให้เสร็จ';
+      'กระเป๋าเงินของผู้รับทำรายการนี้ให้เสร็จไม่ได้หากไม่มีกระเป๋าเงินของคุณ การยกเลิกจะคืนเหรียญของคุณ';
 
   @override
   String get txDetailsCancelKeep => 'เก็บไว้';
@@ -1645,7 +1645,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer จะชำระคำขอนี้ไม่ได้อีก ย้อนกลับไม่ได้';
+    return '$payer จะชำระคำขอนี้ไม่ได้อีก ยังไม่มีการชำระ จึงไม่มีเหรียญย้ายไปไหน ย้อนกลับไม่ได้';
   }
 
   @override
@@ -4868,9 +4868,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'HTTP แบบไม่เข้ารหัสไปยังอุปกรณ์อื่น ใครก็ตามระหว่างทางอ่านธุรกรรมได้ ที่อยู่ https:// จะเข้ารหัส';
 
   @override
-  String get sendCancelPossibleWhileWaiting => 'ทำได้ระหว่างที่รายการรอผู้รับ';
-
-  @override
   String get receiveEpicboxCaption =>
       'เมื่ออ่านที่อยู่ให้ผู้อื่นฟัง ให้ตรวจ 6 ตัวแรกและ 6 ตัวท้าย';
 
@@ -5157,7 +5154,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer จะชำระใบแจ้งหนี้นี้ไม่ได้อีก';
+    return '$payer จะชำระใบแจ้งหนี้นี้ไม่ได้อีก ยังไม่มีการชำระ จึงไม่มีเหรียญย้ายไปไหน';
   }
 
   @override
@@ -8782,7 +8779,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC ถึง $who ยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ ถ้าผู้รับทำรายการเสร็จไปแล้ว รายการอาจยังได้รับการยืนยัน';
+    return '$amount EPIC ถึง $who กระเป๋าเงินของผู้รับทำรายการให้เสร็จไม่ได้หากไม่มีกระเป๋าเงินของคุณ: ยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ';
   }
 
   @override
@@ -16370,4 +16367,36 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => 'เปิดเมนูแอป';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจส่งเข้าเครือข่ายได้จนกว่าเหรียญเหล่านี้จะถูกใช้อีกครั้ง การยกเลิกจะคืนเหรียญของคุณที่นี่';
+
+  @override
+  String get cancelMoreInHelp => 'ดูเพิ่มในช่วยเหลือ';
+
+  @override
+  String get cancelNoteSendWaiting =>
+      'ยังไม่ได้ส่งเข้าเครือข่าย: การยกเลิกจะคืนเหรียญของคุณ';
+
+  @override
+  String get cancelNoteNotPosted =>
+      'ยังไม่อยู่ในเครือข่าย: การยกเลิกจะคืนเหรียญของคุณ กระเป๋าเงินจะตรวจเครือข่ายก่อน';
+
+  @override
+  String get cancelNoteDirectFailed =>
+      'ไม่มีอะไรถึงผู้รับ: การยกเลิกจะคืนเหรียญของคุณ';
+
+  @override
+  String get cancelNoteRequestPaid =>
+      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจส่งเข้าเครือข่ายได้ การยกเลิกจะคืนเหรียญของคุณที่นี่';
+
+  @override
+  String get cancelNoteRequestWithdraw =>
+      'ยังไม่มีการชำระ: การถอนคำขอไม่ย้ายเหรียญใด ๆ';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '$amount EPIC ถึง $who ทั้งสองกระเป๋าเงินลงนามแล้ว แต่เครือข่ายยังไม่รับรายการ กระเป๋าเงินจะถามโหนดก่อนและปฏิเสธถ้าเครือข่ายมีรายการนี้แล้ว ไม่เช่นนั้นยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ';
+  }
 }

@@ -9,6 +9,8 @@ import '../../desk_l10n.dart';
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpAnchor;
+import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
 import 'issuer_actions.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -339,6 +341,11 @@ class RequestDetail extends ConsumerWidget {
             if (r.state == RequestState.bounced) InvButton(label: l.deskInvIssuerSendFile, width: InvW.md, tooltip: l.deskInvIssuerSoon, onPressed: null),
           ],
         ),
+        // A request holds no coins: what Withdraw does (DeskCancelNote).
+        if (r.state == RequestState.waiting) ...[
+          SizedBox(height: Sp.x2),
+          DeskCancelNote(text: l.cancelNoteRequestWithdraw, anchor: HelpAnchor.requests),
+        ],
         // Advanced › Technical details shows the slate id; Cancel payment, a recovery, always shows.
         if (technical || r.state == RequestState.notPosted) ...[
         SizedBox(height: Sp.x4),

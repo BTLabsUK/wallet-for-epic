@@ -7,6 +7,8 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
@@ -325,9 +327,15 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       context: context,
       builder: (context) {
         final l = context.l10n;
+        final theme = Theme.of(context);
         return AlertDialog(
           title: Text(l.txDetailsCancelTitle),
-          content: Text(l.txDetailsCancelSendBody),
+          // The payment of a request: its issuer holds a copy it can finish.
+          content: CancelNote(
+            text: l.txDetailsCancelRequestBody,
+            anchor: HelpAnchor.requests,
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),

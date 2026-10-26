@@ -27,7 +27,7 @@
   "deskInvIssuerEnded": "此账单未付款即结束。未收到任何款项。",
   "deskInvIssuerWithdraw": "撤回",
   "deskInvIssuerWithdrawTitle": "撤回此账单？",
-  "deskInvIssuerWithdrawBody": "{payer} 将无法再支付它。",
+  "deskInvIssuerWithdrawBody": "{payer} 将无法再支付它。尚未支付任何款项，因此没有币被移动。",
   "deskInvIssuerKeep": "保留",
   "deskInvIssuerWithdrawn": "账单已撤回。",
   "deskInvIssuerRepost": "重新广播",

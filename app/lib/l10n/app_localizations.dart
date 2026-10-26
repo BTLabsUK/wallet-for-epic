@@ -1261,10 +1261,10 @@ abstract class AppLocalizations {
   /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelReceiveBody;
 
-  /// Cancel dialog text for a pending send.
+  /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature.
   ///
   /// In en, this message translates to:
-  /// **'Cancel this payment and unlock its funds? Only do this if the recipient has not finished it.'**
+  /// **'The recipient\'s wallet cannot finish this payment without yours. Cancelling frees your coins.'**
   String get txDetailsCancelSendBody;
 
   /// Cancel dialog button that keeps the payment pending.
@@ -2674,7 +2674,7 @@ abstract class AppLocalizations {
   /// Body of the withdraw confirm. payer is the contact's name or the start of their address.
   ///
   /// In en, this message translates to:
-  /// **'{payer} can no longer pay it. This cannot be undone.'**
+  /// **'{payer} can no longer pay it. Nothing has been paid, so no coins move. This cannot be undone.'**
   String issuedWithdrawBody(String payer);
 
   /// Button in the withdraw confirm that keeps the request open.
@@ -8028,12 +8028,6 @@ abstract class AppLocalizations {
   /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
   String get sendPlainHttpBody;
 
-  /// Payment details: caption under Cancel payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Possible while the payment waits for the recipient.'**
-  String get sendCancelPossibleWhileWaiting;
-
   /// Receive, Epicbox tab: caption under the address.
   ///
   /// In en, this message translates to:
@@ -8493,7 +8487,7 @@ abstract class AppLocalizations {
   /// Confirm dialog text.
   ///
   /// In en, this message translates to:
-  /// **'{payer} can no longer pay it.'**
+  /// **'{payer} can no longer pay it. Nothing has been paid, so no coins move.'**
   String deskInvIssuerWithdrawBody(String payer);
 
   /// Dialog button: do not withdraw or cancel.
@@ -14406,10 +14400,10 @@ abstract class AppLocalizations {
   /// **'{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.'**
   String deskTxCancelIncomingBody(String amount, String who);
 
-  /// Body of the dialog that asks before cancelling an outgoing payment.
+  /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.'**
+  /// **'{amount} EPIC to {who}. The recipient\'s wallet cannot finish it without yours: the locked amount returns to the balance.'**
   String deskTxCancelOutgoingBody(String amount, String who);
 
   /// Button in the cancel dialog that leaves the payment as it is. Short.
@@ -26434,6 +26428,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the app menu'**
   String get deskBarKeyMenu;
+
+  /// Body of the dialog that asks before cancelling the payment of a request this wallet paid (the issuer finalizes it). Not certain: LEPIC asks the node first.
+  ///
+  /// In en, this message translates to:
+  /// **'The other side holds your signed payment and could still post it until these coins are spent again. Cancelling frees your coins here.'**
+  String get txDetailsCancelRequestBody;
+
+  /// Link after the quiet line beside every Cancel button: opens Help › Cancelling a payment at the matching heading. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'More in Help'**
+  String get cancelMoreInHelp;
+
+  /// Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted yet: cancelling frees your coins.'**
+  String get cancelNoteSendWaiting;
+
+  /// Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network yet: cancelling frees your coins. The wallet checks the network first.'**
+  String get cancelNoteNotPosted;
+
+  /// Quiet line beside Cancel payment / Cancel and pay with a file on the Send screen after a delivery failed. Certain.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing reached the recipient: cancelling frees your coins.'**
+  String get cancelNoteDirectFailed;
+
+  /// Quiet line beside Cancel payment on a request this wallet paid. Not certain.
+  ///
+  /// In en, this message translates to:
+  /// **'The other side holds your signed payment and could still post it. Cancelling frees your coins here.'**
+  String get cancelNoteRequestPaid;
+
+  /// Quiet line beside Withdraw on a request this wallet sent and nobody paid yet. Certain.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been paid: withdrawing moves no coins.'**
+  String get cancelNoteRequestWithdraw;
+
+  /// Body of the cancel dialog for a send the node refused (finalized, not posted). Not certain.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.'**
+  String deskTxCancelNotPostedBody(String amount, String who);
 }
 
 class _AppLocalizationsDelegate

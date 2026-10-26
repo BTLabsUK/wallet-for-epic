@@ -27,7 +27,7 @@
   "deskInvIssuerEnded": "Ta faktura zakończyła się bez zapłaty. Nic nie dotarło.",
   "deskInvIssuerWithdraw": "Wycofaj",
   "deskInvIssuerWithdrawTitle": "Wycofać tę fakturę?",
-  "deskInvIssuerWithdrawBody": "{payer} nie może już jej zapłacić.",
+  "deskInvIssuerWithdrawBody": "{payer} nie może już jej zapłacić. Nic nie zapłacono, więc żadne monety się nie przenoszą.",
   "deskInvIssuerKeep": "Zostaw",
   "deskInvIssuerWithdrawn": "Fakturę wycofano.",
   "deskInvIssuerRepost": "Opublikuj ponownie",

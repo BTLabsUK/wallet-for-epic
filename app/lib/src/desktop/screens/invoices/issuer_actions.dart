@@ -8,12 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpAnchor;
+import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
 
 String _payer(IssuedRequest r) => r.payerName ?? shortAddress(r.payerAddress, compact: true);
 
 /// A yes/no question in the app's dialog; true when [confirm] was chosen.
-Future<bool> _ask(BuildContext context, {required String title, required String body, required String confirm, required String keep}) async {
+Future<bool> _ask(BuildContext context, {required String title, required String body, required String confirm, required String keep, String? helpAnchor}) async {
   final ok = await showEDialog<bool>(
     context,
     builder: (ctx) => EDialog(
@@ -21,6 +23,7 @@ Future<bool> _ask(BuildContext context, {required String title, required String 
       description: body,
       icon: EIcons.alert,
       tone: ETone.warn,
+      body: helpAnchor == null ? null : DeskCancelNote(anchor: helpAnchor, inDialog: true),
       actions: [
         InvButton(label: keep, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(false)),
         InvButton(label: confirm, kind: EBtnKind.danger, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(true)),
@@ -39,6 +42,7 @@ Future<void> showWithdrawRequest(BuildContext context, WidgetRef ref, IssuedRequ
     body: l.deskInvIssuerWithdrawBody(_payer(request)),
     confirm: l.deskInvIssuerWithdraw,
     keep: l.deskInvIssuerKeep,
+    helpAnchor: HelpAnchor.requests,
   );
   if (!yes || !context.mounted) return;
   try {

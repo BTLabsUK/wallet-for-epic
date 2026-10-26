@@ -134,7 +134,7 @@
   "@deskInvIssuerWithdrawTitle": {
     "description": "Confirm dialog title."
   },
-  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it.",
+  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it. Nothing has been paid, so no coins move.",
   "@deskInvIssuerWithdrawBody": {
     "description": "Confirm dialog text.",
     "placeholders": {

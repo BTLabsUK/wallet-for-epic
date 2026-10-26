@@ -545,9 +545,23 @@
       }
     }
   },
-  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.",
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient's wallet cannot finish it without yours: the locked amount returns to the balance.",
   "@deskTxCancelOutgoingBody": {
-    "description": "Body of the dialog that asks before cancelling an outgoing payment.",
+    "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.",
+  "@deskTxCancelNotPostedBody": {
+    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Not certain.",
     "placeholders": {
       "amount": {
         "type": "String",

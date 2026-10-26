@@ -39,7 +39,7 @@ void main() {
       'When something goes wrong',
       'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 21 : 20));
+    expect(topics, hasLength(DeskFeatures.tor ? 22 : 21));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);
@@ -86,7 +86,8 @@ void main() {
       expect(find.text(s.title), findsNWidgets(2), reason: 'chip and head');
     }
     expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
-    expect(find.text('1 topic'), findsNWidgets(2), reason: 'Troubleshooting and Maintenance');
+    expect(find.text('1 topic'), findsOneWidget, reason: 'Maintenance');
+    expect(find.text('2 topics'), findsWidgets, reason: 'Troubleshooting and Cancelling a payment');
     expect(find.byType(HelpArt), findsNWidgets(7));
   });
 

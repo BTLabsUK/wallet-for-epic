@@ -56,7 +56,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.ol(['Otwórz [[Wyślij|Send]] i wklej adres odbiorcy lub wybierz kontakt.', 'Wpisz kwotę. Opłata jest widoczna przed wysłaniem.', 'Naciśnij **Sprawdź wysyłkę**, sprawdź dane, potem **Wyślij … EPIC**.']),
         const HelpBlock.p('Teraz musi odpowiedzieć portfel odbiorcy (zobacz „Dlaczego transakcja wymaga obu stron?”). Przez Epicbox odbiorca nie musi być teraz online: płatność poczeka, aż jego portfel się otworzy. W tym czasie użyte wyjścia są zablokowane, więc nie da się ich wydać dwa razy.'),
         HelpBlock.p('Gdy odpowiedź wróci, portfel sam zakończy transakcję i wyśle ją do sieci. Staje się ostateczna po osiągnięciu wymaganej liczby potwierdzeń ($confirmations).'),
-        HelpBlock.p('**Brak odpowiedzi?** Po kilku minutach stan zmienia się na „Czeka na odbiorcę”. Poproś odbiorcę, by otworzył portfel. Jeśli odpowiedź nigdy nie przyjdzie, anuluj płatność w $cancelPlace, aby odblokować wyjścia. Płatność nigdy nie jest anulowana sama.'),
+        HelpBlock.p('**Brak odpowiedzi?** Po kilku minutach stan zmienia się na „Czeka na odbiorcę”. Poproś odbiorcę, by otworzył portfel. Jeśli odpowiedź nigdy nie przyjdzie, anuluj płatność w $cancelPlace, aby odblokować wyjścia. Płatność, na którą nikt nie odpowie, anuluje się sama po około jednym dniu.'),
         if (phone)
           const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też odpowiadającego serwera Epicbox; adres bezpośredni (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.')
         else
@@ -388,6 +388,28 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Akcja jest wyszarzona i mówi „Tryb offline” albo „Czeka na Tor”.** W Zaawansowanych włączono Offline lub Tylko Tor. Przywróć tam tryb Standardowy albo poczekaj, aż Tor się połączy.'),
       ],
       id: HelpId.trouble,
+    ),
+    HelpTopic(
+      'trouble',
+      'Anulowanie płatności',
+      'Kiedy anulowanie jest pewne, kiedy nie, i co dzieje się z monetami.',
+      [
+        const HelpBlock.h('Wysyłanie', anchor: HelpAnchor.sending),
+        const HelpBlock.p('Wysłana płatność czeka na odpowiedź drugiego portfela. Dopóki czeka, anulowanie jest pewne: bez twojego portfela nic nie trafi do sieci, a monety od razu znów są twoje. Drugi portfel może nadal pokazywać płatność jako oczekującą, ale nie może jej dokończyć.'),
+        const HelpBlock.p('Gdy odpowiedź wróci, twój portfel kończy płatność i wysyła ją do sieci w jednym kroku. Wysłanej płatności nie da się anulować, cofnąć ani zwrócić; tylko odbiorca może ją odesłać. Jeśli sieć ją odrzuciła, portfel proponuje wysłać ją ponownie albo anulować. To anulowanie najpierw pyta sieć i idzie dalej tylko wtedy, gdy sieć nie ma tej płatności.'),
+        const HelpBlock.p('Płatność, która pozostaje bez odpowiedzi, anuluje się sama po około jednym dniu (1 440 blokach), a monety znów są wolne. Dotyczy to tak samo płatności Epicbox, Link i Bezpośrednio: anulowanie jest pewne, dopóki odpowiedź drugiej strony nie trafi do twojego portfela.'),
+        HelpBlock.p('**Płatność wygląda na zablokowaną.** Zwykle drugi portfel jest offline. Poczekaj albo anuluj ją w $cancelPlace i wyślij ponownie; anulowana płatność nie przejdzie później.'),
+        const HelpBlock.h('Odbieranie', anchor: HelpAnchor.receiving),
+        const HelpBlock.p('Gdy płatność przychodzi, twój portfel odpowiada od razu i nic twojego nie jest blokowane. Od tej chwili portfel nadawcy kończy ją i wysyła do sieci, zwykle w ciągu minut, więc anulowanie schodzi z drogi na 15 minut, a dłużej, gdy nadawca zgłasza, że wysłał.'),
+        const HelpBlock.p('Potem anulowanie to porządki po płatności, której nadawca nigdy nie wysłał. Nie jest pewne: portfel najpierw pyta sieć i odmawia, gdy płatność już tam jest. Anulowana płatność pozostaje pod obserwacją. Jeśli nadawca wyśle ją później, i tak dotrze i pokaże się jako odebrana.'),
+        const HelpBlock.h('Prośby o płatność (eksperymentalne)', anchor: HelpAnchor.requests),
+        const HelpBlock.p('Wysłana prośba nie trzyma żadnych monet, dopóki nie zostanie zapłacona. Do tego czasu możesz ją wycofać w każdej chwili: płacący nie może już jej zapłacić i nic się nie przenosi. Prośba, której nikt nie zapłaci, wygasa po 24 godzinach. Prośbę pokazaną jako kod QR można zapłacić raz; drugi skan jest odrzucany, więc nic nie jest płacone dwa razy.'),
+        if (phone)
+          const HelpBlock.p('Zapłacona przez ciebie prośba działa odwrotnie: druga strona ma twoją podpisaną płatność i ją kończy. Anulowanie pojawia się, gdy minie jej czas, około dnia po zapłacie, albo wcześniej, gdy druga strona ją wycofa. Anulowanie uwalnia monety tutaj, ale druga strona wciąż może wysłać płatność, dopóki te monety nie zostaną ponownie wydane.')
+        else
+          const HelpBlock.p('Zapłacona przez ciebie prośba działa odwrotnie: druga strona ma twoją podpisaną płatność i ją kończy. Anulowanie pojawia się, gdy minie jej czas, około dnia po zapłacie, albo wcześniej, gdy druga strona ją wycofa. Anulowanie uwalnia monety tutaj, ale druga strona wciąż może wysłać płatność, dopóki te monety nie zostaną ponownie wydane. Wysłanie ich do siebie, proponowane razem z anulowaniem, czyni je ostatecznym.'),
+      ],
+      id: HelpId.cancel,
     ),
     if (!phone)
       const HelpTopic(

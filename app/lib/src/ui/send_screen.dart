@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_note.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show NumberFormat;
@@ -3121,13 +3123,17 @@ class _SendViewState extends ConsumerState<SendView> {
           ],
         ),
       ],
-      const SizedBox(height: 4),
-      Text(
-        to.kind == RecipientKind.epicbox
-            ? l.sendCancelRuleEpicbox
-            : l.sendCancelRuleDirect,
-        style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-      ),
+      // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
+      // failed delivery the actions below carry their own line, so this one steps aside.
+      if (!_sendFailed) ...[
+        const SizedBox(height: 4),
+        CancelNote(
+          text: to.kind == RecipientKind.epicbox
+              ? l.sendCancelRuleEpicbox
+              : l.sendCancelRuleDirect,
+          anchor: HelpAnchor.sending,
+        ),
+      ],
       // Epicbox off: the mailbox payment waits in the outbox until it is on again.
       if (queued && !_sendFailed) ...[
         const SizedBox(height: 12),
@@ -3187,6 +3193,8 @@ class _SendViewState extends ConsumerState<SendView> {
             onPressed: _busy ? null : _cancelDirectSend,
             child: Text(l.sendCancelPayment),
           ),
+          // Nothing reached the other wallet: this Cancel is certain (CancelNote).
+          CancelNote(text: l.cancelNoteDirectFailed, anchor: HelpAnchor.sending, alignment: WrapAlignment.center),
         ] else if (_sendFailed && _overTor) ...[
           // Tor did not connect, nothing was sent: the same send again.
           BusyButton(
@@ -3202,6 +3210,8 @@ class _SendViewState extends ConsumerState<SendView> {
             child: Text(l.commonDone),
           ),
         ] else if (_sendFailed && _undelivered != null) ...[
+          CancelNote(text: l.cancelNoteDirectFailed, anchor: HelpAnchor.sending, alignment: WrapAlignment.center),
+          const SizedBox(height: 8),
           BusyButton(
             label: l.sendCancelAndFile,
             busy: _busy,
@@ -3447,7 +3457,6 @@ class _SendViewState extends ConsumerState<SendView> {
 
   List<Widget> _fileAmountStep(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     return [
       _header(
         context,
@@ -3468,9 +3477,9 @@ class _SendViewState extends ConsumerState<SendView> {
       ..._sealChoice(context),
       ..._amountFields(context, file: true),
       const SizedBox(height: 12),
-      Text(
-        _viaQr ? l.sendCancelRuleQr : l.sendCancelRuleFile,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+      CancelNote(
+        text: _viaQr ? l.sendCancelRuleQr : l.sendCancelRuleFile,
+        anchor: HelpAnchor.sending,
       ),
     ];
   }

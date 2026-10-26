@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpAnchor;
+import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
 
 /// Approve → password → pay (flow.md §4.3). The only path to [DeskInvoices.pay]. On success the
@@ -328,6 +330,8 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ENotice(tone: ETone.warn, title: l.deskInvPayerCancelText),
+          SizedBox(height: Sp.x2),
+          DeskCancelNote(anchor: HelpAnchor.requests, inDialog: true),
           if (!_final) ...[
             SizedBox(height: Sp.x4),
             ECheckbox(value: _spend, onChanged: _busy ? (_) {} : (v) => setState(() => _spend = v), label: l.deskInvPayerSpendToSelf),

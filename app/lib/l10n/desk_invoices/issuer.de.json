@@ -27,7 +27,7 @@
   "deskInvIssuerEnded": "Diese Rechnung endete unbezahlt. Nichts ist angekommen.",
   "deskInvIssuerWithdraw": "Zurückziehen",
   "deskInvIssuerWithdrawTitle": "Diese Rechnung zurückziehen?",
-  "deskInvIssuerWithdrawBody": "{payer} kann sie dann nicht mehr bezahlen.",
+  "deskInvIssuerWithdrawBody": "{payer} kann sie dann nicht mehr bezahlen. Nichts wurde bezahlt, also bewegen sich keine Coins.",
   "deskInvIssuerKeep": "Behalten",
   "deskInvIssuerWithdrawn": "Rechnung zurückgezogen.",
   "deskInvIssuerRepost": "Erneut übertragen",

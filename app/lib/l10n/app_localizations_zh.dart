@@ -751,7 +751,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '发送方可能已经广播了这笔付款。钱包会先询问节点，只取消网络中没有的付款。如果发送方之后广播，付款仍会到账。';
 
   @override
-  String get txDetailsCancelSendBody => '取消这笔付款并解锁其资金？仅在接收方尚未完成时这样做。';
+  String get txDetailsCancelSendBody => '没有你的钱包，接收方的钱包无法完成这笔付款。取消会释放你的币。';
 
   @override
   String get txDetailsCancelKeep => '保留';
@@ -1581,7 +1581,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer 将无法再支付它。此操作无法撤销。';
+    return '$payer 将无法再支付它。尚未支付任何款项，因此没有币被移动。此操作无法撤销。';
   }
 
   @override
@@ -4682,9 +4682,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
 
   @override
-  String get sendCancelPossibleWhileWaiting => '在付款等待对方期间可以操作。';
-
-  @override
   String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
 
   @override
@@ -4962,7 +4959,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer 将无法再支付它。';
+    return '$payer 将无法再支付它。尚未支付任何款项，因此没有币被移动。';
   }
 
   @override
@@ -8465,7 +8462,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '发往 $who 的 $amount EPIC。锁定的金额会退回余额。如果接收方已经完成了这笔交易，它仍可能被确认。';
+    return '发往 $who 的 $amount EPIC。没有你的钱包，接收方的钱包无法完成它：锁定的金额会退回余额。';
   }
 
   @override
@@ -15769,4 +15766,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => '打开应用菜单';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      '对方持有你已签名的付款，在这些币被再次花出之前仍可能将其广播。在这里取消会释放你的币。';
+
+  @override
+  String get cancelMoreInHelp => '详见帮助';
+
+  @override
+  String get cancelNoteSendWaiting => '尚未发到网络：取消会释放你的币。';
+
+  @override
+  String get cancelNoteNotPosted => '尚未进入网络：取消会释放你的币。钱包会先检查网络。';
+
+  @override
+  String get cancelNoteDirectFailed => '接收方没有收到任何内容：取消会释放你的币。';
+
+  @override
+  String get cancelNoteRequestPaid => '对方持有你已签名的付款，仍可能将其广播。在这里取消会释放你的币。';
+
+  @override
+  String get cancelNoteRequestWithdraw => '尚未支付任何款项：撤回不会移动任何币。';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '发往 $who 的 $amount EPIC。两个钱包都已签名，但网络尚未接受它。钱包会先询问节点，如果网络已有这笔付款则拒绝；否则锁定的金额会退回余额。';
+  }
 }

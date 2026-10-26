@@ -99,7 +99,15 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     if (widget.arg case HelpAt(:final section) when _sectionKeys.containsKey(section)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys[section]!));
     }
+    if (widget.arg case HelpAt(:final id, :final anchor) when id.isNotEmpty) {
+      // The topic opens with the page (initiallyOpen): its heading has a size at the first frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _show(anchor.isNotEmpty && _anchorKey.currentContext != null ? _anchorKey : _topicKey));
+    }
   }
+
+  /// The topic and the heading [HelpAt.topic] opens at.
+  final _topicKey = GlobalKey(debugLabel: 'help topic');
+  final _anchorKey = GlobalKey(debugLabel: 'help anchor');
 
   @override
   void dispose() {
@@ -134,10 +142,17 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     Scrollable.ensureVisible(ctx, alignment: alignment, duration: instant ? Duration.zero : Dur.slow, curve: Curves.easeOut);
   }
 
+  /// Whether [t] is the topic [HelpAt.topic] opens.
+  bool _isTarget(HelpTopic t) => switch (widget.arg) {
+    HelpAt(:final id) when id.isNotEmpty => t.id == id,
+    _ => false,
+  };
+
   /// The topic open at the start for the screenshots.
   bool _openAtStart(HelpTopic t, int index) => switch (widget.arg) {
     HelpDemo.open => t.handshake,
     HelpDemo.bottom => t.id == HelpId.tor,
+    HelpAt(:final id) when id.isNotEmpty => t.id == id,
     HelpAt(:final section, :final topic) => t.section == section && index == topic,
     _ => false,
   };
@@ -243,7 +258,16 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                   child: _Box(
                     children: [
                       _SectionHead(section: s, art: art, count: topics.length),
-                      for (final (i, t) in topics.indexed) _Topic(key: ValueKey(t.title), topic: t, words: const [], first: i == 0, initiallyOpen: _openAtStart(t, i)),
+                      for (final (i, t) in topics.indexed)
+                        _Topic(
+                          key: _isTarget(t) ? _topicKey : ValueKey(t.title),
+                          topic: t,
+                          words: const [],
+                          first: i == 0,
+                          initiallyOpen: _openAtStart(t, i),
+                          anchor: _isTarget(t) ? (widget.arg as HelpAt).anchor : '',
+                          anchorKey: _anchorKey,
+                        ),
                     ],
                   ),
                 ),
@@ -399,10 +423,14 @@ class _SectionHead extends StatelessWidget {
 
 /// One topic: title and answer always shown; Read more opens the body under them.
 class _Topic extends ConsumerStatefulWidget {
-  const _Topic({super.key, required this.topic, required this.words, required this.first, this.initiallyOpen = false});
+  const _Topic({super.key, required this.topic, required this.words, required this.first, this.initiallyOpen = false, this.anchor = '', this.anchorKey});
 
   final HelpTopic topic;
   final List<String> words;
+
+  /// The heading [anchorKey] goes on, for the screen to scroll to ([HelpAt.anchor]).
+  final String anchor;
+  final GlobalKey? anchorKey;
 
   /// The first row of its box: no line above it.
   final bool first;
@@ -479,7 +507,7 @@ class _TopicState extends ConsumerState<_Topic> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final b in t.body) _Block(block: b, words: widget.words, style: answer),
+                      for (final b in t.body) _Block(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? widget.anchorKey : null, block: b, words: widget.words, style: answer),
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
                     ],
                   ),
@@ -496,7 +524,7 @@ class _TopicState extends ConsumerState<_Topic> {
 /// A paragraph or a list of a topic's body, with its terms, places and search marks. A place is
 /// a link to its page (see [openDeskHelpPlace]).
 class _Block extends ConsumerWidget {
-  const _Block({required this.block, required this.words, required this.style});
+  const _Block({super.key, required this.block, required this.words, required this.style});
 
   final HelpBlock block;
   final List<String> words;
@@ -531,6 +559,12 @@ class _Block extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gap = EdgeInsets.only(bottom: Sp.x2);
+    if (block.kind == HelpBlockKind.h) {
+      return Padding(
+        padding: EdgeInsets.only(top: Sp.x2, bottom: Sp.x2),
+        child: Semantics(header: true, child: Text.rich(marked(context, block.text, words, context.ts.strong))),
+      );
+    }
     if (block.kind == HelpBlockKind.p) return Padding(padding: gap, child: Text.rich(_rich(context, ref, block.text)));
     return Padding(
       padding: gap,

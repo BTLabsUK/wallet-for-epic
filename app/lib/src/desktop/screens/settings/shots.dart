@@ -18,6 +18,7 @@ import 'settings_phrase.dart';
 import 'settings_privacy.dart' show PrivacyDemo;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
+import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
@@ -245,6 +246,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
   const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Tor and Logs', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
   const DeskShot(id: '30f-settings-help-cleanup', title: 'Help › Maintenance: clean up old wallet folders', route: DeskRoute.settingsHelp, arg: HelpAt('maintenance'), height: 1000),
+  const DeskShot(id: '30g-settings-help-cancel', title: 'Help › Cancelling a payment, opened at Receiving', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.cancel, anchor: HelpAnchor.receiving), height: 1000),
   DeskShot(
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',

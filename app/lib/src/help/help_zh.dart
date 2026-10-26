@@ -54,7 +54,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', '点 **确认发送**，检查无误后点 **发送 … EPIC**。']),
         const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的输出会被锁定，因此无法被花费两次。'),
         HelpBlock.p('收到对方回复后，钱包会自动完成交易并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
-        HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消发送以解锁输出。发送永远不会自动取消。'),
+        HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消发送以解锁输出。无人回复的发送会在大约一天后自动取消。'),
         if (phone)
           const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；链接地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。')
         else
@@ -386,6 +386,28 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**某个操作是灰色的，并写着“离线模式”或“等待 Tor”。** “高级”中开启了“离线”或“仅 Tor”。请在那里把模式改回“标准”，或等待 Tor 连接。'),
       ],
       id: HelpId.trouble,
+    ),
+    HelpTopic(
+      'trouble',
+      '取消付款',
+      '何时取消一定成功，何时不一定，以及币会怎样。',
+      [
+        const HelpBlock.h('发送', anchor: HelpAnchor.sending),
+        const HelpBlock.p('你发出的付款会等待对方钱包回复。等待期间，取消一定成功：没有你的钱包，任何东西都无法进入网络，币会立刻回到你手中。对方钱包可能仍显示这笔付款在等待，但无法完成它。'),
+        const HelpBlock.p('收到回复后，你的钱包会一步完成付款并广播到网络。已广播的付款无法取消、撤销或退款；只有接收方能把钱付回来。如果网络拒绝了它，钱包会提供再次广播或取消。这种取消会先询问网络，只在网络没有这笔付款时才继续。'),
+        const HelpBlock.p('一直没有回复的付款会在大约一天（1,440 个区块）后自动取消，币重新可用。Epicbox、Link 和直连付款都一样：在对方的回复进入你的钱包之前，取消一定成功。'),
+        HelpBlock.p('**发送看起来卡住了。** 通常是对方钱包离线。等一等，或在 $cancelPlace 取消后重新发送；已取消的付款之后不会再成交。'),
+        const HelpBlock.h('接收', anchor: HelpAnchor.receiving),
+        const HelpBlock.p('付款到达时，你的钱包会立即回复，你的任何东西都不会被锁定。此后由付款方的钱包完成并广播，通常只需几分钟，所以 15 分钟内不提供取消；在付款方报告已广播期间也不提供。'),
+        const HelpBlock.p('之后，取消只是清理付款方始终没有广播的付款。它不一定成功：钱包会先询问网络，如果付款已在网络中则拒绝。已取消的付款仍会被关注。如果付款方之后广播了，它仍会到达并显示为已收到。'),
+        const HelpBlock.h('收款请求（实验性）', anchor: HelpAnchor.requests),
+        const HelpBlock.p('你发出的请求在被支付之前不持有任何币。在此之前可以随时撤回：付款方将无法再支付，也没有币移动。无人支付的请求在 24 小时后过期。以二维码展示的请求只能支付一次；第二次扫描会被拒绝，所以不会重复付款。'),
+        if (phone)
+          const HelpBlock.p('你支付的请求则相反：对方持有你已签名的付款并由对方完成。取消会在其时限到期时出现，大约在你付款一天后，或在对方提前撤回时更早出现。在这里取消会释放币，但在这些币被再次花出之前，对方仍可能广播这笔付款。')
+        else
+          const HelpBlock.p('你支付的请求则相反：对方持有你已签名的付款并由对方完成。取消会在其时限到期时出现，大约在你付款一天后，或在对方提前撤回时更早出现。在这里取消会释放币，但在这些币被再次花出之前，对方仍可能广播这笔付款。随取消一起提供的“发给自己”会让取消成为最终结果。'),
+      ],
+      id: HelpId.cancel,
     ),
     if (!phone)
       const HelpTopic(

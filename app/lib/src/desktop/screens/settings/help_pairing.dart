@@ -4,20 +4,28 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 export 'help_topics.dart' show pairingHelpSection, pairingHelpTopics;
 
-/// Opens Help at a section: scrolls to it and opens its first topic.
+/// Opens Help at a section: scrolls to it and opens its first topic. [HelpAt.topic] opens one
+/// topic by its id instead, scrolled to one of its headings when [anchor] names one.
 class HelpAt {
-  const HelpAt(this.section, {this.topic = 0});
+  const HelpAt(this.section, {this.topic = 0}) : id = '', anchor = '';
+  const HelpAt.topic(this.id, {this.anchor = ''}) : section = '', topic = -1;
 
   final String section;
 
   /// Which topic of the section opens.
   final int topic;
 
-  @override
-  bool operator ==(Object other) => other is HelpAt && other.section == section && other.topic == topic;
+  /// The topic to open, by [HelpTopic.id]; empty when [section] says where.
+  final String id;
+
+  /// The heading to scroll to ([HelpBlock.anchor]); empty for the topic's top.
+  final String anchor;
 
   @override
-  int get hashCode => Object.hash(section, topic);
+  bool operator ==(Object other) => other is HelpAt && other.section == section && other.topic == topic && other.id == id && other.anchor == anchor;
+
+  @override
+  int get hashCode => Object.hash(section, topic, id, anchor);
 }
 
 String pairingHelpTitle(AppLocalizations l) => l.helpPairingSection;

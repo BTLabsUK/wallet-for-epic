@@ -826,7 +826,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Anulować tę płatność i odblokować jej środki? Zrób to tylko wtedy, gdy odbiorca jej nie sfinalizował.';
+      'Portfel odbiorcy nie może dokończyć tej płatności bez twojego. Anulowanie uwalnia twoje monety.';
 
   @override
   String get txDetailsCancelKeep => 'Zachowaj';
@@ -1730,7 +1730,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String issuedWithdrawBody(String payer) {
-    return '$payer nie może już jej zapłacić. Tego nie można cofnąć.';
+    return '$payer nie może już jej zapłacić. Nic nie zapłacono, więc żadne monety się nie przenoszą. Tego nie można cofnąć.';
   }
 
   @override
@@ -5083,10 +5083,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zwykłe HTTP do innego urządzenia. Każdy po drodze może odczytać transakcję. Adres https:// jest szyfrowany.';
 
   @override
-  String get sendCancelPossibleWhileWaiting =>
-      'Możliwe, dopóki płatność czeka na odbiorcę.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
@@ -5391,7 +5387,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskInvIssuerWithdrawBody(String payer) {
-    return '$payer nie może już jej zapłacić.';
+    return '$payer nie może już jej zapłacić. Nic nie zapłacono, więc żadne monety się nie przenoszą.';
   }
 
   @override
@@ -9198,7 +9194,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC do $who. Zablokowana kwota wróci do salda. Jeśli odbiorca już ją sfinalizował, może jednak zostać potwierdzona.';
+    return '$amount EPIC do $who. Portfel odbiorcy nie może jej dokończyć bez twojego: zablokowana kwota wraca do salda.';
   }
 
   @override
@@ -17113,4 +17109,36 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarKeyMenu => 'Otwórz menu aplikacji';
+
+  @override
+  String get txDetailsCancelRequestBody =>
+      'Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać, dopóki te monety nie zostaną ponownie wydane. Anulowanie uwalnia twoje monety tutaj.';
+
+  @override
+  String get cancelMoreInHelp => 'Więcej w Pomocy';
+
+  @override
+  String get cancelNoteSendWaiting =>
+      'Jeszcze nie wysłano do sieci: anulowanie uwalnia twoje monety.';
+
+  @override
+  String get cancelNoteNotPosted =>
+      'Jeszcze nie w sieci: anulowanie uwalnia twoje monety. Portfel najpierw sprawdza sieć.';
+
+  @override
+  String get cancelNoteDirectFailed =>
+      'Nic nie dotarło do odbiorcy: anulowanie uwalnia twoje monety.';
+
+  @override
+  String get cancelNoteRequestPaid =>
+      'Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać. Anulowanie uwalnia twoje monety tutaj.';
+
+  @override
+  String get cancelNoteRequestWithdraw =>
+      'Nic nie zapłacono: wycofanie nie przenosi żadnych monet.';
+
+  @override
+  String deskTxCancelNotPostedBody(String amount, String who) {
+    return '$amount EPIC do $who. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.';
+  }
 }
