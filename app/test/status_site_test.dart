@@ -131,6 +131,30 @@ void main() {
       expect(await dir.nodes('mainnet'), isNotEmpty);
     });
 
+    // A cold onion rendezvous: tor's SOCKS error on the first try, an answer on the next.
+    Future<HttpReply> Function() failOnce() {
+      var calls = 0;
+      return () async {
+        if (calls++ == 0) throw const NetError('SocksError');
+        return HttpReply(200, _sample);
+      };
+    }
+
+    test('Tor on: a failed first try is tried once more', () async {
+      TorSwitch.on = true;
+      final r = _Recorder(reply: failOnce());
+      final dir = HttpRelayDirectory(get: r.get, torRetryPause: const Duration(milliseconds: 10));
+      expect(await dir.nodes('mainnet'), isNotEmpty);
+      expect(r.hosts, hasLength(2));
+    });
+
+    test('Tor off: a failure is not tried again', () async {
+      final r = _Recorder(reply: failOnce());
+      final dir = HttpRelayDirectory(get: r.get, torRetryPause: const Duration(milliseconds: 10));
+      await expectLater(dir.nodes('mainnet'), throwsA(isA<NetError>()));
+      expect(r.hosts, hasLength(1));
+    });
+
     test('Tor off: the short limit still applies', () async {
       final r = _Recorder(reply: slow);
       final dir = HttpRelayDirectory(

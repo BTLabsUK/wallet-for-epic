@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'log.dart';
 import 'models.dart' show Chain;
 import 'net/http.dart';
 import 'net/tor_switch.dart';
@@ -456,6 +457,7 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
   HttpRelayDirectory({
     this.timeout = const Duration(seconds: 4),
     this.torTimeout = const Duration(seconds: 30),
+    this.torRetryPause = const Duration(seconds: 1),
     this.fresh = const Duration(minutes: 1),
     Future<HttpReply> Function(Uri url, {Duration timeout})? get,
     DateTime Function()? now,
@@ -467,8 +469,10 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
   final Duration timeout;
 
   /// Over Tor the site is its onion: a first rendezvous takes several seconds and a warm one
-  /// about 3 s, so [timeout] would fail most fetches. Also covers the wait for tor to connect.
+  /// about 3 s, so [timeout] would fail most fetches. Also covers the wait for tor to connect
+  /// and one more try after [torRetryPause] when the first fails.
   final Duration torTimeout;
+  final Duration torRetryPause;
   final Duration fresh;
   final Future<HttpReply> Function(Uri url, {Duration timeout}) _get;
   final DateTime Function() _now;
@@ -493,10 +497,28 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
     if (!await _site.allowed()) throw const NetError('status site off');
     final url = Uri.parse(relayStatusUrl)
         .replace(queryParameters: chain == 'mainnet' ? null : {'chain': chain});
-    final limit = TorSwitch.on ? torTimeout : timeout;
-    final reply = await _get(url, timeout: limit).timeout(limit);
-    if (reply.status != 200) throw NetError('status ${reply.status}');
-    return reply.body;
+    final tor = TorSwitch.on;
+    final limit = tor ? torTimeout : timeout;
+    final watch = Stopwatch()..start();
+    try {
+      HttpReply reply;
+      try {
+        reply = await _get(url, timeout: limit).timeout(limit);
+      } on NetError {
+        // A cold onion rendezvous often fails once (tor's SOCKS error after several seconds)
+        // and the next works: over Tor, one more try in what is left of the limit.
+        final left = limit - watch.elapsed - torRetryPause;
+        if (!tor || left < torRetryPause) rethrow;
+        await Future<void>.delayed(torRetryPause);
+        reply = await _get(url, timeout: left).timeout(left);
+      }
+      if (reply.status != 200) throw NetError('status ${reply.status}');
+      return reply.body;
+    } catch (error) {
+      // The health lines then read "not reachable": the reason belongs in a report.
+      logInfo('status', 'site not read ($chain${TorSwitch.on ? ', over Tor' : ''}, ${watch.elapsedMilliseconds} ms): $error');
+      rethrow;
+    }
   }
 
   @override
