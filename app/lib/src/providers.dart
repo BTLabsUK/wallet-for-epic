@@ -19,6 +19,7 @@ import 'network_gate.dart';
 import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
 import 'stall_retry.dart';
+import 'watch_mode.dart' show BlockWatch;
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
@@ -304,6 +305,13 @@ final homeProvider = AsyncNotifierProvider.autoDispose<HomeNotifier, HomeData>(
   HomeNotifier.new,
 );
 
+/// The tip each payment of the open wallet waiting for a block was first seen at, for the note
+/// in its details once its watch window passed ([BlockWatch]), kept across reloads.
+final blockWatchProvider = Provider<BlockWatch>((ref) {
+  ref.watch(sessionProvider);
+  return BlockWatch();
+});
+
 /// The automatic reposts and resends of the open wallet ([StallRetry]), kept across reloads.
 final stallRetryProvider = Provider<StallRetry>((ref) {
   ref.watch(sessionProvider);
@@ -362,6 +370,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     }
     if (summary == null) throw StateError('Refresh ended without balances');
     final transactions = await session.transactions(refresh: false);
+    ref.read(blockWatchProvider).saw(transactions, summary.lastConfirmedHeight, now: ref.read(clockProvider)());
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
     unawaited(_retryStalled(session, transactions));

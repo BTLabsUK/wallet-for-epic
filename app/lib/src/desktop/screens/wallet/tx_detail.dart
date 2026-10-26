@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../known_relays.dart' show recipientRelay;
 import '../../../l10n.dart' show acceptedAgoText;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
+import '../../../watch_mode.dart' show BlockWait;
 import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show cancelRefusedText, deskErrorText;
@@ -93,6 +94,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
             _ => l.deskTxNowUndelivered,
           },
+          // Past its watch window and still in no block: why, in one calm line.
+          TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.noNewBlock => l.txWaitNoNewBlock,
+          TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.notInBlock => l.txWaitNotInBlock,
           TxState.waitingRecipient when t.incoming && t.senderPosted => l.deskTxNowSenderPosted,
           TxState.waitingRecipient =>
             t.incoming

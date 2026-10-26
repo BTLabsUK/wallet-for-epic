@@ -777,6 +777,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsNotConfirmedYet => 'Jeszcze niepotwierdzona';
 
   @override
+  String get txWaitNoNewBlock => 'Oczekiwanie na wykopanie kolejnego bloku.';
+
+  @override
+  String get txWaitNotInBlock =>
+      'Jeszcze nie w bloku. Płatność może być wciąż w drodze do sieci.';
+
+  @override
   String get txDetailsStuckBody =>
       'Sieć jeszcze nie przyjęła tej płatności. Ponowne rozgłoszenie jest bezpieczne. Ta sama płatność nie może przejść dwa razy.';
 

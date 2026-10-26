@@ -847,6 +847,14 @@
   "@txDetailsNotConfirmedYet": {
     "description": "Small heading above txDetailsStuckBody, for a send the network has not included for a while."
   },
+  "txWaitNoNewBlock": "Waiting for the next block to be mined.",
+  "@txWaitNoNewBlock": {
+    "description": "A payment's details, minutes after it should have reached a block: no new block was mined since. The network is slow, nothing is wrong with the payment."
+  },
+  "txWaitNotInBlock": "Not in a block yet. It may still be on its way to the network.",
+  "@txWaitNotInBlock": {
+    "description": "A payment's details, minutes after it should have reached a block: blocks were mined, but the payment is in none of them yet (it may still be reaching the network, or the sender has not posted it)."
+  },
   "txDetailsStuckBody": "The network has not taken this payment yet. Broadcasting it again is safe. The same payment cannot go through twice.",
   "txDetailsBroadcastAgain": "Broadcast again",
   "@txDetailsBroadcastAgain": {

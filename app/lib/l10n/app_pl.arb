@@ -176,6 +176,8 @@
   "txDetailsWorking": "Przetwarzanie",
   "txDetailsAmountHidden": "Kwota ukryta",
   "txDetailsNotConfirmedYet": "Jeszcze niepotwierdzona",
+  "txWaitNoNewBlock": "Oczekiwanie na wykopanie kolejnego bloku.",
+  "txWaitNotInBlock": "Jeszcze nie w bloku. Płatność może być wciąż w drodze do sieci.",
   "txDetailsStuckBody": "Sieć jeszcze nie przyjęła tej płatności. Ponowne rozgłoszenie jest bezpieczne. Ta sama płatność nie może przejść dwa razy.",
   "txDetailsBroadcastAgain": "Rozgłoś ponownie",
   "txDetailsBroadcastAgainDone": "Rozgłoszono ponownie. Płatność powinna zostać potwierdzona w ciągu kilku minut.",
