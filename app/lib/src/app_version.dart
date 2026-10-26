@@ -4,7 +4,7 @@ library;
 /// The app's version, calendar versioning `YY.MM.patch` (a test build adds `-rcN`): the same
 /// as `pubspec.yaml`'s `version:` before the `+`. Written by `tools/version.sh set` at release
 /// time only; `tools/version.sh check` and `test/version_test.dart` fail when the two drift.
-const String appVersion = '26.10.16';
+const String appVersion = '26.10.17';
 
 /// LEPIC's version (SemVer): the workspace version in its `Cargo.toml` at the pin
 /// (`tools/lepic.rev`). `tools/version.sh core` writes it after the pin moves; the check fails
