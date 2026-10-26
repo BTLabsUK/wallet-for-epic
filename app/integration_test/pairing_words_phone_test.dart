@@ -201,12 +201,24 @@ void main() {
 
   testWidgets('phone: pairing words on a relay outside the meeting list ($_mode)', (tester) async {
     final c = await boot(tester, Chain.mainnet);
-    await tester.runAsync(() async {
-      await c.read(networkChoiceProvider.notifier).save(mainnetPreset, _node, relay: _ownRelay);
-    });
     await createWallet(tester);
     await tester.runAsync(() => c.read(appSettingsProvider.notifier).setAdvanced(AdvancedPrefs(features: {AdvancedFeature.pairing})));
-    await settle(tester, ms: 1500);
+    // The relay the owner had, switched live as Settings does (server_switch.dart).
+    final opened = c.read(walletConfigProvider)!;
+    final moved = WalletConfig(
+      dataDir: opened.dataDir,
+      chain: opened.chain,
+      nodeUrl: _node,
+      epicboxDomain: _ownRelay.host,
+      epicboxPort: _ownRelay.port,
+      walletId: opened.walletId,
+    );
+    await tester.runAsync(() async {
+      await c.read(sessionProvider)!.setServers(config: moved);
+      await c.read(networkChoiceProvider.notifier).save(mainnetPreset, _node, relay: _ownRelay);
+    });
+    c.read(walletConfigProvider.notifier).select(moved);
+    await settle(tester, ms: 3000);
     final config = c.read(walletConfigProvider)!;
     record('the phone wallet is on ${config.epicboxDomain}', config.epicboxDomain == _ownRelay.host, '${config.chain.name} ${config.nodeUrl}');
     final lookup = await tester.runAsync(
@@ -234,8 +246,19 @@ void main() {
     if (invite == null) return;
 
     // Copy puts the names alone on the clipboard, as the other side pastes them.
-    await tapText(tester, _l.pairWordsCopy);
-    final copied = (await tester.runAsync(() => Clipboard.getData(Clipboard.kTextPlain)))?.text ?? '';
+    // What the button hands the system clipboard, taken off the platform call on its way (this
+    // Android does not let the test read the clipboard back); other platform calls go through.
+    var copied = '';
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') copied = ((call.arguments as Map?)?['text'] as String?) ?? '';
+      return null;
+    });
+    final copy = find.ancestor(of: textF(_l.pairWordsCopy), matching: find.byWidgetPredicate((w) => w is ButtonStyleButton));
+    await tapF(tester, copy);
+    await settle(tester, ms: 1000);
+    messenger.setMockMethodCallHandler(SystemChannels.platform, null);
+    note('after Copy: ${hasText(_l.pairCopied) ? 'Copied notice shown' : 'no Copied notice'}');
     final names = invite.inviteWords.map((w) => w.name).join(' ');
     record('Copy puts only the words on the clipboard', copied == names, copied);
     note('COPIED|$copied|');
