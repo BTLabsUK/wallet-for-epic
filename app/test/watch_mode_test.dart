@@ -48,7 +48,7 @@ void main() {
         fakeTx(
           kind: TxKind.received,
           status: TxStatus.confirmed,
-          createdAtUnix: _ago(const Duration(days: 2)),
+          createdAtUnix: _ago(const Duration(minutes: 5)),
           blockHeight: _tip,
         ),
       ),
@@ -57,7 +57,7 @@ void main() {
         fakeTx(
           kind: TxKind.sent,
           status: TxStatus.confirmed,
-          createdAtUnix: _ago(const Duration(days: 2)),
+          createdAtUnix: _ago(const Duration(minutes: 5)),
           blockHeight: _tip - BigInt.one,
         ),
       ),
@@ -126,7 +126,7 @@ void main() {
       listPace(
         [
           fakeTx(kind: TxKind.received, status: TxStatus.awaitingConfirmation, createdAtUnix: _ago(const Duration(minutes: 3))),
-          fakeTx(kind: TxKind.sent, status: TxStatus.confirmed, createdAtUnix: _ago(const Duration(days: 1)), blockHeight: _tip),
+          fakeTx(kind: TxKind.sent, status: TxStatus.confirmed, createdAtUnix: _ago(const Duration(minutes: 3)), blockHeight: _tip),
         ],
         now: _now,
         tip: _tip,
@@ -217,5 +217,36 @@ void main() {
     expect(postingNow(at(const Duration(seconds: 2)), _now), isTrue);
     expect(postingNow(at(postingFor), _now), isFalse, reason: 'a refused post keeps Not posted');
     expect(postingNow(at(const Duration(seconds: 2), repostable: false), _now), isFalse);
+  });
+
+  test('a receive still waiting for its sender keeps saying so; one the sender reports posted gets the note', () {
+    final answered = fakeTx(key: 'a', kind: TxKind.received, status: TxStatus.awaitingConfirmation, createdAtUnix: _ago(const Duration(minutes: 20)));
+    final reported = fakeTx(
+      key: 'r',
+      kind: TxKind.received,
+      status: TxStatus.awaitingConfirmation,
+      createdAtUnix: _ago(const Duration(minutes: 20)),
+      senderReportedPostedAtUnix: _ago(const Duration(minutes: 6)),
+      transport: 'epicbox',
+    );
+    final watch = BlockWatch()..saw([answered, reported], _tip, now: _now);
+    expect(watch.waitOf(answered, now: _now, tip: _tip + BigInt.one), BlockWait.none);
+    expect(watch.waitOf(reported, now: _now, tip: _tip + BigInt.one), BlockWait.notInBlock);
+  });
+
+  test('a step dated in the future, or a block count stuck for half an hour, is not watched', () {
+    expect(
+      _watched(fakeTx(kind: TxKind.received, status: TxStatus.awaitingConfirmation, createdAtUnix: _ago(const Duration(hours: 2)), senderReportedPostedAtUnix: _ago(const Duration(minutes: -30)))),
+      isFalse,
+    );
+    expect(
+      _watched(fakeTx(kind: TxKind.sent, status: TxStatus.confirmed, createdAtUnix: _ago(watchInBlockFor), blockHeight: _tip)),
+      isFalse,
+    );
+  });
+
+  test('the step keeps every pace exact', () {
+    expect(TipPacer(normal: const Duration(seconds: 15)).step, const Duration(seconds: 1));
+    expect(TipPacer(normal: const Duration(seconds: 30)).step, const Duration(seconds: 2));
   });
 }

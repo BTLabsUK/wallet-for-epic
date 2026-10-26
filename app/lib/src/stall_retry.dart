@@ -116,7 +116,9 @@ class StallRetry {
                 ? DateTime.fromMillisecondsSinceEpoch(finalized * 1000)
                 : now,
           );
-          if (!back && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;
+          // Back after an outage: a post the node refused goes again now. A payment that is
+          // posted and waiting gains nothing from it, and keeps its waits.
+          if (!(back && tx.repostable) && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;
           _tried(tx.key, now);
           try {
             await session.repostTransaction(key: tx.key);

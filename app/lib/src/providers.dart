@@ -370,7 +370,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     }
     if (summary == null) throw StateError('Refresh ended without balances');
     final transactions = await session.transactions(refresh: false);
-    ref.read(blockWatchProvider).saw(transactions, summary.lastConfirmedHeight);
+    ref.read(blockWatchProvider).saw(transactions, summary.lastConfirmedHeight, now: ref.read(clockProvider)());
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
     unawaited(_retryStalled(session, transactions));

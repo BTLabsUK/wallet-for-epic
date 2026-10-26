@@ -49,14 +49,19 @@ enum BlockWait {
   notInBlock,
 }
 
-/// The last step of [tx] that this wallet knows of, in unix seconds.
-int _lastStepUnix(TxEntry tx) {
-  var at = tx.createdAtUnix;
-  final finalized = tx.finalizedAtUnix;
-  if (finalized != null && finalized > at) at = finalized;
-  final reported = tx.senderReportedPostedAtUnix;
-  if (reported != null && reported > at) at = reported;
-  return at;
+/// How long a payment in a block is watched at most, from its last step: a node that answers
+/// but stays at one height is then asked at the normal pace.
+const Duration watchInBlockFor = Duration(minutes: 30);
+
+/// Seconds from the last step of [tx] that this wallet knows of to [now]. A step dated after
+/// [now] (a clock moved back, or the sender's clock ahead in its report) is not counted.
+int _sinceLastStep(TxEntry tx, DateTime now) {
+  final nowUnix = now.millisecondsSinceEpoch ~/ 1000;
+  var at = tx.createdAtUnix > nowUnix ? 0 : tx.createdAtUnix;
+  for (final step in [tx.finalizedAtUnix, tx.senderReportedPostedAtUnix]) {
+    if (step != null && step > at && step <= nowUnix) at = step;
+  }
+  return nowUnix - at;
 }
 
 /// How closely [tx] is watched at [now]: in a block under [minConfirmations] at [tip] fast
@@ -69,13 +74,13 @@ WatchPace watchPace(
   required int minConfirmations,
 }) {
   if (tx.source != TxSource.wallet || tx.status == TxStatus.cancelled) return WatchPace.none;
+  final since = _sinceLastStep(tx, now);
   final height = tx.blockHeight;
   if (height != null) {
-    if (tip <= BigInt.zero || height > tip) return WatchPace.none;
+    if (tip <= BigInt.zero || height > tip || since >= watchInBlockFor.inSeconds) return WatchPace.none;
     return (tip - height).toInt() + 1 < minConfirmations ? WatchPace.fast : WatchPace.none;
   }
   if (tx.status == TxStatus.confirmed) return WatchPace.none;
-  final since = now.millisecondsSinceEpoch ~/ 1000 - _lastStepUnix(tx);
   if (since < watchFastFor.inSeconds) return WatchPace.fast;
   if (since < watchWindow.inSeconds) return WatchPace.slow;
   return WatchPace.none;
@@ -127,16 +132,18 @@ bool anyWatched(
   required int minConfirmations,
 }) => listPace(txs, now: now, tip: tip, minConfirmations: minConfirmations) != WatchPace.none;
 
-/// Whether [tx] is one the wait note can speak for: a payment of this wallet that is done on
-/// its side (finalized, or answered by us) and now waits only for a block. A send the node
-/// refused has its own state (not posted, posted again by itself); an unpaid request waits for
-/// its payer.
-bool _waitsForBlock(TxEntry tx) =>
+/// Whether [tx] is one the wait note can speak for at [now]: a payment that waits only for a
+/// block. That is a send this wallet finalized, or a payment we answered whose sender reports it
+/// posted ([senderReportsPosted]); any other receive still waits for its sender, and says so. A
+/// send the node refused has its own state (not posted, posted again by itself); an unpaid
+/// request waits for its payer.
+bool _waitsForBlock(TxEntry tx, DateTime now) =>
     tx.source == TxSource.wallet &&
     tx.status == TxStatus.awaitingConfirmation &&
     tx.blockHeight == null &&
     !tx.repostable &&
-    !tx.awaitingPayer;
+    !tx.awaitingPayer &&
+    ((tx.kind == TxKind.sent && tx.finalizedAtUnix != null) || senderReportsPosted(tx, now: now));
 
 /// The tip each waiting payment was first seen at, for one open wallet, to tell "no block came"
 /// from "blocks came without it" once [watchWindow] has passed. In memory: a payment first seen
@@ -146,9 +153,10 @@ class BlockWatch {
 
   /// Notes the tip for each of [txs] waiting for a block, and forgets the rest. Call it with
   /// each list read and the tip it was read at.
-  void saw(Iterable<TxEntry> txs, BigInt tip) {
+  void saw(Iterable<TxEntry> txs, BigInt tip, {DateTime? now}) {
     if (tip <= BigInt.zero) return;
-    final waiting = {for (final t in txs) if (_waitsForBlock(t)) t.key};
+    final at = now ?? DateTime.now();
+    final waiting = {for (final t in txs) if (_waitsForBlock(t, at)) t.key};
     _tipAt.removeWhere((k, _) => !waiting.contains(k));
     for (final k in waiting) {
       _tipAt.putIfAbsent(k, () => tip);
@@ -157,9 +165,8 @@ class BlockWatch {
 
   /// Why [tx] is still not in a block at [now] with the node at [tip], once its window passed.
   BlockWait waitOf(TxEntry tx, {required DateTime now, required BigInt tip}) {
-    if (!_waitsForBlock(tx)) return BlockWait.none;
-    final since = now.millisecondsSinceEpoch ~/ 1000 - _lastStepUnix(tx);
-    if (since < watchWindow.inSeconds) return BlockWait.none;
+    if (!_waitsForBlock(tx, now)) return BlockWait.none;
+    if (_sinceLastStep(tx, now) < watchWindow.inSeconds) return BlockWait.none;
     final at = _tipAt[tx.key];
     if (at == null || tip <= BigInt.zero) return BlockWait.none;
     return tip > at ? BlockWait.notInBlock : BlockWait.noNewBlock;
@@ -175,7 +182,14 @@ class TipPacer {
     this.watch = watchFastEvery,
     this.watchSlow = watchSlowEvery,
     Duration? step,
-  }) : step = step ?? (watch < normal ? watch : normal);
+  }) : step = step ?? _common([normal, watch, watchSlow]);
+
+  /// The longest step every pace is a whole number of: the paces keep their exact length.
+  static Duration _common(List<Duration> paces) {
+    int gcd(int a, int b) => b == 0 ? a : gcd(b, a % b);
+    final ms = paces.map((d) => d.inMilliseconds).where((m) => m > 0).fold(0, gcd);
+    return Duration(milliseconds: ms > 0 ? ms : 1000);
+  }
 
   /// The pace outside watch mode.
   final Duration normal;
@@ -212,9 +226,10 @@ class TipPacer {
     return true;
   }
 
-  /// The node answered. True when it had failed before: it is back.
+  /// The node answered. True when it had failed at least twice in a row before: it is back. One
+  /// dropped ask (a flaky circuit) is not an outage.
   bool answered() {
-    final back = _failures > 0;
+    final back = _failures >= 2;
     _failures = 0;
     return back;
   }
