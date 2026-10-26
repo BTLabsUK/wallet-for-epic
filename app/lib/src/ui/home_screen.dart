@@ -20,6 +20,7 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
+import '../watch_mode.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
@@ -54,6 +55,8 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 /// How often home asks the node for its tip between refreshes; a new block refreshes at once,
 /// as the desktop does. Epic's blocks come in bursts (three in a minute is common), so a
 /// refresh each minute alone could go from Confirming 0/3 to completed with nothing between.
+/// While a payment can move with the next block it asks more often (watch mode,
+/// watch_mode.dart).
 const Duration tipCheckInterval = Duration(seconds: 15);
 
 /// Transactions shown under "Recent activity".
@@ -226,6 +229,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Timer? _timer;
   Timer? _tipTimer;
   bool _tipBusy = false;
+  final TipPacer _tipPace = TipPacer(normal: tipCheckInterval);
 
   /// Payments whose "could not reach the node" notice was already shown.
   final Set<String> _delayedShown = {};
@@ -254,7 +258,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _lifecycle;
     _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
-    _tipTimer = Timer.periodic(tipCheckInterval, (_) => _checkTip());
+    _tipTimer = Timer.periodic(_tipPace.step, (_) => _tipTick());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
@@ -298,9 +302,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _refresh();
   }
 
+  /// How closely the list is watched now (watch_mode.dart).
+  WatchPace _pace() {
+    final data = ref.read(homeProvider).value;
+    if (data == null) return WatchPace.none;
+    return listPace(
+      data.transactions,
+      now: ref.read(clockProvider)(),
+      tip: data.summary.lastConfirmedHeight,
+      minConfirmations: data.summary.minimumConfirmations.toInt(),
+    );
+  }
+
+  void _tipTick() {
+    if (!mounted) return;
+    if (_tipPace.tick(_pace())) _checkTip();
+  }
+
   /// Asks the node for its tip and refreshes when it is past the height home counts
   /// confirmations at: each block moves a payment's Confirming n/3. Skipped when a refresh
-  /// would be ([_autoRefresh]); a failed ask waits for the next one.
+  /// would be ([_autoRefresh]); a failed ask waits for the next one, later in watch mode.
+  /// A node that answers again after failing has the payments it refused posted again at once.
   Future<void> _checkTip() async {
     if (!mounted || _tipBusy) return;
     final life = WidgetsBinding.instance.lifecycleState;
@@ -313,9 +335,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _tipBusy = true;
     try {
       final tip = await ref.refresh(nodeTipProvider.future);
-      if (mounted && tip.height > shown) _autoRefresh();
+      if (!mounted) return;
+      final back = _tipPace.answered();
+      if (back) ref.read(stallRetryProvider).nodeBack();
+      if (tip.height > shown || back) {
+        _autoRefresh();
+      } else if (home.value?.transactions.any((t) => postingNow(t, ref.read(clockProvider)())) ?? false) {
+        // Being posted: read the list again, so "Not on the network" does not wait for a block.
+        unawaited(ref.read(homeProvider.notifier).relist());
+      }
     } catch (_) {
       // The status line shows a node that does not answer; the minute's refresh still runs.
+      _tipPace.failed();
     } finally {
       _tipBusy = false;
     }

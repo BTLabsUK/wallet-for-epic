@@ -728,6 +728,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsNotConfirmedYet => 'ยังไม่ได้รับการยืนยัน';
 
   @override
+  String get txWaitNoNewBlock => 'กำลังรอบล็อกถัดไป';
+
+  @override
+  String get txWaitNotInBlock =>
+      'ยังไม่อยู่ในบล็อก อาจยังอยู่ระหว่างทางไปยังเครือข่าย';
+
+  @override
   String get txDetailsStuckBody =>
       'เครือข่ายยังไม่รับรายการนี้ ส่งซ้ำได้อย่างปลอดภัย รายการเดียวกันผ่านสองครั้งไม่ได้';
 

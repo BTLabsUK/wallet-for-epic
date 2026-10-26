@@ -61,6 +61,12 @@ class StallRetry {
   final _seen = <String, DateTime>{};
   final _tries = <String, ({int count, DateTime last})>{};
   bool _running = false;
+  bool _nodeBack = false;
+
+  /// The node answers again after failing: at the next [run], each payment the chain has not
+  /// taken is posted again at once, rather than at its next wait. A post that failed while the
+  /// connection was down then goes out as soon as it is back.
+  void nodeBack() => _nodeBack = true;
 
   /// Whether a try for [tx] is due at [now], from [waits]; [repeat] repeats the last wait.
   bool _due(
@@ -97,10 +103,20 @@ class StallRetry {
       _seen.removeWhere((k, _) => !keys.contains(k));
       _tries.removeWhere((k, _) => !keys.contains(k));
       var sent = false;
+      final back = _nodeBack;
+      _nodeBack = false;
       for (final tx in list) {
         if (awaitsChain(tx)) {
-          final from = _seen.putIfAbsent(tx.key, () => now);
-          if (!_due(tx.key, from, now, repostWaits, repeat: true)) continue;
+          // From when it was finalized, when known: a payment whose post the app did not live
+          // to make (killed, or closed) goes out at the next opening, not a wait later.
+          final finalized = tx.finalizedAtUnix;
+          final from = _seen.putIfAbsent(
+            tx.key,
+            () => finalized != null && finalized * 1000 < now.millisecondsSinceEpoch
+                ? DateTime.fromMillisecondsSinceEpoch(finalized * 1000)
+                : now,
+          );
+          if (!back && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;
           _tried(tx.key, now);
           try {
             await session.repostTransaction(key: tx.key);

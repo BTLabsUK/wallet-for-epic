@@ -60,6 +60,7 @@ import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFile
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
+import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, postingNow, watchTipEvery;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
@@ -180,6 +181,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
+    this.watchPoll = watchTipEvery,
     this.nodeTimeout = const Duration(seconds: 15),
     this.nodeTorTimeout = const Duration(seconds: 90),
     this.torNodeGrace = const Duration(minutes: 2),
@@ -307,6 +309,11 @@ class LepicDeskWallet implements DeskWalletApi {
     return counted != null && counted > BigInt.zero ? counted : _minConfFallback;
   }
   final Duration nodePoll;
+
+  /// How often the node is asked instead while a payment can move with the next block
+  /// (watch_mode.dart).
+  final Duration watchPoll;
+  late final TipPacer _tipPace = TipPacer(normal: nodePoll, watch: watchPoll);
   final Duration nodeTimeout;
 
   /// How long a node may take over Tor: LEPIC's own node timeout there, as a first onion
@@ -1097,7 +1104,7 @@ class LepicDeskWallet implements DeskWalletApi {
       unawaited(_loadLocal());
       return;
     }
-    _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
+    _poll = Timer.periodic(_tipPace.step, (_) => _tipTick());
     unawaited(_checkTip());
     unawaited(sync());
     if (!NetGate.epicboxOff) _startInvoices();
@@ -2098,6 +2105,27 @@ class LepicDeskWallet implements DeskWalletApi {
     await _reload();
   }
 
+  /// How closely the list is watched now (watch_mode.dart).
+  WatchPace _pace() => listPace(
+    _entries ?? const <core.TxEntry>[],
+    now: DateTime.now(),
+    tip: BigInt.from(_tip),
+    minConfirmations: _minConf.toInt(),
+  );
+
+  /// The wait notes last shown, so a window that passes with no block (and so no sync) still
+  /// shows its note.
+  int? _waitsShown;
+
+  void _tipTick() {
+    if (_tipPace.tick(_pace())) unawaited(_checkTip());
+    final entries = _entries;
+    if (entries == null) return;
+    final waits = Object.hashAll(entries.map(_waitOf));
+    if (_waitsShown != null && waits != _waitsShown) _changed();
+    _waitsShown = waits;
+  }
+
   Future<void> _checkTip() async {
     final config = _config;
     if (config == null || _tipBusy || _nodeOff) return;
@@ -2108,6 +2136,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final tip = await _nodeTip(config);
       if (tip == null) return;
       _nodeReachedAt = DateTime.now();
+      // Back after failing: the payments it refused meanwhile are posted again at once.
+      if (_tipPace.answered()) _stall.nodeBack();
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -2124,9 +2154,15 @@ class LepicDeskWallet implements DeskWalletApi {
         _changed();
       }
       // A new block: confirmations move, payments may have landed.
-      if (grew && _summary != null) unawaited(sync());
+      if (grew && _summary != null) {
+        unawaited(sync());
+      } else if ((_entries ?? const <core.TxEntry>[]).any((e) => postingNow(e, DateTime.now()))) {
+        // Being posted: read the list again, so "Not on the network" does not wait for a block.
+        unawaited(_reload());
+      }
       unawaited(_retryStalled());
     } on Object catch (e) {
+      _tipPace.failed();
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
         logInfo('desk', 'node check over Tor failed: $why; not counted while tor settles or the node syncs');
@@ -3378,7 +3414,7 @@ class LepicDeskWallet implements DeskWalletApi {
         final tor = _torFeature && (now == NetworkMode.torOnly || (before?.tor ?? _settings.torAutostart));
         if (tor) _settings = _settings.copyWith(tor: true);
         _poll?.cancel();
-        _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
+        _poll = Timer.periodic(_tipPace.step, (_) => _tipTick());
         if (before == null) {
           // Opened while Offline: as an unlock would have started it.
           _startInvoices();
@@ -5117,12 +5153,21 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
-  List<Tx> _txs() => [
-    for (final (i, e) in (_entries ?? const <core.TxEntry>[]).indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i),
-  ];
+  /// The tip each payment waiting for a block was first seen at, for its wait note.
+  final BlockWatch _blockWaits = BlockWatch();
+
+  BlockWait _waitOf(core.TxEntry e) => _blockWaits.waitOf(e, now: DateTime.now(), tip: BigInt.from(_tip));
+
+  List<Tx> _txs() {
+    final entries = _entries ?? const <core.TxEntry>[];
+    _blockWaits.saw(entries, BigInt.from(_tip));
+    return [
+      for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e)),
+    ];
+  }
 
   Tx _txFor(core.TxEntry e) =>
-      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1);
+      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1, wait: _waitOf(e));
 
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
@@ -5182,7 +5227,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.
-Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now}) {
+Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now, BlockWait wait = BlockWait.none}) {
   final sent = e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled;
   final fee = e.fee?.toInt() ?? 0;
   final height = e.blockHeight?.toInt();
@@ -5260,6 +5305,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     detail: e.statusDetail,
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
     pairingId: e.pairingId,
+    blockWait: wait,
   );
 }
 

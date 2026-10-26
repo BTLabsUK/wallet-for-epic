@@ -31,6 +31,7 @@ import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/watch_mode.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
@@ -1116,6 +1117,58 @@ void main() {
       await tester.pump(tipCheckInterval);
       await tester.pumpAndSettle();
       expect(h.session.refreshCalls, refreshes);
+    });
+
+    testWidgets('a payment waiting for its block sees it within seconds (watch mode)', (
+      tester,
+    ) async {
+      // We answered a minute ago; the sender posts and the next block takes it.
+      TxEntry answered({BigInt? height}) => fakeTx(
+        id: 11,
+        slateId: 'from-desktop',
+        kind: TxKind.received,
+        status: height == null ? TxStatus.awaitingConfirmation : TxStatus.confirmed,
+        createdAtUnix: _at(_now.subtract(const Duration(minutes: 1))),
+        blockHeight: height,
+        amountCredited: _epic(1),
+        transport: 'epicbox',
+      );
+      final h = _Harness(transactions: [answered(), ..._transactions()]);
+      await h.pump(tester);
+      final refreshes = h.session.refreshCalls;
+      final next = _tip + BigInt.one;
+      h.service.nodeTipValue = NodeTip(height: next, nodeVersion: '3.6.0');
+      h.session.summaryValue = WalletSummary(
+        lastConfirmedHeight: next,
+        minimumConfirmations: BigInt.from(3),
+        total: _epic(15.5),
+        spendable: _epic(12.5),
+        awaitingConfirmation: _epic(1),
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: _epic(2),
+        validatedWithNode: true,
+      );
+      h.session.transactionsValue = [answered(height: next), ..._transactions()];
+      await tester.pump(watchTipEvery);
+      await tester.pumpAndSettle();
+      expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the watch pace');
+      expect(
+        find.descendant(of: find.byType(TxStatusLine), matching: find.textContaining('Confirming 1/3')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('with nothing pending the tip is asked at the normal pace only', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final asks = h.session.nodeTipsFor.length;
+      // Not at the watch pace: none in three of its steps.
+      await tester.pump(watchTipEvery * 3);
+      expect(h.session.nodeTipsFor.length, asks);
+      // One at the normal pace (the ticks started while home loaded).
+      await tester.pump(tipCheckInterval);
+      expect(h.session.nodeTipsFor.length, asks + 1);
     });
 
     testWidgets('scan opens Send with the scanned address', (tester) async {
