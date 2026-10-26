@@ -741,6 +741,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsNotConfirmedYet => 'Not confirmed yet';
 
   @override
+  String get txWaitNoNewBlock => 'Waiting for the next block to be mined.';
+
+  @override
+  String get txWaitNotInBlock =>
+      'Not in a block yet. It may still be on its way to the network.';
+
+  @override
   String get txDetailsStuckBody =>
       'The network has not taken this payment yet. Broadcasting it again is safe. The same payment cannot go through twice.';
 

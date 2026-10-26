@@ -1177,6 +1177,18 @@ abstract class AppLocalizations {
   /// **'Not confirmed yet'**
   String get txDetailsNotConfirmedYet;
 
+  /// A payment's details, minutes after it should have reached a block: no new block was mined since. The network is slow, nothing is wrong with the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the next block to be mined.'**
+  String get txWaitNoNewBlock;
+
+  /// A payment's details, minutes after it should have reached a block: blocks were mined, but the payment is in none of them yet (it may still be reaching the network, or the sender has not posted it).
+  ///
+  /// In en, this message translates to:
+  /// **'Not in a block yet. It may still be on its way to the network.'**
+  String get txWaitNotInBlock;
+
   /// No description provided for @txDetailsStuckBody.
   ///
   /// In en, this message translates to:

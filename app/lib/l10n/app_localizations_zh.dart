@@ -707,6 +707,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNotConfirmedYet => '尚未确认';
 
   @override
+  String get txWaitNoNewBlock => '正在等待下一个区块被挖出。';
+
+  @override
+  String get txWaitNotInBlock => '尚未进入区块，可能仍在发往网络的途中。';
+
+  @override
   String get txDetailsStuckBody => '网络尚未接受这笔付款。重新广播是安全的，同一笔付款不会被执行两次。';
 
   @override

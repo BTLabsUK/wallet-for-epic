@@ -748,6 +748,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsNotConfirmedYet => 'Noch nicht bestätigt';
 
   @override
+  String get txWaitNoNewBlock => 'Warten, bis der nächste Block gefunden wird.';
+
+  @override
+  String get txWaitNotInBlock =>
+      'Noch in keinem Block. Die Zahlung ist vielleicht noch auf dem Weg ins Netzwerk.';
+
+  @override
   String get txDetailsStuckBody =>
       'Das Netzwerk hat diese Zahlung noch nicht aufgenommen. Sie können sie gefahrlos erneut übertragen. Dieselbe Zahlung kann nicht zweimal ausgeführt werden.';
 

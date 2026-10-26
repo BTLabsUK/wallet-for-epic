@@ -176,6 +176,8 @@
   "txDetailsWorking": "正在处理",
   "txDetailsAmountHidden": "金额已隐藏",
   "txDetailsNotConfirmedYet": "尚未确认",
+  "txWaitNoNewBlock": "正在等待下一个区块被挖出。",
+  "txWaitNotInBlock": "尚未进入区块，可能仍在发往网络的途中。",
   "txDetailsStuckBody": "网络尚未接受这笔付款。重新广播是安全的，同一笔付款不会被执行两次。",
   "txDetailsBroadcastAgain": "重新广播",
   "txDetailsBroadcastAgainDone": "已重新广播。应会在几分钟内确认。",

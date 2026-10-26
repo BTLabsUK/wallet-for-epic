@@ -12,6 +12,7 @@ import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
+import '../watch_mode.dart' show BlockWait;
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
@@ -120,6 +121,7 @@ String txExplanation(
   DateTime? now,
   int? target,
   bool mailbox = false,
+  BlockWait wait = BlockWait.none,
 }) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
@@ -141,6 +143,11 @@ String txExplanation(
     TxPhase.waitingRecipient when mailbox || _isEpicboxAddress(tx.counterparty) =>
       l.txDetailsWaitingEpicbox,
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
+    // Past its watch window and still in no block: why, in one calm line.
+    TxPhase.waitingSender || TxPhase.confirming when height == null && wait == BlockWait.noNewBlock =>
+      l.txWaitNoNewBlock,
+    TxPhase.waitingSender || TxPhase.confirming when height == null && wait == BlockWait.notInBlock =>
+      l.txWaitNotInBlock,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
       l.txDetailsSenderPosted,
     TxPhase.waitingSender => l.txDetailsWaitingSender,
@@ -590,6 +597,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         : approxFiat(l, amount, display);
     final ttl = ttlLine(l, tx, tip);
     final now = ref.watch(clockProvider)();
+    final wait = tip == null ? BlockWait.none : ref.read(blockWatchProvider).waitOf(tx, now: now, tip: tip);
     final stuck = isStuck(tx);
     final url = chain == null ? null : explorerUrl(chain, tx);
     final fee = tx.fee;
@@ -686,7 +694,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (!ownSteps) ...[
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
-                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null)),
+                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait)),
                     // Waiting for a paired contact's answer: its relay silent, or its keys
                     // changed meanwhile.
                     if (mailboxWaiting && mailboxPairing != null && mailboxPairing.state == PairingState.keysChanged) ...[

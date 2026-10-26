@@ -103,6 +103,23 @@ void main() {
     expect(session.repostedKeys, ['refused']);
   });
 
+  test('a post that failed while the node was down goes again as soon as it is back', () async {
+    final session = FakeWalletSession(
+      transactions: [_finished(key: 'refused', repostable: true)],
+    )..repostFailures = 2;
+    final retry = StallRetry();
+    Future<bool> at(Duration d) =>
+        retry.run(session, session.transactionsValue, _t0.add(d));
+    await at(Duration.zero);
+    expect(await at(const Duration(minutes: 1)), isFalse, reason: 'node down');
+    expect(await at(const Duration(minutes: 4)), isFalse, reason: 'still down');
+    // The next wait is 10 minutes; the node answers again at 5.
+    retry.nodeBack();
+    expect(await at(const Duration(minutes: 5)), isTrue);
+    expect(session.repostedKeys, ['refused']);
+    expect(await at(const Duration(minutes: 6)), isFalse, reason: 'once, then the waits again');
+  });
+
   test('a paid invoice\'s answer goes again a few times, then it reads Stalled', () async {
     final tx = _invoicePayment('0a9b35d2');
     final session = FakeWalletSession(transactions: [tx]);

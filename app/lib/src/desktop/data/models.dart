@@ -18,6 +18,7 @@ import '../../ui/send_screen.dart' show normalizeAmountText;
 import '../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../network.dart' show EpicboxRelay;
 import '../../relay_directory.dart' show ServerIcon;
+import '../../watch_mode.dart' show BlockWait;
 
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
 export '../../relay_directory.dart' show ServerIcon;
@@ -278,6 +279,7 @@ class Tx {
     this.manualEditedAt,
     this.senderPosted = false,
     this.pairingId,
+    this.blockWait = BlockWait.none,
   });
 
   final int id;
@@ -363,6 +365,10 @@ class Tx {
   /// only: never shown as received before the chain confirms it.
   final bool senderPosted;
 
+  /// Why a payment past its watch window is still not in a block (watch_mode.dart), for the
+  /// note in its details.
+  final BlockWait blockWait;
+
   /// The pairing the payment was exchanged with (the core's `TxEntry.pairingId`): it
   /// went through the contact's mailbox, or as a file sealed to it; null for any other.
   final String? pairingId;
@@ -444,6 +450,7 @@ class Tx {
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
       senderPosted: senderPosted,
       pairingId: pairingId,
+      blockWait: blockWait,
     );
   }
 

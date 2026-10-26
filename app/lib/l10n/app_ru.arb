@@ -176,6 +176,8 @@
   "txDetailsWorking": "Выполняется",
   "txDetailsAmountHidden": "Сумма скрыта",
   "txDetailsNotConfirmedYet": "Пока не подтверждено",
+  "txWaitNoNewBlock": "Ожидание следующего блока.",
+  "txWaitNotInBlock": "Пока не в блоке. Платёж, возможно, ещё на пути в сеть.",
   "txDetailsStuckBody": "Сеть ещё не приняла этот платёж. Повторная отправка безопасна: один и тот же платёж не может пройти дважды.",
   "txDetailsBroadcastAgain": "Отправить повторно",
   "txDetailsBroadcastAgainDone": "Отправлено повторно. Подтверждение ожидается в течение нескольких минут.",

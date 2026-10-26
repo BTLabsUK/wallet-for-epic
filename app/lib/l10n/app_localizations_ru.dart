@@ -774,6 +774,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsNotConfirmedYet => 'Пока не подтверждено';
 
   @override
+  String get txWaitNoNewBlock => 'Ожидание следующего блока.';
+
+  @override
+  String get txWaitNotInBlock =>
+      'Пока не в блоке. Платёж, возможно, ещё на пути в сеть.';
+
+  @override
   String get txDetailsStuckBody =>
       'Сеть ещё не приняла этот платёж. Повторная отправка безопасна: один и тот же платёж не может пройти дважды.';
 

@@ -176,6 +176,8 @@
   "txDetailsWorking": "กำลังดำเนินการ",
   "txDetailsAmountHidden": "ซ่อนจำนวนอยู่",
   "txDetailsNotConfirmedYet": "ยังไม่ได้รับการยืนยัน",
+  "txWaitNoNewBlock": "กำลังรอบล็อกถัดไป",
+  "txWaitNotInBlock": "ยังไม่อยู่ในบล็อก อาจยังอยู่ระหว่างทางไปยังเครือข่าย",
   "txDetailsStuckBody": "เครือข่ายยังไม่รับรายการนี้ ส่งซ้ำได้อย่างปลอดภัย รายการเดียวกันผ่านสองครั้งไม่ได้",
   "txDetailsBroadcastAgain": "ส่งเข้าเครือข่ายอีกครั้ง",
   "txDetailsBroadcastAgainDone": "ส่งเข้าเครือข่ายอีกครั้งแล้ว น่าจะได้รับการยืนยันในไม่กี่นาที",
