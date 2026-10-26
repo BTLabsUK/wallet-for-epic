@@ -14700,6 +14700,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Relay ist über Tor nicht erreichbar. Antwort von Hand senden?';
 
   @override
+  String get pairNoRelay =>
+      'Kein Kopplungs-Relay ist erreichbar. Koppeln Sie stattdessen mit einem Einladungslink.';
+
+  @override
+  String get pairRelaysBlocked =>
+      'Dieses Netzwerk blockiert die Kopplungs-Relays. Ursache kann ein Netzwerkfilter sein. Koppeln Sie stattdessen mit einem Einladungslink.';
+
+  @override
   String get pairByHandTitle => 'Von Hand senden';
 
   @override

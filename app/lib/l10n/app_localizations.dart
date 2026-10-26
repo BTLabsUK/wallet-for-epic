@@ -23309,6 +23309,18 @@ abstract class AppLocalizations {
   /// **'Can’t reach the relay over Tor. Send your answer by hand?'**
   String get pairRelayUnreachableTor;
 
+  /// Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t reach any pairing relay. Pair with an invite link instead.'**
+  String get pairNoRelay;
+
+  /// Pairing words: the built-in relays answered with a refused TLS handshake, as a network or DNS filter does (same wording as epicboxBlockedBody). The user pairs with an invite link instead.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.'**
+  String get pairRelaysBlocked;
+
   /// Screen title.
   ///
   /// In en, this message translates to:

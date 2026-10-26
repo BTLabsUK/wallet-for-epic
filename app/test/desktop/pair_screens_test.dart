@@ -2,6 +2,7 @@
 // copied with the name they will see, a pasted invite answered, and Pending invites.
 import 'dart:async';
 
+import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
@@ -117,6 +118,20 @@ void main() {
     final answered = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply);
     expect(answered, hasLength(1));
     expect(answered.single.asksInvoices, isFalse, reason: 'Allow invoices is off until the user turns it on');
+  });
+
+  testWidgets('pairing words pasted with their emoji, as the copy once put them, open the invite', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    final preview = (await tester.runAsync(() => _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Northwind'))))!;
+    final five = [sasTable[7], sasTable[42], sasTable[7], sasTable[200], sasTable[3]];
+    _pairing.wordsInvites[five.map((w) => w.name).join(' ')] = preview;
+    final pasted = '${five.map((w) => '${w.emoji} ${w.name}').join('  ')}\n';
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), pasted);
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
   });
 
   testWidgets('this wallet\'s own invite pasted: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {

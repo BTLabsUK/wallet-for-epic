@@ -85,7 +85,7 @@ class FakePairing implements PairingApi {
   String autoAnswerName = 'Anna';
 
   /// When set, the relay is not reachable: answers wait to go by hand, words cannot be made
-  /// or found ([PairingFailure.relayUnreachable]).
+  /// or found ([PairingFailure.noRelay]).
   bool relayUnreachable = false;
 
   /// Whether a key check (a new pairing added to a contact that has one) finds the old keys:
@@ -369,7 +369,7 @@ class FakePairing implements PairingApi {
     if (shown.isEmpty || utf8.encode(shown).length > 48) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the name must be 1 to 48 bytes');
     }
-    if (words && relayUnreachable) throw pairingError(PairingFailure.relayUnreachable);
+    if (words && relayUnreachable) throw pairingError(PairingFailure.noRelay);
     calls.add('makeInvite');
     final id = _id('invite');
     final now = clock();
@@ -452,7 +452,7 @@ class FakePairing implements PairingApi {
   @override
   Future<PairingInvitePreview> openWords(List<String> words) async {
     _require('openWords');
-    if (relayUnreachable) throw pairingError(PairingFailure.relayUnreachable);
+    if (relayUnreachable) throw pairingError(PairingFailure.noRelay);
     final failure = nextOpenFailure;
     if (failure != null) {
       nextOpenFailure = null;

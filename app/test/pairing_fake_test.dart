@@ -46,7 +46,7 @@ void main() {
     api.relayUnreachable = true;
     await expectLater(
       api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1), words: true),
-      _failure(PairingFailure.relayUnreachable),
+      _failure(PairingFailure.noRelay),
     );
   });
 

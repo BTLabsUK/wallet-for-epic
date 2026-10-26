@@ -3908,6 +3908,8 @@
   "pairRelayUnreachableTitle": "Brak połączenia z przekaźnikiem",
   "pairRelayUnreachableBody": "Wysłać odpowiedź ręcznie?",
   "pairRelayUnreachableTor": "Brak połączenia z przekaźnikiem przez Tor. Wysłać odpowiedź ręcznie?",
+  "pairNoRelay": "Brak połączenia z żadnym przekaźnikiem parowania. Sparuj zamiast tego linkiem z zaproszeniem.",
+  "pairRelaysBlocked": "Ta sieć blokuje przekaźniki parowania. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.",
   "pairByHandTitle": "Wyślij ręcznie",
   "pairByHandLead": "Odeślij to do {name} dowolnym kanałem. Portfel drugiej osoby dokończy parowanie, gdy to otworzy.",
   "pairByHandYourAnswer": "Twoja odpowiedź",

@@ -958,7 +958,7 @@ class _EnterLinkScreenState extends ConsumerState<EnterLinkScreen> {
   }
 
   /// The typed words: each a table name or emoji, the last one still being typed.
-  List<String> get _parts => _text.text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
+  List<String> get _parts => pairingWordParts(_text.text);
 
   List<SasWord?> get _tiles {
     final parts = _parts;

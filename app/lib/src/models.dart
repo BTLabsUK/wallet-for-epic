@@ -2969,6 +2969,13 @@ enum PairingFailure {
   /// No relay could be reached for the answer or the words.
   relayUnreachable,
 
+  /// Pairing words: not one built-in relay took the invite or could be asked for it.
+  noRelay,
+
+  /// Pairing words: as [noRelay], the relays' handshakes refused as a network filter does
+  /// (relay_block.dart).
+  relaysBlocked,
+
   /// The card scanned is this wallet's own.
   ownCard,
 

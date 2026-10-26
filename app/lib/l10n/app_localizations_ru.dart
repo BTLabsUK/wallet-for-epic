@@ -14876,6 +14876,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ретранслятор недоступен через Tor. Отправить ответ вручную?';
 
   @override
+  String get pairNoRelay =>
+      'Ни один ретранслятор для сопряжения недоступен. Сопрягите кошельки по ссылке-приглашению.';
+
+  @override
+  String get pairRelaysBlocked =>
+      'Эта сеть блокирует ретрансляторы для сопряжения. Причиной может быть сетевой фильтр. Сопрягите кошельки по ссылке-приглашению.';
+
+  @override
   String get pairByHandTitle => 'Отправить вручную';
 
   @override

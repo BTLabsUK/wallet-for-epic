@@ -14271,6 +14271,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'เชื่อมต่อรีเลย์ผ่าน Tor ไม่ได้ ส่งคำตอบด้วยตนเองหรือไม่';
 
   @override
+  String get pairNoRelay =>
+      'เชื่อมต่อรีเลย์สำหรับจับคู่ไม่ได้เลย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
+
+  @override
+  String get pairRelaysBlocked =>
+      'เครือข่ายนี้บล็อกรีเลย์สำหรับจับคู่ อาจเกิดจากตัวกรองของเครือข่าย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
+
+  @override
   String get pairByHandTitle => 'ส่งด้วยตนเอง';
 
   @override

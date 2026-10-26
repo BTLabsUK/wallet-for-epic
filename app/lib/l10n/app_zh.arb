@@ -3908,6 +3908,8 @@
   "pairRelayUnreachableTitle": "无法连接中继",
   "pairRelayUnreachableBody": "手动发送你的回复？",
   "pairRelayUnreachableTor": "无法通过 Tor 连接中继。手动发送你的回复？",
+  "pairNoRelay": "无法连接任何配对中继。请改用邀请链接配对。",
+  "pairRelaysBlocked": "此网络拦截了配对中继。可能是网络过滤所致。请改用邀请链接配对。",
   "pairByHandTitle": "手动发送",
   "pairByHandLead": "通过任何渠道将此发回给 {name}。对方的钱包打开后会完成配对。",
   "pairByHandYourAnswer": "你的回复",

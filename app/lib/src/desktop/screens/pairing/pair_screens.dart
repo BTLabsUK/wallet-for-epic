@@ -224,7 +224,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   }
 
   /// The typed words, by table name or emoji.
-  List<String> get _words => _enter.text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
+  List<String> get _words => pairingWordParts(_enter.text);
 
   bool get _ready {
     if (pairingLinkIn(_enter.text) != null) return true;
@@ -550,7 +550,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
         }
         if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case null:
-        final words = text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
+        final words = pairingWordParts(text);
         final preview = await api.openWords([for (final w in words) (sasWordNamed(w) ?? sasWordOfEmoji(w))?.name ?? w]);
         if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
     }

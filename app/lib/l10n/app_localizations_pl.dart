@@ -14914,6 +14914,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Brak połączenia z przekaźnikiem przez Tor. Wysłać odpowiedź ręcznie?';
 
   @override
+  String get pairNoRelay =>
+      'Brak połączenia z żadnym przekaźnikiem parowania. Sparuj zamiast tego linkiem z zaproszeniem.';
+
+  @override
+  String get pairRelaysBlocked =>
+      'Ta sieć blokuje przekaźniki parowania. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.';
+
+  @override
   String get pairByHandTitle => 'Wyślij ręcznie';
 
   @override

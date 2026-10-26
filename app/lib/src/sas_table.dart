@@ -265,6 +265,52 @@ const List<SasWord> sasTable = [
   SasWord('🧋', 'boba'),
 ];
 
+/// The words in [text] as typed or pasted, one part per word: table names (any case) and
+/// emoji, with or without spaces between them; punctuation, new lines and extra spaces are
+/// ignored. An emoji next to its own name ("🐱 kitty" or "kitty 🐱", as a copy with both
+/// carries) is one word. A part that names an entry reads as its name; anything else stays as
+/// typed, so the field can still complete or mark it.
+List<String> pairingWordParts(String text) {
+  final raw = <String>[];
+  final word = StringBuffer();
+  void endWord() {
+    if (word.isNotEmpty) raw.add(word.toString());
+    word.clear();
+  }
+
+  for (final rune in text.runes) {
+    final ch = String.fromCharCode(rune);
+    if (_letter.hasMatch(ch)) {
+      word.write(ch);
+    } else {
+      endWord();
+      if (!_gap.hasMatch(ch)) raw.add(ch);
+    }
+  }
+  endWord();
+  final parts = <String>[];
+  for (var i = 0; i < raw.length; i++) {
+    final here = sasWordNamed(raw[i]) ?? sasWordOfEmoji(raw[i]);
+    if (here != null && i + 1 < raw.length) {
+      final emoji = sasWordOfEmoji(raw[i]) != null;
+      final next = sasWordNamed(raw[i + 1]) ?? sasWordOfEmoji(raw[i + 1]);
+      // One emoji and one name of the same entry side by side: a word copied with its emoji.
+      if (next == here && emoji != (sasWordOfEmoji(raw[i + 1]) != null)) {
+        parts.add(here.name);
+        i++;
+        continue;
+      }
+    }
+    parts.add(here?.name ?? raw[i]);
+  }
+  return parts;
+}
+
+final _letter = RegExp(r'\p{L}', unicode: true);
+
+/// Space, punctuation and the joiners and selectors emoji carry: what separates words.
+final _gap = RegExp(r'^[\s\p{P}\u{FE0E}\u{FE0F}\u{200D}]$', unicode: true);
+
 /// The entry named [name] (any case, surrounding space ignored), or null.
 SasWord? sasWordNamed(String name) {
   final wanted = name.trim().toLowerCase();

@@ -13755,6 +13755,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairRelayUnreachableTor => '无法通过 Tor 连接中继。手动发送你的回复？';
 
   @override
+  String get pairNoRelay => '无法连接任何配对中继。请改用邀请链接配对。';
+
+  @override
+  String get pairRelaysBlocked => '此网络拦截了配对中继。可能是网络过滤所致。请改用邀请链接配对。';
+
+  @override
   String get pairByHandTitle => '手动发送';
 
   @override

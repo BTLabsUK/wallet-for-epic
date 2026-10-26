@@ -27,6 +27,7 @@ import 'net/lan_node_relay.dart';
 import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
+import 'relay_block.dart' show refusedHandshake;
 import 'redact.dart';
 import 'secret_store_api.dart';
 import 'wallet_service.dart';
@@ -2599,7 +2600,8 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.inviteExpired => PairingFailure.expired,
   lepic.WalletErrorKind.alreadyPaired => PairingFailure.alreadyUsed,
   lepic.WalletErrorKind.pairingWordsNotFound || lepic.WalletErrorKind.pairingNotFound => PairingFailure.notFound,
-  lepic.WalletErrorKind.pairingWordsUnavailable ||
+  // No built-in relay for the network: words have nowhere to go.
+  lepic.WalletErrorKind.pairingWordsUnavailable => PairingFailure.noRelay,
   lepic.WalletErrorKind.contactsOffline ||
   lepic.WalletErrorKind.epicboxOff => PairingFailure.relayUnreachable,
   lepic.WalletErrorKind.sealedForAnotherWallet => PairingFailure.sealedForOther,
@@ -2648,10 +2650,15 @@ class _LepicPairing implements PairingApi {
   final Set<String> _folded = {};
 
   /// A call to LEPIC: its pairing errors as the app's [PairingFailure], the rest mapped.
-  Future<T> _call<T>(Future<T> Function() call) async {
+  /// [words]: a pairing-words call, where a relay failure means not one built-in relay was
+  /// reached (LEPIC posts and looks on all of them) and reads as such.
+  Future<T> _call<T>(Future<T> Function() call, {bool words = false}) async {
     try {
       return await call();
     } on lepic.WalletError catch (error) {
+      if (words && error.kind == lepic.WalletErrorKind.transportFailed) {
+        throw pairingError(refusedHandshake(error.message) ? PairingFailure.relaysBlocked : PairingFailure.noRelay);
+      }
       final failure = lepicPairingFailure(error.kind, error.message);
       if (failure != null) throw pairingError(failure);
       throw mapLepicError(error);
@@ -2818,7 +2825,7 @@ class _LepicPairing implements PairingApi {
           inviteWords: _inviteWords[id]!,
           contactId: contactId,
         );
-  });
+  }, words: words);
 
   @override
   Future<void> cancelInvite(String id) => _call(() => _w.pairingCancel(contactId: id));
@@ -2864,7 +2871,7 @@ class _LepicPairing implements PairingApi {
     final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode());
     await _refuseOwn(found.link, found.preview);
     return _preview(found.link, found.preview);
-  });
+  }, words: true);
 
   /// This wallet's own invite, opened here: refused before "Pair with …?" (PAIR-AND-2), which
   /// LEPIC would only refuse on the answer. Known by its link while this run made it, else by

@@ -3908,6 +3908,8 @@
   "pairRelayUnreachableTitle": "Das Relay ist nicht erreichbar",
   "pairRelayUnreachableBody": "Antwort von Hand senden?",
   "pairRelayUnreachableTor": "Das Relay ist über Tor nicht erreichbar. Antwort von Hand senden?",
+  "pairNoRelay": "Kein Kopplungs-Relay ist erreichbar. Koppeln Sie stattdessen mit einem Einladungslink.",
+  "pairRelaysBlocked": "Dieses Netzwerk blockiert die Kopplungs-Relays. Ursache kann ein Netzwerkfilter sein. Koppeln Sie stattdessen mit einem Einladungslink.",
   "pairByHandTitle": "Von Hand senden",
   "pairByHandLead": "Senden Sie dies auf beliebigem Weg an {name} zurück. Deren Wallet schließt die Kopplung ab, wenn sie es öffnet.",
   "pairByHandYourAnswer": "Ihre Antwort",

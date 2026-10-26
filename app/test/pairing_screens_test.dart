@@ -1,6 +1,7 @@
 // The phone's pairing screens (SPEC 2.1-2.6, 2.11) against the fake engine: the three ways in,
 // an online invite from making to answered, entering words or a link, the incoming invite,
 // the words check and what follows it, Pending invites, and a contact's Pairing block.
+import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -261,6 +262,15 @@ void main() {
         expect(find.text(w.name), findsOneWidget, reason: w.name);
       }
     });
+    testWidgets('pairing words with no pairing relay reachable: says so, not that the relay is down (report utc3fhjj)', (tester) async {
+      final h = _Harness();
+      h.api.relayUnreachable = true;
+      // No words: the card's spinner never settles.
+      await h.pump(tester, const PairingWordsScreen(), settle: false);
+      await _frames(tester);
+      expect(find.text(_l.pairNoRelay), findsOneWidget);
+      expect(find.text(_l.pairRelayUnreachableTitle), findsNothing);
+    });
   });
 
   group('enter a link or words', () {
@@ -274,6 +284,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.pairEnterNotFound), findsOneWidget);
       expect(h.api.records, isEmpty);
+    });
+
+    testWidgets('pairing words pasted with their emoji, as the copy once put them, open the invite', (tester) async {
+      final h = _Harness();
+      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Northwind'));
+      final five = [sasTable[7], sasTable[42], sasTable[7], sasTable[200], sasTable[3]];
+      h.api.wordsInvites[five.map((w) => w.name).join(' ')] = preview;
+      await h.pump(tester, const EnterLinkScreen());
+      await tester.enterText(find.byKey(pairEnterFieldKey), '${five.map((w) => '${w.emoji} ${w.name}').join('  ')}\n');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairEnterGoKey));
+      // The incoming invite's countdown never settles.
+      await _frames(tester);
+      expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
+    });
+
+    testWidgets('words with no pairing relay reachable: says so, not "no invite found"', (tester) async {
+      final h = _Harness();
+      h.api.relayUnreachable = true;
+      await h.pump(tester, const EnterLinkScreen());
+      final words = fakeSasWords('nobody', count: pairingWordCount).map((w) => w.name).join(' ');
+      await tester.enterText(find.byKey(pairEnterFieldKey), '$words ');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairEnterGoKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairNoRelay), findsOneWidget);
+      expect(find.text(_l.pairEnterNotFound), findsNothing);
     });
 
     testWidgets('a word being typed is completed from the table', (tester) async {

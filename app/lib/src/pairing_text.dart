@@ -17,6 +17,8 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.notFound => l.pairEnterNotFound,
   PairingFailure.invalid => l.pairInvalidLink,
   PairingFailure.relayUnreachable => l.pairRelayUnreachableTitle,
+  PairingFailure.noRelay => l.pairNoRelay,
+  PairingFailure.relaysBlocked => l.pairRelaysBlocked,
   PairingFailure.ownCard => l.pairOwnCode,
   PairingFailure.sealedForOther => l.openSealedOtherTitle,
   PairingFailure.wrongNetwork => l.scanWrongNetworkTitle,
@@ -34,6 +36,7 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.notFound => null,
       PairingFailure.invalid => l.pairInvalidBody,
       PairingFailure.relayUnreachable => l.pairRelayUnreachableBody,
+      PairingFailure.noRelay || PairingFailure.relaysBlocked => null,
       PairingFailure.ownCard => l.pairOwnCodeBody,
       PairingFailure.sealedForOther => l.openSealedOtherBody,
       PairingFailure.wrongNetwork => l.pairWrongNetworkBody,
@@ -56,8 +59,9 @@ String pairingClock(Duration left) {
   return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 }
 
-/// The five pairing [words] as one line to copy: each emoji and its name.
-String pairingWordsText(List<SasWord> words) => words.map((w) => '${w.emoji} ${w.name}').join('  ');
+/// The five pairing [words] as one line to copy: their names, one space apart (the field on
+/// the other side takes emoji too, and a copy with both).
+String pairingWordsText(List<SasWord> words) => words.map((w) => w.name).join(' ');
 
 /// The address-book contact a new pairing [record] most likely belongs to: the one whose name
 /// is the name it chose, ignoring case and spaces. One with a pairing of its own comes first

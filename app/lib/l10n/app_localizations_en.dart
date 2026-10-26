@@ -14522,6 +14522,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can’t reach the relay over Tor. Send your answer by hand?';
 
   @override
+  String get pairNoRelay =>
+      'Can’t reach any pairing relay. Pair with an invite link instead.';
+
+  @override
+  String get pairRelaysBlocked =>
+      'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.';
+
+  @override
   String get pairByHandTitle => 'Send by hand';
 
   @override
