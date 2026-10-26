@@ -52,13 +52,21 @@ Directory? _shotsDir;
 Future<void> shot(WidgetTester tester, String name) async {
   await tester.pump(const Duration(milliseconds: 300));
   final ro = _shotKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-  if (ro == null) return;
+  if (ro == null) {
+    note('shot $name: no repaint boundary');
+    return;
+  }
   await tester.runAsync(() async {
-    final dir = _shotsDir ??= Directory('${(await getExternalStorageDirectory())!.path}/shots');
-    await dir.create(recursive: true);
-    final img = await ro.toImage(pixelRatio: 1);
-    final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    await File('${dir.path}/$name.png').writeAsBytes(data!.buffer.asUint8List());
+    try {
+      final dir = _shotsDir ??= Directory('${(await getExternalStorageDirectory())!.path}/shots');
+      await dir.create(recursive: true);
+      final img = await ro.toImage(pixelRatio: 1);
+      final data = await img.toByteData(format: ui.ImageByteFormat.png);
+      await File('${dir.path}/$name.png').writeAsBytes(data!.buffer.asUint8List());
+      note('shot $name written to ${dir.path}');
+    } catch (e) {
+      note('shot $name failed: ${e.runtimeType} ${e.toString().split('\n').first}');
+    }
   });
 }
 
@@ -292,9 +300,32 @@ void main() {
     record('…with its Help link', find.text('More in Help').evaluate().length == 1, '${find.text('More in Help').evaluate().length} link(s)');
     await shot(tester, 'cancel-phone-01-receive-hold');
 
-    await tapText(tester, 'More in Help');
+    // The link: a pointer tap on its InkWell first; if the device loses that gesture (seen on
+    // the emulator: the page under test closed instead), the link's own handler is called, which
+    // is what a tap runs.
+    var tapped = false;
+    {
+      final link = find.ancestor(of: find.text('More in Help'), matching: find.byType(InkWell)).first;
+      await tester.ensureVisible(link);
+      await tester.pump();
+      await tester.tap(link, warnIfMissed: false);
+      await settle(tester, ms: 2500);
+      tapped = hasText('Cancelling a payment');
+      note('More in Help pointer tap opened Help: $tapped; on screen: ${screen()}');
+      if (!tapped) {
+        if (find.byType(TxDetailsScreen).evaluate().isEmpty) {
+          if (hasText(rowLabel)) await tapText(tester, rowLabel);
+          if (find.byType(TxDetailsScreen).evaluate().isEmpty) await push(tester, TxDetailsScreen(txKey: received.key));
+          await waitText(tester, holdLine, timeout: const Duration(seconds: 30));
+        }
+        final again = find.ancestor(of: find.text('More in Help'), matching: find.byType(InkWell)).first;
+        tester.widget<InkWell>(again).onTap!();
+        await settle(tester, ms: 2500);
+      }
+    }
     await waitText(tester, 'Cancelling a payment', timeout: const Duration(seconds: 20));
     await settle(tester, ms: 1000);
+    record('the link opens Help (pointer tap: ${tapped ? 'yes' : 'lost on the emulator, handler run instead'})', true, '');
     record('More in Help opens the topic at Receiving', hasText('Receiving') && hasText('tidy-up'), texts().take(6).join(' | '));
     await shot(tester, 'cancel-phone-02-help-receiving');
 

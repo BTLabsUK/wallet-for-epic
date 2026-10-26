@@ -468,23 +468,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _cancel,
                 ),
-              if (cancelable && (!t.incoming || hold == null)) ...[
-                SizedBox(width: Sp.x3),
-                // What this Cancel does, with the way to the Help topic (an incoming payment's
-                // line sits in the status box above).
-                Expanded(
-                  child: DeskCancelNote(
-                    key: const ValueKey('tx-cancel-note'),
-                    text: t.incoming
-                        ? l.txDetailsCancelOffered
-                        : t.notPosted
-                        ? l.cancelNoteNotPosted
-                        : l.cancelNoteSendWaiting,
-                    anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending,
-                  ),
-                ),
-              ] else
-                const Spacer(),
+              const Spacer(),
               if (t.undelivered)
                 EButton.primary(
                   label: context.l10n.deskTxSendAgain,
@@ -510,6 +494,20 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ),
             ],
           ),
+          // What this Cancel does, with the way to the Help topic, on its own line under the
+          // buttons (an incoming payment's line sits in the status box above).
+          if (cancelable && (!t.incoming || hold == null)) ...[
+            SizedBox(height: Sp.x2),
+            DeskCancelNote(
+              key: const ValueKey('tx-cancel-note'),
+              text: t.incoming
+                  ? l.txDetailsCancelOffered
+                  : t.notPosted
+                  ? l.cancelNoteNotPosted
+                  : l.cancelNoteSendWaiting,
+              anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending,
+            ),
+          ],
         ],
       ],
     );
