@@ -162,8 +162,8 @@ class ESectionHead extends StatelessWidget {
 }
 
 /// The badge's tone, used by the dots and notices too: [BadgeTone.ok] green for done and
-/// working, warn amber, risk red, info blue for in progress, gold for a brand highlight and the
-/// sent direction (DeskColors.txSent), neutral for the rest.
+/// working, warn amber, risk red, info blue for in progress, gold for a brand highlight,
+/// neutral for the rest. A sent amount wears DeskColors.txSent, not a tone.
 typedef ETone = BadgeTone;
 
 extension on ETone {

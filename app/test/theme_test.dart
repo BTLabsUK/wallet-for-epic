@@ -89,8 +89,19 @@ void main() {
         );
         expect(t.ok, isNot(t.accent));
         expect(t.info, isNot(t.accent));
-        // Direction: sent gold (the one gold state), received green, cancelled a neutral grey.
-        expect(t.txSent, t.accentText);
+        // Direction: sent red (money out, never the gold and never the error tone), received
+        // green, cancelled a neutral grey.
+        expect(t.txSent, isNot(t.accentText));
+        expect(t.txSent, isNot(t.risk));
+        expect(t.txSent, isNot(t.warn));
+        // Red: the red channel well over the others, and more so than the amber, so a sent
+        // amount is never read as orange.
+        expect(t.txSent.r - t.txSent.g, greaterThanOrEqualTo(0.4), reason: 'sent is red');
+        expect(t.txSent.r - t.txSent.b, greaterThanOrEqualTo(0.4), reason: 'sent is red');
+        expect((t.txSent.r - t.txSent.g) - (t.warn.r - t.warn.g), greaterThanOrEqualTo(0.1));
+        // Apart from the error red side by side: at least a tenth away in RGB.
+        final dr = t.txSent.r - t.risk.r, dg = t.txSent.g - t.risk.g, db = t.txSent.b - t.risk.b;
+        expect(dr * dr + dg * dg + db * db, greaterThanOrEqualTo(0.01), reason: 'sent is not the risk red');
         expect(t.txReceived, t.ok);
         expect(t.txCancelled, isNot(t.warn));
         expect(t.txCancelled, isNot(t.risk));

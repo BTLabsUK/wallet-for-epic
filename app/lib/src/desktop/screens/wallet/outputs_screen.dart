@@ -690,7 +690,7 @@ class _OutputRow extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // The direction, as in Activity: green in, gold out.
+                // The direction, as in Activity: green in, red out.
                 Icon(iconOf(t), size: Ctl.iconSm, color: t.incoming ? c.txReceived : c.txSent),
                 SizedBox(width: Sp.x1),
                 Flexible(child: ELink(label: _txText(l, t), onPressed: onTx)),

@@ -70,8 +70,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
 
   /// The brand gold: primary buttons, the FAB, focused borders, links as [accentText], the
   /// mark and section rules. Never a state: a connected, synced, selected or confirmed thing is
-  /// [ok], [selected] or [info], not gold. The one exception is [txSent], the sent direction.
-  /// [accentInk] is text on an [accent] fill.
+  /// [ok], [selected] or [info], not gold. [accentInk] is text on an [accent] fill.
   final Color accent;
   final Color accentInk;
   final Color accentText;
@@ -103,10 +102,11 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
 
   /// A transaction's direction, on its arrow, icon and amount wherever a payment shows
   /// (Activity, recent activity, details, outputs, invoices, notices). the owner's rule
-  /// (26.10.8): sent is gold, received is green, cancelled is a neutral grey. [txSent] is the
-  /// one deliberate exception to "gold only for the brand": money going out wears the brand
-  /// colour, so a list reads at a glance. States keep their own colours: confirming is [info],
-  /// failed or stalled is [warn] or [risk]. Each is AA on every surface, like [ok].
+  /// (26.10.18, after 26.10.8's gold): sent is red, received is green, cancelled is a neutral
+  /// grey, so a list reads like a ledger at a glance. [txSent] is money out, not a problem:
+  /// a vivid red apart from the softer [risk], which stays for errors and failures, and
+  /// never the brand gold. States keep their own colours: confirming is [info], failed or
+  /// stalled is [warn] or [risk]. Each is AA on every surface, like [ok].
   final Color txSent;
   final Color txReceived;
   final Color txCancelled;
@@ -274,7 +274,7 @@ const WalletTokens protocolDark = WalletTokens(
   infoSoft: Color(0x1F8FB8E8),
   selected: Color(0xFF22222B),
   selectedLine: Color(0xFF4A4A56),
-  txSent: Color(0xFFF6D471),
+  txSent: Color(0xFFF3645F),
   txReceived: Color(0xFF8AD98A),
   txCancelled: Color(0xFFA4A4AD),
   radius: 14,
@@ -311,7 +311,7 @@ const WalletTokens protocolLight = WalletTokens(
   infoSoft: Color(0x1A2F5F9E),
   selected: Color(0xFFECECEF),
   selectedLine: Color(0xFFB4B4BD),
-  txSent: Color(0xFF8F5E1F),
+  txSent: Color(0xFFC41E3A),
   txReceived: Color(0xFF1F7A3A),
   txCancelled: Color(0xFF55555F),
   radius: 14,

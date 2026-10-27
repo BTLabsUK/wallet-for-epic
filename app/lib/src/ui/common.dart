@@ -1030,7 +1030,7 @@ class TxStatusChip extends ConsumerWidget {
   }
 }
 
-/// The direction of [tx] in a rounded square whose edge shows its progress: green in, gold
+/// The direction of [tx] in a rounded square whose edge shows its progress: green in, red
 /// out, grey when cancelled ([WalletTokens.txSent] and kin). See [TxProgressSquare] for the edge.
 class TxIcon extends ConsumerWidget {
   const TxIcon({super.key, required this.tx, required this.tip});
@@ -1695,7 +1695,7 @@ class TxTile extends ConsumerWidget {
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontFamily: context.tokens.monoFamily,
                             fontSize: 14.5,
-                            // The amount wears the direction, like the icon: green in, gold
+                            // The amount wears the direction, like the icon: green in, red
                             // out; a cancelled one is struck through in grey.
                             color: tx.status == TxStatus.cancelled
                                 ? context.tokens.txCancelled

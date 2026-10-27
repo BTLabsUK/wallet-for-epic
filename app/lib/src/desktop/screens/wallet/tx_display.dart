@@ -239,7 +239,7 @@ String whenText(AppLocalizations l, DateTime d, {DateTime? now}) {
   return d.year == n.year ? shortDayMonth(l, d) : shortDay(l, d);
 }
 
-/// The 36 px square with the direction icon: green in, gold out, grey when cancelled.
+/// The 36 px square with the direction icon: green in, red out, grey when cancelled.
 class TxIcon extends StatelessWidget {
   const TxIcon(this.tx, {super.key, this._size});
 
@@ -251,7 +251,7 @@ class TxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    // Direction, as the phone draws it: green in, gold out, grey when cancelled (txSent and kin).
+    // Direction, as the phone draws it: green in, red out, grey when cancelled (txSent and kin).
     final color = off ? c.txCancelled : (txAsked(tx) ? c.dim : (tx.incoming ? c.txReceived : c.txSent));
     return Container(
       width: size,
@@ -288,7 +288,7 @@ class TxStateMark extends StatelessWidget {
   }
 }
 
-/// The amount column: signed, green when in, gold when out, struck through when cancelled; fee under a send.
+/// The amount column: signed, green when in, red when out, struck through when cancelled; fee under a send.
 class TxAmount extends StatelessWidget {
   const TxAmount(this.tx, {super.key, this.showFee = true, this.sub});
 

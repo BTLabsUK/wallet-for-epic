@@ -178,8 +178,7 @@ class DeskColors extends ThemeExtension<DeskColors> {
   final Color text, dim, faint;
 
   /// The brand gold and its ink, text, soft and faint fills, and the corner ticks. Buttons,
-  /// focus, links, the mark. Never a state colour (see [ok], [info] and [s3] for selection),
-  /// except the sent direction, [txSent].
+  /// focus, links, the mark. Never a state colour (see [ok], [info] and [s3] for selection).
   final Color accent, accentDeep, accentInk, accentText, accentSoft, accentFaint, tick;
 
   /// Status: [ok] green (connected, synced, confirmed, success), [warn] amber
@@ -189,8 +188,9 @@ class DeskColors extends ThemeExtension<DeskColors> {
   final Color ok, okSoft, warn, warnSoft, risk, riskSoft, info, infoSoft;
 
   /// A transaction's direction on its arrow, icon and amount (Activity, Overview, details,
-  /// Outputs, invoices, toasts). the owner's rule (26.10.8): sent gold, received green, cancelled
-  /// a neutral grey. [txSent] is the one deliberate exception to "gold only for the brand".
+  /// Outputs, invoices, toasts). the owner's rule (26.10.18, after 26.10.8's gold): sent red,
+  /// received green, cancelled a neutral grey. [txSent] is money out, not a problem: a vivid
+  /// red apart from the softer [risk], which stays for errors, and never the brand gold.
   /// States keep theirs: confirming [info], failed or stalled [warn] or [risk].
   final Color txSent, txReceived, txCancelled;
   final Color hover, press, grid, scrim, glow;
@@ -229,7 +229,7 @@ const DeskColors deskDark = DeskColors(
   riskSoft: Color(0x1FF08A8A),
   info: Color(0xFF8FB8E8),
   infoSoft: Color(0x1F8FB8E8),
-  txSent: Color(0xFFF6D471),
+  txSent: Color(0xFFF3645F),
   txReceived: Color(0xFF8AD98A),
   txCancelled: Color(0xFF8A8A94),
   hover: Color(0x0DFFF9F9),
@@ -266,7 +266,7 @@ const DeskColors deskLight = DeskColors(
   riskSoft: Color(0x14B3261E),
   info: Color(0xFF2F5F9E),
   infoSoft: Color(0x1A2F5F9E),
-  txSent: Color(0xFF815525),
+  txSent: Color(0xFFC41E3A),
   txReceived: Color(0xFF1F7A3A),
   txCancelled: Color(0xFF6B6B75),
   hover: Color(0x0A000000),
