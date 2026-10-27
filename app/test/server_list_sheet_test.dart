@@ -198,7 +198,7 @@ void _tallView(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-Future<void> _pump(WidgetTester tester, ServerKind kind, _Env env, {bool tall = true}) async {
+Future<void> _pump(WidgetTester tester, ServerKind kind, _Env env, {bool tall = true, RelaySelection? selection}) async {
   if (tall) _tallView(tester);
   await tester.pumpWidget(
     ProviderScope(
@@ -212,6 +212,7 @@ Future<void> _pump(WidgetTester tester, ServerKind kind, _Env env, {bool tall = 
             kind: kind,
             afterSave: (_) => env.saved++,
             liveSwitch: env._liveSwitch,
+            selection: selection,
           ),
         ),
       ),
@@ -1205,6 +1206,141 @@ void main() {
         await _timers(tester);
       });
     }
+  });
+
+  group('selection mode', () {
+    const epiccash = 'epicbox.epiccash.com';
+    const floo = 'flooepicbox.btlabs.uk';
+    const epicnet = 'epicbox.epicnet.us';
+    const iniaku = 'epicbox.iniaku.my.id';
+    const defaults = [epiccash, _stack, floo];
+    final calls = <List<String>>[];
+
+    Future<void> pumpSelection(WidgetTester tester, _Env env, List<String> chosen) async {
+      calls.clear();
+      await _pump(
+        tester,
+        ServerKind.relay,
+        env,
+        selection: RelaySelection(
+          limit: 3,
+          chosen: chosen,
+          defaults: defaults,
+          onChanged: calls.add,
+          title: 'Connection servers',
+          note: 'Choose up to 3.',
+        ),
+      );
+    }
+
+    Finder box(String value) => find.descendant(of: _row(value), matching: find.byType(Checkbox));
+    bool ticked(WidgetTester tester, String value) => tester.widget<Checkbox>(box(value)).value!;
+
+    testWidgets('a checkbox per row, the defaults first and badged, the count and the note', (tester) async {
+      await pumpSelection(tester, _Env(), [epiccash, _stack]);
+      expect(find.text('Connection servers'), findsOneWidget);
+      expect(find.byKey(serverListNoteKey), findsOneWidget);
+      expect(find.text('Choose up to 3.'), findsOneWidget);
+      expect(find.text('2 of 3'), findsOneWidget);
+      expect(_order(tester, [epiccash, _stack, floo, epicnet, iniaku]), [epiccash, _stack, floo, epicnet, iniaku]);
+      expect(ticked(tester, epiccash), isTrue);
+      expect(ticked(tester, _stack), isTrue);
+      expect(ticked(tester, floo), isFalse);
+      expect(find.descendant(of: _row(floo), matching: find.text('Default')), findsOneWidget);
+      expect(find.descendant(of: _row(epicnet), matching: find.text('Default')), findsNothing);
+      // The one-server picker's warning and Current card are not here.
+      expect(find.byIcon(Icons.warning_amber_rounded), findsNothing);
+      expect(find.byKey(serverListResetKey), findsOneWidget, reason: 'floo is a default and not chosen');
+    });
+
+    testWidgets('a tick applies at once with a foot line and Undo; the fourth is refused', (tester) async {
+      await pumpSelection(tester, _Env(), [epiccash, _stack]);
+      await tester.tap(_row(epicnet));
+      await tester.pumpAndSettle();
+      expect(calls.last, [epiccash, _stack, epicnet]);
+      expect(ticked(tester, epicnet), isTrue);
+      expect(find.text('3 of 3'), findsOneWidget);
+      expect(_foot('Chosen. Wallets that also use $epicnet find you there.'), findsOneWidget);
+
+      await tester.tap(_row(iniaku));
+      await tester.pumpAndSettle();
+      expect(calls.length, 1, reason: 'a refused tick changes nothing');
+      expect(ticked(tester, iniaku), isFalse);
+      expect(_foot('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
+
+      await tester.tap(_row(epicnet));
+      await tester.pumpAndSettle();
+      expect(calls.last, [epiccash, _stack]);
+      expect(_foot('Unticked $epicnet.'), findsOneWidget);
+      await tester.tap(_footAction('Undo'));
+      await tester.pumpAndSettle();
+      expect(calls.last, [epiccash, _stack, epicnet]);
+      expect(ticked(tester, epicnet), isTrue);
+      await _timers(tester);
+    });
+
+    testWidgets('the last one stays; a chosen row is not removed', (tester) async {
+      await pumpSelection(tester, _Env(), [epiccash]);
+      await tester.tap(_row(epiccash));
+      await tester.pumpAndSettle();
+      expect(calls, isEmpty);
+      expect(_foot('Keep at least one.'), findsOneWidget);
+
+      await tester.tap(find.byKey(serverListRemoveKey(epiccash)));
+      await tester.pumpAndSettle();
+      expect(_foot('Chosen. Untick first.'), findsOneWidget);
+      expect(_row(epiccash), findsOneWidget);
+      await _timers(tester);
+    });
+
+    testWidgets('Reset to defaults shows while the set differs, then goes; Undo brings the set back', (tester) async {
+      await pumpSelection(tester, _Env(), [epicnet, _stack]);
+      expect(find.byKey(serverListResetKey), findsOneWidget);
+      await tester.tap(find.byKey(serverListResetKey));
+      await tester.pumpAndSettle();
+      expect(calls.last, defaults);
+      expect(find.byKey(serverListResetKey), findsNothing);
+      expect(_foot('Reset to defaults.'), findsOneWidget);
+      await tester.tap(_footAction('Undo'));
+      await tester.pumpAndSettle();
+      expect(calls.last, [epicnet, _stack]);
+      expect(find.byKey(serverListResetKey), findsOneWidget);
+      await _timers(tester);
+    });
+
+    testWidgets('a typed server is tested, added "Added by you" and ticked while there is room', (tester) async {
+      final env = _Env();
+      await pumpSelection(tester, env, [epiccash]);
+      await _type(tester, 'relay.example.org');
+      await _tapAdd(tester);
+      expect(calls.last, [epiccash, 'relay.example.org']);
+      expect(_foot('Added relay.example.org. Wallets that also use it find you there.'), findsOneWidget);
+      expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
+      expect(_saved(env.store, ServerKind.relay).isAddedByUser(ServerKind.relay, 'relay.example.org'), isTrue);
+      await _timers(tester);
+    });
+
+    testWidgets('a typed server at the limit is added but not ticked', (tester) async {
+      await pumpSelection(tester, _Env(), defaults);
+      await _type(tester, 'relay.example.org');
+      await _tapAdd(tester);
+      expect(calls, isEmpty);
+      expect(ticked(tester, 'relay.example.org'), isFalse);
+      expect(_foot('Added relay.example.org. Untick one to choose it.'), findsOneWidget);
+      await _timers(tester);
+    });
+  });
+
+  group('the origin of a row', () {
+    testWidgets('a typed server is "Added by you" on the Epicbox page; a listed one is not', (tester) async {
+      final env = _Env();
+      await _pump(tester, ServerKind.relay, env);
+      await _type(tester, 'relay.example.org');
+      await _tapAdd(tester);
+      expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
+      expect(find.descendant(of: _row('epicbox.epicnet.us'), matching: find.text('Added by you')), findsNothing);
+      await _timers(tester);
+    });
   });
 
   test('serverHost reads the host of a node address', () {

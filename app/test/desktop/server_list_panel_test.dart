@@ -114,6 +114,98 @@ void main() {
     await settle(tester);
   }
 
+  group('selection mode', () {
+    const epiccash = 'epicbox.epiccash.com';
+    const stack = 'epicbox.stackwallet.com';
+    const floo = 'flooepicbox.btlabs.uk';
+    const epicnet = 'epicbox.epicnet.us';
+    const defaults = [epiccash, stack, floo];
+    final calls = <List<String>>[];
+
+    Future<void> pumpSelection(WidgetTester tester, List<String> chosen) => show(
+      tester,
+      Align(
+        alignment: Alignment.topLeft,
+        child: SizedBox(
+          width: 520,
+          child: ServerListPanel(
+            kind: ServerKind.relay,
+            label: 'Connection servers',
+            value: '',
+            fieldText: chosen.join(', '),
+            servers: [for (final v in [...defaults, epicnet]) PanelServer.bare(ServerKind.relay, v)],
+            source: const DeskServerSource(public: [epiccash, stack, epicnet, floo]),
+            onChoose: (_) async {},
+            onTest: (_) async => null,
+            openInitially: true,
+            selection: RelaySelection(
+              limit: 3,
+              chosen: chosen,
+              defaults: defaults,
+              onChanged: calls.add,
+              title: 'Connection servers',
+              note: 'Choose up to 3.',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    bool ticked(WidgetTester tester, String value) {
+      final box = find.descendant(of: row(value), matching: find.byIcon(Icons.check));
+      return box.evaluate().isNotEmpty;
+    }
+
+    testWidgets('a click ticks at once with a foot line and Undo; the fourth is refused; the last stays', (tester) async {
+      calls.clear();
+      await pumpSelection(tester, [epiccash, stack]);
+      expect(find.text('Choose up to 3.'), findsOneWidget);
+      expect(find.text('2 of 3'), findsOneWidget);
+      expect(ticked(tester, epiccash), isTrue);
+      expect(ticked(tester, floo), isFalse);
+      // The defaults come first, in their order; Default is on each.
+      expect(tester.getTopLeft(row(floo)).dy, lessThan(tester.getTopLeft(row(epicnet)).dy));
+      expect(find.descendant(of: row(floo), matching: find.text('Default')), findsOneWidget);
+      expect(find.descendant(of: row(epicnet), matching: find.text('Default')), findsNothing);
+
+      await tap(tester, row(floo));
+      expect(calls.last, [epiccash, stack, floo]);
+      expect(find.text('3 of 3'), findsOneWidget);
+      expect(find.text('Chosen $floo.'), findsOneWidget);
+
+      await tap(tester, row(epicnet));
+      expect(calls.length, 1, reason: 'a refused tick changes nothing');
+      expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
+
+      await tap(tester, row(floo));
+      expect(calls.last, [epiccash, stack]);
+      await tap(tester, find.byKey(const ValueKey('server-list-undo')));
+      expect(calls.last, [epiccash, stack, floo]);
+
+      await tap(tester, row(stack));
+      await tap(tester, row(floo));
+      expect(calls.last, [epiccash]);
+      await tap(tester, row(epiccash));
+      expect(find.text('Keep at least one.'), findsOneWidget);
+      expect(calls.last, [epiccash]);
+
+      await tap(tester, find.byKey(ValueKey('server-row-remove-$epiccash')));
+      expect(find.text('Chosen. Untick first.'), findsOneWidget);
+      await end(tester);
+    });
+
+    testWidgets('Reset to defaults shows while the set differs', (tester) async {
+      calls.clear();
+      await pumpSelection(tester, [epicnet, stack]);
+      expect(find.byKey(const ValueKey('server-list-reset')), findsOneWidget);
+      await tap(tester, find.byKey(const ValueKey('server-list-reset')));
+      expect(calls.last, defaults);
+      expect(find.byKey(const ValueKey('server-list-reset')), findsNothing);
+      expect(find.text('Reset to defaults.'), findsOneWidget);
+      await end(tester);
+    });
+  });
+
   testWidgets('the field starts empty with its placeholder; typing filters by host or operator', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final edit = tester.widget<EditableText>(field);

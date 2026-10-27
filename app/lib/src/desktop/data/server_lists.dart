@@ -98,7 +98,7 @@ class DeskServerListController extends Notifier<ServerList?> {
     }
   }
 
-  Future<void> add(String value, {int? at}) async => _set((state ?? const ServerList()).add(kind, value, at: at));
+  Future<void> add(String value, {int? at, bool own = false}) async => _set((state ?? const ServerList()).add(kind, value, at: at, own: own));
 
   /// Takes [value] out and returns where it was, for Undo.
   Future<int?> remove(String value) async {

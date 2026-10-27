@@ -4604,5 +4604,17 @@
   "deskNoTorTxDetailsFromBad": "Użyj adresu Epicbox lub http(s).",
   "deskNoTorTourAdvancedText": "Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.",
   "errorInputsSpentElsewhere": "Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.",
-  "deskErrInputsSpentElsewhere": "Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania."
+  "deskErrInputsSpentElsewhere": "Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.",
+  "slAddedByYou": "Dodane przez ciebie",
+  "slCount": "{n} z {limit}",
+  "slLimit": "Wybrano {limit} z {limit}. Odznacz jeden, aby wybrać inny.",
+  "slKeepOne": "Zostaw co najmniej jeden.",
+  "slChosenUntick": "Wybrany. Najpierw odznacz.",
+  "slResetDefaults": "Przywróć domyślne",
+  "slReset": "Przywrócono domyślne.",
+  "slChosen": "Wybrano {host}.",
+  "slChosenNonDefault": "Wybrano. Portfele, które też używają {host}, znajdą cię tam.",
+  "slUnchosen": "Odznaczono {host}.",
+  "slAddedNonDefault": "Dodano {host}. Portfele, które też z niego korzystają, znajdą cię tam.",
+  "slAddedUntick": "Dodano {host}. Odznacz inny, aby go wybrać."
 }

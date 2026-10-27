@@ -17752,4 +17752,54 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskErrInputsSpentElsewhere =>
       'Эти монеты только что потратил другой кошелёк с вашей фразой восстановления.';
+
+  @override
+  String get slAddedByYou => 'Добавлено вами';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n из $limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return 'Выбрано $limit из $limit. Снимите отметку, чтобы выбрать другой.';
+  }
+
+  @override
+  String get slKeepOne => 'Оставьте хотя бы один.';
+
+  @override
+  String get slChosenUntick => 'Выбран. Сначала снимите отметку.';
+
+  @override
+  String get slResetDefaults => 'Сбросить на стандартные';
+
+  @override
+  String get slReset => 'Сброшено на стандартные.';
+
+  @override
+  String slChosen(String host) {
+    return 'Выбран: $host.';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return 'Выбрано. Кошельки, которые тоже используют $host, найдут вас там.';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return 'Снята отметка: $host.';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return 'Добавлено: $host. Кошельки, которые тоже его используют, найдут вас там.';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return 'Добавлено: $host. Снимите другую отметку, чтобы выбрать его.';
+  }
 }

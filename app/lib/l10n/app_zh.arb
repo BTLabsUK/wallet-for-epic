@@ -4604,5 +4604,17 @@
   "deskNoTorTxDetailsFromBad": "请使用 Epicbox 或 http(s) 地址。",
   "deskNoTorTourAdvancedText": "输出和技术详情都在这里。需要什么就开启什么。",
   "errorInputsSpentElsewhere": "这些币刚刚被另一个使用您助记词的钱包花掉了。",
-  "deskErrInputsSpentElsewhere": "这些币刚刚被另一个使用您助记词的钱包花掉了。"
+  "deskErrInputsSpentElsewhere": "这些币刚刚被另一个使用您助记词的钱包花掉了。",
+  "slAddedByYou": "由你添加",
+  "slCount": "{n}/{limit}",
+  "slLimit": "已选 {limit}/{limit}。取消一个后才能选其他。",
+  "slKeepOne": "至少保留一个。",
+  "slChosenUntick": "已选中。请先取消勾选。",
+  "slResetDefaults": "恢复默认",
+  "slReset": "已恢复默认。",
+  "slChosen": "已选择 {host}。",
+  "slChosenNonDefault": "已选择。同样使用 {host} 的钱包会在那里找到你。",
+  "slUnchosen": "已取消勾选 {host}。",
+  "slAddedNonDefault": "已添加 {host}。同样使用它的钱包会在那里找到你。",
+  "slAddedUntick": "已添加 {host}。取消其他勾选后即可选择。"
 }

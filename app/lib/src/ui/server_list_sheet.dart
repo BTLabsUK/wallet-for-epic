@@ -11,6 +11,7 @@ library;
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,6 +100,15 @@ const Key serverListFootKey = ValueKey('server-list-foot');
 /// The key of "Restore removed servers", for tests.
 const Key serverListRestoreKey = ValueKey('server-list-restore');
 
+/// The key of "Reset to defaults", for tests.
+const Key serverListResetKey = ValueKey('server-list-reset');
+
+/// The key of a selection picker's note under the field, for tests.
+const Key serverListNoteKey = ValueKey('server-list-note');
+
+/// The key of a selection picker's "n of limit" badge, for tests.
+const Key serverListCountKey = ValueKey('server-list-count');
+
 /// The key of a row, by its value.
 Key serverListRowKey(String value) => ValueKey('server-list-row-$value');
 
@@ -154,9 +164,14 @@ class ServerListSheet extends ConsumerStatefulWidget {
     this.sheetController,
     this.afterSave = relaunchAfterSwitch,
     this.liveSwitch = switchServersLive,
+    this.selection,
   });
 
   final ServerKind kind;
+
+  /// The picker takes a set of servers instead of one ([RelaySelection]): a checkbox per row,
+  /// ticks apply at once, nothing switches. Null keeps the one-server picker.
+  final RelaySelection? selection;
   final ScrollController? scrollController;
 
   /// The sheet around it: grown to full height while the field has the keyboard, so the
@@ -193,10 +208,24 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   bool get _node => widget.kind == ServerKind.node;
 
+  /// The set ticked now in a selection picker; null in the one-server picker.
+  List<String>? _chosen;
+
+  RelaySelection? get _sel => widget.selection;
+
   @override
   void initState() {
     super.initState();
     _focus.addListener(_growForKeyboard);
+    _chosen = _sel == null ? null : [..._sel!.chosen];
+  }
+
+  @override
+  void didUpdateWidget(ServerListSheet old) {
+    super.didUpdateWidget(old);
+    final sel = _sel;
+    // The setting changed the set behind the picker's back: follow it.
+    if (sel != null && !listEquals(sel.chosen, old.selection?.chosen)) _chosen = [...sel.chosen];
   }
 
   void _growForKeyboard() {
@@ -247,6 +276,14 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     );
   }
 
+  void _clearLine() {
+    _lineTimer?.cancel();
+    setState(() {
+      _line = null;
+      _lineAction = null;
+    });
+  }
+
   /// The value the field holds, as the list stores it, or null when it is not an address.
   String? _typedValue() => typedServerValue(widget.kind, _text);
 
@@ -261,6 +298,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// server asks first, as the address changes.
   Future<void> _pick(String value, NetworkChoice choice) async {
     FocusManager.instance.primaryFocus?.unfocus();
+    if (_sel != null) return _tick(value);
     if (_same(value, _current(choice))) {
       _say(context.l10n.serverAlreadyInUse, note: true);
       return;
@@ -347,15 +385,19 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       return;
     }
     if (!mounted) return;
-    await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).add(value);
+    await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).add(value, own: true);
     if (!mounted) return;
     _field.clear();
     setState(() => _adding = false);
-    _say(
-      l.slAdded(serverHost(value)),
-      action: () => _pick(value, choice),
-      actionLabel: l.slSwitch,
-    );
+    if (_sel != null) {
+      _addedInSelection(value);
+    } else {
+      _say(
+        l.slAdded(serverHost(value)),
+        action: () => _pick(value, choice),
+        actionLabel: l.slSwitch,
+      );
+    }
     // The new row is the last: bring it into view once the store has written and the list
     // rebuilt with it (a frame or two later).
     Future<void>.delayed(const Duration(milliseconds: 150), () {
@@ -373,8 +415,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   Future<void> _remove(_Entry e, NetworkChoice choice) async {
     final l = context.l10n;
-    if (_same(e.value, _current(choice))) {
-      _say(l.slInUseSwitchFirst, note: true);
+    if (_sel != null ? _isChosen(e.value) : _same(e.value, _current(choice))) {
+      _say(_sel != null ? l.slChosenUntick : l.slInUseSwitchFirst, note: true);
       return;
     }
     final notifier = ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier);
@@ -385,6 +427,91 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       action: () async {
         await notifier.add(e.value, at: at);
         if (mounted) _say(l.slAdded(e.host));
+      },
+    );
+  }
+
+  // The selection mode.
+
+  bool _isChosen(String value) => _chosen!.any((c) => _same(c, value));
+
+  void _setChosen(List<String> next) {
+    setState(() => _chosen = next);
+    _sel!.onChanged(next);
+  }
+
+  /// The foot line of a server that joined the set: plain for a default, else what a
+  /// non-default means for who finds this wallet.
+  String _chosenLine(String value) {
+    final l = context.l10n;
+    final host = serverHost(value);
+    return _sel!.defaults.any((d) => _same(d, value)) ? l.slChosen(host) : l.slChosenNonDefault(host);
+  }
+
+  /// A tap on a row: ticks or unticks at once; the foot says what happened, with Undo, or why
+  /// not (the last one stays, the set is full).
+  void _tick(String value) {
+    final l = context.l10n;
+    final sel = _sel!;
+    final before = _chosen!;
+    final r = toggleSelection(widget.kind, before, value, sel.limit);
+    switch (r.refusal) {
+      case SelectionRefusal.keepOne:
+        _say(l.slKeepOne, note: true);
+        return;
+      case SelectionRefusal.limit:
+        _say(l.slLimit(sel.limit), note: true);
+        return;
+      case null:
+        break;
+    }
+    final next = r.next!;
+    _setChosen(next);
+    _say(
+      next.length > before.length ? _chosenLine(value) : l.slUnchosen(serverHost(value)),
+      action: () {
+        _setChosen(before);
+        _clearLine();
+      },
+    );
+  }
+
+  /// A typed server was tested and listed: it joins the set while there is room, else the foot
+  /// says to untick one.
+  void _addedInSelection(String value) {
+    final l = context.l10n;
+    final sel = _sel!;
+    final before = _chosen!;
+    if (before.length >= sel.limit) {
+      _say(l.slAddedUntick(serverHost(value)), note: true);
+      return;
+    }
+    _setChosen([...before, value]);
+    _say(
+      sel.defaults.any((d) => _same(d, value)) ? l.slChosen(serverHost(value)) : l.slAddedNonDefault(serverHost(value)),
+      action: () {
+        _setChosen(before);
+        _clearLine();
+      },
+    );
+  }
+
+  /// "Reset to defaults": the set is the defaults again; one the user took out of the list comes
+  /// back with it.
+  Future<void> _resetToDefaults(NetworkChoice choice) async {
+    final sel = _sel!;
+    final before = _chosen!;
+    final notifier = ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier);
+    for (final d in sel.defaults) {
+      await notifier.add(d);
+    }
+    if (!mounted) return;
+    _setChosen([...sel.defaults]);
+    _say(
+      context.l10n.slReset,
+      action: () {
+        _setChosen(before);
+        _clearLine();
       },
     );
   }
@@ -503,7 +630,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final choice = ref.watch(networkChoiceProvider).value;
-    final title = _node ? l.serverNodeTitle : l.serverEpicboxTitle;
+    final title = _sel?.title ?? (_node ? l.serverNodeTitle : l.serverEpicboxTitle);
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
     final line = _line;
@@ -520,7 +647,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                     child: Text(title, style: theme.textTheme.titleLarge),
                   ),
                 ),
-                HelpButton(_node ? HelpId.node : HelpId.epicbox),
+                if (_sel == null) HelpButton(_node ? HelpId.node : HelpId.epicbox),
                 IconButton(
                   tooltip: l.commonClose,
                   icon: const Icon(Icons.close),
@@ -561,7 +688,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final t = context.tokens;
     final chain = choice.preset.chain;
     final listState = ref.watch(serverListProvider((widget.kind, chain))).value;
-    final all = listState == null ? const <_Entry>[] : _entries(choice, listState);
+    var all = listState == null ? const <_Entry>[] : _entries(choice, listState);
+    // A selection lists its defaults first; chosen rows keep their place.
+    if (_sel != null) all = selectionOrder(widget.kind, all, (e) => e.value, _sel!.defaults);
     final q = _text;
     final filtering = q.isNotEmpty;
     final shown = filtering
@@ -599,8 +728,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final nodeLocal = _node && torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
     // The health is the server's; the wallet's own connection to it can be down while the
     // server is up. Then the row in use says so, with Retry, which restarts the listener.
-    final relayNotConnected = !_node && epicboxNotConnected(ref);
-    final relayBlocked = !_node && epicboxBlocked(ref);
+    final relayNotConnected = !_node && _sel == null && epicboxNotConnected(ref);
+    final relayBlocked = !_node && _sel == null && epicboxBlocked(ref);
 
     // The field's helper: what typing does now.
     final String? helper;
@@ -667,8 +796,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                   ),
           ),
         ),
+        if (_sel != null)
+          _SelectionNote(note: _sel!.note, count: _chosen!.length, limit: _sel!.limit)
         // The server in use: the node's facts, or the relay's address warning. Typing folds
         // them away so the matches sit by the field.
+        else
         AnimatedSize(
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
@@ -721,10 +853,16 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           key: serverListRowKey(e.value),
           kind: widget.kind,
           entry: e,
-          isDefault: !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
-          current: _same(e.value, current),
-          selected: _same(e.value, current),
-          check: _same(e.value, current),
+          isDefault: _sel != null
+              ? _sel!.defaults.any((d) => _same(d, e.value))
+              : !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
+          addedByYou: listState?.isAddedByUser(widget.kind, e.value) ?? false,
+          current: _sel == null && _same(e.value, current),
+          selected: _sel != null ? _isChosen(e.value) : _same(e.value, current),
+          check: _sel == null && _same(e.value, current),
+          // A checkbox in the selection; the rest of the set dims once it is full.
+          ticked: _sel == null ? null : _isChosen(e.value),
+          dimmed: _sel != null && !_isChosen(e.value) && _chosen!.length >= _sel!.limit,
           onTap: () => _pick(e.value, choice),
           onRemove: () => _remove(e, choice),
         ),
@@ -742,6 +880,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       ],
       if (restorable.isNotEmpty && !filtering)
         _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
+      if (_sel != null && !filtering && !sameServerSet(widget.kind, _chosen!, _sel!.defaults))
+        _ResetRow(onTap: () => _resetToDefaults(choice)),
       _HealthCaption(status: dirStatus, preset: choice.preset),
     ];
     return LayoutBuilder(
@@ -782,9 +922,12 @@ class _ServerRow extends StatelessWidget {
     required this.kind,
     required this.entry,
     required this.isDefault,
+    this.addedByYou = false,
     required this.current,
     required this.selected,
     required this.check,
+    this.ticked,
+    this.dimmed = false,
     required this.onTap,
     required this.onRemove,
   });
@@ -792,9 +935,18 @@ class _ServerRow extends StatelessWidget {
   final ServerKind kind;
   final _Entry entry;
   final bool isDefault;
+
+  /// The user typed this server in: the "Added by you" badge.
+  final bool addedByYou;
   final bool current;
   final bool selected;
   final bool check;
+
+  /// In a selection picker: whether the row's checkbox is ticked. Null in the one-server picker.
+  final bool? ticked;
+
+  /// The row is not chosen and the set is full: shown lighter, a tap says why not.
+  final bool dimmed;
   final VoidCallback onTap;
   final VoidCallback onRemove;
 
@@ -845,6 +997,7 @@ class _ServerRow extends StatelessWidget {
       [
         if (current) l.serverCurrent,
         if (isDefault) l.serverDefault,
+        if (addedByYou) l.slAddedByYou,
         if (push) l.serverSupportsNotifications,
         healthWord,
         if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
@@ -852,9 +1005,10 @@ class _ServerRow extends StatelessWidget {
         if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
       ].join(', '),
     );
-    return Semantics(
-      button: true,
-      selected: selected,
+    final row = Semantics(
+      button: ticked == null,
+      selected: ticked == null ? selected : null,
+      checked: ticked,
       label: label,
       child: Material(
         type: MaterialType.transparency,
@@ -906,6 +1060,9 @@ class _ServerRow extends StatelessWidget {
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
                                     EBadge(l.serverDefault),
+                                  ] else if (addedByYou) ...[
+                                    const SizedBox(width: 8),
+                                    EBadge(l.slAddedByYou),
                                   ],
                                   if (push) ...[
                                     const SizedBox(width: 8),
@@ -924,16 +1081,24 @@ class _ServerRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 20,
-                      child: check
-                          ? Icon(
-                              Icons.check,
-                              size: 20,
-                              color: state == NodeHealthState.healthy ? t.ok : t.dim,
-                            )
-                          : null,
-                    ),
+                    if (ticked != null)
+                      // The row is the control: the box only shows the state.
+                      ExcludeSemantics(
+                        child: IgnorePointer(
+                          child: Checkbox(value: ticked, onChanged: (_) {}),
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        width: 20,
+                        child: check
+                            ? Icon(
+                                Icons.check,
+                                size: 20,
+                                color: state == NodeHealthState.healthy ? t.ok : t.dim,
+                              )
+                            : null,
+                      ),
                     IconButton(
                       key: serverListRemoveKey(e.value),
                       tooltip: l.slRemove,
@@ -950,6 +1115,7 @@ class _ServerRow extends StatelessWidget {
         ),
       ),
     );
+    return dimmed ? Opacity(opacity: 0.55, child: row) : row;
   }
 }
 
@@ -1062,6 +1228,65 @@ class _RestoreRow extends StatelessWidget {
           icon: const Icon(Icons.restore, size: 18),
           label: Text('${l.slRestore} · ${l.slRemovedCount(count)}'),
         ),
+      ),
+    );
+  }
+}
+
+/// "Reset to defaults" at the end of a selection list, while the set differs from the defaults.
+class _ResetRow extends StatelessWidget {
+  const _ResetRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          key: serverListResetKey,
+          style: TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44)),
+          onPressed: onTap,
+          icon: const Icon(Icons.restart_alt, size: 18),
+          label: Text(l.slResetDefaults),
+        ),
+      ),
+    );
+  }
+}
+
+/// Under the field of a selection picker: its note ("Choose up to 3.") and how many are chosen
+/// of the most; the count reads in full once the set is full.
+class _SelectionNote extends StatelessWidget {
+  const _SelectionNote({required this.note, required this.count, required this.limit});
+
+  final String note;
+  final int count;
+  final int limit;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(note, key: serverListNoteKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+          ),
+          const SizedBox(width: 8),
+          EBadge(
+            l.slCount(count, limit),
+            key: serverListCountKey,
+            tone: count >= limit ? BadgeTone.info : BadgeTone.neutral,
+            liveRegion: true,
+          ),
+        ],
       ),
     );
   }

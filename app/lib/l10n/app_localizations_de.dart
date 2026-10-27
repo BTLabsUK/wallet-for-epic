@@ -17522,4 +17522,54 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskErrInputsSpentElsewhere =>
       'Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.';
+
+  @override
+  String get slAddedByYou => 'Von Ihnen hinzugefügt';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n von $limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return '$limit von $limit gewählt. Eines abwählen, um ein anderes zu wählen.';
+  }
+
+  @override
+  String get slKeepOne => 'Mindestens einen behalten.';
+
+  @override
+  String get slChosenUntick => 'Gewählt. Erst abwählen.';
+
+  @override
+  String get slResetDefaults => 'Auf Standard zurücksetzen';
+
+  @override
+  String get slReset => 'Auf Standard zurückgesetzt.';
+
+  @override
+  String slChosen(String host) {
+    return '$host gewählt.';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return 'Gewählt. Wallets, die auch $host nutzen, finden Sie dort.';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return '$host abgewählt.';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return '$host hinzugefügt. Wallets, die es auch nutzen, finden Sie dort.';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return '$host hinzugefügt. Ein anderes abwählen, um es zu wählen.';
+  }
 }

@@ -4604,5 +4604,17 @@
   "deskNoTorTxDetailsFromBad": "Verwenden Sie eine Epicbox- oder http(s)-Adresse.",
   "deskNoTorTourAdvancedText": "Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.",
   "errorInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.",
-  "deskErrInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben."
+  "deskErrInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.",
+  "slAddedByYou": "Von Ihnen hinzugefügt",
+  "slCount": "{n} von {limit}",
+  "slLimit": "{limit} von {limit} gewählt. Eines abwählen, um ein anderes zu wählen.",
+  "slKeepOne": "Mindestens einen behalten.",
+  "slChosenUntick": "Gewählt. Erst abwählen.",
+  "slResetDefaults": "Auf Standard zurücksetzen",
+  "slReset": "Auf Standard zurückgesetzt.",
+  "slChosen": "{host} gewählt.",
+  "slChosenNonDefault": "Gewählt. Wallets, die auch {host} nutzen, finden Sie dort.",
+  "slUnchosen": "{host} abgewählt.",
+  "slAddedNonDefault": "{host} hinzugefügt. Wallets, die es auch nutzen, finden Sie dort.",
+  "slAddedUntick": "{host} hinzugefügt. Ein anderes abwählen, um es zu wählen."
 }

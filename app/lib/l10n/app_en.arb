@@ -23102,5 +23102,91 @@
   "deskErrInputsSpentElsewhere": "These coins were just spent by another wallet using your recovery phrase.",
   "@deskErrInputsSpentElsewhere": {
     "description": "Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
+  },
+  "slAddedByYou": "Added by you",
+  "@slAddedByYou": {
+    "description": "Badge on a server row the user typed in, beside Default; also on the Epicbox servers page."
+  },
+  "slCount": "{n} of {limit}",
+  "@slCount": {
+    "description": "Badge in the server picker's selection mode: how many servers are chosen of the most that may be.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "slLimit": "{limit} of {limit} chosen. Untick one to choose another.",
+  "@slLimit": {
+    "description": "Foot line when a tick is refused because the most servers are chosen already.",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "slKeepOne": "Keep at least one.",
+  "@slKeepOne": {
+    "description": "Foot line when the last chosen server is unticked."
+  },
+  "slChosenUntick": "Chosen. Untick first.",
+  "@slChosenUntick": {
+    "description": "Foot line when the bin is tapped on a chosen server."
+  },
+  "slResetDefaults": "Reset to defaults",
+  "@slResetDefaults": {
+    "description": "Row at the foot of the selection list while the chosen set differs from the defaults."
+  },
+  "slReset": "Reset to defaults.",
+  "@slReset": {
+    "description": "Foot line after the chosen set was reset to the defaults."
+  },
+  "slChosen": "Chosen {host}.",
+  "@slChosen": {
+    "description": "Foot line after a server was ticked in the selection list. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slChosenNonDefault": "Chosen. Wallets that also use {host} find you there.",
+  "@slChosenNonDefault": {
+    "description": "Foot line after a server that is not a default was ticked. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slUnchosen": "Unticked {host}.",
+  "@slUnchosen": {
+    "description": "Foot line after a server was unticked in the selection list. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slAddedNonDefault": "Added {host}. Wallets that also use it find you there.",
+  "@slAddedNonDefault": {
+    "description": "Foot line after a server was typed in and ticked in the selection list. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slAddedUntick": "Added {host}. Untick one to choose it.",
+  "@slAddedUntick": {
+    "description": "Foot line after a server was typed in while the most servers are chosen already. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
   }
 }

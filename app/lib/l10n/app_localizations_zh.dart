@@ -16393,4 +16393,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskErrInputsSpentElsewhere => '这些币刚刚被另一个使用您助记词的钱包花掉了。';
+
+  @override
+  String get slAddedByYou => '由你添加';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n/$limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return '已选 $limit/$limit。取消一个后才能选其他。';
+  }
+
+  @override
+  String get slKeepOne => '至少保留一个。';
+
+  @override
+  String get slChosenUntick => '已选中。请先取消勾选。';
+
+  @override
+  String get slResetDefaults => '恢复默认';
+
+  @override
+  String get slReset => '已恢复默认。';
+
+  @override
+  String slChosen(String host) {
+    return '已选择 $host。';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return '已选择。同样使用 $host 的钱包会在那里找到你。';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return '已取消勾选 $host。';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return '已添加 $host。同样使用它的钱包会在那里找到你。';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return '已添加 $host。取消其他勾选后即可选择。';
+  }
 }

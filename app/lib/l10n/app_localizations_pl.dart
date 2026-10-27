@@ -17784,4 +17784,54 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskErrInputsSpentElsewhere =>
       'Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.';
+
+  @override
+  String get slAddedByYou => 'Dodane przez ciebie';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n z $limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return 'Wybrano $limit z $limit. Odznacz jeden, aby wybrać inny.';
+  }
+
+  @override
+  String get slKeepOne => 'Zostaw co najmniej jeden.';
+
+  @override
+  String get slChosenUntick => 'Wybrany. Najpierw odznacz.';
+
+  @override
+  String get slResetDefaults => 'Przywróć domyślne';
+
+  @override
+  String get slReset => 'Przywrócono domyślne.';
+
+  @override
+  String slChosen(String host) {
+    return 'Wybrano $host.';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return 'Wybrano. Portfele, które też używają $host, znajdą cię tam.';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return 'Odznaczono $host.';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return 'Dodano $host. Portfele, które też z niego korzystają, znajdą cię tam.';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return 'Dodano $host. Odznacz inny, aby go wybrać.';
+  }
 }

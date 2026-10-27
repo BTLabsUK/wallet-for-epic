@@ -17318,4 +17318,54 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskErrInputsSpentElsewhere =>
       'These coins were just spent by another wallet using your recovery phrase.';
+
+  @override
+  String get slAddedByYou => 'Added by you';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n of $limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return '$limit of $limit chosen. Untick one to choose another.';
+  }
+
+  @override
+  String get slKeepOne => 'Keep at least one.';
+
+  @override
+  String get slChosenUntick => 'Chosen. Untick first.';
+
+  @override
+  String get slResetDefaults => 'Reset to defaults';
+
+  @override
+  String get slReset => 'Reset to defaults.';
+
+  @override
+  String slChosen(String host) {
+    return 'Chosen $host.';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return 'Chosen. Wallets that also use $host find you there.';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return 'Unticked $host.';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return 'Added $host. Wallets that also use it find you there.';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return 'Added $host. Untick one to choose it.';
+  }
 }

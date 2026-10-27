@@ -17027,4 +17027,54 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskErrInputsSpentElsewhere =>
       'เหรียญเหล่านี้เพิ่งถูกใช้จากกระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณ';
+
+  @override
+  String get slAddedByYou => 'คุณเพิ่มเอง';
+
+  @override
+  String slCount(int n, int limit) {
+    return '$n จาก $limit';
+  }
+
+  @override
+  String slLimit(int limit) {
+    return 'เลือกครบ $limit จาก $limit แล้ว ยกเลิกหนึ่งรายการเพื่อเลือกรายการอื่น';
+  }
+
+  @override
+  String get slKeepOne => 'ต้องเลือกอย่างน้อยหนึ่งรายการ';
+
+  @override
+  String get slChosenUntick => 'เลือกอยู่ ต้องยกเลิกก่อน';
+
+  @override
+  String get slResetDefaults => 'คืนค่าเริ่มต้น';
+
+  @override
+  String get slReset => 'คืนค่าเริ่มต้นแล้ว';
+
+  @override
+  String slChosen(String host) {
+    return 'เลือก $host แล้ว';
+  }
+
+  @override
+  String slChosenNonDefault(String host) {
+    return 'เลือกแล้ว กระเป๋าเงินที่ใช้ $host ด้วยจะพบคุณที่นั่น';
+  }
+
+  @override
+  String slUnchosen(String host) {
+    return 'ยกเลิกการเลือก $host แล้ว';
+  }
+
+  @override
+  String slAddedNonDefault(String host) {
+    return 'เพิ่ม $host แล้ว กระเป๋าเงินที่ใช้เซิร์ฟเวอร์นี้ด้วยจะพบคุณที่นั่น';
+  }
+
+  @override
+  String slAddedUntick(String host) {
+    return 'เพิ่ม $host แล้ว ยกเลิกรายการอื่นเพื่อเลือกรายการนี้';
+  }
 }

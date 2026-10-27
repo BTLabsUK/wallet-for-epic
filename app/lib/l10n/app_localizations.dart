@@ -27490,6 +27490,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'These coins were just spent by another wallet using your recovery phrase.'**
   String get deskErrInputsSpentElsewhere;
+
+  /// Badge on a server row the user typed in, beside Default; also on the Epicbox servers page.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get slAddedByYou;
+
+  /// Badge in the server picker's selection mode: how many servers are chosen of the most that may be.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {limit}'**
+  String slCount(int n, int limit);
+
+  /// Foot line when a tick is refused because the most servers are chosen already.
+  ///
+  /// In en, this message translates to:
+  /// **'{limit} of {limit} chosen. Untick one to choose another.'**
+  String slLimit(int limit);
+
+  /// Foot line when the last chosen server is unticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one.'**
+  String get slKeepOne;
+
+  /// Foot line when the bin is tapped on a chosen server.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen. Untick first.'**
+  String get slChosenUntick;
+
+  /// Row at the foot of the selection list while the chosen set differs from the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults'**
+  String get slResetDefaults;
+
+  /// Foot line after the chosen set was reset to the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults.'**
+  String get slReset;
+
+  /// Foot line after a server was ticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen {host}.'**
+  String slChosen(String host);
+
+  /// Foot line after a server that is not a default was ticked. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen. Wallets that also use {host} find you there.'**
+  String slChosenNonDefault(String host);
+
+  /// Foot line after a server was unticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Unticked {host}.'**
+  String slUnchosen(String host);
+
+  /// Foot line after a server was typed in and ticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {host}. Wallets that also use it find you there.'**
+  String slAddedNonDefault(String host);
+
+  /// Foot line after a server was typed in while the most servers are chosen already. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {host}. Untick one to choose it.'**
+  String slAddedUntick(String host);
 }
 
 class _AppLocalizationsDelegate
