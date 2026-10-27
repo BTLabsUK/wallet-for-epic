@@ -16888,4 +16888,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOwnSlotSyncing => 'Your node syncing';
+
+  @override
+  String ownNodeLabel(String where) {
+    return 'Your node · $where';
+  }
+
+  @override
+  String get ownNodeThisPhone => 'this phone';
+
+  @override
+  String get ownNodeHome => 'home network';
+
+  @override
+  String get ownNodeVpn => 'VPN';
+
+  @override
+  String get ownNodeSynced => 'Synced';
+
+  @override
+  String get ownNodeSyncing => 'Syncing';
+
+  @override
+  String get ownNodeBehind => 'Behind';
+
+  @override
+  String get ownNodeFactBehind => 'Behind';
+
+  @override
+  String get ownNodeFactLatency => 'Latency';
+
+  @override
+  String get ownNodeFactAccepts => 'Accepts transactions';
+
+  @override
+  String get ownNodeFactMempool => 'Mempool';
+
+  @override
+  String get ownNodeYes => 'Yes';
+
+  @override
+  String get ownNodeNotYet => 'Not yet';
+
+  @override
+  String get ownNodeUnknown => 'Unknown';
+
+  @override
+  String get ownNodePoolEmpty => 'empty';
+
+  @override
+  String ownNodePoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count waiting',
+      one: '1 waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ownNodeAskedDirectly =>
+      'Asked directly from this phone every 15 s';
 }

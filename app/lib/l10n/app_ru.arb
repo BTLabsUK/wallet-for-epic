@@ -4487,5 +4487,22 @@
   "deskOwnMine": "Это мой узел",
   "deskOwnMineHint": "Опрашивает сам узел вместо status.btlabs.uk и предлагает доступ владельца. Для узла, который вы держите сами.",
   "deskOwnListNote": "Ваши узлы опрашиваются напрямую.",
-  "deskOwnSlotSyncing": "Ваш узел синхронизируется"
+  "deskOwnSlotSyncing": "Ваш узел синхронизируется",
+  "ownNodeLabel": "Ваш узел · {where}",
+  "ownNodeThisPhone": "этот телефон",
+  "ownNodeHome": "домашняя сеть",
+  "ownNodeVpn": "VPN",
+  "ownNodeSynced": "Синхронизирован",
+  "ownNodeSyncing": "Синхронизация…",
+  "ownNodeBehind": "Отстаёт",
+  "ownNodeFactBehind": "Отставание",
+  "ownNodeFactLatency": "Задержка",
+  "ownNodeFactAccepts": "Принимает транзакции",
+  "ownNodeFactMempool": "Мемпул",
+  "ownNodeYes": "Да",
+  "ownNodeNotYet": "Пока нет",
+  "ownNodeUnknown": "Неизвестно",
+  "ownNodePoolEmpty": "пусто",
+  "ownNodePoolWaiting": "{count, plural, one{{count} ждёт} few{{count} ждут} many{{count} ждут} other{{count} ждут}}",
+  "ownNodeAskedDirectly": "Опрашивается напрямую с этого телефона каждые 15 с"
 }

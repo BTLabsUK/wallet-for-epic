@@ -22550,5 +22550,83 @@
   "deskOwnSlotSyncing": "Your node syncing",
   "@deskOwnSlotSyncing": {
     "description": "Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'."
+  },
+  "ownNodeLabel": "Your node · {where}",
+  "@ownNodeLabel": {
+    "description": "Name of the user's own node (on this phone, the home network or a VPN) in the node list and the node box. {where} is ownNodeThisPhone, ownNodeHome or ownNodeVpn.",
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "ownNodeThisPhone": "this phone",
+  "@ownNodeThisPhone": {
+    "description": "Where the user's own node runs: on this phone. After 'Your node · '. Lowercase."
+  },
+  "ownNodeHome": "home network",
+  "@ownNodeHome": {
+    "description": "Where the user's own node runs: on the home (local) network. After 'Your node · '. Lowercase."
+  },
+  "ownNodeVpn": "VPN",
+  "@ownNodeVpn": {
+    "description": "Where the user's own node runs: over a VPN such as Tailscale. Keep 'VPN'."
+  },
+  "ownNodeSynced": "Synced",
+  "@ownNodeSynced": {
+    "description": "State word of the user's own node: at the network tip and ready."
+  },
+  "ownNodeSyncing": "Syncing",
+  "@ownNodeSyncing": {
+    "description": "State word of the user's own node: catching up with the network."
+  },
+  "ownNodeBehind": "Behind",
+  "@ownNodeBehind": {
+    "description": "State word of the user's own node: behind the network and not moving."
+  },
+  "ownNodeFactBehind": "Behind",
+  "@ownNodeFactBehind": {
+    "description": "Label of a fact in the own node box: how far behind the network it is."
+  },
+  "ownNodeFactLatency": "Latency",
+  "@ownNodeFactLatency": {
+    "description": "Label of a fact in the own node box: answer time from this phone."
+  },
+  "ownNodeFactAccepts": "Accepts transactions",
+  "@ownNodeFactAccepts": {
+    "description": "Label of a fact in the own node box: whether the node takes new transactions."
+  },
+  "ownNodeFactMempool": "Mempool",
+  "@ownNodeFactMempool": {
+    "description": "Label of a fact in the own node box: transactions waiting in the node's memory pool."
+  },
+  "ownNodeYes": "Yes",
+  "@ownNodeYes": {
+    "description": "Value of 'Accepts transactions': yes."
+  },
+  "ownNodeNotYet": "Not yet",
+  "@ownNodeNotYet": {
+    "description": "Value of 'Accepts transactions': not yet (the node syncs)."
+  },
+  "ownNodeUnknown": "Unknown",
+  "@ownNodeUnknown": {
+    "description": "Value of 'Accepts transactions': the node does not say (older than 4.1.0)."
+  },
+  "ownNodePoolEmpty": "empty",
+  "@ownNodePoolEmpty": {
+    "description": "Value of Mempool: no transaction waits. Lowercase."
+  },
+  "ownNodePoolWaiting": "{count, plural, one{1 waiting} other{{count} waiting}}",
+  "@ownNodePoolWaiting": {
+    "description": "Value of Mempool: this many transactions wait.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ownNodeAskedDirectly": "Asked directly from this phone every 15 s",
+  "@ownNodeAskedDirectly": {
+    "description": "Source line under the own node box: the phone asks the node itself every 15 seconds, not status.btlabs.uk."
   }
 }

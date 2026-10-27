@@ -27,7 +27,9 @@ import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
 import '../server_list_store.dart';
 import '../server_switch.dart';
-import '../net/local_address.dart' show isLocalNodeUrl;
+import '../net/local_address.dart' show isLocalNodeUrl, NodeClass, nodeClassOf;
+import '../node/node_info.dart' show NodeInfo, NodeHead;
+import '../node/node_providers.dart' show nodeInfoProvider;
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'badge.dart';
@@ -442,7 +444,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             final s = local
                 ? ref.watch(localNodeStatusProvider((url: v, preset: preset))).value
                 : p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
-            final operator = p?.operator ?? s?.operator;
+            // The user's own node: "Your node · home network" where a public node names its operator.
+            final operator = local ? ownNodeLabel(context.l10n, nodeClassOf(v)) : p?.operator ?? s?.operator;
             return _Entry(
               value: v,
               host: serverHost(v),
@@ -1302,16 +1305,53 @@ class _HealthCaption extends ConsumerWidget {
   }
 }
 
+/// "Your node · home network": the user's own node, as the rows and the facts box name it.
+String ownNodeLabel(AppLocalizations l, NodeClass c) => l.ownNodeLabel(switch (c) {
+  NodeClass.thisComputer => l.ownNodeThisPhone,
+  NodeClass.vpn => l.ownNodeVpn,
+  _ => l.ownNodeHome,
+});
+
+/// How often the user's own node is asked while the facts box shows it.
+const Duration ownNodeAskEvery = Duration(seconds: 15);
+
 /// The node in use, under the field that holds its address: its state word, then Height
 /// (with `at tip`), Version, Peers and Uptime 24 h as a grid, each only when known; then the
-/// monitor's view of the network and when it last checked.
-class _CurrentNodeFacts extends ConsumerWidget {
+/// monitor's view of the network and when it last checked. The user's own node (this phone,
+/// the home network, a VPN) is asked directly every 15 s instead: Height against the network
+/// tip, Version, Latency, Accepts transactions and Mempool (own-node spec §2, §6).
+class _CurrentNodeFacts extends ConsumerStatefulWidget {
   const _CurrentNodeFacts({required this.choice});
 
   final NetworkChoice choice;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CurrentNodeFacts> createState() => _CurrentNodeFactsState();
+}
+
+class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
+  Timer? _ask;
+
+  NetworkChoice get choice => widget.choice;
+
+  @override
+  void initState() {
+    super.initState();
+    _ask = Timer.periodic(ownNodeAskEvery, (_) {
+      if (!mounted) return;
+      final url = ref.read(nodeFailoverProvider)?.inUse ?? choice.nodeUrl;
+      if (isLocalNodeUrl(url)) ref.invalidate(nodeInfoProvider((url: url, preset: choice.preset)));
+    });
+  }
+
+  @override
+  void dispose() {
+    _ask?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
@@ -1319,6 +1359,8 @@ class _CurrentNodeFacts extends ConsumerWidget {
     final listed = ref.watch(publicNodeStatusProvider(choice.preset)).value;
     final net = ref.watch(networkStatusProvider(choice.preset)).value;
     final nodeUrl = ref.watch(nodeFailoverProvider)?.inUse ?? choice.nodeUrl;
+    final NodeInfo? own = isLocalNodeUrl(nodeUrl) ? ref.watch(nodeInfoProvider((url: nodeUrl, preset: choice.preset))).value : null;
+    if (isLocalNodeUrl(nodeUrl)) return _ownBox(context, nodeUrl, own, nodeNetFace(context, wallet, behind: own?.blocksBehind));
     final dirNode = nodeStatusFor(listed ?? const [], nodeUrl);
     final height = wallet.tip?.height.toInt() ?? dirNode?.height;
     final tipHeight = net?.tipHeight;
@@ -1428,6 +1470,98 @@ class _CurrentNodeFacts extends ConsumerWidget {
           ],
           if (checked != null)
             Text(l.serverCheckedAt(localClock(l, checked.toLocal())), style: small),
+        ],
+      ),
+    );
+  }
+}
+
+extension on _CurrentNodeFactsState {
+  /// The own node's box: "Your node · home network", its head word, five facts, the source line.
+  Widget _ownBox(BuildContext context, String url, NodeInfo? i, NetFace face) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final down = i?.head == NodeHead.down;
+    final behind = i?.blocksBehind;
+    final word = switch (i?.head) {
+      NodeHead.synced => l.ownNodeSynced,
+      NodeHead.syncing => l.ownNodeSyncing,
+      NodeHead.behind => l.ownNodeBehind,
+      NodeHead.down => l.serverLocalNotReachablePhone,
+      null => face.word,
+    };
+    final color = switch (i?.head) {
+      NodeHead.synced => t.ok,
+      NodeHead.syncing => t.info,
+      NodeHead.behind => t.warn,
+      NodeHead.down => t.risk,
+      null => face.color,
+    };
+    final facts = <(String, String)>[
+      if (i?.height != null && !down)
+        (l.serverFactHeight, behind != null && behind < behindAfter ? l.serverHeightAtTip(groupDigits(l, i!.height!)) : groupDigits(l, i!.height!)),
+      if (behind != null && behind >= behindAfter && !down) (l.ownNodeFactBehind, l.serverBehindLabel(behind)),
+      if (i?.version != null && !down) (l.serverFactVersion, i!.version!),
+      if (i?.latencyMs != null && !down) (l.ownNodeFactLatency, l.serverLatency(groupDigits(l, i!.latencyMs!))),
+      if (i != null && !down)
+        (l.ownNodeFactAccepts, switch (i.readyForTxs) { true => l.ownNodeYes, false => l.ownNodeNotYet, null => l.ownNodeUnknown }),
+      if (i?.poolSize != null && !down) (l.ownNodeFactMempool, i!.poolSize == 0 ? l.ownNodePoolEmpty : l.ownNodePoolWaiting(i.poolSize!)),
+    ];
+    final small = theme.textTheme.bodySmall?.copyWith(color: t.dim);
+    final label = ownNodeLabel(l, nodeClassOf(url));
+    return Container(
+      decoration: BoxDecoration(color: t.surface, border: Border.all(color: t.line), borderRadius: BorderRadius.circular(t.radiusSmall)),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            container: true,
+            liveRegion: true,
+            label: [l.serverCurrent, label, serverHost(url), word].join(', '),
+            excludeSemantics: true,
+            child: Row(
+              children: [
+                SignalBars(level: down ? SignalLevel.none : face.level, color: color, pulse: i?.head == NodeHead.syncing),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: t.text, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 8),
+                Flexible(child: Text(word, style: theme.textTheme.bodySmall?.copyWith(color: color), textAlign: TextAlign.end)),
+              ],
+            ),
+          ),
+          if (facts.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            LayoutBuilder(
+              builder: (context, box) {
+                final w = (box.maxWidth - 12) / 2;
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    for (final (label, value) in facts)
+                      SizedBox(
+                        width: w,
+                        child: MergeSemantics(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(label, style: small),
+                              Text(value, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text)),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
+          const SizedBox(height: 12),
+          Text(l.ownNodeAskedDirectly, style: small),
         ],
       ),
     );

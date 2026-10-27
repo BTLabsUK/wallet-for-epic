@@ -99,6 +99,8 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
   void _again() {
     if (!mounted) return;
     ref.invalidate(deskNodeInfoProvider(widget.url));
+    ref.invalidate(deskOwnStatusProvider);
+    ref.invalidate(deskOwnPeersProvider(widget.url));
   }
 
   void _push(List<_Sample> l, double? v) {
@@ -190,6 +192,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
         ENotice(
           tone: ETone.risk,
           title: l.deskOwnDownTitle,
+          actionsBelow: true,
           text: l.deskOwnDownText(fallback),
           actions: [
             EButton(label: l.deskOwnTryNow, size: EBtnSize.inline, onPressed: () => ref.read(deskFailoverWatchProvider.notifier).tryBack()),
@@ -206,6 +209,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
       else if (syncing && answered == null)
         ENotice(
           title: l.deskOwnSyncTitle,
+          actionsBelow: true,
           text: l.deskOwnSyncText(fallback),
           actions: [
             EButton(label: l.deskSetLnodeUseMeanwhile(fallback), size: EBtnSize.inline, onPressed: () => _answerSyncing(true)),

@@ -4487,5 +4487,22 @@
   "deskOwnMine": "นี่คือโหนดของฉัน",
   "deskOwnMineHint": "ถามโหนดโดยตรงแทน status.btlabs.uk และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง",
   "deskOwnListNote": "โหนดของคุณเองจะถูกถามโดยตรง",
-  "deskOwnSlotSyncing": "โหนดของคุณกำลังซิงค์"
+  "deskOwnSlotSyncing": "โหนดของคุณกำลังซิงค์",
+  "ownNodeLabel": "โหนดของคุณ · {where}",
+  "ownNodeThisPhone": "โทรศัพท์เครื่องนี้",
+  "ownNodeHome": "เครือข่ายในบ้าน",
+  "ownNodeVpn": "VPN",
+  "ownNodeSynced": "ซิงค์แล้ว",
+  "ownNodeSyncing": "กำลังซิงค์",
+  "ownNodeBehind": "ตามหลัง",
+  "ownNodeFactBehind": "ตามหลัง",
+  "ownNodeFactLatency": "เวลาตอบ",
+  "ownNodeFactAccepts": "รับธุรกรรม",
+  "ownNodeFactMempool": "Mempool",
+  "ownNodeYes": "ใช่",
+  "ownNodeNotYet": "ยังไม่",
+  "ownNodeUnknown": "ไม่ทราบ",
+  "ownNodePoolEmpty": "ว่าง",
+  "ownNodePoolWaiting": "{count, plural, other{รอ {count} รายการ}}",
+  "ownNodeAskedDirectly": "ถามโดยตรงจากโทรศัพท์เครื่องนี้ทุก 15 วิ"
 }

@@ -16605,4 +16605,64 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOwnSlotSyncing => 'โหนดของคุณกำลังซิงค์';
+
+  @override
+  String ownNodeLabel(String where) {
+    return 'โหนดของคุณ · $where';
+  }
+
+  @override
+  String get ownNodeThisPhone => 'โทรศัพท์เครื่องนี้';
+
+  @override
+  String get ownNodeHome => 'เครือข่ายในบ้าน';
+
+  @override
+  String get ownNodeVpn => 'VPN';
+
+  @override
+  String get ownNodeSynced => 'ซิงค์แล้ว';
+
+  @override
+  String get ownNodeSyncing => 'กำลังซิงค์';
+
+  @override
+  String get ownNodeBehind => 'ตามหลัง';
+
+  @override
+  String get ownNodeFactBehind => 'ตามหลัง';
+
+  @override
+  String get ownNodeFactLatency => 'เวลาตอบ';
+
+  @override
+  String get ownNodeFactAccepts => 'รับธุรกรรม';
+
+  @override
+  String get ownNodeFactMempool => 'Mempool';
+
+  @override
+  String get ownNodeYes => 'ใช่';
+
+  @override
+  String get ownNodeNotYet => 'ยังไม่';
+
+  @override
+  String get ownNodeUnknown => 'ไม่ทราบ';
+
+  @override
+  String get ownNodePoolEmpty => 'ว่าง';
+
+  @override
+  String ownNodePoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รอ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ownNodeAskedDirectly => 'ถามโดยตรงจากโทรศัพท์เครื่องนี้ทุก 15 วิ';
 }

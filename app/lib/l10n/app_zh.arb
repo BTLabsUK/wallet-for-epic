@@ -4487,5 +4487,22 @@
   "deskOwnMine": "这是我的节点",
   "deskOwnMineHint": "直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。",
   "deskOwnListNote": "你自己的节点会被直接询问。",
-  "deskOwnSlotSyncing": "你的节点正在同步"
+  "deskOwnSlotSyncing": "你的节点正在同步",
+  "ownNodeLabel": "你的节点 · {where}",
+  "ownNodeThisPhone": "这部手机",
+  "ownNodeHome": "家庭网络",
+  "ownNodeVpn": "VPN",
+  "ownNodeSynced": "已同步",
+  "ownNodeSyncing": "正在同步",
+  "ownNodeBehind": "落后",
+  "ownNodeFactBehind": "落后",
+  "ownNodeFactLatency": "延迟",
+  "ownNodeFactAccepts": "接受交易",
+  "ownNodeFactMempool": "内存池",
+  "ownNodeYes": "是",
+  "ownNodeNotYet": "尚未",
+  "ownNodeUnknown": "未知",
+  "ownNodePoolEmpty": "空",
+  "ownNodePoolWaiting": "{count, plural, other{{count} 笔等待中}}",
+  "ownNodeAskedDirectly": "每 15 秒从这部手机直接询问"
 }

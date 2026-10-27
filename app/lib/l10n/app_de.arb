@@ -4487,5 +4487,22 @@
   "deskOwnMine": "Das ist mein Node",
   "deskOwnMineHint": "Fragt den Node selbst statt status.btlabs.uk und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.",
   "deskOwnListNote": "Ihre eigenen Nodes werden direkt gefragt.",
-  "deskOwnSlotSyncing": "Ihr Node synchronisiert"
+  "deskOwnSlotSyncing": "Ihr Node synchronisiert",
+  "ownNodeLabel": "Ihr Node · {where}",
+  "ownNodeThisPhone": "dieses Handy",
+  "ownNodeHome": "Heimnetz",
+  "ownNodeVpn": "VPN",
+  "ownNodeSynced": "Synchronisiert",
+  "ownNodeSyncing": "Synchronisiert…",
+  "ownNodeBehind": "Im Rückstand",
+  "ownNodeFactBehind": "Rückstand",
+  "ownNodeFactLatency": "Latenz",
+  "ownNodeFactAccepts": "Nimmt Transaktionen an",
+  "ownNodeFactMempool": "Mempool",
+  "ownNodeYes": "Ja",
+  "ownNodeNotYet": "Noch nicht",
+  "ownNodeUnknown": "Unbekannt",
+  "ownNodePoolEmpty": "leer",
+  "ownNodePoolWaiting": "{count, plural, one{1 wartet} other{{count} warten}}",
+  "ownNodeAskedDirectly": "Alle 15 s direkt von diesem Handy gefragt"
 }

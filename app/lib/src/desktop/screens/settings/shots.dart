@@ -61,6 +61,19 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '20d-node-limited', title: 'Node card, limited info', route: DeskRoute.settingsNode, arg: NodeDemo.limited),
   const DeskShot(id: '20e-node-down', title: 'Node card, not answering', route: DeskRoute.settingsNode, arg: NodeDemo.down),
   const DeskShot(id: '22-settings-node', title: 'Settings, node', route: DeskRoute.settingsNode),
+  // The user's own node (own-node spec): home network, asked directly; owner access; big screens.
+  const DeskShot(id: '20o-own-node', title: 'Own node, asked directly', route: DeskRoute.settingsNode, arg: NodeDemo.own),
+  const DeskShot(id: '20o-own-node-2474', title: 'Own node, asked directly, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.own, width: 2474, height: 1338),
+  const DeskShot(id: '20p-own-node-access', title: 'Own node with owner access', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess),
+  const DeskShot(id: '20p-own-node-access-2474', title: 'Own node with owner access, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess, width: 2474, height: 1338),
+  const DeskShot(id: '20q-own-node-peers', title: 'Own node, Peers tab', route: DeskRoute.settingsNode, arg: NodeDemo.ownPeers),
+  const DeskShot(id: '20r-own-node-dialog', title: 'Own node, Owner access dialog', route: DeskRoute.settingsNode, arg: NodeDemo.ownDialog),
+  const DeskShot(id: '20s-own-node-syncing', title: 'Own node syncing: the public-node offer', route: DeskRoute.settingsNode, arg: NodeDemo.ownSyncing),
+  const DeskShot(id: '20s-own-node-syncing-2474', title: 'Own node syncing, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.ownSyncing, width: 2474, height: 1338),
+  const DeskShot(id: '20t-own-node-down', title: 'Own node not answering: a public node stands in', route: DeskRoute.settingsNode, arg: NodeDemo.ownDown),
+  const DeskShot(id: '20o-own-node-narrow', title: 'Own node at 1000x700', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess, width: 1000, height: 700),
+  const DeskShot(id: '22-settings-node-2474', title: 'Settings, node card at 2474x1338', route: DeskRoute.settingsNode, width: 2474, height: 1338),
+  const DeskShot(id: '23-settings-receiving-2474', title: 'Settings, Transactions at 2474x1338', route: DeskRoute.settingsReceiving, width: 2474, height: 1338),
   const DeskShot(id: '22-settings-node-narrow', title: 'Settings, node at 1000x700', route: DeskRoute.settingsNode, width: 1000, height: 700),
   const DeskShot(id: '22b-node-combobox-open', title: 'Node list open', route: DeskRoute.settingsNode, arg: NodeDemo.comboOpen),
   const DeskShot(id: '22c-node-typed', title: 'Node list, typed address: Add', route: DeskRoute.settingsNode, arg: NodeDemo.typed),
@@ -84,6 +97,7 @@ final List<DeskShot> settingsShots = [
     ('21-local-restart-needed', 'Local node, settings changed', mockLocalNode(LocalNodePhase.synced, restartNeeded: true, userToml: true), FallbackConsent.accepted),
   ])
     DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeDemo.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
+  DeskShot(id: '21-local-synced-2474', title: 'Local node, synced, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.builtin, width: 2474, height: 1338, prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted)),
   DeskShot(
     id: '21-local-peers',
     title: 'Local node, Peers tab',

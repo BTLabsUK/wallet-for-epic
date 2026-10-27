@@ -26788,6 +26788,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your node syncing'**
   String get deskOwnSlotSyncing;
+
+  /// Name of the user's own node (on this phone, the home network or a VPN) in the node list and the node box. {where} is ownNodeThisPhone, ownNodeHome or ownNodeVpn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node · {where}'**
+  String ownNodeLabel(String where);
+
+  /// Where the user's own node runs: on this phone. After 'Your node · '. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'this phone'**
+  String get ownNodeThisPhone;
+
+  /// Where the user's own node runs: on the home (local) network. After 'Your node · '. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'home network'**
+  String get ownNodeHome;
+
+  /// Where the user's own node runs: over a VPN such as Tailscale. Keep 'VPN'.
+  ///
+  /// In en, this message translates to:
+  /// **'VPN'**
+  String get ownNodeVpn;
+
+  /// State word of the user's own node: at the network tip and ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get ownNodeSynced;
+
+  /// State word of the user's own node: catching up with the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get ownNodeSyncing;
+
+  /// State word of the user's own node: behind the network and not moving.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind'**
+  String get ownNodeBehind;
+
+  /// Label of a fact in the own node box: how far behind the network it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind'**
+  String get ownNodeFactBehind;
+
+  /// Label of a fact in the own node box: answer time from this phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Latency'**
+  String get ownNodeFactLatency;
+
+  /// Label of a fact in the own node box: whether the node takes new transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepts transactions'**
+  String get ownNodeFactAccepts;
+
+  /// Label of a fact in the own node box: transactions waiting in the node's memory pool.
+  ///
+  /// In en, this message translates to:
+  /// **'Mempool'**
+  String get ownNodeFactMempool;
+
+  /// Value of 'Accepts transactions': yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get ownNodeYes;
+
+  /// Value of 'Accepts transactions': not yet (the node syncs).
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get ownNodeNotYet;
+
+  /// Value of 'Accepts transactions': the node does not say (older than 4.1.0).
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get ownNodeUnknown;
+
+  /// Value of Mempool: no transaction waits. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get ownNodePoolEmpty;
+
+  /// Value of Mempool: this many transactions wait.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 waiting} other{{count} waiting}}'**
+  String ownNodePoolWaiting(int count);
+
+  /// Source line under the own node box: the phone asks the node itself every 15 seconds, not status.btlabs.uk.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked directly from this phone every 15 s'**
+  String get ownNodeAskedDirectly;
 }
 
 class _AppLocalizationsDelegate

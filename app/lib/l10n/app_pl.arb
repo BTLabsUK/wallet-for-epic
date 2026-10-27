@@ -4487,5 +4487,22 @@
   "deskOwnMine": "To mój węzeł",
   "deskOwnMineHint": "Pyta sam węzeł zamiast status.btlabs.uk i oferuje dostęp właściciela. Dla węzła, który prowadzisz sam.",
   "deskOwnListNote": "Twoje własne węzły są pytane bezpośrednio.",
-  "deskOwnSlotSyncing": "Twój węzeł się synchronizuje"
+  "deskOwnSlotSyncing": "Twój węzeł się synchronizuje",
+  "ownNodeLabel": "Twój węzeł · {where}",
+  "ownNodeThisPhone": "ten telefon",
+  "ownNodeHome": "sieć domowa",
+  "ownNodeVpn": "VPN",
+  "ownNodeSynced": "Zsynchronizowany",
+  "ownNodeSyncing": "Synchronizacja…",
+  "ownNodeBehind": "W tyle",
+  "ownNodeFactBehind": "Zaległość",
+  "ownNodeFactLatency": "Opóźnienie",
+  "ownNodeFactAccepts": "Przyjmuje transakcje",
+  "ownNodeFactMempool": "Mempool",
+  "ownNodeYes": "Tak",
+  "ownNodeNotYet": "Jeszcze nie",
+  "ownNodeUnknown": "Nieznane",
+  "ownNodePoolEmpty": "pusty",
+  "ownNodePoolWaiting": "{count, plural, one{1 czeka} few{{count} czekają} many{{count} czeka} other{{count} czeka}}",
+  "ownNodeAskedDirectly": "Pytany bezpośrednio z tego telefonu co 15 s"
 }

@@ -17353,4 +17353,68 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOwnSlotSyncing => 'Twój węzeł się synchronizuje';
+
+  @override
+  String ownNodeLabel(String where) {
+    return 'Twój węzeł · $where';
+  }
+
+  @override
+  String get ownNodeThisPhone => 'ten telefon';
+
+  @override
+  String get ownNodeHome => 'sieć domowa';
+
+  @override
+  String get ownNodeVpn => 'VPN';
+
+  @override
+  String get ownNodeSynced => 'Zsynchronizowany';
+
+  @override
+  String get ownNodeSyncing => 'Synchronizacja…';
+
+  @override
+  String get ownNodeBehind => 'W tyle';
+
+  @override
+  String get ownNodeFactBehind => 'Zaległość';
+
+  @override
+  String get ownNodeFactLatency => 'Opóźnienie';
+
+  @override
+  String get ownNodeFactAccepts => 'Przyjmuje transakcje';
+
+  @override
+  String get ownNodeFactMempool => 'Mempool';
+
+  @override
+  String get ownNodeYes => 'Tak';
+
+  @override
+  String get ownNodeNotYet => 'Jeszcze nie';
+
+  @override
+  String get ownNodeUnknown => 'Nieznane';
+
+  @override
+  String get ownNodePoolEmpty => 'pusty';
+
+  @override
+  String ownNodePoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count czeka',
+      many: '$count czeka',
+      few: '$count czekają',
+      one: '1 czeka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ownNodeAskedDirectly =>
+      'Pytany bezpośrednio z tego telefonu co 15 s';
 }

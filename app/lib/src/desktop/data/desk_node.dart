@@ -137,28 +137,16 @@ final deskNodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, String>
 /// Whether an owner secret is stored for a node URL.
 final deskOwnerSecretProvider = FutureProvider.autoDispose.family<bool, String>((ref, url) => ref.watch(deskNodeProvider).hasOwnerSecret(url));
 
-/// How often an own node's owner API is read while its panel is open.
-const Duration ownStatusEvery = Duration(seconds: 10);
-
-/// An own node's owner status, read now and every [ownStatusEvery] while the panel shows it.
-/// Errors with [OwnerUnavailable] when there is no access.
-final deskOwnStatusProvider = StreamProvider.autoDispose.family<OwnNodeStatus, ({String url, int? tip})>((ref, k) async* {
-  final api = ref.watch(deskNodeProvider);
+/// An own node's owner status. Errors with [OwnerUnavailable] when there is no access. Read
+/// again by `ref.invalidate` (the panel and the shell ask every 15 s; a provider keeps no timer,
+/// so a test's container has none pending).
+final deskOwnStatusProvider = FutureProvider.autoDispose.family<OwnNodeStatus, ({String url, int? tip})>((ref, k) {
   ref.watch(deskOwnerSecretProvider(k.url));
-  while (true) {
-    yield await api.ownerStatus(k.url, networkHeight: k.tip);
-    await Future<void>.delayed(ownStatusEvery);
-  }
+  return ref.watch(deskNodeProvider).ownerStatus(k.url, networkHeight: k.tip);
 });
 
-/// An own node's peers while its Peers tab is open.
-final deskOwnPeersProvider = StreamProvider.autoDispose.family<PeerSnapshot, String>((ref, url) async* {
-  final api = ref.watch(deskNodeProvider);
-  while (true) {
-    yield await api.ownPeers(url);
-    await Future<void>.delayed(peerReadEvery);
-  }
-});
+/// An own node's peers while its Peers tab is open; read again by `ref.invalidate`.
+final deskOwnPeersProvider = FutureProvider.autoDispose.family<PeerSnapshot, String>((ref, url) => ref.watch(deskNodeProvider).ownPeers(url));
 
 /// The host of a node URL as the screens print it: no scheme, no port, no slash.
 String nodeHost(String url) {

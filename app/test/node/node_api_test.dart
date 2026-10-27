@@ -221,18 +221,36 @@ void main() {
       expect(f.calls, isEmpty);
     });
 
-    test('http to a non-loopback host is refused before sending; https and loopback are fine', () async {
+    test('plain http only to this computer, the home network or a VPN, through the relay (#113)', () async {
       final f = _Fake((_) => _r(_fix('get_tip')));
-      for (final u in ['http://node.example', 'http://10.0.1.5:3413', 'ftp://127.0.0.1', 'node.example', '']) {
+      final relayed = <String>[];
+      final before = relayUrl;
+      // The relay: a local-network node is handed over as a loopback port; a .lan name that
+      // looks up to a public address comes back as it was (and is refused).
+      relayUrl = (u) async {
+        relayed.add(u);
+        return u.contains('evil.lan') ? u : Uri.parse(u).replace(host: '127.0.0.1', port: 40000).toString();
+      };
+      addTearDown(() => relayUrl = before);
+      for (final u in ['http://node.example', 'http://8.8.8.8:3413', 'http://evil.lan:3413', 'ftp://127.0.0.1', 'node.example', '']) {
         await expectLater(_client(f, url: u).tip(), _kind(NodeRpcError.invalidArgument), reason: u);
       }
       expect(f.calls, isEmpty);
       for (final u in ['https://node.example', 'https://node.example:3413/', 'http://127.0.0.1:3413', 'http://127.5.5.5',
-        'http://[::1]:3413', 'http://LOCALHOST:3413']) {
+        'http://[::1]:3413', 'http://LOCALHOST:3413', 'http://10.0.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']) {
         await _client(f, url: u).tip();
       }
-      expect(f.calls, hasLength(6));
+      expect(f.calls, hasLength(9));
       expect(f.calls[1].url.toString(), 'https://node.example:3413/v2/foreign');
+      // The home-network, VPN and .lan nodes went through the relay, nothing else did.
+      expect(relayed, ['http://evil.lan:3413', 'http://10.0.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']);
+      expect(f.calls[6].url.toString(), 'http://127.0.0.1:40000/v2/foreign');
+    });
+
+    test('get_pool_size is the mempool count', () async {
+      final f = _Fake((_) => _r(jsonEncode({'result': {'Ok': 3}})));
+      expect(await _client(f).poolSize(), 3);
+      expect(jsonDecode(f.calls.single.body)['method'], 'get_pool_size');
     });
 
     test('baseUrl is exposed', () => expect(_client(_Fake((_) => _r(''))).baseUrl, 'http://127.0.0.1:3413'));

@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
 import '../../net/local_address.dart' show nodeClassOf;
-import '../data/desk_node.dart' show deskNodeProvider, deskNodeInfoProvider, NodeHead;
+import '../data/desk_node.dart' show deskNodeProvider, deskNodeInfoProvider, deskOwnStatusProvider, NodeHead;
 import '../../net/tor_net.dart' show torBuiltInOnion;
 import '../../node_failover.dart';
 import '../data/models.dart';
@@ -65,7 +65,6 @@ final deskFailoverWatchProvider = NotifierProvider<DeskFailoverWatch, void>(Desk
 
 class DeskFailoverWatch extends Notifier<void> {
   Timer? _timer;
-  Timer? _own;
   bool _moving = false;
   int _good = 0;
 
@@ -75,10 +74,7 @@ class DeskFailoverWatch extends Notifier<void> {
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
-      _own?.cancel();
-      _own = null;
     });
-    _own = Timer.periodic(ownAskBackEvery, (_) => unawaited(_askOwn()));
     ref.listen(deskProvider.select((s) => s.status?.nodeHealth), (_, h) => _follow(h));
     _follow(ref.read(deskProvider).status?.nodeHealth);
   }
@@ -114,6 +110,9 @@ class DeskFailoverWatch extends Notifier<void> {
   /// "Try now" on the panel: one good answer moves back.
   Future<void> tryBack() => _askOwn(now: true);
 
+  /// The shell's 15 s ask ([ownAskBackEvery]).
+  Future<void> askOwn() => _askOwn();
+
   /// Asks the chosen own node: back after [ownBackAfter] good answers while a public node
   /// stands in; to a public node while it syncs, when the user said so for it.
   Future<void> _askOwn({bool now = false}) async {
@@ -129,6 +128,7 @@ class DeskFailoverWatch extends Notifier<void> {
       head = info.head;
       // The rail, the slot and the panel read it again too.
       ref.invalidate(deskNodeInfoProvider(own));
+      ref.invalidate(deskOwnStatusProvider);
     } on Object {
       _good = 0;
       return;

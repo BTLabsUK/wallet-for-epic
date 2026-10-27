@@ -124,15 +124,15 @@ class NodeApiClient {
       throw const NodeRpcException(NodeRpcError.invalidArgument, 'node address is not a URL');
     }
     var target = u;
-    if (u.scheme == 'http' && isLocalNodeUrl(_baseUrl)) {
+    bool isLoopback(Uri x) => x.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(x.host)?.isLoopback ?? false);
+    if (u.scheme == 'http' && !isLoopback(u) && isLocalNodeUrl(_baseUrl)) {
       try {
         target = Uri.parse(await relayUrl(_baseUrl));
       } on Object {
         throw const NodeRpcException(NodeRpcError.unreachable, 'cannot reach the node: relay');
       }
     }
-    final loopback = target.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(target.host)?.isLoopback ?? false);
-    if (target.scheme != 'https' && !(target.scheme == 'http' && loopback)) {
+    if (target.scheme != 'https' && !(target.scheme == 'http' && isLoopback(target))) {
       throw const NodeRpcException(
         NodeRpcError.invalidArgument,
         'a node that is not on this computer or the local network must be reached over https',

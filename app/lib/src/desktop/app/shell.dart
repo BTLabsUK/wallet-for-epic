@@ -70,6 +70,7 @@ class DeskShell extends ConsumerStatefulWidget {
 
 class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _tourTimer;
+  Timer? _ownAsk;
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   Timer? _collectTimer;
@@ -82,6 +83,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   @override
   void initState() {
     super.initState();
+    // The user's own node is asked every 15 s (failover's way back, the syncing offer); the
+    // timer lives with the shell, not in the provider, so a test's container keeps none.
+    _ownAsk = Timer.periodic(ownAskBackEvery, (_) {
+      if (mounted) unawaited(ref.read(deskFailoverWatchProvider.notifier).askOwn());
+    });
     HardwareKeyboard.instance.addHandler(_onKey);
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -145,6 +151,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
+    _ownAsk?.cancel();
     _collectTimer?.cancel();
     super.dispose();
   }

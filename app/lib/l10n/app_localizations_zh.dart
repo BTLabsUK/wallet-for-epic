@@ -15993,4 +15993,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOwnSlotSyncing => '你的节点正在同步';
+
+  @override
+  String ownNodeLabel(String where) {
+    return '你的节点 · $where';
+  }
+
+  @override
+  String get ownNodeThisPhone => '这部手机';
+
+  @override
+  String get ownNodeHome => '家庭网络';
+
+  @override
+  String get ownNodeVpn => 'VPN';
+
+  @override
+  String get ownNodeSynced => '已同步';
+
+  @override
+  String get ownNodeSyncing => '正在同步';
+
+  @override
+  String get ownNodeBehind => '落后';
+
+  @override
+  String get ownNodeFactBehind => '落后';
+
+  @override
+  String get ownNodeFactLatency => '延迟';
+
+  @override
+  String get ownNodeFactAccepts => '接受交易';
+
+  @override
+  String get ownNodeFactMempool => '内存池';
+
+  @override
+  String get ownNodeYes => '是';
+
+  @override
+  String get ownNodeNotYet => '尚未';
+
+  @override
+  String get ownNodeUnknown => '未知';
+
+  @override
+  String get ownNodePoolEmpty => '空';
+
+  @override
+  String ownNodePoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 笔等待中',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ownNodeAskedDirectly => '每 15 秒从这部手机直接询问';
 }
