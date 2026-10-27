@@ -363,15 +363,16 @@ class StatusIcon extends StatelessWidget {
     final ring = Theme.of(context).scaffoldBackgroundColor;
     // The semantics node is the widget's root, so tests and screen readers find it by key;
     // the tooltip inside it is excluded (its text is the hint).
+    // The compact form only shows: the row around it is the one tap target (StatusIcons).
     return Semantics(
       container: true,
-      button: true,
+      button: !compact,
       label: label,
       // A detail that only repeats the state in the label is said once (AND-7).
-      hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, ?actionHint].join('\n'),
+      hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, if (!compact) ?actionHint].join('\n'),
       liveRegion: true,
       excludeSemantics: true,
-      onTap: onTap,
+      onTap: compact ? null : onTap,
       child: Tooltip(
         message: detail,
         triggerMode: TooltipTriggerMode.longPress,
@@ -380,8 +381,8 @@ class StatusIcon extends StatelessWidget {
           width: compact ? statusCompactWidth : statusTarget,
           height: statusTarget,
           child: InkResponse(
-            onTap: onTap,
-            radius: compact ? statusCompactWidth / 2 + 2 : statusTarget / 2,
+            onTap: compact ? null : onTap,
+            radius: statusTarget / 2,
             child: Center(
               child: Pulse(
                 active: pulse,

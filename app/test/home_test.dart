@@ -536,14 +536,16 @@ double _glow(WidgetTester tester) =>
 
 /// How much of each title shows: Wallet's name, and Send's and Receive's figure.
 ({double wallet, double tab}) _titleOpacity(WidgetTester tester) {
-  final layers = find.descendant(
-    of: find.byType(ShellBarTitle),
-    matching: find.byType(Opacity),
+  // The title's layers: IgnorePointer › ExcludeSemantics › Opacity under its Stack. On Wallet
+  // the figure's layer is not built (its status icons would share keys with Wallet's).
+  final stack = tester.widget<Stack>(
+    find.descendant(of: find.byType(ShellBarTitle), matching: find.byType(Stack)).first,
   );
   final values = [
-    for (final e in layers.evaluate()) (e.widget as Opacity).opacity,
+    for (final c in stack.children)
+      (((c as IgnorePointer).child! as ExcludeSemantics).child! as Opacity).opacity,
   ];
-  return (wallet: values.first, tab: values[1]);
+  return (wallet: values.first, tab: values.length > 1 ? values[1] : 0.0);
 }
 
 /// How much of Wallet's balance area shows.

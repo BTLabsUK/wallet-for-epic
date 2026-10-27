@@ -129,7 +129,7 @@ class NetModeStatus extends StatelessWidget {
           onTap: open,
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: statusTarget),
+            constraints: BoxConstraints(minHeight: statusTarget, minWidth: compact ? statusTarget : 0),
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: compact ? 4 : statusInset,
@@ -209,7 +209,7 @@ class StatusIcons extends ConsumerWidget {
     final torFace = torStatusOf(l, t, tor);
     final direct = directFace(l, tor);
     final block = watchNetBlock(context, ref);
-    return Row(
+    final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (block != NetBlock.none)
@@ -269,6 +269,33 @@ class StatusIcons extends ConsumerWidget {
             },
           ),
       ],
+    );
+    if (!compact || block != NetBlock.none) return row;
+    // The compact row is one tap target (its icons are too narrow to be one each): it says
+    // every status, and a tap opens what has a problem first, else the node list.
+    final torShown = torIconShown(tor);
+    final torBad = torShown && torDot(torState) == StatusDot.bad;
+    void open() => nodeTor.dot == StatusDot.bad || epicboxTor.dot != StatusDot.bad && !torBad
+        ? showNodePicker(context)
+        : epicboxTor.dot == StatusDot.bad
+        ? showEpicboxPicker(context)
+        : openPrivacySettings(context);
+    return Semantics(
+      container: true,
+      button: true,
+      label: [nodeTor.label, epicboxTor.label, if (torShown) '${l.netStatusTor}, ${torWord(l, torState)}'].join('\n'),
+      hint: l.netStatusOpenHint,
+      liveRegion: true,
+      excludeSemantics: true,
+      onTap: open,
+      child: InkWell(
+        onTap: open,
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: statusTarget, minHeight: statusTarget),
+          child: row,
+        ),
+      ),
     );
   }
 }
