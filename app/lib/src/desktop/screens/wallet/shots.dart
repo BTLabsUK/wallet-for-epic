@@ -44,6 +44,10 @@ Future<void> _receiveOffered(ProviderContainer c, BuildContext _) async {
   await c.read(deskProvider.notifier).refresh();
 }
 
+/// Anna's or the pool's contact deleted: their payments show Add to contacts.
+Future<void> _forgetAnna(ProviderContainer c, BuildContext _) => c.read(deskProvider.notifier).deleteContact('c1');
+Future<void> _forgetPool(ProviderContainer c, BuildContext _) => c.read(deskProvider.notifier).deleteContact('c2');
+
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> walletShots = [
@@ -98,6 +102,15 @@ final List<DeskShot> walletShots = [
   ),
   const DeskShot(id: '12j-tx-detail-restored-details', title: 'Transaction detail, restored with details', route: DeskRoute.activity, arg: 103),
   DeskShot(id: '11j-activity-sender-posted', title: 'Activity, an incoming payment whose sender reports it posted', route: DeskRoute.activity, arg: const ActivityArgs(), prepare: _senderPosted),
+  DeskShot(id: '12n-tx-detail-add-contact', title: 'Transaction detail, a send to an address no contact has', route: DeskRoute.activity, arg: 28, prepare: _forgetAnna),
+  DeskShot(id: '12o-tx-detail-add-contact-received', title: 'Transaction detail, a receive from an address no contact has', route: DeskRoute.activity, arg: 27, prepare: _forgetPool),
+  DeskShot(
+    id: '37c-add-contact-from-tx',
+    title: 'New contact from a payment, its address filled in',
+    route: DeskRoute.contacts,
+    arg: const ContactsArgs(adding: true, address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', fromTx: 28),
+    prepare: _forgetAnna,
+  ),
   DeskShot(
     id: '12k-tx-detail-sender-posted',
     title: 'Transaction detail, the sender reports it posted',

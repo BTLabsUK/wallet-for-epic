@@ -21,13 +21,19 @@ import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
 class ContactsArgs {
-  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false});
+  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false, this.address, this.fromTx});
 
   final String? selectedId;
   final bool editing;
   final bool adding;
   final bool empty;
   final bool loading;
+
+  /// Adding: the address the new contact starts with (a payment's other side).
+  final String? address;
+
+  /// Adding from this payment's detail: Save or Cancel goes back to it in Activity.
+  final int? fromTx;
 }
 
 enum _Sort { name, recent }
@@ -99,11 +105,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       if (_adding || (_editing && selected != null)) {
         return _ContactForm(
           contact: _adding ? null : selected,
-          onDone: (saved) => setState(() {
-            _adding = false;
-            _editing = false;
-            if (saved != null) _selected = saved;
-          }),
+          address: _adding ? _args.address : null,
+          onDone: (saved) {
+            if (_args.fromTx case final tx? when _adding) return ref.read(deskNavProvider.notifier).go(DeskRoute.activity, tx);
+            setState(() {
+              _adding = false;
+              _editing = false;
+              if (saved != null) _selected = saved;
+            });
+          },
         );
       }
       return _ContactDetail(contact: selected!, onEdit: () => setState(() => _editing = true), onDeleted: () => setState(() => _selected = null));
@@ -755,9 +765,12 @@ class _ContactDetail extends ConsumerWidget {
 }
 
 class _ContactForm extends ConsumerStatefulWidget {
-  const _ContactForm({required this.contact, required this.onDone});
+  const _ContactForm({required this.contact, required this.onDone, this.address});
 
   final Contact? contact;
+
+  /// A new contact's first address, filled in.
+  final String? address;
 
   /// The saved contact's id, or null when cancelled.
   final ValueChanged<String?> onDone;
@@ -789,9 +802,11 @@ class _AddrField {
 class _ContactFormState extends ConsumerState<_ContactForm> {
   late final _name = TextEditingController(text: widget.contact?.name);
   late final List<_AddrField> _fields = [
-    for (final a in widget.contact?.addresses ?? const <String>[]) _AddrField(a),
+    for (final a in _startAddresses) _AddrField(a),
     _AddrField(),
   ];
+
+  List<String> get _startAddresses => widget.contact?.addresses ?? [?widget.address];
   late final _note = TextEditingController(text: widget.contact?.note);
   late bool _picture = widget.contact?.hasPicture ?? false;
   final _nameFocus = FocusNode();
@@ -945,7 +960,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     // A form with typed changes holds Back (mouse, Alt+Left).
     final dirty = _name.text != (widget.contact?.name ?? '') ||
         _note.text != (widget.contact?.note ?? '') ||
-        [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f.text.text.trim()].join('|') != (widget.contact?.addresses ?? const []).join('|');
+        [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f.text.text.trim()].join('|') != _startAddresses.join('|');
     return DeskStepBack(
       onBack: dirty ? () {} : null,
       child: EForm(

@@ -46,6 +46,7 @@ import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmation
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
+import '../../recipient.dart' show parseRecipient;
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_block.dart';
@@ -2243,12 +2244,17 @@ class LepicDeskWallet implements DeskWalletApi {
     final entries = _entries ?? await _open.transactions(refresh: false);
     _entries = entries;
     final contacts = await _open.contacts();
-    final names = {for (final c in contacts) c.address: c.name};
+    // Any of a contact's addresses names it, as the address reads in a row (an onion with or
+    // without its http://).
+    final names = {
+      for (final c in contacts)
+        for (final a in c.addresses) parseRecipient(a).address: c.name,
+    };
     // A payment through a pairing has no address: the contact it is attached to names it.
     final paired = entries.any((e) => e.pairingId != null) ? await _pairingNames(contacts) : const <String, String>{};
     return [
       for (final (i, e) in entries.indexed)
-        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[e.counterparty] ?? paired[e.pairingId]),
+        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[parseRecipient(e.counterparty ?? '').address] ?? paired[e.pairingId]),
     ];
   }
 

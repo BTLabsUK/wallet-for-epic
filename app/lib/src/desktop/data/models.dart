@@ -237,6 +237,9 @@ class OutputPrefs {
   int get hashCode => Object.hash(strategy, smartOutputs);
 }
 
+/// [Tx.withManual] without a contact name: the row keeps its own.
+const Object _keepName = Object();
+
 @immutable
 class Tx {
   const Tx({
@@ -406,7 +409,8 @@ class Tx {
 
   /// This row with the user's entries replaced; a null argument keeps the field, an empty
   /// string removes it. For the mock, which stores them beside the rows.
-  Tx withManual({String? label, String? counterparty, String? transport, String? note, int? editedAtUnix}) {
+  /// [contactName], when given, replaces the name (null removes it).
+  Tx withManual({String? label, String? counterparty, String? transport, String? note, int? editedAtUnix, Object? contactName = _keepName}) {
     String? pick(String? now, String? was) => now == null ? was : (now.isEmpty ? null : now);
     final l = pick(label, this.label), cp = pick(counterparty, this.counterparty), via = pick(transport, this.transport), n = pick(note, this.note);
     final manual = <ManualField>{
@@ -427,7 +431,7 @@ class Tx {
       confirmations: confirmations,
       confirmationsNeeded: confirmationsNeeded,
       counterparty: cp,
-      contactName: contactName,
+      contactName: identical(contactName, _keepName) ? this.contactName : contactName as String?,
       message: message,
       height: height,
       kernel: kernel,

@@ -449,18 +449,21 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
-  /// The contact's id as stored.
+  /// The contact's id as stored. The rows are read again: a payment to one of its addresses
+  /// takes its name.
   Future<String> saveContact(Contact c) async {
     final id = await api.saveContact(c);
     final contacts = await api.contacts();
-    state = state.copyWith(contacts: contacts);
+    final txs = state.txs == null ? null : await api.transactions();
+    state = state.copyWith(contacts: contacts, txs: txs);
     return id;
   }
 
   Future<void> deleteContact(String id) async {
     await api.deleteContact(id);
     final contacts = await api.contacts();
-    state = state.copyWith(contacts: contacts);
+    final txs = state.txs == null ? null : await api.transactions();
+    state = state.copyWith(contacts: contacts, txs: txs);
   }
 
   /// Saves [contacts] (an import: new ones with an empty id, saved ones with what they gain)
