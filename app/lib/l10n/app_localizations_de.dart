@@ -11049,7 +11049,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetBackupRange => 'Zeitraum';
 
   @override
-  String get deskSetBackupRangeAll => 'Gesamt';
+  String get deskSetBackupRangeAll => 'Alle';
 
   @override
   String get deskSetBackupRangeThisYear => 'Dieses Jahr';

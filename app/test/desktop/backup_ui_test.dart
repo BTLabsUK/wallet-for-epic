@@ -92,10 +92,13 @@ void main() {
 
   test('the wallet part of the file name', () {
     expect(deskWalletFileLabel('Savings'), 'savings');
-    expect(deskWalletFileLabel('My Wallet #2'), 'my-walle');
+    expect(deskWalletFileLabel('My Wallet #2'), 'my-wallet-2');
+    expect(deskWalletFileLabel('Main wallet'), 'main-wallet');
+    expect(deskWalletFileLabel('Savings account'), 'savings');
+    expect(deskWalletFileLabel('Longwalletname'), 'longwalletna');
     expect(deskWalletFileLabel('Épargne'), 'pargne');
     expect(deskWalletFileLabel('a  b'), 'a-b');
-    expect(deskWalletFileLabel('abcdefg h'), 'abcdefg');
+    expect(deskWalletFileLabel('abcdefghijk lm'), 'abcdefghijk');
     expect(deskWalletFileLabel('钱包'), '');
     expect(deskWalletFileLabel('  '), '');
     expect(deskHistoryFileName('floonet', DateTime(2026, 10, 22), 'wfeh', wallet: 'ฉัน'), 'epic-wallet-data-floonet-20261022.wfeh');

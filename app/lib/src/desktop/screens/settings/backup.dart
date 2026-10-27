@@ -57,13 +57,17 @@ String backupStateLine(AppLocalizations l, HistoryBackupState s, {DateTime? now}
 }
 
 /// The wallet's name as a file name part: lower case, only ASCII letters and digits kept,
-/// anything else (spaces, accents, symbols) a `-`, runs of `-` collapsed, trimmed, cut to 8
-/// characters. "My Wallet #2" gives `my-walle`, "Épargne" gives `pargne`; a name with no ASCII
-/// letter or digit (Thai, Chinese) gives an empty string, and the file name leaves the part out.
+/// anything else (spaces, accents, symbols) a `-`, runs of `-` collapsed, trimmed, at most 12
+/// characters, cut after a whole word where it has to be cut. "Main wallet" gives `main-wallet`,
+/// "Savings account" gives `savings`, "Épargne" gives `pargne`; a name with no ASCII letter or
+/// digit (Thai, Chinese) gives an empty string, and the file name leaves the part out.
 String deskWalletFileLabel(String name) {
   final dashed = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-').replaceAll(RegExp(r'^-+|-+$'), '');
-  final cut = dashed.length > 8 ? dashed.substring(0, 8) : dashed;
-  return cut.replaceAll(RegExp(r'-+$'), '');
+  if (dashed.length <= 12) return dashed;
+  final cut = dashed.substring(0, 12);
+  // A word cut in the middle goes, unless it is the only one.
+  final end = dashed[12] == '-' ? 12 : cut.lastIndexOf('-');
+  return end > 0 ? cut.substring(0, end) : cut;
 }
 
 /// `epic-wallet-data-<wallet>-<network>-<yyyymmdd>.<extension>`: the phone's name with the open

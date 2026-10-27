@@ -34,12 +34,13 @@ String directHostOf(String address) {
 }
 
 /// The host line for the review of a Direct payment, or null when the address already is the
-/// host (a bare onion address, a `host:port` pair): the address line shows it once, with its
-/// ends marked. A web address keeps the host line: it names the place the payment goes,
-/// without the scheme and path.
+/// host (a bare onion address, a `host:port` pair, either with only a scheme before it): the
+/// address line shows it once, with its ends marked. A web address with a path keeps the host
+/// line: it names the place the payment goes, without the scheme and path.
 String? directHostBesideOf(String address) {
   final host = directHostOf(address);
-  return host.toLowerCase() == address.trim().toLowerCase() ? null : host;
+  final bare = address.trim().replaceFirst(RegExp(r'^[a-zA-Z][a-zA-Z0-9+.-]*://'), '').replaceFirst(RegExp(r'/+$'), '');
+  return host.toLowerCase() == bare.toLowerCase() ? null : host;
 }
 
 /// Code points of the scanned text the preview shows.

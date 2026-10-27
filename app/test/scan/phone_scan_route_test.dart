@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/scan/incoming_link.dart';
 import 'package:epic_wallet/src/scan/scan_router.dart' show maxUriAddressLength;
+import 'package:epic_wallet/src/scan/scan_text.dart' show directHostBesideOf;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -889,15 +890,21 @@ void main() {
     expect(find.textContaining('.onion', findRichText: true), findsOneWidget);
   });
 
-  testWidgets('a Link code with a port keeps the host line on the review', (
+  testWidgets('a Link code with a path keeps the host line on the review', (
     tester,
   ) async {
     final h = _Harness();
     await h.pump(tester);
-    await h.scan(tester, 'epic:$_d?amount=1');
+    await h.scan(tester, 'epic:$_d/pay?amount=1');
     await _continue(tester);
     expect(find.text('Host'), findsOneWidget);
     expect(find.text('1.2.3.4:3415'), findsOneWidget);
+  });
+
+  test('scheme and host alone are already the host', () {
+    expect(directHostBesideOf(_d), isNull);
+    expect(directHostBesideOf('$_d/'), isNull);
+    expect(directHostBesideOf('$_d/pay'), '1.2.3.4:3415');
   });
 
   testWidgets(

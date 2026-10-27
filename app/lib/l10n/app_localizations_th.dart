@@ -16931,7 +16931,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่';
 
   @override
-  String get deskUpdRestartNow => 'รีสตาร์ทเลย';
+  String get deskUpdRestartNow => 'รีสตาร์ทตอนนี้';
 
   @override
   String get deskUpdLater => 'ภายหลัง';
