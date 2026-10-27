@@ -25,9 +25,9 @@
   "deskSetupSkipKeeps": "Überspringen behält die Node- und Epicbox-Einstellungen, wie sie sind.",
   "deskSetupMarkNotCleared": "Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: {reason}. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ schließt sie.",
   "deskOvRestoredImportTitle": "Verlauf und Einstellungen zurückholen?",
-  "deskOvRestoredImportBody": "Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.",
-  "deskOvRestoredImportButton": "Verlaufssicherung importieren",
-  "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Sicherung.",
+  "deskOvRestoredImportBody": "Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Wallet-Datendatei bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.",
+  "deskOvRestoredImportButton": "Wallet-Daten importieren",
+  "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Wallet-Daten.",
   "deskOnbForgotNoCheck": "Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.",
   "deskOnbForgotRestoreHint": "Stellen Sie sie stattdessen aus der Phrase wieder her: {name} verlässt die Liste, ihre Dateien bleiben auf diesem Computer.",
   "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen"

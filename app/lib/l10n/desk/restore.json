@@ -123,15 +123,15 @@
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },
-  "deskOvRestoredImportButton": "Import a history backup",
+  "deskOvRestoredImportButton": "Import wallet data",
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Backup.",
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },

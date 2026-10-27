@@ -25,8 +25,8 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[Ustawienia › Portfel › Eksportuj kopię historii|Settings › Wallet › Export history backup]]'
-      : '[[Ustawienia › Ten portfel › Eksportuj kopię historii|Settings › This wallet › Export history backup]]';
+      ? '[[Ustawienia › Portfel › Eksportuj dane portfela|Settings › Wallet › Export wallet data]]'
+      : '[[Ustawienia › Ten portfel › Eksportuj dane portfela|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Portfel|Settings › Wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
@@ -220,8 +220,8 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Fraza odzyskiwania przywraca wszystko, co jest w łańcuchu bloków, czyli saldo.'),
         HelpBlock.p('**Aby przywrócić** portfel na nowym ${phone ? 'telefonie' : 'komputerze'} lub po utracie: otwórz $restorePlace, wpisz słowa i wybierz ${phone ? 'PIN' : 'hasło'}. Po otwarciu portfel skanuje łańcuch bloków w poszukiwaniu swoich wyjść. Saldo pojawi się po tym pierwszym skanowaniu; znalezione płatności są oznaczone jako **Odzyskane środki**.'),
-        HelpBlock.p('**Czego przywracanie nie odtworzy:** tego, czego nigdy nie było w łańcuchu bloków, np. kto komu zapłacił, notatek i etykiet, kontaktów, faktur, ustawień i nazw portfeli. Kopia historii je zachowuje: $historyBackupPlace.${phone ? ' Trzymaj plik kopii poza telefonem, na przykład w e-mailu lub w chmurze.' : ''}'),
-        const HelpBlock.p('**Kopia historii to nie fraza odzyskiwania.** Nie zawiera słów i sama nie przywróci portfela. Aby przywrócić: najpierw wpisz frazę odzyskiwania, potem zaimportuj kopię; portfel zaproponuje to zaraz po przywróceniu.'),
+        HelpBlock.p('**Czego przywracanie nie odtworzy:** tego, czego nigdy nie było w łańcuchu bloków, np. kto komu zapłacił, notatek i etykiet, kontaktów, faktur, ustawień i nazw portfeli. Plik danych portfela je zachowuje: $historyBackupPlace.${phone ? ' Trzymaj ten plik poza telefonem, na przykład w e-mailu lub w chmurze.' : ''}'),
+        const HelpBlock.p('**Plik danych portfela to nie fraza odzyskiwania.** Nie zawiera słów i sam nie przywróci portfela. Aby przywrócić: najpierw wpisz frazę odzyskiwania, potem zaimportuj plik; portfel zaproponuje to zaraz po przywróceniu.'),
         HelpBlock.p('**Saldo wygląda na błędne?** Uruchom $recheckPlace. Portfel jeszcze raz przeszukuje cały łańcuch bloków w poszukiwaniu swoich wyjść.'),
         if (!phone)
           const HelpBlock.p('**Pliki portfela** są w [[Ustawienia › Ten portfel › Folder portfela|Settings › This wallet › Wallet folder]]. Zachowaj frazę odzyskiwania nawet przy ich kopii: zadziała, gdy pliki zginą.'),

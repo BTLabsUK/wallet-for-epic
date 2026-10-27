@@ -206,8 +206,8 @@ class AppLocalizationsEn extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
-      one: 'The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
+          'The file has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one: 'The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
     );
     return '$_temp0';
   }
@@ -216,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get histConflictMine => 'Mine';
 
   @override
-  String get histConflictBackup => 'Backup';
+  String get histConflictBackup => 'File';
 
   @override
   String get histConflictKeepAll => 'Keep all mine';
@@ -265,7 +265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStatusCancelled => 'Cancelled';
 
   @override
-  String get txStatusFromBackup => 'From backup, status unknown';
+  String get txStatusFromBackup => 'Imported, status unknown';
 
   @override
   String get txIconCancelled => 'Cancelled';
@@ -418,14 +418,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorHistoryNotOurs =>
-      'This is not a history file exported by this app.';
+      'This is not a wallet data file from this app.';
 
   @override
   String get errorHistoryNewer =>
-      'This history file was made by a newer version of the app.';
+      'This wallet data file was made by a newer version of the app.';
 
   @override
-  String get errorHistoryDamaged => 'This history file is damaged.';
+  String get errorHistoryDamaged => 'This wallet data file is damaged.';
 
   @override
   String get errorHistoryOtherWallet =>
@@ -433,7 +433,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'This history file is from $fileNetwork, but this wallet is on $walletNetwork.';
+    return 'This wallet data file is from $fileNetwork, but this wallet is on $walletNetwork.';
   }
 
   @override
@@ -677,7 +677,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      'This payment comes from a history backup and was not finished when the backup was made. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.';
+      'This payment was imported from a wallet data file and was not finished when that file was exported. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -855,7 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'Only on this device and in your history backups.';
+      'Only on this device and in your exported wallet data.';
 
   @override
   String get txDetailsNoteSaved => 'Note saved';
@@ -928,11 +928,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import a history backup to restore them.';
+      'Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import wallet data to restore them.';
 
   @override
   String get txDetailsSourceImported =>
-      'Imported from a history backup. This wallet has no record of its own for it, so its status may be out of date.';
+      'Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.';
 
   @override
   String get historyTitle => 'History';
@@ -992,7 +992,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => 'Save payment history';
+  String get historyBackupSaveDialogTitle => 'Save wallet data';
 
   @override
   String get importWarnTitle => 'Before you import';
@@ -1016,11 +1016,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importWarnAck => 'I have a backup of every wallet';
 
   @override
-  String get historyBackupOpenDialogTitle => 'Open history backup';
+  String get historyBackupOpenDialogTitle => 'Open wallet data file';
 
   @override
   String get historyBackupFileTooLarge =>
-      'That file is too large to be a backup.';
+      'That file is too large to be a wallet data file.';
 
   @override
   String get historyBackupShare => 'Share';
@@ -1042,32 +1042,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => 'Export history backup';
+  String get historyBackupExportTitle => 'Export wallet data';
 
   @override
   String get historyBackupExportNote =>
-      'The backup holds everything up to now. Export again after new payments or changes.';
+      'The file holds everything up to now. Export again after new payments or changes.';
 
   @override
   String get historyBackupCsvTitle => 'Export CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export history backup for that.';
+      'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.';
 
   @override
   String get historyBackupCsvConfirm => 'Export CSV';
 
   @override
-  String get historyBackupImportedTitle => 'Backup imported';
+  String get historyBackupImportedTitle => 'Wallet data imported';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return 'Could not import the history backup. $reason';
+    return 'Could not import the wallet data. $reason';
   }
 
   @override
-  String get historyBackupImportNothingNew => 'The backup held nothing new.';
+  String get historyBackupImportNothingNew => 'The file held nothing new.';
 
   @override
   String get homeLockTooltip => 'Lock wallet';
@@ -1251,8 +1251,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count payments are not in a history backup. A restore from your recovery phrase brings back only your balance.',
-      one: '1 payment is not in a history backup. A restore from your recovery phrase brings back only your balance.',
+          '$count payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.',
+      one: '1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.',
     );
     return '$_temp0';
   }
@@ -1263,8 +1263,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count payments are new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.',
-      one: '1 payment is new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.',
+          '$count payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.',
+      one: '1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.',
     );
     return '$_temp0';
   }
@@ -1273,7 +1273,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeHistoryReminderNotNow => 'Not now';
 
   @override
-  String get homeHistoryExportButton => 'Export history backup';
+  String get homeHistoryExportButton => 'Export wallet data';
 
   @override
   String get homeBalanceSpendable => 'Spendable';
@@ -2065,11 +2065,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.';
+      'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a wallet data file.';
 
   @override
   String get restoreRebuiltImportText =>
-      'A history backup brings back payment history, contacts, invoices and settings.';
+      'A wallet data file brings back payment history, contacts, invoices and settings.';
 
   @override
   String get restoreReplaceLead =>
@@ -2114,10 +2114,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'The recovery phrase brought back the balance. A history backup brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.';
+      'The recovery phrase brought back the balance. A wallet data file brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.';
 
   @override
-  String get restoreImportButton => 'Import a history backup';
+  String get restoreImportButton => 'Import wallet data';
 
   @override
   String get restoreImportNotNow => 'Not now';
@@ -3044,16 +3044,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLockWallet => 'Lock wallet';
 
   @override
-  String get settingsSectionHistory => 'Payment history';
+  String get settingsSectionHistory => 'Wallet data';
 
   @override
-  String get settingsExportHistory => 'Export history backup';
+  String get settingsExportHistory => 'Export wallet data';
 
   @override
   String get settingsExportCsv => 'Export CSV';
 
   @override
-  String get settingsImportHistory => 'Import history backup';
+  String get settingsImportHistory => 'Import wallet data';
 
   @override
   String get settingsSectionWallet => 'Wallet';
@@ -6238,13 +6238,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => 'Another wallet\'s backup';
+  String get deskErrHistOtherWallet => 'Another wallet\'s data';
 
   @override
   String get deskErrHistOtherChain => 'Wrong network';
 
   @override
-  String get deskErrHistNotOurs => 'Not a history backup';
+  String get deskErrHistNotOurs => 'Not a wallet data file';
 
   @override
   String get deskErrHistNewer => 'Newer file';
@@ -8631,10 +8631,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Found on the chain by a scan. The sender is not recorded.';
 
   @override
-  String get deskTxBackupTip => 'Added from a history backup.';
+  String get deskTxBackupTip => 'Added from a wallet data file.';
 
   @override
-  String get deskTxFromBackup => 'From backup';
+  String get deskTxFromBackup => 'Imported';
 
   @override
   String get deskTxStatusImmature => 'Immature';
@@ -8721,7 +8721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxHiddenAmount => 'hidden amount';
 
   @override
-  String get deskTxNowBackup => 'From backup; the chain was not asked.';
+  String get deskTxNowBackup => 'Imported; the chain was not asked.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -8792,7 +8792,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'found on the chain';
 
   @override
-  String get deskTxHeadBackup => 'added from a history backup';
+  String get deskTxHeadBackup => 'added from a wallet data file';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -10725,10 +10725,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The file could not be written. Choose another folder.';
 
   @override
-  String get deskSetBackupGroup => 'Backup';
+  String get deskSetBackupGroup => 'Wallet data';
 
   @override
-  String get deskSetBackupExportTitle => 'Export history backup';
+  String get deskSetBackupExportTitle => 'Export wallet data';
 
   @override
   String get deskSetBackupExportHint =>
@@ -10741,11 +10741,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupExportButton => 'Export…';
 
   @override
-  String get deskSetBackupImportTitle => 'Import history backup';
+  String get deskSetBackupImportTitle => 'Import wallet data';
 
   @override
   String get deskSetBackupImportHint =>
-      'Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.';
+      'Brings back this wallet’s payment history, contacts, invoices and settings from a wallet data file. Nothing is removed; the same file twice changes nothing.';
 
   @override
   String get deskSetBackupImportButton => 'Import…';
@@ -10761,7 +10761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupCsvButton => 'Export CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'Save payment history';
+  String get deskSetBackupSaveDialogTitle => 'Save wallet data';
 
   @override
   String get deskSetBackupNotSaved => 'Not saved';
@@ -10835,7 +10835,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupSaveAs => 'Save as…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'Open history backup';
+  String get deskSetBackupOpenDialogTitle => 'Open wallet data file';
 
   @override
   String get deskSetBackupNothingNew => 'Nothing new';
@@ -10954,15 +10954,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.';
+      'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments are not in a history backup.',
-      one: '1 payment is not in a history backup.',
+      other: '$count payments are not in your exported wallet data.',
+      one: '1 payment is not in your exported wallet data.',
     );
     return '$_temp0';
   }
@@ -10973,8 +10973,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count payments are new or changed since the last history backup.',
-      one: '1 payment is new or changed since the last history backup.',
+          '$count payments are new or changed since the last wallet data export.',
+      one: '1 payment is new or changed since the last wallet data export.',
     );
     return '$_temp0';
   }
@@ -13187,9 +13187,9 @@ class AppLocalizationsEn extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+          'The file has other details for $n payments you described. Yours are kept unless you choose otherwise.',
       one:
-          'The backup has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+          'The file has other details for $n payment you described. Yours are kept unless you choose otherwise.',
     );
     return '$_temp0';
   }
@@ -13198,7 +13198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskHistConflictMine => 'Mine';
 
   @override
-  String get deskHistConflictBackup => 'Backup';
+  String get deskHistConflictBackup => 'File';
 
   @override
   String get deskHistConflictKeepAll => 'Keep all mine';
@@ -15268,8 +15268,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count pairings in this backup were used on another device. Your other device should stop using them.',
-      one: '1 pairing in this backup was used on another device. Your other device should stop using it.',
+          '$count pairings in this file were used on another device. Your other device should stop using them.',
+      one: '1 pairing in this file was used on another device. Your other device should stop using it.',
     );
     return '$_temp0';
   }
@@ -15622,15 +15622,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.';
+      'Restoring from the recovery phrase brings every pairing back with the wallet data file; without it, re-pairing finds the same keys.';
 
   @override
   String get helpPairRestoreP1 =>
-      'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
+      'With the wallet data file, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -15638,7 +15638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 =>
-      'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+      'Use a pairing on one device at a time. Wallet data imported on a second device asks before using the contacts there.';
 
   @override
   String get pairNameForCode =>
@@ -16160,14 +16160,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.';
+      'The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.';
 
   @override
-  String get deskOvRestoredImportButton => 'Import a history backup';
+  String get deskOvRestoredImportButton => 'Import wallet data';
 
   @override
   String get deskOvRestoredImportLater =>
-      'Later under Settings › This wallet › Backup.';
+      'Later under Settings › This wallet › Wallet data.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16410,21 +16410,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get backupSettingsTitle => 'Use the settings from this backup?';
+  String get backupSettingsTitle => 'Use the settings from this file?';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n settings here differ from the backup.',
-      one: '1 setting here differs from the backup.',
+      other: '$n settings here differ from the file.',
+      one: '1 setting here differs from the file.',
     );
-    return '$_temp0 The rest of the backup is already imported.';
+    return '$_temp0 The rest of the file is already imported.';
   }
 
   @override
-  String get backupSettingsUseBackup => 'Use the backup\'s';
+  String get backupSettingsUseBackup => 'Use the file\'s';
 
   @override
   String get backupSettingsKeepMine => 'Keep mine';

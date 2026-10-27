@@ -80,7 +80,7 @@ void main() {
     expect(find.textContaining("The old wallet's history has other details for 1 payment you described"), findsOneWidget);
     final cards = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
     expect(cards, ['Mine:true', 'Old wallet:false', 'Mine:true', 'Old wallet:false']);
-    expect(find.text('Backup'), findsNothing);
+    expect(find.text('File'), findsNothing);
   });
 
   testWidgets('choosing the old wallet for one field applies it and keeps the other as mine', (tester) async {

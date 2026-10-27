@@ -36,7 +36,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › Privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),
   'Settings › This wallet': _page(DeskRoute.settingsAccount),
-  'Settings › This wallet › Export history backup': _page(DeskRoute.settingsAccount),
+  'Settings › This wallet › Export wallet data': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › Wallet folder': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › App files': _page(DeskRoute.settingsAccount),
   'Settings › All wallets': _page(DeskRoute.settingsWallets),

@@ -290,7 +290,7 @@ Future<void> restoreWallet(WidgetTester tester, String phrase, {String? startHei
   }
   await tapText(tester, 'Continue', last: true);
   await enterPinTwice(tester);
-  await waitText(tester, 'Import a history backup', timeout: const Duration(minutes: 15));
+  await waitText(tester, 'Import wallet data', timeout: const Duration(minutes: 15));
 }
 
 /// Home › Settings › Wallet.
@@ -313,11 +313,11 @@ Future<void> deleteWalletUi(WidgetTester tester) async {
   await waitText(tester, 'Create a new wallet', timeout: const Duration(minutes: 2));
 }
 
-/// Settings › Wallet › Export history backup › Save to device: the file, and the sheet's text.
+/// Settings › Wallet › Export wallet data › Save to device: the file, and the sheet's text.
 Future<(Uint8List, String)> exportUi(WidgetTester tester, String shotName) async {
   await openWalletSettings(tester);
   final before = _files.saved.length;
-  await tapText(tester, 'Export history backup');
+  await tapText(tester, 'Export wallet data');
   await waitText(tester, 'Save to device');
   final sheet = texts().join(' ');
   await shot(tester, shotName);
@@ -348,7 +348,7 @@ Future<ImportSeen> answerImport(WidgetTester tester, String prefix, {bool useBac
       await tapText(tester, useBackupSettings ? "Use the backup's" : 'Keep mine');
       continue;
     }
-    if (hasText('Backup imported')) {
+    if (hasText('Wallet data imported')) {
       summary = textMatching(RegExp(r'^(Restored:|The backup held nothing new)'));
       await shot(tester, '$prefix-summary');
       await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.text('OK')));
@@ -503,7 +503,7 @@ void main() {
     record('v1: the file is a version 1 payload from 26.10.16', v1.version == 1,
         'v${v1.version}, app ${v1.appVersion}, ${v1.contacts.length} contacts, ${v1.favourites.length} stars, ${v1.txs.length} records');
     _files.next = base64Decode(_v1File);
-    await tapText(tester, 'Import a history backup');
+    await tapText(tester, 'Import wallet data');
     final seen = await answerImport(tester, 'v1-02');
     record('v1: one summary, no error', seen.summary.isNotEmpty && seen.error.isEmpty, '${seen.summary} ${seen.error}');
     record('v1: the summary names 2 contacts${v1Stars ? ' and 1 starred contact' : ''}', seen.summary.contains('2 contacts') && (!v1Stars || seen.summary.contains('1 starred contact')), seen.summary);
@@ -687,7 +687,7 @@ void main() {
     final unspent = (await tester.runAsync(() => a.outputs()))!.where((o) => o.status.name == 'unspent').toList();
     note('A unspent outputs: ${unspent.length}');
 
-    // ---- 3. Export through Settings › Wallet › Export history backup.
+    // ---- 3. Export through Settings › Wallet › Export wallet data.
     final (f1, sheet) = await exportUi(tester, 'a-01-export-sheet');
     record('the export sheet says what the file holds', sheet.contains('payment history, contacts, invoices and settings'), sheet);
     record('…not the phrase, cannot restore alone', sheet.contains('does not hold the recovery phrase') && sheet.contains('cannot restore the wallet on its own'));
@@ -732,7 +732,7 @@ void main() {
 
     // ---- 5. Import F1 from the restore's offer.
     _files.next = f1;
-    await tapText(tester, 'Import a history backup');
+    await tapText(tester, 'Import wallet data');
     final s5 = await answerImport(tester, 'a-04');
     record('one summary after the import', s5.summary.startsWith('Restored:') && s5.error.isEmpty, '${s5.summary} ${s5.error}');
     record('the summary names payments, notes, contacts, pairings, invoices and settings',
@@ -895,7 +895,7 @@ void main() {
     await tester.runAsync(() => settings().setThemeMode(conflictTheme));
     await openWalletSettings(tester);
     _files.next = f2;
-    await tapText(tester, 'Import history backup');
+    await tapText(tester, 'Import wallet data');
     final s7 = await answerImport(tester, 'r-04', useBackupSettings: true);
     record('the settings question comes for a changed setting', s7.settingsAsked, s7.summary);
     final themeAfter = (await tester.runAsync(() => c.read(appSettingsProvider.future)))!.themeMode.name;
@@ -920,7 +920,7 @@ void main() {
     final bookBefore = (await tester.runAsync(() => c.read(contactsProvider.future)))!.length;
     await openWalletSettings(tester);
     _files.next = fb;
-    await tapText(tester, 'Import history backup');
+    await tapText(tester, 'Import wallet data');
     final s9 = await answerImport(tester, 'o-01');
     await shot(tester, 'o-01-refused');
     record('another wallet\'s file is refused with a clear message', s9.error.contains('different wallet'), s9.error);

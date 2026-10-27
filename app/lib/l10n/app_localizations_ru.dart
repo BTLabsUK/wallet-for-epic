@@ -210,13 +210,13 @@ class AppLocalizationsRu extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
       many:
-          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
       few:
-          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
       one:
-          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
     );
     return '$_temp0';
   }
@@ -225,7 +225,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get histConflictMine => 'Мои';
 
   @override
-  String get histConflictBackup => 'Копия';
+  String get histConflictBackup => 'Файл';
 
   @override
   String get histConflictKeepAll => 'Оставить все мои';
@@ -276,7 +276,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStatusCancelled => 'Отменён';
 
   @override
-  String get txStatusFromBackup => 'Из резервной копии, статус неизвестен';
+  String get txStatusFromBackup => 'Импортирован, статус неизвестен';
 
   @override
   String get txIconCancelled => 'Отменён';
@@ -430,14 +430,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorHistoryNotOurs =>
-      'Это не файл истории, экспортированный этим приложением.';
+      'Это не файл данных кошелька из этого приложения.';
 
   @override
   String get errorHistoryNewer =>
-      'Этот файл истории создан более новой версией приложения.';
+      'Этот файл данных кошелька создан более новой версией приложения.';
 
   @override
-  String get errorHistoryDamaged => 'Этот файл истории повреждён.';
+  String get errorHistoryDamaged => 'Этот файл данных кошелька повреждён.';
 
   @override
   String get errorHistoryOtherWallet =>
@@ -445,7 +445,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'Этот файл истории из сети $fileNetwork, а этот кошелёк работает в сети $walletNetwork.';
+    return 'Этот файл данных кошелька из сети $fileNetwork, а этот кошелёк работает в сети $walletNetwork.';
   }
 
   @override
@@ -704,7 +704,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      'Этот платёж взят из резервной копии истории и не был завершён на момент её создания. У этого кошелька нет собственной записи о нём, поэтому неизвестно, завершился ли он. Ничего не заблокировано.';
+      'Этот платёж импортирован из файла данных кошелька и не был завершён на момент экспорта этого файла. У этого кошелька нет собственной записи о нём, поэтому неизвестно, завершился ли он. Ничего не заблокировано.';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -889,7 +889,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'Хранится только на этом устройстве и в ваших резервных копиях истории.';
+      'Хранится только на этом устройстве и в экспортированных данных кошелька.';
 
   @override
   String get txDetailsNoteSaved => 'Заметка сохранена';
@@ -964,11 +964,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Найден при сканировании блокчейна. Такие сведения, как отправитель и комиссия, в блокчейне не хранятся; импортируйте резервную копию истории, чтобы восстановить их.';
+      'Найден при сканировании блокчейна. Такие сведения, как отправитель и комиссия, в блокчейне не хранятся; импортируйте данные кошелька, чтобы восстановить их.';
 
   @override
   String get txDetailsSourceImported =>
-      'Импортирован из резервной копии истории. У этого кошелька нет собственной записи о нём, поэтому его статус может быть устаревшим.';
+      'Импортирован из файла данных кошелька. У этого кошелька нет собственной записи о нём, поэтому его статус может быть устаревшим.';
 
   @override
   String get historyTitle => 'История';
@@ -1028,7 +1028,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => 'Сохранить историю платежей';
+  String get historyBackupSaveDialogTitle => 'Сохранить данные кошелька';
 
   @override
   String get importWarnTitle => 'Перед импортом';
@@ -1052,11 +1052,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get importWarnAck => 'У меня есть резервная копия каждого кошелька';
 
   @override
-  String get historyBackupOpenDialogTitle => 'Открыть резервную копию истории';
+  String get historyBackupOpenDialogTitle => 'Открыть файл данных кошелька';
 
   @override
   String get historyBackupFileTooLarge =>
-      'Этот файл слишком большой для резервной копии.';
+      'Этот файл слишком большой для файла данных кошелька.';
 
   @override
   String get historyBackupShare => 'Поделиться';
@@ -1078,33 +1078,32 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => 'Экспорт резервной копии истории';
+  String get historyBackupExportTitle => 'Экспорт данных кошелька';
 
   @override
   String get historyBackupExportNote =>
-      'Копия содержит всё на текущий момент. После новых платежей или изменений экспортируйте её снова.';
+      'Файл содержит всё на текущий момент. После новых платежей или изменений экспортируйте его снова.';
 
   @override
   String get historyBackupCsvTitle => 'Экспорт в CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'Файл CSV не зашифрован. Любой, кто его получит, увидит ваши суммы, даты, адреса и заметки. Импортировать его обратно нельзя; для этого используйте «Экспорт резервной копии истории».';
+      'Файл CSV не зашифрован. Любой, кто его получит, увидит ваши суммы, даты, адреса и заметки. Импортировать его обратно нельзя; для этого используйте «Экспорт данных кошелька».';
 
   @override
   String get historyBackupCsvConfirm => 'Экспортировать CSV';
 
   @override
-  String get historyBackupImportedTitle => 'Копия импортирована';
+  String get historyBackupImportedTitle => 'Данные кошелька импортированы';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return 'История не импортирована. $reason';
+    return 'Данные кошелька не импортированы. $reason';
   }
 
   @override
-  String get historyBackupImportNothingNew =>
-      'В резервной копии нет ничего нового.';
+  String get historyBackupImportNothingNew => 'В файле нет ничего нового.';
 
   @override
   String get homeLockTooltip => 'Заблокировать кошелёк';
@@ -1286,10 +1285,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count платежа не входят в резервную копию истории',
-      many: '$count платежей не входят в резервную копию истории',
-      few: '$count платежа не входят в резервную копию истории',
-      one: '$count платёж не входит в резервную копию истории',
+      other: '$count платежа не входят в экспортированные данные кошелька',
+      many: '$count платежей не входят в экспортированные данные кошелька',
+      few: '$count платежа не входят в экспортированные данные кошелька',
+      one: '$count платёж не входит в экспортированные данные кошелька',
     );
     return '$_temp0. Фраза восстановления вернёт только баланс.';
   }
@@ -1300,13 +1299,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count платежа добавлены или изменены после последней резервной копии истории',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька',
       many:
-          '$count платежей добавлены или изменены после последней резервной копии истории',
+          '$count платежей добавлены или изменены после последнего экспорта данных кошелька',
       few:
-          '$count платежа добавлены или изменены после последней резервной копии истории',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька',
       one:
-          '$count платёж добавлен или изменён после последней резервной копии истории',
+          '$count платёж добавлен или изменён после последнего экспорта данных кошелька',
     );
     return '$_temp0. Фраза восстановления вернёт только баланс.';
   }
@@ -1315,7 +1314,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeHistoryReminderNotNow => 'Не сейчас';
 
   @override
-  String get homeHistoryExportButton => 'Экспортировать копию';
+  String get homeHistoryExportButton => 'Экспорт данных кошелька';
 
   @override
   String get homeBalanceSpendable => 'Доступно';
@@ -2119,11 +2118,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'База данных кошелька была повреждена и создана заново по фразе. Сканирование возвращает средства; детали платежей, заметки и метки вернутся только из резервной копии истории.';
+      'База данных кошелька была повреждена и создана заново по фразе. Сканирование возвращает средства; детали платежей, заметки и метки вернутся только из файла данных кошелька.';
 
   @override
   String get restoreRebuiltImportText =>
-      'Резервная копия истории возвращает историю платежей, контакты, счета и настройки.';
+      'Файл данных кошелька возвращает историю платежей, контакты, счета и настройки.';
 
   @override
   String get restoreReplaceLead =>
@@ -2172,10 +2171,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Фраза восстановления вернула баланс. Резервная копия истории возвращает историю платежей, контакты, счета и настройки этого кошелька. Если вы её экспортировали, импортируйте сейчас: это файл, который вы отправили или сохранили вне старого телефона.';
+      'Фраза восстановления вернула баланс. Файл данных кошелька возвращает историю платежей, контакты, счета и настройки этого кошелька. Если вы его экспортировали, импортируйте сейчас: это файл, который вы отправили или сохранили вне старого телефона.';
 
   @override
-  String get restoreImportButton => 'Импортировать резервную копию истории';
+  String get restoreImportButton => 'Импорт данных кошелька';
 
   @override
   String get restoreImportNotNow => 'Не сейчас';
@@ -3127,16 +3126,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLockWallet => 'Заблокировать кошелёк';
 
   @override
-  String get settingsSectionHistory => 'История платежей';
+  String get settingsSectionHistory => 'Данные кошелька';
 
   @override
-  String get settingsExportHistory => 'Экспорт резервной копии истории';
+  String get settingsExportHistory => 'Экспорт данных кошелька';
 
   @override
   String get settingsExportCsv => 'Экспорт в CSV';
 
   @override
-  String get settingsImportHistory => 'Импорт резервной копии истории';
+  String get settingsImportHistory => 'Импорт данных кошелька';
 
   @override
   String get settingsSectionWallet => 'Кошелёк';
@@ -6380,13 +6379,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => 'Копия другого кошелька';
+  String get deskErrHistOtherWallet => 'Данные другого кошелька';
 
   @override
   String get deskErrHistOtherChain => 'Не та сеть';
 
   @override
-  String get deskErrHistNotOurs => 'Это не резервная копия истории';
+  String get deskErrHistNotOurs => 'Это не файл данных кошелька';
 
   @override
   String get deskErrHistNewer => 'Файл новее';
@@ -8848,10 +8847,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Найдено в блокчейне сканированием. Отправитель не записан.';
 
   @override
-  String get deskTxBackupTip => 'Добавлено из резервной копии истории.';
+  String get deskTxBackupTip => 'Добавлено из файла данных кошелька.';
 
   @override
-  String get deskTxFromBackup => 'Из резервной копии';
+  String get deskTxFromBackup => 'Импортирован';
 
   @override
   String get deskTxStatusImmature => 'Не созрело';
@@ -8940,7 +8939,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxHiddenAmount => 'сумма скрыта';
 
   @override
-  String get deskTxNowBackup => 'Из резервной копии; блокчейн не запрашивался.';
+  String get deskTxNowBackup => 'Импортирован; блокчейн не запрашивался.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -9019,7 +9018,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'найдено в блокчейне';
 
   @override
-  String get deskTxHeadBackup => 'добавлено из резервной копии истории';
+  String get deskTxHeadBackup => 'добавлено из файла данных кошелька';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -11000,10 +10999,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось записать файл. Выберите другую папку.';
 
   @override
-  String get deskSetBackupGroup => 'Резервная копия';
+  String get deskSetBackupGroup => 'Данные кошелька';
 
   @override
-  String get deskSetBackupExportTitle => 'Экспорт резервной копии истории';
+  String get deskSetBackupExportTitle => 'Экспорт данных кошелька';
 
   @override
   String get deskSetBackupExportHint =>
@@ -11016,11 +11015,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupExportButton => 'Экспорт…';
 
   @override
-  String get deskSetBackupImportTitle => 'Импорт резервной копии истории';
+  String get deskSetBackupImportTitle => 'Импорт данных кошелька';
 
   @override
   String get deskSetBackupImportHint =>
-      'Возвращает из копии историю платежей, контакты, счета и настройки этого кошелька. Ничего не удаляется; тот же файл дважды ничего не меняет.';
+      'Возвращает из файла данных кошелька историю платежей, контакты, счета и настройки этого кошелька. Ничего не удаляется; тот же файл дважды ничего не меняет.';
 
   @override
   String get deskSetBackupImportButton => 'Импорт…';
@@ -11036,7 +11035,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupCsvButton => 'Экспорт CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'Сохранить историю платежей';
+  String get deskSetBackupSaveDialogTitle => 'Сохранить данные кошелька';
 
   @override
   String get deskSetBackupNotSaved => 'Не сохранено';
@@ -11113,7 +11112,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupSaveAs => 'Сохранить как…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'Открыть резервную копию истории';
+  String get deskSetBackupOpenDialogTitle => 'Открыть файл данных кошелька';
 
   @override
   String get deskSetBackupNothingNew => 'Ничего нового';
@@ -11236,17 +11235,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для этого есть резервная копия истории.';
+      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для этого есть «Экспорт данных кошелька».';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count платежа не входят в резервную копию истории.',
-      many: '$count платежей не входят в резервную копию истории.',
-      few: '$count платежа не входят в резервную копию истории.',
-      one: '$count платёж не входит в резервную копию истории.',
+      other: '$count платежа не входят в экспортированные данные кошелька.',
+      many: '$count платежей не входят в экспортированные данные кошелька.',
+      few: '$count платежа не входят в экспортированные данные кошелька.',
+      one: '$count платёж не входит в экспортированные данные кошелька.',
     );
     return '$_temp0';
   }
@@ -11257,13 +11256,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count платежа добавлены или изменены после последней резервной копии истории.',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька.',
       many:
-          '$count платежей добавлены или изменены после последней резервной копии истории.',
+          '$count платежей добавлены или изменены после последнего экспорта данных кошелька.',
       few:
-          '$count платежа добавлены или изменены после последней резервной копии истории.',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька.',
       one:
-          '$count платёж добавлен или изменён после последней резервной копии истории.',
+          '$count платёж добавлен или изменён после последнего экспорта данных кошелька.',
     );
     return '$_temp0';
   }
@@ -13501,13 +13500,13 @@ class AppLocalizationsRu extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'В резервной копии другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
       many:
-          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
       few:
-          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
       one:
-          'В резервной копии другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
     );
     return '$_temp0';
   }
@@ -13516,7 +13515,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskHistConflictMine => 'Мои';
 
   @override
-  String get deskHistConflictBackup => 'Резервная копия';
+  String get deskHistConflictBackup => 'Файл';
 
   @override
   String get deskHistConflictKeepAll => 'Оставить все мои';
@@ -15633,13 +15632,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count сопряжения из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+          '$count сопряжения из этого файла использовались на другом устройстве. Другое устройство должно перестать их использовать.',
       many:
-          '$count сопряжений из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+          '$count сопряжений из этого файла использовались на другом устройстве. Другое устройство должно перестать их использовать.',
       few:
-          '$count сопряжения из этой копии использовались на другом устройстве. Другое устройство должно перестать их использовать.',
+          '$count сопряжения из этого файла использовались на другом устройстве. Другое устройство должно перестать их использовать.',
       one:
-          '$count сопряжение из этой копии использовалось на другом устройстве. Другое устройство должно перестать его использовать.',
+          '$count сопряжение из этого файла использовалось на другом устройстве. Другое устройство должно перестать его использовать.',
     );
     return '$_temp0';
   }
@@ -15993,15 +15992,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      'Восстановление из фразы восстановления с копией истории возвращает все сопряжения; без неё повторное сопряжение находит те же ключи.';
+      'Восстановление из фразы восстановления с файлом данных кошелька возвращает все сопряжения; без него повторное сопряжение находит те же ключи.';
 
   @override
   String get helpPairRestoreP1 =>
-      'С копией истории восстановление возвращает все сопряжения без изменений: те же ключи, те же отметки «Проверено», те же настройки. Контакты ничего не заметят.';
+      'С файлом данных кошелька восстановление возвращает все сопряжения без изменений: те же ключи, те же отметки «Проверено», те же настройки. Контакты ничего не заметят.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Без копии сопряжения пропадают из этого кошелька, но ключи нет: они получаются из фразы восстановления. Повторите сопряжение с контактом, у которого оно сохранилось, и его кошелёк найдёт те же ключи. Он сообщит, что ключи вернулись, и контакт сохранит отметку «Проверено». В этом кошельке «Запечатывать платежи» и «Разрешить счета» возвращаются к значениям по умолчанию.';
+      'Без файла сопряжения пропадают из этого кошелька, но ключи нет: они получаются из фразы восстановления. Повторите сопряжение с контактом, у которого оно сохранилось, и его кошелёк найдёт те же ключи. Он сообщит, что ключи вернулись, и контакт сохранит отметку «Проверено». В этом кошельке «Запечатывать платежи» и «Разрешить счета» возвращаются к значениям по умолчанию.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -16009,7 +16008,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 =>
-      'Используйте сопряжение только на одном устройстве за раз. Копия, восстановленная на втором устройстве, спросит, прежде чем использовать там контакты.';
+      'Используйте сопряжение только на одном устройстве за раз. Данные кошелька, импортированные на втором устройстве, спросят, прежде чем использовать там контакты.';
 
   @override
   String get pairNameForCode =>
@@ -16564,15 +16563,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'Фраза восстановления вернула баланс. Резервная копия истории, экспортированная из этого кошелька, возвращает историю платежей, контакты, счета и настройки: это файл, сохранённый вне старого компьютера.';
+      'Фраза восстановления вернула баланс. Файл данных кошелька, экспортированный из этого кошелька, возвращает историю платежей, контакты, счета и настройки: это файл, сохранённый вне старого компьютера.';
 
   @override
-  String get deskOvRestoredImportButton =>
-      'Импортировать резервную копию истории';
+  String get deskOvRestoredImportButton => 'Импорт данных кошелька';
 
   @override
   String get deskOvRestoredImportLater =>
-      'Позже: Настройки › Этот кошелёк › Резервная копия.';
+      'Позже: Настройки › Этот кошелёк › Данные кошелька.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16832,23 +16830,23 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get backupSettingsTitle => 'Использовать настройки из этой копии?';
+  String get backupSettingsTitle => 'Использовать настройки из этого файла?';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n настройки здесь отличаются от копии.',
-      many: '$n настроек здесь отличаются от копии.',
-      few: '$n настройки здесь отличаются от копии.',
-      one: '$n настройка здесь отличается от копии.',
+      other: '$n настройки здесь отличаются от файла.',
+      many: '$n настроек здесь отличаются от файла.',
+      few: '$n настройки здесь отличаются от файла.',
+      one: '$n настройка здесь отличается от файла.',
     );
-    return '$_temp0 Остальное из копии уже импортировано.';
+    return '$_temp0 Остальное из файла уже импортировано.';
   }
 
   @override
-  String get backupSettingsUseBackup => 'Из копии';
+  String get backupSettingsUseBackup => 'Из файла';
 
   @override
   String get backupSettingsKeepMine => 'Оставить мои';

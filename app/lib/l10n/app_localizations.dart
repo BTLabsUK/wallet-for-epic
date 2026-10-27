@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, =1{The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
   String histConflictLead(int n);
 
   /// Choice card: the value entered on this phone.
@@ -469,7 +469,7 @@ abstract class AppLocalizations {
   /// Choice card: the value in the backup file.
   ///
   /// In en, this message translates to:
-  /// **'Backup'**
+  /// **'File'**
   String get histConflictBackup;
 
   /// Button: import without replacing anything the user entered.
@@ -547,7 +547,7 @@ abstract class AppLocalizations {
   /// Status chip of a pending payment imported from a history backup, which this wallet cannot follow up.
   ///
   /// In en, this message translates to:
-  /// **'From backup, status unknown'**
+  /// **'Imported, status unknown'**
   String get txStatusFromBackup;
 
   /// Screen-reader label of a cancelled payment's icon.
@@ -775,19 +775,19 @@ abstract class AppLocalizations {
   /// Importing a payment-history backup file (.wfeh) failed.
   ///
   /// In en, this message translates to:
-  /// **'This is not a history file exported by this app.'**
+  /// **'This is not a wallet data file from this app.'**
   String get errorHistoryNotOurs;
 
   /// No description provided for @errorHistoryNewer.
   ///
   /// In en, this message translates to:
-  /// **'This history file was made by a newer version of the app.'**
+  /// **'This wallet data file was made by a newer version of the app.'**
   String get errorHistoryNewer;
 
   /// No description provided for @errorHistoryDamaged.
   ///
   /// In en, this message translates to:
-  /// **'This history file is damaged.'**
+  /// **'This wallet data file is damaged.'**
   String get errorHistoryDamaged;
 
   /// No description provided for @errorHistoryOtherWallet.
@@ -799,7 +799,7 @@ abstract class AppLocalizations {
   /// Network names stay as given (Mainnet, Floonet, Usernet).
   ///
   /// In en, this message translates to:
-  /// **'This history file is from {fileNetwork}, but this wallet is on {walletNetwork}.'**
+  /// **'This wallet data file is from {fileNetwork}, but this wallet is on {walletNetwork}.'**
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork);
 
   /// The real Epic Cash network, where coins have value. Short; used as a screen title.
@@ -1108,7 +1108,7 @@ abstract class AppLocalizations {
   /// Payment details, status explanation of an unfinished payment imported from a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'This payment comes from a history backup and was not finished when the backup was made. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.'**
+  /// **'This payment was imported from a wallet data file and was not finished when that file was exported. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.'**
   String get txDetailsFromBackup;
 
   /// Payment details, small line under the status of a pending payment, shown when the current block height is not known.
@@ -1390,7 +1390,7 @@ abstract class AppLocalizations {
   /// Helper text under the note field: where the note is stored.
   ///
   /// In en, this message translates to:
-  /// **'Only on this device and in your history backups.'**
+  /// **'Only on this device and in your exported wallet data.'**
   String get txDetailsNoteHelper;
 
   /// Notice after the note was saved.
@@ -1522,13 +1522,13 @@ abstract class AppLocalizations {
   /// Note on a payment the wallet found by scanning the blockchain after a restore.
   ///
   /// In en, this message translates to:
-  /// **'Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import a history backup to restore them.'**
+  /// **'Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import wallet data to restore them.'**
   String get txDetailsSourceRestored;
 
   /// Note on a payment that came from a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Imported from a history backup. This wallet has no record of its own for it, so its status may be out of date.'**
+  /// **'Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.'**
   String get txDetailsSourceImported;
 
   /// Title of the screen with every payment.
@@ -1642,7 +1642,7 @@ abstract class AppLocalizations {
   /// Title of the system save dialog for a payment-history file (desktop only).
   ///
   /// In en, this message translates to:
-  /// **'Save payment history'**
+  /// **'Save wallet data'**
   String get historyBackupSaveDialogTitle;
 
   /// Title of the one-time warning shown before the first import of wallets from older software (desktop Import wallets).
@@ -1684,13 +1684,13 @@ abstract class AppLocalizations {
   /// Title of the system file picker for a payment-history backup (desktop only).
   ///
   /// In en, this message translates to:
-  /// **'Open history backup'**
+  /// **'Open wallet data file'**
   String get historyBackupOpenDialogTitle;
 
   /// Import error: the picked file is far larger than a history backup.
   ///
   /// In en, this message translates to:
-  /// **'That file is too large to be a backup.'**
+  /// **'That file is too large to be a wallet data file.'**
   String get historyBackupFileTooLarge;
 
   /// Choice in a sheet: hand the history file to another app through the share sheet.
@@ -1726,13 +1726,13 @@ abstract class AppLocalizations {
   /// Title of the sheet that hands over the encrypted payment-history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Export history backup'**
+  /// **'Export wallet data'**
   String get historyBackupExportTitle;
 
   /// Text in the export sheet under its title.
   ///
   /// In en, this message translates to:
-  /// **'The backup holds everything up to now. Export again after new payments or changes.'**
+  /// **'The file holds everything up to now. Export again after new payments or changes.'**
   String get historyBackupExportNote;
 
   /// Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file.
@@ -1744,7 +1744,7 @@ abstract class AppLocalizations {
   /// Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there.
   ///
   /// In en, this message translates to:
-  /// **'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export history backup for that.'**
+  /// **'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.'**
   String get historyBackupCsvWarning;
 
   /// Button in the CSV warning dialog that goes ahead with the export.
@@ -1756,19 +1756,19 @@ abstract class AppLocalizations {
   /// Title of the dialog with the result of a history backup import.
   ///
   /// In en, this message translates to:
-  /// **'Backup imported'**
+  /// **'Wallet data imported'**
   String get historyBackupImportedTitle;
 
   /// Error notice when a history backup could not be imported; reason is the error, a whole sentence.
   ///
   /// In en, this message translates to:
-  /// **'Could not import the history backup. {reason}'**
+  /// **'Could not import the wallet data. {reason}'**
   String historyBackupImportFailed(String reason);
 
   /// Import result when the backup added nothing.
   ///
   /// In en, this message translates to:
-  /// **'The backup held nothing new.'**
+  /// **'The file held nothing new.'**
   String get historyBackupImportNothingNew;
 
   /// Tooltip of the app-bar button that closes the wallet and returns to the PIN screen.
@@ -2062,13 +2062,13 @@ abstract class AppLocalizations {
   /// Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 payment is not in a history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in a history backup. A restore from your recovery phrase brings back only your balance.}}'**
+  /// **'{count, plural, =1{1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.}}'**
   String homeHistoryNotBackedUp(int count);
 
   /// Card on home when payments changed after the last history backup (a file with the payment list, notes and contacts).
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 payment is new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.}}'**
+  /// **'{count, plural, =1{1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.}}'**
   String homeHistoryChangedSinceBackup(int count);
 
   /// Button that hides the history backup card for a week.
@@ -2080,7 +2080,7 @@ abstract class AppLocalizations {
   /// Button on the history backup card that saves the backup file.
   ///
   /// In en, this message translates to:
-  /// **'Export history backup'**
+  /// **'Export wallet data'**
   String get homeHistoryExportButton;
 
   /// Label above the large balance on home: the funds that can be sent now.
@@ -3334,13 +3334,13 @@ abstract class AppLocalizations {
   /// Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0.
   ///
   /// In en, this message translates to:
-  /// **'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.'**
+  /// **'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a wallet data file.'**
   String get unlockDatabaseRebuilt;
 
   /// Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow.
   ///
   /// In en, this message translates to:
-  /// **'A history backup brings back payment history, contacts, invoices and settings.'**
+  /// **'A wallet data file brings back payment history, contacts, invoices and settings.'**
   String get restoreRebuiltImportText;
 
   /// Lead line of the Restore screen when opened from Settings › Wallet › Restore from a phrase.
@@ -3394,13 +3394,13 @@ abstract class AppLocalizations {
   /// Offer to import a history backup on the phone restore screen, once the restore from the phrase is done.
   ///
   /// In en, this message translates to:
-  /// **'The recovery phrase brought back the balance. A history backup brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.'**
+  /// **'The recovery phrase brought back the balance. A wallet data file brings back this wallet\'s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.'**
   String get restoreImportExplanation;
 
   /// No description provided for @restoreImportButton.
   ///
   /// In en, this message translates to:
-  /// **'Import a history backup'**
+  /// **'Import wallet data'**
   String get restoreImportButton;
 
   /// Button that skips the history import and opens the wallet.
@@ -4858,13 +4858,13 @@ abstract class AppLocalizations {
   /// Section heading in settings. The help page refers to it by this name.
   ///
   /// In en, this message translates to:
-  /// **'Payment history'**
+  /// **'Wallet data'**
   String get settingsSectionHistory;
 
   /// Settings row: save an encrypted copy of payment notes, contacts and dates.
   ///
   /// In en, this message translates to:
-  /// **'Export history backup'**
+  /// **'Export wallet data'**
   String get settingsExportHistory;
 
   /// Settings row: save the payment history as a spreadsheet (CSV) file.
@@ -4876,7 +4876,7 @@ abstract class AppLocalizations {
   /// Settings row: open a history backup file. The help page refers to it by this name.
   ///
   /// In en, this message translates to:
-  /// **'Import history backup'**
+  /// **'Import wallet data'**
   String get settingsImportHistory;
 
   /// Section heading in settings.
@@ -10095,7 +10095,7 @@ abstract class AppLocalizations {
   /// Title of the notice when a history backup file was exported from a different wallet.
   ///
   /// In en, this message translates to:
-  /// **'Another wallet\'s backup'**
+  /// **'Another wallet\'s data'**
   String get deskErrHistOtherWallet;
 
   /// Title of the notice when a history backup file is from another network (mainnet or the test network).
@@ -10107,7 +10107,7 @@ abstract class AppLocalizations {
   /// Title of the notice when a chosen file is not a history backup.
   ///
   /// In en, this message translates to:
-  /// **'Not a history backup'**
+  /// **'Not a wallet data file'**
   String get deskErrHistNotOurs;
 
   /// Title of the notice when a history backup file was made by a newer app version.
@@ -13941,13 +13941,13 @@ abstract class AppLocalizations {
   /// Tooltip on a payment that was added from a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Added from a history backup.'**
+  /// **'Added from a wallet data file.'**
   String get deskTxBackupTip;
 
   /// Status and small line of a payment that came from a history backup. Activity table, narrow.
   ///
   /// In en, this message translates to:
-  /// **'From backup'**
+  /// **'Imported'**
   String get deskTxFromBackup;
 
   /// Status of a mining reward not yet spendable. Activity table status column, narrow; one word.
@@ -14073,7 +14073,7 @@ abstract class AppLocalizations {
   /// Status line at the top of the transaction detail for a payment that came from a history backup.
   ///
   /// In en, this message translates to:
-  /// **'From backup; the chain was not asked.'**
+  /// **'Imported; the chain was not asked.'**
   String get deskTxNowBackup;
 
   /// Status line at the top of the transaction detail for a mining reward that is not yet spendable.
@@ -14157,7 +14157,7 @@ abstract class AppLocalizations {
   /// Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case.
   ///
   /// In en, this message translates to:
-  /// **'added from a history backup'**
+  /// **'added from a wallet data file'**
   String get deskTxHeadBackup;
 
   /// Small line under the big amount on the transaction detail for an incoming payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.
@@ -17193,13 +17193,13 @@ abstract class AppLocalizations {
   /// Settings > This wallet: title of the Backup group of rows.
   ///
   /// In en, this message translates to:
-  /// **'Backup'**
+  /// **'Wallet data'**
   String get deskSetBackupGroup;
 
   /// Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Export history backup'**
+  /// **'Export wallet data'**
   String get deskSetBackupExportTitle;
 
   /// Settings > Backup: hint under the Export history backup row.
@@ -17223,13 +17223,13 @@ abstract class AppLocalizations {
   /// Settings > Backup: row title and dialog title for importing a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Import history backup'**
+  /// **'Import wallet data'**
   String get deskSetBackupImportTitle;
 
   /// Settings > Backup: hint under the Import history backup row.
   ///
   /// In en, this message translates to:
-  /// **'Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.'**
+  /// **'Brings back this wallet’s payment history, contacts, invoices and settings from a wallet data file. Nothing is removed; the same file twice changes nothing.'**
   String get deskSetBackupImportHint;
 
   /// Settings > Backup: button that opens the import dialog. Short.
@@ -17259,7 +17259,7 @@ abstract class AppLocalizations {
   /// Title of the system Save dialog when exporting the history backup.
   ///
   /// In en, this message translates to:
-  /// **'Save payment history'**
+  /// **'Save wallet data'**
   String get deskSetBackupSaveDialogTitle;
 
   /// Export dialogs: title of the error notice when the file could not be saved.
@@ -17367,7 +17367,7 @@ abstract class AppLocalizations {
   /// Title of the system Open dialog when importing a history backup.
   ///
   /// In en, this message translates to:
-  /// **'Open history backup'**
+  /// **'Open wallet data file'**
   String get deskSetBackupOpenDialogTitle;
 
   /// Import dialog: title of the success block when the file brought nothing new.
@@ -17547,19 +17547,19 @@ abstract class AppLocalizations {
   /// Export CSV dialog: text of the warning notice.
   ///
   /// In en, this message translates to:
-  /// **'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.'**
+  /// **'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.'**
   String get deskSetBackupNotEncryptedBody;
 
   /// Reminder on Overview when the history was never backed up. Count is the number of payments.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}'**
+  /// **'{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}'**
   String deskSetBackupReminderNever(int count);
 
   /// Reminder on Overview when payments changed since the last history backup.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}'**
+  /// **'{count, plural, one{1 payment is new or changed since the last wallet data export.} other{{count} payments are new or changed since the last wallet data export.}}'**
   String deskSetBackupReminderChanged(int count);
 
   /// Reminder on Overview: text under the title.
@@ -21188,7 +21188,7 @@ abstract class AppLocalizations {
   /// Description of the Details differ dialog; n payments.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
   String deskHistConflictLead(int n);
 
   /// Choice card in the Details differ dialog: the value typed here.
@@ -21200,7 +21200,7 @@ abstract class AppLocalizations {
   /// Choice card in the Details differ dialog: the value in the backup file.
   ///
   /// In en, this message translates to:
-  /// **'Backup'**
+  /// **'File'**
   String get deskHistConflictBackup;
 
   /// Button in the Details differ dialog: import and keep every value the user typed.
@@ -24410,7 +24410,7 @@ abstract class AppLocalizations {
   /// Dialog body.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 pairing in this backup was used on another device. Your other device should stop using it.} other{{count} pairings in this backup were used on another device. Your other device should stop using them.}}'**
+  /// **'{count, plural, =1{1 pairing in this file was used on another device. Your other device should stop using it.} other{{count} pairings in this file were used on another device. Your other device should stop using them.}}'**
   String restoreUseContactsBody(int count);
 
   /// Dialog primary.
@@ -24980,19 +24980,19 @@ abstract class AppLocalizations {
   /// Topic 5 lede.
   ///
   /// In en, this message translates to:
-  /// **'Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.'**
+  /// **'Restoring from the recovery phrase brings every pairing back with the wallet data file; without it, re-pairing finds the same keys.'**
   String get helpPairRestoreShort;
 
   /// Topic 5.
   ///
   /// In en, this message translates to:
-  /// **'With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.'**
+  /// **'With the wallet data file, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.'**
   String get helpPairRestoreP1;
 
   /// Help › Pairing › What a restore does, paragraph 2.
   ///
   /// In en, this message translates to:
-  /// **'Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.'**
+  /// **'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.'**
   String get helpPairRestoreP2;
 
   /// Topic 5.
@@ -25004,7 +25004,7 @@ abstract class AppLocalizations {
   /// Topic 5.
   ///
   /// In en, this message translates to:
-  /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
+  /// **'Use a pairing on one device at a time. Wallet data imported on a second device asks before using the contacts there.'**
   String get helpPairRestoreP4;
 
   /// In person, Show my code: the placeholder of the code until the user gave the name the other side sees.
@@ -25700,19 +25700,19 @@ abstract class AppLocalizations {
   /// Body of the offer.
   ///
   /// In en, this message translates to:
-  /// **'The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.'**
+  /// **'The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.'**
   String get deskOvRestoredImportBody;
 
   /// Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton.
   ///
   /// In en, this message translates to:
-  /// **'Import a history backup'**
+  /// **'Import wallet data'**
   String get deskOvRestoredImportButton;
 
   /// Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup.
   ///
   /// In en, this message translates to:
-  /// **'Later under Settings › This wallet › Backup.'**
+  /// **'Later under Settings › This wallet › Wallet data.'**
   String get deskOvRestoredImportLater;
 
   /// Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed.
@@ -26012,19 +26012,19 @@ abstract class AppLocalizations {
   /// Title of the one question an import asks when settings changed here differ from the backup.
   ///
   /// In en, this message translates to:
-  /// **'Use the settings from this backup?'**
+  /// **'Use the settings from this file?'**
   String get backupSettingsTitle;
 
   /// Text of the settings question: how many settings differ; everything else in the backup is already imported.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, =1{1 setting here differs from the backup.} other{{n} settings here differ from the backup.}} The rest of the backup is already imported.'**
+  /// **'{n, plural, =1{1 setting here differs from the file.} other{{n} settings here differ from the file.}} The rest of the file is already imported.'**
   String backupSettingsBody(int n);
 
   /// Button of the settings question: take the settings from the backup. Short.
   ///
   /// In en, this message translates to:
-  /// **'Use the backup\'s'**
+  /// **'Use the file\'s'**
   String get backupSettingsUseBackup;
 
   /// Button of the settings question: keep the settings of this wallet. Short.

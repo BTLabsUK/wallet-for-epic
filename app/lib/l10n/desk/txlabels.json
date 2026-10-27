@@ -127,7 +127,7 @@
   "@deskHistConflictTitle": {
     "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
   },
-  "deskHistConflictLead": "{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLead": "{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
   "@deskHistConflictLead": {
     "description": "Description of the Details differ dialog; n payments.",
     "placeholders": {
@@ -141,7 +141,7 @@
   "@deskHistConflictMine": {
     "description": "Choice card in the Details differ dialog: the value typed here."
   },
-  "deskHistConflictBackup": "Backup",
+  "deskHistConflictBackup": "File",
   "@deskHistConflictBackup": {
     "description": "Choice card in the Details differ dialog: the value in the backup file."
   },

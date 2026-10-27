@@ -23,8 +23,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor Network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[设置 › 钱包 › 导出交易记录备份|Settings › Wallet › Export history backup]]'
-      : '[[设置 › 此钱包 › 导出交易记录备份|Settings › This wallet › Export history backup]]';
+      ? '[[设置 › 钱包 › 导出钱包数据|Settings › Wallet › Export wallet data]]'
+      : '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**用助记词恢复**（在首屏或[[设置 › 钱包|Settings › Wallet]]中）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
@@ -218,8 +218,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
         HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
-        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、备注和标签、联系人、账单、设置和钱包名称。交易记录备份会保存这些：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
-        const HelpBlock.p('**交易记录备份不是助记词。** 它不含助记词，也无法单独恢复钱包。恢复时：先输入助记词，再导入备份；恢复完成后钱包会立即提示导入。'),
+        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、备注和标签、联系人、账单、设置和钱包名称。钱包数据文件会保存这些：$historyBackupPlace。${phone ? '请把该文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        const HelpBlock.p('**钱包数据文件不是助记词。** 它不含助记词，也无法单独恢复钱包。恢复时：先输入助记词，再导入该文件；恢复完成后钱包会立即提示导入。'),
         HelpBlock.p('**余额看起来不对？** 运行$recheckPlace。它会为此钱包的输出重新读取整条区块链。'),
         if (!phone)
           const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),

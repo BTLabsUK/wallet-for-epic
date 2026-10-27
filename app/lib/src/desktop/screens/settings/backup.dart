@@ -47,7 +47,7 @@ String backupWhen(AppLocalizations l, DateTime d, {DateTime? now}) {
   };
 }
 
-/// The line under Export history backup.
+/// The line under Export wallet data.
 String backupStateLine(AppLocalizations l, HistoryBackupState s, {DateTime? now}) {
   final last = s.lastExport;
   if (last == null) return l.deskSetBackupNeverExported;
@@ -55,9 +55,9 @@ String backupStateLine(AppLocalizations l, HistoryBackupState s, {DateTime? now}
   return s.unbacked == 0 ? l.deskSetBackupLastExportNothingNew(when) : l.deskSetBackupLastExportSince(when, s.unbacked);
 }
 
-/// `epic-history-<network>-<yyyymmdd>.<extension>`, as the phone names it.
+/// `epic-wallet-data-<network>-<yyyymmdd>.<extension>`, as the phone names it.
 String deskHistoryFileName(String network, DateTime day, String extension) =>
-    'epic-history-$network-${DateFormat('yyyyMMdd').format(day)}.$extension';
+    'epic-wallet-data-$network-${DateFormat('yyyyMMdd').format(day)}.$extension';
 
 /// Why a save failed, with the folder when the system says which.
 String _notSaved(AppLocalizations l, Object e) {
@@ -254,7 +254,7 @@ Widget _notice(String title, String text) => Padding(
 
 Future<void> _openFolder(WidgetRef ref, String path) => ref.read(deskOpenFolderProvider)(File(path).parent.path);
 
-// ---- Export history backup.
+// ---- Export wallet data.
 
 Future<void> showExportHistoryDialog(BuildContext context) => showEDialog<void>(context, builder: (_) => const ExportHistoryDialog());
 

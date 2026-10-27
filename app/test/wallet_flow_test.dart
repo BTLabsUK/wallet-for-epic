@@ -1176,10 +1176,10 @@ void main() {
       expect(session.restoreScanPending, isFalse);
       // The history is not in the new database: Home offers the backup until it is closed.
       // The rebuilt-database notice shows its whole text and pushes the card down.
-      expect(find.textContaining('A history backup brings back who was paid', skipOffstage: false), findsOneWidget);
+      expect(find.textContaining('A wallet data file brings back payment history', skipOffstage: false), findsOneWidget);
       await _clearNotices(tester);
       await _tapText(tester, 'Not now');
-      expect(find.textContaining('A history backup brings back who was paid'), findsNothing);
+      expect(find.textContaining('A wallet data file brings back payment history'), findsNothing);
     });
 
     testWidgets('the restore scan keeps the screen on and the auto-lock away, and Stop and Try again go on', (tester) async {
@@ -1224,7 +1224,7 @@ void main() {
       session.scanStream = null;
       await _tap(tester, find.byKey(restoreRetryKey));
       expect(session.scanCalls, 2);
-      expect(find.text('Import a history backup'), findsOneWidget);
+      expect(find.text('Import wallet data'), findsOneWidget);
       await _tapText(tester, 'Not now');
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(containerOf(tester).read(autoLockHoldProvider), 0);

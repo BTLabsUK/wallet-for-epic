@@ -440,7 +440,7 @@ void main() {
       );
 
       h.files.picks.add(await h.session.exportHistory());
-      await _tapText(tester, 'Import a history backup');
+      await _tapText(tester, 'Import wallet data');
       expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
       await _tapText(tester, 'OK');
       expect(find.byType(RestoreScreen), findsNothing);
@@ -995,7 +995,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
-      await _tapText(tester, 'Export history backup');
+      await _tapText(tester, 'Export wallet data');
       // Share comes first: the copy that matters is the one off this phone.
       // What the file holds, that it is not the recovery phrase, and the order of a restore.
       expect(find.text(backupFileNote(englishStrings)), findsOneWidget);
@@ -1006,10 +1006,10 @@ void main() {
         isTrue,
       );
       await _tapText(tester, 'Save to device');
-      expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
+      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
       expect(h.files.saved.single.bytes, isNotEmpty);
       expect(
-        find.text('Saved epic-history-mainnet-20260930.wfeh'),
+        find.text('Saved epic-wallet-data-mainnet-20260930.wfeh'),
         findsOneWidget,
       );
 
@@ -1018,16 +1018,16 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
       await _tapText(tester, 'Share');
-      expect(h.files.shared.single.name, 'epic-history-mainnet-20260930.csv');
+      expect(h.files.shared.single.name, 'epic-wallet-data-mainnet-20260930.csv');
       expect(h.files.saved, hasLength(1));
 
       h.files.picks.add(h.files.saved.first.bytes);
-      await _tapText(tester, 'Import history backup');
+      await _tapText(tester, 'Import wallet data');
       expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
       await _tapText(tester, 'OK');
 
       // A cancelled pick does nothing.
-      await _tapText(tester, 'Import history backup');
+      await _tapText(tester, 'Import wallet data');
       expect(find.text(englishStrings.historyBackupImportedTitle), findsNothing);
 
       h.session.importError = const WalletError(
@@ -1035,14 +1035,14 @@ void main() {
         message: 'This history file belongs to a different wallet',
       );
       h.files.picks.add(Uint8List.fromList([1, 2, 3]));
-      await _tapText(tester, 'Import history backup');
+      await _tapText(tester, 'Import wallet data');
       // An error notice, not a dialog.
       expect(find.byType(AlertDialog), findsNothing);
       expect(
         find.descendant(
           of: find.byKey(noticeKey),
           matching: find.text(
-            'Could not import the history backup. '
+            'Could not import the wallet data. '
             'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.',
           ),
         ),
@@ -1058,9 +1058,9 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Export history backup');
+      await _tapText(tester, 'Export wallet data');
       expect(find.text('Share'), findsNothing);
-      expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
+      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
     });
 
     testWidgets('dismissing the choice exports nothing', (tester) async {
@@ -1068,7 +1068,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Export history backup');
+      await _tapText(tester, 'Export wallet data');
       await tester.tapAt(const Offset(200, 100));
       await tester.pumpAndSettle();
       expect(h.files.saved, isEmpty);
@@ -1085,7 +1085,7 @@ void main() {
         backupRestoredText(englishStrings, payments: 2, alreadyHere: 3),
         'Restored: 2 payments. 3 records were already here.',
       );
-      expect(backupRestoredText(englishStrings, alreadyHere: 3), 'The backup held nothing new.');
+      expect(backupRestoredText(englishStrings, alreadyHere: 3), 'The file held nothing new.');
     });
   });
 
@@ -1299,7 +1299,7 @@ void main() {
         expect(h.store.values['wallet.mainnet.pinSealed'], fakeSealedPassword(_pin));
         expect(h.cleanups, 1);
         expect(h.session.scanCalls, 1);
-        expect(find.text('Import a history backup'), findsOneWidget);
+        expect(find.text('Import wallet data'), findsOneWidget);
         expect(find.byType(FirstRunScreen), findsNothing);
       },
     );
@@ -2073,9 +2073,9 @@ void main() {
       }
 
       await noSubtitles(SettingsSection.wallet, [
-        'Export history backup',
+        'Export wallet data',
         'Export CSV',
-        'Import history backup',
+        'Import wallet data',
         'Contacts',
         'Recheck balance',
         'Delete this wallet',

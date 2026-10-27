@@ -203,7 +203,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '备份中有 $n 笔你已描述的付款带有不同的详情。除非你另行选择，否则保留你的。',
+      other: '文件中有 $n 笔你已描述的付款带有不同的详情。除非你另行选择，否则保留你的。',
     );
     return '$_temp0';
   }
@@ -212,7 +212,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get histConflictMine => '我的';
 
   @override
-  String get histConflictBackup => '备份';
+  String get histConflictBackup => '文件';
 
   @override
   String get histConflictKeepAll => '全部保留我的';
@@ -260,7 +260,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStatusCancelled => '已取消';
 
   @override
-  String get txStatusFromBackup => '来自备份，状态未知';
+  String get txStatusFromBackup => '已导入，状态未知';
 
   @override
   String get txIconCancelled => '已取消';
@@ -404,20 +404,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorUnexpected => '发生意外错误，请重试。';
 
   @override
-  String get errorHistoryNotOurs => '此文件不是本应用导出的交易记录备份。';
+  String get errorHistoryNotOurs => '此文件不是本应用的钱包数据文件。';
 
   @override
-  String get errorHistoryNewer => '此交易记录备份由更新版本的应用创建。';
+  String get errorHistoryNewer => '此钱包数据文件由更新版本的应用创建。';
 
   @override
-  String get errorHistoryDamaged => '此交易记录备份已损坏。';
+  String get errorHistoryDamaged => '此钱包数据文件已损坏。';
 
   @override
   String get errorHistoryOtherWallet => '此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return '此交易记录备份来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
+    return '此钱包数据文件来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
   }
 
   @override
@@ -646,7 +646,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      '这笔付款来自交易记录备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
+      '这笔付款从钱包数据文件导入，导出该文件时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -814,7 +814,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNoteDialogTitle => '备注';
 
   @override
-  String get txDetailsNoteHelper => '仅保存在此设备和你的交易记录备份中。';
+  String get txDetailsNoteHelper => '仅保存在此设备和你导出的钱包数据中。';
 
   @override
   String get txDetailsNoteSaved => '备注已保存';
@@ -887,10 +887,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入交易记录备份即可恢复。';
+      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入钱包数据即可恢复。';
 
   @override
-  String get txDetailsSourceImported => '从交易记录备份导入。此钱包自身没有它的记录，因此其状态可能已过时。';
+  String get txDetailsSourceImported => '从钱包数据文件导入。此钱包自身没有它的记录，因此其状态可能已过时。';
 
   @override
   String get historyTitle => '交易记录';
@@ -949,7 +949,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => '保存交易记录';
+  String get historyBackupSaveDialogTitle => '保存钱包数据';
 
   @override
   String get importWarnTitle => '导入之前';
@@ -970,10 +970,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importWarnAck => '每个钱包我都有备份';
 
   @override
-  String get historyBackupOpenDialogTitle => '打开交易记录备份';
+  String get historyBackupOpenDialogTitle => '打开钱包数据文件';
 
   @override
-  String get historyBackupFileTooLarge => '该文件过大，不可能是备份文件。';
+  String get historyBackupFileTooLarge => '该文件过大，不可能是钱包数据文件。';
 
   @override
   String get historyBackupShare => '分享';
@@ -993,31 +993,31 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => '导出交易记录备份';
+  String get historyBackupExportTitle => '导出钱包数据';
 
   @override
-  String get historyBackupExportNote => '备份包含截至目前的全部内容。有新付款或更改后请重新导出。';
+  String get historyBackupExportNote => '文件包含截至目前的全部内容。有新付款或更改后请重新导出。';
 
   @override
   String get historyBackupCsvTitle => '导出 CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的备份，请使用“导出交易记录备份”。';
+      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的文件，请使用“导出钱包数据”。';
 
   @override
   String get historyBackupCsvConfirm => '导出 CSV';
 
   @override
-  String get historyBackupImportedTitle => '已导入备份';
+  String get historyBackupImportedTitle => '已导入钱包数据';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return '未能导入交易记录备份。$reason';
+    return '未能导入钱包数据。$reason';
   }
 
   @override
-  String get historyBackupImportNothingNew => '备份中没有新内容。';
+  String get historyBackupImportNothingNew => '文件中没有新内容。';
 
   @override
   String get homeLockTooltip => '锁定钱包';
@@ -1188,7 +1188,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '有 $count 笔付款不在交易记录备份中。用助记词恢复钱包只能找回余额。',
+      other: '有 $count 笔付款不在你导出的钱包数据中。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1198,7 +1198,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '自上次交易记录备份以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
+      other: '自上次导出钱包数据以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1207,7 +1207,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeHistoryReminderNotNow => '以后再说';
 
   @override
-  String get homeHistoryExportButton => '导出交易记录备份';
+  String get homeHistoryExportButton => '导出钱包数据';
 
   @override
   String get homeBalanceSpendable => '可用余额';
@@ -1944,10 +1944,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      '钱包数据库已损坏，并已根据助记词重建。扫描会找回资金；付款详情、备注和标签只能从交易记录备份中找回。';
+      '钱包数据库已损坏，并已根据助记词重建。扫描会找回资金；付款详情、备注和标签只能从钱包数据文件中找回。';
 
   @override
-  String get restoreRebuiltImportText => '交易记录备份可找回交易记录、联系人、账单和设置。';
+  String get restoreRebuiltImportText => '钱包数据文件可找回交易记录、联系人、账单和设置。';
 
   @override
   String get restoreReplaceLead =>
@@ -1987,10 +1987,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      '助记词已找回余额。交易记录备份可找回这个钱包的交易记录、联系人、账单和设置。如果你曾导出过，现在就导入：它就是你分享或保存到旧手机以外的那个文件。';
+      '助记词已找回余额。钱包数据文件可找回这个钱包的交易记录、联系人、账单和设置。如果你曾导出过，现在就导入：它就是你分享或保存在旧手机以外的那个文件。';
 
   @override
-  String get restoreImportButton => '导入交易记录备份';
+  String get restoreImportButton => '导入钱包数据';
 
   @override
   String get restoreImportNotNow => '以后再说';
@@ -2866,16 +2866,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLockWallet => '锁定钱包';
 
   @override
-  String get settingsSectionHistory => '交易记录';
+  String get settingsSectionHistory => '钱包数据';
 
   @override
-  String get settingsExportHistory => '导出交易记录备份';
+  String get settingsExportHistory => '导出钱包数据';
 
   @override
   String get settingsExportCsv => '导出 CSV';
 
   @override
-  String get settingsImportHistory => '导入交易记录备份';
+  String get settingsImportHistory => '导入钱包数据';
 
   @override
   String get settingsSectionWallet => '钱包';
@@ -5903,13 +5903,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => '其他钱包的备份';
+  String get deskErrHistOtherWallet => '其他钱包的数据';
 
   @override
   String get deskErrHistOtherChain => '网络不符';
 
   @override
-  String get deskErrHistNotOurs => '不是交易记录备份';
+  String get deskErrHistNotOurs => '不是钱包数据文件';
 
   @override
   String get deskErrHistNewer => '文件版本较新';
@@ -8171,10 +8171,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxFoundScanTip => '扫描时在区块链上找到。未记录发送方。';
 
   @override
-  String get deskTxBackupTip => '从交易记录备份中添加。';
+  String get deskTxBackupTip => '从钱包数据文件中添加。';
 
   @override
-  String get deskTxFromBackup => '来自备份';
+  String get deskTxFromBackup => '已导入';
 
   @override
   String get deskTxStatusImmature => '未成熟';
@@ -8260,7 +8260,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxHiddenAmount => '金额已隐藏';
 
   @override
-  String get deskTxNowBackup => '来自备份；未向区块链查询。';
+  String get deskTxNowBackup => '已导入；未向区块链查询。';
 
   @override
   String deskTxNowImmature(int count) {
@@ -8323,7 +8323,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxHeadFoundOnChain => '在区块链上找到';
 
   @override
-  String get deskTxHeadBackup => '从交易记录备份中添加';
+  String get deskTxHeadBackup => '从钱包数据文件中添加';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -10162,10 +10162,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupWriteFailed => '无法写入文件。请选择其他文件夹。';
 
   @override
-  String get deskSetBackupGroup => '备份';
+  String get deskSetBackupGroup => '钱包数据';
 
   @override
-  String get deskSetBackupExportTitle => '导出交易记录备份';
+  String get deskSetBackupExportTitle => '导出钱包数据';
 
   @override
   String get deskSetBackupExportHint =>
@@ -10178,11 +10178,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupExportButton => '导出…';
 
   @override
-  String get deskSetBackupImportTitle => '导入交易记录备份';
+  String get deskSetBackupImportTitle => '导入钱包数据';
 
   @override
   String get deskSetBackupImportHint =>
-      '从备份找回这个钱包的交易记录、联系人、账单和设置。不会删除任何内容；同一文件导入两次不会有变化。';
+      '从钱包数据文件找回这个钱包的交易记录、联系人、账单和设置。不会删除任何内容；同一文件导入两次不会有变化。';
 
   @override
   String get deskSetBackupImportButton => '导入…';
@@ -10197,7 +10197,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupCsvButton => '导出 CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => '保存付款记录';
+  String get deskSetBackupSaveDialogTitle => '保存钱包数据';
 
   @override
   String get deskSetBackupNotSaved => '未保存';
@@ -10265,7 +10265,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupSaveAs => '另存为…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => '打开交易记录备份';
+  String get deskSetBackupOpenDialogTitle => '打开钱包数据文件';
 
   @override
   String get deskSetBackupNothingNew => '没有新内容';
@@ -10379,14 +10379,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      '任何拿到此文件的人都能看到金额、日期、地址和备注。它不能导入；导入请使用交易记录备份。';
+      '任何拿到此文件的人都能看到金额、日期、地址和备注。它不能导入；导入请使用“导出钱包数据”。';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 笔付款不在交易记录备份中。',
+      other: '$count 笔付款不在你导出的钱包数据中。',
     );
     return '$_temp0';
   }
@@ -10396,7 +10396,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '自上次交易记录备份以来，有 $count 笔付款是新的或有改动。',
+      other: '自上次导出钱包数据以来，有 $count 笔付款是新的或有改动。',
     );
     return '$_temp0';
   }
@@ -12508,7 +12508,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '备份中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+      other: '文件中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
     );
     return '$_temp0';
   }
@@ -12517,7 +12517,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskHistConflictMine => '我的';
 
   @override
-  String get deskHistConflictBackup => '备份';
+  String get deskHistConflictBackup => '文件';
 
   @override
   String get deskHistConflictKeepAll => '全部保留我的';
@@ -14474,7 +14474,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '此备份中有 $count 个配对曾在另一台设备上使用。另一台设备应停止使用它们。',
+      other: '此文件中有 $count 个配对曾在另一台设备上使用。另一台设备应停止使用它们。',
     );
     return '$_temp0';
   }
@@ -14807,22 +14807,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      '有历史备份时，用恢复短语恢复会带回所有配对；没有备份时，重新配对会找到相同的密钥。';
+      '有钱包数据文件时，用助记词恢复会带回所有配对；没有它时，重新配对会找到相同的密钥。';
 
   @override
   String get helpPairRestoreP1 =>
-      '有历史备份时，恢复会原样带回所有配对：相同的密钥、相同的“已验证”标记、相同的设置。联系人不会察觉任何变化。';
+      '有钱包数据文件时，恢复会原样带回所有配对：相同的密钥、相同的“已验证”标记、相同的设置。联系人不会察觉任何变化。';
 
   @override
   String get helpPairRestoreP2 =>
-      '没有备份时，配对会从此钱包中消失，但密钥不会：它们来自恢复短语。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封付款”和“允许账单”恢复为默认设置。';
+      '没有该文件时，配对会从此钱包中消失，但密钥不会：它们来自助记词。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封付款”和“允许账单”恢复为默认设置。';
 
   @override
   String get helpPairRestoreP3 =>
       '只有当恢复短语不同时，联系人才会看到**密钥已更改**。这可能表示一个新钱包，或有其他人在使用这个名字。信任之前请再次核对词语。';
 
   @override
-  String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。';
+  String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上导入的钱包数据会先询问，再在那里使用联系人。';
 
   @override
   String get pairNameForCode => '输入对方会看到的名字，你的码就会显示在这里。';
@@ -15304,13 +15304,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      '助记词已找回余额。从这个钱包导出的交易记录备份可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。';
+      '助记词已找回余额。从这个钱包导出的钱包数据文件可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。';
 
   @override
-  String get deskOvRestoredImportButton => '导入交易记录备份';
+  String get deskOvRestoredImportButton => '导入钱包数据';
 
   @override
-  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 备份”中导入。';
+  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 钱包数据”中导入。';
 
   @override
   String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
@@ -15532,20 +15532,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get backupSettingsTitle => '使用此备份中的设置？';
+  String get backupSettingsTitle => '使用此文件中的设置？';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '这里有 $n 项设置与备份不同。',
+      other: '这里有 $n 项设置与文件不同。',
     );
-    return '$_temp0备份的其余内容已导入。';
+    return '$_temp0文件的其余内容已导入。';
   }
 
   @override
-  String get backupSettingsUseBackup => '使用备份的';
+  String get backupSettingsUseBackup => '使用文件的';
 
   @override
   String get backupSettingsKeepMine => '保留我的';

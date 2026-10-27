@@ -79,11 +79,11 @@
   "@deskTxFoundScanTip": {
     "description": "Tooltip on a payment found by a scan of unknown kind."
   },
-  "deskTxBackupTip": "Added from a history backup.",
+  "deskTxBackupTip": "Added from a wallet data file.",
   "@deskTxBackupTip": {
     "description": "Tooltip on a payment that was added from a history backup file."
   },
-  "deskTxFromBackup": "From backup",
+  "deskTxFromBackup": "Imported",
   "@deskTxFromBackup": {
     "description": "Status and small line of a payment that came from a history backup. Activity table, narrow."
   },
@@ -257,7 +257,7 @@
   "@deskTxHiddenAmount": {
     "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
   },
-  "deskTxNowBackup": "From backup; the chain was not asked.",
+  "deskTxNowBackup": "Imported; the chain was not asked.",
   "@deskTxNowBackup": {
     "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
   },
@@ -339,7 +339,7 @@
   "@deskTxHeadFoundOnChain": {
     "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
   },
-  "deskTxHeadBackup": "added from a history backup",
+  "deskTxHeadBackup": "added from a wallet data file",
   "@deskTxHeadBackup": {
     "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
   },

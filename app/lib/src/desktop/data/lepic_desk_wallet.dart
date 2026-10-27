@@ -5406,7 +5406,7 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
     '',
     'This folder is not a backup. Restore with the recovery phrase.', // l10n-ok
     'A copy of this folder is only as safe as the password.', // l10n-ok
-    'Payment details and contacts: Settings > This wallet > Export history backup.', // l10n-ok
+    'Payment details and contacts: Settings > This wallet > Export wallet data.', // l10n-ok
     '',
   ].join('\n');
   try {

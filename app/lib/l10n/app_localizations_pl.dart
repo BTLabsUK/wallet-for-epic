@@ -210,13 +210,13 @@ class AppLocalizationsPl extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
       many:
-          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
       few:
-          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
       one:
-          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
     );
     return '$_temp0';
   }
@@ -225,7 +225,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get histConflictMine => 'Moje';
 
   @override
-  String get histConflictBackup => 'Kopia';
+  String get histConflictBackup => 'Plik';
 
   @override
   String get histConflictKeepAll => 'Zachowaj wszystkie moje';
@@ -276,7 +276,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txStatusCancelled => 'Anulowana';
 
   @override
-  String get txStatusFromBackup => 'Z kopii, stan nieznany';
+  String get txStatusFromBackup => 'Zaimportowana, stan nieznany';
 
   @override
   String get txIconCancelled => 'Anulowana';
@@ -429,14 +429,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errorHistoryNotOurs =>
-      'To nie jest plik historii wyeksportowany z tej aplikacji.';
+      'To nie jest plik danych portfela z tej aplikacji.';
 
   @override
   String get errorHistoryNewer =>
-      'Ten plik historii utworzono w nowszej wersji aplikacji.';
+      'Ten plik danych portfela utworzono w nowszej wersji aplikacji.';
 
   @override
-  String get errorHistoryDamaged => 'Ten plik historii jest uszkodzony.';
+  String get errorHistoryDamaged => 'Ten plik danych portfela jest uszkodzony.';
 
   @override
   String get errorHistoryOtherWallet =>
@@ -444,7 +444,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'Ten plik historii pochodzi z sieci $fileNetwork, a ten portfel działa w sieci $walletNetwork.';
+    return 'Ten plik danych portfela pochodzi z sieci $fileNetwork, a ten portfel działa w sieci $walletNetwork.';
   }
 
   @override
@@ -707,7 +707,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      'Ta płatność pochodzi z kopii historii i nie była zakończona, gdy kopię tworzono. Ten portfel nie ma własnego zapisu tej płatności, więc nie wie, czy się zakończyła. Nic nie jest zablokowane.';
+      'Ta płatność została zaimportowana z pliku danych portfela i nie była zakończona, gdy ten plik eksportowano. Ten portfel nie ma własnego zapisu tej płatności, więc nie wie, czy się zakończyła. Nic nie jest zablokowane.';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -892,7 +892,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'Tylko na tym urządzeniu i w kopiach historii.';
+      'Tylko na tym urządzeniu i w wyeksportowanych danych portfela.';
 
   @override
   String get txDetailsNoteSaved => 'Zapisano notatkę';
@@ -966,11 +966,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Znaleziono podczas skanowania łańcucha. Szczegóły, takie jak nadawca i opłata, nie są zapisywane w łańcuchu; zaimportuj kopię historii, aby je przywrócić.';
+      'Znaleziono podczas skanowania łańcucha. Szczegóły, takie jak nadawca i opłata, nie są zapisywane w łańcuchu; zaimportuj dane portfela, aby je przywrócić.';
 
   @override
   String get txDetailsSourceImported =>
-      'Zaimportowano z kopii historii. Ten portfel nie ma własnego zapisu tej płatności, więc jej stan może być nieaktualny.';
+      'Zaimportowano z pliku danych portfela. Ten portfel nie ma własnego zapisu tej płatności, więc jej stan może być nieaktualny.';
 
   @override
   String get historyTitle => 'Historia';
@@ -1030,7 +1030,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => 'Zapisz historię płatności';
+  String get historyBackupSaveDialogTitle => 'Zapisz dane portfela';
 
   @override
   String get importWarnTitle => 'Zanim zaimportujesz';
@@ -1054,11 +1054,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get importWarnAck => 'Mam kopię zapasową każdego portfela';
 
   @override
-  String get historyBackupOpenDialogTitle => 'Otwórz kopię historii';
+  String get historyBackupOpenDialogTitle => 'Otwórz plik danych portfela';
 
   @override
   String get historyBackupFileTooLarge =>
-      'Ten plik jest za duży, aby mógł być kopią.';
+      'Ten plik jest za duży, aby mógł być plikiem danych portfela.';
 
   @override
   String get historyBackupShare => 'Udostępnij';
@@ -1080,33 +1080,33 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => 'Eksportuj kopię historii';
+  String get historyBackupExportTitle => 'Eksportuj dane portfela';
 
   @override
   String get historyBackupExportNote =>
-      'Kopia obejmuje wszystko do tej chwili. Po nowych płatnościach lub zmianach wyeksportuj ją ponownie.';
+      'Plik obejmuje wszystko do tej chwili. Po nowych płatnościach lub zmianach wyeksportuj go ponownie.';
 
   @override
   String get historyBackupCsvTitle => 'Eksportuj CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'Plik CSV nie jest zaszyfrowany. Każdy, kto go zdobędzie, odczyta kwoty, daty, adresy i notatki. Nie da się go z powrotem zaimportować; do tego służy „Eksportuj kopię historii”.';
+      'Plik CSV nie jest zaszyfrowany. Każdy, kto go zdobędzie, odczyta kwoty, daty, adresy i notatki. Nie da się go z powrotem zaimportować; do tego służy „Eksportuj dane portfela”.';
 
   @override
   String get historyBackupCsvConfirm => 'Eksportuj CSV';
 
   @override
-  String get historyBackupImportedTitle => 'Zaimportowano kopię';
+  String get historyBackupImportedTitle => 'Zaimportowano dane portfela';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return 'Nie zaimportowano historii. $reason';
+    return 'Nie zaimportowano danych portfela. $reason';
   }
 
   @override
   String get historyBackupImportNothingNew =>
-      'Kopia nie zawierała niczego nowego.';
+      'Plik nie zawierał niczego nowego.';
 
   @override
   String get homeLockTooltip => 'Zablokuj portfel';
@@ -1293,13 +1293,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count płatności nie ma jeszcze kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności nie ma jeszcze w wyeksportowanych danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       many:
-          '$count płatności nie ma jeszcze kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności nie ma jeszcze w wyeksportowanych danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       few:
-          '$count płatności nie mają jeszcze kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności nie ma jeszcze w wyeksportowanych danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       one:
-          '$count płatność nie ma jeszcze kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności nie ma jeszcze w wyeksportowanych danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
     );
     return '$_temp0';
   }
@@ -1310,13 +1310,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count płatności jest nowych lub zmienionych od ostatniej kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       many:
-          '$count płatności jest nowych lub zmienionych od ostatniej kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       few:
-          '$count płatności są nowe lub zmienione od ostatniej kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatności są nowe lub zmienione od ostatniego eksportu danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
       one:
-          '$count płatność jest nowa lub zmieniona od ostatniej kopii historii. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
+          '$count płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela. Przywrócenie z frazy odzyskiwania odtwarza tylko saldo.',
     );
     return '$_temp0';
   }
@@ -1325,7 +1325,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeHistoryReminderNotNow => 'Nie teraz';
 
   @override
-  String get homeHistoryExportButton => 'Eksportuj kopię historii';
+  String get homeHistoryExportButton => 'Eksportuj dane portfela';
 
   @override
   String get homeBalanceSpendable => 'Dostępne';
@@ -2131,11 +2131,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'Baza danych portfela była uszkodzona i została odbudowana z frazy. Skanowanie przywraca środki; szczegóły płatności, notatki i etykiety wracają tylko z kopii historii.';
+      'Baza danych portfela była uszkodzona i została odbudowana z frazy. Skanowanie przywraca środki; szczegóły płatności, notatki i etykiety wracają tylko z pliku danych portfela.';
 
   @override
   String get restoreRebuiltImportText =>
-      'Kopia historii przywraca historię płatności, kontakty, faktury i ustawienia.';
+      'Plik danych portfela przywraca historię płatności, kontakty, faktury i ustawienia.';
 
   @override
   String get restoreReplaceLead =>
@@ -2184,10 +2184,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Fraza odzyskiwania przywróciła saldo. Kopia historii przywraca historię płatności, kontakty, faktury i ustawienia tego portfela. Jeśli ją wyeksportowano, zaimportuj ją teraz: to plik udostępniony lub zapisany poza starym telefonem.';
+      'Fraza odzyskiwania przywróciła saldo. Plik danych portfela przywraca historię płatności, kontakty, faktury i ustawienia tego portfela. Jeśli go wyeksportowano, zaimportuj go teraz: to plik udostępniony lub zapisany poza starym telefonem.';
 
   @override
-  String get restoreImportButton => 'Importuj kopię historii';
+  String get restoreImportButton => 'Importuj dane portfela';
 
   @override
   String get restoreImportNotNow => 'Nie teraz';
@@ -3152,16 +3152,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsLockWallet => 'Zablokuj portfel';
 
   @override
-  String get settingsSectionHistory => 'Historia płatności';
+  String get settingsSectionHistory => 'Dane portfela';
 
   @override
-  String get settingsExportHistory => 'Eksportuj kopię historii';
+  String get settingsExportHistory => 'Eksportuj dane portfela';
 
   @override
   String get settingsExportCsv => 'Eksportuj CSV';
 
   @override
-  String get settingsImportHistory => 'Importuj kopię historii';
+  String get settingsImportHistory => 'Importuj dane portfela';
 
   @override
   String get settingsSectionWallet => 'Portfel';
@@ -6409,13 +6409,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => 'Kopia innego portfela';
+  String get deskErrHistOtherWallet => 'Dane innego portfela';
 
   @override
   String get deskErrHistOtherChain => 'Niewłaściwa sieć';
 
   @override
-  String get deskErrHistNotOurs => 'To nie jest kopia historii';
+  String get deskErrHistNotOurs => 'To nie jest plik danych portfela';
 
   @override
   String get deskErrHistNewer => 'Nowszy plik';
@@ -8881,10 +8881,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Znaleziona w łańcuchu przy skanowaniu. Nadawca nie jest zapisany.';
 
   @override
-  String get deskTxBackupTip => 'Dodana z kopii historii.';
+  String get deskTxBackupTip => 'Dodana z pliku danych portfela.';
 
   @override
-  String get deskTxFromBackup => 'Z kopii';
+  String get deskTxFromBackup => 'Zaimportowana';
 
   @override
   String get deskTxStatusImmature => 'Niedojrzała';
@@ -8973,7 +8973,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxHiddenAmount => 'ukryta kwota';
 
   @override
-  String get deskTxNowBackup => 'Z kopii; łańcucha nie sprawdzano.';
+  String get deskTxNowBackup => 'Zaimportowana; łańcucha nie sprawdzano.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -9052,7 +9052,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'znaleziona w łańcuchu';
 
   @override
-  String get deskTxHeadBackup => 'dodana z kopii historii';
+  String get deskTxHeadBackup => 'dodana z pliku danych portfela';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -11034,10 +11034,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie udało się zapisać pliku. Wybierz inny folder.';
 
   @override
-  String get deskSetBackupGroup => 'Kopia zapasowa';
+  String get deskSetBackupGroup => 'Dane portfela';
 
   @override
-  String get deskSetBackupExportTitle => 'Eksportuj kopię historii';
+  String get deskSetBackupExportTitle => 'Eksportuj dane portfela';
 
   @override
   String get deskSetBackupExportHint =>
@@ -11050,11 +11050,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupExportButton => 'Eksportuj…';
 
   @override
-  String get deskSetBackupImportTitle => 'Importuj kopię historii';
+  String get deskSetBackupImportTitle => 'Importuj dane portfela';
 
   @override
   String get deskSetBackupImportHint =>
-      'Przywraca z kopii historię płatności, kontakty, faktury i ustawienia tego portfela. Nic nie jest usuwane; ten sam plik dwa razy niczego nie zmienia.';
+      'Przywraca z pliku danych portfela historię płatności, kontakty, faktury i ustawienia tego portfela. Nic nie jest usuwane; ten sam plik dwa razy niczego nie zmienia.';
 
   @override
   String get deskSetBackupImportButton => 'Importuj…';
@@ -11070,7 +11070,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupCsvButton => 'Eksportuj CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'Zapisz historię płatności';
+  String get deskSetBackupSaveDialogTitle => 'Zapisz dane portfela';
 
   @override
   String get deskSetBackupNotSaved => 'Nie zapisano';
@@ -11147,7 +11147,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupSaveAs => 'Zapisz jako…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'Otwórz kopię historii';
+  String get deskSetBackupOpenDialogTitle => 'Otwórz plik danych portfela';
 
   @override
   String get deskSetBackupNothingNew => 'Nic nowego';
@@ -11270,17 +11270,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki. Nie da się go zaimportować; do tego służy kopia historii.';
+      'Każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki. Nie da się go zaimportować; do tego służy „Eksportuj dane portfela”.';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count płatności nie ma kopii historii.',
-      many: '$count płatności nie ma kopii historii.',
-      few: '$count płatności nie mają kopii historii.',
-      one: '$count płatność nie ma kopii historii.',
+      other: '$count płatności nie ma w wyeksportowanych danych portfela.',
+      many: '$count płatności nie ma w wyeksportowanych danych portfela.',
+      few: '$count płatności nie ma w wyeksportowanych danych portfela.',
+      one: '$count płatności nie ma w wyeksportowanych danych portfela.',
     );
     return '$_temp0';
   }
@@ -11291,13 +11291,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count płatności jest nowych lub zmienionych od ostatniej kopii historii.',
+          '$count płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.',
       many:
-          '$count płatności jest nowych lub zmienionych od ostatniej kopii historii.',
+          '$count płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.',
       few:
-          '$count płatności są nowe lub zmienione od ostatniej kopii historii.',
+          '$count płatności są nowe lub zmienione od ostatniego eksportu danych portfela.',
       one:
-          '$count płatność jest nowa lub zmieniona od ostatniej kopii historii.',
+          '$count płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela.',
     );
     return '$_temp0';
   }
@@ -13538,13 +13538,13 @@ class AppLocalizationsPl extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
       many:
-          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
       few:
-          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
       one:
-          'Kopia ma inne szczegóły dla $n płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla $n płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.',
     );
     return '$_temp0';
   }
@@ -13553,7 +13553,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskHistConflictMine => 'Moje';
 
   @override
-  String get deskHistConflictBackup => 'Kopia';
+  String get deskHistConflictBackup => 'Plik';
 
   @override
   String get deskHistConflictKeepAll => 'Zachowaj wszystkie moje';
@@ -15674,13 +15674,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count parowania z tej kopii było używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+          '$count parowania z tego pliku było używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
       many:
-          '$count parowań z tej kopii było używanych na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+          '$count parowań z tego pliku było używanych na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
       few:
-          '$count parowania z tej kopii były używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
+          '$count parowania z tego pliku były używane na innym urządzeniu. Drugie urządzenie powinno przestać ich używać.',
       one:
-          '$count parowanie z tej kopii było używane na innym urządzeniu. Drugie urządzenie powinno przestać go używać.',
+          '$count parowanie z tego pliku było używane na innym urządzeniu. Drugie urządzenie powinno przestać go używać.',
     );
     return '$_temp0';
   }
@@ -16034,15 +16034,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      'Przywrócenie z frazy odzyskiwania z kopią historii przywraca każde parowanie; bez niej ponowne parowanie odnajduje te same klucze.';
+      'Przywrócenie z frazy odzyskiwania z plikiem danych portfela przywraca każde parowanie; bez niego ponowne parowanie odnajduje te same klucze.';
 
   @override
   String get helpPairRestoreP1 =>
-      'Z kopią historii przywrócenie odtwarza każde parowanie bez zmian: te same klucze, te same oznaczenia Zweryfikowany, te same ustawienia. Kontakty niczego nie zauważą.';
+      'Z plikiem danych portfela przywrócenie odtwarza każde parowanie bez zmian: te same klucze, te same oznaczenia Zweryfikowany, te same ustawienia. Kontakty niczego nie zauważą.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Bez kopii parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj płatności i Zezwól na faktury wracają do ustawień domyślnych.';
+      'Bez pliku parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj płatności i Zezwól na faktury wracają do ustawień domyślnych.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -16050,7 +16050,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 =>
-      'Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.';
+      'Używaj parowania na jednym urządzeniu naraz. Dane portfela zaimportowane na drugim urządzeniu zapytają, zanim użyją tam kontaktów.';
 
   @override
   String get pairNameForCode =>
@@ -16603,14 +16603,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'Fraza odzyskiwania przywróciła saldo. Kopia historii wyeksportowana z tego portfela przywraca historię płatności, kontakty, faktury i ustawienia: to plik zapisany poza starym komputerem.';
+      'Fraza odzyskiwania przywróciła saldo. Plik danych portfela wyeksportowany z tego portfela przywraca historię płatności, kontakty, faktury i ustawienia: to plik zapisany poza starym komputerem.';
 
   @override
-  String get deskOvRestoredImportButton => 'Importuj kopię historii';
+  String get deskOvRestoredImportButton => 'Importuj dane portfela';
 
   @override
   String get deskOvRestoredImportLater =>
-      'Później w Ustawienia › Ten portfel › Kopia zapasowa.';
+      'Później w Ustawienia › Ten portfel › Dane portfela.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16869,23 +16869,23 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get backupSettingsTitle => 'Użyć ustawień z tej kopii?';
+  String get backupSettingsTitle => 'Użyć ustawień z tego pliku?';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n ustawienia tutaj różni się od kopii.',
-      many: '$n ustawień tutaj różni się od kopii.',
-      few: '$n ustawienia tutaj różnią się od kopii.',
-      one: '$n ustawienie tutaj różni się od kopii.',
+      other: '$n ustawienia tutaj różni się od pliku.',
+      many: '$n ustawień tutaj różni się od pliku.',
+      few: '$n ustawienia tutaj różnią się od pliku.',
+      one: '$n ustawienie tutaj różni się od pliku.',
     );
-    return '$_temp0 Reszta kopii jest już zaimportowana.';
+    return '$_temp0 Reszta pliku jest już zaimportowana.';
   }
 
   @override
-  String get backupSettingsUseBackup => 'Z kopii';
+  String get backupSettingsUseBackup => 'Z pliku';
 
   @override
   String get backupSettingsKeepMine => 'Zachowaj moje';

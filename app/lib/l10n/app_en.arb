@@ -216,7 +216,7 @@
   "@histConflictTitle": {
     "description": "Title of the sheet shown when a history backup has other values than the ones the user entered."
   },
-  "histConflictLead": "{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "histConflictLead": "{n, plural, =1{The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
   "@histConflictLead": {
     "description": "Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.",
     "placeholders": {
@@ -229,7 +229,7 @@
   "@histConflictMine": {
     "description": "Choice card: the value entered on this phone."
   },
-  "histConflictBackup": "Backup",
+  "histConflictBackup": "File",
   "@histConflictBackup": {
     "description": "Choice card: the value in the backup file."
   },
@@ -288,7 +288,7 @@
   "@txStatusCancelled": {
     "description": "Status chip of a cancelled payment."
   },
-  "txStatusFromBackup": "From backup, status unknown",
+  "txStatusFromBackup": "Imported, status unknown",
   "@txStatusFromBackup": {
     "description": "Status chip of a pending payment imported from a history backup, which this wallet cannot follow up."
   },
@@ -532,14 +532,14 @@
     "description": "A scan of the blockchain for the wallet's funds failed. Summary in front of a technical detail in English."
   },
   "errorUnexpected": "Unexpected error. Please try again.",
-  "errorHistoryNotOurs": "This is not a history file exported by this app.",
+  "errorHistoryNotOurs": "This is not a wallet data file from this app.",
   "@errorHistoryNotOurs": {
     "description": "Importing a payment-history backup file (.wfeh) failed."
   },
-  "errorHistoryNewer": "This history file was made by a newer version of the app.",
-  "errorHistoryDamaged": "This history file is damaged.",
+  "errorHistoryNewer": "This wallet data file was made by a newer version of the app.",
+  "errorHistoryDamaged": "This wallet data file is damaged.",
   "errorHistoryOtherWallet": "This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.",
-  "errorHistoryOtherNetwork": "This history file is from {fileNetwork}, but this wallet is on {walletNetwork}.",
+  "errorHistoryOtherNetwork": "This wallet data file is from {fileNetwork}, but this wallet is on {walletNetwork}.",
   "@errorHistoryOtherNetwork": {
     "description": "Network names stay as given (Mainnet, Floonet, Usernet).",
     "placeholders": {
@@ -763,7 +763,7 @@
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
   },
-  "txDetailsFromBackup": "This payment comes from a history backup and was not finished when the backup was made. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.",
+  "txDetailsFromBackup": "This payment was imported from a wallet data file and was not finished when that file was exported. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.",
   "@txDetailsFromBackup": {
     "description": "Payment details, status explanation of an unfinished payment imported from a history backup file."
   },
@@ -978,7 +978,7 @@
   "@txDetailsNoteDialogTitle": {
     "description": "Title of the dialog that edits the payment's note."
   },
-  "txDetailsNoteHelper": "Only on this device and in your history backups.",
+  "txDetailsNoteHelper": "Only on this device and in your exported wallet data.",
   "@txDetailsNoteHelper": {
     "description": "Helper text under the note field: where the note is stored."
   },
@@ -1071,11 +1071,11 @@
   "@txDetailsLocalId": {
     "description": "Label: the payment's number in this wallet's own records."
   },
-  "txDetailsSourceRestored": "Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import a history backup to restore them.",
+  "txDetailsSourceRestored": "Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import wallet data to restore them.",
   "@txDetailsSourceRestored": {
     "description": "Note on a payment the wallet found by scanning the blockchain after a restore."
   },
-  "txDetailsSourceImported": "Imported from a history backup. This wallet has no record of its own for it, so its status may be out of date.",
+  "txDetailsSourceImported": "Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.",
   "@txDetailsSourceImported": {
     "description": "Note on a payment that came from a history backup file."
   },
@@ -1157,7 +1157,7 @@
       }
     }
   },
-  "historyBackupSaveDialogTitle": "Save payment history",
+  "historyBackupSaveDialogTitle": "Save wallet data",
   "@historyBackupSaveDialogTitle": {
     "description": "Title of the system save dialog for a payment-history file (desktop only)."
   },
@@ -1185,11 +1185,11 @@
   "@importWarnAck": {
     "description": "Label of the checkbox the user ticks before Continue is enabled in the import warning."
   },
-  "historyBackupOpenDialogTitle": "Open history backup",
+  "historyBackupOpenDialogTitle": "Open wallet data file",
   "@historyBackupOpenDialogTitle": {
     "description": "Title of the system file picker for a payment-history backup (desktop only)."
   },
-  "historyBackupFileTooLarge": "That file is too large to be a backup.",
+  "historyBackupFileTooLarge": "That file is too large to be a wallet data file.",
   "@historyBackupFileTooLarge": {
     "description": "Import error: the picked file is far larger than a history backup."
   },
@@ -1219,11 +1219,11 @@
       }
     }
   },
-  "historyBackupExportTitle": "Export history backup",
+  "historyBackupExportTitle": "Export wallet data",
   "@historyBackupExportTitle": {
     "description": "Title of the sheet that hands over the encrypted payment-history backup file."
   },
-  "historyBackupExportNote": "The backup holds everything up to now. Export again after new payments or changes.",
+  "historyBackupExportNote": "The file holds everything up to now. Export again after new payments or changes.",
   "@historyBackupExportNote": {
     "description": "Text in the export sheet under its title."
   },
@@ -1231,7 +1231,7 @@
   "@historyBackupCsvTitle": {
     "description": "Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file."
   },
-  "historyBackupCsvWarning": "The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export history backup for that.",
+  "historyBackupCsvWarning": "The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.",
   "@historyBackupCsvWarning": {
     "description": "Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there."
   },
@@ -1239,11 +1239,11 @@
   "@historyBackupCsvConfirm": {
     "description": "Button in the CSV warning dialog that goes ahead with the export."
   },
-  "historyBackupImportedTitle": "Backup imported",
+  "historyBackupImportedTitle": "Wallet data imported",
   "@historyBackupImportedTitle": {
     "description": "Title of the dialog with the result of a history backup import."
   },
-  "historyBackupImportFailed": "Could not import the history backup. {reason}",
+  "historyBackupImportFailed": "Could not import the wallet data. {reason}",
   "@historyBackupImportFailed": {
     "description": "Error notice when a history backup could not be imported; reason is the error, a whole sentence.",
     "placeholders": {
@@ -1253,7 +1253,7 @@
       }
     }
   },
-  "historyBackupImportNothingNew": "The backup held nothing new.",
+  "historyBackupImportNothingNew": "The file held nothing new.",
   "@historyBackupImportNothingNew": {
     "description": "Import result when the backup added nothing."
   },
@@ -1509,7 +1509,7 @@
   "@homeBackupCardDismiss": {
     "description": "Tooltip of the close button that hides the recovery phrase card for good."
   },
-  "homeHistoryNotBackedUp": "{count, plural, =1{1 payment is not in a history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in a history backup. A restore from your recovery phrase brings back only your balance.}}",
+  "homeHistoryNotBackedUp": "{count, plural, =1{1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.}}",
   "@homeHistoryNotBackedUp": {
     "description": "Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.",
     "placeholders": {
@@ -1518,7 +1518,7 @@
       }
     }
   },
-  "homeHistoryChangedSinceBackup": "{count, plural, =1{1 payment is new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.}}",
+  "homeHistoryChangedSinceBackup": "{count, plural, =1{1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.}}",
   "@homeHistoryChangedSinceBackup": {
     "description": "Card on home when payments changed after the last history backup (a file with the payment list, notes and contacts).",
     "placeholders": {
@@ -1531,7 +1531,7 @@
   "@homeHistoryReminderNotNow": {
     "description": "Button that hides the history backup card for a week."
   },
-  "homeHistoryExportButton": "Export history backup",
+  "homeHistoryExportButton": "Export wallet data",
   "@homeHistoryExportButton": {
     "description": "Button on the history backup card that saves the backup file."
   },
@@ -2566,11 +2566,11 @@
   "@restoreFinishOnHome": {
     "description": "Restore done screen, only after a restore from a date or height: why Home shows a running scan."
   },
-  "unlockDatabaseRebuilt": "The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.",
+  "unlockDatabaseRebuilt": "The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a wallet data file.",
   "@unlockDatabaseRebuilt": {
     "description": "Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0."
   },
-  "restoreRebuiltImportText": "A history backup brings back payment history, contacts, invoices and settings.",
+  "restoreRebuiltImportText": "A wallet data file brings back payment history, contacts, invoices and settings.",
   "@restoreRebuiltImportText": {
     "description": "Extra part of the Home card after a rebuilt database; buttons Import a history backup / Not now follow."
   },
@@ -2625,11 +2625,11 @@
     "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
   },
   "restoreDoneTitle": "Your wallet is restored",
-  "restoreImportExplanation": "The recovery phrase brought back the balance. A history backup brings back this wallet's payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
+  "restoreImportExplanation": "The recovery phrase brought back the balance. A wallet data file brings back this wallet's payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
   "@restoreImportExplanation": {
     "description": "Offer to import a history backup on the phone restore screen, once the restore from the phrase is done."
   },
-  "restoreImportButton": "Import a history backup",
+  "restoreImportButton": "Import wallet data",
   "restoreImportNotNow": "Not now",
   "@restoreImportNotNow": {
     "description": "Button that skips the history import and opens the wallet."
@@ -3839,11 +3839,11 @@
   "@settingsLockWallet": {
     "description": "Settings row that closes the wallet until the PIN is entered again."
   },
-  "settingsSectionHistory": "Payment history",
+  "settingsSectionHistory": "Wallet data",
   "@settingsSectionHistory": {
     "description": "Section heading in settings. The help page refers to it by this name."
   },
-  "settingsExportHistory": "Export history backup",
+  "settingsExportHistory": "Export wallet data",
   "@settingsExportHistory": {
     "description": "Settings row: save an encrypted copy of payment notes, contacts and dates."
   },
@@ -3851,7 +3851,7 @@
   "@settingsExportCsv": {
     "description": "Settings row: save the payment history as a spreadsheet (CSV) file."
   },
-  "settingsImportHistory": "Import history backup",
+  "settingsImportHistory": "Import wallet data",
   "@settingsImportHistory": {
     "description": "Settings row: open a history backup file. The help page refers to it by this name."
   },
@@ -8113,7 +8113,7 @@
       }
     }
   },
-  "deskErrHistOtherWallet": "Another wallet's backup",
+  "deskErrHistOtherWallet": "Another wallet's data",
   "@deskErrHistOtherWallet": {
     "description": "Title of the notice when a history backup file was exported from a different wallet."
   },
@@ -8121,7 +8121,7 @@
   "@deskErrHistOtherChain": {
     "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
   },
-  "deskErrHistNotOurs": "Not a history backup",
+  "deskErrHistNotOurs": "Not a wallet data file",
   "@deskErrHistNotOurs": {
     "description": "Title of the notice when a chosen file is not a history backup."
   },
@@ -11371,11 +11371,11 @@
   "@deskTxFoundScanTip": {
     "description": "Tooltip on a payment found by a scan of unknown kind."
   },
-  "deskTxBackupTip": "Added from a history backup.",
+  "deskTxBackupTip": "Added from a wallet data file.",
   "@deskTxBackupTip": {
     "description": "Tooltip on a payment that was added from a history backup file."
   },
-  "deskTxFromBackup": "From backup",
+  "deskTxFromBackup": "Imported",
   "@deskTxFromBackup": {
     "description": "Status and small line of a payment that came from a history backup. Activity table, narrow."
   },
@@ -11545,7 +11545,7 @@
   "@deskTxHiddenAmount": {
     "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
   },
-  "deskTxNowBackup": "From backup; the chain was not asked.",
+  "deskTxNowBackup": "Imported; the chain was not asked.",
   "@deskTxNowBackup": {
     "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
   },
@@ -11623,7 +11623,7 @@
   "@deskTxHeadFoundOnChain": {
     "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
   },
-  "deskTxHeadBackup": "added from a history backup",
+  "deskTxHeadBackup": "added from a wallet data file",
   "@deskTxHeadBackup": {
     "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
   },
@@ -14225,11 +14225,11 @@
   "@deskSetBackupWriteFailed": {
     "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
   },
-  "deskSetBackupGroup": "Backup",
+  "deskSetBackupGroup": "Wallet data",
   "@deskSetBackupGroup": {
     "description": "Settings > This wallet: title of the Backup group of rows."
   },
-  "deskSetBackupExportTitle": "Export history backup",
+  "deskSetBackupExportTitle": "Export wallet data",
   "@deskSetBackupExportTitle": {
     "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
   },
@@ -14245,11 +14245,11 @@
   "@deskSetBackupExportButton": {
     "description": "Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows."
   },
-  "deskSetBackupImportTitle": "Import history backup",
+  "deskSetBackupImportTitle": "Import wallet data",
   "@deskSetBackupImportTitle": {
     "description": "Settings > Backup: row title and dialog title for importing a history backup file."
   },
-  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.",
+  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a wallet data file. Nothing is removed; the same file twice changes nothing.",
   "@deskSetBackupImportHint": {
     "description": "Settings > Backup: hint under the Import history backup row."
   },
@@ -14269,7 +14269,7 @@
   "@deskSetBackupCsvButton": {
     "description": "Settings > Backup: button that opens the CSV export dialog. Short."
   },
-  "deskSetBackupSaveDialogTitle": "Save payment history",
+  "deskSetBackupSaveDialogTitle": "Save wallet data",
   "@deskSetBackupSaveDialogTitle": {
     "description": "Title of the system Save dialog when exporting the history backup."
   },
@@ -14349,7 +14349,7 @@
   "@deskSetBackupSaveAs": {
     "description": "Export dialogs: button that opens the system Save dialog."
   },
-  "deskSetBackupOpenDialogTitle": "Open history backup",
+  "deskSetBackupOpenDialogTitle": "Open wallet data file",
   "@deskSetBackupOpenDialogTitle": {
     "description": "Title of the system Open dialog when importing a history backup."
   },
@@ -14502,11 +14502,11 @@
   "@deskSetBackupNotEncrypted": {
     "description": "Export CSV dialog: title of the warning notice."
   },
-  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.",
+  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.",
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },
-  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}",
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}",
   "@deskSetBackupReminderNever": {
     "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
     "placeholders": {
@@ -14515,7 +14515,7 @@
       }
     }
   },
-  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}",
+  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last wallet data export.} other{{count} payments are new or changed since the last wallet data export.}}",
   "@deskSetBackupReminderChanged": {
     "description": "Reminder on Overview when payments changed since the last history backup.",
     "placeholders": {
@@ -17552,7 +17552,7 @@
   "@deskHistConflictTitle": {
     "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
   },
-  "deskHistConflictLead": "{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLead": "{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
   "@deskHistConflictLead": {
     "description": "Description of the Details differ dialog; n payments.",
     "placeholders": {
@@ -17566,7 +17566,7 @@
   "@deskHistConflictMine": {
     "description": "Choice card in the Details differ dialog: the value typed here."
   },
-  "deskHistConflictBackup": "Backup",
+  "deskHistConflictBackup": "File",
   "@deskHistConflictBackup": {
     "description": "Choice card in the Details differ dialog: the value in the backup file."
   },
@@ -20454,7 +20454,7 @@
   "@restoreUseContactsTitle": {
     "description": "Dialog on importing a backup whose pairings were used elsewhere (RFC 9.5)."
   },
-  "restoreUseContactsBody": "{count, plural, =1{1 pairing in this backup was used on another device. Your other device should stop using it.} other{{count} pairings in this backup were used on another device. Your other device should stop using them.}}",
+  "restoreUseContactsBody": "{count, plural, =1{1 pairing in this file was used on another device. Your other device should stop using it.} other{{count} pairings in this file were used on another device. Your other device should stop using them.}}",
   "@restoreUseContactsBody": {
     "description": "Dialog body.",
     "placeholders": {
@@ -20936,15 +20936,15 @@
   "@helpPairRestoreTitle": {
     "description": "Topic 5 title."
   },
-  "helpPairRestoreShort": "Restoring from the recovery phrase brings every pairing back with the history backup; without it, re-pairing finds the same keys.",
+  "helpPairRestoreShort": "Restoring from the recovery phrase brings every pairing back with the wallet data file; without it, re-pairing finds the same keys.",
   "@helpPairRestoreShort": {
     "description": "Topic 5 lede."
   },
-  "helpPairRestoreP1": "With the history backup, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.",
+  "helpPairRestoreP1": "With the wallet data file, a restore brings every pairing back unchanged: same keys, same Verified marks, same settings. Contacts notice nothing.",
   "@helpPairRestoreP1": {
     "description": "Topic 5."
   },
-  "helpPairRestoreP2": "Without the backup, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.",
+  "helpPairRestoreP2": "Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.",
   "@helpPairRestoreP2": {
     "description": "Help › Pairing › What a restore does, paragraph 2."
   },
@@ -20952,7 +20952,7 @@
   "@helpPairRestoreP3": {
     "description": "Topic 5."
   },
-  "helpPairRestoreP4": "Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.",
+  "helpPairRestoreP4": "Use a pairing on one device at a time. Wallet data imported on a second device asks before using the contacts there.",
   "@helpPairRestoreP4": {
     "description": "Topic 5."
   },
@@ -21594,15 +21594,15 @@
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A history backup exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },
-  "deskOvRestoredImportButton": "Import a history backup",
+  "deskOvRestoredImportButton": "Import wallet data",
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Backup.",
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
@@ -21882,11 +21882,11 @@
       }
     }
   },
-  "backupSettingsTitle": "Use the settings from this backup?",
+  "backupSettingsTitle": "Use the settings from this file?",
   "@backupSettingsTitle": {
     "description": "Title of the one question an import asks when settings changed here differ from the backup."
   },
-  "backupSettingsBody": "{n, plural, =1{1 setting here differs from the backup.} other{{n} settings here differ from the backup.}} The rest of the backup is already imported.",
+  "backupSettingsBody": "{n, plural, =1{1 setting here differs from the file.} other{{n} settings here differ from the file.}} The rest of the file is already imported.",
   "@backupSettingsBody": {
     "description": "Text of the settings question: how many settings differ; everything else in the backup is already imported.",
     "placeholders": {
@@ -21895,7 +21895,7 @@
       }
     }
   },
-  "backupSettingsUseBackup": "Use the backup's",
+  "backupSettingsUseBackup": "Use the file's",
   "@backupSettingsUseBackup": {
     "description": "Button of the settings question: take the settings from the backup. Short."
   },

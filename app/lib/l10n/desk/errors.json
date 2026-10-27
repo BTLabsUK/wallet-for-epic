@@ -553,7 +553,7 @@
       }
     }
   },
-  "deskErrHistOtherWallet": "Another wallet's backup",
+  "deskErrHistOtherWallet": "Another wallet's data",
   "@deskErrHistOtherWallet": {
     "description": "Title of the notice when a history backup file was exported from a different wallet."
   },
@@ -561,7 +561,7 @@
   "@deskErrHistOtherChain": {
     "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
   },
-  "deskErrHistNotOurs": "Not a history backup",
+  "deskErrHistNotOurs": "Not a wallet data file",
   "@deskErrHistNotOurs": {
     "description": "Title of the notice when a chosen file is not a history backup."
   },

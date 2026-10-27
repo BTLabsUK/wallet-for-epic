@@ -206,7 +206,7 @@ class AppLocalizationsTh extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณระบุไว้ใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกอย่างอื่น',
+          'ไฟล์มีรายละเอียดต่างจากที่คุณระบุไว้ใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกอย่างอื่น',
     );
     return '$_temp0';
   }
@@ -215,7 +215,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get histConflictMine => 'ของฉัน';
 
   @override
-  String get histConflictBackup => 'ข้อมูลสำรอง';
+  String get histConflictBackup => 'ไฟล์';
 
   @override
   String get histConflictKeepAll => 'เก็บของฉันทั้งหมด';
@@ -263,7 +263,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txStatusCancelled => 'ยกเลิกแล้ว';
 
   @override
-  String get txStatusFromBackup => 'จากข้อมูลสำรอง ไม่ทราบสถานะ';
+  String get txStatusFromBackup => 'นำเข้าแล้ว ไม่ทราบสถานะ';
 
   @override
   String get txIconCancelled => 'ยกเลิกแล้ว';
@@ -417,14 +417,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get errorHistoryNotOurs =>
-      'ไฟล์นี้ไม่ใช่ไฟล์ประวัติที่ส่งออกจากแอปนี้';
+      'ไฟล์นี้ไม่ใช่ไฟล์ข้อมูลกระเป๋าเงินจากแอปนี้';
 
   @override
   String get errorHistoryNewer =>
-      'ไฟล์ประวัตินี้สร้างจากแอปเวอร์ชันที่ใหม่กว่า';
+      'ไฟล์ข้อมูลกระเป๋าเงินนี้สร้างจากแอปเวอร์ชันที่ใหม่กว่า';
 
   @override
-  String get errorHistoryDamaged => 'ไฟล์ประวัตินี้เสียหาย';
+  String get errorHistoryDamaged => 'ไฟล์ข้อมูลกระเป๋าเงินนี้เสียหาย';
 
   @override
   String get errorHistoryOtherWallet =>
@@ -432,7 +432,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'ไฟล์ประวัตินี้มาจาก $fileNetwork แต่กระเป๋าเงินนี้อยู่บน $walletNetwork';
+    return 'ไฟล์ข้อมูลกระเป๋าเงินนี้มาจาก $fileNetwork แต่กระเป๋าเงินนี้อยู่บน $walletNetwork';
   }
 
   @override
@@ -667,7 +667,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      'รายการนี้มาจากข้อมูลสำรองประวัติ และยังไม่เสร็จตอนสำรองข้อมูล กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง จึงไม่ทราบว่าสำเร็จหรือไม่ ไม่มียอดเงินถูกล็อก';
+      'รายการนี้นำเข้าจากไฟล์ข้อมูลกระเป๋าเงิน และยังไม่เสร็จตอนส่งออกไฟล์นั้น กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง จึงไม่ทราบว่าสำเร็จหรือไม่ ไม่มียอดเงินถูกล็อก';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -843,7 +843,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'อยู่บนอุปกรณ์นี้และในข้อมูลสำรองประวัติเท่านั้น';
+      'อยู่บนอุปกรณ์นี้และในข้อมูลกระเป๋าเงินที่ส่งออกเท่านั้น';
 
   @override
   String get txDetailsNoteSaved => 'บันทึกแล้ว';
@@ -917,11 +917,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'พบจากการสแกนบล็อกเชน รายละเอียดอย่างผู้ส่งและค่าธรรมเนียมไม่ได้เก็บบนบล็อกเชน นำเข้าข้อมูลสำรองประวัติเพื่อกู้คืนรายละเอียด';
+      'พบจากการสแกนบล็อกเชน รายละเอียดอย่างผู้ส่งและค่าธรรมเนียมไม่ได้เก็บบนบล็อกเชน นำเข้าข้อมูลกระเป๋าเงินเพื่อกู้คืนรายละเอียด';
 
   @override
   String get txDetailsSourceImported =>
-      'นำเข้าจากข้อมูลสำรองประวัติ กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง สถานะจึงอาจไม่เป็นปัจจุบัน';
+      'นำเข้าจากไฟล์ข้อมูลกระเป๋าเงิน กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง สถานะจึงอาจไม่เป็นปัจจุบัน';
 
   @override
   String get historyTitle => 'ประวัติ';
@@ -980,7 +980,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => 'บันทึกประวัติรายการ';
+  String get historyBackupSaveDialogTitle => 'บันทึกข้อมูลกระเป๋าเงิน';
 
   @override
   String get importWarnTitle => 'ก่อนนำเข้า';
@@ -1004,11 +1004,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get importWarnAck => 'ฉันมีข้อมูลสำรองของกระเป๋าเงินทุกใบแล้ว';
 
   @override
-  String get historyBackupOpenDialogTitle => 'เปิดข้อมูลสำรองประวัติ';
+  String get historyBackupOpenDialogTitle => 'เปิดไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
   String get historyBackupFileTooLarge =>
-      'ไฟล์นี้ใหญ่เกินกว่าจะเป็นข้อมูลสำรอง';
+      'ไฟล์นี้ใหญ่เกินกว่าจะเป็นไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
   String get historyBackupShare => 'แชร์';
@@ -1030,32 +1030,32 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => 'ส่งออกข้อมูลสำรองประวัติ';
+  String get historyBackupExportTitle => 'ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String get historyBackupExportNote =>
-      'ข้อมูลสำรองเก็บทุกอย่างถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่หรือการเปลี่ยนแปลง';
+      'ไฟล์เก็บทุกอย่างถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่หรือการเปลี่ยนแปลง';
 
   @override
   String get historyBackupCsvTitle => 'ส่งออก CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'ไฟล์ CSV ไม่ได้เข้ารหัส ใครได้ไฟล์ไปก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ และนำเข้ากลับไม่ได้ ถ้าต้องการนำเข้าให้ใช้ ส่งออกข้อมูลสำรองประวัติ';
+      'ไฟล์ CSV ไม่ได้เข้ารหัส ใครได้ไฟล์ไปก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ และนำเข้ากลับไม่ได้ ถ้าต้องการนำเข้าให้ใช้ ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String get historyBackupCsvConfirm => 'ส่งออก CSV';
 
   @override
-  String get historyBackupImportedTitle => 'นำเข้าข้อมูลสำรองแล้ว';
+  String get historyBackupImportedTitle => 'นำเข้าข้อมูลกระเป๋าเงินแล้ว';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return 'นำเข้าข้อมูลสำรองประวัติไม่ได้ $reason';
+    return 'นำเข้าข้อมูลกระเป๋าเงินไม่ได้ $reason';
   }
 
   @override
-  String get historyBackupImportNothingNew => 'ข้อมูลสำรองไม่มีอะไรใหม่';
+  String get historyBackupImportNothingNew => 'ไฟล์ไม่มีอะไรใหม่';
 
   @override
   String get homeLockTooltip => 'ล็อกกระเป๋าเงิน';
@@ -1238,7 +1238,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count รายการยังไม่อยู่ในข้อมูลสำรองประวัติ การกู้คืนด้วยวลีกู้คืนได้คืนมาเฉพาะยอดคงเหลือ',
+          '$count รายการยังไม่อยู่ในข้อมูลกระเป๋าเงินที่ส่งออก การกู้คืนด้วยวลีกู้คืนได้คืนมาเฉพาะยอดคงเหลือ',
     );
     return '$_temp0';
   }
@@ -1249,7 +1249,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังสำรองประวัติครั้งล่าสุด การกู้คืนด้วยวลีกู้คืนได้คืนมาเฉพาะยอดคงเหลือ',
+          '$count รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด การกู้คืนด้วยวลีกู้คืนได้คืนมาเฉพาะยอดคงเหลือ',
     );
     return '$_temp0';
   }
@@ -1258,7 +1258,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeHistoryReminderNotNow => 'ไว้ทีหลัง';
 
   @override
-  String get homeHistoryExportButton => 'ส่งออกข้อมูลสำรองประวัติ';
+  String get homeHistoryExportButton => 'ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String get homeBalanceSpendable => 'ใช้ได้';
@@ -2034,11 +2034,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'ฐานข้อมูลกระเป๋าเงินเสียหายและถูกสร้างใหม่จากวลีแล้ว การสแกนจะนำยอดเงินกลับมา ส่วนรายละเอียดรายการ บันทึก และป้ายกำกับจะกลับมาได้จากข้อมูลสำรองประวัติเท่านั้น';
+      'ฐานข้อมูลกระเป๋าเงินเสียหายและถูกสร้างใหม่จากวลีแล้ว การสแกนจะนำยอดเงินกลับมา ส่วนรายละเอียดรายการ บันทึก และป้ายกำกับจะกลับมาได้จากไฟล์ข้อมูลกระเป๋าเงินเท่านั้น';
 
   @override
   String get restoreRebuiltImportText =>
-      'ข้อมูลสำรองประวัติจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา';
+      'ไฟล์ข้อมูลกระเป๋าเงินจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา';
 
   @override
   String get restoreReplaceLead =>
@@ -2080,10 +2080,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ข้อมูลสำรองประวัติจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา ถ้าเคยส่งออกไว้ ให้นำเข้าตอนนี้: คือไฟล์ที่คุณแชร์หรือบันทึกไว้นอกโทรศัพท์เครื่องเก่า';
+      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินจะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา ถ้าเคยส่งออกไว้ ให้นำเข้าตอนนี้: คือไฟล์ที่คุณแชร์หรือบันทึกไว้นอกโทรศัพท์เครื่องเก่า';
 
   @override
-  String get restoreImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
+  String get restoreImportButton => 'นำเข้าข้อมูลกระเป๋าเงิน';
 
   @override
   String get restoreImportNotNow => 'ไว้ทีหลัง';
@@ -2990,16 +2990,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsLockWallet => 'ล็อกกระเป๋า';
 
   @override
-  String get settingsSectionHistory => 'ประวัติรายการ';
+  String get settingsSectionHistory => 'ข้อมูลกระเป๋าเงิน';
 
   @override
-  String get settingsExportHistory => 'ส่งออกข้อมูลสำรองประวัติ';
+  String get settingsExportHistory => 'ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String get settingsExportCsv => 'ส่งออก CSV';
 
   @override
-  String get settingsImportHistory => 'นำเข้าข้อมูลสำรองประวัติ';
+  String get settingsImportHistory => 'นำเข้าข้อมูลกระเป๋าเงิน';
 
   @override
   String get settingsSectionWallet => 'กระเป๋าเงิน';
@@ -6138,13 +6138,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => 'ข้อมูลสำรองของกระเป๋าเงินอื่น';
+  String get deskErrHistOtherWallet => 'ข้อมูลของกระเป๋าเงินอื่น';
 
   @override
   String get deskErrHistOtherChain => 'เครือข่ายไม่ตรง';
 
   @override
-  String get deskErrHistNotOurs => 'ไม่ใช่ข้อมูลสำรองประวัติ';
+  String get deskErrHistNotOurs => 'ไม่ใช่ไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskErrHistNewer => 'ไฟล์จากรุ่นใหม่กว่า';
@@ -8485,10 +8485,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTxFoundScanTip => 'พบบนบล็อกเชนจากการสแกน ไม่มีบันทึกผู้ส่ง';
 
   @override
-  String get deskTxBackupTip => 'เพิ่มจากข้อมูลสำรองประวัติ';
+  String get deskTxBackupTip => 'เพิ่มจากไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
-  String get deskTxFromBackup => 'จากข้อมูลสำรอง';
+  String get deskTxFromBackup => 'นำเข้าแล้ว';
 
   @override
   String get deskTxStatusImmature => 'รอครบกำหนด';
@@ -8574,7 +8574,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTxHiddenAmount => 'จำนวนที่ซ่อนไว้';
 
   @override
-  String get deskTxNowBackup => 'จากข้อมูลสำรอง ไม่ได้ตรวจกับบล็อกเชน';
+  String get deskTxNowBackup => 'นำเข้าแล้ว ไม่ได้ตรวจกับบล็อกเชน';
 
   @override
   String deskTxNowImmature(int count) {
@@ -8640,7 +8640,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'พบบนบล็อกเชน';
 
   @override
-  String get deskTxHeadBackup => 'เพิ่มจากข้อมูลสำรองประวัติ';
+  String get deskTxHeadBackup => 'เพิ่มจากไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -10532,10 +10532,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupWriteFailed => 'เขียนไฟล์ไม่ได้ เลือกโฟลเดอร์อื่น';
 
   @override
-  String get deskSetBackupGroup => 'ข้อมูลสำรอง';
+  String get deskSetBackupGroup => 'ข้อมูลกระเป๋าเงิน';
 
   @override
-  String get deskSetBackupExportTitle => 'ส่งออกข้อมูลสำรองประวัติ';
+  String get deskSetBackupExportTitle => 'ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskSetBackupExportHint =>
@@ -10548,11 +10548,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupExportButton => 'ส่งออก…';
 
   @override
-  String get deskSetBackupImportTitle => 'นำเข้าข้อมูลสำรองประวัติ';
+  String get deskSetBackupImportTitle => 'นำเข้าข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskSetBackupImportHint =>
-      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมาจากข้อมูลสำรอง ไม่มีอะไรถูกลบ นำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
+      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมาจากไฟล์ข้อมูลกระเป๋าเงิน ไม่มีอะไรถูกลบ นำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
 
   @override
   String get deskSetBackupImportButton => 'นำเข้า…';
@@ -10568,7 +10568,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupCsvButton => 'ส่งออก CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'บันทึกประวัติรายการ';
+  String get deskSetBackupSaveDialogTitle => 'บันทึกข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskSetBackupNotSaved => 'ไม่ได้บันทึก';
@@ -10639,7 +10639,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupSaveAs => 'บันทึกเป็น…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'เปิดข้อมูลสำรองประวัติ';
+  String get deskSetBackupOpenDialogTitle => 'เปิดไฟล์ข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskSetBackupNothingNew => 'ไม่มีอะไรใหม่';
@@ -10755,14 +10755,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ และนำเข้ากลับไม่ได้ ถ้าจะนำเข้าให้ใช้ข้อมูลสำรองประวัติ';
+      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ และนำเข้ากลับไม่ได้ ถ้าจะนำเข้าให้ใช้ ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count รายการยังไม่อยู่ในข้อมูลสำรองประวัติ',
+      other: '$count รายการยังไม่อยู่ในข้อมูลกระเป๋าเงินที่ส่งออก',
     );
     return '$_temp0';
   }
@@ -10773,7 +10773,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังสำรองประวัติครั้งล่าสุด',
+          '$count รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด',
     );
     return '$_temp0';
   }
@@ -12960,7 +12960,7 @@ class AppLocalizationsTh extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ จะใช้ของคุณต่อไป เว้นแต่คุณเลือกอย่างอื่น',
+          'ไฟล์มีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ จะใช้ของคุณต่อไป เว้นแต่คุณเลือกอย่างอื่น',
     );
     return '$_temp0';
   }
@@ -12969,7 +12969,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskHistConflictMine => 'ของฉัน';
 
   @override
-  String get deskHistConflictBackup => 'ข้อมูลสำรอง';
+  String get deskHistConflictBackup => 'ไฟล์';
 
   @override
   String get deskHistConflictKeepAll => 'เก็บของฉันทั้งหมด';
@@ -15016,7 +15016,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'การจับคู่ $count รายการในข้อมูลสำรองนี้เคยใช้บนอุปกรณ์อื่น อุปกรณ์อื่นของคุณควรหยุดใช้',
+          'การจับคู่ $count รายการในไฟล์นี้เคยใช้บนอุปกรณ์อื่น อุปกรณ์อื่นของคุณควรหยุดใช้',
     );
     return '$_temp0';
   }
@@ -15367,15 +15367,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      'การกู้คืนจากวลีกู้คืนพร้อมข้อมูลสำรองประวัติจะนำการจับคู่ทั้งหมดกลับมา หากไม่มีข้อมูลสำรอง การจับคู่ใหม่จะพบคีย์เดิม';
+      'การกู้คืนจากวลีกู้คืนพร้อมไฟล์ข้อมูลกระเป๋าเงินจะนำการจับคู่ทั้งหมดกลับมา หากไม่มีไฟล์ การจับคู่ใหม่จะพบคีย์เดิม';
 
   @override
   String get helpPairRestoreP1 =>
-      'เมื่อมีข้อมูลสำรองประวัติ การกู้คืนจะนำการจับคู่ทั้งหมดกลับมาโดยไม่เปลี่ยน คีย์เดิม เครื่องหมายยืนยันแล้วเดิม การตั้งค่าเดิม ผู้ติดต่อจะไม่สังเกตเห็นอะไร';
+      'เมื่อมีไฟล์ข้อมูลกระเป๋าเงิน การกู้คืนจะนำการจับคู่ทั้งหมดกลับมาโดยไม่เปลี่ยน คีย์เดิม เครื่องหมายยืนยันแล้วเดิม การตั้งค่าเดิม ผู้ติดต่อจะไม่สังเกตเห็นอะไร';
 
   @override
   String get helpPairRestoreP2 =>
-      'หากไม่มีข้อมูลสำรอง การจับคู่จะหายไปจากกระเป๋าเงินนี้ แต่คีย์ไม่หาย เพราะมาจากวลีกู้คืน จับคู่อีกครั้งกับผู้ติดต่อที่ยังเก็บการจับคู่ไว้ แล้วกระเป๋าเงินของอีกฝ่ายจะพบคีย์เดิม และแจ้งว่าคีย์กลับมาแล้ว ผู้ติดต่อยังคงเครื่องหมายยืนยันแล้ว ในกระเป๋าเงินนี้ ปิดผนึกการชำระเงิน และ อนุญาตใบแจ้งหนี้ จะกลับเป็นค่าเริ่มต้น';
+      'หากไม่มีไฟล์ การจับคู่จะหายไปจากกระเป๋าเงินนี้ แต่คีย์ไม่หาย เพราะมาจากวลีกู้คืน จับคู่อีกครั้งกับผู้ติดต่อที่ยังเก็บการจับคู่ไว้ แล้วกระเป๋าเงินของอีกฝ่ายจะพบคีย์เดิม และแจ้งว่าคีย์กลับมาแล้ว ผู้ติดต่อยังคงเครื่องหมายยืนยันแล้ว ในกระเป๋าเงินนี้ ปิดผนึกการชำระเงิน และ อนุญาตใบแจ้งหนี้ จะกลับเป็นค่าเริ่มต้น';
 
   @override
   String get helpPairRestoreP3 =>
@@ -15383,7 +15383,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 =>
-      'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลสำรองที่กู้คืนบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
+      'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลกระเป๋าเงินที่นำเข้าบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
 
   @override
   String get pairNameForCode =>
@@ -15890,14 +15890,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋าเงินนี้จะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา: คือไฟล์ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
+      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินที่ส่งออกจากกระเป๋าเงินนี้จะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา: คือไฟล์ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
 
   @override
-  String get deskOvRestoredImportButton => 'นำเข้าข้อมูลสำรองประวัติ';
+  String get deskOvRestoredImportButton => 'นำเข้าข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskOvRestoredImportLater =>
-      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง';
+      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16130,20 +16130,20 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get backupSettingsTitle => 'ใช้การตั้งค่าจากข้อมูลสำรองนี้?';
+  String get backupSettingsTitle => 'ใช้การตั้งค่าจากไฟล์นี้?';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'การตั้งค่าที่นี่ $n รายการต่างจากข้อมูลสำรอง',
+      other: 'การตั้งค่าที่นี่ $n รายการต่างจากไฟล์',
     );
-    return '$_temp0 ส่วนที่เหลือของข้อมูลสำรองนำเข้าแล้ว';
+    return '$_temp0 ส่วนที่เหลือของไฟล์นำเข้าแล้ว';
   }
 
   @override
-  String get backupSettingsUseBackup => 'ใช้ของข้อมูลสำรอง';
+  String get backupSettingsUseBackup => 'ใช้ของไฟล์';
 
   @override
   String get backupSettingsKeepMine => 'เก็บของฉัน';

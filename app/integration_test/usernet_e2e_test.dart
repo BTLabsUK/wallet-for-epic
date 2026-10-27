@@ -361,7 +361,7 @@ void main() {
 
       // 5. Back up the history from Settings.
       await _tap(tester, find.byTooltip('Settings'));
-      await _tapText(tester, 'Export history backup');
+      await _tapText(tester, 'Export wallet data');
       final backup = File('${root.path}/e2e-backup.wfeh');
       await _waitFor(
         tester,
@@ -402,14 +402,14 @@ void main() {
       await _pinSetup(tester);
       await _pumpUntil(
         tester,
-        find.text('Import a history backup'),
+        find.text('Import wallet data'),
         timeout: const Duration(minutes: 6),
       );
       debugPrint(
         'WFE_E2E step=restored after ${DateTime.now().difference(started)}',
       );
-      await _tapText(tester, 'Import a history backup');
-      await _pumpUntil(tester, find.text('Backup imported'));
+      await _tapText(tester, 'Import wallet data');
+      await _pumpUntil(tester, find.text('Wallet data imported'));
       await _tapText(tester, 'OK');
       await _pumpUntil(tester, find.byKey(balanceFigureKey));
 

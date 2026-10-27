@@ -79,11 +79,11 @@
   "@deskSetBackupWriteFailed": {
     "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
   },
-  "deskSetBackupGroup": "Backup",
+  "deskSetBackupGroup": "Wallet data",
   "@deskSetBackupGroup": {
     "description": "Settings > This wallet: title of the Backup group of rows."
   },
-  "deskSetBackupExportTitle": "Export history backup",
+  "deskSetBackupExportTitle": "Export wallet data",
   "@deskSetBackupExportTitle": {
     "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
   },
@@ -99,11 +99,11 @@
   "@deskSetBackupExportButton": {
     "description": "Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows."
   },
-  "deskSetBackupImportTitle": "Import history backup",
+  "deskSetBackupImportTitle": "Import wallet data",
   "@deskSetBackupImportTitle": {
     "description": "Settings > Backup: row title and dialog title for importing a history backup file."
   },
-  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a backup. Nothing is removed; the same file twice changes nothing.",
+  "deskSetBackupImportHint": "Brings back this wallet’s payment history, contacts, invoices and settings from a wallet data file. Nothing is removed; the same file twice changes nothing.",
   "@deskSetBackupImportHint": {
     "description": "Settings > Backup: hint under the Import history backup row."
   },
@@ -123,7 +123,7 @@
   "@deskSetBackupCsvButton": {
     "description": "Settings > Backup: button that opens the CSV export dialog. Short."
   },
-  "deskSetBackupSaveDialogTitle": "Save payment history",
+  "deskSetBackupSaveDialogTitle": "Save wallet data",
   "@deskSetBackupSaveDialogTitle": {
     "description": "Title of the system Save dialog when exporting the history backup."
   },
@@ -203,7 +203,7 @@
   "@deskSetBackupSaveAs": {
     "description": "Export dialogs: button that opens the system Save dialog."
   },
-  "deskSetBackupOpenDialogTitle": "Open history backup",
+  "deskSetBackupOpenDialogTitle": "Open wallet data file",
   "@deskSetBackupOpenDialogTitle": {
     "description": "Title of the system Open dialog when importing a history backup."
   },
@@ -356,11 +356,11 @@
   "@deskSetBackupNotEncrypted": {
     "description": "Export CSV dialog: title of the warning notice."
   },
-  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.",
+  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.",
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },
-  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}",
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}",
   "@deskSetBackupReminderNever": {
     "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
     "placeholders": {
@@ -369,7 +369,7 @@
       }
     }
   },
-  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}",
+  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last wallet data export.} other{{count} payments are new or changed since the last wallet data export.}}",
   "@deskSetBackupReminderChanged": {
     "description": "Reminder on Overview when payments changed since the last history backup.",
     "placeholders": {

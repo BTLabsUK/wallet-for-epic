@@ -181,7 +181,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Settings › Privacy & network › Tor Network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
-  final historyBackupPlace = phone ? '[[Settings › Wallet › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';
+  final historyBackupPlace = phone ? '[[Settings › Wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Restore from a phrase** (on the first screen, or under [[Settings › Wallet]])'
       : '**Restore from a phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
@@ -375,8 +375,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('The recovery phrase brings back everything that is on the blockchain, which is the balance.'),
         HelpBlock.p('**To restore** on a new ${phone ? 'phone' : 'computer'} or after a loss: open $restorePlace, enter the words and choose ${phone ? 'a PIN' : 'a password'}. When the wallet opens, it scans the blockchain for its outputs. The balance appears after that first scan; the payments it finds are labelled **Restored**.'),
-        HelpBlock.p('**What a restore cannot bring back:** what was never on the blockchain, such as who paid what, notes and labels, contacts, invoices, settings and wallet names. A history backup keeps them: $historyBackupPlace.${phone ? ' Keep the backup file outside the phone, for example in email or cloud storage.' : ''}'),
-        const HelpBlock.p('**The history backup is not the recovery phrase.** It holds no words and cannot restore the wallet on its own. To restore: enter the recovery phrase first, then import the backup; the wallet offers that right after the restore.'),
+        HelpBlock.p('**What a restore cannot bring back:** what was never on the blockchain, such as who paid what, notes and labels, contacts, invoices, settings and wallet names. A wallet data file keeps them: $historyBackupPlace.${phone ? ' Keep the file outside the phone, for example in email or cloud storage.' : ''}'),
+        const HelpBlock.p('**The wallet data file is not the recovery phrase.** It holds no words and cannot restore the wallet on its own. To restore: enter the recovery phrase first, then import the file; the wallet offers that right after the restore.'),
         HelpBlock.p('**Balance looks wrong?** Run $recheckPlace. It reads the whole blockchain again for this wallet\'s outputs.'),
         if (!phone)
           const HelpBlock.p('**The wallet\'s files** are in [[Settings › This wallet › Wallet folder]]. Keep the recovery phrase even with a copy of them: it works when the files are lost.'),

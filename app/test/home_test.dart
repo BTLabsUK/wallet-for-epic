@@ -740,7 +740,7 @@ void main() {
       expect(isPending(tx), isFalse);
       expect(
         txStatusLabel(englishStrings, tx, _tip),
-        'From backup, status unknown',
+        'Imported, status unknown',
       );
       expect(matchesFilter(tx, HistoryFilter.pending), isFalse);
       expect(matchesFilter(tx, HistoryFilter.sent), isTrue);
@@ -1958,7 +1958,7 @@ void main() {
       expect(find.text('Back up your recovery phrase.'), findsNothing);
       expect(h.store.values['wallet.mainnet.backupCardDismissed'], '1');
       // The history reminder may show now that the phrase card is gone.
-      expect(find.textContaining('not in a history backup'), findsOneWidget);
+      expect(find.textContaining('not in your exported wallet data'), findsOneWidget);
 
       // Still closed the next time home opens.
       await tester.pumpWidget(const SizedBox());
@@ -2077,7 +2077,7 @@ void main() {
       await h.pump(tester);
       expect(find.text('A payment is waiting for the recipient'), findsNothing);
       expect(
-        find.textContaining('From backup, status unknown'),
+        find.textContaining('Imported, status unknown'),
         findsOneWidget,
       );
     });
@@ -2948,7 +2948,7 @@ void main() {
     });
 
     const reminder =
-        '11 payments are not in a history backup. A restore from your recovery '
+        '11 payments are not in your exported wallet data. A restore from your recovery '
         'phrase brings back only your balance.';
 
     testWidgets('home reminds to export, and export clears it', (tester) async {
@@ -2956,8 +2956,8 @@ void main() {
       _reminderDue(h);
       await h.pump(tester);
       expect(find.text(reminder), findsOneWidget);
-      await _tap(tester, find.text('Export history backup'));
-      expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
+      await _tap(tester, find.text('Export wallet data'));
+      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
       expect(find.text(reminder), findsNothing);
       expect(h.store.values['app.history_exported.mainnet'], '${_at(_now)}');
     });
@@ -3156,8 +3156,8 @@ void main() {
       final h = _Harness(transactions: _backlog());
       _reminderDue(h);
       await h.pump(tester);
-      await _tap(tester, find.text('Export history backup'));
-      expect(find.textContaining('history backup.'), findsNothing);
+      await _tap(tester, find.text('Export wallet data'));
+      expect(find.textContaining('exported wallet data.'), findsNothing);
       // The pending send to Bob is completed now; its record in the file is stale.
       h.session.transactionsValue = [
         for (final t in h.session.transactionsValue)
@@ -3195,7 +3195,7 @@ void main() {
         final waiting = top(
           find.text('A payment is waiting for the recipient'),
         );
-        final reminder = top(find.textContaining('not in a history backup'));
+        final reminder = top(find.textContaining('not in your exported wallet data'));
         expect(balance, lessThan(waiting));
         expect(waiting, lessThan(reminder));
         expect(reminder, lessThan(top(find.text('Recent activity'))));

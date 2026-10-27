@@ -699,7 +699,7 @@ enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, sett
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
   'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node', 'Epicbox'}),
-  'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoices'}),
+  'Wallet': (HelpPhonePlace.wallet, {'Export wallet data', 'Recheck balance', 'Invoices'}),
   'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
   'Display': (HelpPhonePlace.display, <String>{}),
   'About': (HelpPhonePlace.about, <String>{}),

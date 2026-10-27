@@ -25,8 +25,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
       : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[Einstellungen › Wallet › Verlaufssicherung exportieren|Settings › Wallet › Export history backup]]'
-      : '[[Einstellungen › Diese Wallet › Verlaufssicherung exportieren|Settings › This wallet › Export history backup]]';
+      ? '[[Einstellungen › Wallet › Wallet-Daten exportieren|Settings › Wallet › Export wallet data]]'
+      : '[[Einstellungen › Diese Wallet › Wallet-Daten exportieren|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm oder unter [[Einstellungen › Wallet|Settings › Wallet]])'
       : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Alle Wallets|Settings › All wallets]])';
@@ -220,8 +220,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Wiederherstellungsphrase holt alles zurück, was auf der Blockchain steht, also das Guthaben.'),
         HelpBlock.p('**Zum Wiederherstellen** auf einem neuen ${phone ? 'Smartphone' : 'Computer'} oder nach einem Verlust: Öffnen Sie $restorePlace, geben Sie die Wörter ein und wählen Sie ${phone ? 'eine PIN' : 'ein Passwort'}. Wenn die Wallet geöffnet wird, durchsucht sie die Blockchain nach ihren Outputs. Das Guthaben erscheint nach diesem ersten Scan; die gefundenen Zahlungen sind als **Wiederhergestelltes Guthaben** gekennzeichnet.'),
-        HelpBlock.p('**Was eine Wiederherstellung nicht zurückholt:** was nie auf der Blockchain stand, etwa wer was bezahlt hat, Notizen und Bezeichnungen, Kontakte, Rechnungen, Einstellungen und Wallet-Namen. Eine Verlaufssicherung bewahrt sie: $historyBackupPlace.${phone ? ' Bewahren Sie die Sicherungsdatei außerhalb des Smartphones auf, zum Beispiel in einer E-Mail oder einem Cloud-Speicher.' : ''}'),
-        const HelpBlock.p('**Die Verlaufssicherung ist nicht die Wiederherstellungsphrase.** Sie enthält keine Wörter und kann die Wallet allein nicht wiederherstellen. Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann die Sicherung importieren; die Wallet bietet das direkt nach der Wiederherstellung an.'),
+        HelpBlock.p('**Was eine Wiederherstellung nicht zurückholt:** was nie auf der Blockchain stand, etwa wer was bezahlt hat, Notizen und Bezeichnungen, Kontakte, Rechnungen, Einstellungen und Wallet-Namen. Eine Wallet-Datendatei bewahrt sie: $historyBackupPlace.${phone ? ' Bewahren Sie die Datei außerhalb des Smartphones auf, zum Beispiel in einer E-Mail oder einem Cloud-Speicher.' : ''}'),
+        const HelpBlock.p('**Die Wallet-Datendatei ist nicht die Wiederherstellungsphrase.** Sie enthält keine Wörter und kann die Wallet allein nicht wiederherstellen. Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann die Datei importieren; die Wallet bietet das direkt nach der Wiederherstellung an.'),
         HelpBlock.p('**Guthaben sieht falsch aus?** Starten Sie $recheckPlace. Dabei wird die ganze Blockchain erneut nach den Outputs dieser Wallet durchsucht.'),
         if (!phone)
           const HelpBlock.p('**Die Dateien der Wallet** liegen unter [[Einstellungen › Diese Wallet › Wallet-Ordner|Settings › This wallet › Wallet folder]]. Bewahren Sie die Wiederherstellungsphrase auch mit einer Kopie davon auf: Sie hilft, wenn die Dateien verloren gehen.'),

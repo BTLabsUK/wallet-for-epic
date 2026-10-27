@@ -288,7 +288,7 @@ void main() {
           WalletErrorKind.invalidArgument,
           'This history file is damaged',
         ),
-        'This history file is damaged.',
+        'This wallet data file is damaged.',
       );
     });
 

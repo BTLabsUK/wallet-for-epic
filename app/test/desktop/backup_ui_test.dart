@@ -86,7 +86,7 @@ void main() {
       'Last export 3 Oct 2026, 14:02 · 12 payments since.',
     );
     expect(backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 22, 14, 2)), now: now), 'Last export today, 14:02 · nothing new since.');
-    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-history-mainnet-20261022.wfeh');
+    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-wallet-data-mainnet-20261022.wfeh');
   });
 
   test('CSV ranges: local days, inclusive; a custom day that is not a date gives none', () {
@@ -99,9 +99,9 @@ void main() {
 
   testWidgets('the Backup group: three rows and the state line', (tester) async {
     await _pump(tester, const BackupGroup());
-    expect(find.text('Backup'), findsOneWidget);
-    expect(find.text('Export history backup'), findsOneWidget);
-    expect(find.text('Import history backup'), findsOneWidget);
+    expect(find.text('Wallet data'), findsOneWidget);
+    expect(find.text('Export wallet data'), findsOneWidget);
+    expect(find.text('Import wallet data'), findsOneWidget);
     expect(find.text('Payments as CSV'), findsOneWidget);
     expect(find.text('Last export 3 Oct 2026, 14:02 · 12 payments since.'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Export…'), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Save as…'));
     await tester.pumpAndSettle();
     expect(find.text('Saved'), findsOneWidget);
-    expect(find.textContaining('~/Documents/epic-history-mainnet-'), findsOneWidget);
+    expect(find.textContaining('~/Documents/epic-wallet-data-mainnet-'), findsOneWidget);
     expect(_api.exports, 1);
     expect(_files.saved.single, endsWith('.wfeh'));
     await tester.tap(find.widgetWithText(EButton, 'Open folder'));
@@ -207,13 +207,13 @@ void main() {
     await _pump(tester, const SizedBox());
     final state = const HistoryBackupState(unbacked: 12, reminder: 12);
     await _pump(tester, HistoryReminder(state: state));
-    expect(find.text('12 payments are not in a history backup.'), findsOneWidget);
+    expect(find.text('12 payments are not in your exported wallet data.'), findsOneWidget);
     expect(find.text('A restore from the recovery phrase brings back the balance, not who paid what.'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Not now'));
     await tester.pumpAndSettle();
     expect(_api.dismissals, 1);
     await _pump(tester, HistoryReminder(state: HistoryBackupState(lastExport: DateTime(2026, 9), unbacked: 11, reminder: 11)));
-    expect(find.text('11 payments are new or changed since the last history backup.'), findsOneWidget);
+    expect(find.text('11 payments are new or changed since the last wallet data export.'), findsOneWidget);
   });
 
   testWidgets('a payment only a backup knows reads From backup, with no Cancel', (tester) async {
@@ -229,14 +229,14 @@ void main() {
       fromBackup: true,
     );
     expect(whoOf(englishStrings, t), 'Received');
-    expect(statusOf(englishStrings, t).$1, 'From backup');
-    expect(whoTip(englishStrings, t), 'Added from a history backup.');
+    expect(statusOf(englishStrings, t).$1, 'Imported');
+    expect(whoTip(englishStrings, t), 'Added from a wallet data file.');
     await _pump(tester, TxRow(tx: t, onTap: () {}));
     expect(find.text('Received'), findsOneWidget);
-    expect(find.textContaining('From backup', findRichText: true), findsWidgets);
+    expect(find.textContaining('Imported', findRichText: true), findsWidgets);
     await _pump(tester, TxDetail(tx: t));
-    expect(find.text('added from a history backup'), findsOneWidget);
-    expect(find.text('From backup; the chain was not asked.'), findsOneWidget);
+    expect(find.text('added from a wallet data file'), findsOneWidget);
+    expect(find.text('Imported; the chain was not asked.'), findsOneWidget);
     expect(find.text('Progress'), findsNothing);
     expect(find.widgetWithText(EButton, 'Cancel'), findsNothing);
   });

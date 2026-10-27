@@ -209,8 +209,8 @@ class AppLocalizationsDe extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Die Sicherung hat andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
-      one: 'Die Sicherung hat andere Details für 1 Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+          'Die Datei hat andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+      one: 'Die Datei hat andere Details für 1 Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
     );
     return '$_temp0';
   }
@@ -219,7 +219,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get histConflictMine => 'Meine';
 
   @override
-  String get histConflictBackup => 'Sicherung';
+  String get histConflictBackup => 'Datei';
 
   @override
   String get histConflictKeepAll => 'Alle meine behalten';
@@ -268,7 +268,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txStatusCancelled => 'Storniert';
 
   @override
-  String get txStatusFromBackup => 'Aus Sicherung, Status unbekannt';
+  String get txStatusFromBackup => 'Importiert, Status unbekannt';
 
   @override
   String get txIconCancelled => 'Storniert';
@@ -425,14 +425,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorHistoryNotOurs =>
-      'Dies ist keine von dieser App exportierte Verlaufsdatei.';
+      'Dies ist keine Wallet-Datendatei dieser App.';
 
   @override
   String get errorHistoryNewer =>
-      'Diese Verlaufsdatei wurde mit einer neueren Version der App erstellt.';
+      'Diese Wallet-Datendatei wurde mit einer neueren Version der App erstellt.';
 
   @override
-  String get errorHistoryDamaged => 'Diese Verlaufsdatei ist beschädigt.';
+  String get errorHistoryDamaged => 'Diese Wallet-Datendatei ist beschädigt.';
 
   @override
   String get errorHistoryOtherWallet =>
@@ -440,7 +440,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'Diese Verlaufsdatei stammt aus dem $fileNetwork, diese Wallet läuft aber im $walletNetwork.';
+    return 'Diese Wallet-Datendatei stammt aus dem $fileNetwork, diese Wallet läuft aber im $walletNetwork.';
   }
 
   @override
@@ -684,7 +684,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      'Diese Zahlung stammt aus einer Verlaufssicherung und war beim Erstellen der Sicherung noch nicht abgeschlossen. Diese Wallet hat keine eigenen Daten dazu und kann daher nicht feststellen, ob sie abgeschlossen wurde. Es ist nichts gesperrt.';
+      'Diese Zahlung wurde aus einer Wallet-Datendatei importiert und war beim Export dieser Datei noch nicht abgeschlossen. Diese Wallet hat keine eigenen Daten dazu und kann daher nicht feststellen, ob sie abgeschlossen wurde. Es ist nichts gesperrt.';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -862,7 +862,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'Nur auf diesem Gerät und in Ihren Verlaufssicherungen.';
+      'Nur auf diesem Gerät und in Ihren exportierten Wallet-Daten.';
 
   @override
   String get txDetailsNoteSaved => 'Notiz gespeichert';
@@ -935,11 +935,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Durch Scannen der Blockchain gefunden. Angaben wie Absender und Gebühr werden nicht auf der Blockchain gespeichert. Importieren Sie eine Verlaufssicherung, um sie wiederherzustellen.';
+      'Durch Scannen der Blockchain gefunden. Angaben wie Absender und Gebühr werden nicht auf der Blockchain gespeichert. Importieren Sie Wallet-Daten, um sie wiederherzustellen.';
 
   @override
   String get txDetailsSourceImported =>
-      'Aus einer Verlaufssicherung importiert. Diese Wallet hat keine eigenen Daten dazu, daher ist der Status möglicherweise veraltet.';
+      'Aus einer Wallet-Datendatei importiert. Diese Wallet hat keine eigenen Daten dazu, daher ist der Status möglicherweise veraltet.';
 
   @override
   String get historyTitle => 'Verlauf';
@@ -999,7 +999,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get historyBackupSaveDialogTitle => 'Zahlungsverlauf speichern';
+  String get historyBackupSaveDialogTitle => 'Wallet-Daten speichern';
 
   @override
   String get importWarnTitle => 'Bevor Sie importieren';
@@ -1023,11 +1023,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importWarnAck => 'Ich habe von jeder Wallet eine Sicherung';
 
   @override
-  String get historyBackupOpenDialogTitle => 'Verlaufssicherung öffnen';
+  String get historyBackupOpenDialogTitle => 'Wallet-Datendatei öffnen';
 
   @override
   String get historyBackupFileTooLarge =>
-      'Diese Datei ist zu groß für eine Sicherung.';
+      'Diese Datei ist zu groß für eine Wallet-Datendatei.';
 
   @override
   String get historyBackupShare => 'Teilen';
@@ -1049,33 +1049,33 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => 'Verlaufssicherung exportieren';
+  String get historyBackupExportTitle => 'Wallet-Daten exportieren';
 
   @override
   String get historyBackupExportNote =>
-      'Die Sicherung enthält alles bis jetzt. Exportieren Sie nach neuen Zahlungen oder Änderungen erneut.';
+      'Die Datei enthält alles bis jetzt. Exportieren Sie nach neuen Zahlungen oder Änderungen erneut.';
 
   @override
   String get historyBackupCsvTitle => 'CSV exportieren';
 
   @override
   String get historyBackupCsvWarning =>
-      'Die CSV-Datei ist nicht verschlüsselt. Wer sie erhält, kann Ihre Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht wieder importieren; nutzen Sie dafür „Verlaufssicherung exportieren“.';
+      'Die CSV-Datei ist nicht verschlüsselt. Wer sie erhält, kann Ihre Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht wieder importieren; nutzen Sie dafür „Wallet-Daten exportieren“.';
 
   @override
   String get historyBackupCsvConfirm => 'CSV exportieren';
 
   @override
-  String get historyBackupImportedTitle => 'Sicherung importiert';
+  String get historyBackupImportedTitle => 'Wallet-Daten importiert';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return 'Verlauf nicht importiert. $reason';
+    return 'Wallet-Daten nicht importiert. $reason';
   }
 
   @override
   String get historyBackupImportNothingNew =>
-      'Die Sicherung enthielt nichts Neues.';
+      'Die Datei enthielt nichts Neues.';
 
   @override
   String get homeLockTooltip => 'Wallet sperren';
@@ -1263,8 +1263,8 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count Zahlungen sind in keiner Verlaufssicherung enthalten. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
-      one: '1 Zahlung ist in keiner Verlaufssicherung enthalten. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
+          '$count Zahlungen sind in Ihren exportierten Wallet-Daten nicht enthalten. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
+      one: '1 Zahlung ist in Ihren exportierten Wallet-Daten nicht enthalten. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
     );
     return '$_temp0';
   }
@@ -1275,8 +1275,8 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count Zahlungen sind seit Ihrer letzten Verlaufssicherung neu oder geändert. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
-      one: '1 Zahlung ist seit Ihrer letzten Verlaufssicherung neu oder geändert. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
+          '$count Zahlungen sind seit Ihrem letzten Export der Wallet-Daten neu oder geändert. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
+      one: '1 Zahlung ist seit Ihrem letzten Export der Wallet-Daten neu oder geändert. Eine Wiederherstellung mit Ihrer Wiederherstellungsphrase bringt nur Ihr Guthaben zurück.',
     );
     return '$_temp0';
   }
@@ -1285,7 +1285,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeHistoryReminderNotNow => 'Nicht jetzt';
 
   @override
-  String get homeHistoryExportButton => 'Verlaufssicherung exportieren';
+  String get homeHistoryExportButton => 'Wallet-Daten exportieren';
 
   @override
   String get homeBalanceSpendable => 'Verfügbar';
@@ -2090,11 +2090,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get unlockDatabaseRebuilt =>
-      'Die Wallet-Datenbank war beschädigt und wurde aus der Phrase neu aufgebaut. Ein Scan holt das Guthaben zurück; Zahlungsdetails, Notizen und Bezeichnungen kommen nur aus einer Verlaufssicherung zurück.';
+      'Die Wallet-Datenbank war beschädigt und wurde aus der Phrase neu aufgebaut. Ein Scan holt das Guthaben zurück; Zahlungsdetails, Notizen und Bezeichnungen kommen nur aus einer Wallet-Datendatei zurück.';
 
   @override
   String get restoreRebuiltImportText =>
-      'Eine Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück.';
+      'Eine Wallet-Datendatei bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück.';
 
   @override
   String get restoreReplaceLead =>
@@ -2139,10 +2139,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine Verlaufssicherung bringt den Zahlungsverlauf, die Kontakte, Rechnungen und Einstellungen dieser Wallet zurück. Wenn Sie eine exportiert haben, importieren Sie sie jetzt: Es ist die Datei, die Sie außerhalb Ihres alten Smartphones geteilt oder gespeichert haben.';
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine Wallet-Datendatei bringt den Zahlungsverlauf, die Kontakte, Rechnungen und Einstellungen dieser Wallet zurück. Wenn Sie eine exportiert haben, importieren Sie sie jetzt: Es ist die Datei, die Sie außerhalb Ihres alten Smartphones geteilt oder gespeichert haben.';
 
   @override
-  String get restoreImportButton => 'Verlaufssicherung importieren';
+  String get restoreImportButton => 'Wallet-Daten importieren';
 
   @override
   String get restoreImportNotNow => 'Nicht jetzt';
@@ -3088,16 +3088,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLockWallet => 'Wallet sperren';
 
   @override
-  String get settingsSectionHistory => 'Zahlungsverlauf';
+  String get settingsSectionHistory => 'Wallet-Daten';
 
   @override
-  String get settingsExportHistory => 'Verlaufssicherung exportieren';
+  String get settingsExportHistory => 'Wallet-Daten exportieren';
 
   @override
   String get settingsExportCsv => 'CSV exportieren';
 
   @override
-  String get settingsImportHistory => 'Verlaufssicherung importieren';
+  String get settingsImportHistory => 'Wallet-Daten importieren';
 
   @override
   String get settingsSectionWallet => 'Wallet';
@@ -6326,13 +6326,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskErrHistOtherWallet => 'Sicherung einer anderen Wallet';
+  String get deskErrHistOtherWallet => 'Daten einer anderen Wallet';
 
   @override
   String get deskErrHistOtherChain => 'Falsches Netzwerk';
 
   @override
-  String get deskErrHistNotOurs => 'Keine Verlaufssicherung';
+  String get deskErrHistNotOurs => 'Keine Wallet-Datendatei';
 
   @override
   String get deskErrHistNewer => 'Neuere Datei';
@@ -8744,10 +8744,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Per Scan in der Blockchain gefunden. Der Absender ist nicht gespeichert.';
 
   @override
-  String get deskTxBackupTip => 'Aus einer Verlaufssicherung hinzugefügt.';
+  String get deskTxBackupTip => 'Aus einer Wallet-Datendatei hinzugefügt.';
 
   @override
-  String get deskTxFromBackup => 'Aus Sicherung';
+  String get deskTxFromBackup => 'Importiert';
 
   @override
   String get deskTxStatusImmature => 'Unreif';
@@ -8836,7 +8836,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxNowBackup =>
-      'Aus einer Sicherung; die Blockchain wurde nicht abgefragt.';
+      'Importiert; die Blockchain wurde nicht abgefragt.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -8908,7 +8908,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'in der Blockchain gefunden';
 
   @override
-  String get deskTxHeadBackup => 'aus einer Verlaufssicherung hinzugefügt';
+  String get deskTxHeadBackup => 'aus einer Wallet-Datendatei hinzugefügt';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -10851,10 +10851,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Datei konnte nicht geschrieben werden. Wählen Sie einen anderen Ordner.';
 
   @override
-  String get deskSetBackupGroup => 'Sicherung';
+  String get deskSetBackupGroup => 'Wallet-Daten';
 
   @override
-  String get deskSetBackupExportTitle => 'Verlaufssicherung exportieren';
+  String get deskSetBackupExportTitle => 'Wallet-Daten exportieren';
 
   @override
   String get deskSetBackupExportHint =>
@@ -10867,11 +10867,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetBackupExportButton => 'Exportieren…';
 
   @override
-  String get deskSetBackupImportTitle => 'Verlaufssicherung importieren';
+  String get deskSetBackupImportTitle => 'Wallet-Daten importieren';
 
   @override
   String get deskSetBackupImportHint =>
-      'Bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet aus einer Sicherung zurück. Nichts wird entfernt; dieselbe Datei zweimal ändert nichts.';
+      'Bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet aus einer Wallet-Datendatei zurück. Nichts wird entfernt; dieselbe Datei zweimal ändert nichts.';
 
   @override
   String get deskSetBackupImportButton => 'Importieren…';
@@ -10887,7 +10887,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetBackupCsvButton => 'CSV exportieren…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'Zahlungsverlauf speichern';
+  String get deskSetBackupSaveDialogTitle => 'Wallet-Daten speichern';
 
   @override
   String get deskSetBackupNotSaved => 'Nicht gespeichert';
@@ -10961,7 +10961,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetBackupSaveAs => 'Speichern unter…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'Verlaufssicherung öffnen';
+  String get deskSetBackupOpenDialogTitle => 'Wallet-Datendatei öffnen';
 
   @override
   String get deskSetBackupNothingNew => 'Nichts Neues';
@@ -11080,15 +11080,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Wer die Datei hat, kann Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht importieren; dafür ist die Verlaufssicherung da.';
+      'Wer die Datei hat, kann Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht importieren; dafür ist „Wallet-Daten exportieren“ da.';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count Zahlungen sind in keiner Verlaufssicherung enthalten.',
-      one: '1 Zahlung ist in keiner Verlaufssicherung enthalten.',
+      other:
+          '$count Zahlungen sind in Ihren exportierten Wallet-Daten nicht enthalten.',
+      one: '1 Zahlung ist in Ihren exportierten Wallet-Daten nicht enthalten.',
     );
     return '$_temp0';
   }
@@ -11099,9 +11100,8 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count Zahlungen sind seit der letzten Verlaufssicherung neu oder geändert.',
-      one:
-          '1 Zahlung ist seit der letzten Verlaufssicherung neu oder geändert.',
+          '$count Zahlungen sind seit dem letzten Export der Wallet-Daten neu oder geändert.',
+      one: '1 Zahlung ist seit dem letzten Export der Wallet-Daten neu oder geändert.',
     );
     return '$_temp0';
   }
@@ -13335,9 +13335,9 @@ class AppLocalizationsDe extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Die Sicherung enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+          'Die Datei enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
       one:
-          'Die Sicherung enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+          'Die Datei enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
     );
     return '$_temp0';
   }
@@ -13346,7 +13346,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskHistConflictMine => 'Meine';
 
   @override
-  String get deskHistConflictBackup => 'Sicherung';
+  String get deskHistConflictBackup => 'Datei';
 
   @override
   String get deskHistConflictKeepAll => 'Alle meine behalten';
@@ -15455,8 +15455,8 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count Kopplungen in dieser Sicherung wurden auf einem anderen Gerät verwendet. Ihr anderes Gerät sollte sie nicht mehr verwenden.',
-      one: '1 Kopplung in dieser Sicherung wurde auf einem anderen Gerät verwendet. Ihr anderes Gerät sollte sie nicht mehr verwenden.',
+          '$count Kopplungen in dieser Datei wurden auf einem anderen Gerät verwendet. Ihr anderes Gerät sollte sie nicht mehr verwenden.',
+      one: '1 Kopplung in dieser Datei wurde auf einem anderen Gerät verwendet. Ihr anderes Gerät sollte sie nicht mehr verwenden.',
     );
     return '$_temp0';
   }
@@ -15811,15 +15811,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairRestoreShort =>
-      'Mit der Verlaufssicherung bringt eine Wiederherstellung aus der Wiederherstellungsphrase jede Kopplung zurück; ohne sie findet erneutes Koppeln dieselben Schlüssel.';
+      'Mit der Wallet-Datendatei bringt eine Wiederherstellung aus der Wiederherstellungsphrase jede Kopplung zurück; ohne sie findet erneutes Koppeln dieselben Schlüssel.';
 
   @override
   String get helpPairRestoreP1 =>
-      'Mit der Verlaufssicherung bringt eine Wiederherstellung jede Kopplung unverändert zurück: dieselben Schlüssel, dieselben Verifiziert-Markierungen, dieselben Einstellungen. Die Kontakte merken nichts.';
+      'Mit der Wallet-Datendatei bringt eine Wiederherstellung jede Kopplung unverändert zurück: dieselben Schlüssel, dieselben Verifiziert-Markierungen, dieselben Einstellungen. Die Kontakte merken nichts.';
 
   @override
   String get helpPairRestoreP2 =>
-      'Ohne die Sicherung sind die Kopplungen aus dieser Wallet verschwunden, die Schlüssel aber nicht: Sie entstehen aus der Wiederherstellungsphrase. Koppeln Sie erneut mit einem Kontakt, der die Kopplung behalten hat, und dessen Wallet findet dieselben Schlüssel. Sie meldet, dass die Schlüssel zurück sind, und der Kontakt behält seine Verifiziert-Markierung. In dieser Wallet starten Zahlungen versiegeln und Rechnungen erlauben mit ihren Vorgaben.';
+      'Ohne die Datei sind die Kopplungen aus dieser Wallet verschwunden, die Schlüssel aber nicht: Sie entstehen aus der Wiederherstellungsphrase. Koppeln Sie erneut mit einem Kontakt, der die Kopplung behalten hat, und dessen Wallet findet dieselben Schlüssel. Sie meldet, dass die Schlüssel zurück sind, und der Kontakt behält seine Verifiziert-Markierung. In dieser Wallet starten Zahlungen versiegeln und Rechnungen erlauben mit ihren Vorgaben.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -15827,7 +15827,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 =>
-      'Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet.';
+      'Nutzen Sie eine Kopplung immer nur auf einem Gerät. Auf einem zweiten Gerät importierte Wallet-Daten fragen, bevor sie die Kontakte dort verwenden.';
 
   @override
   String get pairNameForCode =>
@@ -16356,14 +16356,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.';
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Wallet-Datendatei bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.';
 
   @override
-  String get deskOvRestoredImportButton => 'Verlaufssicherung importieren';
+  String get deskOvRestoredImportButton => 'Wallet-Daten importieren';
 
   @override
   String get deskOvRestoredImportLater =>
-      'Später unter Einstellungen › Diese Wallet › Sicherung.';
+      'Später unter Einstellungen › Diese Wallet › Wallet-Daten.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16609,21 +16609,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupSettingsTitle =>
-      'Einstellungen aus dieser Sicherung übernehmen?';
+      'Einstellungen aus dieser Datei übernehmen?';
 
   @override
   String backupSettingsBody(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n Einstellungen hier unterscheiden sich von der Sicherung.',
-      one: '1 Einstellung hier unterscheidet sich von der Sicherung.',
+      other: '$n Einstellungen hier unterscheiden sich von der Datei.',
+      one: '1 Einstellung hier unterscheidet sich von der Datei.',
     );
-    return '$_temp0 Der Rest der Sicherung ist bereits importiert.';
+    return '$_temp0 Der Rest der Datei ist bereits importiert.';
   }
 
   @override
-  String get backupSettingsUseBackup => 'Die der Sicherung';
+  String get backupSettingsUseBackup => 'Die der Datei';
 
   @override
   String get backupSettingsKeepMine => 'Meine behalten';

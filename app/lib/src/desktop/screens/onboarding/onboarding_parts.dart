@@ -10,8 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/shell.dart' show deskVersion;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../../wallet_registry.dart' show WalletRegistry;
-import '../../data/models.dart' show WalletEntry;
-import '../../data/state.dart' show deskProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../wallet/tx_label.dart' show TxLabelField, TxPen, txLabelEditingProvider;
