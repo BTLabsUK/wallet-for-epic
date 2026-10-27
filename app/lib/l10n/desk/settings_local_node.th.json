@@ -142,7 +142,7 @@
   "deskSetPeersColFirstSeen": "พบครั้งแรก",
   "deskSetPeersNone": "ไม่มี peer เชื่อมต่อ",
   "deskSetPeersMore": "{count, plural, other{อีก {count}}}",
-  "deskSetPeersRefreshed": "รีเฟรชทุก 10 วินาที",
+  "deskSetPeersRefreshed": "รีเฟรชทุก {seconds} วินาที",
   "deskSetPeersBanned": "แบนแล้ว",
   "deskSetPeersBannedAt": "แบนเมื่อ {time}",
   "deskSetPeersUnban": "ยกเลิกแบน",

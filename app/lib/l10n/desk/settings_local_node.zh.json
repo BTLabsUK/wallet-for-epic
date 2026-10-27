@@ -142,7 +142,7 @@
   "deskSetPeersColFirstSeen": "首次出现",
   "deskSetPeersNone": "没有已连接的对等节点。",
   "deskSetPeersMore": "{count, plural, other{另外 {count} 个}}",
-  "deskSetPeersRefreshed": "每 10 秒刷新",
+  "deskSetPeersRefreshed": "每 {seconds} 秒刷新",
   "deskSetPeersBanned": "已封禁",
   "deskSetPeersBannedAt": "封禁于 {time}",
   "deskSetPeersUnban": "解封",

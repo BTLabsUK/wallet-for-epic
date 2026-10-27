@@ -142,7 +142,7 @@
   "deskSetPeersColFirstSeen": "Erstmals",
   "deskSetPeersNone": "Keine Peers verbunden.",
   "deskSetPeersMore": "{count, plural, one{{count} weiterer} other{{count} weitere}}",
-  "deskSetPeersRefreshed": "Alle 10 s aktualisiert",
+  "deskSetPeersRefreshed": "Alle {seconds} s aktualisiert",
   "deskSetPeersBanned": "Gesperrt",
   "deskSetPeersBannedAt": "gesperrt {time}",
   "deskSetPeersUnban": "Entsperren",

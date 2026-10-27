@@ -14,6 +14,7 @@ import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
 import '../../widgets/kit.dart';
 import 'local_node.dart' show localNodeOptionsProvider;
+import 'own_node_panel.dart' show ownAskEvery;
 
 /// `MW/Epic 4.1.1` → `4.1.1`; an unknown agent stays whole.
 String peerVersion(String userAgent) {
@@ -265,7 +266,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         Row(
           children: [
             Expanded(child: Text(summary, style: ts.small.copyWith(color: c.dim))),
-            Text(l.deskSetPeersRefreshed, style: ts.caption.copyWith(color: c.faint)),
+            Text(l.deskSetPeersRefreshed(widget.ownUrl == null ? 10 : ownAskEvery.inSeconds), style: ts.caption.copyWith(color: c.faint)),
           ],
         ),
         ExpandFade(
