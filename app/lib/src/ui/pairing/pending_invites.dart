@@ -188,7 +188,17 @@ class _PendingRow extends ConsumerWidget {
         return _Row(
           avatar: avatar,
           title: name,
-          subtitle: Text(r.way == PairingWay.words ? l.pendingWords(pairingSpan(l, left)) : l.pendingLink(pairingSpan(l, left))),
+          // A relay that does not answer: the reply can still come by message.
+          subtitle: r.relayDown
+              ? Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: l.pairRelayUnreachableTitle, style: TextStyle(color: t.warn)),
+                      if (r.homeRelay.isNotEmpty) TextSpan(text: ' · ${r.homeRelay}'),
+                    ],
+                  ),
+                )
+              : Text(r.way == PairingWay.words ? l.pendingWords(pairingSpan(l, left)) : l.pendingLink(pairingSpan(l, left))),
           trailing: PopupMenuButton<String>(
             key: pendingInviteMenuKey(r.id),
             tooltip: l.contactMore,

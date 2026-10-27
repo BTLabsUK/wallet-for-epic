@@ -166,6 +166,12 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     _events = api.events().listen((e) {
       final id = e.pairingId;
       if (e.kind == PairingEventKind.replied && id != null && mounted) unawaited(_replied(id));
+      // The invite sent by message ended without a reply: why, and the panel starts over.
+      if (e.kind == PairingEventKind.failed && e.failure != null && id != null && id == _sent?.id && mounted) {
+        deskPairingStepsOnScreen.remove(id);
+        setState(() => _sent = null);
+        unawaited(showDeskOutcome(context, e.failure!, name: e.name));
+      }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -633,8 +639,17 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
               SizedBox(height: Sp.x2),
               Text(l.pairAwaitReplyBody, style: ts.bodyDim),
               SizedBox(height: Sp.x2),
-              if (sent.expiresAt != null) Text('${l.pairExpiresIn} ${pairingSpan(l, sent.expiresAt!.difference(DateTime.now()))}', style: ts.small),
+              // Past its time the wallet still takes a late reply once, then the invite ends.
+              if ((record ?? sent).expiredAt(DateTime.now()))
+                Text(l.pairLateCheck, style: ts.small)
+              else if ((record ?? sent).expiresAt != null)
+                Text('${l.pairExpiresIn} ${pairingSpan(l, (record ?? sent).expiresAt!.difference(DateTime.now()))}', style: ts.small),
               if (online) ...[SizedBox(height: Sp.x1), Text(l.pairByItself, style: ts.small)],
+              // The invite's relay is not answering: the reply comes by message only.
+              if (online && (record?.relayDown ?? false)) ...[
+                SizedBox(height: Sp.x3),
+                ENotice(title: l.pairRelayUnreachableTitle, text: record!.homeRelay.isEmpty ? null : record.homeRelay, tone: ETone.warn),
+              ],
               SizedBox(height: Sp.x4),
               Wrap(
                 spacing: Sp.x2,

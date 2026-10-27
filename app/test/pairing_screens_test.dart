@@ -900,6 +900,54 @@ void main() {
     });
   });
 
+  group('pair-core states in the message way', () {
+    testWidgets('the inviter\'s wait: an invite that ends without a reply says why', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairMessageScreen());
+      await tester.tap(find.byKey(pairShareKey));
+      await _frames(tester);
+      h.api.failPending(h.api.records.single.id, PairingFailure.noAnswer);
+      await _frames(tester);
+      expect(find.byType(PairingOutcomeScreen), findsOneWidget);
+    });
+
+    testWidgets('the joiner\'s reply: an answer never confirmed ends as Not completed', (tester) async {
+      final h = _Harness();
+      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+      await h.pump(tester, PairReplyScreen(pairingId: answered.id, name: 'Anna'), settle: false);
+      h.api.failPending(answered.id, PairingFailure.notCompleted);
+      await _frames(tester);
+      expect(find.byType(PairingOutcomeScreen), findsOneWidget);
+      expect(find.text(_l.pairNotCompletedTitle), findsOneWidget);
+    });
+
+    testWidgets('the inviter\'s wait past its time: Checking for a late answer, and a silent relay by name', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairMessageScreen());
+      await tester.tap(find.byKey(pairShareKey));
+      await _frames(tester);
+      final id = h.api.records.single.id;
+      h.api.records[0] = h.api.records[0].copyWith(relayDown: true, homeRelay: 'epicbox.example.com', expiresAt: DateTime.now().subtract(const Duration(minutes: 1)));
+      await h.container(tester).read(pairingsProvider.notifier).reload();
+      await _frames(tester);
+      expect(h.api.records.single.id, id);
+      expect(find.text(_l.pairLateCheck), findsOneWidget);
+      expect(find.text(_l.pairRelayUnreachableTitle), findsOneWidget);
+      expect(find.text('epicbox.example.com'), findsOneWidget);
+    });
+
+    testWidgets('a contact whose pairing the other side removed: Removed by, and Pair again', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
+      h.api.removedByPeer('p1');
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      expect(find.text(_l.trustRemovedBy('Anna')), findsOneWidget);
+      expect(find.byKey(contactPageHeaderPairKey), findsOneWidget);
+    });
+  });
+
   group('Pending invites', () {
     testWidgets('empty: says how an invite gets here', (tester) async {
       final h = _Harness();

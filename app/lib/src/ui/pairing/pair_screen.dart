@@ -582,6 +582,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
   bool _busy = false;
   bool _moved = false;
   PairingCollector? _collector;
+  StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId != null && e.pairingId == _sent?.id;
 
   @override
@@ -605,6 +606,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     pairingWordsOnScreen.remove(_onScreen);
     if (_sent case final sent?) pairingStepsOnScreen.remove(sent.id);
     _collector?.stop();
+    _events?.cancel();
     super.dispose();
   }
 
@@ -637,7 +639,15 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     if (!mounted) return;
     pairingStepsOnScreen[invite.id] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     setState(() => _sent = invite);
-    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(ref.read(pairingApiProvider))..start();
+    final api = ref.read(pairingApiProvider);
+    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api)..start();
+    // The invite ended without a reply (no answer in time, cancelled elsewhere): why, on its own screen.
+    _events = api.events().listen((e) {
+      if (e.pairingId != invite.id || e.kind != PairingEventKind.failed || e.failure == null || _moved || !mounted) return;
+      if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+      _moved = true;
+      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => PairingOutcomeScreen(failure: e.failure!, name: e.name)));
+    });
   }
 
   /// Paste reply: the reply in the clipboard, opened as the offer would.
@@ -784,14 +794,22 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
           const SizedBox(height: 8),
           Text(l.pairAwaitReplyBody, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
           const SizedBox(height: 16),
-          if (sent.expiresAt != null)
+          // Past its time the wallet still takes a late reply once, then the invite ends.
+          if ((record ?? sent).expiredAt(ref.watch(pairingClockProvider)()))
+            PairSmallPrint(l.pairLateCheck)
+          else if ((record ?? sent).expiresAt != null)
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 260),
-                child: PairCountdown(until: sent.expiresAt!, label: l.pairExpiresIn),
+                child: PairCountdown(until: (record ?? sent).expiresAt!, label: l.pairExpiresIn),
               ),
             ),
           if (online) ...[const SizedBox(height: 16), PairSmallPrint(l.pairByItself)],
+          // The invite's relay is not answering: the reply comes by message only.
+          if (online && (record?.relayDown ?? false)) ...[
+            const SizedBox(height: 16),
+            PairEdgeNotice(tone: BadgeTone.warn, title: l.pairRelayUnreachableTitle, body: record!.homeRelay.isEmpty ? null : record.homeRelay),
+          ],
         ],
       ),
     );

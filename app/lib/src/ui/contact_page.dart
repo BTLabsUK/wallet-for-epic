@@ -215,7 +215,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final pairing = pairs ? ref.watch(contactPairingProvider(contact.id)) : null;
     // An invite or answer for this contact in flight.
     final inFlight = pairs &&
-        pairing == null &&
+        (pairing == null || pairing.removedByPeer) &&
         (ref.watch(pairingsProvider).value ?? const <PairingRecord>[]).any((r) => r.contactId == contact.id && r.state.isPending);
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     return SlotScaffold(
@@ -264,8 +264,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             starred: starred,
             onSend: () => _send(contact, pairing),
             onCode: () => _showCode(contact),
-            onPair: pairs && pairing == null && !inFlight ? () => _pair(contact) : null,
-            onPending: pairs && pairing == null && inFlight
+            onPair: pairs && (pairing == null || pairing.removedByPeer) && !inFlight ? () => _pair(contact) : null,
+            onPending: pairs && (pairing == null || pairing.removedByPeer) && inFlight
                 ? () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PendingInvitesScreen()))
                 : null,
           ),

@@ -520,6 +520,7 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
   String? _error;
   bool _left = false;
   PairingCollector? _collector;
+  StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
@@ -527,9 +528,17 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
+    final api = ref.read(pairingApiProvider);
     if (ref.read(pairNetProvider) == PairNet.online) {
-      _collector = PairingCollector(ref.read(pairingApiProvider), every: const Duration(seconds: 5))..start();
+      _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
     }
+    // The answer ended (Not completed, cancelled by the inviter): why, on its own screen.
+    _events = api.events().listen((e) {
+      if (e.pairingId != widget.pairingId || e.kind != PairingEventKind.failed || e.failure == null || _left || !mounted) return;
+      if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+      _left = true;
+      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => PairingOutcomeScreen(failure: e.failure!, name: e.name)));
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         final link = await ref.read(pairingApiProvider).replyLink(widget.pairingId);
@@ -545,6 +554,7 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
     pairingWordsOnScreen.remove(_onScreen);
     pairingStepsOnScreen.remove(widget.pairingId);
     _collector?.stop();
+    _events?.cancel();
     super.dispose();
   }
 

@@ -592,7 +592,8 @@ class _ContactDetail extends ConsumerWidget {
               size: EBtnSize.sm,
               onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
             ),
-            if (pairs && pairing == null)
+            // Not paired, or the other side removed the pairing: Pair (again).
+            if (pairs && (pairing == null || pairing.removedByPeer))
               deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
                   ? EButton(
                       key: deskContactPairKey,
