@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -27,8 +28,8 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, ContactsArgs arg) async {
-  tester.view.physicalSize = const Size(1280, 1100);
+Future<void> _open(WidgetTester tester, ContactsArgs arg, {Size size = const Size(1280, 1100)}) async {
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet())]);
@@ -113,6 +114,34 @@ void main() {
     expect(pair.label, _l.pairTitle);
     expect(pair.tooltip, startsWith(_l.pairWithName('').trim()));
     expect(tester.getCenter(find.byKey(deskContactPairKey)).dy, tester.getCenter(find.byKey(const ValueKey('contact-send'))).dy);
+  });
+
+  testWidgets('the header keeps Edit, Star and Delete as buttons where they fit, and folds them into a ⋯ menu in a narrow pane', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c6'));
+    expect(find.byKey(deskContactMoreKey), findsNothing);
+    expect(find.byKey(deskContactDeleteKey), findsOneWidget);
+    expect(tester.getCenter(find.byKey(deskContactDeleteKey)).dy, tester.getCenter(find.byKey(const ValueKey('contact-send'))).dy);
+    await _open(tester, const ContactsArgs(selectedId: 'c6'), size: const Size(480, 900));
+    expect(find.byKey(deskContactPairKey), findsOneWidget, reason: 'Send and Pair stay out');
+    expect(find.byKey(deskContactDeleteKey), findsNothing, reason: 'in the menu until it opens');
+    await tester.tap(find.byKey(deskContactMoreKey));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(deskContactEditKey), findsOneWidget);
+    expect(find.byKey(deskContactStarKey), findsOneWidget);
+    expect(find.byKey(deskContactDeleteKey), findsOneWidget);
+  });
+
+  testWidgets('a contact whose pairing the other side removed: Removed by in the Pairing block, no switches, Pair again', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c1'));
+    (_pairing as FakePairing).removedByPeer(mockAnnaPairing);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    // The header badge carries the pairing's name, the Pairing block the contact's.
+    expect(find.text(_l.trustRemovedBy('Anna')), findsOneWidget);
+    expect(find.text(_l.trustRemovedBy('Anna Kowalska')), findsOneWidget);
+    expect(find.text(_l.noticeUnpaired('Anna Kowalska')), findsOneWidget);
+    expect(find.text(_l.contactSealPayments), findsNothing);
+    expect(find.byKey(deskContactPairKey), findsOneWidget);
   });
 
   testWidgets('a paired contact has no Pair in its header', (tester) async {

@@ -578,75 +578,95 @@ class _ContactDetail extends ConsumerWidget {
           ],
         ),
         SizedBox(height: Sp.x5),
-        Wrap(
-          spacing: Sp.x2,
-          runSpacing: Sp.x2,
-          children: [
-            // A contact with no address is paid through its pairing, while it can take one.
-            // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
-            EButton(
-              key: const ValueKey('contact-send'),
-              kind: EBtnKind.primarySoft,
-              label: l.deskConSend,
-              icon: EIcons.send,
-              size: EBtnSize.sm,
-              onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
-            ),
-            // Not paired, or the other side removed the pairing: Pair (again).
-            if (pairs && (pairing == null || pairing.removedByPeer))
-              deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
-                  ? EButton(
-                      key: deskContactPairKey,
-                      label: l.pairBadgePending,
-                      busy: true,
-                      tooltip: l.pairBadgePendingTip,
-                      size: EBtnSize.sm,
-                      onPressed: () => nav.go(DeskRoute.pairPending),
-                    )
-                  : EButton(
-                      key: deskContactPairKey,
-                      label: l.pairTitle,
-                      icon: EIcons.trusted,
-                      tooltip: l.pairWithName(x.name),
-                      size: EBtnSize.sm,
-                      onPressed: () => nav.go(DeskRoute.pair, x),
-                    ),
-            EButton(label: l.deskConEdit, icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
-            EButton(
-              label: x.favourite ? l.deskConUnstar : l.deskConStar,
-              icon: x.favourite ? EIcons.star : EIcons.starOutline,
-              size: EBtnSize.sm,
-              onPressed: () => ref
-                  .read(deskProvider.notifier)
-                  .saveContact(
-                    x.copyWith(favourite: !x.favourite),
-                  )
-                  .then<void>((_) {}, onError: (Object e) {
-                    if (context.mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
-                  }),
-            ),
-            EButton(
-              label: l.deskConDelete,
-              icon: EIcons.trash,
-              kind: EBtnKind.danger,
-              size: EBtnSize.sm,
-              onPressed: () async {
-                final ok = await showDeleteContactDialog(context, x, paired: pairing != null);
-                if (ok != true || !context.mounted) return;
-                try {
-                  // Deleting a paired contact removes this wallet's pairing with it (C-19).
-                  if (pairing != null) await deskPairingCall(ref, (api) => api.removePairing(pairing.id));
-                  await ref.read(deskProvider.notifier).deleteContact(x.id);
-                } on Object catch (e) {
-                  if (context.mounted) showEToast(context, l.deskConNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
-                  return;
-                }
-                if (context.mounted) showEToast(context, l.deskConDeleted(x.name), tone: ETone.ok);
-                onDeleted();
-              },
-            ),
-          ],
-        ),
+        // Send and Pair stay buttons; Edit, Star and Delete fold into a ⋯ menu where the pane
+        // is too narrow for the row (Pairing UX plan 4.3), so the row never wraps.
+        LayoutBuilder(builder: (context, box) {
+          final pairLabel = !pairs || (pairing != null && !pairing.removedByPeer)
+              ? null
+              : deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
+                  ? l.pairBadgePending
+                  : l.pairTitle;
+          final fold = !_actionsFit(context, [
+            l.deskConSend,
+            ?pairLabel,
+            l.deskConEdit,
+            x.favourite ? l.deskConUnstar : l.deskConStar,
+            l.deskConDelete,
+          ], box.maxWidth);
+          final star = EButton(
+            label: x.favourite ? l.deskConUnstar : l.deskConStar,
+            icon: x.favourite ? EIcons.star : EIcons.starOutline,
+            size: EBtnSize.sm,
+            onPressed: () => ref
+                .read(deskProvider.notifier)
+                .saveContact(x.copyWith(favourite: !x.favourite))
+                .then<void>((_) {}, onError: (Object e) {
+                  if (context.mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+                }),
+          );
+          Future<void> delete() async {
+            final ok = await showDeleteContactDialog(context, x, paired: pairing != null);
+            if (ok != true || !context.mounted) return;
+            try {
+              // Deleting a paired contact removes this wallet's pairing with it (C-19).
+              if (pairing != null) await deskPairingCall(ref, (api) => api.removePairing(pairing.id));
+              await ref.read(deskProvider.notifier).deleteContact(x.id);
+            } on Object catch (e) {
+              if (context.mounted) showEToast(context, l.deskConNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
+              return;
+            }
+            if (context.mounted) showEToast(context, l.deskConDeleted(x.name), tone: ETone.ok);
+            onDeleted();
+          }
+          return Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              // A contact with no address is paid through its pairing, while it can take one.
+              // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
+              EButton(
+                key: const ValueKey('contact-send'),
+                kind: EBtnKind.primarySoft,
+                label: l.deskConSend,
+                icon: EIcons.send,
+                size: EBtnSize.sm,
+                onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
+              ),
+              // Not paired, or the other side removed the pairing: Pair (again).
+              if (pairs && (pairing == null || pairing.removedByPeer))
+                deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
+                    ? EButton(
+                        key: deskContactPairKey,
+                        label: l.pairBadgePending,
+                        busy: true,
+                        tooltip: l.pairBadgePendingTip,
+                        size: EBtnSize.sm,
+                        onPressed: () => nav.go(DeskRoute.pairPending),
+                      )
+                    : EButton(
+                        key: deskContactPairKey,
+                        label: l.pairTitle,
+                        icon: EIcons.trusted,
+                        tooltip: l.pairWithName(x.name),
+                        size: EBtnSize.sm,
+                        onPressed: () => nav.go(DeskRoute.pair, x),
+                      ),
+              if (fold)
+                _ContactMoreMenu(
+                  items: [
+                    (deskContactEditKey, EIcons.pencil, l.deskConEdit, false, onEdit),
+                    (deskContactStarKey, star.icon!, star.label, false, star.onPressed!),
+                    (deskContactDeleteKey, EIcons.trash, l.deskConDelete, true, delete),
+                  ],
+                )
+              else ...[
+                EButton(key: deskContactEditKey, label: l.deskConEdit, icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
+                KeyedSubtree(key: deskContactStarKey, child: star),
+                EButton(key: deskContactDeleteKey, label: l.deskConDelete, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: delete),
+              ],
+            ],
+          );
+        }),
         if (x.addresses.isEmpty && pairing != null && !pairing.paysByMailbox) ...[
           SizedBox(height: Sp.x2),
           Text(
@@ -1110,7 +1130,8 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     final x = widget.contact;
     final p = widget.pairing;
     final nav = ref.read(deskNavProvider.notifier);
-    if (p == null) {
+    // Not paired, or the other side removed it (no switches on a dead pairing): Pair (again).
+    if (p == null || p.removedByPeer) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1120,8 +1141,8 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             gap: false,
             rows: [
               ESetRow(
-                title: l.pairNotPaired,
-                text: l.pairNotPairedHint,
+                title: p == null ? l.pairNotPaired : l.trustRemovedBy(x.name),
+                text: p == null ? l.pairNotPairedHint : l.noticeUnpaired(x.name),
                 control: EButton(label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
               ),
             ],
@@ -1248,6 +1269,73 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
 const Key deskContactsPairKey = ValueKey('desk-contacts-pair');
 const Key deskContactsPendingKey = ValueKey('desk-contacts-pending');
 const Key deskContactPairKey = ValueKey('desk-contact-pair');
+const Key deskContactMoreKey = ValueKey('desk-contact-more');
+const Key deskContactEditKey = ValueKey('desk-contact-edit');
+const Key deskContactStarKey = ValueKey('desk-contact-star');
+const Key deskContactDeleteKey = ValueKey('desk-contact-delete');
+
+/// Whether the header's buttons ([labels], each an icon and a word at [EBtnSize.sm]) share one
+/// line of [width]: measured as [EButton] lays them out, so German and Russian fold where
+/// English still fits.
+bool _actionsFit(BuildContext context, List<String> labels, double width) {
+  // The button's text style, merged as its Text merges it; the face is 1 px of border each side.
+  final style = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w600, height: 1.2));
+  final scaler = MediaQuery.textScalerOf(context);
+  var need = Sp.x2 * (labels.length - 1);
+  for (final label in labels) {
+    final p = TextPainter(text: TextSpan(text: label, style: style), textDirection: TextDirection.ltr, textScaler: scaler, maxLines: 1)..layout();
+    need += 2 + Sp.x3 * 2 + 18.u + Sp.x2 + p.width;
+  }
+  return need <= width;
+}
+
+/// The contact header's ⋯ menu: Edit, Star or Unstar, Delete (in risk ink).
+class _ContactMoreMenu extends StatelessWidget {
+  const _ContactMoreMenu({required this.items});
+
+  final List<(Key, IconData, String, bool, VoidCallback)> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    return MenuAnchor(
+      consumeOutsideTap: true,
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(c.s4),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong))),
+      ),
+      menuChildren: [
+        for (final (key, icon, label, risk, run) in items)
+          MenuItemButton(
+            key: key,
+            onPressed: run,
+            style: ButtonStyle(
+              minimumSize: WidgetStatePropertyAll(Size(200.u, 40.u)),
+              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
+              backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.s3 : null),
+            ),
+            leadingIcon: Icon(icon, size: Ctl.iconSm, color: risk ? c.risk : c.dim),
+            child: Text(label, style: risk ? ts.body.copyWith(color: c.risk) : ts.body),
+          ),
+      ],
+      builder: (context, controller, _) => CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
+        child: EIconButton(
+          key: deskContactMoreKey,
+          icon: EIcons.dots,
+          label: l.contactMore,
+          size: EBtnSize.sm,
+          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+        ),
+      ),
+    );
+  }
+}
 const Key deskPairHintKey = ValueKey('desk-pair-hint');
 const Key deskPairLearnKey = ValueKey('desk-pair-learn');
 

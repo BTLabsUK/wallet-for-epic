@@ -275,6 +275,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             PairSection(l.contactPairing),
             if (pairing == null)
               _NotPaired(onPair: () => _pair(contact))
+            // The other side removed it: no switches on a dead pairing, Pair again instead.
+            else if (pairing.removedByPeer)
+              _NotPaired(onPair: () => _pair(contact), title: l.trustRemovedBy(contact.name), hint: l.noticeUnpaired(contact.name), removed: true)
             else
               _PairingBlock(
                 contact: contact,
@@ -562,9 +565,14 @@ class AddressText extends StatelessWidget {
 }
 
 class _NotPaired extends StatelessWidget {
-  const _NotPaired({required this.onPair});
+  const _NotPaired({required this.onPair, this.title, this.hint, this.removed = false});
 
   final VoidCallback onPair;
+
+  /// Instead of Not paired: the pairing the other side removed, with its reason.
+  final String? title;
+  final String? hint;
+  final bool removed;
 
   @override
   Widget build(BuildContext context) {
@@ -577,14 +585,14 @@ class _NotPaired extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
           child: Row(
             children: [
-              Icon(EpicGlyphs.paired, color: t.dim),
+              Icon(removed ? EpicGlyphs.keysChanged : EpicGlyphs.paired, color: removed ? t.risk : t.dim),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.pairNotPaired, style: theme.textTheme.bodyLarge),
-                    Text(l.pairNotPairedHint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                    Text(title ?? l.pairNotPaired, style: theme.textTheme.bodyLarge),
+                    Text(hint ?? l.pairNotPairedHint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                   ],
                 ),
               ),

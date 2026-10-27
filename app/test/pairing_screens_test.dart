@@ -943,8 +943,12 @@ void main() {
       h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
       h.api.removedByPeer('p1');
       await h.pump(tester, const ContactPage(contactId: 'c1'));
-      expect(find.text(_l.trustRemovedBy('Anna')), findsOneWidget);
+      // The badge and the Pairing card both say so; the dead pairing has no switches.
+      expect(find.text(_l.trustRemovedBy('Anna')), findsNWidgets(2));
+      expect(find.text(_l.noticeUnpaired('Anna')), findsOneWidget);
+      expect(find.byKey(contactPageSealKey), findsNothing);
       expect(find.byKey(contactPageHeaderPairKey), findsOneWidget);
+      expect(find.byKey(contactPagePairKey), findsOneWidget);
     });
   });
 

@@ -86,6 +86,17 @@ final List<DeskShot> invoiceSetShotsCore = [
   const DeskShot(id: 'inv-set-03-contact-verified', title: 'Contact: verified pairing, two addresses', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1')),
   const DeskShot(id: 'inv-set-04-contact-not-paired', title: 'Contact: not paired', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c3')),
   const DeskShot(id: 'inv-set-05-contact-edit', title: 'Contact form: one address per kind', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c6', editing: true)),
+  // The other side removed the pairing: Removed by Anna in the header, Pair again beside Send.
+  DeskShot(
+    id: 'inv-set-07b-contact-removed',
+    title: 'Contact: the other side removed the pairing',
+    route: DeskRoute.contacts,
+    arg: const ContactsArgs(selectedId: 'c1'),
+    prepare: (c, _) async {
+      (c.read(deskApiProvider) as MockDeskWallet).pairing.removedByPeer(mockAnnaPairing);
+      c.invalidate(deskPairingsProvider);
+    },
+  ),
   const DeskShot(id: 'inv-set-07-contact-keys-changed', title: 'Contact: keys changed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c9')),
   const DeskShot(id: 'inv-set-08-contact-exchange', title: 'Contact: an exchange, invoices allowed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c8')),
   const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: the three ways, Words open, Got words or a link?', route: DeskRoute.pair),
