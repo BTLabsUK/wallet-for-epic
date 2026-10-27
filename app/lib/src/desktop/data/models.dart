@@ -280,9 +280,14 @@ class Tx {
     this.senderPosted = false,
     this.pairingId,
     this.blockWait = BlockWait.none,
+    this.credited = 0,
   });
 
   final int id;
+
+  /// What the transaction pays to this wallet, in nano: a send's change, a payment received.
+  /// The change of a send not in a block yet counts in [Balance.awaitingFinalization].
+  final int credited;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
   /// `l:<id>`); what labels and details are stored under.
@@ -451,6 +456,7 @@ class Tx {
       senderPosted: senderPosted,
       pairingId: pairingId,
       blockWait: blockWait,
+      credited: credited,
     );
   }
 
@@ -459,6 +465,14 @@ class Tx {
   bool get incoming => direction == TxDirection.received;
   bool get pending => state == TxState.waitingRecipient || state == TxState.posted || state == TxState.confirming;
 }
+
+/// What of [Balance.awaitingFinalization] is this wallet's own: the change of a send, and the
+/// receiving side of a split or consolidation, while not in a block. The core counts the
+/// change there and the coins it comes from in [Balance.locked], so it is never money waiting
+/// for a sender, and Total leaves it out until the block.
+int ownChangeOffChain(Iterable<Tx> txs) => txs
+    .where((t) => t.height == null && t.state != TxState.cancelled && !t.coinbase && (!t.incoming || t.toSelf))
+    .fold(0, (sum, t) => sum + t.credited);
 
 /// Which scan found an output with no record: the one after a restore, or a later one.
 enum FoundDuring { restore, rescan }

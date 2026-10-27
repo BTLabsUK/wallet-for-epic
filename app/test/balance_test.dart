@@ -197,6 +197,50 @@ void main() {
     expect(all.map((t) => t.kind), [BalanceKind.senderPosted, BalanceKind.total]);
   });
 
+  test('a send in flight: its change is not Waiting for sender; Total = spendable + confirming + locked', () {
+    // 0.1 in one output; 0.01 sent with a 0.008 fee, not in a block yet: LEPIC locks the 0.1
+    // and counts the 0.082 change as awaiting finalization, outside Total.
+    TxEntry tx(TxKind kind, num credited, {String? transport, BigInt? height}) => TxEntry(
+      key: 's:${kind.name}$credited',
+      kind: kind,
+      status: height == null ? TxStatus.awaitingConfirmation : TxStatus.confirmed,
+      source: TxSource.wallet,
+      createdAtUnix: 0,
+      timeUnix: 0,
+      confirmed: height != null,
+      blockHeight: height,
+      amountCredited: _epic(credited),
+      amountDebited: kind == TxKind.sent ? _epic(0.1) : BigInt.zero,
+      numInputs: 1,
+      numOutputs: 1,
+      outputCommits: const [],
+      transport: transport,
+      cancellable: false,
+      repostable: false,
+      releasable: false,
+    );
+    final summary = _summary(locked: 0.1, waiting: 0.082);
+    final txs = [tx(TxKind.sent, 0.082)];
+    expect(ownChangeOffChain(txs), _epic(0.082));
+    final tiles = balanceTiles(l, summary, empty: false, ownChange: ownChangeOffChain(txs));
+    expect(tiles.map((t) => (t.kind, t.value)), [
+      (BalanceKind.locked, _epic(0.1)),
+      (BalanceKind.total, _epic(0.1)),
+    ]);
+    expect(summary.total, summary.spendable + summary.awaitingConfirmation + summary.locked);
+    // Someone else's payment beside it still waits for its sender; a confirmed send and a
+    // received payment add no change.
+    final more = [...txs, tx(TxKind.received, 2), tx(TxKind.sent, 5, height: BigInt.from(10))];
+    expect(ownChangeOffChain(more), _epic(0.082));
+    expect(
+      balanceTiles(l, _summary(locked: 0.1, waiting: 2.082), empty: false, ownChange: ownChangeOffChain(more))
+          .map((t) => (t.kind, t.value)),
+      [(BalanceKind.waitingSender, _epic(2)), (BalanceKind.locked, _epic(0.1)), (BalanceKind.total, _epic(0.1))],
+    );
+    // A split's receiving side is the wallet's own too.
+    expect(ownChangeOffChain([tx(TxKind.received, 3, transport: 'self')]), _epic(3));
+  });
+
   group('coins on hold beside a spendable 0', () {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,

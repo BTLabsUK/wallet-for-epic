@@ -24,6 +24,20 @@ bool outputsShown(BuildContext context, WidgetRef ref) =>
     (ref.watch(sessionProvider) != null &&
         (ref.watch(homeProvider).value?.transactions.any((t) => t.repostable) ?? false));
 
+/// What of [WalletSummary.awaitingFinalization] is the wallet's own: the change of a send,
+/// and the receiving side of a split or consolidation, while not in a block. LEPIC counts the
+/// change there and the coins it comes from in [WalletSummary.locked], and leaves it out of
+/// Total until the block: it is not money waiting for a sender.
+BigInt ownChangeOffChain(Iterable<TxEntry> txs) => txs
+    .where(
+      (t) =>
+          t.blockHeight == null &&
+          !t.confirmed &&
+          (t.kind == TxKind.sent ||
+              (t.kind == TxKind.received && t.transport == 'self')),
+    )
+    .fold(BigInt.zero, (sum, t) => sum + t.amountCredited);
+
 /// What a balance tile shows.
 enum BalanceKind {
   /// In a block, confirming.
@@ -64,13 +78,17 @@ List<BalanceTileData> balanceTiles(
   WalletSummary summary, {
   required bool empty,
   BigInt? senderPosted,
+  BigInt? ownChange,
 }) {
+  BigInt upTo(BigInt? v, BigInt most) =>
+      v == null || v <= BigInt.zero ? BigInt.zero : (v > most ? most : v);
+  // The change of the wallet's own sends is in Locked in sends already ([ownChangeOffChain]):
+  // never Waiting for sender.
+  final own = upTo(ownChange, summary.awaitingFinalization);
   // What senders report posted moves out of Waiting for sender into its own tile, named as
   // its rows are: the tile and the row say the same.
-  final posted = senderPosted == null || senderPosted <= BigInt.zero
-      ? BigInt.zero
-      : (senderPosted > summary.awaitingFinalization ? summary.awaitingFinalization : senderPosted);
-  final waiting = summary.awaitingFinalization - posted;
+  final posted = upTo(senderPosted, summary.awaitingFinalization - own);
+  final waiting = summary.awaitingFinalization - own - posted;
   final pending = <BalanceTileData>[
     if (summary.awaitingConfirmation > BigInt.zero)
       (
@@ -160,6 +178,7 @@ class BalanceTiles extends ConsumerWidget {
       senderPosted: (data?.transactions ?? const <TxEntry>[])
           .where((t) => senderReportsPosted(t, now: now))
           .fold<BigInt>(BigInt.zero, (sum, t) => sum + t.amountCredited),
+      ownChange: ownChangeOffChain(data?.transactions ?? const <TxEntry>[]),
     );
     // The row grows with the text scale: label line, value line and the paddings.
     final scaler = MediaQuery.textScalerOf(context);

@@ -321,10 +321,11 @@ class _BalancePanel extends ConsumerWidget {
     final b = balance;
     // What senders report posted leaves Awaiting finalization for its own line, named as its
     // rows are; it is still not in a block, so not in Total (LNX-13).
-    final reported = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
-        .where((t) => t.incoming && t.senderPosted)
-        .fold<int>(0, (sum, t) => sum + t.amount);
-    final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization);
+    final txs = ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[];
+    final reported = txs.where((t) => t.incoming && t.senderPosted).fold<int>(0, (sum, t) => sum + t.amount);
+    // The change of this wallet's own sends is in Locked in sends already: never awaiting anyone.
+    final own = b == null ? 0 : ownChangeOffChain(txs).clamp(0, b.awaitingFinalization);
+    final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization - own);
     final amount = b == null
         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_Skeleton(width: 260.u, height: 40.u), SizedBox(height: Sp.x4), _Trace(width: 260.u)])
         : _BigAmount(nano: b.spendable, hidden: hidden, dim: updating);
@@ -338,7 +339,8 @@ class _BalancePanel extends ConsumerWidget {
           children: empty
               ? [EButton.primary(label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))]
               : [
-                  EButton.primary(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
+                  // Send and Receive look alike: neither is the one thing to do here.
+                  EButton(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
                   EButton(label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
                 ],
         ),
@@ -422,7 +424,7 @@ class _BalancePanel extends ConsumerWidget {
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, size: Ctl.iconSm)),
                 if (b == null || b.immature > 0) (l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
               ];

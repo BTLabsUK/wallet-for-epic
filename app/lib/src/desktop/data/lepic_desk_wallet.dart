@@ -5307,6 +5307,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
     pairingId: e.pairingId,
     blockWait: wait,
+    credited: e.amountCredited.toInt(),
   );
 }
 
