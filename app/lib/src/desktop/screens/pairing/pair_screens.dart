@@ -180,6 +180,18 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     });
   }
 
+  /// Opened again on another way while it is up (the same route): that way.
+  @override
+  void didUpdateWidget(DeskPairScreen old) {
+    super.didUpdateWidget(old);
+    final way = widget.arg;
+    if (way is DeskPairWay && way != old.arg && way != _way) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _open(way);
+      });
+    }
+  }
+
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
