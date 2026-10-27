@@ -32,6 +32,12 @@ const Key torIconKey = ValueKey('status-tor');
 /// The key of the Direct receive status icon, for tests.
 const Key directIconKey = ValueKey('status-direct');
 
+/// The keys of the compact row's icons in Send's and Receive's app bar, for tests.
+const Key barNodeIconKey = ValueKey('bar-status-node');
+const Key barEpicboxIconKey = ValueKey('bar-status-epicbox');
+const Key barTorIconKey = ValueKey('bar-status-tor');
+const Key barNetModeKey = ValueKey('bar-status-net-mode');
+
 /// Whether the Tor icon shows: while the switch is on (Starting…, On, Not connected).
 bool torIconShown(PhoneTorState s) => phoneTorState(s) != TorState.off;
 
@@ -91,9 +97,12 @@ const Key netModeStatusKey = ValueKey('status-net-mode');
 /// What the network mode says in place of the node and Epicbox icons: "Offline" (neutral) or
 /// "Waiting for Tor" (the in-progress blue). The words, not a pulse; a tap opens Advanced.
 class NetModeStatus extends StatelessWidget {
-  const NetModeStatus(this.block, {super.key});
+  const NetModeStatus(this.block, {super.key, this.compact = false});
 
   final NetBlock block;
+
+  /// The glyph alone, for the app bar; the word is still what a screen reader says.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -122,23 +131,27 @@ class NetModeStatus extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: statusTarget),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: statusInset),
+              padding: EdgeInsets.symmetric(
+                horizontal: compact ? 4 : statusInset,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     offline ? Icons.cloud_off_outlined : torIcon,
-                    size: statusGlyph,
+                    size: compact ? statusCompactGlyph : statusGlyph,
                     color: color,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    word,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: color,
+                  if (!compact) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      word,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: color,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -151,9 +164,13 @@ class NetModeStatus extends StatelessWidget {
 
 /// The status icons side by side: Node, Epicbox, Tor, Direct, in that order. While the network
 /// mode holds the network back (Offline, or Tor only without Tor) one word stands in for the
-/// Node and Epicbox icons.
+/// Node and Epicbox icons. [compact] is the small row in Send's and Receive's app bar: the same
+/// icons, dots, labels, details and taps, smaller and without Direct receive (which belongs to
+/// Wallet), and the mode's word shrinks to its glyph.
 class StatusIcons extends ConsumerWidget {
-  const StatusIcons({super.key});
+  const StatusIcons({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -196,10 +213,15 @@ class StatusIcons extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (block != NetBlock.none)
-          NetModeStatus(block, key: netModeStatusKey)
+          NetModeStatus(
+            block,
+            key: compact ? barNetModeKey : netModeStatusKey,
+            compact: compact,
+          )
         else ...[
           StatusIcon(
-            key: nodeStatusKey,
+            key: compact ? barNodeIconKey : nodeStatusKey,
+            compact: compact,
             icon: node.icon,
             dot: nodeTor.dot,
             label: nodeTor.label,
@@ -210,7 +232,8 @@ class StatusIcons extends ConsumerWidget {
             onTap: () => showNodePicker(context),
           ),
           StatusIcon(
-            key: epicboxStatusKey,
+            key: compact ? barEpicboxIconKey : epicboxStatusKey,
+            compact: compact,
             icon: epicbox.icon,
             dot: epicboxTor.dot,
             label: epicboxTor.label,
@@ -221,7 +244,8 @@ class StatusIcons extends ConsumerWidget {
         ],
         if (torIconShown(tor) && block != NetBlock.offline)
           StatusIcon(
-            key: torIconKey,
+            key: compact ? barTorIconKey : torIconKey,
+            compact: compact,
             icon: torIcon,
             dot: torDot(torState),
             label: '${l.netStatusTor}, ${torWord(l, torState)}',
@@ -230,7 +254,7 @@ class StatusIcons extends ConsumerWidget {
             pulse: torState == TorState.starting,
             onTap: () => openPrivacySettings(context),
           ),
-        if (directIconShown(tor) && block == NetBlock.none)
+        if (!compact && directIconShown(tor) && block == NetBlock.none)
           StatusIcon(
             key: directIconKey,
             icon: EpicGlyphs.link,

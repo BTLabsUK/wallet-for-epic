@@ -320,6 +320,12 @@ enum StatusDot {
 /// The diameter of the state dot at a status glyph's bottom right, ring included.
 const double statusDotSize = 10;
 
+/// The compact form's tap target width (its height is [statusTarget]), glyph and dot: the
+/// small row in Send's and Receive's app bar.
+const double statusCompactWidth = 26;
+const double statusCompactGlyph = 15;
+const double statusCompactDot = 8;
+
 /// One status as its glyph on a [statusTarget] square, in the dim colour, with the state's
 /// [dot] at its bottom right (ringed in the page colour so it stands off the glyph). A tap
 /// runs [onTap] (the service's screen); a long press or hover shows the tooltip with
@@ -335,6 +341,7 @@ class StatusIcon extends StatelessWidget {
     required this.onTap,
     this.actionHint,
     this.pulse = false,
+    this.compact = false,
   });
 
   final IconData icon;
@@ -345,9 +352,14 @@ class StatusIcon extends StatelessWidget {
   final VoidCallback onTap;
   final bool pulse;
 
+  /// The small form for the app bar: a narrower target, a smaller glyph and dot.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final glyph = compact ? statusCompactGlyph : statusGlyph;
+    final dotSize = compact ? statusCompactDot : statusDotSize;
     final ring = Theme.of(context).scaffoldBackgroundColor;
     // The semantics node is the widget's root, so tests and screen readers find it by key;
     // the tooltip inside it is excluded (its text is the hint).
@@ -364,26 +376,27 @@ class StatusIcon extends StatelessWidget {
         message: detail,
         triggerMode: TooltipTriggerMode.longPress,
         showDuration: const Duration(seconds: 6),
-        child: SizedBox.square(
-          dimension: statusTarget,
+        child: SizedBox(
+          width: compact ? statusCompactWidth : statusTarget,
+          height: statusTarget,
           child: InkResponse(
             onTap: onTap,
-            radius: statusTarget / 2,
+            radius: compact ? statusCompactWidth / 2 + 2 : statusTarget / 2,
             child: Center(
               child: Pulse(
                 active: pulse,
                 child: SizedBox.square(
-                  dimension: statusGlyph,
+                  dimension: glyph,
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Icon(icon, size: statusGlyph, color: t.dim),
+                      Icon(icon, size: glyph, color: t.dim),
                       Positioned(
                         right: -3,
                         bottom: -3,
                         child: Container(
-                          width: statusDotSize,
-                          height: statusDotSize,
+                          width: dotSize,
+                          height: dotSize,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: dot.color(t),
