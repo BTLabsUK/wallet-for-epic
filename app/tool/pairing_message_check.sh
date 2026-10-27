@@ -34,11 +34,25 @@ back_to_app() {
   done
 }
 
-# [text] copied in another app, then back to the phone app.
+# [text] copied in another app (Chrome's address bar), then back to the phone app. Typed in
+# chunks: one long `input text` is cut short. Chrome starts without its first-run screens
+# (a read-only emulator forgets the flag file at shutdown).
 copy_on_phone() {
-  "${A[@]}" shell am start -a android.settings.APP_SEARCH_SETTINGS > /dev/null 2>&1
-  sleep 2.5
-  "${A[@]}" shell input text "'${2// /%s}'"
+  "${A[@]}" shell "echo '_ --disable-fre --no-default-browser-check --no-first-run' > /data/local/tmp/chrome-command-line"
+  "${A[@]}" shell am set-debug-app --persistent com.android.chrome > /dev/null 2>&1
+  "${A[@]}" shell am start -a android.intent.action.VIEW -d about:blank com.android.chrome > /dev/null 2>&1
+  sleep 3
+  local bar
+  "${A[@]}" shell uiautomator dump /sdcard/rc-ui.xml > /dev/null 2>&1
+  bar=$("${A[@]}" shell cat /sdcard/rc-ui.xml | grep -oE 'resource-id="com.android.chrome:id/url_bar"[^>]*bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+' | grep -oE '[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+' | sed 's/\]\[/,/' | tr ',' ' ')
+  [ -n "$bar" ] || bar="210 144 670 275"
+  set -- "$1" "$2" $bar
+  "${A[@]}" shell input tap $(( ($3 + ${5:-$3}) / 2 )) $(( ($4 + ${6:-$4}) / 2 ))
+  sleep 1
+  "${A[@]}" shell input keycombination 113 29
+  "${A[@]}" shell input keyevent 67
+  local e="${2// /%s}" i
+  for ((i = 0; i < ${#e}; i += 60)); do "${A[@]}" shell input text "'${e:$i:60}'"; done
   "${A[@]}" shell input keycombination 113 29
   "${A[@]}" shell input keyevent 278
   sleep 1
@@ -92,13 +106,15 @@ while [ "$(date +%s)" -lt "$end" ]; do
       mark "sas$k"
     fi
   done
-  if grep -q '^RC DONE desk\|RC DONE desk' "$run/desk.log" 2>/dev/null && grep -q 'RC DONE phone' "$run/phone.log" 2>/dev/null; then break; fi
+  if grep -q 'RC DONE desk' "$run/desk.log" 2>/dev/null && grep -q 'RC DONE phone' "$run/phone.log" 2>/dev/null && seen sas3; then break; fi
   if ! kill -0 "$phone" 2>/dev/null && ! kill -0 "$desk" 2>/dev/null; then break; fi
   sleep 2
 done
 
 "${A[@]}" logcat -d > "$run/logcat.txt" 2>/dev/null
 links=$(grep -c 'epiccash://' "$run/logcat.txt")
+# Android logs each "pasted from your clipboard" toast: one per new clip, none for an unchanged one.
+echo "RC NOTE | clipboard toasts: $(grep -c 'pasted from your clipboard' "$run/logcat.txt") at $(grep 'pasted from your clipboard' "$run/logcat.txt" | awk '{print $2}' | tr '\n' ' ')"
 [ "$links" -eq 0 ] && echo "RC PASS | no link text in logcat | $(wc -l < "$run/logcat.txt") lines" || echo "RC FAIL | link text in logcat | $links lines"
 grep -h 'RC PASS\|RC FAIL' "$run/phone.log" | sed 's/^.*RC /phone RC /' | sort -u
 grep -h 'RC PASS\|RC FAIL' "$run/desk.log" | sed 's/^.*RC /desk RC /' | sort -u

@@ -1445,7 +1445,15 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
       actions: [
         EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: link == null ? null : _copyReply),
         EButton(label: l.pairClosed, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
-        EButton.primary(key: deskPasteFinishKey, label: l.pairPasteFinish, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteFinish),
+        // One gold button at a time: the offer's Use it while it is up.
+        EButton(
+          key: deskPasteFinishKey,
+          kind: _found == null ? EBtnKind.primary : EBtnKind.secondary,
+          label: l.pairPasteFinish,
+          icon: EIcons.paste,
+          size: EBtnSize.sm,
+          onPressed: _pasteFinish,
+        ),
       ],
     );
   }
