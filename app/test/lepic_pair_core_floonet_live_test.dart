@@ -131,7 +131,8 @@ void main() {
       case 'fund':
         final (a, aw) = await _wallet('A');
         final report = await aw.drainEpicbox();
-        _say('A drained: $report');
+        _say('A drained: received ${report.received} held ${report.held} rejected ${report.rejected}');
+        await aw.refresh().toList();
         final summary = await aw.summary(refresh: true);
         _say(
           'A total ${summary.total} spendable ${summary.spendable} awaiting ${summary.awaitingConfirmation} height ${summary.lastConfirmedHeight}',
@@ -202,8 +203,10 @@ void main() {
         b.dispose();
 
       case 'restore':
-        final ids = File('$_dir/late.ids').readAsStringSync().split(' ');
-        final (a, _) = await _wallet('A');
+        final (a, aw) = await _wallet('A');
+        // The newest pairing with B on A.
+        final withB = [for (final c in await aw.contacts()) if (c.claimedName == 'Bob') c]..sort((x, y) => x.createdAtMs.compareTo(y.createdAtMs));
+        final ids = [withB.last.contactId];
         final aSeen = <PairingEvent>[];
         final sub = a.pairing.events().listen(aSeen.add);
         await a.pairing.attach(ids[0], 'book-bob');
@@ -282,6 +285,7 @@ void main() {
         final sub = b.invoiceEvents().listen((e) {
           if (e.kind == InvoiceEventKind.paymentPosted) posted.add(e);
         });
+        await aw.refresh().toList();
         final summary = await aw.summary(refresh: true);
         _say('A spendable ${summary.spendable}');
         final tx = await a.pairing.sendViaMailbox(
@@ -303,9 +307,24 @@ void main() {
         _say('B: paymentPosted ${posted.length}; senderReportedPostedAt ${row?.senderReportedPostedAtUnix}; status ${row?.status.name}');
         expect(heard, isTrue);
         expect(row?.senderReportedPostedAtUnix, isNotNull);
+        // The receiver's Home and Activity show "Sender reports posted" by this rule.
+        _say('B: transport ${row?.transport}; senderReportsPosted ${row == null ? null : senderReportsPosted(row, now: DateTime.now())}');
+        expect(senderReportsPosted(row!, now: DateTime.now()), isTrue);
         await sub.cancel();
         a.dispose();
         b.dispose();
+
+      case 'inspect':
+        for (final name in ['A', 'B']) {
+          final (s, w) = await _wallet(name);
+          for (final c in await w.contacts()) {
+            _say('$name contact ${c.contactId.substring(0, 8)} ${c.state.name} claimed ${c.claimedName} created ${DateTime.fromMillisecondsSinceEpoch(c.createdAtMs.toInt()).toUtc()} relay ${c.homeRelay} removed ${c.removedByPeer} words ${c.sas.map((e) => e.name).join(' ')}');
+          }
+          for (final p in await w.pairingsPending()) {
+            _say('$name pending ${p.contactId.substring(0, 8)} inviter ${p.inviter} expires ${DateTime.fromMillisecondsSinceEpoch(p.expiresAtMs.toInt()).toUtc()}');
+          }
+          s.dispose();
+        }
 
       default:
         fail('WFE_LIVE_STEP: setup, fund, relay, late, restore or mailbox');
