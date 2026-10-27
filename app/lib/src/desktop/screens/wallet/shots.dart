@@ -102,8 +102,9 @@ final List<DeskShot> walletShots = [
   ),
   const DeskShot(id: '12j-tx-detail-restored-details', title: 'Transaction detail, restored with details', route: DeskRoute.activity, arg: 103),
   DeskShot(id: '11j-activity-sender-posted', title: 'Activity, an incoming payment whose sender reports it posted', route: DeskRoute.activity, arg: const ActivityArgs(), prepare: _senderPosted),
-  DeskShot(id: '12n-tx-detail-add-contact', title: 'Transaction detail, a send to an address no contact has', route: DeskRoute.activity, arg: 28, prepare: _forgetAnna),
-  DeskShot(id: '12o-tx-detail-add-contact-received', title: 'Transaction detail, a receive from an address no contact has', route: DeskRoute.activity, arg: 27, prepare: _forgetPool),
+  DeskShot(id: '12n-tx-detail-add-contact', title: 'Transaction detail, a confirmed send to an address no contact has: Sent to, Add to contacts', route: DeskRoute.activity, arg: 28, prepare: _forgetAnna),
+  const DeskShot(id: '12p-tx-detail-sent-contact', title: 'Transaction detail, a confirmed send to a saved contact (name shown)', route: DeskRoute.activity, arg: 31),
+  DeskShot(id: '12o-tx-detail-add-contact-received', title: 'Transaction detail, a confirmed receive from an address no contact has: Received from, Add to contacts', route: DeskRoute.activity, arg: 27, prepare: _forgetPool),
   DeskShot(
     id: '37c-add-contact-from-tx',
     title: 'New contact from a payment, its address filled in',
@@ -142,7 +143,7 @@ final List<DeskShot> walletShots = [
   ),
   DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
   DeskShot(id: '35e-dlg-tx-details-edit', title: 'Edit details of a restored payment', route: DeskRoute.activity, arg: 103, dialog: (c) => showTxDetailsDialog(c, _tx(c, 103))),
-  const DeskShot(id: '12-tx-detail', title: 'Transaction detail', route: DeskRoute.activity, arg: 36),
+  const DeskShot(id: '12-tx-detail', title: 'Transaction detail, a confirmed receive from a saved contact (name shown)', route: DeskRoute.activity, arg: 36),
   const DeskShot(id: '12b-tx-detail-file', title: 'Transaction detail, file send', route: DeskRoute.activity, arg: 38),
   // Tall, so the Cancel row with its quiet line and Help link is in the picture.
   const DeskShot(id: '12n-tx-detail-send-cancel', title: 'Transaction detail, a waiting send: Cancel with its quiet line', route: DeskRoute.activity, arg: 38, height: 1150),
