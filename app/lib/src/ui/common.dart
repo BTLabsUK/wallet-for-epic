@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
+import '../devices/device_ending.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
@@ -719,7 +720,8 @@ String txStatusLabel(
   // A completed row says which way the money went, as the desktop does.
   TxPhase.completed => _outgoingKind(tx) ? l.txStatusSent : l.txStatusReceived,
   // Another linked device's payment whose coins this device released: it may still send it.
-  TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice => l.devicesReleasedRow(tx.deviceName ?? ''),
+  TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice =>
+    deviceEndingLabel(l, tx.deviceEnding ?? DeviceEnding.releasedHere, tx.deviceName ?? ''),
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };

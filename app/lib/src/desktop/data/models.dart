@@ -4,6 +4,7 @@
 library;
 
 import '../../advanced.dart';
+import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
 
@@ -290,7 +291,8 @@ class Tx {
     this.blockWait = BlockWait.none,
     this.credited = 0,
     this.deviceName,
-    this.deviceReleased = false,
+    this.deviceEnding,
+    this.deviceWhy,
   });
 
   final int id;
@@ -302,8 +304,11 @@ class Tx {
   /// The linked device that made this send: the row reads "Sent from `<device>`".
   final String? deviceName;
 
-  /// A [deviceName] payment whose coins were released here: its device may still send it.
-  final bool deviceReleased;
+  /// A [deviceName] payment that did not go through, and how it ended ([TxEntry.deviceEnding]).
+  final DeviceEnding? deviceEnding;
+
+  /// The other device's code for why a payment failed there.
+  final String? deviceWhy;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
   /// `l:<id>`); what labels and details are stored under.
@@ -475,7 +480,8 @@ class Tx {
       blockWait: blockWait,
       credited: credited,
       deviceName: deviceName,
-      deviceReleased: deviceReleased,
+      deviceEnding: deviceEnding,
+      deviceWhy: deviceWhy,
     );
   }
 

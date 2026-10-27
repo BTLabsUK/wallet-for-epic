@@ -23712,5 +23712,76 @@
   "deskDevOfferReceived": "Is this your other device? Link it to see who sent it and to keep both in step.",
   "@deskDevOfferReceived": {
     "description": "Quiet line at the end of the details of a payment received by another wallet."
+  },
+  "devicesEndCancelled": "Cancelled on {name}",
+  "@devicesEndCancelled": {
+    "description": "Status of a linked device's payment that device cancelled.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndFailed": "Failed on {name}",
+  "@devicesEndFailed": {
+    "description": "Status of a linked device's payment that failed on that device.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndExpired": "Expired on {name}",
+  "@devicesEndExpired": {
+    "description": "Status of a linked device's payment that ran out of time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndLineCancelled": "{name} cancelled this payment. Its coins are free again.",
+  "@devicesEndLineCancelled": {
+    "description": "Details line of a payment the other device cancelled.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndLineExpired": "{name} did not finish this payment in time. Its coins are free again.",
+  "@devicesEndLineExpired": {
+    "description": "Details line of a payment that ran out of time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesWhyNotDelivered": "{name} could not deliver it to the recipient. Its coins are free again.",
+  "@devicesWhyNotDelivered": {
+    "description": "Details line of a payment that failed because it never reached the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesWhyRefused": "The recipient’s server refused it. Its coins are free again.",
+  "@devicesWhyRefused": {
+    "description": "Details line of a payment the recipient's server refused."
+  },
+  "devicesWhyInputsSpent": "Its coins had been spent already.",
+  "@devicesWhyInputsSpent": {
+    "description": "Details line of a payment that failed because its coins had been spent already."
+  },
+  "devicesWhyOther": "{name} could not complete it. Its coins are free again.",
+  "@devicesWhyOther": {
+    "description": "Details line of a payment that failed for no reason the other device named.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -154,6 +154,10 @@ bool _sas(Object? v) => v is List && v.length == 4 && v.every((s) => _str(s, max
 /// The payment states a `status` notice names.
 const noticeStatusStates = {'finalized', 'posted', 'cancelled', 'expired', 'failed', 'released'};
 
+/// The codes a failed payment's `status` notice may carry as `why`: no free text goes over the
+/// wire, the receiving device words them in its own language.
+const noticeFailureCodes = {'notDelivered', 'refused', 'inputsSpent', 'other'};
+
 /// Whether [body] is a valid body of [type].
 bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.hello =>
@@ -173,7 +177,11 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
         _optInt(b['cutoffHeight']) &&
         _optInt(b['createdAt']),
   NoticeType.status =>
-    _str(b['slateId'], max: 64) && noticeStatusStates.contains(b['state']) && _optStr(b['kernel'], max: 66) && _optInt(b['height']),
+    _str(b['slateId'], max: 64) &&
+        noticeStatusStates.contains(b['state']) &&
+        _optStr(b['kernel'], max: 66) &&
+        _optInt(b['height']) &&
+        (b['why'] == null || (b['why'] is String && noticeFailureCodes.contains(b['why']))),
   NoticeType.rename => _str(b['name'], max: deviceNameMaxLength),
   NoticeType.servers => _servers(b['set']) && b['version'] is int,
   NoticeType.serversOk => b['version'] is int,

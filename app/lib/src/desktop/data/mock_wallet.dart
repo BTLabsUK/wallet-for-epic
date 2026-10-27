@@ -14,7 +14,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
+import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -539,14 +539,14 @@ class MockDeskWallet implements DeskWalletApi {
     final book = _deviceBook?.call();
     if (book == null) return const [];
     return [
-      for (final (i, h) in book.holds.where((h) => h.state.holds || h.state == HoldState.spent || h.state.releasedHere).indexed)
+      for (final (i, h) in book.holds.where((h) => h.state.holds || h.state == HoldState.spent || h.state.freed).indexed)
         Tx(
           id: -100 - i,
           slateId: h.slateId,
           direction: TxDirection.sent,
           state: h.state == HoldState.spent
               ? TxState.confirmed
-              : h.state.releasedHere
+              : h.state.freed
               ? TxState.cancelled
               : (h.state == HoldState.posted ? TxState.posted : TxState.waitingRecipient),
           method: TxMethod.epicbox,
@@ -556,7 +556,8 @@ class MockDeskWallet implements DeskWalletApi {
           counterparty: h.counterparty,
           message: h.message,
           deviceName: book.device(h.deviceId)?.name ?? h.deviceName,
-          deviceReleased: h.state.releasedHere,
+          deviceEnding: h.ending,
+          deviceWhy: h.ending == DeviceEnding.failed ? h.why : null,
           key: 'd:${h.deviceId}:${h.slateId}',
         ),
     ];

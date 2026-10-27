@@ -4,8 +4,9 @@
 /// chain shows its coins spent, LEPIC's chain check lists a row of [TxOrigin.otherWallet] whose
 /// `spentCommits` include them: that row becomes the device's row, with the details the notice
 /// brought, so the payment never shows twice, whether its coins were held or released here.
-/// Coins released here show as a cancelled row ("Released here · Desktop may still send it")
-/// until the chain decides; coins the device itself said it freed show nothing.
+/// A payment that ended without spending its coins stays as a cancelled row that says how
+/// (released here, cancelled, failed or expired on the device) until the chain decides: a
+/// payment whose cancel came too late comes back as the same row, confirmed.
 library;
 
 import '../models.dart';
@@ -18,7 +19,9 @@ String deviceRowKey(HeldPayment h) => 'd:${h.deviceId}:${h.slateId}';
 /// merged in, newest first.
 List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
   if (book.holds.isEmpty) return rows;
-  final shown = [for (final h in book.holds) if (h.state.holds || h.state.releasedHere || h.state == HoldState.spent) h];
+  // Held, ended without spending (by the device, by the fallbacks or by hand) and confirmed all
+  // keep their row.
+  final shown = [for (final h in book.holds) if (h.state.holds || h.state.freed || h.state == HoldState.spent) h];
   final used = <HeldPayment>{};
   final out = <TxEntry>[];
   for (final r in rows) {
@@ -48,7 +51,8 @@ TxEntry deviceRow(HeldPayment h, String name, {TxEntry? chain}) {
   final made = (h.createdAt ?? h.lockedAt).millisecondsSinceEpoch ~/ 1000;
   final spent = h.amount + (h.fee ?? BigInt.zero);
   final message = h.message;
-  final released = chain == null && h.state.releasedHere;
+  final ending = chain == null ? h.ending : null;
+  final released = ending != null;
   return TxEntry(
     // One key from the first notice on, so the row stays the same row once the chain confirms it.
     key: deviceRowKey(h),
@@ -76,6 +80,8 @@ TxEntry deviceRow(HeldPayment h, String name, {TxEntry? chain}) {
     outputCommits: chain?.outputCommits ?? const [],
     counterparty: h.counterparty,
     deviceName: name,
+    deviceEnding: ending,
+    deviceWhy: ending == DeviceEnding.failed ? h.why : null,
     transport: h.method,
     note: chain?.note,
     label: chain?.label,

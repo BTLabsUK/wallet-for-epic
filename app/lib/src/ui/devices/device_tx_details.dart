@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../devices/device_ending.dart';
 import '../../devices/device_providers.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
@@ -50,6 +51,8 @@ class DeviceTxDetails extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Row(children: [TxStatusChip(tx: tx, tip: tip)]),
+          if (tx.deviceEnding case final ending?)
+            if (deviceEndingLine(l, ending, name, tx.deviceWhy) case final line?) ...[const SizedBox(height: 8), PairSmallPrint(line)],
           const SizedBox(height: 16),
           PairCard(
             children: [

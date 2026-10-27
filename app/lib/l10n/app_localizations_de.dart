@@ -17970,4 +17970,46 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskDevOfferReceived =>
       'Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, von wem es kam, und beide abzugleichen.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Auf $name storniert';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Auf $name fehlgeschlagen';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Auf $name abgelaufen';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name hat diese Zahlung storniert. Ihre Münzen sind wieder frei.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name hat diese Zahlung nicht rechtzeitig abgeschlossen. Ihre Münzen sind wieder frei.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name konnte sie dem Empfänger nicht zustellen. Ihre Münzen sind wieder frei.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'Der Server des Empfängers hat sie abgelehnt. Ihre Münzen sind wieder frei.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Ihre Münzen waren bereits ausgegeben.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name konnte sie nicht abschließen. Ihre Münzen sind wieder frei.';
+  }
 }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
+import '../../../models.dart' show DeviceEnding;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
@@ -113,8 +115,8 @@ IconData iconOf(Tx t) => switch (t.method) {
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(AppLocalizations l, Tx t) => t.deviceReleased
-    ? (l.devicesReleasedRow(t.deviceName ?? ''), ETone.warn)
+(String, ETone) statusOf(AppLocalizations l, Tx t) => t.deviceEnding != null
+    ? (deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''), t.deviceEnding == DeviceEnding.failed ? ETone.risk : ETone.warn)
     : t.fromBackup
     ? (l.deskTxFromBackup, ETone.neutral)
     : t.immature

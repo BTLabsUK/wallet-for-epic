@@ -18210,4 +18210,46 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskDevOfferReceived =>
       'Это ваше другое устройство? Свяжите его, чтобы видеть, от кого оно, и держать оба в согласии.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Отменено на $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Не удалось на $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Истекло на $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return 'Платёж отменён на $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return 'Платёж не завершён вовремя на $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return 'Платёж не удалось доставить получателю с $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'Сервер получателя отклонил его. Его монеты снова свободны.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Его монеты уже были потрачены.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return 'Платёж не удалось завершить на $name. Его монеты снова свободны.';
+  }
 }

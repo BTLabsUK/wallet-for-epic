@@ -5377,7 +5377,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     blockWait: wait,
     credited: e.amountCredited.toInt(),
     deviceName: e.origin == core.TxOrigin.linkedDevice ? e.deviceName : null,
-    deviceReleased: e.origin == core.TxOrigin.linkedDevice && e.status == core.TxStatus.cancelled,
+    deviceEnding: e.origin == core.TxOrigin.linkedDevice ? e.deviceEnding : null,
+    deviceWhy: e.origin == core.TxOrigin.linkedDevice ? e.deviceWhy : null,
   );
 }
 

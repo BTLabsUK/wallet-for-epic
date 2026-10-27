@@ -18242,4 +18242,46 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskDevOfferReceived =>
       'Czy to twoje drugie urządzenie? Połącz je, aby widzieć, kto wysłał, i trzymać oba w zgodzie.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Anulowano na: $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Nie powiodło się na: $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Wygasło na: $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return 'Płatność została anulowana na: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return 'Płatność nie została ukończona na czas na: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return 'Nie udało się dostarczyć jej odbiorcy z: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'Serwer odbiorcy ją odrzucił. Jej monety są znów wolne.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Jej monety zostały już wydane.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return 'Nie udało się jej dokończyć na: $name. Jej monety są znów wolne.';
+  }
 }

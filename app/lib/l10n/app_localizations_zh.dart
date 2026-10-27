@@ -16817,4 +16817,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskDevOfferReceived => '这是你的另一台设备吗？关联它即可看到是谁发来的，并让两台设备保持同步。';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return '在 $name 上已取消';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return '在 $name 上失败';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return '在 $name 上已过期';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name 取消了这笔付款。其币已重新可用。';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name 未能及时完成这笔付款。其币已重新可用。';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name 无法将其送达收款方。其币已重新可用。';
+  }
+
+  @override
+  String get devicesWhyRefused => '收款方的服务器拒绝了它。其币已重新可用。';
+
+  @override
+  String get devicesWhyInputsSpent => '其币此前已被花费。';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name 无法完成这笔付款。其币已重新可用。';
+  }
 }

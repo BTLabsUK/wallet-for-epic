@@ -4711,5 +4711,14 @@
   "deskDevConnecting": "Łączenie…",
   "deskDevTheOther": "Drugie urządzenie",
   "deskDevServersLine": "Serwery: {servers}",
-  "deskDevOfferReceived": "Czy to twoje drugie urządzenie? Połącz je, aby widzieć, kto wysłał, i trzymać oba w zgodzie."
+  "deskDevOfferReceived": "Czy to twoje drugie urządzenie? Połącz je, aby widzieć, kto wysłał, i trzymać oba w zgodzie.",
+  "devicesEndCancelled": "Anulowano na: {name}",
+  "devicesEndFailed": "Nie powiodło się na: {name}",
+  "devicesEndExpired": "Wygasło na: {name}",
+  "devicesEndLineCancelled": "Płatność została anulowana na: {name}. Jej monety są znów wolne.",
+  "devicesEndLineExpired": "Płatność nie została ukończona na czas na: {name}. Jej monety są znów wolne.",
+  "devicesWhyNotDelivered": "Nie udało się dostarczyć jej odbiorcy z: {name}. Jej monety są znów wolne.",
+  "devicesWhyRefused": "Serwer odbiorcy ją odrzucił. Jej monety są znów wolne.",
+  "devicesWhyInputsSpent": "Jej monety zostały już wydane.",
+  "devicesWhyOther": "Nie udało się jej dokończyć na: {name}. Jej monety są znów wolne."
 }

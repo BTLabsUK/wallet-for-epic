@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
+import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
 import '../../../l10n.dart' show acceptedAgoText;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../../watch_mode.dart' show BlockWait;
@@ -111,7 +112,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
           // The wallet keeps looking for a cancelled receive, so a late post still arrives.
-          TxState.cancelled when t.deviceReleased => l.devicesReleasedRow(t.deviceName ?? ''),
+          TxState.cancelled when t.deviceEnding != null =>
+            deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
           TxState.cancelled => l.deskTxNowCancelled,
         };

@@ -17461,4 +17461,46 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskDevOfferReceived =>
       'นี่คืออุปกรณ์อีกเครื่องของคุณหรือไม่ เชื่อมโยงเพื่อดูว่าใครส่งมา และให้ทั้งสองเครื่องตรงกัน';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'ยกเลิกบน $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'ล้มเหลวบน $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'หมดอายุบน $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name ยกเลิกรายการนี้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name ทำรายการนี้ไม่เสร็จทันเวลา เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name ส่งรายการนี้ถึงผู้รับไม่ได้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'เซิร์ฟเวอร์ของผู้รับปฏิเสธรายการนี้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+
+  @override
+  String get devicesWhyInputsSpent => 'เหรียญของรายการนี้ถูกใช้ไปแล้ว';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name ทำรายการนี้ไม่สำเร็จ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
 }

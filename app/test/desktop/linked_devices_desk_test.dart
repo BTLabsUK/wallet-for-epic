@@ -13,7 +13,11 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_devices.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show statusOf;
+import 'package:epic_wallet/src/devices/device_ending.dart';
 import 'package:epic_wallet/src/devices/device_service.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/models.dart' show CancelReason, DeviceEnding;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -203,7 +207,27 @@ void main() {
     final freed = (await tester.runAsync(wallet.balance))!;
     expect(freed.spendable, before.spendable);
     final row = (await tester.runAsync(wallet.transactions))!.singleWhere((t) => t.deviceName != null);
-    expect(row.deviceReleased, isTrue);
+    expect(row.deviceEnding, DeviceEnding.releasedHere);
+    await end(tester);
+  });
+
+  testWidgets("the phone's payment ends there: the coin is free here and the row says how", (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = await linkedPhone(tester, desk);
+    final coin = mockCommitment(6);
+    final before = (await tester.runAsync(wallet.balance))!;
+    await tester.runAsync(() => phone.pay(desk, commitment: coin));
+    await tester.runAsync(() => phone.end(desk, commitment: coin, reason: CancelReason.failed));
+    await settle(tester);
+    expect(desk.book.holds.single.state, HoldState.released);
+    final after = (await tester.runAsync(wallet.balance))!;
+    expect(after.spendable, before.spendable);
+    final row = (await tester.runAsync(wallet.transactions))!.singleWhere((t) => t.deviceName != null);
+    expect(row.deviceEnding, DeviceEnding.failed);
+    expect(row.deviceWhy, 'notDelivered');
+    final l = englishStrings;
+    expect(statusOf(l, row).$1, 'Failed on Phone');
+    expect(deviceEndingLine(l, row.deviceEnding!, 'Phone', row.deviceWhy), contains('could not deliver'));
     await end(tester);
   });
 

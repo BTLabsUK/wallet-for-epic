@@ -4711,5 +4711,14 @@
   "deskDevConnecting": "正在连接…",
   "deskDevTheOther": "另一台设备",
   "deskDevServersLine": "服务器：{servers}",
-  "deskDevOfferReceived": "这是你的另一台设备吗？关联它即可看到是谁发来的，并让两台设备保持同步。"
+  "deskDevOfferReceived": "这是你的另一台设备吗？关联它即可看到是谁发来的，并让两台设备保持同步。",
+  "devicesEndCancelled": "在 {name} 上已取消",
+  "devicesEndFailed": "在 {name} 上失败",
+  "devicesEndExpired": "在 {name} 上已过期",
+  "devicesEndLineCancelled": "{name} 取消了这笔付款。其币已重新可用。",
+  "devicesEndLineExpired": "{name} 未能及时完成这笔付款。其币已重新可用。",
+  "devicesWhyNotDelivered": "{name} 无法将其送达收款方。其币已重新可用。",
+  "devicesWhyRefused": "收款方的服务器拒绝了它。其币已重新可用。",
+  "devicesWhyInputsSpent": "其币此前已被花费。",
+  "devicesWhyOther": "{name} 无法完成这笔付款。其币已重新可用。"
 }

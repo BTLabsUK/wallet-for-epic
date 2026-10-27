@@ -109,4 +109,49 @@ class MockPhone {
     await service.announceNow();
     await rounds(desk);
   }
+
+  /// The phone ends its payment [slateId] without spending the coin [commitment]: it cancels it,
+  /// or [reason] says why it failed or expired. The computer hears of it.
+  Future<void> end(
+    DeviceService desk, {
+    required String commitment,
+    String slateId = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d',
+    CancelReason reason = CancelReason.user,
+  }) async {
+    session.outputsValue = [
+      for (final o in session.outputsValue)
+        if (o.commitment == commitment)
+          WalletOutput(
+            commitment: o.commitment,
+            value: o.value,
+            status: WalletOutputStatus.unspent,
+            category: OutputCategory.spendable,
+            isCoinbase: false,
+            height: o.height,
+            lockHeight: o.lockHeight,
+            confirmations: o.confirmations,
+          )
+        else
+          o,
+    ];
+    session.transactionsValue = [
+      for (final t in session.transactionsValue)
+        if (t.slateId == slateId)
+          fakeTx(
+            id: t.id,
+            slateId: slateId,
+            kind: TxKind.sentCancelled,
+            status: TxStatus.cancelled,
+            createdAtUnix: t.createdAtUnix,
+            amountDebited: t.amountDebited,
+            fee: t.fee,
+            counterparty: t.counterparty,
+            cancelReason: reason,
+          )
+        else
+          t,
+    ];
+    await service.announceNow();
+    await rounds(desk);
+  }
 }

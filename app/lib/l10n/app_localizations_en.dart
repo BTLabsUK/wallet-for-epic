@@ -17761,4 +17761,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskDevOfferReceived =>
       'Is this your other device? Link it to see who sent it and to keep both in step.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Cancelled on $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Failed on $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Expired on $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name cancelled this payment. Its coins are free again.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name did not finish this payment in time. Its coins are free again.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name could not deliver it to the recipient. Its coins are free again.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'The recipient’s server refused it. Its coins are free again.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Its coins had been spent already.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name could not complete it. Its coins are free again.';
+  }
 }

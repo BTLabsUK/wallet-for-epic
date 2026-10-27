@@ -491,6 +491,7 @@ class DeviceService {
       n.body['state'] as String,
       height: n.body['height'] as int?,
       kernel: n.body['kernel'] as String?,
+      why: n.body['why'] as String?,
       spent: await _spent(),
       now: _clock(),
     );
@@ -722,11 +723,17 @@ class DeviceService {
         });
         announced[slateId] = AnnouncedState.sent;
         if (state.$1 != AnnouncedState.sent) {
-          await _broadcast(NoticeType.status, {'slateId': slateId, 'state': state.$2, 'kernel': r.kernelExcess});
+          await _broadcast(NoticeType.status, {'slateId': slateId, 'state': state.$2, 'kernel': r.kernelExcess, 'why': ?_whyOf(r)});
           announced[slateId] = state.$1;
         }
       } else if (last != AnnouncedState.ended && state.$1 != last) {
-        await _broadcast(NoticeType.status, {'slateId': slateId, 'state': state.$2, 'kernel': r.kernelExcess, 'height': await host.tipHeight()});
+        await _broadcast(NoticeType.status, {
+          'slateId': slateId,
+          'state': state.$2,
+          'kernel': r.kernelExcess,
+          'height': await host.tipHeight(),
+          'why': ?_whyOf(r),
+        });
         announced[slateId] = state.$1;
       }
     }
@@ -751,6 +758,11 @@ class DeviceService {
     }
     return (AnnouncedState.sent, 'sent');
   }
+
+  /// Why a send of this device failed, as a code the others word themselves; null for any other
+  /// ending. A send the core cancelled at once because its transport failed never reached the
+  /// recipient.
+  static String? _whyOf(TxEntry r) => r.cancelReason == CancelReason.failed ? 'notDelivered' : null;
 
   /// A send this device just made: the others hear at once, not at the next tick.
   Future<void> announceNow() async {

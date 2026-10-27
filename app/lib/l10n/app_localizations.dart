@@ -28132,6 +28132,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Is this your other device? Link it to see who sent it and to keep both in step.'**
   String get deskDevOfferReceived;
+
+  /// Status of a linked device's payment that device cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled on {name}'**
+  String devicesEndCancelled(String name);
+
+  /// Status of a linked device's payment that failed on that device.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed on {name}'**
+  String devicesEndFailed(String name);
+
+  /// Status of a linked device's payment that ran out of time.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired on {name}'**
+  String devicesEndExpired(String name);
+
+  /// Details line of a payment the other device cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} cancelled this payment. Its coins are free again.'**
+  String devicesEndLineCancelled(String name);
+
+  /// Details line of a payment that ran out of time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} did not finish this payment in time. Its coins are free again.'**
+  String devicesEndLineExpired(String name);
+
+  /// Details line of a payment that failed because it never reached the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not deliver it to the recipient. Its coins are free again.'**
+  String devicesWhyNotDelivered(String name);
+
+  /// Details line of a payment the recipient's server refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient’s server refused it. Its coins are free again.'**
+  String get devicesWhyRefused;
+
+  /// Details line of a payment that failed because its coins had been spent already.
+  ///
+  /// In en, this message translates to:
+  /// **'Its coins had been spent already.'**
+  String get devicesWhyInputsSpent;
+
+  /// Details line of a payment that failed for no reason the other device named.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not complete it. Its coins are free again.'**
+  String devicesWhyOther(String name);
 }
 
 class _AppLocalizationsDelegate
