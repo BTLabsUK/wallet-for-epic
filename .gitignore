@@ -9,6 +9,8 @@
 # Web demo server settings, copied from demo/server/demo.env.example
 /demo/server/demo.env
 /build-windows/
+# tools/build-apple.sh output (APPLE_OUT)
+/build-apple/
 
 # Tor binaries packed as jniLibs, created by tools/fetch-tor.sh android
 /app/android/app/src/main/tor-jniLibs/
