@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'โทรศัพท์เครื่องนี้' : 'คอมพิวเตอร์เครื่องนี้';
   final secret = phone ? 'PIN' : 'รหัสผ่านกระเป๋าเงิน';
   final nodePlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนด|Settings › Privacy & network › Node]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
-  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › ธุรกรรม › รับผ่าน Epicbox|Settings › Transactions › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › ธุรกรรม › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › เครือข่าย Tor|Settings › Privacy & network › Tor Network]]' : '[[การตั้งค่า › ความเป็นส่วนตัว › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[ประวัติ|Activity]] (เปิดรายการ แล้วแตะ ยกเลิกรายการ)'

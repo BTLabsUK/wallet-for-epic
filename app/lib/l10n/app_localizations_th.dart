@@ -11947,15 +11947,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetRecvHeadStopped => 'หยุดอยู่';
-
-  @override
-  String get deskSetRecvHeadStarting => 'กำลังเริ่ม';
-
-  @override
-  String get deskSetRecvEpicboxTitle => 'รับผ่าน Epicbox';
-
-  @override
   String get deskSetRecvEpicboxText =>
       'รายการเข้าผ่านเซิร์ฟเวอร์ Epicbox แม้ตอนกระเป๋าเงินปิดอยู่';
 
@@ -11972,9 +11963,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetRecvListNote =>
       'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที';
-
-  @override
-  String get deskSetRecvHttpTitle => 'ลิงก์ · HTTP: การรับ';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13900,9 +13888,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile';
-
-  @override
-  String get deskSetRecvTorTitle => 'ลิงก์ · Tor: การรับ';
 
   @override
   String get deskSetRecvTorText =>

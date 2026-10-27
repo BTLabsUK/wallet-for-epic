@@ -109,16 +109,20 @@ void main() {
       expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text('HTTP')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text('File Transfer')), findsOneWidget);
       expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, 'Link · Tor');
-      // The existing Epicbox receiving group is on the same page, nothing is duplicated.
+      // Epicbox's receiving rows sit under its switch (tester #112), nothing is duplicated.
+      expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
+      expect(find.text('Epicbox receiving'), findsNothing, reason: 'no group of its own at the bottom any more');
       expect(find.text('Send starts on'), findsOneWidget);
     });
 
-    testWidgets('by default File Transfer is on, Link off, and Link’s receiving groups are not shown', (tester) async {
+    testWidgets('by default File Transfer is on, Link off, and Link’s receiving rows are not shown', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       expect(tester.widget<ESwitch>(_offer('directFile')).value, isTrue);
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
       expect(tester.widget<ESwitch>(_offer('linkTor')).value, isFalse);
+      expect(find.byKey(const ValueKey('st-details-linkHttp')), findsNothing);
+      expect(find.byKey(const ValueKey('st-details-linkTor')), findsNothing);
       expect(find.text('Link · HTTP receiving'), findsNothing);
       expect(find.text('Link · Tor receiving'), findsNothing);
     });
@@ -138,13 +142,16 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
     });
 
-    testWidgets('Link · HTTP is one switch: it saves, starts the listener and shows the HTTP group without a second switch', (tester) async {
+    testWidgets('Link · HTTP is one switch: it saves, starts the listener and shows the HTTP rows under it without a second switch', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.linkHttp, isTrue);
       expect(_container.read(deskProvider).status?.httpListener, ServiceHealth.ok);
-      expect(find.text('Link · HTTP receiving'), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-details-linkHttp')), findsOneWidget);
+      // Right under the switch, before the Tor row: no scrolling to the bottom for the state.
+      expect(tester.getTopLeft(find.byKey(const ValueKey('st-details-linkHttp'))).dy, greaterThan(tester.getTopLeft(find.byKey(const ValueKey('st-method-linkHttp'))).dy));
+      expect(tester.getTopLeft(find.byKey(const ValueKey('st-details-linkHttp'))).dy, lessThan(tester.getTopLeft(find.byKey(const ValueKey('st-method-linkTor'))).dy));
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no duplicate switch for the same thing');
       expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing, reason: 'on means now and at unlock');
       expect(find.byKey(const ValueKey('st-state-http')), findsOneWidget);
@@ -153,7 +160,7 @@ void main() {
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
       expect(_container.read(deskProvider).status?.httpListener, ServiceHealth.off);
-      expect(find.text('Link · HTTP receiving'), findsNothing);
+      expect(find.byKey(const ValueKey('st-details-linkHttp')), findsNothing);
     });
 
     testWidgets('Link · Tor saves; with Tor off its row says what it needs, with Tor on its group shows the Tor state', (tester) async {
@@ -163,7 +170,7 @@ void main() {
       expect(_payments.linkTor, isTrue);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
       expect(find.text('Tor is off. Turn it on under Privacy to be paid at the Tor address.'), findsOneWidget);
-      expect(find.text('Link · Tor receiving'), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-details-linkTor')), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
       await _settle(tester);
       expect(_container.read(deskProvider).settings.tor, isTrue);
@@ -172,24 +179,25 @@ void main() {
       expect(find.byKey(const ValueKey('st-switch-tor')), findsNothing, reason: 'Tor itself is Privacy\'s switch');
     });
 
-    testWidgets('the Epicbox switch saves, stops the listener, the group reads Off with the reason, and comes back on', (tester) async {
+    testWidgets('the Epicbox switch saves, stops the listener, its rows fold away, and comes back on with them', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       expect(_container.read(deskProvider).status?.epicboxHealth, isNot(ServiceHealth.off));
+      expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       await tester.tap(_offer('epicbox'));
       await _settle(tester);
       expect(_payments.epicbox, isFalse);
       expect(NetGate.epicbox, isFalse);
       expect(_container.read(deskProvider).status?.epicboxHealth, ServiceHealth.off);
-      expect(find.textContaining('Epicbox is off in Settings › Transactions.', findRichText: true), findsWidgets);
-      final receiving = tester.widget<ESwitch>(find.byKey(const ValueKey('st-switch-epicbox')));
-      expect(receiving.value, isFalse);
-      expect(receiving.onChanged, isNull, reason: 'nothing to turn on while the method is off');
+      // Off: the switch says it all; the receiving rows (listener, autostart, server) are gone.
+      expect(find.byKey(const ValueKey('st-details-epicbox')), findsNothing);
+      expect(find.byKey(const ValueKey('st-switch-epicbox')), findsNothing);
       // No confirm: nothing waited for a reply.
       expect(find.text('Turn Epicbox off?'), findsNothing);
       await tester.tap(_offer('epicbox'));
       await _settle(tester);
       expect(_payments.epicbox, isTrue);
       expect(NetGate.epicbox, isTrue);
+      expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(tester.widget<ESwitch>(find.byKey(const ValueKey('st-switch-epicbox'))).onChanged, isNotNull);
     });
 
@@ -235,7 +243,7 @@ void main() {
       await _settle(tester);
       expect(_payments.linkHttp, isTrue, reason: 'Receive\'s Try again and the method switch are one setting');
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isTrue);
-      expect(find.text('Link · HTTP receiving'), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-details-linkHttp')), findsOneWidget);
     });
   });
 

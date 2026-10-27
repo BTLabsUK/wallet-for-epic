@@ -31,7 +31,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Outputs › Manage outputs': _page(DeskRoute.outputs),
   'Settings › Node': _page(DeskRoute.settingsNode, jump: SettingsJump.node),
   'Settings › Transactions': _page(DeskRoute.settingsReceiving),
-  'Settings › Transactions › Epicbox receiving': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
+  'Settings › Transactions › Epicbox': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
   'Settings › Privacy': _page(DeskRoute.settingsPrivacy),
   'Settings › Privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),

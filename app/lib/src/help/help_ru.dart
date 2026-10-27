@@ -19,7 +19,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'этом телефоне' : 'этом компьютере';
   final secret = phone ? 'PIN-код' : 'пароль кошелька';
   final nodePlace = phone ? '[[Настройки › Приватность и сеть › Узел|Settings › Privacy & network › Node]]' : '[[Настройки › Узел|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Настройки › Транзакции › Приём через Epicbox|Settings › Transactions › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Настройки › Транзакции › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Настройки › Приватность и сеть › Сеть Tor|Settings › Privacy & network › Tor Network]]' : '[[Настройки › Приватность › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? 'разделе [[Активность|Activity]] (откройте платёж и нажмите «Отменить платёж»)'

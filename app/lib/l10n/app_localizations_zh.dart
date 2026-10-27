@@ -11539,15 +11539,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetRecvHeadStopped => '已停止';
-
-  @override
-  String get deskSetRecvHeadStarting => '正在启动';
-
-  @override
-  String get deskSetRecvEpicboxTitle => 'Epicbox 接收';
-
-  @override
   String get deskSetRecvEpicboxText => '付款经由 Epicbox 服务器到达，钱包关闭时也可以。';
 
   @override
@@ -11561,9 +11552,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
-
-  @override
-  String get deskSetRecvHttpTitle => '链接 · HTTP 接收';
 
   @override
   String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包经此电脑的网址接收。';
@@ -13406,9 +13394,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
-
-  @override
-  String get deskSetRecvTorTitle => '链接 · Tor 接收';
 
   @override
   String get deskSetRecvTorText => '钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。';

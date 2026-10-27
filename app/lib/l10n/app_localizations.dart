@@ -19463,24 +19463,6 @@ abstract class AppLocalizations {
   /// **'{method}: start with the wallet'**
   String deskSetRecvMethodAutostart(String method);
 
-  /// Settings > Receiving: state word at the right of a method group head when the method has stopped. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Stopped'**
-  String get deskSetRecvHeadStopped;
-
-  /// Settings > Receiving: state word at the right of a method group head while the method starts. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Starting'**
-  String get deskSetRecvHeadStarting;
-
-  /// Settings > Receiving: heading of the Epicbox group.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox receiving'**
-  String get deskSetRecvEpicboxTitle;
-
   /// Settings > Receiving: text of the Epicbox receiving row.
   ///
   /// In en, this message translates to:
@@ -19510,12 +19492,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'State from status.btlabs.uk, checked every few minutes.'**
   String get deskSetRecvListNote;
-
-  /// Settings > Receiving: heading of the HTTP group.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP receiving'**
-  String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.
   ///
@@ -22732,12 +22708,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
   String get deskSendToQrPayment;
-
-  /// Head of the Link · Tor group on Settings › Transactions (shown while its switch is on).
-  ///
-  /// In en, this message translates to:
-  /// **'Link · Tor receiving'**
-  String get deskSetRecvTorTitle;
 
   /// Description row of the Link · Tor group on Settings › Transactions.
   ///

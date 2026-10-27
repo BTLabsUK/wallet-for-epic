@@ -9,16 +9,12 @@
   "deskSetRecvAutostart": "Uruchamiaj z portfelem",
   "deskSetRecvAutostartHint": "Włącza się po odblokowaniu.",
   "deskSetRecvMethodAutostart": "{method}: uruchamiaj z portfelem",
-  "deskSetRecvHeadStopped": "Zatrzymany",
-  "deskSetRecvHeadStarting": "Uruchamianie",
-  "deskSetRecvEpicboxTitle": "Odbieranie przez Epicbox",
   "deskSetRecvEpicboxText": "Płatności docierają przez serwer Epicbox, także gdy portfel jest zamknięty.",
   "deskSetRecvEpicboxServer": "Serwer Epicbox",
   "deskSetRecvEpicboxServerHint": "Który serwer przechowuje płatności na ten adres. Oba portfele mogą używać różnych serwerów.",
   "deskSetRecvEpicboxOwnHint": "Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.",
   "deskSetRecvSwitchingServer": "Przełączanie serwera Epicbox…",
   "deskSetRecvListNote": "Stan z status.btlabs.uk, sprawdzany co kilka minut.",
-  "deskSetRecvHttpTitle": "Link · HTTP, odbieranie",
   "deskSetRecvHttpText": "Prosto z innego portfela na adres internetowy tego komputera, gdy ten portfel jest otwarty.",
   "deskSetRecvHttpOffTitle": "Wyłączone, gdy Tor jest włączony",
   "deskSetRecvHttpOffText": "Płatności prosto z innego portfela docierają wtedy na adres Link · Tor.",
@@ -48,6 +44,5 @@
   "deskSetHttpTurnOnTor": "Włącz Tor",
   "deskSetHttpExposed": "Udostępnione jest tylko API odbierania. Zwykłe HTTP nie jest szyfrowane.",
   "deskSetHttpBackLocal": "Wróć do trybu lokalnego",
-  "deskSetRecvTorTitle": "Link · Tor, odbieranie",
   "deskSetRecvTorText": "Prosto z innego portfela na adres Tor tego portfela, gdy jest otwarty."
 }

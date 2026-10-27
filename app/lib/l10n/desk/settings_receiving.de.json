@@ -9,16 +9,12 @@
   "deskSetRecvAutostart": "Mit der Wallet starten",
   "deskSetRecvAutostartHint": "Wird beim Entsperren eingeschaltet.",
   "deskSetRecvMethodAutostart": "{method}: mit der Wallet starten",
-  "deskSetRecvHeadStopped": "Gestoppt",
-  "deskSetRecvHeadStarting": "Startet",
-  "deskSetRecvEpicboxTitle": "Epicbox-Empfang",
   "deskSetRecvEpicboxText": "Zahlungen kommen über den Epicbox-Server an, auch bei geschlossener Wallet.",
   "deskSetRecvEpicboxServer": "Epicbox-Server",
   "deskSetRecvEpicboxServerHint": "Welcher Server Zahlungen für diese Adresse hält. Die beiden Wallets können verschiedene Server nutzen.",
   "deskSetRecvEpicboxOwnHint": "Diese Wallet hat einen eigenen Epicbox-Server aus der älteren App. Eine Änderung hier gilt nur für diese Wallet.",
   "deskSetRecvSwitchingServer": "Epicbox-Server wird gewechselt…",
   "deskSetRecvListNote": "Zustand von status.btlabs.uk, alle paar Minuten geprüft.",
-  "deskSetRecvHttpTitle": "Link · HTTP-Empfang",
   "deskSetRecvHttpText": "Direkt von einer anderen Wallet an der Web-Adresse dieses Computers, solange diese Wallet geöffnet ist.",
   "deskSetRecvHttpOffTitle": "Aus, solange Tor an ist",
   "deskSetRecvHttpOffText": "Zahlungen direkt von einer anderen Wallet kommen stattdessen an der Link · Tor-Adresse an.",
@@ -48,6 +44,5 @@
   "deskSetHttpTurnOnTor": "Tor einschalten",
   "deskSetHttpExposed": "Nur die Empfangs-API ist erreichbar. Einfaches HTTP ist nicht verschlüsselt.",
   "deskSetHttpBackLocal": "Zurück zu „Nur lokal“",
-  "deskSetRecvTorTitle": "Link · Tor-Empfang",
   "deskSetRecvTorText": "Direkt von einer anderen Wallet an der Tor-Adresse dieser Wallet, solange sie geöffnet ist."
 }

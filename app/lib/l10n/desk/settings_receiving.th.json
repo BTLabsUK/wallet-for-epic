@@ -9,16 +9,12 @@
   "deskSetRecvAutostart": "เริ่มพร้อมกระเป๋าเงิน",
   "deskSetRecvAutostartHint": "เปิดเมื่อปลดล็อก",
   "deskSetRecvMethodAutostart": "{method}: เริ่มพร้อมกระเป๋าเงิน",
-  "deskSetRecvHeadStopped": "หยุดอยู่",
-  "deskSetRecvHeadStarting": "กำลังเริ่ม",
-  "deskSetRecvEpicboxTitle": "รับผ่าน Epicbox",
   "deskSetRecvEpicboxText": "รายการเข้าผ่านเซิร์ฟเวอร์ Epicbox แม้ตอนกระเป๋าเงินปิดอยู่",
   "deskSetRecvEpicboxServer": "เซิร์ฟเวอร์ Epicbox",
   "deskSetRecvEpicboxServerHint": "เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้",
   "deskSetRecvEpicboxOwnHint": "กระเป๋าเงินนี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋าเงินนี้เท่านั้น",
   "deskSetRecvSwitchingServer": "กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…",
   "deskSetRecvListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที",
-  "deskSetRecvHttpTitle": "ลิงก์ · HTTP: การรับ",
   "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่เว็บของคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskSetRecvHttpOffTitle": "ปิดอยู่ขณะเปิด Tor",
   "deskSetRecvHttpOffText": "รายการตรงจากกระเป๋าเงินอื่นจะเข้าที่ที่อยู่ ลิงก์ · Tor แทน",
@@ -48,6 +44,5 @@
   "deskSetHttpTurnOnTor": "เปิด Tor",
   "deskSetHttpExposed": "เปิดเฉพาะ API สำหรับรับเงิน HTTP ธรรมดาไม่ได้เข้ารหัส",
   "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น",
-  "deskSetRecvTorTitle": "ลิงก์ · Tor: การรับ",
   "deskSetRecvTorText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่ Tor ของกระเป๋าเงินนี้ ขณะที่เปิดอยู่"
 }

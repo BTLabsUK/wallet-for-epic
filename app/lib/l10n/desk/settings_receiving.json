@@ -64,18 +64,6 @@
       }
     }
   },
-  "deskSetRecvHeadStopped": "Stopped",
-  "@deskSetRecvHeadStopped": {
-    "description": "Settings > Receiving: state word at the right of a method group head when the method has stopped. Short."
-  },
-  "deskSetRecvHeadStarting": "Starting",
-  "@deskSetRecvHeadStarting": {
-    "description": "Settings > Receiving: state word at the right of a method group head while the method starts. Short."
-  },
-  "deskSetRecvEpicboxTitle": "Epicbox receiving",
-  "@deskSetRecvEpicboxTitle": {
-    "description": "Settings > Receiving: heading of the Epicbox group."
-  },
   "deskSetRecvEpicboxText": "Payments arrive via the Epicbox server, also while the wallet is closed.",
   "@deskSetRecvEpicboxText": {
     "description": "Settings > Receiving: text of the Epicbox receiving row."
@@ -99,10 +87,6 @@
   "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
-  },
-  "deskSetRecvHttpTitle": "Link · HTTP receiving",
-  "@deskSetRecvHttpTitle": {
-    "description": "Settings > Receiving: heading of the HTTP group."
   },
   "deskSetRecvHttpText": "Straight from another wallet at this computer’s web address, while this wallet is open.",
   "@deskSetRecvHttpText": {
@@ -239,10 +223,6 @@
   "deskSetHttpBackLocal": "Back to local only",
   "@deskSetHttpBackLocal": {
     "description": "Internet guide dialog: button that goes back to local only."
-  },
-  "deskSetRecvTorTitle": "Link · Tor receiving",
-  "@deskSetRecvTorTitle": {
-    "description": "Head of the Link · Tor group on Settings › Transactions (shown while its switch is on)."
   },
   "deskSetRecvTorText": "Straight from another wallet at this wallet’s Tor address, while it is open.",
   "@deskSetRecvTorText": {

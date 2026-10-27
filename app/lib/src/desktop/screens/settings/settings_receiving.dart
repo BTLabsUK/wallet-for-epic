@@ -37,10 +37,11 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
 /// Settings › Transactions (spec 6.1, 26.10.13; one switch per method 26.10.16): how payments
 /// are made. Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
 /// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
-/// options, its defaults; then the receiving groups: Epicbox (its listener switch, Start with
-/// the wallet, the server), Link · HTTP (state line and options; the method switch is the one
-/// HTTP switch, there is no second one here) while it is on or its listener runs, Link · Tor
-/// (state line; Tor itself is Settings › Privacy's) while it is on.
+/// options, its defaults. Each method's receiving details sit under its own switch, shown
+/// only while it is on (tester #112: no scrolling to the bottom for feedback): Epicbox its
+/// listener switch, Start with the wallet and the server; Link · HTTP its state line and
+/// options (the method switch is the one HTTP switch, there is no second one) while it is on
+/// or its listener still runs; Link · Tor its state line (Tor itself is Settings › Privacy's).
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
 
@@ -214,25 +215,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   /// The word at the right of a group's head: Stopped or Starting where the line says why in
   /// words of its own, else the line's word.
-  String _headWord(AppLocalizations l, TxMethod m, ServiceStatus status, DeskSettings s, MethodLine line) {
-    switch (m) {
-      case TxMethod.epicbox:
-        if (status.epicboxHealth == ServiceHealth.down && !status.epicboxBlocked) {
-          final way = torWay(TorRoute.epicbox, torStateOf(s, status));
-          if (way != TorWay.wait && way != TorWay.blocked) return l.deskSetRecvHeadStopped;
-        }
-      case TxMethod.http:
-        if (status.httpListener == ServiceHealth.down) return l.deskSetRecvHeadStopped;
-        if (status.httpListener == ServiceHealth.checking) return l.deskSetRecvHeadStarting;
-      case TxMethod.tor:
-        if (status.tor == ServiceHealth.checking) return l.deskSetRecvHeadStarting;
-        if (status.tor == ServiceHealth.down) return l.deskSetRecvHeadStopped;
-      case TxMethod.file:
-        break;
-    }
-    return line.word;
-  }
-
   Future<void> _savePayments(PaymentPrefs Function(PaymentPrefs p) change) async {
     final s = ref.read(deskProvider).settings;
     await _saveAutostart(s.copyWith(payments: change(s.payments)));
@@ -372,18 +354,36 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   };
 
   /// Payment methods: one switch per method, grouped by family. Epicbox is its own family, so
-  /// its row stands alone; Link and Direct get a subhead on their first method's row.
-  Widget _methodsGroup(PaymentPrefs p, DeskSettings s) {
+  /// its row stands alone; Link and Direct get a subhead on their first method's row. A method
+  /// that is on carries its receiving [details] right under its row, so the feedback (the
+  /// state line, the server, the options) is where the switch is.
+  Widget _methodsGroup(PaymentPrefs p, DeskSettings s, Map<MethodKind, (SettingsJump, List<Widget>)> details) {
     final l = context.l10n;
+    Widget row(MethodKind m) {
+      final d = details[m];
+      final body = _methodRow(m, p, s);
+      if (d == null) return body;
+      final (jump, rows) = d;
+      return JumpSection(
+        section: jump,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            body,
+            if (rows.isNotEmpty) _MethodDetails(method: m, rows: rows),
+          ],
+        ),
+      );
+    }
     return ESetGroup(
       title: l.deskSetTxMethods,
       rows: [
         for (final f in MethodFamily.values)
           for (final (i, m) in _familyMethods(f).indexed)
             if (i == 0 && f != MethodFamily.epicbox)
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(f), _methodRow(m, p, s)])
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(f), row(m)])
             else
-              _methodRow(m, p, s),
+              row(m),
       ],
     );
   }
@@ -451,17 +451,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     );
   }
 
-  Widget _group(TxMethod m, SettingsJump jump, String title, MethodLine line, String word, List<Widget> rows) => JumpSection(
-    section: jump,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _MethodHead(method: m, title: title, line: line, word: word),
-        ESetGroup(rows: rows),
-      ],
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -482,111 +471,118 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final httpLine = methodStateLine(l, TxMethod.http, status, s);
     final torLine = torStateLine(l, netTorState(s, status), status, included: status.torIncluded);
 
+    // Each method's receiving rows, under its switch while it is on.
+    final details = <MethodKind, (SettingsJump, List<Widget>)>{
+      MethodKind.epicbox: (SettingsJump.epicbox, [
+        if (!ebOff) ...[
+          _receivingRow(
+            TxMethod.epicbox,
+            l.deskSetRecvEpicboxText,
+            status.epicboxHealth != ServiceHealth.off,
+            ebLine,
+            notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
+          ),
+          _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
+          ESetRow(
+            title: l.deskSetRecvEpicboxServer,
+            hint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
+            stacked: true,
+            control: ServerListPanel(
+              kind: ServerKind.relay,
+              label: l.deskSetRecvEpicboxServer,
+              value: relayLabel(box),
+              fieldText: relayLabel(box),
+              fieldSub: box.operator,
+              tone: epicboxTone(status.epicboxHealth),
+              servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: defaultEpicboxHost),
+              source: relaySource(boxes, inUse: relayLabel(box)),
+              listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
+              busy: _switching,
+              busyLabel: l.deskSetRecvSwitchingServer,
+              openInitially: widget.arg == ReceivingDemo.comboOpen,
+              demo: widget.arg == ReceivingDemo.picked ? const ServerPanelDemo(pick: 'epicbox.stackwallet.com') : null, // l10n-ok: a relay host
+              onChoose: _switch,
+              onTest: _test,
+            ),
+          ),
+        ],
+      ]),
+      // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's: these
+      // rows hold its state and options.
+      MethodKind.linkHttp: (SettingsJump.http, [
+        if (DeskFeatures.httpDirect && (s.payments.linkHttp || status.httpListener != ServiceHealth.off)) ...[
+          _receivingRow(
+            TxMethod.http,
+            l.deskSetRecvHttpText,
+            status.httpListener != ServiceHealth.off,
+            httpLine,
+            switchable: false,
+            // Off while Tor is on (tor_routes.dart): Link payments arrive at the Tor address.
+            enabled: !s.tor,
+            notice: s.tor
+                ? ENotice(
+                    title: l.deskSetRecvHttpOffTitle,
+                    text: l.deskSetRecvHttpOffText,
+                    actions: [
+                      EButton(
+                        label: l.deskSetRecvPrivacySettings,
+                        size: EBtnSize.inline,
+                        onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
+                      ),
+                    ],
+                  )
+                : null,
+          ),
+          const HttpOptions(),
+        ],
+      ]),
+      // Link · Tor on: where its address stands (Tor itself is Settings › Privacy's switch).
+      MethodKind.linkTor: (SettingsJump.tor, [
+        if (DeskFeatures.tor && s.payments.linkTor) _receivingRow(TxMethod.tor, l.deskSetRecvTorText, s.tor, torLine, switchable: false),
+      ]),
+    };
+
     return SettingsFrame(
       route: DeskRoute.settingsReceiving,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _methodsGroup(s.payments, s),
+          _methodsGroup(s.payments, s, details),
           ?_sendGroup(s.payments),
-          _group(TxMethod.epicbox, SettingsJump.epicbox, l.deskSetRecvEpicboxTitle, ebLine, _headWord(l, TxMethod.epicbox, status, s, ebLine), [
-            _receivingRow(
-              TxMethod.epicbox,
-              l.deskSetRecvEpicboxText,
-              !ebOff && status.epicboxHealth != ServiceHealth.off,
-              ebLine,
-              enabled: !ebOff,
-              notice: !ebOff && status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-            ),
-            _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
-            ESetRow(
-              title: l.deskSetRecvEpicboxServer,
-              hint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
-              stacked: true,
-              control: ServerListPanel(
-                kind: ServerKind.relay,
-                label: l.deskSetRecvEpicboxServer,
-                value: relayLabel(box),
-                fieldText: relayLabel(box),
-                fieldSub: box.operator,
-                tone: epicboxTone(status.epicboxHealth),
-                servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: defaultEpicboxHost),
-                source: relaySource(boxes, inUse: relayLabel(box)),
-                listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
-                busy: _switching,
-                busyLabel: l.deskSetRecvSwitchingServer,
-                openInitially: widget.arg == ReceivingDemo.comboOpen,
-                demo: widget.arg == ReceivingDemo.picked ? const ServerPanelDemo(pick: 'epicbox.stackwallet.com') : null, // l10n-ok: a relay host
-                onChoose: _switch,
-                onTest: _test,
-              ),
-            ),
-          ]),
-          // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's
-          // (Payment methods above): this group holds its state and options.
-          if (DeskFeatures.httpDirect && (s.payments.linkHttp || status.httpListener != ServiceHealth.off))
-            _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
-              _receivingRow(
-                TxMethod.http,
-                l.deskSetRecvHttpText,
-                status.httpListener != ServiceHealth.off,
-                httpLine,
-                switchable: false,
-                // Off while Tor is on (tor_routes.dart): Link payments arrive at the Tor address.
-                enabled: !s.tor,
-                notice: s.tor
-                    ? ENotice(
-                        title: l.deskSetRecvHttpOffTitle,
-                        text: l.deskSetRecvHttpOffText,
-                        actions: [
-                          EButton(
-                            label: l.deskSetRecvPrivacySettings,
-                            size: EBtnSize.inline,
-                            onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
-                          ),
-                        ],
-                      )
-                    : null,
-              ),
-              const HttpOptions(),
-            ]),
-          // Link · Tor on: where its address stands (Tor itself is Settings › Privacy's switch).
-          if (DeskFeatures.tor && s.payments.linkTor)
-            _group(TxMethod.tor, SettingsJump.tor, l.deskSetRecvTorTitle, torLine, _headWord(l, TxMethod.tor, status, s, torLine), [
-              _receivingRow(TxMethod.tor, l.deskSetRecvTorText, s.tor, torLine, switchable: false),
-            ]),
         ],
       ),
     );
   }
 }
 
-/// A group's head: the method's icon in its state colour, the title, the state word right.
-class _MethodHead extends StatelessWidget {
-  const _MethodHead({required this.method, required this.title, required this.line, required this.word});
+/// A method's receiving rows under its switch: set in from the icon column, on the next
+/// surface step, so they read as the method's own and not as more methods.
+class _MethodDetails extends StatelessWidget {
+  const _MethodDetails({required this.method, required this.rows});
 
-  final TxMethod method;
-  final String title;
-  final MethodLine line;
-  final String word;
+  final MethodKind method;
+  final List<Widget> rows;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final ts = context.ts;
-    return Padding(
-      padding: EdgeInsets.only(bottom: Sp.x3),
-      child: Row(
-        children: [
-          Container(width: 14.u, height: 2, color: c.accent),
-          SizedBox(width: 10.u),
-          EMethodIcon(method, line.state, size: 20.u),
-          SizedBox(width: Sp.x2),
-          Expanded(
-            child: Semantics(header: true, child: Text(title, style: ts.h3)),
-          ),
-          Text(word, style: ts.caption.copyWith(fontWeight: FontWeight.w600, color: line.state == EState.off ? c.dim : stateColor(c, line.state))),
-        ],
+    return Container(
+      key: ValueKey('st-details-${method.name}'),
+      decoration: BoxDecoration(color: c.s2, border: Border(top: BorderSide(color: c.line))),
+      // The icon column (ESetRow's leading, 18 px and a gap) is the indent; a hairline in it
+      // ties the rows to the switch above.
+      padding: EdgeInsets.only(left: 18.u + Sp.x3),
+      child: Container(
+        decoration: BoxDecoration(border: Border(left: BorderSide(color: c.lineStrong, width: 2))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < rows.length; i++) ...[
+              if (i > 0) Divider(height: 1, thickness: 1, color: c.line),
+              rows[i],
+            ],
+          ],
+        ),
       ),
     );
   }

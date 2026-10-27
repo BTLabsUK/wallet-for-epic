@@ -12467,15 +12467,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetRecvHeadStopped => 'Остановлен';
-
-  @override
-  String get deskSetRecvHeadStarting => 'Запуск';
-
-  @override
-  String get deskSetRecvEpicboxTitle => 'Приём через Epicbox';
-
-  @override
   String get deskSetRecvEpicboxText =>
       'Платежи приходят через сервер Epicbox, даже когда кошелёк закрыт.';
 
@@ -12492,9 +12483,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetRecvListNote =>
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
-
-  @override
-  String get deskSetRecvHttpTitle => 'Ссылка · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>
@@ -14484,9 +14472,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
-
-  @override
-  String get deskSetRecvTorTitle => 'Ссылка · Tor, приём';
 
   @override
   String get deskSetRecvTorText =>

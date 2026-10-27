@@ -12161,15 +12161,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetRecvHeadStopped => 'Stopped';
-
-  @override
-  String get deskSetRecvHeadStarting => 'Starting';
-
-  @override
-  String get deskSetRecvEpicboxTitle => 'Epicbox receiving';
-
-  @override
   String get deskSetRecvEpicboxText =>
       'Payments arrive via the Epicbox server, also while the wallet is closed.';
 
@@ -12186,9 +12177,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetRecvListNote =>
       'State from status.btlabs.uk, checked every few minutes.';
-
-  @override
-  String get deskSetRecvHttpTitle => 'Link · HTTP receiving';
 
   @override
   String get deskSetRecvHttpText =>
@@ -14142,9 +14130,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'A QR Payment code. Scan it with Epic Cash Mobile.';
-
-  @override
-  String get deskSetRecvTorTitle => 'Link · Tor receiving';
 
   @override
   String get deskSetRecvTorText =>
