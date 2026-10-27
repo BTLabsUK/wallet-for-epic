@@ -188,12 +188,12 @@ final List<DeskShot> invoiceSetShotsCore = [
   ),
   DeskShot(
     id: 'pair-11-contacts-hint',
-    title: 'Contacts while nobody is paired: Pair in the header, the hint, Pairing… on Tom',
+    title: 'Contacts while nobody is paired: Pair in the header, the hint, Pairing… on BT Labs',
     route: DeskRoute.contacts,
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
       p.records.clear();
-      final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).where((x) => x.name.startsWith('Tom')).firstOrNull;
+      final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).where((x) => x.name == 'BT Labs').firstOrNull;
       await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
       c.invalidate(deskPairingsProvider);
     },

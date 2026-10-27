@@ -52,6 +52,7 @@ const Key pairEnterFieldKey = ValueKey('pair-enter-field');
 const Key pairEnterGoKey = ValueKey('pair-enter-go');
 const Key pairNewWordsKey = ValueKey('pair-new-words');
 const Key pairCancelInviteKey = ValueKey('pair-cancel-invite');
+const Key pairCopyCardKey = ValueKey('pair-copy-card');
 
 /// The Pair screen: one card with the three ways (Words, Invite by message, In person), the
 /// joiner's door (Got words or a link?) apart under it, and How pairing works. [contact] is
@@ -440,6 +441,17 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(l.pairShowCodeCaption, textAlign: TextAlign.center, style: TextStyle(color: t.dim)),
+                  // A desktop has no camera: it takes this code as a link, sent in a chat.
+                  if (card != null) ...[
+                    const SizedBox(height: 4),
+                    TextButton.icon(
+                      key: pairCopyCardKey,
+                      style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                      icon: const Icon(Icons.copy, size: 18),
+                      label: FittedBox(fit: BoxFit.scaleDown, child: Text(l.pairCardCopy)),
+                      onPressed: () => sharePairingMessage(context, ref, card.link, link: card.link, copy: true),
+                    ),
+                  ],
                 ],
               ),
             ),

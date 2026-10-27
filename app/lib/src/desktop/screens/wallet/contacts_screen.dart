@@ -1329,16 +1329,21 @@ class DeskPairHint extends ConsumerWidget {
     );
     final text = Text(l.contactsPairHint, style: ts.small, textAlign: center ? TextAlign.center : TextAlign.start);
     if (center) return Column(key: deskPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, SizedBox(height: Sp.x1), learn]);
+    // The list is narrow: the link goes under the sentence, not beside it.
     return Padding(
       key: deskPairHintKey,
       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(EIcons.trusted, size: 16.u, color: c.dim),
+          Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.trusted, size: 16.u, color: c.dim)),
           SizedBox(width: Sp.x3),
-          Expanded(child: text),
-          SizedBox(width: Sp.x2),
-          learn,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [text, SizedBox(height: Sp.x1), learn],
+            ),
+          ),
         ],
       ),
     );

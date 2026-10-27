@@ -50,6 +50,8 @@ const Key deskReplyCopyKey = ValueKey('desk-reply-copy');
 const Key deskPasteFinishKey = ValueKey('desk-paste-finish');
 const Key deskClipUseKey = ValueKey('desk-clip-use');
 const Key deskClipNotNowKey = ValueKey('desk-clip-not-now');
+const Key deskWaitFoundKey = ValueKey('desk-wait-found');
+const Key deskWaitUseKey = ValueKey('desk-wait-use');
 const Key deskPairGoKey = ValueKey('desk-pair-go');
 const Key deskPairCopyInviteKey = ValueKey('desk-pair-copy-invite');
 const Key deskPairCopyCardKey = ValueKey('desk-pair-copy-card');
@@ -402,9 +404,12 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     final net = ref.watch(deskPairNetProvider);
     final online = net == DeskPairNet.online;
     final way = _way;
-    final nameField = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 420.u),
-      child: EField(
+    // A name, not a paragraph: its own width, at the start of a stretched column.
+    final nameField = Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 420.u),
+        child: EField(
         label: l.pairSeenAs,
         // Only once something needed the name, never on a page just opened (PAIR-LNX-2).
         error: _triedName && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
@@ -418,6 +423,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             if (_way == DeskPairWay.inPerson) _makeCard();
             if (_way == DeskPairWay.words && _code == null) _makeWords();
           },
+        ),
         ),
       ),
     );
@@ -1280,6 +1286,11 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   String? _link;
   bool _copied = false;
   bool _done = false;
+
+  /// A finish link found on the clipboard when the window came back: offered here, as the
+  /// shell offers nothing while a dialog is up.
+  String? _found;
+  AppLifecycleListener? _focus;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
@@ -1300,6 +1311,11 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
       }
     });
     if (widget.byMessage) {
+      _focus = AppLifecycleListener(
+        onResume: () => Timer(const Duration(milliseconds: 300), () {
+          if (mounted) _look().ignore();
+        }),
+      );
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         try {
           final link = await api.replyLink(widget.pairingId);
@@ -1311,8 +1327,37 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     }
   }
 
+  /// The clipboard on the window coming back, while the finish link is awaited.
+  Future<void> _look() async {
+    if (!_copied || _done || _found != null) return;
+    final found = await ref.read(pairingClipReaderProvider).look(
+      trigger: PairingClipTrigger.resume,
+      allowed: ref.read(deskPairsProvider),
+      pending: const PairingClipPending(waitsFinish: true),
+      seen: ref.read(deskPairingClipSeenProvider),
+    );
+    if (found == null || !mounted) return;
+    // Offered once, whatever the answer.
+    await deskMarkPairingLinkSeen(ref, found.link);
+    if (mounted) setState(() => _found = found.link);
+  }
+
+  Future<void> _useFound() async {
+    final link = _found;
+    if (link == null) return;
+    setState(() => _found = null);
+    try {
+      await deskPairingCall(ref, (a) => a.openConfirm(link));
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, context.l10n), tone: ETone.warn);
+      return;
+    }
+    _finished();
+  }
+
   @override
   void dispose() {
+    _focus?.dispose();
     deskPairingStepsOnScreen.remove(widget.pairingId);
     pairingWordsOnScreen.remove(_onScreen);
     _collect?.cancel();
@@ -1374,6 +1419,19 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
             ],
           ),
           if (online) ...[SizedBox(height: Sp.x3), Text(l.pairByItself, style: ts.small)],
+          if (_found != null) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(
+              key: deskWaitFoundKey,
+              title: l.pairClipTitle,
+              text: l.pairClipFinish,
+              tone: ETone.info,
+              actions: [
+                EButton(label: l.pairNotNow, size: EBtnSize.sm, onPressed: () => setState(() => _found = null)),
+                EButton.primary(key: deskWaitUseKey, label: l.pairClipUse, size: EBtnSize.sm, onPressed: _useFound),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [
