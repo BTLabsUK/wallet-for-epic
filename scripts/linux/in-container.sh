@@ -4,6 +4,13 @@ set -euo pipefail
 target="${WFE_TARGET:-lib/main_desktop.dart}"
 # pubspec.yaml's YY.MM.patch, with a test build's -rcN; never the +build (https://docs.btlabs.uk/developers/releases/).
 version="$(sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' /work/app/pubspec.yaml)"
+# WFE_TOR=0: the build without Tor (lib/src/tor_build.dart); its AppImage says so in its name.
+notor=()
+variant=
+if [[ "${WFE_TOR:-1}" = 0 ]]; then
+  notor=(--dart-define=WFE_TOR=false)
+  variant=-notor
+fi
 
 if [[ "${WFE_BUILD_LEPIC:-1}" = 1 ]]; then
   echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)"
@@ -15,7 +22,7 @@ echo "== flutter build linux --release -t $target"
 cd /work/app
 flutter pub get
 flutter build linux --release -t "$target" ${WFE_BUILD_ID:+--dart-define=WFE_BUILD_ID="$WFE_BUILD_ID"} \
-  ${WFE_BUILD_TAG:+--dart-define=WFE_BUILD_TAG="$WFE_BUILD_TAG"} "$@"
+  ${WFE_BUILD_TAG:+--dart-define=WFE_BUILD_TAG="$WFE_BUILD_TAG"} ${notor[@]+"${notor[@]}"} "$@"
 
 echo "== AppImage"
 bundle=/work/app/build/linux/x64/release/bundle
@@ -65,5 +72,5 @@ PNG
 fi
 out=/work/build-linux
 mkdir -p "$out"
-ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicCashDesktop-$version-x86_64.AppImage"
+ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicCashDesktop-$version$variant-x86_64.AppImage"
 ls -l "$out"

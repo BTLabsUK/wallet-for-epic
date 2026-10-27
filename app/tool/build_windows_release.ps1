@@ -1,4 +1,4 @@
-# Builds the Windows installer, epic-cash-desktop-<version>-windows-x64-setup.exe, in one go. Run in
+# Builds the Windows installer, epic-cash-desktop-<version>[-notor]-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
 #
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
@@ -26,6 +26,9 @@ param(
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
     # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
+    # The build without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false, no Tor bundle
+    # (-TorBundle is refused), -notor in the installer's name.
+    [switch]$NoTor,
     # The commit shown beside the version in the app (WFE_BUILD_ID); default: -Source's HEAD.
     [string]$BuildId,
     # A rebuild of the same version (WFE_BUILD_TAG, e.g. r2); default: from the tag v<version>-rN
@@ -33,6 +36,9 @@ param(
     [string]$BuildTag
 )
 $ErrorActionPreference = 'Stop'
+if ($NoTor -and $TorBundle) { throw '-NoTor builds without Tor: leave out -TorBundle' }
+$variant = if ($NoTor) { '-notor' } else { '' }
+$torDefine = if ($NoTor) { 'false' } else { 'true' }
 $Source = (Resolve-Path $Source).Path
 $app = Join-Path $Source 'app'
 if (-not $OutDir) { $OutDir = Join-Path $app 'build\installer' }
@@ -119,7 +125,7 @@ if (-not $BuildTag) {
     foreach ($t in @(git -C $Source tag --points-at HEAD)) { if ($t -match '^v[\d.]+-(r\d+)$') { $BuildTag = $Matches[1] } }
 }
 Write-Output "build id: $BuildId $BuildTag"
-flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId --dart-define=WFE_BUILD_TAG=$BuildTag
+flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId --dart-define=WFE_BUILD_TAG=$BuildTag --dart-define=WFE_TOR=$torDefine
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 $rel = Join-Path $app 'build\windows\x64\runner\Release'
 # A failed configure leaves only the exe here (install prefix pointed elsewhere): refuse that.
@@ -162,15 +168,18 @@ if ($TorBundle) {
     Copy-Item "$TorBundle\*" "$rel\bin\tor-bundle" -Force
     Write-Output "bundled bin\tor-bundle: $((Get-Content "$rel\bin\tor-bundle\VERSION" -Raw).Trim()), tor.exe $((Get-FileHash "$rel\bin\tor-bundle\tor.exe" -Algorithm SHA256).Hash.ToLower())"
 } else {
-    Write-Output 'no -TorBundle: Tor shows as not included in this build'
+    # A Release folder of an earlier build with Tor must not lend its tor to this one.
+    if (Test-Path "$rel\bin\tor-bundle") { Remove-Item -Recurse -Force "$rel\bin\tor-bundle" }
+    if ($NoTor) { Write-Output 'no Tor: the build without Tor (WFE_TOR=false)' }
+    else { Write-Output 'no -TorBundle: Tor shows as not included in this build' }
 }
 
 # --- installer
 Step 'Inno Setup'
 $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
-& $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" $iss
+& $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" "/DVariant=$variant" $iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
-$setup = Join-Path $OutDir "epic-cash-desktop-$name-windows-x64-setup.exe"
+$setup = Join-Path $OutDir "epic-cash-desktop-$name$variant-windows-x64-setup.exe"
 # Inno Setup pads the string FileVersion with spaces (and a NUL): compare the trimmed text.
 $setupVersion = ((Get-Item $setup).VersionInfo.FileVersion -replace '[\s\x00]', '')
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }

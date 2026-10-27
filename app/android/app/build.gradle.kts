@@ -38,6 +38,15 @@ val releaseSigningProblem: String? = run {
     }
 }
 
+// The build without Tor (lib/src/tor_build.dart, https://docs.btlabs.uk/developers/build/variants/): Flutter hands its
+// --dart-define values to Gradle as `dart-defines` (base64, comma separated). With WFE_TOR=false
+// (or 0, off) no tor is packed, even when tools/fetch-tor.sh left one in src/main/tor-jniLibs.
+val torBuilt = (project.findProperty("dart-defines") as String?).orEmpty()
+    .split(",")
+    .filter { it.isNotEmpty() }
+    .map { String(java.util.Base64.getDecoder().decode(it)) }
+    .none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
+
 android {
     namespace = "uk.btlabs.epiccash.mobile"
     compileSdk = flutter.compileSdkVersion
@@ -69,10 +78,11 @@ android {
     // tools/fetch-tor.sh android puts the Tor Project's tor here as <abi>/libtor.so. It is an
     // executable, and Android only runs files from the app's native library folder, so the
     // libraries are extracted at install (extractNativeLibs) instead of being mapped from the APK.
-    sourceSets["main"].jniLibs.srcDir("src/main/tor-jniLibs")
+    // Without Tor neither: the libraries stay in the APK, uncompressed and page aligned.
+    if (torBuilt) sourceSets["main"].jniLibs.srcDir("src/main/tor-jniLibs")
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = torBuilt
         }
     }
 

@@ -31,6 +31,10 @@
 #ifndef AppVersion
   #error Pass /DAppVersion=<pubspec.yaml's version, without +build>
 #endif
+; /DVariant=-notor: the build without Tor (https://docs.btlabs.uk/developers/build/variants/), named so; empty otherwise.
+#ifndef Variant
+  #define Variant ""
+#endif
 ; The file version is YY.MM.patch.0; a test build's -rcN is left out (numbers only).
 #if Pos("-", AppVersion) > 0
   #define FileVersion Copy(AppVersion, 1, Pos("-", AppVersion) - 1) + ".0"
@@ -64,7 +68,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\epic_wallet.exe
 UninstallDisplayName=Epic Cash Desktop
 OutputDir={#OutputDir}
-OutputBaseFilename=epic-cash-desktop-{#AppVersion}-windows-x64-setup
+OutputBaseFilename=epic-cash-desktop-{#AppVersion}{#Variant}-windows-x64-setup
 Compression=lzma2
 SolidCompression=yes
 CloseApplications=no
