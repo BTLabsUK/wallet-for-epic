@@ -3890,7 +3890,7 @@
   "pairWayAutomatic": "Automatycznie",
   "pairWayWordsHint": "Przeczytaj drugiej osobie pięć słów. Oba portfele muszą być online; reszta dzieje się sama.",
   "pairWayWordsInfo": "Oba portfele muszą być online i mieć dostęp do przekaźnika Epicbox. Twój portfel wysyła zaproszenie na trzy wbudowane przekaźniki; portfel drugiej osoby znajduje je po pięciu słowach. Potem sprawdźcie razem cztery słowa.",
-  "pairWayMessage": "Zaproszenie w wiadomości",
+  "pairWayMessage": "Przez wiadomość",
   "pairWayMessageHint": "Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Przekaźnik nie jest potrzebny.",
   "pairWayMessageInfo": "Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy przekaźnik jest zablokowany albo portfel jest offline.",
   "pairWayInPersonDesk": "Telefon drugiej osoby skanuje twój kod",

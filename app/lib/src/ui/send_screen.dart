@@ -25,7 +25,7 @@ import '../providers.dart';
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../scan/scan_text.dart' show directHostOf;
+import '../scan/scan_text.dart' show directHostBesideOf;
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -3050,7 +3050,7 @@ class _SendViewState extends ConsumerState<SendView> {
           address: to.address,
           name: _contactName(to.address),
           host: _activeOrigin != null && to.kind != RecipientKind.epicbox
-              ? directHostOf(to.address)
+              ? directHostBesideOf(to.address)
               : null,
         ),
       ..._payeeClaims(gapBefore: 12),

@@ -2127,7 +2127,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     // The payee's words under the facts; the name not when the contact has it (ui.md U-4).
     final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
-    final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostOf(d.to!) : null;
+    final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostBesideOf(d.to!) : null;
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(

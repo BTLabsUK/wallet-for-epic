@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/demo.dart' show demoModeProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -17,6 +18,7 @@ import 'package:epic_wallet/src/scan/scan_router.dart' show maxUriAddressLength;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/method_art.dart';
@@ -193,6 +195,16 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
+          torBundleFinderProvider.overrideWithValue(
+            () async => const TorBundle(binary: '/data/app/lib/arm64/libtor.so'),
+          ),
+          networkChangesProvider.overrideWithValue(const Stream<bool>.empty()),
+          phoneTorTimingProvider.overrideWithValue(
+            const PhoneTorTiming(
+              backoff: [Duration(hours: 1)],
+              sendWait: Duration(hours: 1),
+            ),
+          ),
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
@@ -839,6 +851,53 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(h.container.read(incomingLinkProvider), isNull);
     });
+  });
+
+  testWidgets('a Tor code shows the onion address once on the review (#118)', (
+    tester,
+  ) async {
+    const name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
+    const onion = '$name.onion';
+    expect(name.length, 56);
+    final h = _Harness();
+    await h.pump(tester);
+    await h.scan(tester, 'epic:$onion?amount=1');
+    // Tor is on: the way to an onion is open.
+    await _tap(tester, find.byKey(sendTurnOnTorKey));
+    h.session.torStatusValue = TorStatus(
+      kind: TorStatusKind.ready,
+      onion: h.session.onion,
+    );
+    h.session.torEvents.add(
+      TorEvent(kind: TorEventKind.ready, onion: h.session.onion),
+    );
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+    }
+    await tester.pump();
+    await _continue(tester);
+    expect(_origin('From a QR code'), findsOneWidget);
+    expect(find.text('Host'), findsNothing);
+    final onCard = find.descendant(
+      of: find.byType(RecipientCard),
+      matching: find.textContaining('.onion', findRichText: true),
+    );
+    expect(onCard, findsOneWidget);
+    expect(find.textContaining('.onion', findRichText: true), findsOneWidget);
+  });
+
+  testWidgets('a Link code with a port keeps the host line on the review', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.pump(tester);
+    await h.scan(tester, 'epic:$_d?amount=1');
+    await _continue(tester);
+    expect(find.text('Host'), findsOneWidget);
+    expect(find.text('1.2.3.4:3415'), findsOneWidget);
   });
 
   testWidgets(

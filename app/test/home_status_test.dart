@@ -25,12 +25,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
 
-WalletSummary _summary({bool validated = true, int height = 2499990}) =>
+WalletSummary _summary({bool validated = true, int height = 2499990, BigInt? spendable}) =>
     WalletSummary(
       lastConfirmedHeight: BigInt.from(height),
       minimumConfirmations: BigInt.from(3),
       total: BigInt.from(100),
-      spendable: BigInt.from(100),
+      spendable: spendable ?? BigInt.from(100),
       awaitingConfirmation: BigInt.zero,
       awaitingFinalization: BigInt.zero,
       immature: BigInt.zero,
@@ -694,6 +694,113 @@ void main() {
         );
         expect(nodeGlyph.left - area.left, closeTo(18, 0.5));
         expect(area.right - eye.right, closeTo(3, 0.5));
+      });
+    }
+  });
+
+  group("in Send's and Receive's app bar (#119)", () {
+    // The shell's bar: logo, the title, and the scan, lock and settings buttons.
+    Widget bar({double openness = 0}) => AppBar(
+      leadingWidth: shellLeadingWidth,
+      leading: const SizedBox(),
+      titleSpacing: 0,
+      title: ShellBarTitle(openness: openness),
+      actions: [
+        for (var i = 0; i < 3; i++)
+          IconButton(icon: const Icon(Icons.circle_outlined), onPressed: () {}),
+      ],
+    );
+
+    WalletTokens tokens(WidgetTester tester) =>
+        tester.element(find.byKey(barNodeIconKey)).tokens;
+
+    testWidgets('all fine: Node and Epicbox green, on the bar with the figure', (
+      tester,
+    ) async {
+      await _pump(tester, child: bar());
+      final t = tokens(tester);
+      expect(find.byKey(barStatusesKey), findsOneWidget);
+      expect(_label(tester, barNodeIconKey), 'Node, Synced');
+      expect(_label(tester, barEpicboxIconKey), 'Epicbox, Connected');
+      expect(_dot(tester, barNodeIconKey), t.ok);
+      expect(_dot(tester, barEpicboxIconKey), t.ok);
+      expect(find.byKey(barTorIconKey), findsNothing);
+      expect(find.byKey(directIconKey), findsNothing);
+      // Right after the figure, on its line.
+      final figure = tester.getRect(find.byKey(titleFigureKey));
+      final node = tester.getRect(find.byKey(barNodeIconKey));
+      expect(node.left, greaterThanOrEqualTo(figure.right));
+      expect(node.center.dy, closeTo(figure.center.dy, 12));
+    });
+
+    testWidgets('node down and Epicbox lost show the problem colour', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        child: bar(),
+        tip: AsyncError(StateError('down'), StackTrace.empty),
+        listener: _lost,
+      );
+      final t = tokens(tester);
+      expect(_label(tester, barNodeIconKey), 'Node, Offline');
+      expect(_dot(tester, barNodeIconKey), t.risk);
+      expect(_label(tester, barEpicboxIconKey), 'Epicbox, Not connected');
+      expect(_dot(tester, barEpicboxIconKey), t.risk);
+    });
+
+    testWidgets('Tor on: its icon joins; Wallet shows none of the bar row', (
+      tester,
+    ) async {
+      await _pump(tester, child: bar(), tor: _torReady);
+      expect(_label(tester, barTorIconKey), 'Tor, On');
+      expect(_dot(tester, barTorIconKey), tokens(tester).ok);
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, child: bar(openness: 1));
+      expect(find.byKey(barStatusesKey), findsNothing);
+      expect(find.byKey(barNodeIconKey), findsNothing);
+    });
+
+    testWidgets('a tap opens the same picker as on Wallet', (tester) async {
+      await _pump(tester, child: bar());
+      await tester.tap(find.byKey(barNodeIconKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(ServerListSheet), findsOneWidget);
+    });
+
+    for (final (width, scale, big) in [
+      (360.0, 1.0, false),
+      (360.0, 1.0, true),
+      (360.0, 1.3, true),
+    ]) {
+      testWidgets('$width dp at $scale${big ? ', big balance' : ''}: icons and figure fit', (
+        tester,
+      ) async {
+        final home = HomeData(
+          summary: _summary(
+            spendable: BigInt.parse(big ? '2100000000000000' : '3347000000'),
+          ),
+          transactions: const [],
+        );
+        await _pump(
+          tester,
+          child: bar(),
+          home: home,
+          tor: _torReady,
+          width: width,
+          scale: scale,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        final bars = tester.getRect(find.byType(AppBar));
+        final figure = tester.getRect(find.byKey(titleFigureKey));
+        for (final key in [barNodeIconKey, barEpicboxIconKey, barTorIconKey]) {
+          final r = tester.getRect(find.byKey(key));
+          expect(r.width, greaterThanOrEqualTo(24), reason: '$key target');
+          expect(r.right, lessThanOrEqualTo(bars.right - 3 * 48), reason: '$key');
+        }
+        // The test font is far wider than Montserrat: the figure's legibility is judged on the tour shots.
+        expect(figure.height, greaterThan(0));
       });
     }
   });

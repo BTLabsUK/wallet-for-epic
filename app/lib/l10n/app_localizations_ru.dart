@@ -14806,7 +14806,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Оба кошелька должны быть онлайн и иметь доступ к ретранслятору Epicbox. Ваш кошелёк размещает приглашение на трёх встроенных ретрансляторах; кошелёк собеседника находит его по пяти словам. Затем вместе проверьте четыре слова.';
 
   @override
-  String get pairWayMessage => 'Приглашение в сообщении';
+  String get pairWayMessage => 'Через сообщение';
 
   @override
   String get pairWayMessageHint =>
@@ -14820,7 +14820,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairWayInPersonDesk => 'Телефон собеседника сканирует ваш код';
 
   @override
-  String get pairGotInvite => 'Получили слова или ссылку?';
+  String get pairGotInvite => 'Слова или ссылка?';
 
   @override
   String get pairGotInviteHint =>
@@ -16202,7 +16202,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'Когда у одного кошелька нет камеры или приглашение нельзя отправить ссылкой, приглашающий кошелёк показывает пять слов сопряжения. Собеседник вводит их названия в **Получили слова или ссылку?**; поле дополняет каждое название после нескольких букв. Слова действуют 10 минут.';
+      'Когда у одного кошелька нет камеры или приглашение нельзя отправить ссылкой, приглашающий кошелёк показывает пять слов сопряжения. Собеседник вводит их названия в **Слова или ссылка?**; поле дополняет каждое название после нескольких букв. Слова действуют 10 минут.';
 
   @override
   String get helpPairWordsP2 =>

@@ -41,8 +41,11 @@ const Key titleFigureKey = ValueKey('title-figure');
 /// The key of the line under that figure with what is on hold and coming in, for tests.
 const Key titlePendingKey = ValueKey('title-pending');
 
-/// The key of the statuses in Wallet's fiat row, the only place they show.
+/// The key of the statuses in Wallet's fiat row.
 const Key walletStatusesKey = ValueKey('statuses-wallet');
+
+/// The key of the compact statuses in Send's and Receive's app bar.
+const Key barStatusesKey = ValueKey('statuses-bar');
 
 /// The key of the sync line along the app bar's foot, for tests.
 const Key headerSyncLineKey = ValueKey('header-sync-line');
@@ -505,7 +508,22 @@ class ShellBarTitle extends StatelessWidget {
       alignment: AlignmentDirectional.centerStart,
       children: [
         layer(shellFade(t), t >= 0.5, ShellTitle(trailing: trailing)),
-        layer(shellFade(1 - t), t < 0.5, const _FigureTitle()),
+        // Not built on Wallet: its icons are in the page, and the two rows must not share keys.
+        if (t < 1)
+          layer(
+            shellFade(1 - t),
+            t < 0.5,
+            // The figure, and the compact statuses right after it: a dropped node shows
+            // before a payment is begun. The figure shrinks, the icons keep their size.
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Flexible(child: _FigureTitle()),
+                const SizedBox(width: 4),
+                StatusIcons(key: barStatusesKey, compact: true),
+              ],
+            ),
+          ),
       ],
     );
   }

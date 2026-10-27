@@ -14630,7 +14630,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beide Wallets müssen online sein und ein Epicbox-Relay erreichen. Ihre Wallet legt die Einladung auf den drei eingebauten Relays ab; die andere findet sie über die fünf Wörter. Danach prüfen Sie gemeinsam die vier Wörter.';
 
   @override
-  String get pairWayMessage => 'Einladung per Nachricht';
+  String get pairWayMessage => 'Per Nachricht';
 
   @override
   String get pairWayMessageHint =>

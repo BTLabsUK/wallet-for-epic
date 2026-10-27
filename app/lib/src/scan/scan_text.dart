@@ -33,6 +33,15 @@ String directHostOf(String address) {
   return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
 }
 
+/// The host line for the review of a Direct payment, or null when the address already is the
+/// host (a bare onion address, a `host:port` pair): the address line shows it once, with its
+/// ends marked. A web address keeps the host line: it names the place the payment goes,
+/// without the scheme and path.
+String? directHostBesideOf(String address) {
+  final host = directHostOf(address);
+  return host.toLowerCase() == address.trim().toLowerCase() ? null : host;
+}
+
 /// Code points of the scanned text the preview shows.
 const int scanPreviewLength = 80;
 
