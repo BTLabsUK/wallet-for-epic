@@ -18,6 +18,76 @@ import 'relay_directory.dart' show ServerIcon;
 /// A list's kind: nodes or Epicbox relays.
 enum ServerKind { node, relay }
 
+/// The picker's selection mode: a set of up to [limit] servers, ticked in the list, for a
+/// setting that uses several servers at once (Connection servers, limit 3; the linked devices'
+/// Servers, limit 2). `null` where a picker takes one server, as the Node and Epicbox settings do.
+///
+/// The picker keeps the set itself while open, starting from [chosen]; every tick, untick,
+/// reset and Undo calls [onChanged] with the whole new set (list values).
+@immutable
+class RelaySelection {
+  const RelaySelection({
+    required this.limit,
+    required this.chosen,
+    required this.defaults,
+    required this.onChanged,
+    required this.title,
+    required this.note,
+  });
+
+  /// How many servers may be chosen at most; one always is.
+  final int limit;
+
+  /// The set now, as list values.
+  final List<String> chosen;
+
+  /// The set "Reset to defaults" restores, as list values; the list shows them first.
+  final List<String> defaults;
+
+  /// Called with the new set after every change.
+  final void Function(List<String> chosen) onChanged;
+
+  /// The picker's title ("Connection servers").
+  final String title;
+
+  /// The line under the field ("Choose up to 3.").
+  final String note;
+}
+
+/// Why a tick was refused.
+enum SelectionRefusal { keepOne, limit }
+
+/// What a tick on [value] does to [chosen] in a selection with [limit]: the new set, or why not.
+({List<String>? next, SelectionRefusal? refusal}) toggleSelection(ServerKind kind, List<String> chosen, String value, int limit) {
+  final k = serverKeyOf(kind, value);
+  final at = chosen.indexWhere((c) => serverKeyOf(kind, c) == k);
+  if (at >= 0) {
+    if (chosen.length <= 1) return (next: null, refusal: SelectionRefusal.keepOne);
+    return (next: [...chosen]..removeAt(at), refusal: null);
+  }
+  if (chosen.length >= limit) return (next: null, refusal: SelectionRefusal.limit);
+  return (next: [...chosen, value], refusal: null);
+}
+
+/// Whether [a] and [b] hold the same servers of [kind], in any order.
+bool sameServerSet(ServerKind kind, Iterable<String> a, Iterable<String> b) =>
+    setEquals({for (final v in a) serverKeyOf(kind, v)}, {for (final v in b) serverKeyOf(kind, v)});
+
+/// The list in a selection's order: the defaults first (in the defaults' order), then the rest
+/// in list order. Chosen rows keep their place.
+List<T> selectionOrder<T>(ServerKind kind, List<T> rows, String Function(T) valueOf, List<String> defaults) {
+  final keys = [for (final d in defaults) serverKeyOf(kind, d)];
+  int rank(T r) {
+    final i = keys.indexOf(serverKeyOf(kind, valueOf(r)));
+    return i < 0 ? keys.length : i;
+  }
+  final out = [...rows];
+  // A stable sort: equal ranks keep the list's order.
+  final indexed = [for (var i = 0; i < out.length; i++) (i, out[i])];
+  indexed.sort((a, b) => rank(a.$2) != rank(b.$2) ? rank(a.$2).compareTo(rank(b.$2)) : a.$1.compareTo(b.$1));
+  return [for (final e in indexed) e.$2];
+}
+
 /// What makes two values the same server: `host:port` for nodes, the label for relays.
 String serverKeyOf(ServerKind kind, String value) => kind == ServerKind.node
     ? (nodeKey(value) ?? value)
@@ -30,10 +100,18 @@ bool sameServer(ServerKind kind, String a, String b) =>
 /// One kind's list: the values in their order, and the keys of public servers the user removed.
 @immutable
 class ServerList {
-  const ServerList({this.entries = const [], this.removed = const {}});
+  const ServerList({this.entries = const [], this.removed = const {}, this.added = const {}});
 
   final List<String> entries;
   final Set<String> removed;
+
+  /// Keys of the servers the user typed in ("Added by you"), as opposed to built-in and
+  /// directory servers. A server the directory lists is not one any more ([absorb]). Lists
+  /// stored before this existed hold none.
+  final Set<String> added;
+
+  /// Whether the user typed [value] in.
+  bool isAddedByUser(ServerKind kind, String value) => added.contains(serverKeyOf(kind, value));
 
   /// The list a first use starts with: [builtIn] in its order, then [carried] (what an older
   /// version's own list held), one row per server.
@@ -41,7 +119,12 @@ class ServerList {
     ServerKind kind,
     Iterable<String> builtIn, {
     Iterable<String> carried = const [],
-  }) => const ServerList().absorb(kind, [...builtIn, ...carried]);
+  }) {
+    final list = const ServerList().absorb(kind, [...builtIn, ...carried]);
+    // What an older version's own list held was typed in by the user.
+    final own = {for (final v in carried) serverKeyOf(kind, v)}..removeAll([for (final v in builtIn) serverKeyOf(kind, v)]);
+    return own.isEmpty ? list : ServerList(entries: list.entries, removed: list.removed, added: own);
+  }
 
   /// A stored list, or null when [raw] is missing or broken (the caller seeds again).
   static ServerList? decode(String? raw) {
@@ -60,6 +143,11 @@ class ServerList {
             for (final e in d['removed'] as List)
               if (e is String && e.isNotEmpty) e,
         },
+        added: {
+          if (d['added'] is List)
+            for (final e in d['added'] as List)
+              if (e is String && e.isNotEmpty) e,
+        },
       );
     } on FormatException {
       return null;
@@ -69,6 +157,7 @@ class ServerList {
   String encode() => jsonEncode({
     'entries': entries,
     'removed': [...removed],
+    if (added.isNotEmpty) 'added': [...added],
   });
 
   bool has(ServerKind kind, String value) {
@@ -85,7 +174,11 @@ class ServerList {
       if (removed.contains(k) || !keys.add(k)) continue;
       out.add(v);
     }
-    return listEquals(out, entries) ? this : ServerList(entries: out, removed: removed);
+    // A server the directory lists is public, whoever typed it in first.
+    final publicKeys = {for (final v in public) serverKeyOf(kind, v)};
+    final stillAdded = {for (final a in added) if (!publicKeys.contains(a)) a};
+    if (listEquals(out, entries) && setEquals(stillAdded, added)) return this;
+    return ServerList(entries: out, removed: removed, added: stillAdded);
   }
 
   /// [public] values not yet in the list and not removed: what [absorb] would add.
@@ -95,13 +188,13 @@ class ServerList {
   ];
 
   /// Adds [value] at [at] (else last); its key leaves [removed], so it stays. A listed server
-  /// leaves the list as it is.
-  ServerList add(ServerKind kind, String value, {int? at}) {
+  /// leaves the list as it is. [own] marks a server the user typed in ("Added by you").
+  ServerList add(ServerKind kind, String value, {int? at, bool own = false}) {
     final k = serverKeyOf(kind, value);
     if (has(kind, value)) return this;
     final out = [...entries];
     out.insert(at == null ? out.length : at.clamp(0, out.length), value);
-    return ServerList(entries: out, removed: {...removed}..remove(k));
+    return ServerList(entries: out, removed: {...removed}..remove(k), added: own ? {...added, k} : added);
   }
 
   /// Takes [value] out and remembers its key as removed. [at] is where it was, for Undo;
@@ -110,7 +203,8 @@ class ServerList {
     final k = serverKeyOf(kind, value);
     final i = entries.indexWhere((e) => serverKeyOf(kind, e) == k);
     if (i < 0) return (list: this, at: null);
-    return (list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}), at: i);
+    // [added] keeps the key, so Undo brings the badge back.
+    return (list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}, added: added), at: i);
   }
 
   /// The [public] servers the user removed: "Restore removed servers" shows while any is.
@@ -121,8 +215,8 @@ class ServerList {
 
   /// Forgets every removal and puts the [public] servers back at the end, in their order.
   ServerList restore(ServerKind kind, Iterable<String> public) {
-    final back = ServerList(entries: entries).absorb(kind, public);
-    if (listEquals(back.entries, entries) && setEquals(removed, const {})) return this;
+    final back = ServerList(entries: entries, added: added).absorb(kind, public);
+    if (listEquals(back.entries, entries) && setEquals(removed, const {}) && setEquals(back.added, added)) return this;
     return back;
   }
 
@@ -130,11 +224,12 @@ class ServerList {
   bool operator ==(Object other) =>
       other is ServerList &&
       listEquals(other.entries, entries) &&
-      setEquals(other.removed, removed);
+      setEquals(other.removed, removed) &&
+      setEquals(other.added, added);
 
   @override
   int get hashCode =>
-      Object.hash(Object.hashAll(entries), Object.hashAll(removed.toList()..sort()));
+      Object.hash(Object.hashAll(entries), Object.hashAll(removed.toList()..sort()), Object.hashAll(added.toList()..sort()));
 }
 
 /// What the field at the top holds when Add is tapped: the value as the list stores it, or

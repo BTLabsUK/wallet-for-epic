@@ -21,6 +21,7 @@ library;
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -201,9 +202,15 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.error,
     this.openInitially = false,
     this.demo,
+    this.selection,
   });
 
   final ServerKind kind;
+
+  /// The panel takes a set of servers instead of one ([RelaySelection]): a checkbox per row, a
+  /// tick applies at once and the panel stays open; nothing switches. Null keeps the one-server
+  /// panel. [value] and [onChoose] are not used then.
+  final RelaySelection? selection;
 
   /// The button's and the panel's name ("Node server").
   final String label;
@@ -277,12 +284,18 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   bool get _busy => widget.busy && !_slow;
   bool get _node => widget.kind == ServerKind.node;
 
+  /// The set ticked now in a selection panel; null in the one-server panel.
+  List<String>? _chosen;
+
+  RelaySelection? get _sel => widget.selection;
+
   /// The list is open.
   bool get isOpen => _portal.isShowing;
 
   @override
   void initState() {
     super.initState();
+    _chosen = _sel == null ? null : [..._sel!.chosen];
     if (widget.busy) _startBusy();
     if (widget.openInitially || widget.demo != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -310,6 +323,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   @override
   void didUpdateWidget(ServerListPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final sel = _sel;
+    // The setting changed the set behind the panel's back: follow it.
+    if (sel != null && !listEquals(sel.chosen, oldWidget.selection?.chosen)) _chosen = [...sel.chosen];
     if (widget.busy && !oldWidget.busy) _startBusy();
     if (!widget.busy && oldWidget.busy) {
       _busyTimer?.cancel();
@@ -418,6 +434,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   void _pick(String value) {
     if (_busy) return;
+    if (_sel != null) return _tick(value);
     if (widget.value.isNotEmpty && _same(value, widget.value)) {
       collapse();
       return;
@@ -515,8 +532,15 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       });
       return;
     }
-    await ref.read(deskServerListProvider(widget.kind).notifier).add(value);
+    await ref.read(deskServerListProvider(widget.kind).notifier).add(value, own: true);
     if (!mounted) return;
+    if (_sel != null) {
+      _text.clear();
+      setState(() => _adding = null);
+      _addedInSelection(value);
+      _field.requestFocus();
+      return;
+    }
     if (widget.chooseOnly) {
       setState(() => _adding = null);
       collapse();
@@ -543,8 +567,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   Future<void> _remove(PanelServer s) async {
     final l = context.l10n;
-    if (widget.value.isNotEmpty && _same(s.value, widget.value)) {
-      _say(l.slInUseSwitchFirst);
+    if (_sel != null ? _isChosen(s.value) : widget.value.isNotEmpty && _same(s.value, widget.value)) {
+      _say(_sel != null ? l.slChosenUntick : l.slInUseSwitchFirst);
       return;
     }
     final hadFocus = _listScope.hasFocus;
@@ -561,6 +585,89 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     );
   }
 
+  // The selection mode.
+
+  bool _isChosen(String value) => _chosen!.any((c) => _same(c, value));
+
+  void _setChosen(List<String> next) {
+    setState(() => _chosen = next);
+    _sel!.onChanged(next);
+  }
+
+  /// The foot line of a server that joined the set: plain for a default, else what a
+  /// non-default means for who finds this wallet.
+  String _chosenLine(String value) {
+    final l = context.l10n;
+    final host = panelHost(widget.kind, value);
+    return _sel!.defaults.any((d) => _same(d, value)) ? l.slChosen(host) : l.slChosenNonDefault(host);
+  }
+
+  void _undoTo(List<String> before) {
+    _setChosen(before);
+    _lineTimer?.cancel();
+    setState(() {
+      _line = null;
+      _lineAction = null;
+    });
+  }
+
+  /// A click on a row: ticks or unticks at once; the foot says what happened, with Undo, or
+  /// why not (the last one stays, the set is full).
+  void _tick(String value) {
+    final l = context.l10n;
+    final sel = _sel!;
+    final before = _chosen!;
+    final r = toggleSelection(widget.kind, before, value, sel.limit);
+    switch (r.refusal) {
+      case SelectionRefusal.keepOne:
+        _say(l.slKeepOne);
+        return;
+      case SelectionRefusal.limit:
+        _say(l.slLimit(sel.limit));
+        return;
+      case null:
+        break;
+    }
+    final next = r.next!;
+    _setChosen(next);
+    _say(
+      next.length > before.length ? _chosenLine(value) : l.slUnchosen(panelHost(widget.kind, value)),
+      undo: () => _undoTo(before),
+    );
+  }
+
+  /// A typed server was tested and listed: it joins the set while there is room, else the foot
+  /// says to untick one.
+  void _addedInSelection(String value) {
+    final l = context.l10n;
+    final sel = _sel!;
+    final before = _chosen!;
+    final host = panelHost(widget.kind, value);
+    if (before.length >= sel.limit) {
+      _say(l.slAddedUntick(host));
+      return;
+    }
+    _setChosen([...before, value]);
+    _say(
+      sel.defaults.any((d) => _same(d, value)) ? l.slChosen(host) : l.slAddedNonDefault(host),
+      undo: () => _undoTo(before),
+    );
+  }
+
+  /// "Reset to defaults": the set is the defaults again; one the user took out of the list comes
+  /// back with it.
+  Future<void> _resetToDefaults() async {
+    final sel = _sel!;
+    final before = _chosen!;
+    final n = ref.read(deskServerListProvider(widget.kind).notifier);
+    for (final d in sel.defaults) {
+      await n.add(d);
+    }
+    if (!mounted) return;
+    _setChosen([...sel.defaults]);
+    _say(context.l10n.slReset, undo: () => _undoTo(before));
+  }
+
   Future<void> _restore() async {
     await ref.read(deskServerListProvider(widget.kind).notifier).restore(widget.source.public);
     if (mounted) _say(context.l10n.slRestored);
@@ -569,7 +676,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   /// Seeds the list and keeps it in step with the directory, after the frame.
   void _sync() {
     final s = widget.source;
-    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}';
+    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}|${s.keep.join(' ')}';
     if (sig == _sourceSig) return;
     _sourceSig = sig;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -617,8 +724,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               canRequestFocus: false,
               borderRadius: BorderRadius.circular(Rad.sm),
               child: Container(
-                height: Ctl.sm,
-                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                // A selection shows every chosen host, wrapped at the spaces, never cut.
+                constraints: BoxConstraints(minHeight: Ctl.sm),
+                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2, top: _sel == null ? 0 : Sp.x2, bottom: _sel == null ? 0 : Sp.x2),
                 decoration: BoxDecoration(
                   color: c.s2,
                   borderRadius: BorderRadius.circular(Rad.sm),
@@ -630,7 +738,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                     SizedBox(width: Sp.x3),
                     Flexible(
                       flex: 2,
-                      child: Text(widget.fieldText, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: 13.u, color: c.text)),
+                      child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
                     ),
                     if (widget.busy) ...[
                       SizedBox(width: Sp.x2),
@@ -696,7 +804,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final all = _all;
+    final sel = _sel;
+    // A selection lists its defaults first; chosen rows keep their place.
+    final all = sel == null ? _all : selectionOrder(widget.kind, _all, (s) => s.value, sel.defaults);
     final filtering = _filtering;
     final shown = _shown(all);
     final typedValue = filtering ? _typedValue() : null;
@@ -705,7 +815,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final local = widget.local;
     final showLocal = local != null && (!filtering || serverMatches(_typed, host: l.deskSetNodeLocalNode, operator: local.stateText));
     final restorable = _list == null ? const <String>[] : _list!.restorable(widget.kind, widget.source.public);
-    final selected = widget.value;
+    final selected = sel != null ? '' : widget.value;
     final known = [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)];
 
     final helper = _fieldError ?? (filtering ? l.slHelpMatches(shown.length) : (widget.chooseOnly ? l.deskSlHelpChoose : null));
@@ -728,8 +838,13 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           // Its own icon, else the one the monitor holds for the same operator.
           icon: serverIconFor(s.icon, s.listedAs ?? s.operator, known),
           // Before a wallet exists nothing is in use: the check marks the choice.
-          inUse: !widget.chooseOnly && widget.value.isNotEmpty && _same(s.value, widget.value),
-          selected: selected.isNotEmpty && _same(s.value, selected),
+          inUse: sel == null && !widget.chooseOnly && widget.value.isNotEmpty && _same(s.value, widget.value),
+          selected: sel != null ? _isChosen(s.value) : selected.isNotEmpty && _same(s.value, selected),
+          addedByYou: _list?.isAddedByUser(widget.kind, s.value) ?? false,
+          isDefault: sel != null ? sel.defaults.any((d) => _same(d, s.value)) : s.isDefault,
+          // A checkbox in the selection; the rest of the set dims once it is full.
+          ticked: sel == null ? null : _isChosen(s.value),
+          dimmed: sel != null && !_isChosen(s.value) && _chosen!.length >= sel.limit,
           onTap: () => _pick(s.value),
           onRemove: () => _remove(s),
         ),
@@ -746,6 +861,19 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             ),
           ),
         ),
+      if (sel != null && !filtering && !sameServerSet(widget.kind, _chosen!, sel.defaults))
+        Padding(
+          padding: EdgeInsets.only(top: Sp.x1),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: EButton.ghost(
+              key: const ValueKey('server-list-reset'),
+              label: l.slResetDefaults,
+              icon: EIcons.history,
+              onPressed: _resetToDefaults,
+            ),
+          ),
+        ),
       if (widget.listNote != null && !filtering)
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
@@ -753,7 +881,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         ),
     ];
 
-    final relayWarning = !_node && !widget.chooseOnly && !filtering;
+    final relayWarning = !_node && !widget.chooseOnly && !filtering && sel == null;
     final top = Padding(
       padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x2),
       child: Column(
@@ -807,6 +935,21 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           if (relayWarning) ...[
             SizedBox(height: Sp.x2),
             _WarnStrip(l.slRelayWarning),
+          ],
+          if (sel != null) ...[
+            SizedBox(height: Sp.x2),
+            Row(
+              children: [
+                Expanded(child: Text(sel.note, key: const ValueKey('server-list-note'), style: ts.caption.copyWith(color: c.dim))),
+                SizedBox(width: Sp.x2),
+                EBadge(
+                  l.slCount(_chosen!.length, sel.limit),
+                  key: const ValueKey('server-list-count'),
+                  tone: _chosen!.length >= sel.limit ? BadgeTone.info : BadgeTone.neutral,
+                  liveRegion: true,
+                ),
+              ],
+            ),
           ],
         ],
       ),
@@ -971,6 +1114,10 @@ class _Row extends StatelessWidget {
     required this.icon,
     required this.inUse,
     required this.selected,
+    required this.isDefault,
+    this.addedByYou = false,
+    this.ticked,
+    this.dimmed = false,
     required this.onTap,
     required this.onRemove,
   });
@@ -980,6 +1127,18 @@ class _Row extends StatelessWidget {
   final ServerIcon? icon;
   final bool inUse;
   final bool selected;
+
+  /// The "Default" badge: the network's default, or a selection's defaults.
+  final bool isDefault;
+
+  /// The user typed this server in: the "Added by you" badge.
+  final bool addedByYou;
+
+  /// In a selection panel: whether the row's checkbox is ticked. Null in the one-server panel.
+  final bool? ticked;
+
+  /// The row is not chosen and the set is full: shown lighter, a click says why not.
+  final bool dimmed;
   final VoidCallback onTap;
   final VoidCallback onRemove;
 
@@ -1003,10 +1162,11 @@ class _Row extends StatelessWidget {
       if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),
       if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),
     ];
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: [l.deskSetComboUse(s.host), if (s.isDefault) l.deskSlDefault, for (final f in facts) f.$1].join(', '),
+    final row = Semantics(
+      button: ticked == null,
+      selected: ticked == null ? selected : null,
+      checked: ticked,
+      label: [l.deskSetComboUse(s.host), if (isDefault) l.deskSlDefault, if (addedByYou) l.slAddedByYou, for (final f in facts) f.$1].join(', '),
       child: CallbackShortcuts(
         bindings: {
           const SingleActivator(LogicalKeyboardKey.delete): onRemove,
@@ -1054,7 +1214,7 @@ class _Row extends StatelessWidget {
                                   child: Text(s.host, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text)),
                                 ),
                               ),
-                              if (s.isDefault) ...[SizedBox(width: Sp.x2), EBadge(l.deskSlDefault)],
+                              if (isDefault) ...[SizedBox(width: Sp.x2), EBadge(l.deskSlDefault)] else if (addedByYou) ...[SizedBox(width: Sp.x2), EBadge(l.slAddedByYou)],
                             ],
                           ),
                           SizedBox(height: 2.u),
@@ -1079,10 +1239,26 @@ class _Row extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 20.u,
-                  child: selected ? Icon(EIcons.check, size: 16.u, color: s.state == NodeHealthState.healthy ? c.ok : c.dim) : null,
-                ),
+                if (ticked != null)
+                  // The row is the control: the box only shows the state.
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 20.u,
+                      height: 20.u,
+                      margin: EdgeInsets.only(right: Sp.x2),
+                      decoration: BoxDecoration(
+                        color: ticked! ? c.accent : c.s2,
+                        borderRadius: BorderRadius.circular(Rad.xs),
+                        border: Border.all(color: ticked! ? c.accent : c.lineField),
+                      ),
+                      child: ticked! ? Icon(EIcons.check, size: 16.u, color: c.accentInk) : null,
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: 20.u,
+                    child: selected ? Icon(EIcons.check, size: 16.u, color: s.state == NodeHealthState.healthy ? c.ok : c.dim) : null,
+                  ),
                 EIconButton(
                   key: ValueKey('server-row-remove-${s.value}'),
                   icon: EIcons.trash,
@@ -1097,6 +1273,7 @@ class _Row extends StatelessWidget {
         ),
       ),
     );
+    return dimmed ? Opacity(opacity: 0.55, child: row) : row;
   }
 }
 

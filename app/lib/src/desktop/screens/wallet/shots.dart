@@ -79,6 +79,10 @@ final List<DeskShot> walletShots = [
     arg: ActivityArgs(query: 'zzz'),
   ),
   const DeskShot(id: '12d-tx-detail-mining', title: 'Transaction detail, mining reward', route: DeskRoute.activity, arg: 101),
+  // The chain check: coins another wallet on this recovery phrase spent or received.
+  const DeskShot(id: '11k-activity-other-wallet', title: 'Activity, sent from and received by another wallet', route: DeskRoute.activity),
+  const DeskShot(id: '12k-tx-detail-sent-other-wallet', title: 'Transaction detail, sent from another wallet', route: DeskRoute.activity, arg: 107),
+  const DeskShot(id: '12l-tx-detail-received-other-wallet', title: 'Transaction detail, received by another wallet', route: DeskRoute.activity, arg: 108),
   const DeskShot(id: '12e-tx-detail-restored', title: 'Transaction detail, restored', route: DeskRoute.activity, arg: 102),
   const DeskShot(id: '12f-tx-detail-found-by-scan', title: 'Transaction detail, found by a balance recheck', route: DeskRoute.activity, arg: 103),
   const DeskShot(id: '12g-tx-detail-from-backup', title: 'Transaction detail, from a history backup', route: DeskRoute.activity, arg: -106),

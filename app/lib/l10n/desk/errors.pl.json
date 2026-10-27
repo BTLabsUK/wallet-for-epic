@@ -139,5 +139,6 @@
   "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania.",
   "deskErrTxNotFound": "Nie znaleziono transakcji",
   "deskErrNotDeliveredRelay": "Nie dostarczono: {relay} nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.",
-  "deskErrRelayNoAnswer": "{relay} nie odpowiedział."
+  "deskErrRelayNoAnswer": "{relay} nie odpowiedział.",
+  "deskErrInputsSpentElsewhere": "Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania."
 }

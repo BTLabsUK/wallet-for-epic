@@ -146,6 +146,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
     core.WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
+    core.WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
     core.WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
@@ -5298,6 +5299,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     height: height,
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,
+    otherWallet: e.origin == core.TxOrigin.otherWallet,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

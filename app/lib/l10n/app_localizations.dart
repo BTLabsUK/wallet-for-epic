@@ -5752,7 +5752,7 @@ abstract class AppLocalizations {
   /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).
   ///
   /// In en, this message translates to:
-  /// **'Their relay ({relay}) isn\'t answering.'**
+  /// **'Their server ({relay}) isn\'t answering.'**
   String sendRelayDown(String relay);
 
   /// Send, review: this wallet is not connected to its message relay yet; sending is still allowed.
@@ -5920,13 +5920,13 @@ abstract class AppLocalizations {
   /// How it works, payment, step 1: your wallet sends the payment to the epicbox relay.
   ///
   /// In en, this message translates to:
-  /// **'Your wallet sends the payment to the relay. Your coins go on hold.'**
+  /// **'Your wallet sends the payment to the Epicbox server. Your coins go on hold.'**
   String get handshakePay1;
 
   /// How it works, payment, step 2: the relay hands it to their wallet, which signs.
   ///
   /// In en, this message translates to:
-  /// **'The relay passes it on. Their wallet adds its part and signs.'**
+  /// **'The server passes it on. Their wallet adds its part and signs.'**
   String get handshakePay2;
 
   /// How it works, step 3 of both flows: the wallet that started finishes and broadcasts it.
@@ -5944,19 +5944,19 @@ abstract class AppLocalizations {
   /// How it works, request, step 1: you ask them for coins through the relay.
   ///
   /// In en, this message translates to:
-  /// **'Your wallet sends the request to the relay.'**
+  /// **'Your wallet sends the request to the Epicbox server.'**
   String get handshakeReq1;
 
   /// How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs.
   ///
   /// In en, this message translates to:
-  /// **'The relay passes it on. They approve it, and their wallet adds the coins and signs.'**
+  /// **'The server passes it on. They approve it, and their wallet adds the coins and signs.'**
   String get handshakeReq2;
 
   /// How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets.
   ///
   /// In en, this message translates to:
-  /// **'Relay'**
+  /// **'Server'**
   String get handshakeRelay;
 
   /// How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short.
@@ -5968,13 +5968,13 @@ abstract class AppLocalizations {
   /// How it works, step 3 of the payment and the request: the other wallet sends it back to the relay.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet sends it back to the relay.'**
+  /// **'Their wallet sends it back to the Epicbox server.'**
   String get handshakeBack;
 
   /// How it works, step 4 of the payment and the request: the relay hands it back to your wallet.
   ///
   /// In en, this message translates to:
-  /// **'The relay passes it back to your wallet.'**
+  /// **'The server passes it back to your wallet.'**
   String get handshakeRelayBack;
 
   /// How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…).
@@ -6088,13 +6088,13 @@ abstract class AppLocalizations {
   /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'{days, plural, =1{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  /// **'{days, plural, =1{Their server ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their server ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
   String sendRelayRefused(int days, String relay);
 
   /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'Their relay ({relay}) didn\'t take it. Check Wallet before you send again.'**
+  /// **'Their server ({relay}) didn\'t take it. Check Wallet before you send again.'**
   String sendRelayRefusedLost(String relay);
 
   /// Send, review after a failed send: cancels the payment the wallet kept, then pays the same amount with a payment file.
@@ -8655,13 +8655,13 @@ abstract class AppLocalizations {
   /// Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
+  /// **'A payment for an invoice this device did not issue arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownPayment;
 
   /// Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
+  /// **'An answer to a payment this device did not send arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownAnswer;
 
   /// Section heading on the Invoices page › To pay: invoices from paired contacts that wait for the user's answer.
@@ -9453,7 +9453,7 @@ abstract class AppLocalizations {
   /// Notice when moving to the BT Labs relay for notifications was refused.
   ///
   /// In en, this message translates to:
-  /// **'The relay could not be switched. Notifications stay off.'**
+  /// **'The server could not be switched. Notifications stay off.'**
   String get pushRelaySwitchFailed;
 
   /// Title of the confirmation before notifications are turned on.
@@ -21524,7 +21524,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Server details switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.'**
+  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, and the Epicbox address under Receive.'**
   String get advServerDetailsHint;
 
   /// Advanced switch: recheck balance and restore from a block height or date.
@@ -22262,7 +22262,7 @@ abstract class AppLocalizations {
   /// Info sheet text of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. The other methods still work.'**
+  /// **'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments, invoices or notifications. The other methods still work.'**
   String get txEpicboxHint;
 
   /// One line under the Link switch on Settings › Transactions.
@@ -22400,7 +22400,7 @@ abstract class AppLocalizations {
   /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Pay or get paid through a relay. The other wallet can be closed.'**
+  /// **'Pay or get paid through an Epicbox server. The other wallet can be closed.'**
   String get txEpicboxLine;
 
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
@@ -22448,7 +22448,7 @@ abstract class AppLocalizations {
   /// Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile.
   ///
   /// In en, this message translates to:
-  /// **'Senders\' payments wait at the relay until Epicbox is on again.'**
+  /// **'Senders\' payments wait on the server until Epicbox is on again.'**
   String get receiveEpicboxOffText;
 
   /// Receive, empty state title when every method is off in Settings › Transactions.
@@ -23048,7 +23048,7 @@ abstract class AppLocalizations {
   /// Small print on Pair online while Epicbox is off.
   ///
   /// In en, this message translates to:
-  /// **'Pairing words need Epicbox, so they are not offered now.'**
+  /// **'Spoken invites need Epicbox, so they are not offered now.'**
   String get pairWordsNeedEpicbox;
 
   /// Chip in the desktop Show my code panel header.
@@ -23108,7 +23108,7 @@ abstract class AppLocalizations {
   /// Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.
   ///
   /// In en, this message translates to:
-  /// **'Paste this link under Enter link or words in {name}\'s wallet. Then check the words together.'**
+  /// **'Paste this link under Enter link or words in {name}\'s wallet. Then verify together.'**
   String pairCardBackBody(String name);
 
   /// Placeholder of the desktop field.
@@ -23222,7 +23222,7 @@ abstract class AppLocalizations {
   /// ⓘ of option 1 (phone InfoSheet, desktop tooltip/InfoHint)
   ///
   /// In en, this message translates to:
-  /// **'Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.'**
+  /// **'Both wallets must be online. Your wallet leaves the invite on the connection servers; theirs finds it from the five words. Afterwards, verify together.'**
   String get pairWayWordsInfo;
 
   /// Option 2 title
@@ -23234,13 +23234,13 @@ abstract class AppLocalizations {
   /// Option 2 line
   ///
   /// In en, this message translates to:
-  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.'**
+  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.'**
   String get pairWayMessageHint;
 
   /// ⓘ of option 2
   ///
   /// In en, this message translates to:
-  /// **'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.'**
+  /// **'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.'**
   String get pairWayMessageInfo;
 
   /// Option 3 line on the desktop (phone keeps pairInPersonHint)
@@ -23372,7 +23372,7 @@ abstract class AppLocalizations {
   /// Small print on both waiting steps
   ///
   /// In en, this message translates to:
-  /// **'With a relay on both sides, this step also happens by itself.'**
+  /// **'When both wallets reach an Epicbox server, this step also happens by itself.'**
   String get pairByItself;
 
   /// Inviter, step 2 button (reads the clipboard on tap)
@@ -23498,19 +23498,19 @@ abstract class AppLocalizations {
   /// Topic summary
   ///
   /// In en, this message translates to:
-  /// **'Words when both wallets are online, a message in any chat, or in person.'**
+  /// **'Spoken when both wallets are online, a message in any chat, or in person.'**
   String get helpPairWaysShort;
 
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.'**
+  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (Settings › Advanced; the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
   String get helpPairWaysP1;
 
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.'**
+  /// **'**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.'**
   String get helpPairWaysP2;
 
   /// Paragraph
@@ -23522,7 +23522,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.'**
+  /// **'Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.'**
   String get helpPairWaysP4;
 
   /// Paragraph (privacy)
@@ -23534,7 +23534,7 @@ abstract class AppLocalizations {
   /// Small print under the preview.
   ///
   /// In en, this message translates to:
-  /// **'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.'**
+  /// **'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then verify together.'**
   String get pairShareWarning;
 
   /// Primary button: the OS share sheet (phone).
@@ -23612,7 +23612,7 @@ abstract class AppLocalizations {
   /// Incoming sheet body.
   ///
   /// In en, this message translates to:
-  /// **'Once paired, payment files and invoices between you and {name} are sealed. You check the words together next.'**
+  /// **'Once paired, payment files and invoices between you and {name} are sealed. You verify together next.'**
   String pairIncomingBody(String name);
 
   /// Switch in the incoming sheet for an invite that asks to allow invoices; off until the user turns it on (the claimed name is not checked).
@@ -23624,13 +23624,13 @@ abstract class AppLocalizations {
   /// pairIncomingAllowHint on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'Turns on after you check the words. Nothing is paid without the wallet password.'**
+  /// **'Turns on after you verify. Nothing is paid without the wallet password.'**
   String get pairIncomingAllowHintDesktop;
 
   /// Under that switch.
   ///
   /// In en, this message translates to:
-  /// **'Turns on after you check the words. Nothing is paid without your PIN.'**
+  /// **'Turns on after you verify. Nothing is paid without your PIN.'**
   String get pairIncomingAllowHint;
 
   /// Secondary button of the incoming sheet.
@@ -23648,7 +23648,7 @@ abstract class AppLocalizations {
   /// Waiting screen body.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.'**
+  /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.'**
   String get pairWaitingBody;
 
   /// Button on the waiting screen and the relay notice.
@@ -23660,7 +23660,7 @@ abstract class AppLocalizations {
   /// Notice on the waiting screen (cases file).
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach the relay'**
+  /// **'Can’t reach the server'**
   String get pairRelayUnreachableTitle;
 
   /// Notice body.
@@ -23672,19 +23672,19 @@ abstract class AppLocalizations {
   /// The same notice with Epicbox over Tor on.
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach the relay over Tor. Send your answer by hand?'**
+  /// **'Can’t reach the server over Tor. Send your answer by hand?'**
   String get pairRelayUnreachableTor;
 
   /// Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead.
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach any pairing relay. Pair with an invite link instead.'**
+  /// **'Can’t reach any connection server. Pair with an invite link instead.'**
   String get pairNoRelay;
 
   /// Pairing words: the built-in relays answered with a refused TLS handshake, as a network or DNS filter does (same wording as epicboxBlockedBody). The user pairs with an invite link instead.
   ///
   /// In en, this message translates to:
-  /// **'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.'**
+  /// **'This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.'**
   String get pairRelaysBlocked;
 
   /// Screen title.
@@ -24026,7 +24026,7 @@ abstract class AppLocalizations {
   /// Desktop status row subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Words checked {date}'**
+  /// **'Verified {date}'**
   String contactWordsChecked(String date);
 
   /// Desktop status row button; phone menu item: Check the words again.
@@ -24038,7 +24038,7 @@ abstract class AppLocalizations {
   /// Phone menu item.
   ///
   /// In en, this message translates to:
-  /// **'Check the words again'**
+  /// **'Verify again'**
   String get contactCheckWordsAgain;
 
   /// Switch label. Label only; the info icon explains.
@@ -24080,19 +24080,19 @@ abstract class AppLocalizations {
   /// Second paragraph.
   ///
   /// In en, this message translates to:
-  /// **'Only a Verified contact can be allowed: checking the words rules out a swapped invite.'**
+  /// **'Only a Verified contact can be allowed: verifying rules out a swapped invite.'**
   String get contactAllowInfoMore;
 
   /// Under a disabled Allow invoices switch.
   ///
   /// In en, this message translates to:
-  /// **'Check the words first'**
+  /// **'Verify first'**
   String get contactCheckWordsFirst;
 
   /// Under the switches in the keys-changed state.
   ///
   /// In en, this message translates to:
-  /// **'Paused until you check the words'**
+  /// **'Paused until verified'**
   String get contactPausedUntilChecked;
 
   /// Readout of the contact’s own relay: the relay of the mailbox in their card (RFC 7.4, 8.3). For a service, its relay.
@@ -24104,7 +24104,7 @@ abstract class AppLocalizations {
   /// Notice on the contact page (cases file C-05).
   ///
   /// In en, this message translates to:
-  /// **'{name}’s relay isn’t answering'**
+  /// **'{name}’s server isn’t answering'**
   String contactRelayDownTitle(String name);
 
   /// Notice body.
@@ -24164,7 +24164,7 @@ abstract class AppLocalizations {
   /// Notice body under the keys-changed title (binding text from the review; the app cannot know the contact's pronoun, so English says they/their). Languages without a safe pronoun use none.
   ///
   /// In en, this message translates to:
-  /// **'This can mean they use a different wallet now, or someone else is using their name. Check the words again.'**
+  /// **'This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.'**
   String get contactKeysChangedBody;
 
   /// Status row readout in the keys-changed state.
@@ -24290,7 +24290,7 @@ abstract class AppLocalizations {
   /// Row subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pairing words · expires in {time}'**
+  /// **'Spoken invite · expires in {time}'**
   String pendingWords(String time);
 
   /// Row subtitle, warn colour; the date follows.
@@ -24314,7 +24314,7 @@ abstract class AppLocalizations {
   /// Row subtitle once the reply opened.
   ///
   /// In en, this message translates to:
-  /// **'Paired · check the words'**
+  /// **'Paired · verify'**
   String get pendingPairedCheck;
 
   /// Empty state.
@@ -24332,7 +24332,7 @@ abstract class AppLocalizations {
   /// Row menu and desktop button.
   ///
   /// In en, this message translates to:
-  /// **'Show words'**
+  /// **'Show invite'**
   String get pendingShowWords;
 
   /// Desktop row button.
@@ -24380,13 +24380,13 @@ abstract class AppLocalizations {
   /// Empty state.
   ///
   /// In en, this message translates to:
-  /// **'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.'**
+  /// **'No paired contacts yet. Pair with a shop, an exchange or a person, verify, then allow their invoices here.'**
   String get invSetEmpty;
 
   /// Docked notice body while Epicbox is off.
   ///
   /// In en, this message translates to:
-  /// **'Requests wait on the relay and arrive when it is back on.'**
+  /// **'Requests wait on the server and arrive when it is back on.'**
   String get invSetPausedBody;
 
   /// Notice when the switch goes off.
@@ -24470,13 +24470,13 @@ abstract class AppLocalizations {
   /// Timeline step.
   ///
   /// In en, this message translates to:
-  /// **'Delivered to {name}’s relay'**
+  /// **'Delivered to {name}’s server'**
   String reqTlDelivered(String name);
 
   /// Timeline step for a withdrawal.
   ///
   /// In en, this message translates to:
-  /// **'Answer delivered to {name}’s relay'**
+  /// **'Answer delivered to {name}’s server'**
   String reqTlAnswerDelivered(String name);
 
   /// Timeline step.
@@ -24548,7 +24548,7 @@ abstract class AppLocalizations {
   /// Timeline detail.
   ///
   /// In en, this message translates to:
-  /// **'Relay not answering · retrying'**
+  /// **'Server not answering · retrying'**
   String get reqRelayRetrying;
 
   /// After a signed withdrawn notice.
@@ -24626,7 +24626,7 @@ abstract class AppLocalizations {
   /// No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part.
   ///
   /// In en, this message translates to:
-  /// **'No paired contact pays requests yet. Pair and check the words with them.'**
+  /// **'No paired contact pays requests yet. Pair and verify with them.'**
   String get reqNoPayersContacts;
 
   /// Under the To field.
@@ -24794,13 +24794,13 @@ abstract class AppLocalizations {
   /// PairingReplied (inviter).
   ///
   /// In en, this message translates to:
-  /// **'{name} answered your invite. Check the words together.'**
+  /// **'{name} answered your invite. Verify together.'**
   String noticePairingReplied(String name);
 
   /// PairingConfirmed (invitee).
   ///
   /// In en, this message translates to:
-  /// **'Paired with {name}. Check the words together.'**
+  /// **'Paired with {name}. Verify together.'**
   String noticePairingConfirmed(String name);
 
   /// Docked notice for InvoiceFromContact; its action opens the request.
@@ -24818,7 +24818,7 @@ abstract class AppLocalizations {
   /// Docked notice for ContactKeysChanged; its action opens the contact.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s keys changed. Check the words again before paying.'**
+  /// **'{name}’s keys changed. Verify again before paying.'**
   String noticeKeysChanged(String name);
 
   /// Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.
@@ -24830,7 +24830,7 @@ abstract class AppLocalizations {
   /// Docked notice for HomeRelayUnreachable.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s relay isn’t answering. Retrying.'**
+  /// **'{name}’s server isn’t answering. Retrying.'**
   String noticeRelayDown(String name);
 
   /// Docked notice when a contact withdrew a paid request.
@@ -25070,7 +25070,7 @@ abstract class AppLocalizations {
   /// Desktop Settings › Invoices row subtitle for an unverified contact.
   ///
   /// In en, this message translates to:
-  /// **'Paired, not verified · check the words first'**
+  /// **'Paired, not verified · verify first'**
   String get invSetRowCheckFirst;
 
   /// Screen reader label of a Settings › Invoices switch.
@@ -25082,7 +25082,7 @@ abstract class AppLocalizations {
   /// Request form when no verified contact can pay requests.
   ///
   /// In en, this message translates to:
-  /// **'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.'**
+  /// **'No paired contact pays requests yet. Pair and verify with them, or save the request as a file.'**
   String get reqNoPayers;
 
   /// Placeholder of the To field.
@@ -25130,7 +25130,7 @@ abstract class AppLocalizations {
   /// Action of the paired notice: opens the words check.
   ///
   /// In en, this message translates to:
-  /// **'Check the words'**
+  /// **'Verify'**
   String get noticeCheckWords;
 
   /// Action of a request notice.
@@ -25280,13 +25280,13 @@ abstract class AppLocalizations {
   /// Topic 1 step.
   ///
   /// In en, this message translates to:
-  /// **'Choose a way: Words, Invite by message or In person.'**
+  /// **'Choose a way: Spoken, Invite by message or In person.'**
   String get helpPairWhatStep2;
 
   /// Topic 1 step.
   ///
   /// In en, this message translates to:
-  /// **'Check the words together, then **They match**.'**
+  /// **'Verify together, then **They match**.'**
   String get helpPairWhatStep3;
 
   /// Topic 1.
@@ -25298,13 +25298,13 @@ abstract class AppLocalizations {
   /// Topic 2 title.
   ///
   /// In en, this message translates to:
-  /// **'Why check the words'**
+  /// **'Why verify'**
   String get helpPairWhyTitle;
 
   /// Topic 2 lede.
   ///
   /// In en, this message translates to:
-  /// **'The four words prove the pairing reached the right wallet and not someone in between.'**
+  /// **'Verifying proves the pairing reached the right wallet and not someone in between.'**
   String get helpPairWhyShort;
 
   /// Topic 2.
@@ -25334,7 +25334,7 @@ abstract class AppLocalizations {
   /// Topic 3 title.
   ///
   /// In en, this message translates to:
-  /// **'Pairing words'**
+  /// **'Spoken invites'**
   String get helpPairWordsTitle;
 
   /// Topic 3 lede.
@@ -25358,7 +25358,7 @@ abstract class AppLocalizations {
   /// Topic 3.
   ///
   /// In en, this message translates to:
-  /// **'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.'**
+  /// **'Spoken invites need Epicbox. While Epicbox is off, send the invite link instead.'**
   String get helpPairWordsP3;
 
   /// Topic 4 title.
@@ -25712,7 +25712,7 @@ abstract class AppLocalizations {
   /// Line under a disabled Send on the page of a pairing-only contact whose keys changed.
   ///
   /// In en, this message translates to:
-  /// **'Check the words before sending.'**
+  /// **'Verify the contact before sending.'**
   String get contactSendKeysChanged;
 
   /// Line under a disabled Send on the page of a pairing-only contact whose wallet cannot open sealed messages.
@@ -27478,6 +27478,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outputs and technical details live here. Switch on what you need.'**
   String get deskNoTorTourAdvancedText;
+
+  /// Error for the core's InputsSpentElsewhere: posting a send failed because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
+  ///
+  /// In en, this message translates to:
+  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  String get errorInputsSpentElsewhere;
+
+  /// Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
+  ///
+  /// In en, this message translates to:
+  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  String get deskErrInputsSpentElsewhere;
+
+  /// Badge on a server row the user typed in, beside Default; also on the Epicbox servers page.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get slAddedByYou;
+
+  /// Badge in the server picker's selection mode: how many servers are chosen of the most that may be.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {limit}'**
+  String slCount(int n, int limit);
+
+  /// Foot line when a tick is refused because the most servers are chosen already.
+  ///
+  /// In en, this message translates to:
+  /// **'{limit} of {limit} chosen. Untick one to choose another.'**
+  String slLimit(int limit);
+
+  /// Foot line when the last chosen server is unticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one.'**
+  String get slKeepOne;
+
+  /// Foot line when the bin is tapped on a chosen server.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen. Untick first.'**
+  String get slChosenUntick;
+
+  /// Row at the foot of the selection list while the chosen set differs from the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults'**
+  String get slResetDefaults;
+
+  /// Foot line after the chosen set was reset to the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults.'**
+  String get slReset;
+
+  /// Foot line after a server was ticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen {host}.'**
+  String slChosen(String host);
+
+  /// Foot line after a server that is not a default was ticked. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen. Wallets that also use {host} find you there.'**
+  String slChosenNonDefault(String host);
+
+  /// Foot line after a server was unticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Unticked {host}.'**
+  String slUnchosen(String host);
+
+  /// Foot line after a server was typed in and ticked in the selection list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {host}. Wallets that also use it find you there.'**
+  String slAddedNonDefault(String host);
+
+  /// Foot line after a server was typed in while the most servers are chosen already. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {host}. Untick one to choose it.'**
+  String slAddedUntick(String host);
+
+  /// Name of the setting that chooses where two wallets find each other when they connect (Settings > Advanced > Experimental, under Pairing), and the title of its server picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection servers'**
+  String get connServers;
+
+  /// The one line of consequence on the Connection servers setting (desktop row text).
+  ///
+  /// In en, this message translates to:
+  /// **'Where two wallets find each other when they connect. The other wallet must use at least one of them too.'**
+  String get connServersHint;
+
+  /// Note under the field of the Connection servers picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to 3.'**
+  String get connServersNote;
+
+  /// State line of Connection servers when the chosen set is exactly the defaults. {n} is how many are chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} server} other{{n} servers}} · Defaults'**
+  String connServersDefaults(int n);
+
+  /// State line of Connection servers when the chosen set differs from the defaults. {n} is how many are chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} server} other{{n} servers}} · Changed'**
+  String connServersChanged(int n);
+
+  /// State line of Connection servers while some, not all, chosen servers do not answer. {down} of {n}.
+  ///
+  /// In en, this message translates to:
+  /// **'{down} of {n} not responding. Connecting still works through the others.'**
+  String connServersDown(int down, int n);
+
+  /// State line of Connection servers while none of the chosen servers answers. Invite by message and In person are the pairing ways that need no meeting server.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection server answers. Use Invite by message or In person.'**
+  String get connServersAllDown;
+
+  /// State line of Connection servers while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Epicbox is off. Invite by message and In person still work.'**
+  String get connServersEpicboxOff;
+
+  /// State line of Connection servers in Offline mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused in Offline mode.'**
+  String get connServersOffline;
+
+  /// State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is not a default. Wallets that also use it find you there.'**
+  String connServersNonDefault(String host);
+
+  /// Info sheet of Connection servers, paragraph 1: what the setting does and the one condition.
+  ///
+  /// In en, this message translates to:
+  /// **'When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.'**
+  String get connServersInfo1;
+
+  /// Info sheet of Connection servers, paragraph 2: the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.'**
+  String get connServersInfo2;
+
+  /// Info sheet of Connection servers, paragraph 3: what it does not affect.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet\'s own Epicbox server.'**
+  String get connServersInfo3;
+
+  /// Info sheet of Connection servers, paragraph 4: what a server sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Each chosen server sees that a connection was started, never with whom.'**
+  String get connServersInfo4;
+
+  /// Info sheet of Connection servers, last paragraph; only in the build with Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'With Tor on, the servers are reached through Tor.'**
+  String get connServersInfoTor;
+
+  /// Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from another wallet'**
+  String get txSentFromOtherWallet;
+
+  /// Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from another wallet, {amount}'**
+  String txSpokenSentFromOtherWallet(String amount);
+
+  /// Details of a row sent from another wallet: what it is and what is not known about it.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.'**
+  String get txDetailsOtherWallet;
+
+  /// Value of a details row (the fee) that this wallet cannot know.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known'**
+  String get txDetailsNotKnown;
+
+  /// Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received by another wallet'**
+  String get txReceivedByOtherWallet;
+
+  /// Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received by another wallet, {amount}'**
+  String txSpokenReceivedByOtherWallet(String amount);
+
+  /// Details of a row received by another wallet: what it is and what is not known about it.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.'**
+  String get txDetailsOtherWalletIn;
 }
 
 class _AppLocalizationsDelegate

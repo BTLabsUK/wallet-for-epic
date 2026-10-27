@@ -108,8 +108,8 @@ class ServerListNotifier extends AsyncNotifier<ServerList> {
   /// Directory servers seen now: those neither listed nor removed join the end.
   Future<void> absorb(Iterable<String> public) => _apply((l) => l.absorb(kind, public));
 
-  /// Adds [value] at [at], else last; it is no longer removed.
-  Future<void> add(String value, {int? at}) => _apply((l) => l.add(kind, value, at: at));
+  /// Adds [value] at [at], else last; it is no longer removed. [own]: the user typed it in.
+  Future<void> add(String value, {int? at, bool own = false}) => _apply((l) => l.add(kind, value, at: at, own: own));
 
   /// Takes [value] out and returns where it was, for Undo.
   Future<int?> remove(String value) async {

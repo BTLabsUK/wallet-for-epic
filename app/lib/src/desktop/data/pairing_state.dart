@@ -8,10 +8,13 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
+import '../../connection_servers.dart';
 import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
 import '../../pairing_clipboard.dart' show PairingClipSeen;
+import 'desk_node.dart' show deskNodeProvider;
+import 'desk_store.dart' show deskStoreProvider;
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
 import 'state.dart';
@@ -36,8 +39,38 @@ final deskPairingApiProvider = Provider<PairingApi>((ref) {
   if (!ref.watch(deskPairingOnProvider)) return const NoPairing();
   ref.watch(deskProvider.select((s) => s.account));
   ref.watch(deskProvider.select((s) => s.session));
-  return ref.watch(deskApiProvider).pairing;
+  final api = ref.watch(deskApiProvider).pairing;
+  // The words calls meet on the Connection servers (Settings › Advanced); null the defaults.
+  api.setConnectionServers(ref.watch(deskPairingRelaysProvider));
+  return api;
 });
+
+/// The Connection servers the user chose on this network, as Epicbox list values; null while
+/// they are the defaults (nothing stored). Kept as `desk.pairingRelays.<chain>`.
+final deskPairingRelaysProvider = NotifierProvider<DeskPairingRelays, List<String>?>(DeskPairingRelays.new);
+
+class DeskPairingRelays extends Notifier<List<String>?> {
+  String get _chain => ref.read(deskNodeProvider).chain.name;
+
+  @override
+  List<String>? build() {
+    final store = ref.read(deskStoreProvider);
+    if (store != null) {
+      final chain = _chain;
+      store.pairingRelays(chain).then((v) {
+        if (ref.mounted && v != null) state = v;
+      }, onError: (Object _) {});
+    }
+    return null;
+  }
+
+  /// Stores [chosen] (the defaults store nothing).
+  Future<void> set(List<String> chosen) async {
+    final stored = storableConnectionServers(ref.read(deskNodeProvider).chain, chosen);
+    state = stored;
+    await ref.read(deskStoreProvider)?.savePairingRelays(_chain, stored);
+  }
+}
 
 /// Whether this wallet pairs: Pair, the Pairing block and the trust badges show.
 final deskPairsProvider = Provider<bool>((ref) => ref.watch(deskPairingApiProvider).supported);

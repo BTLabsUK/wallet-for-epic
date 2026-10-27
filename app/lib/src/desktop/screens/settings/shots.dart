@@ -10,6 +10,8 @@ import '../../data/desk_update.dart';
 import '../../../btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
 import '../../data/desk_node.dart';
 import '../../data/mock_wallet.dart';
+import '../../data/pairing_state.dart' show deskPairingRelaysProvider;
+import '../../data/server_lists.dart' show ServerKind, deskServerListProvider;
 import '../../widgets/kit.dart';
 import 'backup.dart';
 import 'history_conflicts.dart';
@@ -23,6 +25,7 @@ import 'settings_phrase.dart';
 import 'settings_privacy.dart' show PrivacyDemo;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
+import 'settings_advanced.dart' show AdvancedDemo;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
@@ -174,6 +177,8 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => resetSettingsDemo(c),
   ),
   const DeskShot(id: '23b-epicbox-combobox-open', title: 'Epicbox list open, the address warning', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen),
+  // A server the user typed in shows "Added by you" on the Epicbox page too.
+  DeskShot(id: '23k-epicbox-added-by-you', title: 'Epicbox list, a server added by the user', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen, prepare: (c, _) => _addedServer(c)),
   const DeskShot(id: '23j-epicbox-picked', title: 'Epicbox list, a row picked: the confirm', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.picked),
   DeskShot(
     id: '23c-receiving-tor-on',
@@ -344,6 +349,13 @@ final List<DeskShot> settingsShots = [
   // Settings › Advanced › Experimental: Pairing and Invoices on, then off (the default), and
   // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
   const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1450),
+  // Connection servers: the row, the list as a set to tick (the defaults at the limit, two chosen,
+  // a server the user added chosen). The window width at 2474 shows the field on one line.
+  const DeskShot(id: '43o-connection-servers', title: 'Settings › Advanced › Connection servers', route: DeskRoute.settingsAdvanced, height: 1450),
+  const DeskShot(id: '43p-connection-servers-open', title: 'Connection servers list, the defaults chosen (at the limit)', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900),
+  DeskShot(id: '43q-connection-servers-two', title: 'Connection servers list, two chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'epicbox.stackwallet.com'])),
+  DeskShot(id: '43r-connection-servers-added', title: 'Connection servers list, a server the user added chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'relay.example.org'], added: 'relay.example.org')),
+  DeskShot(id: '43s-connection-servers-2474', title: 'Connection servers, 2474x1338', route: DeskRoute.settingsAdvanced, width: 2474, height: 1338),
   const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
   const DeskShot(id: '43m-contacts-pairing-off', title: 'Contacts with Pairing off: no Pair, no paired marks', route: DeskRoute.contacts),
   DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
@@ -367,6 +379,17 @@ final List<DeskShot> settingsShots = [
 ];
 
 /// Sets the network mode for a shot (the mock starts in Standard with everything else off).
+/// A server typed into the Epicbox list ("Added by you").
+Future<void> _addedServer(ProviderContainer c) async {
+  await c.read(deskServerListProvider(ServerKind.relay).notifier).add('relay.example.org', own: true);
+}
+
+/// Connection servers set to [hosts]; [added] is a server of them the user typed in.
+Future<void> _chooseServers(ProviderContainer c, List<String> hosts, {String? added}) async {
+  if (added != null) await c.read(deskServerListProvider(ServerKind.relay).notifier).add(added, own: true);
+  await c.read(deskPairingRelaysProvider.notifier).set(hosts);
+}
+
 Future<void> _networkMode(ProviderContainer c, NetworkMode mode) async {
   final n = c.read(deskProvider.notifier);
   final s = c.read(deskProvider).settings;
@@ -389,4 +412,11 @@ final List<ImportConflict> _conflicts = [
 
 /// Shots taken with Pairing and Invoices on (Settings › Advanced › Experimental); every other
 /// shot runs as a new install, with both off. The invoice shots are all in the invoice shots (invoices/shots.dart).
-const deskExperimentalShots = {'43k-advanced-experimental'};
+const deskExperimentalShots = {
+  '43k-advanced-experimental',
+  '43o-connection-servers',
+  '43p-connection-servers-open',
+  '43q-connection-servers-two',
+  '43r-connection-servers-added',
+  '43s-connection-servers-2474',
+};

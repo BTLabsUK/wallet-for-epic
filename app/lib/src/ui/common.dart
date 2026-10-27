@@ -602,6 +602,9 @@ String? _specialTitle(
   required bool hasCounterparty,
 }) {
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
+  if (tx.origin == TxOrigin.otherWallet) {
+    return _outgoingKind(tx) ? l.txSentFromOtherWallet : l.txReceivedByOtherWallet;
+  }
   if (tx.source == TxSource.restored && !hasCounterparty) {
     return l.txRestoredFunds;
   }
@@ -827,7 +830,8 @@ List<TimelineStep>? txTimeline(
   DateTime? now,
   ({String name, String relay, bool paused})? mailbox,
 }) {
-  if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
+  // Another wallet made it: this wallet saw only the coins move, so there are no steps.
+  if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase || tx.origin == TxOrigin.otherWallet) return null;
   final phase = txPhase(tx, tip, target: target);
   final confirming = l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
@@ -1498,6 +1502,8 @@ String txSpokenLabel(
   final String what;
   if (tx.kind == TxKind.coinbase) {
     what = l.txSpokenMiningReward(amount);
+  } else if (tx.origin == TxOrigin.otherWallet) {
+    what = out ? l.txSpokenSentFromOtherWallet(amount) : l.txSpokenReceivedByOtherWallet(amount);
   } else if (tx.source == TxSource.restored) {
     what = l.txSpokenRestoredFunds(amount);
   } else {

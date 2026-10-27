@@ -23,7 +23,7 @@ export '../../server_list.dart';
 /// What a list is seeded with on first use, and kept in step with after.
 @immutable
 class DeskServerSource {
-  const DeskServerSource({this.public = const [], this.carried = const [], this.removed = const {}, this.inUse});
+  const DeskServerSource({this.public = const [], this.carried = const [], this.removed = const {}, this.inUse, this.keep = const []});
 
   /// The public servers in their order: built-in first, then the directory's.
   final List<String> public;
@@ -36,6 +36,9 @@ class DeskServerSource {
 
   /// The server in use: always listed.
   final String? inUse;
+
+  /// Servers that are always listed (a selection's chosen set), whatever the directory says.
+  final List<String> keep;
 }
 
 /// The node list's source: the wallet's public nodes and own nodes (the old My nodes), the old
@@ -88,6 +91,9 @@ class DeskServerListController extends Notifier<ServerList?> {
     list = list.absorb(kind, s.public);
     final inUse = s.inUse;
     if (inUse != null && inUse.isNotEmpty && !list.has(kind, inUse)) list = list.add(kind, inUse);
+    for (final v in s.keep) {
+      if (!list.has(kind, v)) list = list.add(kind, v);
+    }
     try {
       await _set(list);
     } on Object catch (e) {
@@ -98,7 +104,7 @@ class DeskServerListController extends Notifier<ServerList?> {
     }
   }
 
-  Future<void> add(String value, {int? at}) async => _set((state ?? const ServerList()).add(kind, value, at: at));
+  Future<void> add(String value, {int? at, bool own = false}) async => _set((state ?? const ServerList()).add(kind, value, at: at, own: own));
 
   /// Takes [value] out and returns where it was, for Undo.
   Future<int?> remove(String value) async {

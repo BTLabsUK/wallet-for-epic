@@ -45,6 +45,7 @@ import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
+import 'pairing/connection_servers_tile.dart';
 import 'pin.dart';
 import 'push_switch.dart';
 import 'restore_screen.dart'
@@ -1153,6 +1154,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       const SizedBox(height: 8),
       SettingsHeader(l.advExperimental, key: _experimentalKey),
       experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
+      const ConnectionServersTile(),
       experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
       Padding(
         key: const ValueKey('adv-exp-rule'),

@@ -139,5 +139,6 @@
   "deskErrNothingToConsolidate": "ไม่มีอะไรให้รวม: มีเอาต์พุตที่ใช้ได้น้อยกว่าสองรายการ",
   "deskErrTxNotFound": "ไม่พบธุรกรรม",
   "deskErrNotDeliveredRelay": "ส่งไม่ถึง: {relay} ไม่ตอบสนอง รายการรออยู่ในประวัติ ยกเลิกที่นั่นเพื่อปลดล็อกยอดเงิน",
-  "deskErrRelayNoAnswer": "{relay} ไม่ตอบสนอง"
+  "deskErrRelayNoAnswer": "{relay} ไม่ตอบสนอง",
+  "deskErrInputsSpentElsewhere": "เหรียญเหล่านี้เพิ่งถูกใช้จากกระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณ"
 }

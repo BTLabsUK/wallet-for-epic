@@ -139,5 +139,6 @@
   "deskErrNothingToConsolidate": "Нечего объединять: доступно меньше двух выходов.",
   "deskErrTxNotFound": "Транзакция не найдена",
   "deskErrNotDeliveredRelay": "Не доставлено: {relay} не ответил. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.",
-  "deskErrRelayNoAnswer": "{relay} не ответил."
+  "deskErrRelayNoAnswer": "{relay} не ответил.",
+  "deskErrInputsSpentElsewhere": "Эти монеты только что потратил другой кошелёк с вашей фразой восстановления."
 }

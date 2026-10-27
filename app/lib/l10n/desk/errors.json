@@ -703,5 +703,9 @@
         "type": "String"
       }
     }
+  },
+  "deskErrInputsSpentElsewhere": "These coins were just spent by another wallet using your recovery phrase.",
+  "@deskErrInputsSpentElsewhere": {
+    "description": "Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
   }
 }

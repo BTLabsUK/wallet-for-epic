@@ -4,7 +4,7 @@
   "deskInvNoticeIssuedExpired": "你开具的一张账单已过期未付。",
   "deskInvNoticeWithdrawn": "{service} 在你回复前撤回了一张账单。",
   "deskInvNoticeExpired": "一张账单在你回复前已过期。",
-  "deskInvNoticeUnknownPayment": "收到了一笔本设备未开具的账单的付款。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。",
-  "deskInvNoticeUnknownAnswer": "收到了对一笔本设备未发送的付款的回复。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。",
+  "deskInvNoticeUnknownPayment": "收到了一笔本设备未开具的账单的付款。它会在服务器上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。",
+  "deskInvNoticeUnknownAnswer": "收到了对一笔本设备未发送的付款的回复。它会在服务器上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。",
   "deskInvNoticeReceiveSuperseded": "您使用此钱包的另一台设备接收了一笔本设备也在接收的付款。请重新核对余额，在这里查看它。"
 }

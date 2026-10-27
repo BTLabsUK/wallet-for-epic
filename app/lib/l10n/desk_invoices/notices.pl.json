@@ -4,7 +4,7 @@
   "deskInvNoticeIssuedExpired": "Wystawiona przez ciebie faktura wygasła bez zapłaty.",
   "deskInvNoticeWithdrawn": "Faktura od {service} została wycofana przed twoją odpowiedzią.",
   "deskInvNoticeExpired": "Faktura wygasła przed twoją odpowiedzią.",
-  "deskInvNoticeUnknownPayment": "Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
-  "deskInvNoticeUnknownAnswer": "Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
+  "deskInvNoticeUnknownPayment": "Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na serwerze na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
+  "deskInvNoticeUnknownAnswer": "Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na serwerze na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
   "deskInvNoticeReceiveSuperseded": "Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj."
 }

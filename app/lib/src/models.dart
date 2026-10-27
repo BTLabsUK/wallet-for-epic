@@ -1416,6 +1416,20 @@ enum SlateStage {
   requestAnswer,
 }
 
+/// Whose spend a transaction row is. A row of this wallet's own log is [thisWallet].
+enum TxOrigin {
+  thisWallet,
+
+  /// The chain shows coins of this wallet spent that this wallet's log has no send for: another
+  /// wallet using the same recovery phrase sent them. Outgoing and confirmed, the amount is the
+  /// spent inputs minus the change found; the fee and the recipient are unknown.
+  otherWallet,
+
+  /// A send another device linked to this wallet made (Linked devices); [TxEntry.deviceName]
+  /// says which.
+  linkedDevice,
+}
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
@@ -1518,6 +1532,13 @@ class TxEntry {
   /// name the contact by it, as a mailbox payment has no address.
   final String? pairingId;
 
+  /// Whose spend this is; [TxOrigin.thisWallet] for everything this wallet sent or received.
+  final TxOrigin origin;
+
+  /// Hex commitments of the inputs the transaction spent, when LEPIC lists them (the rows of
+  /// [TxOrigin.otherWallet]); empty otherwise.
+  final List<String> spentCommits;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1557,6 +1578,8 @@ class TxEntry {
     this.datedByBlock = true,
     this.senderReportedPostedAtUnix,
     this.pairingId,
+    this.origin = TxOrigin.thisWallet,
+    this.spentCommits = const [],
   });
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1612,7 +1635,9 @@ class TxEntry {
       foundDuring.hashCode ^
       datedByBlock.hashCode ^
       senderReportedPostedAtUnix.hashCode ^
-      pairingId.hashCode;
+      pairingId.hashCode ^
+      origin.hashCode ^
+      Object.hashAll(spentCommits);
 
   @override
   bool operator ==(Object other) =>
@@ -1657,7 +1682,9 @@ class TxEntry {
           foundDuring == other.foundDuring &&
           datedByBlock == other.datedByBlock &&
           senderReportedPostedAtUnix == other.senderReportedPostedAtUnix &&
-          pairingId == other.pairingId;
+          pairingId == other.pairingId &&
+          origin == other.origin &&
+          _listEquals(spentCommits, other.spentCommits);
 }
 
 /// How long a sender's posted report shows, as LEPIC keeps it.
@@ -1956,6 +1983,10 @@ enum WalletErrorKind {
 
   /// A pairing step did not go through; the message is a [PairingFailure] name.
   pairingFailed,
+
+  /// Posting a send failed because the chain shows its inputs already spent: another wallet
+  /// using the same recovery phrase spent them. The send is released; a refresh follows.
+  inputsSpentElsewhere,
   io,
   other,
 }
