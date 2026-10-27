@@ -16950,4 +16950,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String devicesWhyOther(String name) {
     return '$name 无法完成这笔付款。其币已重新可用。';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return '此状态来自 $name。最终状态以区块链为准。';
+  }
 }

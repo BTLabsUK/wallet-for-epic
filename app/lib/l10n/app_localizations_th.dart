@@ -17602,4 +17602,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String devicesWhyOther(String name) {
     return '$name ทำรายการนี้ไม่สำเร็จ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'สถานะนี้มาจาก $name สถานะสุดท้ายขึ้นอยู่กับบล็อกเชน';
+  }
 }

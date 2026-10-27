@@ -4742,5 +4742,6 @@
   "devicesWhyNotDelivered": "{name} 无法将其送达收款方。其币已重新可用。",
   "devicesWhyRefused": "收款方的服务器拒绝了它。其币已重新可用。",
   "devicesWhyInputsSpent": "其币此前已被花费。",
-  "devicesWhyOther": "{name} 无法完成这笔付款。其币已重新可用。"
+  "devicesWhyOther": "{name} 无法完成这笔付款。其币已重新可用。",
+  "devicesStatusInfo": "此状态来自 {name}。最终状态以区块链为准。"
 }

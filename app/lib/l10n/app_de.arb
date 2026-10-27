@@ -4742,5 +4742,6 @@
   "devicesWhyNotDelivered": "{name} konnte sie dem Empfänger nicht zustellen. Ihre Münzen sind wieder frei.",
   "devicesWhyRefused": "Der Server des Empfängers hat sie abgelehnt. Ihre Münzen sind wieder frei.",
   "devicesWhyInputsSpent": "Ihre Münzen waren bereits ausgegeben.",
-  "devicesWhyOther": "{name} konnte sie nicht abschließen. Ihre Münzen sind wieder frei."
+  "devicesWhyOther": "{name} konnte sie nicht abschließen. Ihre Münzen sind wieder frei.",
+  "devicesStatusInfo": "Dieser Status kommt von {name}. Den endgültigen Stand bestimmt die Blockchain."
 }

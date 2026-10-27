@@ -28318,6 +28318,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} could not complete it. Its coins are free again.'**
   String devicesWhyOther(String name);
+
+  /// The explanation behind the info mark on a row or details whose status comes from another linked device's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'This status comes from {name}. The blockchain decides the final state.'**
+  String devicesStatusInfo(String name);
 }
 
 class _AppLocalizationsDelegate

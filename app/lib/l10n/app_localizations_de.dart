@@ -18113,4 +18113,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String devicesWhyOther(String name) {
     return '$name konnte sie nicht abschließen. Ihre Münzen sind wieder frei.';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'Dieser Status kommt von $name. Den endgültigen Stand bestimmt die Blockchain.';
+  }
 }

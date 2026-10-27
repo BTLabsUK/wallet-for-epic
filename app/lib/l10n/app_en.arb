@@ -23906,5 +23906,14 @@
         "type": "String"
       }
     }
+  },
+  "devicesStatusInfo": "This status comes from {name}. The blockchain decides the final state.",
+  "@devicesStatusInfo": {
+    "description": "The explanation behind the info mark on a row or details whose status comes from another linked device's notice.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

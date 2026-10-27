@@ -18388,4 +18388,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String devicesWhyOther(String name) {
     return 'Nie udało się jej dokończyć na: $name. Jej monety są znów wolne.';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'Ten status pochodzi z: $name. Ostateczny stan określa blockchain.';
+  }
 }

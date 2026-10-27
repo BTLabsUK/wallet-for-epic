@@ -4742,5 +4742,6 @@
   "devicesWhyNotDelivered": "Nie udało się dostarczyć jej odbiorcy z: {name}. Jej monety są znów wolne.",
   "devicesWhyRefused": "Serwer odbiorcy ją odrzucił. Jej monety są znów wolne.",
   "devicesWhyInputsSpent": "Jej monety zostały już wydane.",
-  "devicesWhyOther": "Nie udało się jej dokończyć na: {name}. Jej monety są znów wolne."
+  "devicesWhyOther": "Nie udało się jej dokończyć na: {name}. Jej monety są znów wolne.",
+  "devicesStatusInfo": "Ten status pochodzi z: {name}. Ostateczny stan określa blockchain."
 }

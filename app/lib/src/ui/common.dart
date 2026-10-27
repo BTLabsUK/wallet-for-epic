@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
 import '../devices/device_ending.dart';
+import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
@@ -1024,7 +1025,7 @@ class TxStatusChip extends ConsumerWidget {
       // Cancelled is over, not wrong: the same neutral badge as a completed payment.
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
-    return EBadge(
+    final badge = EBadge(
       txStatusLabel(
         context.l10n,
         tx,
@@ -1035,6 +1036,16 @@ class TxStatusChip extends ConsumerWidget {
         paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
       ),
       tone: tone,
+    );
+    // A status another device told, not yet the chain's: the mark says so.
+    if (tx.origin != TxOrigin.linkedDevice || tx.blockHeight != null) return badge;
+    final name = tx.deviceName ?? '';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        badge,
+        InfoHint(context.l10n.devicesStatusInfo(name), size: 32, title: context.l10n.txSentFromDevice(name)),
+      ],
     );
   }
 }

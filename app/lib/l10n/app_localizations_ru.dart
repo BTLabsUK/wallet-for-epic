@@ -18356,4 +18356,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String devicesWhyOther(String name) {
     return 'Платёж не удалось завершить на $name. Его монеты снова свободны.';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'Этот статус сообщило устройство $name. Окончательное состояние определяет блокчейн.';
+  }
 }

@@ -115,6 +115,16 @@ IconData iconOf(Tx t) => switch (t.method) {
   _ => t.incoming ? EIcons.receive : EIcons.send,
 };
 
+/// Whether the state of [t] is another linked device's word (held, ended there, released here,
+/// expired by a fallback) and not yet the chain's: the row carries the info mark.
+bool deskStatusFromDevice(Tx t) => t.deviceName != null && t.height == null;
+
+/// The info mark behind such a status: hover or focus says where the status comes from.
+Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
+  padding: EdgeInsetsDirectional.only(start: Sp.x1),
+  child: EInfoHint(l.devicesStatusInfo(t.deviceName ?? ''), title: l.txSentFromDevice(t.deviceName ?? ''), icon: EIcons.devices),
+);
+
 /// The state in words, with a tone for its colour.
 (String, ETone) statusOf(AppLocalizations l, Tx t) => t.deviceEnding != null
     ? (deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''), t.deviceEnding == DeviceEnding.failed ? ETone.risk : ETone.warn)
@@ -400,6 +410,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final l = context.l10n;
+    final fromDevice = deskStatusFromDevice(t);
     final editing = widget.labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
     final restoredMethod = restoredMethodOf(l, t);
@@ -485,6 +496,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: toneColor),
                   ),
                 ),
+                if (fromDevice) deskDeviceStatusInfo(l, t),
               ],
             ),
           )
@@ -534,6 +546,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                             style: ts.small.copyWith(color: toneColor),
                           ),
                         ),
+                        if (fromDevice) deskDeviceStatusInfo(l, t),
                       ],
                     ),
             ),

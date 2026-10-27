@@ -17903,4 +17903,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String devicesWhyOther(String name) {
     return '$name could not complete it. Its coins are free again.';
   }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'This status comes from $name. The blockchain decides the final state.';
+  }
 }

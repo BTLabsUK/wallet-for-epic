@@ -449,7 +449,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // are held here while it is under way.
         if (t.deviceName != null) ...[
           SizedBox(height: Sp.x3),
-          Text(l.txDeviceMadeOn(t.deviceName!), key: const ValueKey('tx-device-note'), style: ts.small),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Text(l.txDeviceMadeOn(t.deviceName!), key: const ValueKey('tx-device-note'), style: ts.small)),
+              if (deskStatusFromDevice(t)) deskDeviceStatusInfo(l, t),
+            ],
+          ),
           if (t.pending) Padding(padding: EdgeInsets.only(top: Sp.x1), child: Text(l.txDeviceHeld, style: ts.small)),
         ],
         if (DeskFeatures.paymentProofs && t.hasProof) ...[
@@ -488,7 +494,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // The end of the details of a row another wallet made: the quiet "link this device" offer
         // goes here (Linked devices).
-        if (t.otherWallet) const DeskSentFromOtherWalletOffer(),
+        if (t.otherWallet) DeskSentFromOtherWalletOffer(incoming: t.incoming),
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
