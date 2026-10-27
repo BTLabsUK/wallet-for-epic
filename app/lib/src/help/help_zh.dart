@@ -393,6 +393,18 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.trouble,
     ),
+    const HelpTopic(
+      'trouble',
+      '另一个钱包的付款',
+      '本钱包自己没有发出或收到的付款：同一助记词正在另一个钱包中使用。',
+      [
+        HelpBlock.p('标有**由另一个钱包发出**或**由另一个钱包收到**的一行，是使用相同助记词的另一个钱包的付款。区块链显示这些币已被花掉或收到，所以本钱包列出了它。'),
+        HelpBlock.p('金额是已扣除找回找零后离开本钱包的数额，或收到的数额。这里不知道对方和手续费。'),
+        HelpBlock.p('**如果你没有用这个助记词的其他钱包**，说明别人知道助记词。请把 EPIC 转到使用新助记词的新钱包。'),
+        HelpBlock.p('**发送失败并提示“这些币刚刚被另一个使用您助记词的钱包花掉了。”**时，该发送已被释放。钱包会刷新；余额正确后再发送。'),
+      ],
+      id: HelpId.otherWallet,
+    ),
     HelpTopic(
       'trouble',
       '取消付款',

@@ -395,6 +395,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.trouble,
     ),
+    const HelpTopic(
+      'trouble',
+      'Zahlungen einer anderen Wallet',
+      'Zahlungen, die diese Wallet nicht selbst gemacht oder empfangen hat: Dieselbe Wiederherstellungsphrase wird in einer anderen Wallet verwendet.',
+      [
+        HelpBlock.p('Eine Zeile **Von einer anderen Wallet gesendet** oder **Von einer anderen Wallet empfangen** ist eine Zahlung einer anderen Wallet, die dieselbe Wiederherstellungsphrase verwendet. Die Blockchain zeigt diese Coins als ausgegeben oder empfangen, deshalb führt diese Wallet sie auf.'),
+        HelpBlock.p('Der Betrag ist, was diese Wallet nach Abzug des zurückgekommenen Wechselgelds verlassen hat, oder was angekommen ist. Die Gegenseite und die Gebühr sind hier nicht bekannt.'),
+        HelpBlock.p('**Wenn Sie mit dieser Phrase keine andere Wallet nutzen**, kennt jemand anderes die Wiederherstellungsphrase. Bringen Sie die EPIC in eine neue Wallet mit neuer Phrase.'),
+        HelpBlock.p('**Ein Versand, der mit „Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.“ scheitert**, wurde freigegeben. Die Wallet aktualisiert sich; senden Sie erneut, wenn das Guthaben stimmt.'),
+      ],
+      id: HelpId.otherWallet,
+    ),
     HelpTopic(
       'trouble',
       'Eine Zahlung stornieren',

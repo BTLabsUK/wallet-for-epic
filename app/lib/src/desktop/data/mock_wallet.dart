@@ -62,7 +62,11 @@ abstract interface class MockBacked {
 MockDeskWallet? mockBehind(DeskWalletApi api) => api is MockDeskWallet ? api : (api is MockBacked ? (api as MockBacked).mock : null);
 
 class MockDeskWallet implements DeskWalletApi {
-  MockDeskWallet({this.delay = const Duration(milliseconds: 350), this.seedInvoices = true});
+  MockDeskWallet({this.delay = const Duration(milliseconds: 350), this.seedInvoices = true, this.otherWalletRows = false});
+
+  /// Whether the history lists a send from another wallet and a receive by one (the chain check:
+  /// another wallet on this recovery phrase). The tour turns it on; most tests leave it off.
+  final bool otherWalletRows;
 
   /// Whether the history lists the invoices prototype's rows. A new install, with Invoices off,
   /// has none, so the screenshot tours leave them out of the shots that run with it off.
@@ -99,6 +103,10 @@ class MockDeskWallet implements DeskWalletApi {
   ];
 
   late final List<Tx> _txs = [
+    if (otherWalletRows) ...[
+      Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 2917120, otherWallet: true, confirmedAt: _ago(hours: 20)),
+      Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 2916580, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
+    ],
     Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: 2, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 2914410),
     Tx(id: 38, slateId: 'a1f9e8d7-6c5b-4a39-8271-605f4e3d2c1b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(12.5), fee: _epic(0.007), cancellable: true, created: _ago(hours: 3), counterparty: 'send_12.5_a1f9e8d7.slate.json'),
     Tx(id: 37, slateId: 'c3d4e5f6-0718-4293-a4b5-c6d7e8f90a1b', direction: TxDirection.sent, state: TxState.posted, method: TxMethod.epicbox, amount: _epic(3.2), fee: _epic(0.006), created: _ago(hours: 5), counterparty: _contacts[4].address, contactName: 'Merchant: Coffee'),

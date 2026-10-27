@@ -5299,6 +5299,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     height: height,
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,
+    otherWallet: e.origin == core.TxOrigin.otherWallet,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

@@ -4631,5 +4631,12 @@
   "connServersInfo2": "Domyślne to serwery znane każdemu portfelowi Epic Cash. Zostaw je, chyba że któryś jest blokowany w tej sieci.",
   "connServersInfo3": "„Przez wiadomość” i „Osobiście” ich nie potrzebują, tak samo jak wszystko po połączeniu: to korzysta z własnego serwera Epicbox tego portfela.",
   "connServersInfo4": "Każdy wybrany serwer widzi, że rozpoczęto łączenie, nigdy z kim.",
-  "connServersInfoTor": "Przy włączonym Torze serwery są osiągane przez Tor."
+  "connServersInfoTor": "Przy włączonym Torze serwery są osiągane przez Tor.",
+  "txSentFromOtherWallet": "Wysłano z innego portfela",
+  "txSpokenSentFromOtherWallet": "Wysłano z innego portfela, {amount}",
+  "txDetailsOtherWallet": "Inny portfel z Twoją frazą odzyskiwania wydał te monety. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.",
+  "txDetailsNotKnown": "Nieznane",
+  "txReceivedByOtherWallet": "Odebrano w innym portfelu",
+  "txSpokenReceivedByOtherWallet": "Odebrano w innym portfelu, {amount}",
+  "txDetailsOtherWalletIn": "Inny portfel z Twoją frazą odzyskiwania odebrał te monety. Ten portfel pokazuje kwotę, a nie nadawcę."
 }

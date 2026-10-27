@@ -575,6 +575,11 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
       (imported != null &&
           imported.kind == lepic.ImportedTxKind.received &&
           d.slateId == null);
+  // TODO(device-link): once the pinned LEPIC has `TxOrigin.otherWallet` (a row for coins another
+  // wallet on this phrase spent or received) and `TransactionDetails.spentCommits`, pass
+  // `origin: d.origin == lepic.TxOrigin.otherWallet ? TxOrigin.otherWallet : TxOrigin.thisWallet`
+  // and `spentCommits: d.spentCommits` below. The direction (outgoing or incoming) already picks
+  // sent or received; such a row is confirmed, has no fee and no counterparty.
   return TxEntry(
     key: 'l:${d.txId}',
     id: d.txId,

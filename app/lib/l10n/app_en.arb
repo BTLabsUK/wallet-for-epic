@@ -23271,5 +23271,45 @@
   "connServersInfoTor": "With Tor on, the servers are reached through Tor.",
   "@connServersInfoTor": {
     "description": "Info sheet of Connection servers, last paragraph; only in the build with Tor."
+  },
+  "txSentFromOtherWallet": "Sent from another wallet",
+  "@txSentFromOtherWallet": {
+    "description": "Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left."
+  },
+  "txSpokenSentFromOtherWallet": "Sent from another wallet, {amount}",
+  "@txSpokenSentFromOtherWallet": {
+    "description": "Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txDetailsOtherWallet": "Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.",
+  "@txDetailsOtherWallet": {
+    "description": "Details of a row sent from another wallet: what it is and what is not known about it."
+  },
+  "txDetailsNotKnown": "Not known",
+  "@txDetailsNotKnown": {
+    "description": "Value of a details row (the fee) that this wallet cannot know."
+  },
+  "txReceivedByOtherWallet": "Received by another wallet",
+  "@txReceivedByOtherWallet": {
+    "description": "Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived."
+  },
+  "txSpokenReceivedByOtherWallet": "Received by another wallet, {amount}",
+  "@txSpokenReceivedByOtherWallet": {
+    "description": "Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txDetailsOtherWalletIn": "Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.",
+  "@txDetailsOtherWalletIn": {
+    "description": "Details of a row received by another wallet: what it is and what is not known about it."
   }
 }

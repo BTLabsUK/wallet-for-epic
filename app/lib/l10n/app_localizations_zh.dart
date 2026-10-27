@@ -16508,4 +16508,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get connServersInfoTor => '开启 Tor 时，这些服务器通过 Tor 访问。';
+
+  @override
+  String get txSentFromOtherWallet => '由另一个钱包发出';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return '由另一个钱包发出，$amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      '这些币由另一个使用您助记词的钱包花掉。本钱包只显示离开的金额，不显示收款方和手续费。';
+
+  @override
+  String get txDetailsNotKnown => '未知';
+
+  @override
+  String get txReceivedByOtherWallet => '由另一个钱包收到';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return '由另一个钱包收到，$amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn => '这些币由另一个使用您助记词的钱包收到。本钱包只显示金额，不显示发送方。';
 }

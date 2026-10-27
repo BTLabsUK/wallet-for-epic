@@ -602,6 +602,9 @@ String? _specialTitle(
   required bool hasCounterparty,
 }) {
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
+  if (tx.origin == TxOrigin.otherWallet) {
+    return _outgoingKind(tx) ? l.txSentFromOtherWallet : l.txReceivedByOtherWallet;
+  }
   if (tx.source == TxSource.restored && !hasCounterparty) {
     return l.txRestoredFunds;
   }
@@ -1498,6 +1501,8 @@ String txSpokenLabel(
   final String what;
   if (tx.kind == TxKind.coinbase) {
     what = l.txSpokenMiningReward(amount);
+  } else if (tx.origin == TxOrigin.otherWallet) {
+    what = out ? l.txSpokenSentFromOtherWallet(amount) : l.txSpokenReceivedByOtherWallet(amount);
   } else if (tx.source == TxSource.restored) {
     what = l.txSpokenRestoredFunds(amount);
   } else {

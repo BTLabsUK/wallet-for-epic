@@ -395,6 +395,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.trouble,
     ),
+    const HelpTopic(
+      'trouble',
+      'Płatności z innego portfela',
+      'Płatności, których ten portfel nie wykonał ani nie odebrał sam: ta sama fraza odzyskiwania jest używana w innym portfelu.',
+      [
+        HelpBlock.p('Wiersz **Wysłano z innego portfela** lub **Odebrano w innym portfelu** to płatność innego portfela używającego tej samej frazy odzyskiwania. Łańcuch pokazuje te monety jako wydane lub odebrane, więc ten portfel ją wyświetla.'),
+        HelpBlock.p('Kwota to to, co opuściło ten portfel po odjęciu reszty, która wróciła, albo to, co wpłynęło. Druga strona i opłata nie są tu znane.'),
+        HelpBlock.p('**Jeśli nie używasz z tą frazą innego portfela**, ktoś inny zna frazę odzyskiwania. Przenieś EPIC do nowego portfela z nową frazą.'),
+        HelpBlock.p('**Wysyłka, która kończy się komunikatem „Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.”**, została zwolniona. Portfel się odświeża; wyślij ponownie, gdy saldo będzie poprawne.'),
+      ],
+      id: HelpId.otherWallet,
+    ),
     HelpTopic(
       'trouble',
       'Anulowanie płatności',

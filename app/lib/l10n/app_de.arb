@@ -4631,5 +4631,12 @@
   "connServersInfo2": "Die Standardserver kennt jede Epic-Cash-Wallet. Behalten Sie sie, außer einer ist in diesem Netzwerk gesperrt.",
   "connServersInfo3": "„Per Nachricht“ und „Persönlich“ brauchen sie nicht, ebenso wenig alles nach dem Verbinden: Das läuft über den eigenen Epicbox-Server dieser Wallet.",
   "connServersInfo4": "Jeder gewählte Server sieht, dass ein Verbinden begonnen wurde, nie mit wem.",
-  "connServersInfoTor": "Mit eingeschaltetem Tor werden die Server über Tor erreicht."
+  "connServersInfoTor": "Mit eingeschaltetem Tor werden die Server über Tor erreicht.",
+  "txSentFromOtherWallet": "Von einer anderen Wallet gesendet",
+  "txSpokenSentFromOtherWallet": "Von einer anderen Wallet gesendet, {amount}",
+  "txDetailsOtherWallet": "Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins ausgegeben. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.",
+  "txDetailsNotKnown": "Nicht bekannt",
+  "txReceivedByOtherWallet": "Von einer anderen Wallet empfangen",
+  "txSpokenReceivedByOtherWallet": "Von einer anderen Wallet empfangen, {amount}",
+  "txDetailsOtherWalletIn": "Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins empfangen. Diese Wallet zeigt den Betrag, nicht den Absender."
 }

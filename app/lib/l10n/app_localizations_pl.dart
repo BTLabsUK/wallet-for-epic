@@ -17911,4 +17911,31 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get connServersInfoTor =>
       'Przy włączonym Torze serwery są osiągane przez Tor.';
+
+  @override
+  String get txSentFromOtherWallet => 'Wysłano z innego portfela';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Wysłano z innego portfela, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Inny portfel z Twoją frazą odzyskiwania wydał te monety. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
+
+  @override
+  String get txDetailsNotKnown => 'Nieznane';
+
+  @override
+  String get txReceivedByOtherWallet => 'Odebrano w innym portfelu';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Odebrano w innym portfelu, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Inny portfel z Twoją frazą odzyskiwania odebrał te monety. Ten portfel pokazuje kwotę, a nie nadawcę.';
 }

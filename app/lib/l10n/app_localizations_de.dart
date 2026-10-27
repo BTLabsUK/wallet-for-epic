@@ -17646,4 +17646,31 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get connServersInfoTor =>
       'Mit eingeschaltetem Tor werden die Server über Tor erreicht.';
+
+  @override
+  String get txSentFromOtherWallet => 'Von einer anderen Wallet gesendet';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Von einer anderen Wallet gesendet, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins ausgegeben. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.';
+
+  @override
+  String get txDetailsNotKnown => 'Nicht bekannt';
+
+  @override
+  String get txReceivedByOtherWallet => 'Von einer anderen Wallet empfangen';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Von einer anderen Wallet empfangen, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins empfangen. Diese Wallet zeigt den Betrag, nicht den Absender.';
 }

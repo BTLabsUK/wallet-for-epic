@@ -17149,4 +17149,31 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get connServersInfoTor => 'เมื่อเปิด Tor จะเข้าถึงเซิร์ฟเวอร์ผ่าน Tor';
+
+  @override
+  String get txSentFromOtherWallet => 'ส่งจากกระเป๋าเงินอื่น';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'ส่งจากกระเป๋าเงินอื่น $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'กระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณใช้เหรียญเหล่านี้ กระเป๋าเงินนี้แสดงจำนวนที่ออกไป ไม่แสดงผู้รับและค่าธรรมเนียม';
+
+  @override
+  String get txDetailsNotKnown => 'ไม่ทราบ';
+
+  @override
+  String get txReceivedByOtherWallet => 'รับโดยกระเป๋าเงินอื่น';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'รับโดยกระเป๋าเงินอื่น $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'กระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณได้รับเหรียญเหล่านี้ กระเป๋าเงินนี้แสดงจำนวน ไม่แสดงผู้ส่ง';
 }

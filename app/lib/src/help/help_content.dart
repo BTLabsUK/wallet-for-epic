@@ -156,6 +156,7 @@ abstract final class HelpId {
   static const cleanup = 'cleanup';
   static const importWarning = 'import-warning';
   static const cancel = 'cancel';
+  static const otherWallet = 'other-wallet';
 }
 
 /// The headings of [HelpId.cancel] ("Cancelling a payment"), which the quiet line beside every
@@ -554,6 +555,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,
+    ),
+    const HelpTopic(
+      'trouble',
+      'Payments by another wallet',
+      'Payments this wallet did not make or receive itself: the same recovery phrase is in use in another wallet.',
+      [
+        HelpBlock.p('A row called **Sent from another wallet** or **Received by another wallet** is a payment of another wallet that uses the same recovery phrase. The chain shows these coins spent or received, so this wallet lists it.'),
+        HelpBlock.p('The amount is what left this wallet after the change that came back, or what arrived. The other side and the fee are not known here.'),
+        HelpBlock.p('**If you use no other wallet with this phrase**, someone else has the recovery phrase. Move the EPIC to a new wallet with a new phrase.'),
+        HelpBlock.p('**A send that fails with "These coins were just spent by another wallet using your recovery phrase."** was released. The wallet refreshes; send again once the balance is right.'),
+      ],
+      id: HelpId.otherWallet,
     ),
     HelpTopic(
       'trouble',

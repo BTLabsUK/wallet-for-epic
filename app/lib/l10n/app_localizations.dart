@@ -27652,6 +27652,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With Tor on, the servers are reached through Tor.'**
   String get connServersInfoTor;
+
+  /// Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from another wallet'**
+  String get txSentFromOtherWallet;
+
+  /// Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from another wallet, {amount}'**
+  String txSpokenSentFromOtherWallet(String amount);
+
+  /// Details of a row sent from another wallet: what it is and what is not known about it.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.'**
+  String get txDetailsOtherWallet;
+
+  /// Value of a details row (the fee) that this wallet cannot know.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known'**
+  String get txDetailsNotKnown;
+
+  /// Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received by another wallet'**
+  String get txReceivedByOtherWallet;
+
+  /// Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received by another wallet, {amount}'**
+  String txSpokenReceivedByOtherWallet(String amount);
+
+  /// Details of a row received by another wallet: what it is and what is not known about it.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.'**
+  String get txDetailsOtherWalletIn;
 }
 
 class _AppLocalizationsDelegate

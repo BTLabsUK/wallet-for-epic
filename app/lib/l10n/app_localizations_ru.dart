@@ -17879,4 +17879,31 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get connServersInfoTor =>
       'При включённом Tor серверы достигаются через Tor.';
+
+  @override
+  String get txSentFromOtherWallet => 'Отправлено из другого кошелька';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Отправлено из другого кошелька, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Эти монеты потратил другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
+
+  @override
+  String get txDetailsNotKnown => 'Неизвестно';
+
+  @override
+  String get txReceivedByOtherWallet => 'Получено другим кошельком';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Получено другим кошельком, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Эти монеты получил другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает сумму, но не отправителя.';
 }

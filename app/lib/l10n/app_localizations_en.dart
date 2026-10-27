@@ -17441,4 +17441,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get connServersInfoTor =>
       'With Tor on, the servers are reached through Tor.';
+
+  @override
+  String get txSentFromOtherWallet => 'Sent from another wallet';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Sent from another wallet, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.';
+
+  @override
+  String get txDetailsNotKnown => 'Not known';
+
+  @override
+  String get txReceivedByOtherWallet => 'Received by another wallet';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Received by another wallet, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.';
 }
