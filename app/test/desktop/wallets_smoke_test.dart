@@ -85,6 +85,8 @@ void main() {
     expect(find.text('Main wallet'), findsOneWidget);
     await tester.tap(find.text('Main wallet'));
     await tester.pump(const Duration(milliseconds: 500));
+    // Each option names its whole folder on hover; the list cuts it (#104).
+    expect(find.byWidgetPredicate((w) => w is Tooltip && w.message == demoOtherWallet.folder), findsOneWidget);
     await tester.tap(find.text('Savings').last);
     await tester.pump(const Duration(milliseconds: 500));
     expect(api.calls, ['select ${demoOtherWallet.id}']);

@@ -309,11 +309,14 @@ class ESeedGrid extends StatelessWidget {
 
 /// One option of [ESelect].
 class ESelectItem<T> {
-  const ESelectItem(this.value, this.title, {this.subtitle, this.trailing, this.leading});
+  const ESelectItem(this.value, this.title, {this.subtitle, this.tooltip, this.trailing, this.leading});
 
   final T value;
   final String title;
   final String? subtitle;
+
+  /// Shown on hover over the option: the whole text where the list cuts it (a wallet's folder).
+  final String? tooltip;
   final Widget? trailing;
   final Widget? leading;
 }
@@ -341,6 +344,9 @@ class ESelect<T> extends StatelessWidget {
   final Widget? footer;
   final bool mono;
   final String? semanticLabel;
+
+  static Widget _withTooltip(String? message, Widget child) =>
+      message == null ? child : Tooltip(message: message, child: child);
 
   @override
   Widget build(BuildContext context) {
@@ -377,15 +383,18 @@ class ESelect<T> extends StatelessWidget {
                   ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text)
                   : (item.leading ?? SizedBox(width: Ctl.iconSm)),
               trailingIcon: item.trailing,
-              child: SizedBox(
-                width: math.max(120.u, box.maxWidth - 160.u),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
-                    if (item.subtitle != null) Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
-                  ],
+              child: _withTooltip(
+                item.tooltip,
+                SizedBox(
+                  width: math.max(120.u, box.maxWidth - 160.u),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
+                      if (item.subtitle != null) Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
                 ),
               ),
             ),

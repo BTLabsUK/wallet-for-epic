@@ -380,6 +380,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                         w.id,
                         w.name,
                         subtitle: w.folder,
+                        tooltip: w.folder,
                         trailing: w.network == 'mainnet' ? null : EBadge(networkName(w.network), tone: ETone.warn),
                       ),
                   ],
