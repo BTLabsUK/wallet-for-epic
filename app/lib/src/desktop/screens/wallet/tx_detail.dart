@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
+import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
 import '../../../l10n.dart' show acceptedAgoText;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../../watch_mode.dart' show BlockWait;
@@ -114,6 +115,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
           // The wallet keeps looking for a cancelled receive, so a late post still arrives.
+          TxState.cancelled when t.deviceEnding != null =>
+            deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
           TxState.cancelled => l.deskTxNowCancelled,
         };
@@ -277,7 +280,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   // Not money yet: the row's caption, by the big amount too (P-1).
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
-                  if (t.otherWallet)
+                  if (t.otherWallet || t.deviceName != null)
                     Text(whoOf(l, t), style: ts.small)
                   else if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
@@ -368,6 +371,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 size: EBtnSize.inline,
                 onPressed: () => showTxDetailsDialog(context, t),
               ),
+            if (t.deviceName == null)
             EButton(
               label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
               icon: EIcons.pencil,
@@ -442,6 +446,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
           if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
         ]),
+        // A payment another linked device made: where its details come from, and why its coins
+        // are held here while it is under way.
+        if (t.deviceName != null) ...[
+          SizedBox(height: Sp.x3),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Text(l.txDeviceMadeOn(t.deviceName!), key: const ValueKey('tx-device-note'), style: ts.small)),
+              if (deskStatusFromDevice(t)) deskDeviceStatusInfo(l, t),
+            ],
+          ),
+          if (t.pending) Padding(padding: EdgeInsets.only(top: Sp.x1), child: Text(l.txDeviceHeld, style: ts.small)),
+        ],
         if (DeskFeatures.paymentProofs && t.hasProof) ...[
           _Sub(l.deskTxPaymentProof),
           Row(
@@ -478,7 +495,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // The end of the details of a row another wallet made: the quiet "link this device" offer
         // goes here (Linked devices).
-        if (t.otherWallet) const DeskSentFromOtherWalletOffer(),
+        if (t.otherWallet) DeskSentFromOtherWalletOffer(incoming: t.incoming),
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),

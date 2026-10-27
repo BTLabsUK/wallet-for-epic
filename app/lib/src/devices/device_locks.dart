@@ -64,7 +64,7 @@ HeldPayment? holdFromSend({
 bool holdSpent(HeldPayment h, Set<String> spent) => h.commitments.any(spent.contains);
 
 /// [h] after a `status` notice [state] at [height]. [spent]: commitments the chain shows spent.
-HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kernel, required Set<String> spent, required DateTime now}) {
+HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kernel, String? why, required Set<String> spent, required DateTime now}) {
   if (h.state == HoldState.spent) return h;
   // Released here: details only, the coins stay free until the chain decides.
   if (!h.state.holds) return state == 'finalized' || state == 'posted' ? h.copyWith(kernel: kernel, postedHeight: height) : h;
@@ -75,7 +75,7 @@ HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kerne
       return h.copyWith(state: HoldState.posted, postedHeight: height ?? h.postedHeight, kernel: kernel, changedAt: now);
     default:
       if (holdSpent(h, spent)) return h.copyWith(state: HoldState.spent, changedAt: now);
-      return h.copyWith(state: HoldState.released, reason: state, changedAt: now);
+      return h.copyWith(state: HoldState.released, reason: state, why: state == 'failed' ? why : null, changedAt: now);
   }
 }
 

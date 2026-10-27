@@ -18275,4 +18275,122 @@ class AppLocalizationsPl extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return 'Zwolniono tutaj · $name może ją jeszcze wysłać';
   }
+
+  @override
+  String get deskDevServersNote => 'Wybierz do 2.';
+
+  @override
+  String get deskDevServersCancel => 'Anuluj zmianę';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$down z $n nie odpowiada. Powiadomienia idą przez drugi.';
+  }
+
+  @override
+  String get deskDevServersAllDown =>
+      'Żaden serwer nie odpowiada. Powiadomienia czekają i idą dalej, gdy któryś wróci.';
+
+  @override
+  String get deskDevServersInfo1 =>
+      'Połączone urządzenia wysyłają sobie powiadomienia przez te serwery. Każde powiadomienie trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
+
+  @override
+  String get deskDevServersInfo2 =>
+      'Zmiana jest najpierw wysyłana do pozostałych urządzeń i wchodzi w życie, gdy każde ją przyjmie. Do tego czasu używane są dotychczasowe serwery, a po zmianie są jeszcze czytane przez 7 dni.';
+
+  @override
+  String get deskDevServersInfo3 =>
+      'Serwery widzą, że dwa urządzenia wymieniają powiadomienia i kiedy, ale nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
+
+  @override
+  String get deskDevPausedOffline => 'Wstrzymane w trybie offline.';
+
+  @override
+  String get deskDevPausedEpicboxOff =>
+      'Wstrzymane, gdy Epicbox jest wyłączony.';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => 'Brak wstrzymanych monet.';
+
+  @override
+  String get deskDevRenameThis => 'Zmień nazwę tego komputera';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return 'Zmień nazwę: $name';
+  }
+
+  @override
+  String get deskDevPasteLead => 'Wklej kod, który pokazuje drugie urządzenie.';
+
+  @override
+  String get deskDevMakingCode => 'Tworzenie kodu…';
+
+  @override
+  String get deskDevConnecting => 'Łączenie…';
+
+  @override
+  String get deskDevTheOther => 'Drugie urządzenie';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return 'Serwery: $servers';
+  }
+
+  @override
+  String get deskDevOfferReceived =>
+      'Czy to twoje drugie urządzenie? Połącz je, aby widzieć, kto wysłał, i trzymać oba w zgodzie.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Anulowano na: $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Nie powiodło się na: $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Wygasło na: $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return 'Płatność została anulowana na: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return 'Płatność nie została ukończona na czas na: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return 'Nie udało się dostarczyć jej odbiorcy z: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'Serwer odbiorcy ją odrzucił. Jej monety są znów wolne.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Jej monety zostały już wydane.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return 'Nie udało się jej dokończyć na: $name. Jej monety są znów wolne.';
+  }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'Ten status pochodzi z: $name. Ostateczny stan określa blockchain.';
+  }
 }

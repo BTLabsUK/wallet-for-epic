@@ -77,6 +77,9 @@ abstract final class EIcons {
   static const automatic = Icons.bolt;
   static const chat = Icons.forum_outlined;
   static const wallet = Icons.account_balance_wallet_outlined;
+  static const devices = Icons.devices_outlined;
+  static const computer = Icons.computer_outlined;
+  static const phone = Icons.smartphone_outlined;
   static const coins = Icons.toll_outlined;
   static const split = Icons.call_split;
   static const merge = Icons.merge;

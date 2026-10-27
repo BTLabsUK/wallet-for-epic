@@ -8,6 +8,8 @@ library;
 
 import 'dart:math';
 
+import '../models.dart' show DeviceEnding;
+
 /// The most devices one wallet links, this one included (D-8).
 const int maxLinkedDevices = 5;
 
@@ -250,6 +252,7 @@ class HeldPayment {
     this.deviceName,
     this.changedAt,
     this.reason,
+    this.why,
   });
 
   final String deviceId;
@@ -279,7 +282,25 @@ class HeldPayment {
   /// The other device's word for how it ended (`cancelled`, `expired`, …), when it said.
   final String? reason;
 
-  HeldPayment copyWith({HoldState? state, int? postedHeight, String? kernel, DateTime? changedAt, String? reason}) => HeldPayment(
+  /// For a payment that failed there: its code for why (`notDelivered`, `refused`, `inputsSpent`,
+  /// `other`), as a status notice carried it.
+  final String? why;
+
+  /// How this payment ended without spending its coins, for its row in the history; null while
+  /// it is held or once the chain shows it spent. A hold the device ended itself reads as that
+  /// ending; a fallback (past its cutoff, not on chain after posting, seven days) reads Expired.
+  DeviceEnding? get ending => switch (state) {
+    HoldState.held || HoldState.posted || HoldState.spent => null,
+    HoldState.byHand || HoldState.unlinked => DeviceEnding.releasedHere,
+    HoldState.expired || HoldState.timedOut => DeviceEnding.expired,
+    HoldState.released => switch (reason) {
+      'failed' => DeviceEnding.failed,
+      'expired' => DeviceEnding.expired,
+      _ => DeviceEnding.cancelled,
+    },
+  };
+
+  HeldPayment copyWith({HoldState? state, int? postedHeight, String? kernel, DateTime? changedAt, String? reason, String? why}) => HeldPayment(
     deviceId: deviceId,
     slateId: slateId,
     commitments: commitments,
@@ -298,6 +319,7 @@ class HeldPayment {
     deviceName: deviceName,
     changedAt: changedAt ?? this.changedAt,
     reason: reason ?? this.reason,
+    why: why ?? this.why,
   );
 
   Map<String, Object?> toJson() => {
@@ -319,6 +341,7 @@ class HeldPayment {
     'name': deviceName,
     'changed': changedAt?.millisecondsSinceEpoch,
     'reason': reason,
+    'why': why,
   };
 
   static HeldPayment? fromJson(Object? j) {
@@ -344,6 +367,7 @@ class HeldPayment {
       deviceName: j['name'] as String?,
       changedAt: _time(j['changed']),
       reason: j['reason'] as String?,
+      why: j['why'] as String?,
     );
   }
 }

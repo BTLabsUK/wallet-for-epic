@@ -53,6 +53,10 @@ enum DeskRoute {
   settingsInvoices(section: DeskSection.settings),
   settingsAppearance(section: DeskSection.settings),
   settingsAccount(section: DeskSection.settings),
+
+  /// This wallet on other devices (`devices/`): the devices, their servers, the coins they
+  /// hold. Hidden while Linked devices is off.
+  settingsDevices(section: DeskSection.settings),
   settingsWallets(section: DeskSection.settings),
   settingsPhrase(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),

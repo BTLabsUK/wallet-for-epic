@@ -8,11 +8,12 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
+import '../../data/devices_state.dart' show deskLinkedDevicesOnProvider;
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
 /// in the app's language.
-List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices}) => [
+List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required bool devices}) => [
   (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
   (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
   (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
@@ -20,6 +21,7 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
   (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
+  if (devices) (DeskRoute.settingsDevices, l.expLinkedDevices, EIcons.devices),
   if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
   (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
   (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
@@ -55,7 +57,7 @@ class SettingsFrame extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
-    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider));
+    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), devices: ref.watch(deskLinkedDevicesOnProvider));
     final content = Align(
       alignment: AlignmentDirectional.topStart,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),

@@ -23736,5 +23736,184 @@
         "type": "String"
       }
     }
+  },
+  "deskDevServersNote": "Choose up to 2.",
+  "@deskDevServersNote": {
+    "description": "Under the Servers picker of Settings > Linked devices: how many may be chosen."
+  },
+  "deskDevServersCancel": "Cancel change",
+  "@deskDevServersCancel": {
+    "description": "Button on the waiting row of a server change this computer proposed: withdraws it."
+  },
+  "deskDevServersDown": "{down} of {n} not responding. Updates go through the other.",
+  "@deskDevServersDown": {
+    "description": "Line under the Servers picker when one of two chosen servers does not answer.",
+    "placeholders": {
+      "down": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskDevServersAllDown": "No server answers. Updates wait and go when one is back.",
+  "@deskDevServersAllDown": {
+    "description": "Line under the Servers picker when no chosen server answers."
+  },
+  "deskDevServersInfo1": "Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
+  "@deskDevServersInfo1": {
+    "description": "Info card of the Servers row, paragraph 1."
+  },
+  "deskDevServersInfo2": "A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
+  "@deskDevServersInfo2": {
+    "description": "Info card of the Servers row, paragraph 2."
+  },
+  "deskDevServersInfo3": "The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.",
+  "@deskDevServersInfo3": {
+    "description": "Info card of the Servers row, paragraph 3."
+  },
+  "deskDevPausedOffline": "Paused in Offline mode.",
+  "@deskDevPausedOffline": {
+    "description": "Under the Pause sync switch while the app is in Offline mode."
+  },
+  "deskDevPausedEpicboxOff": "Paused while Epicbox is off.",
+  "@deskDevPausedEpicboxOff": {
+    "description": "Under the Pause sync switch while Epicbox is switched off."
+  },
+  "deskDevHeldAmount": "{amount} EPIC",
+  "@deskDevHeldAmount": {
+    "description": "Title of a held payment row in Settings > Linked devices. {amount} is the number.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deskDevHeldNone": "No coins held.",
+  "@deskDevHeldNone": {
+    "description": "Held coins list when no other device holds any coin here."
+  },
+  "deskDevRenameThis": "Rename this computer",
+  "@deskDevRenameThis": {
+    "description": "Title of the dialog that renames this computer."
+  },
+  "deskDevRenameDevice": "Rename {name}",
+  "@deskDevRenameDevice": {
+    "description": "Title of the dialog that renames another linked device.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskDevPasteLead": "Paste the code the other device shows.",
+  "@deskDevPasteLead": {
+    "description": "Link dialog, Paste code tab: what to paste."
+  },
+  "deskDevMakingCode": "Making the code…",
+  "@deskDevMakingCode": {
+    "description": "Link dialog while the code is made."
+  },
+  "deskDevConnecting": "Connecting…",
+  "@deskDevConnecting": {
+    "description": "Link dialog while this computer answers a pasted code."
+  },
+  "deskDevTheOther": "The other device",
+  "@deskDevTheOther": {
+    "description": "The other device in the link dialog when it has not told its name yet."
+  },
+  "deskDevServersLine": "Servers: {servers}",
+  "@deskDevServersLine": {
+    "description": "Link dialog, under the code: the servers the link uses.",
+    "placeholders": {
+      "servers": {
+        "type": "String"
+      }
+    }
+  },
+  "deskDevOfferReceived": "Is this your other device? Link it to see who sent it and to keep both in step.",
+  "@deskDevOfferReceived": {
+    "description": "Quiet line at the end of the details of a payment received by another wallet."
+  },
+  "devicesEndCancelled": "Cancelled on {name}",
+  "@devicesEndCancelled": {
+    "description": "Status of a linked device's payment that device cancelled.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndFailed": "Failed on {name}",
+  "@devicesEndFailed": {
+    "description": "Status of a linked device's payment that failed on that device.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndExpired": "Expired on {name}",
+  "@devicesEndExpired": {
+    "description": "Status of a linked device's payment that ran out of time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndLineCancelled": "{name} cancelled this payment. Its coins are free again.",
+  "@devicesEndLineCancelled": {
+    "description": "Details line of a payment the other device cancelled.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesEndLineExpired": "{name} did not finish this payment in time. Its coins are free again.",
+  "@devicesEndLineExpired": {
+    "description": "Details line of a payment that ran out of time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesWhyNotDelivered": "{name} could not deliver it to the recipient. Its coins are free again.",
+  "@devicesWhyNotDelivered": {
+    "description": "Details line of a payment that failed because it never reached the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesWhyRefused": "The recipient’s server refused it. Its coins are free again.",
+  "@devicesWhyRefused": {
+    "description": "Details line of a payment the recipient's server refused."
+  },
+  "devicesWhyInputsSpent": "Its coins had been spent already.",
+  "@devicesWhyInputsSpent": {
+    "description": "Details line of a payment that failed because its coins had been spent already."
+  },
+  "devicesWhyOther": "{name} could not complete it. Its coins are free again.",
+  "@devicesWhyOther": {
+    "description": "Details line of a payment that failed for no reason the other device named.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesStatusInfo": "This status comes from {name}. The blockchain decides the final state.",
+  "@devicesStatusInfo": {
+    "description": "The explanation behind the info mark on a row or details whose status comes from another linked device's notice.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

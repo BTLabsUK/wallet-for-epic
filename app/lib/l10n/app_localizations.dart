@@ -28150,6 +28150,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Released here · {name} may still send it'**
   String devicesReleasedRow(String name);
+
+  /// Under the Servers picker of Settings > Linked devices: how many may be chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to 2.'**
+  String get deskDevServersNote;
+
+  /// Button on the waiting row of a server change this computer proposed: withdraws it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel change'**
+  String get deskDevServersCancel;
+
+  /// Line under the Servers picker when one of two chosen servers does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{down} of {n} not responding. Updates go through the other.'**
+  String deskDevServersDown(int down, int n);
+
+  /// Line under the Servers picker when no chosen server answers.
+  ///
+  /// In en, this message translates to:
+  /// **'No server answers. Updates wait and go when one is back.'**
+  String get deskDevServersAllDown;
+
+  /// Info card of the Servers row, paragraph 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.'**
+  String get deskDevServersInfo1;
+
+  /// Info card of the Servers row, paragraph 2.
+  ///
+  /// In en, this message translates to:
+  /// **'A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.'**
+  String get deskDevServersInfo2;
+
+  /// Info card of the Servers row, paragraph 3.
+  ///
+  /// In en, this message translates to:
+  /// **'The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.'**
+  String get deskDevServersInfo3;
+
+  /// Under the Pause sync switch while the app is in Offline mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused in Offline mode.'**
+  String get deskDevPausedOffline;
+
+  /// Under the Pause sync switch while Epicbox is switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Epicbox is off.'**
+  String get deskDevPausedEpicboxOff;
+
+  /// Title of a held payment row in Settings > Linked devices. {amount} is the number.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC'**
+  String deskDevHeldAmount(String amount);
+
+  /// Held coins list when no other device holds any coin here.
+  ///
+  /// In en, this message translates to:
+  /// **'No coins held.'**
+  String get deskDevHeldNone;
+
+  /// Title of the dialog that renames this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename this computer'**
+  String get deskDevRenameThis;
+
+  /// Title of the dialog that renames another linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename {name}'**
+  String deskDevRenameDevice(String name);
+
+  /// Link dialog, Paste code tab: what to paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the code the other device shows.'**
+  String get deskDevPasteLead;
+
+  /// Link dialog while the code is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Making the code…'**
+  String get deskDevMakingCode;
+
+  /// Link dialog while this computer answers a pasted code.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get deskDevConnecting;
+
+  /// The other device in the link dialog when it has not told its name yet.
+  ///
+  /// In en, this message translates to:
+  /// **'The other device'**
+  String get deskDevTheOther;
+
+  /// Link dialog, under the code: the servers the link uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers: {servers}'**
+  String deskDevServersLine(String servers);
+
+  /// Quiet line at the end of the details of a payment received by another wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this your other device? Link it to see who sent it and to keep both in step.'**
+  String get deskDevOfferReceived;
+
+  /// Status of a linked device's payment that device cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled on {name}'**
+  String devicesEndCancelled(String name);
+
+  /// Status of a linked device's payment that failed on that device.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed on {name}'**
+  String devicesEndFailed(String name);
+
+  /// Status of a linked device's payment that ran out of time.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired on {name}'**
+  String devicesEndExpired(String name);
+
+  /// Details line of a payment the other device cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} cancelled this payment. Its coins are free again.'**
+  String devicesEndLineCancelled(String name);
+
+  /// Details line of a payment that ran out of time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} did not finish this payment in time. Its coins are free again.'**
+  String devicesEndLineExpired(String name);
+
+  /// Details line of a payment that failed because it never reached the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not deliver it to the recipient. Its coins are free again.'**
+  String devicesWhyNotDelivered(String name);
+
+  /// Details line of a payment the recipient's server refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient’s server refused it. Its coins are free again.'**
+  String get devicesWhyRefused;
+
+  /// Details line of a payment that failed because its coins had been spent already.
+  ///
+  /// In en, this message translates to:
+  /// **'Its coins had been spent already.'**
+  String get devicesWhyInputsSpent;
+
+  /// Details line of a payment that failed for no reason the other device named.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not complete it. Its coins are free again.'**
+  String devicesWhyOther(String name);
+
+  /// The explanation behind the info mark on a row or details whose status comes from another linked device's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'This status comes from {name}. The blockchain decides the final state.'**
+  String devicesStatusInfo(String name);
 }
 
 class _AppLocalizationsDelegate

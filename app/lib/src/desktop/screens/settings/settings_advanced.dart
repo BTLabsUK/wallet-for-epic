@@ -144,8 +144,8 @@ class _ShowsGroup extends ConsumerWidget {
   }
 }
 
-/// Pairing and Invoices, off by default: each with an Experimental tag, the rule between them
-/// in one line under them.
+/// Pairing and Invoices, off by default, and Linked devices, on unless turned off: each with an
+/// Experimental tag, the rule between the first two in one line under them.
 class _ExperimentalGroup extends ConsumerWidget {
   const _ExperimentalGroup({this.openConnectionServers = false});
 
@@ -178,6 +178,8 @@ class _ExperimentalGroup extends ConsumerWidget {
         ConnectionServersRow(openInitially: openConnectionServers),
         row(AdvancedFeature.invoices, adv.invoicesOn, l.expInvoicesHint),
         ESetRow(key: const ValueKey('adv-exp-rule'), text: l.expNeedsPairing),
+        // On unless turned off; independent of Pairing (its pairings are private).
+        row(AdvancedFeature.linkedDevices, adv.linkedDevicesOn, l.expLinkedDevicesHint),
       ],
     );
   }

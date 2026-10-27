@@ -2,6 +2,7 @@
 // check's "another wallet" row once spent, never shown twice; freed coins show nothing.
 import 'package:epic_wallet/src/devices/device_history.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
+import 'package:epic_wallet/src/models.dart' show DeviceEnding;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -83,8 +84,29 @@ void main() {
     expect(rows.map((r) => r.origin), containsAll([TxOrigin.otherWallet, TxOrigin.linkedDevice]));
   });
 
-  test('coins the device itself freed show nothing', () {
-    expect(mergeDeviceHistory(const [], _book([_hold('s1', [1], state: HoldState.released)])), isEmpty);
+  test('a payment the device ended shows how: cancelled, failed with its code, expired', () {
+    HeldPayment ended(String reason, {String? why}) => _hold('s1', [1], state: HoldState.released).copyWith(reason: reason, why: why);
+    final cancelled = mergeDeviceHistory(const [], _book([ended('cancelled')])).single;
+    expect(cancelled.status, TxStatus.cancelled);
+    expect(cancelled.deviceEnding, DeviceEnding.cancelled);
+    final released = mergeDeviceHistory(const [], _book([ended('released')])).single;
+    expect(released.deviceEnding, DeviceEnding.cancelled);
+    final failed = mergeDeviceHistory(const [], _book([ended('failed', why: 'refused')])).single;
+    expect(failed.deviceEnding, DeviceEnding.failed);
+    expect(failed.deviceWhy, 'refused');
+    final expired = mergeDeviceHistory(const [], _book([ended('expired')])).single;
+    expect(expired.deviceEnding, DeviceEnding.expired);
+    expect(expired.deviceWhy, isNull);
+  });
+
+  test('the fallbacks read Expired, a hand release and a removal read released here', () {
+    for (final s in [HoldState.expired, HoldState.timedOut]) {
+      expect(mergeDeviceHistory(const [], _book([_hold('s1', [1], state: s)])).single.deviceEnding, DeviceEnding.expired);
+    }
+    for (final s in [HoldState.byHand, HoldState.unlinked]) {
+      expect(mergeDeviceHistory(const [], _book([_hold('s1', [1], state: s)])).single.deviceEnding, DeviceEnding.releasedHere);
+    }
+    expect(mergeDeviceHistory(const [], _book([_hold('s1', [1])])).single.deviceEnding, isNull);
   });
 
   test('coins released here show as a released row until the chain decides', () {

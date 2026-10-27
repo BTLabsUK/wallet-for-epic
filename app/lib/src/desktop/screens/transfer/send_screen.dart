@@ -10,7 +10,10 @@ import '../../../payment_prefs.dart' show PaymentPrefs;
 import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
+import '../../../devices/device_link_code.dart' show isDeviceLinkText;
 import '../../data/api.dart' show DeskWalletApi;
+import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
+import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
@@ -613,7 +616,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_amount.text.trim().isEmpty || p == null) return l.deskSendErrAmountEnter;
     if (p == _tooLong) return l.deskSendErrAmountDecimals;
     if (p <= 0) return l.deskSendErrAmountZero;
-    if (spendable != null && p + (_fee ?? 0) > spendable) return l.deskSendErrAmountMore;
+    if (spendable != null && p + (_fee ?? 0) > spendable) {
+      // The coins a payment of another linked device holds would have covered it: say so.
+      final held = ref.read(deskHeldProvider);
+      final heldTotal = held.fold<int>(0, (sum, h) => sum + h.value);
+      if (held.isNotEmpty && p + (_fee ?? 0) <= spendable + heldTotal) {
+        return l.sendHeldByDevice(formatEpicL(l, heldTotal), held.map((h) => h.device).join(', '));
+      }
+      return l.deskSendErrAmountMore;
+    }
     return null;
   }
 
@@ -642,6 +653,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// caller lets To take it as typed. Desktop links come in here (or by [SendArgs.code]).
   bool openPaymentText(String text, {required CodeOrigin origin}) {
     final l = context.l10n;
+    // A device link (Linked devices › Link a device) is no payment code: it opens that flow.
+    if (isDeviceLinkText(text) && ref.read(deskLinkedDevicesOnProvider)) {
+      setState(() => _to.text = _lastTo);
+      unawaited(showDeskLinkDevice(context, pasted: text));
+      return true;
+    }
     final code = deskClassify(ref.read(deskApiProvider), text);
     final pasted = origin != CodeOrigin.link;
     // Pasted: To keeps the text, the reason under it, for reading and editing.

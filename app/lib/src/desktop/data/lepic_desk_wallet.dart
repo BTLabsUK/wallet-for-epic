@@ -27,6 +27,9 @@ import '../../data_folder_io.dart' show appDataDirectory;
 import '../../address_format.dart' show shortAddress;
 import '../../advanced.dart' show NetworkMode;
 import '../../btlabs_keys.dart' show btlabsKeyring;
+import '../../devices/device_history.dart' show mergeDeviceHistory;
+import '../../devices/device_model.dart' show DeviceBook;
+import '../../devices/device_service.dart' show DeviceHost, SessionDeviceHost;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
@@ -2228,10 +2231,12 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<Balance> balance() async {
     final s = _summary ?? await _open.summary(refresh: false, minimumConfirmations: _minConf);
     _summary ??= s;
+    // The coins another device is spending are spendable to the core and held here: Locked.
+    final held = await _heldValue();
     return Balance(
-      spendable: s.spendable.toInt(),
+      spendable: s.spendable.toInt() - held,
       awaitingConfirmation: s.awaitingConfirmation.toInt(),
-      locked: s.locked.toInt(),
+      locked: s.locked.toInt() + held,
       // An unpaid issued invoice is in no figure: LEPIC files its output apart (P-1, W-25).
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
@@ -2240,10 +2245,24 @@ class LepicDeskWallet implements DeskWalletApi {
     );
   }
 
+  /// What the coins other devices hold are worth among the spendable ones, in nano.
+  Future<int> _heldValue() async {
+    final held = _heldBy();
+    if (held.isEmpty) return 0;
+    try {
+      return (await _open.outputs())
+          .where((o) => o.status == core.WalletOutputStatus.unspent && o.category == core.OutputCategory.spendable && held.containsKey(o.commitment))
+          .fold<int>(0, (sum, o) => sum + o.value.toInt());
+    } on core.WalletError {
+      return 0;
+    }
+  }
+
   @override
   Future<List<Tx>> transactions() async {
-    final entries = _entries ?? await _open.transactions(refresh: false);
-    _entries = entries;
+    final raw = _entries ?? await _open.transactions(refresh: false);
+    _entries = raw;
+    final entries = _withDevices(raw);
     final contacts = await _open.contacts();
     // Any of a contact's addresses names it, as the address reads in a row (an onion with or
     // without its http://).
@@ -2281,7 +2300,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<List<Output>> outputs() async {
     try {
       final list = await _open.outputs();
-      return [for (final o in list) deskOutput(o, minConf: _minConf.toInt())];
+      final held = _heldBy();
+      return [for (final o in list) deskOutput(o, minConf: _minConf.toInt(), heldBy: held[o.commitment])];
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -5124,6 +5144,36 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   core.PairingApi get pairing => _session?.pairing ?? const core.NoPairing();
 
+  /// Where the book of linked devices is read from ([useDevices]).
+  DeviceBook? Function()? _deviceBook;
+
+  @override
+  DeviceHost? deviceHost({required bool Function() online}) {
+    final session = _session;
+    return session == null ? null : SessionDeviceHost(session, online: online, minimumConfirmations: _minConf);
+  }
+
+  @override
+  void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
+
+  /// [entries] with the other devices' payments merged in; the same list for every reader, so
+  /// the rows keep their fallback ids.
+  List<core.TxEntry> _withDevices(List<core.TxEntry> entries) {
+    final book = _deviceBook?.call();
+    return book == null ? entries : mergeDeviceHistory(entries, book);
+  }
+
+  /// The coins other devices hold here: commitment → the device's name.
+  Map<String, String> _heldBy() {
+    final book = _deviceBook?.call();
+    if (book == null) return const {};
+    return {
+      for (final h in book.holds)
+        if (h.state.holds)
+          for (final c in h.commitments) c: book.device(h.deviceId)?.name ?? h.deviceName ?? '',
+    };
+  }
+
   @override
   Future<void> setInvoiceExpiry(Duration expiry) async {
     _invoiceExpiry = expiry > maxInvoiceExpiry ? maxInvoiceExpiry : expiry;
@@ -5175,7 +5225,7 @@ class LepicDeskWallet implements DeskWalletApi {
   BlockWait _waitOf(core.TxEntry e) => _blockWaits.waitOf(e, now: DateTime.now(), tip: BigInt.from(_tip));
 
   List<Tx> _txs() {
-    final entries = _entries ?? const <core.TxEntry>[];
+    final entries = _withDevices(_entries ?? const <core.TxEntry>[]);
     _blockWaits.saw(entries, BigInt.from(_tip));
     return [
       for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e)),
@@ -5210,8 +5260,10 @@ DateTime? _time(Object? unix) => unix is int ? DateTime.fromMillisecondsSinceEpo
 /// One output as the Outputs page shows it. An unspent output under [minConf] confirmations
 /// is confirming, a mining reward below its lock height immature; an unconfirmed one (not on
 /// chain yet, or a reward still being mined) is unconfirmed.
-Output deskOutput(core.WalletOutput o, {required int minConf}) {
+Output deskOutput(core.WalletOutput o, {required int minConf, String? heldBy}) {
   final status = switch (o.status) {
+    // Spendable here, left out of every send while a payment of a linked device holds it.
+    core.WalletOutputStatus.unspent when heldBy != null && o.category == core.OutputCategory.spendable => OutputStatus.locked,
     core.WalletOutputStatus.spent => OutputStatus.spent,
     core.WalletOutputStatus.locked => OutputStatus.locked,
     core.WalletOutputStatus.unconfirmed => OutputStatus.unconfirmed,
@@ -5238,6 +5290,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
     hasCategory: o.category != null,
     mmrIndex: o.mmrIndex?.toInt(),
     txId: o.txId,
+    heldBy: heldBy,
   );
 }
 
@@ -5324,6 +5377,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     pairingId: e.pairingId,
     blockWait: wait,
     credited: e.amountCredited.toInt(),
+    deviceName: e.origin == core.TxOrigin.linkedDevice ? e.deviceName : null,
+    deviceEnding: e.origin == core.TxOrigin.linkedDevice ? e.deviceEnding : null,
+    deviceWhy: e.origin == core.TxOrigin.linkedDevice ? e.deviceWhy : null,
   );
 }
 

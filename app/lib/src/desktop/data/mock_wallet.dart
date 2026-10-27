@@ -10,8 +10,11 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
+import '../../devices/device_model.dart' show DeviceBook, HoldState;
+import '../../devices/device_service.dart' show DeviceHost;
+import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
+import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -30,6 +33,12 @@ import 'models.dart';
 export 'invoices.dart' show InvoiceError, InvoiceProblem;
 
 part 'mock_invoices.dart';
+
+/// The mock wallet's canned output [i] (1 to 24), for a linked device's hold on it.
+String mockCommitment(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + (i ~/ 16) * (k + 1) + k * 13 + k * k) % 16]).join()}';
+
+/// The mock wallet's payments key, which a [MockPhone] of the same wallet shares.
+const String mockEpicboxKey = _epicboxKey;
 
 const _epicboxKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
 
@@ -456,10 +465,11 @@ class MockDeskWallet implements DeskWalletApi {
   Future<Balance> balance() async {
     await _wait(0.3);
     final p = proto;
+    final held = _heldValue();
     return Balance(
-      spendable: _epic(1284.73215) + p.spendDelta,
+      spendable: _epic(1284.73215) + p.spendDelta - held,
       awaitingConfirmation: _epic(25) + p.confirmingDelta,
-      locked: _epic(15.713) + p.lockDelta,
+      locked: _epic(15.713) + p.lockDelta + held,
       awaitingFinalization: _epic(12.5),
       immature: _epic(2),
     );
@@ -469,19 +479,102 @@ class MockDeskWallet implements DeskWalletApi {
   Future<List<Tx>> transactions() async {
     await _wait(0.5);
     proto;
-    return List.unmodifiable(seedInvoices ? _txs : _txs.where((t) => t.flow != TxFlow.invoice));
+    final rows = [...(seedInvoices ? _txs : _txs.where((t) => t.flow != TxFlow.invoice)), ..._deviceTxs()];
+    return List.unmodifiable(rows..sort((a, b) => b.created.compareTo(a.created)));
   }
 
   @override
   Future<List<Output>> outputs() async {
     await _wait(0.5);
-    return _outputs;
+    final held = _heldBy();
+    if (held.isEmpty) return _outputs;
+    return [
+      for (final o in _outputs)
+        if (o.spendable && held.containsKey(o.commitment))
+          Output(commitment: o.commitment, value: o.value, status: OutputStatus.locked, height: o.height, confirmations: o.confirmations, heldBy: held[o.commitment])
+        else
+          o,
+    ];
+  }
+
+  // Linked devices: the book the screens keep, read here as the real adapter reads it.
+  DeviceBook? Function()? _deviceBook;
+
+  @override
+  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
+
+  /// The canned outputs as the core lists them, for linked devices.
+  Future<List<WalletOutput>> walletOutputs() async => [
+    for (final o in _outputs)
+      if (o.status == OutputStatus.unspent || o.status == OutputStatus.locked || o.status == OutputStatus.spent)
+        WalletOutput(
+          commitment: o.commitment,
+          value: BigInt.from(o.value),
+          status: switch (o.status) {
+            OutputStatus.locked => WalletOutputStatus.locked,
+            OutputStatus.spent => WalletOutputStatus.spent,
+            _ => WalletOutputStatus.unspent,
+          },
+          category: o.status == OutputStatus.unspent ? OutputCategory.spendable : null,
+          isCoinbase: false,
+          height: BigInt.from(o.height ?? 0),
+          lockHeight: BigInt.zero,
+          confirmations: BigInt.from(o.confirmations),
+          txId: o.txId,
+        ),
+  ];
+
+  @override
+  void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
+
+  Map<String, String> _heldBy() {
+    final book = _deviceBook?.call();
+    if (book == null) return const {};
+    return {
+      for (final h in book.holds)
+        if (h.state.holds)
+          for (final c in h.commitments) c: book.device(h.deviceId)?.name ?? h.deviceName ?? '',
+    };
+  }
+
+  int _heldValue() {
+    final held = _heldBy();
+    return _outputs.where((o) => o.spendable && held.containsKey(o.commitment)).fold(0, (sum, o) => sum + o.value);
+  }
+
+  /// The other devices' payments as history rows (pending, or spent and in a block).
+  List<Tx> _deviceTxs() {
+    final book = _deviceBook?.call();
+    if (book == null) return const [];
+    return [
+      for (final (i, h) in book.holds.where((h) => h.state.holds || h.state == HoldState.spent || h.state.freed).indexed)
+        Tx(
+          id: -100 - i,
+          slateId: h.slateId,
+          direction: TxDirection.sent,
+          state: h.state == HoldState.spent
+              ? TxState.confirmed
+              : h.state.freed
+              ? TxState.cancelled
+              : (h.state == HoldState.posted ? TxState.posted : TxState.waitingRecipient),
+          method: TxMethod.epicbox,
+          amount: h.amount.toInt(),
+          fee: h.fee?.toInt() ?? 0,
+          created: h.createdAt ?? h.lockedAt,
+          counterparty: h.counterparty,
+          message: h.message,
+          deviceName: book.device(h.deviceId)?.name ?? h.deviceName,
+          deviceEnding: h.ending,
+          deviceWhy: h.ending == DeviceEnding.failed ? h.why : null,
+          key: 'd:${h.deviceId}:${h.slateId}',
+        ),
+    ];
   }
 
   late List<Output> _outputs = _cannedOutputs();
 
   List<Output> _cannedOutputs() {
-    String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
+    final cmt = mockCommitment;
     return [
       Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 2),
       Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed, awaitingFinalization: true),
@@ -1327,4 +1420,32 @@ class MockDeskWallet implements DeskWalletApi {
     if (next.length < 8) throw const DeskError('Use at least 8 characters');
     _remembered.remove(_current);
   }
+}
+
+/// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
+class _MockDeviceHost implements DeviceHost {
+  _MockDeviceHost(this.pairing, this._online, this._outputs);
+
+  @override
+  final FakePairing pairing;
+  final bool Function() _online;
+  final Future<List<WalletOutput>> Function() _outputs;
+
+  @override
+  bool get online => _online();
+
+  @override
+  Future<String> walletKey() async => _epicboxKey;
+
+  @override
+  Future<List<WalletOutput>> outputs() => _outputs();
+
+  @override
+  Future<List<TxEntry>> transactions() async => const [];
+
+  @override
+  Future<int?> tipHeight() async => null;
+
+  @override
+  set heldOutputs(Set<String> commitments) {}
 }
