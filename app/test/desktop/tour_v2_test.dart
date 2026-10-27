@@ -1,6 +1,6 @@
 // The tour, one page per step: each step opens its page and lights its area and sidebar entry,
-// Next / Back / Enter / the arrow keys move, Esc, Skip and a click outside end it on the page it
-// is on, it ends on Help, it opens from Help › Show the tour again and not from Appearance, it
+// Next / Back / Enter / the arrow keys move, Done, Esc, Skip and a click outside end it on
+// Overview (#76), its last step is Help, it opens from Help › Show the tour again and not from Appearance, it
 // opens by itself once (the seen flag survives a restart), and the Invoices step is there
 // exactly when the Invoices page is.
 import 'package:epic_wallet/src/advanced.dart';
@@ -163,8 +163,7 @@ void main() {
     }
     expect(container.read(deskTourProvider).open, isFalse);
     expect(find.byType(DeskTourOverlay), findsNothing);
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsHelp, reason: 'Done leaves the person on Help');
-    expect(find.text('Show the tour again'), findsOneWidget);
+    expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'Done leaves the person on Overview');
   });
 
   testWidgets('a wallet without invoices: no Invoices step even when the page is in the app', (tester) async {
@@ -209,7 +208,7 @@ void main() {
     expect(container.read(deskTourProvider).open, isTrue);
   });
 
-  testWidgets('Esc ends it on the page it is on and counts as seen', (tester) async {
+  testWidgets('Esc ends it on Overview and counts as seen', (tester) async {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
@@ -223,16 +222,19 @@ void main() {
     expect(container.read(deskTourProvider).open, isFalse);
     expect(container.read(deskTourProvider).seen, isTrue);
     expect(find.byType(DeskTourOverlay), findsNothing);
-    expect(container.read(deskNavProvider).route, DeskRoute.receive);
+    expect(container.read(deskNavProvider).route, DeskRoute.overview);
   });
 
   testWidgets('Skip tour ends it; so does a click on the dimmed page', (tester) async {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
+    await tester.tap(_inCard('Next'));
+    await _settle(tester);
     await tester.tap(_inCard('Skip tour'));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isFalse);
+    expect(container.read(deskNavProvider).route, DeskRoute.overview);
 
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);

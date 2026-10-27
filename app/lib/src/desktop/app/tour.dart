@@ -373,7 +373,12 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
     _next.requestFocus();
   }
 
-  void _end() => ref.read(deskTourProvider.notifier).close();
+  /// Done, Skip or Esc: the tour closes on Overview, wherever its step was (its last page is
+  /// Help), so a wallet just restored or imported shows its scan at once (#76).
+  void _end() {
+    ref.read(deskTourProvider.notifier).close();
+    if (ref.read(deskNavProvider).route != DeskRoute.overview) ref.read(deskNavProvider.notifier).go(DeskRoute.overview);
+  }
 
   @override
   Widget build(BuildContext context) {
