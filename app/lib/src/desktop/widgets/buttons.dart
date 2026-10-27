@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-enum EBtnKind { primary, secondary, ghost, danger }
+/// [primarySoft] is the primary of a row of peers (a detail header's Send): the accent as a soft
+/// tint with gold ink and a gold hairline, where a filled block would shout.
+enum EBtnKind { primary, primarySoft, secondary, ghost, danger }
 
 enum EBtnSize {
   /// 28 px: inside a line of text, a row or a notice.
@@ -107,6 +109,10 @@ class _EButtonState extends State<EButton> {
         bg = disabled ? c.s3 : (_down ? c.accentDeep : (_hover ? Color.lerp(c.accent, c.text, 0.12)! : c.accent));
         fg = disabled ? c.faint : c.accentInk;
         border = disabled ? c.lineStrong : Colors.transparent;
+      case EBtnKind.primarySoft:
+        bg = disabled ? Colors.transparent : (_down ? c.press : (_hover ? Color.lerp(c.accentSoft, c.accent, 0.12)! : c.accentSoft));
+        fg = disabled ? c.faint : c.accentText;
+        border = disabled ? c.line : c.accent.withValues(alpha: 0.35);
       case EBtnKind.secondary:
         bg = disabled ? Colors.transparent : (_down ? c.press : (_hover ? c.s3 : c.s2));
         fg = disabled ? c.faint : c.text;

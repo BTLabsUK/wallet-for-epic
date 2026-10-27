@@ -14168,11 +14168,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairWhatTheyReceive => 'สิ่งที่อีกฝ่ายได้รับ';
 
   @override
-  String pairShareText(String name, String link, String date) {
-    return '$name ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ หมดอายุ $date\n\nเปิดใน Epic Cash:\n$link';
-  }
-
-  @override
   String get contactsPairHint =>
       'จับคู่กับกระเป๋าเงินอีกใบเพื่อปิดผนึกไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างกัน';
 

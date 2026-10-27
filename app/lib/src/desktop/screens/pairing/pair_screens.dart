@@ -15,8 +15,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDayMonth;
 import '../../../models.dart'
-    show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, pairingError, pairingFailureOf;
+    show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, WalletError, WalletErrorKind, pairingError, pairingFailureOf;
+import '../../../help/help_content.dart' show HelpId;
 import '../../../pairing_api.dart';
+import '../../../pairing_clip_probe.dart' show pairingClipReaderProvider;
+import '../../../pairing_clipboard.dart' show PairingClipPending, PairingClipTrigger;
 import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
@@ -25,10 +28,28 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../settings/help_pairing.dart' show HelpAt;
 import '../transfer/contact_picker.dart' show showContactPicker;
 
 /// Keys for tests.
 const Key deskPairEnterKey = ValueKey('desk-pair-enter');
+const Key deskPairNameKey = ValueKey('desk-pair-name');
+const Key deskPairWordsKey = ValueKey('desk-pair-words');
+const Key deskPairMessageKey = ValueKey('desk-pair-message');
+const Key deskPairInPersonKey = ValueKey('desk-pair-in-person');
+const Key deskPairWordsPanelKey = ValueKey('desk-pair-words-panel');
+const Key deskPairMessagePanelKey = ValueKey('desk-pair-message-panel');
+const Key deskPairInPersonPanelKey = ValueKey('desk-pair-in-person-panel');
+const Key deskPairUseMessageKey = ValueKey('desk-pair-use-message');
+const Key deskPairNewWordsKey = ValueKey('desk-pair-new-words');
+const Key deskPairPasteReplyKey = ValueKey('desk-pair-paste-reply');
+const Key deskPairCancelSentKey = ValueKey('desk-pair-cancel-sent');
+const Key deskPairHowKey = ValueKey('desk-pair-how');
+const Key deskFinishCopyKey = ValueKey('desk-finish-copy');
+const Key deskReplyCopyKey = ValueKey('desk-reply-copy');
+const Key deskPasteFinishKey = ValueKey('desk-paste-finish');
+const Key deskClipUseKey = ValueKey('desk-clip-use');
+const Key deskClipNotNowKey = ValueKey('desk-clip-not-now');
 const Key deskPairGoKey = ValueKey('desk-pair-go');
 const Key deskPairCopyInviteKey = ValueKey('desk-pair-copy-invite');
 const Key deskPairCopyCardKey = ValueKey('desk-pair-copy-card');
@@ -74,8 +95,14 @@ class DeskPairAvatar extends StatelessWidget {
   }
 }
 
-/// Contacts › Pair: Show my code (an invite's code and its words) with Enter link or words,
-/// and Invite online. [arg] is the [Contact] the pairing will attach to, if any.
+/// The ways of [DeskPairScreen].
+enum DeskPairWay { words, message, inPerson }
+
+/// Contacts › Pair (Pairing UX plan 4.4): three ways as tiles, Words (five words, the relay
+/// does the rest), Invite by message (three messages copied into any chat) and In person (the
+/// phone scans this wallet's code, this one pastes the phone's code link), each opening its
+/// panel; under them Got words or a link?, the field for the one who was invited. [arg] is the
+/// [Contact] the pairing will attach to, if any.
 class DeskPairScreen extends ConsumerStatefulWidget {
   const DeskPairScreen({super.key, this.arg});
 
@@ -90,25 +117,32 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   final _enter = TextEditingController();
   final _name = TextEditingController();
   Duration _expiry = pairingInviteDefaultExpiry;
+  DeskPairWay? _way;
+
+  /// The words invite on show.
   PairingRecord? _code;
 
-  /// While nothing reaches the relays (Offline, Epicbox off): this wallet's card, shown and
-  /// copied for pairing face to face, made for the name [_cardFor].
+  /// The message invite sent and waiting for its reply (step 2).
+  PairingRecord? _sent;
+
+  /// The reply to [_sent] was handled (finish link or words opened).
+  bool _sentDone = false;
+
+  /// This wallet's card for In person, made for the name [_cardFor].
   PairingCard? _card;
   String? _cardFor;
   String? _codeError;
+  bool _codeNoRelay = false;
   String? _enterError;
 
-  /// No name yet: the code waits for one, and the field says so only once the user tried.
-  bool _needName = false;
-  bool _triedInvite = false;
+  /// The name was needed and is missing: its field says so.
+  bool _triedName = false;
   bool _busy = false;
   Timer? _tick;
   Timer? _collect;
-  Timer? _typed;
   StreamSubscription<PairingEvent>? _events;
 
-  /// Any answer opens its words here.
+  /// Any answer opens its next step here.
   bool _onScreen(PairingEvent e) => e.kind == PairingEventKind.replied;
 
   @override
@@ -116,25 +150,29 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     _name.text = ref.read(deskSeenAsProvider);
+    _way = ref.read(deskPairNetProvider) == DeskPairNet.online ? DeskPairWay.words : DeskPairWay.message;
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
     final api = ref.read(deskPairingApiProvider);
     _collect = Timer.periodic(const Duration(seconds: 10), (_) => api.collect().ignore());
     _events = api.events().listen((e) {
-      if (e.kind == PairingEventKind.replied && e.pairingId != null && mounted) {
-        unawaited(showDeskCheckWords(context, ref, e.pairingId!));
-      }
+      final id = e.pairingId;
+      if (e.kind == PairingEventKind.replied && id != null && mounted) unawaited(_replied(id));
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _makeCode());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _open(_way!);
+      deskLookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
+    });
   }
 
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
+    if (_sent case final sent?) deskPairingStepsOnScreen.remove(sent.id);
     _tick?.cancel();
     _collect?.cancel();
-    _typed?.cancel();
     _events?.cancel();
     _enter.dispose();
     _name.dispose();
@@ -143,39 +181,49 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
 
   String get _seenAs => _name.text.trim();
 
-  Future<void> _makeCode() async {
+  /// An invite of this wallet's was answered: the finish link first when this wallet holds one
+  /// to send (the reply came in a message), else the words (the relay sent the confirm too).
+  /// A reply pasted here or offered from the clipboard opens its own steps.
+  Future<void> _replied(String id) async {
+    // Let a paste that is opening this reply claim it first.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    if (!mounted || deskPairingFinishing.contains(id)) return;
+    if (_sent?.id == id) setState(() => _sentDone = true);
+    await deskAfterReply(context, ref, id);
+  }
+
+  void _open(DeskPairWay way) {
+    setState(() => _way = way);
+    switch (way) {
+      case DeskPairWay.words:
+        if (_code == null) _makeWords();
+      case DeskPairWay.inPerson:
+        // Their phone's code link may be on the clipboard already.
+        (_card == null ? _makeCard() : Future<void>.value()).then((_) {
+          if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.screen, cardOpen: true).ignore();
+        }).ignore();
+      case DeskPairWay.message:
+    }
+  }
+
+  /// The name others see, or null (and the field says so) when there is none.
+  String? _needName() {
+    if (_seenAs.isNotEmpty) return _seenAs;
+    setState(() => _triedName = true);
+    return null;
+  }
+
+  void _nameChanged() {
+    ref.read(deskSeenAsProvider.notifier).set(_name.text);
+    setState(() => _triedName = false);
+  }
+
+  Future<void> _makeWords({bool fresh = false}) async {
     final l = context.l10n;
-    if (_seenAs.isEmpty) {
-      setState(() {
-        _needName = true;
-        _codeError = null;
-      });
-      return;
-    }
-    _needName = false;
-    if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
-      // Pairing words need a relay; the card is made here and travels by hand.
-      final name = _seenAs;
-      try {
-        // The card out now, unless the name changed since it was made.
-        final own = ref.read(deskOwnCardProvider);
-        final card = own != null && (_cardFor == null || _cardFor == name) ? own : await ref.read(deskPairingApiProvider).showCard(name: name);
-        ref.read(deskOwnCardProvider.notifier).set(card);
-        if (mounted) {
-          setState(() {
-            _card = card;
-            _cardFor = name;
-            _codeError = null;
-          });
-        }
-      } catch (error) {
-        if (mounted) setState(() => _codeError = deskErrorText(error, l));
-      }
-      return;
-    }
+    final name = _seenAs.isEmpty ? l.pairTitle : _seenAs;
     final old = _code;
     // Opened again: the words still open show, not a new invite each visit (WIN2-1).
-    if (old == null) {
+    if (old == null && !fresh) {
       var all = const <PairingRecord>[];
       try {
         all = await ref.read(deskPairingsProvider.future);
@@ -184,46 +232,63 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       }
       final open = openWordsInvite(all, contactId: _contact?.id, now: DateTime.now());
       if (open != null) {
-        if (mounted) {
-          setState(() {
-            _code = open;
-            _codeError = null;
-          });
-        }
+        if (mounted) setState(() => _code = open);
         return;
       }
     }
     try {
       final code = await deskPairingCall(
         ref,
-        (api) => api.makeInvite(name: _seenAs, expiry: pairingWordsExpiry, words: true, label: _contact?.name, contactId: _contact?.id),
+        (api) => api.makeInvite(name: name, expiry: pairingWordsExpiry, words: true, label: _contact?.name, contactId: _contact?.id),
       );
       if (old != null) await deskPairingCall(ref, (api) => api.cancelInvite(old.id));
       if (mounted) {
         setState(() {
           _code = code;
           _codeError = null;
+          _codeNoRelay = false;
         });
       }
     } catch (error) {
-      if (mounted) setState(() => _codeError = deskErrorText(error, l));
+      final failure = pairingFailureOf(error);
+      if (mounted) {
+        setState(() {
+          _codeError = deskErrorText(error, l);
+          _codeNoRelay = failure != null && pairingNoRelay(failure);
+        });
+      }
     }
   }
 
-  void _nameChanged() {
-    ref.read(deskSeenAsProvider.notifier).set(_name.text);
-    setState(() {});
-    // The first name typed makes the code once typing pauses; a later change on Enter or
-    // New words, so no code is made per key (PAIR-LNX-6).
-    _typed?.cancel();
-    if (_code == null && _card == null && _seenAs.isNotEmpty) {
-      _typed = Timer(const Duration(milliseconds: 700), () {
-        if (mounted) _makeCode();
-      });
+  /// This wallet's card for In person: the phone scans its code, this wallet pastes theirs.
+  Future<void> _makeCard() async {
+    final name = _seenAs;
+    if (name.isEmpty) return;
+    try {
+      final own = ref.read(deskOwnCardProvider);
+      final card = own != null && (_cardFor == null || _cardFor == name) ? own : await ref.read(deskPairingApiProvider).showCard(name: name);
+      ref.read(deskOwnCardProvider.notifier).set(card);
+      if (mounted) {
+        setState(() {
+          _card = card;
+          _cardFor = name;
+        });
+      }
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, context.l10n), tone: ETone.risk);
     }
   }
 
-  /// The typed words, by table name or emoji.
+  Future<void> _copyCard() async {
+    if (_needName() == null) return;
+    if (_card == null || _cardFor != _seenAs) await _makeCard();
+    final card = _card;
+    if (card == null || !mounted) return;
+    await deskMarkPairingLinkSeen(ref, card.link);
+    if (mounted) await copyToClipboard(context, card.link, context.l10n.pairCopied);
+  }
+
+  /// The words, a link or a message typed or pasted under Got words or a link?.
   List<String> get _words => pairingWordParts(_enter.text);
 
   bool get _ready {
@@ -232,37 +297,13 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     return w.length == pairingWordCount && w.every((x) => (sasWordNamed(x) ?? sasWordOfEmoji(x)) != null);
   }
 
-  /// This wallet's card for pairing face to face: the other wallet pastes its link, and this
-  /// one pastes theirs back.
-  Future<void> _copyCard() async {
-    final l = context.l10n;
-    if (_seenAs.isEmpty) {
-      setState(() => _triedInvite = true);
-      return;
-    }
-    try {
-      final card = ref.read(deskOwnCardProvider) ?? await ref.read(deskPairingApiProvider).showCard(name: _seenAs);
-      ref.read(deskOwnCardProvider.notifier).set(card);
-      if (!mounted) return;
-      if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
-        setState(() {
-          _card = card;
-          _cardFor ??= _seenAs;
-        });
-      }
-      await copyToClipboard(context, card.link, l.pairCopied);
-    } catch (error) {
-      if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
-    }
-  }
-
   Future<void> _go() async {
     if (_busy || !_ready) return;
     final l = context.l10n;
     // A card link needs this wallet's own card, and a card needs the name others see.
     if (pairingLinkKind(_enter.text) == PairingLinkKind.card && ref.read(deskOwnCardProvider) == null && _seenAs.isEmpty) {
       setState(() {
-        _triedInvite = true;
+        _triedName = true;
         _enterError = l.pairSeenAsMissing;
       });
       return;
@@ -272,154 +313,325 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       _enterError = null;
     });
     try {
+      if (pairingLinkIn(_enter.text) case final link?) await deskMarkPairingLinkSeen(ref, link);
+      if (!mounted) return;
       await deskOpenPairingText(context, ref, _enter.text, contact: _contact);
       _enter.clear();
     } catch (error) {
-      if (mounted) setState(() => _enterError = deskErrorText(error, l));
+      final failure = pairingFailureOf(error);
+      // Words that found nothing because no relay answers: the message way needs none.
+      final text = deskErrorText(error, l);
+      if (mounted) setState(() => _enterError = failure != null && pairingNoRelay(failure) ? '$text ${l.pairAskForMessage}' : text);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  /// Invite by message, step 1: makes the invite and copies its message.
   Future<void> _copyInvite() async {
     final l = context.l10n;
-    if (_seenAs.isEmpty) {
-      setState(() => _triedInvite = true);
-      return;
-    }
+    final name = _needName();
+    if (name == null) return;
     try {
-      final invite = await deskPairingCall(
-        ref,
-        (api) => api.makeInvite(name: _seenAs, expiry: _expiry, label: _contact?.name, contactId: _contact?.id),
-      );
+      final invite = await deskPairingCall(ref, (api) => api.makeInvite(name: name, expiry: _expiry, label: _contact?.name, contactId: _contact?.id));
       if (!mounted) return;
-      await copyToClipboard(context, l.pairShareText(_seenAs, invite.inviteLink ?? '', localDayTime(l, invite.expiresAt!)), l.pairCopied);
+      final link = invite.inviteLink ?? '';
+      await deskMarkPairingLinkSeen(ref, link);
+      if (!mounted) return;
+      await copyToClipboard(context, l.pairInviteMessage(link), l.pairMessageCopied);
+      deskPairingStepsOnScreen.add(invite.id);
+      setState(() {
+        _sent = invite;
+        _sentDone = false;
+      });
     } catch (error) {
       if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
     }
+  }
+
+  /// Invite by message, step 2: the reply in the clipboard.
+  Future<void> _pasteReply() async {
+    final l = context.l10n;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!mounted) return;
+    if (pairingLinkKind(text) != PairingLinkKind.reply) {
+      showEToast(context, l.pairInvalidLink, tone: ETone.warn);
+      return;
+    }
+    await deskMarkPairingLinkSeen(ref, pairingLinkIn(text)!);
+    if (!mounted) return;
+    try {
+      await deskOpenPairingText(context, ref, text, contact: _contact);
+      if (mounted) setState(() => _sentDone = true);
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.warn);
+    }
+  }
+
+  Future<void> _cancelSent() async {
+    final sent = _sent;
+    if (sent == null) return;
+    await deskPairingCall(ref, (api) => api.cancelInvite(sent.id));
+    deskPairingStepsOnScreen.remove(sent.id);
+    if (mounted) setState(() => _sent = null);
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
-    final c = context.dc;
-    final code = _code;
-    final now = DateTime.now();
-    final left = code?.expiresAt?.difference(now);
-    final expired = left != null && left.isNegative;
     final net = ref.watch(deskPairNetProvider);
-    // Offline as with Epicbox off: the invite, the answer and the card travel by hand.
-    final byHand = net != DeskPairNet.online;
-    // A card that paired (Enter link took it) is gone; a new one is made on the next name.
-    final card = ref.watch(deskOwnCardProvider) == null ? null : _card;
-    final preview = l.pairShareText(_seenAs.isEmpty ? l.pairYourNamePlaceholder : _seenAs, 'epiccash://pair/1/…', localDayTime(l, now.add(_expiry)));
-
-    final show = EPanel(
-      title: l.pairShowMyCode,
-      headTrailing: left != null && !expired ? EBadge(l.pairWordsDesktopChip(pairingClock(left)), icon: EIcons.clock) : null,
+    final online = net == DeskPairNet.online;
+    final way = _way;
+    final nameField = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 420.u),
+      child: EField(
+        label: l.pairSeenAs,
+        // Only once something needed the name, never on a page just opened (PAIR-LNX-2).
+        error: _triedName && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
+        child: EInput(
+          key: deskPairNameKey,
+          controller: _name,
+          autofocus: _name.text.isEmpty,
+          onChanged: (_) => _nameChanged(),
+          onSubmitted: (_) {
+            if (_way == DeskPairWay.inPerson) _makeCard();
+          },
+        ),
+      ),
+    );
+    final tiles = [
+      _DeskWayTile(
+        key: deskPairWordsKey,
+        icon: EIcons.words,
+        title: l.pairWayWords,
+        badge: EBadge(l.pairWayAutomatic, icon: EIcons.automatic, tone: ETone.info),
+        info: l.pairWayWordsInfo,
+        text: online ? l.pairWayWordsHint : l.pairWordsNeedEpicbox,
+        selected: way == DeskPairWay.words,
+        onTap: online ? () => _open(DeskPairWay.words) : null,
+      ),
+      _DeskWayTile(
+        key: deskPairMessageKey,
+        icon: EIcons.chat,
+        title: l.pairWayMessage,
+        info: l.pairWayMessageInfo,
+        text: l.pairWayMessageHint,
+        selected: way == DeskPairWay.message,
+        onTap: () => _open(DeskPairWay.message),
+      ),
+      _DeskWayTile(
+        key: deskPairInPersonKey,
+        icon: EIcons.qr,
+        title: l.pairInPerson,
+        text: l.pairWayInPersonDesk,
+        selected: way == DeskPairWay.inPerson,
+        onTap: () => _open(DeskPairWay.inPerson),
+      ),
+    ];
+    final Widget panel = switch (way) {
+      DeskPairWay.words => _wordsPanel(l, nameField),
+      DeskPairWay.message => _messagePanel(l, nameField, online),
+      DeskPairWay.inPerson => _inPersonPanel(l, nameField),
+      null => const SizedBox.shrink(),
+    };
+    final enter = EPanel(
+      title: l.pairGotInvite,
+      child: EField(
+        label: l.pairGotInviteHint,
+        error: _enterError,
+        child: Row(
+          children: [
+            Expanded(
+              child: EInput(
+                key: deskPairEnterKey,
+                controller: _enter,
+                hint: l.pairEnterDesktopPlaceholder,
+                invalid: _enterError != null,
+                onChanged: (_) => setState(() => _enterError = null),
+                onSubmitted: (_) => _go(),
+              ),
+            ),
+            SizedBox(width: Sp.x2),
+            EButton.primary(key: deskPairGoKey, label: l.pairTitle, size: EBtnSize.sm, busy: _busy, onPressed: _ready ? _go : null),
+          ],
+        ),
+      ),
+    );
+    return EPage(
+      title: _contact == null ? l.pairTitle : l.pairWithName(_contact.name),
+      width: EPageWidth.full,
+      onBack: () => ref.read(deskNavProvider.notifier).go(DeskRoute.contacts),
+      actions: [EButton.ghost(label: l.pendingTitle, icon: EIcons.clock, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending))],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_codeError != null) ...[ENotice(title: _codeError!, tone: ETone.warn), SizedBox(height: Sp.x4)],
-          // Neutral until a name exists: the code needs it (the field is in Invite online).
-          if (_needName && code == null && card == null) Text(l.pairNameForCode, style: ts.bodyDim),
-          if (byHand && card != null)
-            Wrap(
-              spacing: Sp.x5,
-              runSpacing: Sp.x4,
-              children: [
-                Semantics(label: l.pairCodeLabel, image: true, child: EQr(card.link, size: 176.u)),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 340.u),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l.pairShowCodeCaption, style: ts.bodyDim),
-                      SizedBox(height: Sp.x3),
-                      Text(l.pairWordsNeedEpicbox, style: ts.small),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          if (!byHand && code != null)
-            Wrap(
-              spacing: Sp.x5,
-              runSpacing: Sp.x4,
-              children: [
-                Opacity(opacity: expired ? 0.4 : 1, child: Semantics(label: l.pairCodeLabel, image: true, child: EQr(code.inviteLink ?? '', size: 176.u))),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 340.u),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l.pairingDesktopShowCodeLead, style: ts.bodyDim),
-                      SizedBox(height: Sp.x3),
-                      WordTiles(words: code.inviteWords, label: l.pairWordsLabel, size: WordTileSize.small, dim: expired),
-                      SizedBox(height: Sp.x3),
-                      if (expired) ...[ENotice(title: l.pairWordsExpiredTitle, text: l.pairWordsExpiredBody, tone: ETone.warn), SizedBox(height: Sp.x3)],
-                      Wrap(
-                        spacing: Sp.x2,
-                        runSpacing: Sp.x2,
-                        children: [
-                          EButton(
-                            label: l.pairWordsCopy,
-                            icon: EIcons.copy,
-                            size: EBtnSize.sm,
-                            onPressed: expired ? null : () => copyToClipboard(context, pairingWordsText(code.inviteWords), l.pairCopied),
-                          ),
-                          EButton(label: l.pairWordsNew, size: EBtnSize.sm, onPressed: _makeCode),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          ConstrainedBox(constraints: BoxConstraints(maxWidth: 720.u), child: Text(l.pairWaysLead, style: ts.bodyDim)),
           SizedBox(height: Sp.x5),
-          Divider(height: 1, color: c.line),
-          SizedBox(height: Sp.x4),
-          EField(
-            label: l.pairEnter,
-            help: l.pairEnterDesktopHint,
-            error: _enterError,
-            child: Row(
-              children: [
-                Expanded(
-                  child: EInput(
-                    key: deskPairEnterKey,
-                    controller: _enter,
-                    hint: l.pairEnterDesktopPlaceholder,
-                    invalid: _enterError != null,
-                    onChanged: (_) => setState(() => _enterError = null),
-                    onSubmitted: (_) => _go(),
+          if (net == DeskPairNet.offline) ...[ENotice(title: l.pairOfflineHint, tone: ETone.warn), SizedBox(height: Sp.x4)],
+          if (net == DeskPairNet.epicboxOff) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
+          LayoutBuilder(
+            builder: (context, box) => box.maxWidth >= 900.u
+                ? IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = 0; i < tiles.length; i++) ...[if (i > 0) SizedBox(width: Sp.x3), Expanded(child: tiles[i])],
+                      ],
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < tiles.length; i++) ...[if (i > 0) SizedBox(height: Sp.x2), tiles[i]],
+                    ],
                   ),
-                ),
-                SizedBox(width: Sp.x2),
-                EButton.primary(key: deskPairGoKey, label: l.pairTitle, busy: _busy, onPressed: _ready ? _go : null),
-              ],
-            ),
           ),
+          SizedBox(height: Sp.x5),
+          panel,
+          SizedBox(height: Sp.x5),
+          enter,
           SizedBox(height: Sp.x3),
-          Row(
-            children: [
-              Expanded(child: Text(l.pairCardHint, style: ts.small)),
-              SizedBox(width: Sp.x2),
-              EButton(key: deskPairCopyCardKey, label: l.pairCardCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyCard),
-            ],
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: EButton.ghost(
+              key: deskPairHowKey,
+              label: l.pairHowItWorks,
+              icon: EIcons.help,
+              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.pairingWays)),
+            ),
           ),
         ],
       ),
     );
+  }
 
-    final invite = EPanel(
-      title: l.pairingInviteOnline,
+  Widget _wordsPanel(AppLocalizations l, Widget nameField) {
+    final ts = context.ts;
+    final code = _code;
+    final left = code?.expiresAt?.difference(DateTime.now());
+    final expired = left != null && left.isNegative;
+    return EPanel(
+      key: deskPairWordsPanelKey,
+      title: l.pairWayWords,
+      headTrailing: left != null && !expired ? EBadge(l.pairWordsDesktopChip(pairingClock(left)), icon: EIcons.clock) : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(byHand ? l.pairOnlineLeadByHand : l.pairingDesktopInviteLead, style: ts.bodyDim),
+          if (_codeError != null) ...[
+            ENotice(
+              title: _codeError!,
+              tone: ETone.warn,
+              actionsBelow: true,
+              // No relay took the words: a message in any chat needs none.
+              actions: [
+                if (_codeNoRelay) EButton(key: deskPairUseMessageKey, label: l.pairUseMessageInstead, size: EBtnSize.sm, onPressed: () => _open(DeskPairWay.message)),
+              ],
+            ),
+            SizedBox(height: Sp.x4),
+          ],
+          if (code == null && _codeError == null) const Center(child: ESpinner()),
+          if (code != null) ...[
+            Text(l.pairWordsLead, style: ts.bodyDim),
+            SizedBox(height: Sp.x3),
+            WordTiles(words: code.inviteWords, label: l.pairWordsLabel, dim: expired),
+            SizedBox(height: Sp.x3),
+            if (expired)
+              ENotice(title: l.pairWordsExpiredTitle, text: l.pairWordsExpiredBody, tone: ETone.warn)
+            else ...[
+              Row(
+                children: [
+                  const ESpinner(),
+                  SizedBox(width: Sp.x3),
+                  Expanded(child: Semantics(liveRegion: true, child: Text(l.pairWordsWaiting, style: ts.body))),
+                ],
+              ),
+              SizedBox(height: Sp.x2),
+              Text(l.pairWordsBothOnline, style: ts.small),
+              SizedBox(height: Sp.x1),
+              Text(l.pairWordsFooter, style: ts.small),
+            ],
+            SizedBox(height: Sp.x4),
+            Wrap(
+              spacing: Sp.x2,
+              runSpacing: Sp.x2,
+              children: [
+                EButton(
+                  label: l.pairWordsCopy,
+                  icon: EIcons.copy,
+                  size: EBtnSize.sm,
+                  onPressed: expired ? null : () => copyToClipboard(context, pairingWordsText(code.inviteWords), l.pairCopied),
+                ),
+                EButton(key: deskPairNewWordsKey, label: l.pairWordsNew, size: EBtnSize.sm, onPressed: () => _makeWords(fresh: true)),
+              ],
+            ),
+          ],
           SizedBox(height: Sp.x4),
+          // The words carry the name the other side sees.
+          nameField,
+        ],
+      ),
+    );
+  }
+
+  Widget _messagePanel(AppLocalizations l, Widget nameField, bool online) {
+    final ts = context.ts;
+    final c = context.dc;
+    final sent = _sent;
+    if (sent != null) {
+      final record = ref.watch(deskPairingByIdProvider(sent.id));
+      return EPanel(
+        key: deskPairMessagePanelKey,
+        title: l.pairWayMessage,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const DeskPairSteps(current: 2),
+            SizedBox(height: Sp.x5),
+            if (_sentDone || (record != null && record.state.isPaired)) ...[
+              Semantics(header: true, child: Text(l.noticePairingReplied(ref.watch(deskPairingNameProvider(sent.id))), style: ts.h3)),
+              SizedBox(height: Sp.x4),
+              Align(alignment: AlignmentDirectional.centerStart, child: EButton.primary(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => deskAfterReply(context, ref, sent.id))),
+            ] else ...[
+              Row(
+                children: [
+                  const ESpinner(),
+                  SizedBox(width: Sp.x3),
+                  Expanded(child: Semantics(header: true, liveRegion: true, child: Text(l.pairAwaitReplyTitle, style: ts.h3))),
+                ],
+              ),
+              SizedBox(height: Sp.x2),
+              Text(l.pairAwaitReplyBody, style: ts.bodyDim),
+              SizedBox(height: Sp.x2),
+              if (sent.expiresAt != null) Text('${l.pairExpiresIn} ${pairingSpan(l, sent.expiresAt!.difference(DateTime.now()))}', style: ts.small),
+              if (online) ...[SizedBox(height: Sp.x1), Text(l.pairByItself, style: ts.small)],
+              SizedBox(height: Sp.x4),
+              Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                children: [
+                  EButton.primary(key: deskPairPasteReplyKey, label: l.pairPasteReply, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteReply),
+                  EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, l.pairInviteMessage(sent.inviteLink ?? ''), l.pairMessageCopied)),
+                  EButton(key: deskPairCancelSentKey, label: l.pairCancelInvite, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: _cancelSent),
+                ],
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+    return EPanel(
+      key: deskPairMessagePanelKey,
+      title: l.pairWayMessage,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const DeskPairSteps(current: 1),
+          SizedBox(height: Sp.x4),
+          Text(l.pairMessageLead, style: ts.bodyDim),
+          SizedBox(height: Sp.x4),
+          nameField,
+          SizedBox(height: Sp.x3),
           EField(
             label: l.pairExpiresIn,
             child: ESegmented<Duration>(
@@ -438,65 +650,186 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           Container(
             padding: EdgeInsets.all(Sp.x3),
             decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-            child: SelectableText(preview, style: ts.mono()),
+            child: SelectableText(l.pairInviteMessage('epiccash://pair/1/…'), style: ts.mono()),
           ),
           SizedBox(height: Sp.x2),
-          // By hand the invite is just as open: the warning stays.
           Text(l.pairShareWarning, style: ts.small),
-          if (byHand) ...[SizedBox(height: Sp.x1), Text(l.pairWordsNeedEpicbox, style: ts.small)],
           SizedBox(height: Sp.x4),
           Align(
-            alignment: Alignment.centerRight,
-            child: EButton.primary(key: deskPairCopyInviteKey, label: l.pairCopyInvite, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyInvite),
+            alignment: AlignmentDirectional.centerEnd,
+            child: EButton.primary(key: deskPairCopyInviteKey, label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyInvite),
           ),
         ],
       ),
     );
+  }
 
-    return EPage(
-      title: _contact == null ? l.pairTitle : l.pairWithName(_contact.name),
-      width: EPageWidth.full,
-      onBack: () => ref.read(deskNavProvider.notifier).go(DeskRoute.contacts),
-      actions: [EButton.ghost(label: l.pendingTitle, icon: EIcons.clock, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending))],
+  Widget _inPersonPanel(AppLocalizations l, Widget nameField) {
+    final ts = context.ts;
+    // A card that paired (Got words or a link took it) is gone; a new one comes with the name.
+    final card = ref.watch(deskOwnCardProvider) == null ? null : _card;
+    return EPanel(
+      key: deskPairInPersonPanelKey,
+      title: l.pairInPerson,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ConstrainedBox(constraints: BoxConstraints(maxWidth: 720.u), child: Text(l.pairLead, style: ts.bodyDim)),
-          SizedBox(height: Sp.x5),
-          if (net == DeskPairNet.offline) ...[ENotice(title: l.pairOfflineHint, tone: ETone.warn), SizedBox(height: Sp.x4)],
-          if (net == DeskPairNet.epicboxOff) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
-          // One name for both ways: the code shown in person and the invite sent online.
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 420.u),
-            child: EField(
-              label: l.pairSeenAs,
-              // Only once something needed the name, never on a page just opened (PAIR-LNX-2).
-              error: _triedInvite && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
-              child: EInput(
-                controller: _name,
-                autofocus: _name.text.isEmpty,
-                onChanged: (_) => _nameChanged(),
-                onSubmitted: (_) {
-                  if (_seenAs.isEmpty) setState(() => _triedInvite = true);
-                  _makeCode();
-                },
-              ),
-            ),
-          ),
-          SizedBox(height: Sp.x5),
-          LayoutBuilder(
-            builder: (context, box) => box.maxWidth >= 900.u
-                ? Row(
+          nameField,
+          SizedBox(height: Sp.x4),
+          if (card == null)
+            Text(l.pairNameForCode, style: ts.bodyDim)
+          else
+            Wrap(
+              spacing: Sp.x5,
+              runSpacing: Sp.x4,
+              children: [
+                Semantics(label: l.pairCodeLabel, image: true, child: EQr(card.link, size: 176.u)),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 340.u),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: show),
-                      SizedBox(width: Sp.x5),
-                      Expanded(child: invite),
+                      Text(l.pairShowCodeCaption, style: ts.bodyDim),
+                      SizedBox(height: Sp.x3),
+                      Text(l.pairCardHint, style: ts.small),
+                      SizedBox(height: Sp.x3),
+                      EButton(key: deskPairCopyCardKey, label: l.pairCardCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyCard),
                     ],
-                  )
-                : Column(children: [show, SizedBox(height: Sp.x5), invite]),
-          ),
+                  ),
+                ),
+              ],
+            ),
         ],
+      ),
+    );
+  }
+}
+
+/// One way in as a tile: its glyph, title (with a badge and an info icon where it has them),
+/// one line; selected, it carries the accent edge. A null [onTap] shows it disabled, its line
+/// saying why.
+class _DeskWayTile extends StatelessWidget {
+  const _DeskWayTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.text,
+    required this.selected,
+    required this.onTap,
+    this.badge,
+    this.info,
+  });
+
+  final IconData icon;
+  final String title;
+  final String text;
+  final bool selected;
+  final VoidCallback? onTap;
+  final Widget? badge;
+  final String? info;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final on = onTap != null;
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: on,
+      child: Material(
+        color: selected ? c.s3 : c.s1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Rad.sm),
+          side: BorderSide(color: selected ? c.accent : c.line, width: selected ? 1.5 : 1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(Sp.x4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 20.u, color: on ? c.accentText : c.faint),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: Sp.x2,
+                        runSpacing: Sp.x1,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(title, style: ts.strong.copyWith(color: on ? c.text : c.dim)),
+                          ?badge,
+                          if (info case final i?) EInfoHint(i, title: title),
+                        ],
+                      ),
+                      SizedBox(height: Sp.x1),
+                      Text(text, style: ts.small),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The step strip of Invite by message on the desktop: four bars, Invite, Reply, Finish link,
+/// Words, the current one in the accent.
+class DeskPairSteps extends StatelessWidget {
+  const DeskPairSteps({super.key, required this.current});
+
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final names = [l.pairStepInvite, l.pairStepReply, l.pairStepFinish, l.pairStepWords];
+    return Semantics(
+      container: true,
+      label: l.pairStepOf(current, names[current - 1]),
+      child: ExcludeSemantics(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var i = 0; i < names.length; i++) ...[
+              if (i > 0) SizedBox(width: Sp.x1),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      height: 3.u,
+                      decoration: BoxDecoration(
+                        color: i + 1 == current ? c.accent : (i + 1 < current ? c.accent.withValues(alpha: 0.55) : c.line),
+                        borderRadius: BorderRadius.circular(2.u),
+                      ),
+                    ),
+                    SizedBox(height: Sp.x1),
+                    // Shrinks rather than wraps or cuts.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        names[i],
+                        maxLines: 1,
+                        style: ts.small.copyWith(color: i + 1 == current ? c.text : c.dim, fontWeight: i + 1 == current ? FontWeight.w600 : null),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -511,29 +844,44 @@ Future<void> copyToClipboard(BuildContext context, String text, String toast) as
   if (context.mounted) showEToast(context, toast, tone: ETone.ok);
 }
 
-/// Opens [text]: a pairing link (invite, answer, confirm, card) or five pairing words. The
-/// invite asks "Pair with Anna?"; an answer or a confirm opens the words check.
+/// Opens [pasted]: a pairing link (invite, reply, finish link, card) or five pairing words.
+/// The invite asks "Pair with Anna?"; a reply opens the finish link to send, then the words;
+/// a finish link opens the words. A reply or finish link of a pairing that finished already
+/// (the relay was faster) only says so.
 Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pasted, {Contact? contact}) async {
   final api = ref.read(deskPairingApiProvider);
+  final l = context.l10n;
   final kind = pairingLinkKind(pasted);
   // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
   final text = pairingLinkIn(pasted) ?? pasted;
+  // The pairings already finished before this link: a late reply or finish link changes nothing.
+  final pairedBefore = {
+    for (final r in ref.read(deskPairingsProvider).value ?? const <PairingRecord>[])
+      if (r.state.isPaired) r.id,
+  };
+  bool already(PairingRecord r) {
+    if (!pairedBefore.contains(r.id) || !context.mounted) return false;
+    showEToast(context, l.pairAlreadyPaired(ref.read(deskPairingNameProvider(r.id)).isEmpty ? r.shownName : ref.read(deskPairingNameProvider(r.id))), tone: ETone.info);
+    return true;
+  }
+
   try {
     switch (kind) {
       case PairingLinkKind.invite:
         final preview = await api.openInvite(text);
         if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
       case PairingLinkKind.reply:
-        // Their answer came by hand: the confirm goes back by hand before the words, which
-        // their wallet shows only once it has it (PAIR-AND-10).
+        // Their reply came in the chat: the finish link goes back the same way before the
+        // words, which their wallet shows only once it has it (PAIR-AND-10).
         final r = await deskPairingCall(ref, (a) => a.openReply(text));
-        final confirm = await api.confirmLink(r.id).then<String?>((v) => v, onError: (Object _) => null);
-        if (confirm != null && context.mounted) {
-          await showEDialog<void>(context, builder: (_) => _ConfirmBackDialog(name: r.shownName, link: confirm));
-        }
-        if (context.mounted) await showDeskCheckWords(context, ref, r.id);
+        if (already(r)) return;
+        deskPairingFinishing.add(r.id);
+        if (context.mounted) await deskAfterReply(context, ref, r.id);
       case PairingLinkKind.confirm:
         final r = await deskPairingCall(ref, (a) => a.openConfirm(text));
+        if (already(r)) return;
+        // The joiner's wait for it is up: it moves on to the words by itself.
+        if (deskPairingStepsOnScreen.contains(r.id)) return;
         if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case PairingLinkKind.card:
         // Face to face without a camera: the other wallet's card against this wallet's own,
@@ -552,41 +900,196 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
       case null:
         final words = pairingWordParts(text);
         final preview = await api.openWords([for (final w in words) (sasWordNamed(w) ?? sasWordOfEmoji(w))?.name ?? w]);
-        if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
+        if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact, viaLink: false);
     }
   } catch (error) {
     final failure = pairingFailureOf(error);
-    if (failure == null || failure == PairingFailure.notFound || !context.mounted) rethrow;
+    if (failure == null || failure == PairingFailure.notFound || !context.mounted) {
+      // A reply no invite of this wallet's opens: the other side answered someone else's.
+      if (kind == PairingLinkKind.reply && failure == PairingFailure.notFound) throw WalletError(kind: WalletErrorKind.other, message: l.pairReplyNotHere);
+      rethrow;
+    }
     await showDeskOutcome(context, failure);
   }
 }
 
-/// The inviter's confirm to send back by hand, as the phone's Send by hand; then the words
-/// check.
-class _ConfirmBackDialog extends StatelessWidget {
-  const _ConfirmBackDialog({required this.name, required this.link});
+/// The replies whose finish link a paste or the clipboard offer is opening: the Pair page's
+/// own handling of the same answer stands back.
+final Set<String> deskPairingFinishing = {};
 
-  final String name;
+/// After the reply to this wallet's invite [id] is in: the finish link when this wallet holds
+/// one to send (the reply came in a message), then the words; only the words when the relay
+/// carried the reply and the finish link with it.
+Future<void> deskAfterReply(BuildContext context, WidgetRef ref, String id) async {
+  String? finish;
+  try {
+    finish = await ref.read(deskPairingApiProvider).confirmLink(id);
+  } on Object {
+    finish = null;
+  }
+  if (!context.mounted) return;
+  try {
+    if (finish != null) {
+      final checkNow = await showEDialog<bool>(context, dismissible: false, builder: (_) => _FinishDialog(pairingId: id, link: finish!));
+      if (checkNow != true || !context.mounted) return;
+    }
+    await showDeskCheckWords(context, ref, id);
+  } finally {
+    deskPairingFinishing.remove(id);
+  }
+}
+
+/// Invite by message, the inviter's step 3: the finish link to copy into the chat, then the
+/// words. Pops true for Check the words.
+class _FinishDialog extends ConsumerStatefulWidget {
+  const _FinishDialog({required this.pairingId, required this.link});
+
+  final String pairingId;
   final String link;
+
+  @override
+  ConsumerState<_FinishDialog> createState() => _FinishDialogState();
+}
+
+class _FinishDialogState extends ConsumerState<_FinishDialog> {
+  bool _copied = false;
+
+  Future<void> _copy() async {
+    final l = context.l10n;
+    await deskMarkPairingLinkSeen(ref, widget.link);
+    if (!mounted) return;
+    await copyToClipboard(context, l.pairFinishMessage(widget.link), l.pairMessageCopied);
+    if (mounted) setState(() => _copied = true);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
+    final c = context.dc;
+    final name = ref.watch(deskPairingNameProvider(widget.pairingId));
     return EDialog(
-      title: l.pairByHandTitle,
-      width: 520.u,
+      title: l.pairFinishTitle,
+      width: 560.u,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.pairConfirmByHandLead(name), style: ts.bodyDim),
+          const DeskPairSteps(current: 3),
+          SizedBox(height: Sp.x4),
+          Text(l.pairFinishLead(name), style: ts.bodyDim),
           SizedBox(height: Sp.x3),
-          SelectableText(link, key: deskConfirmBackLinkKey, style: ts.mono()),
+          Text(l.pairWhatTheyReceive, style: ts.label),
+          SizedBox(height: Sp.x1),
+          Container(
+            padding: EdgeInsets.all(Sp.x3),
+            decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+            child: SelectableText(l.pairFinishMessage(widget.link), key: deskConfirmBackLinkKey, style: ts.mono()),
+          ),
+          SizedBox(height: Sp.x2),
+          Text(l.pairFinishThenCheck, style: ts.small),
         ],
       ),
       actions: [
-        EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, link, l.pairCopied)),
-        EButton.primary(key: deskConfirmBackCheckKey, label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+        // Once it is copied, the words are the main step.
+        if (_copied) ...[
+          EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copy),
+          EButton.primary(key: deskConfirmBackCheckKey, label: l.sasTitle, size: EBtnSize.sm, autofocus: true, onPressed: () => Navigator.pop(context, true)),
+        ] else ...[
+          EButton(key: deskConfirmBackCheckKey, label: l.sasTitle, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton.primary(key: deskFinishCopyKey, label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, autofocus: true, onPressed: _copy),
+        ],
+      ],
+    );
+  }
+}
+
+bool _deskLooking = false;
+
+/// Looks for a pairing link on the clipboard on [trigger] and offers it once, as a dialog
+/// (Pairing UX plan 5). Nothing is read while Pairing is off or the wallet locked, or while a
+/// dialog is up. [cardOpen] while the In person panel is open.
+Future<void> deskLookForPairingLink(BuildContext context, WidgetRef ref, PairingClipTrigger trigger, {bool cardOpen = false}) async {
+  if (_deskLooking || !ref.read(deskPairsProvider)) return;
+  _deskLooking = true;
+  try {
+    bool calm() {
+      if (!context.mounted) return false;
+      Route<dynamic>? top;
+      Navigator.of(context, rootNavigator: true).popUntil((r) {
+        top = r;
+        return true;
+      });
+      return top is! PopupRoute;
+    }
+
+    if (!calm()) return;
+    final List<PairingRecord> records;
+    try {
+      records = await ref.read(deskPairingsProvider.future);
+    } on Object {
+      return;
+    }
+    final found = await ref.read(pairingClipReaderProvider).look(
+      trigger: trigger,
+      allowed: ref.read(deskPairsProvider),
+      pending: PairingClipPending.of(records, now: DateTime.now(), cardOpen: cardOpen || ref.read(deskOwnCardProvider) != null),
+      seen: ref.read(deskPairingClipSeenProvider),
+    );
+    if (found == null) return;
+    // Offered once, whatever the answer.
+    await deskMarkPairingLinkSeen(ref, found.link);
+    String name = '';
+    if (found.kind == PairingLinkKind.invite) {
+      try {
+        name = (await ref.read(deskPairingApiProvider).openInvite(found.link)).name;
+      } on Object {
+        // Expired, used or this wallet's own: nothing to offer.
+        return;
+      }
+    }
+    if (!calm() || !context.mounted) return;
+    final use = await showEDialog<bool>(context, builder: (_) => DeskPairingClipDialog(kind: found.kind, name: name));
+    if (use != true || !context.mounted) return;
+    try {
+      await deskOpenPairingText(context, ref, found.link);
+    } catch (error) {
+      if (context.mounted) showEToast(context, deskErrorText(error, context.l10n), tone: ETone.warn);
+    }
+  } finally {
+    _deskLooking = false;
+  }
+}
+
+/// "Pairing link found": what is on the clipboard, Use it or Not now. Pops true for Use it.
+class DeskPairingClipDialog extends StatelessWidget {
+  const DeskPairingClipDialog({super.key, required this.kind, this.name = ''});
+
+  final PairingLinkKind kind;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final body = switch (kind) {
+      PairingLinkKind.invite => l.pairClipInvite(name),
+      PairingLinkKind.reply => l.pairClipReply,
+      PairingLinkKind.confirm => l.pairClipFinish,
+      PairingLinkKind.card => l.pairClipCard,
+    };
+    return EDialog(
+      title: l.pairClipTitle,
+      width: 480.u,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(body, style: ts.body),
+          if (kind == PairingLinkKind.invite) ...[SizedBox(height: Sp.x2), EBadge(l.pairNameClaimed, icon: EIcons.user)],
+        ],
+      ),
+      actions: [
+        EButton(key: deskClipNotNowKey, label: l.pairNotNow, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(key: deskClipUseKey, label: l.pairClipUse, size: EBtnSize.sm, autofocus: true, onPressed: () => Navigator.pop(context, true)),
       ],
     );
   }
@@ -623,11 +1126,13 @@ class _CardBackDialog extends StatelessWidget {
   }
 }
 
-/// "Pair with Anna?" as a dialog. Pair answers and waits for the confirm in the next dialog.
-Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact}) async {
+/// "Pair with Anna?" as a dialog. Pair answers; an invite that came as a link ([viaLink]) then
+/// shows the reply to copy back (Invite by message, step 2), one found by its words the wait
+/// for the confirm.
+Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, bool viaLink = true}) async {
   final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact));
   if (answered == null || !context.mounted) return;
-  await showEDialog<void>(context, dismissible: false, builder: (_) => _WaitingDialog(pairingId: answered.id));
+  await showEDialog<void>(context, dismissible: false, builder: (_) => _WaitingDialog(pairingId: answered.id, byMessage: viaLink));
 }
 
 class _IncomingDialog extends ConsumerStatefulWidget {
@@ -730,9 +1235,12 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
 
 /// The wait for the inviter's confirm, closable; Send by hand shows the answer as a link.
 class _WaitingDialog extends ConsumerStatefulWidget {
-  const _WaitingDialog({required this.pairingId});
+  const _WaitingDialog({required this.pairingId, this.byMessage = false});
 
   final String pairingId;
+
+  /// Invite by message: the reply to copy, then the wait for the finish link.
+  final bool byMessage;
 
   @override
   ConsumerState<_WaitingDialog> createState() => _WaitingDialogState();
@@ -742,28 +1250,42 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
   Timer? _collect;
   StreamSubscription<PairingEvent>? _events;
   String? _link;
+  bool _copied = false;
+  bool _done = false;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
+    deskPairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(deskPairingApiProvider);
     _collect = Timer.periodic(const Duration(seconds: 5), (_) => api.collect().ignore());
     _events = api.events().listen((e) {
-      if (e.pairingId != widget.pairingId || !mounted) return;
+      if (e.pairingId != widget.pairingId || !mounted || _done) return;
       if (e.kind == PairingEventKind.confirmed) {
-        Navigator.pop(context);
-        unawaited(showDeskCheckWords(context, ref, widget.pairingId));
+        _finished();
       } else if (e.kind == PairingEventKind.failed && e.failure != null) {
+        _done = true;
         Navigator.pop(context);
         unawaited(showDeskOutcome(context, e.failure!, name: e.name));
       }
     });
+    if (widget.byMessage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        try {
+          final link = await api.replyLink(widget.pairingId);
+          if (mounted) setState(() => _link = link);
+        } catch (error) {
+          if (mounted) showEToast(context, deskErrorText(error, context.l10n), tone: ETone.risk);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    deskPairingStepsOnScreen.remove(widget.pairingId);
     pairingWordsOnScreen.remove(_onScreen);
     _collect?.cancel();
     _events?.cancel();
@@ -775,15 +1297,114 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
     if (mounted) setState(() => _link = link);
   }
 
+  /// Invite by message, the joiner's steps 2 and 3: the reply to copy into the chat, then the
+  /// wait for the finish link, pasted here or offered from the clipboard.
+  Widget _byMessage(AppLocalizations l, String name) {
+    final ts = context.ts;
+    final c = context.dc;
+    final link = _link;
+    final online = ref.watch(deskPairNetProvider) == DeskPairNet.online;
+    if (!_copied) {
+      return EDialog(
+        title: l.pairReplyTitle,
+        width: 560.u,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const DeskPairSteps(current: 2),
+            SizedBox(height: Sp.x4),
+            Text(l.pairReplyLead(name), style: ts.bodyDim),
+            SizedBox(height: Sp.x3),
+            Text(l.pairWhatTheyReceive, style: ts.label),
+            SizedBox(height: Sp.x1),
+            Container(
+              padding: EdgeInsets.all(Sp.x3),
+              decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+              child: link == null ? const Center(child: ESpinner()) : SelectableText(l.pairReplyMessage(link), style: ts.mono()),
+            ),
+          ],
+        ),
+        actions: [
+          EButton(label: l.pairClosed, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+          EButton.primary(key: deskReplyCopyKey, label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, autofocus: true, onPressed: link == null ? null : _copyReply),
+        ],
+      );
+    }
+    return EDialog(
+      title: l.pairAwaitFinishTitle,
+      width: 560.u,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const DeskPairSteps(current: 3),
+          SizedBox(height: Sp.x4),
+          Row(
+            children: [
+              const ESpinner(),
+              SizedBox(width: Sp.x3),
+              Expanded(child: Semantics(liveRegion: true, child: Text(l.pairAwaitFinishBody(name), style: ts.bodyDim))),
+            ],
+          ),
+          if (online) ...[SizedBox(height: Sp.x3), Text(l.pairByItself, style: ts.small)],
+        ],
+      ),
+      actions: [
+        EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: link == null ? null : _copyReply),
+        EButton(label: l.pairClosed, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+        EButton.primary(key: deskPasteFinishKey, label: l.pairPasteFinish, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteFinish),
+      ],
+    );
+  }
+
+  Future<void> _copyReply() async {
+    final link = _link;
+    if (link == null) return;
+    final l = context.l10n;
+    await deskMarkPairingLinkSeen(ref, link);
+    if (!mounted) return;
+    await copyToClipboard(context, l.pairReplyMessage(link), l.pairMessageCopied);
+    if (mounted) setState(() => _copied = true);
+  }
+
+  /// Paste finish link: the confirm in the clipboard, opened here; the words follow.
+  Future<void> _pasteFinish() async {
+    final l = context.l10n;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!mounted) return;
+    if (pairingLinkKind(text) != PairingLinkKind.confirm) {
+      showEToast(context, l.pairInvalidLink, tone: ETone.warn);
+      return;
+    }
+    await deskMarkPairingLinkSeen(ref, pairingLinkIn(text)!);
+    try {
+      await deskPairingCall(ref, (a) => a.openConfirm(pairingLinkIn(text)!));
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.warn);
+      return;
+    }
+    _finished();
+  }
+
+  /// The finish link is in (pasted, offered or by the relay): the words.
+  void _finished() {
+    if (_done || !mounted) return;
+    _done = true;
+    Navigator.pop(context);
+    unawaited(showDeskCheckWords(context, ref, widget.pairingId));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
     final name = ref.watch(deskPairingNameProvider(widget.pairingId));
     final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
+    // The finish link came another way (pasted on the page, offered, by the relay): the words.
+    if (r != null && r.state.isPaired && !_done) WidgetsBinding.instance.addPostFrameCallback((_) => _finished());
+    if (widget.byMessage) return _byMessage(l, name);
     final link = _link;
     return EDialog(
-      title: link == null ? l.pairWaitingTitle(name) : l.pairByHandTitle,
+      title: link == null ? l.pairWaitingFinish(name) : l.pairByHandTitle,
       width: 520.u,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1219,8 +1840,10 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
         PairingState.pendingInvite => (
           r.way == PairingWay.words ? l.pendingWords(pairingSpan(l, left)) : l.pendingLink(pairingSpan(l, left)),
           [
-            if (r.inviteLink != null)
-              EButton(label: l.pendingCopyLink, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, r.inviteLink!, l.pairCopied)),
+            if (r.inviteLink != null) ...[
+              EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, l.pairInviteMessage(r.inviteLink!), l.pairMessageCopied)),
+              EButton(label: l.pairPasteReply, icon: EIcons.paste, size: EBtnSize.sm, onPressed: () => _pasteReply(context, ref)),
+            ],
             if (r.inviteWords.isNotEmpty)
               EButton(
                 label: l.pendingShowWords,
@@ -1299,5 +1922,23 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
           ? EEmpty(icon: EIcons.clock, title: l.pendingEmpty)
           : ESetGroup(rows: [for (final r in pending) row(r)]),
     );
+  }
+}
+
+/// Paste reply on a Pending invites row, as on the Pair page.
+Future<void> _pasteReply(BuildContext context, WidgetRef ref) async {
+  final l = context.l10n;
+  final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+  if (!context.mounted) return;
+  if (pairingLinkKind(text) != PairingLinkKind.reply) {
+    showEToast(context, l.pairInvalidLink, tone: ETone.warn);
+    return;
+  }
+  await deskMarkPairingLinkSeen(ref, pairingLinkIn(text)!);
+  if (!context.mounted) return;
+  try {
+    await deskOpenPairingText(context, ref, text);
+  } catch (error) {
+    if (context.mounted) showEToast(context, deskErrorText(error, l), tone: ETone.warn);
   }
 }

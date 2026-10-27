@@ -11,6 +11,7 @@ import '../../advanced.dart' show NetworkMode;
 import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
+import '../../pairing_clipboard.dart' show PairingClipSeen;
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
 import 'state.dart';
@@ -183,6 +184,29 @@ class DeskSeenAs extends Notifier<String> {
     });
   }
 }
+
+/// The pairing links offered once from the clipboard or copied from here, kept in the
+/// settings as hashes (Pairing UX plan 5).
+final deskPairingClipSeenProvider = Provider<PairingClipSeen>(
+  (ref) => PairingClipSeen.decode(ref.watch(deskProvider.select((s) => s.settings.pairingClipSeen))),
+);
+
+/// [link] is never offered from the clipboard: it was offered once, or this wallet copied it.
+Future<void> deskMarkPairingLinkSeen(WidgetRef ref, String link) async {
+  final desk = ref.read(deskProvider.notifier);
+  final settings = ref.read(deskProvider).settings;
+  final next = PairingClipSeen.decode(settings.pairingClipSeen).add(link).encode();
+  try {
+    await desk.saveSettings(settings.copyWith(pairingClipSeen: next));
+  } on Object {
+    // Not kept: at worst it is offered once more.
+  }
+}
+
+/// The pairings whose message step is up on the Pair page or in a dialog (the inviter's wait
+/// for the reply, the finish link, the joiner's wait for the finish link): a link for one of
+/// them, pasted or offered, leaves the next step to that step.
+final Set<String> deskPairingStepsOnScreen = {};
 
 /// Runs [call], then reads the records again. A failure is logged by its kind.
 Future<T> deskPairingCall<T>(WidgetRef ref, Future<T> Function(PairingApi api) call) async {

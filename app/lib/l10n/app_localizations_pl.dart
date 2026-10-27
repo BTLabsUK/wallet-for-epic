@@ -14809,11 +14809,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairWhatTheyReceive => 'Co otrzyma druga osoba';
 
   @override
-  String pairShareText(String name, String link, String date) {
-    return '$name chce sparować z tobą portfele Epic Cash. Wygasa: $date.\n\nOtwórz w Epic Cash:\n$link';
-  }
-
-  @override
   String get contactsPairHint =>
       'Sparuj z innym portfelem, aby zapieczętować pliki płatności i faktury między nimi.';
 

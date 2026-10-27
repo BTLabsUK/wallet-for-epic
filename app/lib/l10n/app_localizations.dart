@@ -23141,12 +23141,6 @@ abstract class AppLocalizations {
   /// **'What they receive'**
   String get pairWhatTheyReceive;
 
-  /// The shared invite text. The link only; no code. {date} is the expiry date and time. The link stays LAST: a one-line field drops the line breaks, and text after the link would run into it.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} wants to pair Epic Cash wallets with you. Expires {date}.\n\nOpen in Epic Cash:\n{link}'**
-  String pairShareText(String name, String link, String date);
-
   /// Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link
   ///
   /// In en, this message translates to:

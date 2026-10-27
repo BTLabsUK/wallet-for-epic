@@ -3880,7 +3880,6 @@
   "pairExpiry24h": "24 小时",
   "pairExpiry7d": "7 天",
   "pairWhatTheyReceive": "对方收到的内容",
-  "pairShareText": "{name} 想与你配对 Epic Cash 钱包。过期时间：{date}。\n\n在 Epic Cash 中打开：\n{link}",
   "contactsPairHint": "与另一个钱包配对，即可密封两者之间的付款文件和账单。",
   "contactsPairLearn": "如何运作",
   "contactsPairTooltip": "与另一个钱包配对",

@@ -14771,11 +14771,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairWhatTheyReceive => 'Что получит собеседник';
 
   @override
-  String pairShareText(String name, String link, String date) {
-    return '$name предлагает сопрячь кошельки Epic Cash. Действует до: $date.\n\nОткрыть в Epic Cash:\n$link';
-  }
-
-  @override
   String get contactsPairHint =>
       'Выполните сопряжение с другим кошельком, чтобы запечатать файлы платежей и счета между ними.';
 

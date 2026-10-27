@@ -3880,7 +3880,6 @@
   "pairExpiry24h": "24 ชั่วโมง",
   "pairExpiry7d": "7 วัน",
   "pairWhatTheyReceive": "สิ่งที่อีกฝ่ายได้รับ",
-  "pairShareText": "{name} ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ หมดอายุ {date}\n\nเปิดใน Epic Cash:\n{link}",
   "contactsPairHint": "จับคู่กับกระเป๋าเงินอีกใบเพื่อปิดผนึกไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างกัน",
   "contactsPairLearn": "ทำงานอย่างไร",
   "contactsPairTooltip": "จับคู่กับกระเป๋าเงินอีกใบ",

@@ -17,7 +17,8 @@ import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
-import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
+import '../../pairing_clipboard.dart' show PairingClipTrigger;
+import '../screens/pairing/pair_screens.dart' show deskLookForPairingLink, showDeskCheckWords;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -97,7 +98,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _maybeTour();
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
+    // A pairing link copied in a chat is offered when the window comes back to the front.
+    _focus = AppLifecycleListener(
+      onResume: () => Timer(const Duration(milliseconds: 300), () {
+        if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.resume).ignore();
+      }),
+    );
   }
+
+  AppLifecycleListener? _focus;
 
   /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu).
   bool _onKey(KeyEvent e) {
@@ -153,6 +162,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _tourTimer?.cancel();
     _ownAsk?.cancel();
     _collectTimer?.cancel();
+    _focus?.dispose();
     super.dispose();
   }
 

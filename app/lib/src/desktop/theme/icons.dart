@@ -74,6 +74,8 @@ abstract final class EIcons {
   static const web = Icons.public;
   static const keyboard = Icons.keyboard_outlined;
   static const words = Icons.abc;
+  static const automatic = Icons.bolt;
+  static const chat = Icons.forum_outlined;
   static const wallet = Icons.account_balance_wallet_outlined;
   static const coins = Icons.toll_outlined;
   static const split = Icons.call_split;

@@ -3880,7 +3880,6 @@
   "pairExpiry24h": "24 godziny",
   "pairExpiry7d": "7 dni",
   "pairWhatTheyReceive": "Co otrzyma druga osoba",
-  "pairShareText": "{name} chce sparować z tobą portfele Epic Cash. Wygasa: {date}.\n\nOtwórz w Epic Cash:\n{link}",
   "contactsPairHint": "Sparuj z innym portfelem, aby zapieczętować pliki płatności i faktury między nimi.",
   "contactsPairLearn": "Jak to działa",
   "contactsPairTooltip": "Sparuj z innym portfelem",

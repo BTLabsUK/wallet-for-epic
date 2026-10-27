@@ -19091,24 +19091,6 @@
   "@pairWhatTheyReceive": {
     "description": "Label above the share text preview."
   },
-  "pairShareText": "{name} wants to pair Epic Cash wallets with you. Expires {date}.\n\nOpen in Epic Cash:\n{link}",
-  "@pairShareText": {
-    "description": "The shared invite text. The link only; no code. {date} is the expiry date and time. The link stays LAST: a one-line field drops the line breaks, and text after the link would run into it.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      },
-      "link": {
-        "type": "String",
-        "example": "epiccash://pair/1/eyJm…b71a"
-      },
-      "date": {
-        "type": "String",
-        "example": "26 Oct, 09:41"
-      }
-    }
-  },
   "contactsPairHint": "Pair with another wallet to seal payment files and invoices between the two.",
   "@contactsPairHint": {
     "description": "Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link"

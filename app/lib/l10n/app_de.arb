@@ -3880,7 +3880,6 @@
   "pairExpiry24h": "24 Stunden",
   "pairExpiry7d": "7 Tage",
   "pairWhatTheyReceive": "Was die andere Seite erhält",
-  "pairShareText": "{name} möchte Epic-Cash-Wallets mit Ihnen koppeln. Läuft ab: {date}.\n\nIn Epic Cash öffnen:\n{link}",
   "contactsPairHint": "Koppeln Sie mit einer anderen Wallet, um Zahlungsdateien und Rechnungen zwischen beiden zu versiegeln.",
   "contactsPairLearn": "So funktioniert es",
   "contactsPairTooltip": "Mit einer anderen Wallet koppeln",

@@ -3880,7 +3880,6 @@
   "pairExpiry24h": "24 часа",
   "pairExpiry7d": "7 дней",
   "pairWhatTheyReceive": "Что получит собеседник",
-  "pairShareText": "{name} предлагает сопрячь кошельки Epic Cash. Действует до: {date}.\n\nОткрыть в Epic Cash:\n{link}",
   "contactsPairHint": "Выполните сопряжение с другим кошельком, чтобы запечатать файлы платежей и счета между ними.",
   "contactsPairLearn": "Как это работает",
   "contactsPairTooltip": "Сопрячь с другим кошельком",

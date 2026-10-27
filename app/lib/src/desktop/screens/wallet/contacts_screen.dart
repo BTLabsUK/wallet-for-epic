@@ -10,9 +10,12 @@ import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds;
 import '../../../ui/method_names.dart' show recipientMethodWord;
-import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
+import '../../../help/help_content.dart' show HelpId;
+import '../../../pairing_clipboard.dart' show PairingClipTrigger;
+import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
 import '../pairing/pair_screens.dart';
+import '../settings/help_pairing.dart' show HelpAt;
 import 'contacts_transfer.dart';
 import 'tx_display.dart';
 
@@ -49,6 +52,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   late bool _adding = _args.adding;
   final _query = TextEditingController();
   _Sort _sort = _Sort.name;
+
+  @override
+  void initState() {
+    super.initState();
+    // A pairing link copied in a chat is offered here too (Pairing UX plan 5).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
+    });
+  }
 
   @override
   void dispose() {
@@ -124,7 +136,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         title: l.deskConTitle,
         width: EPageWidth.narrow,
         // Import contacts fills an empty book.
-        actions: const [ContactsMoreButton()],
+        actions: [if (ref.watch(deskPairsProvider)) const DeskContactsPairButton(), const ContactsMoreButton()],
         child: Container(
           decoration: panel,
           child: _Empty(onAdd: _add),
@@ -202,6 +214,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ),
           Divider(height: 1, color: c.line),
           ],
+          // What pairing is for, while nobody is paired yet.
+          if (ref.watch(deskPairsProvider) && q.isEmpty && ref.watch(deskPairedProvider).isEmpty) ...[
+            const DeskPairHint(),
+            Divider(height: 1, color: c.line),
+          ],
           // Pairings in no contact, by the name they chose (PAIR-AND-8).
           for (final r in orphans)
             if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
@@ -250,26 +267,17 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       title: l.deskConTitle,
       width: EPageWidth.full,
       actions: [
-        // In a phone-wide window the pairing actions are icons (named in their tooltips), so
-        // the bar keeps room for the title and Add contact at any text size.
+        // Pair in one place, labelled at every width and never gold (Pairing UX plan 4.3). In a
+        // phone-wide window Pending invites folds into it.
         if (ref.watch(deskPairsProvider)) ...[
-          if (ref.watch(deskPendingPairingsProvider).isNotEmpty)
-            if (compactBar)
-              EIconButton(
-                label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
-                icon: EIcons.clock,
-                onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
-              )
-            else
-              EButton.ghost(
-                label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
-                icon: EIcons.clock,
-                onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
-              ),
-          if (compactBar)
-            EIconButton(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair))
-          else
-            EButton.ghost(label: l.pairTitle, icon: EIcons.trusted, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair)),
+          if (ref.watch(deskPendingPairingsProvider).isNotEmpty && !compactBar)
+            EButton.ghost(
+              key: deskContactsPendingKey,
+              label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
+              icon: EIcons.clock,
+              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
+            ),
+          DeskContactsPairButton(foldPending: compactBar),
         ],
         if (_adding || _editing)
           EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
@@ -359,6 +367,7 @@ class _Empty extends ConsumerWidget {
               EButton.ghost(label: l.deskConSendToAddress, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
             ],
           ),
+          if (ref.watch(deskPairsProvider)) ...[SizedBox(height: Sp.x5), const DeskPairHint(center: true)],
         ],
       ),
     );
@@ -503,7 +512,9 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                             child: Icon(EIcons.star, size: 14.u, color: c.accentText),
                           ),
                         if (ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id)) : null case final p?)
-                          Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true)),
+                          Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true))
+                        else if (ref.watch(deskPairsProvider) && deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id))
+                          Padding(padding: EdgeInsets.only(left: Sp.x2), child: const PairPendingBadge()),
                       ],
                     ),
                   ),
@@ -572,13 +583,33 @@ class _ContactDetail extends ConsumerWidget {
           runSpacing: Sp.x2,
           children: [
             // A contact with no address is paid through its pairing, while it can take one.
-            EButton.primary(
+            // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
+            EButton(
               key: const ValueKey('contact-send'),
+              kind: EBtnKind.primarySoft,
               label: l.deskConSend,
               icon: EIcons.send,
               size: EBtnSize.sm,
               onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
             ),
+            if (pairs && pairing == null)
+              deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
+                  ? EButton(
+                      key: deskContactPairKey,
+                      label: l.pairBadgePending,
+                      busy: true,
+                      tooltip: l.pairBadgePendingTip,
+                      size: EBtnSize.sm,
+                      onPressed: () => nav.go(DeskRoute.pairPending),
+                    )
+                  : EButton(
+                      key: deskContactPairKey,
+                      label: l.pairTitle,
+                      icon: EIcons.trusted,
+                      tooltip: l.pairWithName(x.name),
+                      size: EBtnSize.sm,
+                      onPressed: () => nav.go(DeskRoute.pair, x),
+                    ),
             EButton(label: l.deskConEdit, icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
             EButton(
               label: x.favourite ? l.deskConUnstar : l.deskConStar,
@@ -1208,6 +1239,108 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// The Contacts header's Pair (secondary, glyph and label), and its key.
+const Key deskContactsPairKey = ValueKey('desk-contacts-pair');
+const Key deskContactsPendingKey = ValueKey('desk-contacts-pending');
+const Key deskContactPairKey = ValueKey('desk-contact-pair');
+const Key deskPairHintKey = ValueKey('desk-pair-hint');
+const Key deskPairLearnKey = ValueKey('desk-pair-learn');
+
+/// An invite or answer for the contact [contactId] is in flight.
+bool deskPairingInFlight(List<PairingRecord>? all, String contactId) =>
+    (all ?? const <PairingRecord>[]).any((r) => r.contactId == contactId && r.state.isPending);
+
+/// Pair in the Contacts header. With [foldPending] (a phone-wide window) and invites in
+/// flight it reads "Pair · 2" and opens a menu of Pair and Pending invites.
+class DeskContactsPairButton extends ConsumerWidget {
+  const DeskContactsPairButton({super.key, this.foldPending = false});
+
+  final bool foldPending;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final nav = ref.read(deskNavProvider.notifier);
+    final pending = ref.watch(deskPendingPairingsProvider).length;
+    if (!foldPending || pending == 0) {
+      return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, tooltip: l.contactsPairTooltip, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair));
+    }
+    Widget item(IconData icon, String label, VoidCallback run) => MenuItemButton(
+      onPressed: run,
+      style: ButtonStyle(
+        minimumSize: WidgetStatePropertyAll(Size(200.u, 40.u)),
+        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
+        backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.s3 : null),
+      ),
+      leadingIcon: Icon(icon, size: Ctl.iconSm, color: c.dim),
+      child: Text(label, style: ts.body),
+    );
+    return MenuAnchor(
+      consumeOutsideTap: true,
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(c.s4),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong))),
+      ),
+      menuChildren: [
+        item(EIcons.trusted, l.pairTitle, () => nav.go(DeskRoute.pair)),
+        item(EIcons.clock, '${l.pendingTitle} · $pending', () => nav.go(DeskRoute.pairPending)),
+      ],
+      builder: (context, controller, _) => CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
+        child: EButton(
+          key: deskContactsPairKey,
+          label: '${l.pairTitle} · $pending',
+          icon: EIcons.trusted,
+          tooltip: l.contactsPairTooltip,
+          size: EBtnSize.sm,
+          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+        ),
+      ),
+    );
+  }
+}
+
+/// The line over the list while no contact is paired: what pairing is for and How it works
+/// (Help › Pairing › Three ways to pair). Pair itself is in the header only.
+class DeskPairHint extends ConsumerWidget {
+  const DeskPairHint({super.key, this.center = false});
+
+  /// In the empty book, under its buttons.
+  final bool center;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final learn = EButton.ghost(
+      key: deskPairLearnKey,
+      label: l.contactsPairLearn,
+      size: EBtnSize.inline,
+      onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.pairingWays)),
+    );
+    final text = Text(l.contactsPairHint, style: ts.small, textAlign: center ? TextAlign.center : TextAlign.start);
+    if (center) return Column(key: deskPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, SizedBox(height: Sp.x1), learn]);
+    return Padding(
+      key: deskPairHintKey,
+      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+      child: Row(
+        children: [
+          Icon(EIcons.trusted, size: 16.u, color: c.dim),
+          SizedBox(width: Sp.x3),
+          Expanded(child: text),
+          SizedBox(width: Sp.x2),
+          learn,
+        ],
+      ),
     );
   }
 }

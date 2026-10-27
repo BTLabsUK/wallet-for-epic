@@ -1031,6 +1031,7 @@ class DeskSettings {
     this.advanced = AdvancedPrefs.none,
     this.payments = PaymentPrefs.defaults,
     this.pairingSeenAs = '',
+    this.pairingClipSeen = '',
   });
 
   final ThemeChoice theme;
@@ -1038,6 +1039,10 @@ class DeskSettings {
   /// The name other wallets see when this one pairs ("They will see you as"), as the phone
   /// keeps it; empty until the user gave one.
   final String pairingSeenAs;
+
+  /// The pairing links offered once from the clipboard, or copied from this wallet, as their
+  /// hashes (`PairingClipSeen.encode`): never offered again. Never the links themselves.
+  final String pairingClipSeen;
 
   /// Interface scale in percent, one of [deskScales]: text and layout together.
   final int scale;
@@ -1126,6 +1131,7 @@ class DeskSettings {
     AdvancedPrefs? advanced,
     PaymentPrefs? payments,
     String? pairingSeenAs,
+    String? pairingClipSeen,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -1150,6 +1156,7 @@ class DeskSettings {
     payments: payments ?? this.payments,
     advanced: advanced ?? this.advanced,
     pairingSeenAs: pairingSeenAs ?? this.pairingSeenAs,
+    pairingClipSeen: pairingClipSeen ?? this.pairingClipSeen,
   );
 }
 

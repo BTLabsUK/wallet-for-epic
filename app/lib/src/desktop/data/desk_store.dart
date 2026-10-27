@@ -280,6 +280,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'advanced': s.advanced.toJson(),
   'payments': s.payments.toJson(),
   if (s.pairingSeenAs.isNotEmpty) 'pairingSeenAs': s.pairingSeenAs,
+  if (s.pairingClipSeen.isNotEmpty) 'pairingClipSeen': s.pairingClipSeen,
 };
 
 /// Each value of the wrong type falls back to its default, so bad saved data cannot block
@@ -301,8 +302,10 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final public = j['publicMode'];
   final port = j['httpPort'];
   final seenAs = j['pairingSeenAs'];
+  final clipSeen = j['pairingClipSeen'];
   return DeskSettings(
     pairingSeenAs: seenAs is String ? seenAs.trim() : d.pairingSeenAs,
+    pairingClipSeen: clipSeen is String ? clipSeen : d.pairingClipSeen,
     theme: ThemeChoice.values.where((t) => t.name == j['theme']).firstOrNull ?? d.theme,
     scale: scale is int && deskScales.contains(scale) ? scale : d.scale,
     language: language is String && appLanguages.any((a) => a.code == language) ? language : null,

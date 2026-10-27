@@ -14418,11 +14418,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairWhatTheyReceive => 'What they receive';
 
   @override
-  String pairShareText(String name, String link, String date) {
-    return '$name wants to pair Epic Cash wallets with you. Expires $date.\n\nOpen in Epic Cash:\n$link';
-  }
-
-  @override
   String get contactsPairHint =>
       'Pair with another wallet to seal payment files and invoices between the two.';
 

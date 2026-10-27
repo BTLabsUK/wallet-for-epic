@@ -14595,11 +14595,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairWhatTheyReceive => 'Was die andere Seite erhält';
 
   @override
-  String pairShareText(String name, String link, String date) {
-    return '$name möchte Epic-Cash-Wallets mit Ihnen koppeln. Läuft ab: $date.\n\nIn Epic Cash öffnen:\n$link';
-  }
-
-  @override
   String get contactsPairHint =>
       'Koppeln Sie mit einer anderen Wallet, um Zahlungsdateien und Rechnungen zwischen beiden zu versiegeln.';
 
