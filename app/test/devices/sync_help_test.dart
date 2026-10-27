@@ -112,7 +112,7 @@ void main() {
           await _pump(tester, SyncDiagram(thisIsPhone: !desk), width: width, desk: desk, reducedMotion: still);
           await tester.pump(syncHelpStepDuration ~/ 2);
           expect(tester.takeException(), isNull, reason: 'width $width still $still');
-          final picture = tester.getSize(find.byType(CustomPaint).first);
+          final picture = tester.getSize(find.byKey(syncHelpPictureKey));
           expect(picture.width, lessThanOrEqualTo(width - 40), reason: 'width $width');
           expect(picture.width, greaterThan(200), reason: 'width $width');
         }

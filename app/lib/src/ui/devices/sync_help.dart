@@ -41,6 +41,13 @@ const Key syncHelpStillKey = ValueKey('syncHelpStill');
 /// The status panel's Link a device slot.
 const Key syncHelpLinkKey = ValueKey('syncHelpLink');
 
+/// The drawing itself (its painter), moving or still.
+const Key syncHelpPictureKey = ValueKey('syncHelpPicture');
+
+/// The strings: the tree's, else English, as the desktop reads them (its windows carry no
+/// Localizations widget in some tests and dialogs).
+AppLocalizations _strings(BuildContext context) => Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
+
 /// The colours and text styles the picture and the panel draw with, from the phone's
 /// [WalletTokens] or the desktop's [DeskColors], whichever the theme carries. Sizes in dp on the
 /// phone and in desktop units ([DeskUnits]) on the desktop, through [u].
@@ -179,7 +186,7 @@ class _SyncDiagramState extends State<SyncDiagram> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = SyncHelpStyle.of(context);
     final servers = widget.servers.clamp(1, 2);
     final captions = [l.syncHelpStep1, l.syncHelpStep2(servers), l.syncHelpStep3, l.syncHelpStep4];
@@ -221,7 +228,7 @@ class _Frame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = style;
     final label = s.label;
     return DecoratedBox(
@@ -285,7 +292,7 @@ class _Animated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = style;
     final step = math.min((value * _steps).floor(), _steps - 1);
     return Column(
@@ -306,7 +313,7 @@ class _Animated extends StatelessWidget {
               style: s,
               servers: servers,
               corner: Icon(paused ? Icons.play_arrow : Icons.pause, size: s.u(16), color: s.dim),
-              picture: CustomPaint(painter: _SyncPainter(value: value, servers: servers, thisIsPhone: thisIsPhone, style: s)),
+              picture: CustomPaint(key: syncHelpPictureKey, painter: _SyncPainter(value: value, servers: servers, thisIsPhone: thisIsPhone, style: s)),
             ),
           ),
         ),
@@ -360,7 +367,7 @@ class _Still extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = style;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -373,7 +380,7 @@ class _Still extends StatelessWidget {
           child: _Frame(
             style: s,
             servers: servers,
-            picture: CustomPaint(painter: _SyncPainter(value: null, servers: servers, thisIsPhone: thisIsPhone, style: s)),
+            picture: CustomPaint(key: syncHelpPictureKey, painter: _SyncPainter(value: null, servers: servers, thisIsPhone: thisIsPhone, style: s)),
           ),
         ),
         SizedBox(height: s.u(10)),
@@ -745,7 +752,7 @@ class SyncStatusPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = SyncHelpStyle.of(context);
     final book = view?.book;
     final devices = view?.devices ?? const <LinkedDevice>[];
@@ -879,7 +886,7 @@ class _Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _strings(context);
     final s = style;
     return Row(
       children: [
