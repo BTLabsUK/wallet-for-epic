@@ -4,18 +4,33 @@ set -euo pipefail
 target="${WFE_TARGET:-lib/main_desktop.dart}"
 # pubspec.yaml's YY.MM.patch, with a test build's -rcN; never the +build (https://docs.btlabs.uk/developers/releases/).
 version="$(sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' /work/app/pubspec.yaml)"
-# WFE_TOR=0: the build without Tor (lib/src/tor_build.dart); its AppImage says so in its name.
+# WFE_TOR=0: the build without Tor (lib/src/tor_build.dart), with LEPIC built without its tor
+# feature (no lepic-tor in liblepic_ffi.so); its AppImage says so in its name.
 notor=()
+lepic_notor=()
 variant=
 if [[ "${WFE_TOR:-1}" = 0 ]]; then
   notor=(--dart-define=WFE_TOR=false)
+  lepic_notor=(--no-tor)
   variant=-notor
 fi
 
+native=/work/app/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu
 if [[ "${WFE_BUILD_LEPIC:-1}" = 1 ]]; then
-  echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)"
+  echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)${lepic_notor[*]:+ without Tor}"
   (cd /work/app/third_party/lepic && cargo xtask mobile --package --target x86_64-unknown-linux-gnu \
-    --out /work/app/third_party/lepic-flutter/native)
+    ${lepic_notor[@]+"${lepic_notor[@]}"} --out /work/app/third_party/lepic-flutter/native)
+fi
+# The library must match the switch, also when an earlier run built it (WFE_BUILD_LEPIC=0). LEPIC
+# writes the lepic-ffi features next to it; a library from before that file has Tor.
+if [[ -f "$native/liblepic_ffi.so" ]]; then
+  lepic_tor=1
+  [[ -f "$native/FEATURES" ]] && ! grep -qx tor "$native/FEATURES" && lepic_tor=0
+  if [[ "$lepic_tor" != "$([[ ${#lepic_notor[@]} -eq 0 ]] && echo 1 || echo 0)" ]]; then
+    echo "liblepic_ffi.so was built $([[ $lepic_tor = 1 ]] && echo with || echo without) Tor," \
+      "but WFE_TOR=${WFE_TOR:-1}: build LEPIC again (WFE_BUILD_LEPIC=1)" >&2
+    exit 1
+  fi
 fi
 
 echo "== flutter build linux --release -t $target"

@@ -12,8 +12,9 @@
 # <output-dir>/emulator/: never published, not in SHA256SUMS.
 #
 # WFE_TOR=0 builds the version without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false,
-# no tor fetched or packed (android/app/build.gradle.kts), -notor in the APK names, and the
-# checks turned round: no libtor.so, no Tor licence, libraries stored uncompressed.
+# no tor fetched or packed (android/app/build.gradle.kts), LEPIC built without its tor feature,
+# -notor in the APK names, and the checks turned round: no libtor.so, no Tor code in
+# liblepic_ffi.so, no Tor licence, libraries stored uncompressed.
 #
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
 # updater refuses a verified manifest whose packageName differs from the installed app's
@@ -56,16 +57,20 @@ services="$app_dir/android/app/google-services.json"
 grep -q "\"package_name\": *\"$want_package\"" "$services" \
   || { echo "android/app/google-services.json has no client for $want_package" >&2; exit 1; }
 
-cd "$app_dir"
-flutter pub get
-[[ $tor == 1 ]] && "$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
-"$app_dir/../tools/lepic.sh" sync
-"$app_dir/../tools/lepic.sh" build android
-
-apks="$app_dir/build/app/outputs/flutter-apk"
 # The build without Tor names its APKs epic-cash-mobile-<version>-notor-<abi>.apk.
 tor=1 variant=
 if [[ "${WFE_TOR:-1}" == 0 ]]; then tor=0 variant=-notor; fi
+
+cd "$app_dir"
+flutter pub get
+if [[ $tor == 1 ]]; then
+  "$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
+fi
+"$app_dir/../tools/lepic.sh" sync
+# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0.
+WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
+
+apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
 rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
 
@@ -131,6 +136,16 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   # Only the APK's own ABI: the QR scanner's AAR also carries a 32-bit ARM libbarhopper_v3.so
   # that is not 16 KB aligned.
   for a in "${abis[@]}"; do unzip -q "$apk" "lib/$a/*.so" -d "$unpacked"; done
+  # LEPIC's Tor code (lepic-tor) names itself in the library's strings; without Tor it is not
+  # compiled in.
+  for a in "${abis[@]}"; do
+    lepic_tor="$(LC_ALL=C grep -ac 'lepic_tor\|lepic-tor' "$unpacked/lib/$a/liblepic_ffi.so" || true)"
+    if [[ $tor == 1 ]]; then
+      [[ "$lepic_tor" != 0 ]] && r=0 || r=1; check "lib/$a/liblepic_ffi.so has LEPIC's Tor" $r
+    else
+      [[ "$lepic_tor" == 0 ]] && r=0 || r=1; check "lib/$a/liblepic_ffi.so has no Tor code" $r
+    fi
+  done
   while IFS= read -r so; do
     r=0
     while read -r align; do (( align >= 16384 )) || r=1; done \

@@ -26,8 +26,8 @@ param(
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
     # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
-    # The build without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false, no Tor bundle
-    # (-TorBundle is refused), -notor in the installer's name.
+    # The build without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false, LEPIC without
+    # its tor feature, no Tor bundle (-TorBundle is refused), -notor in the installer's name.
     [switch]$NoTor,
     # The commit shown beside the version in the app (WFE_BUILD_ID); default: -Source's HEAD.
     [string]$BuildId,
@@ -96,7 +96,9 @@ Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue
 $env:RUSTFLAGS = '-C target-feature=+crt-static'
 Push-Location $clone
 try {
-    cargo xtask mobile --package --target x86_64-pc-windows-msvc --out (Join-Path $binding 'native')
+    # -NoTor: LEPIC without its tor feature, so lepic_ffi.dll carries no Tor code either.
+    $lepicNoTor = if ($NoTor) { @('--no-tor') } else { @() }
+    cargo xtask mobile --package --target x86_64-pc-windows-msvc @lepicNoTor --out (Join-Path $binding 'native')
     if ($LASTEXITCODE) { throw 'LEPIC build failed' }
 } finally { Pop-Location; Remove-Item Env:RUSTFLAGS }
 $ffi = Get-ChildItem (Join-Path $binding 'native') -Recurse -Filter lepic_ffi.dll | Sort-Object LastWriteTime -Descending | Select-Object -First 1
