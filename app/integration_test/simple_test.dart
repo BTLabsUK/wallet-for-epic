@@ -179,6 +179,11 @@ void main() {
       ),
     );
 
+    // Welcome first: Create a new wallet opens the PIN setup.
+    final create = find.text('Create a new wallet');
+    await _pumpUntil(tester, create);
+    await tester.tap(create);
+    await tester.pump();
     await _pumpUntil(tester, find.widgetWithText(TextField, 'PIN'));
     await _enter(tester, 'PIN', '123456');
     await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
