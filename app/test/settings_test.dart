@@ -1701,25 +1701,15 @@ void main() {
       expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
     });
 
-    testWidgets('the one-time reminder comes a minute after unlock, once', (
+    testWidgets('no notifications reminder after unlock (removed in 26.10.17)', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      // A minute from the unlock; the relay's settle took part of it.
-      await tester.pump(const Duration(seconds: 59) - pushRelaySettle);
-      expect(find.byKey(noticeKey), findsNothing);
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 90));
       await tester.pumpAndSettle();
-      expect(
-        find.descendant(
-          of: find.byKey(noticeKey),
-          matching: find.text('Notifications are available in Settings › Advanced.'),
-        ),
-        findsOneWidget,
-      );
-      expect(h.store.values['app.push_hint_shown'], 'true');
+      expect(find.byKey(noticeKey), findsNothing);
     });
 
     testWidgets('no reminder once it was shown', (tester) async {

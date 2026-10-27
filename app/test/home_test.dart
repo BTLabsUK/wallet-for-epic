@@ -2055,7 +2055,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       await _tap(tester, find.widgetWithText(OutlinedButton, 'Cancel payment'));
-      expect(find.textContaining('unlock its funds'), findsOneWidget);
+      expect(find.textContaining('Cancelling frees your coins'), findsOneWidget);
       expect(find.textContaining('rescan'), findsNothing);
     });
 
@@ -3594,6 +3594,11 @@ void main() {
       final handle = tester.ensureSemantics();
       final h = _Harness(still: true);
       await h.pump(tester);
+      // No sends of its own in flight: their change is never Waiting for sender.
+      h.session.transactionsValue = [
+        for (final t in h.session.transactionsValue)
+          if (t.confirmed) t,
+      ];
       h.session.summaryValue = _balances(
         spendable: 3.25,
         confirming: 2,

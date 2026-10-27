@@ -4,7 +4,7 @@
 // right after reading. Never prints the phrase or the password.
 import 'dart:io';
 
-import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider;
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -40,10 +40,17 @@ void main() {
     await typeIn(tester, 1, password);
     await settle(tester);
     await tapText(tester, 'Restore wallet', last: true);
-    await waitText(tester, 'Unlock wallet', timeout: const Duration(minutes: 4));
-    record('restore: wallet restored, lands on Unlock', true, texts().where((t) => t.contains('added')).join());
-    await typeIn(tester, 0, password);
-    await tapText(tester, 'Unlock', last: true);
+    // First run: Setup (node, Epicbox, review) after the restore; Skip keeps the defaults.
+    await waitText(tester, RegExp('Skip setup|Unlock wallet|Available to spend'), timeout: const Duration(minutes: 4));
+    record('restore: wallet restored', true, texts().where((t) => t.contains('added')).join());
+    if (hasText('Skip setup')) {
+      await tapText(tester, 'Skip setup');
+      await waitText(tester, RegExp('Unlock wallet|Available to spend|Skip tour'), timeout: const Duration(seconds: 120));
+    }
+    if (hasText('Unlock wallet')) {
+      await typeIn(tester, 0, password);
+      await tapText(tester, 'Unlock', last: true);
+    }
     await waitText(tester, 'Available to spend', timeout: const Duration(seconds: 150));
     await settle(tester, ms: 2500);
     if (hasText('Skip tour')) await tapText(tester, 'Skip tour');
@@ -51,7 +58,15 @@ void main() {
     await shot(tester, '22-restored-overview');
     final got = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).epicboxAddress());
     record('restore: same receive address as the first wallet', got == wantAddr, got == wantAddr ? 'identical (${got!.replaceAll(RegExp(r'^[^@]+'), '<id>')})' : 'DIFFERENT: ${got!.replaceAll(RegExp(r'^[^@]+'), '<id>')} vs ${wantAddr.replaceAll(RegExp(r'^[^@]+'), '<id>')}');
-    record('restore: node online with a height', RegExp(r'Height \d').hasMatch(texts().join(' ')), '');
+    final height = await tester.runAsync(() async {
+      for (var i = 0; i < 60; i++) {
+        final st = containerOf(tester).read(deskProvider).status;
+        if (st != null && st.nodeHeight > 0) return st.nodeHeight;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      return 0;
+    });
+    record('restore: node online with a height', (height ?? 0) > 0, 'height $height');
     record('restore: no Flutter exceptions', flutterErrors.isEmpty, flutterErrors.take(3).join(' / '));
   }, timeout: const Timeout(Duration(minutes: 15)));
 }
