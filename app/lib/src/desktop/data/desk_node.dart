@@ -608,7 +608,7 @@ class MockDeskNode implements DeskNodeApi {
 
   @override
   Future<OwnerCheck> addOwnerSecret(String url, String secret) async {
-    calls.add('owner add $url');
+    calls.add('owner add $url');  // l10n-ok: mock call log
     if (secret.trim() != ownerSecret) return OwnerCheck.refused;
     await ownerSecrets.write(ownerSecretKey(url), secret.trim());
     return OwnerCheck.ok;
@@ -616,7 +616,7 @@ class MockDeskNode implements DeskNodeApi {
 
   @override
   Future<void> removeOwnerSecret(String url) async {
-    calls.add('owner remove $url');
+    calls.add('owner remove $url');  // l10n-ok: mock call log
     await ownerSecrets.delete(ownerSecretKey(url));
   }
 
