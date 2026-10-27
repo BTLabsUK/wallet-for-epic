@@ -213,6 +213,17 @@ void main() {
       expect(find.byType(MarkedQr), findsOneWidget);
       expect(find.text('Receive by payment file'), findsNothing);
       expect(find.text('How receiving works'), findsOneWidget);
+      // The code is covered on open (the QR rule); Show QR uncovers it in the same box, a
+      // tap on the code covers it again.
+      final box = tester.getRect(find.byType(MarkedQr));
+      expect(find.byKey(receiveShowQrKey), findsOneWidget);
+      await tester.tap(find.text('Show QR'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(receiveShowQrKey), findsNothing);
+      expect(tester.getRect(find.byType(MarkedQr)), box);
+      await tester.tap(find.byType(MarkedQr));
+      await tester.pumpAndSettle();
+      expect(find.byKey(receiveShowQrKey), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
       await h.byFile(tester);
       expect(find.text('Receive by payment file'), findsOneWidget);
@@ -717,9 +728,9 @@ void main() {
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, [incoming]);
       await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'incoming.response');
+      expect(h.files.saved.single.name, 'from-bob.tx.response');
       await _tap(tester, find.text('Share'));
-      expect(h.files.shared.single.name, 'incoming.response');
+      expect(h.files.shared.single.name, 'from-bob.tx.response');
       expect(find.text('Copy reply'), findsNothing);
     });
 
