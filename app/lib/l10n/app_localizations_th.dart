@@ -3579,7 +3579,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'กระเป๋าของคุณส่งรายการไปยังเซิร์ฟเวอร์ เหรียญของคุณถูกพักไว้';
+      'กระเป๋าของคุณส่งรายการไปยังเซิร์ฟเวอร์ Epicbox เหรียญของคุณถูกพักไว้';
 
   @override
   String get handshakePay2 =>
@@ -3593,7 +3593,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakeConfirm => 'เครือข่ายยืนยันรายการ';
 
   @override
-  String get handshakeReq1 => 'กระเป๋าของคุณส่งคำขอไปยังเซิร์ฟเวอร์';
+  String get handshakeReq1 => 'กระเป๋าของคุณส่งคำขอไปยังเซิร์ฟเวอร์ Epicbox';
 
   @override
   String get handshakeReq2 =>
@@ -3606,7 +3606,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakeFile => 'โอนไฟล์';
 
   @override
-  String get handshakeBack => 'กระเป๋าของอีกฝ่ายส่งกลับไปยังเซิร์ฟเวอร์';
+  String get handshakeBack =>
+      'กระเป๋าของอีกฝ่ายส่งกลับไปยังเซิร์ฟเวอร์ Epicbox';
 
   @override
   String get handshakeRelayBack => 'เซิร์ฟเวอร์ส่งกลับมายังกระเป๋าของคุณ';
@@ -5259,11 +5260,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'มีการชำระเงินสำหรับใบแจ้งหนี้ที่อุปกรณ์นี้ไม่ได้ออกเข้ามา ระบบจะเก็บไว้บนรีเลย์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
+      'มีการชำระเงินสำหรับใบแจ้งหนี้ที่อุปกรณ์นี้ไม่ได้ออกเข้ามา ระบบจะเก็บไว้บนเซิร์ฟเวอร์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'มีคำตอบของการชำระเงินที่อุปกรณ์นี้ไม่ได้ส่งเข้ามา ระบบจะเก็บไว้บนรีเลย์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
+      'มีคำตอบของการชำระเงินที่อุปกรณ์นี้ไม่ได้ส่งเข้ามา ระบบจะเก็บไว้บนเซิร์ฟเวอร์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
 
   @override
   String get deskInvPayerWaitingHead => 'รอคุณตอบ';
@@ -13178,7 +13179,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการเซิร์ฟเวอร์และการ์ดสถานะ และแสดงที่อยู่รีเลย์ใน รับ';
+      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการเซิร์ฟเวอร์และการ์ดสถานะ และแสดงที่อยู่ Epicbox ใน รับ';
 
   @override
   String get advRecheckHeight => 'ตรวจยอดใหม่จากบล็อกที่กำหนด';
@@ -13624,7 +13625,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox จ่ายผ่านรีเลย์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อรีเลย์ใด ไม่มีการจ่ายผ่าน Epicbox ใบแจ้งหนี้ หรือการแจ้งเตือน วิธีอื่นยังใช้ได้';
+      'Epicbox จ่ายผ่านเซิร์ฟเวอร์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ใด ไม่มีการจ่ายผ่าน Epicbox ใบแจ้งหนี้ หรือการแจ้งเตือน วิธีอื่นยังใช้ได้';
 
   @override
   String get txDirectLine =>
@@ -14109,7 +14110,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWordsNeedEpicbox =>
-      'คำจับคู่ต้องใช้ Epicbox จึงไม่มีให้ใช้ตอนนี้';
+      'คำเชิญทางวาจาต้องใช้ Epicbox จึงไม่มีให้ใช้ตอนนี้';
 
   @override
   String pairWordsDesktopChip(String time) {
@@ -14147,7 +14148,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairCardBackBody(String name) {
-    return 'วางลิงก์นี้ในช่อง ใส่ลิงก์หรือคำ ในกระเป๋าเงินของ $name จากนั้นตรวจคำด้วยกัน';
+    return 'วางลิงก์นี้ในช่อง ใส่ลิงก์หรือคำ ในกระเป๋าเงินของ $name จากนั้นยืนยันด้วยกัน';
   }
 
   @override
@@ -14211,7 +14212,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWayWordsInfo =>
-      'กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงรีเลย์ Epicbox ได้ กระเป๋าเงินของคุณส่งคำเชิญไปยังรีเลย์ในตัวทั้งสามแห่ง กระเป๋าเงินของอีกฝ่ายหาคำเชิญจากห้าคำ จากนั้นตรวจสี่คำด้วยกัน';
+      'กระเป๋าเงินทั้งสองต้องออนไลน์ กระเป๋าเงินของคุณวางคำเชิญไว้บนเซิร์ฟเวอร์เชื่อมต่อ กระเป๋าเงินของอีกฝ่ายหาคำเชิญจากห้าคำ จากนั้นยืนยันด้วยกัน';
 
   @override
   String get pairWayMessage => 'เชิญทางข้อความ';
@@ -14376,11 +14377,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWaysShort =>
-      'ใช้คำเมื่อทั้งสองกระเป๋าเงินออนไลน์ ใช้ข้อความในแชตใดก็ได้ หรือพบตัว';
+      'ทางวาจาเมื่อทั้งสองกระเป๋าเงินออนไลน์ ใช้ข้อความในแชตใดก็ได้ หรือพบตัว';
 
   @override
   String get helpPairWaysP1 =>
-      '**คำ** กระเป๋าเงินหนึ่งแสดงห้าคำและส่งคำเชิญที่ปิดผนึกไปยังรีเลย์ในตัวสามแห่ง: epicbox.epiccash.com, epicbox.stackwallet.com และรีเลย์ของ BT Labs อีกกระเป๋าเงินพิมพ์คำแล้วหาคำเชิญพบ กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงรีเลย์เหล่านี้ได้อย่างน้อยหนึ่งแห่ง';
+      '**ทางวาจา** กระเป๋าเงินหนึ่งแสดงห้าคำและวางคำเชิญที่ปิดผนึกไว้บนเซิร์ฟเวอร์เชื่อมต่อ (การตั้งค่า › ขั้นสูง ค่าเริ่มต้นคือ epicbox.epiccash.com, epicbox.stackwallet.com และเซิร์ฟเวอร์ของ BT Labs) อีกกระเป๋าเงินพิมพ์คำแล้วหาคำเชิญพบ กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงเซิร์ฟเวอร์เหล่านี้ได้อย่างน้อยหนึ่งแห่ง';
 
   @override
   String get helpPairWaysP2 =>
@@ -14392,7 +14393,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'ไม่ว่าวิธีใด ตอนท้ายให้ตรวจสี่คำด้วยกัน คำเหล่านี้แสดงว่าไม่มีใครแก้ไขข้อความระหว่างทาง';
+      'ไม่ว่าวิธีใด ตอนท้ายให้ยืนยันด้วยกัน: เทียบรูปสี่รูปและชื่อ ทั้งหมดนี้แสดงว่าไม่มีใครแก้ไขข้อความระหว่างทาง';
 
   @override
   String get helpPairClipP =>
@@ -14400,7 +14401,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairShareWarning =>
-      'ใครก็ตามที่มีคำเชิญนี้จับคู่ในนามคุณได้จนกว่าจะหมดอายุ ส่งให้เฉพาะคนที่ตั้งใจเท่านั้น แล้วตรวจคำด้วยกัน';
+      'ใครก็ตามที่มีคำเชิญนี้จับคู่ในนามคุณได้จนกว่าจะหมดอายุ ส่งให้เฉพาะคนที่ตั้งใจเท่านั้น แล้วยืนยันด้วยกัน';
 
   @override
   String get pairShareInvite => 'แชร์คำเชิญ';
@@ -14450,7 +14451,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'เมื่อจับคู่แล้ว ไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก ขั้นต่อไปคือตรวจคำด้วยกัน';
+    return 'เมื่อจับคู่แล้ว ไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก ขั้นต่อไปคือยืนยันด้วยกัน';
   }
 
   @override
@@ -14460,11 +14461,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairIncomingAllowHintDesktop =>
-      'เปิดใช้หลังจากคุณตรวจคำ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงิน';
+      'เปิดใช้หลังจากคุณยืนยัน ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงิน';
 
   @override
   String get pairIncomingAllowHint =>
-      'เปิดใช้หลังจากคุณตรวจคำ ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ';
+      'เปิดใช้หลังจากคุณยืนยัน ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ';
 
   @override
   String get pairNotNow => 'ไว้ทีหลัง';
@@ -14476,7 +14477,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'กระเป๋าเงินของอีกฝ่ายจะตอบเมื่อเปิดครั้งถัดไป คุณปิดหน้านี้ได้ การจับคู่ดำเนินต่อเบื้องหลัง และการตรวจคำจะปรากฏเมื่อเสร็จ';
+      'กระเป๋าเงินของอีกฝ่ายจะตอบเมื่อเปิดครั้งถัดไป คุณปิดหน้านี้ได้ การจับคู่ดำเนินต่อเบื้องหลัง และการยืนยันจะปรากฏเมื่อเสร็จ';
 
   @override
   String get pairSendByHand => 'ส่งด้วยตนเอง';
@@ -14715,14 +14716,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactWordsChecked(String date) {
-    return 'ตรวจคำเมื่อ $date';
+    return 'ยืนยันเมื่อ $date';
   }
 
   @override
   String get contactCheckAgain => 'ตรวจอีกครั้ง';
 
   @override
-  String get contactCheckWordsAgain => 'ตรวจคำอีกครั้ง';
+  String get contactCheckWordsAgain => 'ยืนยันอีกครั้ง';
 
   @override
   String get contactSealPayments => 'ปิดผนึกการชำระเงิน';
@@ -14752,13 +14753,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactAllowInfoMore =>
-      'อนุญาตได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว การตรวจคำช่วยตัดโอกาสที่คำเชิญถูกสลับ';
+      'อนุญาตได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว การยืนยันช่วยตัดโอกาสที่คำเชิญถูกสลับ';
 
   @override
-  String get contactCheckWordsFirst => 'ตรวจคำก่อน';
+  String get contactCheckWordsFirst => 'ยืนยันก่อน';
 
   @override
-  String get contactPausedUntilChecked => 'หยุดไว้จนกว่าคุณจะตรวจคำ';
+  String get contactPausedUntilChecked => 'หยุดไว้จนกว่าจะยืนยัน';
 
   @override
   String contactDeliveredVia(String relay) {
@@ -14806,7 +14807,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactKeysChangedBody =>
-      'อาจหมายความว่าอีกฝ่ายใช้กระเป๋าเงินใบอื่นแล้ว หรือมีคนอื่นใช้ชื่อนี้ ตรวจคำอีกครั้ง';
+      'อาจหมายความว่าอีกฝ่ายใช้กระเป๋าเงินใบอื่นแล้ว หรือมีคนอื่นใช้ชื่อนี้ ยืนยันผู้ติดต่ออีกครั้ง';
 
   @override
   String get contactKeysChangedStatus => 'หยุดการปิดผนึกและใบแจ้งหนี้ไว้';
@@ -14894,7 +14895,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pendingWords(String time) {
-    return 'คำจับคู่ · หมดอายุใน $time';
+    return 'คำเชิญทางวาจา · หมดอายุใน $time';
   }
 
   @override
@@ -14909,7 +14910,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get pendingPairedCheck => 'จับคู่แล้ว · ตรวจคำ';
+  String get pendingPairedCheck => 'จับคู่แล้ว · ยืนยัน';
 
   @override
   String get pendingEmpty =>
@@ -14919,7 +14920,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pendingShareAgain => 'แชร์อีกครั้ง';
 
   @override
-  String get pendingShowWords => 'แสดงคำ';
+  String get pendingShowWords => 'แสดงคำเชิญ';
 
   @override
   String get pendingCopyLink => 'คัดลอกลิงก์';
@@ -14945,7 +14946,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invSetEmpty =>
-      'ยังไม่มีผู้ติดต่อที่จับคู่ จับคู่กับร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคล ตรวจคำ แล้วอนุญาตใบแจ้งหนี้ของอีกฝ่ายที่นี่';
+      'ยังไม่มีผู้ติดต่อที่จับคู่ จับคู่กับร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคล ยืนยัน แล้วอนุญาตใบแจ้งหนี้ของอีกฝ่ายที่นี่';
 
   @override
   String get invSetPausedBody =>
@@ -15124,7 +15125,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqNoPayersContacts =>
-      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และตรวจคำกับอีกฝ่าย';
+      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และยืนยันกับอีกฝ่าย';
 
   @override
   String get reqNewToHint =>
@@ -15233,12 +15234,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name ตอบคำเชิญของคุณแล้ว ตรวจคำด้วยกัน';
+    return '$name ตอบคำเชิญของคุณแล้ว ยืนยันด้วยกัน';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'จับคู่กับ $name แล้ว ตรวจคำด้วยกัน';
+    return 'จับคู่กับ $name แล้ว ยืนยันด้วยกัน';
   }
 
   @override
@@ -15253,7 +15254,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeKeysChanged(String name) {
-    return 'คีย์ของ $name เปลี่ยน ตรวจคำอีกครั้งก่อนชำระ';
+    return 'คีย์ของ $name เปลี่ยน ยืนยันอีกครั้งก่อนชำระ';
   }
 
   @override
@@ -15410,7 +15411,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get invSetRowOff => 'ยืนยันแล้ว · ปิด';
 
   @override
-  String get invSetRowCheckFirst => 'จับคู่แล้ว ยังไม่ยืนยัน · ตรวจคำก่อน';
+  String get invSetRowCheckFirst => 'จับคู่แล้ว ยังไม่ยืนยัน · ยืนยันก่อน';
 
   @override
   String invSetAllowFor(String name) {
@@ -15419,7 +15420,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และตรวจคำกับอีกฝ่าย หรือบันทึกคำขอเป็นไฟล์';
+      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และยืนยันกับอีกฝ่าย หรือบันทึกคำขอเป็นไฟล์';
 
   @override
   String get reqPickContact => 'เลือกผู้ติดต่อ';
@@ -15449,7 +15450,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get noticeOpen => 'เปิด';
 
   @override
-  String get noticeCheckWords => 'ตรวจคำ';
+  String get noticeCheckWords => 'ยืนยัน';
 
   @override
   String get noticeView => 'ดู';
@@ -15543,21 +15544,22 @@ class AppLocalizationsTh extends AppLocalizations {
       'เปิด [[ผู้ติดต่อ|Contacts]] แล้วเลือก **จับคู่**';
 
   @override
-  String get helpPairWhatStep2 => 'เลือกวิธี: คำ, เชิญทางข้อความ หรือ แบบพบตัว';
+  String get helpPairWhatStep2 =>
+      'เลือกวิธี: ทางวาจา, เชิญทางข้อความ หรือ แบบพบตัว';
 
   @override
-  String get helpPairWhatStep3 => 'ตรวจคำด้วยกัน แล้วเลือก **ตรงกัน**';
+  String get helpPairWhatStep3 => 'ยืนยันด้วยกัน แล้วเลือก **ตรงกัน**';
 
   @override
   String get helpPairWhatP3 =>
       'การจับคู่ต้องใช้ Epic Cash ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์การชำระเงินปกติและการชำระเงินผ่าน Epicbox';
 
   @override
-  String get helpPairWhyTitle => 'ทำไมต้องตรวจคำ';
+  String get helpPairWhyTitle => 'ทำไมต้องยืนยัน';
 
   @override
   String get helpPairWhyShort =>
-      'สี่คำนี้พิสูจน์ว่าการจับคู่ไปถึงกระเป๋าเงินที่ถูกต้อง ไม่ใช่คนที่อยู่ตรงกลาง';
+      'การยืนยันพิสูจน์ว่าการจับคู่ไปถึงกระเป๋าเงินที่ถูกต้อง ไม่ใช่คนที่อยู่ตรงกลาง';
 
   @override
   String get helpPairWhyP1 =>
@@ -15576,7 +15578,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ชื่อของคำจะเป็นภาษาอังกฤษในทุกภาษา เพื่อให้คนสองคนที่ใช้กระเป๋าเงินคนละภาษายังเทียบกันได้';
 
   @override
-  String get helpPairWordsTitle => 'คำจับคู่';
+  String get helpPairWordsTitle => 'คำเชิญทางวาจา';
 
   @override
   String get helpPairWordsShort =>
@@ -15592,7 +15594,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWordsP3 =>
-      'คำจับคู่ต้องใช้เซิร์ฟเวอร์ Epicbox ขณะปิด Epicbox ให้ส่งลิงก์คำเชิญแทน';
+      'คำเชิญทางวาจาต้องใช้ Epicbox ขณะปิด Epicbox ให้ส่งลิงก์คำเชิญแทน';
 
   @override
   String get helpPairInvTitle => 'ใบแจ้งหนี้จากผู้ติดต่อที่จับคู่แล้ว';
@@ -15882,7 +15884,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactNoAddressPaired => 'การชำระเงินผ่านการจับคู่';
 
   @override
-  String get contactSendKeysChanged => 'ตรวจคำก่อนส่ง';
+  String get contactSendKeysChanged => 'ยืนยันผู้ติดต่อก่อนส่ง';
 
   @override
   String contactSendNoSealed(String name) {

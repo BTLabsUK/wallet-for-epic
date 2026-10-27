@@ -30,7 +30,7 @@ Future<void> _pump(WidgetTester tester, {Object? arg, double width = 1280}) asyn
   await tester.pumpAndSettle();
 }
 
-const _topics = ['What pairing is', 'Three ways to pair', 'Why check the words', 'Pairing words', 'Invoices from paired contacts', 'What a restore does'];
+const _topics = ['What pairing is', 'Three ways to pair', 'Why verify', 'Spoken invites', 'Invoices from paired contacts', 'What a restore does'];
 
 void main() {
   testWidgets('the pairing section shows its six topics, before trouble', (tester) async {
@@ -68,7 +68,7 @@ void main() {
   });
 
   test('search finds the pairing topics', () {
-    final hits = searchTopics(pairingHelpTopics(englishStrings), queryWords('pairing words'));
-    expect(hits.first.topic.title, 'Pairing words');
+    final hits = searchTopics(pairingHelpTopics(englishStrings), queryWords('spoken invites'));
+    expect(hits.first.topic.title, 'Spoken invites');
   });
 }
