@@ -2730,6 +2730,7 @@ class PairingRecord {
     this.relayDown = false,
     this.otherDevice = false,
     this.checksKeys = false,
+    this.removedByPeer = false,
   });
 
   /// The record's local id: never sent, never a key.
@@ -2800,6 +2801,10 @@ class PairingRecord {
   /// pairing's keys are back (RFC 7.8): the contact keeps using the old one meanwhile.
   final bool checksKeys;
 
+  /// The other side removed this pairing and said so (RFC 7.6): nothing sent through it
+  /// arrives any more. Kept, with its history, until the user removes it here too.
+  final bool removedByPeer;
+
   /// When the contact was last heard from through this pairing: its last sealed message, or
   /// the pairing itself when that is later.
   DateTime get heardAt {
@@ -2817,11 +2822,12 @@ class PairingRecord {
   bool get paused => state == PairingState.keysChanged;
 
   /// Payment files to the contact are sealed now.
-  bool get seals => state.isPaired && !paused && seal != SealMode.off && caps.opensSealed;
+  bool get seals => state.isPaired && !paused && !removedByPeer && seal != SealMode.off && caps.opensSealed;
 
-  /// A payment can go through the contact's mailbox (RFC 9.1): paired or verified, and its
-  /// wallet opens sealed messages. The seal switch plays no part.
-  bool get paysByMailbox => (state == PairingState.paired || state == PairingState.verified) && caps.opensSealed;
+  /// A payment can go through the contact's mailbox (RFC 9.1): paired or verified, not removed
+  /// by the other side, and its wallet opens sealed messages. The seal switch plays no part.
+  bool get paysByMailbox =>
+      (state == PairingState.paired || state == PairingState.verified) && !removedByPeer && caps.opensSealed;
 
   /// Waiting for the user to check the words after pairing.
   bool get awaitsCheck => state == PairingState.paired && !checkSkipped;
@@ -2849,6 +2855,7 @@ class PairingRecord {
     PairingParty? kind,
     String? paymentsAddress,
     List<SasWord>? inviteWords,
+    bool? removedByPeer,
   }) => PairingRecord(
     id: id,
     state: state ?? this.state,
@@ -2874,6 +2881,8 @@ class PairingRecord {
     inviteWords: inviteWords ?? this.inviteWords,
     relayDown: relayDown ?? this.relayDown,
     otherDevice: otherDevice ?? this.otherDevice,
+    checksKeys: checksKeys,
+    removedByPeer: removedByPeer ?? this.removedByPeer,
   );
 }
 
@@ -2883,16 +2892,18 @@ class PairingRecord {
 /// stay. Only one is still read by the other side, so a payment goes through the one heard
 /// from last ([PairingRecord.heardAt]), never simply the newest (PAIR-AND-20). One whose keys
 /// changed comes first, as the contact waits on the user's choice; one still checking keys
-/// is taken only when nothing else is.
+/// is taken only when nothing else is, and one the other side removed (RFC 7.6) last of all.
 PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contactId) {
   final attached = [
     for (final r in pairings)
       if (r.contactId == contactId && r.state.isPaired) r,
   ];
-  final changed = attached.where((r) => r.state == PairingState.keysChanged).firstOrNull;
+  final alive = [for (final r in attached) if (!r.removedByPeer) r];
+  if (alive.isEmpty) return attached.firstOrNull;
+  final changed = alive.where((r) => r.state == PairingState.keysChanged).firstOrNull;
   if (changed != null) return changed;
-  final settled = [for (final r in attached) if (!r.checksKeys) r];
-  final pool = settled.isEmpty ? attached : settled;
+  final settled = [for (final r in alive) if (!r.checksKeys) r];
+  final pool = settled.isEmpty ? alive : settled;
   PairingRecord? best;
   for (final r in pool) {
     if (best == null || r.heardAt.isAfter(best.heardAt)) best = r;
@@ -3060,6 +3071,9 @@ enum PairingEventKind {
   /// A contact's answer to a payment sent through its mailbox was finalized and posted
   /// ([PairingEvent.slateId]); may come again for the same payment.
   paymentFinalized,
+
+  /// The other side removed the pairing [PairingEvent.pairingId] and said so (RFC 7.6).
+  unpaired,
 }
 
 class PairingEvent {
@@ -3145,6 +3159,7 @@ class OpenedSlate {
     this.fee,
     this.purpose,
     this.reference,
+    this.messages = const [],
   });
 
   /// The slate as plain JSON: the text itself for a plain file; for a sealed one only when
@@ -3164,6 +3179,9 @@ class OpenedSlate {
   final BigInt? fee;
   final SlatePurpose? purpose;
   final String? reference;
+
+  /// A sealed file's messages whose signatures verify, cleaned (LEPIC hands them out).
+  final List<SlateMessage> messages;
 }
 
 /// The answer to a sealed payment ([PairingApi.receiveSealed]): sealed to the sender when it
@@ -3177,6 +3195,16 @@ class SealedReply {
 
   /// The payment was answered before; this is the same answer.
   final bool repeated;
+}
+
+/// A sealed payment request paid ([PairingApi.paySealedRequest]): [paid] with its answer in
+/// [PaidRequestFile.json], sealed to the contact that sent the request when [sealed], else
+/// plain slate JSON.
+class PaidSealedRequest {
+  const PaidSealedRequest({required this.paid, required this.sealed});
+
+  final PaidRequestFile paid;
+  final bool sealed;
 }
 
 /// Why the pairing mailboxes are collected now (RFC 8.4): the app opened, resumed or was

@@ -171,6 +171,14 @@ void main() {
       expect(contactPairingOf([old, changed], 'anna')?.id, 'changed');
       expect(contactPairingOf([rec('pending', created: t0, state: PairingState.pendingInvite)], 'anna'), isNull);
     });
+
+    test('one the other side removed is taken only when nothing else is, and pays nothing', () {
+      final dead = rec('dead', created: t0, heard: t0.add(const Duration(hours: 5))).copyWith(removedByPeer: true);
+      final live = rec('live', created: t0.add(const Duration(hours: 1)));
+      expect(contactPairingOf([dead, live], 'anna')?.id, 'live');
+      expect(contactPairingOf([dead], 'anna')?.id, 'dead');
+      expect((dead.paysByMailbox, live.paysByMailbox), (false, true));
+    });
   });
 
   test('a core without pairing refuses every call', () async {

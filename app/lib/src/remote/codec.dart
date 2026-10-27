@@ -840,6 +840,7 @@ final WireCodec<PairingRecord> pairingRecordWire = _object<PairingRecord>(
     'inviteWords': listOf(sasWordWire).encode(v.inviteWords),
     'relayDown': v.relayDown,
     'otherDevice': v.otherDevice,
+    'removedByPeer': v.removedByPeer,
   },
   (r) => PairingRecord(
     id: r.of('id', stringWire),
@@ -866,6 +867,7 @@ final WireCodec<PairingRecord> pairingRecordWire = _object<PairingRecord>(
     inviteWords: r.of('inviteWords', listOf(sasWordWire)),
     relayDown: r.of('relayDown', boolWire),
     otherDevice: r.of('otherDevice', boolWire),
+    removedByPeer: r.of('removedByPeer', boolWire),
   ),
 );
 
@@ -949,6 +951,7 @@ final WireCodec<OpenedSlate> openedSlateWire = _object<OpenedSlate>(
     'fee': optBigInt.encode(v.fee),
     'purpose': nullable(slatePurposeWire).encode(v.purpose),
     'reference': v.reference,
+    'messages': listOf(slateMessageWire).encode(v.messages),
   },
   (r) => OpenedSlate(
     slateJson: r.of('slateJson', optString),
@@ -960,7 +963,14 @@ final WireCodec<OpenedSlate> openedSlateWire = _object<OpenedSlate>(
     fee: r.of('fee', optBigInt),
     purpose: r.of('purpose', nullable(slatePurposeWire)),
     reference: r.of('reference', optString),
+    messages: r.of('messages', listOf(slateMessageWire)),
   ),
+);
+
+final WireCodec<PaidSealedRequest> paidSealedRequestWire = _object<PaidSealedRequest>(
+  'PaidSealedRequest',
+  (v) => {'paid': paidRequestFileWire.encode(v.paid), 'sealed': v.sealed},
+  (r) => PaidSealedRequest(paid: r.of('paid', paidRequestFileWire), sealed: r.of('sealed', boolWire)),
 );
 
 final WireCodec<SealedReply> sealedReplyWire = _object<SealedReply>(

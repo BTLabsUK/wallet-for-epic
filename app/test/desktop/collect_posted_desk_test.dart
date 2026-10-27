@@ -106,6 +106,7 @@ class _Wallet implements lepic.EpicWallet {
       seal: lepic.SealState.on_,
       importedFromBackup: false,
       lapsed: false,
+      removedByPeer: false,
       createdAtMs: 1792910000000,
     ),
   ];

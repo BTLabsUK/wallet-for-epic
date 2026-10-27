@@ -154,6 +154,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             amount: opened.amount ?? BigInt.zero,
             fee: opened.fee ?? BigInt.zero,
             stage: opened.stage ?? SlateStage.send,
+            messages: opened.messages,
           );
         }
       } else if (from != null && from.seals) {
@@ -224,10 +225,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       return null;
     }
     if (!requestFilesOn(ref, listen: false)) return (AppLocalizations l) => l.slateNotTransactionFile;
-    if (info.stage == SlateStage.request) {
-      // A sealed request LEPIC does not hand the slate out of cannot be paid from here.
-      return _sealedText != null && _sealedInfo != null ? (AppLocalizations l) => l.slateNotTransactionFile : null;
-    }
+    // A sealed request is paid sealed ([PairingApi.paySealedRequest]), whether or not the
+    // engine hands out the slate inside.
+    if (info.stage == SlateStage.request) return null;
     final session = ref.read(sessionProvider);
     if (session == null) return null;
     final IssuedInvoice? issued;
@@ -263,6 +263,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         builder: (_) => RequestFileReviewScreen(
           json: _file.json,
           info: info,
+          sealedText: _sealedText,
           pairingId: _sealedText != null ? _sealedFrom?.id : null,
           pasted: widget.pasted && !widget.scanned,
           scanned: widget.scanned,

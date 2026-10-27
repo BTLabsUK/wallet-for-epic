@@ -188,6 +188,10 @@ abstract interface class PairingApi {
   /// Finalizes and posts the answer in sealed [text], to a payment this wallet started.
   Future<TxEntry> finalizeSealed(String text);
 
+  /// Pays the payment request (I1) in sealed [text] for exactly [amount], the amount the user
+  /// approved, and returns the answer, sealed to the contact that sent it when it can be.
+  Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount});
+
   /// Sends [amount] to the paired contact [id] through its mailbox on its relay, sealed (RFC
   /// 9.1, "Send through Anna's mailbox"). The answer comes back the same way.
   Future<TxEntry> sendViaMailbox({
@@ -321,6 +325,10 @@ class NoPairing implements PairingApi {
 
   @override
   Future<TxEntry> finalizeSealed(String text) async => throw pairingUnsupported('finalizeSealed');
+
+  @override
+  Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount}) async =>
+      throw pairingUnsupported('paySealedRequest');
 
   @override
   Future<TxEntry> sendViaMailbox({

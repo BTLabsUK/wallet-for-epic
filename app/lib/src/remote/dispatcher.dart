@@ -712,6 +712,10 @@ class WalletDispatcher {
       sealedReplyWire,
     ),
     SessionMember.pairingFinalizeSealed => _once(s.pairing.finalizeSealed(p.of('text', stringWire)), txEntryWire),
+    SessionMember.pairingPaySealedRequest => _once(
+      s.pairing.paySealedRequest(p.of('text', stringWire), amount: p.of('amount', bigIntWire)),
+      paidSealedRequestWire,
+    ),
     SessionMember.pairingSendViaMailbox => _once(
       s.pairing.sendViaMailbox(
         id: p.of('id', stringWire),

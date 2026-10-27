@@ -74,6 +74,7 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.duplicateRequests => (text: l.reqTwoSame(name, e.count, epic(e.amount)), level: NoticeLevel.warning),
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
+    PairingEventKind.unpaired => (text: l.noticeUnpaired(name), level: NoticeLevel.warning),
     // The payment's row and tracker move on by themselves.
     PairingEventKind.contactUpdated || PairingEventKind.sealedReceived || PairingEventKind.outboxDelivered || PairingEventKind.paymentFinalized => null,
   };
@@ -166,7 +167,10 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.replied || PairingEventKind.confirmed when id != null =>
         NoticeAction(l.noticeCheckWords, () => push(CheckWordsScreen(pairingId: id))),
       PairingEventKind.failed || PairingEventKind.secondReply => NoticeAction(l.noticeOpen, () => push(const PendingInvitesScreen())),
-      PairingEventKind.keysChanged || PairingEventKind.keysRestored || PairingEventKind.homeRelayUnreachable when contact != null =>
+      PairingEventKind.keysChanged ||
+      PairingEventKind.keysRestored ||
+      PairingEventKind.homeRelayUnreachable ||
+      PairingEventKind.unpaired when contact != null =>
         NoticeAction(l.noticeOpen, () => push(ContactPage(contactId: contact.id, initial: contact))),
       PairingEventKind.invoiceFromContact ||
       PairingEventKind.duplicateRequests ||

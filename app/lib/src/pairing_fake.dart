@@ -242,6 +242,16 @@ class FakePairing implements PairingApi {
     emit(PairingEvent(PairingEventKind.failed, pairingId: id, name: r.shownName, failure: failure));
   }
 
+  /// The other side removed the pairing [id] and said so (RFC 7.6): it stays, marked, with
+  /// [PairingEventKind.unpaired] once, as LEPIC keeps it.
+  void removedByPeer(String id) {
+    final r = _get(id);
+    if (r.removedByPeer) return;
+    final marked = r.copyWith(removedByPeer: true, allowInvoices: false);
+    _put(marked);
+    emit(PairingEvent(PairingEventKind.unpaired, pairingId: id, name: marked.shownName));
+  }
+
   /// The old records a keys-changed pairing would replace, by the new pairing's id: they stay
   /// as they were, out of the list, until the user decides (RFC 7.8 after the review).
   final Map<String, PairingRecord> _superseded = {};
@@ -599,11 +609,12 @@ class FakePairing implements PairingApi {
     if (!enabled) return 0;
     final now = clock();
     var taken = 0;
-    // An answer with no confirm for an hour ends (C-16); an expired invite stays listed, so
-    // Pending invites can offer Invite again, until it is cancelled.
+    // An answer whose confirm never came in the invite's window ends as not completed (C-16);
+    // an expired invite stays listed, so Pending invites can offer Invite again, until it is
+    // cancelled.
     for (final r in [...records]) {
       if (r.state == PairingState.pendingReply && r.expiredAt(now)) {
-        failPending(r.id, PairingFailure.noAnswer);
+        failPending(r.id, PairingFailure.notCompleted);
         taken++;
       }
     }
@@ -776,8 +787,26 @@ class FakePairing implements PairingApi {
     final r = _get(id);
     if (r.seal == SealMode.degraded) _put(r.copyWith(seal: SealMode.on));
     _put(_get(id).copyWith(lastSealedIn: clock()));
-    return OpenedSlate(slateJson: body['s'] as String? ?? '', pairingId: id, sealed: true);
+    final json = body['s'] as String? ?? '';
+    // As LEPIC: what the slate holds, not the slate.
+    if (!handsOutSealedSlate) {
+      final info = session?.node?.slateInfos[json];
+      return OpenedSlate(
+        pairingId: id,
+        sealed: true,
+        stage: info?.stage,
+        slateId: info?.slateId,
+        amount: info?.amount,
+        fee: info?.fee,
+        messages: info?.messages ?? const [],
+      );
+    }
+    return OpenedSlate(slateJson: json, pairingId: id, sealed: true);
   }
+
+  /// [openSlate] hands out the slate inside sealed text, as LEPIC does not: false reads it
+  /// as LEPIC does.
+  bool handsOutSealedSlate = true;
 
   @override
   Future<TxEntry> sendViaMailbox({
@@ -845,6 +874,22 @@ class FakePairing implements PairingApi {
     final s = session;
     if (s == null) throw pairingUnsupported('finalizeSealed');
     return s.finalizeAndPost(slateJson: inside.slateJson);
+  }
+
+  @override
+  Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount}) async {
+    _require('paySealedRequest');
+    final inside = _inside(text);
+    final s = session;
+    if (s == null) throw pairingUnsupported('paySealedRequest');
+    calls.add('paySealedRequest');
+    final paid = await s.payRequestFile(slateJson: inside.slateJson, amount: amount);
+    final sealed = _get(inside.id).seals ? await sealSlate(id: inside.id, slateJson: paid.json) : null;
+    if (sealed == null) return PaidSealedRequest(paid: paid, sealed: false);
+    return PaidSealedRequest(
+      paid: PaidRequestFile(txId: paid.txId, slateId: paid.slateId, amount: paid.amount, fee: paid.fee, json: sealed),
+      sealed: true,
+    );
   }
 
   /// Plain slates a paired contact sent, by their text: [openSlate] names the pairing, as the

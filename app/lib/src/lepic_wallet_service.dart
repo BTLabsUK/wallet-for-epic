@@ -2695,6 +2695,7 @@ class _LepicPairing implements PairingApi {
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
     otherDevice: c.importedFromBackup,
     checksKeys: _checking.containsKey(c.contactId),
+    removedByPeer: c.removedByPeer,
   );
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
@@ -2708,7 +2709,10 @@ class _LepicPairing implements PairingApi {
     expiresAt: _ms(p.expiresAtMs.toInt()),
     inviteLink: _inviteLinks[p.contactId],
     inviteWords: _inviteWords[p.contactId] ?? const [],
-    relayDown: _unposted.contains(p.contactId),
+    homeRelay: p.homeRelay,
+    // An answer the relay did not take, or a home relay that did not answer the last collect:
+    // past its time such a pairing still waits for one drain (LEPIC LATE_DRAIN_WAIT).
+    relayDown: _unposted.contains(p.contactId) || _relaysDown.contains(p.homeRelay),
     contactId: _attachLater[p.contactId],
   );
 
@@ -2995,7 +2999,8 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<void> removePairing(String id) => _call(() async {
-    await _w.contactRemove(contactId: id);
+    // The other side is told, best effort, so it stops sending through it (RFC 7.6).
+    await _w.contactUnpair(contactId: id, relayMode: lepicRelayMode());
   });
 
   @override
@@ -3029,11 +3034,15 @@ class _LepicPairing implements PairingApi {
     // A contact that has a pairing already: the new one checks whether its keys are back.
     final before = contactId == null ? const <lepic.ContactView>[] : await _w.pairingsForAppContact(appContact: contactId);
     await _w.contactAttach(contactId: id, appContact: contactId);
-    final old = before.where((c) => c.contactId != id && c.state != lepic.PairingState.keysChanged).firstOrNull;
+    final old = before
+        .where((c) => c.contactId != id && c.state != lepic.PairingState.keysChanged && !c.removedByPeer)
+        .firstOrNull;
     if (old != null) {
       try {
-        await _w.contactKeyCheck(new_: id, old: old.contactId, relayMode: lepicRelayMode());
-        _checking[id] = old.contactId;
+        // No check allowed now (one a day per slot): LEPIC puts the new pairing in keys
+        // changed at once and says so (contactKeysChanged), so the dead old one is not used.
+        final started = await _w.contactKeyCheck(new_: id, old: old.contactId, relayMode: lepicRelayMode());
+        if (started == lepic.KeyCheckStart.sent) _checking[id] = old.contactId;
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'key check not started: ${error.kind.name}');
         // Said, not silent: the contact now uses the new pairing (PAIR-AND-16).
@@ -3052,7 +3061,17 @@ class _LepicPairing implements PairingApi {
       new_: id,
       decision: choice == KeysChoice.keepOld ? lepic.KeysDecision.keepOld : lepic.KeysDecision.useNew,
     );
-    if (choice == KeysChoice.useNew) return _record(await _w.contact(contactId: id));
+    if (choice == KeysChoice.useNew) {
+      // The new keys are the contact's: its older pairings are the ones the other side lost
+      // (a restore), dead, so they do not stay on the contact as if they worked (PAIR-AND-21).
+      final kept = await _w.contact(contactId: id);
+      if (app != null) {
+        for (final c in await _w.pairingsForAppContact(appContact: app)) {
+          if (c.contactId != id && c.createdAtMs < kept.createdAtMs) await _w.contactRemove(contactId: c.contactId);
+        }
+      }
+      return _record(kept);
+    }
     final kept = app == null ? null : (await _w.pairingsForAppContact(appContact: app)).lastOrNull;
     if (kept == null) throw pairingError(PairingFailure.notFound);
     return _record(kept);
@@ -3086,6 +3105,19 @@ class _LepicPairing implements PairingApi {
       fee: v.fee,
       purpose: v.purpose == null ? null : lepicSlatePurpose(v.purpose!),
       reference: v.reference,
+      messages: lepicMessages(v.messages),
+    );
+  });
+
+  @override
+  Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount}) => _s._nodeGuard('pay sealed request', () async {
+    final a = await _call(
+      () async => _w.sealedPay(text: text.trim(), amount: amount, minimumConfirmations: await _s._balanceConfirmations()),
+    );
+    logInfo('invoices', 'sealed request paid');
+    return PaidSealedRequest(
+      paid: PaidRequestFile(txId: a.txId, slateId: a.slateId, amount: a.amount, fee: a.fee, json: a.answer),
+      sealed: a.sealed,
     );
   });
 
@@ -3191,6 +3223,7 @@ class _LepicPairing implements PairingApi {
       lepic.WalletEventKind.outboxDelivered => PairingEventKind.outboxDelivered,
       lepic.WalletEventKind.outboxStuck => PairingEventKind.outboxStuck,
       lepic.WalletEventKind.contactPaymentFinalized => PairingEventKind.paymentFinalized,
+      lepic.WalletEventKind.contactUnpaired => PairingEventKind.unpaired,
       _ => null,
     };
     if (kind == null || _events.isClosed) return;
@@ -3207,6 +3240,7 @@ class _LepicPairing implements PairingApi {
         failure: switch (e.pairingFailure) {
           lepic.PairingFailureReason.changedOnTheWay => PairingFailure.changedOnTheWay,
           lepic.PairingFailureReason.expired => PairingFailure.noAnswer,
+          lepic.PairingFailureReason.notConfirmed => PairingFailure.notCompleted,
           lepic.PairingFailureReason.refused => PairingFailure.alreadyUsed,
           null => null,
         },

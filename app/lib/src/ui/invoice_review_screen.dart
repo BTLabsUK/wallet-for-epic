@@ -471,14 +471,20 @@ class RequestFileReviewScreen extends ConsumerStatefulWidget {
     super.key,
     required this.json,
     required this.info,
+    this.sealedText,
     this.pairingId,
     this.pasted = false,
     this.scanned = false,
   });
 
-  /// The request (I1) as plain slate JSON.
+  /// The request (I1) as plain slate JSON, or the sealed text when the engine keeps the slate
+  /// inside ([sealedText]).
   final String json;
   final SlateInfo info;
+
+  /// The request as it came sealed from a paired contact: paid sealed
+  /// ([PairingApi.paySealedRequest]), its answer sealed back when it can be.
+  final String? sealedText;
 
   /// The paired contact that sealed the file, or null when nothing names its maker.
   final String? pairingId;
@@ -536,14 +542,24 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     if (session == null) return;
     setState(() => _busy = true);
     try {
-      final paid = await ref
-          .read(autoLockHoldProvider.notifier)
-          .during(() => session.payRequestFile(slateJson: widget.json, amount: _info.amount));
+      final sealedText = widget.sealedText;
+      final PaidRequestFile paid;
+      String? sealed;
+      if (sealedText != null) {
+        final r = await ref
+            .read(autoLockHoldProvider.notifier)
+            .during(() => session.pairing.paySealedRequest(sealedText, amount: _info.amount));
+        paid = r.paid;
+        if (r.sealed) sealed = r.paid.json;
+      } else {
+        paid = await ref
+            .read(autoLockHoldProvider.notifier)
+            .during(() => session.payRequestFile(slateJson: widget.json, amount: _info.amount));
+      }
       container.invalidate(homeProvider);
       logInfo('invoices', 'request file paid');
-      String? sealed;
       final id = widget.pairingId;
-      if (id != null) {
+      if (id != null && sealedText == null) {
         try {
           final r = await session.pairing.pairing(id);
           if (r != null && r.seals) sealed = await session.pairing.sealSlate(id: id, slateJson: paid.json);

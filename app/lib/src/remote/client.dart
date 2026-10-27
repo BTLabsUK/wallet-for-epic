@@ -1296,6 +1296,10 @@ class RemotePairing implements PairingApi {
   Future<TxEntry> finalizeSealed(String text) => _call(SessionMember.pairingFinalizeSealed, txEntryWire, {'text': text});
 
   @override
+  Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount}) =>
+      _call(SessionMember.pairingPaySealedRequest, paidSealedRequestWire, {'text': text, 'amount': bigIntWire.encode(amount)});
+
+  @override
   Future<TxEntry> sendViaMailbox({
     required String id,
     required BigInt amount,
