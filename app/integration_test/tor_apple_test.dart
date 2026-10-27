@@ -35,6 +35,7 @@ void main() {
     'bundled tor: starts, bootstraps, carries a node request',
     (tester) async {
       final base = await getTemporaryDirectory();
+      await base.create(recursive: true);
       final dir = await base.createTemp('wfe-it-tor-');
       addTearDown(() => dir.delete(recursive: true));
       final config = mainnetPreset.config(dataDir: dir.path, nodeUrl: _nodes.first);
