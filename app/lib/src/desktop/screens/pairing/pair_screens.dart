@@ -17,6 +17,7 @@ import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDa
 import '../../../models.dart'
     show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, WalletError, WalletErrorKind, pairingError, pairingFailureOf;
 import '../../../help/help_content.dart' show HelpId;
+import '../../../log.dart' show logInfo;
 import '../../../pairing_api.dart';
 import '../../../pairing_clip_probe.dart' show pairingClipReaderProvider;
 import '../../../pairing_clipboard.dart' show PairingClipPending, PairingClipTrigger;
@@ -24,6 +25,7 @@ import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
+import '../../data/invoices.dart' show deskFailureKind;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
@@ -1056,7 +1058,10 @@ Future<void> deskLookForPairingLink(BuildContext context, WidgetRef ref, Pairing
       return top is! PopupRoute;
     }
 
-    if (!calm()) return;
+    if (!calm()) {
+      logInfo('pairing', 'clipboard (${trigger.name}): not read, a dialog is up');
+      return;
+    }
     final List<PairingRecord> records;
     try {
       records = await ref.read(deskPairingsProvider.future);
@@ -1069,6 +1074,8 @@ Future<void> deskLookForPairingLink(BuildContext context, WidgetRef ref, Pairing
       pending: PairingClipPending.of(records, now: DateTime.now(), cardOpen: cardOpen || ref.read(deskOwnCardProvider) != null),
       seen: ref.read(deskPairingClipSeenProvider),
     );
+    // Never the text: what was found, by kind.
+    logInfo('pairing', 'clipboard (${trigger.name}): ${found == null ? 'nothing to offer' : 'a ${found.kind.name} link'}');
     if (found == null) return;
     // Offered once, whatever the answer.
     await deskMarkPairingLinkSeen(ref, found.link);
@@ -1076,8 +1083,9 @@ Future<void> deskLookForPairingLink(BuildContext context, WidgetRef ref, Pairing
     if (found.kind == PairingLinkKind.invite) {
       try {
         name = (await ref.read(deskPairingApiProvider).openInvite(found.link)).name;
-      } on Object {
+      } on Object catch (e) {
         // Expired, used or this wallet's own: nothing to offer.
+        logInfo('pairing', 'clipboard: the invite does not open (${deskFailureKind(e)})');
         return;
       }
     }

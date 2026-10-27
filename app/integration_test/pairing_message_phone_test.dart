@@ -185,6 +185,8 @@ void main() {
       await settings.setAdvanced(AdvancedPrefs(features: {AdvancedFeature.pairing}));
       final now = c.read(appSettingsProvider).value!;
       await settings.setPayments(now.payments.copyWith(epicbox: false));
+      // Loaded first: a set before the stored name is read would be overwritten by it.
+      await c.read(pairingSeenAsProvider.future);
       await c.read(pairingSeenAsProvider.notifier).set('RC Phone');
     });
     await settle(tester, ms: 1500);
@@ -194,6 +196,7 @@ void main() {
     await push(tester, const PairScreen());
     await tapF(tester, find.byKey(pairMessageKey));
     await tapF(tester, find.byKey(pairShareKey));
+    await pumpUntil(tester, () => files.sharedTexts.isNotEmpty, timeout: const Duration(seconds: 30));
     final invite = files.sharedTexts.lastOrNull ?? '';
     record('1 invite shared as one message', invite.startsWith('Pair with me in Epic Cash: epiccash://pair/'), invite.split(':').first);
     await send(tester, 'p-invite', invite);

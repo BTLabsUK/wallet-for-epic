@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
+import 'package:epic_wallet/src/pairing_api.dart' show pairingLinkKind;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -38,16 +39,30 @@ Future<String> receive(WidgetTester tester, String name, {Duration timeout = con
 
 void send(String name, String text) => File('$_chat/$name').writeAsStringSync(text);
 
+/// The clipboard. Under xvfb the app cannot read back what it put on the X clipboard, so the
+/// platform's clipboard calls land here instead; the app's own code is unchanged (the phone
+/// side of the check uses the device's real clipboard).
+String _clip = '';
+
+void useMemoryClipboard(WidgetTester tester) {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+    if (call.method == 'Clipboard.setData') _clip = ((call.arguments as Map?)?['text'] as String?) ?? '';
+    if (call.method == 'Clipboard.getData') return <String, Object?>{'text': _clip};
+    if (call.method == 'Clipboard.hasStrings') return <String, Object?>{'value': _clip.isNotEmpty};
+    return null;
+  });
+}
+
 /// [text] copied in the chat, then the window back in front.
 Future<void> copiedInChat(WidgetTester tester, String text) async {
-  await tester.runAsync(() => Clipboard.setData(ClipboardData(text: text)));
+  _clip = text;
   tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
   await settle(tester, ms: 300);
   tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
   await settle(tester, ms: 1500);
 }
 
-Future<String> clipboard(WidgetTester tester) async => (await tester.runAsync(() => Clipboard.getData(Clipboard.kTextPlain)))?.text ?? '';
+Future<String> clipboard(WidgetTester tester) async => _clip;
 
 Future<bool> until(WidgetTester tester, Finder f, {Duration timeout = const Duration(seconds: 60)}) async {
   final end = DateTime.now().add(timeout);
@@ -89,6 +104,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('desktop: pairing by message both ways and in person, with a phone', (tester) async {
     captureErrors();
+    useMemoryClipboard(tester);
     final password = randomPassword();
     await boot(tester);
     await tapText(tester, 'Create a new wallet');
@@ -122,6 +138,10 @@ void main() {
     // 1. The phone invites: offered from the clipboard, answered, the reply copied.
     await copiedInChat(tester, await receive(tester, 'p-invite'));
     final offered = await until(tester, find.byType(DeskPairingClipDialog));
+    if (!offered) {
+      // ignore: avoid_print
+      print('RC NOTE | clipboard holds a ${pairingLinkKind(await clipboard(tester))?.name} link; lifecycle ${WidgetsBinding.instance.lifecycleState}');
+    }
     record('1 the phone\'s invite on the clipboard is offered', offered && hasText('RC Phone'), safe(texts().take(12).join(' | ')));
     await shot(tester, 'msg-01-offer');
     await tapKey(tester, deskClipUseKey);

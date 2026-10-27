@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n.dart';
+import '../../log.dart' show logInfo;
 import '../../pairing_clip_probe.dart';
 import '../../pairing_clipboard.dart';
 import '../../pairing_providers.dart';
@@ -101,6 +102,8 @@ Future<void> lookForPairingLink(BuildContext context, WidgetRef ref, PairingClip
       pending: PairingClipPending.of(records, now: ref.read(pairingClockProvider)(), cardOpen: cardOpen),
       seen: seen,
     );
+    // Never the text: what was found, by kind.
+    logInfo('pairing', 'clipboard (${trigger.name}): ${found == null ? 'nothing to offer' : 'a ${found.kind.name} link'}');
     if (found == null) return;
     // Offered once, whatever the answer.
     await markPairingLinkSeen(ref, found.link);
@@ -108,8 +111,9 @@ Future<void> lookForPairingLink(BuildContext context, WidgetRef ref, PairingClip
     if (found.kind == PairingLinkKind.invite) {
       try {
         preview = await ref.read(pairingApiProvider).openInvite(found.link);
-      } on Object {
+      } on Object catch (e) {
         // Expired, used or this wallet's own: nothing to offer.
+        logInfo('pairing', 'clipboard: the invite does not open (${pairingFailureOf(e)?.name ?? e.runtimeType})');
         return;
       }
     }
