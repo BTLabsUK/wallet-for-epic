@@ -3332,6 +3332,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get helpTellUs => 'Расскажите, что произошло или что непонятно.';
 
   @override
+  String get helpDonateTitle => 'Поддержать разработку';
+
+  @override
+  String get helpDonateText => 'Пожертвования финансируют новые функции.';
+
+  @override
+  String get helpDonateCopy => 'Копировать адрес';
+
+  @override
+  String get helpDonateCopied => 'Адрес скопирован';
+
+  @override
   String get helpSendFeedback => 'Отправить отзыв';
 
   @override

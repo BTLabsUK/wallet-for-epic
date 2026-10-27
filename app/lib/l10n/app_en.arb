@@ -4088,6 +4088,22 @@
   "@helpTellUs": {
     "description": "Under the Still stuck? heading."
   },
+  "helpDonateTitle": "Support development",
+  "@helpDonateTitle": {
+    "description": "Heading of the donation note in Help."
+  },
+  "helpDonateText": "Donations fund new features.",
+  "@helpDonateText": {
+    "description": "Body of the donation note in Help."
+  },
+  "helpDonateCopy": "Copy address",
+  "@helpDonateCopy": {
+    "description": "Button that copies the donation address."
+  },
+  "helpDonateCopied": "Address copied",
+  "@helpDonateCopied": {
+    "description": "Notice after the donation address was copied."
+  },
   "helpSendFeedback": "Send feedback",
   "@helpSendFeedback": {
     "description": "Button at the end of the help page that opens the feedback form."

@@ -22,6 +22,7 @@ import 'handshake.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
 import 'contacts_screen.dart';
+import 'donate_note.dart';
 import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
@@ -256,6 +257,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                       if (!searching) const _ShowTipsAgain(),
                       if (!searching) const _ShowTourAgain(),
                       const _StillStuck(),
+                      if (!searching) const DonateNote(),
                     ],
                   ),
                 ),

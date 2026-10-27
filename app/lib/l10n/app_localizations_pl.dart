@@ -3358,6 +3358,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpTellUs => 'Opisz, co się stało lub co jest niejasne.';
 
   @override
+  String get helpDonateTitle => 'Wspieraj rozwój';
+
+  @override
+  String get helpDonateText => 'Darowizny finansują nowe funkcje.';
+
+  @override
+  String get helpDonateCopy => 'Kopiuj adres';
+
+  @override
+  String get helpDonateCopied => 'Adres skopiowany';
+
+  @override
   String get helpSendFeedback => 'Wyślij opinię';
 
   @override

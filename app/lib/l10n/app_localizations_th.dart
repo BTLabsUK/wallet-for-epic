@@ -3192,6 +3192,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get helpTellUs => 'อธิบายสิ่งที่เกิดขึ้นหรือสิ่งที่ไม่ชัดเจน';
 
   @override
+  String get helpDonateTitle => 'สนับสนุนการพัฒนา';
+
+  @override
+  String get helpDonateText => 'เงินบริจาคใช้พัฒนาฟีเจอร์ใหม่';
+
+  @override
+  String get helpDonateCopy => 'คัดลอกที่อยู่';
+
+  @override
+  String get helpDonateCopied => 'คัดลอกที่อยู่แล้ว';
+
+  @override
   String get helpSendFeedback => 'ส่งความคิดเห็น';
 
   @override

@@ -3063,6 +3063,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpTellUs => '描述发生了什么，或哪里不清楚。';
 
   @override
+  String get helpDonateTitle => '支持开发';
+
+  @override
+  String get helpDonateText => '捐款将用于开发新功能。';
+
+  @override
+  String get helpDonateCopy => '复制地址';
+
+  @override
+  String get helpDonateCopied => '地址已复制';
+
+  @override
   String get helpSendFeedback => '发送反馈';
 
   @override

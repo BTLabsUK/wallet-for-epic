@@ -3295,6 +3295,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beschreiben Sie, was passiert ist oder was unklar ist.';
 
   @override
+  String get helpDonateTitle => 'Entwicklung unterstützen';
+
+  @override
+  String get helpDonateText => 'Spenden finanzieren neue Funktionen.';
+
+  @override
+  String get helpDonateCopy => 'Adresse kopieren';
+
+  @override
+  String get helpDonateCopied => 'Adresse kopiert';
+
+  @override
   String get helpSendFeedback => 'Feedback senden';
 
   @override

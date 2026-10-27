@@ -3249,6 +3249,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTellUs => 'Describe what happened or what is unclear.';
 
   @override
+  String get helpDonateTitle => 'Support development';
+
+  @override
+  String get helpDonateText => 'Donations fund new features.';
+
+  @override
+  String get helpDonateCopy => 'Copy address';
+
+  @override
+  String get helpDonateCopied => 'Address copied';
+
+  @override
   String get helpSendFeedback => 'Send feedback';
 
   @override

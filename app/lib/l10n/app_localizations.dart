@@ -5221,6 +5221,30 @@ abstract class AppLocalizations {
   /// **'Describe what happened or what is unclear.'**
   String get helpTellUs;
 
+  /// Heading of the donation note in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Support development'**
+  String get helpDonateTitle;
+
+  /// Body of the donation note in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations fund new features.'**
+  String get helpDonateText;
+
+  /// Button that copies the donation address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get helpDonateCopy;
+
+  /// Notice after the donation address was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get helpDonateCopied;
+
   /// Button at the end of the help page that opens the feedback form.
   ///
   /// In en, this message translates to:
