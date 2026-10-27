@@ -3924,6 +3924,9 @@
   "pairNotCompletedTitle": "Nie ukończono",
   "pairNotCompletedBody": "Portfel {name} nie zakończył parowania na czas. Nic nie zostało zapisane. Spróbuj ponownie.",
   "pairLateCheck": "Sprawdzam, czy przyszła spóźniona odpowiedź…",
+  "noticeUnpaired": "{name}: parowanie usunięte. Płatności przez nie już nie dotrą.",
+  "trustRemovedBy": "Usunięte przez {name}",
+  "trustRemovedShort": "Usunięte",
   "pairChangedTitle": "To zaproszenie zostało zmienione po drodze",
   "pairChangedBody": "Nic nie zostało zapisane. Sparuj się ponownie, osobiście lub z nowym zaproszeniem od {name}.",
   "pairNewerTitle": "Zaktualizuj Epic Cash, aby to otworzyć",
@@ -4213,6 +4216,7 @@
   "contactsImport": "Importuj kontakty",
   "contactsExport": "Eksportuj kontakty",
   "contactsExported": "{count, plural, one{Wyeksportowano {count} kontakt} few{Wyeksportowano {count} kontakty} many{Wyeksportowano {count} kontaktów} other{Wyeksportowano {count} kontaktu}}",
+  "contactsExportHolds": "Plik zawiera nazwy, notatki i adresy. Bez kluczy i parowań.",
   "contactsImportTitle": "Zaimportować kontakty?",
   "contactsImportNew": "{count, plural, one{{count} nowy kontakt} few{{count} nowe kontakty} many{{count} nowych kontaktów} other{{count} nowego kontaktu}}",
   "contactsImportMerged": "{count, plural, one{{count} zapisany kontakt dostanie adres lub notatkę} few{{count} zapisane kontakty dostaną adres lub notatkę} many{{count} zapisanych kontaktów dostanie adres lub notatkę} other{{count} zapisanego kontaktu dostanie adres lub notatkę}}",
@@ -4508,5 +4512,6 @@
   "ownNodeUnknown": "Nieznane",
   "ownNodePoolEmpty": "pusty",
   "ownNodePoolWaiting": "{count, plural, one{1 czeka} few{{count} czekają} many{{count} czeka} other{{count} czeka}}",
-  "ownNodeAskedDirectly": "Pytany bezpośrednio z tego telefonu co 15 s"
+  "ownNodeAskedDirectly": "Pytany bezpośrednio z tego telefonu co 15 s",
+  "deskConExportDo": "Eksportuj"
 }

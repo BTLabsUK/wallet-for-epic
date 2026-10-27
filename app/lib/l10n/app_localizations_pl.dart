@@ -14982,6 +14982,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairLateCheck => 'Sprawdzam, czy przyszła spóźniona odpowiedź…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name: parowanie usunięte. Płatności przez nie już nie dotrą.';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return 'Usunięte przez $name';
+  }
+
+  @override
+  String get trustRemovedShort => 'Usunięte';
+
+  @override
   String get pairChangedTitle => 'To zaproszenie zostało zmienione po drodze';
 
   @override
@@ -16182,6 +16195,10 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds =>
+      'Plik zawiera nazwy, notatki i adresy. Bez kluczy i parowań.';
 
   @override
   String get contactsImportTitle => 'Zaimportować kontakty?';
@@ -17433,4 +17450,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get ownNodeAskedDirectly =>
       'Pytany bezpośrednio z tego telefonu co 15 s';
+
+  @override
+  String get deskConExportDo => 'Eksportuj';
 }

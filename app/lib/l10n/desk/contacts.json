@@ -238,5 +238,9 @@
   "deskConPickForPairing": "The pairing is added to the contact you choose.",
   "@deskConPickForPairing": {
     "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
+  },
+  "deskConExportDo": "Export",
+  "@deskConExportDo": {
+    "description": "Primary button of the Export contacts dialog: goes on to the system Save dialog."
   }
 }

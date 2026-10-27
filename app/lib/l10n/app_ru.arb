@@ -3924,6 +3924,9 @@
   "pairNotCompletedTitle": "Не завершено",
   "pairNotCompletedBody": "Кошелёк {name} не завершил сопряжение вовремя. Ничего не сохранено. Попробуйте снова.",
   "pairLateCheck": "Проверка запоздалого ответа…",
+  "noticeUnpaired": "{name}: сопряжение удалено. Платежи через него больше не дойдут.",
+  "trustRemovedBy": "Удалено: {name}",
+  "trustRemovedShort": "Удалено",
   "pairChangedTitle": "Приглашение изменено в пути",
   "pairChangedBody": "Ничего не сохранено. Повторите сопряжение лично или с новым приглашением от {name}.",
   "pairNewerTitle": "Обновите Epic Cash, чтобы открыть это",
@@ -4213,6 +4216,7 @@
   "contactsImport": "Импортировать контакты",
   "contactsExport": "Экспортировать контакты",
   "contactsExported": "{count, plural, one{Экспортирован {count} контакт} few{Экспортировано {count} контакта} many{Экспортировано {count} контактов} other{Экспортировано {count} контакта}}",
+  "contactsExportHolds": "Файл содержит имена, заметки и адреса. Без ключей и сопряжений.",
   "contactsImportTitle": "Импортировать контакты?",
   "contactsImportNew": "{count, plural, one{{count} новый контакт} few{{count} новых контакта} many{{count} новых контактов} other{{count} нового контакта}}",
   "contactsImportMerged": "{count, plural, one{{count} сохранённый контакт получит адрес или заметку} few{{count} сохранённых контакта получат адрес или заметку} many{{count} сохранённых контактов получат адрес или заметку} other{{count} сохранённого контакта получат адрес или заметку}}",
@@ -4508,5 +4512,6 @@
   "ownNodeUnknown": "Неизвестно",
   "ownNodePoolEmpty": "пусто",
   "ownNodePoolWaiting": "{count, plural, one{{count} ждёт} few{{count} ждут} many{{count} ждут} other{{count} ждут}}",
-  "ownNodeAskedDirectly": "Опрашивается напрямую с этого телефона каждые 15 с"
+  "ownNodeAskedDirectly": "Опрашивается напрямую с этого телефона каждые 15 с",
+  "deskConExportDo": "Экспортировать"
 }

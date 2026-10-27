@@ -13820,6 +13820,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairLateCheck => '正在检查迟到的回复…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name 已移除配对。通过它的付款将不再送达。';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return '已被 $name 移除';
+  }
+
+  @override
+  String get trustRemovedShort => '已移除';
+
+  @override
   String get pairChangedTitle => '此邀请在途中被更改';
 
   @override
@@ -14929,6 +14942,9 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds => '文件包含名称、备注和地址。不含密钥或配对。';
 
   @override
   String get contactsImportTitle => '导入联系人？';
@@ -16069,4 +16085,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ownNodeAskedDirectly => '每 15 秒从这部手机直接询问';
+
+  @override
+  String get deskConExportDo => '导出';
 }

@@ -14943,6 +14943,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairLateCheck => 'Проверка запоздалого ответа…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name: сопряжение удалено. Платежи через него больше не дойдут.';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return 'Удалено: $name';
+  }
+
+  @override
+  String get trustRemovedShort => 'Удалено';
+
+  @override
   String get pairChangedTitle => 'Приглашение изменено в пути';
 
   @override
@@ -16140,6 +16153,10 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds =>
+      'Файл содержит имена, заметки и адреса. Без ключей и сопряжений.';
 
   @override
   String get contactsImportTitle => 'Импортировать контакты?';
@@ -17398,4 +17415,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get ownNodeAskedDirectly =>
       'Опрашивается напрямую с этого телефона каждые 15 с';
+
+  @override
+  String get deskConExportDo => 'Экспортировать';
 }

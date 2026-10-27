@@ -23405,6 +23405,24 @@ abstract class AppLocalizations {
   /// **'Checking for a late answer…'**
   String get pairLateCheck;
 
+  /// Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed the pairing. Payments through it no longer arrive.'**
+  String noticeUnpaired(String name);
+
+  /// Badge on a pairing the other side removed (it said so). Nothing sent through it arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed by {name}'**
+  String trustRemovedBy(String name);
+
+  /// Short badge on a pairing the other side removed, in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed'**
+  String get trustRemovedShort;
+
   /// Outcome when the commitment does not match.
   ///
   /// In en, this message translates to:
@@ -25138,6 +25156,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 contact exported} other{{count} contacts exported}}'**
   String contactsExported(int count);
+
+  /// One line on the Export contacts sheet (phone) and dialog (desktop): what the contacts file holds and what it never holds.
+  ///
+  /// In en, this message translates to:
+  /// **'The file holds names, notes and addresses. No keys or pairings.'**
+  String get contactsExportHolds;
 
   /// Title of the confirm sheet/dialog after a contacts file was read, before anything is saved.
   ///
@@ -26914,6 +26938,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Asked directly from this phone every 15 s'**
   String get ownNodeAskedDirectly;
+
+  /// Primary button of the Export contacts dialog: goes on to the system Save dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get deskConExportDo;
 }
 
 class _AppLocalizationsDelegate

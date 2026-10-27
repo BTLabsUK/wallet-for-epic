@@ -14340,6 +14340,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairLateCheck => 'กำลังตรวจหาคำตอบที่มาช้า…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name ลบการจับคู่แล้ว การชำระเงินผ่านการจับคู่นี้จะไม่ถึงอีก';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return '$name ลบแล้ว';
+  }
+
+  @override
+  String get trustRemovedShort => 'ถูกลบ';
+
+  @override
   String get pairChangedTitle => 'คำเชิญนี้ถูกเปลี่ยนระหว่างทาง';
 
   @override
@@ -15496,6 +15509,10 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds =>
+      'ไฟล์มีชื่อ บันทึก และที่อยู่ ไม่มีคีย์หรือการจับคู่';
 
   @override
   String get contactsImportTitle => 'นำเข้าผู้ติดต่อไหม';
@@ -16681,4 +16698,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get ownNodeAskedDirectly => 'ถามโดยตรงจากโทรศัพท์เครื่องนี้ทุก 15 วิ';
+
+  @override
+  String get deskConExportDo => 'ส่งออก';
 }

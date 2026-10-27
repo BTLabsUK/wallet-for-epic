@@ -14768,6 +14768,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairLateCheck => 'Suche nach einer späten Antwort…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name hat die Kopplung entfernt. Zahlungen darüber kommen nicht mehr an.';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return 'Von $name entfernt';
+  }
+
+  @override
+  String get trustRemovedShort => 'Entfernt';
+
+  @override
   String get pairChangedTitle => 'Diese Einladung wurde unterwegs verändert';
 
   @override
@@ -15946,6 +15959,10 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds =>
+      'Die Datei enthält Namen, Notizen und Adressen. Keine Schlüssel und keine Kopplungen.';
 
   @override
   String get contactsImportTitle => 'Kontakte importieren?';
@@ -17166,4 +17183,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get ownNodeAskedDirectly =>
       'Alle 15 s direkt von diesem Handy gefragt';
+
+  @override
+  String get deskConExportDo => 'Exportieren';
 }

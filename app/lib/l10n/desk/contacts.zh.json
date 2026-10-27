@@ -49,5 +49,6 @@
   "deskConDeleteBody": "此联系人的地址和备注将从本钱包中移除。过去的交易仍保留在“活动”中。此操作无法撤销。",
   "deskConKeep": "保留联系人",
   "deskConDeleteAction": "删除联系人",
-  "deskConPickForPairing": "配对将添加到你选择的联系人。"
+  "deskConPickForPairing": "配对将添加到你选择的联系人。",
+  "deskConExportDo": "导出"
 }

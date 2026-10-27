@@ -3924,6 +3924,9 @@
   "pairNotCompletedTitle": "Nicht abgeschlossen",
   "pairNotCompletedBody": "Die Wallet von {name} hat die Kopplung nicht rechtzeitig abgeschlossen. Es wurde nichts gespeichert. Versuchen Sie es erneut.",
   "pairLateCheck": "Suche nach einer späten Antwort…",
+  "noticeUnpaired": "{name} hat die Kopplung entfernt. Zahlungen darüber kommen nicht mehr an.",
+  "trustRemovedBy": "Von {name} entfernt",
+  "trustRemovedShort": "Entfernt",
   "pairChangedTitle": "Diese Einladung wurde unterwegs verändert",
   "pairChangedBody": "Es wurde nichts gespeichert. Koppeln Sie erneut, persönlich oder mit einer neuen Einladung von {name}.",
   "pairNewerTitle": "Aktualisieren Sie Epic Cash, um dies zu öffnen",
@@ -4213,6 +4216,7 @@
   "contactsImport": "Kontakte importieren",
   "contactsExport": "Kontakte exportieren",
   "contactsExported": "{count, plural, one{{count} Kontakt exportiert} other{{count} Kontakte exportiert}}",
+  "contactsExportHolds": "Die Datei enthält Namen, Notizen und Adressen. Keine Schlüssel und keine Kopplungen.",
   "contactsImportTitle": "Kontakte importieren?",
   "contactsImportNew": "{count, plural, one{{count} neuer Kontakt} other{{count} neue Kontakte}}",
   "contactsImportMerged": "{count, plural, one{{count} vorhandener Kontakt erhält eine Adresse oder Notiz} other{{count} vorhandene Kontakte erhalten eine Adresse oder Notiz}}",
@@ -4508,5 +4512,6 @@
   "ownNodeUnknown": "Unbekannt",
   "ownNodePoolEmpty": "leer",
   "ownNodePoolWaiting": "{count, plural, one{1 wartet} other{{count} warten}}",
-  "ownNodeAskedDirectly": "Alle 15 s direkt von diesem Handy gefragt"
+  "ownNodeAskedDirectly": "Alle 15 s direkt von diesem Handy gefragt",
+  "deskConExportDo": "Exportieren"
 }

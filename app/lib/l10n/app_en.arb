@@ -19372,6 +19372,30 @@
   "@pairLateCheck": {
     "description": "An invite past its time whose relay has not been checked since: a late answer may still be there."
   },
+  "noticeUnpaired": "{name} removed the pairing. Payments through it no longer arrive.",
+  "@noticeUnpaired": {
+    "description": "Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "trustRemovedBy": "Removed by {name}",
+  "@trustRemovedBy": {
+    "description": "Badge on a pairing the other side removed (it said so). Nothing sent through it arrives.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "trustRemovedShort": "Removed",
+  "@trustRemovedShort": {
+    "description": "Short badge on a pairing the other side removed, in lists."
+  },
   "pairChangedTitle": "This invite was changed on the way",
   "@pairChangedTitle": {
     "description": "Outcome when the commitment does not match."
@@ -21082,6 +21106,10 @@
       }
     }
   },
+  "contactsExportHolds": "The file holds names, notes and addresses. No keys or pairings.",
+  "@contactsExportHolds": {
+    "description": "One line on the Export contacts sheet (phone) and dialog (desktop): what the contacts file holds and what it never holds."
+  },
   "contactsImportTitle": "Import contacts?",
   "@contactsImportTitle": {
     "description": "Title of the confirm sheet/dialog after a contacts file was read, before anything is saved."
@@ -22656,5 +22684,9 @@
   "ownNodeAskedDirectly": "Asked directly from this phone every 15 s",
   "@ownNodeAskedDirectly": {
     "description": "Source line under the own node box: the phone asks the node itself every 15 seconds, not status.btlabs.uk."
+  },
+  "deskConExportDo": "Export",
+  "@deskConExportDo": {
+    "description": "Primary button of the Export contacts dialog: goes on to the system Save dialog."
   }
 }

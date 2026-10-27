@@ -14590,6 +14590,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairLateCheck => 'Checking for a late answer…';
 
   @override
+  String noticeUnpaired(String name) {
+    return '$name removed the pairing. Payments through it no longer arrive.';
+  }
+
+  @override
+  String trustRemovedBy(String name) {
+    return 'Removed by $name';
+  }
+
+  @override
+  String get trustRemovedShort => 'Removed';
+
+  @override
   String get pairChangedTitle => 'This invite was changed on the way';
 
   @override
@@ -15757,6 +15770,10 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get contactsExportHolds =>
+      'The file holds names, notes and addresses. No keys or pairings.';
 
   @override
   String get contactsImportTitle => 'Import contacts?';
@@ -16966,4 +16983,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ownNodeAskedDirectly =>
       'Asked directly from this phone every 15 s';
+
+  @override
+  String get deskConExportDo => 'Export';
 }
