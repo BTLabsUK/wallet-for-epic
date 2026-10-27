@@ -52,6 +52,15 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
     defaultName: phoneDeviceName(),
   );
   ref.onDispose(service.dispose);
+  // Coins another device starts or stops holding change Home's balance: read it again.
+  var held = session.heldOutputs;
+  final sub = service.changes.listen((_) {
+    final now = session.heldOutputs;
+    if (now.length == held.length && now.containsAll(held)) return;
+    held = now;
+    if (ref.exists(homeProvider)) unawaited(ref.read(homeProvider.notifier).reload());
+  });
+  ref.onDispose(sub.cancel);
   // Opened or unlocked: one read, then every 5 s while on screen.
   unawaited(service.load().then((_) => service.sync(DeviceSyncTrigger.unlock)));
   service.setForeground(WidgetsBinding.instance.lifecycleState != AppLifecycleState.paused);

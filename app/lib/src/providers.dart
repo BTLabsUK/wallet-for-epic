@@ -334,9 +334,12 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     if (!offline && shown != null && identical(shown.session, session)) {
       return _refreshed(session);
     }
-    final summary = await session.summary(
-      refresh: false,
-      minimumConfirmations: ref.read(minimumConfirmationsProvider),
+    final summary = await _withHeld(
+      session,
+      await session.summary(
+        refresh: false,
+        minimumConfirmations: ref.read(minimumConfirmationsProvider),
+      ),
     );
     final transactions = await session.transactions(refresh: false);
     if (offline) {
@@ -350,6 +353,34 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       transactions: transactions,
       syncing: true,
       session: session,
+    );
+  }
+
+  /// [summary] with the coins a linked device is spending ([WalletSession.heldOutputs]) moved
+  /// from spendable to locked: the core can spend them, but this wallet holds them back.
+  Future<WalletSummary> _withHeld(WalletSession session, WalletSummary summary) async {
+    final held = session.heldOutputs;
+    if (held.isEmpty) return summary;
+    BigInt value;
+    try {
+      value = (await session.outputs())
+          .where((o) => o.status == WalletOutputStatus.unspent && o.category == OutputCategory.spendable && held.contains(o.commitment))
+          .fold(BigInt.zero, (sum, o) => sum + o.value);
+    } catch (error) {
+      logWarn('home', 'held coins not read: ${error.runtimeType}');
+      return summary;
+    }
+    if (value == BigInt.zero) return summary;
+    return WalletSummary(
+      lastConfirmedHeight: summary.lastConfirmedHeight,
+      minimumConfirmations: summary.minimumConfirmations,
+      total: summary.total,
+      spendable: summary.spendable - value,
+      awaitingConfirmation: summary.awaitingConfirmation,
+      awaitingFinalization: summary.awaitingFinalization,
+      immature: summary.immature,
+      locked: summary.locked + value,
+      validatedWithNode: summary.validatedWithNode,
     );
   }
 
@@ -371,6 +402,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       if (ref.mounted) progress.report(null);
     }
     if (summary == null) throw StateError('Refresh ended without balances');
+    summary = await _withHeld(session, summary);
     // A refresh reads the linked devices' notices too (D-11), and sweeps their holds against
     // the chain just read.
     unawaited(ref.read(deviceServiceProvider)?.sync(DeviceSyncTrigger.refresh));
