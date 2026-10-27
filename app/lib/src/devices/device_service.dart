@@ -508,7 +508,7 @@ class DeviceService {
       height: n.body['height'] as int?,
       kernel: n.body['kernel'] as String?,
       why: n.body['why'] as String?,
-      spent: await _spent(),
+      spent: spentFor(book.holds[i], book.holds, await _spent()),
       now: _clock(),
     );
     _book = book.copyWith(holds: [...book.holds]..[i] = next);

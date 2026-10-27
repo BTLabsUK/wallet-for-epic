@@ -63,6 +63,16 @@ HeldPayment? holdFromSend({
 /// Whether the chain shows any of [h]'s coins spent.
 bool holdSpent(HeldPayment h, Set<String> spent) => h.commitments.any(spent.contains);
 
+/// [spent] without the coins a payment newer than [h] holds too: a coin freed when a payment
+/// ended is usually taken by the next one, and once spent it is that one's payment, not [h]'s.
+Set<String> spentFor(HeldPayment h, List<HeldPayment> holds, Set<String> spent) {
+  final later = {
+    for (final o in holds)
+      if (!identical(o, h) && o.lockedAt.isAfter(h.lockedAt)) ...o.commitments,
+  };
+  return later.isEmpty ? spent : spent.difference(later);
+}
+
 /// [h] after a `status` notice [state] at [height]. [spent]: commitments the chain shows spent.
 HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kernel, String? why, required Set<String> spent, required DateTime now}) {
   if (h.state == HoldState.spent) return h;
@@ -80,9 +90,15 @@ HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kerne
 }
 
 /// [holds] after the chain and the clock: spent ones become history, the fallbacks free the
-/// rest. [tip] is the chain height (null: unknown, height rules wait).
+/// rest. [tip] is the chain height (null: unknown, height rules wait). Coins spent that a newer
+/// payment holds too are that payment's ([spentFor]).
 List<HeldPayment> sweepHolds(List<HeldPayment> holds, {required Set<String> spent, required int? tip, required DateTime now}) => [
-  for (final h in holds) sweepHold(h, spent: spent, tip: tip, now: now),
+  for (final h in holds)
+    // Still held while a newer payment spent its coins: its end never came here; it expired.
+    if (h.state.holds && holdSpent(h, spent) && !holdSpent(h, spentFor(h, holds, spent)))
+      h.copyWith(state: HoldState.expired, changedAt: now)
+    else
+      sweepHold(h, spent: spentFor(h, holds, spent), tip: tip, now: now),
 ];
 
 HeldPayment sweepHold(HeldPayment h, {required Set<String> spent, required int? tip, required DateTime now}) {

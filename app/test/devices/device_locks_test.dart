@@ -123,6 +123,35 @@ void main() {
     });
   });
 
+  group('a coin freed by one payment and taken by the next', () {
+    // Seen live on floonet: the device cancels a send, the next send takes the same coin and is
+    // mined. The spend is the second payment's; the first stays as it ended.
+    final first = HeldPayment(deviceId: 'd' * 32, slateId: 'first', commitments: [_c(1)], amount: BigInt.one, lockedAt: _t0, state: HoldState.released, reason: 'cancelled');
+    final second = HeldPayment(deviceId: 'd' * 32, slateId: 'second', commitments: [_c(1)], amount: BigInt.two, lockedAt: _t0.add(const Duration(minutes: 1)), state: HoldState.posted);
+
+    test('once spent, the newer payment is confirmed and the older one stays cancelled', () {
+      final out = sweepHolds([first, second], spent: {_c(1)}, tip: 10, now: _t0);
+      expect(out.map((h) => h.state), [HoldState.released, HoldState.spent]);
+      expect(out.first.ending, first.ending);
+    });
+
+    test('the older payment\'s own cancel, coming late, does not take the spend', () {
+      final stillHeld = HeldPayment(deviceId: 'd' * 32, slateId: 'first', commitments: [_c(1)], amount: BigInt.one, lockedAt: _t0);
+      final spent = spentFor(stillHeld, [stillHeld, second], {_c(1)});
+      expect(applyStatus(stillHeld, 'cancelled', spent: spent, now: _t0).state, HoldState.released);
+    });
+
+    test('an older payment still held when the newer one spent the coin expired', () {
+      final stillHeld = HeldPayment(deviceId: 'd' * 32, slateId: 'first', commitments: [_c(1)], amount: BigInt.one, lockedAt: _t0);
+      final out = sweepHolds([stillHeld, second], spent: {_c(1)}, tip: 10, now: _t0);
+      expect(out.map((h) => h.state), [HoldState.expired, HoldState.spent]);
+    });
+
+    test('with no newer payment, a late landing still confirms the older one', () {
+      expect(sweepHolds([first], spent: {_c(1)}, tip: 10, now: _t0).single.state, HoldState.spent);
+    });
+  });
+
   test('the book leaves out only held coins', () {
     final book = DeviceBook(
       deviceId: 'a' * 32,
