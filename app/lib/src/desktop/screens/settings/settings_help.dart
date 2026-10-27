@@ -12,6 +12,7 @@ import '../../../seed_contacts.dart' show btLabsContact;
 import '../../data/pairing_state.dart' show deskPairsProvider;
 import 'help_pairing.dart';
 import 'help_places.dart';
+import 'help_sync.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
@@ -541,7 +542,9 @@ class _TopicState extends ConsumerState<_Topic> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (t.devices) ...[const DeskSyncDiagram(), SizedBox(height: Sp.x4)],
                       for (final b in t.body) _Block(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? widget.anchorKey : null, block: b, words: widget.words, style: answer),
+                      if (t.devices) ...[SizedBox(height: Sp.x2), const DeskSyncStatus()],
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
                     ],
                   ),
