@@ -168,15 +168,28 @@ class _WayTile extends StatelessWidget {
     return ListTile(
       minTileHeight: 64,
       leading: Icon(icon, color: on ? t.accentText : t.faint),
-      title: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 6,
-        children: [
-          Text(title, style: on ? null : TextStyle(color: t.dim)),
-          ?badge,
-          if (info case final i?) InfoHint(i, title: title, size: 32),
-        ],
-      ),
+      title: badge == null
+          // The ⓘ stays beside the label, never under it: a long label wraps inside its own
+          // box, not the ⓘ onto a line of its own.
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: Text(title, style: on ? null : TextStyle(color: t.dim))),
+                if (info case final i?) ...[
+                  const SizedBox(width: 6),
+                  InfoHint(i, title: title, size: 32),
+                ],
+              ],
+            )
+          : Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
+              children: [
+                Text(title, style: on ? null : TextStyle(color: t.dim)),
+                badge!,
+                if (info case final i?) InfoHint(i, title: title, size: 32),
+              ],
+            ),
       subtitle: Text(subtitle),
       trailing: Icon(Icons.chevron_right, color: on ? t.dim : t.faint),
       enabled: on,

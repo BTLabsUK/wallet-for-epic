@@ -3890,7 +3890,7 @@
   "pairWayAutomatic": "Automatisch",
   "pairWayWordsHint": "Lesen Sie fünf Wörter vor. Beide Wallets müssen online sein; der Rest geschieht von selbst.",
   "pairWayWordsInfo": "Beide Wallets müssen online sein und ein Epicbox-Relay erreichen. Ihre Wallet legt die Einladung auf den drei eingebauten Relays ab; die andere findet sie über die fünf Wörter. Danach prüfen Sie gemeinsam die vier Wörter.",
-  "pairWayMessage": "Einladung per Nachricht",
+  "pairWayMessage": "Per Nachricht",
   "pairWayMessageHint": "Senden Sie einen Link in einem beliebigen Chat: Telegram, WhatsApp, SMS, E-Mail. Kein Relay nötig.",
   "pairWayMessageInfo": "Drei Nachrichten: Ihre Einladung, die Antwort, Ihr Abschlusslink. Kopieren Sie jede, wenn sie ankommt; die Wallet findet sie in der Zwischenablage, wenn Sie zurückkehren. Funktioniert auch, wenn ein Relay gesperrt oder eine Wallet offline ist.",
   "pairWayInPersonDesk": "Das Telefon der anderen Seite scannt Ihren Code",

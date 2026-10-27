@@ -14844,7 +14844,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Oba portfele muszą być online i mieć dostęp do przekaźnika Epicbox. Twój portfel wysyła zaproszenie na trzy wbudowane przekaźniki; portfel drugiej osoby znajduje je po pięciu słowach. Potem sprawdźcie razem cztery słowa.';
 
   @override
-  String get pairWayMessage => 'Zaproszenie w wiadomości';
+  String get pairWayMessage => 'Przez wiadomość';
 
   @override
   String get pairWayMessageHint =>
