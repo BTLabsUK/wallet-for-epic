@@ -2061,6 +2061,22 @@ void main() {
       expect(find.textContaining('rescan'), findsNothing);
     });
 
+    testWidgets('another linked device\'s payment is not in the pending card', (tester) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            key: 'd:desk:s1',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingRecipient,
+            amountDebited: _epic(1),
+            origin: TxOrigin.linkedDevice,
+          ),
+        ],
+      );
+      await h.pump(tester);
+      expect(find.text('A payment is waiting for the recipient'), findsNothing);
+    });
+
     testWidgets('a pending record from a backup is not in the pending card', (
       tester,
     ) async {

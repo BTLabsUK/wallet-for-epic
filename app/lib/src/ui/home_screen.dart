@@ -1143,7 +1143,8 @@ class _PendingSendsCard extends ConsumerWidget {
     final waiting = transactions
         .where(
           (t) =>
-              t.status == TxStatus.awaitingRecipient && !isFromBackupUnknown(t),
+              // Another linked device's payment is that device's to follow, not this one's.
+              t.status == TxStatus.awaitingRecipient && !isFromBackupUnknown(t) && t.origin != TxOrigin.linkedDevice,
         )
         .toList();
     if (waiting.isEmpty) return const SizedBox.shrink();
