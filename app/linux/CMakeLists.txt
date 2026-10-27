@@ -100,6 +100,11 @@ install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}
 install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
+# The window icon (runner/my_application.cc): an AppImage that is not installed has no desktop
+# file a taskbar can match, so the window carries the mark itself.
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/hicolor/256x256/apps/epic-cash-desktop.png"
+  DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
+
 foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
   install(FILES "${bundled_library}"
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"

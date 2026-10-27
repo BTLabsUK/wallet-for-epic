@@ -119,6 +119,16 @@ static void my_application_activate(GApplication* application) {
   // the window in the task switcher.
   gtk_window_set_title(window, "Epic Cash Desktop");
 
+  // The taskbar icon. Taskbars look for a desktop file whose StartupWMClass is the app id; an
+  // AppImage started without being installed has none, so they showed a generic gear (#114).
+  // The window's own icon (_NET_WM_ICON) is what they fall back to.
+  g_autofree gchar* exe = g_file_read_link("/proc/self/exe", nullptr);
+  if (exe != nullptr) {
+    g_autofree gchar* dir = g_path_get_dirname(exe);
+    g_autofree gchar* icon = g_build_filename(dir, "data", "epic-cash-desktop.png", nullptr);
+    gtk_window_set_icon_from_file(window, icon, nullptr);
+  }
+
   // The first size; the smallest keeps the sidebar a rail (as windows/runner/window_placement.cpp).
   gtk_window_set_default_size(window, 1280, 820);
   GdkGeometry hints{};
