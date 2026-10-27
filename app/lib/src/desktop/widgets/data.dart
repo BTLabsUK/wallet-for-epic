@@ -451,7 +451,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                   ),
                 ),
               ),
-            if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer!],
+            if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer],
           ],
           // Escape closes the list without choosing; the field keeps the focus while it is open.
           builder: (context, controller, _) => Focus(
