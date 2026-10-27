@@ -1461,6 +1461,9 @@ class TxEntry {
   /// Epicbox address or URL of the other side, when known.
   final String? counterparty;
 
+  /// The linked device that made this send, for a row of [TxOrigin.linkedDevice]; null else.
+  final String? deviceName;
+
   /// What carried the slate, as LEPIC names it (`epicbox`, `file`, `http`, `tor`), when known.
   /// Not sent over the remote protocol.
   final String? transport;
@@ -1559,6 +1562,7 @@ class TxEntry {
     this.kernelExcess,
     required this.outputCommits,
     this.counterparty,
+    this.deviceName,
     this.transport,
     this.note,
     this.label,
@@ -1617,6 +1621,7 @@ class TxEntry {
       kernelExcess.hashCode ^
       outputCommits.hashCode ^
       counterparty.hashCode ^
+      deviceName.hashCode ^
       transport.hashCode ^
       note.hashCode ^
       label.hashCode ^
@@ -1663,6 +1668,7 @@ class TxEntry {
           kernelExcess == other.kernelExcess &&
           outputCommits == other.outputCommits &&
           counterparty == other.counterparty &&
+          deviceName == other.deviceName &&
           transport == other.transport &&
           note == other.note &&
           label == other.label &&
@@ -3241,3 +3247,18 @@ class PaidSealedRequest {
 /// Why the pairing mailboxes are collected now (RFC 8.4): the app opened, resumed or was
 /// unlocked; the foreground tick; a pull to refresh; a push wake-up.
 enum PairingCollectTrigger { open, foreground, pull, push }
+
+/// One opaque payload a private pairing received (`contact_post_payload` on the other side),
+/// kept by the engine until [PairingApi.ackPayloads] takes it off. Only private pairings
+/// (linked devices) carry payloads; the engine reads nothing in [bytes].
+class PairingPayload {
+  const PairingPayload({required this.id, required this.pairingId, required this.bytes, required this.receivedAt});
+
+  /// The engine's id for the payload, for [PairingApi.ackPayloads].
+  final String id;
+
+  /// The private pairing it came through.
+  final String pairingId;
+  final List<int> bytes;
+  final DateTime receivedAt;
+}
