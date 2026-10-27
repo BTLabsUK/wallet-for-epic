@@ -50,6 +50,8 @@ final Map<RegExp, String> _allowed = {
       'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
   RegExp(r'^21d-dlg-reuse-chain\|Use it$'): 'The mock lists a folder another program holds: its card is dimmed and says so, and cannot be picked.',
   RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
+  RegExp(r'^settingsNode\|Try now$'):
+      'Asks the own node again; in this shot it stays down, so nothing changes (own_node_test checks the move back).',
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.

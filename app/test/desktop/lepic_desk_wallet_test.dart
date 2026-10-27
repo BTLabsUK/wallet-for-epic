@@ -1365,7 +1365,8 @@ void main() {
 
     testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
-      expect(find.text('Link · HTTP receiving'), findsOneWidget);
+      // The method's switch; its receiving rows sit under it while it is on (tester #112).
+      expect(find.byKey(const ValueKey('st-method-linkHttp')), findsOneWidget);
       expect(find.text('Tor receiving'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsPrivacy);

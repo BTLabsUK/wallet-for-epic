@@ -1808,7 +1808,7 @@ void main() {
       test('a history-file message is shown alone, as a sentence', () {
         expect(
           say('This is not a history file exported by this app'),
-          'This is not a history file exported by this app.',
+          'This is not a wallet data file from this app.',
         );
         expect(
           say('This history file belongs to a different wallet'),
@@ -2195,14 +2195,14 @@ void main() {
       expect(h.session.transactionsCalls, loads);
       expect(
         find.text(
-          'Already accepted. Return incoming.response to the sender again.',
+          'Already accepted. Return from-bob.tx.response to the sender again.',
         ),
         findsOneWidget,
       );
       expect(find.textContaining('not a second payment'), findsOneWidget);
       expect(find.textContaining('Accepted. Return'), findsNothing);
       await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'incoming.response');
+      expect(h.files.saved.single.name, 'from-bob.tx.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
 
@@ -2244,13 +2244,13 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file by default, Link with its switch in Settings › Transactions', (
+    testWidgets('send offers the file by default, Link listed with its switch off or on', (
       tester,
     ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
       expect(find.text('Direct · File'), findsOneWidget);
-      expect(find.text('Link'), findsNothing);
+      expect(find.text('Link'), findsOneWidget);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.

@@ -86,7 +86,11 @@ void main() {
     await tester.tap(find.text('Main wallet'));
     await tester.pump(const Duration(milliseconds: 500));
     // Each option names its whole folder on hover; the list cuts it (#104).
-    expect(find.byWidgetPredicate((w) => w is Tooltip && w.message == demoOtherWallet.folder), findsOneWidget);
+    // The mock's Savings lives in the app's own folder, under its id.
+    expect(
+      find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${demoOtherWallet.id}/mainnet'),
+      findsOneWidget,
+    );
     // ... and copies it from its own button, which does not pick the wallet.
     expect(find.byTooltip('Copy path: Savings'), findsOneWidget);
     await tester.tap(find.text('Savings').last);

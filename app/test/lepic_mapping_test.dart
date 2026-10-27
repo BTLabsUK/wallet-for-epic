@@ -225,8 +225,11 @@ void main() {
         mapLepicError(error(lepic.WalletErrorKind.notDelivered)).kind,
         WalletErrorKind.transportFailed,
       );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.restoreScanRequired)).kind,
+        WalletErrorKind.restoreScanRequired,
+      );
       for (final kind in [
-        lepic.WalletErrorKind.restoreScanRequired,
         lepic.WalletErrorKind.changedDuringCancel,
         lepic.WalletErrorKind.locked,
         lepic.WalletErrorKind.notPosted,
