@@ -3157,7 +3157,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Geben Sie eine Blockhöhe von 1 oder höher ein.';
 
   @override
-  String get settingsRescanButton => 'Neu scannen';
+  String get settingsRescanButton => 'Neu prüfen';
 
   @override
   String get settingsDeleteWallet => 'Diese Wallet löschen';
@@ -11933,7 +11933,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => 'Alle 10 s aktualisiert';
+  String deskSetPeersRefreshed(int seconds) {
+    return 'Alle $seconds s aktualisiert';
+  }
 
   @override
   String get deskSetPeersBanned => 'Gesperrt';

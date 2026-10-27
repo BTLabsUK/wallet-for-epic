@@ -2933,7 +2933,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsRescanHeightInvalid => '请输入不小于 1 的区块高度。';
 
   @override
-  String get settingsRescanButton => '重新扫描';
+  String get settingsRescanButton => '重新核对';
 
   @override
   String get settingsDeleteWallet => '删除此钱包';
@@ -11191,7 +11191,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => '每 10 秒刷新';
+  String deskSetPeersRefreshed(int seconds) {
+    return '每 $seconds 秒刷新';
+  }
 
   @override
   String get deskSetPeersBanned => '已封禁';

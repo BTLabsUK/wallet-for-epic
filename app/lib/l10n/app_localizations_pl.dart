@@ -3221,7 +3221,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wpisz wysokość bloku równą 1 lub większą.';
 
   @override
-  String get settingsRescanButton => 'Skanuj';
+  String get settingsRescanButton => 'Sprawdź';
 
   @override
   String get settingsDeleteWallet => 'Usuń ten portfel';
@@ -12136,7 +12136,9 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => 'Odświeżane co 10 s';
+  String deskSetPeersRefreshed(int seconds) {
+    return 'Odświeżane co $seconds s';
+  }
 
   @override
   String get deskSetPeersBanned => 'Zablokowane';

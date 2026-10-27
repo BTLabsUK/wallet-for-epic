@@ -1109,7 +1109,7 @@ void main() {
       expect(find.text('From a date'), findsNothing);
       expect(find.text('The whole chain'), findsNothing);
       // Block 0: only a scan from there finishes a restore.
-      await _tapText(tester, 'Rescan');
+      await _tapText(tester, 'Recheck');
       expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 1);
     });
@@ -1137,15 +1137,15 @@ void main() {
 
       await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'From a block height');
-      await _tapText(tester, 'Rescan');
+      await _tapText(tester, 'Recheck');
       expect(find.text('Enter a block height of 1 or more.'), findsOneWidget);
       await _enter(tester, 'Start height', '3000000');
-      await _tapText(tester, 'Rescan');
+      await _tapText(tester, 'Recheck');
       expect(h.session.lastStart, BigInt.from(3000000));
 
       await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'The whole chain');
-      await _tapText(tester, 'Rescan');
+      await _tapText(tester, 'Recheck');
       expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 2);
     });
@@ -1360,7 +1360,7 @@ void main() {
       h.session.controller = StreamController<ScanProgress>();
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
-      await tester.tap(find.text('Rescan'));
+      await tester.tap(find.text('Recheck'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }

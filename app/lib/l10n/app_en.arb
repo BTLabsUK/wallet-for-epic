@@ -3924,7 +3924,7 @@
   "@settingsRescanHeightInvalid": {
     "description": "Error in the rescan dialog."
   },
-  "settingsRescanButton": "Rescan",
+  "settingsRescanButton": "Recheck",
   "@settingsRescanButton": {
     "description": "Button that starts the rescan."
   },
@@ -15665,9 +15665,14 @@
       }
     }
   },
-  "deskSetPeersRefreshed": "Refreshed every 10 s",
+  "deskSetPeersRefreshed": "Refreshed every {seconds} s",
   "@deskSetPeersRefreshed": {
-    "description": "Peers tab: note beside the summary."
+    "description": "Peers tab: note beside the summary. {seconds}: 10 for the built-in node, 15 for an own node.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "deskSetPeersBanned": "Banned",
   "@deskSetPeersBanned": {

@@ -3058,7 +3058,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsRescanHeightInvalid => 'ป้อนความสูงบล็อกตั้งแต่ 1 ขึ้นไป';
 
   @override
-  String get settingsRescanButton => 'สแกนใหม่';
+  String get settingsRescanButton => 'ตรวจใหม่';
 
   @override
   String get settingsDeleteWallet => 'ลบกระเป๋านี้';
@@ -11588,7 +11588,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => 'รีเฟรชทุก 10 วินาที';
+  String deskSetPeersRefreshed(int seconds) {
+    return 'รีเฟรชทุก $seconds วินาที';
+  }
 
   @override
   String get deskSetPeersBanned => 'แบนแล้ว';

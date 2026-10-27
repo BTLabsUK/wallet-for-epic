@@ -4990,7 +4990,7 @@ abstract class AppLocalizations {
   /// Button that starts the rescan.
   ///
   /// In en, this message translates to:
-  /// **'Rescan'**
+  /// **'Recheck'**
   String get settingsRescanButton;
 
   /// Settings row, in red.
@@ -18875,11 +18875,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} more} other{{count} more}}'**
   String deskSetPeersMore(int count);
 
-  /// Peers tab: note beside the summary.
+  /// Peers tab: note beside the summary. {seconds}: 10 for the built-in node, 15 for an own node.
   ///
   /// In en, this message translates to:
-  /// **'Refreshed every 10 s'**
-  String get deskSetPeersRefreshed;
+  /// **'Refreshed every {seconds} s'**
+  String deskSetPeersRefreshed(int seconds);
 
   /// Peers tab: small heading of the list of banned peers. Shown in capital letters by the app.
   ///

@@ -3194,7 +3194,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRescanHeightInvalid => 'Введите высоту блока не меньше 1.';
 
   @override
-  String get settingsRescanButton => 'Сканировать';
+  String get settingsRescanButton => 'Сверить';
 
   @override
   String get settingsDeleteWallet => 'Удалить этот кошелёк';
@@ -12100,7 +12100,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => 'Обновляется каждые 10 с';
+  String deskSetPeersRefreshed(int seconds) {
+    return 'Обновляется каждые $seconds с';
+  }
 
   @override
   String get deskSetPeersBanned => 'Заблокированные';

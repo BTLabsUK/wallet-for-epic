@@ -3113,7 +3113,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter a block height of 1 or more.';
 
   @override
-  String get settingsRescanButton => 'Rescan';
+  String get settingsRescanButton => 'Recheck';
 
   @override
   String get settingsDeleteWallet => 'Delete this wallet';
@@ -11798,7 +11798,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetPeersRefreshed => 'Refreshed every 10 s';
+  String deskSetPeersRefreshed(int seconds) {
+    return 'Refreshed every $seconds s';
+  }
 
   @override
   String get deskSetPeersBanned => 'Banned';
