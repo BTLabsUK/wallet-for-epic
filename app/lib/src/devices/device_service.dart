@@ -923,6 +923,14 @@ class DeviceService {
     await _put(book.copyWith(clearProposal: true));
   }
 
+  /// Withdraws this device's own proposal; the others never get its version applied (a later
+  /// proposal takes a higher one).
+  Future<void> cancelProposal() async {
+    final p = book.proposal;
+    if (p == null || !p.fromHere) return;
+    await _put(book.copyWith(clearProposal: true, serversVersion: p.version));
+  }
+
   Future<void> clearRemovedBy() => _put(book.copyWith(clearRemovedBy: true));
 
   // Linking (both screens check the pictures; nothing is linked until both matched).

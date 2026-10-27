@@ -477,3 +477,14 @@ class DeviceBook {
 }
 
 DateTime? _time(Object? ms) => ms is num ? DateTime.fromMillisecondsSinceEpoch(ms.toInt()) : null;
+
+/// The servers a first link proposes (D-3): this wallet's Epicbox server, then on mainnet one
+/// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
+/// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
+/// 443.
+List<String> defaultLinkServers({required String ownHost, int ownPort = 443, required bool mainnet}) {
+  final own = ownPort == 443 ? ownHost : '$ownHost:$ownPort';
+  if (!mainnet) return [own];
+  final other = ownHost.endsWith('stackwallet.com') ? 'epicbox.epiccash.com' : 'epicbox.stackwallet.com';
+  return other == ownHost ? [own] : [own, other];
+}
