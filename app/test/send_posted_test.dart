@@ -129,6 +129,7 @@ void main() {
       messages: const [],
       origin: lepic.TxOrigin.wallet,
       outputCommits: const [],
+      spentCommits: const [],
       senderReportedPostedAtMs: reportedAtMs,
     );
 

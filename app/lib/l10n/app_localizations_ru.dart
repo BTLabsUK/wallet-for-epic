@@ -18244,6 +18244,125 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get deskDevServersNote => 'Выберите до 2.';
+
+  @override
+  String get deskDevServersCancel => 'Отменить изменение';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$down из $n не отвечает. Уведомления идут через другой.';
+  }
+
+  @override
+  String get deskDevServersAllDown =>
+      'Ни один сервер не отвечает. Уведомления ждут и уйдут, когда один вернётся.';
+
+  @override
+  String get deskDevServersInfo1 =>
+      'Связанные устройства обмениваются уведомлениями через эти серверы. Каждое уведомление уходит на все выбранные серверы, поэтому отказ одного ничего не меняет.';
+
+  @override
+  String get deskDevServersInfo2 =>
+      'Изменение сначала отправляется другим устройствам и вступает в силу, когда каждое его примет. До этого используются прежние серверы, а после замены они ещё читаются 7 дней.';
+
+  @override
+  String get deskDevServersInfo3 =>
+      'Серверы видят, что два устройства обмениваются уведомлениями и когда, но не их содержимое. Два сервера — это два оператора, которые это видят.';
+
+  @override
+  String get deskDevPausedOffline => 'Приостановлено в режиме «Офлайн».';
+
+  @override
+  String get deskDevPausedEpicboxOff =>
+      'Приостановлено, пока Epicbox выключен.';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => 'Удержанных монет нет.';
+
+  @override
+  String get deskDevRenameThis => 'Переименовать этот компьютер';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return 'Переименовать: $name';
+  }
+
+  @override
+  String get deskDevPasteLead =>
+      'Вставьте код, который показывает другое устройство.';
+
+  @override
+  String get deskDevMakingCode => 'Создание кода…';
+
+  @override
+  String get deskDevConnecting => 'Подключение…';
+
+  @override
+  String get deskDevTheOther => 'Другое устройство';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return 'Серверы: $servers';
+  }
+
+  @override
+  String get deskDevOfferReceived =>
+      'Это ваше другое устройство? Свяжите его, чтобы видеть, от кого оно, и держать оба в согласии.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Отменено на $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Не удалось на $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Истекло на $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return 'Платёж отменён на $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return 'Платёж не завершён вовремя на $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return 'Платёж не удалось доставить получателю с $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'Сервер получателя отклонил его. Его монеты снова свободны.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Его монеты уже были потрачены.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return 'Платёж не удалось завершить на $name. Его монеты снова свободны.';
+  }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'Этот статус сообщило устройство $name. Окончательное состояние определяет блокчейн.';
+  }
+
+  @override
   String get syncHelpOtherDevice => 'Другое устройство';
 
   @override

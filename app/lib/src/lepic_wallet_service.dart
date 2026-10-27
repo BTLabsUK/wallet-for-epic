@@ -104,7 +104,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.sealedForAnotherWallet ||
     lepic.WalletErrorKind.sealedUnopenable ||
     lepic.WalletErrorKind.pairingWordsNotFound ||
-    lepic.WalletErrorKind.invalidPairingWords => WalletErrorKind.pairingFailed,
+    lepic.WalletErrorKind.invalidPairingWords ||
+    // A device link scanned in the contact pairing flow, or a contact invite in Link a device.
+    lepic.WalletErrorKind.wrongPairingClass => WalletErrorKind.pairingFailed,
     // A contact that is not in the state the call needs; the screens check it first.
     lepic.WalletErrorKind.invalidContactName ||
     lepic.WalletErrorKind.contactNotFound ||
@@ -131,6 +133,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
+    lepic.WalletErrorKind.inputsSpentElsewhere => WalletErrorKind.inputsSpentElsewhere,
     lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,
     lepic.WalletErrorKind.foreignUrCode => WalletErrorKind.foreignQrCode,
     lepic.WalletErrorKind.mixedUrCodes => WalletErrorKind.mixedQrCodes,
@@ -374,14 +377,17 @@ String? lepicListenerBounce(lepic.ListenerEvent e) =>
 /// LEPIC's view of a peer as the app's.
 /// The app's send options as LEPIC's. Strategy All spends every output, a consolidating
 /// send, so its change is always one output, whatever count it was given.
-lepic.SendOptions lepicSendOptions(SendOptions o) => switch (o.strategy) {
+/// [exclude]: commitments no coin selection may take (coins another linked device holds).
+lepic.SendOptions lepicSendOptions(SendOptions o, {Set<String> exclude = const {}}) => switch (o.strategy) {
   SelectionStrategy.smallest => lepic.SendOptions(
     strategy: lepic.SelectionStrategy.smallest,
     changeOutputs: o.changeOutputs,
+    excludeOutputs: exclude.isEmpty ? const [] : [...exclude],
   ),
-  SelectionStrategy.all => const lepic.SendOptions(
+  SelectionStrategy.all => lepic.SendOptions(
     strategy: lepic.SelectionStrategy.all,
     changeOutputs: 1,
+    excludeOutputs: exclude.isEmpty ? const [] : [...exclude],
   ),
 };
 
@@ -575,11 +581,6 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
       (imported != null &&
           imported.kind == lepic.ImportedTxKind.received &&
           d.slateId == null);
-  // TODO(device-link): once the pinned LEPIC has `TxOrigin.otherWallet` (a row for coins another
-  // wallet on this phrase spent or received) and `TransactionDetails.spentCommits`, pass
-  // `origin: d.origin == lepic.TxOrigin.otherWallet ? TxOrigin.otherWallet : TxOrigin.thisWallet`
-  // and `spentCommits: d.spentCommits` below. The direction (outgoing or incoming) already picks
-  // sent or received; such a row is confirmed, has no fee and no counterparty.
   return TxEntry(
     key: 'l:${d.txId}',
     id: d.txId,
@@ -606,6 +607,10 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
     numOutputs: imported?.outputCount ?? 0,
     kernelExcess: d.kernelExcess,
     outputCommits: d.outputCommits,
+    // A row for coins another wallet on this phrase spent or received: confirmed, no fee, no
+    // counterparty; the direction picks sent or received.
+    origin: d.origin == lepic.TxOrigin.otherWallet ? TxOrigin.otherWallet : TxOrigin.thisWallet,
+    spentCommits: d.spentCommits,
     counterparty: d.counterparty,
     transport: d.transport,
     messages: lepicMessages(d.messages),
@@ -1258,14 +1263,16 @@ class LepicWalletSession implements WalletSession {
   /// and amount match.
   BigInt? _maxAmount;
 
-  static const _sendAll = lepic.SendOptions(
+  /// Send-all: every coin but the [heldOutputs] into one change output.
+  lepic.SendOptions get _sendAll => lepic.SendOptions(
     strategy: lepic.SelectionStrategy.all,
     changeOutputs: 1,
+    excludeOutputs: heldOutputs.isEmpty ? const [] : [...heldOutputs],
   );
 
-  // Every call that chooses coins goes through [_optionsFor] or [estimateMax]: at the LEPIC pin
-  // with `SendOptions.exclude_outputs`, both pass [heldOutputs] there (and a non-empty set
-  // turns LEPIC's default, null, into the standard options with the exclusion).
+  // Every call that chooses coins goes through [_optionsFor] or [estimateMax], which pass
+  // [heldOutputs] to LEPIC; a non-empty set turns LEPIC's default, null, into the standard
+  // options with the exclusion.
   @override
   Set<String> heldOutputs = const {};
 
@@ -1277,14 +1284,15 @@ class LepicWalletSession implements WalletSession {
     BigInt minimumConfirmations, [
     SendOptions? options,
   ]) async {
-    if (options != null) return lepicSendOptions(options);
-    if (_maxAmount == null || amount != _maxAmount) return null;
+    if (options != null) return lepicSendOptions(options, exclude: heldOutputs);
+    final standard = heldOutputs.isEmpty ? null : lepicSendOptions(const SendOptions(), exclude: heldOutputs);
+    if (_maxAmount == null || amount != _maxAmount) return standard;
     final now = await _wallet.estimateMax(
       minimumConfirmations: minimumConfirmations,
       options: _sendAll,
     );
     _maxAmount = now.amount;
-    return now.amount == amount ? _sendAll : null;
+    return now.amount == amount ? _sendAll : standard;
   }
 
   @override
@@ -2693,12 +2701,14 @@ class _LepicPairing implements PairingApi {
 
   List<SasWord> _sas(List<lepic.SasEntry> e) => [for (final w in e) SasWord(w.emoji, w.name)];
 
-  PairingRecord _record(lepic.ContactView c) => PairingRecord(
+  /// [inviter], [inviteLink] and [way] are given for a private pairing (a device link).
+  PairingRecord _record(lepic.ContactView c, {bool? inviter, String? inviteLink, PairingWay? way}) => PairingRecord(
     id: c.contactId,
     state: lepicPairingState(c.state),
-    way: _ways[c.contactId] ?? PairingWay.inPerson,
+    way: way ?? _ways[c.contactId] ?? PairingWay.inPerson,
     // The inviter of a pairing whose answer came by hand: its confirm can be sent again.
-    inviter: _confirmLinks.containsKey(c.contactId),
+    inviter: inviter ?? _confirmLinks.containsKey(c.contactId),
+    inviteLink: inviteLink,
     createdAt: _ms(c.createdAtMs.toInt()),
     name: c.claimedName,
     label: c.label.isEmpty ? null : c.label,
@@ -2821,14 +2831,15 @@ class _LepicPairing implements PairingApi {
     String? label,
     String? contactId,
   }) => _call(() async {
-    // TODO(device-link): pass `meetingRelays: _meetingRelays` once LEPIC's pairing_invite takes
-    // the per-call `meeting_relays` parameter; until then the core's built-in list is used.
+    // Words meet on the Connection servers (null: LEPIC's built-in list).
     final invite = await _w.pairingInvite(
       name: name.trim(),
       kind: lepic.ContactKind.person,
       expiry: _expiry(expiry),
       offerWords: words,
       relayMode: lepicRelayMode(),
+      meetingRelays: _meetingRelays,
+      pairingClass: lepic.PairingClass.contact,
     );
     final id = invite.contactId;
     _inviteLinks[id] = invite.link;
@@ -2898,9 +2909,7 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingInvitePreview> openWords(List<String> words) => _call(() async {
-    // TODO(device-link): pass `meetingRelays: _meetingRelays` once LEPIC's pairing_find_words
-    // takes the per-call `meeting_relays` parameter.
-    final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode());
+    final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode(), meetingRelays: _meetingRelays);
     await _refuseOwn(found.link, found.preview);
     return _preview(found.link, found.preview);
   }, words: true);
@@ -2926,7 +2935,13 @@ class _LepicPairing implements PairingApi {
     String? contactId,
     bool byHand = false,
   }) => _call(() async {
-    final answer = await _w.pairingAccept(link: token, name: name.trim(), byHand: byHand, relayMode: lepicRelayMode());
+    final answer = await _w.pairingAccept(
+      link: token,
+      name: name.trim(),
+      byHand: byHand,
+      relayMode: lepicRelayMode(),
+      pairingClass: lepic.PairingClass.contact,
+    );
     final id = answer.contactId;
     _replyLinks[id] = answer.replyLink;
     _ways[id] = PairingWay.link;
@@ -2978,6 +2993,7 @@ class _LepicPairing implements PairingApi {
     if (check == PairingCheck.match && _wantsInvoices.remove(id)) {
       await _w.contactSetAllowInvoices(contactId: id, allow: true);
     }
+    if (_privateLinks.containsKey(id) || (await _w.privatePairings()).any((c) => c.contactId == id)) return _privateOf(id);
     return _record(await _w.contact(contactId: id));
   });
 
@@ -3211,41 +3227,94 @@ class _LepicPairing implements PairingApi {
     return _events.stream;
   }
 
-  // Private pairings (linked devices) wait for the LEPIC pin with the private pairing class;
-  // the lead wires each call to the LEPIC call named beside it.
+  // Private pairings (linked devices): LEPIC's private class, never listed with the contacts.
+
+  /// Private invites this run made, by id: their link for the QR, and that this side invited.
+  final Map<String, String> _privateLinks = {};
 
   @override
-  bool get privateSupported => false;
+  bool get privateSupported => true;
 
-  // LEPIC `private_pairings()`.
-  @override
-  Future<List<PairingRecord>> privatePairings() async => const [];
+  PairingRecord _privateRecord(lepic.ContactView c) =>
+      _record(c, inviter: _privateLinks.containsKey(c.contactId), inviteLink: _privateLinks[c.contactId], way: PairingWay.link);
 
-  // LEPIC `pairing_invite(class: PairingClass::Private, home_relay:, name:, expiry:)`, no words.
   @override
-  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) async =>
-      throw pairingUnsupported('makePrivateInvite');
+  Future<List<PairingRecord>> privatePairings() => _call(() async {
+    final all = [for (final c in await _w.privatePairings()) _privateRecord(c)];
+    return all.reversed.toList();
+  });
 
-  // LEPIC `pairing_accept(class: PairingClass::Private, link:, name:)`.
-  @override
-  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) async =>
-      throw pairingUnsupported('acceptPrivateInvite');
+  Future<PairingRecord> _privateOf(String id) async {
+    for (final c in await _w.privatePairings()) {
+      if (c.contactId == id) return _privateRecord(c);
+    }
+    throw pairingError(PairingFailure.notFound);
+  }
 
-  // LEPIC `contacts_collect(only: [ids])` over the private pairings, then `contacts_outbox_deliver`.
   @override
-  Future<int> collectPrivate({List<String>? only}) async => 0;
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) =>
+      _call(() async {
+        // The shortest expiry LEPIC offers; the link flow itself gives up after [expiry].
+        final invite = await _w.pairingInvite(
+          name: name.trim(),
+          kind: lepic.ContactKind.person,
+          expiry: lepic.InviteExpiry.oneHour,
+          offerWords: false,
+          relayMode: lepicRelayMode(),
+          homeRelay: homeRelay,
+          pairingClass: lepic.PairingClass.private,
+        );
+        _privateLinks[invite.contactId] = invite.link;
+        return _privateOf(invite.contactId);
+      });
 
-  // LEPIC `contact_post_payload(contact_id, bytes, relay_mode)`.
   @override
-  Future<void> postPayload({required String id, required List<int> bytes}) async => throw pairingUnsupported('postPayload');
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) => _call(() async {
+    final answer = await _w.pairingAccept(
+      link: link.trim(),
+      name: name.trim(),
+      byHand: false,
+      relayMode: lepicRelayMode(),
+      pairingClass: lepic.PairingClass.private,
+    );
+    return _privateOf(answer.contactId);
+  });
 
-  // LEPIC's received payloads (from collect, kept until acknowledged).
   @override
-  Future<List<PairingPayload>> payloads() async => const [];
+  Future<int> collectPrivate({List<String>? only}) async {
+    if (NetGate.offline || !NetGate.linkedDevices) return 0;
+    _s._watchEvents();
+    try {
+      final ids = only ?? [for (final c in await _w.privatePairings()) c.contactId];
+      if (ids.isEmpty) return 0;
+      final report = await _w.contactsCollect(trigger: lepic.CollectTrigger.foreground, relayMode: lepicRelayMode(), only: ids);
+      try {
+        await _w.contactsOutboxDeliver(relayMode: lepicRelayMode());
+      } on lepic.WalletError catch (error) {
+        logWarn('devices', 'outbox not delivered: ${error.kind.name}');
+      }
+      return report.paired;
+    } on lepic.WalletError catch (error) {
+      logWarn('devices', 'collect failed: ${error.kind.name}');
+      return 0;
+    }
+  }
 
-  // LEPIC `contact_payloads_ack(ids)`.
   @override
-  Future<void> ackPayloads(List<String> ids) async {}
+  Future<void> postPayload({required String id, required List<int> bytes}) => _call(() async {
+    await _w.contactPostPayload(contactId: id, payload: Uint8List.fromList(bytes), relayMode: lepicRelayMode());
+  });
+
+  @override
+  Future<List<PairingPayload>> payloads() => _call(() async => [
+    for (final p in await _w.contactPayloads())
+      PairingPayload(id: p.id, pairingId: p.contactId, bytes: p.payload, receivedAt: _ms(p.receivedAtMs.toInt())),
+  ]);
+
+  @override
+  Future<void> ackPayloads(List<String> ids) => _call(() async {
+    if (ids.isNotEmpty) await _w.contactPayloadsAck(ids: ids);
+  });
 
   /// A LEPIC wallet event about a contact, as the app's, or nothing for any other.
   Future<void> onWalletEvent(lepic.WalletEvent e) async {

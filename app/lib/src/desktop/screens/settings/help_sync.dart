@@ -1,6 +1,7 @@
 /// The desktop's side of Help › How linked devices work: the sync picture with the servers the
-/// link uses, and the live status panel from the desktop's device view
-/// (`data/help_devices_view.dart`), the servers' health from the Epicbox list the wallet keeps.
+/// link uses, and the live status panel from the desktop's device view (`data/devices_state.dart`),
+/// the servers' health from the Epicbox list the wallet keeps, Link a device as the Linked
+/// devices page opens it.
 library;
 
 import 'package:flutter/material.dart';
@@ -8,10 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network.dart' show EpicboxRelay;
 import '../../../ui/devices/sync_help.dart';
-import '../../data/help_devices_view.dart';
+import '../../data/devices_state.dart' show deskDeviceClockProvider, deskDeviceViewProvider;
 import '../../data/server_lists.dart' show relayLabel;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../devices/link_flow.dart' show showDeskLinkDevice;
 
 /// The picture, drawn with as many servers as the link uses (two before the first link).
 class DeskSyncDiagram extends ConsumerWidget {
@@ -19,7 +21,7 @@ class DeskSyncDiagram extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final servers = ref.watch(deskHelpDeviceViewProvider.select((v) => v?.book.servers.length ?? 0));
+    final servers = ref.watch(deskDeviceViewProvider.select((v) => v?.book.servers.length ?? 0));
     return SyncDiagram(servers: servers == 0 ? 2 : servers, thisIsPhone: false);
   }
 }
@@ -31,9 +33,8 @@ class DeskSyncStatus extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final view = ref.watch(deskHelpDeviceViewProvider);
+    final view = ref.watch(deskDeviceViewProvider);
     final boxes = ref.watch(deskProvider.select((s) => s.epicboxes)) ?? const [];
-    final link = ref.watch(deskHelpLinkProvider);
     SyncServerState state(String server) {
       final label = EpicboxRelay.parse(server)?.label ?? server;
       final known = boxes.where((b) => relayLabel(b) == label).firstOrNull;
@@ -45,10 +46,11 @@ class DeskSyncStatus extends ConsumerWidget {
     }
     return SyncStatusPanel(
       view: view,
-      now: DateTime.now(),
+      now: ref.watch(deskDeviceClockProvider)(),
       serverState: state,
       thisIsPhone: false,
-      linkAction: link == null ? null : EButton(label: l.devicesLink, size: EBtnSize.sm, onPressed: link),
+      // Without a service (the wallet locked, Linked devices off) there is nothing to link to.
+      linkAction: view == null || !view.supported ? null : EButton(label: l.devicesLink, size: EBtnSize.sm, onPressed: () => showDeskLinkDevice(context)),
     );
   }
 }

@@ -16,7 +16,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDayMonth;
 import '../../../models.dart'
     show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, WalletError, WalletErrorKind, pairingError, pairingFailureOf;
+import '../../../devices/device_link_code.dart' show isDeviceLinkText;
 import '../../../help/help_content.dart' show HelpId;
+import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../../log.dart' show logInfo;
 import '../../../pairing_api.dart';
 import '../../../pairing_clip_probe.dart' show pairingClipReaderProvider;
@@ -333,7 +335,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   List<String> get _words => pairingWordParts(_enter.text);
 
   bool get _ready {
-    if (pairingLinkIn(_enter.text) != null) return true;
+    if (pairingLinkIn(_enter.text) != null || isDeviceLinkText(_enter.text)) return true;
     final w = _words;
     return w.length == pairingWordCount && w.every((x) => (sasWordNamed(x) ?? sasWordOfEmoji(x)) != null);
   }
@@ -341,6 +343,13 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   Future<void> _go() async {
     if (_busy || !_ready) return;
     final l = context.l10n;
+    // A device link opens Link a device, not a pairing.
+    if (isDeviceLinkText(_enter.text)) {
+      final text = _enter.text;
+      _enter.clear();
+      await showDeskLinkDevice(context, pasted: text);
+      return;
+    }
     // A card link needs this wallet's own card, and a card needs the name others see.
     if (pairingLinkKind(_enter.text) == PairingLinkKind.card && ref.read(deskOwnCardProvider) == null && _seenAs.isEmpty) {
       setState(() {
@@ -910,6 +919,8 @@ Future<void> copyToClipboard(BuildContext context, String text, String toast) as
 /// a finish link opens the words. A reply or finish link of a pairing that finished already
 /// (the relay was faster) only says so.
 Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pasted, {Contact? contact}) async {
+  // A device link is Link a device's, not a pairing's.
+  if (isDeviceLinkText(pasted)) return showDeskLinkDevice(context, pasted: pasted);
   final api = ref.read(deskPairingApiProvider);
   final l = context.l10n;
   final kind = pairingLinkKind(pasted);

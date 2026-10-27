@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
+import '../../../models.dart' show DeviceEnding;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
@@ -16,6 +18,8 @@ export '../../data/method_names.dart' show methodLabel;
 /// Who the other side is: the contact's name, else a shortened address or the file name, else
 /// what kind of transaction it was.
 String whoOf(AppLocalizations l, Tx t) {
+  // A payment another linked device made: the row says where it came from.
+  if (t.deviceName != null) return l.txSentFromDevice(t.deviceName!);
   if (t.contactName != null) return t.contactName!;
   if (t.toSelf) return l.deskTxThisWallet;
   if (t.coinbase) return l.deskTxMiningReward;
@@ -95,7 +99,7 @@ String? whoTip(AppLocalizations l, Tx t) =>
     t.detail ?? (t.foundByScan && t.contactName == null && t.counterparty == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
 
 /// Whether the name is an address (shown in mono).
-bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
+bool whoIsAddress(Tx t) => t.deviceName == null && t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodLabel(l, t.method);
@@ -111,8 +115,20 @@ IconData iconOf(Tx t) => switch (t.method) {
   _ => t.incoming ? EIcons.receive : EIcons.send,
 };
 
+/// Whether the state of [t] is another linked device's word (held, ended there, released here,
+/// expired by a fallback) and not yet the chain's: the row carries the info mark.
+bool deskStatusFromDevice(Tx t) => t.deviceName != null && t.height == null;
+
+/// The info mark behind such a status: hover or focus says where the status comes from.
+Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
+  padding: EdgeInsetsDirectional.only(start: Sp.x1),
+  child: EInfoHint(l.devicesStatusInfo(t.deviceName ?? ''), title: l.txSentFromDevice(t.deviceName ?? ''), icon: EIcons.devices),
+);
+
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(AppLocalizations l, Tx t) => t.fromBackup
+(String, ETone) statusOf(AppLocalizations l, Tx t) => t.deviceEnding != null
+    ? (deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''), t.deviceEnding == DeviceEnding.failed ? ETone.risk : ETone.warn)
+    : t.fromBackup
     ? (l.deskTxFromBackup, ETone.neutral)
     : t.immature
     ? (l.deskTxStatusImmature, ETone.warn)
@@ -394,14 +410,17 @@ class _TxRowState extends ConsumerState<TxRow> {
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final l = context.l10n;
-    final editing = widget.labelEditable && ref.watch(txLabelEditingProvider) == _site;
+    final fromDevice = deskStatusFromDevice(t);
+    // Another device's payment takes no label here: the row is rebuilt from its notices.
+    final labelEditable = widget.labelEditable && t.deviceName == null;
+    final editing = labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
     final restoredMethod = restoredMethodOf(l, t);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
     final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
-    final replaced = labelled && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
+    final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     final meta = <InlineSpan>[
       for (final (i, p) in parts.indexed) ...[
@@ -439,7 +458,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                   child: _Tip(message: widget.title == null && !labelled && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null, child: name),
                 ),
               ),
-              if (widget.labelEditable) ...[
+              if (labelEditable) ...[
                 SizedBox(width: Sp.x1),
                 TxPen(
                   tx: t,
@@ -479,6 +498,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: toneColor),
                   ),
                 ),
+                if (fromDevice) deskDeviceStatusInfo(l, t),
               ],
             ),
           )
@@ -528,6 +548,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                             style: ts.small.copyWith(color: toneColor),
                           ),
                         ),
+                        if (fromDevice) deskDeviceStatusInfo(l, t),
                       ],
                     ),
             ),

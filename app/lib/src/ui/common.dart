@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
+import '../devices/device_ending.dart';
+import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
@@ -722,7 +724,8 @@ String txStatusLabel(
   // A completed row says which way the money went, as the desktop does.
   TxPhase.completed => _outgoingKind(tx) ? l.txStatusSent : l.txStatusReceived,
   // Another linked device's payment whose coins this device released: it may still send it.
-  TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice => l.devicesReleasedRow(tx.deviceName ?? ''),
+  TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice =>
+    deviceEndingLabel(l, tx.deviceEnding ?? DeviceEnding.releasedHere, tx.deviceName ?? ''),
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };
@@ -1022,7 +1025,7 @@ class TxStatusChip extends ConsumerWidget {
       // Cancelled is over, not wrong: the same neutral badge as a completed payment.
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
-    return EBadge(
+    final badge = EBadge(
       txStatusLabel(
         context.l10n,
         tx,
@@ -1033,6 +1036,16 @@ class TxStatusChip extends ConsumerWidget {
         paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
       ),
       tone: tone,
+    );
+    // A status another device told, not yet the chain's: the mark says so.
+    if (tx.origin != TxOrigin.linkedDevice || tx.blockHeight != null) return badge;
+    final name = tx.deviceName ?? '';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        badge,
+        InfoHint(context.l10n.devicesStatusInfo(name), size: 32, title: context.l10n.txSentFromDevice(name)),
+      ],
     );
   }
 }

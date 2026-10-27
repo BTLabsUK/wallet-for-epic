@@ -46,6 +46,7 @@ class _SendingWallet extends _NoNativeWallet {
     ],
     origin: lepic.TxOrigin.wallet,
     outputCommits: const [],
+    spentCommits: const [],
   );
 
   @override
@@ -263,6 +264,7 @@ void main() {
       messages: const [],
       origin: lepic.TxOrigin.wallet,
       outputCommits: const [],
+      spentCommits: const [],
     );
     expect(lepicTxEntry(send()).undelivered, isTrue);
     // The first attempt of a send still running is undelivered for LEPIC too.
@@ -378,7 +380,7 @@ void main() {
       );
       const all = lepic.SendOptions(
         strategy: lepic.SelectionStrategy.all,
-        changeOutputs: 1,
+        changeOutputs: 1, excludeOutputs: [],
       );
       // estimateMax, its re-check before the send, the send; the small send has none.
       expect(wallet.options, [all, all, all, null]);
@@ -410,7 +412,7 @@ void main() {
         minimumConfirmations: BigInt.from(3),
         options: const SendOptions(strategy: SelectionStrategy.all),
       );
-      expect(wallet.options.last, const lepic.SendOptions(strategy: lepic.SelectionStrategy.all, changeOutputs: 1));
+      expect(wallet.options.last, const lepic.SendOptions(strategy: lepic.SelectionStrategy.all, changeOutputs: 1, excludeOutputs: []));
     });
 
     test('given options reach LEPIC, and the whole estimate comes back', () async {
@@ -431,15 +433,15 @@ void main() {
       expect(wallet.options, [
         const lepic.SendOptions(
           strategy: lepic.SelectionStrategy.smallest,
-          changeOutputs: 4,
+          changeOutputs: 4, excludeOutputs: [],
         ),
         const lepic.SendOptions(
           strategy: lepic.SelectionStrategy.all,
-          changeOutputs: 1,
+          changeOutputs: 1, excludeOutputs: [],
         ),
         const lepic.SendOptions(
           strategy: lepic.SelectionStrategy.smallest,
-          changeOutputs: 1,
+          changeOutputs: 1, excludeOutputs: [],
         ),
       ]);
       expect(
@@ -662,6 +664,7 @@ void main() {
       imported: imported,
       found: found,
       outputCommits: outputCommits,
+      spentCommits: const [],
     );
 
     test('a send waiting for its answer can be cancelled', () {

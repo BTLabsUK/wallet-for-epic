@@ -110,6 +110,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     flow: flow,
     origin: lepic.TxOrigin.wallet,
     outputCommits: const [],
+    spentCommits: const [],
   );
 
   void setStatus(int txId, lepic.TxStatus status) {

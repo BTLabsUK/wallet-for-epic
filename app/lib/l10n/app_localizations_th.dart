@@ -17492,6 +17492,123 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get deskDevServersNote => 'เลือกได้สูงสุด 2';
+
+  @override
+  String get deskDevServersCancel => 'ยกเลิกการเปลี่ยน';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$down จาก $n ไม่ตอบสนอง การแจ้งเตือนจะส่งผ่านเซิร์ฟเวอร์อีกตัว';
+  }
+
+  @override
+  String get deskDevServersAllDown =>
+      'ไม่มีเซิร์ฟเวอร์ตอบสนอง การแจ้งเตือนจะรอและส่งเมื่อมีเซิร์ฟเวอร์กลับมา';
+
+  @override
+  String get deskDevServersInfo1 =>
+      'อุปกรณ์ที่เชื่อมโยงส่งการแจ้งเตือนถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกการแจ้งเตือนส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
+
+  @override
+  String get deskDevServersInfo2 =>
+      'การเปลี่ยนจะส่งไปยังอุปกรณ์อื่นก่อน และมีผลเมื่อทุกเครื่องยอมรับ ก่อนหน้านั้นยังใช้เซิร์ฟเวอร์เดิม และหลังจากนั้นยังอ่านจากเซิร์ฟเวอร์เดิมอีก 7 วัน';
+
+  @override
+  String get deskDevServersInfo3 =>
+      'เซิร์ฟเวอร์เห็นว่าอุปกรณ์สองเครื่องแลกเปลี่ยนการแจ้งเตือนและเมื่อใด แต่ไม่เห็นเนื้อหา เซิร์ฟเวอร์สองตัวหมายความว่าผู้ให้บริการสองรายเห็นสิ่งนี้';
+
+  @override
+  String get deskDevPausedOffline => 'หยุดชั่วคราวในโหมดออฟไลน์';
+
+  @override
+  String get deskDevPausedEpicboxOff => 'หยุดชั่วคราวขณะ Epicbox ปิดอยู่';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => 'ไม่มีเหรียญที่ถูกพักไว้';
+
+  @override
+  String get deskDevRenameThis => 'เปลี่ยนชื่อคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return 'เปลี่ยนชื่อ $name';
+  }
+
+  @override
+  String get deskDevPasteLead => 'วางรหัสที่อุปกรณ์อีกเครื่องแสดง';
+
+  @override
+  String get deskDevMakingCode => 'กำลังสร้างรหัส…';
+
+  @override
+  String get deskDevConnecting => 'กำลังเชื่อมต่อ…';
+
+  @override
+  String get deskDevTheOther => 'อุปกรณ์อีกเครื่อง';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return 'เซิร์ฟเวอร์: $servers';
+  }
+
+  @override
+  String get deskDevOfferReceived =>
+      'นี่คืออุปกรณ์อีกเครื่องของคุณหรือไม่ เชื่อมโยงเพื่อดูว่าใครส่งมา และให้ทั้งสองเครื่องตรงกัน';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'ยกเลิกบน $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'ล้มเหลวบน $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'หมดอายุบน $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name ยกเลิกรายการนี้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name ทำรายการนี้ไม่เสร็จทันเวลา เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name ส่งรายการนี้ถึงผู้รับไม่ได้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'เซิร์ฟเวอร์ของผู้รับปฏิเสธรายการนี้ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+
+  @override
+  String get devicesWhyInputsSpent => 'เหรียญของรายการนี้ถูกใช้ไปแล้ว';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name ทำรายการนี้ไม่สำเร็จ เหรียญของรายการกลับมาใช้ได้อีกครั้ง';
+  }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'สถานะนี้มาจาก $name สถานะสุดท้ายขึ้นอยู่กับบล็อกเชน';
+  }
+
+  @override
   String get syncHelpOtherDevice => 'อุปกรณ์อีกเครื่อง';
 
   @override

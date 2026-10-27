@@ -21,6 +21,7 @@ import '../../../history/backup_summary.dart';
 import '../../data/backup_settings_desk.dart';
 import '../../data/pairing_state.dart' show deskPairingCall;
 import '../../widgets/kit.dart';
+import '../devices/link_offer.dart';
 import 'history_conflicts.dart';
 
 /// The open wallet's backup record; read again when the transactions change.
@@ -766,7 +767,14 @@ class HistoryImportOfferDialog extends StatelessWidget {
       title: l.deskOvRestoredImportTitle,
       description: l.deskOvRestoredImportBody,
       icon: EIcons.archive,
-      body: Text(l.deskOvRestoredImportLater, style: context.ts.small),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.deskOvRestoredImportLater, style: context.ts.small),
+          // Using this wallet on another device too: the one quiet offer to link them.
+          DeskLinkOffer(text: l.offerLinkRestore, inDialog: true),
+        ],
+      ),
       actions: [
         EButton.ghost(label: l.deskSetBackupNotNow, onPressed: () => Navigator.pop(context, false)),
         EButton.primary(label: l.deskOvRestoredImportButton, icon: EIcons.upload, onPressed: () => Navigator.pop(context, true)),

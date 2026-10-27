@@ -5,7 +5,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import 'api.dart';
+import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
@@ -228,6 +230,19 @@ class DeskController extends Notifier<DeskState> {
     }
   }
 
+  /// Reads the balance and the rows again, without asking the node: linked devices changed what
+  /// they show (a payment of the other device, coins it holds).
+  Future<void> reloadWallet() async {
+    if (_changes == null) return;
+    try {
+      final balance = await api.balance();
+      final txs = await api.transactions();
+      if (_changes != null) state = state.copyWith(balance: balance, txs: txs);
+    } on Object {
+      // Locked meanwhile.
+    }
+  }
+
   /// Loads everything; called after unlock and by Refresh.
   Future<void> refresh() async {
     final a = api;
@@ -262,6 +277,9 @@ class DeskController extends Notifier<DeskState> {
   /// Refresh (Overview, Activity): asks the node now, then reloads everything. Rethrows why the
   /// node could not be asked; the lists are reloaded either way.
   Future<void> syncNow() async {
+    // The other devices are read at the same time, not after the node.
+    final devices = ref.read(deskDeviceHandleProvider).service;
+    if (devices != null) unawaited(devices.sync(DeviceSyncTrigger.refresh));
     try {
       await api.syncNow();
     } finally {
@@ -405,7 +423,15 @@ class DeskController extends Notifier<DeskState> {
   int get sending => ref.read(deskSendingProvider);
 
   Future<SendResult> send(SendRequest r) async {
-    final result = await ref.read(deskSendingProvider.notifier).during(() => api.send(r));
+    // One read of the other devices before coins are chosen (at most 3 s): what they hold is left out.
+    final devices = ref.read(deskDeviceHandleProvider).service;
+    // Counted from here on, so a Quit waits for it (the read of the other devices is part of it).
+    final result = await ref.read(deskSendingProvider.notifier).during(() async {
+      await devices?.beforeSend();
+      return api.send(r);
+    });
+    // The other devices hear of it at once, not at the next tick.
+    if (devices != null) unawaited(devices.announceNow());
     // The lists catch up; a failure here does not change what happened to the payment.
     try {
       final txs = await api.transactions();

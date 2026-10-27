@@ -5,6 +5,8 @@ library;
 
 import 'dart:typed_data';
 
+import '../../devices/device_model.dart' show DeviceBook;
+import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
 import '../../server_list.dart' show ServerList;
 
@@ -453,4 +455,14 @@ abstract interface class DeskWalletApi {
   /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
+
+  /// What linked devices (`devices/`) need from the open wallet: its pairing engine, outputs,
+  /// history and the coins every send leaves out; null while locked. [online] says whether the
+  /// channel may reach the servers now.
+  DeviceHost? deviceHost({required bool Function() online});
+
+  /// Where the wallet reads the book of linked devices from, or null for none: the history
+  /// merges the other devices' payments ([mergeDeviceHistory]) and the balance and the outputs
+  /// show the coins they hold as locked. [DeskController.reloadWallet] reads them again.
+  void useDevices(DeviceBook? Function()? book);
 }

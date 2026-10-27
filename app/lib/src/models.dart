@@ -1430,6 +1430,23 @@ enum TxOrigin {
   linkedDevice,
 }
 
+/// How a linked device's payment that did not go through ended, as this device's row of it
+/// reads ([TxEntry.deviceEnding]).
+enum DeviceEnding {
+  /// The coins were released on this device (by hand, or the device was removed); the other
+  /// device may still send the payment.
+  releasedHere,
+
+  /// The other device cancelled it.
+  cancelled,
+
+  /// It failed on the other device; [TxEntry.deviceWhy] says why, as a code.
+  failed,
+
+  /// It ran out of time: the other device said so, or this device's fallback did.
+  expired,
+}
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
@@ -1463,6 +1480,14 @@ class TxEntry {
 
   /// The linked device that made this send, for a row of [TxOrigin.linkedDevice]; null else.
   final String? deviceName;
+
+  /// For a row of [TxOrigin.linkedDevice] that did not go through (status cancelled): how it
+  /// ended. Null for a payment under way or confirmed.
+  final DeviceEnding? deviceEnding;
+
+  /// The other device's code for a failed payment (`notDelivered`, `refused`, `inputsSpent`,
+  /// `other`); null when it gave none.
+  final String? deviceWhy;
 
   /// What carried the slate, as LEPIC names it (`epicbox`, `file`, `http`, `tor`), when known.
   /// Not sent over the remote protocol.
@@ -1563,6 +1588,8 @@ class TxEntry {
     required this.outputCommits,
     this.counterparty,
     this.deviceName,
+    this.deviceEnding,
+    this.deviceWhy,
     this.transport,
     this.note,
     this.label,
@@ -1622,6 +1649,8 @@ class TxEntry {
       outputCommits.hashCode ^
       counterparty.hashCode ^
       deviceName.hashCode ^
+      deviceEnding.hashCode ^
+      deviceWhy.hashCode ^
       transport.hashCode ^
       note.hashCode ^
       label.hashCode ^
@@ -1669,6 +1698,8 @@ class TxEntry {
           outputCommits == other.outputCommits &&
           counterparty == other.counterparty &&
           deviceName == other.deviceName &&
+          deviceEnding == other.deviceEnding &&
+          deviceWhy == other.deviceWhy &&
           transport == other.transport &&
           note == other.note &&
           label == other.label &&

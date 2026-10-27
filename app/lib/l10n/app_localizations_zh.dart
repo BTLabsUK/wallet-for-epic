@@ -16843,6 +16843,120 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get deskDevServersNote => '最多选择 2 个。';
+
+  @override
+  String get deskDevServersCancel => '取消更改';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$n 个中有 $down 个无响应。通知经由另一个发送。';
+  }
+
+  @override
+  String get deskDevServersAllDown => '没有服务器响应。通知会等待，待有服务器恢复后发送。';
+
+  @override
+  String get deskDevServersInfo1 =>
+      '关联设备通过这些服务器互相发送通知。每条通知都会发往所有所选服务器，因此一个服务器故障不会有影响。';
+
+  @override
+  String get deskDevServersInfo2 =>
+      '更改会先发送给其他设备，待每台设备接受后才生效。在此之前继续使用原来的服务器，生效后原服务器还会被读取 7 天。';
+
+  @override
+  String get deskDevServersInfo3 =>
+      '服务器能看到两台设备在何时交换通知，但看不到内容。两个服务器意味着两个运营方能看到这些。';
+
+  @override
+  String get deskDevPausedOffline => '离线模式下已暂停。';
+
+  @override
+  String get deskDevPausedEpicboxOff => 'Epicbox 关闭时已暂停。';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => '没有被保留的币。';
+
+  @override
+  String get deskDevRenameThis => '重命名这台电脑';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return '重命名 $name';
+  }
+
+  @override
+  String get deskDevPasteLead => '粘贴另一台设备显示的代码。';
+
+  @override
+  String get deskDevMakingCode => '正在生成代码…';
+
+  @override
+  String get deskDevConnecting => '正在连接…';
+
+  @override
+  String get deskDevTheOther => '另一台设备';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return '服务器：$servers';
+  }
+
+  @override
+  String get deskDevOfferReceived => '这是你的另一台设备吗？关联它即可看到是谁发来的，并让两台设备保持同步。';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return '在 $name 上已取消';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return '在 $name 上失败';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return '在 $name 上已过期';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name 取消了这笔付款。其币已重新可用。';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name 未能及时完成这笔付款。其币已重新可用。';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name 无法将其送达收款方。其币已重新可用。';
+  }
+
+  @override
+  String get devicesWhyRefused => '收款方的服务器拒绝了它。其币已重新可用。';
+
+  @override
+  String get devicesWhyInputsSpent => '其币此前已被花费。';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name 无法完成这笔付款。其币已重新可用。';
+  }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return '此状态来自 $name。最终状态以区块链为准。';
+  }
+
+  @override
   String get syncHelpOtherDevice => '另一台设备';
 
   @override

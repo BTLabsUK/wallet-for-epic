@@ -7,6 +7,9 @@ import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../../../devices/device_providers.dart' show holdOf;
+import '../../data/devices_state.dart' show deskDeviceBookProvider;
+import '../settings/settings_devices.dart' show deskReleaseHeld;
 import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
 
@@ -99,6 +102,13 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   void dispose() {
     _query.dispose();
     super.dispose();
+  }
+
+  /// Release by hand on the coin another device's payment holds (the plan's confirm).
+  Future<void> _releaseHeld(Output o) async {
+    final book = ref.read(deskDeviceBookProvider);
+    final hold = book == null ? null : holdOf(book, o.commitment);
+    if (hold != null) await deskReleaseHeld(context, ref, hold);
   }
 
   Future<void> _refresh() async {
@@ -386,6 +396,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                     tip: tip,
                     tx: txs[o.txId],
                     onTx: o.txId == null ? null : () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, o.txId),
+                    onRelease: o.heldBy == null ? null : () => _releaseHeld(o),
                   ),
                 ],
               ],
@@ -610,12 +621,15 @@ class _OutputHead extends StatelessWidget {
 }
 
 class _OutputRow extends StatelessWidget {
-  const _OutputRow({required this.output, required this.tip, this.tx, this.onTx});
+  const _OutputRow({required this.output, required this.tip, this.tx, this.onTx, this.onRelease});
 
   final Output output;
   final int tip;
   final Tx? tx;
   final VoidCallback? onTx;
+
+  /// Release by hand, for a coin another device's payment holds.
+  final VoidCallback? onRelease;
 
   (String, String?, Color) _status(AppLocalizations l, DeskColors c) {
     final o = output;
@@ -626,7 +640,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
       OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.warn),
       OutputWord.mining => (l.deskOutStatusMining, null, c.warn),
-      OutputWord.locked => (l.deskOutStatusLocked, o.txId == null ? null : l.deskOutNoteBySend(o.txId!), c.dim),
+      OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : l.deskOutNoteBySend(o.txId!)), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
     };
   }
@@ -665,7 +679,8 @@ class _OutputRow extends StatelessWidget {
                 if ((note ?? extra) != null) TextSpan(text: ' · ${note ?? extra}', style: TextStyle(color: c.faint)),
               ],
             ),
-            maxLines: 1,
+            // A coin another device holds names the payment: two lines.
+            maxLines: o.heldBy != null ? 2 : 1,
             overflow: TextOverflow.ellipsis,
             style: ts.small,
           ),
@@ -683,7 +698,9 @@ class _OutputRow extends StatelessWidget {
       child: EMoney(o.value, unit: false, color: spent ? c.faint : c.text),
     );
     final t = tx;
-    final txCell = t == null
+    final txCell = onRelease != null
+        ? Align(alignment: Alignment.centerLeft, child: ELink(key: ValueKey('out-release-${o.commitment}'), label: l.devicesRelease, onPressed: onRelease))
+        : t == null
         ? Text(o.txId == null ? '–' : '#${o.txId}', style: ts.small.copyWith(color: c.faint))
         : Align(
             alignment: Alignment.centerLeft,

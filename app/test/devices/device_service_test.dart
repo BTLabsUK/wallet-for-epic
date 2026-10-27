@@ -18,7 +18,7 @@ const _s1 = 'epicbox.epiccash.com';
 const _s2 = 'epicbox.stackwallet.com';
 
 /// [side]'s own send [slate] of 3 EPIC spending coin 2 (as LEPIC lists it), [cancelled] or not.
-void _send(Side side, String slate, {int tx = 7, int coinNo = 2, bool cancelled = false}) {
+void _send(Side side, String slate, {int tx = 7, int coinNo = 2, bool cancelled = false, CancelReason reason = CancelReason.user, int? cutoff}) {
   side.session.transactionsValue = [
     fakeTx(
       id: tx,
@@ -28,7 +28,8 @@ void _send(Side side, String slate, {int tx = 7, int coinNo = 2, bool cancelled 
       amountDebited: BigInt.from(300000000 + 800000),
       fee: BigInt.from(800000),
       counterparty: 'esBob@epicbox.epiccash.com',
-      cancelReason: cancelled ? CancelReason.user : null,
+      cancelReason: cancelled ? reason : null,
+      ttlCutoffHeight: cutoff == null ? null : BigInt.from(cutoff),
     ),
   ];
   side.session.outputsValue = [
@@ -339,6 +340,150 @@ void main() {
       await b.sync();
       expect(b.service.book.holds.single.state, HoldState.byHand);
       expect(b.session.heldOutputs, isEmpty);
+    });
+  });
+
+  group('the sending device ends its payment', () {
+    setUp(() async => linkBoth(a, b));
+
+    /// The row B shows for A's payment.
+    Future<TxEntry> row() async => mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book).single;
+
+    /// B's own chain check sees coin 2 spent by A after all.
+    void chainShowsSpent() {
+      b.session.outputsValue = [
+        for (final o in b.session.outputsValue) o.commitment == cm(2) ? coin(2, 3, status: WalletOutputStatus.spent) : o,
+      ];
+      b.session.transactionsValue = [
+        TxEntry(
+          key: 'k:chain',
+          kind: TxKind.sent,
+          status: TxStatus.confirmed,
+          source: TxSource.wallet,
+          createdAtUnix: 1790000600,
+          timeUnix: 1790000600,
+          confirmed: true,
+          blockHeight: BigInt.from(1001),
+          amountCredited: BigInt.zero,
+          amountDebited: BigInt.from(300800000),
+          numInputs: 1,
+          numOutputs: 0,
+          outputCommits: const [],
+          cancellable: false,
+          repostable: false,
+          releasable: false,
+          origin: TxOrigin.otherWallet,
+          spentCommits: [cm(2)],
+        ),
+      ];
+    }
+
+    test('A cancels: B unlocks by itself and the row reads Cancelled, no action', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      expect(b.session.heldOutputs, {cm(2)});
+      expect((await row()).deviceEnding, isNull);
+      _send(a, 'pay-1', cancelled: true);
+      await settle(a, b);
+      expect(b.session.heldOutputs, isEmpty);
+      final hold = b.service.book.holds.single;
+      expect(hold.state, HoldState.released);
+      expect(hold.ending, DeviceEnding.cancelled);
+      final r = await row();
+      expect(r.status, TxStatus.cancelled);
+      expect(r.deviceEnding, DeviceEnding.cancelled);
+      expect(r.deviceWhy, isNull);
+      expect(r.deviceName, 'Desktop');
+    });
+
+    test("A's send fails: B unlocks and the row reads Failed with A's reason code", () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      _send(a, 'pay-1', cancelled: true, reason: CancelReason.failed);
+      await settle(a, b);
+      expect(b.session.heldOutputs, isEmpty);
+      final r = await row();
+      expect(r.deviceEnding, DeviceEnding.failed);
+      expect(r.deviceWhy, 'notDelivered');
+      expect(b.service.book.holds.single.why, 'notDelivered');
+    });
+
+    test('A\'s payment expires: B unlocks and the row reads Expired', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      _send(a, 'pay-1', cancelled: true, reason: CancelReason.expiry);
+      await settle(a, b);
+      expect(b.session.heldOutputs, isEmpty);
+      expect((await row()).deviceEnding, DeviceEnding.expired);
+    });
+
+    test('B offline during the cancel: the fallback frees the coins and the row reads Expired', () async {
+      _send(a, 'pay-1', cutoff: 1100);
+      await settle(a, b);
+      await b.service.setPaused(true);
+      _send(a, 'pay-1', cancelled: true);
+      await settle(a, b);
+      // B heard nothing: the coins stay held until the fallback.
+      expect(b.session.heldOutputs, {cm(2)});
+      b.session.summaryValue = WalletSummary(
+        lastConfirmedHeight: BigInt.from(1200),
+        minimumConfirmations: BigInt.from(10),
+        total: BigInt.from(1000000000),
+        spendable: BigInt.from(1000000000),
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.expired);
+      expect(b.session.heldOutputs, isEmpty);
+      expect((await row()).deviceEnding, DeviceEnding.expired);
+      // The notice that comes later changes nothing; the user could have released by hand earlier.
+      await b.service.setPaused(false);
+      await settle(a, b);
+      expect(b.service.book.holds.single.state, HoldState.expired);
+    });
+
+    test('B offline: Release by hand works before any fallback', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      await b.service.setPaused(true);
+      await b.service.releaseByHandOf(a.service.book.deviceId, 'pay-1');
+      expect(b.session.heldOutputs, isEmpty);
+      expect((await row()).deviceEnding, DeviceEnding.releasedHere);
+    });
+
+    test('A cancels too late and the payment lands: the chain wins, the same row, Confirmed', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      _send(a, 'pay-1', cancelled: true);
+      await settle(a, b);
+      final cancelled = await row();
+      expect(cancelled.deviceEnding, DeviceEnding.cancelled);
+      chainShowsSpent();
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.spent);
+      final rows = mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book);
+      expect(rows, hasLength(1));
+      expect(rows.single.key, cancelled.key);
+      expect(rows.single.confirmed, isTrue);
+      expect(rows.single.deviceEnding, isNull);
+      expect(rows.single.deviceName, 'Desktop');
+    });
+
+    test('a failure code outside the list, or free text, drops the notice', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      final seq = b.service.book.devices.single.seqIn + 1;
+      _inject(a, b, _env(a, seq, 'status', {'slateId': 'pay-1', 'state': 'failed', 'why': 'the recipient said no'}));
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.held);
+      _inject(a, b, _env(a, seq + 1, 'status', {'slateId': 'pay-1', 'state': 'failed', 'why': 'refused'}));
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.released);
+      expect(b.service.book.holds.single.why, 'refused');
     });
   });
 

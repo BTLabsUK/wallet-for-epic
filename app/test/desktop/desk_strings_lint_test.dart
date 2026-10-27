@@ -18,6 +18,7 @@ const _root = 'lib/src/desktop';
 /// Files with no text for the user: fixtures, mock data, developer screens.
 const _skipped = <String>{
   'data/mock_wallet.dart',
+  'data/mock_devices.dart', // the prototype's phone for the tour and the tests
   'data/mock_invoices.dart',
   'screens/debug/',
   'screens/invoices/proto_panel.dart', // the mock wallet's prototype panel: never ships
@@ -27,6 +28,7 @@ const _skipped = <String>{
   'screens/invoices/shots_help.dart',
   'screens/invoices/shots_pay.dart',
   'screens/invoices/shots_req.dart',
+  'screens/devices/shots.dart',
   'screens/onboarding/shots.dart',
   'screens/settings/shots.dart',
   'screens/settings/help_places.dart', // English help place targets, the keys links resolve by

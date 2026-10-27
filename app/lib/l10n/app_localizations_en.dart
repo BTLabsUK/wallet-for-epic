@@ -17793,6 +17793,123 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get deskDevServersNote => 'Choose up to 2.';
+
+  @override
+  String get deskDevServersCancel => 'Cancel change';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$down of $n not responding. Updates go through the other.';
+  }
+
+  @override
+  String get deskDevServersAllDown =>
+      'No server answers. Updates wait and go when one is back.';
+
+  @override
+  String get deskDevServersInfo1 =>
+      'Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.';
+
+  @override
+  String get deskDevServersInfo2 =>
+      'A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.';
+
+  @override
+  String get deskDevServersInfo3 =>
+      'The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.';
+
+  @override
+  String get deskDevPausedOffline => 'Paused in Offline mode.';
+
+  @override
+  String get deskDevPausedEpicboxOff => 'Paused while Epicbox is off.';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => 'No coins held.';
+
+  @override
+  String get deskDevRenameThis => 'Rename this computer';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return 'Rename $name';
+  }
+
+  @override
+  String get deskDevPasteLead => 'Paste the code the other device shows.';
+
+  @override
+  String get deskDevMakingCode => 'Making the code…';
+
+  @override
+  String get deskDevConnecting => 'Connecting…';
+
+  @override
+  String get deskDevTheOther => 'The other device';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return 'Servers: $servers';
+  }
+
+  @override
+  String get deskDevOfferReceived =>
+      'Is this your other device? Link it to see who sent it and to keep both in step.';
+
+  @override
+  String devicesEndCancelled(String name) {
+    return 'Cancelled on $name';
+  }
+
+  @override
+  String devicesEndFailed(String name) {
+    return 'Failed on $name';
+  }
+
+  @override
+  String devicesEndExpired(String name) {
+    return 'Expired on $name';
+  }
+
+  @override
+  String devicesEndLineCancelled(String name) {
+    return '$name cancelled this payment. Its coins are free again.';
+  }
+
+  @override
+  String devicesEndLineExpired(String name) {
+    return '$name did not finish this payment in time. Its coins are free again.';
+  }
+
+  @override
+  String devicesWhyNotDelivered(String name) {
+    return '$name could not deliver it to the recipient. Its coins are free again.';
+  }
+
+  @override
+  String get devicesWhyRefused =>
+      'The recipient’s server refused it. Its coins are free again.';
+
+  @override
+  String get devicesWhyInputsSpent => 'Its coins had been spent already.';
+
+  @override
+  String devicesWhyOther(String name) {
+    return '$name could not complete it. Its coins are free again.';
+  }
+
+  @override
+  String devicesStatusInfo(String name) {
+    return 'This status comes from $name. The blockchain decides the final state.';
+  }
+
+  @override
   String get syncHelpOtherDevice => 'Other device';
 
   @override

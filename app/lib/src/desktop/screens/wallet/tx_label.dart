@@ -287,8 +287,10 @@ class _TxPanelTitleState extends ConsumerState<TxPanelTitle> {
             child: Semantics(header: true, child: Text(title, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
           ),
         ),
-        SizedBox(width: Sp.x1),
-        TxPen(tx: t, focusNode: _pen, onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace)),
+        if (t.deviceName == null) ...[
+          SizedBox(width: Sp.x1),
+          TxPen(tx: t, focusNode: _pen, onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace)),
+        ],
         if (t.labelText != null) ...[SizedBox(width: Sp.x1), ManualTag(t, ManualField.label)],
       ],
     );
