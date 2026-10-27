@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('the fallback count is LEPIC\'s 3', () {
-    expect(defaultMinimumConfirmations, 3);
+    expect(defaultMinimumConfirmations, 6);
     expect(minimumConfirmations, BigInt.from(3));
   });
 }

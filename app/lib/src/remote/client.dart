@@ -927,6 +927,18 @@ class RemoteWalletSession implements WalletSession {
     'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
   });
 
+  // TODO(min-confirmations): wire over SessionMember once the dispatcher has the members.
+  @override
+  Future<int> minimumConfirmations() async =>
+      (await summary(refresh: false, minimumConfirmations: BigInt.from(defaultMinimumConfirmations)))
+          .minimumConfirmations
+          .toInt();
+
+  @override
+  Future<void> setMinimumConfirmations(int count) async {
+    throw UnsupportedError('setMinimumConfirmations is not on the wire yet');
+  }
+
   @override
   Stream<RefreshProgress> refresh({required BigInt minimumConfirmations}) =>
       _stream(SessionMember.refresh, refreshProgressWire, {

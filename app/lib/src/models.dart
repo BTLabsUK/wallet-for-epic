@@ -2620,6 +2620,18 @@ class WalletSummary {
     required this.validatedWithNode,
   });
 
+  WalletSummary copyWith({BigInt? minimumConfirmations}) => WalletSummary(
+    lastConfirmedHeight: lastConfirmedHeight,
+    minimumConfirmations: minimumConfirmations ?? this.minimumConfirmations,
+    total: total,
+    spendable: spendable,
+    awaitingConfirmation: awaitingConfirmation,
+    awaitingFinalization: awaitingFinalization,
+    immature: immature,
+    locked: locked,
+    validatedWithNode: validatedWithNode,
+  );
+
   @override
   int get hashCode =>
       lastConfirmedHeight.hashCode ^
@@ -2649,11 +2661,16 @@ class WalletSummary {
 }
 
 /// Confirmations before an output counts as spendable, until a balance says otherwise: the
-/// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
-/// once a balance is there; see `countedConfirmationsProvider` in providers.dart. It lives
-/// here, in plain Dart, so the wallet core (lepic_wallet_service.dart and what it imports)
-/// builds without Flutter.
-const int defaultMinimumConfirmations = 3;
+/// core's default (6; LEPIC ADR 0027: the old GUI counted 3, upstream's CLI 10). Each wallet
+/// stores its own count, 1–30 ([WalletSession.minimumConfirmations]), and the app never counts
+/// with its own number once a balance is there; see `countedConfirmationsProvider` in
+/// providers.dart. It lives here, in plain Dart, so the wallet core
+/// (lepic_wallet_service.dart and what it imports) builds without Flutter.
+const int defaultMinimumConfirmations = 6;
+
+/// The smallest and largest minimum confirmations a wallet accepts, as LEPIC validates them.
+const int minMinimumConfirmations = 1;
+const int maxMinimumConfirmations = 30;
 
 // Pairing (LEPIC RFC 0002): two wallets pair once, then payment files and invoices between
 // them are sealed. The core keeps the records; these are the app's view of them. Event and

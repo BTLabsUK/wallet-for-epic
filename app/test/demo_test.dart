@@ -639,7 +639,7 @@ void main() {
         (await phone.read(networkChoiceProvider.future)).preset,
         mainnetPreset,
       );
-      expect(phone.read(minimumConfirmationsProvider), BigInt.from(3));
+      expect(phone.read(minimumConfirmationsProvider), BigInt.from(6));
     });
 
     for (final demo in [true, false]) {

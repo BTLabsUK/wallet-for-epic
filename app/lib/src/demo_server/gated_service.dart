@@ -468,6 +468,12 @@ class GatedWalletSession implements WalletSession {
   );
 
   @override
+  Future<int> minimumConfirmations() => _inner.minimumConfirmations();
+
+  @override
+  Future<void> setMinimumConfirmations(int count) => _inner.setMinimumConfirmations(count);
+
+  @override
   Stream<RefreshProgress> refresh({required BigInt minimumConfirmations}) =>
       _inner.refresh(minimumConfirmations: minimumConfirmations);
 

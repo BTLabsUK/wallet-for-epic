@@ -59,7 +59,7 @@ void main() {
       expect(o.isCoinbase, true);
       expect(o.mmrIndex, 77);
       expect(o.confirmations, 20);
-      expect(o.confirmationsNeeded, 3);
+      expect(o.confirmationsNeeded, 6);
       expect(o.txId, 4);
       expect(o.spendable, false);
       final pending = deskOutput(_out('09', 1, status: core.WalletOutputStatus.unconfirmed, confirmations: 0), minConf: 3);

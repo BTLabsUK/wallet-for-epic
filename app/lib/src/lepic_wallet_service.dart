@@ -1767,6 +1767,17 @@ class LepicWalletSession implements WalletSession {
     return _summary(await _wallet.summary(refresh: refresh));
   });
 
+  @override
+  Future<int> minimumConfirmations() => _guard(
+    () async => (await _wallet.summary(refresh: false)).minimumConfirmations.toInt(),
+  );
+
+  // TODO(min-confirmations): LEPIC's setMinimumConfirmations once the binding pin moves.
+  @override
+  Future<void> setMinimumConfirmations(int count) async {
+    throw UnsupportedError('setMinimumConfirmations needs the lepic-flutter pin with the setting');
+  }
+
   /// As the old core: with the node out of reach the refresh still ends with the local balances,
   /// marked as not checked with the node, so Home shows them instead of an error.
   @override

@@ -406,6 +406,17 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
   });
 
+  /// The confirmations a received or change output needs before the wallet counts it as
+  /// spendable and may spend it: this wallet's stored setting (the core keeps it per wallet,
+  /// 1–30, default [defaultMinimumConfirmations]). [WalletSummary.minimumConfirmations]
+  /// reports the same number.
+  Future<int> minimumConfirmations();
+
+  /// Stores [count] (1–30) as this wallet's minimum confirmations and re-splits the balance
+  /// at once; the next summary reports it. Out of range throws a [WalletError] with
+  /// [WalletErrorKind.invalidArgument].
+  Future<void> setMinimumConfirmations(int count);
+
   /// `summary(refresh: true)` with progress. Percentages never fall; the last event has
   /// [RefreshProgress.summary] set and `percent` 100. A failure ends the stream with the error.
   Stream<RefreshProgress> refresh({required BigInt minimumConfirmations});
@@ -1894,6 +1905,24 @@ class FakeWalletSession implements WalletSession {
     required bool refresh,
     required BigInt minimumConfirmations,
   }) async => summaryValue;
+
+  /// What [setMinimumConfirmations] stored, or the default.
+  int minimumConfirmationsValue = defaultMinimumConfirmations;
+
+  @override
+  Future<int> minimumConfirmations() async => minimumConfirmationsValue;
+
+  @override
+  Future<void> setMinimumConfirmations(int count) async {
+    if (count < 1 || count > 30) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'minimum confirmations must be 1–30',
+      );
+    }
+    minimumConfirmationsValue = count;
+    summaryValue = summaryValue.copyWith(minimumConfirmations: BigInt.from(count));
+  }
 
   /// Percentages [refresh] emits before its last event, which carries [summaryValue].
   List<int> refreshSteps = const [5, 15, 60];
