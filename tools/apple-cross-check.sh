@@ -11,12 +11,12 @@
 # Env:   ZIG_DIR=<zig folder>   default ~/.local/opt/zig-x86_64-linux-0.15.2
 #        OUT=<dir>              cargo target dir (default $TMPDIR/apple-cross or
 #                               ~/.cache/apple-cross); about 3 GB per target
-# Needs: rustup targets for LEPIC's toolchain, cargo-zigbuild, clang, llvm-ar-20. Run it through
-# build-slot on the build host.
+# Needs: rustup targets for LEPIC's toolchain, cargo-zigbuild, clang, llvm-ar-20. Heavy: one
+# build at a time on a shared host.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-. "$(git rev-parse --show-toplevel)/tools/env.sh"
+. "$root/tools/env.sh"
 lepic="$root/app/third_party/lepic"
 zig_dir="${ZIG_DIR:-$HOME/.local/opt/zig-x86_64-linux-0.15.2}"
 out="${OUT:-${TMPDIR:-$HOME/.cache}/apple-cross}"
