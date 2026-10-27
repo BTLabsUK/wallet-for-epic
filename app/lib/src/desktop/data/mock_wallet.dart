@@ -12,7 +12,7 @@ import 'dart:typed_data';
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost;
-import '../../wallet_service.dart' show WalletOutput;
+import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
@@ -35,7 +35,10 @@ export 'invoices.dart' show InvoiceError, InvoiceProblem;
 part 'mock_invoices.dart';
 
 /// The mock wallet's canned output [i] (1 to 24), for a linked device's hold on it.
-String mockCommitment(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
+String mockCommitment(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + (i ~/ 16) * (k + 1) + k * 13 + k * k) % 16]).join()}';
+
+/// The mock wallet's payments key, which a [MockPhone] of the same wallet shares.
+const String mockEpicboxKey = _epicboxKey;
 
 const _epicboxKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
 
@@ -490,7 +493,28 @@ class MockDeskWallet implements DeskWalletApi {
   DeviceBook? Function()? _deviceBook;
 
   @override
-  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online);
+  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
+
+  /// The canned outputs as the core lists them, for linked devices.
+  Future<List<WalletOutput>> walletOutputs() async => [
+    for (final o in _outputs)
+      if (o.status == OutputStatus.unspent || o.status == OutputStatus.locked || o.status == OutputStatus.spent)
+        WalletOutput(
+          commitment: o.commitment,
+          value: BigInt.from(o.value),
+          status: switch (o.status) {
+            OutputStatus.locked => WalletOutputStatus.locked,
+            OutputStatus.spent => WalletOutputStatus.spent,
+            _ => WalletOutputStatus.unspent,
+          },
+          category: o.status == OutputStatus.unspent ? OutputCategory.spendable : null,
+          isCoinbase: false,
+          height: BigInt.from(o.height ?? 0),
+          lockHeight: BigInt.zero,
+          confirmations: BigInt.from(o.confirmations),
+          txId: o.txId,
+        ),
+  ];
 
   @override
   void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
@@ -1391,11 +1415,12 @@ class MockDeskWallet implements DeskWalletApi {
 
 /// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
 class _MockDeviceHost implements DeviceHost {
-  _MockDeviceHost(this.pairing, this._online);
+  _MockDeviceHost(this.pairing, this._online, this._outputs);
 
   @override
   final FakePairing pairing;
   final bool Function() _online;
+  final Future<List<WalletOutput>> Function() _outputs;
 
   @override
   bool get online => _online();
@@ -1404,7 +1429,7 @@ class _MockDeviceHost implements DeviceHost {
   Future<String> walletKey() async => _epicboxKey;
 
   @override
-  Future<List<WalletOutput>> outputs() async => const [];
+  Future<List<WalletOutput>> outputs() => _outputs();
 
   @override
   Future<List<TxEntry>> transactions() async => const [];

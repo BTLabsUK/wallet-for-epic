@@ -24,6 +24,10 @@ final deskLinkedDevicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvid
 /// are private: they never show in Contacts, Pending invites, a picker or an export.
 final deskPairingEngineOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.pairingEngineOn)));
 
+/// The clock the devices' times are read against; the screenshot tour and the tests give the
+/// mock's pairing clock, which the fake engine stamps its invites with.
+final deskDeviceClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
 /// The open wallet's devices, or null while locked or with Linked devices off. It reads the
 /// channel when the wallet opens, then every 5 s while the app runs (minimized too); the shell
 /// reads it again on a window focus and on Refresh ([deskDevicesRefresh]).
@@ -38,6 +42,7 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
     host: host,
     store: DeviceStore(ref.watch(secretStoreProvider), chain: account.$2 == 'floonet' ? Chain.floonet : Chain.mainnet, walletId: account.$1),
     defaultName: deskStrings.devicesThisComputer,
+    clock: ref.read(deskDeviceClockProvider),
   );
   // What the history, the balance and the outputs show of the other devices.
   api.useDevices(() => service.loaded ? service.book : null);
