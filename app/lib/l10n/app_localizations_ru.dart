@@ -3332,6 +3332,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get helpTellUs => 'Расскажите, что произошло или что непонятно.';
 
   @override
+  String get helpDonateTitle => 'Поддержать разработку';
+
+  @override
+  String get helpDonateText => 'Пожертвования финансируют новые функции.';
+
+  @override
+  String get helpDonateCopy => 'Копировать адрес';
+
+  @override
+  String get helpDonateCopied => 'Адрес скопирован';
+
+  @override
   String get helpSendFeedback => 'Отправить отзыв';
 
   @override
@@ -17658,4 +17670,78 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskUpdLater => 'Позже';
+
+  @override
+  String get sendTorNotInVersion =>
+      'Эта версия не может отправлять на адреса Tor.';
+
+  @override
+  String get methodSendDirectLineNoTor =>
+      'Кошелёк получателя должен быть открыт.';
+
+  @override
+  String get sendDirectAddressShapeNoTor =>
+      'Адрес ссылки начинается с http:// или https://.';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com) или адрес ссылки (https://…).';
+
+  @override
+  String get handshakeLink1NoTor =>
+      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет. Ваши монеты блокируются.';
+
+  @override
+  String get advNetworkHintNoTor =>
+      'Как кошелёк выходит в сеть. «Стандартный» подключается напрямую. «Офлайн» остаётся на этом телефоне и в вашей локальной сети: «Оплата по QR» и «Передача файла» по-прежнему работают через используемый узел; с узлом в вашей сети можно также отправлять на локальные адреса, и баланс обновляется.';
+
+  @override
+  String get advModeStandardLineNoTor => 'Подключается напрямую.';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      'Офлайн приостанавливает Epicbox, проверки состояния и уведомления. «Оплата по QR» и «Передача файла» по-прежнему работают: они используют текущий узел для чтения цепочки и отправки, в том числе публичный. С узлом в вашей локальной сети также работают «Сверка баланса» и отправка через «Ссылку» на локальные адреса. Пиры узла — настройка самого узла.';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      'Экспериментально: может измениться или давать сбои. Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса.';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      'Ваш баланс, а под ним значки узла и Epicbox. То, что ещё подтверждается, — в плитках ниже.';
+
+  @override
+  String get tourPhonePrivacyTextNoTor =>
+      'Какой узел и сервер Epicbox использует кошелёк. Нажмите на сервер, чтобы изменить его.';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor =>
+      'Режим «Офлайн», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
+
+  @override
+  String get deskNoTorSendDirectLine2 =>
+      'Адрес http(s). Кошелёк получателя должен быть открыт.';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      'Как кошелёк выходит в сеть. «Стандартный» подключается напрямую. «Офлайн» остаётся на этом компьютере и в вашей локальной сети: «Передача файла» по-прежнему работает через используемый узел; с узлом здесь или в вашей сети можно также отправлять на локальные адреса и получать через «Ссылку», и баланс обновляется. Встроенный узел продолжает работать, а его пиры — настройка самого узла.';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox и проверки состояния приостановлены. «Передача файла» по-прежнему работает через используемый узел, в том числе публичный. С узлом на этом компьютере или в вашей сети также работают «Сверка баланса» и отправка через «Ссылку» на локальные адреса.';
+
+  @override
+  String get deskNoTorTxDetailsFromBad => 'Укажите адрес Epicbox или http(s).';
+
+  @override
+  String get deskNoTorTourAdvancedText =>
+      'Выходы и технические сведения собраны здесь. Включайте то, что нужно.';
 }

@@ -5221,6 +5221,30 @@ abstract class AppLocalizations {
   /// **'Describe what happened or what is unclear.'**
   String get helpTellUs;
 
+  /// Heading of the donation note in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Support development'**
+  String get helpDonateTitle;
+
+  /// Body of the donation note in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations fund new features.'**
+  String get helpDonateText;
+
+  /// Button that copies the donation address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get helpDonateCopy;
+
+  /// Notice after the donation address was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get helpDonateCopied;
+
   /// Button at the end of the help page that opens the feedback form.
   ///
   /// In en, this message translates to:
@@ -27340,6 +27364,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later'**
   String get deskUpdLater;
+
+  /// Short error under an address (Send's To field, a contact's address) that is a Tor (.onion) address, in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'This version cannot send to Tor addresses.'**
+  String get sendTorNotInVersion;
+
+  /// Send's strip line for Link, in the build without Tor (methodSendDirectLine without its Tor sentence).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet must be open.'**
+  String get methodSendDirectLineNoTor;
+
+  /// Error under To when Link is chosen and the text is not an http(s) address, in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'A Link address starts with http:// or https://.'**
+  String get sendDirectAddressShapeNoTor;
+
+  /// contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com) or a Link address (https://…).'**
+  String get contactsAddressInvalidAnyNoTor;
+
+  /// handshakeLink1 in the build without Tor: the same caption without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends the payment straight to their wallet, over the internet. Your coins go on hold.'**
+  String get handshakeLink1NoTor;
+
+  /// advNetworkHint in the build without Tor: no Tor and no Tor only.
+  ///
+  /// In en, this message translates to:
+  /// **'How the wallet reaches the network. Standard connects directly. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.'**
+  String get advNetworkHintNoTor;
+
+  /// One line under the Standard network mode, in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly.'**
+  String get advModeStandardLineNoTor;
+
+  /// advOfflineNote in the build without Tor: the same note without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node\'s own peers are the node\'s setting.'**
+  String get advOfflineNoteNoTor;
+
+  /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
+  String get txLinkHttpHintNoTor;
+
+  /// settingsNotificationsHint in the build without Tor: the same text without its Tor sentence. BT Labs is a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address.'**
+  String get settingsNotificationsHintNoTor;
+
+  /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.'**
+  String get tourPhoneWalletTextNoTor;
+
+  /// tourPhonePrivacyText in the build without Tor: no Tor switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Which node and Epicbox server the wallet uses. Tap a server to change it.'**
+  String get tourPhonePrivacyTextNoTor;
+
+  /// tourPhoneAdvancedText in the build without Tor: Offline mode instead of Tor-only mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode, outputs and technical details live here. Switch on what you need.'**
+  String get tourPhoneAdvancedTextNoTor;
+
+  /// Under Send › Link, the line under the method in the build without Tor (no onion addresses).
+  ///
+  /// In en, this message translates to:
+  /// **'An http(s) address. Their wallet must be open.'**
+  String get deskNoTorSendDirectLine2;
+
+  /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
+  String get deskNoTorSetTxDirectHint;
+
+  /// Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline.
+  ///
+  /// In en, this message translates to:
+  /// **'How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node\'s setting.'**
+  String get deskNoTorAdvNetworkHint;
+
+  /// Settings › Advanced, the note under the modes while Offline is chosen, in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.'**
+  String get deskNoTorAdvOfflineNote;
+
+  /// Payment details dialog, the From field's error in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an Epicbox or http(s) address.'**
+  String get deskNoTorTxDetailsFromBad;
+
+  /// Tour step on Settings › Advanced in the build without Tor (no Tor-only mode).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs and technical details live here. Switch on what you need.'**
+  String get deskNoTorTourAdvancedText;
 }
 
 class _AppLocalizationsDelegate

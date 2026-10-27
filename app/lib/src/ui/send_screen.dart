@@ -16,6 +16,7 @@ import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../initials.dart';
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
@@ -203,7 +204,7 @@ const String sendHttpShape = 'http://host:3415';
 String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
     switch (method) {
       TransferMethod.epicbox => 'esXXXX…XXXX@epicbox.epiccash.com',
-      TransferMethod.direct => l.methodDirectShape,
+      TransferMethod.direct => torBuilt ? l.methodDirectShape : sendHttpShape,
       TransferMethod.qr || TransferMethod.file => null,
     };
 
@@ -635,13 +636,14 @@ class _SendViewState extends ConsumerState<SendView> {
     // A whole address of another kind has moved the method already; text that does not fit
     // the method chosen by hand gets that method's own sentence.
     if (_method == TransferMethod.direct && to.kind == RecipientKind.epicbox) {
-      return l.sendDirectAddressShape;
+      return torBuilt ? l.sendDirectAddressShape : l.sendDirectAddressShapeNoTor;
     }
     if (to.kind == RecipientKind.http) {
       return httpAddressComplete(to.address)
           ? null
           : l.contactsUrlIncomplete(sendHttpShape);
     }
+    if (to.kind == RecipientKind.tor && !torBuilt) return l.sendTorNotInVersion;
     if (to.kind == RecipientKind.tor &&
         ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) {
       return l.sendTorUnavailable;
@@ -2124,6 +2126,8 @@ class _SendViewState extends ConsumerState<SendView> {
     // Link chosen with both its switches off: Link · HTTP is the one to turn on (Tor's needs Tor).
     if (_recipient.text.trim().isEmpty) return _linkOff ? MethodKind.linkHttp : null;
     final kind = parseRecipient(_recipient.text).kind;
+    // No Tor in this build: an onion has no method to turn on, its own error says so.
+    if (kind == RecipientKind.tor && !torBuilt) return null;
     return kind == RecipientKind.epicbox ? null : MethodKind.ofRecipient(kind);
   }
 
@@ -3888,7 +3892,7 @@ class RecipientCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (isOnionAddress(address)) ...[
+                        if (torBuilt && isOnionAddress(address)) ...[
                           const SizedBox(width: 8),
                           const _TorPill(),
                         ],

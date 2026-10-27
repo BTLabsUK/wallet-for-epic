@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../demo.dart';
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../network.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
@@ -129,7 +130,7 @@ class PushNotificationsTile extends ConsumerWidget {
       key: settingsPushKey,
       icon: Icons.notifications_outlined,
       title: l.settingsNotifications,
-      hint: l.settingsNotificationsHint,
+      hint: torBuilt ? l.settingsNotificationsHint : l.settingsNotificationsHintNoTor,
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

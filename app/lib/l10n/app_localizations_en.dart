@@ -3249,6 +3249,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTellUs => 'Describe what happened or what is unclear.';
 
   @override
+  String get helpDonateTitle => 'Support development';
+
+  @override
+  String get helpDonateText => 'Donations fund new features.';
+
+  @override
+  String get helpDonateCopy => 'Copy address';
+
+  @override
+  String get helpDonateCopied => 'Address copied';
+
+  @override
   String get helpSendFeedback => 'Send feedback';
 
   @override
@@ -17225,4 +17237,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskUpdLater => 'Later';
+
+  @override
+  String get sendTorNotInVersion =>
+      'This version cannot send to Tor addresses.';
+
+  @override
+  String get methodSendDirectLineNoTor => 'Their wallet must be open.';
+
+  @override
+  String get sendDirectAddressShapeNoTor =>
+      'A Link address starts with http:// or https://.';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com) or a Link address (https://…).';
+
+  @override
+  String get handshakeLink1NoTor =>
+      'Your wallet sends the payment straight to their wallet, over the internet. Your coins go on hold.';
+
+  @override
+  String get advNetworkHintNoTor =>
+      'How the wallet reaches the network. Standard connects directly. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.';
+
+  @override
+  String get advModeStandardLineNoTor => 'Connects directly.';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      'Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node\'s own peers are the node\'s setting.';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address.';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      'Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.';
+
+  @override
+  String get tourPhonePrivacyTextNoTor =>
+      'Which node and Epicbox server the wallet uses. Tap a server to change it.';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor =>
+      'Offline mode, outputs and technical details live here. Switch on what you need.';
+
+  @override
+  String get deskNoTorSendDirectLine2 =>
+      'An http(s) address. Their wallet must be open.';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      'How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node\'s setting.';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.';
+
+  @override
+  String get deskNoTorTxDetailsFromBad => 'Use an Epicbox or http(s) address.';
+
+  @override
+  String get deskNoTorTourAdvancedText =>
+      'Outputs and technical details live here. Switch on what you need.';
 }

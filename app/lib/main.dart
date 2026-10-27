@@ -16,6 +16,7 @@ import 'src/relay_directory.dart' show statusSite;
 import 'src/network_gate.dart';
 import 'src/settings.dart' show AppSettingsNotifier, readUseStatusSite;
 import 'src/net/tor_net.dart';
+import 'src/tor_build.dart';
 import 'src/tor_licence.dart';
 import 'src/tor_phone.dart';
 import 'src/ui/theme/fonts.dart';
@@ -62,7 +63,7 @@ Future<void> main() async {
     }
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
-    TorNet.hold = const Duration(minutes: 3);
+    if (torBuilt) TorNet.hold = const Duration(minutes: 3);
     // Before anything asks status.btlabs.uk: opted out, nothing is asked.
     statusSite.loadFrom(readUseStatusSite(store));
     registerFontLicences();

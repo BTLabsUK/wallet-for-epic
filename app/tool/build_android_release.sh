@@ -11,6 +11,11 @@
 # WFE_EMULATOR_X86_64=1 also builds an x86_64 APK for our own emulator tests, into
 # <output-dir>/emulator/: never published, not in SHA256SUMS.
 #
+# WFE_TOR=0 builds the version without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false,
+# no tor fetched or packed (android/app/build.gradle.kts), LEPIC built without its tor feature,
+# -notor in the APK names, and the checks turned round: no libtor.so, no Tor code in
+# liblepic_ffi.so, no Tor licence, libraries stored uncompressed.
+#
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
 # updater refuses a verified manifest whose packageName differs from the installed app's
 # (lib/src/updater.dart), so this build never offers another app's builds.
@@ -52,11 +57,18 @@ services="$app_dir/android/app/google-services.json"
 grep -q "\"package_name\": *\"$want_package\"" "$services" \
   || { echo "android/app/google-services.json has no client for $want_package" >&2; exit 1; }
 
+# The build without Tor names its APKs epic-cash-mobile-<version>-notor-<abi>.apk.
+tor=1 variant=
+if [[ "${WFE_TOR:-1}" == 0 ]]; then tor=0 variant=-notor; fi
+
 cd "$app_dir"
 flutter pub get
-"$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
+if [[ $tor == 1 ]]; then
+  "$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
+fi
 "$app_dir/../tools/lepic.sh" sync
-"$app_dir/../tools/lepic.sh" build android
+# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0.
+WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
@@ -67,12 +79,13 @@ emulator=()
 platforms=android-arm64
 [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
 flutter build apk --release --target-platform "$platforms" --split-per-abi \
-  --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag"
-cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version-arm64-v8a.apk"
+  --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag" \
+  --dart-define=WFE_TOR="$([[ $tor == 1 ]] && echo true || echo false)"
+cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version$variant-arm64-v8a.apk"
 (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
 if [[ ${#emulator[@]} -gt 0 ]]; then
   mkdir -p "$out_dir/emulator"
-  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version-x86_64.apk"
+  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version$variant-x86_64.apk"
 fi
 
 fail=0
@@ -82,7 +95,7 @@ check() { # description, condition result (0 = ok)
 shopt -s nullglob
 for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-cash-mobile-$version-*.apk; do
   name="$(basename "$apk")"
-  abi="${name#epic-cash-mobile-$version-}"; abi="${abi%.apk}"
+  abi="${name#epic-cash-mobile-$version$variant-}"; abi="${abi%.apk}"
   echo "$name"
   certs="$("$apksigner" verify --print-certs "$apk")"
   grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
@@ -106,11 +119,16 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   abis=("$abi")
   for a in "${abis[@]}"; do
     grep -q "^lib/$a/liblepic_ffi.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/liblepic_ffi.so" $r
-    grep -q "^lib/$a/libtor.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/libtor.so" $r
+    if [[ $tor == 1 ]]; then
+      grep -q "^lib/$a/libtor.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/libtor.so" $r
+    else
+      grep -qiE '^lib/.*tor[^/]*\.so$' <<<"$libs" && r=1 || r=0; check "no tor library in lib/" $r
+    fi
   done
-  # Tor's GPL licence, shown in the app's licences (lib/src/tor_licence.dart).
+  # Tor's GPL licence, shown in the app's licences (lib/src/tor_licence.dart). The build without
+  # Tor still carries the text file (assets cannot follow a dart-define) but never shows it.
   tor_licence=assets/flutter_assets/assets/licenses/tor.txt
-  grep -q "^$tor_licence$" <<<"$libs" && r=0 || r=1; check "$tor_licence" $r
+  [[ $tor == 1 ]] && { grep -q "^$tor_licence$" <<<"$libs" && r=0 || r=1; check "$tor_licence" $r; }
   # Devices with 16 KB pages (Android 15+) need every ELF LOAD segment aligned to 0x4000 or
   # more. The libraries are packed compressed (useLegacyPackaging, so tor can be extracted as a
   # file), so zipalign cannot vouch for them; the ELF headers are what count.
@@ -118,6 +136,16 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   # Only the APK's own ABI: the QR scanner's AAR also carries a 32-bit ARM libbarhopper_v3.so
   # that is not 16 KB aligned.
   for a in "${abis[@]}"; do unzip -q "$apk" "lib/$a/*.so" -d "$unpacked"; done
+  # LEPIC's Tor code (lepic-tor) names itself in the library's strings; without Tor it is not
+  # compiled in.
+  for a in "${abis[@]}"; do
+    lepic_tor="$(LC_ALL=C grep -ac 'lepic_tor\|lepic-tor' "$unpacked/lib/$a/liblepic_ffi.so" || true)"
+    if [[ $tor == 1 ]]; then
+      [[ "$lepic_tor" != 0 ]] && r=0 || r=1; check "lib/$a/liblepic_ffi.so has LEPIC's Tor" $r
+    else
+      [[ "$lepic_tor" == 0 ]] && r=0 || r=1; check "lib/$a/liblepic_ffi.so has no Tor code" $r
+    fi
+  done
   while IFS= read -r so; do
     r=0
     while read -r align; do (( align >= 16384 )) || r=1; done \
@@ -126,17 +154,23 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   done < <(find "$unpacked" -name '*.so' | sort)
   rm -r -- "$unpacked"
   "$zipalign" -c -P 16 4 "$apk" >/dev/null && r=0 || r=1; check "zipalign -c -P 16 4" $r
-  # The merged manifest must let Android extract the libraries at install.
+  # The merged manifest must let Android extract the libraries at install (tor runs from
+  # there); without Tor they stay in the APK.
   manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$apk")"
-  grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
-  check "manifest extractNativeLibs=true" $r
+  if [[ $tor == 1 ]]; then
+    grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
+    check "manifest extractNativeLibs=true" $r
+  else
+    grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=1 || r=0
+    check "manifest extractNativeLibs not true" $r
+  fi
   grep -qiE 'google-services|firebase|google_app_id' <<<"$("$aapt2" dump resources "$apk" 2>/dev/null | grep -iE 'google_app_id|firebase_database_url|gcm_defaultSenderId' || true)" \
     && r=0 || r=1
   check "Firebase config" $r
 done
 # The phone download is arm64-v8a only.
 published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
-[[ "$published" == "epic-cash-mobile-$version-arm64-v8a.apk" ]] && r=0 || r=1
+[[ "$published" == "epic-cash-mobile-$version$variant-arm64-v8a.apk" ]] && r=0 || r=1
 check "only the arm64-v8a APK is published ($published)" $r
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"
 [[ $fail == 0 ]] || { echo "verification FAILED" >&2; exit 1; }

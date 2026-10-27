@@ -21,13 +21,19 @@ import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
 class ContactsArgs {
-  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false});
+  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false, this.address, this.fromTx});
 
   final String? selectedId;
   final bool editing;
   final bool adding;
   final bool empty;
   final bool loading;
+
+  /// Adding: the address the new contact starts with (a payment's other side).
+  final String? address;
+
+  /// Adding from this payment's detail: Save or Cancel goes back to it in Activity.
+  final int? fromTx;
 }
 
 enum _Sort { name, recent }
@@ -99,11 +105,15 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       if (_adding || (_editing && selected != null)) {
         return _ContactForm(
           contact: _adding ? null : selected,
-          onDone: (saved) => setState(() {
-            _adding = false;
-            _editing = false;
-            if (saved != null) _selected = saved;
-          }),
+          address: _adding ? _args.address : null,
+          onDone: (saved) {
+            if (_args.fromTx case final tx? when _adding) return ref.read(deskNavProvider.notifier).go(DeskRoute.activity, tx);
+            setState(() {
+              _adding = false;
+              _editing = false;
+              if (saved != null) _selected = saved;
+            });
+          },
         );
       }
       return _ContactDetail(contact: selected!, onEdit: () => setState(() => _editing = true), onDeleted: () => setState(() => _selected = null));
@@ -541,6 +551,8 @@ class _ContactDetail extends ConsumerWidget {
     final ts = context.ts;
     final l = context.l10n;
     final x = contact;
+    // The build without Tor sends to no onion: a contact with only one keeps it, unpayable.
+    final torOnly = !DeskFeatures.tor && x.addresses.isNotEmpty && x.kinds.every((k) => k == RecipientKind.tor);
     final nav = ref.read(deskNavProvider.notifier);
     final pairs = ref.watch(deskPairsProvider);
     // Its payments: to and from its address, and through any pairing attached to it.
@@ -630,7 +642,7 @@ class _ContactDetail extends ConsumerWidget {
                 label: l.deskConSend,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
-                onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
+                onPressed: (x.addresses.isEmpty || torOnly) && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
               ),
               // Not paired, or the other side removed the pairing: Pair (again).
               if (pairs && (pairing == null || pairing.removedByPeer))
@@ -667,6 +679,11 @@ class _ContactDetail extends ConsumerWidget {
             ],
           );
         }),
+        // The build without Tor: an onion-only contact (older data) has no way to be paid.
+        if (torOnly && !(pairing?.paysByMailbox ?? false)) ...[
+          SizedBox(height: Sp.x2),
+          Text(l.sendTorNotInVersion, key: const ValueKey('contact-send-no-tor'), style: ts.small),
+        ],
         if (x.addresses.isEmpty && pairing != null && !pairing.paysByMailbox) ...[
           SizedBox(height: Sp.x2),
           Text(
@@ -755,9 +772,12 @@ class _ContactDetail extends ConsumerWidget {
 }
 
 class _ContactForm extends ConsumerStatefulWidget {
-  const _ContactForm({required this.contact, required this.onDone});
+  const _ContactForm({required this.contact, required this.onDone, this.address});
 
   final Contact? contact;
+
+  /// A new contact's first address, filled in.
+  final String? address;
 
   /// The saved contact's id, or null when cancelled.
   final ValueChanged<String?> onDone;
@@ -789,9 +809,11 @@ class _AddrField {
 class _ContactFormState extends ConsumerState<_ContactForm> {
   late final _name = TextEditingController(text: widget.contact?.name);
   late final List<_AddrField> _fields = [
-    for (final a in widget.contact?.addresses ?? const <String>[]) _AddrField(a),
+    for (final a in _startAddresses) _AddrField(a),
     _AddrField(),
   ];
+
+  List<String> get _startAddresses => widget.contact?.addresses ?? [?widget.address];
   late final _note = TextEditingController(text: widget.contact?.note);
   late bool _picture = widget.contact?.hasPicture ?? false;
   final _nameFocus = FocusNode();
@@ -842,7 +864,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final l = context.l10n;
     if (f.clash != null) return l.addrDuplicateType(_name.text.trim().isEmpty ? l.contactTitle : _name.text.trim(), recipientMethodWord(l, f.clash!));
     if (f.text.text.trim().isEmpty) return null;
-    return _kindOf(f) == null ? l.deskConErrAddressInvalid : null;
+    if (_kindOf(f) != null) return null;
+    // The build without Tor takes no new onion address.
+    if (!DeskFeatures.tor) return addressKindOf(f.text.text.trim()) == AddressKind.tor ? l.sendTorNotInVersion : l.contactsAddressInvalidAnyNoTor;
+    return l.deskConErrAddressInvalid;
   }
 
   List<RecipientKind> get _free => [
@@ -945,7 +970,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     // A form with typed changes holds Back (mouse, Alt+Left).
     final dirty = _name.text != (widget.contact?.name ?? '') ||
         _note.text != (widget.contact?.note ?? '') ||
-        [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f.text.text.trim()].join('|') != (widget.contact?.addresses ?? const []).join('|');
+        [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f.text.text.trim()].join('|') != _startAddresses.join('|');
     return DeskStepBack(
       onBack: dirty ? () {} : null,
       child: EForm(

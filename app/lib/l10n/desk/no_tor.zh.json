@@ -1,0 +1,8 @@
+{
+  "deskNoTorSendDirectLine2": "http(s) 地址。对方钱包必须处于打开状态。",
+  "deskNoTorSetTxDirectHint": "通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。",
+  "deskNoTorAdvNetworkHint": "钱包如何连接网络。“标准”直接连接。“离线”只限这台电脑和你的本地网络：文件传输仍可通过正在使用的节点进行；如果这里或你的网络中有节点，还可以向本地地址发送并通过“链接”接收，余额也会刷新。内置节点会继续运行，它的对等节点是节点本身的设置。",
+  "deskNoTorAdvOfflineNote": "Epicbox 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。",
+  "deskNoTorTxDetailsFromBad": "请使用 Epicbox 或 http(s) 地址。",
+  "deskNoTorTourAdvancedText": "输出和技术详情都在这里。需要什么就开启什么。"
+}

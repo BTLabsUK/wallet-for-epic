@@ -32,6 +32,7 @@ import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey, offline
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -486,7 +487,7 @@ void main() {
       // Back to an address method: the form again.
       await _tap(tester, _segment('Epicbox'));
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('the ? beside the shape opens help on the address kinds', (
       tester,
@@ -545,7 +546,7 @@ void main() {
       // Never a silent refusal: the note names the method that is off.
       expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Link · HTTP on, Link · Tor off: an http address goes, an onion waits with its reason', (tester) async {
       final h = _Harness();
@@ -558,7 +559,7 @@ void main() {
       await _enter(tester, 'To', _onion);
       expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('a saved contact with only an address whose method is off is named, with the way to Settings', (tester) async {
       final h = _Harness();
@@ -576,7 +577,7 @@ void main() {
       await _tap(tester, find.text(line));
       expect(find.byType(SettingsSectionScreen), findsOneWidget);
       expect(h.session.torSends, isEmpty);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Send opens on the default method', (tester) async {
       final h = _Harness();
@@ -748,7 +749,7 @@ void main() {
       expect(_toText(tester), _onion);
       expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
       expect(find.textContaining('has only'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
       String? clip = 'epic:$_bob?method=direct&direct=http://$_onion';
@@ -769,7 +770,7 @@ void main() {
       await _tap(tester, find.text('Paste'));
       expect(_toText(tester), _onion);
       expect(_method(tester), TransferMethod.direct);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('an onion contact picked moves it to Link', (tester) async {
       final h = _Harness();
@@ -818,7 +819,7 @@ void main() {
           );
           expect(tester.widget<FilledButton>(_continue).onPressed, isNull, reason: address);
         }
-      },
+      }, skip: !torBuilt,
     );
 
     testWidgets('choosing a method by hand never clears the field', (
@@ -842,7 +843,7 @@ void main() {
         ),
         findsOneWidget,
       );
-    });
+    }, skip: !torBuilt);
   });
 
   group('HTTP send', () {
@@ -952,7 +953,7 @@ void main() {
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
       );
-    });
+    }, skip: !torBuilt);
   });
 
   group('the Tor switch', () {
@@ -997,7 +998,7 @@ void main() {
         await _tap(tester, _continue);
         expect(find.text('Review'), findsOneWidget);
         expect(h.session.torSends, isEmpty);
-      },
+      }, skip: !torBuilt,
     );
 
     testWidgets('Tor not connected: Retry and Turn Tor off; nothing goes', (
@@ -1017,7 +1018,7 @@ void main() {
       await _tap(tester, find.byKey(sendTurnOffTorKey));
       expect(h.container.read(phoneTorProvider).receiving, isFalse);
       expect(find.text('Tor is not connected.'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Tor on: Epicbox Over Tor, http Not over Tor, onion Over Tor', (
       tester,
@@ -1041,7 +1042,7 @@ void main() {
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
       expect(_reviewMethod('Link · HTTP · Not over Tor'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {
       final h = _Harness();
@@ -1049,7 +1050,7 @@ void main() {
       await h.torOn(tester);
       await h.toReview(tester, _bob);
       expect(_reviewMethod('Epicbox · Over Tor'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('with Tor off there are no Tor tags', (tester) async {
       final h = _Harness();
@@ -1145,7 +1146,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
       expect(find.text('Waiting for Tor.'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Epicbox off: Continue waits with the reason; a saved contact is named as Epicbox-only', (tester) async {
       final h = _Harness();
@@ -1182,7 +1183,7 @@ void main() {
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
       expect(find.byKey(netBlockNoteKey), findsNothing);
-    });
+    }, skip: !torBuilt);
   });
 
   group('details', () {
@@ -1280,14 +1281,14 @@ void main() {
         find.text('Works with no connection between the wallets.'),
         findsOneWidget,
       );
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Epicbox with Tor on: the strip adds Over Tor', (tester) async {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600);
       await h.torOn(tester);
       expect(find.text('Works with the wallet closed. Over Tor.'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('receiving help opens the Receive topic', (
       tester,

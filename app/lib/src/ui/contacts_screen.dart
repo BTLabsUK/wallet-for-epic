@@ -6,6 +6,7 @@ import '../contacts.dart';
 import '../help/help_content.dart' show HelpId;
 import '../errors.dart';
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../pairing_clipboard.dart' show PairingClipTrigger;
 import '../pairing_providers.dart';
 import '../pairing_text.dart' show sameNamedContact;
@@ -638,8 +639,18 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final text = f.text.text.trim();
     if (text.isEmpty) return null;
     final l = context.l10n;
-    if (checkContactAddress(l, ref.read(walletServiceProvider), text) != null) return null;
+    if (_problem(l, ref.read(walletServiceProvider), text) != null) return null;
     return parseRecipient(text).kind;
+  }
+
+  /// [checkContactAddress], except that the onion this contact already has stays in the build
+  /// without Tor: it is kept and shown, only a new one is refused.
+  String? _problem(AppLocalizations l, WalletService service, String text) {
+    if (!torBuilt) {
+      final to = parseRecipient(text);
+      if (to.kind == RecipientKind.tor && to.address == widget.contact?.tor) return null;
+    }
+    return checkContactAddress(l, service, text);
   }
 
   Set<RecipientKind> get _taken => {for (final f in _fields) ?_kindOf(f)};
@@ -717,7 +728,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
       _nameError = name.isEmpty ? l.contactsNameMissing : null;
       for (final f in _fields) {
         final text = f.text.text.trim();
-        f.error = text.isEmpty ? null : checkContactAddress(l, service, text);
+        f.error = text.isEmpty ? null : _problem(l, service, text);
       }
       // A contact saved without one (from a pairing) may stay so: only a new plain contact
       // needs an address (PAIR-AND-9).

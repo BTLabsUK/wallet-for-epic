@@ -15,6 +15,7 @@ import '../payment_prefs.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
+import '../tor_build.dart';
 import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
 import 'common.dart';
@@ -501,7 +502,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           title: pairingFailureText(l, failure),
           body: pairingFailureBody(l, failure, file: true),
           actions: [
-            if (failure == PairingFailure.newerVersion)
+            // No in-app updates in the build without Tor: its store updates it.
+            if (failure == PairingFailure.newerVersion && inAppUpdates)
               FilledButton(
                 key: slateCheckUpdatesKey,
                 onPressed: () {

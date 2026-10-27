@@ -5,6 +5,7 @@
 // test value; no tor runs.
 import 'dart:io';
 
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
@@ -133,7 +134,7 @@ void main() {
     expect((await wallet.settings()).torAutostart, isTrue);
     await wallet.setTor(false);
     expect((await wallet.settings()).tor, isFalse);
-  });
+  }, skip: torBuilt ? null : 'no Tor in this build');
 
   test('Tor only: a wallet opens with Tor on', () async {
     await mode(NetworkMode.torOnly);
@@ -144,7 +145,7 @@ void main() {
     await pumpEventQueue();
     expect(session().torStarts, hasLength(1));
     expect(session().routeLog, contains('expectTor'));
-  });
+  }, skip: torBuilt ? null : 'no Tor in this build');
 
   group('Offline with a local node', () {
     for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {

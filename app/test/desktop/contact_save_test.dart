@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -79,5 +80,5 @@ void main() {
     expect(api.saved, isEmpty);
     expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);
-  });
+  }, skip: !torBuilt);
 }

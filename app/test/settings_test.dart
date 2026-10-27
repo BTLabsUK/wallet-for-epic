@@ -42,6 +42,7 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -617,7 +618,7 @@ void main() {
         tester.getTopLeft(find.byKey(torReceivingSwitchKey)).dy,
         greaterThan(tester.getTopLeft(find.byKey(settingsPrivacyKey)).dy),
       );
-    });
+    }, skip: !torBuilt);
   });
 
   group('updates on opening', () {
@@ -1965,7 +1966,7 @@ void main() {
         await tester.pump();
       }
       expect(find.text('tor'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
   });
 
   group('a notice under the finger (android-02)', () {

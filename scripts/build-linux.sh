@@ -7,10 +7,12 @@
 # Env:   WFE_TARGET=lib/main_desktop.dart   entry point
 #        WFE_NODE_BIN=<path to epic>        bundle the built-in node's binary as usr/bin/bin/epic
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
-#        WFE_TOR=0                          leave out the Tor bundle (tools/fetch-tor.sh, in by default)
+#        WFE_TOR=0                          the build without Tor (https://docs.btlabs.uk/developers/build/variants/): no Tor bundle
+#                                           (tools/fetch-tor.sh, in by default), --dart-define=WFE_TOR=false,
+#                                           and -notor in the AppImage's name
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
 #        LEPIC_FLUTTER_REPO=~/lepic-flutter where the pinned lepic-flutter (package:lepic) commit is read from
-# Output: build-linux/EpicCashDesktop-<version>-x86_64.AppImage
+# Output: build-linux/EpicCashDesktop-<version>[-notor]-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -94,7 +96,7 @@ docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-
   chown "$(id -u):$(id -g)" /t /b /p /h
 docker run --rm --user "$(id -u):$(id -g)" \
   -e WFE_TARGET="${WFE_TARGET:-lib/main_desktop.dart}" -e WFE_BUILD_LEPIC="${WFE_BUILD_LEPIC:-1}" \
-  -e WFE_BUILD_ID="$build_id" -e WFE_BUILD_TAG="$build_tag" \
+  -e WFE_BUILD_ID="$build_id" -e WFE_BUILD_TAG="$build_tag" -e WFE_TOR="${WFE_TOR:-1}" \
   -v "$work:/work" \
   -v wfe-linux-build:/work/app/build \
   -v "$src:/work/app/third_party/lepic" \

@@ -18,6 +18,7 @@ import '../../wallet_service.dart';
 import '../../pairing_text.dart';
 import '../../phone_tor.dart' show epicboxOverTorProvider;
 import '../../slate_files.dart';
+import '../../tor_build.dart';
 import '../../updater.dart' show updateProvider;
 import '../common.dart';
 import '../theme/tokens.dart';
@@ -865,7 +866,8 @@ class PairingOutcomeScreen extends ConsumerWidget {
           Expanded(child: close),
         ],
       ),
-      PairingFailure.newerVersion => Row(
+      // No in-app updates in the build without Tor: Close alone.
+      PairingFailure.newerVersion when inAppUpdates => Row(
         children: [
           Expanded(
             child: OutlinedButton(

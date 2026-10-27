@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -537,7 +538,7 @@ void main() {
         reason: 'it can still be turned off',
       );
       expect(find.text('Paused while Tor is on'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('another relay: offered as usual, nothing sent before it is turned on', (
       tester,
@@ -561,7 +562,7 @@ void main() {
       expect(_row(tester).toggle.value, isFalse);
       expect(_row(tester).toggle.onChanged, isNull);
       expect(find.text('Paused while Tor is on'), findsNothing);
-    });
+    }, skip: !torBuilt);
   });
 
   group('after each unlock', () {
@@ -723,7 +724,7 @@ void main() {
       expect(h.push.starts, 0);
       expect(h.posts, isEmpty);
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
-    });
+    }, skip: !torBuilt);
   });
 
   group('Tor on', () {
@@ -749,7 +750,7 @@ void main() {
       await h.emit(tester, TorEventKind.ready);
       await h.settle(tester);
       expect(h.order.where((e) => e.startsWith('post:')), ['post:unregister']);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('a failing unregister still drops the token and starts tor', (
       tester,
@@ -766,7 +767,7 @@ void main() {
         h.order.indexOf('deleteToken'),
         lessThan(h.order.indexOf('startTor')),
       );
-    });
+    }, skip: !torBuilt);
 
     testWidgets('a slow unregister is given up after the cap', (tester) async {
       final h = _Harness(wanted: true);
@@ -788,7 +789,7 @@ void main() {
         h.order.indexOf('deleteToken'),
         lessThan(h.order.indexOf('startTor')),
       );
-    });
+    }, skip: !torBuilt);
 
     testWidgets('not wanted: tor starts with nothing sent', (tester) async {
       final h = _Harness();
@@ -797,7 +798,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.posts, isEmpty);
       expect(h.order, ['startTor']);
-    });
+    }, skip: !torBuilt);
   });
 
   group('Tor off', () {
@@ -823,7 +824,7 @@ void main() {
         );
         expect(h.notes, [PushNote.on]);
         expect(h.wantedNow, isTrue);
-      },
+      }, skip: !torBuilt,
     );
 
     testWidgets('was off: nothing', (tester) async {
@@ -855,7 +856,7 @@ void main() {
         expect(h.posts, isEmpty);
         expect(h.notes, [PushNote.off]);
         expect(h.wantedNow, isFalse);
-      },
+      }, skip: !torBuilt,
     );
   });
 
@@ -973,7 +974,7 @@ void main() {
       expect(await h.controller.turnOn(), isFalse);
       expect(h.wantedNow, isFalse);
       expect(h.posts, isEmpty);
-    });
+    }, skip: !torBuilt);
   });
 }
 

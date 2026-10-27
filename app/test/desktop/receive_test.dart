@@ -1,6 +1,7 @@
 // Receive (spec 4): no QR code on open in any state, the Epicbox reveal keeps the hero's size,
 // the compact reveal opens and closes in the same time, panels grow with their switch, and
 // the page carries none of the banned words.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -150,7 +151,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.getRect(panel).top, lessThan(before));
     expect(view.contains(tester.getRect(panel).topLeft), isTrue);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();

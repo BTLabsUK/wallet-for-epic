@@ -3,6 +3,7 @@
 // defaults only with Advanced › Send options, and what follows from the switches on Send,
 // Receive and the sidebar, with the keep rules (a pasted onion, a pending file send, a running
 // listener). Outputs holds one line instead of the defaults; Advanced no longer has Link.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
@@ -114,7 +115,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
       expect(find.text('Epicbox receiving'), findsNothing, reason: 'no group of its own at the bottom any more');
       expect(find.text('Send starts on'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('by default File Transfer is on, Link off, and Link’s receiving rows are not shown', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -125,7 +126,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-details-linkTor')), findsNothing);
       expect(find.text('Link · HTTP receiving'), findsNothing);
       expect(find.text('Link · Tor receiving'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Offline on a public node: Link · HTTP refused stays off; Link · Tor offers no Turn on Tor (LNX-8)', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
@@ -140,7 +141,7 @@ void main() {
       expect(find.text('Turn on Tor'), findsNothing);
       expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Offline mode is on in Advanced.')), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Link · HTTP is one switch: it saves, starts the listener and shows the HTTP rows under it without a second switch', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -161,7 +162,7 @@ void main() {
       expect(_payments.linkHttp, isFalse);
       expect(_container.read(deskProvider).status?.httpListener, ServiceHealth.off);
       expect(find.byKey(const ValueKey('st-details-linkHttp')), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Link · Tor saves; with Tor off its row says what it needs, with Tor on its group shows the Tor state', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -177,7 +178,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
       expect(find.byKey(const ValueKey('st-state-tor')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-tor')), findsNothing, reason: 'Tor itself is Privacy\'s switch');
-    });
+    }, skip: !torBuilt);
 
     testWidgets('the Epicbox switch saves, stops the listener, its rows fold away, and comes back on with them', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -261,7 +262,7 @@ void main() {
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File'], reason: 'Link once');
-    });
+    }, skip: !torBuilt);
 
     testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(linkHttp: true, defaultMethod: MethodKind.linkHttp));
@@ -287,7 +288,7 @@ void main() {
     testWidgets('Send opens on Link when that is the choice and a Link method is on', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true, defaultMethod: MethodKind.linkHttp));
       expect(_selected<TxMethod>(tester), TxMethod.http);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Send opens on Epicbox when the chosen method was switched off', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false, defaultMethod: MethodKind.directFile));
@@ -379,7 +380,7 @@ void main() {
         }).payments.offersFamily(MethodFamily.link),
         isFalse,
       );
-    });
+    }, skip: torBuilt ? null : 'no Tor in this build');
   });
 
   group('Send follows the switches', () {
@@ -423,7 +424,7 @@ void main() {
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
       expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('an http address with Link · HTTP off but Link · Tor on: the reason names Link · HTTP, the contact-only line names the contact', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'), payments: const PaymentPrefs(linkTor: true));
@@ -455,7 +456,7 @@ void main() {
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
       expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
       expect(find.textContaining('has only'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
       const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
@@ -470,7 +471,7 @@ void main() {
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?direct=$_onion'), payments: const PaymentPrefs(epicbox: false, linkTor: true));
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion.substring('http://'.length));
       expect(_selected<TxMethod>(tester), TxMethod.http);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('LNX-1: Epicbox switched off is no failure, so File Transfer off stays off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.off), payments: const PaymentPrefs(epicbox: false, linkTor: true, directFile: false));
@@ -492,7 +493,7 @@ void main() {
       await tester.enterText(find.byType(EditableText).first, 'https://wallet.example.org');
       await _settle(tester);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
@@ -537,7 +538,7 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
       expect(find.text('Link · Tor address'), findsWidgets);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Tor on with Link · Tor off: no Tor address on Receive', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkHttp: true));

@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart' show TorSwitchTile;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,7 +101,8 @@ void main() {
     SettingsSection.privacyNetwork: [
       (_l.serverNodeTitle, () => find.text(_l.serverNodeTitle)),
       (_l.serverEpicboxTitle, () => find.text(_l.serverEpicboxTitle)),
-      (_l.netStatusTor, () => find.byType(TorSwitchTile)),
+      // No Tor switch, nor its name, in the build without Tor.
+      if (torBuilt) (_l.netStatusTor, () => find.byType(TorSwitchTile)),
     ],
     // Outputs is named (and shown) only with Advanced > Outputs: see the test below.
     SettingsSection.wallet: [
@@ -128,7 +130,8 @@ void main() {
         items,
         hasLength(
           section == SettingsSection.wallet ||
-                  section == SettingsSection.transactions
+                  section == SettingsSection.transactions ||
+                  (section == SettingsSection.privacyNetwork && !torBuilt)
               ? 2
               : 3,
         ),

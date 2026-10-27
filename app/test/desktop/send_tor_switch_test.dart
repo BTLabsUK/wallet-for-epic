@@ -1,6 +1,7 @@
 // The one Tor switch on desktop Send: every gate and chip comes from torWay. Starting and
 // not connected hold covered sends (Epicbox, an onion); nothing falls back to the clearnet;
 // Link to http(s) goes on the clearnet even with Tor on; an onion with Tor off needs Tor.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -120,7 +121,7 @@ void main() {
         await settle(tester);
         expect(find.text('Check and send'), findsNothing);
         expect(wallet.sent, isEmpty);
-      });
+      }, skip: !torBuilt);
     }
   });
 
@@ -149,13 +150,13 @@ void main() {
       expect(chip('Not over Tor'), findsOneWidget);
       expect(review(tester).onPressed, isNotNull);
       expect(wallet.sent, isEmpty);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('an onion is held too', (tester) async {
       await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
       expect(find.text('Tor is not connected'), findsOneWidget);
       expect(review(tester).onPressed, isNull);
-    });
+    }, skip: !torBuilt);
   });
 
   testWidgets('Link http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
@@ -171,14 +172,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent.single.method, TxMethod.http);
     expect(wallet.sent.single.to, _https);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
     expect(chip('Over Tor'), findsOneWidget);
     expect(find.text('Link · HTTP goes over the clearnet, not Tor.'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('an onion with Tor off: "Needs Tor" and Turn on Tor; the form is kept', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'), tor: false);
@@ -193,7 +194,7 @@ void main() {
     expect(find.text('Needs Tor'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
     expect(wallet.sent, isEmpty);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('File shows no chip', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.file, amount: '1'));

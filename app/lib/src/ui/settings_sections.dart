@@ -20,6 +20,7 @@ import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
+import '../tor_build.dart';
 import '../price.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
@@ -820,7 +821,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         !s.splitChange;
     // Link · HTTP works on any phone (this Wi-Fi network); Link · Tor needs Tor, so where the
     // app has none (and the switch is off) there is nothing to turn on.
-    final showTor = _txTorShown |= torAvailable || payments.linkTor;
+    final showTor = _txTorShown |= torBuilt && (torAvailable || payments.linkTor);
     // The phone's Direct methods: QR Payment for everyone, File Transfer behind Advanced ›
     // Transaction files (a phone that has it on keeps the row, so it can still be turned off).
     final phone = ref.watch(phonePaymentsProvider);
@@ -869,7 +870,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     Widget methodTile(MethodKind m) {
       final (line, hint) = switch (m) {
         MethodKind.epicbox => (l.txEpicboxLine, l.txEpicboxHint),
-        MethodKind.linkHttp => (l.txLinkHttpLine, l.txLinkHttpHint),
+        MethodKind.linkHttp => (l.txLinkHttpLine, torBuilt ? l.txLinkHttpHint : l.txLinkHttpHintNoTor),
         MethodKind.linkTor => (l.txLinkTorLine, l.txLinkTorHint),
         MethodKind.directQr => (l.txQrLine, l.txQrHint),
         MethodKind.directFile => (l.txFileLine, l.txFileHint),
@@ -1051,7 +1052,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         );
     final note = switch (adv.networkMode) {
       NetworkMode.torOnly => l.advTorOnlyNote,
-      NetworkMode.offline => l.advOfflineNote,
+      NetworkMode.offline => torBuilt ? l.advOfflineNote : l.advOfflineNoteNoTor,
       _ => null,
     };
     return [
@@ -1103,7 +1104,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         child: Row(
           children: [
             Expanded(child: SettingsHeader(l.advNetworkHeader)),
-            InfoHint(l.advNetworkHint, title: l.advNetworkHeader, icon: Icons.hub_outlined),
+            InfoHint(torBuilt ? l.advNetworkHint : l.advNetworkHintNoTor, title: l.advNetworkHeader, icon: Icons.hub_outlined),
           ],
         ),
       ),
@@ -1116,13 +1117,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         },
         child: Column(
           children: [
-            mode(NetworkMode.standard, l.advModeStandard, l.advModeStandardLine),
-            mode(
-              NetworkMode.torOnly,
-              l.advModeTorOnly,
-              l.advModeTorOnlyLine,
-              enabled: torAvailable,
-            ),
+            mode(NetworkMode.standard, l.advModeStandard, torBuilt ? l.advModeStandardLine : l.advModeStandardLineNoTor),
+            // No Tor only in the build without Tor.
+            if (torBuilt)
+              mode(
+                NetworkMode.torOnly,
+                l.advModeTorOnly,
+                l.advModeTorOnlyLine,
+                enabled: torAvailable,
+              ),
             mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
           ],
         ),

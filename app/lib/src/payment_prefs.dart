@@ -16,6 +16,7 @@
 library;
 
 import 'payment_method.dart';
+import 'tor_build.dart';
 
 export 'payment_method.dart';
 
@@ -23,11 +24,11 @@ class PaymentPrefs {
   const PaymentPrefs({
     this.epicbox = true,
     this.linkHttp = false,
-    this.linkTor = false,
+    bool linkTor = false,
     this.directQr = true,
     this.directFile = true,
     this.defaultMethod = MethodKind.epicbox,
-  });
+  }) : linkTor = torBuilt && linkTor;
 
   /// Epicbox is on: the listener runs, Send and Receive offer it, invoices and push work. Off
   /// is the one setting behind every Epicbox connection (`network_gate.dart`, [NetGate]).
@@ -37,7 +38,8 @@ class PaymentPrefs {
   /// http(s) addresses.
   final bool linkHttp;
 
-  /// Link · Tor: the onion address is handed out while Tor runs and Send offers onions.
+  /// Link · Tor: the onion address is handed out while Tor runs and Send offers onions. Always
+  /// off in the build without Tor ([torBuilt]), whatever was stored.
   final bool linkTor;
 
   /// Direct · QR Payment (the phone only; the desktop never reads it).

@@ -3192,6 +3192,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get helpTellUs => 'อธิบายสิ่งที่เกิดขึ้นหรือสิ่งที่ไม่ชัดเจน';
 
   @override
+  String get helpDonateTitle => 'สนับสนุนการพัฒนา';
+
+  @override
+  String get helpDonateText => 'เงินบริจาคใช้พัฒนาฟีเจอร์ใหม่';
+
+  @override
+  String get helpDonateCopy => 'คัดลอกที่อยู่';
+
+  @override
+  String get helpDonateCopied => 'คัดลอกที่อยู่แล้ว';
+
+  @override
   String get helpSendFeedback => 'ส่งความคิดเห็น';
 
   @override
@@ -16935,4 +16947,76 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskUpdLater => 'ภายหลัง';
+
+  @override
+  String get sendTorNotInVersion => 'เวอร์ชันนี้ส่งไปยังที่อยู่ Tor ไม่ได้';
+
+  @override
+  String get methodSendDirectLineNoTor => 'กระเป๋าของผู้รับต้องเปิดอยู่';
+
+  @override
+  String get sendDirectAddressShapeNoTor =>
+      'ที่อยู่ลิงก์ขึ้นต้นด้วย http:// หรือ https://';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) หรือที่อยู่ลิงก์ (https://…)';
+
+  @override
+  String get handshakeLink1NoTor =>
+      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ต เหรียญของคุณถูกพักไว้';
+
+  @override
+  String get advNetworkHintNoTor =>
+      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง ออฟไลน์ใช้เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ได้และยอดจะอัปเดต';
+
+  @override
+  String get advModeStandardLineNoTor => 'เชื่อมต่อตรง';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      'ออฟไลน์จะหยุด Epicbox, การตรวจสถานะ และการแจ้งเตือน ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      'ลิงก์ · HTTP จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่เว็บ (http://host:3415) และให้โทรศัพท์เครื่องนี้มีที่อยู่ที่กระเป๋าเงินในเครือข่าย Wi-Fi เดียวกันจ่ายมาได้ ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ไม่เข้ารหัสระหว่างทาง และเข้าถึงจากอินเทอร์เน็ตหรือผ่านเน็ตมือถือไม่ได้ เพิ่ม ลิงก์ · HTTP ใน ส่ง และ รับ';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      'ฟีเจอร์ทดลอง: อาจเปลี่ยนแปลงหรือทำงานผิดพลาด แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนดและ Epicbox สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
+
+  @override
+  String get tourPhonePrivacyTextNoTor =>
+      'โหนดและเซิร์ฟเวอร์ Epicbox ที่กระเป๋าเงินใช้ แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor =>
+      'โหมดออฟไลน์ เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
+
+  @override
+  String get deskNoTorSendDirectLine2 =>
+      'ที่อยู่ http(s) กระเป๋าเงินของผู้รับต้องเปิดอยู่';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:3415) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่และรับผ่านลิงก์ได้ และยอดจะอัปเดต โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox และการตรวจสถานะหยุดชั่วคราว โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ รวมถึงโหนดสาธารณะ ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย';
+
+  @override
+  String get deskNoTorTxDetailsFromBad => 'ใช้ที่อยู่ Epicbox หรือ http(s)';
+
+  @override
+  String get deskNoTorTourAdvancedText =>
+      'เอาต์พุตและรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
 }

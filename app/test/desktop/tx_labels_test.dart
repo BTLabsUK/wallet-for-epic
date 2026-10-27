@@ -2,6 +2,7 @@
 // the title rule, the inline field (Enter, blur, Esc, empty), the pen as a Tab stop with its
 // screen-reader name, the details editor only on restored rows, the proof dialog, the dialog
 // defaulting to Mine and Cancel writing nothing.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/backup.dart';
@@ -290,7 +291,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Use an Epicbox, http(s) or .onion address.'), findsOneWidget);
       expect((_tx(102)).counterparty, isNull);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('the mock refuses details on a payment that is not restored', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 35));

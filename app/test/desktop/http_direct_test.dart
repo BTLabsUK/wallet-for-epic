@@ -2,6 +2,7 @@
 // sendHttp and startHttpListener call. The password is a throwaway test value.
 import 'dart:io';
 
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -82,7 +83,7 @@ void main() {
       expect(httpAddressProblem('ftp://203.0.113.5'), 'Not an http(s) address');
       expect(httpAddressProblem('http://abc.onion'), 'Onion addresses need Tor');
       expect(httpAddressProblem(''), isNotNull);
-    });
+    }, skip: torBuilt ? null : 'no Tor in this build');
 
     test('consent only for plain http to another computer', () {
       expect(plainHttpNeedsConsent('http://203.0.113.5:3415'), isTrue);

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart' show sha256;
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart';
@@ -310,7 +311,7 @@ Future<void> main(List<String> a) async {
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.ready);
       expect(await n.restart(), isTrue);
       expect(applier.applied.single.path, s.download!.path);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('a download that does not match: Try again, nothing kept', () async {
       final c = make(desktop: _desktop(sha: 'c' * 64));
@@ -322,7 +323,7 @@ Future<void> main(List<String> a) async {
       expect(s.problem, deskStrings.deskUpdErrDamaged);
       expect(s.file, isNotNull, reason: 'it can be tried again');
       expect(updates().listSync(), isEmpty);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('a download of the wrong size: refused the same way', () async {
       final c = make(desktop: _desktop(size: 1000));
@@ -330,7 +331,7 @@ Future<void> main(List<String> a) async {
       await n.check();
       await n.download();
       expect(c.read(deskUpdateProvider).problem, deskStrings.deskUpdErrDamaged);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('Restart to update checks the file again: a changed one is offered again', () async {
       final applier = _FakeApplier();
@@ -344,7 +345,7 @@ Future<void> main(List<String> a) async {
       expect(s.phase, DeskUpdatePhase.available);
       expect(s.problem, deskStrings.deskUpdErrDamaged);
       expect(applier.applied, isEmpty);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('an update that cannot be put in place says so and keeps the page', () async {
       final c = make(applier: _FakeApplier(fails: true));
@@ -356,7 +357,7 @@ Future<void> main(List<String> a) async {
       expect(s.phase, DeskUpdatePhase.ready);
       expect(s.problem, deskStrings.deskUpdErrInstall);
       expect(s.page, deskReleasesUrl);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('a failed install: a check offers the download again, and Try again fetches it', () async {
       final c = make(applier: _FakeApplier(fails: true));
@@ -372,7 +373,7 @@ Future<void> main(List<String> a) async {
       expect(s.file, isNotNull);
       await n.download();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.ready);
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('the page only, when this copy cannot install the update itself', () async {
       for (final c in [
@@ -389,7 +390,7 @@ Future<void> main(List<String> a) async {
         await c.read(deskUpdateProvider.notifier).download();
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: 'nothing to download');
       }
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('checks shortly after the wallet opens and then periodically, once scheduled', () async {
       var fetches = 0;
@@ -406,7 +407,7 @@ Future<void> main(List<String> a) async {
       final stopped = fetches;
       await Future<void>.delayed(const Duration(milliseconds: 200));
       expect(fetches, stopped, reason: 'no checks after the app is gone');
-    });
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     group('an update that did not finish', () {
       test("Setup's mark or a recorded version newer than this one; nothing once it runs", () {
@@ -448,7 +449,7 @@ Future<void> main(List<String> a) async {
         expect(s.phase, DeskUpdatePhase.ready);
         expect(applier.applied.single.path, s.download!.path);
         expect(marks.target.readAsStringSync(), _next, reason: 'recorded again before Setup started');
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('new code over old files: the same version is installed once more', () async {
         final applier = _FakeApplier();
@@ -461,13 +462,13 @@ Future<void> main(List<String> a) async {
         expect(await n.retry(), isTrue);
         expect(applier.applied, hasLength(1));
         expect(marks.setup.existsSync(), isTrue, reason: 'Setup removes its own mark once its files are in');
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('without the marks the same version is the latest', () async {
         final c = make(desktop: _desktop(version: deskAppVersion), marks: marksIn(tmp));
         await c.read(deskUpdateProvider.notifier).checkOnce();
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('a finished update: its record goes, nothing is shown; an old mark goes too', () async {
         final marks = marksIn(tmp, setup: '0.1.0', target: deskAppVersion);
@@ -476,7 +477,7 @@ Future<void> main(List<String> a) async {
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.idle);
         expect(marks.target.existsSync(), isFalse);
         expect(marks.setup.existsSync(), isFalse);
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('Try again with no answer: still unfinished, with the reason', () async {
         final c = make(marks: marksIn(tmp, target: _next), status: 503);
@@ -487,7 +488,7 @@ Future<void> main(List<String> a) async {
         expect(s.phase, DeskUpdatePhase.unfinished);
         expect(s.version, _next);
         expect(s.problem, deskStrings.deskDataUpdStatus(503));
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('Restart to update records the version first; a Setup that does not start leaves no record', () async {
         final marks = marksIn(tmp);
@@ -505,13 +506,13 @@ Future<void> main(List<String> a) async {
         await f.download();
         expect(await f.restart(), isFalse);
         expect(marks.target.existsSync(), isFalse);
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
       test('no marks where nothing can be left half done (Linux)', () async {
         final c = make();
         await c.read(deskUpdateProvider.notifier).checkOnce();
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
-      });
+      }, skip: inAppUpdates ? null : 'no in-app updates in this build');
     });
   });
 

@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -174,7 +175,7 @@ void main() {
     expect(find.text(_l.txFileLine), findsOneWidget);
     // Off, Link · Tor says nothing about Tor.
     expect(find.byKey(txTorNeededKey), findsNothing);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('where the app has no Tor, HTTP stays and Tor goes', (tester) async {
     await _pump(tester, _store(), tor: _noTor);
@@ -189,7 +190,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_payments(c).linkTor, isFalse);
     expect(_row('tx-tor'), findsOneWidget, reason: 'a row shown stays while the page is open');
-  });
+  }, skip: !torBuilt);
 
   testWidgets('Link · Tor on with Tor off: the line under it opens Privacy & network', (tester) async {
     final c = await _pump(tester, _store());
@@ -203,13 +204,13 @@ void main() {
     // Settings opens over the page, at Privacy & network (the hub stays under it).
     expect(find.byType(SettingsScreen, skipOffstage: false), findsOneWidget);
     expect(find.byWidgetPredicate((w) => w is SettingsSectionScreen && w.section == SettingsSection.privacyNetwork), findsOneWidget);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('Link · Tor on with Tor on: no line', (tester) async {
     await _pump(tester, _store({'app.payment_prefs': 'v2,tor,file|epicbox'}), tor: _torOn);
     expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
     expect(find.byKey(txTorNeededKey), findsNothing);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('the last method on stays on: the switch holds and a notice says why', (tester) async {
     addTearDown(() => NetGate.setEpicbox(true));
@@ -260,7 +261,7 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, _l.commonClose));
       await tester.pumpAndSettle();
     }
-  });
+  }, skip: !torBuilt);
 
   testWidgets('the Epicbox switch saves, reaches the gate, and comes back on', (tester) async {
     addTearDown(() => NetGate.setEpicbox(true));
@@ -314,7 +315,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_payments(c), const PaymentPrefs(linkHttp: true, linkTor: true, directFile: false, directQr: false));
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isFalse);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('Send starts on: only the methods offered, and a saved choice', (tester) async {
     final c = await _pump(tester, _store());
@@ -350,7 +351,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_row('tx-start-link'), findsNothing);
     expect(_payments(c).startMethod, MethodKind.epicbox);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('with Epicbox alone there is nothing to choose', (tester) async {
     await _pump(tester, _store({'app.payment_prefs': 'v2,noqr|epicbox'}));
@@ -414,7 +415,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_row(key), findsOneWidget, reason: key);
     }
-  });
+  }, skip: !torBuilt);
 
   testWidgets('every Advanced switch stays in place when toggled', (tester) async {
     await _pump(tester, _store(), section: SettingsSection.advanced);
@@ -441,7 +442,7 @@ void main() {
     final c = await _pump(tester, store, phone: true);
     expect(_payments(c).linkTor, isTrue);
     expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
-  });
+  }, skip: !torBuilt);
 
   group('on a phone: QR for everyone, File behind Advanced', () {
     const files = AdvancedPrefs(features: {AdvancedFeature.transactionFiles});
@@ -462,7 +463,7 @@ void main() {
       expect(_row('tx-file'), findsNothing);
       expect(_row('tx-start-qr'), findsOneWidget);
       expect(_row('tx-start-file'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Advanced › Transaction files brings the File switch, off', (tester) async {
       final store = _store({'app.advanced_prefs': files.encode()});

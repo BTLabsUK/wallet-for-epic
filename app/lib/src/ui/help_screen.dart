@@ -16,12 +16,14 @@ import '../phone_tor.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
+import '../tor_build.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
 import 'handshake.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
 import 'contacts_screen.dart';
+import 'donate_note.dart';
 import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
@@ -48,7 +50,7 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
   final confirmations = confirmationsTargetOf(ref);
   // Pairing off (Settings › Advanced) reads as no pairing (pairingApiProvider).
   final pairs = ref.watch(pairingSupportedProvider);
-  final tor = ref.watch(phoneTorProvider.select(torShown));
+  final tor = torBuilt && ref.watch(phoneTorProvider.select(torShown));
   return [
     // The topics of a part Advanced hides go with it (Outputs).
     ...helpTopicsShown(
@@ -69,7 +71,7 @@ List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
   final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
   final out = <HelpSection>[];
-  for (final s in localizedHelpSections(lang)) {
+  for (final s in localizedHelpSections(lang, tor: torBuilt)) {
     if (s.id == 'trouble' && used.contains(pairingHelpSection)) {
       out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
     }
@@ -256,6 +258,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                       if (!searching) const _ShowTipsAgain(),
                       if (!searching) const _ShowTourAgain(),
                       const _StillStuck(),
+                      if (!searching) const DonateNote(),
                     ],
                   ),
                 ),

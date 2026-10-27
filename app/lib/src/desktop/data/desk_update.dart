@@ -29,6 +29,7 @@ import '../../app_version.dart';
 import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
+import '../../tor_build.dart' show inAppUpdates;
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
@@ -124,9 +125,10 @@ final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (desk
 /// only (`main_desktop.dart`), not the mock or widget tests.
 final deskUpdateAutoProvider = Provider<bool>((ref) => false);
 
-/// Whether this system looks for updates at all: not macOS, which has no update file yet (no
-/// checks, notices or downloads there; the About page leaves out its Updates group).
-bool get deskUpdatesSupported => kIsWeb || !Platform.isMacOS;
+/// Whether this build looks for updates at all: not macOS, which has no update file yet, and not
+/// the build without Tor ([inAppUpdates]), which a store updates (no checks, notices or downloads
+/// then; the About page leaves out its Updates group).
+bool get deskUpdatesSupported => inAppUpdates && (kIsWeb || !Platform.isMacOS);
 
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
@@ -233,7 +235,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   /// Reads the marks of an earlier update once per run ([unfinishedUpdate]): one that did not
   /// finish shows "Update didn't finish. Try again."; one that finished has its record removed.
-  Future<void> detect() => _detecting ??= _detect();
+  Future<void> detect() => _detecting ??= inAppUpdates ? _detect() : Future<void>.value();
 
   Future<void> _detect() async {
     final open = ref.read(deskUpdateMarksProvider);
@@ -272,7 +274,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// says what stopped it (a check that fails stays here, with the reason as the problem).
   Future<bool> retry() async {
     final s = state;
-    if (s.phase != DeskUpdatePhase.unfinished || _retrying) return false;
+    if (!inAppUpdates || s.phase != DeskUpdatePhase.unfinished || _retrying) return false;
     _retrying = true;
     try {
       logInfo('update', 'desktop: trying the update to ${s.version} again');

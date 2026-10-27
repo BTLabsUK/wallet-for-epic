@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -70,6 +71,11 @@ class _Harness {
 }
 
 void main() {
+  // Tor's own behaviour: nothing of it is in the build without Tor.
+  if (!torBuilt) {
+    test('Tor', () {}, skip: 'no Tor in this build');
+    return;
+  }
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('on by default; a change reaches the open wallet at once and the next one', () async {

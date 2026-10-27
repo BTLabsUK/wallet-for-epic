@@ -448,7 +448,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final api = ref.read(deskApiProvider);
     final r = await api.checkNode(url);
     if (r.health == ServiceHealth.down) return l.deskSlNodeNoAnswer;
-    if (r.health == ServiceHealth.checking) return l.deskSlTorWait;
+    if (r.health == ServiceHealth.checking) return DeskFeatures.tor ? l.deskSlTorWait : l.deskSlNodeNoAnswer;
     await api.addNode(NodeServer(url: url, label: r.label, health: r.health, latencyMs: r.latencyMs, height: r.height, version: r.version, own: true));
     return null;
   }
@@ -461,7 +461,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     try {
       return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
     } on ProbeNotRun {
-      return l.deskSlTorWait;
+      return DeskFeatures.tor ? l.deskSlTorWait : l.slRelayNoAnswer;
     }
   }
 

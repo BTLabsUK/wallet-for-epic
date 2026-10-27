@@ -1,0 +1,8 @@
+{
+  "deskNoTorSendDirectLine2": "Eine http(s)-Adresse. Die Wallet des Empfängers muss geöffnet sein.",
+  "deskNoTorSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:3415), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskNoTorAdvNetworkHint": "Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Die Dateiübertragung funktioniert weiter über den verwendeten Node; mit einem Node hier oder in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen und über Link empfangen, und das Guthaben wird aktualisiert. Der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.",
+  "deskNoTorAdvOfflineNote": "Epicbox und Statusprüfungen pausieren. Die Dateiübertragung funktioniert weiter über den verwendeten Node, auch einen öffentlichen. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen.",
+  "deskNoTorTxDetailsFromBad": "Verwenden Sie eine Epicbox- oder http(s)-Adresse.",
+  "deskNoTorTourAdvancedText": "Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen."
+}

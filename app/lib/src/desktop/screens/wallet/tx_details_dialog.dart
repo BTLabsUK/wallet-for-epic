@@ -100,7 +100,9 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
                 child: ESegmented<String>(
                   segments: [
                     ESegment('', l.deskKitUnknown),
-                    for (final m in TxMethod.values) ESegment(m.name, methodLabel(l, m)),
+                    // The build without Tor lists Link · Tor only for a payment that already says it.
+                    for (final m in TxMethod.values)
+                      if (DeskFeatures.tor || m != TxMethod.tor || widget.tx.transport == m.name) ESegment(m.name, methodLabel(l, m)),
                   ],
                   value: _via,
                   onChanged: _busy ? (_) {} : (v) => setState(() => _via = v),
@@ -115,7 +117,7 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
               padding: EdgeInsets.only(left: Sp.x1),
               child: EInfoHint(l.deskTxDetailsFromTip),
             ),
-            error: _badFrom ? l.deskTxDetailsFromBad : null,
+            error: _badFrom ? (DeskFeatures.tor ? l.deskTxDetailsFromBad : l.deskNoTorTxDetailsFromBad) : null,
             child: EInput(
               controller: _from,
               mono: true,

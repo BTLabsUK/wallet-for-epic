@@ -1,5 +1,6 @@
 // Send's method follows the address (spec 8.4): a complete address of another kind, or a
 // pasted one, switches; text still being typed never does, and nothing switches back.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -89,7 +90,7 @@ void main() {
     await tester.pump();
     expect(method(tester), TxMethod.http);
     await tester.pump(const Duration(seconds: 4));
-  });
+  }, skip: !torBuilt);
 
   testWidgets('http://10.0.1.24 typed switches to HTTP once the host is complete', (tester) async {
     await show(tester, const SendArgs());
@@ -112,5 +113,5 @@ void main() {
     expect(tag(), findsOneWidget);
     expect(find.byKey(const ValueKey('send-picked')), findsOneWidget);
     await tester.pump(const Duration(seconds: 4));
-  });
+  }, skip: !torBuilt);
 }

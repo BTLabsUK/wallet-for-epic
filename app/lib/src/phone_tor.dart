@@ -17,6 +17,7 @@ import 'network_gate.dart';
 import 'providers.dart';
 import 'settings.dart' show networkModeProvider;
 import 'secret_store_api.dart';
+import 'tor_build.dart';
 import 'tor_location.dart';
 import 'wallet_service.dart';
 
@@ -128,17 +129,19 @@ class PhoneTorState {
 /// Epicbox over Tor for the open wallet and the ones opened later: while on and the wallet's
 /// tor runs, starts, or ended by itself, the Epicbox connection goes through tor and never
 /// directly. On until [EpicboxOverTor.set]; not saved here, the app's Tor setting drives it.
+/// Always off in the build without Tor ([torBuilt]).
 final epicboxOverTorProvider = NotifierProvider<EpicboxOverTor, bool>(
   EpicboxOverTor.new,
 );
 
 class EpicboxOverTor extends Notifier<bool> {
   @override
-  bool build() => true;
+  bool build() => torBuilt;
 
   /// Applies [on] to the open wallet at once, and to every wallet opened later. Tor only
   /// keeps it on: off would let Epicbox go direct.
   Future<void> set(bool on) async {
+    if (!torBuilt) return;
     if (!on && NetGate.torOnly) {
       logInfo('tor', 'epicbox over tor stays on in Tor only');
       return;
@@ -316,6 +319,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Whether the phone's wallet has its Tor switch saved on, on any network: read at launch,
   /// before the first request, so the app's own requests wait for tor from launch (`main.dart`).
   static Future<bool> savedOn(SecretStore store) async {
+    // A switch saved by a build with Tor reads as off.
+    if (!torBuilt) return false;
     for (final chain in Chain.values) {
       if (await store.read(_receivingKey(chain, null)) == 'true') return true;
     }
@@ -328,6 +333,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
   static Future<void> prepare(Ref ref, WalletSession session) async {
     final over = ref.read(epicboxOverTorProvider);
     await session.setEpicboxOverTor(over);
+    // No tor in this build: no onion routes, and Epicbox never waits for one.
+    if (!torBuilt) return;
     try {
       await session.setOnionRoutes(onionRoutesOf(ref.read(onionDirectoryProvider)));
     } on WalletError catch (e) {
@@ -347,6 +354,12 @@ class PhoneTor extends Notifier<PhoneTorState> {
   PhoneTorState build() {
     final session = ref.watch(sessionProvider);
     final generation = ++_generation;
+    // No tor in this build: unavailable from the first frame, never starting; nothing is
+    // watched and nothing can start one (no session here, so sends and the switch refuse).
+    if (!torBuilt) {
+      _session = null;
+      return const PhoneTorState(phase: PhoneTorPhase.unavailable);
+    }
     _session = session;
     _config = ref.read(walletConfigProvider);
     _tor = null;
@@ -458,6 +471,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Tor only refuses off: the switch stays on until the mode changes. Offline saves the
   /// switch and starts nothing.
   Future<void> setReceiving(bool on) async {
+    if (!torBuilt) return;
     if (!on && NetGate.torOnly) {
       logInfo('tor', 'receiving stays on in Tor only');
       return;

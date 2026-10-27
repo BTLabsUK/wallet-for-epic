@@ -12,6 +12,9 @@
 #   tools/lepic.sh build android     the three Android ABIs into the binding's native/
 #   tools/lepic.sh build all         both
 #   tools/lepic.sh lib               print the path of the Linux library
+#
+# WFE_TOR=0 builds the libraries without LEPIC's tor feature (https://docs.btlabs.uk/developers/build/variants/): the
+# binding's tool/lepic.sh reads the same switch.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"

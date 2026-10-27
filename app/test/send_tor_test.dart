@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/ui/send_tracker.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/protocol.dart' show TimelineState;
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -271,6 +272,11 @@ List<String> _steps(WidgetTester tester, TimelineState state) => [
 ];
 
 void main() {
+  // Tor's own behaviour: nothing of it is in the build without Tor.
+  if (!torBuilt) {
+    test('Tor', () {}, skip: 'no Tor in this build');
+    return;
+  }
   group('recipient', () {
     testWidgets('an onion in any form becomes one Tor recipient', (
       tester,

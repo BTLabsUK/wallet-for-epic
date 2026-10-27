@@ -56,9 +56,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('收到对方回复后，钱包会自动完成交易并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
         HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消发送以解锁输出。无人回复的发送会在大约一天后自动取消。'),
         if (phone)
-          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；链接地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。')
+          HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；链接地址（${tor ? 'http 或 .onion' : 'http'}）需要收款方钱包在那一刻处于打开且可访问的状态。')
         else
-          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要开启 Epicbox 接收；链接地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。'),
+          HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要开启 Epicbox 接收；链接地址（${tor ? 'http 或 .onion' : 'http'}）需要收款方钱包在那一刻处于打开且可访问的状态。'),
       ],
       id: HelpId.send,
     ),
@@ -95,7 +95,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。'),
         HelpBlock.ul([
-          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何中继，因此没有 Epicbox 付款、账单或通知，“接收”也不显示 Epicbox 地址（发到该地址的付款会在中继上等待）。**链接 · HTTP**（向网址付款）、**链接 · Tor**（向 .onion 地址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**不需要中继。关闭的方式不会出现在“发送”和“接收”中。',
+          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何中继，因此没有 Epicbox 付款、账单或通知，“接收”也不显示 Epicbox 地址（发到该地址的付款会在中继上等待）。${tor ? "**链接 · HTTP**（向网址付款）、**链接 · Tor**（向 .onion 地址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**" : "**链接 · HTTP**（向网址付款）${phone ? '、**直接 · 二维码付款**' : ''}和**直接 · 文件传输**"}不需要中继。关闭的方式不会出现在“发送”和“接收”中。',
           '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
           '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。',
         ]),
@@ -103,27 +103,30 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       id: HelpId.methods,
     ),
     if (phone)
-      const HelpTopic(
+      HelpTopic(
         'start',
         '地址是什么样的',
-        'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址，或以 .onion 结尾。',
+        tor ? 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址，或以 .onion 结尾。' : 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址。',
         [
           HelpBlock.ul([
             '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@epicbox.epiccash.com**。默认方式；收款方可以不在线。',
-            '**链接 · HTTP** 和 **链接 · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 链接 · Tor，即经由 Tor 发送。',
+            if (tor)
+              '**链接 · HTTP** 和 **链接 · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 链接 · Tor，即经由 Tor 发送。'
+            else
+              '**链接 · HTTP**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP。',
           ]),
           HelpBlock.p('“发送”会根据粘贴到“收款方”栏中的地址选择方式。口头核对地址时，比较前六个和后六个字符。'),
         ],
         id: HelpId.addresses,
       ),
-    const HelpTopic(
+    HelpTopic(
       'how',
       '为什么交易需要双方参与？',
       '在 Epic Cash 中，收款方钱包要参与构建每一笔交易，因此双方钱包都必须参与。',
       [
         HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
         HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并广播到网络。']),
-        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**链接 · HTTP** 和 **链接 · Tor** 在对方钱包打开时直接送达。**直接 · 文件传输**（交易文件）是手动方式。'),
+        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。${tor ? '**链接 · HTTP** 和 **链接 · Tor**' : '**链接 · HTTP**'} 在对方钱包打开时直接送达。**直接 · 文件传输**（交易文件）是手动方式。'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -146,7 +149,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('在许多区块链上，任何人都能查到一个地址，看到它的余额和历史。Epic Cash 不同：'),
         HelpBlock.ul(['**区块链上没有地址。** Epicbox 地址只告诉 Epicbox 把消息送到哪里，从不写入区块链。', '**区块链上没有金额。** 金额通过密码学隐藏，网络仍能验证没有凭空造出币。', '**备注不上链。** 发送时附加的消息只发给对方钱包。联系人和钱包名称保存在$device上。']),
-        const HelpBlock.p('没有隐藏的是：节点和 Epicbox 服务器能看到钱包的 IP 地址，公共节点能看到钱包查询了哪些输出。Tor 或 VPN 可以隐藏 IP 地址。'),
+        HelpBlock.p('没有隐藏的是：节点和 Epicbox 服务器能看到钱包的 IP 地址，公共节点能看到钱包查询了哪些输出。${tor ? 'Tor 或 VPN' : 'VPN'} 可以隐藏 IP 地址。'),
       ],
       id: HelpId.privacy,
     ),
@@ -247,7 +250,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('钱包需要节点来读取区块链（余额和确认），并把交易广播到网络。'),
         if (phone)
-          const HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出；Tor 可以隐藏该地址。')
+          HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出${tor ? '；Tor 可以隐藏该地址' : ''}。')
         else
           const HelpBlock.ul(['**公共节点**（默认）：由他人运行的公共节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出。', '**本地节点**：在这台电脑上运行。它首先要下载整条区块链，需要一些时间和磁盘空间，之后就完全归你所有。同步期间，钱包使用公共节点。']),
         if (phone)
@@ -312,17 +315,18 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'network',
       '网络模式',
-      '“标准”直接连接。“仅 Tor”从不直接连接。“离线”除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。',
+      tor ? '“标准”直接连接。“仅 Tor”从不直接连接。“离线”除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。' : '“标准”直接连接。“离线”除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。',
       [
         const HelpBlock.p('钱包如何连接网络，是设置中**高级**页面里“网络”下的一个选择。'),
         HelpBlock.ul([
-          '**标准**：直接连接。Tor 是$torPlace里的开关。',
-          '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '通知会关闭，因为注册通知会暴露这部手机。' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
-          '**离线**：没有 Epicbox，除本地地址外没有链接，${phone ? '没有通知' : '没有 Tor'}，没有状态检查。余额和记录保持上次看到的样子。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}仍然可用：它们使用当前的节点来读取链并广播，公共节点也一样，屏幕上会说明。要获得最大的隐私，请使用${phone ? '本地网络中' : '这台电脑上或本地网络中'}的节点：这样余额会刷新${phone ? '' : '，把 HTTP 接收设为**来自互联网**时，链接 · HTTP 可通过本地网络接收，'}重新核对余额也能运行。',
+          tor ? '**标准**：直接连接。Tor 是$torPlace里的开关。' : '**标准**：直接连接。',
+          if (tor)
+            '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '通知会关闭，因为注册通知会暴露这部手机。' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
+          '**离线**：没有 Epicbox，除本地地址外没有链接，${phone ? '没有通知，' : (tor ? '没有 Tor，' : '')}没有状态检查。余额和记录保持上次看到的样子。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}仍然可用：它们使用当前的节点来读取链并广播，公共节点也一样，屏幕上会说明。要获得最大的隐私，请使用${phone ? '本地网络中' : '这台电脑上或本地网络中'}的节点：这样余额会刷新${phone ? '' : '，把 HTTP 接收设为**来自互联网**时，链接 · HTTP 可通过本地网络接收，'}重新核对余额也能运行。',
         ]),
         const HelpBlock.p('在离线模式下，请用 IP 地址填写节点，例如 **10.100.10.20:3413**。不会解析名称。'),
         if (!phone) const HelpBlock.p('内置节点自己的对等节点是节点本身的设置，不属于模式。'),
-        HelpBlock.p('${phone ? '主页' : '侧边栏'}会显示钱包已离线或正在等待 Tor。把模式改回**标准**，一切就恢复了。'),
+        HelpBlock.p('${phone ? '主页' : '侧边栏'}会显示钱包已离线${tor ? '或正在等待 Tor' : ''}。把模式改回**标准**，一切就恢复了。'),
       ],
       id: HelpId.modes,
     ),
@@ -347,9 +351,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           if (!phone) '**内置节点**：让这台电脑运行自己的节点：“节点”下的“这台电脑”选项，以及概览中的“启动节点”。',
           if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
         ]),
-        HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。离线模式下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点。'),
+        HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。离线模式下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}${tor ? '；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点' : ''}。'),
         const HelpBlock.p('**实验性** 包含 **配对** 和 **账单**，一开始都是关闭的。配对加入“配对”和已配对联系人；账单加入已配对联系人之间的付款请求和账单，需要配对。关闭时它们被隐藏，也不会为它们检查任何内容；已有的配对仍会保存，重新开启后回来。'),
-        if (phone) const HelpBlock.p('**通知**（实验性）是页面上的最后一个开关。应用关闭时有付款或账单到达，它会通知你；Tor 开启期间关闭。'),
+        if (phone) HelpBlock.p('**通知**（实验性）是页面上的最后一个开关。应用关闭时有付款或账单到达，它会通知你${tor ? '；Tor 开启期间关闭' : ''}。'),
         const HelpBlock.p('同一页面还设置网络模式：见“网络模式”。'),
       ],
       id: HelpId.advanced,
@@ -372,18 +376,20 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
         else
           const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。'),
-        if (phone)
+        if (phone && tor)
           const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 隐私与网络|Settings › Privacy & network]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
-        if (!phone) ...const [
-          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、链接 · Tor 和 直接 · 文件传输照常工作。'),
-          HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
+        if (!phone) ...[
+          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 ${tor ? 'Epicbox、链接 · Tor 和 直接 · 文件传输' : 'Epicbox 和 直接 · 文件传输'}照常工作。'),
+          const HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
         ],
         if (phone)
           const HelpBlock.p('**忘记 PIN 码。** 在解锁界面删除钱包，然后用助记词恢复并设置新的 PIN 码。没有助记词，EPIC 将无法找回。')
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
         HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
-        const HelpBlock.p('**某个操作是灰色的，并写着“离线模式”或“等待 Tor”。** “高级”中开启了“离线”或“仅 Tor”。请在那里把模式改回“标准”，或等待 Tor 连接。'),
+        HelpBlock.p(tor
+            ? '**某个操作是灰色的，并写着“离线模式”或“等待 Tor”。** “高级”中开启了“离线”或“仅 Tor”。请在那里把模式改回“标准”，或等待 Tor 连接。'
+            : '**某个操作是灰色的，并写着“离线模式”。** “高级”中开启了“离线”。请在那里把模式改回“标准”。'),
       ],
       id: HelpId.trouble,
     ),

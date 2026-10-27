@@ -1,0 +1,26 @@
+{
+  "deskNoTorSendDirectLine2": "An http(s) address. Their wallet must be open.",
+  "@deskNoTorSendDirectLine2": {
+    "description": "Under Send › Link, the line under the method in the build without Tor (no onion addresses)."
+  },
+  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
+  "@deskNoTorSetTxDirectHint": {
+    "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on')."
+  },
+  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node's setting.",
+  "@deskNoTorAdvNetworkHint": {
+    "description": "Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline."
+  },
+  "deskNoTorAdvOfflineNote": "Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
+  "@deskNoTorAdvOfflineNote": {
+    "description": "Settings › Advanced, the note under the modes while Offline is chosen, in the build without Tor."
+  },
+  "deskNoTorTxDetailsFromBad": "Use an Epicbox or http(s) address.",
+  "@deskNoTorTxDetailsFromBad": {
+    "description": "Payment details dialog, the From field's error in the build without Tor."
+  },
+  "deskNoTorTourAdvancedText": "Outputs and technical details live here. Switch on what you need.",
+  "@deskNoTorTourAdvancedText": {
+    "description": "Tour step on Settings › Advanced in the build without Tor (no Tor-only mode)."
+  }
+}

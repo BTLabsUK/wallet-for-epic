@@ -8,6 +8,7 @@ import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
+import '../../../seed_contacts.dart' show btLabsContact;
 import '../../data/pairing_state.dart' show deskPairsProvider;
 import 'help_pairing.dart';
 import 'help_places.dart';
@@ -170,7 +171,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (pairs) ...helpTopicsShown(pairingHelpTopics(lh, platform: HelpPlatform.desktop), advancedOf(ref))];
     // The Pairing section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
-      for (final s in localizedHelpSections(lang)) ...[
+      for (final s in localizedHelpSections(lang, tor: DeskFeatures.tor)) ...[
         if (s.id == 'trouble' && pairs)
           ((id: pairingHelpSection, title: pairingHelpTitle(lh), lede: pairingHelpLede(lh), art: ''), PairingHelpMark(width: 120.u)),
         (s, HelpArt(s.art, width: 120.u)),
@@ -189,6 +190,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const _SupportBar(),
+                SizedBox(height: Sp.x3),
+                const _DonateBar(),
                 SizedBox(height: Sp.x5),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -332,6 +335,37 @@ class _SupportBar extends StatelessWidget {
           ),
           SizedBox(width: Sp.x5),
           EButton(label: context.l10n.deskSetReportTitle, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Support development: one line and a Copy address button, under the report bar.
+class _DonateBar extends StatelessWidget {
+  const _DonateBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
+      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text(context.l10n.helpDonateTitle, style: ts.strong)),
+                SizedBox(height: 2.u),
+                Text(context.l10n.helpDonateText, style: ts.small),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x5),
+          ECopyButton(text: btLabsContact.address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm),
         ],
       ),
     );
@@ -654,7 +688,7 @@ List<String> _fileSteps(AppLocalizations l, int confirmations) => [
 
 /// A Link payment goes straight to their wallet: no Epicbox, no file.
 List<String> _linkSteps(AppLocalizations l, int confirmations) => [
-  l.handshakeLink1,
+  DeskFeatures.tor ? l.handshakeLink1 : l.handshakeLink1NoTor,
   l.handshakeLink2,
   l.handshakeFinish,
   l.deskSetHelpFinal(confirmations),

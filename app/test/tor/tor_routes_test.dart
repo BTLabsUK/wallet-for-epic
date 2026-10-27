@@ -1,5 +1,6 @@
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -26,7 +27,7 @@ void main() {
       expect(torWay(TorRoute.onionDirect, TorState.starting), TorWay.wait);
       expect(torWay(TorRoute.onionDirect, TorState.failed), TorWay.blocked);
       expect(torWay(TorRoute.onionDirect, TorState.on), TorWay.overTor);
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
 
     test('Link to http(s) stays on the clearnet in every state', () {
       for (final s in TorState.values) {

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../l10n.dart' show AppLocalizations, englishStrings;
+import '../../tor_build.dart' show torBuilt;
 
 /// The port `epic-wallet` and the GUI listen on.
 const int defaultHttpPort = 3415;
@@ -33,7 +34,7 @@ String? httpAddressProblem(String text, [AppLocalizations? l]) {
   final uri = parseHttpAddress(t);
   if (uri == null) {
     final host = Uri.tryParse(t)?.host.toLowerCase() ?? '';
-    if (host.endsWith('.onion')) return l.deskDataHttpOnion;
+    if (host.endsWith('.onion')) return torBuilt ? l.deskDataHttpOnion : l.sendTorNotInVersion;
     return l.deskDataHttpNot;
   }
   if (uri.hasPort && (uri.port < 1 || uri.port > 65535)) return l.deskDataHttpPort;

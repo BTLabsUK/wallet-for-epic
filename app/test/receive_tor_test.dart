@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -206,6 +207,11 @@ const _directOn = PaymentPrefs(linkTor: true);
 const _bothOn = PaymentPrefs(linkTor: true, linkHttp: true);
 
 void main() {
+  // Tor's own behaviour: nothing of it is in the build without Tor.
+  if (!torBuilt) {
+    test('Tor', () {}, skip: 'no Tor in this build');
+    return;
+  }
   group('tabs', () {
     testWidgets('Epicbox and File by default; Link on adds Link', (
       tester,

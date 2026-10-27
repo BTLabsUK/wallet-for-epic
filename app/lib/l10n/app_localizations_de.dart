@@ -3295,6 +3295,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beschreiben Sie, was passiert ist oder was unklar ist.';
 
   @override
+  String get helpDonateTitle => 'Entwicklung unterstützen';
+
+  @override
+  String get helpDonateText => 'Spenden finanzieren neue Funktionen.';
+
+  @override
+  String get helpDonateCopy => 'Adresse kopieren';
+
+  @override
+  String get helpDonateCopied => 'Adresse kopiert';
+
+  @override
   String get helpSendFeedback => 'Feedback senden';
 
   @override
@@ -17428,4 +17440,78 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskUpdLater => 'Später';
+
+  @override
+  String get sendTorNotInVersion =>
+      'Diese Version kann nicht an Tor-Adressen senden.';
+
+  @override
+  String get methodSendDirectLineNoTor => 'Ihre Wallet muss geöffnet sein.';
+
+  @override
+  String get sendDirectAddressShapeNoTor =>
+      'Eine Link-Adresse beginnt mit http:// oder https://.';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com) oder eine Link-Adresse (https://…).';
+
+  @override
+  String get handshakeLink1NoTor =>
+      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet. Ihre Coins werden zurückgehalten.';
+
+  @override
+  String get advNetworkHintNoTor =>
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: QR-Zahlung und Dateiübertragung funktionieren weiter über den verwendeten Node; mit einem Node in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen, und das Guthaben wird aktualisiert.';
+
+  @override
+  String get advModeStandardLineNoTor => 'Verbindet direkt.';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      'Offline pausiert Epicbox, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      'Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:3415) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt und aus dem Internet oder über Mobilfunk nicht erreichbar. Fügt Link · HTTP zu Senden und Empfangen hinzu.';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      'Experimentell: kann sich ändern oder ausfallen. Meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist. Nutzt die Epicbox von BT Labs und den Benachrichtigungsdienst von Google; die Nachricht weckt nur die App und enthält weder Betrag noch Absender noch Adresse.';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      'Ihr Guthaben und darunter die Symbole für Node und Epicbox. Was noch bestätigt wird, steht in den Kacheln darunter.';
+
+  @override
+  String get tourPhonePrivacyTextNoTor =>
+      'Welchen Node und welchen Epicbox-Server die Wallet nutzt. Tippen Sie auf einen Server, um ihn zu ändern.';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor =>
+      'Der Offline-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
+
+  @override
+  String get deskNoTorSendDirectLine2 =>
+      'Eine http(s)-Adresse. Die Wallet des Empfängers muss geöffnet sein.';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:3415), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Die Dateiübertragung funktioniert weiter über den verwendeten Node; mit einem Node hier oder in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen und über Link empfangen, und das Guthaben wird aktualisiert. Der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox und Statusprüfungen pausieren. Die Dateiübertragung funktioniert weiter über den verwendeten Node, auch einen öffentlichen. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen.';
+
+  @override
+  String get deskNoTorTxDetailsFromBad =>
+      'Verwenden Sie eine Epicbox- oder http(s)-Adresse.';
+
+  @override
+  String get deskNoTorTourAdvancedText =>
+      'Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
 }

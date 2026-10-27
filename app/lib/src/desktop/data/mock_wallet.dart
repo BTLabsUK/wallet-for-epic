@@ -781,11 +781,24 @@ class MockDeskWallet implements DeskWalletApi {
     _contacts.add(
       Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
     );
+    // A payment to one of its addresses takes its name, as the real wallet's rows do.
+    for (final (i, t) in _txs.indexed) {
+      if (t.pairingId == null && !t.toSelf && t.counterparty != null && contact.addresses.contains(t.counterparty)) _txs[i] = t.withManual(contactName: contact.name);
+    }
     return id;
   }
 
   @override
-  Future<void> deleteContact(String id) async => _contacts.removeWhere((c) => c.id == id);
+  Future<void> deleteContact(String id) async {
+    final gone = _contacts.where((c) => c.id == id).expand((c) => c.addresses).toSet();
+    // The rows first: they are seeded from the book as it was.
+    final txs = _txs;
+    _contacts.removeWhere((c) => c.id == id);
+    // Its payments lose the name, as the real wallet's rows do (a pairing's keep theirs there).
+    for (final (i, t) in txs.indexed) {
+      if (t.contactName != null && t.pairingId == null && gone.contains(t.counterparty)) txs[i] = t.withManual(contactName: null);
+    }
+  }
 
   @override
   Future<void> saveSettings(DeskSettings settings) async {

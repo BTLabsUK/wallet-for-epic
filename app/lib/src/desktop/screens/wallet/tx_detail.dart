@@ -21,6 +21,8 @@ import 'tx_details_dialog.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'tx_label.dart';
+import 'contacts_screen.dart' show ContactsArgs;
+import '../../../recipient.dart' show parseRecipient, recipientShaped;
 
 /// The screenshot tour presses More on the open transaction.
 final txMoreDemoProvider = NotifierProvider<TxMoreDemo, bool>(TxMoreDemo.new);
@@ -387,21 +389,36 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             )
           else if (t.counterparty != null)
             (
-              t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
+              // The phone's words, so the row is found the same way (Add to contacts under it).
+              t.method == TxMethod.file || t.toSelf ? (t.incoming ? l.deskTxFactFrom : l.deskTxFactTo) : (t.incoming ? l.txDetailsReceivedFrom : l.txDetailsSentTo),
               _withTag(
                 t,
                 ManualField.counterparty,
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        t.counterparty!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: ts.mono(size: Fs.xs),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            t.counterparty!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: ts.mono(size: Fs.xs),
+                          ),
+                        ),
+                        ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
+                      ],
                     ),
-                    ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
+                    if (_offerContact(t))
+                      EButton(
+                        key: const ValueKey('tx-add-contact'),
+                        label: l.txDetailsAddToContacts,
+                        icon: EIcons.userPlus,
+                        kind: EBtnKind.ghost,
+                        size: EBtnSize.inline,
+                        onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.contacts, ContactsArgs(adding: true, address: t.counterparty, fromTx: t.id)),
+                      ),
                   ],
                 ),
               ),
@@ -511,6 +528,17 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
       ],
     );
+  }
+
+  /// An address no contact holds yet, of a payment that names one (not a file, a mining
+  /// reward or a payment to this wallet): the phone's Add to contacts (Max, 26.10.19).
+  bool _offerContact(Tx t) {
+    final address = t.counterparty;
+    if (address == null || t.contactName != null || t.toSelf || t.coinbase || t.method == TxMethod.file) return false;
+    final to = parseRecipient(address);
+    if (!recipientShaped(to)) return false;
+    final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
+    return !contacts.any((c) => c.addresses.any((a) => parseRecipient(a).address == to.address));
   }
 
   /// Whether the user has typed a sender, method or note on this scan find.

@@ -1,6 +1,7 @@
 import '../../../app_info.dart';
 import '../../../app_version.dart';
 import '../../../l10n.dart' show localInt;
+import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show torSourceNote;
 import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
@@ -27,7 +28,7 @@ List<String> licenceLines(AppLocalizations l) => [
   l.deskSetAboutLicenceApp,
   l.licencesFlutter,
   l.licencesLepic,
-  l.licencesTor,
+  if (DeskFeatures.tor) l.licencesTor,
   l.licencesFonts,
   flagsLicenceNote,
 ];
@@ -46,7 +47,8 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(deskUpdateProvider.notifier).checkOnce();
+      // The build without Tor has no in-app updates: nothing asks update.json.
+      if (mounted && inAppUpdates) ref.read(deskUpdateProvider.notifier).checkOnce();
     });
   }
 
@@ -113,8 +115,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                     Text(l.deskSetAboutLicencesLead, style: ts.small),
                     SizedBox(height: Sp.x3),
                     for (final line in licenceLines(l)) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(line, style: ts.body)),
-                    SizedBox(height: Sp.x2),
-                    Text(torSourceNote, style: ts.caption),
+                    if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), Text(torSourceNote, style: ts.caption)],
                   ],
                 ),
               ),
