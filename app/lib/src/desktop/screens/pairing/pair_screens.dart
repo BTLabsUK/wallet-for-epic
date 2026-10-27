@@ -737,13 +737,17 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
                       Text(l.pairShowCodeCaption, style: ts.bodyDim),
                       SizedBox(height: Sp.x3),
                       Text(l.pairCardHint, style: ts.small),
-                      SizedBox(height: Sp.x3),
-                      EButton(key: deskPairCopyCardKey, label: l.pairCardCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyCard),
                     ],
                   ),
                 ),
               ],
             ),
+          SizedBox(height: Sp.x4),
+          // Always there: it makes the code first when there is none yet.
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: EButton(key: deskPairCopyCardKey, label: l.pairCardCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copyCard),
+          ),
         ],
       ),
     );
