@@ -44,6 +44,9 @@ class SettingsPrefs {
     this.removedNodes = const {},
     this.walletLabel,
     this.removedWallets = const {},
+    this.mineNodes = const {},
+    this.ownFallback = const {},
+    this.plainHttpSeen = const {},
     this.jump,
   });
 
@@ -67,6 +70,15 @@ class SettingsPrefs {
   /// Folders of wallets taken off the list.
   final Set<String> removedWallets;
 
+  /// Listed nodes the user marked as their own ("Mine"): asked directly, owner access offered.
+  final Set<String> mineNodes;
+
+  /// An own node's answer to "Use a public node until it is synced?" (D-7), by node URL.
+  final Map<String, bool> ownFallback;
+
+  /// Own nodes whose plain-http owner secret warning is not shown again.
+  final Set<String> plainHttpSeen;
+
   final JumpTo? jump;
 
   /// The part that is saved: choices, not run state.
@@ -78,6 +90,9 @@ class SettingsPrefs {
     'removedNodes': removedNodes.toList(),
     'walletLabel': walletLabel,
     'removedWallets': removedWallets.toList(),
+    'mineNodes': mineNodes.toList(),
+    'ownFallback': ownFallback,
+    'plainHttpSeen': plainHttpSeen.toList(),
   };
 
   factory SettingsPrefs.fromJson(Map<String, dynamic> j) {
@@ -85,6 +100,7 @@ class SettingsPrefs {
     bool flag(String k, bool fallback) => j[k] is bool ? j[k] as bool : fallback;
     Set<String> names(String k) => {for (final v in (j[k] is List ? j[k] as List : const [])) '$v'};
     final labels = j['nodeLabels'];
+    final fallback = j['ownFallback'];
     return SettingsPrefs(
       epicboxOnStart: flag('epicboxOnStart', d.epicboxOnStart),
       nodeBackground: flag('nodeBackground', d.nodeBackground),
@@ -93,6 +109,9 @@ class SettingsPrefs {
       removedNodes: names('removedNodes'),
       walletLabel: j['walletLabel'] is String ? j['walletLabel'] as String : null,
       removedWallets: names('removedWallets'),
+      mineNodes: names('mineNodes'),
+      ownFallback: fallback is Map ? {for (final e in fallback.entries) if (e.value is bool) '${e.key}': e.value as bool} : const {},
+      plainHttpSeen: names('plainHttpSeen'),
     );
   }
 
@@ -106,6 +125,9 @@ class SettingsPrefs {
     Set<String>? removedNodes,
     String? walletLabel,
     Set<String>? removedWallets,
+    Set<String>? mineNodes,
+    Map<String, bool>? ownFallback,
+    Set<String>? plainHttpSeen,
     JumpTo? jump,
   }) => SettingsPrefs(
     epicboxOnStart: epicboxOnStart ?? this.epicboxOnStart,
@@ -116,6 +138,9 @@ class SettingsPrefs {
     removedNodes: removedNodes ?? this.removedNodes,
     walletLabel: walletLabel ?? this.walletLabel,
     removedWallets: removedWallets ?? this.removedWallets,
+    mineNodes: mineNodes ?? this.mineNodes,
+    ownFallback: ownFallback ?? this.ownFallback,
+    plainHttpSeen: plainHttpSeen ?? this.plainHttpSeen,
     jump: jump ?? this.jump,
   );
 }

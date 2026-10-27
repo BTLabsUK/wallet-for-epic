@@ -14,12 +14,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../builtin_node.dart' show NodeTomlOptions, NodeFailure;
 import '../../models.dart' show Chain;
+import '../../net/local_address.dart' show nodeClassOf;
 import '../../node/node.dart';
+import '../../providers.dart' show secretStoreProvider;
 import '../../relay_directory.dart' show NodeHealthState, NetworkStatus;
+import '../../secret_store_api.dart' show MemorySecretStore;
+import '../screens/settings/prefs.dart' show settingsPrefsProvider;
+import 'own_node.dart';
 
 export '../../builtin_node.dart' show NodeTomlOptions, NodeFailure;
 export '../../node/node.dart';
 export '../../relay_directory.dart' show NodeHealthState, NetworkStatus;
+export '../../net/local_address.dart' show NodeClass, nodeClassOf;
+export 'own_node.dart' show OwnerCheck, OwnerOff, OwnerUnavailable, OwnNodeStatus;
 
 abstract interface class DeskNodeApi {
   Chain get chain;
@@ -61,8 +68,20 @@ abstract interface class DeskNodeApi {
   Future<LocalNodeProbe> probe({String? url});
   Future<LocalNodeFacts> facts();
 
-  /// What the app can tell about any node (F27).
-  Future<NodeInfo> nodeInfo(String url);
+  /// What the app can tell about any node (F27). [mine]: the user marked a listed node as theirs.
+  Future<NodeInfo> nodeInfo(String url, {bool mine = false});
+
+  /// Owner access to an own node (own-node spec §3–§4), by node URL.
+  Future<bool> hasOwnerSecret(String url);
+  Future<OwnerCheck> addOwnerSecret(String url, String secret);
+  Future<void> removeOwnerSecret(String url);
+
+  /// Throws [OwnerUnavailable] when there is no secret, the node refused it, or it may not travel.
+  Future<OwnNodeStatus> ownerStatus(String url, {int? networkHeight});
+  Future<PeerSnapshot> ownPeers(String url);
+  List<PeerCountSample> ownPeerHistory(String url);
+  Future<void> ownBan(String url, String addr);
+  Future<void> ownUnban(String url, String addr);
 }
 
 final deskNodeProvider = Provider<DeskNodeApi>((ref) => MockDeskNode());
@@ -108,8 +127,38 @@ final deskFallbackDecisionProvider = Provider<FallbackDecision?>((ref) {
 /// The peers while the Peers tab is open.
 final deskPeersProvider = StreamProvider.autoDispose<PeerSnapshot>((ref) => ref.watch(deskNodeProvider).peers());
 
-/// [NodeInfo] of a node URL; `ref.invalidate` to check again.
-final deskNodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, String>((ref, url) => ref.watch(deskNodeProvider).nodeInfo(url));
+/// [NodeInfo] of a node URL; `ref.invalidate` to check again. A node the user marked as
+/// theirs is asked as an own node.
+final deskNodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, String>((ref, url) {
+  final mine = ref.watch(settingsPrefsProvider.select((p) => p.mineNodes.contains(url)));
+  return ref.watch(deskNodeProvider).nodeInfo(url, mine: mine);
+});
+
+/// Whether an owner secret is stored for a node URL.
+final deskOwnerSecretProvider = FutureProvider.autoDispose.family<bool, String>((ref, url) => ref.watch(deskNodeProvider).hasOwnerSecret(url));
+
+/// How often an own node's owner API is read while its panel is open.
+const Duration ownStatusEvery = Duration(seconds: 10);
+
+/// An own node's owner status, read now and every [ownStatusEvery] while the panel shows it.
+/// Errors with [OwnerUnavailable] when there is no access.
+final deskOwnStatusProvider = StreamProvider.autoDispose.family<OwnNodeStatus, ({String url, int? tip})>((ref, k) async* {
+  final api = ref.watch(deskNodeProvider);
+  ref.watch(deskOwnerSecretProvider(k.url));
+  while (true) {
+    yield await api.ownerStatus(k.url, networkHeight: k.tip);
+    await Future<void>.delayed(ownStatusEvery);
+  }
+});
+
+/// An own node's peers while its Peers tab is open.
+final deskOwnPeersProvider = StreamProvider.autoDispose.family<PeerSnapshot, String>((ref, url) async* {
+  final api = ref.watch(deskNodeProvider);
+  while (true) {
+    yield await api.ownPeers(url);
+    await Future<void>.delayed(peerReadEvery);
+  }
+});
 
 /// The host of a node URL as the screens print it: no scheme, no port, no slash.
 String nodeHost(String url) {
@@ -342,7 +391,36 @@ class LepicDeskNode implements DeskNodeApi {
   Future<LocalNodeFacts> facts() => _ref.read(localNodeFactsProvider(chain).future);
 
   @override
-  Future<NodeInfo> nodeInfo(String url) => _ref.read(nodeInfoServiceProvider).info(url, chain: statusChainOf(chain));
+  Future<NodeInfo> nodeInfo(String url, {bool mine = false}) => _ref.read(nodeInfoServiceProvider).info(url, chain: statusChainOf(chain), mine: mine);
+
+  late final OwnNodeAccess _own = OwnNodeAccess(
+    _ref.read(secretStoreProvider),
+    mine: (url) => _ref.read(settingsPrefsProvider).mineNodes.contains(url),
+  );
+
+  @override
+  Future<bool> hasOwnerSecret(String url) => _own.has(url);
+
+  @override
+  Future<OwnerCheck> addOwnerSecret(String url, String secret) => _own.add(url, secret);
+
+  @override
+  Future<void> removeOwnerSecret(String url) => _own.remove(url);
+
+  @override
+  Future<OwnNodeStatus> ownerStatus(String url, {int? networkHeight}) => _own.status(url, networkHeight: networkHeight);
+
+  @override
+  Future<PeerSnapshot> ownPeers(String url) => _own.peers(url);
+
+  @override
+  List<PeerCountSample> ownPeerHistory(String url) => _own.peerHistory(url);
+
+  @override
+  Future<void> ownBan(String url, String addr) => _own.ban(url, addr);
+
+  @override
+  Future<void> ownUnban(String url, String addr) => _own.unban(url, addr);
 }
 
 /// Canned node data for the mock wallet, the tour and the tests. [show] puts any state on
@@ -524,7 +602,62 @@ class MockDeskNode implements DeskNodeApi {
   final Map<String, NodeInfo> infos = {};
 
   @override
-  Future<NodeInfo> nodeInfo(String url) async => infos[nodeHost(url)] ?? mockNodeInfo(url);
+  Future<NodeInfo> nodeInfo(String url, {bool mine = false}) async =>
+      infos[nodeHost(url)] ?? (nodeClassOf(url, mine: mine).own ? mockOwnNodeInfo(url, mine: mine) : mockNodeInfo(url));
+
+  /// Owner secrets by URL; [ownerSecret] is the one the mock node takes.
+  final MemorySecretStore ownerSecrets = MemorySecretStore();
+  String ownerSecret = 'mock-secret';
+
+  /// The own node's owner status: [ownStatus] null answers as synced with [peerCount] peers.
+  OwnNodeStatus? ownStatus;
+
+  /// The owner API refuses the stored secret (it was rotated).
+  bool ownerRefuses = false;
+
+  @override
+  Future<bool> hasOwnerSecret(String url) async => ownerSecrets.values.containsKey(ownerSecretKey(url));
+
+  @override
+  Future<OwnerCheck> addOwnerSecret(String url, String secret) async {
+    calls.add('owner add $url');
+    if (secret.trim() != ownerSecret) return OwnerCheck.refused;
+    await ownerSecrets.write(ownerSecretKey(url), secret.trim());
+    return OwnerCheck.ok;
+  }
+
+  @override
+  Future<void> removeOwnerSecret(String url) async {
+    calls.add('owner remove $url');
+    await ownerSecrets.delete(ownerSecretKey(url));
+  }
+
+  Future<void> _ownerReady(String url) async {
+    if (!await hasOwnerSecret(url)) throw const OwnerUnavailable(OwnerOff.notSet);
+    if (ownerRefuses) throw OwnerUnavailable(OwnerOff.refused, since: DateTime(2026, 10, 22, 14, 2));
+  }
+
+  @override
+  Future<OwnNodeStatus> ownerStatus(String url, {int? networkHeight}) async {
+    await _ownerReady(url);
+    return ownStatus ??
+        OwnNodeStatus(at: DateTime(2026, 10, 22, 14, 2), syncStatus: 'no_sync', progress: null, peers: peerCount, version: '4.1.1', height: mockTip);
+  }
+
+  @override
+  Future<PeerSnapshot> ownPeers(String url) async {
+    await _ownerReady(url);
+    return _snapshot();
+  }
+
+  @override
+  List<PeerCountSample> ownPeerHistory(String url) => peerHistory();
+
+  @override
+  Future<void> ownBan(String url, String addr) => ban(addr);
+
+  @override
+  Future<void> ownUnban(String url, String addr) => unban(addr);
 }
 
 const int _gb = 1000 * 1000 * 1000;
@@ -614,6 +747,31 @@ LocalNodeState _with(LocalNodeState s, {bool? restartNeeded, int? bytes}) => Loc
   userToml: s.userToml,
   chainDataOrigin: s.chainDataOrigin,
 );
+
+/// An own node of the mock (asked directly): at the tip, 6 ms, 3 waiting, unless told otherwise.
+NodeInfo mockOwnNodeInfo(String url, {bool mine = false, NodeHead head = NodeHead.synced, int behind = 0, int? pool = 3, bool siteTip = true}) {
+  final down = head == NodeHead.down;
+  final syncing = head == NodeHead.syncing;
+  return NodeInfo(
+    url: url,
+    source: down ? NodeInfoSource.none : NodeInfoSource.limited,
+    at: DateTime(2026, 10, 22, 14, 2),
+    nodeClass: nodeClassOf(url, mine: mine),
+    head: head,
+    state: down ? NodeHealthState.down : (head == NodeHead.synced ? NodeHealthState.healthy : NodeHealthState.degraded),
+    height: down ? null : mockTip - behind,
+    networkHeight: mockTip,
+    blocksBehind: down ? null : behind,
+    version: down ? null : '4.1.1',
+    releasedVersion: '4.1.1',
+    latencyMs: down ? null : 6,
+    readyForTxs: down ? null : !syncing,
+    tipTime: down ? null : DateTime(2026, 10, 22, 14),
+    poolSize: down ? null : pool,
+    tipFrom: siteTip ? TipReference.statusSite : TipReference.publicNodes,
+    tipNodes: siteTip ? null : 4,
+  );
+}
 
 /// A remote node of the mock, healthy and at the tip unless told otherwise.
 NodeInfo mockNodeInfo(
