@@ -5,9 +5,11 @@
 ///   them is dropped.
 /// - Only the device that held coins can release them by notice. `cancelled`, `expired`,
 ///   `failed` and `released` free them unless the chain shows them spent; `finalized` and
-///   `posted` keep them held (posted remembers its height). A `posted` for coins released here
-///   by hand holds them again until the chain decides.
-/// - The chain showing any of them spent makes the payment history ([HoldState.spent]).
+///   `posted` keep them held (posted remembers its height).
+/// - One flow (the owner): held → released (by the user here, a fallback or the device) →
+///   confirmed by the chain, reachable from held or released. Once released, notices only add
+///   details: nothing holds the coins again. Only this device's own chain check confirms
+///   ([HoldState.spent]), and nothing moves a confirmed payment back.
 /// - With no word from the device: past its cutoff height + [holdCutoffMargin] blocks, still
 ///   unspent → expired; posted [holdPostedBlocks] blocks ago and unspent → timed out; held
 ///   [holdMaxAge] → timed out; its device removed → unlinked (after the chain check).
@@ -64,17 +66,14 @@ bool holdSpent(HeldPayment h, Set<String> spent) => h.commitments.any(spent.cont
 /// [h] after a `status` notice [state] at [height]. [spent]: commitments the chain shows spent.
 HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kernel, required Set<String> spent, required DateTime now}) {
   if (h.state == HoldState.spent) return h;
+  // Released here: details only, the coins stay free until the chain decides.
+  if (!h.state.holds) return state == 'finalized' || state == 'posted' ? h.copyWith(kernel: kernel, postedHeight: height) : h;
   switch (state) {
     case 'finalized':
-      return h.state.holds ? h.copyWith(kernel: kernel, changedAt: now) : h;
+      return h.copyWith(kernel: kernel, changedAt: now);
     case 'posted':
-      // A late "posted" holds coins released by hand again: the chain decides.
-      if (h.state.holds || h.state == HoldState.byHand) {
-        return h.copyWith(state: HoldState.posted, postedHeight: height ?? h.postedHeight, kernel: kernel, changedAt: now);
-      }
-      return h;
+      return h.copyWith(state: HoldState.posted, postedHeight: height ?? h.postedHeight, kernel: kernel, changedAt: now);
     default:
-      if (!h.state.holds) return h;
       if (holdSpent(h, spent)) return h.copyWith(state: HoldState.spent, changedAt: now);
       return h.copyWith(state: HoldState.released, reason: state, changedAt: now);
   }
@@ -88,10 +87,9 @@ List<HeldPayment> sweepHolds(List<HeldPayment> holds, {required Set<String> spen
 
 HeldPayment sweepHold(HeldPayment h, {required Set<String> spent, required int? tip, required DateTime now}) {
   if (h.state == HoldState.spent) return h;
-  // Coins freed here and then spent on chain are still history of that device's payment.
-  if (holdSpent(h, spent) && (h.state.holds || h.state == HoldState.byHand || h.state == HoldState.timedOut || h.state == HoldState.expired)) {
-    return h.copyWith(state: HoldState.spent, changedAt: now);
-  }
+  // The chain confirms from held or released alike: coins freed here and then spent are still
+  // that device's payment.
+  if (holdSpent(h, spent)) return h.copyWith(state: HoldState.spent, changedAt: now);
   if (!h.state.holds) return h;
   final cutoff = h.cutoffHeight;
   if (tip != null && h.state == HoldState.held && cutoff != null && tip > cutoff + holdCutoffMargin) {

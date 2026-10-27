@@ -28012,6 +28012,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Is this your other device? Link it to see who was paid and to keep both in step.'**
   String get offerLinkOtherWallet;
+
+  /// Status line of a history row: this device released coins another linked device's payment held; that device may still send the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Released here · {name} may still send it'**
+  String devicesReleasedRow(String name);
 }
 
 class _AppLocalizationsDelegate

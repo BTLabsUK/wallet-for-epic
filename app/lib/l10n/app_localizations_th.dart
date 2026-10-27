@@ -17386,4 +17386,9 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get offerLinkOtherWallet =>
       'นี่คืออุปกรณ์อีกเครื่องของคุณหรือไม่ เชื่อมโยงเพื่อดูว่าจ่ายให้ใคร และให้ทั้งสองเครื่องตรงกัน';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'ปล่อยที่นี่แล้ว · $name อาจยังส่งรายการนี้';
+  }
 }

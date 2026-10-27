@@ -4691,5 +4691,6 @@
   "txDeviceHeld": "Jej monety są wstrzymane na tym urządzeniu, dopóki łańcuch nie pokaże płatności albo drugie urządzenie jej nie zakończy.",
   "sendHeldByDevice": "{amount} EPIC jest wstrzymane przez płatność, którą wykonuje: {name}.",
   "offerLinkRestore": "Ten portfel jest też na innym urządzeniu? Połącz je, aby dzielić historię i widzieć wzajemnie płatności.",
-  "offerLinkOtherWallet": "Czy to twoje drugie urządzenie? Połącz je, aby widzieć, komu zapłacono, i trzymać oba w zgodzie."
+  "offerLinkOtherWallet": "Czy to twoje drugie urządzenie? Połącz je, aby widzieć, komu zapłacono, i trzymać oba w zgodzie.",
+  "devicesReleasedRow": "Zwolniono tutaj · {name} może ją jeszcze wysłać"
 }

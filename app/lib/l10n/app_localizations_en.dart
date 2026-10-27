@@ -17686,4 +17686,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get offerLinkOtherWallet =>
       'Is this your other device? Link it to see who was paid and to keep both in step.';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'Released here · $name may still send it';
+  }
 }

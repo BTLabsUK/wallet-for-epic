@@ -18133,4 +18133,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get offerLinkOtherWallet =>
       'Это ваше другое устройство? Свяжите его, чтобы видеть, кому заплачено, и держать оба в согласии.';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'Освобождено здесь · $name ещё может его отправить';
+  }
 }

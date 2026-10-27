@@ -18166,4 +18166,9 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get offerLinkOtherWallet =>
       'Czy to twoje drugie urządzenie? Połącz je, aby widzieć, komu zapłacono, i trzymać oba w zgodzie.';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'Zwolniono tutaj · $name może ją jeszcze wysłać';
+  }
 }

@@ -69,7 +69,7 @@ void main() {
     final rows = mergeDeviceHistory([chain], _book([_hold('s1', [1, 2], state: HoldState.spent)]));
     expect(rows, hasLength(1));
     final row = rows.single;
-    expect(row.key, 'k:abc');
+    expect(row.key, deviceRowKey(_hold('s1', [1, 2])));
     expect(row.origin, TxOrigin.linkedDevice);
     expect(row.confirmed, isTrue);
     expect(row.blockHeight, BigInt.from(900));
@@ -83,9 +83,30 @@ void main() {
     expect(rows.map((r) => r.origin), containsAll([TxOrigin.otherWallet, TxOrigin.linkedDevice]));
   });
 
-  test('coins freed without being spent show nothing', () {
-    for (final s in [HoldState.released, HoldState.expired, HoldState.timedOut, HoldState.unlinked, HoldState.byHand]) {
-      expect(mergeDeviceHistory(const [], _book([_hold('s1', [1], state: s)])), isEmpty);
+  test('coins the device itself freed show nothing', () {
+    expect(mergeDeviceHistory(const [], _book([_hold('s1', [1], state: HoldState.released)])), isEmpty);
+  });
+
+  test('coins released here show as a released row until the chain decides', () {
+    for (final s in [HoldState.byHand, HoldState.expired, HoldState.timedOut, HoldState.unlinked]) {
+      final row = mergeDeviceHistory(const [], _book([_hold('s1', [1], state: s)])).single;
+      expect(row.status, TxStatus.cancelled);
+      expect(row.kind, TxKind.sentCancelled);
+      expect(row.origin, TxOrigin.linkedDevice);
+    }
+  });
+
+  test('released, then confirmed: the same row comes back confirmed, once', () {
+    for (final s in [HoldState.byHand, HoldState.timedOut, HoldState.released, HoldState.held]) {
+      final hold = _hold('s1', [1], state: s);
+      final before = mergeDeviceHistory(const [], _book([hold]));
+      final rows = mergeDeviceHistory([_otherWallet('k:abc', [1], 1790000500)], _book([hold]));
+      expect(rows, hasLength(1), reason: s.name);
+      expect(rows.single.confirmed, isTrue);
+      expect(rows.single.status, TxStatus.confirmed);
+      expect(rows.single.kind, TxKind.sent);
+      expect(rows.single.counterparty, 'esBob@epicbox.epiccash.com');
+      if (before.isNotEmpty) expect(rows.single.key, before.single.key);
     }
   });
 

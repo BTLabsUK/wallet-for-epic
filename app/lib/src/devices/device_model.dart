@@ -223,6 +223,10 @@ enum HoldState {
 
   /// Ended without the coins being spent.
   bool get freed => !holds && this != spent;
+
+  /// Freed on this device (by hand, a fallback, the device's removal) while its device may still
+  /// send it: history shows it as released here.
+  bool get releasedHere => this == byHand || this == expired || this == timedOut || this == unlinked;
 }
 
 /// Coins of this wallet another device is spending, from its `send` notice.

@@ -3,6 +3,8 @@
 // it must and keeps the order; removing a device re-keys the others.
 import 'dart:convert';
 
+import 'package:epic_wallet/src/devices/device_history.dart';
+import 'package:epic_wallet/src/devices/device_locks.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
 import 'package:epic_wallet/src/devices/device_service.dart';
 import 'package:epic_wallet/src/devices/device_wire.dart';
@@ -244,6 +246,99 @@ void main() {
       expect(b.service.book.servers, [_s2]);
       expect(a.service.book.devices.single.pairings.keys, [_s2]);
       expect(b.service.book.devices.single.pairings.keys, [_s2]);
+    });
+  });
+
+  group('held, released, confirmed', () {
+    setUp(() async => linkBoth(a, b));
+
+    /// B's own chain check sees coin 2 spent by another wallet.
+    void chainShowsSpent() {
+      b.session.outputsValue = [
+        for (final o in b.session.outputsValue) o.commitment == cm(2) ? coin(2, 3, status: WalletOutputStatus.spent) : o,
+      ];
+      b.session.transactionsValue = [
+        TxEntry(
+          key: 'k:chain',
+          kind: TxKind.sent,
+          status: TxStatus.confirmed,
+          source: TxSource.wallet,
+          createdAtUnix: 1790000600,
+          timeUnix: 1790000600,
+          confirmed: true,
+          blockHeight: BigInt.from(1001),
+          amountCredited: BigInt.zero,
+          amountDebited: BigInt.from(300800000),
+          numInputs: 1,
+          numOutputs: 0,
+          outputCommits: const [],
+          cancellable: false,
+          repostable: false,
+          releasable: false,
+          origin: TxOrigin.otherWallet,
+          spentCommits: [cm(2)],
+        ),
+      ];
+    }
+
+    test('release, then the chain confirms: the same row, confirmed, once', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      final pending = mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book).single;
+      await b.service.releaseByHandOf(a.service.book.deviceId, 'pay-1');
+      expect(b.session.heldOutputs, isEmpty);
+      final released = mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book).single;
+      expect(released.status, TxStatus.cancelled);
+      chainShowsSpent();
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.spent);
+      final rows = mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book);
+      expect(rows, hasLength(1));
+      expect(rows.single.key, pending.key);
+      expect(rows.single.confirmed, isTrue);
+      expect(rows.single.deviceName, 'Desktop');
+    });
+
+    test('confirmed without a release', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      chainShowsSpent();
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.spent);
+      expect(b.session.heldOutputs, isEmpty);
+    });
+
+    test('released by the 7-day fallback, then confirmed', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      clock.now = clock.now.add(holdMaxAge);
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.timedOut);
+      chainShowsSpent();
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.spent);
+      expect(mergeDeviceHistory(await b.session.transactions(refresh: false), b.service.book), hasLength(1));
+    });
+
+    test('a late notice after confirmed is ignored', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      chainShowsSpent();
+      await b.sync();
+      _send(a, 'pay-1', cancelled: true);
+      await settle(a, b);
+      expect(b.service.book.holds.single.state, HoldState.spent);
+    });
+
+    test('after a release here, a late posted does not hold the coins again', () async {
+      _send(a, 'pay-1');
+      await settle(a, b);
+      await b.service.releaseByHandOf(a.service.book.deviceId, 'pay-1');
+      final seq = b.service.book.devices.single.seqIn + 1;
+      _inject(a, b, _env(a, seq, 'status', {'slateId': 'pay-1', 'state': 'posted', 'height': 1000}));
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.byHand);
+      expect(b.session.heldOutputs, isEmpty);
     });
   });
 

@@ -4691,5 +4691,6 @@
   "txDeviceHeld": "在区块链显示这笔付款或另一台设备结束它之前，其币会在本设备上被保留。",
   "sendHeldByDevice": "{amount} EPIC 被 {name} 正在进行的一笔付款保留。",
   "offerLinkRestore": "也在另一台设备上使用这个钱包？关联它们即可共享记录并看到彼此的付款。",
-  "offerLinkOtherWallet": "这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。"
+  "offerLinkOtherWallet": "这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。",
+  "devicesReleasedRow": "已在此释放 · {name} 仍可能发送"
 }

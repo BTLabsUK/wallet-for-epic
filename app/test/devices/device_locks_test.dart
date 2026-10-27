@@ -64,14 +64,20 @@ void main() {
       expect(posted.postedHeight, 900);
     });
 
-    test('a late posted holds coins released by hand again', () {
+    test('after a release here, a late posted only adds details', () {
       final byHand = releaseByHand(_hold(), _t0);
       expect(byHand.state, HoldState.byHand);
-      expect(applyStatus(byHand, 'posted', height: 950, spent: const {}, now: _t0).state, HoldState.posted);
+      final after = applyStatus(byHand, 'posted', height: 950, kernel: 'k1', spent: const {}, now: _t0);
+      expect(after.state, HoldState.byHand);
+      expect(after.postedHeight, 950);
+      expect(after.kernel, 'k1');
+      expect(applyStatus(sweepHold(_hold(), spent: const {}, tip: null, now: _t0.add(holdMaxAge)), 'posted', spent: const {}, now: _t0).state, HoldState.timedOut);
     });
 
-    test('nothing moves a payment the chain settled', () {
-      expect(applyStatus(_hold(state: HoldState.spent), 'posted', spent: const {}, now: _t0).state, HoldState.spent);
+    test('a late notice never moves a confirmed payment back', () {
+      for (final s in ['finalized', 'posted', 'cancelled', 'released']) {
+        expect(applyStatus(_hold(state: HoldState.spent), s, spent: const {}, now: _t0).state, HoldState.spent);
+      }
     });
   });
 
@@ -109,8 +115,11 @@ void main() {
       expect(releaseByHand(_hold(state: HoldState.spent), _t0).state, HoldState.spent);
     });
 
-    test('coins freed by hand and then spent are still that payment', () {
+    test('the chain confirms from held or from any release', () {
       expect(sweepHold(releaseByHand(_hold(), _t0), spent: {_c(1)}, tip: 1, now: _t0).state, HoldState.spent);
+      for (final s in [HoldState.released, HoldState.expired, HoldState.timedOut, HoldState.unlinked]) {
+        expect(sweepHold(_hold(state: s), spent: {_c(2)}, tip: 1, now: _t0).state, HoldState.spent);
+      }
     });
   });
 

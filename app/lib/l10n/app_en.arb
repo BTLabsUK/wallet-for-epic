@@ -23604,5 +23604,14 @@
   "offerLinkOtherWallet": "Is this your other device? Link it to see who was paid and to keep both in step.",
   "@offerLinkOtherWallet": {
     "description": "Quiet offer at the end of the details of a payment another wallet on the same phrase made."
+  },
+  "devicesReleasedRow": "Released here · {name} may still send it",
+  "@devicesReleasedRow": {
+    "description": "Status line of a history row: this device released coins another linked device's payment held; that device may still send the payment.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

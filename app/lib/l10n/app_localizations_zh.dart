@@ -16744,4 +16744,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get offerLinkOtherWallet => '这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return '已在此释放 · $name 仍可能发送';
+  }
 }

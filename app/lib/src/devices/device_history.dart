@@ -3,7 +3,9 @@
 /// A payment another device is making shows as a pending row from its `send` notice. Once the
 /// chain shows its coins spent, LEPIC's chain check lists a row of [TxOrigin.otherWallet] whose
 /// `spentCommits` include them: that row becomes the device's row, with the details the notice
-/// brought, so the payment never shows twice. Coins freed without being spent show nothing.
+/// brought, so the payment never shows twice, whether its coins were held or released here.
+/// Coins released here show as a cancelled row ("Released here · Desktop may still send it")
+/// until the chain decides; coins the device itself said it freed show nothing.
 library;
 
 import '../models.dart';
@@ -15,13 +17,14 @@ String deviceRowKey(HeldPayment h) => 'd:${h.deviceId}:${h.slateId}';
 /// [rows] (this wallet's history, newest first) with the linked devices' payments of [book]
 /// merged in, newest first.
 List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
-  final shown = [for (final h in book.holds) if (h.state.holds || h.state == HoldState.spent) h];
-  if (shown.isEmpty) return rows;
+  if (book.holds.isEmpty) return rows;
+  final shown = [for (final h in book.holds) if (h.state.holds || h.state.releasedHere || h.state == HoldState.spent) h];
   final used = <HeldPayment>{};
   final out = <TxEntry>[];
   for (final r in rows) {
     if (r.origin == TxOrigin.otherWallet && r.spentCommits.isNotEmpty) {
-      final h = shown.where((h) => !used.contains(h) && h.commitments.any(r.spentCommits.contains)).firstOrNull;
+      // Any hold: the chain's word is final, whatever this device did with the coins.
+      final h = book.holds.where((h) => !used.contains(h) && h.commitments.any(r.spentCommits.contains)).firstOrNull;
       if (h != null) {
         used.add(h);
         out.add(deviceRow(h, _nameOf(book, h), chain: r));
@@ -45,11 +48,19 @@ TxEntry deviceRow(HeldPayment h, String name, {TxEntry? chain}) {
   final made = (h.createdAt ?? h.lockedAt).millisecondsSinceEpoch ~/ 1000;
   final spent = h.amount + (h.fee ?? BigInt.zero);
   final message = h.message;
+  final released = chain == null && h.state.releasedHere;
   return TxEntry(
-    key: chain?.key ?? deviceRowKey(h),
+    // One key from the first notice on, so the row stays the same row once the chain confirms it.
+    key: deviceRowKey(h),
     slateId: h.slateId,
-    kind: TxKind.sent,
-    status: chain?.status ?? (h.state == HoldState.posted || h.kernel != null || h.state == HoldState.spent ? TxStatus.awaitingConfirmation : TxStatus.awaitingRecipient),
+    kind: released ? TxKind.sentCancelled : TxKind.sent,
+    status:
+        chain?.status ??
+        (released
+            ? TxStatus.cancelled
+            : h.state == HoldState.posted || h.kernel != null || h.state == HoldState.spent
+            ? TxStatus.awaitingConfirmation
+            : TxStatus.awaitingRecipient),
     source: TxSource.wallet,
     createdAtUnix: made,
     timeUnix: chain?.timeUnix ?? made,

@@ -17894,4 +17894,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get offerLinkOtherWallet =>
       'Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, wer bezahlt wurde, und beide abzugleichen.';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'Hier freigegeben · $name sendet sie womöglich noch';
+  }
 }
