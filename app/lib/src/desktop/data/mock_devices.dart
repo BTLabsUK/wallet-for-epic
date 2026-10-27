@@ -17,10 +17,11 @@ class MockPhone {
   final FakeWalletSession session;
 
   /// A phone holding the same wallet as [wallet]: the same coins, the same payments key, on the
-  /// network the mock's pairing engine uses.
-  static Future<MockPhone> create(MockDeskWallet wallet, {String name = 'Phone'}) async {
+  /// network the mock's pairing engine uses. [walletKey] other than the mock's makes it a phone
+  /// of another wallet.
+  static Future<MockPhone> create(MockDeskWallet wallet, {String name = 'Phone', String walletKey = mockEpicboxKey}) async {
     final session = FakeWalletSession();
-    session.address = '$mockEpicboxKey@epicbox.epiccash.com';
+    session.address = '$walletKey@epicbox.epiccash.com';
     session.pairing.privateNet = wallet.pairing.privateNet;
     session.pairing.clock = wallet.pairing.clock;
     session.outputsValue = [

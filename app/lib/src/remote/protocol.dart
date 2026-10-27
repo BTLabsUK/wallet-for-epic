@@ -160,6 +160,9 @@ const Set<String> localSessionMembers = {
   'cancelScan',
   // Push notifications are the phone's own; refused by the client.
   'pushSignature',
+  // Linked devices are the app's own; refused by the client.
+  'signWithAddressKey',
+  'verifyAddressSignature',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.

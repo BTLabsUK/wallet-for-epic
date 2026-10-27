@@ -73,14 +73,49 @@ void main() {
     expect(noticeBodyValid(NoticeType.pair2ok, {'server': 's', 'sas': ['a', 'b', 'c']}), isFalse);
   });
 
+  test("a hello's proof is an address signature in hex, or absent", () {
+    Map<String, Object?> hello(Object? proof) => {
+      'deviceId': _dev,
+      'name': 'Phone',
+      'walletAddress': 'es1',
+      'servers': ['epicbox.epiccash.com'],
+      'proof': proof,
+    };
+    expect(noticeBodyValid(NoticeType.hello, hello('3044${'ab' * 68}')), isTrue);
+    expect(noticeBodyValid(NoticeType.hello, hello(null)), isTrue);
+    expect(noticeBodyValid(NoticeType.hello, hello('')), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello('3044ZZ${'ab' * 8}')), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello('ab' * 73)), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello(42)), isFalse);
+  });
+
   test('a device link text carries the invite and is not a contact link', () {
     const invite = 'epiccash://pair/1/eyJ0IjoidC0xIn0';
-    final text = deviceLinkText(invite);
+    final fp = deviceLinkFingerprint('esSameWalletKey');
+    final text = deviceLinkText(invite, fingerprint: fp);
     expect(text, startsWith(deviceLinkPrefix));
     expect(isDeviceLinkText('Link: $text\n'), isTrue);
     expect(deviceInviteIn('  $text  '), invite);
+    expect(deviceLinkIn('  $text  '), (invite: invite, fingerprint: fp));
     expect(deviceInviteIn(invite), isNull);
     expect(isDeviceLinkText(invite), isFalse);
+  });
+
+  test('a device link of an app from before fingerprints still reads, without one', () {
+    const invite = 'epiccash://pair/1/eyJ0IjoidC0xIn0';
+    final old = deviceLinkText(invite, fingerprint: deviceLinkFingerprint('es1')).replaceFirst(RegExp(r'/[0-9a-f]{16}$'), '');
+    expect(deviceLinkIn(old), (invite: invite, fingerprint: null));
+  });
+
+  test("the link fingerprint is a short tagged hash of the wallet's key, never the key", () {
+    const key = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
+    final fp = deviceLinkFingerprint(key);
+    expect(fp, matches(RegExp(r'^[0-9a-f]{16}$')));
+    expect(fp, deviceLinkFingerprint(key));
+    expect(deviceLinkFingerprint('${key}x'), isNot(fp));
+    final text = deviceLinkText('epiccash://pair/1/eyJ0IjoidC0xIn0', fingerprint: fp);
+    expect(text.contains(key), isFalse);
+    expect(utf8.decode(base64Url.decode(base64Url.normalize(text.split('/')[4]))).contains(key), isFalse);
   });
 
   test('ids are 128 random bits in hex', () {

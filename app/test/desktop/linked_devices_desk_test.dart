@@ -150,6 +150,28 @@ void main() {
     await end(tester);
   });
 
+  testWidgets('a pasted code of another wallet is refused at once, before it is answered', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = (await tester.runAsync(() => MockPhone.create(wallet, name: 'Laptop', walletKey: 'esAnotherWalletKey')))!;
+    await tester.runAsync(() => phone.service.startShowing(const ['epicbox.epiccash.com']));
+    final code = phone.service.link!.code!;
+
+    await tester.tap(find.byKey(devicesLinkKey));
+    await settle(tester);
+    await tester.tap(find.text('Paste code'));
+    await settle(tester);
+    await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
+    await tester.tap(find.byKey(deskLinkGoKey));
+    await settle(tester);
+    expect(desk.link?.phase, LinkPhase.failed);
+    expect(desk.link?.failure, LinkFailure.otherWalletCode);
+    expect(find.text('This code is from a different wallet.'), findsOneWidget);
+    await tester.runAsync(() => phone.rounds(desk));
+    expect(phone.service.link?.phase, LinkPhase.waiting);
+    expect(desk.book.devices, isEmpty);
+    await end(tester);
+  });
+
   testWidgets('a text that is no device code is refused in the paste tab', (tester) async {
     await show(tester, const DevicesSettingsBlock());
     await tester.tap(find.byKey(devicesLinkKey));

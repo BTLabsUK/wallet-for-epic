@@ -28073,6 +28073,12 @@ abstract class AppLocalizations {
   /// **'This device holds another wallet.'**
   String get linkFailOtherWallet;
 
+  /// Link failure on the scanning device: the scanned or pasted link code was made by a different wallet, so it was refused before answering.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is from a different wallet.'**
+  String get linkFailOtherWalletCode;
+
   /// Link failure: the user said the pictures differ.
   ///
   /// In en, this message translates to:

@@ -4702,6 +4702,7 @@
   "linkFailNotFound": "Ten kod został już użyty albo anulowany.",
   "linkFailOwn": "Ten kod pochodzi z tego urządzenia. Zeskanuj go na drugim.",
   "linkFailOtherWallet": "To urządzenie ma inny portfel.",
+  "linkFailOtherWalletCode": "Ten kod pochodzi z innego portfela.",
   "linkFailMismatch": "Obrazki się różnią, więc urządzeń nie połączono.",
   "linkFailCancelled": "Drugie urządzenie przerwało albo nie sprawdziło obrazków na czas.",
   "linkFailTooMany": "Połączono już {count} urządzeń. Najpierw usuń jedno.",

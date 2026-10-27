@@ -8,6 +8,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+
 import 'history/wallet_history.dart';
 import 'models.dart';
 import 'pairing_api.dart';
@@ -313,6 +315,15 @@ abstract interface class WalletSession {
     required String token,
     required int timestamp,
   });
+
+  /// Signs [message] with the wallet's Epicbox address key (DER hex). LEPIC signs a tagged hash
+  /// that no relay challenge or push text can ever equal. Every device holding this wallet makes
+  /// the same signature, which is how linked devices prove they hold one wallet.
+  Future<String> signWithAddressKey(List<int> message);
+
+  /// Whether [signature] is [signWithAddressKey] of [message] by the wallet whose payments key
+  /// (its Epicbox address without the server) is [key]. False for anything malformed.
+  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature});
 
   /// Starts the wallet's own tor from [torBinary] (the bundled Tor Expert Bundle) and streams
   /// what it does until [stopTor], lock or [dispose]; [libDir] goes on the library path
@@ -1037,6 +1048,11 @@ class FakeWalletService implements WalletService {
 /// The sealed text [FakeWalletService] hands out for [pin]. Not encryption.
 String fakeSealedPassword(String pin) => 'fake-sealed|$pin';
 
+/// The fakes' stand-in for an address key signature of [message] by the wallet with payments key
+/// [key]: deterministic, and another key never makes it.
+String fakeAddressSignature(String key, List<int> message) =>
+    '${sha256.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
+
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
 class FakeWalletSession implements WalletSession {
   FakeWalletSession({
@@ -1668,6 +1684,15 @@ class FakeWalletSession implements WalletSession {
       signature: 'sig:$action:$token:$timestamp',
     );
   }
+
+  /// A deterministic stand-in for the address key's signature: a hash of the payments key of
+  /// [address] and the message, so only a session with the same address makes it.
+  @override
+  Future<String> signWithAddressKey(List<int> message) async => fakeAddressSignature(epicboxKey(address), message);
+
+  @override
+  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async =>
+      signature == fakeAddressSignature(key, message);
 
   @override
   Future<String> onionAddress() async => onion;

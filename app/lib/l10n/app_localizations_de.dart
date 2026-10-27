@@ -17947,6 +17947,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkFailOtherWallet => 'Dieses Gerät enthält eine andere Wallet.';
 
   @override
+  String get linkFailOtherWalletCode =>
+      'Dieser Code stammt von einer anderen Wallet.';
+
+  @override
   String get linkFailMismatch =>
       'Die Bilder unterscheiden sich, daher wurden die Geräte nicht verknüpft.';
 
