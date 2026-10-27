@@ -156,6 +156,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       centered: none,
       idle: contacts.isLoading ? SlotProgress(label: l.contactsTitle) : null,
       appBar: AppBar(
+        // Room for the title beside the labelled Pair in German and Russian at 360 dp.
+        titleSpacing: pairs ? 4 : null,
         title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
         actions: [
           // Pair in one place, labelled, beside Add contact; never a gold button (Pairing UX
@@ -172,7 +174,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   key: contactsPairKey,
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 36),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     tapTargetSize: MaterialTapTargetSize.padded,
                   ),
                   icon: const Icon(EpicGlyphs.verified, size: 18),
