@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
+import '../../../network.dart' show mainnetPreset;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -262,7 +263,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: '4.1.1', own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
     );
     if (arg == NodeDemo.ownDown) {
-      ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: 'https://node.btlabs.uk', at: DateTime(2026, 10, 22, 14, 2))); // l10n-ok: a node address
+      ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: mainnetPreset.nodeUrl, at: DateTime(2026, 10, 22, 14, 2)));
     }
     ref.invalidate(deskNodeInfoProvider(ownDemoUrl));
     ref.invalidate(deskOwnerSecretProvider(ownDemoUrl));
