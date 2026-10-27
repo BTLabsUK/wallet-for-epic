@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/shots.dart';
 import '../../data/invoice_state.dart';
 import '../../../models.dart' show PairingState;
+import '../../../pairing_api.dart' show PairingLinkKind;
+import '../../../pairing_fake.dart' show fakePairingLink;
 import '../../../sas_table.dart';
 import '../../data/mock_wallet.dart';
 import '../../data/pairing_state.dart' show deskPairingsProvider;
-import '../pairing/pair_screens.dart' show DeskPairedSaveDialog, showDeskCheckWordsFor;
+import '../pairing/pair_screens.dart' show DeskFinishDialog, DeskPairWaitingDialog, DeskPairWay, DeskPairedSaveDialog, DeskPairingClipDialog, showDeskCheckWordsFor;
 import '../../widgets/kit.dart';
 import '../wallet/contacts_screen.dart' show ContactsArgs;
 
@@ -86,7 +88,7 @@ final List<DeskShot> invoiceSetShotsCore = [
   const DeskShot(id: 'inv-set-05-contact-edit', title: 'Contact form: one address per kind', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c6', editing: true)),
   const DeskShot(id: 'inv-set-07-contact-keys-changed', title: 'Contact: keys changed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c9')),
   const DeskShot(id: 'inv-set-08-contact-exchange', title: 'Contact: an exchange, invoices allowed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c8')),
-  const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: show my code, enter link or words, invite online', route: DeskRoute.pair),
+  const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: the three ways, Words open, Got words or a link?', route: DeskRoute.pair),
   DeskShot(
     id: 'pair-02-pending',
     title: 'Contacts › Pending invites: a link, unnamed words, an answer waiting with Remove',
@@ -139,6 +141,62 @@ final List<DeskShot> invoiceSetShotsCore = [
       c.invalidate(deskPairingsProvider);
     },
     dialog: (ctx) => showDeskCheckWordsFor(ctx, 'p-long-words'),
+  ),
+  // Pairing UX (26.10.18): the ways as tiles, the message way's steps on both sides, the
+  // clipboard offer, and Contacts while nobody is paired.
+  const DeskShot(id: 'pair-06-message', title: 'Contacts › Pair: Invite by message, step 1', route: DeskRoute.pair, arg: DeskPairWay.message),
+  const DeskShot(id: 'pair-07-in-person', title: 'Contacts › Pair: In person, the code for their phone', route: DeskRoute.pair, arg: DeskPairWay.inPerson),
+  DeskShot(
+    id: 'pair-08-finish',
+    title: 'Invite by message, step 3: the finish link to copy',
+    route: DeskRoute.pair,
+    arg: DeskPairWay.message,
+    prepare: (c, _) async {
+      final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
+      final invite = await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+      await p.openReply(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Anna'}));
+      c.invalidate(deskPairingsProvider);
+    },
+    dialog: (ctx) async {
+      final p = (ProviderScope.containerOf(ctx).read(deskApiProvider) as MockDeskWallet).pairing;
+      final id = p.records.firstWhere((r) => r.inviter && r.state == PairingState.paired && r.label == 'Anna').id;
+      final link = await p.confirmLink(id);
+      if (ctx.mounted) await showEDialog<bool>(ctx, builder: (_) => DeskFinishDialog(pairingId: id, link: link));
+    },
+  ),
+  DeskShot(
+    id: 'pair-09-reply',
+    title: 'The joiner by message, step 2: the reply to copy',
+    route: DeskRoute.pair,
+    prepare: (c, _) async {
+      final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
+      final preview = await p.openInvite(p.inviteLinkFrom(name: 'Anna'));
+      await p.acceptInvite(token: preview.token, name: 'the owner');
+      c.invalidate(deskPairingsProvider);
+    },
+    dialog: (ctx) async {
+      final p = (ProviderScope.containerOf(ctx).read(deskApiProvider) as MockDeskWallet).pairing;
+      final id = p.records.firstWhere((r) => r.state == PairingState.pendingReply).id;
+      await showEDialog<void>(ctx, dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: id, byMessage: true));
+    },
+  ),
+  DeskShot(
+    id: 'pair-10-clipboard',
+    title: 'A pairing link found on the clipboard',
+    route: DeskRoute.contacts,
+    dialog: (ctx) => showEDialog<bool>(ctx, builder: (_) => const DeskPairingClipDialog(kind: PairingLinkKind.invite, name: 'Anna')),
+  ),
+  DeskShot(
+    id: 'pair-11-contacts-hint',
+    title: 'Contacts while nobody is paired: Pair in the header, the hint, Pairing… on Tom',
+    route: DeskRoute.contacts,
+    prepare: (c, _) async {
+      final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
+      p.records.clear();
+      final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).where((x) => x.name.startsWith('Tom')).firstOrNull;
+      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
+      c.invalidate(deskPairingsProvider);
+    },
   ),
   const DeskShot(id: 'inv-set-03b-contact-1920', title: 'Contact at 1920', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1'), width: 1920, height: 1080),
   const DeskShot(id: 'inv-set-06-receive', title: 'Receive: Issue an invoice beside the Epicbox address', route: DeskRoute.receive),

@@ -96,6 +96,30 @@ void main() {
     expect(find.text(_l.pairNotPairedHint), findsOneWidget);
   });
 
+  testWidgets('Pair in the header: labelled, secondary, never gold; no hint once a contact is paired', (tester) async {
+    await _open(tester, const ContactsArgs());
+    final pair = tester.widget<EButton>(find.byKey(deskContactsPairKey));
+    expect(pair.label, startsWith(_l.pairTitle));
+    expect(pair.kind, EBtnKind.secondary);
+    expect(pair.tooltip, _l.contactsPairTooltip);
+    expect(find.byKey(deskPairHintKey), findsNothing, reason: 'the mock has paired contacts');
+  });
+
+  testWidgets('a contact not paired: Send in soft gold and Pair beside it, Pair with the name as its tooltip', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c6'));
+    final send = tester.widget<EButton>(find.byKey(const ValueKey('contact-send')));
+    expect(send.kind, EBtnKind.primarySoft);
+    final pair = tester.widget<EButton>(find.byKey(deskContactPairKey));
+    expect(pair.label, _l.pairTitle);
+    expect(pair.tooltip, startsWith(_l.pairWithName('').trim()));
+    expect(tester.getCenter(find.byKey(deskContactPairKey)).dy, tester.getCenter(find.byKey(const ValueKey('contact-send'))).dy);
+  });
+
+  testWidgets('a paired contact has no Pair in its header', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c1'));
+    expect(find.byKey(deskContactPairKey), findsNothing);
+  });
+
   testWidgets('deleting a paired contact says the pairing goes, and removes it', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c1'));
     await tester.tap(find.text('Delete'));

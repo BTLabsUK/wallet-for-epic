@@ -174,7 +174,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                     minimumSize: const Size(0, 36),
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     tapTargetSize: MaterialTapTargetSize.padded,
-                    visualDensity: VisualDensity.compact,
                   ),
                   icon: const Icon(EpicGlyphs.verified, size: 18),
                   label: Text(l.pairTitle),

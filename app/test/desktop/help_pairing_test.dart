@@ -1,4 +1,4 @@
-// Help › Pairing: the section with its five topics, before trouble, the deep link and search.
+// Help › Pairing: the section with its six topics, before trouble, the deep link and search.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_pairing.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
@@ -30,10 +30,10 @@ Future<void> _pump(WidgetTester tester, {Object? arg, double width = 1280}) asyn
   await tester.pumpAndSettle();
 }
 
-const _topics = ['What pairing is', 'Why check the words', 'Pairing words', 'Invoices from paired contacts', 'What a restore does'];
+const _topics = ['What pairing is', 'Three ways to pair', 'Why check the words', 'Pairing words', 'Invoices from paired contacts', 'What a restore does'];
 
 void main() {
-  testWidgets('the pairing section shows its five topics, before trouble', (tester) async {
+  testWidgets('the pairing section shows its six topics, before trouble', (tester) async {
     await _pump(tester);
     expect(find.text('Pairing'), findsWidgets);
     expect(find.byType(PairingHelpMark), findsOneWidget);
@@ -53,7 +53,7 @@ void main() {
   });
 
   testWidgets('900 px wide: the section lays out without an exception', (tester) async {
-    await _pump(tester, arg: const HelpAt('pairing', topic: 3), width: 900);
+    await _pump(tester, arg: const HelpAt('pairing', topic: 4), width: 900);
     expect(find.textContaining('Allow invoices', findRichText: true), findsWidgets);
     expect(tester.takeException(), isNull);
   });

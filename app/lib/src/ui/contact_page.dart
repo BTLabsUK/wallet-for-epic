@@ -331,7 +331,6 @@ class _Header extends ConsumerWidget {
       fixedSize: const WidgetStatePropertyAll(Size.fromHeight(36)),
       padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 14)),
       tapTargetSize: MaterialTapTargetSize.padded,
-      visualDensity: VisualDensity.compact,
     );
     if (!soft) return base.copyWith(side: WidgetStatePropertyAll(BorderSide(color: t.lineStrong)), foregroundColor: WidgetStatePropertyAll(t.text));
     return base.copyWith(

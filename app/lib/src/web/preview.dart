@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../net/http_types.dart' show NetError;
 import '../network.dart';
+import '../pairing_fake.dart' show fakePairingLink;
+import '../pairing_providers.dart' show pairingOnProvider;
 import '../phone_tor.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
@@ -389,6 +391,22 @@ FakeWalletSession _previewSession() {
   // wallet sent.
   session.pairing
     ..autoAnswerAfter = const Duration(seconds: 6)
+    // Invite by message: the reply comes back as if pasted, so the finish link shows next.
+    ..autoAnswerByMessage = true
+    // An invite to BT Labs still in flight: its row reads Pairing…
+    ..seed(
+      PairingRecord(
+        id: 'pairing-btlabs',
+        state: PairingState.pendingInvite,
+        way: PairingWay.link,
+        inviter: true,
+        createdAt: now.subtract(const Duration(hours: 2)),
+        label: 'BT Labs',
+        contactId: 'c2',
+        expiresAt: now.add(const Duration(hours: 22)),
+        inviteLink: fakePairingLink('pair', {'t': 'pairing-btlabs', 'n': 'the owner', 'e': now.add(const Duration(hours: 22)).millisecondsSinceEpoch}),
+      ),
+    )
     ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: anna, verifiedAt: now.subtract(const Duration(days: 4)))
     ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired, checkSkipped: true)
     ..seedPaired(
@@ -439,6 +457,8 @@ FakeWalletSession _previewSession() {
 /// The overrides of a `WFE_WEB_FAKE=true` build: Tor as a played-back controller, so the Tor
 /// row of the status card and Receive's Tor tab can be seen without a tor binary.
 List<Override> previewOverrides() => [
+  // Pairing shows without its Experimental switch.
+  pairingOnProvider.overrideWithValue(true),
   phoneTorProvider.overrideWith(PreviewPhoneTor.new),
   relayDirectoryProvider.overrideWithValue(const PreviewDirectory()),
 ];

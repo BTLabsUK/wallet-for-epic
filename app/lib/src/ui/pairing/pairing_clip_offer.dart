@@ -22,10 +22,10 @@ import 'pairing_parts.dart';
 const Key pairClipUseKey = ValueKey('pair-clip-use');
 const Key pairClipNotNowKey = ValueKey('pair-clip-not-now');
 
-/// The pairings whose message step is on screen (the inviter's wait for the reply, the
-/// joiner's wait for the finish link): a link for one of them, pasted or offered, leaves the
-/// next screen to that step, which moves on by itself.
-final Set<String> pairingStepsOnScreen = {};
+/// The pairings whose message step is up (the inviter's wait for the reply, the joiner's reply
+/// and wait for the finish link), each with whether it is the screen on top: a link for one on
+/// top, pasted or offered, leaves the next screen to that step, which moves on by itself.
+final Map<String, bool Function()> pairingStepsOnScreen = {};
 
 /// The links offered once, or shared from this wallet, as hashes; kept on the device.
 final pairingClipSeenProvider = AsyncNotifierProvider<PairingClipSeenStore, PairingClipSeen>(PairingClipSeenStore.new);

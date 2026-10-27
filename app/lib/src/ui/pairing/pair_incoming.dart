@@ -62,11 +62,19 @@ Future<void> openPairingLink(
   final nav = Navigator.of(context);
   final notices = ref.read(noticeProvider.notifier);
   final l = context.l10n;
+  // A step on top of the navigator moves on by itself; one under another screen does not.
+  bool stepOnTop(String id) => pairingStepsOnScreen[id]?.call() ?? false;
   Future<void> show(Widget screen) =>
       replace ? nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => screen)) : nav.push(MaterialPageRoute<void>(builder: (_) => screen));
   // The pairings already finished before this link: a late reply or finish link changes nothing.
+  var before = const <PairingRecord>[];
+  try {
+    before = await ref.read(pairingsProvider.future);
+  } on Object {
+    // No list: nothing counts as finished before.
+  }
   final pairedBefore = {
-    for (final r in ref.read(pairingsProvider).value ?? const <PairingRecord>[])
+    for (final r in before)
       if (r.state.isPaired) r.id,
   };
   bool already(PairingRecord r) {
@@ -84,11 +92,11 @@ Future<void> openPairingLink(
         // Their reply came in the chat: the finish link goes back the same way before the
         // words, which their wallet shows only once it has it (PAIR-AND-10).
         final record = await pairingCall(ref, (a) => a.openReply(text));
-        if (already(record) || pairingStepsOnScreen.contains(record.id)) return;
+        if (already(record) || stepOnTop(record.id)) return;
         await show(PairFinishScreen(pairingId: record.id));
       case PairingLinkKind.confirm:
         final record = await pairingCall(ref, (a) => a.openConfirm(text));
-        if (already(record) || pairingStepsOnScreen.contains(record.id)) return;
+        if (already(record) || stepOnTop(record.id)) return;
         await show(CheckWordsScreen(pairingId: record.id));
       case PairingLinkKind.card:
         // Their code was scanned first: show this phone's, and the pairing follows.
@@ -301,7 +309,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
-    pairingStepsOnScreen.add(widget.pairingId);
+    pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
     _events = api.events().listen((e) {
@@ -511,7 +519,7 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
-    pairingStepsOnScreen.add(widget.pairingId);
+    pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     if (ref.read(pairNetProvider) == PairNet.online) {
       _collector = PairingCollector(ref.read(pairingApiProvider), every: const Duration(seconds: 5))..start();
     }

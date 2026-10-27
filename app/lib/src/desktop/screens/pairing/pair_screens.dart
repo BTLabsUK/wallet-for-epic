@@ -102,7 +102,7 @@ enum DeskPairWay { words, message, inPerson }
 /// does the rest), Invite by message (three messages copied into any chat) and In person (the
 /// phone scans this wallet's code, this one pastes the phone's code link), each opening its
 /// panel; under them Got words or a link?, the field for the one who was invited. [arg] is the
-/// [Contact] the pairing will attach to, if any.
+/// [Contact] the pairing will attach to, if any, or the [DeskPairWay] to open.
 class DeskPairScreen extends ConsumerStatefulWidget {
   const DeskPairScreen({super.key, this.arg});
 
@@ -117,7 +117,9 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   final _enter = TextEditingController();
   final _name = TextEditingController();
   Duration _expiry = pairingInviteDefaultExpiry;
-  DeskPairWay? _way;
+
+  /// The way open; [DeskPairScreen.arg] may name one (the screenshot catalogue).
+  late DeskPairWay? _way = widget.arg is DeskPairWay ? widget.arg! as DeskPairWay : null;
 
   /// The words invite on show.
   PairingRecord? _code;
@@ -140,6 +142,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   bool _busy = false;
   Timer? _tick;
   Timer? _collect;
+  Timer? _typed;
   StreamSubscription<PairingEvent>? _events;
 
   /// Any answer opens its next step here.
@@ -150,7 +153,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     _name.text = ref.read(deskSeenAsProvider);
-    _way = ref.read(deskPairNetProvider) == DeskPairNet.online ? DeskPairWay.words : DeskPairWay.message;
+    _way ??= ref.read(deskPairNetProvider) == DeskPairNet.online ? DeskPairWay.words : DeskPairWay.message;
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
@@ -173,6 +176,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     if (_sent case final sent?) deskPairingStepsOnScreen.remove(sent.id);
     _tick?.cancel();
     _collect?.cancel();
+    _typed?.cancel();
     _events?.cancel();
     _enter.dispose();
     _name.dispose();
@@ -216,11 +220,26 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   void _nameChanged() {
     ref.read(deskSeenAsProvider.notifier).set(_name.text);
     setState(() => _triedName = false);
+    // The first name typed makes the words or the code once typing pauses; a later change on
+    // Enter or New words, so none is made per key (PAIR-LNX-6).
+    _typed?.cancel();
+    if (_seenAs.isEmpty) return;
+    final words = _way == DeskPairWay.words && _code == null;
+    final card = _way == DeskPairWay.inPerson && _card == null;
+    if (words || card) {
+      _typed = Timer(const Duration(milliseconds: 700), () {
+        if (!mounted) return;
+        if (words) _makeWords();
+        if (card) _makeCard();
+      });
+    }
   }
 
   Future<void> _makeWords({bool fresh = false}) async {
     final l = context.l10n;
-    final name = _seenAs.isEmpty ? l.pairTitle : _seenAs;
+    // The words carry the name the other side sees: they wait for one.
+    final name = _seenAs;
+    if (name.isEmpty) return;
     final old = _code;
     // Opened again: the words still open show, not a new invite each visit (WIN2-1).
     if (old == null && !fresh) {
@@ -395,7 +414,9 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           autofocus: _name.text.isEmpty,
           onChanged: (_) => _nameChanged(),
           onSubmitted: (_) {
+            if (_seenAs.isEmpty) setState(() => _triedName = true);
             if (_way == DeskPairWay.inPerson) _makeCard();
+            if (_way == DeskPairWay.words && _code == null) _makeWords();
           },
         ),
       ),
@@ -518,6 +539,9 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The words carry the name the other side sees.
+          nameField,
+          SizedBox(height: Sp.x4),
           if (_codeError != null) ...[
             ENotice(
               title: _codeError!,
@@ -530,7 +554,8 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             ),
             SizedBox(height: Sp.x4),
           ],
-          if (code == null && _codeError == null) const Center(child: ESpinner()),
+          // Neutral until a name exists: the words need it.
+          if (code == null && _codeError == null) _seenAs.isEmpty ? Text(l.pairNameForCode, style: ts.bodyDim) : const Center(child: ESpinner()),
           if (code != null) ...[
             Text(l.pairWordsLead, style: ts.bodyDim),
             SizedBox(height: Sp.x3),
@@ -566,9 +591,6 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
               ],
             ),
           ],
-          SizedBox(height: Sp.x4),
-          // The words carry the name the other side sees.
-          nameField,
         ],
       ),
     );
@@ -855,8 +877,14 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
   // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
   final text = pairingLinkIn(pasted) ?? pasted;
   // The pairings already finished before this link: a late reply or finish link changes nothing.
+  var before = const <PairingRecord>[];
+  try {
+    before = await ref.read(deskPairingsProvider.future);
+  } on Object {
+    // No list: nothing counts as finished before.
+  }
   final pairedBefore = {
-    for (final r in ref.read(deskPairingsProvider).value ?? const <PairingRecord>[])
+    for (final r in before)
       if (r.state.isPaired) r.id,
   };
   bool already(PairingRecord r) {
@@ -930,7 +958,7 @@ Future<void> deskAfterReply(BuildContext context, WidgetRef ref, String id) asyn
   if (!context.mounted) return;
   try {
     if (finish != null) {
-      final checkNow = await showEDialog<bool>(context, dismissible: false, builder: (_) => _FinishDialog(pairingId: id, link: finish!));
+      final checkNow = await showEDialog<bool>(context, dismissible: false, builder: (_) => DeskFinishDialog(pairingId: id, link: finish!));
       if (checkNow != true || !context.mounted) return;
     }
     await showDeskCheckWords(context, ref, id);
@@ -941,17 +969,17 @@ Future<void> deskAfterReply(BuildContext context, WidgetRef ref, String id) asyn
 
 /// Invite by message, the inviter's step 3: the finish link to copy into the chat, then the
 /// words. Pops true for Check the words.
-class _FinishDialog extends ConsumerStatefulWidget {
-  const _FinishDialog({required this.pairingId, required this.link});
+class DeskFinishDialog extends ConsumerStatefulWidget {
+  const DeskFinishDialog({super.key, required this.pairingId, required this.link});
 
   final String pairingId;
   final String link;
 
   @override
-  ConsumerState<_FinishDialog> createState() => _FinishDialogState();
+  ConsumerState<DeskFinishDialog> createState() => _DeskFinishDialogState();
 }
 
-class _FinishDialogState extends ConsumerState<_FinishDialog> {
+class _DeskFinishDialogState extends ConsumerState<DeskFinishDialog> {
   bool _copied = false;
 
   Future<void> _copy() async {
@@ -1132,7 +1160,7 @@ class _CardBackDialog extends StatelessWidget {
 Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, bool viaLink = true}) async {
   final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact));
   if (answered == null || !context.mounted) return;
-  await showEDialog<void>(context, dismissible: false, builder: (_) => _WaitingDialog(pairingId: answered.id, byMessage: viaLink));
+  await showEDialog<void>(context, dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: answered.id, byMessage: viaLink));
 }
 
 class _IncomingDialog extends ConsumerStatefulWidget {
@@ -1234,8 +1262,8 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
 }
 
 /// The wait for the inviter's confirm, closable; Send by hand shows the answer as a link.
-class _WaitingDialog extends ConsumerStatefulWidget {
-  const _WaitingDialog({required this.pairingId, this.byMessage = false});
+class DeskPairWaitingDialog extends ConsumerStatefulWidget {
+  const DeskPairWaitingDialog({super.key, required this.pairingId, this.byMessage = false});
 
   final String pairingId;
 
@@ -1243,10 +1271,10 @@ class _WaitingDialog extends ConsumerStatefulWidget {
   final bool byMessage;
 
   @override
-  ConsumerState<_WaitingDialog> createState() => _WaitingDialogState();
+  ConsumerState<DeskPairWaitingDialog> createState() => _DeskPairWaitingDialogState();
 }
 
-class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
+class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   Timer? _collect;
   StreamSubscription<PairingEvent>? _events;
   String? _link;
@@ -1573,6 +1601,11 @@ Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pair
 
 /// The pairings whose words check dialog is up.
 final Set<String> _checksOpen = {};
+
+/// Forgets the open words checks: a test that ends with one up never closes it, and the next
+/// test's fake hands out the same ids.
+@visibleForTesting
+void deskForgetOpenChecks() => _checksOpen.clear();
 
 /// [showDeskCheckWords] from a plain [BuildContext], for the screenshot catalogue.
 Future<void> showDeskCheckWordsFor(BuildContext context, String pairingId) =>

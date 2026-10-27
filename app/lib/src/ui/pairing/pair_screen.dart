@@ -623,7 +623,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     final link = invite.inviteLink ?? '';
     await sharePairingMessage(context, ref, l.pairInviteMessage(link), link: link, copy: copy);
     if (!mounted) return;
-    pairingStepsOnScreen.add(invite.id);
+    pairingStepsOnScreen[invite.id] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     setState(() => _sent = invite);
     if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(ref.read(pairingApiProvider))..start();
   }

@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingClipSeenProvider, deskPairingsProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/pairing_clip_probe.dart' show pairingClipProbeProvider;
+import 'package:epic_wallet/src/pairing_clipboard.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice, PayState;
@@ -21,6 +23,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingWordsOnScreen;
+import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingEvent, PairingEventKind, PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,18 +46,19 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode}) async {
+Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, ClipboardProbe? clip}) async {
   tester.view.physicalSize = const Size(1280, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
     if (call.method == 'Clipboard.setData') _clip = (call.arguments as Map)['text'] as String?;
+    if (call.method == 'Clipboard.getData') return <String, Object?>{'text': _clip};
     return null;
   });
   _clip = null;
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
   _mock = MockDeskWallet(delay: Duration.zero);
-  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock)]);
+  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock), if (clip != null) pairingClipProbeProvider.overrideWithValue(clip)]);
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
@@ -73,6 +77,29 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode}) asyn
   await _real(tester);
 }
 
+/// A desktop clipboard holding [text]: silent, no stamp.
+class _DeskClip implements ClipboardProbe {
+  _DeskClip(this.text);
+
+  final String text;
+
+  @override
+  bool get silent => true;
+
+  @override
+  Future<ClipStamp?> stamp() async => const ClipStamp(hasText: true);
+
+  @override
+  Future<String?> read() async => text;
+}
+
+/// The Pair page's look at the clipboard, as on the window coming back.
+Future<void> _lookNow(WidgetTester tester) async {
+  final element = tester.element(find.byType(DeskPairScreen));
+  final ref = (element as StatefulElement).state as ConsumerState;
+  await deskLookForPairingLink(element, ref.ref, PairingClipTrigger.resume);
+}
+
 Future<void> _seenAs(WidgetTester tester, String name) async {
   final field = find.descendant(of: find.widgetWithText(EField, _l.pairSeenAs), matching: find.byType(EditableText));
   await tester.enterText(field.first, name);
@@ -81,27 +108,90 @@ Future<void> _seenAs(WidgetTester tester, String name) async {
 
 void main() {
   setUpAll(initializeDateFormatting);
+  setUp(deskForgetOpenChecks);
 
-  testWidgets('the page: the lead, the code panel, Enter link or words and Invite online', (tester) async {
+  testWidgets('the page: the lead, three ways as tiles (Words open), Got words or a link? and How pairing works', (tester) async {
     await _open(tester, const DeskPairScreen());
-    expect(find.text(_l.pairLead), findsOneWidget);
-    expect(find.text(_l.pairShowMyCode), findsOneWidget);
-    expect(find.text(_l.pairEnter), findsOneWidget);
-    expect(find.text(_l.pairingInviteOnline), findsOneWidget);
+    expect(find.text(_l.pairWaysLead), findsOneWidget);
+    for (final t in [_l.pairWayAutomatic, _l.pairWayMessage, _l.pairInPerson, _l.pairGotInvite, _l.pairHowItWorks, _l.pairWayWordsHint, _l.pairWayInPersonDesk]) {
+      expect(find.text(t), findsWidgets, reason: t);
+    }
+    expect(find.byKey(deskPairWordsPanelKey), findsOneWidget);
+    await tester.tap(find.byKey(deskPairMessageKey));
+    await _real(tester);
+    expect(find.byKey(deskPairMessagePanelKey), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.pairStepOf(1, _l.pairStepInvite)), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Copy invite makes an invite under the name they will see', (tester) async {
+  testWidgets('Invite by message: Copy message copies "Pair with me…", then the wait with Paste reply; a pasted reply opens the finish link, then the words', (tester) async {
     await _open(tester, const DeskPairScreen());
+    await tester.tap(find.byKey(deskPairMessageKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
-    // The name makes the code (and its words invite) once typing pauses.
-    await _real(tester, 1200);
-    final before = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingInvite).length;
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
-    final invites = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingInvite).toList();
-    expect(invites.length, before + 1);
+    final invite = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingInvite).single;
+    expect(_clip, _l.pairInviteMessage(invite.inviteLink!));
+    expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
+    expect(_c.read(deskPairingClipSeenProvider).has(invite.inviteLink!), isTrue, reason: 'its own link is never offered back');
+    _clip = _l.pairReplyMessage(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}));
+    await tester.ensureVisible(find.byKey(deskPairPasteReplyKey));
+    await tester.tap(find.byKey(deskPairPasteReplyKey));
+    await _real(tester);
+    expect(find.text(_l.pairFinishTitle), findsOneWidget);
+    expect(find.text(_l.pairFinishLead('Ola')), findsOneWidget);
+    await tester.tap(find.byKey(deskFinishCopyKey));
+    await _real(tester);
+    expect(_clip, startsWith(_l.pairFinishMessage('epiccash://pair-confirm/').replaceAll('epiccash://pair-confirm/', '')));
+    expect(_clip, contains('epiccash://pair-confirm/'));
+    await tester.tap(find.byKey(deskConfirmBackCheckKey));
+    await _real(tester);
+    expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
+    // Closed, so its pairing's one-check guard is free for the next test.
+    Navigator.of(tester.element(find.byKey(deskCheckMatchKey))).pop();
+    await _real(tester);
+  });
+
+  testWidgets('the joiner by message: Pair, the reply to copy, then Paste finish link opens the words', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.enterText(
+      find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)),
+      _l.pairInviteMessage(_pairing.inviteLinkFrom(name: 'Anna')),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskIncomingPairKey));
+    await _real(tester);
+    final answered = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply).single;
+    expect(find.text(_l.pairReplyTitle), findsOneWidget);
+    await tester.tap(find.byKey(deskReplyCopyKey));
+    await _real(tester);
+    expect(_clip, startsWith('My reply'));
+    expect(find.text(_l.pairAwaitFinishTitle), findsOneWidget);
+    _clip = fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Anna'});
+    await tester.tap(find.byKey(deskPasteFinishKey));
+    await _real(tester);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
+    // Closed, so its pairing's one-check guard is free for the next test.
+    Navigator.of(tester.element(find.byKey(deskCheckMatchKey))).pop();
+    await _real(tester);
+  });
+
+  testWidgets('a pairing link on the clipboard: offered once as a dialog, Use it opens it', (tester) async {
+    // The link is made by another fake wallet: this one opens it as theirs.
+    final link = FakePairing().inviteLinkFrom(name: 'Northwind');
+    await _open(tester, const DeskPairScreen(), clip: _DeskClip('Pair with me in Epic Cash: $link'));
+    expect(find.text(_l.pairClipTitle), findsOneWidget);
+    expect(find.text(_l.pairClipInvite('Northwind')), findsOneWidget);
+    await tester.tap(find.byKey(deskClipNotNowKey));
+    await _real(tester);
+    await tester.runAsync(() => _lookNow(tester));
+    await _real(tester);
+    expect(find.text(_l.pairClipTitle), findsNothing, reason: 'once');
   });
 
   testWidgets('a pasted invite opens the incoming dialog; Pair answers it', (tester) async {
@@ -150,7 +240,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');
     final link = _pairing.inviteLinkFrom(name: 'Northwind', asksInvoices: true);
-    final message = _l.pairShareText('Northwind', link, '26 Oct, 06:11').replaceAll('\n', '');
+    final message = _l.pairInviteMessage(link).replaceAll('\n', '');
     await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), message);
     await tester.pump();
     await tester.tap(find.byKey(deskPairGoKey));
@@ -176,7 +266,10 @@ void main() {
 
   testWidgets('They match on a pairing in no contact: the result offers to save it, and Save as a new contact does (PAIR-LNX-4)', (tester) async {
     await _open(tester, const DeskPairScreen());
+    await tester.tap(find.byKey(deskPairInPersonKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
     await _real(tester);
@@ -205,7 +298,10 @@ void main() {
     final id = (await tester.runAsync(() => _c.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Ola'))))!;
     _pairing.seedPaired(id: 'old-ola', name: 'Ola', state: PairingState.verified, contactId: id);
     _c.invalidate(deskPairingsProvider);
+    await tester.tap(find.byKey(deskPairInPersonKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
     await _real(tester);
@@ -227,7 +323,10 @@ void main() {
 
   testWidgets('the result closes when its pairing goes meanwhile (folded or removed), never an empty "is verified" (two-app c)', (tester) async {
     await _open(tester, const DeskPairScreen());
+    await tester.tap(find.byKey(deskPairInPersonKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
     await _real(tester);
@@ -248,7 +347,10 @@ void main() {
 
   testWidgets('Copy my card link first: their card then goes straight to the words', (tester) async {
     await _open(tester, const DeskPairScreen());
+    await tester.tap(find.byKey(deskPairInPersonKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
     await _real(tester);
@@ -266,6 +368,8 @@ void main() {
     await _open(tester, const DeskPairScreen());
     expect(find.text(_l.pairSeenAsMissing), findsNothing);
     expect(find.text(_l.pairNameForCode), findsOneWidget);
+    await tester.tap(find.byKey(deskPairMessageKey));
+    await _real(tester);
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
@@ -298,12 +402,16 @@ void main() {
     await _seenAs(tester, 'the owner');
     await _real(tester, 1200);
     expect(find.text(_l.pairNameForCode), findsNothing);
-    expect(find.bySemanticsLabel(_l.pairCodeLabel), findsOneWidget);
+    expect(find.byType(WordTiles), findsOneWidget);
   });
 
-  testWidgets('Offline pairs by hand: this wallet\'s card shows and copies, and the invite copies (PAIR-LNX-6)', (tester) async {
+  testWidgets('Offline: Words is off, Invite by message opens; in person the card shows and copies (PAIR-LNX-6)', (tester) async {
     await _open(tester, const DeskPairScreen(), mode: NetworkMode.offline);
     expect(find.text(_l.pairOfflineHint), findsOneWidget);
+    expect(find.text(_l.pairWordsNeedEpicbox), findsOneWidget);
+    expect(find.byKey(deskPairMessagePanelKey), findsOneWidget, reason: 'the message way opens first');
+    await tester.tap(find.byKey(deskPairInPersonKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
     await _real(tester, 1200);
     expect(find.bySemanticsLabel(_l.pairCodeLabel), findsOneWidget);
@@ -312,8 +420,8 @@ void main() {
     await tester.tap(find.byKey(deskPairCopyCardKey));
     await _real(tester);
     expect(_clip, startsWith('epiccash://contact/'));
-    expect(find.text(_l.pairingInviteOnline), findsOneWidget);
-    expect(find.text(_l.pairOnlineLeadByHand), findsOneWidget);
+    await tester.tap(find.byKey(deskPairMessageKey));
+    await _real(tester);
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
@@ -358,7 +466,8 @@ void main() {
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
     expect(find.text('Ola'), findsOneWidget);
-    expect(find.text(_l.pendingCopyLink), findsWidgets);
+    expect(find.text(_l.pairCopyMessage), findsWidgets);
+    expect(find.text(_l.pairPasteReply), findsWidgets);
   });
 
   testWidgets('Pending invites: an answer waiting for a confirm can be removed; an unnamed invite has a glyph (PAIR-LNX-8)', (tester) async {
@@ -500,8 +609,8 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(deskPairGoKey));
     await _real(tester);
-    expect(find.text(_l.pairConfirmByHandLead('Ola')), findsOneWidget);
-    expect(tester.widget<SelectableText>(find.byKey(deskConfirmBackLinkKey)).data, startsWith('epiccash://pair-confirm/'));
+    expect(find.text(_l.pairFinishLead('Ola')), findsOneWidget);
+    expect(tester.widget<SelectableText>(find.byKey(deskConfirmBackLinkKey)).data, contains('epiccash://pair-confirm/'));
     await tester.tap(find.byKey(deskConfirmBackCheckKey));
     await _real(tester);
     expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
@@ -509,6 +618,8 @@ void main() {
 
   testWidgets('the name others see is kept in the settings', (tester) async {
     await _open(tester, const DeskPairScreen());
+    await tester.tap(find.byKey(deskPairMessageKey));
+    await _real(tester);
     await _seenAs(tester, 'the owner');
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
