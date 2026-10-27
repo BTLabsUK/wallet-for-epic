@@ -177,6 +177,8 @@ String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi 
   if (m == TxMethod.file) return null;
   if (t.isEmpty) return l.deskSendErrNoAddress;
   final p = parseAddress(t, api);
+  // The build without Tor reaches no onion, by any method.
+  if (!DeskFeatures.tor && p.kind == AddressKind.tor) return l.sendTorNotInVersion;
   switch (m) {
     case TxMethod.file:
       return null;
@@ -379,10 +381,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           st,
           nodeOnly: _method == TxMethod.http,
           epicbox: _method == TxMethod.epicbox,
-          offered: _method != TxMethod.epicbox && _to.text.trim().isEmpty
-              ? st.settings.payments.offersFamily(MethodFamily.link)
-              : st.settings.payments.offers(methodKindOf(_method)),
+          // An onion in the build without Tor: no method would send it, its own line says so.
+          offered: _onionNoTor ||
+              (_method != TxMethod.epicbox && _to.text.trim().isEmpty
+                  ? st.settings.payments.offersFamily(MethodFamily.link)
+                  : st.settings.payments.offers(methodKindOf(_method))),
         );
+
+  /// An onion in To in the build without Tor: said at once under To, nothing offered for it.
+  bool get _onionNoTor => !DeskFeatures.tor && _method != TxMethod.file && addressKindOf(_to.text) == AddressKind.tor;
 
   /// The method this send goes by, for its name and its switch.
   MethodKind get _kind => methodKindOf(_method);
@@ -1079,7 +1086,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
       child: EPage(
       title: context.l10n.deskSendTitle,
-      titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -1312,7 +1319,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contact = _contactOf(st.contacts);
     final file = _method == TxMethod.file;
     final code = file ? null : _codeNow;
-    final toErr = _codeError?.call(l) ?? (_submitted && !_toEdited ? _toError(st) : null);
+    final toErr = _codeError?.call(l) ?? ((_submitted && !_toEdited) || _onionNoTor ? _toError(st) : null);
     final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
     final matches = file ? const <Contact>[] : _matches(st);
     // Epicbox and Direct wait for the network mode; File runs in every mode, and in Offline
@@ -1433,7 +1440,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
           // Link · Tor switched off: that comes first, Tor alone would not send it.
-          if (_torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline && _netBlock(st) != NetBlock.methodOff) ...[
+          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline && _netBlock(st) != NetBlock.methodOff) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),
@@ -1572,6 +1579,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
       _ when _netBlock(st) == NetBlock.offline || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
+      _ when _onionNoTor => l.sendTorNotInVersion,
       _ when nodeBlocked => l.deskSendHintNode,
       _ when _netBlock(st) == NetBlock.epicboxOff => l.netBlockEpicboxOff,
       _ when _netBlock(st) == NetBlock.methodOff => methodOffReason(l, _kind),
@@ -1706,7 +1714,7 @@ class _MethodStrip extends StatelessWidget {
 
   static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
     TxMethod.epicbox => (l.deskSendEpicboxLine1, l.deskSendEpicboxLine2),
-    TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, l.deskSendDirectLine2),
+    TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
     TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
 

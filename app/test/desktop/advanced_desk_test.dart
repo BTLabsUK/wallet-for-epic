@@ -2,6 +2,7 @@
 // switch, the sidebar and Overview in Offline and Tor only, Send and Receive held by the network
 // mode (File goes on), a pasted onion with Link off, Restore's start height for everyone, and
 // the tour's Advanced step.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
@@ -98,7 +99,7 @@ void main() {
       await _open(tester, DeskRoute.settingsPrivacy);
       expect(torSwitch(tester).onChanged, isNotNull);
       expect(find.byKey(const ValueKey('privacy-mode-line')), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Tor only: on and locked, with a link to Advanced', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _torOnly);
@@ -108,14 +109,14 @@ void main() {
       await tester.tap(find.text('Open Advanced'));
       await _settle(tester);
       expect(_container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Offline: disabled, with the reason', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _offline);
       expect(torSwitch(tester).onChanged, isNull);
       expect(torSwitch(tester).value, isFalse);
       expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
-    });
+    }, skip: !torBuilt);
   });
 
   group('sidebar and Overview', () {
@@ -137,7 +138,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('overview-offline')), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Standard: no Offline mark', (tester) async {
       await _open(tester, DeskRoute.overview);
@@ -214,7 +215,7 @@ void main() {
       await tester.tap(find.text('Direct · File'));
       await _settle(tester);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Standard: nothing is held', (tester) async {
       await _open(tester, DeskRoute.send);
@@ -231,7 +232,7 @@ void main() {
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
       expect(_container.read(deskProvider).settings.payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
-    });
+    }, skip: !torBuilt);
   });
 
   group('Receive', () {
@@ -258,7 +259,7 @@ void main() {
       await _open(tester, DeskRoute.receive, advanced: _torOnly);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Standard: no notice', (tester) async {
       await _open(tester, DeskRoute.receive);

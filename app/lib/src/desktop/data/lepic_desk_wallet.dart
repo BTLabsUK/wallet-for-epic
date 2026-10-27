@@ -2633,6 +2633,7 @@ class LepicDeskWallet implements DeskWalletApi {
           final sent = await session.resendHttp(txId: id, url: to, allowPlainHttp: plainHttpNeedsConsent(to));
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
         case 'tor':
+          if (!_torFeature) throw DeskError.l10n((l) => l.sendTorNotInVersion);
           if (!_settings.tor) throw DeskError.l10n((l) => l.deskErrTorOffSend);
           final sent = await session.resendTor(txId: id, onion: to);
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
@@ -2701,6 +2702,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // Send all sends the reviewed amount: when it no longer fits, LEPIC refuses (not enough
     // funds) and the user reviews again, rather than paying an amount they did not see.
     final amount = r.amount;
+    // The build without Tor reaches no onion, whatever the method (Send says so first).
+    if (!_torFeature && r.pairingId == null && addressKindOf(r.to ?? '') == AddressKind.tor) return SendFailed.l10n((l) => l.sendTorNotInVersion);
     // An onion pasted under Direct goes over Tor.
     final method = _torFeature && r.method == TxMethod.http && isOnionAddress(r.to ?? '') ? TxMethod.tor : r.method;
     // The rows before a direct send, to tell a send LEPIC stored from one it refused.
@@ -3885,6 +3888,11 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Tor only refuses off; Offline refuses on (no tor starts).
   Future<void> setTor(bool on) async {
     _open;
+    // The build without Tor has no switch: nothing starts, and off is already so.
+    if (!_torFeature) {
+      if (on) logInfo('desk', 'tor: not in this build');
+      return;
+    }
     if (!on && NetGate.torOnly) throw DeskError.l10n((l) => l.deskSetAdvModeTorOnlyText);
     if (on && NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     _settings = _settings.copyWith(tor: on);

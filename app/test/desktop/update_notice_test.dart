@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
@@ -166,7 +167,7 @@ void main() {
     expect(fake.restarts, 0);
     expect(find.descendant(of: line(), matching: find.text('Restart now')), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('the ready dialog: Restart now restarts and quits', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready), restartOk: true);
@@ -176,7 +177,7 @@ void main() {
     expect(fake.restarts, 1);
     expect(quits, 1);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('no ready dialog during a send, nor after a download that failed', (tester) async {
     final container = await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready));
@@ -201,7 +202,7 @@ void main() {
     expect(ready(), findsNothing);
     expect(find.descendant(of: line(), matching: find.text("Couldn't download the update")), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('a copy that cannot install updates: the line opens the download page and says so', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.available, inApp: false));
@@ -213,7 +214,7 @@ void main() {
     expect(opened, [deskReleasesUrl]);
     expect(ready(), findsNothing);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('the narrow rail keeps the line as an icon with its words in the tooltip', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.available), size: const Size(900, 800));
@@ -221,7 +222,7 @@ void main() {
     expect(tip(tester), contains('Update available · $_v'));
     expect(find.descendant(of: line(), matching: find.byIcon(EIcons.download)), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Update ready: the line restarts; one that fails does not quit', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.ready), restartOk: true);
@@ -236,7 +237,7 @@ void main() {
     expect(fake.restarts, 1);
     expect(quits, 0);
     await tester.pumpWidget(const SizedBox());
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Settings › About: the page address is always there, to open or copy', (tester) async {
     await pump(tester, const DeskUpdateState(DeskUpdatePhase.latest), home: about);
@@ -249,7 +250,7 @@ void main() {
     await tester.tap(find.descendant(of: row, matching: find.widgetWithText(EButton, 'Open')));
     await tester.pumpAndSettle();
     expect(opened, [deskReleasesUrl]);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Settings › About: each step has its button, and it does the step', (tester) async {
     for (final (s, title, label, inApp, checks) in [
@@ -280,7 +281,7 @@ void main() {
       }
       await tester.pumpWidget(const SizedBox());
     }
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Settings › About while it downloads: the percent, and the button waits', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.downloading, progress: 0.42), home: about);
@@ -288,7 +289,7 @@ void main() {
     final b = tester.widget<EButton>(act());
     expect(b.busy, isTrue);
     expect(b.onPressed, isNull);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Restart to update from About: the app still quits when About is gone by then', (tester) async {
     final show = ValueNotifier(true);
@@ -306,7 +307,7 @@ void main() {
     expect(act(), findsNothing);
     expect(fake.restarts, 1);
     expect(quits, 1);
-  });
+  }, skip: !inAppUpdates);
 
   test('checks 20 s after the wallet opens, then every hour', () {
     expect(deskUpdateFirst, const Duration(seconds: 20));

@@ -1,3 +1,4 @@
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -93,7 +94,7 @@ void main() {
   testWidgets('a test build in the manifest is not offered', (tester) async {
     await pump(tester, (_) async => (200, testBuild));
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('Community opens Telegram and epiccash.com in the browser', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
@@ -116,7 +117,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'View'));
     await tester.pumpAndSettle();
     expect(find.byType(LicensePage), findsOneWidget);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('no manifest published: no update and no error; Check now asks again', (tester) async {
     var calls = 0;
@@ -129,7 +130,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
     expect(calls, 2);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('a newer version: About says so and offers it; the same version is the latest', (tester) async {
     final (container, opened) = await pump(tester, (_) async => (200, newer));
@@ -149,20 +150,20 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
     await pump(tester, (_) async => (200, phoneOnly));
     expect(find.text('Could not check'), findsOneWidget);
     expect(find.text('No desktop update information is published yet. Checked just now.'), findsOneWidget);
     expect(find.textContaining('Update available'), findsNothing);
-  });
+  }, skip: !inAppUpdates);
 
   testWidgets('a page off the project accounts: the manifest is not used', (tester) async {
     await pump(tester, (_) async => (200, offAccounts));
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
     expect(find.textContaining('Update available'), findsNothing);
-  });
+  }, skip: !inAppUpdates);
 
   for (final (name, body) in [('an unsigned', () => unsignedNewer), ('a forged', () => forgedNewer)]) {
     testWidgets('$name manifest offers no update and no error', (tester) async {
@@ -170,7 +171,7 @@ void main() {
       expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
       expect(find.textContaining('Update available'), findsNothing);
       expect(find.text('Could not check'), findsNothing);
-    });
+    }, skip: !inAppUpdates);
   }
 
   testWidgets('a known update stays offered when a later manifest is replayed, forged or too large', (tester) async {
@@ -183,7 +184,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Update available: $next'), findsOneWidget, reason: 'after ${reply.$1}');
     }
-  });
+  }, skip: !inAppUpdates);
 
   test('the fallback download page is the public BT Labs page', () {
     expect(deskReleasesUrl, 'https://examples.btlabs.uk/epic-cash-wallets/');
@@ -251,5 +252,5 @@ void main() {
     await secrets.write(updateStateKey, '{broken');
     expect((await run(newer)).version, next);
     expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000000);
-  });
+  }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 }

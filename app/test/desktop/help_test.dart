@@ -1,5 +1,6 @@
 // F20: Help as the settings design draws it: the support bar first, six sections with their
 // art, lede and count, the topic set with bodies, search over the bodies, and the copy rules.
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
@@ -89,7 +90,7 @@ void main() {
     expect(find.text('1 topic'), findsOneWidget, reason: 'Maintenance');
     expect(find.text('2 topics'), findsWidgets, reason: 'Troubleshooting and Cancelling a payment');
     expect(find.byType(HelpArt), findsNWidgets(7));
-  });
+  }, skip: !torBuilt);
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {
     await _pump(tester);
@@ -141,5 +142,5 @@ void main() {
     expect(find.byType(HelpHandshake), findsOneWidget);
     await _pump(tester, arg: HelpDemo.bottom);
     expect(find.textContaining('blocked or not allowed in some countries', findRichText: true), findsWidgets);
-  });
+  }, skip: !torBuilt);
 }

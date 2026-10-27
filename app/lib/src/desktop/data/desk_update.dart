@@ -29,6 +29,7 @@ import '../../app_version.dart';
 import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
+import '../../tor_build.dart' show inAppUpdates;
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
@@ -204,7 +205,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// Looks for an update that did not finish right away, then checks [deskUpdateFirst] from now
   /// and every [deskUpdateEvery] after, once per run (the shell calls it when the wallet opens).
   void schedule() {
-    if (_every != null) return;
+    // The build without Tor has no in-app updates: update.json names the Tor builds, and a
+    // store updates its own build. Nothing is asked, nothing shows.
+    if (_every != null || !inAppUpdates) return;
     unawaited(detect());
     final (first, every) = ref.read(deskUpdateScheduleProvider);
     _first = Timer(first, () => unawaited(check()));
@@ -216,6 +219,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   /// Checks once per run, when About first opens.
   Future<void> checkOnce() async {
+    if (!inAppUpdates) return;
     await detect();
     if (state.phase == DeskUpdatePhase.idle) await check();
   }
@@ -228,7 +232,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   /// Reads the marks of an earlier update once per run ([unfinishedUpdate]): one that did not
   /// finish shows "Update didn't finish. Try again."; one that finished has its record removed.
-  Future<void> detect() => _detecting ??= _detect();
+  Future<void> detect() => _detecting ??= inAppUpdates ? _detect() : Future<void>.value();
 
   Future<void> _detect() async {
     final open = ref.read(deskUpdateMarksProvider);
@@ -267,7 +271,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// says what stopped it (a check that fails stays here, with the reason as the problem).
   Future<bool> retry() async {
     final s = state;
-    if (s.phase != DeskUpdatePhase.unfinished || _retrying) return false;
+    if (!inAppUpdates || s.phase != DeskUpdatePhase.unfinished || _retrying) return false;
     _retrying = true;
     try {
       logInfo('update', 'desktop: trying the update to ${s.version} again');
@@ -290,6 +294,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   Future<void> check() async {
+    if (!inAppUpdates) return;
     // A download under way or done stays as it is; one whose install failed is looked for again;
     // an update that did not finish waits for its Try again.
     final p = state.phase;

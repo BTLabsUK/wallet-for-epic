@@ -329,7 +329,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final r = await ref.read(deskApiProvider).checkNode(url);
     if (r.health == ServiceHealth.down) return l.deskSlNodeNoAnswer;
     // Over Tor before tor connected: the node was never asked.
-    if (r.health == ServiceHealth.checking) return l.deskSlTorWait;
+    if (r.health == ServiceHealth.checking) return DeskFeatures.tor ? l.deskSlTorWait : l.deskSlNodeNoAnswer;
     await ref.read(deskProvider.notifier).addNode(NodeServer(url: url, label: r.label, health: r.health, latencyMs: r.latencyMs, height: r.height, version: r.version, own: true));
     return null;
   }

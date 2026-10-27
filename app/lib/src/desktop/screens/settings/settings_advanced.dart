@@ -198,20 +198,20 @@ class _NetworkGroup extends ConsumerWidget {
     );
     final note = switch (adv.networkMode) {
       NetworkMode.torOnly => l.deskSetAdvTorOnlyNote,
-      NetworkMode.offline => l.deskSetAdvOfflineNote,
+      NetworkMode.offline => DeskFeatures.tor ? l.deskSetAdvOfflineNote : l.deskNoTorAdvOfflineNote,
       _ => null,
     };
     return ESetGroup(
       title: l.deskSetAdvNetwork,
-      trailing: EInfoHint(l.deskSetAdvNetworkHint, title: l.deskSetAdvNetwork, icon: EIcons.antenna),
+      trailing: EInfoHint(DeskFeatures.tor ? l.deskSetAdvNetworkHint : l.deskNoTorAdvNetworkHint, title: l.deskSetAdvNetwork, icon: EIcons.antenna),
       rows: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              mode(NetworkMode.standard, l.deskSetAdvModeStandardText),
-              mode(NetworkMode.torOnly, l.deskSetAdvModeTorOnlyText, tor: true),
+              mode(NetworkMode.standard, DeskFeatures.tor ? l.deskSetAdvModeStandardText : l.advModeStandardLineNoTor),
+              if (DeskFeatures.tor) mode(NetworkMode.torOnly, l.deskSetAdvModeTorOnlyText, tor: true),
               mode(NetworkMode.offline, l.deskSetAdvModeOfflineText),
               if (note != null) ...[
                 SizedBox(height: Sp.x3),

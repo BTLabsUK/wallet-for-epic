@@ -551,6 +551,8 @@ class _ContactDetail extends ConsumerWidget {
     final ts = context.ts;
     final l = context.l10n;
     final x = contact;
+    // The build without Tor sends to no onion: a contact with only one keeps it, unpayable.
+    final torOnly = !DeskFeatures.tor && x.addresses.isNotEmpty && x.kinds.every((k) => k == RecipientKind.tor);
     final nav = ref.read(deskNavProvider.notifier);
     final pairs = ref.watch(deskPairsProvider);
     // Its payments: to and from its address, and through any pairing attached to it.
@@ -640,7 +642,7 @@ class _ContactDetail extends ConsumerWidget {
                 label: l.deskConSend,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
-                onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
+                onPressed: (x.addresses.isEmpty || torOnly) && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
               ),
               // Not paired, or the other side removed the pairing: Pair (again).
               if (pairs && (pairing == null || pairing.removedByPeer))
@@ -677,6 +679,11 @@ class _ContactDetail extends ConsumerWidget {
             ],
           );
         }),
+        // The build without Tor: an onion-only contact (older data) has no way to be paid.
+        if (torOnly && !(pairing?.paysByMailbox ?? false)) ...[
+          SizedBox(height: Sp.x2),
+          Text(l.sendTorNotInVersion, key: const ValueKey('contact-send-no-tor'), style: ts.small),
+        ],
         if (x.addresses.isEmpty && pairing != null && !pairing.paysByMailbox) ...[
           SizedBox(height: Sp.x2),
           Text(
@@ -857,7 +864,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final l = context.l10n;
     if (f.clash != null) return l.addrDuplicateType(_name.text.trim().isEmpty ? l.contactTitle : _name.text.trim(), recipientMethodWord(l, f.clash!));
     if (f.text.text.trim().isEmpty) return null;
-    return _kindOf(f) == null ? l.deskConErrAddressInvalid : null;
+    if (_kindOf(f) != null) return null;
+    // The build without Tor takes no new onion address.
+    if (!DeskFeatures.tor) return addressKindOf(f.text.text.trim()) == AddressKind.tor ? l.sendTorNotInVersion : l.contactsAddressInvalidAnyNoTor;
+    return l.deskConErrAddressInvalid;
   }
 
   List<RecipientKind> get _free => [

@@ -20,6 +20,7 @@ import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../data/node_view.dart' show localNodeView, digits, percent;
 import 'desk_failover.dart' show deskFailoverProvider;
 import '../../l10n.dart' show localInt;
+import '../../tor_build.dart' show inAppUpdates;
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
 import '../screens/settings/report_problem.dart' show showReportProblemDialog;
@@ -108,7 +109,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   // 3. An update: out (download it, or the page), to restart, to try again; 8. one downloading.
   final u = ref.watch(deskUpdateProvider);
   NowItem? downloading;
-  if (u.offered) {
+  if (inAppUpdates && u.offered) {
     final w = deskUpdateWords(l, u);
     if (u.phase == DeskUpdatePhase.downloading) {
       downloading = NowItem(id: 'update', icon: EIcons.download, tone: ETone.gold, title: w.title, progress: u.progress ?? -1);

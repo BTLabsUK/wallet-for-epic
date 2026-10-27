@@ -144,7 +144,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     try {
       return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
     } on ProbeNotRun {
-      return l.deskSlTorWait;
+      return DeskFeatures.tor ? l.deskSlTorWait : l.slRelayNoAnswer;
     }
   }
 
@@ -275,7 +275,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final full = MethodIcons.fullName(l, m);
     final hint = switch (m) {
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
-      MethodKind.linkHttp => l.deskSetTxDirectHint,
+      MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint : l.deskNoTorSetTxDirectHint,
       MethodKind.linkTor => l.deskSetTxTorHint,
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,

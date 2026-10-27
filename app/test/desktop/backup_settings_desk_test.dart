@@ -5,6 +5,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/backup_settings.dart';
 import 'package:epic_wallet/src/desktop/data/backup_settings_desk.dart';
@@ -103,7 +104,7 @@ void main() {
       expect(mine[BackupKey.relay], {'mainnet': 'epicbox.stackwallet.com'});
 
       expect((await glue.plan(HistoryImport(settings: settings, walletName: 'Savings'))).isEmpty, isTrue, reason: 'the same file again');
-    });
+    }, skip: torBuilt ? null : 'no Tor in this build');
 
     test('a desktop the user changed is asked; a local node in the file never becomes the one in use', () async {
       final desk = c.read(deskProvider.notifier);

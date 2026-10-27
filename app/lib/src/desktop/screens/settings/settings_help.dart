@@ -171,7 +171,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (pairs) ...helpTopicsShown(pairingHelpTopics(lh, platform: HelpPlatform.desktop), advancedOf(ref))];
     // The Pairing section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
-      for (final s in localizedHelpSections(lang)) ...[
+      for (final s in localizedHelpSections(lang, tor: DeskFeatures.tor)) ...[
         if (s.id == 'trouble' && pairs)
           ((id: pairingHelpSection, title: pairingHelpTitle(lh), lede: pairingHelpLede(lh), art: ''), PairingHelpMark(width: 120.u)),
         (s, HelpArt(s.art, width: 120.u)),
@@ -688,7 +688,7 @@ List<String> _fileSteps(AppLocalizations l, int confirmations) => [
 
 /// A Link payment goes straight to their wallet: no Epicbox, no file.
 List<String> _linkSteps(AppLocalizations l, int confirmations) => [
-  l.handshakeLink1,
+  DeskFeatures.tor ? l.handshakeLink1 : l.handshakeLink1NoTor,
   l.handshakeLink2,
   l.handshakeFinish,
   l.deskSetHelpFinal(confirmations),

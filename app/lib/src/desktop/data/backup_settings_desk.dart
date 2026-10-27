@@ -21,6 +21,7 @@ import '../../backup_settings.dart';
 import '../../log.dart';
 import '../../payment_prefs.dart';
 import 'api.dart';
+import 'features.dart';
 import 'models.dart';
 import 'server_lists.dart';
 import 'state.dart';
@@ -249,7 +250,7 @@ class DeskBackupSettingsGlue {
 
     // Tor last, on the servers and in the mode just set.
     final tor = v[BackupItem.tor];
-    if (tor is bool) {
+    if (tor is bool && DeskFeatures.tor) {
       try {
         await desk.setTor(tor);
         changed++;

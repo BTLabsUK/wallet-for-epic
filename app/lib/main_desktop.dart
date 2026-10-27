@@ -127,6 +127,7 @@ Future<List<Override>> deskOverrides() async {
     logWarn('desk', 'tor switch not read: ${e.runtimeType}');
     torSwitch = false;
   }
+  if (!DeskFeatures.tor) logInfo('desk', 'tor: not in this build');
   final wallet = LepicDeskWallet(
     // A dev build with test networks starts on the one chosen last on Welcome.
     preset: DeskFeatures.testNetworks ? await LepicDeskWallet.savedPreset(secrets) : mainnetPreset,
