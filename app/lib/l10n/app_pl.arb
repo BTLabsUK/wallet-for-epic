@@ -3940,7 +3940,7 @@
   "pairReplyNotHere": "Ta odpowiedź dotyczy zaproszenia z innego portfela.",
   "helpPairWaysTitle": "Trzy sposoby parowania",
   "helpPairWaysShort": "Głosowo, gdy oba portfele są online, wiadomość w dowolnym czacie albo osobiście.",
-  "helpPairWaysP1": "**Głosowo.** Jeden portfel pokazuje pięć słów i zostawia zapieczętowane zaproszenie na serwerach połączeń (Ustawienia › Zaawansowane; domyślne to epicbox.epiccash.com, epicbox.stackwallet.com i serwer BT Labs). Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych serwerów.",
+  "helpPairWaysP1": "**Głosowo.** Jeden portfel pokazuje pięć słów i zostawia zapieczętowane zaproszenie na serwerach połączeń (domyślne to epicbox.epiccash.com, epicbox.stackwallet.com i serwer BT Labs). Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych serwerów.",
   "helpPairWaysP2": "**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Serwer nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.",
   "helpPairWaysP3": "**Osobiście.** Każdy telefon skanuje kod drugiego. Sieć nie jest używana.",
   "helpPairWaysP4": "Niezależnie od sposobu, na końcu zweryfikujcie razem: porównajcie cztery obrazki i nazwy. Pokazują, że nikt nie zmienił wiadomości po drodze.",

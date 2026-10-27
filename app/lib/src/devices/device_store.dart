@@ -17,10 +17,23 @@ class DeviceStore {
 
   static String keyFor(Chain chain, String? walletId) => 'devices.${chain.name}.${walletId ?? 'legacy'}';
 
+  /// The store could not be read: what [load] returned is a stand-in, and [save] leaves the
+  /// stored book alone rather than overwrite links it could not see.
+  bool _unreadable = false;
+
   /// The stored book, or a fresh one named [defaultName] (a new device id) when there is none
   /// or it does not read.
   Future<DeviceBook> load({required String defaultName}) async {
-    final raw = await _store.read(key);
+    final String? raw;
+    try {
+      raw = await _store.read(key);
+    } catch (e) {
+      // A keyring that is locked or missing: no linked devices this run, nothing lost.
+      logWarn('devices', 'linked devices not readable: ${e.runtimeType}');
+      _unreadable = true;
+      return DeviceBook.fresh(defaultName);
+    }
+    _unreadable = false;
     if (raw != null) {
       try {
         final book = DeviceBook.fromJson(jsonDecode(raw));
@@ -33,7 +46,10 @@ class DeviceStore {
     return DeviceBook.fresh(defaultName);
   }
 
-  Future<void> save(DeviceBook book) => _store.write(key, jsonEncode(book.toJson()));
+  Future<void> save(DeviceBook book) async {
+    if (_unreadable) return;
+    await _store.write(key, jsonEncode(book.toJson()));
+  }
 
   /// Forgets everything (the wallet was deleted).
   Future<void> clear() => _store.delete(key);

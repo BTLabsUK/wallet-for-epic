@@ -3940,7 +3940,7 @@
   "pairReplyNotHere": "Diese Antwort gehört zu einer Einladung einer anderen Wallet.",
   "helpPairWaysTitle": "Drei Wege zu koppeln",
   "helpPairWaysShort": "Gesprochen, wenn beide Wallets online sind, eine Nachricht in einem beliebigen Chat oder persönlich.",
-  "helpPairWaysP1": "**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab (Einstellungen › Erweitert; Standard sind epicbox.epiccash.com, epicbox.stackwallet.com und der BT-Labs-Server). Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.",
+  "helpPairWaysP1": "**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab (Standard sind epicbox.epiccash.com, epicbox.stackwallet.com und der BT-Labs-Server). Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.",
   "helpPairWaysP2": "**Einladung per Nachricht.** Drei Nachrichten in einem beliebigen Chat: die Einladung, die Antwort, der Abschlusslink. Es ist kein Server nötig, daher funktioniert das auch, wenn ein Netz Epicbox sperrt. Kopieren Sie jede Nachricht, wenn sie ankommt; die Wallet bietet sie an, wenn Sie zurückkehren.",
   "helpPairWaysP3": "**Persönlich.** Jedes Telefon scannt den Code des anderen. Es wird kein Netz verwendet.",
   "helpPairWaysP4": "Verifizieren Sie auf jedem Weg am Ende gemeinsam: Vergleichen Sie die vier Bilder und Namen. Sie zeigen, dass niemand die Nachrichten unterwegs verändert hat.",

@@ -23504,7 +23504,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (Settings › Advanced; the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
+  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
   String get helpPairWaysP1;
 
   /// Paragraph

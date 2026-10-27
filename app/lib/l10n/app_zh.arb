@@ -3940,7 +3940,7 @@
   "pairReplyNotHere": "此回复对应的是另一个钱包的邀请。",
   "helpPairWaysTitle": "三种配对方式",
   "helpPairWaysShort": "两个钱包都在线时用口头方式，或在任意聊天中发消息，或当面配对。",
-  "helpPairWaysP1": "**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（设置 › 高级；默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。",
+  "helpPairWaysP1": "**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。",
   "helpPairWaysP2": "**通过消息邀请。**在任意聊天中发三条消息：邀请、回复、完成链接。无需服务器，因此网络屏蔽 Epicbox 时也可用。每条消息到达后复制它；你回来时钱包会提示使用。",
   "helpPairWaysP3": "**当面。**两部手机互相扫描对方的码。不使用网络。",
   "helpPairWaysP4": "无论哪种方式，最后都要一起验证：比较四张图片和名称。它们表明消息在途中没有被人改动。",

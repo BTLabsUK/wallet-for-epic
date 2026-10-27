@@ -13857,7 +13857,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（设置 › 高级；默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
+      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
 
   @override
   String get helpPairWaysP2 =>

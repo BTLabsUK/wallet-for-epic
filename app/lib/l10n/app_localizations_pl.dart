@@ -15024,7 +15024,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Głosowo.** Jeden portfel pokazuje pięć słów i zostawia zapieczętowane zaproszenie na serwerach połączeń (Ustawienia › Zaawansowane; domyślne to epicbox.epiccash.com, epicbox.stackwallet.com i serwer BT Labs). Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych serwerów.';
+      '**Głosowo.** Jeden portfel pokazuje pięć słów i zostawia zapieczętowane zaproszenie na serwerach połączeń (domyślne to epicbox.epiccash.com, epicbox.stackwallet.com i serwer BT Labs). Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych serwerów.';
 
   @override
   String get helpPairWaysP2 =>

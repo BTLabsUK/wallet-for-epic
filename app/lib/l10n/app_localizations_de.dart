@@ -14813,7 +14813,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab (Einstellungen › Erweitert; Standard sind epicbox.epiccash.com, epicbox.stackwallet.com und der BT-Labs-Server). Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.';
+      '**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab (Standard sind epicbox.epiccash.com, epicbox.stackwallet.com und der BT-Labs-Server). Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.';
 
   @override
   String get helpPairWaysP2 =>
