@@ -23188,5 +23188,21 @@
         "type": "String"
       }
     }
+  },
+  "expLinkedDevices": "Linked devices",
+  "@expLinkedDevices": {
+    "description": "Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name."
+  },
+  "expLinkedDevicesHint": "Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
+  "@expLinkedDevicesHint": {
+    "description": "The info text of the Linked devices switch."
+  },
+  "devicesThisPhone": "Phone",
+  "@devicesThisPhone": {
+    "description": "The name this phone has for linked devices until the user renames it. Shown on the user's other devices."
+  },
+  "devicesThisComputer": "Desktop",
+  "@devicesThisComputer": {
+    "description": "The name this computer has for linked devices until the user renames it. Shown on the user's other devices."
   }
 }

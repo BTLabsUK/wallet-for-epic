@@ -17077,4 +17077,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'เพิ่ม $host แล้ว ยกเลิกรายการอื่นเพื่อเลือกรายการนี้';
   }
+
+  @override
+  String get expLinkedDevices => 'อุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'ใช้กระเป๋าเงินนี้บนอุปกรณ์ของคุณสองเครื่องขึ้นไป แต่ละเครื่องแจ้งรายการของตนให้เครื่องอื่นทราบ เหรียญที่เครื่องหนึ่งกำลังใช้จึงถูกพักไว้บนเครื่องอื่น และรายการของมันจะแสดงในประวัติของเครื่องอื่น การเชื่อมโยงปกป้องสิ่งที่แชร์ ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+
+  @override
+  String get devicesThisPhone => 'โทรศัพท์';
+
+  @override
+  String get devicesThisComputer => 'คอมพิวเตอร์';
 }

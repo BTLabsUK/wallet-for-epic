@@ -45,11 +45,16 @@ enum AdvancedFeature {
   /// Experimental: invoices from and to paired contacts. Needs [pairing]
   /// ([AdvancedPrefs.withExperimental] keeps the rule).
   invoices,
+
+  /// Experimental: linked devices (`devices/`): this wallet on two or more devices that tell
+  /// each other about their payments. Runs the pairing engine for the devices' private
+  /// pairings even while [pairing] is off; nothing of it shows in Contacts or Pairing.
+  linkedDevices,
 }
 
 /// The features listed in Settings › Advanced › Experimental, not with the others: Hide all
 /// leaves them and the count of features on does not include them.
-const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices};
+const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
 /// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's
 /// in [standard], locked on in [torOnly] and off in [offline].
@@ -97,6 +102,12 @@ class AdvancedPrefs {
 
   /// Invoices are on; never without [pairingOn].
   bool get invoicesOn => has(AdvancedFeature.invoices);
+
+  /// Linked devices are on (Settings › Advanced › Experimental), independent of [pairingOn].
+  bool get linkedDevicesOn => has(AdvancedFeature.linkedDevices);
+
+  /// The pairing engine runs: for contacts ([pairingOn]) or for linked devices.
+  bool get pairingEngineOn => pairingOn || linkedDevicesOn;
 
   /// The features on outside [experimentalFeatures]: what the Advanced page counts and Hide
   /// all turns off.

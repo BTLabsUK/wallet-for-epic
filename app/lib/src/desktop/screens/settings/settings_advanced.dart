@@ -42,6 +42,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
   AdvancedFeature.pairing => l.expPairing,
   AdvancedFeature.invoices => l.expInvoices,
+  AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
 /// A network mode's name.

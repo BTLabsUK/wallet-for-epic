@@ -4616,5 +4616,9 @@
   "slChosenNonDefault": "已选择。同样使用 {host} 的钱包会在那里找到你。",
   "slUnchosen": "已取消勾选 {host}。",
   "slAddedNonDefault": "已添加 {host}。同样使用它的钱包会在那里找到你。",
-  "slAddedUntick": "已添加 {host}。取消其他勾选后即可选择。"
+  "slAddedUntick": "已添加 {host}。取消其他勾选后即可选择。",
+  "expLinkedDevices": "关联设备",
+  "expLinkedDevicesHint": "在你的两台或更多设备上使用这个钱包：每台设备把自己的付款告知其他设备，因此一台正在花费的币会在其他设备上被保留，它的付款也会显示在它们的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。",
+  "devicesThisPhone": "手机",
+  "devicesThisComputer": "电脑"
 }

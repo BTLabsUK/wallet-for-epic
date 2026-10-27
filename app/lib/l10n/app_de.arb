@@ -4616,5 +4616,9 @@
   "slChosenNonDefault": "Gewählt. Wallets, die auch {host} nutzen, finden Sie dort.",
   "slUnchosen": "{host} abgewählt.",
   "slAddedNonDefault": "{host} hinzugefügt. Wallets, die es auch nutzen, finden Sie dort.",
-  "slAddedUntick": "{host} hinzugefügt. Ein anderes abwählen, um es zu wählen."
+  "slAddedUntick": "{host} hinzugefügt. Ein anderes abwählen, um es zu wählen.",
+  "expLinkedDevices": "Verknüpfte Geräte",
+  "expLinkedDevicesHint": "Diese Wallet auf zwei oder mehr eigenen Geräten nutzen: Jedes meldet den anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf den anderen zurückgehalten, und seine Zahlungen erscheinen in deren Verlauf. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.",
+  "devicesThisPhone": "Telefon",
+  "devicesThisComputer": "Computer"
 }

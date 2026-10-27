@@ -16443,4 +16443,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String slAddedUntick(String host) {
     return '已添加 $host。取消其他勾选后即可选择。';
   }
+
+  @override
+  String get expLinkedDevices => '关联设备';
+
+  @override
+  String get expLinkedDevicesHint =>
+      '在你的两台或更多设备上使用这个钱包：每台设备把自己的付款告知其他设备，因此一台正在花费的币会在其他设备上被保留，它的付款也会显示在它们的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
+
+  @override
+  String get devicesThisPhone => '手机';
+
+  @override
+  String get devicesThisComputer => '电脑';
 }

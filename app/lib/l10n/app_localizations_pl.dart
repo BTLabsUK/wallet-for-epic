@@ -17834,4 +17834,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Dodano $host. Odznacz inny, aby go wybrać.';
   }
+
+  @override
+  String get expLinkedDevices => 'Połączone urządzenia';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'Ten portfel na dwóch lub więcej własnych urządzeniach: każde informuje pozostałe o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na pozostałych, a jego płatności widać w ich historii. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
+
+  @override
+  String get devicesThisPhone => 'Telefon';
+
+  @override
+  String get devicesThisComputer => 'Komputer';
 }

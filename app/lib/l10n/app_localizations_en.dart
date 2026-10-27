@@ -17368,4 +17368,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Added $host. Untick one to choose it.';
   }
+
+  @override
+  String get expLinkedDevices => 'Linked devices';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
+
+  @override
+  String get devicesThisPhone => 'Phone';
+
+  @override
+  String get devicesThisComputer => 'Desktop';
 }

@@ -27562,6 +27562,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added {host}. Untick one to choose it.'**
   String slAddedUntick(String host);
+
+  /// Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked devices'**
+  String get expLinkedDevices;
+
+  /// The info text of the Linked devices switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
+  String get expLinkedDevicesHint;
+
+  /// The name this phone has for linked devices until the user renames it. Shown on the user's other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get devicesThisPhone;
+
+  /// The name this computer has for linked devices until the user renames it. Shown on the user's other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop'**
+  String get devicesThisComputer;
 }
 
 class _AppLocalizationsDelegate

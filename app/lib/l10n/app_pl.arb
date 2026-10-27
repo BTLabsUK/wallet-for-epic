@@ -4616,5 +4616,9 @@
   "slChosenNonDefault": "Wybrano. Portfele, które też używają {host}, znajdą cię tam.",
   "slUnchosen": "Odznaczono {host}.",
   "slAddedNonDefault": "Dodano {host}. Portfele, które też z niego korzystają, znajdą cię tam.",
-  "slAddedUntick": "Dodano {host}. Odznacz inny, aby go wybrać."
+  "slAddedUntick": "Dodano {host}. Odznacz inny, aby go wybrać.",
+  "expLinkedDevices": "Połączone urządzenia",
+  "expLinkedDevicesHint": "Ten portfel na dwóch lub więcej własnych urządzeniach: każde informuje pozostałe o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na pozostałych, a jego płatności widać w ich historii. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.",
+  "devicesThisPhone": "Telefon",
+  "devicesThisComputer": "Komputer"
 }

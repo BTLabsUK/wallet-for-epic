@@ -17802,4 +17802,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Добавлено: $host. Снимите другую отметку, чтобы выбрать его.';
   }
+
+  @override
+  String get expLinkedDevices => 'Связанные устройства';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'Этот кошелёк на двух и более своих устройствах: каждое сообщает остальным о своих платежах, поэтому монеты, которые тратит одно, удерживаются на остальных, а его платежи видны в их истории. Связь защищает то, чем устройства делятся, а не деньги: любое устройство с фразой восстановления может тратить. Экспериментально: может ещё измениться.';
+
+  @override
+  String get devicesThisPhone => 'Телефон';
+
+  @override
+  String get devicesThisComputer => 'Компьютер';
 }

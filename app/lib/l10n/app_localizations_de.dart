@@ -17572,4 +17572,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String slAddedUntick(String host) {
     return '$host hinzugefügt. Ein anderes abwählen, um es zu wählen.';
   }
+
+  @override
+  String get expLinkedDevices => 'Verknüpfte Geräte';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'Diese Wallet auf zwei oder mehr eigenen Geräten nutzen: Jedes meldet den anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf den anderen zurückgehalten, und seine Zahlungen erscheinen in deren Verlauf. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.';
+
+  @override
+  String get devicesThisPhone => 'Telefon';
+
+  @override
+  String get devicesThisComputer => 'Computer';
 }
