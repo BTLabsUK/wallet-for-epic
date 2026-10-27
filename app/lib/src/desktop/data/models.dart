@@ -152,11 +152,16 @@ class Output {
     this.hasCategory = true,
     this.mmrIndex,
     this.txId,
+    this.heldBy,
   });
 
   final String commitment;
   final int value;
   final OutputStatus status;
+
+  /// The linked device whose payment holds this output here (status [OutputStatus.locked]); null
+  /// when a send of this wallet locks it or nothing does.
+  final String? heldBy;
   final int? height;
   final int confirmations;
 
@@ -284,6 +289,8 @@ class Tx {
     this.pairingId,
     this.blockWait = BlockWait.none,
     this.credited = 0,
+    this.deviceName,
+    this.deviceReleased = false,
   });
 
   final int id;
@@ -291,6 +298,12 @@ class Tx {
   /// What the transaction pays to this wallet, in nano: a send's change, a payment received.
   /// The change of a send not in a block yet counts in [Balance.awaitingFinalization].
   final int credited;
+
+  /// The linked device that made this send: the row reads "Sent from `<device>`".
+  final String? deviceName;
+
+  /// A [deviceName] payment whose coins were released here: its device may still send it.
+  final bool deviceReleased;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
   /// `l:<id>`); what labels and details are stored under.
@@ -461,6 +474,8 @@ class Tx {
       pairingId: pairingId,
       blockWait: blockWait,
       credited: credited,
+      deviceName: deviceName,
+      deviceReleased: deviceReleased,
     );
   }
 
