@@ -4616,5 +4616,20 @@
   "slChosenNonDefault": "Wybrano. Portfele, które też używają {host}, znajdą cię tam.",
   "slUnchosen": "Odznaczono {host}.",
   "slAddedNonDefault": "Dodano {host}. Portfele, które też z niego korzystają, znajdą cię tam.",
-  "slAddedUntick": "Dodano {host}. Odznacz inny, aby go wybrać."
+  "slAddedUntick": "Dodano {host}. Odznacz inny, aby go wybrać.",
+  "connServers": "Serwery połączeń",
+  "connServersHint": "Tu dwa portfele znajdują się nawzajem, gdy się łączą. Drugi portfel też musi używać co najmniej jednego z nich.",
+  "connServersNote": "Wybierz do 3.",
+  "connServersDefaults": "{n, plural, one{{n} serwer} few{{n} serwery} many{{n} serwerów} other{{n} serwera}} · Domyślne",
+  "connServersChanged": "{n, plural, one{{n} serwer} few{{n} serwery} many{{n} serwerów} other{{n} serwera}} · Zmienione",
+  "connServersDown": "{down} z {n} nie odpowiada. Łączenie nadal działa przez pozostałe.",
+  "connServersAllDown": "Żaden serwer połączeń nie odpowiada. Użyj opcji „Przez wiadomość” lub „Osobiście”.",
+  "connServersEpicboxOff": "Wstrzymano, gdy Epicbox jest wyłączony. „Przez wiadomość” i „Osobiście” nadal działają.",
+  "connServersOffline": "Wstrzymano w trybie offline.",
+  "connServersNonDefault": "{host} nie jest domyślny. Portfele, które też go używają, znajdą cię tam.",
+  "connServersInfo1": "Gdy dwa portfele łączą się po raz pierwszy, każdy szuka drugiego na serwerach wybranych tutaj. Oba muszą mieć co najmniej jeden wspólny, inaczej nigdy się nie spotkają.",
+  "connServersInfo2": "Domyślne to serwery znane każdemu portfelowi Epic Cash. Zostaw je, chyba że któryś jest blokowany w tej sieci.",
+  "connServersInfo3": "„Przez wiadomość” i „Osobiście” ich nie potrzebują, tak samo jak wszystko po połączeniu: to korzysta z własnego serwera Epicbox tego portfela.",
+  "connServersInfo4": "Każdy wybrany serwer widzi, że rozpoczęto łączenie, nigdy z kim.",
+  "connServersInfoTor": "Przy włączonym Torze serwery są osiągane przez Tor."
 }

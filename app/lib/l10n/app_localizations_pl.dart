@@ -17834,4 +17834,81 @@ class AppLocalizationsPl extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Dodano $host. Odznacz inny, aby go wybrać.';
   }
+
+  @override
+  String get connServers => 'Serwery połączeń';
+
+  @override
+  String get connServersHint =>
+      'Tu dwa portfele znajdują się nawzajem, gdy się łączą. Drugi portfel też musi używać co najmniej jednego z nich.';
+
+  @override
+  String get connServersNote => 'Wybierz do 3.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n serwera',
+      many: '$n serwerów',
+      few: '$n serwery',
+      one: '$n serwer',
+    );
+    return '$_temp0 · Domyślne';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n serwera',
+      many: '$n serwerów',
+      few: '$n serwery',
+      one: '$n serwer',
+    );
+    return '$_temp0 · Zmienione';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down z $n nie odpowiada. Łączenie nadal działa przez pozostałe.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'Żaden serwer połączeń nie odpowiada. Użyj opcji „Przez wiadomość” lub „Osobiście”.';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Wstrzymano, gdy Epicbox jest wyłączony. „Przez wiadomość” i „Osobiście” nadal działają.';
+
+  @override
+  String get connServersOffline => 'Wstrzymano w trybie offline.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host nie jest domyślny. Portfele, które też go używają, znajdą cię tam.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'Gdy dwa portfele łączą się po raz pierwszy, każdy szuka drugiego na serwerach wybranych tutaj. Oba muszą mieć co najmniej jeden wspólny, inaczej nigdy się nie spotkają.';
+
+  @override
+  String get connServersInfo2 =>
+      'Domyślne to serwery znane każdemu portfelowi Epic Cash. Zostaw je, chyba że któryś jest blokowany w tej sieci.';
+
+  @override
+  String get connServersInfo3 =>
+      '„Przez wiadomość” i „Osobiście” ich nie potrzebują, tak samo jak wszystko po połączeniu: to korzysta z własnego serwera Epicbox tego portfela.';
+
+  @override
+  String get connServersInfo4 =>
+      'Każdy wybrany serwer widzi, że rozpoczęto łączenie, nigdy z kim.';
+
+  @override
+  String get connServersInfoTor =>
+      'Przy włączonym Torze serwery są osiągane przez Tor.';
 }

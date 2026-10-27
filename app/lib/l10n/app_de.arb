@@ -4616,5 +4616,20 @@
   "slChosenNonDefault": "Gewählt. Wallets, die auch {host} nutzen, finden Sie dort.",
   "slUnchosen": "{host} abgewählt.",
   "slAddedNonDefault": "{host} hinzugefügt. Wallets, die es auch nutzen, finden Sie dort.",
-  "slAddedUntick": "{host} hinzugefügt. Ein anderes abwählen, um es zu wählen."
+  "slAddedUntick": "{host} hinzugefügt. Ein anderes abwählen, um es zu wählen.",
+  "connServers": "Verbindungsserver",
+  "connServersHint": "Hier finden sich zwei Wallets, wenn sie sich verbinden. Die andere Wallet muss mindestens einen davon ebenfalls nutzen.",
+  "connServersNote": "Bis zu 3 wählen.",
+  "connServersDefaults": "{n, plural, one{{n} Server} other{{n} Server}} · Standard",
+  "connServersChanged": "{n, plural, one{{n} Server} other{{n} Server}} · Geändert",
+  "connServersDown": "{down} von {n} antworten nicht. Das Verbinden funktioniert weiter über die anderen.",
+  "connServersAllDown": "Kein Verbindungsserver antwortet. Nutzen Sie „Per Nachricht“ oder „Persönlich“.",
+  "connServersEpicboxOff": "Pausiert, solange Epicbox aus ist. „Per Nachricht“ und „Persönlich“ funktionieren weiterhin.",
+  "connServersOffline": "Pausiert im Offline-Modus.",
+  "connServersNonDefault": "{host} ist kein Standard. Wallets, die ihn ebenfalls nutzen, finden Sie dort.",
+  "connServersInfo1": "Wenn sich zwei Wallets zum ersten Mal verbinden, sucht jede die andere auf den Servern, die hier gewählt sind. Beide müssen mindestens einen gemeinsam haben, sonst treffen sie sich nie.",
+  "connServersInfo2": "Die Standardserver kennt jede Epic-Cash-Wallet. Behalten Sie sie, außer einer ist in diesem Netzwerk gesperrt.",
+  "connServersInfo3": "„Per Nachricht“ und „Persönlich“ brauchen sie nicht, ebenso wenig alles nach dem Verbinden: Das läuft über den eigenen Epicbox-Server dieser Wallet.",
+  "connServersInfo4": "Jeder gewählte Server sieht, dass ein Verbinden begonnen wurde, nie mit wem.",
+  "connServersInfoTor": "Mit eingeschaltetem Tor werden die Server über Tor erreicht."
 }

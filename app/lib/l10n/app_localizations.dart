@@ -27562,6 +27562,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added {host}. Untick one to choose it.'**
   String slAddedUntick(String host);
+
+  /// Name of the setting that chooses where two wallets find each other when they connect (Settings > Advanced > Experimental, under Pairing), and the title of its server picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection servers'**
+  String get connServers;
+
+  /// The one line of consequence on the Connection servers setting (desktop row text).
+  ///
+  /// In en, this message translates to:
+  /// **'Where two wallets find each other when they connect. The other wallet must use at least one of them too.'**
+  String get connServersHint;
+
+  /// Note under the field of the Connection servers picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to 3.'**
+  String get connServersNote;
+
+  /// State line of Connection servers when the chosen set is exactly the defaults. {n} is how many are chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} server} other{{n} servers}} · Defaults'**
+  String connServersDefaults(int n);
+
+  /// State line of Connection servers when the chosen set differs from the defaults. {n} is how many are chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} server} other{{n} servers}} · Changed'**
+  String connServersChanged(int n);
+
+  /// State line of Connection servers while some, not all, chosen servers do not answer. {down} of {n}.
+  ///
+  /// In en, this message translates to:
+  /// **'{down} of {n} not responding. Connecting still works through the others.'**
+  String connServersDown(int down, int n);
+
+  /// State line of Connection servers while none of the chosen servers answers. Invite by message and In person are the pairing ways that need no meeting server.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection server answers. Use Invite by message or In person.'**
+  String get connServersAllDown;
+
+  /// State line of Connection servers while Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Epicbox is off. Invite by message and In person still work.'**
+  String get connServersEpicboxOff;
+
+  /// State line of Connection servers in Offline mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused in Offline mode.'**
+  String get connServersOffline;
+
+  /// State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is not a default. Wallets that also use it find you there.'**
+  String connServersNonDefault(String host);
+
+  /// Info sheet of Connection servers, paragraph 1: what the setting does and the one condition.
+  ///
+  /// In en, this message translates to:
+  /// **'When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.'**
+  String get connServersInfo1;
+
+  /// Info sheet of Connection servers, paragraph 2: the defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.'**
+  String get connServersInfo2;
+
+  /// Info sheet of Connection servers, paragraph 3: what it does not affect.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet\'s own Epicbox server.'**
+  String get connServersInfo3;
+
+  /// Info sheet of Connection servers, paragraph 4: what a server sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Each chosen server sees that a connection was started, never with whom.'**
+  String get connServersInfo4;
+
+  /// Info sheet of Connection servers, last paragraph; only in the build with Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'With Tor on, the servers are reached through Tor.'**
+  String get connServersInfoTor;
 }
 
 class _AppLocalizationsDelegate

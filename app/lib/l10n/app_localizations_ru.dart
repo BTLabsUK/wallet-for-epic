@@ -17802,4 +17802,81 @@ class AppLocalizationsRu extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Добавлено: $host. Снимите другую отметку, чтобы выбрать его.';
   }
+
+  @override
+  String get connServers => 'Серверы подключения';
+
+  @override
+  String get connServersHint =>
+      'Здесь два кошелька находят друг друга при подключении. Другой кошелёк тоже должен использовать хотя бы один из них.';
+
+  @override
+  String get connServersNote => 'Выберите до 3.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n сервера',
+      many: '$n серверов',
+      few: '$n сервера',
+      one: '$n сервер',
+    );
+    return '$_temp0 · Стандартные';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n сервера',
+      many: '$n серверов',
+      few: '$n сервера',
+      one: '$n сервер',
+    );
+    return '$_temp0 · Изменено';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return 'Не отвечает $down из $n. Подключение по-прежнему работает через остальные.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'Ни один сервер подключения не отвечает. Используйте «Через сообщение» или «Лично».';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Приостановлено, пока Epicbox выключен. «Через сообщение» и «Лично» по-прежнему работают.';
+
+  @override
+  String get connServersOffline => 'Приостановлено в режиме офлайн.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host не стандартный. Кошельки, которые тоже его используют, найдут вас там.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'Когда два кошелька подключаются впервые, каждый ищет другой на серверах, выбранных здесь. У них должен быть хотя бы один общий, иначе они никогда не встретятся.';
+
+  @override
+  String get connServersInfo2 =>
+      'Стандартные серверы известны каждому кошельку Epic Cash. Оставьте их, если один не заблокирован в этой сети.';
+
+  @override
+  String get connServersInfo3 =>
+      '«Через сообщение» и «Лично» их не требуют, как и всё после подключения: это работает через собственный сервер Epicbox этого кошелька.';
+
+  @override
+  String get connServersInfo4 =>
+      'Каждый выбранный сервер видит, что подключение начато, но не с кем.';
+
+  @override
+  String get connServersInfoTor =>
+      'При включённом Tor серверы достигаются через Tor.';
 }

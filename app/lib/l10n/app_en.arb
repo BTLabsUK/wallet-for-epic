@@ -23188,5 +23188,88 @@
         "type": "String"
       }
     }
+  },
+  "connServers": "Connection servers",
+  "@connServers": {
+    "description": "Name of the setting that chooses where two wallets find each other when they connect (Settings > Advanced > Experimental, under Pairing), and the title of its server picker."
+  },
+  "connServersHint": "Where two wallets find each other when they connect. The other wallet must use at least one of them too.",
+  "@connServersHint": {
+    "description": "The one line of consequence on the Connection servers setting (desktop row text)."
+  },
+  "connServersNote": "Choose up to 3.",
+  "@connServersNote": {
+    "description": "Note under the field of the Connection servers picker."
+  },
+  "connServersDefaults": "{n, plural, one{{n} server} other{{n} servers}} · Defaults",
+  "@connServersDefaults": {
+    "description": "State line of Connection servers when the chosen set is exactly the defaults. {n} is how many are chosen.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersChanged": "{n, plural, one{{n} server} other{{n} servers}} · Changed",
+  "@connServersChanged": {
+    "description": "State line of Connection servers when the chosen set differs from the defaults. {n} is how many are chosen.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersDown": "{down} of {n} not responding. Connecting still works through the others.",
+  "@connServersDown": {
+    "description": "State line of Connection servers while some, not all, chosen servers do not answer. {down} of {n}.",
+    "placeholders": {
+      "down": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersAllDown": "No connection server answers. Use Invite by message or In person.",
+  "@connServersAllDown": {
+    "description": "State line of Connection servers while none of the chosen servers answers. Invite by message and In person are the pairing ways that need no meeting server."
+  },
+  "connServersEpicboxOff": "Paused while Epicbox is off. Invite by message and In person still work.",
+  "@connServersEpicboxOff": {
+    "description": "State line of Connection servers while Epicbox is off."
+  },
+  "connServersOffline": "Paused in Offline mode.",
+  "@connServersOffline": {
+    "description": "State line of Connection servers in Offline mode."
+  },
+  "connServersNonDefault": "{host} is not a default. Wallets that also use it find you there.",
+  "@connServersNonDefault": {
+    "description": "State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "connServersInfo1": "When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.",
+  "@connServersInfo1": {
+    "description": "Info sheet of Connection servers, paragraph 1: what the setting does and the one condition."
+  },
+  "connServersInfo2": "The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.",
+  "@connServersInfo2": {
+    "description": "Info sheet of Connection servers, paragraph 2: the defaults."
+  },
+  "connServersInfo3": "Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet's own Epicbox server.",
+  "@connServersInfo3": {
+    "description": "Info sheet of Connection servers, paragraph 3: what it does not affect."
+  },
+  "connServersInfo4": "Each chosen server sees that a connection was started, never with whom.",
+  "@connServersInfo4": {
+    "description": "Info sheet of Connection servers, paragraph 4: what a server sees."
+  },
+  "connServersInfoTor": "With Tor on, the servers are reached through Tor.",
+  "@connServersInfoTor": {
+    "description": "Info sheet of Connection servers, last paragraph; only in the build with Tor."
   }
 }

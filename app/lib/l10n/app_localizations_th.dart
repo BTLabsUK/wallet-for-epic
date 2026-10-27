@@ -17077,4 +17077,74 @@ class AppLocalizationsTh extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'เพิ่ม $host แล้ว ยกเลิกรายการอื่นเพื่อเลือกรายการนี้';
   }
+
+  @override
+  String get connServers => 'เซิร์ฟเวอร์เชื่อมต่อ';
+
+  @override
+  String get connServersHint =>
+      'ที่ที่กระเป๋าเงินสองใบพบกันเมื่อเชื่อมต่อ กระเป๋าเงินอีกใบต้องใช้อย่างน้อยหนึ่งเซิร์ฟเวอร์เหล่านี้ด้วย';
+
+  @override
+  String get connServersNote => 'เลือกได้สูงสุด 3';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n เซิร์ฟเวอร์ · ค่าเริ่มต้น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n เซิร์ฟเวอร์ · เปลี่ยนแล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down จาก $n ไม่ตอบสนอง การเชื่อมต่อยังใช้งานได้ผ่านเซิร์ฟเวอร์ที่เหลือ';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'ไม่มีเซิร์ฟเวอร์เชื่อมต่อใดตอบสนอง ใช้ “เชิญทางข้อความ” หรือ “แบบพบตัว”';
+
+  @override
+  String get connServersEpicboxOff =>
+      'หยุดชั่วคราวขณะ Epicbox ปิดอยู่ “เชิญทางข้อความ” และ “แบบพบตัว” ยังใช้ได้';
+
+  @override
+  String get connServersOffline => 'หยุดชั่วคราวในโหมดออฟไลน์';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host ไม่ใช่ค่าเริ่มต้น กระเป๋าเงินที่ใช้เซิร์ฟเวอร์นี้ด้วยจะพบคุณที่นั่น';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'เมื่อกระเป๋าเงินสองใบเชื่อมต่อกันครั้งแรก แต่ละใบจะมองหาอีกใบบนเซิร์ฟเวอร์ที่เลือกไว้ที่นี่ ทั้งสองต้องมีอย่างน้อยหนึ่งเซิร์ฟเวอร์ร่วมกัน ไม่เช่นนั้นจะไม่มีวันพบกัน';
+
+  @override
+  String get connServersInfo2 =>
+      'ค่าเริ่มต้นคือเซิร์ฟเวอร์ที่กระเป๋าเงิน Epic Cash ทุกใบรู้จัก ควรใช้ต่อไป เว้นแต่มีตัวใดถูกบล็อกในเครือข่ายนี้';
+
+  @override
+  String get connServersInfo3 =>
+      '“เชิญทางข้อความ” และ “แบบพบตัว” ไม่ต้องใช้ และสิ่งที่เกิดหลังการเชื่อมต่อก็ไม่ต้องใช้เช่นกัน: ทั้งหมดนั้นใช้เซิร์ฟเวอร์ Epicbox ของกระเป๋าเงินนี้เอง';
+
+  @override
+  String get connServersInfo4 =>
+      'แต่ละเซิร์ฟเวอร์ที่เลือกเห็นว่ามีการเริ่มเชื่อมต่อ แต่ไม่เห็นว่ากับใคร';
+
+  @override
+  String get connServersInfoTor => 'เมื่อเปิด Tor จะเข้าถึงเซิร์ฟเวอร์ผ่าน Tor';
 }

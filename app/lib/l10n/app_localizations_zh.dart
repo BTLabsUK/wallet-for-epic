@@ -16443,4 +16443,70 @@ class AppLocalizationsZh extends AppLocalizations {
   String slAddedUntick(String host) {
     return '已添加 $host。取消其他勾选后即可选择。';
   }
+
+  @override
+  String get connServers => '连接服务器';
+
+  @override
+  String get connServersHint => '两个钱包连接时在这里互相找到对方。对方钱包也必须至少使用其中一个。';
+
+  @override
+  String get connServersNote => '最多选择 3 个。';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个服务器 · 默认',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n 个服务器 · 已更改',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down/$n 个无响应。仍可通过其余服务器连接。';
+  }
+
+  @override
+  String get connServersAllDown => '没有连接服务器响应。请使用“通过消息邀请”或“当面”。';
+
+  @override
+  String get connServersEpicboxOff => 'Epicbox 关闭期间已暂停。“通过消息邀请”和“当面”仍可使用。';
+
+  @override
+  String get connServersOffline => '离线模式下已暂停。';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host 不是默认服务器。同样使用它的钱包会在那里找到你。';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      '两个钱包首次连接时，各自在这里选择的服务器上寻找对方。两者至少要有一个相同的，否则永远无法相遇。';
+
+  @override
+  String get connServersInfo2 =>
+      '默认服务器是每个 Epic Cash 钱包都认识的。除非其中某个在此网络中被屏蔽，否则请保留。';
+
+  @override
+  String get connServersInfo3 =>
+      '“通过消息邀请”和“当面”不需要它们，连接之后的一切也不需要：那些使用这个钱包自己的 Epicbox 服务器。';
+
+  @override
+  String get connServersInfo4 => '每个所选服务器只知道有连接开始，不知道是和谁。';
+
+  @override
+  String get connServersInfoTor => '开启 Tor 时，这些服务器通过 Tor 访问。';
 }

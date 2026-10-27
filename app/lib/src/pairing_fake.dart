@@ -72,6 +72,16 @@ class FakePairing implements PairingApi {
   /// When false, the fake behaves as a core without pairing ([NoPairing]).
   bool enabled = true;
 
+  /// The Connection servers the app last set ([setConnectionServers]); null the defaults.
+  List<String>? connectionServers;
+
+  /// The meeting servers each words call used, in order, as the call saw [connectionServers]:
+  /// null is the defaults. `invite` for [makeInvite] with words, `find` for [openWords].
+  final List<({String call, List<String>? servers})> wordsServers = [];
+
+  @override
+  void setConnectionServers(List<String>? hosts) => connectionServers = hosts == null ? null : List.unmodifiable(hosts);
+
   /// Now, for expiries.
   DateTime Function() clock = DateTime.now;
 
@@ -387,6 +397,7 @@ class FakePairing implements PairingApi {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the name must be 1 to 48 bytes');
     }
     if (words && relayUnreachable) throw pairingError(PairingFailure.noRelay);
+    if (words) wordsServers.add((call: 'invite', servers: connectionServers));
     calls.add('makeInvite');
     final id = _id('invite');
     final now = clock();
@@ -479,6 +490,7 @@ class FakePairing implements PairingApi {
   Future<PairingInvitePreview> openWords(List<String> words) async {
     _require('openWords');
     if (relayUnreachable) throw pairingError(PairingFailure.noRelay);
+    wordsServers.add((call: 'find', servers: connectionServers));
     final failure = nextOpenFailure;
     if (failure != null) {
       nextOpenFailure = null;

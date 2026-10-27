@@ -17368,4 +17368,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Added $host. Untick one to choose it.';
   }
+
+  @override
+  String get connServers => 'Connection servers';
+
+  @override
+  String get connServersHint =>
+      'Where two wallets find each other when they connect. The other wallet must use at least one of them too.';
+
+  @override
+  String get connServersNote => 'Choose up to 3.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n servers',
+      one: '$n server',
+    );
+    return '$_temp0 · Defaults';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n servers',
+      one: '$n server',
+    );
+    return '$_temp0 · Changed';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down of $n not responding. Connecting still works through the others.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'No connection server answers. Use Invite by message or In person.';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Paused while Epicbox is off. Invite by message and In person still work.';
+
+  @override
+  String get connServersOffline => 'Paused in Offline mode.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host is not a default. Wallets that also use it find you there.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.';
+
+  @override
+  String get connServersInfo2 =>
+      'The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.';
+
+  @override
+  String get connServersInfo3 =>
+      'Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet\'s own Epicbox server.';
+
+  @override
+  String get connServersInfo4 =>
+      'Each chosen server sees that a connection was started, never with whom.';
+
+  @override
+  String get connServersInfoTor =>
+      'With Tor on, the servers are reached through Tor.';
 }

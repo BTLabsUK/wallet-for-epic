@@ -17572,4 +17572,77 @@ class AppLocalizationsDe extends AppLocalizations {
   String slAddedUntick(String host) {
     return '$host hinzugefügt. Ein anderes abwählen, um es zu wählen.';
   }
+
+  @override
+  String get connServers => 'Verbindungsserver';
+
+  @override
+  String get connServersHint =>
+      'Hier finden sich zwei Wallets, wenn sie sich verbinden. Die andere Wallet muss mindestens einen davon ebenfalls nutzen.';
+
+  @override
+  String get connServersNote => 'Bis zu 3 wählen.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Server',
+      one: '$n Server',
+    );
+    return '$_temp0 · Standard';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Server',
+      one: '$n Server',
+    );
+    return '$_temp0 · Geändert';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down von $n antworten nicht. Das Verbinden funktioniert weiter über die anderen.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'Kein Verbindungsserver antwortet. Nutzen Sie „Per Nachricht“ oder „Persönlich“.';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Pausiert, solange Epicbox aus ist. „Per Nachricht“ und „Persönlich“ funktionieren weiterhin.';
+
+  @override
+  String get connServersOffline => 'Pausiert im Offline-Modus.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host ist kein Standard. Wallets, die ihn ebenfalls nutzen, finden Sie dort.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'Wenn sich zwei Wallets zum ersten Mal verbinden, sucht jede die andere auf den Servern, die hier gewählt sind. Beide müssen mindestens einen gemeinsam haben, sonst treffen sie sich nie.';
+
+  @override
+  String get connServersInfo2 =>
+      'Die Standardserver kennt jede Epic-Cash-Wallet. Behalten Sie sie, außer einer ist in diesem Netzwerk gesperrt.';
+
+  @override
+  String get connServersInfo3 =>
+      '„Per Nachricht“ und „Persönlich“ brauchen sie nicht, ebenso wenig alles nach dem Verbinden: Das läuft über den eigenen Epicbox-Server dieser Wallet.';
+
+  @override
+  String get connServersInfo4 =>
+      'Jeder gewählte Server sieht, dass ein Verbinden begonnen wurde, nie mit wem.';
+
+  @override
+  String get connServersInfoTor =>
+      'Mit eingeschaltetem Tor werden die Server über Tor erreicht.';
 }

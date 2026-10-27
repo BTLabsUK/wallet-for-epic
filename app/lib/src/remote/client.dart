@@ -1160,6 +1160,10 @@ class RemotePairing implements PairingApi {
   @override
   bool get supported => true;
 
+  // The server session words with its own Connection servers setting.
+  @override
+  void setConnectionServers(List<String>? hosts) {}
+
   @override
   Future<List<PairingRecord>> pairings() => _call(SessionMember.pairingList, listOf(pairingRecordWire));
 
