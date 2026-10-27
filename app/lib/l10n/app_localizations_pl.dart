@@ -813,7 +813,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Użyj tej opcji tylko wtedy, gdy płatność nigdy nie zostanie potwierdzona. Jeśli jednak zostanie, saldo może być błędne do czasu ponownego skanowania.';
+      'Użyj tej opcji tylko wtedy, gdy płatność nigdy nie zostanie potwierdzona. Jeśli jednak zostanie, saldo może być błędne, dopóki go nie sprawdzisz (Sprawdź saldo).';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Czekaj dalej';
@@ -3189,7 +3189,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsRescan => 'Sprawdź saldo';
 
   @override
-  String get settingsRescanFinished => 'Ponowne skanowanie zakończone';
+  String get settingsRescanFinished => 'Saldo sprawdzone';
 
   @override
   String get settingsRescanTitle => 'Sprawdź saldo';

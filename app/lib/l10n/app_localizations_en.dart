@@ -777,7 +777,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Use this only if the payment will never confirm. If it still does, you may see a wrong balance until you rescan.';
+      'Use this only if the payment will never confirm. If it still does, the balance may be wrong until you recheck it (Recheck balance).';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Keep waiting';
@@ -3081,7 +3081,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRescan => 'Recheck balance';
 
   @override
-  String get settingsRescanFinished => 'Rescan finished';
+  String get settingsRescanFinished => 'Balance rechecked';
 
   @override
   String get settingsRescanTitle => 'Recheck balance';

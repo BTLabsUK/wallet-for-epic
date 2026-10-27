@@ -3027,7 +3027,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsRescan => 'ตรวจยอดใหม่';
 
   @override
-  String get settingsRescanFinished => 'สแกนใหม่เสร็จแล้ว';
+  String get settingsRescanFinished => 'ตรวจยอดใหม่แล้ว';
 
   @override
   String get settingsRescanTitle => 'ตรวจยอดใหม่';

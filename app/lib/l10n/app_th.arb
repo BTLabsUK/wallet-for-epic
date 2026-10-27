@@ -801,7 +801,7 @@
   "settingsInvoices": "ใบแจ้งหนี้",
   "settingsInvoicesSubtitle": "ใครขอให้คุณชำระเงินได้",
   "settingsRescan": "ตรวจยอดใหม่",
-  "settingsRescanFinished": "สแกนใหม่เสร็จแล้ว",
+  "settingsRescanFinished": "ตรวจยอดใหม่แล้ว",
   "settingsRescanTitle": "ตรวจยอดใหม่",
   "settingsRescanBody": "กระเป๋าจะค้นหาเงินอีกครั้ง เริ่มจากจุดที่เก่ากว่าจะพบมากกว่าแต่ใช้เวลานานกว่า การสแกนทั้งบล็อกเชนอาจใช้เวลานาน",
   "settingsRescanFromDate": "จากวันที่",

@@ -2401,7 +2401,7 @@ void main() {
       expect(
         find.text(
           'Use this only if the payment will never confirm. If it still does, '
-          'you may see a wrong balance until you rescan.',
+          'the balance may be wrong until you recheck it (Recheck balance).',
         ),
         findsOneWidget,
       );

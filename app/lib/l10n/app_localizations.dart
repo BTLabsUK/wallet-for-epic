@@ -1240,7 +1240,7 @@ abstract class AppLocalizations {
   /// Release dialog text. Rescan means scanning the blockchain for the wallet's funds again.
   ///
   /// In en, this message translates to:
-  /// **'Use this only if the payment will never confirm. If it still does, you may see a wrong balance until you rescan.'**
+  /// **'Use this only if the payment will never confirm. If it still does, the balance may be wrong until you recheck it (Recheck balance).'**
   String get txDetailsReleaseBody;
 
   /// Release dialog button that closes it without releasing.
@@ -4930,7 +4930,7 @@ abstract class AppLocalizations {
   /// Short notice.
   ///
   /// In en, this message translates to:
-  /// **'Rescan finished'**
+  /// **'Balance rechecked'**
   String get settingsRescanFinished;
 
   /// Title of the dialog that starts a new search of the blockchain for the wallet's funds.

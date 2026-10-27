@@ -784,7 +784,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Nutzen Sie dies nur, wenn die Zahlung niemals bestätigt wird. Wird sie doch bestätigt, sehen Sie möglicherweise ein falsches Guthaben, bis Sie neu scannen.';
+      'Nutzen Sie dies nur, wenn die Zahlung niemals bestätigt wird. Wird sie doch bestätigt, kann das Guthaben falsch sein, bis Sie es neu prüfen (Guthaben neu prüfen).';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Weiter warten';
@@ -3125,7 +3125,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsRescan => 'Guthaben neu prüfen';
 
   @override
-  String get settingsRescanFinished => 'Neuer Scan abgeschlossen';
+  String get settingsRescanFinished => 'Guthaben neu geprüft';
 
   @override
   String get settingsRescanTitle => 'Guthaben neu prüfen';

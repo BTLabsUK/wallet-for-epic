@@ -881,7 +881,7 @@
   "@txDetailsReleaseTitle": {
     "description": "Title of the dialog that confirms releasing the funds of a refused send."
   },
-  "txDetailsReleaseBody": "Use this only if the payment will never confirm. If it still does, you may see a wrong balance until you rescan.",
+  "txDetailsReleaseBody": "Use this only if the payment will never confirm. If it still does, the balance may be wrong until you recheck it (Recheck balance).",
   "@txDetailsReleaseBody": {
     "description": "Release dialog text. Rescan means scanning the blockchain for the wallet's funds again."
   },
@@ -3887,7 +3887,7 @@
   "@settingsRescan": {
     "description": "Settings row: search the blockchain for the wallet's funds again."
   },
-  "settingsRescanFinished": "Rescan finished",
+  "settingsRescanFinished": "Balance rechecked",
   "@settingsRescanFinished": {
     "description": "Short notice."
   },

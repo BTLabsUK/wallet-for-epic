@@ -738,7 +738,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      '仅在这笔付款永远不会确认时使用。如果它之后仍然确认，在你重新扫描之前，余额可能显示错误。';
+      '仅在这笔付款永远不会确认时使用。如果它之后仍然确认，在你重新核对余额之前，余额可能显示错误。';
 
   @override
   String get txDetailsReleaseKeepWaiting => '继续等待';
@@ -2902,7 +2902,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsRescan => '重新核对余额';
 
   @override
-  String get settingsRescanFinished => '重新扫描已完成';
+  String get settingsRescanFinished => '余额已重新核对';
 
   @override
   String get settingsRescanTitle => '重新核对余额';

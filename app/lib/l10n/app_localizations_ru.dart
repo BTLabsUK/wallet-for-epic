@@ -810,7 +810,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Делайте это, только если платёж точно не подтвердится. Если он всё же подтвердится, баланс может отображаться неверно до повторного сканирования.';
+      'Делайте это, только если платёж точно не подтвердится. Если он всё же подтвердится, баланс может отображаться неверно до сверки баланса.';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Подождать ещё';
@@ -3163,7 +3163,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRescan => 'Сверка баланса';
 
   @override
-  String get settingsRescanFinished => 'Повторное сканирование завершено';
+  String get settingsRescanFinished => 'Баланс сверен';
 
   @override
   String get settingsRescanTitle => 'Сверка баланса';
