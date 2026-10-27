@@ -13,7 +13,7 @@ import '../../widgets/kit.dart';
 import '../settings/backup.dart' show historyBackupProvider;
 import 'activity_screen.dart';
 import 'contacts_screen.dart';
-import 'contacts_transfer.dart' show deskImportContacts;
+import 'contacts_transfer.dart' show deskExportContacts, deskImportContacts;
 import 'outputs_dialogs.dart';
 import 'outputs_screen.dart';
 import 'overview_screen.dart';
@@ -187,6 +187,7 @@ final List<DeskShot> walletShots = [
     prepare: (c, _) async => _contactsFile(c),
     dialog: deskImportContacts,
   ),
+  const DeskShot(id: '21f-dlg-contacts-export', title: 'Export contacts, what the file holds', route: DeskRoute.contacts, dialog: deskExportContacts),
   const DeskShot(id: '37-add-contact', title: 'New contact', route: DeskRoute.contacts, arg: ContactsArgs(adding: true)),
   const DeskShot(
     id: '37b-edit-contact',
