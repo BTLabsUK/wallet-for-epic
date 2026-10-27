@@ -31,6 +31,10 @@
 			</array>
 		</dict>
 	</array>
+	<!-- No push on iOS yet (no APNs key); Dart never starts Firebase there (push.dart), and this keeps
+	     firebase_messaging from hooking the app delegate. -->
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID unlocks the wallet instead of the PIN.</string>
 	<key>NSCameraUsageDescription</key>
