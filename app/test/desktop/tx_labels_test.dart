@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_label.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,6 +153,25 @@ void main() {
       await tester.pumpAndSettle();
       expect((_tx(35)).label, 'Flat');
       expect(find.text('Label saved'), findsOneWidget);
+    });
+
+    testWidgets('the mouse moving off the row keeps the typed text, and a click outside saves it (#107)', (tester) async {
+      await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Rent')));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: tester.getCenter(find.byType(TxPen).first));
+      await tester.pump();
+      await openField(tester);
+      await tester.enterText(find.byType(TextField).last, 'Flat');
+      // Into the field, off the row: the row's hover look changes, the field stays as typed.
+      for (final at in [tester.getCenter(find.byType(TxLabelField)), const Offset(640, 600), const Offset(20, 20)]) {
+        await mouse.moveTo(at);
+        await tester.pump();
+        expect(tester.widget<TextField>(find.descendant(of: find.byType(TxLabelField), matching: find.byType(TextField))).controller!.text, 'Flat');
+      }
+      await tester.tapAt(const Offset(1200, 880));
+      await tester.pumpAndSettle();
+      expect((_tx(35)).label, 'Flat');
+      await mouse.removePointer();
     });
 
     testWidgets('Esc cancels: nothing written, the old title back', (tester) async {

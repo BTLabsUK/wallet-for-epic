@@ -572,7 +572,9 @@ class _TxRowState extends ConsumerState<TxRow> {
           child: Container(
             constraints: BoxConstraints(minHeight: 60.u),
             padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
-            color: widget.selected ? c.s3 : (_hover ? c.hover : null),
+            // Never null: a Container adds its ColoredBox only for a colour, so a null here would
+            // rebuild the row's whole subtree on hover and drop a label being typed (#107).
+            color: widget.selected ? c.s3 : (_hover ? c.hover : Colors.transparent),
             child: row,
           ),
         ),
