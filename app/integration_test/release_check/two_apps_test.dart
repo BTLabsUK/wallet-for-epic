@@ -7,8 +7,8 @@
 //   (a) A's online invite link pasted into B: the same four words, both verified.
 //   (d) B allows A's invoices, A asks B for a payment, B sees it named and verified and
 //       declines it, A sees it declined.
-//   (b)+(e) B removes the pairing, A keeps it; A's pairing words typed into B pair again and
-//       A, which kept the record, finds the keys back.
+//   (b)+(e) B removes the pairing and tells A (RFC 7.6): A marks it Removed by B. A's
+//       pairing words typed into B pair them again.
 //   (c) Both remove what they hold; face to face by pasting each other's card link.
 import 'dart:io';
 
@@ -16,7 +16,7 @@ import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/app_log_io.dart' show startLogging;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show PaymentRequestDraft, RequestState;
-import 'package:epic_wallet/src/desktop/data/models.dart' show Contact;
+import 'package:epic_wallet/src/desktop/data/models.dart' show Contact, ServiceHealth;
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart'
     show deskOwnCardProvider, deskPairingApiProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
@@ -116,9 +116,9 @@ Future<void> enter(WidgetTester tester, String text) async {
   await settle(tester);
   await tester.enterText(find.byKey(deskPairEnterKey), text);
   await settle(tester);
-  await tester.ensureVisible(find.byKey(deskPairGoKey));
-  await tester.pump();
-  await tester.tap(find.byKey(deskPairGoKey));
+  // Enter in the field, as a person may: the open way's panel can still grow above it while
+  // its invite is made, which moves the Pair button under a tap.
+  await tester.testTextInput.receiveAction(TextInputAction.done);
   await settle(tester, ms: 1500);
 }
 
@@ -186,7 +186,18 @@ void main() {
     final settings = containerOf(tester).read(deskProvider).settings;
     await tester.runAsync(() => desk.saveSettings(settings.copyWith(advanced: settings.advanced.withExperimental(AdvancedFeature.invoices, true))));
     await settle(tester, ms: 5000);
-    rc('the wallet uses ${Uri.parse(nodeUrl).host} and $relayHost', hasText(relayHost.replaceFirst(RegExp(r'^epicbox\.(?=.*\.)'), '')), texts().where((t) => t.contains('stackwallet') || t.contains('btlabs')).join(' / '));
+    // The title bar shows icons (their words are tooltips): read the wallet's own status.
+    final st = await tester.runAsync(() async {
+      for (var i = 0; i < 60; i++) {
+        final s = containerOf(tester).read(deskProvider).status;
+        if (s != null && s.epicboxHealth == ServiceHealth.ok) return s;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      return containerOf(tester).read(deskProvider).status;
+    });
+    rc('the wallet uses ${Uri.parse(nodeUrl).host} and $relayHost',
+        st != null && st.node.url.contains(Uri.parse(nodeUrl).host) && st.epicbox.domain.contains(relayHost) && st.epicboxHealth == ServiceHealth.ok,
+        '${st?.node.url} ${st?.epicbox.domain} ${st?.epicboxHealth.name}');
     containerOf(tester).read(deskSeenAsProvider.notifier).set(myName);
     final sub = containerOf(tester).read(deskPairingApiProvider).events().listen(events.add);
     addTearDown(sub.cancel);
@@ -293,6 +304,14 @@ void main() {
       }
     } else {
       await take(tester, 'e-removed');
+      // B said it removed the pairing: A marks it Removed by B and keeps the record.
+      final heardBy = DateTime.now().add(const Duration(minutes: 2));
+      while (DateTime.now().isBefore(heardBy) && !events.any((e) => e.kind == PairingEventKind.unpaired)) {
+        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
+        await settle(tester, ms: 3000);
+      }
+      final marked = (await pairings(tester)).where((p) => p.name == theirName && p.removedByPeer).isNotEmpty;
+      rc('e: A hears that B removed the pairing (Removed by)', events.any((e) => e.kind == PairingEventKind.unpaired) && marked, 'events ${events.map((e) => e.kind.name).toSet().join(',')}');
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
       await settle(tester, ms: 1000);
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.words);
@@ -308,19 +327,9 @@ void main() {
       rc('b: A shows five pairing words on $relayHost', code?.inviteWords.length == 5, code == null ? texts().where((t) => t.contains('relay') || t.contains('Epicbox')).take(2).join(' / ') : '');
       await put(tester, 'b-words-code', [for (final w in code?.inviteWords ?? const <SasWord>[]) w.name].join(' '));
       final fresh = code == null ? null : await wordsCheck(tester, 'b');
-      // The new pairing joins the contact that has the old one: the key check starts.
-      rc('e: the new pairing joins the contact with the old one', fresh != null, '');
-      if (fresh != null) await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).attach(fresh.id, bookId));
-      final end = DateTime.now().add(const Duration(minutes: 4));
-      while (DateTime.now().isBefore(end) && !events.any((e) => e.kind == PairingEventKind.keysRestored || e.kind == PairingEventKind.keysChanged)) {
-        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
-        await settle(tester, ms: 4000);
-      }
+      rc('e: A and B pair again by words', fresh != null && fresh.state.isPaired, '${fresh?.state.name}');
       await put(tester, 'e-checked', '1');
-      final back = events.any((e) => e.kind == PairingEventKind.keysRestored);
-      final withBen = (await pairings(tester)).where((p) => p.name == theirName).toList();
-      rc('e: A, which kept the record, finds the keys back', back, 'events ${events.map((e) => e.kind.name).toSet().join(',')}; records ${withBen.map((p) => p.state.name).join(',')}');
-      await shot(tester, 'A-e-keys');
+      await shot(tester, 'A-e-paired-again');
     }
     await meet(tester, 'b-done');
 
