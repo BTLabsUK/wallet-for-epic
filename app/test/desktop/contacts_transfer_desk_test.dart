@@ -54,12 +54,18 @@ Future<void> _menu(WidgetTester tester, Key item) async {
 }
 
 void main() {
-  testWidgets('Export contacts saves the book and says how many', (tester) async {
+  testWidgets('Export contacts says what the file holds, saves the book and says how many', (tester) async {
     final (_, files, container) = await _open(tester);
-    final withAddress = container.read(deskProvider).contacts!.where((c) => c.addresses.isNotEmpty).length;
+    // Paired contacts with no address go too, by name and note.
+    final all = container.read(deskProvider).contacts!.length;
     await _menu(tester, deskContactsExportKey);
+    expect(find.text(_l.contactsExportHolds), findsOneWidget);
+    expect(files.saved, isEmpty);
+    await tester.tap(find.byKey(deskContactsExportDoKey));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pumpAndSettle();
     expect(files.saved.single, startsWith('epic-cash-contacts-'));
-    expect(find.text(_l.contactsExported(withAddress)), findsOneWidget);
+    expect(find.text(_l.contactsExported(all)), findsOneWidget);
     expect(find.text(_l.deskFinOpenFolder), findsOneWidget);
     await tester.pump(const Duration(seconds: 10));
   });

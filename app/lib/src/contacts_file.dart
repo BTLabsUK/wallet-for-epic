@@ -1,7 +1,8 @@
 /// Export and Import contacts: the shared address book as a small JSON file, on the phone and
-/// the desktop. The file holds names, at most one address per kind and notes; never a pairing,
-/// trust, a star, a picture or anything else of one wallet. Import plans through the GUI
-/// import's rules (`legacy/gui_contacts.dart` [planGuiContacts]): nothing saved is changed, a
+/// the desktop. The file holds names, at most one address per kind and notes; never a key, a
+/// pairing, trust, a star, a picture or anything else of one wallet. A contact paid only
+/// through its pairing goes as its name and note alone, and comes back as that. Import plans
+/// through the GUI import's rules (`legacy/gui_contacts.dart` [planGuiContacts]): nothing saved is changed, a
 /// match only gains the kinds and the note it lacks, an Epicbox key at any relay is the same
 /// contact. Pure Dart: the screens pick and save the file and pass the address checks.
 ///
@@ -41,11 +42,11 @@ String contactsExportFileName(DateTime day) {
   return 'epic-cash-contacts-${day.year}-${two(day.month)}-${two(day.day)}.json';
 }
 
-/// The contacts an export writes: those with an address. A contact without one is the contact
-/// of a pairing, and the file carries no pairing.
+/// The contacts an export writes: every one with a name. A contact without an address is the
+/// contact of a pairing: its name and note go, the pairing never does.
 List<ContactFields> exportableContacts(Iterable<ContactFields> contacts) => [
   for (final c in contacts)
-    if (c.addresses.isNotEmpty) c,
+    if (c.name.trim().isNotEmpty) c,
 ];
 
 /// The file for [contacts] ([exportableContacts] of them) of a wallet on [network], made at
@@ -109,10 +110,14 @@ class ContactsFileError implements Exception {
 /// A contacts file as read: its rows, untrusted, and the network it names (null when it names
 /// none, as a `contacts.json` does).
 class ContactsFile {
-  const ContactsFile({required this.rows, this.network});
+  const ContactsFile({required this.rows, this.network, this.nameOnly = const {}});
 
   final List<GuiContactRow> rows;
   final String? network;
+
+  /// The rows (by index) that name no address at all: contacts paid through a pairing, which
+  /// go as their name and note alone.
+  final Set<int> nameOnly;
 }
 
 /// Reads [bytes] as a contacts file. Throws [ContactsFileError] for one that is not, is
@@ -146,6 +151,7 @@ ContactsFile readContactsFile(List<int> bytes) {
   }
 
   final rows = <GuiContactRow>[];
+  final nameOnly = <int>{};
   for (final row in list) {
     if (row is! Map || row['name'] is! String || (row['name'] as String).trim().isEmpty) {
       throw const ContactsFileError(ContactsFileProblem.damaged);
@@ -162,9 +168,10 @@ ContactsFile readContactsFile(List<int> bytes) {
         note: field(row, 'note', 8 * guiContactNoteMax),
       ),
     );
+    if (!row.containsKey('epicbox') && !row.containsKey('http') && !row.containsKey('tor')) nameOnly.add(rows.length - 1);
   }
   final network = j['network'];
-  return ContactsFile(rows: rows, network: network is String && network.isNotEmpty ? network : null);
+  return ContactsFile(rows: rows, network: network is String && network.isNotEmpty ? network : null, nameOnly: nameOnly);
 }
 
 /// What an import does, with the counts the confirm sheet shows.
@@ -229,11 +236,27 @@ ContactsImportPlan planContactsFile(
     if (epicbox != null && parseRecipient(epicbox).kind == RecipientKind.epicbox && otherChain(epicbox)) otherNetwork++;
   }
   if (otherNetwork == file.rows.length) throw const ContactsFileError(ContactsFileProblem.otherNetwork);
-  final plan = planGuiContacts(file.rows, saved, checks);
+  // A row that names no address is a contact of a pairing: its name and note, added unless a
+  // contact of that name is here already. One whose addresses are all unusable is left out.
+  final names = {for (final c in saved) c.name.trim().toLowerCase()};
+  final named = <ContactFields>[];
+  var namedSame = 0;
+  for (final row in [for (final i in file.nameOnly) file.rows[i]]) {
+    final name = cleanContactName(row.name);
+    if (name.isEmpty) continue;
+    if (!names.add(name.toLowerCase())) {
+      namedSame++;
+      continue;
+    }
+    final note = cleanContactNote(row.note);
+    named.add(ContactFields(name: name, note: note.isEmpty ? null : note));
+  }
+  final plan = planGuiContacts([for (var i = 0; i < file.rows.length; i++) if (!file.nameOnly.contains(i)) file.rows[i]], saved, checks);
+  plan.add.addAll(named);
   return ContactsImportPlan(
     plan,
     otherNetwork: otherNetwork,
-    savedAsIs: savedAsIs,
+    savedAsIs: savedAsIs + namedSame,
     leftOut: plan.skippedNoAddress - otherNetwork - savedAsIs,
   );
 }

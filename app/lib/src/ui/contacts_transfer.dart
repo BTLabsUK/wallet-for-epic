@@ -44,6 +44,7 @@ Future<bool> exportContacts(BuildContext context, WidgetRef ref) async {
       name: contactsExportFileName(now),
       bytes: Uint8List.fromList(utf8.encode(text)),
       title: l.contactsExport,
+      note: l.contactsExportHolds,
       saveDialogTitle: l.contactsExport,
       doneNotice: l.contactsExported(all.length),
     );

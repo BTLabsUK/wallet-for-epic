@@ -34,8 +34,8 @@ void main() {
   final book = [
     ContactFields(id: 'id-anna', name: 'Anna Kowalska', epicbox: _anna, http: _http, note: 'Flatmate'),
     ContactFields(id: 'id-tom', name: 'Tom', epicbox: _tom),
-    // A pairing's contact: no address, so not in the file.
-    const ContactFields(id: 'id-paired', name: 'Northwind'),
+    // A pairing's contact: no address, so only its name and note go.
+    const ContactFields(id: 'id-paired', name: 'Northwind', note: 'Paired in person'),
   ];
   final exported = utf8.encode(encodeContactsFile(book, network: 'mainnet', now: DateTime.utc(2026, 10, 25, 14, 2, 11)));
 
@@ -48,35 +48,41 @@ void main() {
     expect(j['contacts'], [
       {'name': 'Anna Kowalska', 'epicbox': _anna, 'http': _http, 'note': 'Flatmate'},
       {'name': 'Tom', 'epicbox': _tom},
+      {'name': 'Northwind', 'note': 'Paired in person'},
     ]);
+    // Never a key, a pairing or an id.
+    expect(utf8.decode(exported), isNot(contains('id-')));
     expect(contactsExportFileName(DateTime(2026, 3, 7)), 'epic-cash-contacts-2026-03-07.json');
   });
 
-  test('its own export into an empty book adds every contact', () {
+  test('its own export into an empty book adds every contact, a paired one by name and note', () {
     final plan = _plan(exported, const []);
     expect(plan.add.map((c) => (c.name, c.epicbox, c.http, c.note)), [
       ('Anna Kowalska', _anna, _http, 'Flatmate'),
       ('Tom', _tom, null, null),
+      ('Northwind', null, null, 'Paired in person'),
     ]);
     expect(plan.add.every((c) => c.id.isEmpty), isTrue, reason: 'ids are given on save');
     expect(plan.update, isEmpty);
     expect((plan.same, plan.leftOut, plan.otherNetwork), (0, 0, 0));
   });
 
-  test('into a book holding both: 2 already here, nothing changes', () {
+  test('into a book holding all three: 3 already here, nothing changes', () {
     final saved = [
       ContactFields(id: 'x1', name: 'Anna (work)', epicbox: _anna, note: 'Mine'),
       ContactFields(id: 'x2', name: 'T.', epicbox: 'es${'b' * 50}@epicbox.epiccash.com'),
+      // A paired contact is matched by its name.
+      const ContactFields(id: 'x3', name: 'Northwind'),
     ];
     final plan = _plan(exported, saved);
     // Anna gains the HTTP address she lacked; her name and note stay.
     expect(plan.update.single, ContactFields(id: 'x1', name: 'Anna (work)', epicbox: _anna, http: _http, note: 'Mine'));
     // Tom's key at another relay is the same contact, with nothing to add.
-    expect(plan.same, 1);
+    expect(plan.same, 2);
     expect(plan.add, isEmpty);
-    final full = [saved.first.copyWith(http: _http), saved.last];
+    final full = [saved.first.copyWith(http: _http), ...saved.skip(1)];
     final again = _plan(exported, full);
-    expect((again.same, again.hasChanges), (2, false));
+    expect((again.same, again.hasChanges), (3, false));
   });
 
   test('a contact that gains a Tor address keeps its name and note', () {
@@ -89,6 +95,16 @@ void main() {
     });
     final plan = _plan(file, [ContactFields(id: 'x', name: 'Tom', epicbox: _tom, note: 'mine')]);
     expect(plan.update.single, ContactFields(id: 'x', name: 'Tom', epicbox: _tom, tor: _onion, note: 'mine'));
+  });
+
+  test('a book of paired contacts only exports, and a name already here is not added twice', () {
+    final only = [const ContactFields(id: 'p', name: 'Bob Stone')];
+    expect(exportableContacts(only), only);
+    final file = utf8.encode(encodeContactsFile(only, network: 'mainnet', now: DateTime.utc(2026, 10, 27)));
+    expect(_plan(file, const []).add.single.name, 'Bob Stone');
+    final again = _plan(file, [const ContactFields(id: 'x', name: 'bob stone')]);
+    expect(again.add, isEmpty);
+    expect((again.same, again.leftOut), (1, 0));
   });
 
   test('rows without a usable address are left out; other-network ones are counted apart', () {
@@ -193,8 +209,8 @@ void main() {
   test('applying saves the new contacts, then what saved ones gain', () async {
     final plan = _plan(exported, [ContactFields(id: 'x1', name: 'Anna', epicbox: _anna)]);
     final saved = <ContactFields>[];
-    expect(await applyContactsImport(plan, (c) async => saved.add(c)), 2);
-    expect(saved.map((c) => (c.id, c.name)), [('', 'Tom'), ('x1', 'Anna')]);
+    expect(await applyContactsImport(plan, (c) async => saved.add(c)), 3);
+    expect(saved.map((c) => (c.id, c.name)), [('', 'Tom'), ('', 'Northwind'), ('x1', 'Anna')]);
   });
 
   test('a star is per wallet: the shared book has none, another wallet sees none', () async {

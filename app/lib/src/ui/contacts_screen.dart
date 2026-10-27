@@ -128,7 +128,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
     final pending = pairs ? ref.watch(pendingPairingsProvider).length : 0;
     final orphans = pairs ? ref.watch(orphanPairingsProvider) : const <PairingRecord>[];
-    final canExport = contacts.value?.any((c) => c.addresses.isNotEmpty) ?? false;
+    final canExport = contacts.value?.isNotEmpty ?? false;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {

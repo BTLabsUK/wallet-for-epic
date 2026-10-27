@@ -24,6 +24,7 @@ const Key deskContactsMoreKey = ValueKey('desk-contacts-more');
 const Key deskContactsImportKey = ValueKey('desk-contacts-import');
 const Key deskContactsExportKey = ValueKey('desk-contacts-export');
 const Key deskContactsImportDoKey = ValueKey('desk-contacts-import-do');
+const Key deskContactsExportDoKey = ValueKey('desk-contacts-export-do');
 
 ContactFields _fields(Contact c) =>
     ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note);
@@ -37,8 +38,8 @@ class ContactsMoreButton extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    // A contact without an address is a pairing's, which the file never carries.
-    final canExport = ref.watch(deskProvider.select((s) => (s.contacts ?? const <Contact>[]).any((x) => x.addresses.isNotEmpty)));
+    // A contact without an address (a pairing's) goes as its name and note.
+    final canExport = ref.watch(deskProvider.select((s) => (s.contacts ?? const <Contact>[]).isNotEmpty));
     Widget item(Key key, IconData icon, String label, VoidCallback? run) => MenuItemButton(
       key: key,
       onPressed: run,
@@ -80,13 +81,28 @@ class ContactsMoreButton extends ConsumerWidget {
   }
 }
 
-/// Saves the address book where the user chooses, then a toast with Open folder.
+/// Says what the file holds, then saves the address book where the user chooses, then a toast
+/// with Open folder.
 Future<void> deskExportContacts(BuildContext context) async {
   final ref = ProviderScope.containerOf(context, listen: false);
   final l = context.l10n;
   final api = ref.read(deskApiProvider);
   final all = exportableContacts([for (final c in ref.read(deskProvider).contacts ?? const <Contact>[]) _fields(c)]);
   if (all.isEmpty) return;
+  final go = await showEDialog<bool>(
+    context,
+    builder: (context) => EDialog(
+      title: l.contactsExport,
+      icon: EIcons.fileUp,
+      width: 520.u,
+      body: Text(l.contactsExportHolds, style: context.ts.body),
+      actions: [
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(key: deskContactsExportDoKey, label: l.deskConExportDo, onPressed: () => Navigator.pop(context, true)),
+      ],
+    ),
+  );
+  if (go != true || !context.mounted) return;
   final now = DateTime.now();
   try {
     final path = await ref
