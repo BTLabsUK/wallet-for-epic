@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'tor_build.dart';
+
 /// Tor's licence file from the bundled Tor Expert Bundle (tools/fetch-tor.sh checks its hash).
 const String torLicenceAsset = 'assets/licenses/tor.txt';
 
@@ -13,8 +15,10 @@ const String torSourceNote =
     'https://dist.torproject.org/tor-0.4.9.14.tar.gz and the Tor Browser build at '
     'https://gitlab.torproject.org/tpo/applications/tor-browser-build (release 15.0.25).';
 
-/// Adds the bundled tor's licence to [LicenseRegistry], next to the packages'.
+/// Adds the bundled tor's licence to [LicenseRegistry], next to the packages'; nothing in the
+/// build without Tor ([torBuilt]).
 void registerTorLicence() {
+  if (!torBuilt) return;
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(const [
       'tor',

@@ -7,6 +7,8 @@
 /// Advanced page only holds the switches and says in one line what each shows.
 library;
 
+import 'tor_build.dart';
+
 /// A feature the simple app hides. Each is one switch on the Advanced page.
 enum AdvancedFeature {
   /// The Outputs page: the wallet's coins, Split and Consolidate, the send defaults.
@@ -68,11 +70,13 @@ enum NetworkMode {
 class AdvancedPrefs {
   const AdvancedPrefs({
     this.features = const {},
-    this.networkMode = NetworkMode.standard,
+    NetworkMode networkMode = NetworkMode.standard,
     this.nodeFailover = true,
-  });
+  }) : networkMode = !torBuilt && networkMode == NetworkMode.torOnly ? NetworkMode.standard : networkMode;
 
   final Set<AdvancedFeature> features;
+  /// Never [NetworkMode.torOnly] in the build without Tor ([torBuilt]): a stored Tor only reads
+  /// as Standard.
   final NetworkMode networkMode;
 
   /// Node failover (`node_failover.dart`): when the node in use stops answering, the wallet

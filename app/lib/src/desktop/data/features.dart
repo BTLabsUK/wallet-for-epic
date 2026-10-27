@@ -31,7 +31,8 @@
 ///   Settings › Transactions › Tor receiving (per wallet, off by default, its state and Retry),
 ///   the status card's and Overview's Tor line, .onion addresses in contacts, the Help topic.
 ///   Needs the bundled tor (bin/tor-bundle beside the app, tools/fetch-tor.sh); without it
-///   the row says "Not in this build" and its switch is disabled.
+///   the row says "Not in this build" and its switch is disabled. The build without Tor
+///   (`WFE_TOR=false`, [torBuilt]) turns the flag off.
 /// builtInNode (D09–D14, on): Setup › Node's "Built-in node" card (off by default, D10),
 ///   Settings › Node's "This computer" option, Overview's "Start node". Needs the bundled `epic`
 ///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
@@ -55,13 +56,16 @@
 /// contactPictures: the contact form's picture and the list's photos (initials stay).
 library;
 
+import '../../tor_build.dart';
+
 abstract final class DeskFeatures {
   static const bool multiWallet = true;
   static const bool importWizard = true;
   static const bool dataFolder = false;
   static const bool testNetworks = false;
   static const bool httpDirect = true;
-  static const bool tor = true;
+  /// Off in the build without Tor ([torBuilt]).
+  static const bool tor = torBuilt;
   static const bool builtInNode = true;
   static const bool nodeBackground = false;
   static const bool coins = true;

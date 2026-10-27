@@ -16,6 +16,7 @@ import '../phone_tor.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
+import '../tor_build.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
 import 'handshake.dart';
@@ -49,7 +50,7 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
   final confirmations = confirmationsTargetOf(ref);
   // Pairing off (Settings › Advanced) reads as no pairing (pairingApiProvider).
   final pairs = ref.watch(pairingSupportedProvider);
-  final tor = ref.watch(phoneTorProvider.select(torShown));
+  final tor = torBuilt && ref.watch(phoneTorProvider.select(torShown));
   return [
     // The topics of a part Advanced hides go with it (Outputs).
     ...helpTopicsShown(
