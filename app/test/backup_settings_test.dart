@@ -126,7 +126,8 @@ void main() {
       expect(_keys(plan.take), {BackupItem.networkMode});
       final next = advancedFromBackup(AdvancedPrefs(features: {AdvancedFeature.outputs}), plan.values(takeConflicts: false));
       expect(next, AdvancedPrefs(features: {AdvancedFeature.outputs}, networkMode: NetworkMode.torOnly));
-      expect(advancedFromBackup(AdvancedPrefs.none, plan.values(takeConflicts: true)).features, {AdvancedFeature.logs});
+      // Linked devices stays as this install has it (on by default).
+      expect(advancedFromBackup(AdvancedPrefs.none, plan.values(takeConflicts: true)).features, {AdvancedFeature.logs, AdvancedFeature.linkedDevices});
     });
   });
 

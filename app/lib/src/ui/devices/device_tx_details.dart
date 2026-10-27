@@ -11,7 +11,6 @@ import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
-import '../notices.dart';
 import '../pairing/pairing_parts.dart';
 import '../theme/tokens.dart';
 import 'device_parts.dart';
@@ -30,9 +29,7 @@ class DeviceTxDetails extends ConsumerWidget {
     final tip = tipHeight(ref);
     final display = amountDisplay(ref);
     final view = ref.watch(phoneDevices.view);
-    final hold = view == null
-        ? null
-        : view.book.holds.where((h) => h.state.holds && h.slateId == tx.slateId && h.commitments.any(tx.spentCommits.contains)).firstOrNull;
+    final hold = view?.book.holds.where((h) => h.state.holds && h.slateId == tx.slateId && h.commitments.any(tx.spentCommits.contains)).firstOrNull;
     final message = tx.messages.firstOrNull?.text;
     final fee = tx.fee;
     final height = tx.blockHeight;

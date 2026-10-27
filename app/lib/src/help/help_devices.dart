@@ -1,6 +1,6 @@
 /// Help on linked devices, for the phone and the desktop, in the app's six languages: one wallet
 /// on two devices, a lost device, coins held by another device. Each language's topic list
-/// (help_content.dart, help_<lang>.dart) ends with these; they show while Linked devices is on
+/// (help_content.dart, help_`<lang>`.dart) ends with these; they show while Linked devices is on
 /// ([helpTopicFeature]).
 library;
 
@@ -232,7 +232,7 @@ List<HelpTopic> _zh(bool phone) {
       [
         const HelpBlock.p('助记词可以在任何设备上打开同一个钱包。区块链为每台设备提供余额和每笔已确认的付款，所以资金总是对得上。'),
         const HelpBlock.p('区块链不会显示只有发起付款的设备才知道的内容：付给了谁、留言，以及仍在进行中的付款。未关联时，另一台设备要等付款确认后才会显示为 **从另一个钱包发送**，且只有金额。'),
-        const HelpBlock.p('关联补上了这些。每台设备在开始付款和付款结束时都会告知其他设备。它花费的币会在其他设备上被保留，直到区块链显示它们已花费；这样两台设备不会选中相同的币，付款也会显示为 **从** 某设备 **发送**，并带有详情。'),
+        const HelpBlock.p('关联补上了这些。每台设备在开始付款和付款结束时都会告知其他设备。它花费的币会在其他设备上被保留，直到区块链显示它们已花费；这样两台设备不会选中相同的币，付款也会显示为 **从某设备发送**，并带有详情。'),
         HelpBlock.ol([
           '在两台设备上打开 $place，选择 **关联设备**。',
           '一台设备显示代码；另一台扫描或粘贴它。',
@@ -261,7 +261,7 @@ List<HelpTopic> _zh(bool phone) {
       [
         const HelpBlock.p('关联设备开始付款时，它花费的币会在本设备上被保留：发送、全部发送和手续费估算都不会使用它们，输出页把它们显示为 **被保留**，发送页会说明保留了多少。'),
         const HelpBlock.ul([
-          '区块链显示这些币已花费后，它们成为 **从** 该设备 **发送** 的付款。',
+          '区块链显示这些币已花费后，它们成为 **从该设备发送** 的付款。',
           '该设备取消付款，或付款失败、过期时，它们会退回。',
           '若该设备没有消息，它们会自动退回：付款期限过后 10 个区块、广播后 1,440 个区块（约一天）仍未上链、最迟 7 天后，或该设备被移除时。',
         ]),

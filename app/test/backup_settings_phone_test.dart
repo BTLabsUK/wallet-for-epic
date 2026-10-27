@@ -94,7 +94,8 @@ void main() {
     expect(statusSite.on, isFalse);
     expect(s.advanced.networkMode, NetworkMode.torOnly);
     expect(NetGate.torOnly, isTrue, reason: 'the mode reaches the gate at once');
-    expect(s.advanced.features, {AdvancedFeature.outputs, AdvancedFeature.pairing});
+    // Linked devices is this phone's own choice, on by default; a file never sets it.
+    expect(s.advanced.features, {AdvancedFeature.outputs, AdvancedFeature.pairing, AdvancedFeature.linkedDevices});
     expect(s.payments, PaymentPrefs.phoneDefaults.copyWith(linkTor: true, defaultMethod: MethodKind.directQr));
     expect(await fresh.read(pairingSeenAsProvider.future), 'Alice');
     expect(moves, [('https://node.btlabs.uk', 'epicbox.stackwallet.com')]);

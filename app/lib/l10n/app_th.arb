@@ -4624,7 +4624,7 @@
   "devicesNone": "ไม่มี",
   "devicesSeenNow": "เห็นเมื่อสักครู่",
   "devicesSeenMinutes": "{count, plural, other{เห็นเมื่อ {count} นาทีที่แล้ว}}",
-  "devicesSeenHours": "{count, plural, other{เห็นเมื่อ {count} ชม. ที่แล้ว}}",
+  "devicesSeenHours": "{count, plural, other{เห็นเมื่อ {count} ชั่วโมงที่แล้ว}}",
   "devicesSeenDays": "{count, plural, other{เห็นเมื่อ {count} วันที่แล้ว}}",
   "devicesNotSeen": "ยังไม่เห็น",
   "devicesCount": "{count, plural, other{{count} อุปกรณ์}}",

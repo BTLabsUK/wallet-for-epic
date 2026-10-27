@@ -1657,7 +1657,8 @@ class TxTile extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          LabelPen(hasLabel: tx.label != null, onPressed: edit),
+                          // Another linked device's payment has no record here to label.
+                          if (tx.origin != TxOrigin.linkedDevice) LabelPen(hasLabel: tx.label != null, onPressed: edit),
                         ],
                       ),
                     ),
