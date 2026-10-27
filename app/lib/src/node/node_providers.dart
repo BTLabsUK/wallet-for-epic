@@ -14,7 +14,6 @@ import '../builtin_node.dart';
 import '../builtin_node_provider.dart';
 import '../legacy_wallets.dart' show LegacyRoots;
 import '../models.dart' show Chain;
-import '../network.dart';
 import '../providers.dart';
 import '../relay_directory.dart';
 import 'chain_data.dart';
@@ -23,10 +22,11 @@ import 'local_node_controller.dart';
 import 'local_node_state.dart';
 import 'node_api.dart';
 import 'node_detect.dart';
-import 'node_info.dart';
 import 'node_maintenance.dart';
 import 'node_settings.dart';
 import 'peers.dart';
+
+export 'node_info_provider.dart';
 
 /// The monitor's chain name of [chain], or null where it has none (usernet).
 String? statusChainOf(Chain chain) => switch (chain) {
@@ -119,24 +119,6 @@ final peersProvider = StreamProvider.autoDispose.family<PeerSnapshot, Chain>((re
   }
 });
 
-/// Node info for any node URL (F27), shared by the picker, the card and the status rail.
-final nodeInfoServiceProvider = Provider<NodeInfoService>((ref) {
-  final directory = ref.watch(relayDirectoryProvider);
-  return NodeInfoService(
-    nodes: directory is NodeDirectory ? directory as NodeDirectory : const _NoNodes(),
-    network: directory is NetworkDirectory ? directory as NetworkDirectory : null,
-  );
-});
-
-/// [NodeInfo] of a node URL on a network preset's chain. Refresh with `ref.invalidate`.
-final nodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, ({String url, NetworkPreset preset})>(
-  (ref, key) {
-    // Read again when status.btlabs.uk is turned on or off.
-    ref.watch(useStatusSiteProvider);
-    return ref.watch(nodeInfoServiceProvider).info(key.url, chain: key.preset.statusChain);
-  },
-);
-
 /// Whether a node already answers on this computer's standard port (F24).
 final localNodeProbeProvider = FutureProvider.autoDispose.family<LocalNodeProbe, Chain>((ref, chain) async {
   BuiltInNode? ours;
@@ -178,10 +160,3 @@ final fallbackDecisionProvider = Provider.family<AsyncValue<FallbackDecision>, C
   if (l == null || c == null) return const AsyncLoading();
   return AsyncData(decideFallback(l, c));
 });
-
-class _NoNodes implements NodeDirectory {
-  const _NoNodes();
-
-  @override
-  Future<List<NodeStatus>> nodes(String chain) async => const [];
-}
