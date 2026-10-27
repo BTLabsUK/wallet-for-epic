@@ -32,7 +32,8 @@
 #   WFE_NODE_FETCH=1           fetch both from the GUI 6.1.6 build commit pinned below (by SHA-256)
 #                              when WFE_NODE_BIN_MAC_* are not set (CI does this)
 #   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
-#   WFE_TOR=0                  leave out tor (tools/fetch-tor.sh mac + macsilicon, in by default)
+#   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
+#                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
 #   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
 #
 # Written for the bash 3.2 macOS ships: no mapfile, no ${x,,}, no associative arrays.
@@ -64,6 +65,8 @@ say() { printf '\n== %s\n' "$*"; }
 result() { mkdir -p "$out"; printf '%s %s %s\n' "$1" "$2" "${3:-}" | tee -a "$results"; recorded="$2"; }
 sha256() { shasum -a 256 "$1" | cut -d' ' -f1; }
 build_id() { git -C "$root" rev-parse --short=8 HEAD; }
+# The dart-define of the build without Tor (WFE_TOR=0), else nothing.
+tor_define() { if [ "${WFE_TOR:-1}" = 0 ]; then echo --dart-define=WFE_TOR=false; fi; }
 app_version() { sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' "$app/pubspec.yaml"; }
 
 doctor() {
@@ -129,6 +132,8 @@ package_library() {
   mkdir -p "$dir"
   cp "${CARGO_TARGET_DIR:-$lepic/target}/$1/release/liblepic_ffi.dylib" "$dir/"
   (cd "$dir" && printf '%s  liblepic_ffi.dylib\n' "$(sha256 liblepic_ffi.dylib)" > SHA256SUMS)
+  # LEPIC's xtask writes the features beside each library; `tor` unless built without it.
+  if [ "${WFE_TOR:-1}" = 0 ]; then : > "$dir/FEATURES"; else echo tor > "$dir/FEATURES"; fi
   echo "packaged $dir/liblepic_ffi.dylib"
 }
 
@@ -136,15 +141,16 @@ lepic_libs() {
   say "LEPIC for $darwin_targets $ios_targets"
   [ -f "$lepic/Cargo.toml" ] || die "no LEPIC clone: run the sources step"
   # rust-toolchain.toml picks LEPIC's Rust; its targets list has the iOS ones, not macOS.
-  local t
+  local t features=""
+  [ "${WFE_TOR:-1}" = 0 ] && features=--no-default-features
   (cd "$lepic" && rustup target add $darwin_targets $ios_targets)
   # A plain cargo build per target: LEPIC's xtask packages iOS but has no macOS targets yet.
   for t in $darwin_targets $ios_targets; do
     (cd "$lepic" && MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
-      cargo build --package lepic-ffi --lib --locked --release --target "$t")
+      cargo build --package lepic-ffi --lib --locked --release --target "$t" $features)
     package_library "$t"
   done
-  result PASS lepic "$(for t in $darwin_targets $ios_targets; do printf '%s ' "$t"; done)"
+  result PASS lepic "$(for t in $darwin_targets $ios_targets; do printf '%s ' "$t"; done)${features:+(without tor)}"
 }
 
 # Joins the per-architecture Mach-O files $2... into $1 (one input is copied as it is).
@@ -167,7 +173,7 @@ macos() {
   local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
   local res="$bundle/Contents/Resources/bin"
   (cd "$app" && flutter pub get && flutter build macos --release -t lib/main_desktop.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)")
+    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Contents/Frameworks/lepic_ffi.framework/lepic_ffi" ] \
     || die "the bundle has no lepic_ffi.framework (app/hook/build.dart)"
@@ -245,7 +251,7 @@ ios_sim() {
   say "flutter build ios --simulator"
   [ "$(uname -m)" = arm64 ] || die "the Simulator build needs an Apple silicon Mac (LEPIC has no x86_64 Simulator library)"
   (cd "$app" && flutter pub get && flutter build ios --simulator --debug -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)")
+    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
   local bundle="$app/build/ios/iphonesimulator/Runner.app" udid
   [ -d "$bundle" ] || die "no $bundle"
   udid="$(simulator)"
@@ -266,7 +272,7 @@ ios_sim() {
 ipa() {
   say "flutter build ios --no-codesign"
   (cd "$app" && flutter pub get && flutter build ios --release --no-codesign -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)")
+    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
   local ipa_file="$out/EpicCashMobile-$(app_version)-ios-unsigned.ipa"
   [ -d "$bundle" ] || die "no $bundle"
