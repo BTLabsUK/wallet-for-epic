@@ -19,6 +19,9 @@ import 'settings_frame.dart';
 /// Where the app keeps its own files (mock).
 const appFilesDir = '~/.config/epic-wallet';
 
+/// Demo states of the page for the tour's shots.
+enum AccountDemo { autoLockOpen }
+
 class SettingsAccountScreen extends ConsumerStatefulWidget {
   const SettingsAccountScreen({super.key, this.arg});
 
@@ -159,7 +162,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
           ESetGroup(
             title: l.deskSetAcctSecurity,
             rows: [
-              const _AutoLockRow(),
+              _AutoLockRow(open: widget.arg == AccountDemo.autoLockOpen),
               if (_remembered)
                 ESetRow(
                   title: l.deskSetAcctRemembered,
@@ -229,7 +232,10 @@ class _FolderRow extends ConsumerWidget {
 /// Never (testers looked for an Off in the list; a separate switch was missed). Never keeps the
 /// minutes, so choosing a time again needs no second step. Lock wallet works either way.
 class _AutoLockRow extends ConsumerWidget {
-  const _AutoLockRow();
+  const _AutoLockRow({this.open = false});
+
+  /// The list opens with the page (the tour's shot).
+  final bool open;
 
   /// The list's value for Never; the minutes are all positive.
   static const _never = -1;
@@ -249,6 +255,7 @@ class _AutoLockRow extends ConsumerWidget {
           size: EBtnSize.sm,
           semanticLabel: l.settingsAutoLock,
           value: s.autoLockOn ? s.autoLockMinutes : _never,
+          openInitially: open,
           items: [
             for (final m in autoLockChoices) ESelectItem(m, autoLockLabel(l, m)),
             ESelectItem(_never, autoLockLabel(l, null)),

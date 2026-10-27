@@ -152,7 +152,7 @@ class MockDeskWallet implements DeskWalletApi {
 
   final List<WalletEntry> _wallets = [
     WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/.epic/main/wallet_data', network: 'mainnet', lastOpened: _ago(minutes: 20)),
-    WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet', lastOpened: _ago(days: 30)),
+    WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f/mainnet', network: 'mainnet', lastOpened: _ago(days: 3)),
     WalletEntry(id: '0a1b2c3d4e5f60718293a4b5c6d7e8f9', name: 'Test', folder: '~/.epic/floo/test', network: 'floonet', lastOpened: _ago(days: 60)),
   ];
   String _current = 'legacy-mainnet';

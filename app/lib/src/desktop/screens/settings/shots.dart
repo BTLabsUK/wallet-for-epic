@@ -21,6 +21,7 @@ import 'settings_receiving.dart';
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
+import 'settings_account.dart' show AccountDemo;
 import 'settings_rescan.dart';
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
 import '../transfer/send_code.dart' show showExperimentalOffDialog;
@@ -196,6 +197,7 @@ final List<DeskShot> settingsShots = [
     height: 1100,
     prepare: (c, _) async => _backup(c, const HistoryBackupState(unbacked: 12, payments: 48, contacts: 6)),
   ),
+  const DeskShot(id: '25m-settings-account-auto-lock', title: 'Settings, this wallet: the auto-lock list, Never last', route: DeskRoute.settingsAccount, arg: AccountDemo.autoLockOpen, height: 1700),
   const DeskShot(id: '25d-settings-backup-since', title: 'Settings, this wallet: Backup, payments since', route: DeskRoute.settingsAccount, height: 1100),
   const DeskShot(
     id: '25e-settings-backup-busy',

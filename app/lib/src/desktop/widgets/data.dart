@@ -309,7 +309,7 @@ class ESeedGrid extends StatelessWidget {
 
 /// One option of [ESelect].
 class ESelectItem<T> {
-  const ESelectItem(this.value, this.title, {this.subtitle, this.subtitleIsPath = false, this.tooltip, this.trailing, this.leading});
+  const ESelectItem(this.value, this.title, {this.subtitle, this.subtitleIsPath = false, this.tooltip, this.trailing, this.action, this.leading});
 
   final T value;
   final String title;
@@ -321,13 +321,18 @@ class ESelectItem<T> {
 
   /// Shown on hover over the option: the whole text where the list cuts it (a wallet's folder).
   final String? tooltip;
+
+  /// Shown after the title in the list and in the closed field (a network badge).
   final Widget? trailing;
+
+  /// A control on the option in the list only (a copy button): the closed field stays a field.
+  final Widget? action;
   final Widget? leading;
 }
 
 /// A combobox: a 44 px field showing the choice, a popover list of options with a subtitle and
 /// a trailing status each, and an optional footer action (e.g. "Add node…").
-class ESelect<T> extends StatelessWidget {
+class ESelect<T> extends StatefulWidget {
   const ESelect({
     super.key,
     required this.items,
@@ -337,6 +342,7 @@ class ESelect<T> extends StatelessWidget {
     this.mono = false,
     this.semanticLabel,
     this.size = EBtnSize.md,
+    this.openInitially = false,
   });
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
@@ -349,6 +355,26 @@ class ESelect<T> extends StatelessWidget {
   final bool mono;
   final String? semanticLabel;
 
+  /// The list opens with the first frame: the tour's shots of a list.
+  final bool openInitially;
+
+  @override
+  State<ESelect<T>> createState() => _ESelectState<T>();
+}
+
+class _ESelectState<T> extends State<ESelect<T>> {
+  final _controller = MenuController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openInitially) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_controller.isOpen) _controller.open();
+      });
+    }
+  }
+
   static Widget _withTooltip(String? message, Widget child) =>
       message == null ? child : Tooltip(message: message, child: child);
 
@@ -356,12 +382,20 @@ class ESelect<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final items = widget.items;
+    final value = widget.value;
+    final onChanged = widget.onChanged;
+    final footer = widget.footer;
+    final mono = widget.mono;
+    final size = widget.size;
+    final semanticLabel = widget.semanticLabel;
     final current = items.where((i) => i.value == value).firstOrNull;
     return LayoutBuilder(
       builder: (context, box) {
         // The text column of each option: the field's width less the check and trailing room.
         final width = math.max(120.u, box.maxWidth - 160.u);
         return MenuAnchor(
+          controller: _controller,
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
           style: MenuStyle(
@@ -389,7 +423,16 @@ class ESelect<T> extends StatelessWidget {
                 leadingIcon: item.value == value
                     ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text)
                     : (item.leading ?? SizedBox(width: Ctl.iconSm)),
-                trailingIcon: item.trailing,
+                trailingIcon: item.trailing == null && item.action == null
+                    ? null
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (item.trailing != null) item.trailing!,
+                          if (item.trailing != null && item.action != null) SizedBox(width: Sp.x2),
+                          if (item.action != null) item.action!,
+                        ],
+                      ),
                 child: _withTooltip(
                   item.tooltip,
                   SizedBox(
@@ -657,8 +700,11 @@ class EMiddleEllipsis extends StatelessWidget {
   Widget _line(BuildContext context, double room) {
     final scaler = MediaQuery.textScalerOf(context);
     final dir = Directionality.of(context);
+    // Measured in the font the Text draws with: [style] alone has no family, and the default
+    // font the painter would take is wider, which cut the path to a few characters.
+    final drawn = DefaultTextStyle.of(context).style.merge(style);
     bool fits(String t) {
-      final p = TextPainter(text: TextSpan(text: t, style: style), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+      final p = TextPainter(text: TextSpan(text: t, style: drawn), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
       return p.width <= room;
     }
 

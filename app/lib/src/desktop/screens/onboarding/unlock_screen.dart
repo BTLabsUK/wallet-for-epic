@@ -17,7 +17,7 @@ import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'setup_screen.dart' show SetupFirstRun, setupSkippedThisSession;
 
 /// What [UnlockScreen] starts on, for the screenshot tour.
-enum UnlockShow { wrongPassword, progress, failed, missing }
+enum UnlockShow { wrongPassword, progress, failed, missing, listOpen }
 
 /// Unlock with the wallet [id] selected, then [then] instead of Overview: Settings › This
 /// wallet when "Unlock this wallet" was chosen in the remove dialog of another wallet.
@@ -86,6 +86,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _failedStage = 'wallet';
       case UnlockShow.missing:
         _missing = true;
+      case UnlockShow.listOpen:
+        break;
       // The wallet closed by itself (a server change could not reopen it).
       case final String reason:
         _error = reason;
@@ -374,6 +376,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   semanticLabel: l.deskOnbSameWallet,
                   value: _id ?? wallets.first.id,
                   onChanged: _select,
+                  openInitially: widget.arg == UnlockShow.listOpen,
                   items: [
                     for (final w in wallets)
                       ESelectItem(
@@ -382,13 +385,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                         subtitle: walletRowLine(l, w),
                         subtitleIsPath: !inWalletsFolder(w.folder) || w.lastOpened == null,
                         tooltip: w.folder,
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (w.network != 'mainnet') EBadge(networkName(w.network), tone: ETone.warn),
-                            ECopyButton(text: w.folder, label: l.deskSetAcctCopyPath(w.name)),
-                          ],
-                        ),
+                        trailing: w.network == 'mainnet' ? null : EBadge(networkName(w.network), tone: ETone.warn),
+                        action: ECopyButton(text: w.folder, label: l.deskSetAcctCopyPath(w.name)),
                       ),
                   ],
                 ),
