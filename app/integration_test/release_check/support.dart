@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:epic_wallet/main_desktop.dart' show deskOverrides;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskProvider;
 import 'package:epic_wallet/src/wallet_backend.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -57,15 +58,10 @@ Future<void> boot(WidgetTester tester, {Size size = const Size(1280, 860), List<
 }
 
 /// Lets real time pass (native calls, network) while pumping frames.
-/// Picks a node in Settings > Node: tap the combo field, type the host, tap the listed item
-/// (the way feedback_w123/ui_quick_test.dart does it).
-Future<void> pickNode(WidgetTester tester, String host) async {
-  final combo = find.byType(EditableText).first;
-  await tester.tap(combo, warnIfMissed: false);
-  await tester.pump();
-  await tester.enterText(combo, host);
-  await settle(tester, ms: 1500);
-  await tapText(tester, RegExp('^${RegExp.escape(host)}'), last: true);
+/// Uses the node at [url] the way Settings > Node's list does (DeskController.useNode); the
+/// list's own taps are covered by its widget tests, and its layout changes often.
+Future<void> pickNode(WidgetTester tester, String url) async {
+  await tester.runAsync(() => containerOf(tester).read(deskProvider.notifier).useNode(url));
   await settle(tester, ms: 8000);
 }
 

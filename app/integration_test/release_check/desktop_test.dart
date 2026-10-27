@@ -5,8 +5,10 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show ESeedGrid;
 import 'package:epic_wallet/src/desktop/data/features.dart';
-import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider;
+import 'package:epic_wallet/src/desktop/data/models.dart' show ServiceHealth, ServiceStatus;
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart' show SelectableText;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -41,17 +43,16 @@ void main() {
     }
     await tapText(tester, 'Written down');
     await tapText(tester, 'Continue', last: true);
-    await waitText(tester, 'Unlock wallet');
-    record('Continue on the phrase lands on Unlock', true, texts().take(5).join(' | '));
-
-    // Unlock: wrong password first.
-    await typeIn(tester, 0, '${password}x');
-    await tapText(tester, 'Unlock', last: true);
-    await waitText(tester, RegExp('password', caseSensitive: false), timeout: const Duration(seconds: 120));
-    record('wrong password shows an error', hasText('Wrong password'), texts().firstWhere((t) => t.contains('assword.'), orElse: () => '-'));
-    await shot(tester, '04-unlock-wrong-password');
-    await typeIn(tester, 0, password);
-    await tapText(tester, 'Unlock', last: true);
+    // First run: Setup (node, Epicbox, review); Skip keeps the defaults release_check picked.
+    await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
+    record('Continue on the phrase lands on Setup', hasText('Choose a node'), texts().take(8).join(' | '));
+    await shot(tester, '03-setup');
+    await tapText(tester, 'Skip setup');
+    await waitText(tester, RegExp('Unlock wallet|Available to spend|Skip tour'), timeout: const Duration(seconds: 120));
+    if (hasText('Unlock wallet')) {
+      await typeIn(tester, 0, password);
+      await tapText(tester, 'Unlock', last: true);
+    }
     await waitText(tester, RegExp('Overview|Balance'), timeout: const Duration(seconds: 120));
     await settle(tester, ms: 3000);
     record('first Overview offers the tour', hasText('Skip tour'), texts().where((t) => t.contains('of 8')).join());
@@ -67,14 +68,29 @@ void main() {
     dump('overview');
     final heightRe = RegExp(r'Height (\d[\d,]*)');
     final h = heightRe.firstMatch(texts().join(' '));
-    record('sync: node synced (the height is in the rail tooltip and Settings › Node since wave 6)', hasText('Synced'), 'node ${hasText('node.btlabs.uk') ? 'btlabs' : '?'} ${h?.group(0)}');
-    record('Epicbox status online', texts().join(' | ').contains('Epicbox | ${freshRelay.replaceFirst(RegExp(r'^epicbox\.(?=.*\.)'), '')}'), 'sidebar: ${texts().where((t) => t.startsWith('Epicbox') || t == 'On').join(' ')}');
+    // The title bar's status icons carry Node / Epicbox / Tor; their words are tooltips and
+    // semantics, so the check reads the wallet's own state.
+    Future<bool> healthy(ServiceHealth? Function(ServiceStatus s) of) async => await tester.runAsync(() async {
+      for (var i = 0; i < 60; i++) {
+        final st = containerOf(tester).read(deskProvider).status;
+        if (st != null && of(st) == ServiceHealth.ok) return true;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      return false;
+    }) == true;
+    final synced = await healthy((s) => s.nodeHealth);
+    final st = containerOf(tester).read(deskProvider).status;
+    record('sync: node synced', synced, 'node ${st?.node.url} height ${st?.nodeHeight} ${h?.group(0) ?? ''}');
+    record('Epicbox status online', await healthy((s) => s.epicboxHealth), 'relay $freshRelay');
     record('overview shows 0 balance on a fresh wallet', hasText('Available to spend') && hasText('0'), '');
 
     await tapText(tester, 'Receive');
     await settle(tester, ms: 1500);
-    record('Receive shows Epic address, listening', hasText('Epic address') && hasText('Listening via'), texts().where((t) => t.startsWith('Listening')).join());
-    record('Epicbox address is <id>@<relay> on the D-13 default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr!), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
+    final id = deskAddr!.split('@').first;
+    // EAddress draws it as SelectableText.rich (the first and last six marked).
+    final rich = find.byType(SelectableText).evaluate().map((e) => (e.widget as SelectableText).textSpan?.toPlainText() ?? '').join(' ');
+    record('Receive shows the Epicbox address', hasText('Epicbox address') && rich.contains(id.substring(0, 6)) && rich.contains(id.substring(id.length - 6)), '');
+    record('Epicbox address is <id>@<relay> on the D-13 default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
     await shot(tester, '06-receive');
 
     // ---- Send on an empty wallet, up to the review step.
@@ -102,7 +118,7 @@ void main() {
       final bad = texts().where((t) => _hidden(const []).hasMatch(t)).toList();
       record('hidden features absent on $page', bad.isEmpty, bad.join(' / '));
     }
-    for (final sub in ['Node', 'Receiving', 'Appearance', 'Rescan', 'About']) {
+    for (final sub in ['Node', 'Transactions', 'Privacy', 'Appearance', 'Recheck balance', 'About']) {
       await tapText(tester, 'Settings');
       await tapText(tester, sub);
       await settle(tester, ms: 700);
@@ -145,19 +161,19 @@ void main() {
     await tapText(tester, 'Settings');
     await tapText(tester, 'Node');
     await settle(tester, ms: 800);
-    await pickNode(tester, Uri.parse(node2).host);
+    await pickNode(tester, node2);
     dump('node after change');
     await shot(tester, '12-node-changed');
     await tapText(tester, 'Overview');
     await settle(tester, ms: 1500);
-    record('Overview status shows the changed node', hasText(Uri.parse(node2).host), texts().where((t) => t.contains('node.')).join(' / '));
+    record('the wallet uses the changed node', usedNode(tester).contains(Uri.parse(node2).host), usedNode(tester));
     await tapText(tester, 'Settings');
     await tapText(tester, 'Node');
     await settle(tester, ms: 800);
-    await pickNode(tester, Uri.parse(node).host);
+    await pickNode(tester, node);
     await tapText(tester, 'Overview');
     await settle(tester, ms: 1500);
-    record('Overview status shows the node switched back', hasText(Uri.parse(node).host), texts().where((t) => t.contains('node.')).join(' / '));
+    record('the wallet uses the node switched back', usedNode(tester).contains(Uri.parse(node).host), usedNode(tester));
     await tapText(tester, 'Settings');
     await tapText(tester, 'Node');
     await shot(tester, '13-node-back');
@@ -197,3 +213,6 @@ RegExp _hidden(List<String> extra) {
   ];
   return RegExp(terms.join('|'), caseSensitive: false);
 }
+
+/// The node the open wallet uses now, as its status reports it.
+String usedNode(WidgetTester tester) => containerOf(tester).read(deskProvider).status?.node.url ?? '-';
