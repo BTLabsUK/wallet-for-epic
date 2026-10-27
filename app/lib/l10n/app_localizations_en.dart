@@ -17381,4 +17381,309 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devicesThisComputer => 'Desktop';
+
+  @override
+  String get devicesNone => 'None';
+
+  @override
+  String get devicesSeenNow => 'seen just now';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'seen $count min ago',
+      one: 'seen $count min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'seen $count h ago',
+      one: 'seen $count h ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'seen $count d ago',
+      one: 'seen $count d ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => 'not seen yet';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '$count device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count servers',
+      one: '$count server',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String get devicesOthers => 'Devices';
+
+  @override
+  String get devicesEmpty => 'No device linked yet.';
+
+  @override
+  String get devicesLink => 'Link a device';
+
+  @override
+  String get devicesServers => 'Servers';
+
+  @override
+  String get devicesServersNote =>
+      'Notices between your devices go through each server chosen.';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return 'Waiting for $name to accept the new servers.';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name proposes these servers: $servers.';
+  }
+
+  @override
+  String get devicesAccept => 'Accept';
+
+  @override
+  String get devicesNotNow => 'Not now';
+
+  @override
+  String get devicesPause => 'Pause sync';
+
+  @override
+  String get devicesPauseHint =>
+      'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline mode pauses it too.';
+
+  @override
+  String get devicesHeld => 'Held coins';
+
+  @override
+  String devicesHeldBy(String name) {
+    return 'Held by $name’s payment';
+  }
+
+  @override
+  String get devicesRelease => 'Release';
+
+  @override
+  String get devicesReleaseTitle => 'Release these coins?';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name may still be finishing this payment. If it does, a payment you make with these coins will fail. This affects only this device.';
+  }
+
+  @override
+  String get devicesReleased => 'Released on this device.';
+
+  @override
+  String get devicesRename => 'Rename';
+
+  @override
+  String get devicesNameLabel => 'Name';
+
+  @override
+  String get devicesRemove => 'Remove';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If $name may be in someone else’s hands, move the funds to a wallet with a new recovery phrase.';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return '$name removed.';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name removed this device from the link.';
+  }
+
+  @override
+  String get devicesMoneyNote =>
+      'Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.';
+
+  @override
+  String get devicesUnsupported => 'This version cannot link devices yet.';
+
+  @override
+  String get linkLead =>
+      'Both devices must hold this wallet. One shows a code, the other scans or pastes it.';
+
+  @override
+  String get linkShow => 'Show code';
+
+  @override
+  String get linkScan => 'Scan code';
+
+  @override
+  String get linkPaste => 'Paste code';
+
+  @override
+  String get linkShowLead =>
+      'On the other device, open Link a device and scan this code, or copy it and paste it there.';
+
+  @override
+  String get linkCopy => 'Copy code';
+
+  @override
+  String get linkCopied => 'Code copied.';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The code works for $count min.',
+      one: 'The code works for $count min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => 'Waiting for the other device…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return 'Waiting for $name…';
+  }
+
+  @override
+  String get linkPasteLabel => 'Device link code';
+
+  @override
+  String get linkGo => 'Link';
+
+  @override
+  String get linkCheckTitle => 'Check the pictures';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name shows four pictures too. Link only if they are the same, in the same order.';
+  }
+
+  @override
+  String get linkPicturesLabel => 'The four pictures';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return 'Waiting for $name to check the pictures.';
+  }
+
+  @override
+  String get linkDoneTitle => 'Linked';
+
+  @override
+  String linkDone(String name) {
+    return '$name is linked. A payment either device makes shows on both, and its coins are held on the other.';
+  }
+
+  @override
+  String get linkFailedTitle => 'Not linked';
+
+  @override
+  String get linkFailInvalid =>
+      'This is not a device link code, or it is damaged.';
+
+  @override
+  String get linkFailExpired => 'The code ran out of time. Make a new one.';
+
+  @override
+  String get linkFailNotFound => 'This code was used already or was cancelled.';
+
+  @override
+  String get linkFailOwn =>
+      'This code is from this device. Scan it on the other one.';
+
+  @override
+  String get linkFailOtherWallet => 'This device holds another wallet.';
+
+  @override
+  String get linkFailMismatch =>
+      'The pictures differ, so the devices were not linked.';
+
+  @override
+  String get linkFailCancelled =>
+      'The other device stopped, or did not check the pictures in time.';
+
+  @override
+  String linkFailTooMany(int count) {
+    return '$count devices are linked already. Remove one first.';
+  }
+
+  @override
+  String get linkFailUnreachable => 'No server answered. Try again later.';
+
+  @override
+  String get linkTryAgain => 'Try again';
+
+  @override
+  String get linkOffTitle => 'Linked devices are experimental';
+
+  @override
+  String txSentFromDevice(String device) {
+    return 'Sent from $device';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return 'Made on $device. Its details come from that device; the amount and confirmations come from the chain.';
+  }
+
+  @override
+  String get txDeviceHeld =>
+      'Its coins are held on this device until the chain shows the payment or the other device ends it.';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC is held by a payment $name is making.';
+  }
+
+  @override
+  String get offerLinkRestore =>
+      'Using this wallet on another device too? Link them to share history and see each other’s payments.';
+
+  @override
+  String get offerLinkOtherWallet =>
+      'Is this your other device? Link it to see who was paid and to keep both in step.';
 }

@@ -16456,4 +16456,292 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get devicesThisComputer => '电脑';
+
+  @override
+  String get devicesNone => '无';
+
+  @override
+  String get devicesSeenNow => '刚刚在线';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 分钟前在线',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 小时前在线',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 天前在线',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => '尚未在线';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 台设备',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个服务器',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => '本设备';
+
+  @override
+  String get devicesOthers => '设备';
+
+  @override
+  String get devicesEmpty => '尚未关联设备。';
+
+  @override
+  String get devicesLink => '关联设备';
+
+  @override
+  String get devicesServers => '服务器';
+
+  @override
+  String get devicesServersNote => '你的设备之间的通知会经过每个所选服务器。';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return '等待 $name 接受新的服务器。';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name 建议使用这些服务器：$servers。';
+  }
+
+  @override
+  String get devicesAccept => '接受';
+
+  @override
+  String get devicesNotNow => '暂不';
+
+  @override
+  String get devicesPause => '暂停同步';
+
+  @override
+  String get devicesPauseHint =>
+      '暂停期间，本设备既不读取也不发送通知；通知会在服务器上保留最多 7 天。离线模式也会暂停同步。';
+
+  @override
+  String get devicesHeld => '保留的币';
+
+  @override
+  String devicesHeldBy(String name) {
+    return '被 $name 的付款保留';
+  }
+
+  @override
+  String get devicesRelease => '释放';
+
+  @override
+  String get devicesReleaseTitle => '释放这些币？';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name 可能仍在完成这笔付款。如果是这样，你用这些币进行的付款会失败。这只影响本设备。';
+  }
+
+  @override
+  String get devicesReleased => '已在本设备上释放。';
+
+  @override
+  String get devicesRename => '重命名';
+
+  @override
+  String get devicesNameLabel => '名称';
+
+  @override
+  String get devicesRemove => '移除';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return '移除 $name？';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name 将不再接收和发送通知，它在这里保留的币会被释放。这不能保护资金：持有助记词的设备始终可以花费它。如果 $name 可能落入他人之手，请把资金转到使用新助记词的钱包。';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return '已移除 $name。';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name 已将本设备移出关联。';
+  }
+
+  @override
+  String get devicesMoneyNote => '关联会在你的设备之间共享付款信息。它不能保护资金：任何持有助记词的设备都能花费它。';
+
+  @override
+  String get devicesUnsupported => '此版本暂不能关联设备。';
+
+  @override
+  String get linkLead => '两台设备都必须持有这个钱包。一台显示代码，另一台扫描或粘贴它。';
+
+  @override
+  String get linkShow => '显示代码';
+
+  @override
+  String get linkScan => '扫描代码';
+
+  @override
+  String get linkPaste => '粘贴代码';
+
+  @override
+  String get linkShowLead => '在另一台设备上打开“关联设备”并扫描此代码，或复制后在那里粘贴。';
+
+  @override
+  String get linkCopy => '复制代码';
+
+  @override
+  String get linkCopied => '已复制代码。';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '代码 $count 分钟内有效。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => '正在等待另一台设备…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return '正在等待 $name…';
+  }
+
+  @override
+  String get linkPasteLabel => '关联代码';
+
+  @override
+  String get linkGo => '关联';
+
+  @override
+  String get linkCheckTitle => '核对图片';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name 也显示四张图片。只有图片相同且顺序一致时才关联。';
+  }
+
+  @override
+  String get linkPicturesLabel => '四张图片';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return '正在等待 $name 核对图片。';
+  }
+
+  @override
+  String get linkDoneTitle => '已关联';
+
+  @override
+  String linkDone(String name) {
+    return '$name 已关联。任一设备的付款都会显示在两台设备上，其币会在另一台设备上被保留。';
+  }
+
+  @override
+  String get linkFailedTitle => '未关联';
+
+  @override
+  String get linkFailInvalid => '这不是设备关联代码，或已损坏。';
+
+  @override
+  String get linkFailExpired => '代码已过期。请生成新的代码。';
+
+  @override
+  String get linkFailNotFound => '此代码已被使用或已取消。';
+
+  @override
+  String get linkFailOwn => '此代码来自本设备。请在另一台设备上扫描。';
+
+  @override
+  String get linkFailOtherWallet => '该设备持有另一个钱包。';
+
+  @override
+  String get linkFailMismatch => '图片不同，因此设备未关联。';
+
+  @override
+  String get linkFailCancelled => '另一台设备已停止，或未及时核对图片。';
+
+  @override
+  String linkFailTooMany(int count) {
+    return '已关联 $count 台设备。请先移除一台。';
+  }
+
+  @override
+  String get linkFailUnreachable => '没有服务器响应。请稍后再试。';
+
+  @override
+  String get linkTryAgain => '重试';
+
+  @override
+  String get linkOffTitle => '关联设备是实验性功能';
+
+  @override
+  String txSentFromDevice(String device) {
+    return '从 $device 发送';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return '在 $device 上发起。详情来自该设备；金额和确认数来自区块链。';
+  }
+
+  @override
+  String get txDeviceHeld => '在区块链显示这笔付款或另一台设备结束它之前，其币会在本设备上被保留。';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC 被 $name 正在进行的一笔付款保留。';
+  }
+
+  @override
+  String get offerLinkRestore => '也在另一台设备上使用这个钱包？关联它们即可共享记录并看到彼此的付款。';
+
+  @override
+  String get offerLinkOtherWallet => '这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。';
 }

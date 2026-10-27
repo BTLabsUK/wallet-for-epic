@@ -3,6 +3,7 @@
 library;
 
 import 'help_content.dart';
+import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsZh = [
   (id: 'start', title: '入门', lede: '接收、发送，以及文件方式。', art: 'help-start'),
@@ -435,5 +436,6 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    ...deviceHelpTopics('zh', phone: phone),
   ];
 }

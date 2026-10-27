@@ -17815,4 +17815,322 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesThisComputer => 'Компьютер';
+
+  @override
+  String get devicesNone => 'Нет';
+
+  @override
+  String get devicesSeenNow => 'был на связи только что';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'был на связи $count мин назад',
+      many: 'был на связи $count мин назад',
+      few: 'был на связи $count мин назад',
+      one: 'был на связи $count мин назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'был на связи $count ч назад',
+      many: 'был на связи $count ч назад',
+      few: 'был на связи $count ч назад',
+      one: 'был на связи $count ч назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'был на связи $count д назад',
+      many: 'был на связи $count д назад',
+      few: 'был на связи $count д назад',
+      one: 'был на связи $count д назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => 'ещё не был на связи';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count устройства',
+      many: '$count устройств',
+      few: '$count устройства',
+      one: '$count устройство',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сервера',
+      many: '$count серверов',
+      few: '$count сервера',
+      one: '$count сервер',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => 'Это устройство';
+
+  @override
+  String get devicesOthers => 'Устройства';
+
+  @override
+  String get devicesEmpty => 'Устройства ещё не связаны.';
+
+  @override
+  String get devicesLink => 'Связать устройство';
+
+  @override
+  String get devicesServers => 'Серверы';
+
+  @override
+  String get devicesServersNote =>
+      'Уведомления между вашими устройствами идут через каждый выбранный сервер.';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return 'Ожидание, пока $name примет новые серверы.';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name предлагает эти серверы: $servers.';
+  }
+
+  @override
+  String get devicesAccept => 'Принять';
+
+  @override
+  String get devicesNotNow => 'Не сейчас';
+
+  @override
+  String get devicesPause => 'Приостановить синхронизацию';
+
+  @override
+  String get devicesPauseHint =>
+      'На паузе это устройство не читает и не отправляет уведомления; они ждут на серверах до 7 дней. Автономный режим тоже ставит на паузу.';
+
+  @override
+  String get devicesHeld => 'Удержанные монеты';
+
+  @override
+  String devicesHeldBy(String name) {
+    return 'Удержано платежом с $name';
+  }
+
+  @override
+  String get devicesRelease => 'Освободить';
+
+  @override
+  String get devicesReleaseTitle => 'Освободить эти монеты?';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name может ещё завершать этот платёж. Тогда платёж с этими монетами не пройдёт. Это касается только этого устройства.';
+  }
+
+  @override
+  String get devicesReleased => 'Освобождено на этом устройстве.';
+
+  @override
+  String get devicesRename => 'Переименовать';
+
+  @override
+  String get devicesNameLabel => 'Имя';
+
+  @override
+  String get devicesRemove => 'Удалить';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return 'Удалить $name?';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name перестаёт получать и отправлять уведомления, а монеты, которые оно здесь удерживает, освобождаются. Это не защищает деньги: устройство с фразой восстановления всегда может их потратить. Если $name может быть в чужих руках, переведите средства в кошелёк с новой фразой восстановления.';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return '$name: удалено.';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name удалило это устройство из связи.';
+  }
+
+  @override
+  String get devicesMoneyNote =>
+      'Связь делится платежами между вашими устройствами. Она не защищает деньги: любое устройство с фразой восстановления может их потратить.';
+
+  @override
+  String get devicesUnsupported =>
+      'Эта версия пока не умеет связывать устройства.';
+
+  @override
+  String get linkLead =>
+      'На обоих устройствах должен быть этот кошелёк. Одно показывает код, другое сканирует или вставляет его.';
+
+  @override
+  String get linkShow => 'Показать код';
+
+  @override
+  String get linkScan => 'Сканировать код';
+
+  @override
+  String get linkPaste => 'Вставить код';
+
+  @override
+  String get linkShowLead =>
+      'На другом устройстве откройте «Связать устройство» и отсканируйте этот код или скопируйте и вставьте его там.';
+
+  @override
+  String get linkCopy => 'Копировать код';
+
+  @override
+  String get linkCopied => 'Код скопирован.';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Код действует $count мин.',
+      many: 'Код действует $count мин.',
+      few: 'Код действует $count мин.',
+      one: 'Код действует $count мин.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => 'Ожидание другого устройства…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return 'Ожидание $name…';
+  }
+
+  @override
+  String get linkPasteLabel => 'Код связи';
+
+  @override
+  String get linkGo => 'Связать';
+
+  @override
+  String get linkCheckTitle => 'Проверьте картинки';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name тоже показывает четыре картинки. Связывайте, только если они одинаковые и в том же порядке.';
+  }
+
+  @override
+  String get linkPicturesLabel => 'Четыре картинки';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return 'Ожидание, пока $name проверит картинки.';
+  }
+
+  @override
+  String get linkDoneTitle => 'Связано';
+
+  @override
+  String linkDone(String name) {
+    return '$name: связано. Платёж с любого из устройств виден на обоих, а его монеты удерживаются на другом.';
+  }
+
+  @override
+  String get linkFailedTitle => 'Не связано';
+
+  @override
+  String get linkFailInvalid => 'Это не код связи устройств, или он повреждён.';
+
+  @override
+  String get linkFailExpired => 'Срок кода истёк. Создайте новый.';
+
+  @override
+  String get linkFailNotFound => 'Этот код уже использован или отменён.';
+
+  @override
+  String get linkFailOwn =>
+      'Этот код с этого устройства. Отсканируйте его на другом.';
+
+  @override
+  String get linkFailOtherWallet => 'На этом устройстве другой кошелёк.';
+
+  @override
+  String get linkFailMismatch =>
+      'Картинки различаются, поэтому устройства не связаны.';
+
+  @override
+  String get linkFailCancelled =>
+      'Другое устройство прервало связь или не проверило картинки вовремя.';
+
+  @override
+  String linkFailTooMany(int count) {
+    return 'Уже связано $count устройств. Сначала удалите одно.';
+  }
+
+  @override
+  String get linkFailUnreachable =>
+      'Ни один сервер не ответил. Попробуйте позже.';
+
+  @override
+  String get linkTryAgain => 'Попробовать снова';
+
+  @override
+  String get linkOffTitle => 'Связанные устройства — экспериментальная функция';
+
+  @override
+  String txSentFromDevice(String device) {
+    return 'Отправлено с $device';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return 'Создано на $device. Подробности пришли с этого устройства; сумма и подтверждения — из блокчейна.';
+  }
+
+  @override
+  String get txDeviceHeld =>
+      'Его монеты удерживаются на этом устройстве, пока блокчейн не покажет платёж или другое устройство его не завершит.';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC удерживается платежом, который выполняет $name.';
+  }
+
+  @override
+  String get offerLinkRestore =>
+      'Этот кошелёк есть и на другом устройстве? Свяжите их, чтобы делиться историей и видеть платежи друг друга.';
+
+  @override
+  String get offerLinkOtherWallet =>
+      'Это ваше другое устройство? Свяжите его, чтобы видеть, кому заплачено, и держать оба в согласии.';
 }

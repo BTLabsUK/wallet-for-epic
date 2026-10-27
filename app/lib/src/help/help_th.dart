@@ -7,6 +7,7 @@
 library;
 
 import 'help_content.dart';
+import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsTh = [
   (id: 'start', title: 'เริ่มต้นใช้งาน', lede: 'การรับ การส่ง และการส่งด้วยไฟล์', art: 'help-start'),
@@ -441,5 +442,6 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    ...deviceHelpTopics('th', phone: phone),
   ];
 }

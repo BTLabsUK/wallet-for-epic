@@ -17585,4 +17585,313 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get devicesThisComputer => 'Computer';
+
+  @override
+  String get devicesNone => 'Keine';
+
+  @override
+  String get devicesSeenNow => 'gerade gesehen';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $count Min. gesehen',
+      one: 'vor $count Min. gesehen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $count Std. gesehen',
+      one: 'vor $count Std. gesehen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $count Tagen gesehen',
+      one: 'vor $count Tag gesehen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => 'noch nicht gesehen';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Geräte',
+      one: '$count Gerät',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Server',
+      one: '$count Server',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => 'Dieses Gerät';
+
+  @override
+  String get devicesOthers => 'Geräte';
+
+  @override
+  String get devicesEmpty => 'Noch kein Gerät verknüpft.';
+
+  @override
+  String get devicesLink => 'Gerät verknüpfen';
+
+  @override
+  String get devicesServers => 'Server';
+
+  @override
+  String get devicesServersNote =>
+      'Meldungen zwischen Ihren Geräten laufen über jeden gewählten Server.';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return 'Warten, bis $name die neuen Server annimmt.';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name schlägt diese Server vor: $servers.';
+  }
+
+  @override
+  String get devicesAccept => 'Annehmen';
+
+  @override
+  String get devicesNotNow => 'Nicht jetzt';
+
+  @override
+  String get devicesPause => 'Abgleich pausieren';
+
+  @override
+  String get devicesPauseHint =>
+      'Während der Pause liest und sendet dieses Gerät keine Meldungen; sie warten bis zu 7 Tage auf den Servern. Der Offline-Modus pausiert ebenfalls.';
+
+  @override
+  String get devicesHeld => 'Zurückgehaltene Münzen';
+
+  @override
+  String devicesHeldBy(String name) {
+    return 'Von einer Zahlung von $name zurückgehalten';
+  }
+
+  @override
+  String get devicesRelease => 'Freigeben';
+
+  @override
+  String get devicesReleaseTitle => 'Diese Münzen freigeben?';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name schließt diese Zahlung womöglich noch ab. Dann schlägt eine Zahlung mit diesen Münzen fehl. Das betrifft nur dieses Gerät.';
+  }
+
+  @override
+  String get devicesReleased => 'Auf diesem Gerät freigegeben.';
+
+  @override
+  String get devicesRename => 'Umbenennen';
+
+  @override
+  String get devicesNameLabel => 'Name';
+
+  @override
+  String get devicesRemove => 'Entfernen';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return '$name entfernen?';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name erhält und sendet keine Meldungen mehr, und Münzen, die es hier zurückhält, werden freigegeben. Das schützt das Geld nicht: Ein Gerät mit der Wiederherstellungsphrase kann es immer ausgeben. Falls $name in fremden Händen sein könnte, das Guthaben auf eine Wallet mit neuer Wiederherstellungsphrase verschieben.';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return '$name entfernt.';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name hat dieses Gerät aus der Verknüpfung entfernt.';
+  }
+
+  @override
+  String get devicesMoneyNote =>
+      'Die Verknüpfung teilt Zahlungen zwischen Ihren Geräten. Sie schützt das Geld nicht: Jedes Gerät mit der Wiederherstellungsphrase kann es ausgeben.';
+
+  @override
+  String get devicesUnsupported =>
+      'Diese Version kann noch keine Geräte verknüpfen.';
+
+  @override
+  String get linkLead =>
+      'Beide Geräte müssen diese Wallet enthalten. Eines zeigt einen Code, das andere scannt ihn oder fügt ihn ein.';
+
+  @override
+  String get linkShow => 'Code zeigen';
+
+  @override
+  String get linkScan => 'Code scannen';
+
+  @override
+  String get linkPaste => 'Code einfügen';
+
+  @override
+  String get linkShowLead =>
+      'Auf dem anderen Gerät „Gerät verknüpfen“ öffnen und diesen Code scannen oder kopieren und dort einfügen.';
+
+  @override
+  String get linkCopy => 'Code kopieren';
+
+  @override
+  String get linkCopied => 'Code kopiert.';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Der Code gilt $count Min.',
+      one: 'Der Code gilt $count Min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => 'Warten auf das andere Gerät…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return 'Warten auf $name…';
+  }
+
+  @override
+  String get linkPasteLabel => 'Code zum Verknüpfen';
+
+  @override
+  String get linkGo => 'Verknüpfen';
+
+  @override
+  String get linkCheckTitle => 'Bilder prüfen';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name zeigt ebenfalls vier Bilder. Nur verknüpfen, wenn sie gleich sind und in derselben Reihenfolge stehen.';
+  }
+
+  @override
+  String get linkPicturesLabel => 'Die vier Bilder';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return 'Warten, bis $name die Bilder prüft.';
+  }
+
+  @override
+  String get linkDoneTitle => 'Verknüpft';
+
+  @override
+  String linkDone(String name) {
+    return '$name ist verknüpft. Eine Zahlung eines der beiden Geräte erscheint auf beiden, und ihre Münzen werden auf dem anderen zurückgehalten.';
+  }
+
+  @override
+  String get linkFailedTitle => 'Nicht verknüpft';
+
+  @override
+  String get linkFailInvalid =>
+      'Das ist kein Code zum Verknüpfen, oder er ist beschädigt.';
+
+  @override
+  String get linkFailExpired =>
+      'Der Code ist abgelaufen. Einen neuen erstellen.';
+
+  @override
+  String get linkFailNotFound =>
+      'Dieser Code wurde schon benutzt oder abgebrochen.';
+
+  @override
+  String get linkFailOwn =>
+      'Dieser Code stammt von diesem Gerät. Ihn auf dem anderen scannen.';
+
+  @override
+  String get linkFailOtherWallet => 'Dieses Gerät enthält eine andere Wallet.';
+
+  @override
+  String get linkFailMismatch =>
+      'Die Bilder unterscheiden sich, daher wurden die Geräte nicht verknüpft.';
+
+  @override
+  String get linkFailCancelled =>
+      'Das andere Gerät hat abgebrochen oder die Bilder nicht rechtzeitig geprüft.';
+
+  @override
+  String linkFailTooMany(int count) {
+    return 'Es sind schon $count Geräte verknüpft. Zuerst eines entfernen.';
+  }
+
+  @override
+  String get linkFailUnreachable =>
+      'Kein Server hat geantwortet. Später erneut versuchen.';
+
+  @override
+  String get linkTryAgain => 'Erneut versuchen';
+
+  @override
+  String get linkOffTitle => 'Verknüpfte Geräte sind experimentell';
+
+  @override
+  String txSentFromDevice(String device) {
+    return 'Gesendet von $device';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return 'Auf $device erstellt. Die Details stammen von diesem Gerät; Betrag und Bestätigungen aus der Blockchain.';
+  }
+
+  @override
+  String get txDeviceHeld =>
+      'Seine Münzen bleiben auf diesem Gerät zurückgehalten, bis die Blockchain die Zahlung zeigt oder das andere Gerät sie beendet.';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC sind durch eine Zahlung von $name zurückgehalten.';
+  }
+
+  @override
+  String get offerLinkRestore =>
+      'Diese Wallet auch auf einem anderen Gerät? Verknüpfen, um den Verlauf zu teilen und die Zahlungen des anderen zu sehen.';
+
+  @override
+  String get offerLinkOtherWallet =>
+      'Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, wer bezahlt wurde, und beide abzugleichen.';
 }

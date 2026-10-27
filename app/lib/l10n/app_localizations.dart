@@ -27586,6 +27586,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Desktop'**
   String get devicesThisComputer;
+
+  /// State line of the Linked devices row when no device is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get devicesNone;
+
+  /// When a linked device was last heard from: under a minute ago.
+  ///
+  /// In en, this message translates to:
+  /// **'seen just now'**
+  String get devicesSeenNow;
+
+  /// When a linked device was last heard from, in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{seen {count} min ago} other{seen {count} min ago}}'**
+  String devicesSeenMinutes(int count);
+
+  /// When a linked device was last heard from, in hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{seen {count} h ago} other{seen {count} h ago}}'**
+  String devicesSeenHours(int count);
+
+  /// When a linked device was last heard from, in days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{seen {count} d ago} other{seen {count} d ago}}'**
+  String devicesSeenDays(int count);
+
+  /// A linked device not heard from since it was linked.
+  ///
+  /// In en, this message translates to:
+  /// **'not seen yet'**
+  String get devicesNotSeen;
+
+  /// State line of the Linked devices row with two or more devices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} device} other{{count} devices}}'**
+  String devicesCount(int count);
+
+  /// How many servers carry the link to one device, on its row.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} server} other{{count} servers}}'**
+  String devicesServerCount(int count);
+
+  /// Linked devices page: the heading over this device's own name.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// Linked devices page: the heading over the other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices'**
+  String get devicesOthers;
+
+  /// Linked devices page with no device linked.
+  ///
+  /// In en, this message translates to:
+  /// **'No device linked yet.'**
+  String get devicesEmpty;
+
+  /// Button: start linking another device. Also the title of that flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a device'**
+  String get devicesLink;
+
+  /// Linked devices page: the row with the servers the devices' notices go through.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get devicesServers;
+
+  /// Under the server list when choosing the linked devices' servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Notices between your devices go through each server chosen.'**
+  String get devicesServersNote;
+
+  /// Linked devices page: a server change this device proposed waits for the others.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to accept the new servers.'**
+  String devicesServersWaiting(String name);
+
+  /// Linked devices page: another device proposes other servers; the user accepts here or not.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} proposes these servers: {servers}.'**
+  String devicesProposal(String name, String servers);
+
+  /// Button: accept the servers another device proposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get devicesAccept;
+
+  /// Button: leave the servers another device proposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get devicesNotNow;
+
+  /// Switch on the Linked devices page: stop reading and sending notices for now.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause sync'**
+  String get devicesPause;
+
+  /// Info text of the Pause sync switch.
+  ///
+  /// In en, this message translates to:
+  /// **'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline mode pauses it too.'**
+  String get devicesPauseHint;
+
+  /// Linked devices page: the heading over coins another device is spending.
+  ///
+  /// In en, this message translates to:
+  /// **'Held coins'**
+  String get devicesHeld;
+
+  /// On an output and in the held list: another device's payment is spending this coin.
+  ///
+  /// In en, this message translates to:
+  /// **'Held by {name}’s payment'**
+  String devicesHeldBy(String name);
+
+  /// Button: free coins another device holds, on this device only.
+  ///
+  /// In en, this message translates to:
+  /// **'Release'**
+  String get devicesRelease;
+
+  /// Title of the confirm before releasing held coins by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Release these coins?'**
+  String get devicesReleaseTitle;
+
+  /// Body of the confirm before releasing held coins by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} may still be finishing this payment. If it does, a payment you make with these coins will fail. This affects only this device.'**
+  String devicesReleaseBody(String name);
+
+  /// Notice after releasing held coins by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Released on this device.'**
+  String get devicesReleased;
+
+  /// Button and dialog title: rename a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get devicesRename;
+
+  /// Field label in the rename dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get devicesNameLabel;
+
+  /// Button: remove a linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get devicesRemove;
+
+  /// Title of the confirm before removing a linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String devicesRemoveTitle(String name);
+
+  /// Body of the confirm before removing a linked device. Must say plainly that removing does not protect the money.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the funds to a wallet with a new recovery phrase.'**
+  String devicesRemoveBody(String name);
+
+  /// Notice after removing a linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed.'**
+  String devicesRemoved(String name);
+
+  /// Linked devices page: another device removed this one from the link.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed this device from the link.'**
+  String devicesRemovedBy(String name);
+
+  /// Footnote of the Linked devices page.
+  ///
+  /// In en, this message translates to:
+  /// **'Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.'**
+  String get devicesMoneyNote;
+
+  /// Linked devices page and link flow when this build's wallet core cannot link devices yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This version cannot link devices yet.'**
+  String get devicesUnsupported;
+
+  /// First step of Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Both devices must hold this wallet. One shows a code, the other scans or pastes it.'**
+  String get linkLead;
+
+  /// Link a device: this device shows the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get linkShow;
+
+  /// Link a device: scan the other device's code with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan code'**
+  String get linkScan;
+
+  /// Link a device: paste the other device's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste code'**
+  String get linkPaste;
+
+  /// Under the device link QR.
+  ///
+  /// In en, this message translates to:
+  /// **'On the other device, open Link a device and scan this code, or copy it and paste it there.'**
+  String get linkShowLead;
+
+  /// Button: copy the device link code.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get linkCopy;
+
+  /// Notice after copying the device link code.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied.'**
+  String get linkCopied;
+
+  /// Under the device link QR: how long the code works.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The code works for {count} min.} other{The code works for {count} min.}}'**
+  String linkExpires(int count);
+
+  /// Link a device: waiting for the other device to answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other device…'**
+  String get linkWaiting;
+
+  /// Link a device: the code was answered, waiting for the device that showed it.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}…'**
+  String linkWaitingFor(String name);
+
+  /// Field label: the pasted device link code.
+  ///
+  /// In en, this message translates to:
+  /// **'Device link code'**
+  String get linkPasteLabel;
+
+  /// Button: link with the pasted code.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get linkGo;
+
+  /// Link a device: the step where the user compares four pictures on both devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the pictures'**
+  String get linkCheckTitle;
+
+  /// Link a device: compare the four pictures.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} shows four pictures too. Link only if they are the same, in the same order.'**
+  String linkCheckLead(String name);
+
+  /// Screen reader label of the four pictures.
+  ///
+  /// In en, this message translates to:
+  /// **'The four pictures'**
+  String get linkPicturesLabel;
+
+  /// Link a device: this device matched, the other has not checked yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to check the pictures.'**
+  String linkWaitingCheck(String name);
+
+  /// Link a device: done.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked'**
+  String get linkDoneTitle;
+
+  /// Link a device: done.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is linked. A payment either device makes shows on both, and its coins are held on the other.'**
+  String linkDone(String name);
+
+  /// Link a device: it did not complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked'**
+  String get linkFailedTitle;
+
+  /// Link failure.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a device link code, or it is damaged.'**
+  String get linkFailInvalid;
+
+  /// Link failure.
+  ///
+  /// In en, this message translates to:
+  /// **'The code ran out of time. Make a new one.'**
+  String get linkFailExpired;
+
+  /// Link failure.
+  ///
+  /// In en, this message translates to:
+  /// **'This code was used already or was cancelled.'**
+  String get linkFailNotFound;
+
+  /// Link failure: the user scanned this device's own code.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is from this device. Scan it on the other one.'**
+  String get linkFailOwn;
+
+  /// Link failure: the other device holds a different wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'This device holds another wallet.'**
+  String get linkFailOtherWallet;
+
+  /// Link failure: the user said the pictures differ.
+  ///
+  /// In en, this message translates to:
+  /// **'The pictures differ, so the devices were not linked.'**
+  String get linkFailMismatch;
+
+  /// Link failure: the other device stopped or did not check in time.
+  ///
+  /// In en, this message translates to:
+  /// **'The other device stopped, or did not check the pictures in time.'**
+  String get linkFailCancelled;
+
+  /// Link failure: the most devices are linked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} devices are linked already. Remove one first.'**
+  String linkFailTooMany(int count);
+
+  /// Link failure: no server answered.
+  ///
+  /// In en, this message translates to:
+  /// **'No server answered. Try again later.'**
+  String get linkFailUnreachable;
+
+  /// Button after a failed link.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get linkTryAgain;
+
+  /// Sheet when a device link code is scanned while Linked devices is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked devices are experimental'**
+  String get linkOffTitle;
+
+  /// History row title and details heading: a payment another linked device of this wallet made.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from {device}'**
+  String txSentFromDevice(String device);
+
+  /// Details of a payment another linked device made.
+  ///
+  /// In en, this message translates to:
+  /// **'Made on {device}. Its details come from that device; the amount and confirmations come from the chain.'**
+  String txDeviceMadeOn(String device);
+
+  /// Details of a pending payment another linked device is making.
+  ///
+  /// In en, this message translates to:
+  /// **'Its coins are held on this device until the chain shows the payment or the other device ends it.'**
+  String get txDeviceHeld;
+
+  /// Send: part of the balance is held by a payment another linked device is making.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC is held by a payment {name} is making.'**
+  String sendHeldByDevice(String amount, String name);
+
+  /// Quiet offer at the end of a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Using this wallet on another device too? Link them to share history and see each other’s payments.'**
+  String get offerLinkRestore;
+
+  /// Quiet offer at the end of the details of a payment another wallet on the same phrase made.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this your other device? Link it to see who was paid and to keep both in step.'**
+  String get offerLinkOtherWallet;
 }
 
 class _AppLocalizationsDelegate

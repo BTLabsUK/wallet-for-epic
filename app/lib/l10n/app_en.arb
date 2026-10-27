@@ -23204,5 +23204,405 @@
   "devicesThisComputer": "Desktop",
   "@devicesThisComputer": {
     "description": "The name this computer has for linked devices until the user renames it. Shown on the user's other devices."
+  },
+  "devicesNone": "None",
+  "@devicesNone": {
+    "description": "State line of the Linked devices row when no device is linked."
+  },
+  "devicesSeenNow": "seen just now",
+  "@devicesSeenNow": {
+    "description": "When a linked device was last heard from: under a minute ago."
+  },
+  "devicesSeenMinutes": "{count, plural, one{seen {count} min ago} other{seen {count} min ago}}",
+  "@devicesSeenMinutes": {
+    "description": "When a linked device was last heard from, in minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesSeenHours": "{count, plural, one{seen {count} h ago} other{seen {count} h ago}}",
+  "@devicesSeenHours": {
+    "description": "When a linked device was last heard from, in hours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesSeenDays": "{count, plural, one{seen {count} d ago} other{seen {count} d ago}}",
+  "@devicesSeenDays": {
+    "description": "When a linked device was last heard from, in days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesNotSeen": "not seen yet",
+  "@devicesNotSeen": {
+    "description": "A linked device not heard from since it was linked."
+  },
+  "devicesCount": "{count, plural, one{{count} device} other{{count} devices}}",
+  "@devicesCount": {
+    "description": "State line of the Linked devices row with two or more devices.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesServerCount": "{count, plural, one{{count} server} other{{count} servers}}",
+  "@devicesServerCount": {
+    "description": "How many servers carry the link to one device, on its row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesThisDevice": "This device",
+  "@devicesThisDevice": {
+    "description": "Linked devices page: the heading over this device's own name."
+  },
+  "devicesOthers": "Devices",
+  "@devicesOthers": {
+    "description": "Linked devices page: the heading over the other devices."
+  },
+  "devicesEmpty": "No device linked yet.",
+  "@devicesEmpty": {
+    "description": "Linked devices page with no device linked."
+  },
+  "devicesLink": "Link a device",
+  "@devicesLink": {
+    "description": "Button: start linking another device. Also the title of that flow."
+  },
+  "devicesServers": "Servers",
+  "@devicesServers": {
+    "description": "Linked devices page: the row with the servers the devices' notices go through."
+  },
+  "devicesServersNote": "Notices between your devices go through each server chosen.",
+  "@devicesServersNote": {
+    "description": "Under the server list when choosing the linked devices' servers."
+  },
+  "devicesServersWaiting": "Waiting for {name} to accept the new servers.",
+  "@devicesServersWaiting": {
+    "description": "Linked devices page: a server change this device proposed waits for the others.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesProposal": "{name} proposes these servers: {servers}.",
+  "@devicesProposal": {
+    "description": "Linked devices page: another device proposes other servers; the user accepts here or not.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "servers": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesAccept": "Accept",
+  "@devicesAccept": {
+    "description": "Button: accept the servers another device proposed."
+  },
+  "devicesNotNow": "Not now",
+  "@devicesNotNow": {
+    "description": "Button: leave the servers another device proposed."
+  },
+  "devicesPause": "Pause sync",
+  "@devicesPause": {
+    "description": "Switch on the Linked devices page: stop reading and sending notices for now."
+  },
+  "devicesPauseHint": "While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline mode pauses it too.",
+  "@devicesPauseHint": {
+    "description": "Info text of the Pause sync switch."
+  },
+  "devicesHeld": "Held coins",
+  "@devicesHeld": {
+    "description": "Linked devices page: the heading over coins another device is spending."
+  },
+  "devicesHeldBy": "Held by {name}’s payment",
+  "@devicesHeldBy": {
+    "description": "On an output and in the held list: another device's payment is spending this coin.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesRelease": "Release",
+  "@devicesRelease": {
+    "description": "Button: free coins another device holds, on this device only."
+  },
+  "devicesReleaseTitle": "Release these coins?",
+  "@devicesReleaseTitle": {
+    "description": "Title of the confirm before releasing held coins by hand."
+  },
+  "devicesReleaseBody": "{name} may still be finishing this payment. If it does, a payment you make with these coins will fail. This affects only this device.",
+  "@devicesReleaseBody": {
+    "description": "Body of the confirm before releasing held coins by hand.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesReleased": "Released on this device.",
+  "@devicesReleased": {
+    "description": "Notice after releasing held coins by hand."
+  },
+  "devicesRename": "Rename",
+  "@devicesRename": {
+    "description": "Button and dialog title: rename a device."
+  },
+  "devicesNameLabel": "Name",
+  "@devicesNameLabel": {
+    "description": "Field label in the rename dialog."
+  },
+  "devicesRemove": "Remove",
+  "@devicesRemove": {
+    "description": "Button: remove a linked device."
+  },
+  "devicesRemoveTitle": "Remove {name}?",
+  "@devicesRemoveTitle": {
+    "description": "Title of the confirm before removing a linked device.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesRemoveBody": "{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the funds to a wallet with a new recovery phrase.",
+  "@devicesRemoveBody": {
+    "description": "Body of the confirm before removing a linked device. Must say plainly that removing does not protect the money.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesRemoved": "{name} removed.",
+  "@devicesRemoved": {
+    "description": "Notice after removing a linked device.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesRemovedBy": "{name} removed this device from the link.",
+  "@devicesRemovedBy": {
+    "description": "Linked devices page: another device removed this one from the link.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesMoneyNote": "Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.",
+  "@devicesMoneyNote": {
+    "description": "Footnote of the Linked devices page."
+  },
+  "devicesUnsupported": "This version cannot link devices yet.",
+  "@devicesUnsupported": {
+    "description": "Linked devices page and link flow when this build's wallet core cannot link devices yet."
+  },
+  "linkLead": "Both devices must hold this wallet. One shows a code, the other scans or pastes it.",
+  "@linkLead": {
+    "description": "First step of Link a device."
+  },
+  "linkShow": "Show code",
+  "@linkShow": {
+    "description": "Link a device: this device shows the code."
+  },
+  "linkScan": "Scan code",
+  "@linkScan": {
+    "description": "Link a device: scan the other device's code with the camera."
+  },
+  "linkPaste": "Paste code",
+  "@linkPaste": {
+    "description": "Link a device: paste the other device's code."
+  },
+  "linkShowLead": "On the other device, open Link a device and scan this code, or copy it and paste it there.",
+  "@linkShowLead": {
+    "description": "Under the device link QR."
+  },
+  "linkCopy": "Copy code",
+  "@linkCopy": {
+    "description": "Button: copy the device link code."
+  },
+  "linkCopied": "Code copied.",
+  "@linkCopied": {
+    "description": "Notice after copying the device link code."
+  },
+  "linkExpires": "{count, plural, one{The code works for {count} min.} other{The code works for {count} min.}}",
+  "@linkExpires": {
+    "description": "Under the device link QR: how long the code works.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linkWaiting": "Waiting for the other device…",
+  "@linkWaiting": {
+    "description": "Link a device: waiting for the other device to answer."
+  },
+  "linkWaitingFor": "Waiting for {name}…",
+  "@linkWaitingFor": {
+    "description": "Link a device: the code was answered, waiting for the device that showed it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkPasteLabel": "Device link code",
+  "@linkPasteLabel": {
+    "description": "Field label: the pasted device link code."
+  },
+  "linkGo": "Link",
+  "@linkGo": {
+    "description": "Button: link with the pasted code."
+  },
+  "linkCheckTitle": "Check the pictures",
+  "@linkCheckTitle": {
+    "description": "Link a device: the step where the user compares four pictures on both devices."
+  },
+  "linkCheckLead": "{name} shows four pictures too. Link only if they are the same, in the same order.",
+  "@linkCheckLead": {
+    "description": "Link a device: compare the four pictures.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkPicturesLabel": "The four pictures",
+  "@linkPicturesLabel": {
+    "description": "Screen reader label of the four pictures."
+  },
+  "linkWaitingCheck": "Waiting for {name} to check the pictures.",
+  "@linkWaitingCheck": {
+    "description": "Link a device: this device matched, the other has not checked yet.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkDoneTitle": "Linked",
+  "@linkDoneTitle": {
+    "description": "Link a device: done."
+  },
+  "linkDone": "{name} is linked. A payment either device makes shows on both, and its coins are held on the other.",
+  "@linkDone": {
+    "description": "Link a device: done.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkFailedTitle": "Not linked",
+  "@linkFailedTitle": {
+    "description": "Link a device: it did not complete."
+  },
+  "linkFailInvalid": "This is not a device link code, or it is damaged.",
+  "@linkFailInvalid": {
+    "description": "Link failure."
+  },
+  "linkFailExpired": "The code ran out of time. Make a new one.",
+  "@linkFailExpired": {
+    "description": "Link failure."
+  },
+  "linkFailNotFound": "This code was used already or was cancelled.",
+  "@linkFailNotFound": {
+    "description": "Link failure."
+  },
+  "linkFailOwn": "This code is from this device. Scan it on the other one.",
+  "@linkFailOwn": {
+    "description": "Link failure: the user scanned this device's own code."
+  },
+  "linkFailOtherWallet": "This device holds another wallet.",
+  "@linkFailOtherWallet": {
+    "description": "Link failure: the other device holds a different wallet."
+  },
+  "linkFailMismatch": "The pictures differ, so the devices were not linked.",
+  "@linkFailMismatch": {
+    "description": "Link failure: the user said the pictures differ."
+  },
+  "linkFailCancelled": "The other device stopped, or did not check the pictures in time.",
+  "@linkFailCancelled": {
+    "description": "Link failure: the other device stopped or did not check in time."
+  },
+  "linkFailTooMany": "{count} devices are linked already. Remove one first.",
+  "@linkFailTooMany": {
+    "description": "Link failure: the most devices are linked.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linkFailUnreachable": "No server answered. Try again later.",
+  "@linkFailUnreachable": {
+    "description": "Link failure: no server answered."
+  },
+  "linkTryAgain": "Try again",
+  "@linkTryAgain": {
+    "description": "Button after a failed link."
+  },
+  "linkOffTitle": "Linked devices are experimental",
+  "@linkOffTitle": {
+    "description": "Sheet when a device link code is scanned while Linked devices is off."
+  },
+  "txSentFromDevice": "Sent from {device}",
+  "@txSentFromDevice": {
+    "description": "History row title and details heading: a payment another linked device of this wallet made.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "txDeviceMadeOn": "Made on {device}. Its details come from that device; the amount and confirmations come from the chain.",
+  "@txDeviceMadeOn": {
+    "description": "Details of a payment another linked device made.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "txDeviceHeld": "Its coins are held on this device until the chain shows the payment or the other device ends it.",
+  "@txDeviceHeld": {
+    "description": "Details of a pending payment another linked device is making."
+  },
+  "sendHeldByDevice": "{amount} EPIC is held by a payment {name} is making.",
+  "@sendHeldByDevice": {
+    "description": "Send: part of the balance is held by a payment another linked device is making.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "offerLinkRestore": "Using this wallet on another device too? Link them to share history and see each other’s payments.",
+  "@offerLinkRestore": {
+    "description": "Quiet offer at the end of a restore."
+  },
+  "offerLinkOtherWallet": "Is this your other device? Link it to see who was paid and to keep both in step.",
+  "@offerLinkOtherWallet": {
+    "description": "Quiet offer at the end of the details of a payment another wallet on the same phrase made."
   }
 }
