@@ -1066,6 +1066,9 @@ class FakePairing implements PairingApi {
   final List<_PrivateMail> _outbox = [];
   final List<PairingPayload> _payloads = [];
 
+  /// The server of each answered private pairing, named on its record once it is made.
+  final Map<String, String> _answeredOn = {};
+
   /// Every payload posted, in order: (pairing id, bytes). Tests read it.
   final List<({String id, List<int> bytes})> posted = [];
 
@@ -1145,9 +1148,11 @@ class FakePairing implements PairingApi {
       inviter: false,
       createdAt: clock(),
       name: body['n'] as String?,
-      homeRelay: body['r'] as String? ?? homeRelay,
+      // As LEPIC: the answered pairing names its server only once it is made, with the port.
+      homeRelay: '',
       expiresAt: clock().add(pairingReplyWait),
     );
+    _answeredOn[id] = '${body['r'] as String? ?? homeRelay}:443';
     _putPrivate(record);
     _deliver(invite.fake, _PrivateMail.answer(to: invite.id, from: this, fromId: id, name: name, token: token));
     return record;
@@ -1182,7 +1187,7 @@ class FakePairing implements PairingApi {
         case _MailKind.confirm:
           if (r.state != PairingState.pendingReply) continue;
           _peers[r.id] = (fake: m.from!, id: m.fromId!);
-          _putPrivate(r.copyWith(state: PairingState.paired, sas: fakeSasWords('private:${m.token}')));
+          _putPrivate(r.copyWith(state: PairingState.paired, sas: fakeSasWords('private:${m.token}'), homeRelay: _answeredOn.remove(r.id)));
           taken++;
         case _MailKind.payload:
           if (!r.state.isPaired || r.removedByPeer) continue;
