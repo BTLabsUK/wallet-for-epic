@@ -1818,11 +1818,11 @@ void main() {
           say(
             'This history file is from floonet, but this wallet is on mainnet',
           ),
-          'This history file is from floonet, but this wallet is on mainnet.',
+          'This wallet data file is from floonet, but this wallet is on mainnet.',
         );
         expect(
           say('This history file is damaged.'),
-          'This history file is damaged.',
+          'This wallet data file is damaged.',
         );
       });
 
