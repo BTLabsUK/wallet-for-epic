@@ -21,5 +21,6 @@
   "deskSetAboutAgoDays": "{count} 天前",
   "deskSetAboutCopyLink": "复制链接",
   "deskSetAboutCopied": "已复制",
-  "deskSetAboutNotCopied": "未复制"
+  "deskSetAboutNotCopied": "未复制",
+  "deskSetAboutDownloadPage": "下载页面"
 }

@@ -1,5 +1,6 @@
 import '../../../app_info.dart';
 import '../../../app_version.dart';
+import '../../../l10n.dart' show localInt;
 import '../../../tor_licence.dart' show torSourceNote;
 import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
@@ -10,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
 import '../../data/net_mode_view.dart';
+import '../../app/update_notice.dart' show deskUpdateAct, deskUpdateActLabel;
 import '../../../network_gate.dart' show NetBlock;
 import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -48,28 +50,12 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
     });
   }
 
-  Future<void> _open(String url) async {
-    if (!await ref.read(deskOpenUrlProvider)(url) && mounted) showEToast(context, context.l10n.deskSetAboutBrowserNotOpened, text: url, tone: ETone.warn);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     final ts = context.ts;
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     final l = context.l10n;
-    Widget linkRow(String title, String shown, String url) => ESetRow(
-      title: title,
-      control: ERowControl(child: EButton(label: l.deskSetAboutOpen, icon: EIcons.external, size: EBtnSize.sm, onPressed: () => _open(url))),
-      below: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(child: Text(shown, style: ts.mono(size: Fs.sm, color: c.faint), overflow: TextOverflow.ellipsis)),
-          SizedBox(width: Sp.x1),
-          LinkCopyButton(url: url),
-        ],
-      ),
-    );
+    Widget linkRow(String title, String shown, String url) => _LinkRow(title: title, shown: shown, url: url);
     return SettingsFrame(
       route: DeskRoute.settingsAbout,
       child: Column(
@@ -151,10 +137,42 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   }
 }
 
-/// "0.1.0 is the latest · checked 5 min ago", "Update available: 26.10.1", or "Could not check"
-/// with the reason; Check now. Plain text only: the sidebar's notice (`app/update_notice.dart`)
-/// is the one place that offers an update, downloads it and restarts for it, so a check here that
-/// finds one shows it there.
+/// A link: its title, Open (the browser), and the address under it with a copy button.
+class _LinkRow extends ConsumerWidget {
+  const _LinkRow({required this.title, required this.shown, required this.url});
+
+  final String title;
+  final String shown;
+  final String url;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.dc;
+    final l = context.l10n;
+    Future<void> open() async {
+      if (!await ref.read(deskOpenUrlProvider)(url) && context.mounted) showEToast(context, l.deskSetAboutBrowserNotOpened, text: url, tone: ETone.warn);
+    }
+
+    return ESetRow(
+      title: title,
+      control: ERowControl(child: EButton(label: l.deskSetAboutOpen, icon: EIcons.external, size: EBtnSize.sm, onPressed: open)),
+      below: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(child: Text(shown, style: context.ts.mono(size: Fs.sm, color: c.faint), overflow: TextOverflow.ellipsis)),
+          SizedBox(width: Sp.x1),
+          LinkCopyButton(url: url),
+        ],
+      ),
+    );
+  }
+}
+
+/// "0.1.0 is the latest · checked 5 min ago", or "Could not check" with the reason, and Check
+/// now; while an update is offered, what it is at and the button for its next step, the same
+/// steps as the sidebar's slot (`app/update_notice.dart`): Download and install, Restart to
+/// update, Try again, or the download page where this copy cannot install it by itself. The
+/// download page's address is always there, to open or copy.
 class _Updates extends ConsumerWidget {
   const _Updates();
 
@@ -163,37 +181,60 @@ class _Updates extends ConsumerWidget {
     final u = ref.watch(deskUpdateProvider);
     final now = ref.read(deskUpdateClockProvider)();
     final l = context.l10n;
+    final v = u.version ?? '';
     final checked = u.checkedAt == null ? null : l.deskSetAboutChecked(_ago(l, now.difference(u.checkedAt!)));
+    // Where this copy cannot install the update, it says so: every step opens the page.
+    final manual = u.file == null ? l.deskUpdManual : null;
     final (title, text) = switch (u.phase) {
       DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, checked),
       DeskUpdatePhase.latest => (l.deskSetAboutLatest(deskAppVersion), checked),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
-      _ => (l.deskSetAboutAvailable(u.version ?? ''), checked),
+      DeskUpdatePhase.downloading => (l.deskSetAboutAvailable(v), l.deskUpdDownloading(localInt(l, ((u.progress ?? 0) * 100).floor()))),
+      DeskUpdatePhase.ready when u.problem == null => (l.deskUpdReady(v), l.deskUpdRestartHint),
+      DeskUpdatePhase.ready => (l.deskUpdInstallFailed, u.problem),
+      DeskUpdatePhase.unfinished => (l.deskUpdUnfinished, [u.problem, manual].nonNulls.join(' ')),
+      _ when u.problem != null => (l.deskUpdFailed, [u.problem, manual].nonNulls.join(' ')),
+      _ => (l.deskSetAboutAvailable(v), [manual, checked].nonNulls.join(' ')),
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
     final block = ref.watch(deskNetBlockProvider);
+    final act = deskUpdateActLabel(l, u);
     // A check changes nothing while the update downloads, waits for its restart or for Try again.
     final checks = !(u.phase == DeskUpdatePhase.downloading ||
         u.phase == DeskUpdatePhase.unfinished ||
         (u.phase == DeskUpdatePhase.ready && u.problem == null));
+    final check = EButton(
+      label: l.deskSetAboutCheckNow,
+      icon: EIcons.refresh,
+      size: EBtnSize.sm,
+      busy: busy,
+      onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+    );
+    // While an update is offered: the button for its step (it waits while the download runs),
+    // after Check now where a check still tells something.
+    final step = u.offered
+        ? EButton(
+            key: const ValueKey('about-update-act'),
+            label: act ?? l.deskUpdDownloadInstall,
+            icon: act == l.deskUpdOpenPage ? EIcons.external : null,
+            kind: EBtnKind.primary,
+            size: EBtnSize.sm,
+            busy: u.phase == DeskUpdatePhase.downloading,
+            onPressed: act == null ? null : () => deskUpdateAct(context, ref),
+          )
+        : null;
     return ESetGroup(
       title: l.deskSetAboutUpdates,
       rows: [
         ESetRow(
           title: title,
-          text: block == NetBlock.none ? text : netBlockReason(l, block),
-          control: checks
-              ? ERowControl(
-                  child: EButton(
-                    label: l.deskSetAboutCheckNow,
-                    icon: EIcons.refresh,
-                    size: EBtnSize.sm,
-                    busy: busy,
-                    onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),
-                  ),
-                )
-              : null,
+          text: block == NetBlock.none || u.offered ? text : netBlockReason(l, block),
+          wrap: step != null,
+          control: step == null
+              ? ERowControl(child: check)
+              : Row(mainAxisSize: MainAxisSize.min, children: [if (checks) ...[check, SizedBox(width: Sp.x2)], step]),
         ),
+        _LinkRow(title: l.deskSetAboutDownloadPage, shown: 'examples.btlabs.uk/epic-cash-wallets', url: deskReleasesUrl), // l10n-ok: an address
       ],
     );
   }

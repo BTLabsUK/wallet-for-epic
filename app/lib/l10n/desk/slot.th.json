@@ -17,7 +17,6 @@
   "deskSlotRequests": "คำขอใหม่",
   "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
   "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
-  "deskSlotUpdateDot": "มีอัปเดต {version} แสดงการอัปเดต",
   "deskSlotOpenAdvanced": "เปิดการตั้งค่าขั้นสูง",
   "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
   "deskSlotOpenSend": "เปิดส่ง",

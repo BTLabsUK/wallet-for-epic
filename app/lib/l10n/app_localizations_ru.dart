@@ -17185,11 +17185,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSlotNodeSyncing => 'Синхронизация локального узла';
 
   @override
-  String deskSlotUpdateDot(String version) {
-    return 'Доступно обновление, $version. Показывает обновление.';
-  }
-
-  @override
   String get deskSlotOpenAdvanced => 'Открыть «Дополнительно»';
 
   @override
@@ -17638,4 +17633,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConExportDo => 'Экспортировать';
+
+  @override
+  String get deskSetAboutDownloadPage => 'Страница загрузки';
+
+  @override
+  String get deskUpdManual =>
+      'Эта копия приложения не может сама устанавливать обновления.';
+
+  @override
+  String get deskUpdDownloadInstall => 'Скачать и установить';
+
+  @override
+  String deskUpdReadyTitle(String version) {
+    return 'Epic Cash $version готов';
+  }
+
+  @override
+  String get deskUpdReadyBody =>
+      'Перезапустите сейчас, чтобы обновить. Кошелёк заблокируется, а приложение откроется снова.';
+
+  @override
+  String get deskUpdRestartNow => 'Перезапустить';
+
+  @override
+  String get deskUpdLater => 'Позже';
 }

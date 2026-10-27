@@ -21,5 +21,6 @@
   "deskSetAboutAgoDays": "{count} дн. назад",
   "deskSetAboutCopyLink": "Копировать ссылку",
   "deskSetAboutCopied": "Скопировано",
-  "deskSetAboutNotCopied": "Не скопировано"
+  "deskSetAboutNotCopied": "Не скопировано",
+  "deskSetAboutDownloadPage": "Страница загрузки"
 }

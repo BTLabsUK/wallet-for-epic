@@ -17,7 +17,6 @@
   "deskSlotRequests": "Новые запросы",
   "deskSlotNodeStarting": "Запуск локального узла",
   "deskSlotNodeSyncing": "Синхронизация локального узла",
-  "deskSlotUpdateDot": "Доступно обновление, {version}. Показывает обновление.",
   "deskSlotOpenAdvanced": "Открыть «Дополнительно»",
   "deskSlotOpenRecheck": "Открыть «Сверка баланса»",
   "deskSlotOpenSend": "Открыть «Отправить»",

@@ -98,5 +98,9 @@
   "deskSetAboutNotCopied": "Not copied",
   "@deskSetAboutNotCopied": {
     "description": "Shown in place of Copy link for a moment when copying failed."
+  },
+  "deskSetAboutDownloadPage": "Download page",
+  "@deskSetAboutDownloadPage": {
+    "description": "Settings › About › Updates: row title of the public download page's address, with Open and a copy button."
   }
 }

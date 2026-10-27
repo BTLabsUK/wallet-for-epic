@@ -4454,7 +4454,6 @@
   "deskSlotRequests": "Neue Anfragen",
   "deskSlotNodeStarting": "Lokaler Node startet",
   "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
-  "deskSlotUpdateDot": "Update verfügbar, {version}. Zeigt das Update.",
   "deskSlotOpenAdvanced": "Erweiterte Einstellungen öffnen",
   "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
   "deskSlotOpenSend": "Senden öffnen",
@@ -4573,5 +4572,12 @@
   "ownNodePoolEmpty": "leer",
   "ownNodePoolWaiting": "{count, plural, one{1 wartet} other{{count} warten}}",
   "ownNodeAskedDirectly": "Alle 15 s direkt von diesem Handy gefragt",
-  "deskConExportDo": "Exportieren"
+  "deskConExportDo": "Exportieren",
+  "deskSetAboutDownloadPage": "Download-Seite",
+  "deskUpdManual": "Diese Kopie der App kann Updates nicht selbst installieren.",
+  "deskUpdDownloadInstall": "Herunterladen und installieren",
+  "deskUpdReadyTitle": "Epic Cash {version} ist bereit",
+  "deskUpdReadyBody": "Jetzt neu starten, um zu aktualisieren. Die Wallet wird gesperrt und die App öffnet sich wieder.",
+  "deskUpdRestartNow": "Jetzt neu starten",
+  "deskUpdLater": "Später"
 }

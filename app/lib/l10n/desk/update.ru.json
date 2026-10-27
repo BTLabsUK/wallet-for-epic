@@ -14,5 +14,11 @@
   "deskUpdErrDamaged": "Файл не совпадает с подписанными данными обновления.",
   "deskUpdErrStopped": "Загрузка прервалась.",
   "deskUpdErrInstall": "Не удалось заменить приложение новой версией.",
-  "deskUpdUnfinished": "Обновление не завершилось. Повторите попытку."
+  "deskUpdUnfinished": "Обновление не завершилось. Повторите попытку.",
+  "deskUpdManual": "Эта копия приложения не может сама устанавливать обновления.",
+  "deskUpdDownloadInstall": "Скачать и установить",
+  "deskUpdReadyTitle": "Epic Cash {version} готов",
+  "deskUpdReadyBody": "Перезапустите сейчас, чтобы обновить. Кошелёк заблокируется, а приложение откроется снова.",
+  "deskUpdRestartNow": "Перезапустить",
+  "deskUpdLater": "Позже"
 }

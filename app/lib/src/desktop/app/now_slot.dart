@@ -1,10 +1,10 @@
 /// The sidebar's bottom slot: what is going on now, else a quiet resting row. The wallet's name,
 /// the status rows and Lock live in the title bar (title_bar.dart), so nothing is said twice:
-/// the slot shows progress and events (Offline mode, a scan, an update to restart, a payment on
-/// its way, new requests, the local node syncing, an update downloading), at most two lines,
-/// the most important first, a `+N` for the rest; each line opens its screen. Resting: Help ·
-/// Report a problem, and a dot when an update is out. Health (a node that does not answer,
-/// Epicbox, Tor) stays in the title bar's status.
+/// the slot shows progress and events (Offline mode, a scan, an update out or to restart, a
+/// payment on its way, new requests, the local node syncing, an update downloading), at most two
+/// lines, the most important first, a `+N` for the rest; each line opens its screen. Resting:
+/// Help · Report a problem. Health (a node that does not answer, Epicbox, Tor) stays in the title
+/// bar's status.
 library;
 
 import 'dart:async';
@@ -30,7 +30,7 @@ import 'update_notice.dart' show deskUpdateAct, deskUpdateWords;
 /// One line of the slot.
 @immutable
 class NowItem {
-  const NowItem({required this.id, required this.icon, required this.tone, required this.title, this.detail, this.hint, this.act = false, this.progress, this.onTap});
+  const NowItem({required this.id, required this.icon, required this.tone, required this.title, this.detail, this.hint, this.act = false, this.stacked = false, this.progress, this.onTap});
 
   /// Stable per kind, so a line that only changes its numbers never animates.
   final String id;
@@ -46,6 +46,10 @@ class NowItem {
 
   /// The detail is the click's action word: in the accent.
   final bool act;
+
+  /// The detail goes under the title, each with the line's whole width (an update: its words
+  /// and version must read whole).
+  final bool stacked;
 
   /// 0–1 for a bar under the line; -1 for a bar that moves without a known end.
   final double? progress;
@@ -101,10 +105,10 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   } else if (status?.scanning ?? false) {
     items.add(NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.info, title: l.deskSlotScanning, progress: -1, hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan)));
   }
-  // 3. An update that needs a click (restart, try again), and 8. one downloading.
+  // 3. An update: out (download it, or the page), to restart, to try again; 8. one downloading.
   final u = ref.watch(deskUpdateProvider);
   NowItem? downloading;
-  if (u.offered && u.phase != DeskUpdatePhase.available || u.offered && u.problem != null) {
+  if (u.offered) {
     final w = deskUpdateWords(l, u);
     if (u.phase == DeskUpdatePhase.downloading) {
       downloading = NowItem(id: 'update', icon: EIcons.download, tone: ETone.gold, title: w.title, progress: u.progress ?? -1);
@@ -112,11 +116,13 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
       items.add(
         NowItem(
           id: 'update',
-          icon: w.warn ? EIcons.alert : EIcons.restart,
+          icon: w.warn ? EIcons.alert : (u.phase == DeskUpdatePhase.available ? EIcons.download : EIcons.restart),
           tone: w.warn ? ETone.warn : ETone.gold,
           title: w.title,
           detail: w.second,
           act: w.act,
+          stacked: true,
+          hint: w.tip,
           onTap: () => unawaited(deskUpdateAct(context, ref)),
         ),
       );
@@ -220,9 +226,6 @@ class NowSlot extends ConsumerStatefulWidget {
 }
 
 class _NowSlotState extends ConsumerState<NowSlot> {
-  /// The update dot was clicked: its line shows until the update moves on.
-  bool _updateOpen = false;
-
   /// Every line on screen, also one closing; [_open] those that are (or are opening) in view.
   final Map<String, NowItem> _lines = {};
   final Set<String> _open = {};
@@ -244,14 +247,7 @@ class _NowSlotState extends ConsumerState<NowSlot> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final l = context.l10n;
-    final u = ref.watch(deskUpdateProvider);
-    final available = u.offered && u.phase == DeskUpdatePhase.available && u.problem == null;
-    if (!available) _updateOpen = false;
     final items = nowItems(context, ref);
-    if (available && _updateOpen) {
-      final w = deskUpdateWords(l, u);
-      items.insert(0, NowItem(id: 'update', icon: EIcons.download, tone: ETone.gold, title: w.title, detail: w.second, act: true, onTap: () => unawaited(deskUpdateAct(context, ref))));
-    }
     final shown = items.take(2).toList();
     final more = items.skip(2).toList();
     final ids = {for (final i in shown) i.id};
@@ -292,9 +288,6 @@ class _NowSlotState extends ConsumerState<NowSlot> {
       order[k] = shown[n].id;
     }
     _order = order;
-    final dot = available && !_updateOpen
-        ? _UpdateDot(version: u.version ?? '', onTap: () => setState(() => _updateOpen = true), compact: widget.compact)
-        : null;
     return Semantics(
       container: true,
       label: l.deskSlotNow,
@@ -317,7 +310,7 @@ class _NowSlotState extends ConsumerState<NowSlot> {
                 ),
               ),
             AnimatedContainer(duration: Motion.expand, height: shown.isEmpty ? 0 : Sp.x1),
-            _Resting(compact: widget.compact, dot: dot),
+            _Resting(compact: widget.compact),
           ],
         ),
       ),
@@ -388,8 +381,9 @@ class _Line extends StatelessWidget {
         ),
       );
     } else {
+      final under = i.stacked && i.detail != null;
       content = Container(
-        height: bar == null ? Ctl.inline : 36.u,
+        height: under ? 40.u : (bar == null ? Ctl.inline : 36.u),
         padding: EdgeInsets.symmetric(horizontal: Sp.x2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -403,7 +397,7 @@ class _Line extends StatelessWidget {
                 Flexible(
                   child: Text(i.title, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.small.copyWith(color: c.text, height: 20 / Fs.sm)),
                 ),
-                if (i.detail != null) ...[
+                if (i.detail != null && !under) ...[
                   Text(' · ', style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
                   // A number or an action word fits whole; a longer detail gives up at half the line.
                   ConstrainedBox(
@@ -424,6 +418,11 @@ class _Line extends StatelessWidget {
             ),
 
             ),
+            if (under)
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: Ctl.iconSm + Sp.x2),
+                child: Text(i.detail!, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: i.act ? c.accentText : c.dim, height: 16 / Fs.xs)),
+              ),
             if (bar != null) ...[SizedBox(height: 5.u), bar],
           ],
         ),
@@ -444,12 +443,11 @@ class _Line extends StatelessWidget {
   }
 }
 
-/// Help · Report a problem, and the update dot.
+/// Help · Report a problem.
 class _Resting extends ConsumerWidget {
-  const _Resting({required this.compact, required this.dot});
+  const _Resting({required this.compact});
 
   final bool compact;
-  final Widget? dot;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -462,13 +460,7 @@ class _Resting extends ConsumerWidget {
 
     if (compact) {
       return Center(
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            EIconButton(key: const ValueKey('now-help'), icon: EIcons.help, label: l.deskSlotHelp, size: EBtnSize.inline, onPressed: help),
-            if (dot != null) PositionedDirectional(end: -2.u, top: -2.u, child: dot!),
-          ],
-        ),
+        child: EIconButton(key: const ValueKey('now-help'), icon: EIcons.help, label: l.deskSlotHelp, size: EBtnSize.inline, onPressed: help),
       );
     }
     return SizedBox(
@@ -490,7 +482,6 @@ class _Resting extends ConsumerWidget {
             ),
             ),
           ),
-          ?dot,
         ],
       ),
     );
@@ -535,61 +526,6 @@ class _TextLinkState extends State<_TextLink> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.ts.caption.copyWith(color: _hover ? c.text : c.faint),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A 7 px accent dot: an update is out. A click shows its line.
-class _UpdateDot extends StatefulWidget {
-  const _UpdateDot({required this.version, required this.onTap, required this.compact});
-
-  final String version;
-  final VoidCallback onTap;
-  final bool compact;
-
-  @override
-  State<_UpdateDot> createState() => _UpdateDotState();
-}
-
-class _UpdateDotState extends State<_UpdateDot> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final l = context.l10n;
-    return Tooltip(
-      message: l.deskUpdNotice(widget.version),
-      child: Semantics(
-        button: true,
-        label: l.deskSlotUpdateDot(widget.version),
-        excludeSemantics: true,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-          child: GestureDetector(
-            key: const ValueKey('now-update-dot'),
-            onTap: widget.onTap,
-            child: SizedBox.square(
-              dimension: widget.compact ? 11.u : 20.u,
-              child: Center(
-                child: AnimatedContainer(
-                  duration: Dur.fast,
-                  width: 7.u,
-                  height: 7.u,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: c.accent,
-                    border: widget.compact ? Border.all(color: c.s1, width: 2) : null,
-                    boxShadow: _hover ? [BoxShadow(color: c.accentSoft, spreadRadius: 4.u)] : null,
-                  ),
                 ),
               ),
             ),

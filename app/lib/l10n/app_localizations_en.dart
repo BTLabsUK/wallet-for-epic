@@ -16762,11 +16762,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSlotNodeSyncing => 'Local node syncing';
 
   @override
-  String deskSlotUpdateDot(String version) {
-    return 'Update available, $version. Shows the update.';
-  }
-
-  @override
   String get deskSlotOpenAdvanced => 'Open Advanced settings';
 
   @override
@@ -17205,4 +17200,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConExportDo => 'Export';
+
+  @override
+  String get deskSetAboutDownloadPage => 'Download page';
+
+  @override
+  String get deskUpdManual =>
+      'This copy of the app can\'t install updates by itself.';
+
+  @override
+  String get deskUpdDownloadInstall => 'Download and install';
+
+  @override
+  String deskUpdReadyTitle(String version) {
+    return 'Epic Cash $version is ready';
+  }
+
+  @override
+  String get deskUpdReadyBody =>
+      'Restart now to update. The wallet locks and the app opens again.';
+
+  @override
+  String get deskUpdRestartNow => 'Restart now';
+
+  @override
+  String get deskUpdLater => 'Later';
 }

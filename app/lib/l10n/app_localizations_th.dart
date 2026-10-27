@@ -16477,11 +16477,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSlotNodeSyncing => 'โหนดในเครื่องกำลังซิงก์';
 
   @override
-  String deskSlotUpdateDot(String version) {
-    return 'มีอัปเดต $version แสดงการอัปเดต';
-  }
-
-  @override
   String get deskSlotOpenAdvanced => 'เปิดการตั้งค่าขั้นสูง';
 
   @override
@@ -16916,4 +16911,28 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConExportDo => 'ส่งออก';
+
+  @override
+  String get deskSetAboutDownloadPage => 'หน้าดาวน์โหลด';
+
+  @override
+  String get deskUpdManual => 'แอปชุดนี้ติดตั้งอัปเดตเองไม่ได้';
+
+  @override
+  String get deskUpdDownloadInstall => 'ดาวน์โหลดและติดตั้ง';
+
+  @override
+  String deskUpdReadyTitle(String version) {
+    return 'Epic Cash $version พร้อมแล้ว';
+  }
+
+  @override
+  String get deskUpdReadyBody =>
+      'รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่';
+
+  @override
+  String get deskUpdRestartNow => 'รีสตาร์ทเลย';
+
+  @override
+  String get deskUpdLater => 'ภายหลัง';
 }

@@ -14,5 +14,11 @@
   "deskUpdErrDamaged": "Plik nie zgadza się z podpisanymi danymi aktualizacji.",
   "deskUpdErrStopped": "Pobieranie przerwane.",
   "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję.",
-  "deskUpdUnfinished": "Aktualizacja nie została dokończona. Spróbuj ponownie."
+  "deskUpdUnfinished": "Aktualizacja nie została dokończona. Spróbuj ponownie.",
+  "deskUpdManual": "Ta kopia aplikacji nie może sama instalować aktualizacji.",
+  "deskUpdDownloadInstall": "Pobierz i zainstaluj",
+  "deskUpdReadyTitle": "Epic Cash {version} jest gotowy",
+  "deskUpdReadyBody": "Uruchom ponownie teraz, aby zaktualizować. Portfel zostanie zablokowany, a aplikacja otworzy się ponownie.",
+  "deskUpdRestartNow": "Uruchom ponownie",
+  "deskUpdLater": "Później"
 }

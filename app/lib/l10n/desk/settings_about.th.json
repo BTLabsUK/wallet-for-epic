@@ -21,5 +21,6 @@
   "deskSetAboutAgoDays": "{count} วันที่แล้ว",
   "deskSetAboutCopyLink": "คัดลอกลิงก์",
   "deskSetAboutCopied": "คัดลอกแล้ว",
-  "deskSetAboutNotCopied": "ไม่ได้คัดลอก"
+  "deskSetAboutNotCopied": "ไม่ได้คัดลอก",
+  "deskSetAboutDownloadPage": "หน้าดาวน์โหลด"
 }

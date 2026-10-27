@@ -1,8 +1,13 @@
+import 'dart:io' show File;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_dialogs.dart';
 import '../../app/shots.dart';
 import '../../app/tour.dart';
+import '../../app/update_notice.dart' show showUpdateReadyDialog;
+import '../../data/desk_update.dart';
+import '../../../btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
 import '../../data/desk_node.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
@@ -51,6 +56,19 @@ Future<void> showLocalNode(ProviderContainer c, LocalNodeState state, FallbackCo
   await c.read(deskFallbackProvider.notifier).set(FallbackChoice(consent, nodeUrl: defaultFallbackNodeUrl, at: consent == FallbackConsent.unasked ? null : DateTime(2026, 10, 22, 13)));
   fallbackAskedThisSession = true; // the question is its own shot
   await Future<void>.delayed(const Duration(milliseconds: 50));
+}
+
+/// An update to [phase] for the tour: the next version, from the download folder.
+void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
+  const v = '26.10.19';
+  c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(
+    phase,
+    version: v,
+    page: deskReleasesUrl,
+    checkedAt: DateTime.now(),
+    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
+    download: phase == DeskUpdatePhase.ready ? File('EpicCashDesktop-$v-x86_64.AppImage') : null,
+  ));
 }
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
@@ -257,6 +275,22 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '28-settings-rescan', title: 'Recheck balance', route: DeskRoute.settingsRescan),
   const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanDemo.running),
   const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
+  DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install, the download page', route: DeskRoute.settingsAbout, height: 960, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
+  DeskShot(
+    id: '29c-settings-about-update-manual',
+    title: "About: an update this copy can't install, the download page",
+    route: DeskRoute.settingsAbout,
+    height: 960,
+    prepare: (c, _) async => _update(c, DeskUpdatePhase.available, inApp: false),
+  ),
+  DeskShot(id: '29d-slot-update', title: 'Sidebar: Update available', route: DeskRoute.overview, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
+  DeskShot(
+    id: '29e-dlg-update-ready',
+    title: 'The update is ready: Restart now or Later',
+    route: DeskRoute.overview,
+    prepare: (c, _) async => _update(c, DeskUpdatePhase.ready),
+    dialog: (ctx) => showUpdateReadyDialog(ProviderScope.containerOf(ctx, listen: false), ctx),
+  ),
   const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp, height: 1000),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
   const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
