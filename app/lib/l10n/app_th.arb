@@ -129,6 +129,8 @@
   "scanStarting": "กำลังเริ่มสแกน",
   "scanProgress": "กำลังสแกนบล็อกเชน ({percent}%)",
   "scanComplete": "สแกนเสร็จแล้ว",
+  "scanResuming": "กำลังสแกนต่อ",
+  "scanResumedNotice": "การสแกนหยุดชั่วคราวขณะที่แอปอยู่เบื้องหลัง และจะสแกนต่อจากจุดที่หยุดไว้",
   "languageSetting": "ภาษา",
   "languageSystem": "ตามระบบ",
   "currencyUsd": "ดอลลาร์สหรัฐ",

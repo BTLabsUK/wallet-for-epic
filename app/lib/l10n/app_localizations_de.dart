@@ -497,6 +497,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scanComplete => 'Scan abgeschlossen';
 
   @override
+  String get scanResuming => 'Scan wird fortgesetzt';
+
+  @override
+  String get scanResumedNotice =>
+      'Der Scan war pausiert, solange die App im Hintergrund war. Er läuft dort weiter, wo er stand.';
+
+  @override
   String get languageSetting => 'Sprache';
 
   @override

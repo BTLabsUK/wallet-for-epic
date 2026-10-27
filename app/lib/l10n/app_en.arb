@@ -609,6 +609,14 @@
     }
   },
   "scanComplete": "Scan complete",
+  "scanResuming": "Resuming the scan",
+  "@scanResuming": {
+    "description": "Progress line of a paused scan of the blockchain when the app is open again, until it reports progress beyond where it stopped."
+  },
+  "scanResumedNotice": "The scan paused while the app was in the background. It goes on from where it stopped.",
+  "@scanResumedNotice": {
+    "description": "Notice when the app is open again after a scan of the blockchain paused in the background (Android cuts a background app's network); the scan goes on from its last stored page."
+  },
   "languageSetting": "Language",
   "@languageSetting": {
     "description": "Settings row that picks the app's language."

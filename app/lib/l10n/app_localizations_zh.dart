@@ -472,6 +472,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanComplete => '扫描完成';
 
   @override
+  String get scanResuming => '正在继续扫描';
+
+  @override
+  String get scanResumedNotice => '应用在后台时扫描已暂停，现在从停下的位置继续。';
+
+  @override
   String get languageSetting => '语言';
 
   @override

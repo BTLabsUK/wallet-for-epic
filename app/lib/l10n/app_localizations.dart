@@ -880,6 +880,18 @@ abstract class AppLocalizations {
   /// **'Scan complete'**
   String get scanComplete;
 
+  /// Progress line of a paused scan of the blockchain when the app is open again, until it reports progress beyond where it stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Resuming the scan'**
+  String get scanResuming;
+
+  /// Notice when the app is open again after a scan of the blockchain paused in the background (Android cuts a background app's network); the scan goes on from its last stored page.
+  ///
+  /// In en, this message translates to:
+  /// **'The scan paused while the app was in the background. It goes on from where it stopped.'**
+  String get scanResumedNotice;
+
   /// Settings row that picks the app's language.
   ///
   /// In en, this message translates to:

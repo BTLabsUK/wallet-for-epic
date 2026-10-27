@@ -106,8 +106,10 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     }
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
-        // A download Android's network cut stops meanwhile carries on at the return.
+        // A download Android's network cut stops meanwhile carries on at the return, and so
+        // does a scan.
         ref.read(updateProvider.notifier).paused();
+        ref.read(scanProvider.notifier).pause();
         if (_leftAt == null &&
             ref.read(sessionProvider) != null &&
             ref.read(autoLockHoldProvider) == 0) {
@@ -116,6 +118,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       case AppLifecycleState.resumed:
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
+        _resumeScan();
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
           _drainPayments();
@@ -139,6 +142,18 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         // Inactive covers system dialogs such as the biometric prompt; it is not leaving.
         break;
     }
+  }
+
+  /// A scan the background paused goes on, with a note: Settings shows a Recheck only as a
+  /// thin bar, so the progress line alone would not say it.
+  void _resumeScan() {
+    final paused = ref.read(scanProvider).paused;
+    ref.read(scanProvider.notifier).resume();
+    final context = _navigator.currentContext;
+    if (!paused || context == null) return;
+    ref
+        .read(noticeProvider.notifier)
+        .show(context.l10n.scanResumedNotice, level: NoticeLevel.info);
   }
 
   /// Payments that reached the payments address while the app was away are finalized on

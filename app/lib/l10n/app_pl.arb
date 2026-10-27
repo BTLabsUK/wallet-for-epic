@@ -129,6 +129,8 @@
   "scanStarting": "Rozpoczynanie skanowania",
   "scanProgress": "Skanowanie łańcucha ({percent}%)",
   "scanComplete": "Skanowanie zakończone",
+  "scanResuming": "Wznawianie skanowania",
+  "scanResumedNotice": "Skanowanie było wstrzymane, gdy aplikacja działała w tle. Jest kontynuowane od miejsca, w którym się zatrzymało.",
   "languageSetting": "Język",
   "languageSystem": "Język systemu",
   "currencyUsd": "Dolar amerykański",

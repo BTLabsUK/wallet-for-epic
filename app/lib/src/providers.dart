@@ -571,8 +571,11 @@ class ScanState {
     this.error,
     this.done = false,
     this.stopped = false,
+    this.paused = false,
+    this.resuming = false,
   });
 
+  /// True from the start until the scan ends, through a pause.
   final bool running;
   final int? percent;
   final String? message;
@@ -586,6 +589,15 @@ class ScanState {
   /// The last scan was stopped ([ScanNotifier.stop]) before it finished. Its pages stay: the
   /// next scan with the same start goes on from there.
   final bool stopped;
+
+  /// The app is in the background: the scan stopped at its page there, since Android cuts a
+  /// background app's network, and goes on from the last stored page when the app is back
+  /// ([ScanNotifier.pause]).
+  final bool paused;
+
+  /// Back from a pause: the scan started again and has not yet reported a page beyond
+  /// [percent], the progress from before the pause.
+  final bool resuming;
 }
 
 /// A scan of the chain for the open wallet's outputs, with its latest progress.
@@ -597,10 +609,17 @@ class ScanNotifier extends Notifier<ScanState> {
   /// [stop] was asked for the running scan.
   bool _stopping = false;
 
+  /// The app is in the background ([pause] until [resume]).
+  bool _away = false;
+
+  /// Completes when the app is back, or the scan is stopped or its session gone.
+  Completer<void>? _back;
+
   @override
   ScanState build() {
     ref.watch(sessionProvider);
     _stopping = false;
+    _wake();
     return const ScanState();
   }
 
@@ -612,6 +631,33 @@ class ScanNotifier extends Notifier<ScanState> {
     _stopping = true;
     logInfo('scan', 'stop asked');
     session.cancelScan();
+    _wake();
+  }
+
+  /// The app went to the background (phone, `app.dart`). Android cuts a background app's
+  /// network within seconds, which failed the scan there, so it stops at its page instead and
+  /// [run] waits for [resume]. The core stored every page, so the scan goes on from the last
+  /// one, with the same start.
+  void pause() {
+    if (_away) return;
+    _away = true;
+    if (!state.running) return;
+    logInfo('scan', 'paused: the app is in the background');
+    state = ScanState(running: true, paused: true, percent: state.percent);
+    ref.read(sessionProvider)?.cancelScan();
+  }
+
+  /// The app is back: a paused scan goes on.
+  void resume() {
+    if (!_away) return;
+    _away = false;
+    _wake();
+  }
+
+  void _wake() {
+    final back = _back;
+    _back = null;
+    back?.complete();
   }
 
   /// Scans from [startHeight] until the core closes the stream. Returns true on success.
@@ -631,24 +677,57 @@ class ScanNotifier extends Notifier<ScanState> {
     // The core ends every scan with a `finished` event; on failure its message starts with
     // "Scan failed:" and the stream then closes with the error as well, which wins.
     Object? failure;
-    try {
-      await for (final progress in session.scan(startHeight: startHeight)) {
-        if (!ref.mounted) return false;
-        if (progress.finished &&
-            progress.message.startsWith(scanFailedPrefix)) {
-          failure = ScanFailed(
-            progress.message.substring(scanFailedPrefix.length).trim(),
-          );
-          continue;
-        }
-        state = ScanState(
-          running: !progress.finished,
-          percent: progress.percent ?? state.percent,
-          message: progress.message,
-        );
+    var finished = false;
+    while (true) {
+      // In the background (or paused there): wait for the app, then the same scan goes on.
+      if (_away) {
+        state = ScanState(running: true, paused: true, percent: state.percent);
+        await (_back ??= Completer<void>()).future;
+        if (!ref.mounted || !identical(ref.read(sessionProvider), session)) return false;
+        if (_stopping) break;
+        logInfo('scan', 'resumed from the last stored page');
+        state = ScanState(running: true, resuming: true, percent: state.percent);
       }
-    } catch (error) {
-      failure = error;
+      failure = null;
+      var first = true;
+      try {
+        await for (final progress in session.scan(startHeight: startHeight)) {
+          if (!ref.mounted) return false;
+          final opening = first;
+          first = false;
+          if (progress.finished &&
+              progress.message.startsWith(scanFailedPrefix)) {
+            failure = ScanFailed(
+              progress.message.substring(scanFailedPrefix.length).trim(),
+            );
+            continue;
+          }
+          if (progress.finished) finished = true;
+          // Pages that land after the pause until the stop takes effect: it shows paused.
+          if (_away && !finished) continue;
+          // The core first reports the start height, before its first page: 0 % from block 0
+          // even when it goes on from a stored page (after a pause, or the app was closed).
+          // It reads as starting, or as the progress from before the pause.
+          if (opening && !progress.finished && progress.percent == 0) continue;
+          // A resumed scan's first pages may still lie behind the progress from before the
+          // pause: that stays until a page passes it.
+          final percent = progress.percent ?? state.percent;
+          final behind = state.resuming &&
+              !progress.finished &&
+              (percent ?? 0) < (state.percent ?? 0);
+          state = ScanState(
+            running: !progress.finished,
+            percent: behind ? state.percent : percent,
+            message: progress.message,
+            resuming: behind,
+          );
+        }
+      } catch (error) {
+        failure = error;
+      }
+      if (!ref.mounted) return false;
+      // A failure while away is the network Android cut: the scan goes on at the return.
+      if (finished || _stopping || !_away) break;
     }
     if (!ref.mounted) return false;
     // Balances as the scan left them: the restore's Home and Outputs read zero before it.

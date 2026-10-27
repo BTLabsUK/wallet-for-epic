@@ -505,6 +505,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanComplete => 'Сканирование завершено';
 
   @override
+  String get scanResuming => 'Возобновление сканирования';
+
+  @override
+  String get scanResumedNotice =>
+      'Сканирование было приостановлено, пока приложение было в фоне. Оно продолжается с того места, где остановилось.';
+
+  @override
   String get languageSetting => 'Язык';
 
   @override

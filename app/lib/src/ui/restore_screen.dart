@@ -598,6 +598,7 @@ class _DateChoice extends StatelessWidget {
 /// has run, or the last one failed (the error says so instead).
 String? _scanLine(AppLocalizations l, ScanState scan) {
   final percent = scan.percent;
+  if (scan.paused || scan.resuming) return l.scanResuming;
   if (scan.running) {
     return percent == null ? l.scanStarting : l.scanProgress(percent);
   }

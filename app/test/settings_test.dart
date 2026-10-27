@@ -795,10 +795,15 @@ void main() {
       await tester.pump();
       expect(h.container.read(scanProvider).running, isTrue);
 
+      // Away, the scan pauses (Android cuts the network); back, it goes on as a new scan.
       await _leave(tester, settle: false);
+      expect(h.container.read(scanProvider).paused, isTrue);
+      h.session.controller = StreamController<ScanProgress>();
       h.now = h.now.add(const Duration(minutes: 20));
       await _return(tester, settle: false);
+      await tester.pump();
       expect(h.container.read(sessionProvider), isNotNull);
+      expect(h.session.scans, 2);
 
       h.session.controller!.add(
         const ScanProgress(percent: 100, message: 'Done', finished: true),

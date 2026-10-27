@@ -503,6 +503,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get scanComplete => 'Skanowanie zakończone';
 
   @override
+  String get scanResuming => 'Wznawianie skanowania';
+
+  @override
+  String get scanResumedNotice =>
+      'Skanowanie było wstrzymane, gdy aplikacja działała w tle. Jest kontynuowane od miejsca, w którym się zatrzymało.';
+
+  @override
   String get languageSetting => 'Język';
 
   @override

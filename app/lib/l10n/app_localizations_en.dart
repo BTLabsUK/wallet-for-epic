@@ -490,6 +490,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanComplete => 'Scan complete';
 
   @override
+  String get scanResuming => 'Resuming the scan';
+
+  @override
+  String get scanResumedNotice =>
+      'The scan paused while the app was in the background. It goes on from where it stopped.';
+
+  @override
   String get languageSetting => 'Language';
 
   @override

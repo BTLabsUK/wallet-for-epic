@@ -129,6 +129,8 @@
   "scanStarting": "Scan wird gestartet",
   "scanProgress": "Blockchain wird gescannt ({percent} %)",
   "scanComplete": "Scan abgeschlossen",
+  "scanResuming": "Scan wird fortgesetzt",
+  "scanResumedNotice": "Der Scan war pausiert, solange die App im Hintergrund war. Er läuft dort weiter, wo er stand.",
   "languageSetting": "Sprache",
   "languageSystem": "Systemsprache",
   "currencyUsd": "US-Dollar",

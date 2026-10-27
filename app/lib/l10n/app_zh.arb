@@ -129,6 +129,8 @@
   "scanStarting": "正在开始扫描",
   "scanProgress": "正在扫描区块链（{percent}%）",
   "scanComplete": "扫描完成",
+  "scanResuming": "正在继续扫描",
+  "scanResumedNotice": "应用在后台时扫描已暂停，现在从停下的位置继续。",
   "languageSetting": "语言",
   "languageSystem": "跟随系统",
   "currencyUsd": "美元",

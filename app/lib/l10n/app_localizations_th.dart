@@ -488,6 +488,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get scanComplete => 'สแกนเสร็จแล้ว';
 
   @override
+  String get scanResuming => 'กำลังสแกนต่อ';
+
+  @override
+  String get scanResumedNotice =>
+      'การสแกนหยุดชั่วคราวขณะที่แอปอยู่เบื้องหลัง และจะสแกนต่อจากจุดที่หยุดไว้';
+
+  @override
   String get languageSetting => 'ภาษา';
 
   @override
