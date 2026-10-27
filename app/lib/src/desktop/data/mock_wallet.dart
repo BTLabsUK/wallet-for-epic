@@ -14,7 +14,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
+import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -116,7 +116,7 @@ class MockDeskWallet implements DeskWalletApi {
       Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 2917120, otherWallet: true, confirmedAt: _ago(hours: 20)),
       Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 2916580, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
     ],
-    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: 2, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 2914410),
+    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 2914410),
     Tx(id: 38, slateId: 'a1f9e8d7-6c5b-4a39-8271-605f4e3d2c1b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(12.5), fee: _epic(0.007), cancellable: true, created: _ago(hours: 3), counterparty: 'send_12.5_a1f9e8d7.slate.json'),
     Tx(id: 37, slateId: 'c3d4e5f6-0718-4293-a4b5-c6d7e8f90a1b', direction: TxDirection.sent, state: TxState.posted, method: TxMethod.epicbox, amount: _epic(3.2), fee: _epic(0.006), created: _ago(hours: 5), counterparty: _contacts[4].address, contactName: 'Merchant: Coffee'),
     Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 2913020, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', hasProof: true, proofSender: 'esMockSender1KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200011c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011'),
@@ -466,12 +466,14 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(0.3);
     final p = proto;
     final held = _heldValue();
+    final lunch = _lunchCounted ? _epic(25) : 0;
     return Balance(
-      spendable: _epic(1284.73215) + p.spendDelta - held,
-      awaitingConfirmation: _epic(25) + p.confirmingDelta,
+      spendable: _epic(1284.73215) + lunch + p.spendDelta - held,
+      awaitingConfirmation: _epic(25) - lunch + p.confirmingDelta,
       locked: _epic(15.713) + p.lockDelta + held,
       awaitingFinalization: _epic(12.5),
       immature: _epic(2),
+      minConfirmations: _minConf,
     );
   }
 
@@ -479,7 +481,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<List<Tx>> transactions() async {
     await _wait(0.5);
     proto;
-    final rows = [...(seedInvoices ? _txs : _txs.where((t) => t.flow != TxFlow.invoice)), ..._deviceTxs()];
+    final rows = [for (final t in seedInvoices ? _txs : _txs.where((t) => t.flow != TxFlow.invoice)) t.withConfirmationsNeeded(_minConf), ..._deviceTxs()];
     return List.unmodifiable(rows..sort((a, b) => b.created.compareTo(a.created)));
   }
 
@@ -487,9 +489,9 @@ class MockDeskWallet implements DeskWalletApi {
   Future<List<Output>> outputs() async {
     await _wait(0.5);
     final held = _heldBy();
-    if (held.isEmpty) return _outputs;
+    if (held.isEmpty) return _counted;
     return [
-      for (final o in _outputs)
+      for (final o in _counted)
         if (o.spendable && held.containsKey(o.commitment))
           Output(commitment: o.commitment, value: o.value, status: OutputStatus.locked, height: o.height, confirmations: o.confirmations, heldBy: held[o.commitment])
         else
@@ -571,12 +573,15 @@ class MockDeskWallet implements DeskWalletApi {
     ];
   }
 
+  /// [_outputs] counted with the wallet's minimum confirmations.
+  List<Output> get _counted => [for (final o in _outputs) o.withConfirmationsNeeded(_minConf)];
+
   late List<Output> _outputs = _cannedOutputs();
 
   List<Output> _cannedOutputs() {
     final cmt = mockCommitment;
     return [
-      Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 2),
+      Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: _lunchConfirmations),
       Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed, awaitingFinalization: true),
       Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 2911600, confirmations: 2810),
       Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 2913794, confirmations: 620, lockHeight: 2915234),
@@ -599,7 +604,7 @@ class MockDeskWallet implements DeskWalletApi {
   /// Epic's fee: 0.001 EPIC × (4 × outputs + inputs − 1).
   static int _fee(int inputs, int outputs) => _epic(0.001) * max(1, 4 * outputs + inputs - 1);
 
-  List<Output> get _spendable => _outputs.where((o) => o.spendable).toList()..sort((a, b) => a.value.compareTo(b.value));
+  List<Output> get _spendable => _counted.where((o) => o.spendable).toList()..sort((a, b) => a.value.compareTo(b.value));
 
   @override
   Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
@@ -631,6 +636,29 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> saveOutputPrefs(OutputPrefs prefs) async => _prefs = prefs;
+
+  /// The wallet's minimum confirmations ([setMinimumConfirmations]).
+  int _minConf = defaultMinimumConfirmations;
+
+  /// Tests: [setMinimumConfirmations] fails, as a core error would.
+  bool refuseMinConfirmations = false;
+
+  /// The 25 EPIC lunch payment (transaction 39, the first output): in a block, a few
+  /// confirmations in, so a count at or below this makes it spendable.
+  static const _lunchConfirmations = 4;
+  bool get _lunchCounted => _lunchConfirmations >= _minConf;
+
+  @override
+  Future<int> minimumConfirmations() async => _minConf;
+
+  @override
+  Future<void> setMinimumConfirmations(int count) async {
+    await _wait(0.2);
+    if (refuseMinConfirmations) throw DeskError('Could not save the setting');
+    if (count < minMinimumConfirmations || count > maxMinimumConfirmations) throw DeskError('Minimum confirmations must be $minMinimumConfirmations–$maxMinimumConfirmations');
+    _minConf = count;
+    _changes.add(null);
+  }
 
   @override
   Future<void> repostTx(int id) => _wait();
@@ -672,7 +700,7 @@ class MockDeskWallet implements DeskWalletApi {
     final part = total ~/ count;
     _outputs = [
       for (final o in _outputs)
-        o.spendable
+        o.withConfirmationsNeeded(_minConf).spendable
             ? Output(commitment: o.commitment, value: o.value, status: OutputStatus.locked, height: o.height, confirmations: o.confirmations, txId: txId)
             : o,
       for (var i = 0; i < count; i++)

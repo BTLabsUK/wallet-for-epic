@@ -217,6 +217,10 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> saveOutputPrefs(OutputPrefs prefs) => _r('saveOutputPrefs', () => _m.saveOutputPrefs(prefs));
   @override
+  Future<int> minimumConfirmations() => _r('minimumConfirmations', _m.minimumConfirmations);
+  @override
+  Future<void> setMinimumConfirmations(int count) => _r('setMinimumConfirmations', () => _m.setMinimumConfirmations(count));
+  @override
   Future<void> repostTx(int id) => _r('repostTx', () => _m.repostTx(id));
   @override
   Future<void> resendTx(int id) => _r('resendTx', () => _m.resendTx(id));

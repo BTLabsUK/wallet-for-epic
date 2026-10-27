@@ -43,5 +43,15 @@
   "deskNetCantReceive": "Офлайн получать нельзя.",
   "deskRailOffline": "Офлайн",
   "deskSetAdvNodeFailover": "Автопереключение узла",
-  "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка."
+  "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.",
+  "deskSetAdvBalance": "Баланс",
+  "deskSetAdvConfirmations": "Подтверждения",
+  "deskSetAdvConfirmationsHint": "Сколько блоков полученный платёж ждёт, прежде чем его выходы можно тратить. По умолчанию {byDefault}; от {min} до {max}.",
+  "deskSetAdvConfirmationsDefault": "По умолчанию",
+  "deskSetAdvConfirmationsReset": "Сбросить до {count}",
+  "deskSetAdvConfirmationsFewer": "Меньше подтверждений",
+  "deskSetAdvConfirmationsMore": "Больше подтверждений",
+  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} подтверждение} few{{count} подтверждения} many{{count} подтверждений} other{{count} подтверждения}}",
+  "deskSetAdvConfirmationsLowNote": "Меньше подтверждений — быстрее, но слабее защита от реорганизации цепочки.",
+  "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены"
 }

@@ -2571,6 +2571,30 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> saveOutputPrefs(OutputPrefs prefs) => _store.saveOutputPrefs(_openEntry?.walletId, prefs);
 
   @override
+  Future<int> minimumConfirmations() async {
+    try {
+      return await _open.minimumConfirmations();
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<void> setMinimumConfirmations(int count) async {
+    final session = _open;
+    try {
+      await session.setMinimumConfirmations(count);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    // The core re-split the balance: count with the new number from here (sends, the list) and
+    // read the balance, outputs and payments again without waiting for the node.
+    if (_session != session) return;
+    _summary = _summary?.copyWith(minimumConfirmations: BigInt.from(count));
+    await _reload();
+  }
+
+  @override
   Future<SendEstimate> estimateSplit(int outputs) async {
     try {
       return SendEstimate.fromFee(await _open.estimateSplit(outputs: outputs, minimumConfirmations: _minConf));

@@ -141,23 +141,26 @@ class _HelpTipState extends State<HelpTip> {
 }
 
 /// The caption under "Spendable until change confirms" and whether it warns (nothing stays
-/// spendable).
-(String, bool) lockCaption(AppLocalizations l, SendSummary s) {
+/// spendable). [blocks] is the wallet's minimum confirmations.
+(String, bool) lockCaption(AppLocalizations l, SendSummary s, int blocks) {
   final n = s.lockedOutputs;
   if (s.noChange) return (l.deskSendLockNoChange(n), false);
-  if (s.locksAll) return (l.deskSendLockAll(n, formatEpicL(l, s.locked)), true);
-  return (l.deskSendLockSome(n, formatEpicL(l, s.locked)), false);
+  if (s.locksAll) return (l.deskSendLockAll(n, formatEpicL(l, s.locked), blocks), true);
+  return (l.deskSendLockSome(n, formatEpicL(l, s.locked), blocks), false);
 }
 
 /// Under Total: Balance after, Spendable until change confirms with the lock caption, and
 /// the strategy when this send does not use the default. [summary] null: "—" and no caption,
 /// as before an amount is typed.
 class SendLockRows extends StatelessWidget {
-  const SendLockRows({super.key, required this.summary, required this.strategy, required this.defaultStrategy});
+  const SendLockRows({super.key, required this.summary, required this.strategy, required this.defaultStrategy, required this.blocks});
 
   final SendSummary? summary;
   final SelectionStrategy strategy;
   final SelectionStrategy defaultStrategy;
+
+  /// The wallet's minimum confirmations: blocks until the change confirms.
+  final int blocks;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +168,7 @@ class SendLockRows extends StatelessWidget {
     final ts = context.ts;
     final l = context.l10n;
     final s = summary;
-    final caption = s == null ? null : lockCaption(l, s);
+    final caption = s == null ? null : lockCaption(l, s, blocks);
     final warn = caption?.$2 ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,14 +195,14 @@ class SendLockRows extends StatelessWidget {
   }
 }
 
-/// The review dialog's Locks fact (§4.5).
-String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy) {
+/// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations.
+String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy, int blocks) {
   final n = s.lockedOutputs;
   final locked = formatEpicL(l, s.locked);
   if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
-  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked);
-  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked);
-  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile));
+  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked, blocks);
+  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked, blocks);
+  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile), blocks);
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
@@ -212,6 +215,7 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
   SendSummary s, {
   required SelectionStrategy strategy,
   required SelectionStrategy defaultStrategy,
+  required int blocks,
   int extraFee = 0,
   String Function(int outputs)? usesAll,
 }) => (
@@ -221,7 +225,7 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
       ? l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, minDecimals: 3))
       : null,
   facts: [
-    (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy))),
+    (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy, blocks))),
     if (strategy != defaultStrategy) (l.deskSendFactStrategy, Text(l.deskSendFactStrategyValue(strategyWord(l, strategy)))),
   ],
 );

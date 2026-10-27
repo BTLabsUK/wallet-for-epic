@@ -265,7 +265,7 @@ void main() {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 20, OutputStatus.locked)], bal(10, locked: 20));
       expect(pressed(tester, 'Split…'), isNull);
       expect(pressed(tester, 'Consolidate…'), isNull);
-      expect(find.text('Wait until the send confirms (about 3 blocks).'), findsNWidgets(2));
+      expect(find.text('Wait until the send confirms (about 6 blocks).'), findsNWidgets(2));
       // The note sits behind the Locked tile's info icon, not in the main view.
       expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text.startsWith('Locked outputs are being spent')), findsOneWidget);
     });

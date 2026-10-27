@@ -42,6 +42,8 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › All wallets': _page(DeskRoute.settingsWallets),
   'Settings › Recovery phrase': _page(DeskRoute.settingsPhrase),
   'Settings › Recheck balance': _page(DeskRoute.settingsRescan),
+  'Settings › Advanced': _page(DeskRoute.settingsAdvanced),
+  'Settings › Advanced › Confirmations': _page(DeskRoute.settingsAdvanced, jump: SettingsJump.confirmations),
 };
 
 /// The page for [place] (the English place a help link carries), or null when the desktop has

@@ -633,10 +633,10 @@ class _Tip extends StatelessWidget {
   if (book == null) return null;
   if (t.incoming) {
     final r = book.requestOfTx(t.id);
-    return r == null ? null : requestStateWord(context, r);
+    return r == null ? null : requestStateWord(context, r, t.confirmationsNeeded);
   }
   final i = book.invoiceOfTx(t.id);
-  return i == null ? null : payStateWord(context, i);
+  return i == null ? null : payStateWord(context, i, t.confirmationsNeeded);
 }
 
 /// "Requested from Piotr", "Paid invoice — Coffee Roasters"; null for a plain payment.

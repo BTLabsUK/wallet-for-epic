@@ -5669,8 +5669,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayerShort => 'Za mało dostępnych środków';
 
   @override
-  String deskInvPayerShortText(String total, String spendable) {
-    return 'Potrzebujesz $total EPIC dostępnych; masz $spendable EPIC. Środki w trakcie potwierdzania liczą się po 3 potwierdzeniach.';
+  String deskInvPayerShortText(
+    String total,
+    String spendable,
+    int confirmations,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'po $confirmations potwierdzenia',
+      many: 'po $confirmations potwierdzeniach',
+      few: 'po $confirmations potwierdzeniach',
+      one: 'po 1 potwierdzeniu',
+    );
+    return 'Potrzebujesz $total EPIC dostępnych; masz $spendable EPIC. Środki w trakcie potwierdzania liczą się $_temp0.';
   }
 
   @override
@@ -7091,33 +7103,94 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskSendLockAll(int count, String amount) {
+  String deskSendLockAll(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Wszystko jest zablokowane: $count wyjścia, $amount EPIC, około 3 bloków.',
-      many:
-          'Wszystko jest zablokowane: $count wyjść, $amount EPIC, około 3 bloków.',
-      few:
-          'Wszystko jest zablokowane: $count wyjścia, $amount EPIC, około 3 bloków.',
-      one:
-          'Wszystko jest zablokowane: $count wyjście, $amount EPIC, około 3 bloków.',
+          'Wszystko jest zablokowane: $count wyjścia, $amount EPIC, $_temp0.',
+      many: 'Wszystko jest zablokowane: $count wyjść, $amount EPIC, $_temp1.',
+      few: 'Wszystko jest zablokowane: $count wyjścia, $amount EPIC, $_temp2.',
+      one: 'Wszystko jest zablokowane: $count wyjście, $amount EPIC, $_temp3.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
-  String deskSendLockSome(int count, String amount) {
+  String deskSendLockSome(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wyjścia zablokowane, $amount EPIC, około 3 bloków.',
-      many: '$count wyjść zablokowanych, $amount EPIC, około 3 bloków.',
-      few: '$count wyjścia zablokowane, $amount EPIC, około 3 bloków.',
-      one: '$count wyjście zablokowane, $amount EPIC, około 3 bloków.',
+      other: '$count wyjścia zablokowane, $amount EPIC, $_temp0.',
+      many: '$count wyjść zablokowanych, $amount EPIC, $_temp1.',
+      few: '$count wyjścia zablokowane, $amount EPIC, $_temp2.',
+      one: '$count wyjście zablokowane, $amount EPIC, $_temp3.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
@@ -7160,54 +7233,155 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskSendReviewLocksAll(int count, String locked) {
+  String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Wszystko: $locked EPIC w $count wyjścia do potwierdzenia reszty (3 bloki). Nic nie zostaje do wydania.',
+          'Wszystko: $locked EPIC w $count wyjścia do potwierdzenia reszty $_temp0. Nic nie zostaje do wydania.',
       many:
-          'Wszystko: $locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). Nic nie zostaje do wydania.',
+          'Wszystko: $locked EPIC w $count wyjściach do potwierdzenia reszty $_temp1. Nic nie zostaje do wydania.',
       few:
-          'Wszystko: $locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). Nic nie zostaje do wydania.',
+          'Wszystko: $locked EPIC w $count wyjściach do potwierdzenia reszty $_temp2. Nic nie zostaje do wydania.',
       one:
-          'Wszystko: $locked EPIC w $count wyjściu do potwierdzenia reszty (3 bloki). Nic nie zostaje do wydania.',
+          'Wszystko: $locked EPIC w $count wyjściu do potwierdzenia reszty $_temp3. Nic nie zostaje do wydania.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
-  String deskSendReviewLocksEverything(int count, String locked) {
+  String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC w $count wyjścia do potwierdzenia reszty (3 bloki). W tym czasie nic innego nie jest do wydania.',
+          '$locked EPIC w $count wyjścia do potwierdzenia reszty $_temp0. W tym czasie nic innego nie jest do wydania.',
       many:
-          '$locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). W tym czasie nic innego nie jest do wydania.',
+          '$locked EPIC w $count wyjściach do potwierdzenia reszty $_temp1. W tym czasie nic innego nie jest do wydania.',
       few:
-          '$locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). W tym czasie nic innego nie jest do wydania.',
+          '$locked EPIC w $count wyjściach do potwierdzenia reszty $_temp2. W tym czasie nic innego nie jest do wydania.',
       one:
-          '$locked EPIC w $count wyjściu do potwierdzenia reszty (3 bloki). W tym czasie nic innego nie jest do wydania.',
+          '$locked EPIC w $count wyjściu do potwierdzenia reszty $_temp3. W tym czasie nic innego nie jest do wydania.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
-  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+  String deskSendReviewLocksSome(
+    int count,
+    String locked,
+    String spendable,
+    int blocks,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC w $count wyjścia do potwierdzenia reszty (3 bloki). $spendable EPIC zostaje do wydania.',
+          '$locked EPIC w $count wyjścia do potwierdzenia reszty $_temp0. $spendable EPIC zostaje do wydania.',
       many:
-          '$locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). $spendable EPIC zostaje do wydania.',
+          '$locked EPIC w $count wyjściach do potwierdzenia reszty $_temp1. $spendable EPIC zostaje do wydania.',
       few:
-          '$locked EPIC w $count wyjściach do potwierdzenia reszty (3 bloki). $spendable EPIC zostaje do wydania.',
+          '$locked EPIC w $count wyjściach do potwierdzenia reszty $_temp2. $spendable EPIC zostaje do wydania.',
       one:
-          '$locked EPIC w $count wyjściu do potwierdzenia reszty (3 bloki). $spendable EPIC zostaje do wydania.',
+          '$locked EPIC w $count wyjściu do potwierdzenia reszty $_temp3. $spendable EPIC zostaje do wydania.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
@@ -8224,8 +8398,17 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskOutCardWait =>
-      'Poczekaj na potwierdzenie wysyłki (około 3 bloków).';
+  String deskOutCardWait(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    return 'Poczekaj na potwierdzenie wysyłki ($_temp0).';
+  }
 
   @override
   String get deskOutSplitNothing => 'Na razie nie ma czego dzielić.';
@@ -8510,13 +8693,29 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskOutSplitDialogText(String spent, String made) {
-    return 'Wydaje $spent i tworzy $made. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; do tego czasu wszystko do wydania jest zablokowane.';
+  String deskOutSplitDialogText(String spent, String made, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'po $blocks bloku',
+      many: 'po $blocks blokach',
+      few: 'po $blocks blokach',
+      one: 'po 1 bloku',
+    );
+    return 'Wydaje $spent i tworzy $made. Zwykła transakcja sieciowa do tego portfela, potwierdzona $_temp0 jak każda wysyłka; do tego czasu wszystko do wydania jest zablokowane.';
   }
 
   @override
-  String deskOutConsDialogText(String spent, String made) {
-    return 'Wydaje $spent i tworzy $made. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; do tego czasu wszystko do wydania jest zablokowane. Następna wysyłka wyda jedno wyjście, więc jej opłata będzie najmniejsza.';
+  String deskOutConsDialogText(String spent, String made, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'po $blocks bloku',
+      many: 'po $blocks blokach',
+      few: 'po $blocks blokach',
+      one: 'po 1 bloku',
+    );
+    return 'Wydaje $spent i tworzy $made. Zwykła transakcja sieciowa do tego portfela, potwierdzona $_temp0 jak każda wysyłka; do tego czasu wszystko do wydania jest zablokowane. Następna wysyłka wyda jedno wyjście, więc jej opłata będzie najmniejsza.';
   }
 
   @override
@@ -8534,8 +8733,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOutFactLocked => 'Zablokowane';
 
   @override
-  String deskOutFactLockedValue(String amount) {
-    return '$amount EPIC, około 3 bloków. Nic nie zostaje do wydania.';
+  String deskOutFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'około $blocks bloku',
+      many: 'około $blocks bloków',
+      few: 'około $blocks bloków',
+      one: 'około 1 bloku',
+    );
+    return '$amount EPIC, $_temp0. Nic nie zostaje do wydania.';
   }
 
   @override
@@ -8585,25 +8792,65 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOutConsPosted => 'Scalenie opublikowane';
 
   @override
-  String deskOutSplitDoneText(int count, String amount) {
+  String deskOutSplitDoneText(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Portfel ma teraz $count wyjścia po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia (3 bloki). Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
+          'Portfel ma teraz $count wyjścia po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia $_temp0. Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
       many:
-          'Portfel ma teraz $count wyjść po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia (3 bloki). Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
+          'Portfel ma teraz $count wyjść po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia $_temp1. Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
       few:
-          'Portfel ma teraz $count wyjścia po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia (3 bloki). Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
+          'Portfel ma teraz $count wyjścia po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia $_temp2. Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
       one:
-          'Portfel ma teraz $count wyjście po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia (3 bloki). Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
+          'Portfel ma teraz $count wyjście po około $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia $_temp3. Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.',
     );
-    return '$_temp0';
+    return '$_temp4';
   }
 
   @override
-  String deskOutConsDoneText(String amount) {
-    return 'Jedno wyjście na $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia (3 bloki). Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.';
+  String deskOutConsDoneText(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks bloku)',
+      many: '($blocks bloków)',
+      few: '($blocks bloki)',
+      one: '(1 blok)',
+    );
+    return 'Jedno wyjście na $amount EPIC, w trakcie potwierdzania. Wszystko jest zablokowane do potwierdzenia $_temp0. Aktywność pokazuje dwa wpisy: wysyłkę i odbiór, oba do tego portfela.';
   }
 
   @override
@@ -18546,4 +18793,49 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Nie sprawdzono';
+
+  @override
+  String get deskSetAdvBalance => 'Saldo';
+
+  @override
+  String get deskSetAdvConfirmations => 'Potwierdzenia';
+
+  @override
+  String deskSetAdvConfirmationsHint(int byDefault, int min, int max) {
+    return 'Ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać. Domyślnie $byDefault; od $min do $max.';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsDefault => 'Domyślnie';
+
+  @override
+  String deskSetAdvConfirmationsReset(int count) {
+    return 'Przywróć $count';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsFewer => 'Mniej potwierdzeń';
+
+  @override
+  String get deskSetAdvConfirmationsMore => 'Więcej potwierdzeń';
+
+  @override
+  String deskSetAdvConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count potwierdzenia',
+      many: '$count potwierdzeń',
+      few: '$count potwierdzenia',
+      one: '$count potwierdzenie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsLowNote =>
+      'Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.';
+
+  @override
+  String get deskSetAdvConfirmationsNotSaved => 'Nie zmieniono potwierdzeń';
 }

@@ -7124,15 +7124,19 @@
   "@deskInvPayerShort": {
     "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
   },
-  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count once they have 3 confirmations.",
+  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count {confirmations, plural, one{once they have 1 confirmation} other{once they have {confirmations} confirmations}}.",
   "@deskInvPayerShortText": {
-    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts.",
+    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts. {confirmations} is the wallet's minimum confirmations (Settings > Advanced).",
     "placeholders": {
       "total": {
         "type": "String"
       },
       "spendable": {
         "type": "String"
+      },
+      "confirmations": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -9067,9 +9071,9 @@
       }
     }
   },
-  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}",
+  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{Everything is locked: {count} outputs, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
   "@deskSendLockAll": {
-    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC.",
+    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -9077,12 +9081,16 @@
       "amount": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}",
+  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{{count} outputs locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
   "@deskSendLockSome": {
-    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC.",
+    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -9090,6 +9098,10 @@
       "amount": {
         "type": "String",
         "example": "34.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -9132,9 +9144,9 @@
       }
     }
   },
-  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}",
+  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}",
   "@deskSendReviewLocksAll": {
-    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC.",
+    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -9142,12 +9154,16 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}",
+  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}",
   "@deskSendReviewLocksEverything": {
-    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC.",
+    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -9155,12 +9171,16 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}",
+  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.}}",
   "@deskSendReviewLocksSome": {
-    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC.",
+    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -9172,6 +9192,10 @@
       "spendable": {
         "type": "String",
         "example": "1,250.0000"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -10447,9 +10471,15 @@
       }
     }
   },
-  "deskOutCardWait": "Wait until the send confirms (about 3 blocks).",
+  "deskOutCardWait": "Wait until the send confirms ({blocks, plural, one{about 1 block} other{about {blocks} blocks}}).",
   "@deskOutCardWait": {
-    "description": "Note on the Split and Consolidate cards while a send is still locking outputs."
+    "description": "Note on the Split and Consolidate cards while a send is still locking outputs. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
   },
   "deskOutSplitNothing": "Nothing to split yet.",
   "@deskOutSplitNothing": {
@@ -10813,9 +10843,9 @@
       }
     }
   },
-  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.",
+  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then.",
   "@deskOutSplitDialogText": {
-    "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "spent": {
         "type": "String",
@@ -10824,12 +10854,16 @@
       "made": {
         "type": "String",
         "example": "4 outputs of about 0.8750 EPIC"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
   "@deskOutConsDialogText": {
-    "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "spent": {
         "type": "String",
@@ -10838,6 +10872,10 @@
       "made": {
         "type": "String",
         "example": "one output of 3.4 EPIC"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -10863,13 +10901,17 @@
   "@deskOutFactLocked": {
     "description": "Label in the dialog's facts list: the amount locked while the transaction confirms."
   },
-  "deskOutFactLockedValue": "{amount} EPIC, about 3 blocks. Nothing stays spendable.",
+  "deskOutFactLockedValue": "{amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}. Nothing stays spendable.",
   "@deskOutFactLockedValue": {
-    "description": "Value in the dialog's facts list: how much is locked and for how long.",
+    "description": "Value in the dialog's facts list: how much is locked and for how long. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "amount": {
         "type": "String",
         "example": "3.5"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -10935,9 +10977,9 @@
   "@deskOutConsPosted": {
     "description": "Title of the green notice in the Consolidate dialog when it worked."
   },
-  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.}}",
+  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.}}",
   "@deskOutSplitDoneText": {
-    "description": "Text of the green notice in the Split dialog when it worked.",
+    "description": "Text of the green notice in the Split dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int",
@@ -10946,16 +10988,24 @@
       "amount": {
         "type": "String",
         "example": "0.8750"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.",
+  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.",
   "@deskOutConsDoneText": {
-    "description": "Text of the green notice in the Consolidate dialog when it worked.",
+    "description": "Text of the green notice in the Consolidate dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "amount": {
         "type": "String",
         "example": "3.4"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -24066,5 +24116,71 @@
   "syncHelpNotChecked": "Not checked",
   "@syncHelpNotChecked": {
     "description": "Status panel: the server's state is not known yet."
+  },
+  "deskSetAdvBalance": "Balance",
+  "@deskSetAdvBalance": {
+    "description": "Title of the group on Settings › Advanced that holds the Confirmations row. One word."
+  },
+  "deskSetAdvConfirmations": "Confirmations",
+  "@deskSetAdvConfirmations": {
+    "description": "Settings › Advanced row: how many confirmations a received output needs before it can be spent. 1 to 3 words."
+  },
+  "deskSetAdvConfirmationsHint": "How many blocks a received payment waits before its outputs can be spent. {byDefault} by default; any count from {min} to {max}.",
+  "@deskSetAdvConfirmationsHint": {
+    "description": "Hover card of the Confirmations row on Settings › Advanced.",
+    "placeholders": {
+      "byDefault": {
+        "type": "int",
+        "example": "6"
+      },
+      "min": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsDefault": "Default",
+  "@deskSetAdvConfirmationsDefault": {
+    "description": "Small tag on the Confirmations row while it is at the default count. One word."
+  },
+  "deskSetAdvConfirmationsReset": "Reset to {count}",
+  "@deskSetAdvConfirmationsReset": {
+    "description": "Button on the Confirmations row, shown when the count is not the default: sets it back. {count} is the default count.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsFewer": "Fewer confirmations",
+  "@deskSetAdvConfirmationsFewer": {
+    "description": "Tooltip and screen-reader label of the minus button on the Confirmations row."
+  },
+  "deskSetAdvConfirmationsMore": "More confirmations",
+  "@deskSetAdvConfirmationsMore": {
+    "description": "Tooltip and screen-reader label of the plus button on the Confirmations row."
+  },
+  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} confirmation} other{{count} confirmations}}",
+  "@deskSetAdvConfirmationsCount": {
+    "description": "Screen-reader value of the Confirmations row: the count it is set to.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but give less protection against chain reorganisations.",
+  "@deskSetAdvConfirmationsLowNote": {
+    "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."
+  },
+  "deskSetAdvConfirmationsNotSaved": "Confirmations not changed",
+  "@deskSetAdvConfirmationsNotSaved": {
+    "description": "Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count."
   }
 }

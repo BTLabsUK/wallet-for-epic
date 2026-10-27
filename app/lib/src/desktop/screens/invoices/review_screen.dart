@@ -253,7 +253,7 @@ class _Review extends ConsumerWidget {
             ENotice(
               tone: ETone.risk,
               title: l.deskInvPayerShort,
-              text: l.deskInvPayerShortText(formatEpicL(l, i.total), formatEpicL(l, spendable)),
+              text: l.deskInvPayerShortText(formatEpicL(l, i.total), formatEpicL(l, spendable), deskMinConfirmations(ref)),
             ),
             SizedBox(height: Sp.x3),
           ],
@@ -421,7 +421,7 @@ class RequestFileReview extends ConsumerWidget {
             ENotice(
               tone: ETone.risk,
               title: l.deskInvPayerShort,
-              text: l.deskInvPayerShortText(formatEpicL(l, f.total), formatEpicL(l, spendable)),
+              text: l.deskInvPayerShortText(formatEpicL(l, f.total), formatEpicL(l, spendable), deskMinConfirmations(ref)),
             ),
             SizedBox(height: Sp.x3),
           ],

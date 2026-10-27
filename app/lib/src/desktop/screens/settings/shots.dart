@@ -376,7 +376,16 @@ final List<DeskShot> settingsShots = [
     arg: 36,
     prepare: (c, _) async => c.read(txMoreDemoProvider.notifier).open(),
   ),
+  // Settings › Advanced › Balance: the wallet's minimum confirmations at the default (6), set
+  // to 3 (Reset and the note under the row), and Overview counting with 3 (the mock's 25 EPIC
+  // payment, 4 blocks in, is spendable then).
+  const DeskShot(id: '43o-advanced-confirmations', title: 'Settings › Advanced › Balance, Confirmations at the default 6', route: DeskRoute.settingsAdvanced, height: 1450),
+  DeskShot(id: '43p-advanced-confirmations-3', title: 'Settings › Advanced › Balance, Confirmations set to 3', route: DeskRoute.settingsAdvanced, height: 1450, prepare: (c, _) => _minConfirmations(c, 3)),
+  DeskShot(id: '43q-overview-confirmations-3', title: 'Overview counting with 3 confirmations', route: DeskRoute.overview, prepare: (c, _) => _minConfirmations(c, 3)),
 ];
+
+/// Sets the open wallet's minimum confirmations for a shot (the mock starts at the default).
+Future<void> _minConfirmations(ProviderContainer c, int count) => c.read(deskMinConfirmationsSettingProvider.notifier).set(count);
 
 /// Sets the network mode for a shot (the mock starts in Standard with everything else off).
 /// A server typed into the Epicbox list ("Added by you").

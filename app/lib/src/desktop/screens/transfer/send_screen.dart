@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../payment_prefs.dart' show PaymentPrefs;
+import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
@@ -125,9 +126,13 @@ class _Draft {
     this.code,
     this.pairingId,
     this.queued = false,
+    this.confirmations = defaultMinimumConfirmations,
   });
 
   final TxMethod method;
+
+  /// The wallet's minimum confirmations: blocks until the change confirms.
+  final int confirmations;
 
   /// Through the mailbox of this pairing: a contact with no address, [to] null.
   final String? pairingId;
@@ -986,6 +991,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
         unknownRelay: unknownRelay,
         code: code,
+        confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
       );
     }
 
@@ -1620,6 +1626,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
       strategy: _strategy,
       defaultStrategy: _prefs.strategy,
+      confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
       updating: st.status?.syncProgress != null,
       hint: hint,
       reviewLabel: switch (_torWay(st)) {
@@ -1650,10 +1657,14 @@ class _SendSummary extends StatelessWidget {
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
     this.defaultStrategy = SelectionStrategy.smallest,
+    this.confirmations = defaultMinimumConfirmations,
   });
 
   /// What the send spends, locks and leaves (F11, F12); null until it is estimated.
   final SendSummary? summary;
+
+  /// The wallet's minimum confirmations: blocks until the change confirms.
+  final int confirmations;
 
   /// What splitting the change adds to the fee.
   final int extraFee;
@@ -1710,7 +1721,7 @@ class _SendSummary extends StatelessWidget {
           ),
           Divider(height: Sp.x4, color: c.line),
           line(l.deskSendTotal, ready ? n + fee : null, strong: true),
-          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy),
+          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations),
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
@@ -2154,7 +2165,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
     final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostBesideOf(d.to!) : null;
     final sum = d.summary;
-    final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
+    final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
       title: l.deskSendReviewTitle,
       description: l.deskSendReviewDesc,

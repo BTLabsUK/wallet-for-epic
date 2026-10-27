@@ -43,5 +43,15 @@
   "deskNetCantReceive": "Offline kein Empfang möglich.",
   "deskRailOffline": "Offline",
   "deskSetAdvNodeFailover": "Automatischer Node-Wechsel",
-  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste."
+  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
+  "deskSetAdvBalance": "Guthaben",
+  "deskSetAdvConfirmations": "Bestätigungen",
+  "deskSetAdvConfirmationsHint": "Wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind. Standardmäßig {byDefault}; jeder Wert von {min} bis {max}.",
+  "deskSetAdvConfirmationsDefault": "Voreinstellung",
+  "deskSetAdvConfirmationsReset": "Auf {count} zurücksetzen",
+  "deskSetAdvConfirmationsFewer": "Weniger Bestätigungen",
+  "deskSetAdvConfirmationsMore": "Mehr Bestätigungen",
+  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} Bestätigung} other{{count} Bestätigungen}}",
+  "deskSetAdvConfirmationsLowNote": "Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.",
+  "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert"
 }

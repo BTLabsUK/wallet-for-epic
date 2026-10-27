@@ -29,7 +29,7 @@
   "deskInvPayerLockNone": "Keine",
   "deskInvPayerReceived": "Empfangen",
   "deskInvPayerShort": "Nicht genug verfügbares Guthaben",
-  "deskInvPayerShortText": "Sie brauchen {total} EPIC verfügbar; Sie haben {spendable} EPIC. Guthaben, das noch bestätigt wird, zählt ab 3 Bestätigungen.",
+  "deskInvPayerShortText": "Sie brauchen {total} EPIC verfügbar; Sie haben {spendable} EPIC. Guthaben, das noch bestätigt wird, zählt {confirmations, plural, one{ab 1 Bestätigung} other{ab {confirmations} Bestätigungen}}.",
   "deskInvPayerNodeDownTitle": "Der Node antwortet nicht",
   "deskInvPayerNodeDownText": "Die Wallet kann Ihr Guthaben nicht prüfen und daher nicht zahlen. Zustimmen geht wieder, sobald der Node antwortet; unter Einstellungen › Node können Sie einen anderen wählen.",
   "deskInvPayerPaid": "Diese Rechnung ist bezahlt. Darauf kann nichts mehr gezahlt werden.",

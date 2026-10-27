@@ -8856,11 +8856,15 @@ abstract class AppLocalizations {
   /// **'Not enough spendable funds'**
   String get deskInvPayerShort;
 
-  /// Text under the not-enough-funds reason. total and spendable are formatted amounts.
+  /// Text under the not-enough-funds reason. total and spendable are formatted amounts. {confirmations} is the wallet's minimum confirmations (Settings > Advanced).
   ///
   /// In en, this message translates to:
-  /// **'You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count once they have 3 confirmations.'**
-  String deskInvPayerShortText(String total, String spendable);
+  /// **'You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count {confirmations, plural, one{once they have 1 confirmation} other{once they have {confirmations} confirmations}}.'**
+  String deskInvPayerShortText(
+    String total,
+    String spendable,
+    int confirmations,
+  );
 
   /// Reason Approve is disabled: the wallet's node cannot be reached.
   ///
@@ -11088,17 +11092,17 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{No change: 1 output spent exactly, nothing waits.} other{No change: {count} outputs spent exactly, nothing waits.}}'**
   String deskSendLockNoChange(int count);
 
-  /// Caption under "Spendable until change confirms" on Send when every output is locked until the change confirms. {amount} is in EPIC.
+  /// Caption under "Spendable until change confirms" on Send when every output is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}'**
-  String deskSendLockAll(int count, String amount);
+  /// **'{count, plural, one{Everything is locked: 1 output, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{Everything is locked: {count} outputs, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}'**
+  String deskSendLockAll(int count, String amount, int blocks);
 
-  /// Caption under "Spendable until change confirms" on Send: how much is locked until the change confirms. {amount} is in EPIC.
+  /// Caption under "Spendable until change confirms" on Send: how much is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}'**
-  String deskSendLockSome(int count, String amount);
+  /// **'{count, plural, one{1 output locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{{count} outputs locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}'**
+  String deskSendLockSome(int count, String amount, int blocks);
 
   /// Caption on Send when this send uses another output strategy than the default. {strategy} is the strategy's name (Smallest or All).
   ///
@@ -11118,23 +11122,28 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}'**
   String deskSendReviewLocksNone(int count, String locked);
 
-  /// Review dialog, fact "Locks": strategy All locks everything. {locked} is in EPIC.
+  /// Review dialog, fact "Locks": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}'**
-  String deskSendReviewLocksAll(int count, String locked);
+  /// **'{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}'**
+  String deskSendReviewLocksAll(int count, String locked, int blocks);
 
-  /// Review dialog, fact "Locks": all outputs are needed. {locked} is in EPIC.
+  /// Review dialog, fact "Locks": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}'**
-  String deskSendReviewLocksEverything(int count, String locked);
+  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}'**
+  String deskSendReviewLocksEverything(int count, String locked, int blocks);
 
-  /// Review dialog, fact "Locks": some outputs are locked, the rest stays spendable. Amounts are in EPIC.
+  /// Review dialog, fact "Locks": some outputs are locked, the rest stays spendable. Amounts are in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}'**
-  String deskSendReviewLocksSome(int count, String locked, String spendable);
+  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.}}'**
+  String deskSendReviewLocksSome(
+    int count,
+    String locked,
+    String spendable,
+    int blocks,
+  );
 
   /// Label of a fact in the review dialog: the outputs the payment locks until the change confirms. Short.
   ///
@@ -12864,11 +12873,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} output} other{{count} outputs}}'**
   String deskOutCount(int count);
 
-  /// Note on the Split and Consolidate cards while a send is still locking outputs.
+  /// Note on the Split and Consolidate cards while a send is still locking outputs. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'Wait until the send confirms (about 3 blocks).'**
-  String get deskOutCardWait;
+  /// **'Wait until the send confirms ({blocks, plural, one{about 1 block} other{about {blocks} blocks}}).'**
+  String deskOutCardWait(int blocks);
 
   /// Note on the Split card when there are no spendable outputs.
   ///
@@ -13260,17 +13269,17 @@ abstract class AppLocalizations {
   /// **'one output of {amount} EPIC'**
   String deskOutConsMadePart(String amount);
 
-  /// Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces.
+  /// Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.'**
-  String deskOutSplitDialogText(String spent, String made);
+  /// **'Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then.'**
+  String deskOutSplitDialogText(String spent, String made, int blocks);
 
-  /// Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces.
+  /// Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
-  String deskOutConsDialogText(String spent, String made);
+  /// **'Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
+  String deskOutConsDialogText(String spent, String made, int blocks);
 
   /// Label in the dialog's facts list: the fee of the transaction.
   ///
@@ -13296,11 +13305,11 @@ abstract class AppLocalizations {
   /// **'Locked'**
   String get deskOutFactLocked;
 
-  /// Value in the dialog's facts list: how much is locked and for how long.
+  /// Value in the dialog's facts list: how much is locked and for how long. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC, about 3 blocks. Nothing stays spendable.'**
-  String deskOutFactLockedValue(String amount);
+  /// **'{amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}. Nothing stays spendable.'**
+  String deskOutFactLockedValue(String amount, int blocks);
 
   /// Label of the number stepper in the Split dialog; also its screen reader label.
   ///
@@ -13386,17 +13395,17 @@ abstract class AppLocalizations {
   /// **'Consolidate posted'**
   String get deskOutConsPosted;
 
-  /// Text of the green notice in the Split dialog when it worked.
+  /// Text of the green notice in the Split dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.}}'**
-  String deskOutSplitDoneText(int count, String amount);
+  /// **'{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.}}'**
+  String deskOutSplitDoneText(int count, String amount, int blocks);
 
-  /// Text of the green notice in the Consolidate dialog when it worked.
+  /// Text of the green notice in the Consolidate dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
-  /// **'One output of {amount} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.'**
-  String deskOutConsDoneText(String amount);
+  /// **'One output of {amount} EPIC, confirming. Everything is locked until it confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.'**
+  String deskOutConsDoneText(String amount, int blocks);
 
   /// Title of the red notice when the node did not take the transaction.
   ///
@@ -28468,6 +28477,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not checked'**
   String get syncHelpNotChecked;
+
+  /// Title of the group on Settings › Advanced that holds the Confirmations row. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get deskSetAdvBalance;
+
+  /// Settings › Advanced row: how many confirmations a received output needs before it can be spent. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get deskSetAdvConfirmations;
+
+  /// Hover card of the Confirmations row on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'How many blocks a received payment waits before its outputs can be spent. {byDefault} by default; any count from {min} to {max}.'**
+  String deskSetAdvConfirmationsHint(int byDefault, int min, int max);
+
+  /// Small tag on the Confirmations row while it is at the default count. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get deskSetAdvConfirmationsDefault;
+
+  /// Button on the Confirmations row, shown when the count is not the default: sets it back. {count} is the default count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to {count}'**
+  String deskSetAdvConfirmationsReset(int count);
+
+  /// Tooltip and screen-reader label of the minus button on the Confirmations row.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer confirmations'**
+  String get deskSetAdvConfirmationsFewer;
+
+  /// Tooltip and screen-reader label of the plus button on the Confirmations row.
+  ///
+  /// In en, this message translates to:
+  /// **'More confirmations'**
+  String get deskSetAdvConfirmationsMore;
+
+  /// Screen-reader value of the Confirmations row: the count it is set to.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} confirmation} other{{count} confirmations}}'**
+  String deskSetAdvConfirmationsCount(int count);
+
+  /// Quiet note under the Confirmations row while the count is below the default. Factual, no alarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer confirmations are faster but give less protection against chain reorganisations.'**
+  String get deskSetAdvConfirmationsLowNote;
+
+  /// Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations not changed'**
+  String get deskSetAdvConfirmationsNotSaved;
 }
 
 class _AppLocalizationsDelegate

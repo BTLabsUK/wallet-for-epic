@@ -161,15 +161,19 @@
   "@deskInvPayerShort": {
     "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
   },
-  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count once they have 3 confirmations.",
+  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count {confirmations, plural, one{once they have 1 confirmation} other{once they have {confirmations} confirmations}}.",
   "@deskInvPayerShortText": {
-    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts.",
+    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts. {confirmations} is the wallet's minimum confirmations (Settings > Advanced).",
     "placeholders": {
       "total": {
         "type": "String"
       },
       "spendable": {
         "type": "String"
+      },
+      "confirmations": {
+        "type": "int",
+        "example": "6"
       }
     }
   },

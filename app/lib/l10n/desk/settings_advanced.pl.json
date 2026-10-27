@@ -43,5 +43,15 @@
   "deskNetCantReceive": "Offline nie można odbierać.",
   "deskRailOffline": "Offline",
   "deskSetAdvNodeFailover": "Automatyczna zmiana węzła",
-  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy."
+  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
+  "deskSetAdvBalance": "Saldo",
+  "deskSetAdvConfirmations": "Potwierdzenia",
+  "deskSetAdvConfirmationsHint": "Ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać. Domyślnie {byDefault}; od {min} do {max}.",
+  "deskSetAdvConfirmationsDefault": "Domyślnie",
+  "deskSetAdvConfirmationsReset": "Przywróć {count}",
+  "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
+  "deskSetAdvConfirmationsMore": "Więcej potwierdzeń",
+  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
+  "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.",
+  "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń"
 }

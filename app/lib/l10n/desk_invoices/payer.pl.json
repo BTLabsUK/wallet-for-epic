@@ -29,7 +29,7 @@
   "deskInvPayerLockNone": "Brak",
   "deskInvPayerReceived": "Otrzymano",
   "deskInvPayerShort": "Za mało dostępnych środków",
-  "deskInvPayerShortText": "Potrzebujesz {total} EPIC dostępnych; masz {spendable} EPIC. Środki w trakcie potwierdzania liczą się po 3 potwierdzeniach.",
+  "deskInvPayerShortText": "Potrzebujesz {total} EPIC dostępnych; masz {spendable} EPIC. Środki w trakcie potwierdzania liczą się {confirmations, plural, one{po 1 potwierdzeniu} few{po {confirmations} potwierdzeniach} many{po {confirmations} potwierdzeniach} other{po {confirmations} potwierdzenia}}.",
   "deskInvPayerNodeDownTitle": "Węzeł nie odpowiada",
   "deskInvPayerNodeDownText": "Portfel nie może sprawdzić środków, więc nie może zapłacić. Zatwierdzanie zadziała, gdy węzeł odpowie; inny węzeł wybierzesz w Ustawienia › Węzeł.",
   "deskInvPayerPaid": "Ta faktura jest opłacona. Nie można już na nią nic zapłacić.",

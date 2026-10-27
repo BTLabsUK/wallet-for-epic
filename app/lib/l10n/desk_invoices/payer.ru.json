@@ -29,7 +29,7 @@
   "deskInvPayerLockNone": "Нет",
   "deskInvPayerReceived": "Получено",
   "deskInvPayerShort": "Недостаточно доступных средств",
-  "deskInvPayerShortText": "Нужно {total} EPIC доступных; у вас {spendable} EPIC. Средства на подтверждении учитываются после 3 подтверждений.",
+  "deskInvPayerShortText": "Нужно {total} EPIC доступных; у вас {spendable} EPIC. Средства на подтверждении учитываются {confirmations, plural, one{после {confirmations} подтверждения} few{после {confirmations} подтверждений} many{после {confirmations} подтверждений} other{после {confirmations} подтверждения}}.",
   "deskInvPayerNodeDownTitle": "Узел не отвечает",
   "deskInvPayerNodeDownText": "Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в разделе «Настройки › Узел».",
   "deskInvPayerPaid": "Этот счёт оплачен. По нему больше ничего нельзя заплатить.",

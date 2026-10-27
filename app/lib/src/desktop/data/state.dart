@@ -449,6 +449,15 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
+  /// Stores the open wallet's minimum confirmations and takes the balance and payments counted
+  /// with it at once (Overview re-splits without waiting for the next sync).
+  Future<void> setMinConfirmations(int count) async {
+    await api.setMinimumConfirmations(count);
+    final balance = await api.balance();
+    final txs = await api.transactions();
+    state = state.copyWith(balance: balance, txs: txs);
+  }
+
   Future<void> repostTx(int id) async {
     await api.repostTx(id);
     final txs = await api.transactions();
@@ -535,6 +544,30 @@ class DeskOutputPrefs extends AsyncNotifier<OutputPrefs> {
 }
 
 final deskOutputPrefsProvider = AsyncNotifierProvider<DeskOutputPrefs, OutputPrefs>(DeskOutputPrefs.new);
+
+/// The open wallet's minimum confirmations as the core stores it (Settings › Advanced). Reloads
+/// when another wallet opens or the balance's count moves; [set] shows the new count at once
+/// and goes back to the old one when the core refuses it.
+class DeskMinConfirmationsSetting extends AsyncNotifier<int> {
+  @override
+  Future<int> build() {
+    ref.watch(deskProvider.select((s) => (s.account?.id, s.balance?.minConfirmations)));
+    return ref.read(deskApiProvider).minimumConfirmations();
+  }
+
+  Future<void> set(int count) async {
+    final before = state;
+    state = AsyncData(count);
+    try {
+      await ref.read(deskProvider.notifier).setMinConfirmations(count);
+    } on Object {
+      state = before;
+      rethrow;
+    }
+  }
+}
+
+final deskMinConfirmationsSettingProvider = AsyncNotifierProvider<DeskMinConfirmationsSetting, int>(DeskMinConfirmationsSetting.new);
 
 /// Why the wallet closed by itself (a server change could not reopen it); the app returns to
 /// Unlock and shows it.

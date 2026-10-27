@@ -54,9 +54,9 @@
       }
     }
   },
-  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}",
+  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{Everything is locked: {count} outputs, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
   "@deskSendLockAll": {
-    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC.",
+    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -64,12 +64,16 @@
       "amount": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}",
+  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{{count} outputs locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
   "@deskSendLockSome": {
-    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC.",
+    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -77,6 +81,10 @@
       "amount": {
         "type": "String",
         "example": "34.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -119,9 +127,9 @@
       }
     }
   },
-  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}",
+  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}",
   "@deskSendReviewLocksAll": {
-    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC.",
+    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -129,12 +137,16 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}",
+  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}",
   "@deskSendReviewLocksEverything": {
-    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC.",
+    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -142,12 +154,16 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}",
+  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.}}",
   "@deskSendReviewLocksSome": {
-    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC.",
+    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -159,6 +175,10 @@
       "spendable": {
         "type": "String",
         "example": "1,250.0000"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },

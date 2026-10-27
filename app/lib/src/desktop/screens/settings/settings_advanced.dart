@@ -7,10 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../app/tour.dart' show TourTarget;
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
+import '../wallet/outputs_dialogs.dart' show EStepper;
 import 'connection_servers_row.dart';
 import 'prefs.dart' show SettingsJump;
 import 'settings_frame.dart';
@@ -81,6 +84,8 @@ class SettingsAdvancedScreen extends ConsumerWidget {
         ),
         SizedBox(height: Sp.x6),
         const _NetworkGroup(),
+        SizedBox(height: Sp.x6),
+        const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
         SizedBox(height: Sp.x6),
         // An "experimental" dialog's Open Advanced lands here (LNX3-1).
         JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup(openConnectionServers: arg == AdvancedDemo.connectionServersOpen)),
@@ -180,6 +185,70 @@ class _ExperimentalGroup extends ConsumerWidget {
         ESetRow(key: const ValueKey('adv-exp-rule'), text: l.expNeedsPairing),
         // On unless turned off; independent of Pairing (its pairings are private).
         row(AdvancedFeature.linkedDevices, adv.linkedDevicesOn, l.expLinkedDevicesHint),
+      ],
+    );
+  }
+}
+
+/// The wallet's minimum confirmations (the core keeps it per wallet): a stepper that applies
+/// each step at once, a Default tag at the default and Reset elsewhere, and a quiet line under
+/// it below the default. A refused count goes back and says why in a toast.
+class _BalanceGroup extends ConsumerWidget {
+  const _BalanceGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final count = ref.watch(deskMinConfirmationsSettingProvider).value ?? deskMinConfirmations(ref);
+    Future<void> set(int n) async {
+      if (n == count) return;
+      try {
+        await ref.read(deskMinConfirmationsSettingProvider.notifier).set(n);
+      } on Object catch (e) {
+        if (context.mounted) showEToast(context, l.deskSetAdvConfirmationsNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
+      }
+    }
+
+    return ESetGroup(
+      key: const ValueKey('adv-balance'),
+      title: l.deskSetAdvBalance,
+      rows: [
+        ESetRow(
+          key: const ValueKey('adv-minConfirmations'),
+          title: l.deskSetAdvConfirmations,
+          hint: l.deskSetAdvConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
+          hintTitle: l.deskSetAdvConfirmations,
+          wrap: true,
+          control: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (count == defaultMinimumConfirmations)
+                EBadge(l.deskSetAdvConfirmationsDefault)
+              else
+                EButton.ghost(
+                  key: const ValueKey('adv-minConfirmations-reset'),
+                  label: l.deskSetAdvConfirmationsReset(defaultMinimumConfirmations),
+                  size: EBtnSize.inline,
+                  onPressed: () => set(defaultMinimumConfirmations),
+                ),
+              SizedBox(width: Sp.x3),
+              EStepper(
+                value: count,
+                min: minMinimumConfirmations,
+                max: maxMinimumConfirmations,
+                label: l.deskSetAdvConfirmations,
+                fewerLabel: l.deskSetAdvConfirmationsFewer,
+                moreLabel: l.deskSetAdvConfirmationsMore,
+                valueText: l.deskSetAdvConfirmationsCount,
+                onChanged: set,
+              ),
+            ],
+          ),
+          below: count < defaultMinimumConfirmations
+              ? Text(l.deskSetAdvConfirmationsLowNote, key: const ValueKey('adv-minConfirmations-note'), style: context.ts.small.copyWith(color: c.dim))
+              : null,
+        ),
       ],
     );
   }

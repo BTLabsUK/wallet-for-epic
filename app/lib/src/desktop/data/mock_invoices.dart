@@ -44,11 +44,13 @@ class InvoiceProto {
   final List<IssuedRequest> sent = [];
   int _slate = 0;
 
-  /// Balance moves from invoices: spendable, locked and confirming deltas in nanoepic.
+  /// Balance moves from invoices: spendable, locked and confirming deltas in nanoepic. A
+  /// confirming request with the wallet's minimum confirmations counts as spendable.
   int get spendDelta => [for (final i in toPay) if (i.state.locking || i.state == PayState.confirming || i.state == PayState.completed) -i.total].fold(0, (a, b) => a + b) +
-      [for (final r in sent) if (r.state == RequestState.completed) r.amount].fold(0, (a, b) => a + b);
+      [for (final r in sent) if (r.state == RequestState.completed || _counted(r)) r.amount].fold(0, (a, b) => a + b);
   int get lockDelta => [for (final i in toPay) if (i.state.locking) i.total].fold(0, (a, b) => a + b);
-  int get confirmingDelta => [for (final r in sent) if (r.state == RequestState.paid || r.state == RequestState.confirming || r.state == RequestState.notPosted) r.amount].fold(0, (a, b) => a + b);
+  int get confirmingDelta => [for (final r in sent) if ((r.state == RequestState.paid || r.state == RequestState.confirming || r.state == RequestState.notPosted) && !_counted(r)) r.amount].fold(0, (a, b) => a + b);
+  bool _counted(IssuedRequest r) => r.state == RequestState.confirming && r.confirmations >= _w._minConf;
 
   String _newSlate() {
     _slate++;
@@ -136,7 +138,7 @@ class InvoiceProto {
           issuedAt: now.subtract(const Duration(minutes: 40)),
           expiresAt: now.add(const Duration(hours: 23, minutes: 20)),
           state: RequestState.confirming,
-          confirmations: 2,
+          confirmations: MockDeskWallet._lunchConfirmations,
           answeredAt: now.subtract(const Duration(minutes: 18)),
         ),
         IssuedRequest(
@@ -372,13 +374,13 @@ class InvoiceProto {
     for (final i in [...toPay]) {
       if (i.state == PayState.posted || i.state == PayState.confirming) {
         final c = i.confirmations + n;
-        _setInv(i.slateId, (x) => x.copyWith(state: c >= defaultMinimumConfirmations ? PayState.completed : PayState.confirming, confirmations: c), sync: false);
+        _setInv(i.slateId, (x) => x.copyWith(state: c >= _w._minConf ? PayState.completed : PayState.confirming, confirmations: c), sync: false);
       }
     }
     for (final r in [...sent]) {
       if (r.state == RequestState.paid || r.state == RequestState.confirming) {
         final c = r.confirmations + n;
-        _setReq(r.slateId, (x) => x.copyWith(state: c >= defaultMinimumConfirmations ? RequestState.completed : RequestState.confirming, confirmations: c), sync: false);
+        _setReq(r.slateId, (x) => x.copyWith(state: c >= _w._minConf ? RequestState.completed : RequestState.confirming, confirmations: c), sync: false);
       }
     }
     _syncTxs();

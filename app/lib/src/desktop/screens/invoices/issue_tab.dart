@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
-import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import '../../../help/help_content.dart' show HelpAnchor;
@@ -318,7 +317,7 @@ class RequestDetail extends ConsumerWidget {
             ],
           ),
         ],
-        if (step >= 0) ...[SizedBox(height: Sp.x5), _Steps(step: step, confirmations: r.confirmations)],
+        if (step >= 0) ...[SizedBox(height: Sp.x5), _Steps(step: step, confirmations: r.confirmations, needed: deskMinConfirmations(ref))],
         SizedBox(height: Sp.x5),
         EFacts(labelWidth: 96.u, [
           (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.byFile) Text(l.reqToAnyone), if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
@@ -400,10 +399,13 @@ class _BigAmount extends StatelessWidget {
 
 /// Requested → Paid → Confirming → Completed, [step] reached.
 class _Steps extends StatelessWidget {
-  const _Steps({required this.step, required this.confirmations});
+  const _Steps({required this.step, required this.confirmations, required this.needed});
 
   final int step;
   final int confirmations;
+
+  /// The wallet's minimum confirmations.
+  final int needed;
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +415,7 @@ class _Steps extends StatelessWidget {
     final names = [
       l.deskInvIssuerStepIssued,
       l.deskInvIssuerStepPaid,
-      step == 2 ? l.deskInvConfirming(confirmations, defaultMinimumConfirmations) : l.deskInvIssuerStepConfirming,
+      step == 2 ? l.deskInvConfirming(confirmations, needed) : l.deskInvIssuerStepConfirming,
       l.deskInvCompleted,
     ];
     return Row(

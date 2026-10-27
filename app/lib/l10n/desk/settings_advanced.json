@@ -183,5 +183,71 @@
   "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
+  },
+  "deskSetAdvBalance": "Balance",
+  "@deskSetAdvBalance": {
+    "description": "Title of the group on Settings › Advanced that holds the Confirmations row. One word."
+  },
+  "deskSetAdvConfirmations": "Confirmations",
+  "@deskSetAdvConfirmations": {
+    "description": "Settings › Advanced row: how many confirmations a received output needs before it can be spent. 1 to 3 words."
+  },
+  "deskSetAdvConfirmationsHint": "How many blocks a received payment waits before its outputs can be spent. {byDefault} by default; any count from {min} to {max}.",
+  "@deskSetAdvConfirmationsHint": {
+    "description": "Hover card of the Confirmations row on Settings › Advanced.",
+    "placeholders": {
+      "byDefault": {
+        "type": "int",
+        "example": "6"
+      },
+      "min": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsDefault": "Default",
+  "@deskSetAdvConfirmationsDefault": {
+    "description": "Small tag on the Confirmations row while it is at the default count. One word."
+  },
+  "deskSetAdvConfirmationsReset": "Reset to {count}",
+  "@deskSetAdvConfirmationsReset": {
+    "description": "Button on the Confirmations row, shown when the count is not the default: sets it back. {count} is the default count.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsFewer": "Fewer confirmations",
+  "@deskSetAdvConfirmationsFewer": {
+    "description": "Tooltip and screen-reader label of the minus button on the Confirmations row."
+  },
+  "deskSetAdvConfirmationsMore": "More confirmations",
+  "@deskSetAdvConfirmationsMore": {
+    "description": "Tooltip and screen-reader label of the plus button on the Confirmations row."
+  },
+  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} confirmation} other{{count} confirmations}}",
+  "@deskSetAdvConfirmationsCount": {
+    "description": "Screen-reader value of the Confirmations row: the count it is set to.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but give less protection against chain reorganisations.",
+  "@deskSetAdvConfirmationsLowNote": {
+    "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."
+  },
+  "deskSetAdvConfirmationsNotSaved": "Confirmations not changed",
+  "@deskSetAdvConfirmationsNotSaved": {
+    "description": "Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count."
   }
 }

@@ -5417,8 +5417,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvPayerShort => 'ยอดที่ใช้ได้ไม่พอ';
 
   @override
-  String deskInvPayerShortText(String total, String spendable) {
-    return 'ต้องมียอดที่ใช้ได้ $total EPIC มีอยู่ $spendable EPIC เงินที่กำลังยืนยันจะนับรวมเมื่อได้รับการยืนยัน 3 ครั้ง';
+  String deskInvPayerShortText(
+    String total,
+    String spendable,
+    int confirmations,
+  ) {
+    return 'ต้องมียอดที่ใช้ได้ $total EPIC มีอยู่ $spendable EPIC เงินที่กำลังยืนยันจะนับรวมเมื่อได้รับการยืนยัน $confirmations ครั้ง';
   }
 
   @override
@@ -6784,21 +6788,22 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskSendLockAll(int count, String amount) {
+  String deskSendLockAll(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ทุกอย่างถูกล็อก: $count เอาต์พุต $amount EPIC ประมาณ 3 บล็อก',
+      other:
+          'ทุกอย่างถูกล็อก: $count เอาต์พุต $amount EPIC ประมาณ $blocks บล็อก',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendLockSome(int count, String amount) {
+  String deskSendLockSome(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ล็อก $count เอาต์พุต $amount EPIC ประมาณ 3 บล็อก',
+      other: 'ล็อก $count เอาต์พุต $amount EPIC ประมาณ $blocks บล็อก',
     );
     return '$_temp0';
   }
@@ -6834,34 +6839,39 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskSendReviewLocksAll(int count, String locked) {
+  String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'ทั้งหมด: $locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน (3 บล็อก) ไม่มีส่วนไหนใช้ได้ระหว่างนั้น',
+          'ทั้งหมด: $locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน ($blocks บล็อก) ไม่มีส่วนไหนใช้ได้ระหว่างนั้น',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendReviewLocksEverything(int count, String locked) {
+  String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน (3 บล็อก) ไม่มีส่วนอื่นใช้ได้ระหว่างนั้น',
+          '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน ($blocks บล็อก) ไม่มีส่วนอื่นใช้ได้ระหว่างนั้น',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+  String deskSendReviewLocksSome(
+    int count,
+    String locked,
+    String spendable,
+    int blocks,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน (3 บล็อก) ยังใช้ได้ $spendable EPIC',
+          '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน ($blocks บล็อก) ยังใช้ได้ $spendable EPIC',
     );
     return '$_temp0';
   }
@@ -7853,8 +7863,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOutCardWait =>
-      'รอจนกว่าการส่งจะได้รับการยืนยัน (ประมาณ 3 บล็อก)';
+  String deskOutCardWait(int blocks) {
+    return 'รอจนกว่าการส่งจะได้รับการยืนยัน (ประมาณ $blocks บล็อก)';
+  }
 
   @override
   String get deskOutSplitNothing => 'ยังไม่มีอะไรให้แยก';
@@ -8117,13 +8128,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskOutSplitDialogText(String spent, String made) {
-    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น';
+  String deskOutSplitDialogText(String spent, String made, int blocks) {
+    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง $blocks บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น';
   }
 
   @override
-  String deskOutConsDialogText(String spent, String made) {
-    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น การส่งครั้งถัดไปใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
+  String deskOutConsDialogText(String spent, String made, int blocks) {
+    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง $blocks บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น การส่งครั้งถัดไปใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
   }
 
   @override
@@ -8141,8 +8152,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOutFactLocked => 'ถูกล็อก';
 
   @override
-  String deskOutFactLockedValue(String amount) {
-    return '$amount EPIC ประมาณ 3 บล็อก ไม่มีส่วนไหนใช้ได้ระหว่างนั้น';
+  String deskOutFactLockedValue(String amount, int blocks) {
+    return '$amount EPIC ประมาณ $blocks บล็อก ไม่มีส่วนไหนใช้ได้ระหว่างนั้น';
   }
 
   @override
@@ -8192,19 +8203,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOutConsPosted => 'ส่งการรวมเข้าเครือข่ายแล้ว';
 
   @override
-  String deskOutSplitDoneText(int count, String amount) {
+  String deskOutSplitDoneText(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'ตอนนี้กระเป๋าเงินมี $count เอาต์พุต ก้อนละประมาณ $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน (3 บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้',
+          'ตอนนี้กระเป๋าเงินมี $count เอาต์พุต ก้อนละประมาณ $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน ($blocks บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้',
     );
     return '$_temp0';
   }
 
   @override
-  String deskOutConsDoneText(String amount) {
-    return 'เอาต์พุตเดียว $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน (3 บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้';
+  String deskOutConsDoneText(String amount, int blocks) {
+    return 'เอาต์พุตเดียว $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน ($blocks บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้';
   }
 
   @override
@@ -17736,4 +17747,46 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'ยังไม่ได้ตรวจ';
+
+  @override
+  String get deskSetAdvBalance => 'ยอดเงิน';
+
+  @override
+  String get deskSetAdvConfirmations => 'การยืนยัน';
+
+  @override
+  String deskSetAdvConfirmationsHint(int byDefault, int min, int max) {
+    return 'จำนวนบล็อกที่การชำระเงินที่ได้รับต้องรอก่อนที่เอาต์พุตจะใช้ได้ ค่าเริ่มต้นคือ $byDefault ตั้งได้ตั้งแต่ $min ถึง $max';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsDefault => 'ค่าเริ่มต้น';
+
+  @override
+  String deskSetAdvConfirmationsReset(int count) {
+    return 'รีเซ็ตเป็น $count';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsFewer => 'ลดการยืนยัน';
+
+  @override
+  String get deskSetAdvConfirmationsMore => 'เพิ่มการยืนยัน';
+
+  @override
+  String deskSetAdvConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ยืนยัน $count ครั้ง',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsLowNote =>
+      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง';
+
+  @override
+  String get deskSetAdvConfirmationsNotSaved => 'ไม่ได้เปลี่ยนการยืนยัน';
 }

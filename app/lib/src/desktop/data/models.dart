@@ -193,6 +193,26 @@ class Output {
   /// Can be spent now.
   bool get spendable => status == OutputStatus.unspent;
 
+  /// This output counted with [needed] confirmations (the mock, after the setting changes): one
+  /// in a block is confirming below [needed] and spendable from it.
+  Output withConfirmationsNeeded(int needed) => Output(
+    commitment: commitment,
+    value: value,
+    status: (status == OutputStatus.unspent || status == OutputStatus.confirming) && height != null
+        ? (confirmations >= needed ? OutputStatus.unspent : OutputStatus.confirming)
+        : status,
+    height: height,
+    confirmations: confirmations,
+    confirmationsNeeded: needed,
+    lockHeight: lockHeight,
+    isCoinbase: isCoinbase,
+    awaitingFinalization: awaitingFinalization,
+    unpaidInvoice: unpaidInvoice,
+    hasCategory: hasCategory,
+    mmrIndex: mmrIndex,
+    txId: txId,
+  );
+
   /// Design spec §2.2, the one place: unconfirmed and awaiting finalization is finalizing; a
   /// reward without a category, mining; any other unconfirmed output, like one on chain under
   /// the confirmations needed, is confirming.
@@ -490,6 +510,54 @@ class Tx {
       deviceWhy: deviceWhy,
     );
   }
+
+  /// This row counted with [needed] confirmations (the mock, after the setting changes): a
+  /// payment in a block is confirming below [needed] and confirmed from it.
+  Tx withConfirmationsNeeded(int needed) => Tx(
+    id: id,
+    slateId: slateId,
+    direction: direction,
+    state: (state == TxState.confirming || state == TxState.confirmed) && !coinbase && confirmations > 0
+        ? (confirmations >= needed ? TxState.confirmed : TxState.confirming)
+        : state,
+    method: method,
+    amount: amount,
+    fee: fee,
+    created: created,
+    confirmations: confirmations,
+    confirmationsNeeded: needed,
+    counterparty: counterparty,
+    contactName: contactName,
+    message: message,
+    height: height,
+    kernel: kernel,
+    hasProof: hasProof,
+    proofSender: proofSender,
+    proofSignature: proofSignature,
+    coinbase: coinbase,
+    foundByScan: foundByScan,
+    foundDuring: foundDuring,
+    datedByBlock: datedByBlock,
+    fromBackup: fromBackup,
+    cancellable: cancellable,
+    notPosted: notPosted,
+    undelivered: undelivered,
+    confirmedAt: confirmedAt,
+    startedAt: startedAt,
+    detail: detail,
+    flow: flow,
+    toSelf: toSelf,
+    key: _key,
+    transport: transport,
+    label: label,
+    note: note,
+    manualFields: manualFields,
+    manualEditedAt: manualEditedAt,
+    senderPosted: senderPosted,
+    pairingId: pairingId,
+    blockWait: blockWait,
+    credited: credited,
+  );
 
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
 

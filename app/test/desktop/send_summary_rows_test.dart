@@ -39,19 +39,19 @@ void main() {
   }
 
   testWidgets('Smallest: what stays spendable and the lock caption', (tester) async {
-    await host(tester, SendLockRows(summary: _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest));
+    await host(tester, SendLockRows(summary: _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(find.text('Balance after'), findsOneWidget);
     expect(_rich('1,284.72415 EPIC'), findsOneWidget);
     expect(find.text('Spendable until change confirms'), findsOneWidget);
     expect(_rich('1,250.0000 EPIC'), findsOneWidget);
-    expect(find.text('1 output locked, 34.73215 EPIC, about 3 blocks.'), findsOneWidget);
+    expect(find.text('1 output locked, 34.73215 EPIC, about 6 blocks.'), findsOneWidget);
     expect(find.textContaining('Strategy for this send'), findsNothing);
   });
 
   testWidgets('All: nothing spendable, in warn, and the strategy line', (tester) async {
-    await host(tester, SendLockRows(summary: _summary(inputs: 5, locked: 1284.73215, change: 1259.72415), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest));
+    await host(tester, SendLockRows(summary: _summary(inputs: 5, locked: 1284.73215, change: 1259.72415), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(_rich('0.0000 EPIC'), findsOneWidget);
-    final caption = find.text('Everything is locked: 5 outputs, 1,284.73215 EPIC, about 3 blocks.');
+    final caption = find.text('Everything is locked: 5 outputs, 1,284.73215 EPIC, about 6 blocks.');
     expect(caption, findsOneWidget);
     final context = tester.element(caption);
     expect(tester.widget<Text>(caption).style?.color, context.dc.warn);
@@ -59,12 +59,12 @@ void main() {
   });
 
   testWidgets('no change: nothing waits', (tester) async {
-    await host(tester, SendLockRows(summary: _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest));
+    await host(tester, SendLockRows(summary: _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(find.text('No change: 2 outputs spent exactly, nothing waits.'), findsOneWidget);
   });
 
   testWidgets('before an amount: dashes and no caption', (tester) async {
-    await host(tester, const SendLockRows(summary: null, strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest));
+    await host(tester, const SendLockRows(summary: null, strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(find.text('—'), findsNWidgets(2));
     expect(find.textContaining('locked'), findsNothing);
   });
@@ -120,23 +120,23 @@ void main() {
   });
 
   test('review lines', () {
-    final normal = reviewOutputLines(englishStrings, _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest);
+    final normal = reviewOutputLines(englishStrings, _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6);
     expect(normal.feeSecondLine, isNull);
     expect(normal.facts.map((f) => f.$1), ['Locks']);
-    expect(reviewLocks(englishStrings, _summary(), SelectionStrategy.smallest), '34.73215 EPIC in 1 output until the change confirms (3 blocks). 1,250.0000 EPIC stays spendable.');
+    expect(reviewLocks(englishStrings, _summary(), SelectionStrategy.smallest, 6), '34.73215 EPIC in 1 output until the change confirms (6 blocks). 1,250.0000 EPIC stays spendable.');
 
     final all = _summary(inputs: 5, locked: 1284.73215, change: 1259.72415);
-    expect(reviewLocks(englishStrings, all, SelectionStrategy.all), 'Everything: 1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing stays spendable.');
-    expect(reviewLocks(englishStrings, all, SelectionStrategy.smallest), '1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.');
-    expect(reviewLocks(englishStrings, _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest), '25.0080 EPIC in 2 outputs; no change comes back.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.all, 6), 'Everything: 1,284.73215 EPIC in 5 outputs until the change confirms (6 blocks). Nothing stays spendable.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.smallest, 6), '1,284.73215 EPIC in 5 outputs until the change confirms (6 blocks). Nothing else is spendable meanwhile.');
+    expect(reviewLocks(englishStrings, _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest, 6), '25.0080 EPIC in 2 outputs; no change comes back.');
 
-    final split = reviewOutputLines(englishStrings, _summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, extraFee: _nano(0.012));
+    final split = reviewOutputLines(englishStrings, _summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, blocks: 6, extraFee: _nano(0.012));
     expect(split.feeSecondLine, 'Change split into 4 outputs (+0.012 EPIC).');
     expect(split.facts.map((f) => f.$1), ['Locks', 'Strategy']);
 
     // Strategy All consolidates: with the line given it says one change output, never a split.
     final l = lookupAppLocalizations(const Locale('en'));
-    final allLine = reviewOutputLines(englishStrings, all, strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, usesAll: l.sendUsesAllOutputs);
+    final allLine = reviewOutputLines(englishStrings, all, strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, blocks: 6, usesAll: l.sendUsesAllOutputs);
     expect(allLine.feeSecondLine, 'Uses all 5 outputs · change 1 output');
   });
 }

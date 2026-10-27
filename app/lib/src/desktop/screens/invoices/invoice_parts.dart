@@ -3,10 +3,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../desk_l10n.dart';
-import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 
@@ -54,15 +54,16 @@ class InvButton extends StatelessWidget {
   );
 }
 
-/// The state of a request this wallet sent, as a word and a tone. Never green before the
-/// payment is in: a waiting request is not money.
-(String, ETone) requestStateWord(BuildContext context, IssuedRequest r) {
+/// The state of a request this wallet sent, as a word and a tone, counting [needed]
+/// confirmations (the wallet's). Never green before the payment is in: a waiting request is
+/// not money.
+(String, ETone) requestStateWord(BuildContext context, IssuedRequest r, int needed) {
   final l = context.l10n;
   return switch (r.state) {
     RequestState.waiting => (l.deskInvReqWaiting, ETone.neutral),
     RequestState.paid => (l.deskInvReqPaid, ETone.info),
     RequestState.confirming =>
-      r.confirmations == 0 ? (l.deskInvReqPosted, ETone.info) : (l.deskInvConfirming(r.confirmations, defaultMinimumConfirmations), ETone.info),
+      r.confirmations == 0 ? (l.deskInvReqPosted, ETone.info) : (l.deskInvConfirming(r.confirmations, needed), ETone.info),
     RequestState.completed => (l.deskInvCompleted, ETone.ok),
     RequestState.notPosted => (l.deskInvReqNotPosted, ETone.risk),
     RequestState.declined => (l.deskInvDeclined, ETone.warn),
@@ -73,8 +74,9 @@ class InvButton extends StatelessWidget {
   };
 }
 
-/// The state of an invoice this wallet received, as a word and a tone.
-(String, ETone) payStateWord(BuildContext context, IncomingInvoice i) {
+/// The state of an invoice this wallet received, as a word and a tone, counting [needed]
+/// confirmations (the wallet's).
+(String, ETone) payStateWord(BuildContext context, IncomingInvoice i, int needed) {
   final l = context.l10n;
   return switch (i.state) {
     PayState.waiting => (l.deskInvPayWaiting, ETone.info),
@@ -82,7 +84,7 @@ class InvButton extends StatelessWidget {
     PayState.delivered => (l.deskInvPayDelivered, ETone.neutral),
     PayState.stalled => (l.deskInvPayStalled, ETone.risk),
     PayState.posted => (l.deskInvPayPosted, ETone.neutral),
-    PayState.confirming => (l.deskInvConfirming(i.confirmations, defaultMinimumConfirmations), ETone.neutral),
+    PayState.confirming => (l.deskInvConfirming(i.confirmations, needed), ETone.neutral),
     PayState.completed => (l.deskInvCompleted, ETone.ok),
     PayState.withdrawnAfterPay => (l.deskInvPayWithdrawnAfterPay, ETone.warn),
     PayState.pastTtl => (l.deskInvPayPastTtl, ETone.warn),
@@ -94,27 +96,27 @@ class InvButton extends StatelessWidget {
 }
 
 /// [requestStateWord] as a tag.
-class RequestStateTag extends StatelessWidget {
+class RequestStateTag extends ConsumerWidget {
   const RequestStateTag(this.request, {super.key});
 
   final IssuedRequest request;
 
   @override
-  Widget build(BuildContext context) {
-    final (word, tone) = requestStateWord(context, request);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (word, tone) = requestStateWord(context, request, deskMinConfirmations(ref));
     return EBadge(word, tone: tone);
   }
 }
 
 /// [payStateWord] as a tag.
-class PayStateTag extends StatelessWidget {
+class PayStateTag extends ConsumerWidget {
   const PayStateTag(this.invoice, {super.key});
 
   final IncomingInvoice invoice;
 
   @override
-  Widget build(BuildContext context) {
-    final (word, tone) = payStateWord(context, invoice);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (word, tone) = payStateWord(context, invoice, deskMinConfirmations(ref));
     return EBadge(word, tone: tone);
   }
 }

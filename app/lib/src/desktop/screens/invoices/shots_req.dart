@@ -67,9 +67,9 @@ final List<DeskShot> invoiceReqShots = [
     p.setNet(ProtoNet.nodeDown);
     p.payerPays();
   }),
-  _sent('inv-req-13-completed', 'Invoices › Issue: completed after 3 confirmations', (p) {
+  _sent('inv-req-13-completed', 'Invoices › Issue: completed after 6 confirmations', (p) {
     p.payerPays();
-    p.blocks(3);
+    p.blocks(6);
   }),
   _sent('inv-req-14-declined', 'Invoices › Issue: the payer declined', (p) => p.payerDeclines()),
   _sent('inv-req-15-bounced', 'Invoices › Issue: the payer\'s wallet sent it back', (p) => p.payerBounces()),

@@ -43,5 +43,15 @@
   "deskNetCantReceive": "รับไม่ได้ตอนออฟไลน์",
   "deskRailOffline": "ออฟไลน์",
   "deskSetAdvNodeFailover": "สลับโหนดอัตโนมัติ",
-  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้"
+  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
+  "deskSetAdvBalance": "ยอดเงิน",
+  "deskSetAdvConfirmations": "การยืนยัน",
+  "deskSetAdvConfirmationsHint": "จำนวนบล็อกที่การชำระเงินที่ได้รับต้องรอก่อนที่เอาต์พุตจะใช้ได้ ค่าเริ่มต้นคือ {byDefault} ตั้งได้ตั้งแต่ {min} ถึง {max}",
+  "deskSetAdvConfirmationsDefault": "ค่าเริ่มต้น",
+  "deskSetAdvConfirmationsReset": "รีเซ็ตเป็น {count}",
+  "deskSetAdvConfirmationsFewer": "ลดการยืนยัน",
+  "deskSetAdvConfirmationsMore": "เพิ่มการยืนยัน",
+  "deskSetAdvConfirmationsCount": "{count, plural, other{ยืนยัน {count} ครั้ง}}",
+  "deskSetAdvConfirmationsLowNote": "ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง",
+  "deskSetAdvConfirmationsNotSaved": "ไม่ได้เปลี่ยนการยืนยัน"
 }

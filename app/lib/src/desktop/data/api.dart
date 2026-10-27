@@ -209,6 +209,16 @@ abstract interface class DeskWalletApi {
   /// Keeps the open wallet's Outputs choices; Send uses them from its next estimate.
   Future<void> saveOutputPrefs(OutputPrefs prefs);
 
+  /// The open wallet's minimum confirmations: blocks a received or change output waits before
+  /// it counts as spendable (1–30, default [defaultMinimumConfirmations]); the core keeps it
+  /// per wallet.
+  Future<int> minimumConfirmations();
+
+  /// Stores [count] (1–30) as the open wallet's minimum confirmations. The balance, outputs and
+  /// transactions are counted again at once and [changes] fires; out of range throws a
+  /// [DeskError].
+  Future<void> setMinimumConfirmations(int count);
+
   // Outputs (F13, the Outputs page). A split and a consolidate are normal
   // network transactions to the wallet itself; each spends every spendable output, so the
   // whole balance is locked until it confirms.

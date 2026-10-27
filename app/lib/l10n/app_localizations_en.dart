@@ -5509,8 +5509,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvPayerShort => 'Not enough spendable funds';
 
   @override
-  String deskInvPayerShortText(String total, String spendable) {
-    return 'You need $total EPIC spendable; you have $spendable EPIC. Funds still confirming count once they have 3 confirmations.';
+  String deskInvPayerShortText(
+    String total,
+    String spendable,
+    int confirmations,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'once they have $confirmations confirmations',
+      one: 'once they have 1 confirmation',
+    );
+    return 'You need $total EPIC spendable; you have $spendable EPIC. Funds still confirming count $_temp0.';
   }
 
   @override
@@ -6899,26 +6909,49 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String deskSendLockAll(int count, String amount) {
+  String deskSendLockAll(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Everything is locked: $count outputs, $amount EPIC, about 3 blocks.',
-      one: 'Everything is locked: 1 output, $amount EPIC, about 3 blocks.',
+      other: 'Everything is locked: $count outputs, $amount EPIC, $_temp0.',
+      one: 'Everything is locked: 1 output, $amount EPIC, $_temp1.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
-  String deskSendLockSome(int count, String amount) {
+  String deskSendLockSome(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs locked, $amount EPIC, about 3 blocks.',
-      one: '1 output locked, $amount EPIC, about 3 blocks.',
+      other: '$count outputs locked, $amount EPIC, $_temp0.',
+      one: '1 output locked, $amount EPIC, $_temp1.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
@@ -6955,42 +6988,83 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String deskSendReviewLocksAll(int count, String locked) {
+  String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Everything: $locked EPIC in $count outputs until the change confirms (3 blocks). Nothing stays spendable.',
+          'Everything: $locked EPIC in $count outputs until the change confirms $_temp0. Nothing stays spendable.',
       one:
-          'Everything: $locked EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.',
+          'Everything: $locked EPIC in 1 output until the change confirms $_temp1. Nothing stays spendable.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
-  String deskSendReviewLocksEverything(int count, String locked) {
+  String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC in $count outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
+          '$locked EPIC in $count outputs until the change confirms $_temp0. Nothing else is spendable meanwhile.',
       one:
-          '$locked EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
+          '$locked EPIC in 1 output until the change confirms $_temp1. Nothing else is spendable meanwhile.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
-  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+  String deskSendReviewLocksSome(
+    int count,
+    String locked,
+    String spendable,
+    int blocks,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$locked EPIC in $count outputs until the change confirms (3 blocks). $spendable EPIC stays spendable.',
+          '$locked EPIC in $count outputs until the change confirms $_temp0. $spendable EPIC stays spendable.',
       one:
-          '$locked EPIC in 1 output until the change confirms (3 blocks). $spendable EPIC stays spendable.',
+          '$locked EPIC in 1 output until the change confirms $_temp1. $spendable EPIC stays spendable.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
@@ -7990,8 +8064,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskOutCardWait =>
-      'Wait until the send confirms (about 3 blocks).';
+  String deskOutCardWait(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    return 'Wait until the send confirms ($_temp0).';
+  }
 
   @override
   String get deskOutSplitNothing => 'Nothing to split yet.';
@@ -8262,13 +8343,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String deskOutSplitDialogText(String spent, String made) {
-    return 'Spends $spent and makes $made each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+  String deskOutSplitDialogText(String spent, String made, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'after $blocks blocks',
+      one: 'after 1 block',
+    );
+    return 'Spends $spent and makes $made each. A normal network transaction to this wallet, confirmed $_temp0 like any send; everything spendable is locked until then.';
   }
 
   @override
-  String deskOutConsDialogText(String spent, String made) {
-    return 'Spends $spent and makes $made. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+  String deskOutConsDialogText(String spent, String made, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'after $blocks blocks',
+      one: 'after 1 block',
+    );
+    return 'Spends $spent and makes $made. A normal network transaction to this wallet, confirmed $_temp0 like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
   }
 
   @override
@@ -8286,8 +8379,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOutFactLocked => 'Locked';
 
   @override
-  String deskOutFactLockedValue(String amount) {
-    return '$amount EPIC, about 3 blocks. Nothing stays spendable.';
+  String deskOutFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: 'about $blocks blocks',
+      one: 'about 1 block',
+    );
+    return '$amount EPIC, $_temp0. Nothing stays spendable.';
   }
 
   @override
@@ -8337,21 +8436,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOutConsPosted => 'Consolidate posted';
 
   @override
-  String deskOutSplitDoneText(int count, String amount) {
+  String deskOutSplitDoneText(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'The wallet now has $count outputs of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+          'The wallet now has $count outputs of about $amount EPIC, confirming. Everything is locked until they confirm $_temp0. Activity shows two entries: a send and a receive, both to this wallet.',
       one:
-          'The wallet now has $count output of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+          'The wallet now has $count output of about $amount EPIC, confirming. Everything is locked until they confirm $_temp1. Activity shows two entries: a send and a receive, both to this wallet.',
     );
-    return '$_temp0';
+    return '$_temp2';
   }
 
   @override
-  String deskOutConsDoneText(String amount) {
-    return 'One output of $amount EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.';
+  String deskOutConsDoneText(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    return 'One output of $amount EPIC, confirming. Everything is locked until it confirms $_temp0. Activity shows two entries: a send and a receive, both to this wallet.';
   }
 
   @override
@@ -18045,4 +18162,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Not checked';
+
+  @override
+  String get deskSetAdvBalance => 'Balance';
+
+  @override
+  String get deskSetAdvConfirmations => 'Confirmations';
+
+  @override
+  String deskSetAdvConfirmationsHint(int byDefault, int min, int max) {
+    return 'How many blocks a received payment waits before its outputs can be spent. $byDefault by default; any count from $min to $max.';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsDefault => 'Default';
+
+  @override
+  String deskSetAdvConfirmationsReset(int count) {
+    return 'Reset to $count';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsFewer => 'Fewer confirmations';
+
+  @override
+  String get deskSetAdvConfirmationsMore => 'More confirmations';
+
+  @override
+  String deskSetAdvConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count confirmations',
+      one: '$count confirmation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsLowNote =>
+      'Fewer confirmations are faster but give less protection against chain reorganisations.';
+
+  @override
+  String get deskSetAdvConfirmationsNotSaved => 'Confirmations not changed';
 }

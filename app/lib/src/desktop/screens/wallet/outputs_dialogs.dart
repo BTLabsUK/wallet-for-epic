@@ -220,6 +220,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
+    final blocks = deskMinConfirmations(ref);
     final e = _est;
     final each = _each;
     final bold = TextStyle(color: c.text, fontWeight: FontWeight.w600);
@@ -229,8 +230,8 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
         : Text.rich(
             TextSpan(
               children: _split
-                  ? _marked(l.deskOutSplitDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutSplitMadePart(_n, _e4(each!))], bold)
-                  : _marked(l.deskOutConsDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutConsMadePart(formatEpicL(l, e.locked - e.fee))], bold),
+                  ? _marked(l.deskOutSplitDialogText('\u0001', '\u0002', blocks), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutSplitMadePart(_n, _e4(each!))], bold)
+                  : _marked(l.deskOutConsDialogText('\u0001', '\u0002', blocks), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutConsMadePart(formatEpicL(l, e.locked - e.fee))], bold),
             ),
             style: ts.bodyDim,
           );
@@ -240,7 +241,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
         : EFacts([
             (l.deskOutFactFee, Text('${formatEpicL(l, e.fee, minDecimals: 3)} EPIC')),
             if (_split) (l.deskOutFactEach, Text(l.deskOutFactAbout(_e4(each!)))),
-            (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpicL(l, e.locked)))),
+            (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpicL(l, e.locked), blocks))),
           ]);
 
     final List<Widget> body;
@@ -314,7 +315,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
             tone: ETone.ok,
             icon: EIcons.okCircle,
             title: _split ? l.deskOutSplitPosted : l.deskOutConsPosted,
-            text: _split ? l.deskOutSplitDoneText(n, _e4(perOne)) : l.deskOutConsDoneText(formatEpicL(l, perOne)),
+            text: _split ? l.deskOutSplitDoneText(n, _e4(perOne), blocks) : l.deskOutConsDoneText(formatEpicL(l, perOne), blocks),
           ),
         ];
         actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];
@@ -406,13 +407,20 @@ class _NothingToConsolidate extends StatelessWidget {
 /// A whole number from [min] to [max]: − and + buttons around an editable value. Arrow keys
 /// step, Home and End jump to the ends; screen readers hear a slider.
 class EStepper extends StatefulWidget {
-  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label});
+  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.valueText});
 
   final int value;
   final int min;
   final int max;
   final ValueChanged<int> onChanged;
   final String label;
+
+  /// The − and + buttons' names; "Fewer" and "More" when null.
+  final String? fewerLabel;
+  final String? moreLabel;
+
+  /// What a screen reader hears for a value ("6 confirmations"); the number when null.
+  final String Function(int value)? valueText;
 
   @override
   State<EStepper> createState() => _EStepperState();
@@ -457,12 +465,13 @@ class _EStepperState extends State<EStepper> {
   Widget build(BuildContext context) {
     final v = widget.value;
     final l = context.l10n;
+    String say(int n) => widget.valueText?.call(n) ?? '$n';
     return Semantics(
       slider: true,
       label: widget.label,
-      value: '$v',
-      increasedValue: '${(v + 1).clamp(widget.min, widget.max)}',
-      decreasedValue: '${(v - 1).clamp(widget.min, widget.max)}',
+      value: say(v),
+      increasedValue: say((v + 1).clamp(widget.min, widget.max)),
+      decreasedValue: say((v - 1).clamp(widget.min, widget.max)),
       onIncrease: v < widget.max ? () => _set(v + 1) : null,
       onDecrease: v > widget.min ? () => _set(v - 1) : null,
       child: Focus(
@@ -472,7 +481,7 @@ class _EStepperState extends State<EStepper> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            EIconButton(icon: Icons.remove, label: l.deskOutStepperFewer, tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
+            EIconButton(icon: Icons.remove, label: widget.fewerLabel ?? l.deskOutStepperFewer, tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
             SizedBox(width: Sp.x1),
             SizedBox(
               width: 52.u,
@@ -489,7 +498,7 @@ class _EStepperState extends State<EStepper> {
               ),
             ),
             SizedBox(width: Sp.x1),
-            EIconButton(icon: Icons.add, label: l.deskOutStepperMore, tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
+            EIconButton(icon: Icons.add, label: widget.moreLabel ?? l.deskOutStepperMore, tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
           ],
         ),
       ),

@@ -224,7 +224,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   Widget _cards(Balance? b, OutputCounts counts, {required bool loaded}) {
     final l = context.l10n;
     final locked = (b?.locked ?? 0) > 0 || counts.locked > 0;
-    final wait = l.deskOutCardWait;
+    final wait = l.deskOutCardWait(deskMinConfirmations(ref));
     final splitOn = loaded && !locked && counts.spendable >= 1 && _split != null;
     final splitNote = !loaded
         ? ''
@@ -488,7 +488,7 @@ class _Tiles extends StatelessWidget {
           tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
           // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
           // as the phone's: they are in no other figure and not in Total.
-          tile(l.deskOutTileConfirming, ERing(confirmations: 1, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
+          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b.minConfirmations, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
           if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
           tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked, hint: b.locked > 0 ? l.deskOutLockedNote : null),
           tile(l.deskOutTileTotal, null, b.total, n?.total, total: true),

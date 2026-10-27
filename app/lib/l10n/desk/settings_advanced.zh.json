@@ -43,5 +43,15 @@
   "deskNetCantReceive": "离线时无法接收。",
   "deskRailOffline": "离线",
   "deskSetAdvNodeFailover": "节点故障切换",
-  "deskSetAdvNodeFailoverHint": "当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。"
+  "deskSetAdvNodeFailoverHint": "当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。",
+  "deskSetAdvBalance": "余额",
+  "deskSetAdvConfirmations": "确认数",
+  "deskSetAdvConfirmationsHint": "收到的付款要等待多少个区块，其输出才能花费。默认 {byDefault}，可设为 {min} 到 {max}。",
+  "deskSetAdvConfirmationsDefault": "默认",
+  "deskSetAdvConfirmationsReset": "恢复为 {count}",
+  "deskSetAdvConfirmationsFewer": "减少确认数",
+  "deskSetAdvConfirmationsMore": "增加确认数",
+  "deskSetAdvConfirmationsCount": "{count, plural, other{{count} 个确认}}",
+  "deskSetAdvConfirmationsLowNote": "确认数越少越快，但对链重组的防护越弱。",
+  "deskSetAdvConfirmationsNotSaved": "确认数未更改"
 }

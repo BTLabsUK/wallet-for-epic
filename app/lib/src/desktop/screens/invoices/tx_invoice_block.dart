@@ -57,7 +57,7 @@ class TxInvoiceBlock extends ConsumerWidget {
         PayState.withdrawnAfterPay => l.invoiceDetailsWithdrawn(inv.label),
         // A cancel is final only once these coins are spent again (P-3).
         PayState.cancelled => l.deskInvPayerCancelText,
-        _ => payStateWord(context, inv).$1,
+        _ => payStateWord(context, inv, deskMinConfirmations(ref)).$1,
       };
       actions = [
         if (inv.state == PayState.notDelivered)

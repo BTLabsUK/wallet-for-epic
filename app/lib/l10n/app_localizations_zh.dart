@@ -5214,8 +5214,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerShort => '可用资金不足';
 
   @override
-  String deskInvPayerShortText(String total, String spendable) {
-    return '你需要 $total EPIC 可用资金；你有 $spendable EPIC。确认中的资金在 3 个确认后计入。';
+  String deskInvPayerShortText(
+    String total,
+    String spendable,
+    int confirmations,
+  ) {
+    return '你需要 $total EPIC 可用资金；你有 $spendable EPIC。确认中的资金在 $confirmations 个确认后计入。';
   }
 
   @override
@@ -6533,21 +6537,21 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskSendLockAll(int count, String amount) {
+  String deskSendLockAll(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '全部锁定：$count 个输出，$amount EPIC，约 3 个区块。',
+      other: '全部锁定：$count 个输出，$amount EPIC，约 $blocks 个区块。',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendLockSome(int count, String amount) {
+  String deskSendLockSome(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 个输出被锁定，$amount EPIC，约 3 个区块。',
+      other: '$count 个输出被锁定，$amount EPIC，约 $blocks 个区块。',
     );
     return '$_temp0';
   }
@@ -6583,31 +6587,37 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskSendReviewLocksAll(int count, String locked) {
+  String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '全部：$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。期间没有可用余额。',
+      other: '全部：$count 个输出中的 $locked EPIC 将锁定到找零确认（$blocks 个区块）。期间没有可用余额。',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendReviewLocksEverything(int count, String locked) {
+  String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。期间没有其他可用余额。',
+      other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（$blocks 个区块）。期间没有其他可用余额。',
     );
     return '$_temp0';
   }
 
   @override
-  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+  String deskSendReviewLocksSome(
+    int count,
+    String locked,
+    String spendable,
+    int blocks,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。$spendable EPIC 仍可使用。',
+      other:
+          '$count 个输出中的 $locked EPIC 将锁定到找零确认（$blocks 个区块）。$spendable EPIC 仍可使用。',
     );
     return '$_temp0';
   }
@@ -7554,7 +7564,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOutCardWait => '请等待发送确认（约 3 个区块）。';
+  String deskOutCardWait(int blocks) {
+    return '请等待发送确认（约 $blocks 个区块）。';
+  }
 
   @override
   String get deskOutSplitNothing => '暂无可拆分的输出。';
@@ -7814,13 +7826,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskOutSplitDialogText(String spent, String made) {
-    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 3 个区块后确认；在此之前，所有可用余额都会锁定。';
+  String deskOutSplitDialogText(String spent, String made, int blocks) {
+    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 $blocks 个区块后确认；在此之前，所有可用余额都会锁定。';
   }
 
   @override
-  String deskOutConsDialogText(String spent, String made) {
-    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 3 个区块后确认；在此之前，所有可用余额都会锁定。下一笔发送只花一个输出，因此手续费最低。';
+  String deskOutConsDialogText(String spent, String made, int blocks) {
+    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 $blocks 个区块后确认；在此之前，所有可用余额都会锁定。下一笔发送只花一个输出，因此手续费最低。';
   }
 
   @override
@@ -7838,8 +7850,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOutFactLocked => '锁定';
 
   @override
-  String deskOutFactLockedValue(String amount) {
-    return '$amount EPIC，约 3 个区块。期间没有可用余额。';
+  String deskOutFactLockedValue(String amount, int blocks) {
+    return '$amount EPIC，约 $blocks 个区块。期间没有可用余额。';
   }
 
   @override
@@ -7887,19 +7899,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOutConsPosted => '合并已广播';
 
   @override
-  String deskOutSplitDoneText(int count, String amount) {
+  String deskOutSplitDoneText(int count, String amount, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '钱包现在有 $count 个约 $amount EPIC 的输出，正在确认。确认前（3 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。',
+          '钱包现在有 $count 个约 $amount EPIC 的输出，正在确认。确认前（$blocks 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。',
     );
     return '$_temp0';
   }
 
   @override
-  String deskOutConsDoneText(String amount) {
-    return '一个 $amount EPIC 的输出，正在确认。确认前（3 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。';
+  String deskOutConsDoneText(String amount, int blocks) {
+    return '一个 $amount EPIC 的输出，正在确认。确认前（$blocks 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。';
   }
 
   @override
@@ -17084,4 +17096,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => '未检查';
+
+  @override
+  String get deskSetAdvBalance => '余额';
+
+  @override
+  String get deskSetAdvConfirmations => '确认数';
+
+  @override
+  String deskSetAdvConfirmationsHint(int byDefault, int min, int max) {
+    return '收到的付款要等待多少个区块，其输出才能花费。默认 $byDefault，可设为 $min 到 $max。';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsDefault => '默认';
+
+  @override
+  String deskSetAdvConfirmationsReset(int count) {
+    return '恢复为 $count';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsFewer => '减少确认数';
+
+  @override
+  String get deskSetAdvConfirmationsMore => '增加确认数';
+
+  @override
+  String deskSetAdvConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个确认',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetAdvConfirmationsLowNote => '确认数越少越快，但对链重组的防护越弱。';
+
+  @override
+  String get deskSetAdvConfirmationsNotSaved => '确认数未更改';
 }

@@ -37,9 +37,15 @@
       }
     }
   },
-  "deskOutCardWait": "Wait until the send confirms (about 3 blocks).",
+  "deskOutCardWait": "Wait until the send confirms ({blocks, plural, one{about 1 block} other{about {blocks} blocks}}).",
   "@deskOutCardWait": {
-    "description": "Note on the Split and Consolidate cards while a send is still locking outputs."
+    "description": "Note on the Split and Consolidate cards while a send is still locking outputs. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
   },
   "deskOutSplitNothing": "Nothing to split yet.",
   "@deskOutSplitNothing": {
@@ -411,9 +417,9 @@
       }
     }
   },
-  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.",
+  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then.",
   "@deskOutSplitDialogText": {
-    "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "spent": {
         "type": "String",
@@ -422,12 +428,16 @@
       "made": {
         "type": "String",
         "example": "4 outputs of about 0.8750 EPIC"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
   "@deskOutConsDialogText": {
-    "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "spent": {
         "type": "String",
@@ -436,6 +446,10 @@
       "made": {
         "type": "String",
         "example": "one output of 3.4 EPIC"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -461,13 +475,17 @@
   "@deskOutFactLocked": {
     "description": "Label in the dialog's facts list: the amount locked while the transaction confirms."
   },
-  "deskOutFactLockedValue": "{amount} EPIC, about 3 blocks. Nothing stays spendable.",
+  "deskOutFactLockedValue": "{amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}. Nothing stays spendable.",
   "@deskOutFactLockedValue": {
-    "description": "Value in the dialog's facts list: how much is locked and for how long.",
+    "description": "Value in the dialog's facts list: how much is locked and for how long. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "amount": {
         "type": "String",
         "example": "3.5"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -533,9 +551,9 @@
   "@deskOutConsPosted": {
     "description": "Title of the green notice in the Consolidate dialog when it worked."
   },
-  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.}}",
+  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.}}",
   "@deskOutSplitDoneText": {
-    "description": "Text of the green notice in the Split dialog when it worked.",
+    "description": "Text of the green notice in the Split dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "count": {
         "type": "int",
@@ -544,16 +562,24 @@
       "amount": {
         "type": "String",
         "example": "0.8750"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.",
+  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.",
   "@deskOutConsDoneText": {
-    "description": "Text of the green notice in the Consolidate dialog when it worked.",
+    "description": "Text of the green notice in the Consolidate dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
       "amount": {
         "type": "String",
         "example": "3.4"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
