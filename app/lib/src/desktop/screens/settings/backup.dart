@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localClock, localDay;
 import '../../../log.dart';
+import 'prefs.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -55,9 +56,29 @@ String backupStateLine(AppLocalizations l, HistoryBackupState s, {DateTime? now}
   return s.unbacked == 0 ? l.deskSetBackupLastExportNothingNew(when) : l.deskSetBackupLastExportSince(when, s.unbacked);
 }
 
-/// `epic-wallet-data-<network>-<yyyymmdd>.<extension>`, as the phone names it.
-String deskHistoryFileName(String network, DateTime day, String extension) =>
-    'epic-wallet-data-$network-${DateFormat('yyyyMMdd').format(day)}.$extension';
+/// The wallet's name as a file name part: lower case, only ASCII letters and digits kept,
+/// anything else (spaces, accents, symbols) a `-`, runs of `-` collapsed, trimmed, cut to 8
+/// characters. "My Wallet #2" gives `my-walle`, "Épargne" gives `pargne`; a name with no ASCII
+/// letter or digit (Thai, Chinese) gives an empty string, and the file name leaves the part out.
+String deskWalletFileLabel(String name) {
+  final dashed = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-').replaceAll(RegExp(r'^-+|-+$'), '');
+  final cut = dashed.length > 8 ? dashed.substring(0, 8) : dashed;
+  return cut.replaceAll(RegExp(r'-+$'), '');
+}
+
+/// `epic-wallet-data-<wallet>-<network>-<yyyymmdd>.<extension>`: the phone's name with the open
+/// wallet's name ([deskWalletFileLabel]) after `data`, left out when [wallet] cleans to nothing.
+String deskHistoryFileName(String network, DateTime day, String extension, {String wallet = ''}) {
+  final label = deskWalletFileLabel(wallet);
+  return 'epic-wallet-data-${label.isEmpty ? '' : '$label-'}$network-${DateFormat('yyyyMMdd').format(day)}.$extension';
+}
+
+/// The open wallet's name as the app shows it (the title bar's rule).
+String _openWalletName(WidgetRef ref) {
+  final account = ref.read(deskProvider).account;
+  final label = ref.read(settingsPrefsProvider).walletLabel;
+  return account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
+}
 
 /// Why a save failed, with the folder when the system says which.
 String _notSaved(AppLocalizations l, Object e) {
@@ -273,7 +294,7 @@ class _ExportHistoryDialogState extends ConsumerState<ExportHistoryDialog> {
   late String? _saved = widget.savedDemo;
   String? _failed;
 
-  String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'wfeh');
+  String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'wfeh', wallet: _openWalletName(ref));
 
   Future<void> _save() async {
     final l = context.l10n;
@@ -588,7 +609,7 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
 
   ({DateTime? from, DateTime? to})? get _days => csvDays(_range, now: DateTime.now(), from: _from.text, to: _to.text);
 
-  String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'csv');
+  String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'csv', wallet: _openWalletName(ref));
 
   int _count(List<Tx> txs, ({DateTime? from, DateTime? to}) days) {
     final from = days.from, to = days.to;

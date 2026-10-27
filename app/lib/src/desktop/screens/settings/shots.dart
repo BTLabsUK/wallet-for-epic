@@ -211,7 +211,7 @@ final List<DeskShot> settingsShots = [
     id: '25g-dlg-export-history-saved',
     title: 'Export wallet data, saved',
     route: DeskRoute.settingsAccount,
-    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-wallet-data-mainnet-20261022.wfeh')),
+    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-wallet-data-savings-mainnet-20261022.wfeh')),
   ),
   DeskShot(id: '25h-dlg-import-history', title: 'Import history backup', route: DeskRoute.settingsAccount, dialog: showImportHistoryDialog),
   DeskShot(
@@ -221,7 +221,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
+        doneDemo: (name: 'epic-wallet-data-savings-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
       ),
     ),
   ),
@@ -239,7 +239,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
+        doneDemo: (name: 'epic-wallet-data-savings-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
       ),
     ),
   ),

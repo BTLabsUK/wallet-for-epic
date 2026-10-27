@@ -87,6 +87,18 @@ void main() {
     );
     expect(backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 22, 14, 2)), now: now), 'Last export today, 14:02 · nothing new since.');
     expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-wallet-data-mainnet-20261022.wfeh');
+    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'csv', wallet: 'Savings'), 'epic-wallet-data-savings-mainnet-20261022.csv');
+  });
+
+  test('the wallet part of the file name', () {
+    expect(deskWalletFileLabel('Savings'), 'savings');
+    expect(deskWalletFileLabel('My Wallet #2'), 'my-walle');
+    expect(deskWalletFileLabel('Épargne'), 'pargne');
+    expect(deskWalletFileLabel('a  b'), 'a-b');
+    expect(deskWalletFileLabel('abcdefg h'), 'abcdefg');
+    expect(deskWalletFileLabel('钱包'), '');
+    expect(deskWalletFileLabel('  '), '');
+    expect(deskHistoryFileName('floonet', DateTime(2026, 10, 22), 'wfeh', wallet: 'ฉัน'), 'epic-wallet-data-floonet-20261022.wfeh');
   });
 
   test('CSV ranges: local days, inclusive; a custom day that is not a date gives none', () {
@@ -115,7 +127,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Save as…'));
     await tester.pumpAndSettle();
     expect(find.text('Saved'), findsOneWidget);
-    expect(find.textContaining('~/Documents/epic-wallet-data-mainnet-'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'~/Documents/epic-wallet-data-([a-z0-9-]+-)?mainnet-')), findsOneWidget);
     expect(_api.exports, 1);
     expect(_files.saved.single, endsWith('.wfeh'));
     await tester.tap(find.widgetWithText(EButton, 'Open folder'));
@@ -194,7 +206,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enter a date as 2026-01-31'), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Save as…')).onPressed, isNull);
-    await tester.tap(find.text('All payments'));
+    await tester.tap(find.text('All time'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(EButton, 'Save as…'));
     await tester.pumpAndSettle();

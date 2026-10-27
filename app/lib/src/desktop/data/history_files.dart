@@ -67,7 +67,7 @@ class MockDeskHistoryFiles implements DeskHistoryFiles {
 
   @override
   Future<({String name, Uint8List bytes})?> pick({required String title, List<String> extensions = const ['wfeh'], int? maxBytes}) async {
-    final next = picks.isEmpty ? (name: 'epic-wallet-data-mainnet-20261003.wfeh', bytes: Uint8List(8)) : picks.removeAt(0);
+    final next = picks.isEmpty ? (name: 'epic-wallet-data-savings-mainnet-20261003.wfeh', bytes: Uint8List(8)) : picks.removeAt(0);
     if (next is Exception || next is Error) throw next!;
     return next as ({String name, Uint8List bytes})?;
   }
