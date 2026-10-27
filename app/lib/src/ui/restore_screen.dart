@@ -22,6 +22,7 @@ import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
+import 'devices/device_parts.dart' show LinkDeviceOffer;
 
 /// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
 /// node.btlabs.uk, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
@@ -489,6 +490,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ),
       const SizedBox(height: 8),
       Text(l.restoreImportLater, textAlign: TextAlign.center),
+      // The quiet offer: this wallet may live on another device too (hidden while Linked
+      // devices is off).
+      const SizedBox(height: 24),
+      LinkDeviceOffer(text: l.offerLinkRestore),
     ];
   }
 

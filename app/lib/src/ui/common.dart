@@ -601,6 +601,7 @@ String? _specialTitle(
   TxEntry tx, {
   required bool hasCounterparty,
 }) {
+  if (tx.origin == TxOrigin.linkedDevice) return l.txSentFromDevice(tx.deviceName ?? '');
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
   if (tx.source == TxSource.restored && !hasCounterparty) {
     return l.txRestoredFunds;
@@ -717,6 +718,8 @@ String txStatusLabel(
   ),
   // A completed row says which way the money went, as the desktop does.
   TxPhase.completed => _outgoingKind(tx) ? l.txStatusSent : l.txStatusReceived,
+  // Another linked device's payment whose coins this device released: it may still send it.
+  TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice => l.devicesReleasedRow(tx.deviceName ?? ''),
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };
@@ -1654,7 +1657,8 @@ class TxTile extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          LabelPen(hasLabel: tx.label != null, onPressed: edit),
+                          // Another linked device's payment has no record here to label.
+                          if (tx.origin != TxOrigin.linkedDevice) LabelPen(hasLabel: tx.label != null, onPressed: edit),
                         ],
                       ),
                     ),

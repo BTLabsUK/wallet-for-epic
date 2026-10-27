@@ -48,4 +48,22 @@ void main() {
     expect(NetGate.pairing, isTrue);
     expect(NetGate.invoices, isFalse);
   });
+
+  test('Linked devices is on by default, and a user who turned it off stays off', () {
+    expect(AdvancedPrefs.none.linkedDevicesOn, isTrue);
+    expect(AdvancedPrefs.none.any, isFalse);
+    expect(AdvancedPrefs.decode('outputs|standard').linkedDevicesOn, isTrue);
+    expect(AdvancedPrefs.fromJson({'features': ['logs'], 'networkMode': 'standard'}).linkedDevicesOn, isTrue);
+    final off = AdvancedPrefs.none.withExperimental(AdvancedFeature.linkedDevices, false);
+    expect(off.linkedDevicesOn, isFalse);
+    expect(off.any, isTrue);
+    expect(AdvancedPrefs.decode(off.encode()).linkedDevicesOn, isFalse);
+    expect(AdvancedPrefs.fromJson(off.toJson()).linkedDevicesOn, isFalse);
+    expect(AdvancedPrefs.decode(AdvancedPrefs.none.encode()), AdvancedPrefs.none);
+    // Hide all keeps it; it runs the engine without Pairing.
+    expect(off.withoutShown().linkedDevicesOn, isFalse);
+    expect(AdvancedPrefs.none.withoutShown().linkedDevicesOn, isTrue);
+    expect(AdvancedPrefs.none.pairingOn, isFalse);
+    expect(AdvancedPrefs.none.pairingEngineOn, isTrue);
+  });
 }

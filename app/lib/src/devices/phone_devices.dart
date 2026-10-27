@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../models.dart' show TxEntry;
 import '../network_gate.dart';
 import '../pairing_api.dart';
 import '../pairing_providers.dart';
@@ -100,3 +101,7 @@ class _DeviceLifecycleState extends ConsumerState<DeviceLifecycle> with WidgetsB
     return widget.child;
   }
 }
+
+/// [rows] (Home's list) with the linked devices' payments merged in, watched: for the lists and
+/// the details that show history.
+List<TxEntry> watchHistory(WidgetRef ref, List<TxEntry> rows) => withDeviceHistory(rows, ref.watch(phoneDevices.view));

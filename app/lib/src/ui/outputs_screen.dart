@@ -11,6 +11,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../smart_outputs.dart';
+import '../devices/phone_devices.dart' show phoneDevices;
 import '../wallet_service.dart';
 import 'common.dart';
 import 'pin.dart';
@@ -20,6 +21,7 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'devices/device_tx_details.dart' show heldByLine;
 
 /// Which outputs the list shows. [immature] has no segment of its own: Home's tile opens it.
 enum OutputsFilter { all, spendable, confirming, locked, immature }
@@ -160,6 +162,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final summary = home?.summary;
     final outputs = ref.watch(walletOutputsProvider);
     final list = outputs.value;
+    final devices = ref.watch(phoneDevices.view);
     final txs = {
       for (final x in home?.transactions ?? const <TxEntry>[])
         if (x.id != null) x.id!: x,
@@ -359,7 +362,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 value: money(o.value),
                 confirmations: _confirmations(l, o),
                 word: _wordText(l, outputWord(o)),
-                note: _rowNote(
+                // A coin another linked device is spending says so first.
+                note: heldByLine(l, devices, o.commitment) ?? _rowNote(
                   l,
                   o,
                   txs[o.txId],

@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../devices/device_link_code.dart';
+import '../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show pairingOnProvider, pairingSupportedProvider;
@@ -17,6 +19,7 @@ import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
 import '../settings.dart';
 import '../slate_files.dart';
+import 'devices/device_parts.dart' show openLinkDevice;
 import 'notices.dart';
 import 'pairing/pair_incoming.dart' show openPairingLink;
 import 'receive_screen.dart' show scanSlateQr;
@@ -49,13 +52,22 @@ Future<void> openScannedText(
   String text, {
   required CodeOrigin origin,
   Future<void> Function()? scanAgain,
-}) => openScannedCode(
-  context,
-  ref,
-  classifyFor(ref.read(walletServiceProvider), text),
-  origin: origin,
-  scanAgain: scanAgain,
-);
+}) => isDeviceLinkText(text)
+    ? openDeviceLinkText(context, ref, text)
+    : openScannedCode(
+        context,
+        ref,
+        classifyFor(ref.read(walletServiceProvider), text),
+        origin: origin,
+        scanAgain: scanAgain,
+      );
+
+/// A device link code from a scan or a paste: Link a device answers it, or, with Linked devices
+/// turned off, a sheet says it is experimental and where to turn it on.
+Future<void> openDeviceLinkText(BuildContext context, WidgetRef ref, String text) async {
+  if (!ref.read(linkedDevicesOnProvider)) return showExperimentalOffSheet(context, ref, devices: true);
+  await openLinkDevice(context, ref, code: text);
+}
 
 /// Opens [code], what the router made of a text.
 Future<void> openScannedCode(
@@ -106,6 +118,8 @@ Future<void> openScannedCode(
         primary: _primaryLabel(context, scanAgain),
       );
       if (again && scanAgain != null) await scanAgain();
+    case UnknownCode(:final text) when isDeviceLinkText(text):
+      await openDeviceLinkText(context, ref, text);
     case UnknownCode():
       await _showUnknown(context, code, origin, scanAgain);
   }
