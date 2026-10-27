@@ -1,8 +1,8 @@
-/// Whether a newer Epic Cash Desktop is out, and getting it: the sidebar's notice and Settings ›
-/// About › Updates. Checked shortly after the wallet opens and every [deskUpdateEvery] while the
-/// app runs ([DeskUpdateController.schedule]), and when About opens. Reads the signed manifest
-/// the phone's updater reads
-/// ([updateManifestUrl], one constant for both), verified with the same bundled keys
+/// Whether a newer Epic Cash Desktop is out, and getting it: the sidebar's slot and Settings ›
+/// About › Updates (`app/update_notice.dart`). Checked shortly after the wallet opens and every
+/// [deskUpdateEvery] while the app runs ([DeskUpdateController.schedule]), and when About opens.
+/// Reads the signed manifest the phone's updater reads ([updateManifestUrl], one constant for
+/// both), verified with the same bundled keys
 /// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:
 /// the phone's `versionName` is the Android build's. The entry is
 /// `{"version": "26.10.0", "page": "…"}`, or per system `{"windows": {…}, "linux": {…}}`; a
@@ -10,7 +10,7 @@
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 ///
 /// When the entry also names this system's release file (`url`, `sha256`, `size`) and this copy
-/// can install it by itself (`desk_update_apply.dart`), the notice downloads it, checks it, and
+/// can install it by itself (`desk_update_apply.dart`), a click downloads it, checks it, and
 /// offers "Restart to update"; otherwise it opens the page.
 ///
 /// On Windows an update that did not finish (Setup killed or failed part way,
@@ -107,7 +107,7 @@ class DeskUpdateState {
   /// The checked download, when [DeskUpdatePhase.ready].
   final File? download;
 
-  /// Whether the update can be had at all (the notice shows).
+  /// Whether the update can be had at all (the slot's line shows).
   bool get offered =>
       phase == DeskUpdatePhase.available ||
       phase == DeskUpdatePhase.downloading ||
@@ -117,7 +117,7 @@ class DeskUpdateState {
 
 /// The first check after the wallet opens, and the ones after it while the app runs.
 const Duration deskUpdateFirst = Duration(seconds: 20);
-const Duration deskUpdateEvery = Duration(hours: 6);
+const Duration deskUpdateEvery = Duration(hours: 1);
 final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (deskUpdateFirst, deskUpdateEvery));
 
 /// Whether the shell starts the timed checks ([DeskUpdateController.schedule]): the real app
@@ -211,6 +211,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     _every = Timer.periodic(every, (_) => unawaited(check()));
   }
 
+  /// The screenshot tour's states (`screens/settings/shots.dart`), as the mock node shows its own.
+  void showDemo(DeskUpdateState s) => state = s;
+
   /// Checks once per run, when About first opens.
   Future<void> checkOnce() async {
     await detect();
@@ -276,7 +279,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
         return false;
       }
       state = DeskUpdateState(next.phase, version: next.version, page: next.page, checkedAt: now, file: next.file);
-      // Without a file this copy can install, the notice opens the page instead.
+      // Without a file this copy can install, the line opens the page instead.
       if (next.file == null) return false;
       await download();
       if (!ref.mounted || state.phase != DeskUpdatePhase.ready || state.problem != null) return false;

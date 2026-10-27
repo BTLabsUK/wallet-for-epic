@@ -79,15 +79,6 @@
   "@deskSlotNodeSyncing": {
     "description": "Sidebar slot line: the local node is syncing the chain; its progress follows after a dot."
   },
-  "deskSlotUpdateDot": "Update available, {version}. Shows the update.",
-  "@deskSlotUpdateDot": {
-    "description": "Screen-reader label of the small dot at the bottom of the sidebar when an update is out. {version} e.g. 26.10.17.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "deskSlotOpenAdvanced": "Open Advanced settings",
   "@deskSlotOpenAdvanced": {
     "description": "Tooltip line of a sidebar slot line: where its click goes."

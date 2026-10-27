@@ -4454,7 +4454,6 @@
   "deskSlotRequests": "คำขอใหม่",
   "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
   "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
-  "deskSlotUpdateDot": "มีอัปเดต {version} แสดงการอัปเดต",
   "deskSlotOpenAdvanced": "เปิดการตั้งค่าขั้นสูง",
   "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
   "deskSlotOpenSend": "เปิดส่ง",
@@ -4573,5 +4572,12 @@
   "ownNodePoolEmpty": "ว่าง",
   "ownNodePoolWaiting": "{count, plural, other{รอ {count} รายการ}}",
   "ownNodeAskedDirectly": "ถามโดยตรงจากโทรศัพท์เครื่องนี้ทุก 15 วิ",
-  "deskConExportDo": "ส่งออก"
+  "deskConExportDo": "ส่งออก",
+  "deskSetAboutDownloadPage": "หน้าดาวน์โหลด",
+  "deskUpdManual": "แอปชุดนี้ติดตั้งอัปเดตเองไม่ได้",
+  "deskUpdDownloadInstall": "ดาวน์โหลดและติดตั้ง",
+  "deskUpdReadyTitle": "Epic Cash {version} พร้อมแล้ว",
+  "deskUpdReadyBody": "รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่",
+  "deskUpdRestartNow": "รีสตาร์ทเลย",
+  "deskUpdLater": "ภายหลัง"
 }

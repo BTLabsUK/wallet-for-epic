@@ -4454,7 +4454,6 @@
   "deskSlotRequests": "新请求",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
-  "deskSlotUpdateDot": "有可用更新 {version}。显示该更新。",
   "deskSlotOpenAdvanced": "打开高级设置",
   "deskSlotOpenRecheck": "打开重新核对余额",
   "deskSlotOpenSend": "打开发送",
@@ -4573,5 +4572,12 @@
   "ownNodePoolEmpty": "空",
   "ownNodePoolWaiting": "{count, plural, other{{count} 笔等待中}}",
   "ownNodeAskedDirectly": "每 15 秒从这部手机直接询问",
-  "deskConExportDo": "导出"
+  "deskConExportDo": "导出",
+  "deskSetAboutDownloadPage": "下载页面",
+  "deskUpdManual": "此应用副本无法自行安装更新。",
+  "deskUpdDownloadInstall": "下载并安装",
+  "deskUpdReadyTitle": "Epic Cash {version} 已就绪",
+  "deskUpdReadyBody": "立即重启以完成更新。钱包会锁定，应用会重新打开。",
+  "deskUpdRestartNow": "立即重启",
+  "deskUpdLater": "稍后"
 }

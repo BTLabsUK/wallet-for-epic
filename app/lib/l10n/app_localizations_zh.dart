@@ -15864,11 +15864,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSlotNodeSyncing => '本地节点正在同步';
 
   @override
-  String deskSlotUpdateDot(String version) {
-    return '有可用更新 $version。显示该更新。';
-  }
-
-  @override
   String get deskSlotOpenAdvanced => '打开高级设置';
 
   @override
@@ -16291,4 +16286,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConExportDo => '导出';
+
+  @override
+  String get deskSetAboutDownloadPage => '下载页面';
+
+  @override
+  String get deskUpdManual => '此应用副本无法自行安装更新。';
+
+  @override
+  String get deskUpdDownloadInstall => '下载并安装';
+
+  @override
+  String deskUpdReadyTitle(String version) {
+    return 'Epic Cash $version 已就绪';
+  }
+
+  @override
+  String get deskUpdReadyBody => '立即重启以完成更新。钱包会锁定，应用会重新打开。';
+
+  @override
+  String get deskUpdRestartNow => '立即重启';
+
+  @override
+  String get deskUpdLater => '稍后';
 }

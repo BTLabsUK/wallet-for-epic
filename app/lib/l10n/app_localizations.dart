@@ -26585,12 +26585,6 @@ abstract class AppLocalizations {
   /// **'Local node syncing'**
   String get deskSlotNodeSyncing;
 
-  /// Screen-reader label of the small dot at the bottom of the sidebar when an update is out. {version} e.g. 26.10.17.
-  ///
-  /// In en, this message translates to:
-  /// **'Update available, {version}. Shows the update.'**
-  String deskSlotUpdateDot(String version);
-
   /// Tooltip line of a sidebar slot line: where its click goes.
   ///
   /// In en, this message translates to:
@@ -27304,6 +27298,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export'**
   String get deskConExportDo;
+
+  /// Settings › About › Updates: row title of the public download page's address, with Open and a copy button.
+  ///
+  /// In en, this message translates to:
+  /// **'Download page'**
+  String get deskSetAboutDownloadPage;
+
+  /// Slot tooltip and Settings › About › Updates: this copy (not an installed Windows copy, an AppImage in a folder it cannot write, a build folder, a .deb) cannot install the update itself; its actions open the download page instead.
+  ///
+  /// In en, this message translates to:
+  /// **'This copy of the app can\'t install updates by itself.'**
+  String get deskUpdManual;
+
+  /// Settings › About › Updates, button: download the newer version in the app; after it is checked, a restart installs it.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and install'**
+  String get deskUpdDownloadInstall;
+
+  /// Dialog title when the update the user started downloading is downloaded and checked. 'Epic Cash' is the brand, not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash {version} is ready'**
+  String deskUpdReadyTitle(String version);
+
+  /// Dialog text under 'Epic Cash {version} is ready': Restart now locks the wallet, closes the app, installs the update and opens the app again.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart now to update. The wallet locks and the app opens again.'**
+  String get deskUpdReadyBody;
+
+  /// Dialog button: restart the app now to install the downloaded update.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart now'**
+  String get deskUpdRestartNow;
+
+  /// Dialog button: not now; 'Restart to update' stays in the sidebar and in Settings › About.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get deskUpdLater;
 }
 
 class _AppLocalizationsDelegate

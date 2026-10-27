@@ -14,5 +14,11 @@
   "deskUpdErrDamaged": "Die Datei passt nicht zu den signierten Update-Angaben.",
   "deskUpdErrStopped": "Der Download wurde unterbrochen.",
   "deskUpdErrInstall": "Die neue Version konnte nicht eingesetzt werden.",
-  "deskUpdUnfinished": "Update nicht abgeschlossen. Erneut versuchen."
+  "deskUpdUnfinished": "Update nicht abgeschlossen. Erneut versuchen.",
+  "deskUpdManual": "Diese Kopie der App kann Updates nicht selbst installieren.",
+  "deskUpdDownloadInstall": "Herunterladen und installieren",
+  "deskUpdReadyTitle": "Epic Cash {version} ist bereit",
+  "deskUpdReadyBody": "Jetzt neu starten, um zu aktualisieren. Die Wallet wird gesperrt und die App öffnet sich wieder.",
+  "deskUpdRestartNow": "Jetzt neu starten",
+  "deskUpdLater": "Später"
 }

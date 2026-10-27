@@ -4454,7 +4454,6 @@
   "deskSlotRequests": "Nowe żądania",
   "deskSlotNodeStarting": "Uruchamianie węzła lokalnego",
   "deskSlotNodeSyncing": "Synchronizacja węzła lokalnego",
-  "deskSlotUpdateDot": "Dostępna aktualizacja, {version}. Pokazuje aktualizację.",
   "deskSlotOpenAdvanced": "Otwórz ustawienia zaawansowane",
   "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
   "deskSlotOpenSend": "Otwórz Wyślij",
@@ -4573,5 +4572,12 @@
   "ownNodePoolEmpty": "pusty",
   "ownNodePoolWaiting": "{count, plural, one{1 czeka} few{{count} czekają} many{{count} czeka} other{{count} czeka}}",
   "ownNodeAskedDirectly": "Pytany bezpośrednio z tego telefonu co 15 s",
-  "deskConExportDo": "Eksportuj"
+  "deskConExportDo": "Eksportuj",
+  "deskSetAboutDownloadPage": "Strona pobierania",
+  "deskUpdManual": "Ta kopia aplikacji nie może sama instalować aktualizacji.",
+  "deskUpdDownloadInstall": "Pobierz i zainstaluj",
+  "deskUpdReadyTitle": "Epic Cash {version} jest gotowy",
+  "deskUpdReadyBody": "Uruchom ponownie teraz, aby zaktualizować. Portfel zostanie zablokowany, a aplikacja otworzy się ponownie.",
+  "deskUpdRestartNow": "Uruchom ponownie",
+  "deskUpdLater": "Później"
 }

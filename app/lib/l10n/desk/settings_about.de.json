@@ -21,5 +21,6 @@
   "deskSetAboutAgoDays": "vor {count} T.",
   "deskSetAboutCopyLink": "Link kopieren",
   "deskSetAboutCopied": "Kopiert",
-  "deskSetAboutNotCopied": "Nicht kopiert"
+  "deskSetAboutNotCopied": "Nicht kopiert",
+  "deskSetAboutDownloadPage": "Download-Seite"
 }

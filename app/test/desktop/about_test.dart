@@ -1,4 +1,3 @@
-import 'package:epic_wallet/src/desktop/app/update_notice.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -132,31 +131,14 @@ void main() {
     expect(calls, 2);
   });
 
-  testWidgets('a newer version: About says so, the sidebar notice offers it; the same version is the latest', (tester) async {
-    final (container, opened) = await pump(
-      tester,
-      (_) async => (200, newer),
-      home: const Scaffold(
-        body: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: 220, child: DeskUpdateNotice()),
-            Expanded(child: SettingsAboutScreen()),
-          ],
-        ),
-      ),
-    );
-    final about = find.byType(SettingsAboutScreen);
-    final notice = find.byType(DeskUpdateNotice);
-    expect(find.descendant(of: about, matching: find.text('Update available: $next')), findsOneWidget);
-    expect(find.descendant(of: about, matching: find.byType(EButton)), findsWidgets);
-    for (final b in tester.widgetList<EButton>(find.descendant(of: about, matching: find.byType(EButton)))) {
-      expect(b.label, isNot(contains(next)), reason: 'no offer in About: ${b.label}');
-    }
-    expect(find.descendant(of: notice, matching: find.text('Update available')), findsOneWidget, reason: 'the one offer');
-    await tester.tap(find.byKey(const ValueKey('update-notice')));
+  testWidgets('a newer version: About says so and offers it; the same version is the latest', (tester) async {
+    final (container, opened) = await pump(tester, (_) async => (200, newer));
+    expect(find.text('Update available: $next'), findsOneWidget);
+    // No installer or AppImage under test: this copy cannot install it, so the page, and why.
+    expect(find.textContaining("This copy of the app can't install updates by itself."), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('about-update-act')));
     await tester.pumpAndSettle();
-    expect(opened, [page], reason: 'this copy installs nothing itself: the notice opens the page');
+    expect(opened, [page], reason: 'this copy installs nothing itself: the button opens the page');
 
     container.updateOverrides([
       deskManifestFetchProvider.overrideWithValue((_) async => (200, same)),

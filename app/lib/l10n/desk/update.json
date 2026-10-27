@@ -86,5 +86,35 @@
   "deskUpdUnfinished": "Update didn't finish. Try again.",
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
+  },
+  "deskUpdManual": "This copy of the app can't install updates by itself.",
+  "@deskUpdManual": {
+    "description": "Slot tooltip and Settings › About › Updates: this copy (not an installed Windows copy, an AppImage in a folder it cannot write, a build folder, a .deb) cannot install the update itself; its actions open the download page instead."
+  },
+  "deskUpdDownloadInstall": "Download and install",
+  "@deskUpdDownloadInstall": {
+    "description": "Settings › About › Updates, button: download the newer version in the app; after it is checked, a restart installs it."
+  },
+  "deskUpdReadyTitle": "Epic Cash {version} is ready",
+  "@deskUpdReadyTitle": {
+    "description": "Dialog title when the update the user started downloading is downloaded and checked. 'Epic Cash' is the brand, not translated.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.19"
+      }
+    }
+  },
+  "deskUpdReadyBody": "Restart now to update. The wallet locks and the app opens again.",
+  "@deskUpdReadyBody": {
+    "description": "Dialog text under 'Epic Cash {version} is ready': Restart now locks the wallet, closes the app, installs the update and opens the app again."
+  },
+  "deskUpdRestartNow": "Restart now",
+  "@deskUpdRestartNow": {
+    "description": "Dialog button: restart the app now to install the downloaded update."
+  },
+  "deskUpdLater": "Later",
+  "@deskUpdLater": {
+    "description": "Dialog button: not now; 'Restart to update' stays in the sidebar and in Settings › About."
   }
 }

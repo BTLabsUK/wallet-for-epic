@@ -4454,7 +4454,6 @@
   "deskSlotRequests": "Новые запросы",
   "deskSlotNodeStarting": "Запуск локального узла",
   "deskSlotNodeSyncing": "Синхронизация локального узла",
-  "deskSlotUpdateDot": "Доступно обновление, {version}. Показывает обновление.",
   "deskSlotOpenAdvanced": "Открыть «Дополнительно»",
   "deskSlotOpenRecheck": "Открыть «Сверка баланса»",
   "deskSlotOpenSend": "Открыть «Отправить»",
@@ -4573,5 +4572,12 @@
   "ownNodePoolEmpty": "пусто",
   "ownNodePoolWaiting": "{count, plural, one{{count} ждёт} few{{count} ждут} many{{count} ждут} other{{count} ждут}}",
   "ownNodeAskedDirectly": "Опрашивается напрямую с этого телефона каждые 15 с",
-  "deskConExportDo": "Экспортировать"
+  "deskConExportDo": "Экспортировать",
+  "deskSetAboutDownloadPage": "Страница загрузки",
+  "deskUpdManual": "Эта копия приложения не может сама устанавливать обновления.",
+  "deskUpdDownloadInstall": "Скачать и установить",
+  "deskUpdReadyTitle": "Epic Cash {version} готов",
+  "deskUpdReadyBody": "Перезапустите сейчас, чтобы обновить. Кошелёк заблокируется, а приложение откроется снова.",
+  "deskUpdRestartNow": "Перезапустить",
+  "deskUpdLater": "Позже"
 }

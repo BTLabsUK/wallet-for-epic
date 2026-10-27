@@ -17,7 +17,6 @@
   "deskSlotRequests": "新请求",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
-  "deskSlotUpdateDot": "有可用更新 {version}。显示该更新。",
   "deskSlotOpenAdvanced": "打开高级设置",
   "deskSlotOpenRecheck": "打开重新核对余额",
   "deskSlotOpenSend": "打开发送",
