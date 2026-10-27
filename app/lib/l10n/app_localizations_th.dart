@@ -16384,4 +16384,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbWalletNameIs(String name) {
     return 'ชื่อกระเป๋าเงิน: $name';
   }
+
+  @override
+  String sendTurnOnMethod(String method) {
+    return 'เปิด $method';
+  }
+
+  @override
+  String get reqPickContactOrMethod => 'เลือกผู้ติดต่อหรือวิธี';
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'เปิดล่าสุด $when';
+  }
 }

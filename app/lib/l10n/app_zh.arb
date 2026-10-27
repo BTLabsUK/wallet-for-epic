@@ -4430,5 +4430,8 @@
   "deskTxCancelNotPostedBody": "发往 {who} 的 {amount} EPIC。两个钱包都已签名，但网络尚未接受它。钱包会先询问节点，如果网络已有这笔付款则拒绝；否则锁定的金额会退回余额。",
   "deskOnbWalletNameEdit": "编辑钱包名称",
   "deskOnbWalletNameField": "钱包名称",
-  "deskOnbWalletNameIs": "钱包名称：{name}"
+  "deskOnbWalletNameIs": "钱包名称：{name}",
+  "sendTurnOnMethod": "开启 {method}",
+  "reqPickContactOrMethod": "选择联系人或方式",
+  "deskOnbUnlockOpened": "上次打开：{when}"
 }

@@ -4430,5 +4430,8 @@
   "deskTxCancelNotPostedBody": "{amount} EPIC ถึง {who} ทั้งสองกระเป๋าเงินลงนามแล้ว แต่เครือข่ายยังไม่รับรายการ กระเป๋าเงินจะถามโหนดก่อนและปฏิเสธถ้าเครือข่ายมีรายการนี้แล้ว ไม่เช่นนั้นยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ",
   "deskOnbWalletNameEdit": "แก้ไขชื่อกระเป๋าเงิน",
   "deskOnbWalletNameField": "ชื่อกระเป๋าเงิน",
-  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}"
+  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}",
+  "sendTurnOnMethod": "เปิด {method}",
+  "reqPickContactOrMethod": "เลือกผู้ติดต่อหรือวิธี",
+  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
 }

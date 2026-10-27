@@ -26446,6 +26446,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet name: {name}'**
   String deskOnbWalletNameIs(String name);
+
+  /// Phone Send: button under the note that a Link method is off; turns its switch on. {method} is the method's full name, e.g. Link · HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on {method}'**
+  String sendTurnOnMethod(String method);
+
+  /// Phone Request screen: placeholder and error of the To field, where a contact, a QR code or a file is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a contact or method'**
+  String get reqPickContactOrMethod;
+
+  /// Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. "3 d ago" or "just now".
+  ///
+  /// In en, this message translates to:
+  /// **'Opened {when}'**
+  String deskOnbUnlockOpened(String when);
 }
 
 class _AppLocalizationsDelegate

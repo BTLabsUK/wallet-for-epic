@@ -22252,5 +22252,27 @@
         "type": "String"
       }
     }
+  },
+  "sendTurnOnMethod": "Turn on {method}",
+  "@sendTurnOnMethod": {
+    "description": "Phone Send: button under the note that a Link method is off; turns its switch on. {method} is the method's full name, e.g. Link · HTTP.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "reqPickContactOrMethod": "Choose a contact or method",
+  "@reqPickContactOrMethod": {
+    "description": "Phone Request screen: placeholder and error of the To field, where a contact, a QR code or a file is chosen."
+  },
+  "deskOnbUnlockOpened": "Opened {when}",
+  "@deskOnbUnlockOpened": {
+    "description": "Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. \"3 d ago\" or \"just now\".",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   }
 }

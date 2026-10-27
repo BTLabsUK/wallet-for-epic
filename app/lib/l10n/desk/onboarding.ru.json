@@ -224,5 +224,6 @@
   "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым.",
   "deskOnbWalletNameEdit": "Изменить название кошелька",
   "deskOnbWalletNameField": "Название кошелька",
-  "deskOnbWalletNameIs": "Название кошелька: {name}"
+  "deskOnbWalletNameIs": "Название кошелька: {name}",
+  "deskOnbUnlockOpened": "Открыт {when}"
 }

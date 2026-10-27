@@ -224,5 +224,6 @@
   "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste.",
   "deskOnbWalletNameEdit": "Zmień nazwę portfela",
   "deskOnbWalletNameField": "Nazwa portfela",
-  "deskOnbWalletNameIs": "Nazwa portfela: {name}"
+  "deskOnbWalletNameIs": "Nazwa portfela: {name}",
+  "deskOnbUnlockOpened": "Otwarty {when}"
 }

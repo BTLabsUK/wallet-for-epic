@@ -224,5 +224,6 @@
   "deskOnbRestoreFromInvalid": "只能输入数字，或留空。",
   "deskOnbWalletNameEdit": "编辑钱包名称",
   "deskOnbWalletNameField": "钱包名称",
-  "deskOnbWalletNameIs": "钱包名称：{name}"
+  "deskOnbWalletNameIs": "钱包名称：{name}",
+  "deskOnbUnlockOpened": "上次打开：{when}"
 }

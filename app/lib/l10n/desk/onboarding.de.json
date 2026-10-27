@@ -224,5 +224,6 @@
   "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen.",
   "deskOnbWalletNameEdit": "Wallet-Namen ändern",
   "deskOnbWalletNameField": "Wallet-Name",
-  "deskOnbWalletNameIs": "Wallet-Name: {name}"
+  "deskOnbWalletNameIs": "Wallet-Name: {name}",
+  "deskOnbUnlockOpened": "Geöffnet {when}"
 }

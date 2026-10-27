@@ -17126,4 +17126,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOnbWalletNameIs(String name) {
     return 'Nazwa portfela: $name';
   }
+
+  @override
+  String sendTurnOnMethod(String method) {
+    return 'Włącz $method';
+  }
+
+  @override
+  String get reqPickContactOrMethod => 'Wybierz kontakt lub metodę';
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Otwarty $when';
+  }
 }

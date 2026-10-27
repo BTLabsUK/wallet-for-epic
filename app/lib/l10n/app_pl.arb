@@ -4430,5 +4430,8 @@
   "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.",
   "deskOnbWalletNameEdit": "Zmień nazwę portfela",
   "deskOnbWalletNameField": "Nazwa portfela",
-  "deskOnbWalletNameIs": "Nazwa portfela: {name}"
+  "deskOnbWalletNameIs": "Nazwa portfela: {name}",
+  "sendTurnOnMethod": "Włącz {method}",
+  "reqPickContactOrMethod": "Wybierz kontakt lub metodę",
+  "deskOnbUnlockOpened": "Otwarty {when}"
 }

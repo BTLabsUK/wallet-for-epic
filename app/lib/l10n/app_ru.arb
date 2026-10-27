@@ -4430,5 +4430,8 @@
   "deskTxCancelNotPostedBody": "{amount} EPIC для {who}. Оба кошелька его подписали, но сеть его не приняла. Кошелёк сначала спрашивает узел и отказывает, если платёж уже в сети; иначе заблокированная сумма вернётся в баланс.",
   "deskOnbWalletNameEdit": "Изменить название кошелька",
   "deskOnbWalletNameField": "Название кошелька",
-  "deskOnbWalletNameIs": "Название кошелька: {name}"
+  "deskOnbWalletNameIs": "Название кошелька: {name}",
+  "sendTurnOnMethod": "Включить {method}",
+  "reqPickContactOrMethod": "Выберите контакт или способ",
+  "deskOnbUnlockOpened": "Открыт {when}"
 }

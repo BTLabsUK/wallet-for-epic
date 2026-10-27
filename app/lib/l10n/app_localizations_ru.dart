@@ -17087,4 +17087,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbWalletNameIs(String name) {
     return 'Название кошелька: $name';
   }
+
+  @override
+  String sendTurnOnMethod(String method) {
+    return 'Включить $method';
+  }
+
+  @override
+  String get reqPickContactOrMethod => 'Выберите контакт или способ';
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Открыт $when';
+  }
 }

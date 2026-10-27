@@ -16665,4 +16665,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbWalletNameIs(String name) {
     return 'Wallet name: $name';
   }
+
+  @override
+  String sendTurnOnMethod(String method) {
+    return 'Turn on $method';
+  }
+
+  @override
+  String get reqPickContactOrMethod => 'Choose a contact or method';
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Opened $when';
+  }
 }

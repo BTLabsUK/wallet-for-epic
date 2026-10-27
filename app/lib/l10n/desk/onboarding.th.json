@@ -224,5 +224,6 @@
   "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้",
   "deskOnbWalletNameEdit": "แก้ไขชื่อกระเป๋าเงิน",
   "deskOnbWalletNameField": "ชื่อกระเป๋าเงิน",
-  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}"
+  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}",
+  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
 }

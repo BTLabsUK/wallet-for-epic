@@ -4430,5 +4430,8 @@
   "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.",
   "deskOnbWalletNameEdit": "Wallet-Namen ändern",
   "deskOnbWalletNameField": "Wallet-Name",
-  "deskOnbWalletNameIs": "Wallet-Name: {name}"
+  "deskOnbWalletNameIs": "Wallet-Name: {name}",
+  "sendTurnOnMethod": "{method} einschalten",
+  "reqPickContactOrMethod": "Kontakt oder Methode wählen",
+  "deskOnbUnlockOpened": "Geöffnet {when}"
 }

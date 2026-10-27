@@ -15779,4 +15779,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOnbWalletNameIs(String name) {
     return '钱包名称：$name';
   }
+
+  @override
+  String sendTurnOnMethod(String method) {
+    return '开启 $method';
+  }
+
+  @override
+  String get reqPickContactOrMethod => '选择联系人或方式';
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return '上次打开：$when';
+  }
 }
