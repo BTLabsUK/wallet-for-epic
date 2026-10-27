@@ -17505,7 +17505,7 @@ abstract class AppLocalizations {
   /// Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short.
   ///
   /// In en, this message translates to:
-  /// **'All payments'**
+  /// **'All time'**
   String get deskSetBackupRangeAll;
 
   /// Export CSV dialog: segment, payments of this calendar year. Keep short.

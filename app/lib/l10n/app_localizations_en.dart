@@ -10923,7 +10923,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupRange => 'Range';
 
   @override
-  String get deskSetBackupRangeAll => 'All payments';
+  String get deskSetBackupRangeAll => 'All time';
 
   @override
   String get deskSetBackupRangeThisYear => 'This year';

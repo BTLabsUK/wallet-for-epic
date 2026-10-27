@@ -11237,7 +11237,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupRange => 'Zakres';
 
   @override
-  String get deskSetBackupRangeAll => 'Wszystkie';
+  String get deskSetBackupRangeAll => 'Cały czas';
 
   @override
   String get deskSetBackupRangeThisYear => 'Ten rok';

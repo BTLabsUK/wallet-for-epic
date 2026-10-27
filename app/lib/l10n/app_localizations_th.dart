@@ -10725,7 +10725,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupRange => 'ช่วง';
 
   @override
-  String get deskSetBackupRangeAll => 'ทั้งหมด';
+  String get deskSetBackupRangeAll => 'ตลอดเวลา';
 
   @override
   String get deskSetBackupRangeThisYear => 'ปีนี้';

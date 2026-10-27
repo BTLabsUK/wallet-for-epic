@@ -10348,7 +10348,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupRange => '范围';
 
   @override
-  String get deskSetBackupRangeAll => '全部付款';
+  String get deskSetBackupRangeAll => '全部时间';
 
   @override
   String get deskSetBackupRangeThisYear => '今年';

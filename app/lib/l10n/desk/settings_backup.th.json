@@ -58,7 +58,7 @@
   "deskSetBackupDateError": "ใส่วันที่แบบ 2026-01-31",
   "deskSetBackupDateHint": "YYYY-MM-DD",
   "deskSetBackupRange": "ช่วง",
-  "deskSetBackupRangeAll": "ทั้งหมด",
+  "deskSetBackupRangeAll": "ตลอดเวลา",
   "deskSetBackupRangeThisYear": "ปีนี้",
   "deskSetBackupRangeLastYear": "ปีที่แล้ว",
   "deskSetBackupRangeCustom": "กำหนดเอง",

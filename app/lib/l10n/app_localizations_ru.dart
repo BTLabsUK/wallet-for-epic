@@ -11202,7 +11202,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupRange => 'Период';
 
   @override
-  String get deskSetBackupRangeAll => 'Все';
+  String get deskSetBackupRangeAll => 'Всё время';
 
   @override
   String get deskSetBackupRangeThisYear => 'Этот год';

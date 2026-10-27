@@ -58,7 +58,7 @@
   "deskSetBackupDateError": "Geben Sie ein Datum wie 2026-01-31 ein",
   "deskSetBackupDateHint": "JJJJ-MM-TT",
   "deskSetBackupRange": "Zeitraum",
-  "deskSetBackupRangeAll": "Alle",
+  "deskSetBackupRangeAll": "Gesamt",
   "deskSetBackupRangeThisYear": "Dieses Jahr",
   "deskSetBackupRangeLastYear": "Letztes Jahr",
   "deskSetBackupRangeCustom": "Eigener",

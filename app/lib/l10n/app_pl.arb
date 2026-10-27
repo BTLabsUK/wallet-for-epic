@@ -2878,7 +2878,7 @@
   "deskSetBackupDateError": "Wpisz datę w formacie 2026-01-31",
   "deskSetBackupDateHint": "RRRR-MM-DD",
   "deskSetBackupRange": "Zakres",
-  "deskSetBackupRangeAll": "Wszystkie",
+  "deskSetBackupRangeAll": "Cały czas",
   "deskSetBackupRangeThisYear": "Ten rok",
   "deskSetBackupRangeLastYear": "Zeszły rok",
   "deskSetBackupRangeCustom": "Własny",

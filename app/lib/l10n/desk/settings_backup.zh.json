@@ -58,7 +58,7 @@
   "deskSetBackupDateError": "请按 2026-01-31 的格式输入日期",
   "deskSetBackupDateHint": "YYYY-MM-DD",
   "deskSetBackupRange": "范围",
-  "deskSetBackupRangeAll": "全部付款",
+  "deskSetBackupRangeAll": "全部时间",
   "deskSetBackupRangeThisYear": "今年",
   "deskSetBackupRangeLastYear": "去年",
   "deskSetBackupRangeCustom": "自定义",

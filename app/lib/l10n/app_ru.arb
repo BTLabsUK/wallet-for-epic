@@ -2433,7 +2433,7 @@
   "deskSetBackupDateError": "Введите дату в виде 2026-01-31",
   "deskSetBackupDateHint": "ГГГГ-ММ-ДД",
   "deskSetBackupRange": "Период",
-  "deskSetBackupRangeAll": "Все",
+  "deskSetBackupRangeAll": "Всё время",
   "deskSetBackupRangeThisYear": "Этот год",
   "deskSetBackupRangeLastYear": "Прошлый год",
   "deskSetBackupRangeCustom": "Свой",

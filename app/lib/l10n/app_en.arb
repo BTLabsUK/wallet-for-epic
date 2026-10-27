@@ -14461,7 +14461,7 @@
   "@deskSetBackupRange": {
     "description": "Export CSV dialog: label of the segmented control choosing which payments to export."
   },
-  "deskSetBackupRangeAll": "All payments",
+  "deskSetBackupRangeAll": "All time",
   "@deskSetBackupRangeAll": {
     "description": "Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short."
   },
