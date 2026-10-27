@@ -16404,4 +16404,205 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbUnlockOpened(String when) {
     return 'เปิดล่าสุด $when';
   }
+
+  @override
+  String get deskOwnYourNode => 'โหนดของคุณ';
+
+  @override
+  String deskOwnLabel(String where) {
+    return 'โหนดของคุณ · $where';
+  }
+
+  @override
+  String get deskOwnClassThisComputer => 'คอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskOwnClassHome => 'เครือข่ายในบ้าน';
+
+  @override
+  String get deskOwnClassVpn => 'VPN';
+
+  @override
+  String get deskOwnFactMempool => 'Mempool';
+
+  @override
+  String get deskOwnPoolEmpty => 'ว่าง';
+
+  @override
+  String deskOwnPoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รอ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceSite =>
+      'ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจาก status.btlabs.uk';
+
+  @override
+  String deskOwnSourceNodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจากโหนดสาธารณะ $count โหนด',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceNone =>
+      'ถามโดยตรงทุก 15 วิ · ไม่มีความสูงของเครือข่ายให้เทียบ';
+
+  @override
+  String get deskOwnSyncingLine =>
+      'จนกว่าจะซิงค์เสร็จ กระเป๋าส่งหรือรับผ่านโหนดนี้ไม่ได้';
+
+  @override
+  String get deskOwnAccess => 'สิทธิ์เจ้าของ';
+
+  @override
+  String get deskOwnAccessHint =>
+      'รหัสลับเจ้าของของโหนดจะแสดงขั้นการซิงค์และ peer ที่นี่ และให้แบน peer ได้ เก็บไว้ในพวงกุญแจของคอมพิวเตอร์เครื่องนี้ ไม่อยู่ในการตั้งค่าหรือไฟล์ข้อมูลกระเป๋า';
+
+  @override
+  String get deskOwnAccessNotSet => 'ยังไม่ได้ตั้ง';
+
+  @override
+  String get deskOwnAccessOn => 'เพิ่มแล้ว';
+
+  @override
+  String deskOwnAccessRefused(String time) {
+    return 'ถูกปฏิเสธตั้งแต่ $time';
+  }
+
+  @override
+  String get deskOwnAccessRefusedBadge => 'ถูกปฏิเสธ';
+
+  @override
+  String get deskOwnAccessTor => 'ไม่ใช้ขณะเปิด Tor';
+
+  @override
+  String get deskOwnAccessNote =>
+      'Peer และรายละเอียดการซิงค์มาจาก owner API ของโหนด การเริ่ม หยุด และโฟลเดอร์ข้อมูลยังอยู่บนคอมพิวเตอร์ของโหนด';
+
+  @override
+  String get deskOwnAdd => 'เพิ่ม…';
+
+  @override
+  String get deskOwnUpdate => 'อัปเดต…';
+
+  @override
+  String get deskOwnRemove => 'ลบ';
+
+  @override
+  String get deskOwnAdded => 'เพิ่มสิทธิ์เจ้าของแล้ว';
+
+  @override
+  String get deskOwnRemoved => 'ลบสิทธิ์เจ้าของแล้ว';
+
+  @override
+  String deskOwnDlgTitle(String host) {
+    return 'สิทธิ์เจ้าของของ $host';
+  }
+
+  @override
+  String get deskOwnDlgWhere =>
+      'รหัสลับคือบรรทัดแรกของไฟล์ .api_secret ในโฟลเดอร์ข้อมูลของโหนด (~/.epic/main บนคอมพิวเตอร์ของโหนด)';
+
+  @override
+  String get deskOwnDlgPaste => 'วางรหัสลับ';
+
+  @override
+  String get deskOwnDlgPick => 'เลือกไฟล์…';
+
+  @override
+  String deskOwnDlgFileRead(String file) {
+    return 'อ่านจาก $file';
+  }
+
+  @override
+  String get deskOwnDlgFileEmpty => 'ไฟล์นี้ไม่มีรหัสลับ';
+
+  @override
+  String get deskOwnDlgPlainTitle =>
+      'รหัสลับจะส่งผ่านเครือข่ายในบ้านโดยไม่เข้ารหัส';
+
+  @override
+  String get deskOwnDlgPlainText =>
+      'ใช้ได้บนเครือข่ายที่มีแค่คุณใช้ ที่อื่นให้เชื่อมต่อโหนดผ่าน VPN ผ่าน https หรือใช้กระเป๋าบนคอมพิวเตอร์ของโหนด';
+
+  @override
+  String get deskOwnDlgPlainAgain => 'ไม่ต้องแสดงอีกสำหรับโหนดนี้';
+
+  @override
+  String get deskOwnDlgRefused => 'โหนดปฏิเสธรหัสลับนี้';
+
+  @override
+  String get deskOwnDlgNoAnswer => 'โหนดไม่ตอบ จึงเก็บรหัสลับไว้';
+
+  @override
+  String get deskOwnDlgAdd => 'เพิ่ม';
+
+  @override
+  String get deskOwnDownTitle => 'โหนดของคุณไม่ตอบ';
+
+  @override
+  String deskOwnDownText(String host) {
+    return 'ระหว่างนี้กระเป๋าใช้ $host และจะกลับมาเมื่อโหนดของคุณตอบสองครั้งติดกัน';
+  }
+
+  @override
+  String deskOwnUsingMeanwhile(String host) {
+    return 'ระหว่างนี้ใช้ $host';
+  }
+
+  @override
+  String deskOwnUsingUntilSynced(String host) {
+    return 'ใช้ $host จนกว่าจะซิงค์เสร็จ';
+  }
+
+  @override
+  String get deskOwnTryNow => 'ลองตอนนี้';
+
+  @override
+  String deskOwnUseForGood(String host) {
+    return 'ใช้ $host ต่อไปเลย';
+  }
+
+  @override
+  String get deskOwnSyncTitle =>
+      'ใช้โหนดสาธารณะจนกว่าโหนดของคุณจะซิงค์เสร็จไหม';
+
+  @override
+  String deskOwnSyncText(String host) {
+    return 'กระเป๋าส่งหรือรับผ่านโหนดที่กำลังซิงค์ไม่ได้ $host ใช้แทนได้ และกระเป๋าจะกลับมาเมื่อโหนดของคุณรับธุรกรรมได้';
+  }
+
+  @override
+  String get deskOwnWaitForMine => 'รอโหนดของฉัน';
+
+  @override
+  String deskOwnSyncUsingTitle(String host) {
+    return 'ใช้ $host จนกว่าโหนดของคุณจะซิงค์เสร็จ';
+  }
+
+  @override
+  String get deskOwnSyncUsingText =>
+      'กระเป๋าจะกลับมาเมื่อโหนดของคุณรับธุรกรรมได้';
+
+  @override
+  String get deskOwnMine => 'นี่คือโหนดของฉัน';
+
+  @override
+  String get deskOwnMineHint =>
+      'ถามโหนดโดยตรงแทน status.btlabs.uk และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง';
+
+  @override
+  String get deskOwnListNote => 'โหนดของคุณเองจะถูกถามโดยตรง';
+
+  @override
+  String get deskOwnSlotSyncing => 'โหนดของคุณกำลังซิงค์';
 }

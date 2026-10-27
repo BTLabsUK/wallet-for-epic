@@ -19,6 +19,7 @@ import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
+import 'own_node_panel.dart' show nodePanelWideFrom, nodeChartHeight;
 
 enum LocalTab { status, peers }
 
@@ -176,9 +177,9 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       ],
     ];
 
-    final Widget tab = switch (_tab) {
-      LocalTab.status => _StatusTab(
+    Widget status({required bool wide}) => _StatusTab(
         key: const ValueKey('status'),
+        wide: wide,
         state: s,
         fallback: fallback,
         accepted: accepted,
@@ -192,14 +193,39 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         onLog: () => showNodeLogDialog(context, api),
         onChangeFolder: () => _changeFolder(s),
         now: _now,
-      ),
-      LocalTab.peers => PeersTab(key: const ValueKey('peers'), restartNeeded: s.restartNeeded, onRestart: _busy == null ? () => _run('restart', api.restart) : null),
-    };
+      );
+    final peers = PeersTab(key: const ValueKey('peers'), restartNeeded: s.restartNeeded, onRestart: _busy == null ? () => _run('restart', api.restart) : null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
+        // Wide: Status and Peers side by side, no tabs.
+        LayoutBuilder(
+          builder: (context, box) {
+            final wide = box.maxWidth >= nodePanelWideFrom;
+            final buttons = Wrap(alignment: WrapAlignment.end, spacing: Sp.x2, runSpacing: Sp.x2, children: controls);
+            if (wide) {
+              return Padding(
+                padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Align(alignment: AlignmentDirectional.centerEnd, child: buttons),
+                    SizedBox(height: Sp.x4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: status(wide: true)),
+                        SizedBox(width: Sp.col),
+                        Expanded(child: peers),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }
+            final Widget tab = _tab == LocalTab.status ? status(wide: false) : peers;
+            return Padding(
           padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -216,7 +242,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                   Expanded(
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
-                      child: Wrap(alignment: WrapAlignment.end, spacing: Sp.x2, runSpacing: Sp.x2, children: controls),
+                      child: buttons,
                     ),
                   ),
                 ],
@@ -231,6 +257,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
               ),
             ],
           ),
+        );
+          },
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         _AutostartRow(api: api),
@@ -412,6 +440,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
 class _StatusTab extends StatelessWidget {
   const _StatusTab({
     super.key,
+    this.wide = false,
     required this.state,
     required this.fallback,
     required this.accepted,
@@ -427,6 +456,8 @@ class _StatusTab extends StatelessWidget {
     required this.now,
   });
 
+  /// Beside the peers on a wide panel: taller charts.
+  final bool wide;
   final LocalNodeState state;
   final String fallback;
   final bool accepted;
@@ -473,27 +504,30 @@ class _StatusTab extends StatelessWidget {
     );
 
     final tiles = <Widget>[
-      _Tile(
+      NodeTile(
         label: l.deskSetLnodeTilePeers,
         value: s.peers == null ? '–' : '${s.peers}',
         series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
+        chart: nodeChartHeight(wide: wide),
       ),
-      _Tile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value]),
+      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
       if (p?.stage == SyncStage.chainStateDownload)
-        _Tile(
+        NodeTile(
           label: l.deskSetLnodeTileDownload,
           value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round(), l)}/s',
           suffix: p?.done == null ? null : l.deskSetLnodeSoFar(bytesText(p!.done!, l)),
           series: [for (final x in download) x.value],
+          chart: nodeChartHeight(wide: wide),
         )
       else
-        _Tile(
+        NodeTile(
           label: l.deskSetLnodeTileDisk,
           value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!, l),
           suffix: s.chainDataBytes != null && s.chainDataBytesAtStart != null && s.chainDataBytes! > s.chainDataBytesAtStart!
               ? l.deskSetLnodeThisSession(bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!, l))
               : null,
           series: [for (final x in disk) x.value],
+          chart: nodeChartHeight(wide: wide),
         ),
     ];
 
@@ -528,12 +562,12 @@ class _StatusTab extends StatelessWidget {
         ),
         if (moving != null) ...[
           SizedBox(height: Sp.x4),
-          _Bar(value: moving!.$2 == 0 ? null : moving!.$1 / moving!.$2),
+          NodeSyncBar(value: moving!.$2 == 0 ? null : moving!.$1 / moving!.$2),
           SizedBox(height: Sp.x2),
           Text(l.deskSetLnodeMoving(bytesText(moving!.$1, l), bytesText(moving!.$2, l)), style: ts.small),
         ] else if (syncing) ...[
           SizedBox(height: Sp.x4),
-          _Bar(value: overall),
+          NodeSyncBar(value: overall),
           SizedBox(height: Sp.x2),
           Row(
             children: [
@@ -625,8 +659,8 @@ class _KeepLastState<T extends Object> extends State<_KeepLast<T>> {
   }
 }
 
-class _Bar extends StatelessWidget {
-  const _Bar({required this.value});
+class NodeSyncBar extends StatelessWidget {
+  const NodeSyncBar({super.key, required this.value});
 
   final double? value;
 
@@ -697,13 +731,16 @@ class StageStrip extends StatelessWidget {
 }
 
 /// A tile: label, value (+ a small dim suffix), a 32 u sparkline of one series.
-class _Tile extends StatelessWidget {
-  const _Tile({required this.label, required this.value, this.suffix, required this.series});
+class NodeTile extends StatelessWidget {
+  const NodeTile({super.key, required this.label, required this.value, this.suffix, required this.series, this.chart});
 
   final String label;
   final String value;
   final String? suffix;
   final List<double> series;
+
+  /// The sparkline's height: 32 u, taller where the panel is wide ([nodeChartHeight]).
+  final double? chart;
 
   @override
   Widget build(BuildContext context) {
@@ -731,7 +768,7 @@ class _Tile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: Sp.x2),
-            SizedBox(height: 32.u, width: double.infinity, child: CustomPaint(painter: Sparkline(series, c.accent))),
+            SizedBox(height: chart ?? 32.u, width: double.infinity, child: CustomPaint(painter: Sparkline(series, c.accent))),
           ],
         ),
       ),

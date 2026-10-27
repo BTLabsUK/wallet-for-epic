@@ -22282,5 +22282,273 @@
         "type": "String"
       }
     }
+  },
+  "deskOwnYourNode": "Your node",
+  "@deskOwnYourNode": {
+    "description": "Name of the user's own node (on this computer, the home network, a VPN or their own server) on the sidebar status row and in its tooltip, where a public node shows its host."
+  },
+  "deskOwnLabel": "Your node · {where}",
+  "@deskOwnLabel": {
+    "description": "Label of the user's own node on its panel and its row in the node list. {where} is deskOwnClassThisComputer, deskOwnClassHome, deskOwnClassVpn or the host of their own server.",
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnClassThisComputer": "this computer",
+  "@deskOwnClassThisComputer": {
+    "description": "Where the user's own node runs: on this computer (localhost). After 'Your node · '. Lowercase."
+  },
+  "deskOwnClassHome": "home network",
+  "@deskOwnClassHome": {
+    "description": "Where the user's own node runs: on the local (home) network, a 192.168.x.x or .lan address. After 'Your node · '. Lowercase."
+  },
+  "deskOwnClassVpn": "VPN",
+  "@deskOwnClassVpn": {
+    "description": "Where the user's own node runs: reached over a VPN such as Tailscale. After 'Your node · '. Keep 'VPN'."
+  },
+  "deskOwnFactMempool": "Mempool",
+  "@deskOwnFactMempool": {
+    "description": "Label of a fact on the own node's panel: the transactions waiting in the node's memory pool. One short word."
+  },
+  "deskOwnPoolEmpty": "empty",
+  "@deskOwnPoolEmpty": {
+    "description": "Value of the Mempool fact when no transaction waits. Lowercase."
+  },
+  "deskOwnPoolWaiting": "{count, plural, one{1 waiting} other{{count} waiting}}",
+  "@deskOwnPoolWaiting": {
+    "description": "Value of the Mempool fact: this many transactions wait in the node's mempool.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskOwnSourceSite": "Asked directly every 15 s · tip from status.btlabs.uk",
+  "@deskOwnSourceSite": {
+    "description": "Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site."
+  },
+  "deskOwnSourceNodes": "{count, plural, one{Asked directly every 15 s · tip from 1 public node} other{Asked directly every 15 s · tip from {count} public nodes}}",
+  "@deskOwnSourceNodes": {
+    "description": "Source line under the own node's facts when the status site does not answer: the network tip is the median of this many public nodes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskOwnSourceNone": "Asked directly every 15 s · no network tip to compare with",
+  "@deskOwnSourceNone": {
+    "description": "Source line under the own node's facts when no network tip is known (status site and public nodes unreachable)."
+  },
+  "deskOwnSyncingLine": "The wallet cannot send or receive through it until it is synced",
+  "@deskOwnSyncingLine": {
+    "description": "Tooltip line of the sidebar node row while the user's own node syncs."
+  },
+  "deskOwnAccess": "Owner access",
+  "@deskOwnAccess": {
+    "description": "Title of the row on the own node's panel for the node's owner secret (.api_secret), which unlocks peers and sync details."
+  },
+  "deskOwnAccessHint": "The node's owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer's keyring, never in the settings or the wallet data file.",
+  "@deskOwnAccessHint": {
+    "description": "Hint behind the info icon of the Owner access row."
+  },
+  "deskOwnAccessNotSet": "Not set up",
+  "@deskOwnAccessNotSet": {
+    "description": "State of the Owner access row: no secret added."
+  },
+  "deskOwnAccessOn": "Added",
+  "@deskOwnAccessOn": {
+    "description": "State of the Owner access row: the secret is added and the node takes it."
+  },
+  "deskOwnAccessRefused": "Refused since {time}",
+  "@deskOwnAccessRefused": {
+    "description": "State of the Owner access row: the node refuses the stored secret (its owner changed it) since this time (HH:MM).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnAccessRefusedBadge": "Refused",
+  "@deskOwnAccessRefusedBadge": {
+    "description": "Warn badge on the Owner access row when the node refuses the stored secret. One word."
+  },
+  "deskOwnAccessTor": "Not used while Tor is on",
+  "@deskOwnAccessTor": {
+    "description": "State of the Owner access row for the user's own https server while the Tor switch is on: the secret is never sent over Tor."
+  },
+  "deskOwnAccessNote": "Peers and sync details come from the node's owner API. Start, stop and the data folder stay on the node's own computer.",
+  "@deskOwnAccessNote": {
+    "description": "Note under the own node's status tiles once owner access is added."
+  },
+  "deskOwnAdd": "Add…",
+  "@deskOwnAdd": {
+    "description": "Button on the Owner access row: opens the dialog to add the node's secret."
+  },
+  "deskOwnUpdate": "Update…",
+  "@deskOwnUpdate": {
+    "description": "Button on the Owner access row when the node refuses the stored secret: enter the new one."
+  },
+  "deskOwnRemove": "Remove",
+  "@deskOwnRemove": {
+    "description": "Button on the Owner access row: forget the stored secret (the node stays in the list)."
+  },
+  "deskOwnAdded": "Owner access added",
+  "@deskOwnAdded": {
+    "description": "Toast after the node took the secret."
+  },
+  "deskOwnRemoved": "Owner access removed",
+  "@deskOwnRemoved": {
+    "description": "Toast after the stored secret was forgotten."
+  },
+  "deskOwnDlgTitle": "Owner access to {host}",
+  "@deskOwnDlgTitle": {
+    "description": "Title of the dialog that adds the node's owner secret. {host} is the node's address with port.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnDlgWhere": "The secret is the first line of the file .api_secret in the node's data folder (~/.epic/main on the node's computer).",
+  "@deskOwnDlgWhere": {
+    "description": "Description of the Owner access dialog: where the secret is. Keep .api_secret and ~/.epic/main as they are."
+  },
+  "deskOwnDlgPaste": "Paste the secret",
+  "@deskOwnDlgPaste": {
+    "description": "Label of the password field in the Owner access dialog."
+  },
+  "deskOwnDlgPick": "Pick the file…",
+  "@deskOwnDlgPick": {
+    "description": "Button in the Owner access dialog (node on this computer only): choose the .api_secret file; also the file dialog's title."
+  },
+  "deskOwnDlgFileRead": "Read from {file}",
+  "@deskOwnDlgFileRead": {
+    "description": "Line under the secret field after a file was picked. {file} is the file name.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnDlgFileEmpty": "That file holds no secret",
+  "@deskOwnDlgFileEmpty": {
+    "description": "Error under the secret field: the picked file is empty or unreadable."
+  },
+  "deskOwnDlgPlainTitle": "The secret travels unencrypted on the home network",
+  "@deskOwnDlgPlainTitle": {
+    "description": "Warn notice title in the Owner access dialog for a plain-http node on the home network."
+  },
+  "deskOwnDlgPlainText": "Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node's computer.",
+  "@deskOwnDlgPlainText": {
+    "description": "Warn notice text in the Owner access dialog for a plain-http node on the home network."
+  },
+  "deskOwnDlgPlainAgain": "Don't show again for this node",
+  "@deskOwnDlgPlainAgain": {
+    "description": "Checkbox under the plain-http warning in the Owner access dialog."
+  },
+  "deskOwnDlgRefused": "The node refused this secret",
+  "@deskOwnDlgRefused": {
+    "description": "Error under the secret field: the node answered 401 to the secret."
+  },
+  "deskOwnDlgNoAnswer": "The node did not answer; the secret was kept",
+  "@deskOwnDlgNoAnswer": {
+    "description": "Toast after adding a secret while the node did not answer: it is kept and checked again later."
+  },
+  "deskOwnDlgAdd": "Add",
+  "@deskOwnDlgAdd": {
+    "description": "Primary button of the Owner access dialog: check the secret and keep it."
+  },
+  "deskOwnDownTitle": "Your node is not answering",
+  "@deskOwnDownTitle": {
+    "description": "Risk notice title on the own node's panel while a public node stands in for it."
+  },
+  "deskOwnDownText": "The wallet uses {host} meanwhile and moves back after your node answers twice in a row.",
+  "@deskOwnDownText": {
+    "description": "Risk notice text on the own node's panel. {host} is the public node standing in.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnUsingMeanwhile": "using {host} meanwhile",
+  "@deskOwnUsingMeanwhile": {
+    "description": "Detail after 'Not answering' in the own node's panel head. {host} is the public node standing in. Lowercase start.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnUsingUntilSynced": "using {host} until it is synced",
+  "@deskOwnUsingUntilSynced": {
+    "description": "Detail after 'Syncing' in the own node's panel head while a public node stands in. Lowercase start.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnTryNow": "Try now",
+  "@deskOwnTryNow": {
+    "description": "Button on the not-answering notice: ask the own node again now and move back when it answers."
+  },
+  "deskOwnUseForGood": "Use {host} for good",
+  "@deskOwnUseForGood": {
+    "description": "Button on the not-answering notice: make the standing-in public node the chosen one. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnSyncTitle": "Use a public node until your node is synced?",
+  "@deskOwnSyncTitle": {
+    "description": "Notice title on the own node's panel while it syncs and nothing was answered yet."
+  },
+  "deskOwnSyncText": "The wallet cannot send or receive through a node that is syncing. {host} can stand in; the wallet moves back once your node accepts transactions.",
+  "@deskOwnSyncText": {
+    "description": "Notice text on the own node's panel while it syncs. {host} is the public node that would stand in.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnWaitForMine": "Wait for my node",
+  "@deskOwnWaitForMine": {
+    "description": "Button: keep the wallet on the own node while it syncs (no public node)."
+  },
+  "deskOwnSyncUsingTitle": "Using {host} until your node is synced",
+  "@deskOwnSyncUsingTitle": {
+    "description": "Info notice title on the own node's panel while a public node stands in for the syncing own node.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOwnSyncUsingText": "The wallet moves back once your node accepts transactions.",
+  "@deskOwnSyncUsingText": {
+    "description": "Info notice text under deskOwnSyncUsingTitle."
+  },
+  "deskOwnMine": "This is my node",
+  "@deskOwnMine": {
+    "description": "Switch row in Settings › Node for an https node: the user runs it. Then the app asks it directly and offers owner access."
+  },
+  "deskOwnMineHint": "Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.",
+  "@deskOwnMineHint": {
+    "description": "Hint behind the info icon of the 'This is my node' row."
+  },
+  "deskOwnListNote": "Your own nodes are asked directly.",
+  "@deskOwnListNote": {
+    "description": "Second sentence of the node list's foot line."
+  },
+  "deskOwnSlotSyncing": "Your node syncing",
+  "@deskOwnSlotSyncing": {
+    "description": "Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'."
   }
 }

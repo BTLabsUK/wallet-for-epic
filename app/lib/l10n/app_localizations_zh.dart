@@ -15798,4 +15798,199 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOnbUnlockOpened(String when) {
     return '上次打开：$when';
   }
+
+  @override
+  String get deskOwnYourNode => '你的节点';
+
+  @override
+  String deskOwnLabel(String where) {
+    return '你的节点 · $where';
+  }
+
+  @override
+  String get deskOwnClassThisComputer => '这台电脑';
+
+  @override
+  String get deskOwnClassHome => '家庭网络';
+
+  @override
+  String get deskOwnClassVpn => 'VPN';
+
+  @override
+  String get deskOwnFactMempool => '内存池';
+
+  @override
+  String get deskOwnPoolEmpty => '空';
+
+  @override
+  String deskOwnPoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 笔等待中',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceSite => '每 15 秒直接询问 · 最新高度来自 status.btlabs.uk';
+
+  @override
+  String deskOwnSourceNodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '每 15 秒直接询问 · 最新高度来自 $count 个公共节点',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceNone => '每 15 秒直接询问 · 没有可比较的网络高度';
+
+  @override
+  String get deskOwnSyncingLine => '同步完成前，钱包无法通过它发送或接收';
+
+  @override
+  String get deskOwnAccess => '所有者访问';
+
+  @override
+  String get deskOwnAccessHint =>
+      '节点的所有者密钥会在这里显示同步阶段和对等节点，并可封禁对等节点。它保存在这台电脑的密钥环中，不在设置或钱包数据文件里。';
+
+  @override
+  String get deskOwnAccessNotSet => '未设置';
+
+  @override
+  String get deskOwnAccessOn => '已添加';
+
+  @override
+  String deskOwnAccessRefused(String time) {
+    return '自 $time 起被拒绝';
+  }
+
+  @override
+  String get deskOwnAccessRefusedBadge => '被拒绝';
+
+  @override
+  String get deskOwnAccessTor => 'Tor 开启时不使用';
+
+  @override
+  String get deskOwnAccessNote =>
+      '对等节点和同步详情来自节点的所有者 API。启动、停止和数据文件夹仍在节点所在的电脑上。';
+
+  @override
+  String get deskOwnAdd => '添加…';
+
+  @override
+  String get deskOwnUpdate => '更新…';
+
+  @override
+  String get deskOwnRemove => '移除';
+
+  @override
+  String get deskOwnAdded => '已添加所有者访问';
+
+  @override
+  String get deskOwnRemoved => '已移除所有者访问';
+
+  @override
+  String deskOwnDlgTitle(String host) {
+    return '$host 的所有者访问';
+  }
+
+  @override
+  String get deskOwnDlgWhere =>
+      '密钥是节点数据文件夹中 .api_secret 文件的第一行（节点电脑上的 ~/.epic/main）。';
+
+  @override
+  String get deskOwnDlgPaste => '粘贴密钥';
+
+  @override
+  String get deskOwnDlgPick => '选择文件…';
+
+  @override
+  String deskOwnDlgFileRead(String file) {
+    return '已从 $file 读取';
+  }
+
+  @override
+  String get deskOwnDlgFileEmpty => '该文件中没有密钥';
+
+  @override
+  String get deskOwnDlgPlainTitle => '密钥会在家庭网络中未加密传输';
+
+  @override
+  String get deskOwnDlgPlainText =>
+      '如果网络只有你在用，这没有问题。其他情况下，请通过 VPN、https 连接节点，或在节点的电脑上运行钱包。';
+
+  @override
+  String get deskOwnDlgPlainAgain => '此节点不再提示';
+
+  @override
+  String get deskOwnDlgRefused => '节点拒绝了此密钥';
+
+  @override
+  String get deskOwnDlgNoAnswer => '节点没有响应；密钥已保留';
+
+  @override
+  String get deskOwnDlgAdd => '添加';
+
+  @override
+  String get deskOwnDownTitle => '你的节点没有响应';
+
+  @override
+  String deskOwnDownText(String host) {
+    return '期间钱包使用 $host，你的节点连续响应两次后会切换回来。';
+  }
+
+  @override
+  String deskOwnUsingMeanwhile(String host) {
+    return '期间使用 $host';
+  }
+
+  @override
+  String deskOwnUsingUntilSynced(String host) {
+    return '同步完成前使用 $host';
+  }
+
+  @override
+  String get deskOwnTryNow => '立即重试';
+
+  @override
+  String deskOwnUseForGood(String host) {
+    return '一直使用 $host';
+  }
+
+  @override
+  String get deskOwnSyncTitle => '在你的节点同步完成前使用公共节点？';
+
+  @override
+  String deskOwnSyncText(String host) {
+    return '钱包无法通过正在同步的节点发送或接收。$host 可以暂时替代；你的节点开始接受交易后，钱包会切换回来。';
+  }
+
+  @override
+  String get deskOwnWaitForMine => '等待我的节点';
+
+  @override
+  String deskOwnSyncUsingTitle(String host) {
+    return '同步完成前使用 $host';
+  }
+
+  @override
+  String get deskOwnSyncUsingText => '你的节点开始接受交易后，钱包会切换回来。';
+
+  @override
+  String get deskOwnMine => '这是我的节点';
+
+  @override
+  String get deskOwnMineHint =>
+      '直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。';
+
+  @override
+  String get deskOwnListNote => '你自己的节点会被直接询问。';
+
+  @override
+  String get deskOwnSlotSyncing => '你的节点正在同步';
 }

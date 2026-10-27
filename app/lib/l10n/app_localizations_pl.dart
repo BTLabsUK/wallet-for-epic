@@ -17146,4 +17146,211 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOnbUnlockOpened(String when) {
     return 'Otwarty $when';
   }
+
+  @override
+  String get deskOwnYourNode => 'Twój węzeł';
+
+  @override
+  String deskOwnLabel(String where) {
+    return 'Twój węzeł · $where';
+  }
+
+  @override
+  String get deskOwnClassThisComputer => 'ten komputer';
+
+  @override
+  String get deskOwnClassHome => 'sieć domowa';
+
+  @override
+  String get deskOwnClassVpn => 'VPN';
+
+  @override
+  String get deskOwnFactMempool => 'Mempool';
+
+  @override
+  String get deskOwnPoolEmpty => 'pusty';
+
+  @override
+  String deskOwnPoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count czeka',
+      many: '$count czeka',
+      few: '$count czekają',
+      one: '1 czeka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceSite =>
+      'Pytany bezpośrednio co 15 s · szczyt z status.btlabs.uk';
+
+  @override
+  String deskOwnSourceNodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pytany bezpośrednio co 15 s · szczyt z $count publicznych węzłów',
+      many: 'Pytany bezpośrednio co 15 s · szczyt z $count publicznych węzłów',
+      few: 'Pytany bezpośrednio co 15 s · szczyt z $count publicznych węzłów',
+      one: 'Pytany bezpośrednio co 15 s · szczyt z 1 publicznego węzła',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceNone =>
+      'Pytany bezpośrednio co 15 s · brak szczytu sieci do porównania';
+
+  @override
+  String get deskOwnSyncingLine =>
+      'Dopóki się nie zsynchronizuje, portfel nie wyśle ani nie odbierze przez niego płatności';
+
+  @override
+  String get deskOwnAccess => 'Dostęp właściciela';
+
+  @override
+  String get deskOwnAccessHint =>
+      'Sekret właściciela węzła pokazuje tu etap synchronizacji i peery oraz pozwala zablokować peera. Jest w pęku kluczy tego komputera, nigdy w ustawieniach ani w pliku danych portfela.';
+
+  @override
+  String get deskOwnAccessNotSet => 'Nie ustawiono';
+
+  @override
+  String get deskOwnAccessOn => 'Dodano';
+
+  @override
+  String deskOwnAccessRefused(String time) {
+    return 'Odrzucany od $time';
+  }
+
+  @override
+  String get deskOwnAccessRefusedBadge => 'Odrzucony';
+
+  @override
+  String get deskOwnAccessTor => 'Nieużywany, gdy Tor jest włączony';
+
+  @override
+  String get deskOwnAccessNote =>
+      'Peery i szczegóły synchronizacji pochodzą z API właściciela węzła. Start, stop i folder danych zostają na komputerze węzła.';
+
+  @override
+  String get deskOwnAdd => 'Dodaj…';
+
+  @override
+  String get deskOwnUpdate => 'Zmień…';
+
+  @override
+  String get deskOwnRemove => 'Usuń';
+
+  @override
+  String get deskOwnAdded => 'Dodano dostęp właściciela';
+
+  @override
+  String get deskOwnRemoved => 'Usunięto dostęp właściciela';
+
+  @override
+  String deskOwnDlgTitle(String host) {
+    return 'Dostęp właściciela do $host';
+  }
+
+  @override
+  String get deskOwnDlgWhere =>
+      'Sekret to pierwszy wiersz pliku .api_secret w folderze danych węzła (~/.epic/main na komputerze węzła).';
+
+  @override
+  String get deskOwnDlgPaste => 'Wklej sekret';
+
+  @override
+  String get deskOwnDlgPick => 'Wybierz plik…';
+
+  @override
+  String deskOwnDlgFileRead(String file) {
+    return 'Odczytano z $file';
+  }
+
+  @override
+  String get deskOwnDlgFileEmpty => 'Ten plik nie zawiera sekretu';
+
+  @override
+  String get deskOwnDlgPlainTitle =>
+      'Sekret idzie przez sieć domową bez szyfrowania';
+
+  @override
+  String get deskOwnDlgPlainText =>
+      'W porządku w sieci, z której korzystasz tylko ty. W innym razie łącz się z węzłem przez VPN, przez https albo uruchom portfel na komputerze węzła.';
+
+  @override
+  String get deskOwnDlgPlainAgain => 'Nie pokazuj więcej dla tego węzła';
+
+  @override
+  String get deskOwnDlgRefused => 'Węzeł odrzucił ten sekret';
+
+  @override
+  String get deskOwnDlgNoAnswer => 'Węzeł nie odpowiedział; sekret zachowano';
+
+  @override
+  String get deskOwnDlgAdd => 'Dodaj';
+
+  @override
+  String get deskOwnDownTitle => 'Twój węzeł nie odpowiada';
+
+  @override
+  String deskOwnDownText(String host) {
+    return 'Portfel w międzyczasie używa $host i wraca, gdy twój węzeł odpowie dwa razy z rzędu.';
+  }
+
+  @override
+  String deskOwnUsingMeanwhile(String host) {
+    return 'w międzyczasie $host';
+  }
+
+  @override
+  String deskOwnUsingUntilSynced(String host) {
+    return '$host do synchronizacji';
+  }
+
+  @override
+  String get deskOwnTryNow => 'Spróbuj teraz';
+
+  @override
+  String deskOwnUseForGood(String host) {
+    return 'Używaj $host na stałe';
+  }
+
+  @override
+  String get deskOwnSyncTitle =>
+      'Używać publicznego węzła, dopóki twój się nie zsynchronizuje?';
+
+  @override
+  String deskOwnSyncText(String host) {
+    return 'Przez węzeł w trakcie synchronizacji portfel nie wyśle ani nie odbierze płatności. $host może go zastąpić; portfel wróci, gdy twój węzeł zacznie przyjmować transakcje.';
+  }
+
+  @override
+  String get deskOwnWaitForMine => 'Czekaj na mój węzeł';
+
+  @override
+  String deskOwnSyncUsingTitle(String host) {
+    return '$host do synchronizacji twojego węzła';
+  }
+
+  @override
+  String get deskOwnSyncUsingText =>
+      'Portfel wróci, gdy twój węzeł zacznie przyjmować transakcje.';
+
+  @override
+  String get deskOwnMine => 'To mój węzeł';
+
+  @override
+  String get deskOwnMineHint =>
+      'Pyta sam węzeł zamiast status.btlabs.uk i oferuje dostęp właściciela. Dla węzła, który prowadzisz sam.';
+
+  @override
+  String get deskOwnListNote => 'Twoje własne węzły są pytane bezpośrednio.';
+
+  @override
+  String get deskOwnSlotSyncing => 'Twój węzeł się synchronizuje';
 }

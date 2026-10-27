@@ -117,13 +117,19 @@ List<String> failoverCandidates({
 
 /// A node the wallet moved to for this session, instead of the [chosen] one.
 class NodeFailover {
-  const NodeFailover({required this.chosen, required this.inUse});
+  const NodeFailover({required this.chosen, required this.inUse, this.at, this.syncing = false});
 
   /// The node the user chose: saved, used at the next start.
   final String chosen;
 
   /// The node in use now.
   final String inUse;
+
+  /// When the wallet moved ("since 14:02").
+  final DateTime? at;
+
+  /// The chosen node is the user's own and syncing (the D-7 answer), not down.
+  final bool syncing;
 
   @override
   bool operator ==(Object other) => other is NodeFailover && other.chosen == chosen && other.inUse == inUse;

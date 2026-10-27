@@ -17107,4 +17107,215 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbUnlockOpened(String when) {
     return 'Открыт $when';
   }
+
+  @override
+  String get deskOwnYourNode => 'Ваш узел';
+
+  @override
+  String deskOwnLabel(String where) {
+    return 'Ваш узел · $where';
+  }
+
+  @override
+  String get deskOwnClassThisComputer => 'этот компьютер';
+
+  @override
+  String get deskOwnClassHome => 'домашняя сеть';
+
+  @override
+  String get deskOwnClassVpn => 'VPN';
+
+  @override
+  String get deskOwnFactMempool => 'Мемпул';
+
+  @override
+  String get deskOwnPoolEmpty => 'пусто';
+
+  @override
+  String deskOwnPoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ждут',
+      many: '$count ждут',
+      few: '$count ждут',
+      one: '$count ждёт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceSite =>
+      'Опрашивается напрямую каждые 15 с · вершина от status.btlabs.uk';
+
+  @override
+  String deskOwnSourceNodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Опрашивается напрямую каждые 15 с · вершина от $count публичных узлов',
+      many:
+          'Опрашивается напрямую каждые 15 с · вершина от $count публичных узлов',
+      few:
+          'Опрашивается напрямую каждые 15 с · вершина от $count публичных узлов',
+      one:
+          'Опрашивается напрямую каждые 15 с · вершина от $count публичного узла',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceNone =>
+      'Опрашивается напрямую каждые 15 с · нет вершины сети для сравнения';
+
+  @override
+  String get deskOwnSyncingLine =>
+      'Пока он не синхронизирован, кошелёк не может через него отправлять и получать';
+
+  @override
+  String get deskOwnAccess => 'Доступ владельца';
+
+  @override
+  String get deskOwnAccessHint =>
+      'Секрет владельца узла показывает здесь этап синхронизации и пиров и позволяет заблокировать пира. Он хранится в связке ключей этого компьютера, никогда в настройках или файле данных кошелька.';
+
+  @override
+  String get deskOwnAccessNotSet => 'Не настроен';
+
+  @override
+  String get deskOwnAccessOn => 'Добавлен';
+
+  @override
+  String deskOwnAccessRefused(String time) {
+    return 'Отклоняется с $time';
+  }
+
+  @override
+  String get deskOwnAccessRefusedBadge => 'Отклонён';
+
+  @override
+  String get deskOwnAccessTor => 'Не используется, пока включён Tor';
+
+  @override
+  String get deskOwnAccessNote =>
+      'Пиры и детали синхронизации берутся из API владельца узла. Запуск, остановка и папка данных остаются на компьютере узла.';
+
+  @override
+  String get deskOwnAdd => 'Добавить…';
+
+  @override
+  String get deskOwnUpdate => 'Обновить…';
+
+  @override
+  String get deskOwnRemove => 'Удалить';
+
+  @override
+  String get deskOwnAdded => 'Доступ владельца добавлен';
+
+  @override
+  String get deskOwnRemoved => 'Доступ владельца удалён';
+
+  @override
+  String deskOwnDlgTitle(String host) {
+    return 'Доступ владельца к $host';
+  }
+
+  @override
+  String get deskOwnDlgWhere =>
+      'Секрет — первая строка файла .api_secret в папке данных узла (~/.epic/main на компьютере узла).';
+
+  @override
+  String get deskOwnDlgPaste => 'Вставьте секрет';
+
+  @override
+  String get deskOwnDlgPick => 'Выбрать файл…';
+
+  @override
+  String deskOwnDlgFileRead(String file) {
+    return 'Прочитано из $file';
+  }
+
+  @override
+  String get deskOwnDlgFileEmpty => 'В этом файле нет секрета';
+
+  @override
+  String get deskOwnDlgPlainTitle =>
+      'Секрет идёт по домашней сети без шифрования';
+
+  @override
+  String get deskOwnDlgPlainText =>
+      'Допустимо в сети, которой пользуетесь только вы. Иначе подключайтесь к узлу через VPN, по https или запустите кошелёк на компьютере узла.';
+
+  @override
+  String get deskOwnDlgPlainAgain => 'Больше не показывать для этого узла';
+
+  @override
+  String get deskOwnDlgRefused => 'Узел отклонил этот секрет';
+
+  @override
+  String get deskOwnDlgNoAnswer => 'Узел не ответил; секрет сохранён';
+
+  @override
+  String get deskOwnDlgAdd => 'Добавить';
+
+  @override
+  String get deskOwnDownTitle => 'Ваш узел не отвечает';
+
+  @override
+  String deskOwnDownText(String host) {
+    return 'Пока кошелёк использует $host и вернётся, когда ваш узел ответит два раза подряд.';
+  }
+
+  @override
+  String deskOwnUsingMeanwhile(String host) {
+    return 'пока используется $host';
+  }
+
+  @override
+  String deskOwnUsingUntilSynced(String host) {
+    return '$host до синхронизации';
+  }
+
+  @override
+  String get deskOwnTryNow => 'Повторить';
+
+  @override
+  String deskOwnUseForGood(String host) {
+    return 'Использовать $host всегда';
+  }
+
+  @override
+  String get deskOwnSyncTitle =>
+      'Использовать публичный узел, пока ваш синхронизируется?';
+
+  @override
+  String deskOwnSyncText(String host) {
+    return 'Через синхронизирующийся узел кошелёк не может отправлять и получать. $host может его заменить; кошелёк вернётся, когда ваш узел начнёт принимать транзакции.';
+  }
+
+  @override
+  String get deskOwnWaitForMine => 'Ждать мой узел';
+
+  @override
+  String deskOwnSyncUsingTitle(String host) {
+    return '$host до синхронизации вашего узла';
+  }
+
+  @override
+  String get deskOwnSyncUsingText =>
+      'Кошелёк вернётся, когда ваш узел начнёт принимать транзакции.';
+
+  @override
+  String get deskOwnMine => 'Это мой узел';
+
+  @override
+  String get deskOwnMineHint =>
+      'Опрашивает сам узел вместо status.btlabs.uk и предлагает доступ владельца. Для узла, который вы держите сами.';
+
+  @override
+  String get deskOwnListNote => 'Ваши узлы опрашиваются напрямую.';
+
+  @override
+  String get deskOwnSlotSyncing => 'Ваш узел синхронизируется';
 }

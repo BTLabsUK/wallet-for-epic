@@ -1,6 +1,8 @@
 /// The Peers tab of the local node panel (spec §20): the connected peers in a fixed-column
 /// table (eight rows, then "N more"), Ban on hover or focus, the banned list with Unban,
-/// preferred peers and the two maxima (they apply at the next restart).
+/// preferred peers and the two maxima (they apply at the next restart). For an own node with
+/// owner access ([PeersTab.ownUrl]) the same table and lists through its owner API; its peer
+/// settings stay on the node's own computer.
 library;
 
 import 'package:flutter/material.dart';
@@ -31,10 +33,13 @@ const int peerMaxDefault = 128;
 const int peersShown = 8;
 
 class PeersTab extends ConsumerStatefulWidget {
-  const PeersTab({super.key, required this.restartNeeded, this.onRestart});
+  const PeersTab({super.key, required this.restartNeeded, this.onRestart, this.ownUrl});
 
   final bool restartNeeded;
   final VoidCallback? onRestart;
+
+  /// An own node's URL: its peers, not the built-in node's.
+  final String? ownUrl;
 
   @override
   ConsumerState<PeersTab> createState() => _PeersTabState();
@@ -66,16 +71,23 @@ class _PeersTabState extends ConsumerState<PeersTab> {
 
   Future<void> _ban(String addr) async {
     final l = context.l10n;
-    await ref.read(deskNodeProvider).ban(addr);
-    ref.invalidate(deskPeersProvider);
+    final own = widget.ownUrl;
+    own == null ? await ref.read(deskNodeProvider).ban(addr) : await ref.read(deskNodeProvider).ownBan(own, addr);
+    _reload();
     if (mounted) showEToast(context, l.deskSetPeersBannedToast, text: addr, tone: ETone.ok);
   }
 
   Future<void> _unban(String addr) async {
     final l = context.l10n;
-    await ref.read(deskNodeProvider).unban(addr);
-    ref.invalidate(deskPeersProvider);
+    final own = widget.ownUrl;
+    own == null ? await ref.read(deskNodeProvider).unban(addr) : await ref.read(deskNodeProvider).ownUnban(own, addr);
+    _reload();
     if (mounted) showEToast(context, l.deskSetPeersUnbannedToast, text: addr, tone: ETone.ok);
+  }
+
+  void _reload() {
+    final own = widget.ownUrl;
+    own == null ? ref.invalidate(deskPeersProvider) : ref.invalidate(deskOwnPeersProvider(own));
   }
 
   Future<void> _addPreferred(NodeTomlOptions o) async {
@@ -137,8 +149,9 @@ class _PeersTabState extends ConsumerState<PeersTab> {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final snap = ref.watch(deskPeersProvider).value;
-    final options = ref.watch(localNodeOptionsProvider).value;
+    final own = widget.ownUrl;
+    final snap = own == null ? ref.watch(deskPeersProvider).value : ref.watch(deskOwnPeersProvider(own)).value;
+    final options = own == null ? ref.watch(localNodeOptionsProvider).value : null;
     if (options != null && !_filled) {
       _filled = true;
       _maxIn.text = '${options.maxInbound ?? peerMaxDefault}';
@@ -297,6 +310,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               ),
             ),
         ],
+        if (own == null) ...[
         SizedBox(height: Sp.x4),
         Divider(height: 1, thickness: 1, color: c.line),
         SizedBox(height: Sp.x3),
@@ -385,6 +399,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
           l.deskSetPeersNote(peerMaxMin, peerMaxMax, peerMaxDefault),
           style: ts.caption.copyWith(color: c.faint),
         ),
+        ],
       ],
     );
   }

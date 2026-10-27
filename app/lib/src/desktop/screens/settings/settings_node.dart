@@ -19,13 +19,21 @@ import '../../data/server_lists.dart';
 import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
 import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
+import 'own_node_panel.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
-enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down }
+/// The own* states show a home-network node ([ownDemoUrl]): tier 1, with owner access, its
+/// peers, the Owner access dialog, syncing, and down with a public node standing in.
+enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down, own, ownAccess, ownPeers, ownDialog, ownSyncing, ownDown }
+
+/// The tour's own node.
+const String ownDemoUrl = 'http://10.0.1.24:3413'; // l10n-ok: a node address
+
+bool _ownDemo(Object? arg) => arg is NodeDemo && arg.name.startsWith('own');
 
 /// A typed node address as a URL: as typed when it has a scheme; else https, except this
 /// computer and the local network, where nodes answer plain http.
@@ -60,7 +68,7 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 };
 
 /// The picker's footer under the node list.
-String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
+String nodeListNoteText(AppLocalizations l) => '${l.deskSetNodeListNote} ${l.deskOwnListNote}';
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
@@ -177,6 +185,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
       });
     }
+    if (_ownDemo(arg)) Future.microtask(_demoOwn);
     Future.microtask(_demoCard);
   }
 
@@ -214,6 +223,49 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         api.infos.remove(host);
     }
     if (before != api.infos[host]) ref.invalidate(deskNodeInfoProvider(url));
+  }
+
+  /// The tour's own-node states, through the mock node layer.
+  Future<void> _demoOwn() async {
+    if (!mounted) return;
+    final api = ref.read(deskNodeProvider);
+    if (api is! MockDeskNode) return;
+    final arg = widget.arg;
+    final host = nodeHost(ownDemoUrl);
+    api.infos[host] = mockOwnNodeInfo(
+      ownDemoUrl,
+      head: switch (arg) {
+        NodeDemo.ownSyncing => NodeHead.syncing,
+        NodeDemo.ownDown => NodeHead.down,
+        _ => NodeHead.synced,
+      },
+      behind: arg == NodeDemo.ownSyncing ? 12340 : 0,
+    );
+    api.ownStatus = arg == NodeDemo.ownSyncing
+        ? OwnNodeStatus(
+            at: DateTime(2026, 10, 22, 14, 2),
+            syncStatus: 'txhashset_kernels_validation',
+            progress: const SyncProgress(SyncStage.chainStateKernels, overall: 0.64, done: 3100000, total: 4800000),
+            peers: 9,
+            version: '4.1.1',
+            height: mockTip - 12340,
+          )
+        : null;
+    if (arg == NodeDemo.ownAccess || arg == NodeDemo.ownPeers || arg == NodeDemo.ownSyncing) {
+      await api.addOwnerSecret(ownDemoUrl, api.ownerSecret);
+    } else {
+      await api.removeOwnerSecret(ownDemoUrl);
+    }
+    if (!mounted) return;
+    final p = ref.read(settingsPrefsProvider);
+    ref.read(settingsPrefsProvider.notifier).set(
+      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: '4.1.1', own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
+    );
+    if (arg == NodeDemo.ownDown) {
+      ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: 'https://node.btlabs.uk', at: DateTime(2026, 10, 22, 14, 2))); // l10n-ok: a node address
+    }
+    ref.invalidate(deskNodeInfoProvider(ownDemoUrl));
+    ref.invalidate(deskOwnerSecretProvider(ownDemoUrl));
   }
 
   /// The tour's panel states.
@@ -321,6 +373,11 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final value = prefs.builtin ? builtinNode : current.url;
     // Node failover stands in for the chosen node this session: the field says which.
     final failover = prefs.typedNode == null ? ref.watch(deskFailoverProvider) : null;
+    // The user's own node: its panel shows the chosen node, also while a public one stands in.
+    final chosenUrl = failover?.chosen ?? current.url;
+    final mine = prefs.mineNodes.contains(chosenUrl);
+    final chosenInfo = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(chosenUrl)).value;
+    final own = !prefs.builtin && shownClass(chosenUrl, chosenInfo, mine: mine).own;
     final local = ref.watch(deskLocalNodeProvider).value;
     final info = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(current.url)).value;
     // A figure measured the other way is dropped at once (shownLatency); the node is asked
@@ -339,8 +396,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
     final NodeView view = prefs.builtin
         ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
+        : own
+        ? remoteNodeView(context.l10n, chosenUrl, chosenInfo, health: failover == null && nodeHealth == ServiceHealth.ok ? nodeHealth : null, mine: mine)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
-    final down = view.state == EState.risk && !prefs.builtin;
+    final down = view.state == EState.risk && !prefs.builtin && !own;
     // The Switch action's target: the healthy listed node with the lowest latency.
     SwitchTarget? best;
     if (down) {
@@ -363,6 +422,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
     return SettingsFrame(
       route: DeskRoute.settingsNode,
+      // The panel's facts, tiles, charts and peers table use a big screen's width.
+      width: SettingsWidth.wide,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -382,7 +443,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   title: l.deskSetNodeServer,
                   hint: l.deskSetNodeServerHint,
                   stacked: true,
-                  control: ServerListPanel(
+                  // The picker keeps a form's width; the panel under it takes the page's.
+                  control: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: Ctl.narrow),
+                    child: ServerListPanel(
                     key: _panel,
                     kind: ServerKind.node,
                     label: l.deskSetNodeServer,
@@ -399,7 +465,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       EState.risk => ETone.risk,
                       EState.off => ETone.neutral,
                     },
-                    servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels),
+                    servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
+                      final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
+                      return c.own ? ownLabel(l, c, url) : null;
+                    }),
                     source: nodeSource(nodes, removedNodes: prefs.removedNodes, inUse: prefs.builtin ? null : current.url),
                     // Advanced › Built-in node; the node in use stays listed.
                     local: DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
@@ -412,8 +481,18 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     onChoose: _pick,
                     onTest: _test,
                   ),
+                  ),
+                  ),
                 ),
-                if (!prefs.builtin)
+                if (own)
+                  OwnNodePanel(
+                    key: ValueKey('own-$chosenUrl'),
+                    url: chosenUrl,
+                    health: nodeHealth,
+                    initialTab: widget.arg == NodeDemo.ownPeers ? LocalTab.peers : LocalTab.status,
+                    openAccess: widget.arg == NodeDemo.ownDialog,
+                  ),
+                if (!prefs.builtin && !own)
                   Padding(
                     padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
                     child: NodeCard(
@@ -423,6 +502,17 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       torOn: torOn,
                       switchTo: best,
                       onSwitch: (t) => _useRemote(t.url),
+                    ),
+                  ),
+                // A listed https node the user also runs: marked as theirs, it is asked directly.
+                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
+                  ESetRow(
+                    title: l.deskOwnMine,
+                    hint: l.deskOwnMineHint,
+                    control: ESwitch(
+                      value: mine,
+                      semanticLabel: l.deskOwnMine,
+                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
                     ),
                   ),
                 if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),

@@ -14,10 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
 import '../../node/local_node_state.dart' show LocalNodePhase;
-import '../data/desk_node.dart' show deskLocalNodeProvider;
+import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
-import '../data/node_view.dart' show localNodeView;
+import '../data/node_view.dart' show localNodeView, digits, percent;
+import 'desk_failover.dart' show deskFailoverProvider;
 import '../../l10n.dart' show localInt;
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
@@ -173,6 +174,30 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
         ),
       );
+    }
+  }
+  // 8. The user's own node syncing (own-node spec §5): its progress here, its health on the rail.
+  if (!ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
+    final prefs = ref.watch(settingsPrefsProvider);
+    final chosen = ref.watch(deskFailoverProvider)?.chosen ?? (prefs.typedNode ?? status?.node)?.url;
+    if (chosen != null && nodeClassOf(chosen, mine: prefs.mineNodes.contains(chosen)).own) {
+      final info = ref.watch(deskNodeInfoProvider(chosen)).value;
+      if (info?.head == NodeHead.syncing) {
+        final has = ref.watch(deskOwnerSecretProvider(chosen)).value ?? false;
+        final owner = has ? ref.watch(deskOwnStatusProvider((url: chosen, tip: info!.networkHeight))).value : null;
+        final behind = info!.blocksBehind;
+        items.add(
+          NowItem(
+            id: 'own-node',
+            icon: EIcons.node,
+            tone: ETone.info,
+            title: l.deskOwnSlotSyncing,
+            detail: owner?.progress?.overall != null ? percent(owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
+            progress: -1,
+            hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
+          ),
+        );
+      }
     }
   }
   if (downloading != null) items.add(downloading);

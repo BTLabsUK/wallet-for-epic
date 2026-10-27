@@ -26476,6 +26476,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opened {when}'**
   String deskOnbUnlockOpened(String when);
+
+  /// Name of the user's own node (on this computer, the home network, a VPN or their own server) on the sidebar status row and in its tooltip, where a public node shows its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node'**
+  String get deskOwnYourNode;
+
+  /// Label of the user's own node on its panel and its row in the node list. {where} is deskOwnClassThisComputer, deskOwnClassHome, deskOwnClassVpn or the host of their own server.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node · {where}'**
+  String deskOwnLabel(String where);
+
+  /// Where the user's own node runs: on this computer (localhost). After 'Your node · '. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'this computer'**
+  String get deskOwnClassThisComputer;
+
+  /// Where the user's own node runs: on the local (home) network, a 192.168.x.x or .lan address. After 'Your node · '. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'home network'**
+  String get deskOwnClassHome;
+
+  /// Where the user's own node runs: reached over a VPN such as Tailscale. After 'Your node · '. Keep 'VPN'.
+  ///
+  /// In en, this message translates to:
+  /// **'VPN'**
+  String get deskOwnClassVpn;
+
+  /// Label of a fact on the own node's panel: the transactions waiting in the node's memory pool. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Mempool'**
+  String get deskOwnFactMempool;
+
+  /// Value of the Mempool fact when no transaction waits. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get deskOwnPoolEmpty;
+
+  /// Value of the Mempool fact: this many transactions wait in the node's mempool.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 waiting} other{{count} waiting}}'**
+  String deskOwnPoolWaiting(int count);
+
+  /// Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked directly every 15 s · tip from status.btlabs.uk'**
+  String get deskOwnSourceSite;
+
+  /// Source line under the own node's facts when the status site does not answer: the network tip is the median of this many public nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Asked directly every 15 s · tip from 1 public node} other{Asked directly every 15 s · tip from {count} public nodes}}'**
+  String deskOwnSourceNodes(int count);
+
+  /// Source line under the own node's facts when no network tip is known (status site and public nodes unreachable).
+  ///
+  /// In en, this message translates to:
+  /// **'Asked directly every 15 s · no network tip to compare with'**
+  String get deskOwnSourceNone;
+
+  /// Tooltip line of the sidebar node row while the user's own node syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet cannot send or receive through it until it is synced'**
+  String get deskOwnSyncingLine;
+
+  /// Title of the row on the own node's panel for the node's owner secret (.api_secret), which unlocks peers and sync details.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner access'**
+  String get deskOwnAccess;
+
+  /// Hint behind the info icon of the Owner access row.
+  ///
+  /// In en, this message translates to:
+  /// **'The node\'s owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer\'s keyring, never in the settings or the wallet data file.'**
+  String get deskOwnAccessHint;
+
+  /// State of the Owner access row: no secret added.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get deskOwnAccessNotSet;
+
+  /// State of the Owner access row: the secret is added and the node takes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get deskOwnAccessOn;
+
+  /// State of the Owner access row: the node refuses the stored secret (its owner changed it) since this time (HH:MM).
+  ///
+  /// In en, this message translates to:
+  /// **'Refused since {time}'**
+  String deskOwnAccessRefused(String time);
+
+  /// Warn badge on the Owner access row when the node refuses the stored secret. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Refused'**
+  String get deskOwnAccessRefusedBadge;
+
+  /// State of the Owner access row for the user's own https server while the Tor switch is on: the secret is never sent over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not used while Tor is on'**
+  String get deskOwnAccessTor;
+
+  /// Note under the own node's status tiles once owner access is added.
+  ///
+  /// In en, this message translates to:
+  /// **'Peers and sync details come from the node\'s owner API. Start, stop and the data folder stay on the node\'s own computer.'**
+  String get deskOwnAccessNote;
+
+  /// Button on the Owner access row: opens the dialog to add the node's secret.
+  ///
+  /// In en, this message translates to:
+  /// **'Add…'**
+  String get deskOwnAdd;
+
+  /// Button on the Owner access row when the node refuses the stored secret: enter the new one.
+  ///
+  /// In en, this message translates to:
+  /// **'Update…'**
+  String get deskOwnUpdate;
+
+  /// Button on the Owner access row: forget the stored secret (the node stays in the list).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get deskOwnRemove;
+
+  /// Toast after the node took the secret.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner access added'**
+  String get deskOwnAdded;
+
+  /// Toast after the stored secret was forgotten.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner access removed'**
+  String get deskOwnRemoved;
+
+  /// Title of the dialog that adds the node's owner secret. {host} is the node's address with port.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner access to {host}'**
+  String deskOwnDlgTitle(String host);
+
+  /// Description of the Owner access dialog: where the secret is. Keep .api_secret and ~/.epic/main as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'The secret is the first line of the file .api_secret in the node\'s data folder (~/.epic/main on the node\'s computer).'**
+  String get deskOwnDlgWhere;
+
+  /// Label of the password field in the Owner access dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the secret'**
+  String get deskOwnDlgPaste;
+
+  /// Button in the Owner access dialog (node on this computer only): choose the .api_secret file; also the file dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the file…'**
+  String get deskOwnDlgPick;
+
+  /// Line under the secret field after a file was picked. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from {file}'**
+  String deskOwnDlgFileRead(String file);
+
+  /// Error under the secret field: the picked file is empty or unreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'That file holds no secret'**
+  String get deskOwnDlgFileEmpty;
+
+  /// Warn notice title in the Owner access dialog for a plain-http node on the home network.
+  ///
+  /// In en, this message translates to:
+  /// **'The secret travels unencrypted on the home network'**
+  String get deskOwnDlgPlainTitle;
+
+  /// Warn notice text in the Owner access dialog for a plain-http node on the home network.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node\'s computer.'**
+  String get deskOwnDlgPlainText;
+
+  /// Checkbox under the plain-http warning in the Owner access dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show again for this node'**
+  String get deskOwnDlgPlainAgain;
+
+  /// Error under the secret field: the node answered 401 to the secret.
+  ///
+  /// In en, this message translates to:
+  /// **'The node refused this secret'**
+  String get deskOwnDlgRefused;
+
+  /// Toast after adding a secret while the node did not answer: it is kept and checked again later.
+  ///
+  /// In en, this message translates to:
+  /// **'The node did not answer; the secret was kept'**
+  String get deskOwnDlgNoAnswer;
+
+  /// Primary button of the Owner access dialog: check the secret and keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get deskOwnDlgAdd;
+
+  /// Risk notice title on the own node's panel while a public node stands in for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node is not answering'**
+  String get deskOwnDownTitle;
+
+  /// Risk notice text on the own node's panel. {host} is the public node standing in.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet uses {host} meanwhile and moves back after your node answers twice in a row.'**
+  String deskOwnDownText(String host);
+
+  /// Detail after 'Not answering' in the own node's panel head. {host} is the public node standing in. Lowercase start.
+  ///
+  /// In en, this message translates to:
+  /// **'using {host} meanwhile'**
+  String deskOwnUsingMeanwhile(String host);
+
+  /// Detail after 'Syncing' in the own node's panel head while a public node stands in. Lowercase start.
+  ///
+  /// In en, this message translates to:
+  /// **'using {host} until it is synced'**
+  String deskOwnUsingUntilSynced(String host);
+
+  /// Button on the not-answering notice: ask the own node again now and move back when it answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Try now'**
+  String get deskOwnTryNow;
+
+  /// Button on the not-answering notice: make the standing-in public node the chosen one. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {host} for good'**
+  String deskOwnUseForGood(String host);
+
+  /// Notice title on the own node's panel while it syncs and nothing was answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a public node until your node is synced?'**
+  String get deskOwnSyncTitle;
+
+  /// Notice text on the own node's panel while it syncs. {host} is the public node that would stand in.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet cannot send or receive through a node that is syncing. {host} can stand in; the wallet moves back once your node accepts transactions.'**
+  String deskOwnSyncText(String host);
+
+  /// Button: keep the wallet on the own node while it syncs (no public node).
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for my node'**
+  String get deskOwnWaitForMine;
+
+  /// Info notice title on the own node's panel while a public node stands in for the syncing own node.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {host} until your node is synced'**
+  String deskOwnSyncUsingTitle(String host);
+
+  /// Info notice text under deskOwnSyncUsingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet moves back once your node accepts transactions.'**
+  String get deskOwnSyncUsingText;
+
+  /// Switch row in Settings › Node for an https node: the user runs it. Then the app asks it directly and offers owner access.
+  ///
+  /// In en, this message translates to:
+  /// **'This is my node'**
+  String get deskOwnMine;
+
+  /// Hint behind the info icon of the 'This is my node' row.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.'**
+  String get deskOwnMineHint;
+
+  /// Second sentence of the node list's foot line.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own nodes are asked directly.'**
+  String get deskOwnListNote;
+
+  /// Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node syncing'**
+  String get deskOwnSlotSyncing;
 }
 
 class _AppLocalizationsDelegate

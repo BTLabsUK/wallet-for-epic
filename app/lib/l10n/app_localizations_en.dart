@@ -16685,4 +16685,207 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbUnlockOpened(String when) {
     return 'Opened $when';
   }
+
+  @override
+  String get deskOwnYourNode => 'Your node';
+
+  @override
+  String deskOwnLabel(String where) {
+    return 'Your node · $where';
+  }
+
+  @override
+  String get deskOwnClassThisComputer => 'this computer';
+
+  @override
+  String get deskOwnClassHome => 'home network';
+
+  @override
+  String get deskOwnClassVpn => 'VPN';
+
+  @override
+  String get deskOwnFactMempool => 'Mempool';
+
+  @override
+  String get deskOwnPoolEmpty => 'empty';
+
+  @override
+  String deskOwnPoolWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count waiting',
+      one: '1 waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceSite =>
+      'Asked directly every 15 s · tip from status.btlabs.uk';
+
+  @override
+  String deskOwnSourceNodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Asked directly every 15 s · tip from $count public nodes',
+      one: 'Asked directly every 15 s · tip from 1 public node',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOwnSourceNone =>
+      'Asked directly every 15 s · no network tip to compare with';
+
+  @override
+  String get deskOwnSyncingLine =>
+      'The wallet cannot send or receive through it until it is synced';
+
+  @override
+  String get deskOwnAccess => 'Owner access';
+
+  @override
+  String get deskOwnAccessHint =>
+      'The node\'s owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer\'s keyring, never in the settings or the wallet data file.';
+
+  @override
+  String get deskOwnAccessNotSet => 'Not set up';
+
+  @override
+  String get deskOwnAccessOn => 'Added';
+
+  @override
+  String deskOwnAccessRefused(String time) {
+    return 'Refused since $time';
+  }
+
+  @override
+  String get deskOwnAccessRefusedBadge => 'Refused';
+
+  @override
+  String get deskOwnAccessTor => 'Not used while Tor is on';
+
+  @override
+  String get deskOwnAccessNote =>
+      'Peers and sync details come from the node\'s owner API. Start, stop and the data folder stay on the node\'s own computer.';
+
+  @override
+  String get deskOwnAdd => 'Add…';
+
+  @override
+  String get deskOwnUpdate => 'Update…';
+
+  @override
+  String get deskOwnRemove => 'Remove';
+
+  @override
+  String get deskOwnAdded => 'Owner access added';
+
+  @override
+  String get deskOwnRemoved => 'Owner access removed';
+
+  @override
+  String deskOwnDlgTitle(String host) {
+    return 'Owner access to $host';
+  }
+
+  @override
+  String get deskOwnDlgWhere =>
+      'The secret is the first line of the file .api_secret in the node\'s data folder (~/.epic/main on the node\'s computer).';
+
+  @override
+  String get deskOwnDlgPaste => 'Paste the secret';
+
+  @override
+  String get deskOwnDlgPick => 'Pick the file…';
+
+  @override
+  String deskOwnDlgFileRead(String file) {
+    return 'Read from $file';
+  }
+
+  @override
+  String get deskOwnDlgFileEmpty => 'That file holds no secret';
+
+  @override
+  String get deskOwnDlgPlainTitle =>
+      'The secret travels unencrypted on the home network';
+
+  @override
+  String get deskOwnDlgPlainText =>
+      'Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node\'s computer.';
+
+  @override
+  String get deskOwnDlgPlainAgain => 'Don\'t show again for this node';
+
+  @override
+  String get deskOwnDlgRefused => 'The node refused this secret';
+
+  @override
+  String get deskOwnDlgNoAnswer =>
+      'The node did not answer; the secret was kept';
+
+  @override
+  String get deskOwnDlgAdd => 'Add';
+
+  @override
+  String get deskOwnDownTitle => 'Your node is not answering';
+
+  @override
+  String deskOwnDownText(String host) {
+    return 'The wallet uses $host meanwhile and moves back after your node answers twice in a row.';
+  }
+
+  @override
+  String deskOwnUsingMeanwhile(String host) {
+    return 'using $host meanwhile';
+  }
+
+  @override
+  String deskOwnUsingUntilSynced(String host) {
+    return 'using $host until it is synced';
+  }
+
+  @override
+  String get deskOwnTryNow => 'Try now';
+
+  @override
+  String deskOwnUseForGood(String host) {
+    return 'Use $host for good';
+  }
+
+  @override
+  String get deskOwnSyncTitle => 'Use a public node until your node is synced?';
+
+  @override
+  String deskOwnSyncText(String host) {
+    return 'The wallet cannot send or receive through a node that is syncing. $host can stand in; the wallet moves back once your node accepts transactions.';
+  }
+
+  @override
+  String get deskOwnWaitForMine => 'Wait for my node';
+
+  @override
+  String deskOwnSyncUsingTitle(String host) {
+    return 'Using $host until your node is synced';
+  }
+
+  @override
+  String get deskOwnSyncUsingText =>
+      'The wallet moves back once your node accepts transactions.';
+
+  @override
+  String get deskOwnMine => 'This is my node';
+
+  @override
+  String get deskOwnMineHint =>
+      'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.';
+
+  @override
+  String get deskOwnListNote => 'Your own nodes are asked directly.';
+
+  @override
+  String get deskOwnSlotSyncing => 'Your node syncing';
 }

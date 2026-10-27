@@ -97,7 +97,8 @@ String panelHost(ServerKind kind, String value) =>
 /// The rows of the wallet's node list: health from the wallet's own checks, behind from the
 /// highest height, older from [released] (else the newest version listed). [labels] are the old
 /// My nodes' labels, shown as the operator of an own node.
-List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}}) {
+/// [ownLabel] gives an own node's row its "Your node · home network" in the operator's place.
+List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}, String? Function(String url)? ownLabel}) {
   final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
   final tip = heights.isEmpty ? null : heights.reduce(math.max);
   var newest = released;
@@ -117,7 +118,7 @@ List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<S
         return PanelServer(
           value: n.url,
           host: panelHost(ServerKind.node, n.url),
-          operator: n.operator ?? (label != null && label.isNotEmpty ? label : (n.label.isEmpty || n.label == nodeHost(n.url) ? null : n.label)),
+          operator: ownLabel?.call(n.url) ?? n.operator ?? (label != null && label.isNotEmpty ? label : (n.label.isEmpty || n.label == nodeHost(n.url) ? null : n.label)),
           listedAs: n.listedAs,
           icon: n.icon,
           state: switch (n.health) {

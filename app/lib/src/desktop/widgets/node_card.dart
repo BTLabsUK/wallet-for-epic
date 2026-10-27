@@ -89,13 +89,13 @@ class NodeCard extends StatelessWidget {
     final directory = i != null && i.source == NodeInfoSource.directory;
     final at = now ?? DateTime.now();
 
-    final facts = <_Fact>[];
+    final facts = <NodeFact>[];
     if (limited) {
       final tipAge = i.tipTime == null ? null : at.difference(i.tipTime!);
       facts.addAll([
-        _Fact(l.deskKitFactHeight, i.height == null ? '–' : digitsText(l, i.height!), tipAge == null ? null : l.deskKitLastBlock(ageText(l, tipAge))),
-        _Fact(l.deskKitFactVersion, i.version == null ? '–' : i.version!, null),
-        _Fact(
+        NodeFact(l.deskKitFactHeight, i.height == null ? '–' : digitsText(l, i.height!), tipAge == null ? null : l.deskKitLastBlock(ageText(l, tipAge))),
+        NodeFact(l.deskKitFactVersion, i.version == null ? '–' : i.version!, null),
+        NodeFact(
           l.deskKitFactAccepts,
           switch (i.readyForTxs) {
             true => l.deskKitFactYes,
@@ -105,28 +105,28 @@ class NodeCard extends StatelessWidget {
           i.readyForTxs == null ? _unknownReadiness(l, i.version) : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
-        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
+        NodeFact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
       ]);
     } else {
       final behind = i?.blocksBehind;
       final old = i?.updateAvailable == true;
       facts.addAll([
-        _Fact(
+        NodeFact(
           l.deskKitFactHeight,
           i?.height == null || down ? '–' : digitsText(l, i!.height!),
           down ? l.deskKitNodeNoAnswer : (behind == null ? null : (behind <= 0 ? l.deskKitAtTip : l.deskKitBehind(behind, digitsText(l, behind)))),
           tone: down ? EState.risk : (behind == null ? null : (behind <= 0 ? EState.ok : EState.warn)),
         ),
-        _Fact(
+        NodeFact(
           l.deskKitFactVersion,
           i?.version == null ? '–' : i!.version!,
           i?.version == null ? null : (old ? l.deskKitVersionOut('${i!.releasedVersion}') : (i!.releasedVersion == null ? null : l.deskKitVersionLatest)),
           tone: old ? EState.warn : null,
         ),
-        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
-        _Fact(l.deskKitFactUptime, i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', l.deskKitUptimeWindow),
-        _Fact(l.deskKitFactPeers, i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? l.deskKitAtTime(hhmm(i!.at)) : null),
-        _Fact(l.deskKitFactOperator, i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? l.deskKitListedOfficial : null),
+        NodeFact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
+        NodeFact(l.deskKitFactUptime, i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', l.deskKitUptimeWindow),
+        NodeFact(l.deskKitFactPeers, i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? l.deskKitAtTime(hhmm(i!.at)) : null),
+        NodeFact(l.deskKitFactOperator, i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? l.deskKitListedOfficial : null),
       ]);
     }
 
@@ -215,8 +215,8 @@ class _LimitedTag extends StatelessWidget {
 }
 
 /// Label / value / sub, a fixed two-line body so a late value never moves the others.
-class _Fact extends StatelessWidget {
-  const _Fact(this.label, this.value, this.sub, {this.tone});
+class NodeFact extends StatelessWidget {
+  const NodeFact(this.label, this.value, this.sub, {super.key, this.tone});
 
   final String label;
   final String value;

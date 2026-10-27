@@ -49,13 +49,39 @@ String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)} %';
 int? shownLatency(NodeInfo i, {bool torOn = false}) =>
     torOn && !i.latencyOverTor && !i.latencyFromMonitor && !isLocalNodeUrl(i.url) ? null : i.latencyMs;
 
+/// Where an own node is, after "Your node · ": this computer, home network, VPN, or the host
+/// of an own server.
+String ownWhere(AppLocalizations l, NodeClass c, String url) => switch (c) {
+  NodeClass.thisComputer => l.deskOwnClassThisComputer,
+  NodeClass.homeNetwork => l.deskOwnClassHome,
+  NodeClass.vpn => l.deskOwnClassVpn,
+  NodeClass.ownServer || NodeClass.public => nodeHost(url),
+};
+
+/// "Your node · home network".
+String ownLabel(AppLocalizations l, NodeClass c, String url) => l.deskOwnLabel(ownWhere(l, c, url));
+
+/// [url]'s class as the screens show it: the info's (it knows an unlisted https node), else
+/// the address's.
+NodeClass shownClass(String url, NodeInfo? info, {bool mine = false}) => info?.nodeClass ?? nodeClassOf(url, mine: mine);
+
+/// "10.0.1.24:3413": an own node's address with its port, no scheme.
+String ownAddress(String url) {
+  final u = Uri.tryParse(url.contains('://') ? url : 'http://$url');
+  if (u == null || u.host.isEmpty) return url;
+  final host = u.host.contains(':') ? '[${u.host}]' : u.host;
+  return u.hasPort ? '$host:${u.port}' : host;
+}
+
 /// A remote node from its [NodeInfo] (null: nothing known yet). [health] is the wallet's own
 /// view when the info has not come in. A node the wallet itself reaches ([health] ok: its tip
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
-NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false}) {
-  final full = nodeHost(url);
-  final host = railHost('Node', full); // l10n-ok: railHost's kind key
+NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
+  // An own node: "Your node" on the rail, "Your node · 10.0.1.24:3413" in the tooltip.
+  final own = shownClass(url, info, mine: mine).own;
+  final full = own ? '${l.deskOwnYourNode} · ${ownAddress(url)}' : nodeHost(url);
+  final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
   if (probeFailed && health == ServiceHealth.ok) return NodeView(word: l.deskNodeSynced, state: EState.ok, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
@@ -70,6 +96,20 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   }
   if (info == null) return NodeView(word: l.deskNodeChecking, state: EState.off, host: host, lines: [full]);
   final behind = info.blocksBehind;
+  // An own node that is syncing: its own word, how far it has to go.
+  if (own && info.head == NodeHead.syncing) {
+    final h = info.height;
+    return NodeView(
+      word: l.deskNodeSyncing,
+      state: EState.warn,
+      host: host,
+      marker: behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null,
+      lines: [
+        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
+        l.deskOwnSyncingLine,
+      ],
+    );
+  }
   final h = info.height;
   final old = info.updateAvailable == true;
   final latency = shownLatency(info, torOn: torOn);
@@ -78,12 +118,12 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
     if (info.version != null) 'v${info.version}',
     if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
   ].join(' · ');
-  if (behind != null && behind > syncedWithinBlocks) {
+  if ((behind != null && behind > syncedWithinBlocks) || (own && info.head == NodeHead.behind)) {
     return NodeView(
       word: l.deskNodeBehind,
       state: EState.warn,
       host: host,
-      marker: l.deskNodeMarkerBehind(digits(l, behind)),
+      marker: behind == null ? null : l.deskNodeMarkerBehind(digits(l, behind)),
       lines: [
         [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
         l.deskNodeBehindLine,

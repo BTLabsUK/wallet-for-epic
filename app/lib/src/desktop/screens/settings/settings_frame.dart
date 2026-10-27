@@ -30,13 +30,25 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   (DeskRoute.settingsHelp, l.deskSetFrameHelp, EIcons.help),
 ];
 
+/// How far a Settings page grows on a big screen. Every page grows with the window up to a
+/// measure for its content: [form] pages (rows of words and controls, text) up to [Ctl.mid], so
+/// a row's words and its control stay together and text lines stay short (a row's text is
+/// capped at 560 u anyway); a page with [wide] content (the node panel's facts, tiles, charts
+/// and peers table) takes the room up to [settingsWideMax], its panel laying status and
+/// details side by side. Below those widths both fill the column, down to a narrow window.
+enum SettingsWidth { form, wide }
+
+/// The widest a [SettingsWidth.wide] page gets (a 4K window still reads as one panel).
+double get settingsWideMax => 1760.u;
+
 /// The Settings page: title, sub-navigation on the left (a scrolling strip below 1000 px)
 /// and the page on the right.
 class SettingsFrame extends ConsumerWidget {
-  const SettingsFrame({super.key, required this.route, required this.child});
+  const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form});
 
   final DeskRoute route;
   final Widget child;
+  final SettingsWidth width;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,7 +56,10 @@ class SettingsFrame extends ConsumerWidget {
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider));
-    final content = ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: child);
+    final content = Align(
+      alignment: AlignmentDirectional.topStart,
+      child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),
+    );
     return EPage(
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
