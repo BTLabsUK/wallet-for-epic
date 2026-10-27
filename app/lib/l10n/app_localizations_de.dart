@@ -17899,4 +17899,75 @@ class AppLocalizationsDe extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return 'Hier freigegeben · $name sendet sie womöglich noch';
   }
+
+  @override
+  String get deskDevServersNote => 'Wählen Sie bis zu 2.';
+
+  @override
+  String get deskDevServersCancel => 'Änderung abbrechen';
+
+  @override
+  String deskDevServersDown(int down, int n) {
+    return '$down von $n antwortet nicht. Meldungen laufen über den anderen.';
+  }
+
+  @override
+  String get deskDevServersAllDown =>
+      'Kein Server antwortet. Meldungen warten und gehen weiter, sobald einer wieder erreichbar ist.';
+
+  @override
+  String get deskDevServersInfo1 =>
+      'Verknüpfte Geräte schicken sich Meldungen über diese Server. Jede Meldung geht an alle gewählten Server, ein ausgefallener Server ändert also nichts.';
+
+  @override
+  String get deskDevServersInfo2 =>
+      'Eine Änderung wird zuerst an die anderen Geräte gesendet und gilt erst, wenn jedes Gerät sie angenommen hat. Bis dahin bleiben die bisherigen Server in Gebrauch und werden danach noch 7 Tage gelesen.';
+
+  @override
+  String get deskDevServersInfo3 =>
+      'Die Server sehen, dass zwei Geräte Meldungen austauschen und wann, nie den Inhalt. Bei zwei Servern sehen zwei Betreiber das.';
+
+  @override
+  String get deskDevPausedOffline => 'Pausiert im Offline-Modus.';
+
+  @override
+  String get deskDevPausedEpicboxOff => 'Pausiert, solange Epicbox aus ist.';
+
+  @override
+  String deskDevHeldAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskDevHeldNone => 'Keine Münzen zurückgehalten.';
+
+  @override
+  String get deskDevRenameThis => 'Diesen Computer umbenennen';
+
+  @override
+  String deskDevRenameDevice(String name) {
+    return '$name umbenennen';
+  }
+
+  @override
+  String get deskDevPasteLead =>
+      'Fügen Sie den Code ein, den das andere Gerät zeigt.';
+
+  @override
+  String get deskDevMakingCode => 'Code wird erstellt…';
+
+  @override
+  String get deskDevConnecting => 'Verbindung wird hergestellt…';
+
+  @override
+  String get deskDevTheOther => 'Das andere Gerät';
+
+  @override
+  String deskDevServersLine(String servers) {
+    return 'Server: $servers';
+  }
+
+  @override
+  String get deskDevOfferReceived =>
+      'Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, von wem es kam, und beide abzugleichen.';
 }

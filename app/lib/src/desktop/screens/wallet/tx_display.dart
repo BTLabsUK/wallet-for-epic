@@ -16,6 +16,8 @@ export '../../data/method_names.dart' show methodLabel;
 /// Who the other side is: the contact's name, else a shortened address or the file name, else
 /// what kind of transaction it was.
 String whoOf(AppLocalizations l, Tx t) {
+  // A payment another linked device made: the row says where it came from.
+  if (t.deviceName != null) return l.txSentFromDevice(t.deviceName!);
   if (t.contactName != null) return t.contactName!;
   if (t.toSelf) return l.deskTxThisWallet;
   if (t.coinbase) return l.deskTxMiningReward;
@@ -111,7 +113,9 @@ IconData iconOf(Tx t) => switch (t.method) {
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(AppLocalizations l, Tx t) => t.fromBackup
+(String, ETone) statusOf(AppLocalizations l, Tx t) => t.deviceReleased
+    ? (l.devicesReleasedRow(t.deviceName ?? ''), ETone.warn)
+    : t.fromBackup
     ? (l.deskTxFromBackup, ETone.neutral)
     : t.immature
     ? (l.deskTxStatusImmature, ETone.warn)
@@ -400,7 +404,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
-    final replaced = labelled && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
+    final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     final meta = <InlineSpan>[
       for (final (i, p) in parts.indexed) ...[

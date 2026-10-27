@@ -14,6 +14,8 @@ import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, d
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
+import '../data/devices_state.dart' show deskDeviceServiceProvider, deskLinkedDevicesOnProvider;
+import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
@@ -100,9 +102,13 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
     // A pairing link copied in a chat is offered when the window comes back to the front.
     _focus = AppLifecycleListener(
-      onResume: () => Timer(const Duration(milliseconds: 300), () {
-        if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.resume).ignore();
-      }),
+      onResume: () {
+        // The window came back to the front: the other devices are read at once.
+        unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
+        Timer(const Duration(milliseconds: 300), () {
+          if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.resume).ignore();
+        });
+      },
     );
   }
 
@@ -212,6 +218,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         action: check,
       );
     });
+    // Linked devices: the service lives while the shell is up (it reads the channel every 5 s,
+    // minimized too).
+    ref.watch(deskDeviceServiceProvider);
     // Node failover moved the wallet to another node for this session: said wherever the
     // user is, never asked.
     ref.listen(deskFailoverWatchProvider, (_, _) {});
@@ -527,6 +536,7 @@ bool deskRouteShown(WidgetRef ref, DeskRoute route) => switch (route) {
   DeskRoute.pair || DeskRoute.pairPending => ref.watch(deskPairsProvider),
   DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
     ref.watch(deskInvoicesShownProvider),
+  DeskRoute.settingsDevices => ref.watch(deskLinkedDevicesOnProvider),
   _ => true,
 };
 
