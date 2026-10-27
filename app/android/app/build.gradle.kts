@@ -1,3 +1,4 @@
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -44,7 +45,7 @@ val releaseSigningProblem: String? = run {
 val torBuilt = (project.findProperty("dart-defines") as String?).orEmpty()
     .split(",")
     .filter { it.isNotEmpty() }
-    .map { String(java.util.Base64.getDecoder().decode(it)) }
+    .map { String(Base64.getDecoder().decode(it)) }
     .none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
 
 android {
