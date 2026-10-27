@@ -1,5 +1,6 @@
-/// Help on linked devices, for the phone and the desktop, in the app's six languages: one wallet
-/// on two devices, a lost device, coins held by another device. Each language's topic list
+/// Help on linked devices, for the phone and the desktop, in the app's six languages: how linked
+/// devices work (with the sync picture and the live status panel, `HelpTopic.devices`), a lost
+/// device, coins held by another device. Each language's topic list
 /// (help_content.dart, help_`<lang>`.dart) ends with these; they show while Linked devices is on
 /// ([helpTopicFeature]).
 library;
@@ -21,8 +22,8 @@ List<HelpTopic> _en(bool phone) {
   return [
     HelpTopic(
       'how',
-      'One wallet on two devices',
-      'Both devices get the balance from the chain. Linked, they also tell each other what they are paying, so they do not spend the same coins.',
+      'How linked devices work',
+      'Both devices get the balance from the chain. Linked, they also tell each other what they are paying, encrypted, over the servers, so they do not spend the same coins.',
       [
         const HelpBlock.p('The recovery phrase opens the same wallet on any device. The chain gives each device the balance and every confirmed payment, so the money always adds up.'),
         const HelpBlock.p('What the chain does not show is what only the device that made a payment knows: who was paid, the message, and a payment still under way. Without a link, the other device shows such a payment as **Sent from another wallet**, with the amount only, once it is confirmed.'),
@@ -32,9 +33,22 @@ List<HelpTopic> _en(bool phone) {
           'One device shows a code; the other scans it or pastes it.',
           'Both show four pictures. Choose **They match** on each device only if they are the same, in the same order.',
         ]),
-        const HelpBlock.p('Notices go through the one or two servers chosen under **Servers**. They are encrypted between the devices: a server cannot read them or spend anything. Up to 5 devices can be linked, and **Pause sync** stops the notices for a while.'),
-        const HelpBlock.p('Linking protects what the devices share, not the money: any device that holds the recovery phrase can spend.'),
+        const HelpBlock.h('Security', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**Own keys for each link.** They are made when the devices link and cannot be worked out from the recovery phrase alone.',
+          '**Encrypted end to end.** Only the linked devices can read a notice. The servers carry it and cannot read it.',
+          '**Removing a device cuts it off.** It gets no more notices, and the other devices make fresh keys between them.',
+          '**The link does not protect the money.** A device that holds the recovery phrase can still spend. Linking protects the channel and what is shared.',
+        ]),
+        const HelpBlock.h('Limits', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**Only while the app is open.** Nothing syncs in the background. The app catches up when it starts, resumes, unlocks or refreshes.',
+          '**The chain decides.** A notice is a heads-up. The blockchain is the source of truth, and a payment counts once the chain shows it.',
+          '**A server down delays notices.** With two servers, every notice goes to both, and the second carries it.',
+        ]),
+        const HelpBlock.p('Notices go through the one or two servers chosen under **Servers**. Up to 5 devices can be linked, and **Pause sync** stops the notices for a while.'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(
@@ -73,8 +87,8 @@ List<HelpTopic> _de(bool phone) {
   return [
     HelpTopic(
       'how',
-      'Eine Wallet auf zwei Geräten',
-      'Beide Geräte erhalten das Guthaben aus der Blockchain. Verknüpft melden sie sich außerdem, was sie bezahlen, damit sie nicht dieselben Münzen ausgeben.',
+      'So funktionieren verknüpfte Geräte',
+      'Beide Geräte erhalten das Guthaben aus der Blockchain. Verknüpft melden sie sich außerdem verschlüsselt über die Server, was sie bezahlen, damit sie nicht dieselben Münzen ausgeben.',
       [
         const HelpBlock.p('Die Wiederherstellungsphrase öffnet dieselbe Wallet auf jedem Gerät. Die Blockchain liefert jedem Gerät das Guthaben und jede bestätigte Zahlung, daher stimmt das Geld immer.'),
         const HelpBlock.p('Was die Blockchain nicht zeigt, weiß nur das Gerät, das eine Zahlung gemacht hat: wer bezahlt wurde, die Nachricht und eine noch laufende Zahlung. Ohne Verknüpfung zeigt das andere Gerät eine solche Zahlung erst nach der Bestätigung als **Von einer anderen Wallet gesendet**, nur mit dem Betrag.'),
@@ -84,9 +98,22 @@ List<HelpTopic> _de(bool phone) {
           'Ein Gerät zeigt einen Code; das andere scannt ihn oder fügt ihn ein.',
           'Beide zeigen vier Bilder. Nur wenn sie gleich sind und in derselben Reihenfolge stehen, auf jedem Gerät **Sie stimmen überein** wählen.',
         ]),
-        const HelpBlock.p('Meldungen laufen über die ein oder zwei Server unter **Server**. Sie sind zwischen den Geräten verschlüsselt: Ein Server kann sie nicht lesen und nichts ausgeben. Bis zu 5 Geräte lassen sich verknüpfen, und **Abgleich pausieren** hält die Meldungen eine Weile an.'),
-        const HelpBlock.p('Die Verknüpfung schützt das, was die Geräte teilen, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben.'),
+        const HelpBlock.h('Sicherheit', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**Eigene Schlüssel für jede Verknüpfung.** Sie entstehen beim Verknüpfen und lassen sich nicht allein aus der Wiederherstellungsphrase ableiten.',
+          '**Ende-zu-Ende verschlüsselt.** Nur die verknüpften Geräte können eine Meldung lesen. Die Server tragen sie weiter und können sie nicht lesen.',
+          '**Entfernen trennt ein Gerät ab.** Es erhält keine Meldungen mehr, und die übrigen Geräte erstellen untereinander neue Schlüssel.',
+          '**Die Verknüpfung schützt das Geld nicht.** Ein Gerät mit der Wiederherstellungsphrase kann weiterhin ausgeben. Die Verknüpfung schützt den Kanal und das, was geteilt wird.',
+        ]),
+        const HelpBlock.h('Grenzen', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**Nur bei geöffneter App.** Im Hintergrund wird nichts abgeglichen. Die App holt beim Start, beim Fortsetzen, beim Entsperren und beim Aktualisieren nach.',
+          '**Die Blockchain entscheidet.** Eine Meldung ist ein Hinweis. Die Blockchain ist die Quelle der Wahrheit, und eine Zahlung zählt, sobald sie dort steht.',
+          '**Ein ausgefallener Server verzögert Meldungen.** Mit zwei Servern geht jede Meldung an beide, und der zweite trägt sie weiter.',
+        ]),
+        const HelpBlock.p('Meldungen laufen über die ein oder zwei Server unter **Server**. Bis zu 5 Geräte lassen sich verknüpfen, und **Abgleich pausieren** hält die Meldungen eine Weile an.'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(
@@ -125,8 +152,8 @@ List<HelpTopic> _pl(bool phone) {
   return [
     HelpTopic(
       'how',
-      'Jeden portfel na dwóch urządzeniach',
-      'Oba urządzenia biorą saldo z łańcucha. Połączone informują się też nawzajem o płatnościach, więc nie wydają tych samych monet.',
+      'Jak działają połączone urządzenia',
+      'Oba urządzenia biorą saldo z łańcucha. Połączone informują się też nawzajem o płatnościach, szyfrując powiadomienia przez serwery, więc nie wydają tych samych monet.',
       [
         const HelpBlock.p('Fraza odzyskiwania otwiera ten sam portfel na każdym urządzeniu. Łańcuch daje każdemu urządzeniu saldo i każdą potwierdzoną płatność, więc pieniądze zawsze się zgadzają.'),
         const HelpBlock.p('Łańcuch nie pokazuje tego, co wie tylko urządzenie, które wykonało płatność: komu zapłacono, wiadomości i płatności w toku. Bez połączenia drugie urządzenie pokazuje taką płatność dopiero po potwierdzeniu jako **Wysłano z innego portfela**, tylko z kwotą.'),
@@ -136,9 +163,22 @@ List<HelpTopic> _pl(bool phone) {
           'Jedno urządzenie pokazuje kod; drugie go skanuje lub wkleja.',
           'Oba pokazują cztery obrazki. Wybierz **Zgadzają się** na każdym urządzeniu tylko, jeśli są takie same i w tej samej kolejności.',
         ]),
-        const HelpBlock.p('Powiadomienia idą przez jeden lub dwa serwery wybrane w **Serwery**. Są szyfrowane między urządzeniami: serwer nie może ich odczytać ani niczego wydać. Można połączyć do 5 urządzeń, a **Wstrzymaj synchronizację** zatrzymuje powiadomienia na jakiś czas.'),
-        const HelpBlock.p('Połączenie chroni to, co urządzenia udostępniają, a nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać.'),
+        const HelpBlock.h('Bezpieczeństwo', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**Własne klucze dla każdego połączenia.** Powstają przy łączeniu urządzeń i nie da się ich wyprowadzić z samej frazy odzyskiwania.',
+          '**Szyfrowanie od końca do końca.** Powiadomienie odczytają tylko połączone urządzenia. Serwery je przenoszą i nie mogą go odczytać.',
+          '**Usunięcie urządzenia odcina je.** Nie dostaje już powiadomień, a pozostałe urządzenia tworzą między sobą nowe klucze.',
+          '**Połączenie nie chroni pieniędzy.** Urządzenie z frazą odzyskiwania nadal może wydawać. Połączenie chroni kanał i to, co jest udostępniane.',
+        ]),
+        const HelpBlock.h('Ograniczenia', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**Tylko gdy aplikacja jest otwarta.** W tle nic się nie synchronizuje. Aplikacja nadrabia przy uruchomieniu, wznowieniu, odblokowaniu i odświeżeniu.',
+          '**Decyduje łańcuch.** Powiadomienie to zapowiedź. Źródłem prawdy jest łańcuch bloków, a płatność liczy się, gdy łańcuch ją pokaże.',
+          '**Niedostępny serwer opóźnia powiadomienia.** Przy dwóch serwerach każde powiadomienie idzie do obu, a drugi je przenosi.',
+        ]),
+        const HelpBlock.p('Powiadomienia idą przez jeden lub dwa serwery wybrane w **Serwery**. Można połączyć do 5 urządzeń, a **Wstrzymaj synchronizację** zatrzymuje powiadomienia na jakiś czas.'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(
@@ -177,8 +217,8 @@ List<HelpTopic> _ru(bool phone) {
   return [
     HelpTopic(
       'how',
-      'Один кошелёк на двух устройствах',
-      'Оба устройства берут баланс из блокчейна. Связанные, они ещё и сообщают друг другу о платежах, чтобы не тратить одни и те же монеты.',
+      'Как работают связанные устройства',
+      'Оба устройства берут баланс из блокчейна. Связанные, они ещё и сообщают друг другу о платежах, зашифрованно через серверы, чтобы не тратить одни и те же монеты.',
       [
         const HelpBlock.p('Фраза восстановления открывает один и тот же кошелёк на любом устройстве. Блокчейн даёт каждому устройству баланс и все подтверждённые платежи, поэтому деньги всегда сходятся.'),
         const HelpBlock.p('Блокчейн не показывает то, что знает только устройство, сделавшее платёж: кому заплачено, сообщение и платёж, который ещё идёт. Без связи другое устройство покажет такой платёж только после подтверждения, как **Отправлено с другого кошелька**, лишь с суммой.'),
@@ -188,9 +228,22 @@ List<HelpTopic> _ru(bool phone) {
           'Одно устройство показывает код; другое сканирует или вставляет его.',
           'Оба показывают четыре картинки. Выберите **Совпадают** на каждом устройстве, только если они одинаковые и в том же порядке.',
         ]),
-        const HelpBlock.p('Уведомления идут через один или два сервера, выбранных в **Серверы**. Они зашифрованы между устройствами: сервер не может их прочитать или что-то потратить. Связать можно до 5 устройств, а **Приостановить синхронизацию** ненадолго останавливает уведомления.'),
-        const HelpBlock.p('Связь защищает то, чем делятся устройства, а не деньги: любое устройство с фразой восстановления может тратить.'),
+        const HelpBlock.h('Безопасность', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**Свои ключи для каждой связи.** Они создаются при связывании устройств, и из одной фразы восстановления их не вывести.',
+          '**Сквозное шифрование.** Прочитать уведомление могут только связанные устройства. Серверы передают его и не могут прочитать.',
+          '**Удаление отключает устройство.** Оно больше не получает уведомлений, а остальные устройства создают между собой новые ключи.',
+          '**Связь не защищает деньги.** Устройство с фразой восстановления по-прежнему может тратить. Связь защищает канал и то, чем делятся устройства.',
+        ]),
+        const HelpBlock.h('Ограничения', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**Только пока приложение открыто.** В фоне ничего не синхронизируется. Приложение догоняет при запуске, возобновлении, разблокировке и обновлении.',
+          '**Решает блокчейн.** Уведомление лишь предупреждает. Источник истины блокчейн, и платёж считается, когда он там виден.',
+          '**Недоступный сервер задерживает уведомления.** При двух серверах каждое уведомление идёт на оба, и второй его доносит.',
+        ]),
+        const HelpBlock.p('Уведомления идут через один или два сервера, выбранных в **Серверы**. Связать можно до 5 устройств, а **Приостановить синхронизацию** ненадолго останавливает уведомления.'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(
@@ -227,8 +280,8 @@ List<HelpTopic> _zh(bool phone) {
   return [
     HelpTopic(
       'how',
-      '一个钱包，两台设备',
-      '两台设备都从区块链获取余额。关联后，它们还会互相告知正在进行的付款，避免花费相同的币。',
+      '关联设备的工作方式',
+      '两台设备都从区块链获取余额。关联后，它们还会经服务器加密互相告知正在进行的付款，避免花费相同的币。',
       [
         const HelpBlock.p('助记词可以在任何设备上打开同一个钱包。区块链为每台设备提供余额和每笔已确认的付款，所以资金总是对得上。'),
         const HelpBlock.p('区块链不会显示只有发起付款的设备才知道的内容：付给了谁、留言，以及仍在进行中的付款。未关联时，另一台设备要等付款确认后才会显示为 **从另一个钱包发送**，且只有金额。'),
@@ -238,9 +291,22 @@ List<HelpTopic> _zh(bool phone) {
           '一台设备显示代码；另一台扫描或粘贴它。',
           '两台设备都会显示四张图片。只有图片相同且顺序一致时，才在每台设备上选择 **一致**。',
         ]),
-        const HelpBlock.p('通知经过在 **服务器** 中选择的一到两个服务器。它们在设备之间加密：服务器无法读取，也无法花费任何东西。最多可关联 5 台设备，**暂停同步** 可暂时停止通知。'),
-        const HelpBlock.p('关联保护的是设备之间共享的内容，而不是资金：任何持有助记词的设备都能花费。'),
+        const HelpBlock.h('安全', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**每个关联有自己的密钥。** 密钥在设备关联时生成，无法仅凭助记词推算出来。',
+          '**端到端加密。** 只有关联的设备能读取通知。服务器只负责传递，无法读取。',
+          '**移除设备即切断它。** 它不再收到通知，其余设备之间会生成新的密钥。',
+          '**关联不能保护资金。** 持有助记词的设备仍然可以花费。关联保护的是通道和共享的内容。',
+        ]),
+        const HelpBlock.h('限制', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**仅在应用打开时。** 后台不会同步。应用在启动、恢复、解锁和刷新时补上。',
+          '**由区块链决定。** 通知只是提前告知。区块链是最终依据，付款以区块链显示为准。',
+          '**服务器故障会延迟通知。** 使用两个服务器时，每条通知都发到两个，由第二个传递。',
+        ]),
+        const HelpBlock.p('通知经过在 **服务器** 中选择的一到两个服务器。最多可关联 5 台设备，**暂停同步** 可暂时停止通知。'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(
@@ -279,8 +345,8 @@ List<HelpTopic> _th(bool phone) {
   return [
     HelpTopic(
       'how',
-      'กระเป๋าเงินเดียวบนสองอุปกรณ์',
-      'ทั้งสองอุปกรณ์รับยอดเงินจากเชน เมื่อเชื่อมโยงแล้ว จะแจ้งกันด้วยว่ากำลังจ่ายอะไร จึงไม่ใช้เหรียญเดียวกัน',
+      'อุปกรณ์ที่เชื่อมโยงทำงานอย่างไร',
+      'ทั้งสองอุปกรณ์รับยอดเงินจากเชน เมื่อเชื่อมโยงแล้ว จะแจ้งกันแบบเข้ารหัสผ่านเซิร์ฟเวอร์ด้วยว่ากำลังจ่ายอะไร จึงไม่ใช้เหรียญเดียวกัน',
       [
         const HelpBlock.p('วลีกู้คืนเปิดกระเป๋าเงินเดียวกันได้บนทุกอุปกรณ์ เชนให้ยอดเงินและทุกรายการที่ยืนยันแล้วแก่แต่ละอุปกรณ์ เงินจึงตรงกันเสมอ'),
         const HelpBlock.p('สิ่งที่เชนไม่แสดงคือสิ่งที่รู้เฉพาะอุปกรณ์ที่ทำรายการ: จ่ายให้ใคร ข้อความ และรายการที่ยังไม่เสร็จ หากไม่ได้เชื่อมโยง อุปกรณ์อีกเครื่องจะแสดงรายการนั้นหลังยืนยันแล้วเท่านั้น ว่า **ส่งจากกระเป๋าเงินอื่น** พร้อมจำนวนเงินอย่างเดียว'),
@@ -290,9 +356,22 @@ List<HelpTopic> _th(bool phone) {
           'เครื่องหนึ่งแสดงรหัส อีกเครื่องสแกนหรือวาง',
           'ทั้งสองแสดงภาพสี่ภาพ เลือก **ตรงกัน** บนแต่ละเครื่องเฉพาะเมื่อภาพเหมือนกันและเรียงลำดับเดียวกัน',
         ]),
-        const HelpBlock.p('การแจ้งเตือนส่งผ่านเซิร์ฟเวอร์หนึ่งหรือสองเครื่องที่เลือกไว้ใน **เซิร์ฟเวอร์** การแจ้งเตือนเข้ารหัสระหว่างอุปกรณ์ เซิร์ฟเวอร์อ่านไม่ได้และใช้จ่ายอะไรไม่ได้ เชื่อมโยงได้สูงสุด 5 อุปกรณ์ และ **หยุดซิงค์ชั่วคราว** จะหยุดการแจ้งเตือนชั่วคราว'),
-        const HelpBlock.p('การเชื่อมโยงปกป้องสิ่งที่อุปกรณ์แชร์กัน ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้'),
+        const HelpBlock.h('ความปลอดภัย', anchor: HelpAnchor.security),
+        const HelpBlock.ul([
+          '**กุญแจของตัวเองสำหรับแต่ละการเชื่อมโยง** สร้างขึ้นเมื่อเชื่อมโยงอุปกรณ์ และคำนวณจากวลีกู้คืนอย่างเดียวไม่ได้',
+          '**เข้ารหัสจากต้นทางถึงปลายทาง** มีเพียงอุปกรณ์ที่เชื่อมโยงเท่านั้นที่อ่านการแจ้งเตือนได้ เซิร์ฟเวอร์เป็นผู้ส่งต่อและอ่านไม่ได้',
+          '**การนำอุปกรณ์ออกจะตัดมันออกไป** มันจะไม่ได้รับการแจ้งเตือนอีก และอุปกรณ์ที่เหลือจะสร้างกุญแจใหม่ระหว่างกัน',
+          '**การเชื่อมโยงไม่ได้ปกป้องเงิน** อุปกรณ์ที่มีวลีกู้คืนยังใช้จ่ายได้ การเชื่อมโยงปกป้องช่องทางและสิ่งที่แชร์กัน',
+        ]),
+        const HelpBlock.h('ข้อจำกัด', anchor: HelpAnchor.limits),
+        const HelpBlock.ul([
+          '**เฉพาะเมื่อแอปเปิดอยู่** ไม่มีการซิงค์ในพื้นหลัง แอปจะตามให้ทันเมื่อเริ่ม กลับมาใช้ ปลดล็อก หรือรีเฟรช',
+          '**เชนเป็นผู้ตัดสิน** การแจ้งเตือนเป็นเพียงการบอกล่วงหน้า บล็อกเชนคือแหล่งความจริง และรายการจะนับเมื่อเชนแสดง',
+          '**เซิร์ฟเวอร์ล่มทำให้การแจ้งเตือนช้า** เมื่อใช้สองเซิร์ฟเวอร์ ทุกการแจ้งเตือนส่งไปทั้งสอง และเครื่องที่สองจะส่งต่อให้',
+        ]),
+        const HelpBlock.p('การแจ้งเตือนส่งผ่านเซิร์ฟเวอร์หนึ่งหรือสองเครื่องที่เลือกไว้ใน **เซิร์ฟเวอร์** เชื่อมโยงได้สูงสุด 5 อุปกรณ์ และ **หยุดซิงค์ชั่วคราว** จะหยุดการแจ้งเตือนชั่วคราว'),
       ],
+      devices: true,
       id: HelpId.linkedDevices,
     ),
     HelpTopic(

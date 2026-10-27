@@ -4714,5 +4714,18 @@
   "sendHeldByDevice": "{amount} EPIC sind durch eine Zahlung von {name} zurückgehalten.",
   "offerLinkRestore": "Diese Wallet auch auf einem anderen Gerät? Verknüpfen, um den Verlauf zu teilen und die Zahlungen des anderen zu sehen.",
   "offerLinkOtherWallet": "Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, wer bezahlt wurde, und beide abzugleichen.",
-  "devicesReleasedRow": "Hier freigegeben · {name} sendet sie womöglich noch"
+  "devicesReleasedRow": "Hier freigegeben · {name} sendet sie womöglich noch",
+  "syncHelpOtherDevice": "Anderes Gerät",
+  "syncHelpServer": "Server",
+  "syncHelpChain": "Blockchain",
+  "syncHelpStep1": "Dieses Gerät beginnt eine Zahlung.",
+  "syncHelpStep2": "{count, plural, one{Eine verschlüsselte Meldung geht über den Server. Nur die Geräte können sie lesen.} other{Eine verschlüsselte Meldung geht an beide Server. Nur die Geräte können sie lesen.}}",
+  "syncHelpStep3": "Das andere Gerät hält diese Münzen zurück und führt die Zahlung auf.",
+  "syncHelpStep4": "Die Blockchain bestätigt. Sie entscheidet über den endgültigen Stand.",
+  "syncHelpDiagram": "So funktioniert der Abgleich: Dieses Gerät beginnt eine Zahlung; eine verschlüsselte Meldung geht über den Server an das andere Gerät, das diese Münzen zurückhält; die Blockchain bestätigt.",
+  "syncHelpStatus": "Aktueller Stand",
+  "syncHelpPaused": "Abgleich pausiert",
+  "syncHelpAnswering": "Antwortet",
+  "syncHelpNotAnswering": "Antwortet nicht",
+  "syncHelpNotChecked": "Nicht geprüft"
 }

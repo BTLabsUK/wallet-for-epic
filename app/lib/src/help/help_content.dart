@@ -72,6 +72,7 @@ class HelpTopic {
     this.short,
     this.body, {
     this.handshake = false,
+    this.devices = false,
     this.id = '',
   });
 
@@ -82,6 +83,10 @@ class HelpTopic {
 
   /// The handshake stepper goes under the body.
   final bool handshake;
+
+  /// The linked devices topic: the picture of a sync goes between the answer and the body, the
+  /// live status panel under the body (`ui/devices/sync_help.dart`).
+  final bool devices;
 
   /// A stable name other screens open the topic by; see [HelpId].
   final String id;
@@ -172,6 +177,10 @@ abstract final class HelpAnchor {
   static const sending = 'sending';
   static const receiving = 'receiving';
   static const requests = 'requests';
+
+  /// The headings of [HelpId.linkedDevices] ("How linked devices work").
+  static const security = 'security';
+  static const limits = 'limits';
 }
 
 /// Which app shows the help: the words differ where the device does.

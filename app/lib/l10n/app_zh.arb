@@ -4714,5 +4714,18 @@
   "sendHeldByDevice": "{amount} EPIC 被 {name} 正在进行的一笔付款保留。",
   "offerLinkRestore": "也在另一台设备上使用这个钱包？关联它们即可共享记录并看到彼此的付款。",
   "offerLinkOtherWallet": "这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。",
-  "devicesReleasedRow": "已在此释放 · {name} 仍可能发送"
+  "devicesReleasedRow": "已在此释放 · {name} 仍可能发送",
+  "syncHelpOtherDevice": "另一台设备",
+  "syncHelpServer": "服务器",
+  "syncHelpChain": "区块链",
+  "syncHelpStep1": "本设备开始一笔付款。",
+  "syncHelpStep2": "{count, plural, =1{加密通知经服务器送出。只有设备能读取。} other{加密通知送到两个服务器。只有设备能读取。}}",
+  "syncHelpStep3": "另一台设备保留这些币，并列出这笔付款。",
+  "syncHelpStep4": "区块链确认。最终状态由区块链决定。",
+  "syncHelpDiagram": "同步的工作方式：本设备开始一笔付款；加密通知经服务器送到另一台设备，它保留这些币；区块链确认。",
+  "syncHelpStatus": "实时状态",
+  "syncHelpPaused": "同步已暂停",
+  "syncHelpAnswering": "正常响应",
+  "syncHelpNotAnswering": "无响应",
+  "syncHelpNotChecked": "未检查"
 }
