@@ -173,3 +173,42 @@ Future<String?> localUrl(String url, HostLookup lookup) async {
   final host = ip.startsWith('[') ? ip.substring(1, ip.length - 1) : ip;
   return host == u.host ? u.toString() : u.replace(host: host).toString();
 }
+
+/// What a node is to the user, from its address (own-node spec §1). It decides where its facts
+/// come from (the node itself for every own class, never status.btlabs.uk), the panel's label
+/// and whether an owner secret may travel to it.
+enum NodeClass {
+  /// `localhost`, 127/8, ::1.
+  thisComputer,
+
+  /// 10/8, 172.16/12, 192.168/16, 169.254/16, fc00::/7, fe80::/10, or a `.local` / `.lan` name.
+  homeNetwork,
+
+  /// 100.64/10 (a Tailscale tailnet) or a `*.ts.net` name. "VPN" in the interface.
+  vpn,
+
+  /// An https node status.btlabs.uk does not list, or one the user marked as theirs.
+  ownServer,
+
+  /// Anything else: a listed node, as today.
+  public;
+
+  /// Every class but [public]: the user's own node.
+  bool get own => this != public;
+
+  /// This computer, the home network or a VPN: never reached over Tor, plain http allowed.
+  bool get local => this == thisComputer || this == homeNetwork || this == vpn;
+}
+
+/// [url]'s class without a lookup. [unlisted]: status.btlabs.uk answered and does not list
+/// it; [mine]: the user marked it as their own. Either makes an https node [NodeClass.ownServer].
+NodeClass nodeClassOf(String? url, {bool unlisted = false, bool mine = false}) {
+  final u = url == null ? null : Uri.tryParse(url.trim());
+  if (u == null || u.host.isEmpty) return NodeClass.public;
+  var host = u.host.toLowerCase();
+  if (host.endsWith('.')) host = host.substring(0, host.length - 1);
+  if (host == 'localhost' || isLoopbackIp(host)) return NodeClass.thisComputer;
+  if (isLocalIp(host) || isLocalNetworkName(host)) return NodeClass.homeNetwork;
+  if (isCgnatIp(host) || host.endsWith('.ts.net')) return NodeClass.vpn;
+  return unlisted || mine ? NodeClass.ownServer : NodeClass.public;
+}

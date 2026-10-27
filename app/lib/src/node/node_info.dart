@@ -5,6 +5,7 @@ library;
 
 import 'dart:async';
 
+import '../net/local_address.dart';
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../net/tor_switch.dart';
 import '../relay_directory.dart';
@@ -21,6 +22,22 @@ enum NodeInfoSource {
   /// Neither answered.
   none,
 }
+
+/// An own node's head word (own-node spec §2): Synced, Syncing, Behind, Not answering.
+enum NodeHead { synced, syncing, behind, down }
+
+/// Where an own node's reference tip came from: never the node itself.
+enum TipReference {
+  /// status.btlabs.uk's network tip.
+  statusSite,
+
+  /// The median tip of the public nodes the app could reach.
+  publicNodes,
+}
+
+/// The network tip from the public nodes and how many gave it, for an own node's "behind"
+/// when status.btlabs.uk does not answer.
+typedef PublicTip = ({int tip, int nodes});
 
 /// One node as the app sees it now. Fields a source does not give are null.
 class NodeInfo {
@@ -49,6 +66,11 @@ class NodeInfo {
     this.tipTime,
     this.network,
     this.error,
+    this.nodeClass = NodeClass.public,
+    this.poolSize,
+    this.head,
+    this.tipFrom,
+    this.tipNodes,
   });
 
   final String url;
@@ -112,6 +134,19 @@ class NodeInfo {
   /// Why nothing is known, for [NodeInfoSource.none]; for the log.
   final String? error;
 
+  /// What the node is to the user; an own class is asked directly, never the monitor.
+  final NodeClass nodeClass;
+
+  /// Own nodes: the transactions waiting in its mempool (`get_pool_size`).
+  final int? poolSize;
+
+  /// Own nodes: the head word.
+  final NodeHead? head;
+
+  /// Own nodes: where [networkHeight] came from, and how many public nodes gave it.
+  final TipReference? tipFrom;
+  final int? tipNodes;
+
   bool get atTip => blocksBehind != null && blocksBehind! <= 0;
 
   /// The node runs an older version than the released one.
@@ -152,6 +187,7 @@ class NodeInfoService {
     NodeApiClient Function(String url)? clientFor,
     DateTime Function()? clock,
     bool Function()? overTor,
+    this.publicTip,
     this.timeout = const Duration(seconds: 6),
   }) : _clientFor = clientFor ?? NodeApiClient.new,
        _overTor = overTor ?? (() => TorSwitch.on),
@@ -165,13 +201,20 @@ class NodeInfoService {
   final DateTime Function() _clock;
   final Duration timeout;
 
+  /// The public nodes' median tip of a chain, when status.btlabs.uk gives none (own nodes).
+  final Future<PublicTip?> Function(String? chain)? publicTip;
+
+  /// Each own node's height at its last answer: a height that moves is a node syncing.
+  final Map<String, int> _lastHeight = {};
+
   /// Whether a request to a node goes through tor now; a node on this computer never does.
   final bool Function() _overTor;
 
   /// Kept apart by route: a direct figure from before Tor came on is never shown as Tor's.
   final Map<(String, bool), List<int>> _latencies = {};
 
-  bool _torFor(String url) => _overTor() && !isLoopbackUrl(Uri.tryParse(url) ?? Uri());
+  /// A node on this computer, the local network or a tailnet is never asked over Tor.
+  bool _torFor(String url) => _overTor() && !isLoopbackUrl(Uri.tryParse(url) ?? Uri()) && !isLocalNodeUrl(url);
 
   /// Over Tor a circuit takes seconds to build: a slow answer is not a node that is down.
   Duration get _wait => _overTor() && timeout < torNodeTimeout ? torNodeTimeout : timeout;
@@ -195,16 +238,22 @@ class NodeInfoService {
   }
 
   /// [chain] is the monitor's chain name ("mainnet", "floonet"); null skips the monitor
-  /// (usernet has none).
-  Future<NodeInfo> info(String url, {required String? chain}) async {
+  /// (usernet has none). A node on this computer, the local network or a VPN, or one the user
+  /// marked as theirs ([mine]), is asked directly: the monitor gives only the network's tip.
+  Future<NodeInfo> info(String url, {required String? chain, bool mine = false}) async {
+    final cls = nodeClassOf(url, mine: mine);
     NodeStatus? listed;
     NetworkStatus? net;
+    var answered = false;
     if (chain != null) {
-      try {
-        listed = nodeStatusFor(await nodes.nodes(chain).timeout(_wait), url);
-        _reachedAt = _clock();
-      } on Object {
-        // the monitor is down: limited info
+      if (!cls.own) {
+        try {
+          listed = nodeStatusFor(await nodes.nodes(chain).timeout(_wait), url);
+          _reachedAt = _clock();
+          answered = true;
+        } on Object {
+          // the monitor is down: limited info
+        }
       }
       try {
         net = await network?.network(chain).timeout(_wait);
@@ -213,7 +262,8 @@ class NodeInfoService {
       }
     }
     if (listed != null) return _fromMonitor(url, listed, net, await _measure(url));
-    return _limited(url, net);
+    final https = Uri.tryParse(url.trim())?.scheme == 'https';
+    return _limited(url, net, cls: cls.own ? cls : (answered && https ? NodeClass.ownServer : NodeClass.public), chain: chain);
   }
 
   /// One timed `get_tip` for this computer's latency; the median so far, or null.
@@ -256,7 +306,8 @@ class NodeInfoService {
     );
   }
 
-  Future<NodeInfo> _limited(String url, NetworkStatus? net) async {
+  Future<NodeInfo> _limited(String url, NetworkStatus? net, {NodeClass cls = NodeClass.public, String? chain}) async {
+    final own = cls.own;
     final NodeApiClient api;
     try {
       api = _clientFor(url);
@@ -268,6 +319,8 @@ class NodeInfoService {
         network: net,
         directoryReachedAt: _reachedAt,
         error: '$e',
+        nodeClass: cls,
+        head: own ? NodeHead.down : null,
       );
     }
     final watch = Stopwatch()..start();
@@ -283,6 +336,8 @@ class NodeInfoService {
         network: net,
         directoryReachedAt: _reachedAt,
         error: e is NodeRpcException ? e.kind.name : e.runtimeType.toString(),
+        nodeClass: cls,
+        head: own ? NodeHead.down : null,
       );
     }
     _noteLatency(url, watch.elapsedMilliseconds);
@@ -294,12 +349,25 @@ class NodeInfoService {
       }
     }
 
-    final (ready, version, time) = await (
+    final (ready, version, time, pool) = await (
       quiet(api.readyForTxs),
       quiet(() async => (await api.version()).nodeVersion),
       quiet(() => api.headerTime(tip.height)),
+      own ? quiet(api.poolSize) : Future<int?>.value(),
     ).wait;
-    final netTip = net?.tipHeight;
+    // An own node's reference tip never comes from the node itself: the monitor's, else the
+    // public nodes' median.
+    var netTip = net?.tipHeight;
+    TipReference? tipFrom = netTip == null ? null : TipReference.statusSite;
+    int? tipNodes;
+    if (own && netTip == null && publicTip != null) {
+      final p = await quiet(() => publicTip!(chain));
+      if (p != null) {
+        netTip = p.tip;
+        tipFrom = TipReference.publicNodes;
+        tipNodes = p.nodes;
+      }
+    }
     final behind = netTip != null ? netTip - tip.height : null;
     // Healthy: ready, past 0, and at the tip as far as it can be told: within 10 blocks of the
     // monitor's tip, else (no tip known) a last block under 30 minutes old. A node before 4.1.0
@@ -307,10 +375,25 @@ class NodeInfoService {
     final stale = behind != null
         ? behind > 10
         : (time != null && _clock().toUtc().difference(time) > const Duration(minutes: 30));
+    final previous = _lastHeight[url];
+    if (own) _lastHeight[url] = tip.height;
+    final moved = previous != null && tip.height > previous;
+    final NodeHead? head = !own
+        ? null
+        : ready == false || tip.height == 0
+        ? NodeHead.syncing
+        : stale
+        ? (moved ? NodeHead.syncing : NodeHead.behind)
+        : NodeHead.synced;
     return NodeInfo(
       url: url,
       source: NodeInfoSource.limited,
       at: _clock(),
+      nodeClass: cls,
+      head: head,
+      poolSize: pool,
+      tipFrom: own ? tipFrom : null,
+      tipNodes: tipNodes,
       state: ready == false || tip.height == 0 || stale ? NodeHealthState.degraded : NodeHealthState.healthy,
       height: tip.height,
       networkHeight: netTip,

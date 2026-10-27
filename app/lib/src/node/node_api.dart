@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import '../net/lan_node_relay.dart';
 import '../net/local_address.dart';
 import '../net/tor_net.dart';
 import 'node_api_types.dart';
@@ -25,13 +26,19 @@ typedef RpcTransport =
       Duration timeout,
     );
 
+/// A plain-http node URL off loopback as the client reaches it: [lanNodeUrl]. Tests replace it.
+Future<String> Function(String url) relayUrl = lanNodeUrl;
+
 /// The largest reply read; `get_peers` can list thousands of peers.
 const int maxReplyBytes = 16 * 1024 * 1024;
 
 class NodeApiClient {
   /// [baseUrl] is `http://127.0.0.1:3413` or `https://node.example`: plain http only for a
-  /// loopback host. A bad one fails each call with [NodeRpcError.invalidArgument]. [secret] is
-  /// awaited for each owner call, as the file may appear after the node starts.
+  /// node on this computer, the local network or a tailnet ([isLocalNodeUrl]), reached through
+  /// the node relay ([lanNodeUrl]) as the wallet core reaches it, so the request (and an owner
+  /// secret) goes only to the address looked up once. Plain http to anything else fails each
+  /// call with [NodeRpcError.invalidArgument]. [secret] is awaited for each owner call, as the
+  /// file may appear after the node starts.
   NodeApiClient(
     this._baseUrl, {
     FutureOr<String?> Function()? secret,
@@ -59,6 +66,13 @@ class NodeApiClient {
   }
 
   Future<NodeTipInfo> tip() async => parseTip(await _rpc('foreign', 'get_tip'));
+
+  /// `get_pool_size`: the transactions waiting in the node's mempool.
+  Future<int> poolSize() async {
+    final ok = await _rpc('foreign', 'get_pool_size');
+    if (ok is int && ok >= 0) return ok;
+    throw const NodeRpcException(NodeRpcError.badResponse, 'get_pool_size: not a count');
+  }
 
   /// `get_version`, else the legacy `GET /v1/version`.
   Future<NodeVersionInfo> version() async {
@@ -104,20 +118,28 @@ class NodeApiClient {
     await _rpc('owner', 'unban_peer', [addr]);
   }
 
-  Uri _url(String path) {
+  Future<Uri> _url(String path) async {
     final u = Uri.tryParse(_baseUrl.trim());
     if (u == null || u.host.isEmpty || u.userInfo.isNotEmpty) {
       throw const NodeRpcException(NodeRpcError.invalidArgument, 'node address is not a URL');
     }
-    final loopback = u.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(u.host)?.isLoopback ?? false);
-    if (u.scheme != 'https' && !(u.scheme == 'http' && loopback)) {
+    var target = u;
+    if (u.scheme == 'http' && isLocalNodeUrl(_baseUrl)) {
+      try {
+        target = Uri.parse(await relayUrl(_baseUrl));
+      } on Object {
+        throw const NodeRpcException(NodeRpcError.unreachable, 'cannot reach the node: relay');
+      }
+    }
+    final loopback = target.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(target.host)?.isLoopback ?? false);
+    if (target.scheme != 'https' && !(target.scheme == 'http' && loopback)) {
       throw const NodeRpcException(
         NodeRpcError.invalidArgument,
-        'a node that is not on this computer must be reached over https',
+        'a node that is not on this computer or the local network must be reached over https',
       );
     }
-    final base = u.path.endsWith('/') ? u.path.substring(0, u.path.length - 1) : u.path;
-    return Uri(scheme: u.scheme, host: u.host, port: u.hasPort ? u.port : null, path: '$base$path');
+    final base = target.path.endsWith('/') ? target.path.substring(0, target.path.length - 1) : target.path;
+    return Uri(scheme: target.scheme, host: target.host, port: target.hasPort ? target.port : null, path: '$base$path');
   }
 
   Future<Map<String, String>> _headers({required bool auth}) async {
@@ -169,12 +191,12 @@ class NodeApiClient {
     }
   }
 
-  Future<Object?> _legacyGet(String path, {required bool auth}) => _send(_url(path), '', auth: auth);
+  Future<Object?> _legacyGet(String path, {required bool auth}) async => _send(await _url(path), '', auth: auth);
 
   /// A JSON-RPC call; returns the `Ok` payload.
   Future<Object?> _rpc(String api, String method, [List<Object?> params = const []]) async {
     final auth = api == 'owner';
-    final url = _url('/v2/$api');
+    final url = await _url('/v2/$api');
     final decoded = await _send(
       url,
       jsonEncode({'jsonrpc': '2.0', 'id': 1, 'method': method, 'params': params}),
