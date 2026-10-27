@@ -127,6 +127,9 @@ const Set<String> localServiceMembers = {
   'decodeQrSlate',
   // Reads a file on the app's own computer; refused by the client.
   'importWalletSeed',
+  // Synchronous, so no call can answer it; refused by the client (the open wallet's
+  // fingerprint goes to the server).
+  'walletFingerprint',
 };
 const Set<String> localSessionMembers = {
   'supportsInvoices',

@@ -815,6 +815,7 @@ void main() {
       expect((await p.openSlate(sealed)).slateJson, '{"id":"s1"}');
       await crossed(() => p.receiveSealed(sealed));
       await crossed(() => p.finalizeSealed(sealed));
+      await crossed(() => p.paySealedRequest(sealed, amount: BigInt.from(5)));
       await crossed(() => p.sendViaMailbox(id: anna.id, amount: BigInt.from(5), minimumConfirmations: BigInt.from(10)));
       await crossed(() => p.plainSlate('none'));
       expect(await p.useImportedPairings(), 0);
