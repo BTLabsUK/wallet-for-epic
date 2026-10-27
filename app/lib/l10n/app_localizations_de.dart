@@ -13730,7 +13730,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Ausgeschaltet sperrt nur „Wallet sperren“.';
+      'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“.';
 
   @override
   String get netBlockOffline =>

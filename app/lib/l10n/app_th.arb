@@ -3594,7 +3594,7 @@
   "deskSetAdvOn": "{n, plural, other{เปิดอยู่ {n} สวิตช์}}",
   "deskShellOffline": "โหมดออฟไลน์",
   "deskShellTorOnlyWaiting": "Tor เท่านั้น · รอ Tor",
-  "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าปิดไว้ จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น",
+  "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น",
   "netBlockOffline": "โหมดออฟไลน์เปิดอยู่ใน ขั้นสูง",
   "netBlockTorOnly": "โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
   "netBlockWaitingForTor": "รอ Tor",

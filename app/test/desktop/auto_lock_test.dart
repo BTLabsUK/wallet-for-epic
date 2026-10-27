@@ -134,17 +134,22 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
   });
 
-  testWidgets('Settings › Account: the switch turns it off and greys the minutes', (tester) async {
+  testWidgets('Settings › Account: Never in the list turns it off, a time turns it back on', (tester) async {
     final api = _Wallet();
     final container = await _open(tester, api, route: DeskRoute.settingsAccount);
-    final row = find.byKey(const ValueKey('auto-lock-on'));
-    await tester.ensureVisible(row);
+    final list = find.byKey(const ValueKey('auto-lock-minutes'));
+    await tester.ensureVisible(list);
     await _idle(tester, Duration.zero);
-    expect(tester.widget<ESwitch>(row).value, isTrue);
-    expect(tester.widget<IgnorePointer>(find.ancestor(of: find.byKey(const ValueKey('auto-lock-minutes')), matching: find.byType(IgnorePointer)).first).ignoring, isFalse);
-    await tester.tap(row);
+    ESelect<int> select() => tester.widget<ESelect<int>>(list);
+    expect(select().value, 15);
+    expect(select().items.last.title, 'Never');
+    select().onChanged(select().items.last.value);
     await _idle(tester, Duration.zero);
     expect(container.read(deskProvider).settings.autoLockOn, isFalse);
-    expect(tester.widget<IgnorePointer>(find.ancestor(of: find.byKey(const ValueKey('auto-lock-minutes')), matching: find.byType(IgnorePointer)).first).ignoring, isTrue);
+    expect(select().value, select().items.last.value);
+    select().onChanged(5);
+    await _idle(tester, Duration.zero);
+    expect(container.read(deskProvider).settings.autoLockOn, isTrue);
+    expect(container.read(deskProvider).settings.autoLockMinutes, 5);
   });
 }

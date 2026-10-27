@@ -3594,7 +3594,7 @@
   "deskSetAdvOn": "{n, plural, =1{1 Schalter an} other{{n} Schalter an}}",
   "deskShellOffline": "Offline-Modus",
   "deskShellTorOnlyWaiting": "Nur Tor · wartet auf Tor",
-  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Ausgeschaltet sperrt nur „Wallet sperren“.",
+  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“.",
   "netBlockOffline": "Der Offline-Modus ist unter Erweitert eingeschaltet.",
   "netBlockTorOnly": "Nur Tor ist unter Erweitert eingeschaltet.",
   "netBlockWaitingForTor": "Wartet auf Tor.",

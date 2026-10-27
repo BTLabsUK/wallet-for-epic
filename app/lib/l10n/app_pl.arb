@@ -3594,7 +3594,7 @@
   "deskSetAdvOn": "{n, plural, one{1 przełącznik włączony} few{{n} przełączniki włączone} many{{n} przełączników włączonych} other{{n} przełącznika włączonego}}",
   "deskShellOffline": "Tryb offline",
   "deskShellTorOnlyWaiting": "Tylko Tor · czeka na Tor",
-  "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”.",
+  "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.",
   "netBlockOffline": "Tryb offline jest włączony w Zaawansowanych.",
   "netBlockTorOnly": "Tylko Tor jest włączony w Zaawansowanych.",
   "netBlockWaitingForTor": "Czeka na Tor.",

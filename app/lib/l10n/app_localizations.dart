@@ -21806,7 +21806,7 @@ abstract class AppLocalizations {
   /// Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch).
   ///
   /// In en, this message translates to:
-  /// **'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.'**
+  /// **'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.'**
   String get deskSetAcctAutoLockHint;
 
   /// Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page.

@@ -133,7 +133,7 @@
       }
     }
   },
-  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.",
+  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.",
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
   }

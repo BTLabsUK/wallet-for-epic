@@ -225,10 +225,14 @@ class _FolderRow extends ConsumerWidget {
   }
 }
 
-/// Auto-lock: on or off, and after how many minutes without a key or the mouse (the phone's
-/// choices). Off greys the minutes; Lock wallet works either way.
+/// Auto-lock: after how many minutes without a key or the mouse (the phone's choices), or
+/// Never (testers looked for an Off in the list; a separate switch was missed). Never keeps the
+/// minutes, so choosing a time again needs no second step. Lock wallet works either way.
 class _AutoLockRow extends ConsumerWidget {
   const _AutoLockRow();
+
+  /// The list's value for Never; the minutes are all positive.
+  static const _never = -1;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -238,34 +242,21 @@ class _AutoLockRow extends ConsumerWidget {
     return ESetRow(
       title: l.settingsAutoLock,
       hint: l.deskSetAcctAutoLockHint,
-      control: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 168.u,
-            child: IgnorePointer(
-              ignoring: !s.autoLockOn,
-              child: Opacity(
-                opacity: s.autoLockOn ? 1 : 0.45,
-                child: ESelect<int>(
-                  key: const ValueKey('auto-lock-minutes'),
-                  size: EBtnSize.sm,
-                  semanticLabel: l.settingsAutoLock,
-                  value: s.autoLockMinutes,
-                  items: [for (final m in autoLockChoices) ESelectItem(m, autoLockLabel(l, m))],
-                  onChanged: (m) => save(s.copyWith(autoLockMinutes: m)),
-                ),
-              ),
-            ),
+      control: SizedBox(
+        width: 168.u,
+        child: ESelect<int>(
+          key: const ValueKey('auto-lock-minutes'),
+          size: EBtnSize.sm,
+          semanticLabel: l.settingsAutoLock,
+          value: s.autoLockOn ? s.autoLockMinutes : _never,
+          items: [
+            for (final m in autoLockChoices) ESelectItem(m, autoLockLabel(l, m)),
+            ESelectItem(_never, autoLockLabel(l, null)),
+          ],
+          onChanged: (m) => save(
+            m == _never ? s.copyWith(autoLockOn: false) : s.copyWith(autoLockOn: true, autoLockMinutes: m),
           ),
-          SizedBox(width: Sp.x3),
-          ESwitch(
-            key: const ValueKey('auto-lock-on'),
-            value: s.autoLockOn,
-            semanticLabel: l.settingsAutoLock,
-            onChanged: (on) => save(s.copyWith(autoLockOn: on)),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -13579,7 +13579,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.';
+      'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.';
 
   @override
   String get netBlockOffline => 'Offline mode is on in Advanced.';

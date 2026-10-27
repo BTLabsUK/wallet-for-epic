@@ -13344,7 +13344,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าปิดไว้ จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
+      'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
 
   @override
   String get netBlockOffline => 'โหมดออฟไลน์เปิดอยู่ใน ขั้นสูง';

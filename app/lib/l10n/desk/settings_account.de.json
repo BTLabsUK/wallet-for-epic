@@ -30,5 +30,5 @@
   "deskSetAcctDeleteHint": "Löscht ihre Schlüssel und ihre Datenbank.",
   "deskSetAcctFolderNotFound": "Ordner nicht gefunden",
   "deskSetAcctCopyPath": "Pfad kopieren: {title}",
-  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Ausgeschaltet sperrt nur „Wallet sperren“."
+  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“."
 }

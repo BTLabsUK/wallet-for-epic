@@ -13944,7 +13944,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”.';
+      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.';
 
   @override
   String get netBlockOffline => 'Tryb offline jest włączony w Zaawansowanych.';

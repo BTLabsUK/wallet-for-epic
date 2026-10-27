@@ -12882,7 +12882,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskShellTorOnlyWaiting => '仅 Tor · 等待 Tor';
 
   @override
-  String get deskSetAcctAutoLockHint => '在这段时间内没有按键或移动鼠标时锁定钱包。关闭后，只能用“锁定钱包”锁定。';
+  String get deskSetAcctAutoLockHint =>
+      '在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。';
 
   @override
   String get netBlockOffline => '“高级”中已开启离线模式。';
