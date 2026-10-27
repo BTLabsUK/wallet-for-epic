@@ -58,9 +58,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Transaktion ab und sendet sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
         HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf den Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
         if (phone)
-          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
+          HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (${tor ? 'http oder .onion' : 'http'}) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
-          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; eine Link-Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
+          HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; eine Link-Adresse (${tor ? 'http oder .onion' : 'http'}) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
       ],
       id: HelpId.send,
     ),
@@ -97,7 +97,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Relay, also gibt es keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten am Relay). **Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung** brauchen kein Relay. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
+          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Relay, also gibt es keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten am Relay). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen kein Relay. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
           '**Senden beginnt mit.** Die Methode, mit der der Bildschirm Senden sich öffnet. Auf Senden können Sie trotzdem eine andere wählen.',
           '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
@@ -105,27 +105,30 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       id: HelpId.methods,
     ),
     if (phone)
-      const HelpTopic(
+      HelpTopic(
         'start',
         'So sieht eine Adresse aus',
-        'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse oder endet auf .onion.',
+        tor ? 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse oder endet auf .onion.' : 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse.',
         [
           HelpBlock.ul([
             '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@epicbox.epiccash.com**. Die Standardmethode; der Empfänger darf offline sein.',
-            '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.',
+            if (tor)
+              '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.'
+            else
+              '**Link · HTTP**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP.',
           ]),
           HelpBlock.p('Senden wählt die Methode anhand der Adresse, die im Feld „An“ eingefügt wird. Wer eine Adresse vorliest, vergleicht die ersten sechs und die letzten sechs Zeichen.'),
         ],
         id: HelpId.addresses,
       ),
-    const HelpTopic(
+    HelpTopic(
       'how',
       'Warum braucht eine Transaktion beide Seiten?',
       'Bei Epic Cash hilft die Wallet des Empfängers, jede Transaktion zu bauen, daher müssen beide Wallets mitwirken.',
       [
         HelpBlock.p('Epic Cash nutzt Mimblewimble. Statt eine Adresse und einen Betrag in die Blockchain zu schreiben, bauen die beiden Wallets jede Transaktion gemeinsam, wie bei einem Handschlag:'),
         HelpBlock.ol(['Die Wallet des Absenders beginnt und sperrt die Outputs, die gesendet werden.', 'Die Wallet des Empfängers fügt ihren Teil hinzu und signiert.', 'Die Wallet des Absenders signiert ebenfalls, schließt die Transaktion ab und sendet sie ins Netzwerk.']),
-        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. **Link · HTTP** und **Link · Tor** gehen direkt zur anderen Wallet, solange sie geöffnet ist. **Direkt · Dateiübertragung** (eine Transaktionsdatei) ist der manuelle Weg.'),
+        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. ${tor ? '**Link · HTTP** und **Link · Tor** gehen direkt' : '**Link · HTTP** geht direkt'} zur anderen Wallet, solange sie geöffnet ist. **Direkt · Dateiübertragung** (eine Transaktionsdatei) ist der manuelle Weg.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -148,7 +151,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Bei vielen Blockchains kann jeder eine Adresse nachschlagen und ihr Guthaben und ihren Verlauf sehen. Epic Cash ist anders:'),
         HelpBlock.ul(['**Keine Adressen auf der Blockchain.** Die Epicbox-Adresse sagt Epicbox nur, wohin Nachrichten zugestellt werden. Sie wird nie in die Blockchain geschrieben.', '**Keine Beträge auf der Blockchain.** Beträge sind kryptografisch verborgen, und das Netzwerk kann trotzdem prüfen, dass keine Münzen aus dem Nichts entstanden sind.', '**Notizen bleiben außerhalb der Blockchain.** Eine Nachricht zu einer Zahlung geht nur an die andere Wallet. Kontakte und Wallet-Namen bleiben auf $device.']),
-        const HelpBlock.p('Was nicht verborgen ist: Der Node und der Epicbox-Server sehen die IP-Adresse der Wallet, und ein öffentlicher Node kann sehen, nach welchen Outputs die Wallet fragt. Tor oder ein VPN verbirgt die IP-Adresse.'),
+        HelpBlock.p('Was nicht verborgen ist: Der Node und der Epicbox-Server sehen die IP-Adresse der Wallet, und ein öffentlicher Node kann sehen, nach welchen Outputs die Wallet fragt. ${tor ? 'Tor oder ein VPN verbirgt' : 'Ein VPN verbirgt'} die IP-Adresse.'),
       ],
       id: HelpId.privacy,
     ),
@@ -249,7 +252,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Wallet braucht einen Node, um die Blockchain zu lesen (Guthaben und Bestätigungen) und Transaktionen ins Netzwerk zu senden.'),
         if (phone)
-          const HelpBlock.p('Ein **öffentlicher Node** ist einer der Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt; Tor verbirgt die Adresse.')
+          HelpBlock.p('Ein **öffentlicher Node** ist einer der Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt${tor ? '; Tor verbirgt die Adresse' : ''}.')
         else
           const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer. Er lädt zuerst die ganze Blockchain herunter, was eine Weile dauert und Speicherplatz braucht, und gehört dann Ihnen. Während er synchronisiert, nutzt die Wallet einen öffentlichen Node.']),
         if (phone)
@@ -314,17 +317,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'network',
       'Netzwerkmodi',
-      'Standard verbindet direkt. Nur Tor nie. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.',
+      tor ? 'Standard verbindet direkt. Nur Tor nie. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.' : 'Standard verbindet direkt. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.',
       [
         const HelpBlock.p('Wie die Wallet das Netzwerk erreicht, ist eine einzige Wahl auf der Seite **Erweitert** in den Einstellungen, unter Netzwerk.'),
         HelpBlock.ul([
-          '**Standard**: verbindet direkt. Tor ist der Schalter unter $torPlace.',
-          '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion. ${phone ? 'Benachrichtigungen sind aus, weil die Anmeldung dafür dieses Smartphone verraten würde.' : 'Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
-          '**Offline**: kein Epicbox, kein Link außer an lokale Adressen, ${phone ? 'keine Benachrichtigungen' : 'kein Tor'}, keine Statusprüfungen. Guthaben und Verlauf bleiben, wie zuletzt gesehen. ${phone ? '**Direkt · QR-Zahlung** und **Direkt · Dateiübertragung**' : '**Direkt · Dateiübertragung**'} funktionieren weiterhin: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen, und der Bildschirm sagt es. Für die meiste Privatsphäre nutzen Sie einen Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'}: Dann aktualisiert sich das Guthaben${phone ? '' : ', Link · HTTP empfängt über das lokale Netzwerk, wenn der HTTP-Empfang auf **Aus dem Internet** steht,'} und Guthaben neu prüfen läuft ebenfalls.',
+          tor ? '**Standard**: verbindet direkt. Tor ist der Schalter unter $torPlace.' : '**Standard**: verbindet direkt.',
+          if (tor)
+            '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion. ${phone ? 'Benachrichtigungen sind aus, weil die Anmeldung dafür dieses Smartphone verraten würde.' : 'Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
+          '**Offline**: kein Epicbox, kein Link außer an lokale Adressen, ${phone ? 'keine Benachrichtigungen, ' : (tor ? 'kein Tor, ' : '')}keine Statusprüfungen. Guthaben und Verlauf bleiben, wie zuletzt gesehen. ${phone ? '**Direkt · QR-Zahlung** und **Direkt · Dateiübertragung**' : '**Direkt · Dateiübertragung**'} funktionieren weiterhin: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen, und der Bildschirm sagt es. Für die meiste Privatsphäre nutzen Sie einen Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'}: Dann aktualisiert sich das Guthaben${phone ? '' : ', Link · HTTP empfängt über das lokale Netzwerk, wenn der HTTP-Empfang auf **Aus dem Internet** steht,'} und Guthaben neu prüfen läuft ebenfalls.',
         ]),
         const HelpBlock.p('Geben Sie den Node im Offline-Modus mit seiner IP-Adresse an, zum Beispiel **10.100.10.20:3413**. Namen werden nicht aufgelöst.'),
         if (!phone) const HelpBlock.p('Die Peers des integrierten Nodes sind eine Einstellung des Nodes, nicht des Modus.'),
-        HelpBlock.p('${phone ? 'Der Startbildschirm' : 'Die Seitenleiste'} zeigt, wenn die Wallet offline ist oder auf Tor wartet. Mit dem Modus **Standard** ist wieder alles da.'),
+        HelpBlock.p('${phone ? 'Der Startbildschirm' : 'Die Seitenleiste'} zeigt, wenn die Wallet offline ist${tor ? ' oder auf Tor wartet' : ''}. Mit dem Modus **Standard** ist wieder alles da.'),
       ],
       id: HelpId.modes,
     ),
@@ -349,9 +353,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node und Node starten auf der Übersicht.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
-        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist.'),
+        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
         const HelpBlock.p('**Experimentell** enthält **Kopplung** und **Rechnungen**, beide zu Beginn aus. Kopplung bringt Koppeln und gekoppelte Kontakte; Rechnungen bringt Zahlungsanforderungen und Rechnungen zwischen gekoppelten Kontakten und braucht Kopplung. Aus sind sie verborgen, und nichts wird für sie abgerufen; bestehende Kopplungen bleiben gespeichert und kommen zurück, sobald der Schalter wieder an ist.'),
-        if (phone) const HelpBlock.p('**Benachrichtigungen** (experimentell) ist der letzte Schalter auf der Seite. Er meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist; solange Tor an ist, ist er aus.'),
+        if (phone) HelpBlock.p('**Benachrichtigungen** (experimentell) ist der letzte Schalter auf der Seite. Er meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist${tor ? '; solange Tor an ist, ist er aus' : ''}.'),
         const HelpBlock.p('Dieselbe Seite legt den Netzwerkmodus fest: siehe „Netzwerkmodi“.'),
       ],
       id: HelpId.advanced,
@@ -374,18 +378,20 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie im Tab Wallet, ob der Node synchronisiert und Epicbox online ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
         else
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
-        if (phone)
+        if (phone && tor)
           const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Datenschutz & Netzwerk|Settings › Privacy & network]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
-        if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren in der Zwischenzeit weiter.'),
-          HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
+        if (!phone) ...[
+          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. ${tor ? 'Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren' : 'Epicbox und Direkt · Dateiübertragung funktionieren'} in der Zwischenzeit weiter.'),
+          const HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
         ],
         if (phone)
           const HelpBlock.p('**PIN vergessen.** Löschen Sie die Wallet auf dem Entsperrbildschirm und stellen Sie sie mit ihrer Wiederherstellungsphrase und einer neuen PIN wieder her. Ohne die Phrase lassen sich die EPIC nicht zurückholen.')
         else
           const HelpBlock.p('**„Falsches Passwort“.** Prüfen Sie die Feststelltaste und das Tastaturlayout. Passwort vergessen: Stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her und wählen Sie ein neues.'),
         HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $recheckPlace.'),
-        const HelpBlock.p('**Eine Aktion ist ausgegraut und nennt „Offline-Modus“ oder „Wartet auf Tor“.** Offline oder Nur Tor ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück oder warten Sie, bis Tor verbunden ist.'),
+        HelpBlock.p(tor
+            ? '**Eine Aktion ist ausgegraut und nennt „Offline-Modus“ oder „Wartet auf Tor“.** Offline oder Nur Tor ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück oder warten Sie, bis Tor verbunden ist.'
+            : '**Eine Aktion ist ausgegraut und nennt „Offline-Modus“.** Offline ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück.'),
       ],
       id: HelpId.trouble,
     ),

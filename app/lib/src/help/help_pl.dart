@@ -58,9 +58,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('Gdy odpowiedź wróci, portfel sam zakończy transakcję i wyśle ją do sieci. Staje się ostateczna po osiągnięciu wymaganej liczby potwierdzeń ($confirmations).'),
         HelpBlock.p('**Brak odpowiedzi?** Po kilku minutach stan zmienia się na „Czeka na odbiorcę”. Poproś odbiorcę, by otworzył portfel. Jeśli odpowiedź nigdy nie przyjdzie, anuluj płatność w $cancelPlace, aby odblokować wyjścia. Płatność, na którą nikt nie odpowie, anuluje się sama po około jednym dniu.'),
         if (phone)
-          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też odpowiadającego serwera Epicbox; adres bezpośredni (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.')
+          HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też odpowiadającego serwera Epicbox; adres bezpośredni (${tor ? 'http lub .onion' : 'http'}) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.')
         else
-          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adres Link (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
+          HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adres Link (${tor ? 'http lub .onion' : 'http'}) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
       ],
       id: HelpId.send,
     ),
@@ -97,7 +97,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.'),
         HelpBlock.ul([
-          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym przekaźnikiem, więc nie ma płatności Epicbox, faktur ani powiadomień, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na przekaźniku). **Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku** nie potrzebują przekaźnika. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
+          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym przekaźnikiem, więc nie ma płatności Epicbox, faktur ani powiadomień, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na przekaźniku). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują przekaźnika. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
           '**Wysyłanie zaczyna od.** Metoda, z którą otwiera się ekran Wyślij. Na ekranie Wyślij nadal możesz wybrać inną.',
           '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
@@ -105,27 +105,30 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       id: HelpId.methods,
     ),
     if (phone)
-      const HelpTopic(
+      HelpTopic(
         'start',
         'Jak wygląda adres',
-        'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy lub kończy się na .onion.',
+        tor ? 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy lub kończy się na .onion.' : 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy.',
         [
           HelpBlock.ul([
             '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@epicbox.epiccash.com**. Domyślny sposób; odbiorca może być offline.',
-            '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.',
+            if (tor)
+              '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.'
+            else
+              '**Link · HTTP**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP.',
           ]),
           HelpBlock.p('Wyślij wybiera sposób na podstawie adresu wklejonego w pole Do. Gdy odczytujesz adres na głos, porównaj pierwsze sześć i ostatnie sześć znaków.'),
         ],
         id: HelpId.addresses,
       ),
-    const HelpTopic(
+    HelpTopic(
       'how',
       'Dlaczego transakcja wymaga obu stron?',
       'W Epic Cash portfel odbiorcy pomaga zbudować każdą transakcję, więc oba portfele muszą wziąć w niej udział.',
       [
         HelpBlock.p('Epic Cash używa Mimblewimble. Zamiast zapisywać w łańcuchu bloków adres i kwotę, oba portfele budują każdą transakcję razem, jak w uścisku dłoni:'),
         HelpBlock.ol(['Portfel nadawcy ją rozpoczyna i blokuje wysyłane wyjścia.', 'Portfel odbiorcy dodaje swoją część i podpisuje.', 'Portfel nadawcy też podpisuje, kończy transakcję i wysyła ją do sieci.']),
-        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. **Link · HTTP** i **Link · Tor** trafiają prosto do drugiego portfela, gdy jest otwarty. **Bezpośrednio · Przesyłanie pliku** (plik transakcji) to sposób ręczny.'),
+        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. ${tor ? '**Link · HTTP** i **Link · Tor** trafiają prosto' : '**Link · HTTP** trafia prosto'} do drugiego portfela, gdy jest otwarty. **Bezpośrednio · Przesyłanie pliku** (plik transakcji) to sposób ręczny.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -148,7 +151,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('W wielu łańcuchach bloków każdy może wyszukać adres i zobaczyć jego saldo i historię. Epic Cash działa inaczej:'),
         HelpBlock.ul(['**Brak adresów w łańcuchu bloków.** Adres Epicbox mówi tylko serwerowi Epicbox, dokąd dostarczać wiadomości. Nigdy nie jest zapisywany w łańcuchu bloków.', '**Brak kwot w łańcuchu bloków.** Kwoty są ukryte kryptograficznie, a sieć i tak może sprawdzić, że żadne monety nie powstały z niczego.', '**Notatki poza łańcuchem bloków.** Wiadomość dodana do płatności trafia tylko do drugiego portfela. Kontakty i nazwy portfeli zostają na $device.']),
-        const HelpBlock.p('Czego nie ukrywa: węzeł i serwer Epicbox widzą adres IP portfela, a węzeł publiczny może zobaczyć, o które wyjścia portfel pyta. Tor lub VPN ukrywa adres IP.'),
+        HelpBlock.p('Czego nie ukrywa: węzeł i serwer Epicbox widzą adres IP portfela, a węzeł publiczny może zobaczyć, o które wyjścia portfel pyta. ${tor ? 'Tor lub VPN ukrywa' : 'VPN ukrywa'} adres IP.'),
       ],
       id: HelpId.privacy,
     ),
@@ -249,7 +252,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Portfel potrzebuje węzła, aby czytać łańcuch bloków (saldo i potwierdzenia) i wysyłać transakcje do sieci.'),
         if (phone)
-          const HelpBlock.p('**Węzeł publiczny** to jeden z węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta; Tor ukrywa ten adres.')
+          HelpBlock.p('**Węzeł publiczny** to jeden z węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta${tor ? '; Tor ukrywa ten adres' : ''}.')
         else
           const HelpBlock.ul(['**Węzeł publiczny** (domyślnie): jeden z publicznych węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta.', '**Węzeł lokalny**: działa na tym komputerze. Najpierw pobiera cały łańcuch bloków, co trwa i wymaga miejsca na dysku, a potem jest twój. Gdy się synchronizuje, portfel używa węzła publicznego.']),
         if (phone)
@@ -314,17 +317,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'network',
       'Tryby sieci',
-      'Standardowy łączy się bezpośrednio. Tylko Tor nigdy. Offline nie używa niczego poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną.',
+      tor ? 'Standardowy łączy się bezpośrednio. Tylko Tor nigdy. Offline nie używa niczego poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną.' : 'Standardowy łączy się bezpośrednio. Offline nie używa niczego poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną.',
       [
         const HelpBlock.p('Sposób, w jaki portfel łączy się z siecią, to jeden wybór na stronie **Zaawansowane** w ustawieniach, w sekcji Sieć.'),
         HelpBlock.ul([
-          '**Standardowy**: łączy się bezpośrednio. Tor to przełącznik w $torPlace.',
-          '**Tylko Tor**: Tor jest zawsze włączony, a jego przełącznik zablokowany. Nic nie idzie przez otwarty internet. Gdy Tor się uruchamia lub zawiódł, portfel mówi **Czeka na Tor**, a wszystko, co wymaga sieci, czeka; powód podaje wyszarzona akcja. ${phone ? 'Powiadomienia są wyłączone, bo zapisanie się na nie ujawniłoby ten telefon.' : 'Odbieranie przez HTTP jest wyłączone, bo zwykły adres ujawniłby ten komputer.'}',
-          '**Offline**: bez Epicbox, bez Link poza adresami lokalnymi, ${phone ? 'bez powiadomień' : 'bez Tora'}, bez sprawdzania stanu. Saldo i historia zostają takie, jakie widziano ostatnio. ${phone ? '**Bezpośrednio · Płatność QR** i **Bezpośrednio · Przesyłanie pliku**' : '**Bezpośrednio · Przesyłanie pliku**'} nadal działają: używają używanego węzła, by czytać łańcuch i go wysyłać, także publicznego, a ekran o tym mówi. Dla największej prywatności użyj węzła ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'}: wtedy saldo się odświeża${phone ? '' : ', Link · HTTP odbiera przez sieć lokalną przy odbieraniu przez HTTP ustawionym na **Z internetu**,'} i Sprawdź saldo też działa.',
+          tor ? '**Standardowy**: łączy się bezpośrednio. Tor to przełącznik w $torPlace.' : '**Standardowy**: łączy się bezpośrednio.',
+          if (tor)
+            '**Tylko Tor**: Tor jest zawsze włączony, a jego przełącznik zablokowany. Nic nie idzie przez otwarty internet. Gdy Tor się uruchamia lub zawiódł, portfel mówi **Czeka na Tor**, a wszystko, co wymaga sieci, czeka; powód podaje wyszarzona akcja. ${phone ? 'Powiadomienia są wyłączone, bo zapisanie się na nie ujawniłoby ten telefon.' : 'Odbieranie przez HTTP jest wyłączone, bo zwykły adres ujawniłby ten komputer.'}',
+          '**Offline**: bez Epicbox, bez Link poza adresami lokalnymi, ${phone ? 'bez powiadomień, ' : (tor ? 'bez Tora, ' : '')}bez sprawdzania stanu. Saldo i historia zostają takie, jakie widziano ostatnio. ${phone ? '**Bezpośrednio · Płatność QR** i **Bezpośrednio · Przesyłanie pliku**' : '**Bezpośrednio · Przesyłanie pliku**'} nadal działają: używają używanego węzła, by czytać łańcuch i go wysyłać, także publicznego, a ekran o tym mówi. Dla największej prywatności użyj węzła ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'}: wtedy saldo się odświeża${phone ? '' : ', Link · HTTP odbiera przez sieć lokalną przy odbieraniu przez HTTP ustawionym na **Z internetu**,'} i Sprawdź saldo też działa.',
         ]),
         const HelpBlock.p('W trybie Offline podaj węzeł jego adresem IP, na przykład **10.100.10.20:3413**. Nazwy nie są wyszukiwane.'),
         if (!phone) const HelpBlock.p('Peery wbudowanego węzła to ustawienie samego węzła, nie trybu.'),
-        HelpBlock.p('${phone ? 'Ekran główny' : 'Pasek boczny'} pokazuje, gdy portfel jest offline albo czeka na Tor. Po wróceniu do trybu **Standardowy** wszystko znów działa.'),
+        HelpBlock.p('${phone ? 'Ekran główny' : 'Pasek boczny'} pokazuje, gdy portfel jest offline${tor ? ' albo czeka na Tor' : ''}. Po wróceniu do trybu **Standardowy** wszystko znów działa.'),
       ],
       id: HelpId.modes,
     ),
@@ -349,9 +353,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle i Uruchom węzeł na Przeglądzie.',
           if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
         ]),
-        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybie offline${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}, a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor.'),
+        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybie offline${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
         const HelpBlock.p('**Eksperymentalne** zawiera **Parowanie** i **Faktury**, na początku wyłączone. Parowanie dodaje Sparuj i sparowane kontakty; Faktury dodają prośby o płatność i faktury między sparowanymi kontaktami i wymagają parowania. Wyłączone są ukryte i nic nie jest dla nich sprawdzane; istniejące parowania zostają zapisane i wracają po ponownym włączeniu.'),
-        if (phone) const HelpBlock.p('**Powiadomienia** (eksperymentalne) to ostatni przełącznik na tej stronie. Informuje, gdy płatność lub faktura przychodzi przy zamkniętej aplikacji; gdy Tor jest włączony, jest wyłączony.'),
+        if (phone) HelpBlock.p('**Powiadomienia** (eksperymentalne) to ostatni przełącznik na tej stronie. Informuje, gdy płatność lub faktura przychodzi przy zamkniętej aplikacji${tor ? '; gdy Tor jest włączony, jest wyłączony' : ''}.'),
         const HelpBlock.p('Ta sama strona ustawia tryb sieci: zobacz „Tryby sieci”.'),
       ],
       id: HelpId.advanced,
@@ -374,18 +378,20 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź na karcie Portfel, czy węzeł jest zsynchronizowany, a Epicbox online. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
         else
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź w Odbierz, czy odbieranie jest włączone, a węzeł zsynchronizowany. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.'),
-        if (phone)
+        if (phone && tor)
           const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Prywatność i sieć|Settings › Privacy & network]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
-        if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Link · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Link · Tor i Bezpośrednio · Przesyłanie pliku działają w tym czasie dalej.'),
-          HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
+        if (!phone) ...[
+          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Link · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. ${tor ? 'Epicbox, Link · Tor i Bezpośrednio · Przesyłanie pliku działają' : 'Epicbox i Bezpośrednio · Przesyłanie pliku działają'} w tym czasie dalej.'),
+          const HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
         ],
         if (phone)
           const HelpBlock.p('**Zapomniany PIN.** Usuń portfel na ekranie odblokowania i przywróć go z frazy odzyskiwania z nowym PIN-em. Bez frazy EPIC nie da się odzyskać.')
         else
           const HelpBlock.p('**„Nieprawidłowe hasło”.** Sprawdź Caps Lock i układ klawiatury. Zapomniane hasło: przywróć portfel z frazy odzyskiwania i wybierz nowe.'),
         HelpBlock.p('**Saldo wygląda na błędne.** Uruchom $recheckPlace.'),
-        const HelpBlock.p('**Akcja jest wyszarzona i mówi „Tryb offline” albo „Czeka na Tor”.** W Zaawansowanych włączono Offline lub Tylko Tor. Przywróć tam tryb Standardowy albo poczekaj, aż Tor się połączy.'),
+        HelpBlock.p(tor
+            ? '**Akcja jest wyszarzona i mówi „Tryb offline” albo „Czeka na Tor”.** W Zaawansowanych włączono Offline lub Tylko Tor. Przywróć tam tryb Standardowy albo poczekaj, aż Tor się połączy.'
+            : '**Akcja jest wyszarzona i mówi „Tryb offline”.** W Zaawansowanych włączono Offline. Przywróć tam tryb Standardowy.'),
       ],
       id: HelpId.trouble,
     ),

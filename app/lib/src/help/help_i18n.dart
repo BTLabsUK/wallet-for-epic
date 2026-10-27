@@ -65,9 +65,25 @@ List<HelpTopic> mergeHelpTopics(
 }
 
 /// The five sections in [lang] (a code from `appLanguages`): English for those it has not
-/// translated.
-List<HelpSection> localizedHelpSections(String lang) =>
-    mergeHelpSections(helpSections, _translatedSections(_known(lang)));
+/// translated. [tor] false words the network section without Tor.
+List<HelpSection> localizedHelpSections(String lang, {bool tor = true}) {
+  final sections = mergeHelpSections(helpSections, _translatedSections(_known(lang)));
+  if (tor) return sections;
+  return [
+    for (final s in sections)
+      if (s.id == 'network') (id: s.id, title: s.title, lede: _networkLedeNoTor[_known(lang)]!, art: s.art) else s,
+  ];
+}
+
+/// The Nodes and Epicbox section's line in a build without Tor: the usual one minus "and Tor".
+const _networkLedeNoTor = {
+  'en': 'What the wallet connects to.',
+  'de': 'Womit sich die Wallet verbindet.',
+  'pl': 'Z czym łączy się portfel.',
+  'ru': 'К чему подключается кошелёк.',
+  'zh': '钱包连接到什么。',
+  'th': 'กระเป๋าเงินเชื่อมต่อกับอะไรบ้าง',
+};
 
 /// The topics for [platform] in [lang], with [confirmations] as the open wallet's balance counts
 /// them: the English list, each topic replaced by the translation with the same id.
