@@ -16387,4 +16387,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNoTorTourAdvancedText => '输出和技术详情都在这里。需要什么就开启什么。';
+
+  @override
+  String get errorInputsSpentElsewhere => '这些币刚刚被另一个使用您助记词的钱包花掉了。';
+
+  @override
+  String get deskErrInputsSpentElsewhere => '这些币刚刚被另一个使用您助记词的钱包花掉了。';
 }

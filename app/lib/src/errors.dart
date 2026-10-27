@@ -70,6 +70,8 @@ String describeError(AppLocalizations l, Object error) {
       // Receive, send or an invoice before the restore's scan from block 0 has finished; Home
       // shows that scan (restore_scan.dart).
       WalletErrorKind.restoreScanRequired => l.errorRestoreScanRequired,
+      // Another wallet with this phrase spent the coins; the send is released and a refresh follows.
+      WalletErrorKind.inputsSpentElsewhere => l.errorInputsSpentElsewhere,
       WalletErrorKind.phraseMismatch ||
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };

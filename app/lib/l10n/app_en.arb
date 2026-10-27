@@ -23094,5 +23094,13 @@
   "deskNoTorTourAdvancedText": "Outputs and technical details live here. Switch on what you need.",
   "@deskNoTorTourAdvancedText": {
     "description": "Tour step on Settings › Advanced in the build without Tor (no Tor-only mode)."
+  },
+  "errorInputsSpentElsewhere": "These coins were just spent by another wallet using your recovery phrase.",
+  "@errorInputsSpentElsewhere": {
+    "description": "Error for the core's InputsSpentElsewhere: posting a send failed because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
+  },
+  "deskErrInputsSpentElsewhere": "These coins were just spent by another wallet using your recovery phrase.",
+  "@deskErrInputsSpentElsewhere": {
+    "description": "Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
   }
 }

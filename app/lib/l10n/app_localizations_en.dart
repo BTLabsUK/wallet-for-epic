@@ -17310,4 +17310,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskNoTorTourAdvancedText =>
       'Outputs and technical details live here. Switch on what you need.';
+
+  @override
+  String get errorInputsSpentElsewhere =>
+      'These coins were just spent by another wallet using your recovery phrase.';
+
+  @override
+  String get deskErrInputsSpentElsewhere =>
+      'These coins were just spent by another wallet using your recovery phrase.';
 }

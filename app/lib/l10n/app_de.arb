@@ -4602,5 +4602,7 @@
   "deskNoTorAdvNetworkHint": "Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Die Dateiübertragung funktioniert weiter über den verwendeten Node; mit einem Node hier oder in Ihrem Netzwerk können Sie außerdem an lokale Adressen zahlen und über Link empfangen, und das Guthaben wird aktualisiert. Der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.",
   "deskNoTorAdvOfflineNote": "Epicbox und Statusprüfungen pausieren. Die Dateiübertragung funktioniert weiter über den verwendeten Node, auch einen öffentlichen. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen.",
   "deskNoTorTxDetailsFromBad": "Verwenden Sie eine Epicbox- oder http(s)-Adresse.",
-  "deskNoTorTourAdvancedText": "Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen."
+  "deskNoTorTourAdvancedText": "Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.",
+  "errorInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.",
+  "deskErrInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben."
 }

@@ -139,5 +139,6 @@
   "deskErrNothingToConsolidate": "Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs.",
   "deskErrTxNotFound": "Transaktion nicht gefunden",
   "deskErrNotDeliveredRelay": "Nicht zugestellt: {relay} hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.",
-  "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet."
+  "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet.",
+  "deskErrInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben."
 }

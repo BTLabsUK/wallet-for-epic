@@ -17019,4 +17019,12 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskNoTorTourAdvancedText =>
       'เอาต์พุตและรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
+
+  @override
+  String get errorInputsSpentElsewhere =>
+      'เหรียญเหล่านี้เพิ่งถูกใช้จากกระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณ';
+
+  @override
+  String get deskErrInputsSpentElsewhere =>
+      'เหรียญเหล่านี้เพิ่งถูกใช้จากกระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณ';
 }

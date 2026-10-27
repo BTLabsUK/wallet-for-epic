@@ -17514,4 +17514,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskNoTorTourAdvancedText =>
       'Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
+
+  @override
+  String get errorInputsSpentElsewhere =>
+      'Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.';
+
+  @override
+  String get deskErrInputsSpentElsewhere =>
+      'Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.';
 }

@@ -27478,6 +27478,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outputs and technical details live here. Switch on what you need.'**
   String get deskNoTorTourAdvancedText;
+
+  /// Error for the core's InputsSpentElsewhere: posting a send failed because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
+  ///
+  /// In en, this message translates to:
+  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  String get errorInputsSpentElsewhere;
+
+  /// Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
+  ///
+  /// In en, this message translates to:
+  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  String get deskErrInputsSpentElsewhere;
 }
 
 class _AppLocalizationsDelegate

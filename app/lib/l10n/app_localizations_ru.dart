@@ -17744,4 +17744,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskNoTorTourAdvancedText =>
       'Выходы и технические сведения собраны здесь. Включайте то, что нужно.';
+
+  @override
+  String get errorInputsSpentElsewhere =>
+      'Эти монеты только что потратил другой кошелёк с вашей фразой восстановления.';
+
+  @override
+  String get deskErrInputsSpentElsewhere =>
+      'Эти монеты только что потратил другой кошелёк с вашей фразой восстановления.';
 }

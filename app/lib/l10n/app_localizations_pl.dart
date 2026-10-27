@@ -17776,4 +17776,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskNoTorTourAdvancedText =>
       'Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+
+  @override
+  String get errorInputsSpentElsewhere =>
+      'Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.';
+
+  @override
+  String get deskErrInputsSpentElsewhere =>
+      'Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.';
 }
