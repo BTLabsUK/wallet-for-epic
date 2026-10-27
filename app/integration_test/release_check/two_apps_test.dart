@@ -111,8 +111,13 @@ Future<PairingRecord?> wordsCheck(WidgetTester tester, String step) async {
 Future<void> enter(WidgetTester tester, String text) async {
   containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
   await settle(tester, ms: 1500);
+  // Under the open way's panel: scrolled to first.
+  await tester.ensureVisible(find.byKey(deskPairEnterKey));
+  await settle(tester);
   await tester.enterText(find.byKey(deskPairEnterKey), text);
   await settle(tester);
+  await tester.ensureVisible(find.byKey(deskPairGoKey));
+  await tester.pump();
   await tester.tap(find.byKey(deskPairGoKey));
   await settle(tester, ms: 1500);
 }
@@ -291,8 +296,14 @@ void main() {
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
       await settle(tester, ms: 1000);
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.words);
-      await settle(tester, ms: 4000);
-      final code = (await pairings(tester)).where((p) => p.way == PairingWay.words && p.inviteWords.isNotEmpty).firstOrNull;
+      // Words go to the three meeting relays first: they take a few seconds to show.
+      PairingRecord? code;
+      final wordsBy = DateTime.now().add(const Duration(seconds: 60));
+      while (DateTime.now().isBefore(wordsBy)) {
+        await settle(tester, ms: 2000);
+        code = (await pairings(tester)).where((p) => p.way == PairingWay.words && p.inviteWords.isNotEmpty).firstOrNull;
+        if (code != null) break;
+      }
       await shot(tester, 'A-b-code');
       rc('b: A shows five pairing words on $relayHost', code?.inviteWords.length == 5, code == null ? texts().where((t) => t.contains('relay') || t.contains('Epicbox')).take(2).join(' / ') : '');
       await put(tester, 'b-words-code', [for (final w in code?.inviteWords ?? const <SasWord>[]) w.name].join(' '));
