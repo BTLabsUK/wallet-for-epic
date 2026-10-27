@@ -248,8 +248,7 @@ class _AutoLockRow extends ConsumerWidget {
     return ESetRow(
       title: l.settingsAutoLock,
       hint: l.deskSetAcctAutoLockHint,
-      control: SizedBox(
-        width: 168.u,
+      control: ERowControl(
         child: ESelect<int>(
           key: const ValueKey('auto-lock-minutes'),
           size: EBtnSize.sm,
