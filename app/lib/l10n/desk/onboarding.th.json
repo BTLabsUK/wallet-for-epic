@@ -222,5 +222,6 @@
   "deskOnbRestoreFromLabel": "เริ่มจากบล็อก",
   "deskOnbRestoreFromHint": "ความสูงบล็อก",
   "deskOnbRestoreFromHelp": "ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน",
-  "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้"
+  "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้",
+  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
 }

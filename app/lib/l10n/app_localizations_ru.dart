@@ -17104,4 +17104,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '$amount EPIC для $who. Оба кошелька его подписали, но сеть его не приняла. Кошелёк сначала спрашивает узел и отказывает, если платёж уже в сети; иначе заблокированная сумма вернётся в баланс.';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Открыт $when';
+  }
 }

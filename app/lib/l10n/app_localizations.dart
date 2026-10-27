@@ -26476,6 +26476,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.'**
   String deskTxCancelNotPostedBody(String amount, String who);
+
+  /// Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. "3 d ago" or "just now".
+  ///
+  /// In en, this message translates to:
+  /// **'Opened {when}'**
+  String deskOnbUnlockOpened(String when);
 }
 
 class _AppLocalizationsDelegate

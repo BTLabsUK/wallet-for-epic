@@ -4435,5 +4435,6 @@
   "cancelNoteRequestPaid": "Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden. Stornieren gibt Ihre Coins hier frei.",
   "cancelNoteRequestWithdraw": "Nichts wurde bezahlt: Zurückziehen bewegt keine Coins.",
   "txDetailsCancelRequestBody": "Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden, bis diese Coins wieder ausgegeben sind. Stornieren gibt Ihre Coins hier frei.",
-  "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück."
+  "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.",
+  "deskOnbUnlockOpened": "Geöffnet {when}"
 }

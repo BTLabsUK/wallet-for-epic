@@ -309,11 +309,15 @@ class ESeedGrid extends StatelessWidget {
 
 /// One option of [ESelect].
 class ESelectItem<T> {
-  const ESelectItem(this.value, this.title, {this.subtitle, this.tooltip, this.trailing, this.leading});
+  const ESelectItem(this.value, this.title, {this.subtitle, this.subtitleIsPath = false, this.tooltip, this.trailing, this.leading});
 
   final T value;
   final String title;
   final String? subtitle;
+
+  /// [subtitle] is a folder: cut in the middle, so its end (the part that tells folders
+  /// apart) stays.
+  final bool subtitleIsPath;
 
   /// Shown on hover over the option: the whole text where the list cuts it (a wallet's folder).
   final String? tooltip;
@@ -354,100 +358,107 @@ class ESelect<T> extends StatelessWidget {
     final ts = context.ts;
     final current = items.where((i) => i.value == value).firstOrNull;
     return LayoutBuilder(
-      builder: (context, box) => MenuAnchor(
-        // A click outside only closes the list: it does not also press what is under it.
-        consumeOutsideTap: true,
-        style: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(c.s4),
-          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-          padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
-          minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
-          maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, 420.u)),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-          ),
-        ),
-        menuChildren: [
-          for (final item in items)
-            MenuItemButton(
-              onPressed: () => onChanged(item.value),
-              style: ButtonStyle(
-                minimumSize: WidgetStatePropertyAll(Size(box.maxWidth - Sp.x4, item.subtitle == null ? 40.u : 52.u)),
-                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
-                backgroundColor: WidgetStateProperty.resolveWith(
-                  (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) || item.value == value ? c.s3 : null,
-                ),
-              ),
-              leadingIcon: item.value == value
-                  ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text)
-                  : (item.leading ?? SizedBox(width: Ctl.iconSm)),
-              trailingIcon: item.trailing,
-              child: _withTooltip(
-                item.tooltip,
-                SizedBox(
-                  width: math.max(120.u, box.maxWidth - 160.u),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
-                      if (item.subtitle != null) Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                ),
-              ),
+      builder: (context, box) {
+        // The text column of each option: the field's width less the check and trailing room.
+        final width = math.max(120.u, box.maxWidth - 160.u);
+        return MenuAnchor(
+          // A click outside only closes the list: it does not also press what is under it.
+          consumeOutsideTap: true,
+          style: MenuStyle(
+            backgroundColor: WidgetStatePropertyAll(c.s4),
+            surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+            padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
+            minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
+            maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, 420.u)),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
             ),
-          if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer!],
-        ],
-        // Escape closes the list without choosing; the field keeps the focus while it is open.
-        builder: (context, controller, _) => Focus(
-          skipTraversal: true,
-          onKeyEvent: (_, e) {
-            if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !controller.isOpen) return KeyEventResult.ignored;
-            controller.close();
-            return KeyEventResult.handled;
-          },
-          child: Builder(
-            builder: (context) => Semantics(
-              button: true,
-              label: semanticLabel,
-              value: current?.title,
-              child: InkWell(
-                onTap: () {
-                  if (controller.isOpen) return controller.close();
-                  Focus.of(context).requestFocus();
-                  controller.open();
-                },
-                borderRadius: BorderRadius.circular(Rad.sm),
-                child: Container(
-                  height: size == EBtnSize.sm ? Ctl.sm : Ctl.md,
-                  padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
-                  decoration: BoxDecoration(
-                    color: c.s2,
-                    borderRadius: BorderRadius.circular(Rad.sm),
-                    border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
+          ),
+          menuChildren: [
+            for (final item in items)
+              MenuItemButton(
+                onPressed: () => onChanged(item.value),
+                style: ButtonStyle(
+                  minimumSize: WidgetStatePropertyAll(Size(box.maxWidth - Sp.x4, item.subtitle == null ? 40.u : 52.u)),
+                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
+                  backgroundColor: WidgetStateProperty.resolveWith(
+                    (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) || item.value == value ? c.s3 : null,
                   ),
-                  child: Row(
-                    children: [
-                      if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
-                      Expanded(
-                        child: Text(
-                          current?.title ?? '',
-                          style: mono ? ts.mono(size: Fs.sm) : ts.body,
-                          overflow: TextOverflow.ellipsis,
+                ),
+                leadingIcon: item.value == value
+                    ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text)
+                    : (item.leading ?? SizedBox(width: Ctl.iconSm)),
+                trailingIcon: item.trailing,
+                child: _withTooltip(
+                  item.tooltip,
+                  SizedBox(
+                    width: width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
+                        if (item.subtitle != null)
+                          item.subtitleIsPath
+                              ? EMiddleEllipsis(item.subtitle!, style: ts.caption, tooltip: item.tooltip == null, width: width)
+                              : Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer!],
+          ],
+          // Escape closes the list without choosing; the field keeps the focus while it is open.
+          builder: (context, controller, _) => Focus(
+            skipTraversal: true,
+            onKeyEvent: (_, e) {
+              if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !controller.isOpen) return KeyEventResult.ignored;
+              controller.close();
+              return KeyEventResult.handled;
+            },
+            child: Builder(
+              builder: (context) => Semantics(
+                button: true,
+                label: semanticLabel,
+                value: current?.title,
+                child: InkWell(
+                  onTap: () {
+                    if (controller.isOpen) return controller.close();
+                    Focus.of(context).requestFocus();
+                    controller.open();
+                  },
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  child: Container(
+                    height: size == EBtnSize.sm ? Ctl.sm : Ctl.md,
+                    padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                    decoration: BoxDecoration(
+                      color: c.s2,
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                      border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
+                    ),
+                    child: Row(
+                      children: [
+                        if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
+                        Expanded(
+                          child: Text(
+                            current?.title ?? '',
+                            style: mono ? ts.mono(size: Fs.sm) : ts.body,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                      if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
-                      Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
-                    ],
+                        if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
+                        Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -624,3 +635,51 @@ ETone healthTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
   ServiceHealth.checking => ETone.info,
 };
+
+/// A path on one line: when it does not fit, the middle gives way (its end matters more).
+class EMiddleEllipsis extends StatelessWidget {
+  const EMiddleEllipsis(this.text, {super.key, required this.style, this.tooltip = true, this.width});
+
+  final String text;
+  final TextStyle style;
+
+  /// The whole text on hover; off where the row around it has its own tooltip.
+  final bool tooltip;
+
+  /// The room it has, where it is known; inside a menu, which measures its items' intrinsic
+  /// sizes, a LayoutBuilder cannot ask.
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) =>
+      width != null ? _line(context, width!) : LayoutBuilder(builder: (context, box) => _line(context, box.maxWidth));
+
+  Widget _line(BuildContext context, double room) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    bool fits(String t) {
+      final p = TextPainter(text: TextSpan(text: t, style: style), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+      return p.width <= room;
+    }
+
+    var shown = text;
+    if (!fits(shown) && text.length > 4) {
+      var lo = 0, hi = text.length;
+      // The longest text that fits, cut in the middle.
+      while (hi - lo > 1) {
+        final mid = (lo + hi) ~/ 2;
+        final keep = text.length - mid;
+        final head = keep ~/ 2, tail = keep - head;
+        final t = '${text.substring(0, head)}…${text.substring(text.length - tail)}';
+        if (fits(t)) {
+          hi = mid;
+          shown = t;
+        } else {
+          lo = mid;
+        }
+      }
+    }
+    final line = Text(shown, maxLines: 1, softWrap: false, style: style, semanticsLabel: text);
+    return tooltip ? Tooltip(message: text, waitDuration: const Duration(milliseconds: 600), child: line) : line;
+  }
+}

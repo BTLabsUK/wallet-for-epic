@@ -22272,5 +22272,14 @@
         "example": "Piotr"
       }
     }
+  },
+  "deskOnbUnlockOpened": "Opened {when}",
+  "@deskOnbUnlockOpened": {
+    "description": "Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. \"3 d ago\" or \"just now\".",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   }
 }

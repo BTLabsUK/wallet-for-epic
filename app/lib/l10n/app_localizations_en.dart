@@ -16680,4 +16680,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '$amount EPIC to $who. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Opened $when';
+  }
 }

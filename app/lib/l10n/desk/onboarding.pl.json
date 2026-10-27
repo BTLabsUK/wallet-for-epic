@@ -222,5 +222,6 @@
   "deskOnbRestoreFromLabel": "Zacznij od bloku",
   "deskOnbRestoreFromHint": "Wysokość bloku",
   "deskOnbRestoreFromHelp": "Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.",
-  "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste."
+  "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste.",
+  "deskOnbUnlockOpened": "Otwarty {when}"
 }

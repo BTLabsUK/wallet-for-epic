@@ -16879,4 +16879,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '$amount EPIC an $who. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Geöffnet $when';
+  }
 }

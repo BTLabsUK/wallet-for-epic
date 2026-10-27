@@ -222,5 +222,6 @@
   "deskOnbRestoreFromLabel": "从区块开始",
   "deskOnbRestoreFromHint": "区块高度",
   "deskOnbRestoreFromHelp": "仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。",
-  "deskOnbRestoreFromInvalid": "只能输入数字，或留空。"
+  "deskOnbRestoreFromInvalid": "只能输入数字，或留空。",
+  "deskOnbUnlockOpened": "上次打开：{when}"
 }

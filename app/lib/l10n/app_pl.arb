@@ -4435,5 +4435,6 @@
   "cancelNoteRequestPaid": "Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać. Anulowanie uwalnia twoje monety tutaj.",
   "cancelNoteRequestWithdraw": "Nic nie zapłacono: wycofanie nie przenosi żadnych monet.",
   "txDetailsCancelRequestBody": "Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać, dopóki te monety nie zostaną ponownie wydane. Anulowanie uwalnia twoje monety tutaj.",
-  "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda."
+  "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.",
+  "deskOnbUnlockOpened": "Otwarty {when}"
 }

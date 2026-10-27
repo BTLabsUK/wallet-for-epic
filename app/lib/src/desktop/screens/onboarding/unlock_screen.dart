@@ -379,9 +379,16 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                       ESelectItem(
                         w.id,
                         w.name,
-                        subtitle: w.folder,
+                        subtitle: walletRowLine(l, w),
+                        subtitleIsPath: !inWalletsFolder(w.folder) || w.lastOpened == null,
                         tooltip: w.folder,
-                        trailing: w.network == 'mainnet' ? null : EBadge(networkName(w.network), tone: ETone.warn),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (w.network != 'mainnet') EBadge(networkName(w.network), tone: ETone.warn),
+                            ECopyButton(text: w.folder, label: l.deskSetAcctCopyPath(w.name)),
+                          ],
+                        ),
                       ),
                   ],
                 ),
@@ -472,4 +479,36 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       ),
     );
   }
+}
+
+/// Whether [folder] is a wallet the app made in its own folder
+/// (`…/.epic_cash_desktop/wallets/<id>/<chain>`): there the path tells wallets apart by an id only, so the list says when
+/// each was opened instead.
+bool inWalletsFolder(String folder) =>
+    RegExp(r'[/\\]\.epic_cash_desktop[/\\]wallets[/\\][^/\\]+[/\\][^/\\]+[/\\]?$').hasMatch(folder);
+
+/// [folder] with the home folder as `~`, the way the list shows it (#104).
+String shortFolder(String folder, {String? home}) {
+  final h = home ?? Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'];
+  if (h == null || h.isEmpty) return folder;
+  final base = h.endsWith('/') || h.endsWith(r'\') ? h.substring(0, h.length - 1) : h;
+  final same = Platform.isWindows ? folder.toLowerCase().startsWith(base.toLowerCase()) : folder.startsWith(base);
+  if (!same || (folder.length > base.length && !r'/\'.contains(folder[base.length]))) return folder;
+  return '~${folder.substring(base.length)}';
+}
+
+/// The line under a wallet's name on Unlock: when it was last opened for a wallet in the
+/// app's own folder, else its folder from `~`. The whole path shows on hover and copies.
+String walletRowLine(AppLocalizations l, WalletEntry w, {DateTime? now, String? home}) {
+  final t = w.lastOpened;
+  if (!inWalletsFolder(w.folder) || t == null) return shortFolder(w.folder, home: home);
+  final d = (now ?? DateTime.now()).difference(t);
+  final when = d.inMinutes < 1
+      ? l.deskSetFrameJustNow
+      : d.inMinutes < 60
+      ? l.deskSetFrameMinAgo(d.inMinutes)
+      : d.inHours < 24
+      ? l.deskSetFrameHoursAgo(d.inHours)
+      : l.deskSetFrameDaysAgo(d.inDays);
+  return l.deskOnbUnlockOpened(when);
 }

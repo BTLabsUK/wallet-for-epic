@@ -222,5 +222,6 @@
   "deskOnbRestoreFromLabel": "Ab Block starten",
   "deskOnbRestoreFromHint": "Blockhöhe",
   "deskOnbRestoreFromHelp": "Nur, wenn die erste Zahlung der Wallet nach diesem Block kam. Leer lassen, um die gesamte Blockchain zu prüfen.",
-  "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen."
+  "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen.",
+  "deskOnbUnlockOpened": "Geöffnet {when}"
 }

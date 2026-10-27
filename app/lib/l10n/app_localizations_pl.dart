@@ -17141,4 +17141,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '$amount EPIC do $who. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'Otwarty $when';
+  }
 }

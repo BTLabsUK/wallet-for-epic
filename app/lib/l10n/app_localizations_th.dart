@@ -16399,4 +16399,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '$amount EPIC ถึง $who ทั้งสองกระเป๋าเงินลงนามแล้ว แต่เครือข่ายยังไม่รับรายการ กระเป๋าเงินจะถามโหนดก่อนและปฏิเสธถ้าเครือข่ายมีรายการนี้แล้ว ไม่เช่นนั้นยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return 'เปิดล่าสุด $when';
+  }
 }

@@ -222,5 +222,6 @@
   "deskOnbRestoreFromLabel": "Начать с блока",
   "deskOnbRestoreFromHint": "Высота блока",
   "deskOnbRestoreFromHelp": "Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.",
-  "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым."
+  "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым.",
+  "deskOnbUnlockOpened": "Открыт {when}"
 }

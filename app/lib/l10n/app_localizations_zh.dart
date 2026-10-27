@@ -15794,4 +15794,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskTxCancelNotPostedBody(String amount, String who) {
     return '发往 $who 的 $amount EPIC。两个钱包都已签名，但网络尚未接受它。钱包会先询问节点，如果网络已有这笔付款则拒绝；否则锁定的金额会退回余额。';
   }
+
+  @override
+  String deskOnbUnlockOpened(String when) {
+    return '上次打开：$when';
+  }
 }
