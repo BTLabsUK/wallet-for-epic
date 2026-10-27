@@ -661,8 +661,10 @@ class Meta {
     Map<String, IssuedInvoiceRec>? issuedInvoices,
     Map<String, ManualRec>? manual,
     Iterable<String>? favourites,
+    Iterable<String>? seededContacts,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
+       seededContacts = SplayTreeSet.of(seededContacts ?? const []),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -716,6 +718,7 @@ class Meta {
           .map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
       manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
+      seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
     );
   }
 
@@ -759,6 +762,11 @@ class Meta {
   /// not part of a history file.
   final SplayTreeSet<String> favourites;
 
+  /// Ids of the seed contacts (`seed_contacts.dart`) this wallet has been given once, whether
+  /// or not they are still in the book: a deleted one is never added again. Written only when
+  /// not empty, and not part of a history file.
+  final SplayTreeSet<String> seededContacts;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -799,6 +807,7 @@ class Meta {
       out['manual'] = {for (final e in manual.entries) e.key: e.value.toJson()};
     }
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
+    if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
     return out;
   }
 

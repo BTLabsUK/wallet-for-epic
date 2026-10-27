@@ -19,6 +19,7 @@ import 'package:meta/meta.dart' show visibleForTesting;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
+import 'seed_contacts.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
 import 'legacy/gui_contacts.dart' show AddressChecks;
@@ -1123,6 +1124,11 @@ class LepicWalletSession implements WalletSession {
     ContactStore? contacts,
   }) async {
     final history = await WalletHistory.open(dataDir, chain, contacts: contacts);
+    try {
+      await history.seedContacts(bundledSeedContacts);
+    } on Object catch (e) {
+      logWarn('contacts', 'seed contacts not added (${e.runtimeType})');
+    }
     return LepicWalletSession(wallet, history: history);
   }
 

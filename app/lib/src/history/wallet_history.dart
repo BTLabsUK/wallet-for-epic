@@ -11,6 +11,7 @@ import 'package:crypto/crypto.dart';
 import '../contact_store.dart';
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
+import '../seed_contacts.dart';
 import '../wallet_service.dart';
 import 'export.dart';
 import 'merge.dart';
@@ -344,6 +345,22 @@ class WalletHistory {
   Future<void> deleteContact(String id) async {
     await (_shared?.delete(id) ?? _store.update((m) => m.contacts.removeWhere((c) => c.id == id)));
     if (meta.favourites.contains(id)) await setFavourite(id, false);
+  }
+
+  /// Gives this wallet each of [seeds] once, in the shared book: a seed the wallet already
+  /// had is skipped (a deleted one is never added again), and a contact with the seed's
+  /// address already in the book becomes the seed (nothing added). Does nothing without the
+  /// shared book.
+  Future<void> seedContacts(List<SeedContact> seeds) async {
+    final shared = _shared;
+    if (shared == null) return;
+    for (final s in seeds) {
+      if (meta.seededContacts.contains(s.id)) continue;
+      if (!shared.list().any((c) => c.epicbox == s.address)) {
+        await shared.save(ContactFields(name: s.name, epicbox: s.address, note: s.note));
+      }
+      await _store.update((m) => m.seededContacts.add(s.id));
+    }
   }
 
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
