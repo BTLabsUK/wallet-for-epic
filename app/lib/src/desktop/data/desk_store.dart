@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../connection_servers.dart' show decodeConnectionServers, encodeConnectionServers;
 import '../../log.dart';
 import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
@@ -160,6 +161,16 @@ class DeskStore {
   Future<ServerList?> serverList(ServerKind kind, String chain) async => ServerList.decode(await _secrets.read(serverListKey(kind, chain)));
 
   Future<void> saveServerList(ServerKind kind, String chain, ServerList list) => _secrets.write(serverListKey(kind, chain), list.encode());
+
+  /// The Connection servers of [chain] (Settings › Advanced): a JSON list of `host[:port]`; null
+  /// while they are the defaults.
+  static String pairingRelaysKey(String chain) => 'desk.pairingRelays.$chain';
+
+  Future<List<String>?> pairingRelays(String chain) async => decodeConnectionServers(await _secrets.read(pairingRelaysKey(chain)));
+
+  /// Stores [hosts]; null (the defaults) removes the record.
+  Future<void> savePairingRelays(String chain, List<String>? hosts) =>
+      hosts == null ? _secrets.delete(pairingRelaysKey(chain)) : _secrets.write(pairingRelaysKey(chain), encodeConnectionServers(hosts));
 
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);

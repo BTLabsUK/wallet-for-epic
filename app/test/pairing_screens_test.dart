@@ -1025,7 +1025,7 @@ void main() {
       expect(find.text(_l.contactKeysChangedTitle('Anna')), findsOneWidget);
       expect(
         _l.contactKeysChangedBody,
-        'This can mean they use a different wallet now, or someone else is using their name. Check the words again.',
+        'This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.',
       );
       expect(find.text(_l.contactKeysChangedBody), findsOneWidget);
       await tester.tap(find.text(_l.contactKeepOldKeys));

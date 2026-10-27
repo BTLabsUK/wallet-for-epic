@@ -128,7 +128,9 @@ class MergedTx {
       cancelReason = e.cancelReason,
       flow = e.flow,
       senderReportedPostedAtUnix = e.senderReportedPostedAtUnix,
-      pairingId = e.pairingId;
+      pairingId = e.pairingId,
+      origin = e.origin,
+      spentCommits = e.spentCommits;
 
   String key;
   int? id;
@@ -172,6 +174,11 @@ class MergedTx {
 
   /// From the live row: LEPIC's, never stored or exported.
   int? senderReportedPostedAtUnix;
+
+  /// From the live row, never stored or exported: whose spend it is, and the inputs LEPIC saw
+  /// spent.
+  TxOrigin origin;
+  List<String> spentCommits;
 
   /// LEPIC's link to a pairing, from the live row, else the record's: exported, so a restored
   /// wallet still knows which paired contact a payment was with.
@@ -222,6 +229,8 @@ class MergedTx {
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
     pairingId: pairingId,
+    origin: origin,
+    spentCommits: spentCommits,
   );
 }
 

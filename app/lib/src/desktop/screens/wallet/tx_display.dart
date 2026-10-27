@@ -23,6 +23,7 @@ String whoOf(AppLocalizations l, Tx t) {
   if (t.contactName != null) return t.contactName!;
   if (t.toSelf) return l.deskTxThisWallet;
   if (t.coinbase) return l.deskTxMiningReward;
+  if (t.otherWallet) return t.incoming ? l.txReceivedByOtherWallet : l.txSentFromOtherWallet;
   // A scan find names no one until the user types a sender (then the address, as for any row).
   if (t.foundByScan && t.counterparty == null) return foundTexts(l, t).label;
   final cp = t.counterparty;
@@ -91,7 +92,7 @@ String titleOf(AppLocalizations l, Tx t) => t.labelText ?? whoOf(l, t);
 
 /// Whether [whoOf] names someone or something (a contact, an address, a file), which joins the
 /// second line when a label takes the title.
-bool whoNamesSomeone(Tx t) => !t.toSelf && !t.coinbase && (t.contactName != null || t.counterparty != null);
+bool whoNamesSomeone(Tx t) => !t.toSelf && !t.coinbase && !t.otherWallet && (t.contactName != null || t.counterparty != null);
 
 /// A line explaining [whoOf] where it needs one.
 String? whoTip(AppLocalizations l, Tx t) =>
@@ -101,7 +102,7 @@ String? whoTip(AppLocalizations l, Tx t) =>
 bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
-String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(l, t.method);
+String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodLabel(l, t.method);
 
 /// How a scan find came, in the words of the details dialog; null until the user says.
 String? restoredMethodOf(AppLocalizations l, Tx t) {

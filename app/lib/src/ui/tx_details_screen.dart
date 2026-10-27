@@ -25,6 +25,7 @@ import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_notices.dart' show pairingNewsOnScreen, pairingSlateNoticeTag;
 import 'pairing/pairing_parts.dart' show PairEdgeNotice;
 import 'pairing/withdrawal_block.dart';
+import 'sent_from_other_wallet.dart';
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -130,6 +131,8 @@ String txExplanation(
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
+  // Coins another wallet on this recovery phrase spent or received: only the chain shows it.
+  if (tx.origin == TxOrigin.otherWallet) return outgoing ? l.txDetailsOtherWallet : l.txDetailsOtherWalletIn;
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip, target: target)) {
     TxPhase.waitingRecipient when tx.undelivered => switch ((tx.transport, _epicboxRelayOf(tx))) {
@@ -933,7 +936,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(
               label: l.txDetailsFee,
               value: shownEpic(l, fee, hidden: hidden, exact: true),
-            ),
+            )
+          else if (tx.origin == TxOrigin.otherWallet && outgoing)
+            // The other wallet paid it; this wallet only saw the coins leave.
+            _DetailRow(label: l.txDetailsFee, value: l.txDetailsNotKnown),
           if (theirMessage != null)
             _DetailRow(
               label: outgoing
@@ -1043,6 +1049,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 _DetailRow(label: l.txDetailsLocalId, value: '$id'),
             ],
           ),
+          // The end of the details of a row another wallet made: the quiet "link this device" offer
+          // goes here (Linked devices).
+          if (tx.origin == TxOrigin.otherWallet) const SentFromOtherWalletOffer(),
         ],
       ),
     );

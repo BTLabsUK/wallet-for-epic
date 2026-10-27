@@ -21,6 +21,7 @@ import '../../../help/help_content.dart' show HelpAnchor;
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import 'other_wallet_offer.dart';
 import 'tx_label.dart';
 import 'contacts_screen.dart' show ContactsArgs;
 import '../../../recipient.dart' show parseRecipient, recipientShaped;
@@ -89,6 +90,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
 
   String _now(AppLocalizations l, Tx t) => t.fromBackup
       ? l.deskTxNowBackup
+      : t.otherWallet
+      ? (t.incoming ? l.txDetailsOtherWalletIn : l.txDetailsOtherWallet)
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
@@ -277,7 +280,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   // Not money yet: the row's caption, by the big amount too (P-1).
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
-                  if (t.foundByScan && t.contactName == null)
+                  if (t.otherWallet)
+                    Text(whoOf(l, t), style: ts.small)
+                  else if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
                   else if (t.fromBackup && t.counterparty == null)
                     Text(l.deskTxHeadBackup, style: ts.small)
@@ -354,7 +359,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _SubBar(
           l.deskTxSubDetails,
           [
@@ -426,14 +431,17 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ),
               ),
             ),
-          (
-            l.deskTxFactMethod,
-            t.foundByScan
-                ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
-                : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
-          ),
+          if (!t.otherWallet)
+            (
+              l.deskTxFactMethod,
+              t.foundByScan
+                  ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
+                  : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
+            ),
           (l.deskTxFactAmount, EMoney(t.amount)),
-          if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
+          // The other wallet paid the fee: this wallet only saw the coins leave.
+          if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
+          else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
           if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
         ]),
@@ -478,6 +486,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ),
           ),
         ],
+        // The end of the details of a row another wallet made: the quiet "link this device" offer
+        // goes here (Linked devices).
+        if (t.otherWallet) const DeskSentFromOtherWalletOffer(),
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),

@@ -4492,7 +4492,7 @@
   "@sendNodeDown": {
     "description": "Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows."
   },
-  "sendRelayDown": "Their relay ({relay}) isn't answering.",
+  "sendRelayDown": "Their server ({relay}) isn't answering.",
   "@sendRelayDown": {
     "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).",
     "placeholders": {
@@ -4634,11 +4634,11 @@
   "@handshakeNetwork": {
     "description": "How it works sheet: label of the Epic network in the diagram."
   },
-  "handshakePay1": "Your wallet sends the payment to the relay. Your coins go on hold.",
+  "handshakePay1": "Your wallet sends the payment to the Epicbox server. Your coins go on hold.",
   "@handshakePay1": {
     "description": "How it works, payment, step 1: your wallet sends the payment to the epicbox relay."
   },
-  "handshakePay2": "The relay passes it on. Their wallet adds its part and signs.",
+  "handshakePay2": "The server passes it on. Their wallet adds its part and signs.",
   "@handshakePay2": {
     "description": "How it works, payment, step 2: the relay hands it to their wallet, which signs."
   },
@@ -4650,15 +4650,15 @@
   "@handshakeConfirm": {
     "description": "How it works, step 4 of both flows."
   },
-  "handshakeReq1": "Your wallet sends the request to the relay.",
+  "handshakeReq1": "Your wallet sends the request to the Epicbox server.",
   "@handshakeReq1": {
     "description": "How it works, request, step 1: you ask them for coins through the relay."
   },
-  "handshakeReq2": "The relay passes it on. They approve it, and their wallet adds the coins and signs.",
+  "handshakeReq2": "The server passes it on. They approve it, and their wallet adds the coins and signs.",
   "@handshakeReq2": {
     "description": "How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs."
   },
-  "handshakeRelay": "Relay",
+  "handshakeRelay": "Server",
   "@handshakeRelay": {
     "description": "How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets."
   },
@@ -4666,11 +4666,11 @@
   "@handshakeFile": {
     "description": "How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short."
   },
-  "handshakeBack": "Their wallet sends it back to the relay.",
+  "handshakeBack": "Their wallet sends it back to the Epicbox server.",
   "@handshakeBack": {
     "description": "How it works, step 3 of the payment and the request: the other wallet sends it back to the relay."
   },
-  "handshakeRelayBack": "The relay passes it back to your wallet.",
+  "handshakeRelayBack": "The server passes it back to your wallet.",
   "@handshakeRelayBack": {
     "description": "How it works, step 4 of the payment and the request: the relay hands it back to your wallet."
   },
@@ -4746,7 +4746,7 @@
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
   },
-  "sendRelayRefused": "{days, plural, =1{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendRelayRefused": "{days, plural, =1{Their server ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their server ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
   "@sendRelayRefused": {
     "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.",
     "placeholders": {
@@ -4758,7 +4758,7 @@
       }
     }
   },
-  "sendRelayRefusedLost": "Their relay ({relay}) didn't take it. Check Wallet before you send again.",
+  "sendRelayRefusedLost": "Their server ({relay}) didn't take it. Check Wallet before you send again.",
   "@sendRelayRefusedLost": {
     "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.",
     "placeholders": {
@@ -6922,11 +6922,11 @@
   "@deskInvNoticeExpired": {
     "description": "Notice: an invoice waiting for the user ran out of time."
   },
-  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
+  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownPayment": {
     "description": "Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender."
   },
-  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
+  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownAnswer": {
     "description": "Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender."
   },
@@ -7582,7 +7582,7 @@
   "@pushConfirmRelayAddress": {
     "description": "Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on."
   },
-  "pushRelaySwitchFailed": "The relay could not be switched. Notifications stay off.",
+  "pushRelaySwitchFailed": "The server could not be switched. Notifications stay off.",
   "@pushRelaySwitchFailed": {
     "description": "Notice when moving to the BT Labs relay for notifications was refused."
   },
@@ -17858,7 +17858,7 @@
   "@advServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."
   },
-  "advServerDetailsHint": "Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.",
+  "advServerDetailsHint": "Shows hosts, latency, version and block height in the server pickers and on the status card, and the Epicbox address under Receive.",
   "@advServerDetailsHint": {
     "description": "Info sheet of the Server details switch."
   },
@@ -18400,7 +18400,7 @@
   "@txLastMethodNotice": {
     "description": "Notice when the last payment method that is on is switched off: the switch stays on. Phone and desktop."
   },
-  "txEpicboxHint": "Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. The other methods still work.",
+  "txEpicboxHint": "Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments, invoices or notifications. The other methods still work.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
   },
@@ -18521,7 +18521,7 @@
       }
     }
   },
-  "txEpicboxLine": "Pay or get paid through a relay. The other wallet can be closed.",
+  "txEpicboxLine": "Pay or get paid through an Epicbox server. The other wallet can be closed.",
   "@txEpicboxLine": {
     "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
   },
@@ -18571,7 +18571,7 @@
       }
     }
   },
-  "receiveEpicboxOffText": "Senders' payments wait at the relay until Epicbox is on again.",
+  "receiveEpicboxOffText": "Senders' payments wait on the server until Epicbox is on again.",
   "@receiveEpicboxOffText": {
     "description": "Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile."
   },
@@ -19009,7 +19009,7 @@
   "@pairWordsExpiredBody": {
     "description": "Notice body after 10 minutes."
   },
-  "pairWordsNeedEpicbox": "Pairing words need Epicbox, so they are not offered now.",
+  "pairWordsNeedEpicbox": "Spoken invites need Epicbox, so they are not offered now.",
   "@pairWordsNeedEpicbox": {
     "description": "Small print on Pair online while Epicbox is off."
   },
@@ -19061,7 +19061,7 @@
       }
     }
   },
-  "pairCardBackBody": "Paste this link under Enter link or words in {name}'s wallet. Then check the words together.",
+  "pairCardBackBody": "Paste this link under Enter link or words in {name}'s wallet. Then verify together.",
   "@pairCardBackBody": {
     "description": "Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.",
     "placeholders": {
@@ -19143,7 +19143,7 @@
   "@pairWayWordsHint": {
     "description": "Option 1 line (the one line where they choose)"
   },
-  "pairWayWordsInfo": "Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.",
+  "pairWayWordsInfo": "Both wallets must be online. Your wallet leaves the invite on the connection servers; theirs finds it from the five words. Afterwards, verify together.",
   "@pairWayWordsInfo": {
     "description": "ⓘ of option 1 (phone InfoSheet, desktop tooltip/InfoHint)"
   },
@@ -19151,11 +19151,11 @@
   "@pairWayMessage": {
     "description": "Option 2 title"
   },
-  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.",
+  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.",
   "@pairWayMessageHint": {
     "description": "Option 2 line"
   },
-  "pairWayMessageInfo": "Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.",
+  "pairWayMessageInfo": "Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.",
   "@pairWayMessageInfo": {
     "description": "ⓘ of option 2"
   },
@@ -19271,7 +19271,7 @@
   "@pairAwaitReplyBody": {
     "description": "Inviter, step 2 body"
   },
-  "pairByItself": "With a relay on both sides, this step also happens by itself.",
+  "pairByItself": "When both wallets reach an Epicbox server, this step also happens by itself.",
   "@pairByItself": {
     "description": "Small print on both waiting steps"
   },
@@ -19385,15 +19385,15 @@
   "@helpPairWaysTitle": {
     "description": "New topic, second in Help › Pairing (id pairing-ways); the Pair screen’s “How pairing works” opens it"
   },
-  "helpPairWaysShort": "Words when both wallets are online, a message in any chat, or in person.",
+  "helpPairWaysShort": "Spoken when both wallets are online, a message in any chat, or in person.",
   "@helpPairWaysShort": {
     "description": "Topic summary"
   },
-  "helpPairWaysP1": "**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.",
+  "helpPairWaysP1": "**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (Settings › Advanced; the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.",
   "@helpPairWaysP1": {
     "description": "Paragraph"
   },
-  "helpPairWaysP2": "**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.",
+  "helpPairWaysP2": "**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.",
   "@helpPairWaysP2": {
     "description": "Paragraph"
   },
@@ -19401,7 +19401,7 @@
   "@helpPairWaysP3": {
     "description": "Paragraph"
   },
-  "helpPairWaysP4": "Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.",
+  "helpPairWaysP4": "Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.",
   "@helpPairWaysP4": {
     "description": "Paragraph"
   },
@@ -19409,7 +19409,7 @@
   "@helpPairClipP": {
     "description": "Paragraph (privacy)"
   },
-  "pairShareWarning": "Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.",
+  "pairShareWarning": "Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then verify together.",
   "@pairShareWarning": {
     "description": "Small print under the preview."
   },
@@ -19491,7 +19491,7 @@
       }
     }
   },
-  "pairIncomingBody": "Once paired, payment files and invoices between you and {name} are sealed. You check the words together next.",
+  "pairIncomingBody": "Once paired, payment files and invoices between you and {name} are sealed. You verify together next.",
   "@pairIncomingBody": {
     "description": "Incoming sheet body.",
     "placeholders": {
@@ -19511,11 +19511,11 @@
       }
     }
   },
-  "pairIncomingAllowHintDesktop": "Turns on after you check the words. Nothing is paid without the wallet password.",
+  "pairIncomingAllowHintDesktop": "Turns on after you verify. Nothing is paid without the wallet password.",
   "@pairIncomingAllowHintDesktop": {
     "description": "pairIncomingAllowHint on the desktop, which pays with the wallet password, not a PIN."
   },
-  "pairIncomingAllowHint": "Turns on after you check the words. Nothing is paid without your PIN.",
+  "pairIncomingAllowHint": "Turns on after you verify. Nothing is paid without your PIN.",
   "@pairIncomingAllowHint": {
     "description": "Under that switch."
   },
@@ -19533,7 +19533,7 @@
       }
     }
   },
-  "pairWaitingBody": "Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.",
+  "pairWaitingBody": "Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.",
   "@pairWaitingBody": {
     "description": "Waiting screen body."
   },
@@ -19541,7 +19541,7 @@
   "@pairSendByHand": {
     "description": "Button on the waiting screen and the relay notice."
   },
-  "pairRelayUnreachableTitle": "Can’t reach the relay",
+  "pairRelayUnreachableTitle": "Can’t reach the server",
   "@pairRelayUnreachableTitle": {
     "description": "Notice on the waiting screen (cases file)."
   },
@@ -19549,15 +19549,15 @@
   "@pairRelayUnreachableBody": {
     "description": "Notice body."
   },
-  "pairRelayUnreachableTor": "Can’t reach the relay over Tor. Send your answer by hand?",
+  "pairRelayUnreachableTor": "Can’t reach the server over Tor. Send your answer by hand?",
   "@pairRelayUnreachableTor": {
     "description": "The same notice with Epicbox over Tor on."
   },
-  "pairNoRelay": "Can’t reach any pairing relay. Pair with an invite link instead.",
+  "pairNoRelay": "Can’t reach any connection server. Pair with an invite link instead.",
   "@pairNoRelay": {
     "description": "Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead."
   },
-  "pairRelaysBlocked": "This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.",
+  "pairRelaysBlocked": "This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.",
   "@pairRelaysBlocked": {
     "description": "Pairing words: the built-in relays answered with a refused TLS handshake, as a network or DNS filter does (same wording as epicboxBlockedBody). The user pairs with an invite link instead."
   },
@@ -19911,7 +19911,7 @@
   "@contactPairing": {
     "description": "Section head."
   },
-  "contactWordsChecked": "Words checked {date}",
+  "contactWordsChecked": "Verified {date}",
   "@contactWordsChecked": {
     "description": "Desktop status row subtitle.",
     "placeholders": {
@@ -19925,7 +19925,7 @@
   "@contactCheckAgain": {
     "description": "Desktop status row button; phone menu item: Check the words again."
   },
-  "contactCheckWordsAgain": "Check the words again",
+  "contactCheckWordsAgain": "Verify again",
   "@contactCheckWordsAgain": {
     "description": "Phone menu item."
   },
@@ -19977,15 +19977,15 @@
       }
     }
   },
-  "contactAllowInfoMore": "Only a Verified contact can be allowed: checking the words rules out a swapped invite.",
+  "contactAllowInfoMore": "Only a Verified contact can be allowed: verifying rules out a swapped invite.",
   "@contactAllowInfoMore": {
     "description": "Second paragraph."
   },
-  "contactCheckWordsFirst": "Check the words first",
+  "contactCheckWordsFirst": "Verify first",
   "@contactCheckWordsFirst": {
     "description": "Under a disabled Allow invoices switch."
   },
-  "contactPausedUntilChecked": "Paused until you check the words",
+  "contactPausedUntilChecked": "Paused until verified",
   "@contactPausedUntilChecked": {
     "description": "Under the switches in the keys-changed state."
   },
@@ -19999,7 +19999,7 @@
       }
     }
   },
-  "contactRelayDownTitle": "{name}’s relay isn’t answering",
+  "contactRelayDownTitle": "{name}’s server isn’t answering",
   "@contactRelayDownTitle": {
     "description": "Notice on the contact page (cases file C-05).",
     "placeholders": {
@@ -20063,7 +20063,7 @@
       }
     }
   },
-  "contactKeysChangedBody": "This can mean they use a different wallet now, or someone else is using their name. Check the words again.",
+  "contactKeysChangedBody": "This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.",
   "@contactKeysChangedBody": {
     "description": "Notice body under the keys-changed title (binding text from the review; the app cannot know the contact's pronoun, so English says they/their). Languages without a safe pronoun use none."
   },
@@ -20204,7 +20204,7 @@
       }
     }
   },
-  "pendingWords": "Pairing words · expires in {time}",
+  "pendingWords": "Spoken invite · expires in {time}",
   "@pendingWords": {
     "description": "Row subtitle.",
     "placeholders": {
@@ -20232,7 +20232,7 @@
       }
     }
   },
-  "pendingPairedCheck": "Paired · check the words",
+  "pendingPairedCheck": "Paired · verify",
   "@pendingPairedCheck": {
     "description": "Row subtitle once the reply opened."
   },
@@ -20244,7 +20244,7 @@
   "@pendingShareAgain": {
     "description": "Row menu."
   },
-  "pendingShowWords": "Show words",
+  "pendingShowWords": "Show invite",
   "@pendingShowWords": {
     "description": "Row menu and desktop button."
   },
@@ -20276,11 +20276,11 @@
   "@invSetPairShop": {
     "description": "Button; opens Pair."
   },
-  "invSetEmpty": "No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.",
+  "invSetEmpty": "No paired contacts yet. Pair with a shop, an exchange or a person, verify, then allow their invoices here.",
   "@invSetEmpty": {
     "description": "Empty state."
   },
-  "invSetPausedBody": "Requests wait on the relay and arrive when it is back on.",
+  "invSetPausedBody": "Requests wait on the server and arrive when it is back on.",
   "@invSetPausedBody": {
     "description": "Docked notice body while Epicbox is off."
   },
@@ -20370,7 +20370,7 @@
   "@reqTlPaid": {
     "description": "Timeline step."
   },
-  "reqTlDelivered": "Delivered to {name}’s relay",
+  "reqTlDelivered": "Delivered to {name}’s server",
   "@reqTlDelivered": {
     "description": "Timeline step.",
     "placeholders": {
@@ -20380,7 +20380,7 @@
       }
     }
   },
-  "reqTlAnswerDelivered": "Answer delivered to {name}’s relay",
+  "reqTlAnswerDelivered": "Answer delivered to {name}’s server",
   "@reqTlAnswerDelivered": {
     "description": "Timeline step for a withdrawal.",
     "placeholders": {
@@ -20466,7 +20466,7 @@
   "@reqUnreachableBody": {
     "description": "Body."
   },
-  "reqRelayRetrying": "Relay not answering · retrying",
+  "reqRelayRetrying": "Server not answering · retrying",
   "@reqRelayRetrying": {
     "description": "Timeline detail."
   },
@@ -20555,7 +20555,7 @@
   "@reqNewToHintContacts": {
     "description": "Under To on New request when the wallet cannot save a request as a file: the reqNewToHint without the file part."
   },
-  "reqNoPayersContacts": "No paired contact pays requests yet. Pair and check the words with them.",
+  "reqNoPayersContacts": "No paired contact pays requests yet. Pair and verify with them.",
   "@reqNoPayersContacts": {
     "description": "No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part."
   },
@@ -20727,7 +20727,7 @@
       }
     }
   },
-  "noticePairingReplied": "{name} answered your invite. Check the words together.",
+  "noticePairingReplied": "{name} answered your invite. Verify together.",
   "@noticePairingReplied": {
     "description": "PairingReplied (inviter).",
     "placeholders": {
@@ -20737,7 +20737,7 @@
       }
     }
   },
-  "noticePairingConfirmed": "Paired with {name}. Check the words together.",
+  "noticePairingConfirmed": "Paired with {name}. Verify together.",
   "@noticePairingConfirmed": {
     "description": "PairingConfirmed (invitee).",
     "placeholders": {
@@ -20775,7 +20775,7 @@
       }
     }
   },
-  "noticeKeysChanged": "{name}’s keys changed. Check the words again before paying.",
+  "noticeKeysChanged": "{name}’s keys changed. Verify again before paying.",
   "@noticeKeysChanged": {
     "description": "Docked notice for ContactKeysChanged; its action opens the contact.",
     "placeholders": {
@@ -20795,7 +20795,7 @@
       }
     }
   },
-  "noticeRelayDown": "{name}’s relay isn’t answering. Retrying.",
+  "noticeRelayDown": "{name}’s server isn’t answering. Retrying.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
     "placeholders": {
@@ -21006,7 +21006,7 @@
   "@invSetRowOff": {
     "description": "Settings › Invoices row on the desktop: the words are checked and Allow invoices is off. Same style as invSetRowAllowed."
   },
-  "invSetRowCheckFirst": "Paired, not verified · check the words first",
+  "invSetRowCheckFirst": "Paired, not verified · verify first",
   "@invSetRowCheckFirst": {
     "description": "Desktop Settings › Invoices row subtitle for an unverified contact."
   },
@@ -21020,7 +21020,7 @@
       }
     }
   },
-  "reqNoPayers": "No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.",
+  "reqNoPayers": "No paired contact pays requests yet. Pair and verify with them, or save the request as a file.",
   "@reqNoPayers": {
     "description": "Request form when no verified contact can pay requests."
   },
@@ -21070,7 +21070,7 @@
   "@noticeOpen": {
     "description": "Action of a pairing notice that opens its screen."
   },
-  "noticeCheckWords": "Check the words",
+  "noticeCheckWords": "Verify",
   "@noticeCheckWords": {
     "description": "Action of the paired notice: opens the words check."
   },
@@ -21209,11 +21209,11 @@
   "@helpPairWhatStep1": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatStep2": "Choose a way: Words, Invite by message or In person.",
+  "helpPairWhatStep2": "Choose a way: Spoken, Invite by message or In person.",
   "@helpPairWhatStep2": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatStep3": "Check the words together, then **They match**.",
+  "helpPairWhatStep3": "Verify together, then **They match**.",
   "@helpPairWhatStep3": {
     "description": "Topic 1 step."
   },
@@ -21221,11 +21221,11 @@
   "@helpPairWhatP3": {
     "description": "Topic 1."
   },
-  "helpPairWhyTitle": "Why check the words",
+  "helpPairWhyTitle": "Why verify",
   "@helpPairWhyTitle": {
     "description": "Topic 2 title."
   },
-  "helpPairWhyShort": "The four words prove the pairing reached the right wallet and not someone in between.",
+  "helpPairWhyShort": "Verifying proves the pairing reached the right wallet and not someone in between.",
   "@helpPairWhyShort": {
     "description": "Topic 2 lede."
   },
@@ -21245,7 +21245,7 @@
   "@helpPairWhyP4": {
     "description": "Help › Pairing › Why check the words: the SAS word names are English on purpose, for comparing across languages."
   },
-  "helpPairWordsTitle": "Pairing words",
+  "helpPairWordsTitle": "Spoken invites",
   "@helpPairWordsTitle": {
     "description": "Topic 3 title."
   },
@@ -21261,7 +21261,7 @@
   "@helpPairWordsP2": {
     "description": "Topic 3."
   },
-  "helpPairWordsP3": "Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.",
+  "helpPairWordsP3": "Spoken invites need Epicbox. While Epicbox is off, send the invite link instead.",
   "@helpPairWordsP3": {
     "description": "Topic 3."
   },
@@ -21569,7 +21569,7 @@
   "@contactNoAddressPaired": {
     "description": "Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no address)."
   },
-  "contactSendKeysChanged": "Check the words before sending.",
+  "contactSendKeysChanged": "Verify the contact before sending.",
   "@contactSendKeysChanged": {
     "description": "Line under a disabled Send on the page of a pairing-only contact whose keys changed."
   },
@@ -23188,6 +23188,129 @@
         "type": "String"
       }
     }
+  },
+  "connServers": "Connection servers",
+  "@connServers": {
+    "description": "Name of the setting that chooses where two wallets find each other when they connect (Settings > Advanced > Experimental, under Pairing), and the title of its server picker."
+  },
+  "connServersHint": "Where two wallets find each other when they connect. The other wallet must use at least one of them too.",
+  "@connServersHint": {
+    "description": "The one line of consequence on the Connection servers setting (desktop row text)."
+  },
+  "connServersNote": "Choose up to 3.",
+  "@connServersNote": {
+    "description": "Note under the field of the Connection servers picker."
+  },
+  "connServersDefaults": "{n, plural, one{{n} server} other{{n} servers}} · Defaults",
+  "@connServersDefaults": {
+    "description": "State line of Connection servers when the chosen set is exactly the defaults. {n} is how many are chosen.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersChanged": "{n, plural, one{{n} server} other{{n} servers}} · Changed",
+  "@connServersChanged": {
+    "description": "State line of Connection servers when the chosen set differs from the defaults. {n} is how many are chosen.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersDown": "{down} of {n} not responding. Connecting still works through the others.",
+  "@connServersDown": {
+    "description": "State line of Connection servers while some, not all, chosen servers do not answer. {down} of {n}.",
+    "placeholders": {
+      "down": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "connServersAllDown": "No connection server answers. Use Invite by message or In person.",
+  "@connServersAllDown": {
+    "description": "State line of Connection servers while none of the chosen servers answers. Invite by message and In person are the pairing ways that need no meeting server."
+  },
+  "connServersEpicboxOff": "Paused while Epicbox is off. Invite by message and In person still work.",
+  "@connServersEpicboxOff": {
+    "description": "State line of Connection servers while Epicbox is off."
+  },
+  "connServersOffline": "Paused in Offline mode.",
+  "@connServersOffline": {
+    "description": "State line of Connection servers in Offline mode."
+  },
+  "connServersNonDefault": "{host} is not a default. Wallets that also use it find you there.",
+  "@connServersNonDefault": {
+    "description": "State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "connServersInfo1": "When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.",
+  "@connServersInfo1": {
+    "description": "Info sheet of Connection servers, paragraph 1: what the setting does and the one condition."
+  },
+  "connServersInfo2": "The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.",
+  "@connServersInfo2": {
+    "description": "Info sheet of Connection servers, paragraph 2: the defaults."
+  },
+  "connServersInfo3": "Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet's own Epicbox server.",
+  "@connServersInfo3": {
+    "description": "Info sheet of Connection servers, paragraph 3: what it does not affect."
+  },
+  "connServersInfo4": "Each chosen server sees that a connection was started, never with whom.",
+  "@connServersInfo4": {
+    "description": "Info sheet of Connection servers, paragraph 4: what a server sees."
+  },
+  "connServersInfoTor": "With Tor on, the servers are reached through Tor.",
+  "@connServersInfoTor": {
+    "description": "Info sheet of Connection servers, last paragraph; only in the build with Tor."
+  },
+  "txSentFromOtherWallet": "Sent from another wallet",
+  "@txSentFromOtherWallet": {
+    "description": "Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left."
+  },
+  "txSpokenSentFromOtherWallet": "Sent from another wallet, {amount}",
+  "@txSpokenSentFromOtherWallet": {
+    "description": "Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txDetailsOtherWallet": "Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.",
+  "@txDetailsOtherWallet": {
+    "description": "Details of a row sent from another wallet: what it is and what is not known about it."
+  },
+  "txDetailsNotKnown": "Not known",
+  "@txDetailsNotKnown": {
+    "description": "Value of a details row (the fee) that this wallet cannot know."
+  },
+  "txReceivedByOtherWallet": "Received by another wallet",
+  "@txReceivedByOtherWallet": {
+    "description": "Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived."
+  },
+  "txSpokenReceivedByOtherWallet": "Received by another wallet, {amount}",
+  "@txSpokenReceivedByOtherWallet": {
+    "description": "Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txDetailsOtherWalletIn": "Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.",
+  "@txDetailsOtherWalletIn": {
+    "description": "Details of a row received by another wallet: what it is and what is not known about it."
   },
   "expLinkedDevices": "Linked devices",
   "@expLinkedDevices": {

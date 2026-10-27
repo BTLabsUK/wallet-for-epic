@@ -575,6 +575,11 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
       (imported != null &&
           imported.kind == lepic.ImportedTxKind.received &&
           d.slateId == null);
+  // TODO(device-link): once the pinned LEPIC has `TxOrigin.otherWallet` (a row for coins another
+  // wallet on this phrase spent or received) and `TransactionDetails.spentCommits`, pass
+  // `origin: d.origin == lepic.TxOrigin.otherWallet ? TxOrigin.otherWallet : TxOrigin.thisWallet`
+  // and `spentCommits: d.spentCommits` below. The direction (outgoing or incoming) already picks
+  // sent or received; such a row is confirmed, has no fee and no counterparty.
   return TxEntry(
     key: 'l:${d.txId}',
     id: d.txId,
@@ -2630,6 +2635,13 @@ class _LepicPairing implements PairingApi {
 
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
 
+  /// The Connection servers (`host[:port]`) words meet on, or null for LEPIC's built-in list.
+  // ignore: unused_field -- read once LEPIC takes the per-call `meeting_relays` (see makeInvite and openWords)
+  List<String>? _meetingRelays;
+
+  @override
+  void setConnectionServers(List<String>? hosts) => _meetingRelays = hosts == null ? null : List.unmodifiable(hosts);
+
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
   final Map<String, String> _inviteLinks = {};
@@ -2809,6 +2821,8 @@ class _LepicPairing implements PairingApi {
     String? label,
     String? contactId,
   }) => _call(() async {
+    // TODO(device-link): pass `meetingRelays: _meetingRelays` once LEPIC's pairing_invite takes
+    // the per-call `meeting_relays` parameter; until then the core's built-in list is used.
     final invite = await _w.pairingInvite(
       name: name.trim(),
       kind: lepic.ContactKind.person,
@@ -2884,6 +2898,8 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingInvitePreview> openWords(List<String> words) => _call(() async {
+    // TODO(device-link): pass `meetingRelays: _meetingRelays` once LEPIC's pairing_find_words
+    // takes the per-call `meeting_relays` parameter.
     final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode());
     await _refuseOwn(found.link, found.preview);
     return _preview(found.link, found.preview);

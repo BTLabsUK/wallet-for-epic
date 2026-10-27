@@ -64,6 +64,13 @@ abstract interface class PairingApi {
   /// Forgets the stray [id].
   Future<void> removeStray(String id);
 
+  /// Sets the Epicbox servers (`host[:port]`, up to three) where pairing words meet, from
+  /// Settings › Advanced › Connection servers: [makeInvite] with words leaves the invite on
+  /// them and [openWords] looks on them. Null is the core's built-in list (the defaults). It
+  /// applies to the next words call; a pairing that exists keeps its mailbox on the inviter's
+  /// own Epicbox server.
+  void setConnectionServers(List<String>? hosts);
+
   // Inviting (RFC 7.1, 7.7): this wallet is A.
 
   /// Makes an invite that [name] (the name the other side will see, 1 to 48 bytes) answers
@@ -278,6 +285,9 @@ class NoPairing implements PairingApi {
 
   @override
   bool get supported => false;
+
+  @override
+  void setConnectionServers(List<String>? hosts) {}
 
   @override
   Future<List<PairingRecord>> pairings() async => const [];

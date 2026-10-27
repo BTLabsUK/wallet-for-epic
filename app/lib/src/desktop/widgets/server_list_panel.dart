@@ -676,7 +676,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   /// Seeds the list and keeps it in step with the directory, after the frame.
   void _sync() {
     final s = widget.source;
-    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}';
+    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}|${s.keep.join(' ')}';
     if (sig == _sourceSig) return;
     _sourceSig = sig;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -724,8 +724,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               canRequestFocus: false,
               borderRadius: BorderRadius.circular(Rad.sm),
               child: Container(
-                height: Ctl.sm,
-                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                // A selection shows every chosen host, wrapped at the spaces, never cut.
+                constraints: BoxConstraints(minHeight: Ctl.sm),
+                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2, top: _sel == null ? 0 : Sp.x2, bottom: _sel == null ? 0 : Sp.x2),
                 decoration: BoxDecoration(
                   color: c.s2,
                   borderRadius: BorderRadius.circular(Rad.sm),
@@ -737,7 +738,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                     SizedBox(width: Sp.x3),
                     Flexible(
                       flex: 2,
-                      child: Text(widget.fieldText, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: 13.u, color: c.text)),
+                      child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
                     ),
                     if (widget.busy) ...[
                       SizedBox(width: Sp.x2),

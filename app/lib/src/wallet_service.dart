@@ -3119,6 +3119,8 @@ TxEntry fakeTx({
   TxFlow flow = TxFlow.payment,
   int? senderReportedPostedAtUnix,
   String? pairingId,
+  TxOrigin origin = TxOrigin.thisWallet,
+  List<String> spentCommits = const [],
 }) {
   final resolvedStatus =
       status ??
@@ -3168,6 +3170,8 @@ TxEntry fakeTx({
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
     pairingId: pairingId,
+    origin: origin,
+    spentCommits: spentCommits,
   );
 }
 
@@ -3222,4 +3226,6 @@ TxEntry copyTx(
   datedByBlock: tx.datedByBlock,
   senderReportedPostedAtUnix:
       senderReportedPostedAtUnix ?? tx.senderReportedPostedAtUnix,
+  origin: tx.origin,
+  spentCommits: tx.spentCommits,
 );

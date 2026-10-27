@@ -24,9 +24,12 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/pairing/connection_servers_tile.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
         ServerListSheet,
+        serverListResetKey,
+        serverListRowKey,
         serverListAddKey,
         serverListFieldKey,
         serverListFootKey,
@@ -1414,7 +1417,7 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).last,
       );
-      await tester.ensureVisible(tile);
+      await tester.scrollUntilVisible(tile, 300, scrollable: find.byType(Scrollable).first);
       await tester.pump();
       await tester.tap(tile);
       await tester.pump(const Duration(milliseconds: 300));
@@ -2154,6 +2157,59 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       expect(find.text('From a block height'), findsNothing);
+    });
+
+    testWidgets('Connection servers: under Pairing, hidden while it is off; a tick is stored, the defaults store nothing', (
+      tester,
+    ) async {
+      final h = _Harness(experimental: true);
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
+      final tile = find.byKey(connectionServersTileKey);
+      await tester.scrollUntilVisible(tile, 300, scrollable: find.byType(Scrollable).first);
+      expect(tile, findsOneWidget);
+      expect(find.text('Connection servers'), findsOneWidget);
+      expect(find.text('3 servers · Defaults'), findsOneWidget);
+      expect(h.store.values['app.pairingRelays.mainnet'], isNull);
+
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+      expect(find.text('Choose up to 3.'), findsOneWidget);
+      expect(find.text('3 of 3'), findsOneWidget);
+      // Full: a fourth is refused; one off, then another on.
+      await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));
+      await tester.pumpAndSettle();
+      expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
+      await tester.tap(find.byKey(serverListRowKey('flooepicbox.btlabs.uk')));
+      await tester.pumpAndSettle();
+      expect(h.store.values['app.pairingRelays.mainnet'], '["epicbox.epiccash.com","epicbox.stackwallet.com"]');
+      await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));
+      await tester.pumpAndSettle();
+      expect(h.store.values['app.pairingRelays.mainnet'], '["epicbox.epiccash.com","epicbox.stackwallet.com","epicbox.epicnet.us"]');
+      // Back to the defaults: nothing is stored.
+      await tester.tap(find.byKey(serverListResetKey));
+      await tester.pumpAndSettle();
+      expect(h.store.values['app.pairingRelays.mainnet'], isNull);
+      await tester.pump(const Duration(seconds: 9));
+    });
+
+    testWidgets('Connection servers: the state line names a server that is not a default', (tester) async {
+      final h = _Harness(experimental: true);
+      h.store.values['app.pairingRelays.mainnet'] = '["epicbox.epiccash.com","relay.example.org"]';
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
+      await tester.scrollUntilVisible(find.byKey(connectionServersTileKey), 300, scrollable: find.byType(Scrollable).first);
+      expect(find.text('relay.example.org is not a default. Wallets that also use it find you there.'), findsOneWidget);
+    });
+
+    testWidgets('Connection servers: Pairing off hides the row', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
+      expect(find.byKey(connectionServersTileKey), findsNothing);
     });
 
     testWidgets(

@@ -3651,7 +3651,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendRelayDown(String relay) {
-    return 'Przekaźnik odbiorcy ($relay) nie odpowiada.';
+    return 'Serwer Epicbox odbiorcy ($relay) nie odpowiada.';
   }
 
   @override
@@ -3749,11 +3749,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Twój portfel wysyła płatność do przekaźnika. Twoje monety są wstrzymane.';
+      'Twój portfel wysyła płatność na serwer Epicbox. Twoje monety są wstrzymane.';
 
   @override
   String get handshakePay2 =>
-      'Przekaźnik przekazuje ją dalej. Portfel drugiej strony dodaje swoją część i podpisuje.';
+      'Serwer przekazuje ją dalej. Portfel drugiej strony dodaje swoją część i podpisuje.';
 
   @override
   String get handshakeFinish => 'Twój portfel kończy ją i wysyła do sieci.';
@@ -3762,25 +3762,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeConfirm => 'Sieć ją potwierdza.';
 
   @override
-  String get handshakeReq1 => 'Twój portfel wysyła prośbę do przekaźnika.';
+  String get handshakeReq1 => 'Twój portfel wysyła prośbę na serwer Epicbox.';
 
   @override
   String get handshakeReq2 =>
-      'Przekaźnik przekazuje ją dalej. Druga strona ją akceptuje, a jej portfel dodaje monety i podpisuje.';
+      'Serwer przekazuje ją dalej. Druga strona ją akceptuje, a jej portfel dodaje monety i podpisuje.';
 
   @override
-  String get handshakeRelay => 'Przekaźnik';
+  String get handshakeRelay => 'Serwer';
 
   @override
   String get handshakeFile => 'Przesyłanie pliku';
 
   @override
   String get handshakeBack =>
-      'Portfel drugiej strony odsyła ją do przekaźnika.';
+      'Portfel drugiej strony odsyła ją na serwer Epicbox.';
 
   @override
   String get handshakeRelayBack =>
-      'Przekaźnik przekazuje ją z powrotem do twojego portfela.';
+      'Serwer przekazuje ją z powrotem do twojego portfela.';
 
   @override
   String get handshakeFile1 =>
@@ -3846,20 +3846,20 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'Przekaźnik odbiorcy ($relay) jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
+    return 'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
   }
 
   @override
@@ -5492,11 +5492,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
+      'Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na serwerze na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
+      'Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na serwerze na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
 
   @override
   String get deskInvPayerWaitingHead => 'Czeka na ciebie';
@@ -13775,7 +13775,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu oraz adres przekaźnika w Odbierz.';
+      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu oraz adres Epicbox w Odbierz.';
 
   @override
   String get advRecheckHeight => 'Sprawdź od wysokości';
@@ -14233,7 +14233,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym przekaźnikiem, więc bez płatności Epicbox, faktur i powiadomień. Pozostałe metody nadal działają.';
+      'Epicbox płaci przez serwer, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym serwerem, więc bez płatności Epicbox, faktur i powiadomień. Pozostałe metody nadal działają.';
 
   @override
   String get txDirectLine =>
@@ -14324,7 +14324,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Płać lub dostawaj zapłatę przez przekaźnik. Drugi portfel może być zamknięty.';
+      'Płać lub dostawaj zapłatę przez serwer Epicbox. Drugi portfel może być zamknięty.';
 
   @override
   String get txEpicboxOffTitle => 'Wyłączyć Epicbox?';
@@ -14367,7 +14367,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Płatności od nadawców czekają na przekaźniku, aż Epicbox znów będzie włączony.';
+      'Płatności od nadawców czekają na serwerze, aż Epicbox znów będzie włączony.';
 
   @override
   String get receiveNoMethods => 'Żadna metoda odbioru nie jest włączona';
@@ -14748,7 +14748,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWordsNeedEpicbox =>
-      'Słowa parowania wymagają Epicbox, więc teraz nie są dostępne.';
+      'Zaproszenia głosowe wymagają Epicbox, więc teraz nie są dostępne.';
 
   @override
   String pairWordsDesktopChip(String time) {
@@ -14787,7 +14787,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairCardBackBody(String name) {
-    return 'Wklej ten link w portfelu $name w polu „Wpisz link lub słowa”. Potem sprawdźcie razem słowa.';
+    return 'Wklej ten link w portfelu $name w polu „Wpisz link lub słowa”. Potem zweryfikujcie razem.';
   }
 
   @override
@@ -14853,18 +14853,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWayWordsInfo =>
-      'Oba portfele muszą być online i mieć dostęp do przekaźnika Epicbox. Twój portfel wysyła zaproszenie na trzy wbudowane przekaźniki; portfel drugiej osoby znajduje je po pięciu słowach. Potem sprawdźcie razem cztery słowa.';
+      'Oba portfele muszą być online. Twój portfel zostawia zaproszenie na serwerach połączeń; portfel drugiej osoby znajduje je po pięciu słowach. Potem zweryfikujcie razem.';
 
   @override
   String get pairWayMessage => 'Przez wiadomość';
 
   @override
   String get pairWayMessageHint =>
-      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Przekaźnik nie jest potrzebny.';
+      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Serwer Epicbox nie jest potrzebny.';
 
   @override
   String get pairWayMessageInfo =>
-      'Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy przekaźnik jest zablokowany albo portfel jest offline.';
+      'Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy serwer jest zablokowany albo portfel jest offline.';
 
   @override
   String get pairWayInPersonDesk => 'Telefon drugiej osoby skanuje twój kod';
@@ -14943,7 +14943,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'Gdy obie strony mają dostęp do przekaźnika, ten krok dzieje się też sam.';
+      'Gdy oba portfele mają dostęp do serwera Epicbox, ten krok dzieje się też sam.';
 
   @override
   String get pairPasteReply => 'Wklej odpowiedź';
@@ -15020,15 +15020,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWaysShort =>
-      'Słowa, gdy oba portfele są online, wiadomość w dowolnym czacie albo osobiście.';
+      'Głosowo, gdy oba portfele są online, wiadomość w dowolnym czacie albo osobiście.';
 
   @override
   String get helpPairWaysP1 =>
-      '**Słowa.** Jeden portfel pokazuje pięć słów i wysyła zapieczętowane zaproszenie na trzy wbudowane przekaźniki: epicbox.epiccash.com, epicbox.stackwallet.com i przekaźnik BT Labs. Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych przekaźników.';
+      '**Głosowo.** Jeden portfel pokazuje pięć słów i zostawia zapieczętowane zaproszenie na serwerach połączeń (Ustawienia › Zaawansowane; domyślne to epicbox.epiccash.com, epicbox.stackwallet.com i serwer BT Labs). Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych serwerów.';
 
   @override
   String get helpPairWaysP2 =>
-      '**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Przekaźnik nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.';
+      '**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Serwer nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.';
 
   @override
   String get helpPairWaysP3 =>
@@ -15036,7 +15036,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Niezależnie od sposobu, na końcu sprawdźcie razem cztery słowa. Pokazują, że nikt nie zmienił wiadomości po drodze.';
+      'Niezależnie od sposobu, na końcu zweryfikujcie razem: porównajcie cztery obrazki i nazwy. Pokazują, że nikt nie zmienił wiadomości po drodze.';
 
   @override
   String get helpPairClipP =>
@@ -15044,7 +15044,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairShareWarning =>
-      'Każdy, kto ma to zaproszenie, może się sparować jako ty, dopóki nie wygaśnie. Wyślij je tylko właściwej osobie, a potem sprawdźcie razem słowa.';
+      'Każdy, kto ma to zaproszenie, może się sparować jako ty, dopóki nie wygaśnie. Wyślij je tylko właściwej osobie, a potem zweryfikujcie razem.';
 
   @override
   String get pairShareInvite => 'Udostępnij zaproszenie';
@@ -15095,7 +15095,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'Po sparowaniu pliki płatności i faktury między tobą a $name są zapieczętowane. Następnie sprawdzicie razem słowa.';
+    return 'Po sparowaniu pliki płatności i faktury między tobą a $name są zapieczętowane. Następnie zweryfikujecie razem.';
   }
 
   @override
@@ -15105,11 +15105,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairIncomingAllowHintDesktop =>
-      'Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez hasła portfela.';
+      'Włącza się po weryfikacji. Nic nie zostanie zapłacone bez hasła portfela.';
 
   @override
   String get pairIncomingAllowHint =>
-      'Włącza się po sprawdzeniu słów. Nic nie zostanie zapłacone bez twojego PIN-u.';
+      'Włącza się po weryfikacji. Nic nie zostanie zapłacone bez twojego PIN-u.';
 
   @override
   String get pairNotNow => 'Nie teraz';
@@ -15121,28 +15121,28 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a sprawdzanie słów pojawi się po jego zakończeniu.';
+      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a weryfikacja pojawi się po jego zakończeniu.';
 
   @override
   String get pairSendByHand => 'Wyślij ręcznie';
 
   @override
-  String get pairRelayUnreachableTitle => 'Brak połączenia z przekaźnikiem';
+  String get pairRelayUnreachableTitle => 'Brak połączenia z serwerem';
 
   @override
   String get pairRelayUnreachableBody => 'Wysłać odpowiedź ręcznie?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Brak połączenia z przekaźnikiem przez Tor. Wysłać odpowiedź ręcznie?';
+      'Brak połączenia z serwerem przez Tor. Wysłać odpowiedź ręcznie?';
 
   @override
   String get pairNoRelay =>
-      'Brak połączenia z żadnym przekaźnikiem parowania. Sparuj zamiast tego linkiem z zaproszeniem.';
+      'Brak połączenia z żadnym serwerem połączeń. Sparuj zamiast tego linkiem z zaproszeniem.';
 
   @override
   String get pairRelaysBlocked =>
-      'Ta sieć blokuje przekaźniki parowania. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.';
+      'Ta sieć blokuje serwery połączeń. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.';
 
   @override
   String get pairByHandTitle => 'Wyślij ręcznie';
@@ -15360,14 +15360,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactWordsChecked(String date) {
-    return 'Słowa sprawdzone $date';
+    return 'Zweryfikowano $date';
   }
 
   @override
   String get contactCheckAgain => 'Sprawdź ponownie';
 
   @override
-  String get contactCheckWordsAgain => 'Sprawdź słowa ponownie';
+  String get contactCheckWordsAgain => 'Zweryfikuj ponownie';
 
   @override
   String get contactSealPayments => 'Pieczętuj płatności';
@@ -15397,13 +15397,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactAllowInfoMore =>
-      'Zezwolić można tylko zweryfikowanemu kontaktowi: sprawdzenie słów wyklucza podmienione zaproszenie.';
+      'Zezwolić można tylko zweryfikowanemu kontaktowi: weryfikacja wyklucza podmienione zaproszenie.';
 
   @override
-  String get contactCheckWordsFirst => 'Najpierw sprawdź słowa';
+  String get contactCheckWordsFirst => 'Najpierw zweryfikuj';
 
   @override
-  String get contactPausedUntilChecked => 'Wstrzymane do sprawdzenia słów';
+  String get contactPausedUntilChecked => 'Wstrzymane do weryfikacji';
 
   @override
   String contactDeliveredVia(String relay) {
@@ -15412,7 +15412,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Przekaźnik $name nie odpowiada';
+    return 'Serwer $name nie odpowiada';
   }
 
   @override
@@ -15453,7 +15453,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactKeysChangedBody =>
-      'Może to oznaczać, że ta osoba używa teraz innego portfela albo że ktoś inny używa jej nazwy. Sprawdź słowa ponownie.';
+      'Może to oznaczać, że ta osoba używa teraz innego portfela albo że ktoś inny używa jej nazwy. Zweryfikuj kontakt ponownie.';
 
   @override
   String get contactKeysChangedStatus => 'pieczętowanie i faktury wstrzymane';
@@ -15544,7 +15544,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pendingWords(String time) {
-    return 'Słowa parowania · wygasają za $time';
+    return 'Zaproszenie głosowe · wygasa za $time';
   }
 
   @override
@@ -15559,7 +15559,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get pendingPairedCheck => 'Sparowany · sprawdź słowa';
+  String get pendingPairedCheck => 'Sparowany · zweryfikuj';
 
   @override
   String get pendingEmpty =>
@@ -15569,7 +15569,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pendingShareAgain => 'Udostępnij ponownie';
 
   @override
-  String get pendingShowWords => 'Pokaż słowa';
+  String get pendingShowWords => 'Pokaż zaproszenie';
 
   @override
   String get pendingCopyLink => 'Kopiuj link';
@@ -15595,11 +15595,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetEmpty =>
-      'Brak sparowanych kontaktów. Sparuj się ze sklepem, giełdą lub osobą, sprawdź słowa, a potem zezwól tutaj na ich faktury.';
+      'Brak sparowanych kontaktów. Sparuj się ze sklepem, giełdą lub osobą, zweryfikuj, a potem zezwól tutaj na ich faktury.';
 
   @override
   String get invSetPausedBody =>
-      'Prośby czekają na przekaźniku i dotrą, gdy Epicbox znów będzie włączony.';
+      'Prośby czekają na serwerze i dotrą, gdy Epicbox znów będzie włączony.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15664,12 +15664,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Dostarczono do przekaźnika $name';
+    return 'Dostarczono na serwer $name';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Odpowiedź dostarczona do przekaźnika $name';
+    return 'Odpowiedź dostarczona na serwer $name';
   }
 
   @override
@@ -15718,7 +15718,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twoje środki są bezpieczne; zostaną odblokowane, jeśli płatność nie zostanie opublikowana. Dostarczanie jest ponawiane.';
 
   @override
-  String get reqRelayRetrying => 'Przekaźnik nie odpowiada · ponawianie';
+  String get reqRelayRetrying => 'Serwer nie odpowiada · ponawianie';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15784,7 +15784,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqNoPayersContacts =>
-      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa.';
+      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i zweryfikuj.';
 
   @override
   String get reqNewToHint =>
@@ -15894,12 +15894,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name odpowiada na twoje zaproszenie. Sprawdźcie razem słowa.';
+    return '$name odpowiada na twoje zaproszenie. Zweryfikujcie razem.';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Sparowano z: $name. Sprawdźcie razem słowa.';
+    return 'Sparowano z: $name. Zweryfikujcie razem.';
   }
 
   @override
@@ -15914,7 +15914,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeKeysChanged(String name) {
-    return 'Klucze $name się zmieniły. Sprawdź słowa ponownie przed zapłatą.';
+    return 'Klucze $name się zmieniły. Zweryfikuj ponownie przed zapłatą.';
   }
 
   @override
@@ -15924,7 +15924,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Przekaźnik $name nie odpowiada. Ponawianie.';
+    return 'Serwer $name nie odpowiada. Ponawianie.';
   }
 
   @override
@@ -16079,7 +16079,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetRowCheckFirst =>
-      'Sparowany, niezweryfikowany · najpierw sprawdź słowa';
+      'Sparowany, niezweryfikowany · najpierw zweryfikuj';
 
   @override
   String invSetAllowFor(String name) {
@@ -16088,7 +16088,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa lub zapisz prośbę jako plik.';
+      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i zweryfikuj lub zapisz prośbę jako plik.';
 
   @override
   String get reqPickContact => 'Wybierz kontakt';
@@ -16118,7 +16118,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noticeOpen => 'Otwórz';
 
   @override
-  String get noticeCheckWords => 'Sprawdź słowa';
+  String get noticeCheckWords => 'Zweryfikuj';
 
   @override
   String get noticeView => 'Pokaż';
@@ -16213,22 +16213,22 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Wybierz sposób: Słowa, Zaproszenie w wiadomości lub Osobiście.';
+      'Wybierz sposób: Głosowo, Zaproszenie w wiadomości lub Osobiście.';
 
   @override
   String get helpPairWhatStep3 =>
-      'Sprawdźcie razem słowa, potem **Zgadzają się**.';
+      'Zweryfikujcie razem, potem **Zgadzają się**.';
 
   @override
   String get helpPairWhatP3 =>
       'Parowanie wymaga Epic Cash po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki płatności i płatności Epicbox.';
 
   @override
-  String get helpPairWhyTitle => 'Po co sprawdzać słowa';
+  String get helpPairWhyTitle => 'Po co weryfikować';
 
   @override
   String get helpPairWhyShort =>
-      'Cztery słowa dowodzą, że parowanie trafiło do właściwego portfela, a nie do kogoś pośrodku.';
+      'Weryfikacja dowodzi, że parowanie trafiło do właściwego portfela, a nie do kogoś pośrodku.';
 
   @override
   String get helpPairWhyP1 =>
@@ -16247,7 +16247,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nazwy słów pozostają po angielsku w każdym języku, aby dwie osoby, których portfele działają w różnych językach, mogły je porównać.';
 
   @override
-  String get helpPairWordsTitle => 'Słowa parowania';
+  String get helpPairWordsTitle => 'Zaproszenia głosowe';
 
   @override
   String get helpPairWordsShort =>
@@ -16263,7 +16263,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWordsP3 =>
-      'Słowa parowania wymagają serwera Epicbox. Gdy Epicbox jest wyłączony, wyślij link z zaproszeniem.';
+      'Zaproszenia głosowe wymagają Epicbox. Gdy Epicbox jest wyłączony, wyślij link z zaproszeniem.';
 
   @override
   String get helpPairInvTitle => 'Faktury od sparowanych kontaktów';
@@ -16599,7 +16599,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactNoAddressPaired => 'Płatności idą przez parowanie';
 
   @override
-  String get contactSendKeysChanged => 'Przed wysłaniem sprawdź słowa.';
+  String get contactSendKeysChanged => 'Przed wysłaniem zweryfikuj kontakt.';
 
   @override
   String contactSendNoSealed(String name) {
@@ -17834,6 +17834,110 @@ class AppLocalizationsPl extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Dodano $host. Odznacz inny, aby go wybrać.';
   }
+
+  @override
+  String get connServers => 'Serwery połączeń';
+
+  @override
+  String get connServersHint =>
+      'Tu dwa portfele znajdują się nawzajem, gdy się łączą. Drugi portfel też musi używać co najmniej jednego z nich.';
+
+  @override
+  String get connServersNote => 'Wybierz do 3.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n serwera',
+      many: '$n serwerów',
+      few: '$n serwery',
+      one: '$n serwer',
+    );
+    return '$_temp0 · Domyślne';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n serwera',
+      many: '$n serwerów',
+      few: '$n serwery',
+      one: '$n serwer',
+    );
+    return '$_temp0 · Zmienione';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down z $n nie odpowiada. Łączenie nadal działa przez pozostałe.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'Żaden serwer połączeń nie odpowiada. Użyj opcji „Przez wiadomość” lub „Osobiście”.';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Wstrzymano, gdy Epicbox jest wyłączony. „Przez wiadomość” i „Osobiście” nadal działają.';
+
+  @override
+  String get connServersOffline => 'Wstrzymano w trybie offline.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host nie jest domyślny. Portfele, które też go używają, znajdą cię tam.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'Gdy dwa portfele łączą się po raz pierwszy, każdy szuka drugiego na serwerach wybranych tutaj. Oba muszą mieć co najmniej jeden wspólny, inaczej nigdy się nie spotkają.';
+
+  @override
+  String get connServersInfo2 =>
+      'Domyślne to serwery znane każdemu portfelowi Epic Cash. Zostaw je, chyba że któryś jest blokowany w tej sieci.';
+
+  @override
+  String get connServersInfo3 =>
+      '„Przez wiadomość” i „Osobiście” ich nie potrzebują, tak samo jak wszystko po połączeniu: to korzysta z własnego serwera Epicbox tego portfela.';
+
+  @override
+  String get connServersInfo4 =>
+      'Każdy wybrany serwer widzi, że rozpoczęto łączenie, nigdy z kim.';
+
+  @override
+  String get connServersInfoTor =>
+      'Przy włączonym Torze serwery są osiągane przez Tor.';
+
+  @override
+  String get txSentFromOtherWallet => 'Wysłano z innego portfela';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Wysłano z innego portfela, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Inny portfel z Twoją frazą odzyskiwania wydał te monety. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
+
+  @override
+  String get txDetailsNotKnown => 'Nieznane';
+
+  @override
+  String get txReceivedByOtherWallet => 'Odebrano w innym portfelu';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Odebrano w innym portfelu, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Inny portfel z Twoją frazą odzyskiwania odebrał te monety. Ten portfel pokazuje kwotę, a nie nadawcę.';
 
   @override
   String get expLinkedDevices => 'Połączone urządzenia';

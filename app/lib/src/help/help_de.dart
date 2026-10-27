@@ -98,7 +98,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Relay, also gibt es keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten am Relay). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen kein Relay. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
+          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
           '**Senden beginnt mit.** Die Methode, mit der der Bildschirm Senden sich öffnet. Auf Senden können Sie trotzdem eine andere wählen.',
           '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
@@ -395,6 +395,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             : '**Eine Aktion ist ausgegraut und nennt „Offline-Modus“.** Offline ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück.'),
       ],
       id: HelpId.trouble,
+    ),
+    const HelpTopic(
+      'trouble',
+      'Zahlungen einer anderen Wallet',
+      'Zahlungen, die diese Wallet nicht selbst gemacht oder empfangen hat: Dieselbe Wiederherstellungsphrase wird in einer anderen Wallet verwendet.',
+      [
+        HelpBlock.p('Eine Zeile **Von einer anderen Wallet gesendet** oder **Von einer anderen Wallet empfangen** ist eine Zahlung einer anderen Wallet, die dieselbe Wiederherstellungsphrase verwendet. Die Blockchain zeigt diese Coins als ausgegeben oder empfangen, deshalb führt diese Wallet sie auf.'),
+        HelpBlock.p('Der Betrag ist, was diese Wallet nach Abzug des zurückgekommenen Wechselgelds verlassen hat, oder was angekommen ist. Die Gegenseite und die Gebühr sind hier nicht bekannt.'),
+        HelpBlock.p('**Wenn Sie mit dieser Phrase keine andere Wallet nutzen**, kennt jemand anderes die Wiederherstellungsphrase. Bringen Sie die EPIC in eine neue Wallet mit neuer Phrase.'),
+        HelpBlock.p('**Ein Versand, der mit „Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.“ scheitert**, wurde freigegeben. Die Wallet aktualisiert sich; senden Sie erneut, wenn das Guthaben stimmt.'),
+      ],
+      id: HelpId.otherWallet,
     ),
     HelpTopic(
       'trouble',

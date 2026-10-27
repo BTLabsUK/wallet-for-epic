@@ -3544,7 +3544,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendRelayDown(String relay) {
-    return 'Their relay ($relay) isn\'t answering.';
+    return 'Their server ($relay) isn\'t answering.';
   }
 
   @override
@@ -3640,11 +3640,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Your wallet sends the payment to the relay. Your coins go on hold.';
+      'Your wallet sends the payment to the Epicbox server. Your coins go on hold.';
 
   @override
   String get handshakePay2 =>
-      'The relay passes it on. Their wallet adds its part and signs.';
+      'The server passes it on. Their wallet adds its part and signs.';
 
   @override
   String get handshakeFinish =>
@@ -3654,23 +3654,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakeConfirm => 'The network confirms it.';
 
   @override
-  String get handshakeReq1 => 'Your wallet sends the request to the relay.';
+  String get handshakeReq1 =>
+      'Your wallet sends the request to the Epicbox server.';
 
   @override
   String get handshakeReq2 =>
-      'The relay passes it on. They approve it, and their wallet adds the coins and signs.';
+      'The server passes it on. They approve it, and their wallet adds the coins and signs.';
 
   @override
-  String get handshakeRelay => 'Relay';
+  String get handshakeRelay => 'Server';
 
   @override
   String get handshakeFile => 'File Transfer';
 
   @override
-  String get handshakeBack => 'Their wallet sends it back to the relay.';
+  String get handshakeBack =>
+      'Their wallet sends it back to the Epicbox server.';
 
   @override
-  String get handshakeRelayBack => 'The relay passes it back to your wallet.';
+  String get handshakeRelayBack => 'The server passes it back to your wallet.';
 
   @override
   String get handshakeFile1 =>
@@ -3736,16 +3738,16 @@ class AppLocalizationsEn extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
+          'Their server ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
       one:
-          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
+          'Their server ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'Their relay ($relay) didn\'t take it. Check Wallet before you send again.';
+    return 'Their server ($relay) didn\'t take it. Check Wallet before you send again.';
   }
 
   @override
@@ -5343,11 +5345,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
+      'A payment for an invoice this device did not issue arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
+      'An answer to a payment this device did not send arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvPayerWaitingHead => 'Waiting for you';
@@ -5827,7 +5829,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushRelaySwitchFailed =>
-      'The relay could not be switched. Notifications stay off.';
+      'The server could not be switched. Notifications stay off.';
 
   @override
   String get pushConfirmTitle => 'Turn on notifications?';
@@ -13412,7 +13414,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the server pickers and on the status card, and the relay address under Receive.';
+      'Shows hosts, latency, version and block height in the server pickers and on the status card, and the Epicbox address under Receive.';
 
   @override
   String get advRecheckHeight => 'Recheck from a height';
@@ -13861,7 +13863,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. The other methods still work.';
+      'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments, invoices or notifications. The other methods still work.';
 
   @override
   String get txDirectLine =>
@@ -13949,7 +13951,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Pay or get paid through a relay. The other wallet can be closed.';
+      'Pay or get paid through an Epicbox server. The other wallet can be closed.';
 
   @override
   String get txEpicboxOffTitle => 'Turn Epicbox off?';
@@ -13987,7 +13989,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Senders\' payments wait at the relay until Epicbox is on again.';
+      'Senders\' payments wait on the server until Epicbox is on again.';
 
   @override
   String get receiveNoMethods => 'No receiving method is on';
@@ -14357,7 +14359,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWordsNeedEpicbox =>
-      'Pairing words need Epicbox, so they are not offered now.';
+      'Spoken invites need Epicbox, so they are not offered now.';
 
   @override
   String pairWordsDesktopChip(String time) {
@@ -14396,7 +14398,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairCardBackBody(String name) {
-    return 'Paste this link under Enter link or words in $name\'s wallet. Then check the words together.';
+    return 'Paste this link under Enter link or words in $name\'s wallet. Then verify together.';
   }
 
   @override
@@ -14462,18 +14464,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWayWordsInfo =>
-      'Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.';
+      'Both wallets must be online. Your wallet leaves the invite on the connection servers; theirs finds it from the five words. Afterwards, verify together.';
 
   @override
   String get pairWayMessage => 'Invite by message';
 
   @override
   String get pairWayMessageHint =>
-      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.';
+      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.';
 
   @override
   String get pairWayMessageInfo =>
-      'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.';
+      'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.';
 
   @override
   String get pairWayInPersonDesk => 'Their phone scans your code';
@@ -14552,7 +14554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'With a relay on both sides, this step also happens by itself.';
+      'When both wallets reach an Epicbox server, this step also happens by itself.';
 
   @override
   String get pairPasteReply => 'Paste reply';
@@ -14629,15 +14631,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWaysShort =>
-      'Words when both wallets are online, a message in any chat, or in person.';
+      'Spoken when both wallets are online, a message in any chat, or in person.';
 
   @override
   String get helpPairWaysP1 =>
-      '**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.';
+      '**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (Settings › Advanced; the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.';
 
   @override
   String get helpPairWaysP2 =>
-      '**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.';
+      '**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.';
 
   @override
   String get helpPairWaysP3 =>
@@ -14645,7 +14647,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.';
+      'Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.';
 
   @override
   String get helpPairClipP =>
@@ -14653,7 +14655,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairShareWarning =>
-      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
+      'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then verify together.';
 
   @override
   String get pairShareInvite => 'Share invite';
@@ -14703,7 +14705,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, payment files and invoices between you and $name are sealed. You check the words together next.';
+    return 'Once paired, payment files and invoices between you and $name are sealed. You verify together next.';
   }
 
   @override
@@ -14713,11 +14715,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairIncomingAllowHintDesktop =>
-      'Turns on after you check the words. Nothing is paid without the wallet password.';
+      'Turns on after you verify. Nothing is paid without the wallet password.';
 
   @override
   String get pairIncomingAllowHint =>
-      'Turns on after you check the words. Nothing is paid without your PIN.';
+      'Turns on after you verify. Nothing is paid without your PIN.';
 
   @override
   String get pairNotNow => 'Not now';
@@ -14729,28 +14731,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the words check appears when it is done.';
+      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.';
 
   @override
   String get pairSendByHand => 'Send by hand';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => 'Can’t reach the server';
 
   @override
   String get pairRelayUnreachableBody => 'Send your answer by hand?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+      'Can’t reach the server over Tor. Send your answer by hand?';
 
   @override
   String get pairNoRelay =>
-      'Can’t reach any pairing relay. Pair with an invite link instead.';
+      'Can’t reach any connection server. Pair with an invite link instead.';
 
   @override
   String get pairRelaysBlocked =>
-      'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.';
+      'This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.';
 
   @override
   String get pairByHandTitle => 'Send by hand';
@@ -14966,14 +14968,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactWordsChecked(String date) {
-    return 'Words checked $date';
+    return 'Verified $date';
   }
 
   @override
   String get contactCheckAgain => 'Check again';
 
   @override
-  String get contactCheckWordsAgain => 'Check the words again';
+  String get contactCheckWordsAgain => 'Verify again';
 
   @override
   String get contactSealPayments => 'Seal payments';
@@ -15003,13 +15005,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactAllowInfoMore =>
-      'Only a Verified contact can be allowed: checking the words rules out a swapped invite.';
+      'Only a Verified contact can be allowed: verifying rules out a swapped invite.';
 
   @override
-  String get contactCheckWordsFirst => 'Check the words first';
+  String get contactCheckWordsFirst => 'Verify first';
 
   @override
-  String get contactPausedUntilChecked => 'Paused until you check the words';
+  String get contactPausedUntilChecked => 'Paused until verified';
 
   @override
   String contactDeliveredVia(String relay) {
@@ -15018,7 +15020,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return '$name’s server isn’t answering';
   }
 
   @override
@@ -15057,7 +15059,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactKeysChangedBody =>
-      'This can mean they use a different wallet now, or someone else is using their name. Check the words again.';
+      'This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.';
 
   @override
   String get contactKeysChangedStatus => 'sealing and invoices paused';
@@ -15146,7 +15148,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pendingWords(String time) {
-    return 'Pairing words · expires in $time';
+    return 'Spoken invite · expires in $time';
   }
 
   @override
@@ -15161,7 +15163,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pendingPairedCheck => 'Paired · check the words';
+  String get pendingPairedCheck => 'Paired · verify';
 
   @override
   String get pendingEmpty =>
@@ -15171,7 +15173,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pendingShareAgain => 'Share again';
 
   @override
-  String get pendingShowWords => 'Show words';
+  String get pendingShowWords => 'Show invite';
 
   @override
   String get pendingCopyLink => 'Copy link';
@@ -15197,11 +15199,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetEmpty =>
-      'No paired contacts yet. Pair with a shop, an exchange or a person, check the words, then allow their invoices here.';
+      'No paired contacts yet. Pair with a shop, an exchange or a person, verify, then allow their invoices here.';
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+      'Requests wait on the server and arrive when it is back on.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15264,12 +15266,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return 'Delivered to $name’s server';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return 'Answer delivered to $name’s server';
   }
 
   @override
@@ -15318,7 +15320,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => 'Server not answering · retrying';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15378,7 +15380,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqNoPayersContacts =>
-      'No paired contact pays requests yet. Pair and check the words with them.';
+      'No paired contact pays requests yet. Pair and verify with them.';
 
   @override
   String get reqNewToHint =>
@@ -15488,12 +15490,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name answered your invite. Check the words together.';
+    return '$name answered your invite. Verify together.';
   }
 
   @override
   String noticePairingConfirmed(String name) {
-    return 'Paired with $name. Check the words together.';
+    return 'Paired with $name. Verify together.';
   }
 
   @override
@@ -15508,7 +15510,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name’s keys changed. Check the words again before paying.';
+    return '$name’s keys changed. Verify again before paying.';
   }
 
   @override
@@ -15518,7 +15520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return '$name’s server isn’t answering. Retrying.';
   }
 
   @override
@@ -15667,8 +15669,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invSetRowOff => 'Verified · off';
 
   @override
-  String get invSetRowCheckFirst =>
-      'Paired, not verified · check the words first';
+  String get invSetRowCheckFirst => 'Paired, not verified · verify first';
 
   @override
   String invSetAllowFor(String name) {
@@ -15677,7 +15678,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and check the words with them, or save the request as a file.';
+      'No paired contact pays requests yet. Pair and verify with them, or save the request as a file.';
 
   @override
   String get reqPickContact => 'Choose a contact';
@@ -15707,7 +15708,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noticeOpen => 'Open';
 
   @override
-  String get noticeCheckWords => 'Check the words';
+  String get noticeCheckWords => 'Verify';
 
   @override
   String get noticeView => 'View';
@@ -15801,22 +15802,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Choose a way: Words, Invite by message or In person.';
+      'Choose a way: Spoken, Invite by message or In person.';
 
   @override
-  String get helpPairWhatStep3 =>
-      'Check the words together, then **They match**.';
+  String get helpPairWhatStep3 => 'Verify together, then **They match**.';
 
   @override
   String get helpPairWhatP3 =>
       'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.';
 
   @override
-  String get helpPairWhyTitle => 'Why check the words';
+  String get helpPairWhyTitle => 'Why verify';
 
   @override
   String get helpPairWhyShort =>
-      'The four words prove the pairing reached the right wallet and not someone in between.';
+      'Verifying proves the pairing reached the right wallet and not someone in between.';
 
   @override
   String get helpPairWhyP1 =>
@@ -15835,7 +15835,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The word names stay in English in every language, so two people whose wallets use different languages can still compare them.';
 
   @override
-  String get helpPairWordsTitle => 'Pairing words';
+  String get helpPairWordsTitle => 'Spoken invites';
 
   @override
   String get helpPairWordsShort =>
@@ -15851,7 +15851,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWordsP3 =>
-      'Pairing words need the Epicbox server. While Epicbox is off, send the invite link instead.';
+      'Spoken invites need Epicbox. While Epicbox is off, send the invite link instead.';
 
   @override
   String get helpPairInvTitle => 'Invoices from paired contacts';
@@ -16156,7 +16156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactNoAddressPaired => 'Payments go through the pairing';
 
   @override
-  String get contactSendKeysChanged => 'Check the words before sending.';
+  String get contactSendKeysChanged => 'Verify the contact before sending.';
 
   @override
   String contactSendNoSealed(String name) {
@@ -17368,6 +17368,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String slAddedUntick(String host) {
     return 'Added $host. Untick one to choose it.';
   }
+
+  @override
+  String get connServers => 'Connection servers';
+
+  @override
+  String get connServersHint =>
+      'Where two wallets find each other when they connect. The other wallet must use at least one of them too.';
+
+  @override
+  String get connServersNote => 'Choose up to 3.';
+
+  @override
+  String connServersDefaults(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n servers',
+      one: '$n server',
+    );
+    return '$_temp0 · Defaults';
+  }
+
+  @override
+  String connServersChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n servers',
+      one: '$n server',
+    );
+    return '$_temp0 · Changed';
+  }
+
+  @override
+  String connServersDown(int down, int n) {
+    return '$down of $n not responding. Connecting still works through the others.';
+  }
+
+  @override
+  String get connServersAllDown =>
+      'No connection server answers. Use Invite by message or In person.';
+
+  @override
+  String get connServersEpicboxOff =>
+      'Paused while Epicbox is off. Invite by message and In person still work.';
+
+  @override
+  String get connServersOffline => 'Paused in Offline mode.';
+
+  @override
+  String connServersNonDefault(String host) {
+    return '$host is not a default. Wallets that also use it find you there.';
+  }
+
+  @override
+  String get connServersInfo1 =>
+      'When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.';
+
+  @override
+  String get connServersInfo2 =>
+      'The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.';
+
+  @override
+  String get connServersInfo3 =>
+      'Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet\'s own Epicbox server.';
+
+  @override
+  String get connServersInfo4 =>
+      'Each chosen server sees that a connection was started, never with whom.';
+
+  @override
+  String get connServersInfoTor =>
+      'With Tor on, the servers are reached through Tor.';
+
+  @override
+  String get txSentFromOtherWallet => 'Sent from another wallet';
+
+  @override
+  String txSpokenSentFromOtherWallet(String amount) {
+    return 'Sent from another wallet, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWallet =>
+      'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.';
+
+  @override
+  String get txDetailsNotKnown => 'Not known';
+
+  @override
+  String get txReceivedByOtherWallet => 'Received by another wallet';
+
+  @override
+  String txSpokenReceivedByOtherWallet(String amount) {
+    return 'Received by another wallet, $amount';
+  }
+
+  @override
+  String get txDetailsOtherWalletIn =>
+      'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.';
 
   @override
   String get expLinkedDevices => 'Linked devices';

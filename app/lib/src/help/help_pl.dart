@@ -98,7 +98,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.'),
         HelpBlock.ul([
-          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym przekaźnikiem, więc nie ma płatności Epicbox, faktur ani powiadomień, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na przekaźniku). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują przekaźnika. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
+          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym serwerem, więc nie ma płatności Epicbox, faktur ani powiadomień, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na serwerze). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują serwera Epicbox. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
           '**Wysyłanie zaczyna od.** Metoda, z którą otwiera się ekran Wyślij. Na ekranie Wyślij nadal możesz wybrać inną.',
           '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
@@ -395,6 +395,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             : '**Akcja jest wyszarzona i mówi „Tryb offline”.** W Zaawansowanych włączono Offline. Przywróć tam tryb Standardowy.'),
       ],
       id: HelpId.trouble,
+    ),
+    const HelpTopic(
+      'trouble',
+      'Płatności z innego portfela',
+      'Płatności, których ten portfel nie wykonał ani nie odebrał sam: ta sama fraza odzyskiwania jest używana w innym portfelu.',
+      [
+        HelpBlock.p('Wiersz **Wysłano z innego portfela** lub **Odebrano w innym portfelu** to płatność innego portfela używającego tej samej frazy odzyskiwania. Łańcuch pokazuje te monety jako wydane lub odebrane, więc ten portfel ją wyświetla.'),
+        HelpBlock.p('Kwota to to, co opuściło ten portfel po odjęciu reszty, która wróciła, albo to, co wpłynęło. Druga strona i opłata nie są tu znane.'),
+        HelpBlock.p('**Jeśli nie używasz z tą frazą innego portfela**, ktoś inny zna frazę odzyskiwania. Przenieś EPIC do nowego portfela z nową frazą.'),
+        HelpBlock.p('**Wysyłka, która kończy się komunikatem „Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.”**, została zwolniona. Portfel się odświeża; wyślij ponownie, gdy saldo będzie poprawne.'),
+      ],
+      id: HelpId.otherWallet,
     ),
     HelpTopic(
       'trouble',

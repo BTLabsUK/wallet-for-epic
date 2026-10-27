@@ -37,11 +37,11 @@
   "@deskInvNoticeExpired": {
     "description": "Notice: an invoice waiting for the user ran out of time."
   },
-  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
+  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownPayment": {
     "description": "Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender."
   },
-  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
+  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived. It stays on the server for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownAnswer": {
     "description": "Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender."
   },

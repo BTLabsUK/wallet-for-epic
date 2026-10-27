@@ -4,7 +4,7 @@
   "deskInvNoticeIssuedExpired": "Eine von Ihnen ausgestellte Rechnung ist unbezahlt abgelaufen.",
   "deskInvNoticeWithdrawn": "{service} hat eine Rechnung zurückgezogen, bevor Sie sie beantwortet haben.",
   "deskInvNoticeExpired": "Eine Rechnung ist abgelaufen, bevor Sie sie beantwortet haben.",
-  "deskInvNoticeUnknownPayment": "Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
-  "deskInvNoticeUnknownAnswer": "Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
+  "deskInvNoticeUnknownPayment": "Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Server für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
+  "deskInvNoticeUnknownAnswer": "Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Server für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
   "deskInvNoticeReceiveSuperseded": "Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen."
 }

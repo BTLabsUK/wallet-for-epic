@@ -160,6 +160,7 @@ abstract final class HelpId {
   static const cleanup = 'cleanup';
   static const importWarning = 'import-warning';
   static const cancel = 'cancel';
+  static const otherWallet = 'other-wallet';
   static const linkedDevices = 'linked-devices';
   static const lostDevice = 'lost-device';
   static const heldCoins = 'held-coins';
@@ -260,7 +261,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
         HelpBlock.ul([
-          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no relay, so no Epicbox payments, invoices or notifications, and Receive shows no Epicbox address (payments sent to it wait at the relay). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no relay. A method that is off does not appear on Send and Receive.',
+          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments, invoices or notifications, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.',
           '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
           '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
         ]),
@@ -561,6 +562,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,
+    ),
+    const HelpTopic(
+      'trouble',
+      'Payments by another wallet',
+      'Payments this wallet did not make or receive itself: the same recovery phrase is in use in another wallet.',
+      [
+        HelpBlock.p('A row called **Sent from another wallet** or **Received by another wallet** is a payment of another wallet that uses the same recovery phrase. The chain shows these coins spent or received, so this wallet lists it.'),
+        HelpBlock.p('The amount is what left this wallet after the change that came back, or what arrived. The other side and the fee are not known here.'),
+        HelpBlock.p('**If you use no other wallet with this phrase**, someone else has the recovery phrase. Move the EPIC to a new wallet with a new phrase.'),
+        HelpBlock.p('**A send that fails with "These coins were just spent by another wallet using your recovery phrase."** was released. The wallet refreshes; send again once the balance is right.'),
+      ],
+      id: HelpId.otherWallet,
     ),
     HelpTopic(
       'trouble',

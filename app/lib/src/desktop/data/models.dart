@@ -268,6 +268,7 @@ class Tx {
     this.proofSender,
     this.proofSignature,
     this.coinbase = false,
+    this.otherWallet = false,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -361,6 +362,10 @@ class Tx {
 
   /// A mining reward: spendable only after [coinbaseMaturity] confirmations.
   final bool coinbase;
+
+  /// Coins another wallet using this recovery phrase spent (a send) or received: the chain shows
+  /// it and this wallet has no record. Confirmed, no counterparty, and for a send no fee known.
+  final bool otherWallet;
 
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
@@ -457,6 +462,7 @@ class Tx {
       proofSender: proofSender,
       proofSignature: proofSignature,
       coinbase: coinbase,
+      otherWallet: otherWallet,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,
