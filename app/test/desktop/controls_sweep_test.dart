@@ -16,6 +16,8 @@ import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
+import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
+import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
@@ -362,6 +364,12 @@ class _Recorder implements DeskWalletApi, MockBacked {
   // Pairing calls go to the pairing API, not through the recorder.
   @override
   PairingApi get pairing => _m.pairing;
+
+  @override
+  DeviceHost? deviceHost({required bool Function() online}) => _m.deviceHost(online: online);
+
+  @override
+  void useDevices(DeviceBook? Function()? book) => _m.useDevices(book);
   @override
   Future<void> setInvoiceExpiry(Duration expiry) => _r('setInvoiceExpiry', () => _m.setInvoiceExpiry(expiry));
 }

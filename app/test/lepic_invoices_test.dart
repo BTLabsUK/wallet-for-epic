@@ -107,6 +107,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
+    List<String>? only,
   }) async {
     collects.add(trigger);
     // Two invoices arrive in the shop's mailbox.
@@ -183,6 +184,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
         flow: lepic.TxFlow.invoice,
         origin: lepic.TxOrigin.wallet,
         outputCommits: const [],
+        spentCommits: const [],
       ),
     );
     outbox.add(

@@ -55,6 +55,7 @@ lepic.TransactionDetails _tx({
   origin: lepic.TxOrigin.wallet,
   transport: 'epicbox',
   outputCommits: const [],
+  spentCommits: const [],
 );
 
 /// LEPIC's wallet in memory: a paired shop, its invoices, transactions and a summary. Fails any
@@ -173,6 +174,7 @@ class _Wallet implements lepic.EpicWallet {
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
+    List<String>? only,
   }) async {
     invoiceDrains++;
     if (drainError != null) throw _lepicError(drainError!);
@@ -337,6 +339,7 @@ void main() {
           origin: lepic.TxOrigin.wallet,
           transport: 'epicbox',
           outputCommits: const [],
+          spentCommits: const [],
         ),
       );
       Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1);
