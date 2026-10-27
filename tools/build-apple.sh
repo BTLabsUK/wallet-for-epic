@@ -19,7 +19,10 @@
 #             install needs it signed with a team first)
 #   smoke     integration_test/simple_test.dart (PIN vault through LEPIC, secure storage, first
 #             run) on macOS and on the Simulator, and a start of the built .app
-#   all       every step above
+#   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
+#             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
+#             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
+#   all       every step above but live
 # A failing step leaves a FAIL line in results.txt before the script exits.
 # Env:
 #   APPLE_OUT=<dir>            results (default build-apple/ at the repo root): the .app, .dmg,
@@ -389,6 +392,26 @@ smoke() {
   return "$status"
 }
 
+live() {
+  say live
+  mkdir -p "$out"
+  local status=0 udid
+  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos $(tor_define)) \
+      > "$out/live-macos.log" 2>&1; then
+    result PASS live-macos "$(grep 'LIVE-CHECK' "$out/live-macos.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
+  else
+    result FAIL live-macos "see live-macos.log"; status=1
+  fi
+  udid="$(simulator)"
+  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" $(tor_define)) \
+      > "$out/live-ios-sim.log" 2>&1; then
+    result PASS live-ios-sim "$(grep 'LIVE-CHECK' "$out/live-ios-sim.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
+  else
+    result FAIL live-ios-sim "see live-ios-sim.log"; status=1
+  fi
+  return "$status"
+}
+
 # A step that dies (or fails a command) gets its FAIL line here unless it wrote one itself.
 recorded="" step=""
 trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
@@ -405,6 +428,7 @@ for step in "$@"; do
     ios-sim) ios_sim ;;
     ipa) ipa ;;
     smoke) smoke ;;
+    live) live ;;
     all) doctor; sources; lepic_libs; macos; dmg; ios_sim; ipa; smoke ;;
     *) step=""; sed -n '2,40p' "$0" >&2; exit 2 ;;
   esac
