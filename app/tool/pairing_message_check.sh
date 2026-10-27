@@ -42,6 +42,15 @@ copy_on_phone() {
   "${A[@]}" shell am set-debug-app --persistent com.android.chrome > /dev/null 2>&1
   "${A[@]}" shell am start -a android.intent.action.VIEW -d about:blank com.android.chrome > /dev/null 2>&1
   sleep 3
+  # Chrome's own dialogs on a fresh device (notifications, sign-in): No thanks.
+  local i btn
+  for i in 1 2 3; do
+    "${A[@]}" shell uiautomator dump /sdcard/rc-ui.xml > /dev/null 2>&1
+    btn=$("${A[@]}" shell cat /sdcard/rc-ui.xml | grep -oE 'resource-id="com.android.chrome:id/(negative_button|signin_fre_dismiss_button|ack_button)"[^>]*bounds="\[[0-9]+,[0-9]+' | grep -oE '[0-9]+,[0-9]+$' | head -1 | tr ',' ' ')
+    [ -z "$btn" ] && break
+    "${A[@]}" shell input tap $btn
+    sleep 2
+  done
   local bar
   "${A[@]}" shell uiautomator dump /sdcard/rc-ui.xml > /dev/null 2>&1
   bar=$("${A[@]}" shell cat /sdcard/rc-ui.xml | grep -oE 'resource-id="com.android.chrome:id/url_bar"[^>]*bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+' | grep -oE '[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+' | sed 's/\]\[/,/' | tr ',' ' ')
