@@ -168,13 +168,20 @@ void main() {
       expect(ownerSecretMayTravel('https://node.btlabs.uk', mine: true, torOn: false), isTrue);
       expect(ownerSecretMayTravel('https://node.btlabs.uk', mine: true, torOn: true), isFalse);
       expect(ownerSecretMayTravel('http://10.0.1.24:3413', mine: false, torOn: true), isTrue, reason: 'local addresses bypass Tor');
+      // https goes straight to its host, which Tor would carry: never while the switch is on.
+      expect(ownerSecretMayTravel('https://10.0.1.24:3413', mine: false, torOn: true), isFalse);
+      expect(ownerSecretMayTravel('https://box.tail1234.ts.net', mine: false, torOn: true), isFalse);
+      expect(ownerSecretMayTravel('https://10.0.1.24:3413', mine: false, torOn: false), isTrue);
+      // Plain http only where the relay takes it: a .ts.net name is not one.
+      expect(ownerSecretMayTravel('http://box.tail1234.ts.net:3413', mine: false, torOn: false), isFalse);
       final o = owner();
       final a = OwnNodeAccess(MemorySecretStore({ownerSecretKey('https://node.btlabs.uk'): 's3cret'}), clientFor: o.client, torOn: () => false);
       expect(await a.add('https://node.btlabs.uk', 's3cret'), OwnerCheck.refused);
       await expectLater(a.status('https://node.btlabs.uk'), throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.torOn)));
       expect(o.auth, isEmpty, reason: 'nothing was sent');
       expect(ownerSecretPlainOnLan('http://10.0.1.24:3413'), isTrue);
-      expect(ownerSecretPlainOnLan('http://100.101.1.2:3413'), isFalse);
+      // 100.64/10 is a VPN only while one runs; otherwise the carrier's network: warned.
+      expect(ownerSecretPlainOnLan('http://100.101.1.2:3413'), isTrue);
       expect(ownerSecretPlainOnLan('http://127.0.0.1:3413'), isFalse);
     });
 

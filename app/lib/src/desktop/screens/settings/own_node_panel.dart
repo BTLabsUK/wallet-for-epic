@@ -16,7 +16,8 @@ import '../../desk_l10n.dart';
 import '../../app/desk_failover.dart';
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart';
-import '../../data/own_node.dart' show ownerSecretPlainOnLan;
+import '../../data/own_node.dart' show ownerSecretMayTravel, ownerSecretPlainOnLan;
+import '../../../net/tor_switch.dart' show TorSwitch;
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart' show NodeFact, ageText;
 import '../../widgets/server_row.dart' show digitsText;
@@ -337,8 +338,13 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
 
   Widget _accessRow(AppLocalizations l, {required bool has, required bool ok, required OwnerUnavailable? off, required NodeClass cls}) {
     final refused = off?.why == OwnerOff.refused;
-    final tor = off?.why == OwnerOff.torOn;
-    final text = !has
+    // Add… only where the secret may go now: with Tor on, an https node says why instead.
+    final mine = ref.watch(settingsPrefsProvider.select((p) => p.mineNodes.contains(widget.url)));
+    final may = ownerSecretMayTravel(widget.url, mine: mine, torOn: TorSwitch.on);
+    final tor = off?.why == OwnerOff.torOn || (!has && !may && TorSwitch.on);
+    final text = tor
+        ? l.deskOwnAccessTor
+        : !has
         ? l.deskOwnAccessNotSet
         : refused
         ? l.deskOwnAccessRefused(off!.since == null ? '–' : hhmm(off.since!))
@@ -355,7 +361,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            if (!has) EButton(label: l.deskOwnAdd, size: EBtnSize.sm, onPressed: _addAccess),
+            if (!has && may) EButton(label: l.deskOwnAdd, size: EBtnSize.sm, onPressed: _addAccess),
             if (refused) EButton(label: l.deskOwnUpdate, size: EBtnSize.sm, onPressed: _addAccess),
             if (has) EButton(label: l.deskOwnRemove, size: EBtnSize.sm, onPressed: _removeAccess),
           ],

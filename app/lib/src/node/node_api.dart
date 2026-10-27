@@ -272,8 +272,10 @@ Future<({int status, String body})> _ioTransport(
     ..connectionTimeout = timeout
     ..userAgent = null;
   try {
-    // A remote node through tor while the Tor switch covers it; a node on this computer direct.
-    TorNet.configure(client, loopback: isLoopbackUrl(url), local: isLocalAddressUrl(url.toString()));
+    // A remote node through tor while the Tor switch covers it; a node on this computer, the
+    // home network or a VPN direct, as the relay reaches its plain-http form (a tor exit
+    // cannot reach it, and an own node's facts are asked of the node itself).
+    TorNet.configure(client, loopback: isLoopbackUrl(url) || isLocalNodeUrl(url.toString()), local: isLocalAddressUrl(url.toString()));
     return await () async {
       final req = body.isEmpty ? await client.getUrl(url) : await client.postUrl(url);
       req.followRedirects = false; // never carry the secret to another address

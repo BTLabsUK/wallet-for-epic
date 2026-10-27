@@ -30,20 +30,26 @@ String ownerSecretKey(String url) {
   return 'node.ownerSecret.${u.scheme}://${u.host.toLowerCase()}:${u.port}';
 }
 
-/// Whether an owner secret may be sent to [url] now: an own node only, and an own https server
-/// only while the Tor switch is off ([torOn]).
+/// Whether an owner secret may be sent to [url] now: an own node only. Plain http only where
+/// the node relay carries it (a local or CGNAT address, a `.lan` / `.local` name: never over
+/// Tor); https goes straight to its host, which Tor would carry, so only while the Tor switch
+/// is off ([torOn]), on the home network as well as to an own server.
 bool ownerSecretMayTravel(String url, {required bool mine, required bool torOn}) {
   final cls = nodeClassOf(url, mine: mine, unlisted: mine);
   if (!cls.own) return false;
   final scheme = Uri.tryParse(url.trim())?.scheme;
-  if (cls.local) return scheme == 'http' || scheme == 'https';
+  if (scheme == 'http') return cls.local && isLocalNodeUrl(url);
   return scheme == 'https' && !torOn;
 }
 
-/// Whether the secret travels unencrypted to [url]: plain http on the home network. This
-/// computer (loopback) and a VPN (WireGuard carries it) need no warning.
-bool ownerSecretPlainOnLan(String url) =>
-    Uri.tryParse(url.trim())?.scheme == 'http' && nodeClassOf(url) == NodeClass.homeNetwork;
+/// Whether the secret travels unencrypted to [url]: plain http on the home network, or to a
+/// 100.64/10 address, which is a VPN only while one runs (else the carrier's network). This
+/// computer (loopback) needs no warning.
+bool ownerSecretPlainOnLan(String url) {
+  final u = Uri.tryParse(url.trim());
+  if (u == null || u.scheme != 'http') return false;
+  return nodeClassOf(url) == NodeClass.homeNetwork || isCgnatIp(u.host);
+}
 
 /// What the one check of an added secret found.
 enum OwnerCheck {
@@ -147,7 +153,8 @@ class OwnNodeAccess {
     try {
       await _client(url, s).connectedPeers();
     } on NodeRpcException catch (e) {
-      if (e.kind == NodeRpcError.unauthorized) return OwnerCheck.refused;
+      // Refused, or a call the client would not make: never kept unchecked.
+      if (e.kind == NodeRpcError.unauthorized || e.kind == NodeRpcError.invalidArgument) return OwnerCheck.refused;
       result = OwnerCheck.noAnswer;
     }
     await _secrets.write(ownerSecretKey(url), s);

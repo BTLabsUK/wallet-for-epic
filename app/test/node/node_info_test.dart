@@ -194,8 +194,8 @@ void main() {
     expect(s.measuredLatency(url), direct.latencyMs, reason: 'Tor off again: the direct figures');
   });
 
-  test('Tor on but not connected: no direct latency probe reaches the node', () async {
-    // 127.0.0.2 is not this computer's loopback name, so it counts as a remote node.
+  test('Tor on but not connected: a node on a local address is still asked directly', () async {
+    // 127.0.0.2 is a local address: a tor exit could not reach such a node, so it goes direct.
     final server = await HttpServer.bind(InternetAddress('127.0.0.2'), 0);
     addTearDown(() => server.close(force: true));
     var requests = 0;
@@ -211,8 +211,7 @@ void main() {
     });
     final url = 'http://127.0.0.2:${server.port}';
     final i = await NodeInfoService(nodes: _Monitor()).info(url, chain: 'mainnet');
-    expect(requests, 0);
-    expect(i.latencyMs, isNull);
+    expect(requests, greaterThan(0));
     expect(i.latencyOverTor, isFalse);
   });
 }
