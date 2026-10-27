@@ -2,7 +2,6 @@
 // check's "another wallet" row once spent, never shown twice; freed coins show nothing.
 import 'package:epic_wallet/src/devices/device_history.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
-import 'package:epic_wallet/src/models.dart' show DeviceEnding;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
