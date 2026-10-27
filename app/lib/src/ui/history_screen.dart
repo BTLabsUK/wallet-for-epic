@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../devices/phone_devices.dart' show watchHistory;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -238,7 +239,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final home = ref.watch(homeProvider);
     final contacts = ref.watch(contactsProvider).value;
     final now = ref.watch(clockProvider)();
-    final all = home.value?.transactions;
+    final rows = home.value?.transactions;
+    // With the payments the linked devices make.
+    final all = rows == null ? null : watchHistory(ref, rows);
     final items = all == null
         ? const <HistoryItem>[]
         : _itemsFor(l, all, contacts, now);

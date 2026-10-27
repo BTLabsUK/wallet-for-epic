@@ -468,7 +468,8 @@ class FakePairing implements PairingApi {
       throw pairingError(failure);
     }
     final body = _readLink(link, 'pair');
-    if (body == null) throw pairingError(PairingFailure.invalid);
+    // A private invite (a device link) is not a contact invite.
+    if (body == null || body['class'] == 'private') throw pairingError(PairingFailure.invalid);
     final token = body['t'] as String? ?? _id('invite');
     if (records.any((r) => r.id == token)) throw pairingError(PairingFailure.ownCard);
     final expires = DateTime.fromMillisecondsSinceEpoch((body['e'] as num?)?.toInt() ?? 0);
@@ -610,6 +611,7 @@ class FakePairing implements PairingApi {
   Future<PairingRecord?> checkWords(String id, PairingCheck check) async {
     _require('checkWords');
     calls.add('check:${check.name}');
+    if (_privateIndex(id) >= 0) return _checkPrivate(id, check);
     final r = _get(id);
     switch (check) {
       case PairingCheck.match:
@@ -653,6 +655,7 @@ class FakePairing implements PairingApi {
   Future<void> removePairing(String id) async {
     _require('removePairing');
     calls.add('remove');
+    if (_privateIndex(id) >= 0) return _removePrivate(id);
     records.removeWhere((r) => r.id == id);
   }
 
@@ -1045,4 +1048,252 @@ class FakePairing implements PairingApi {
 
   @override
   Stream<PairingEvent> events() => _events.stream;
+
+  // Private pairings (linked devices). Two fakes that share one [privateNet] reach each other:
+  // an invite one makes, the other accepts; answers, confirms, payloads and removals wait in
+  // the receiving fake's inbox until it collects, as on a relay. They refuse what LEPIC's
+  // private class refuses: words, contact calls, payloads on a contact pairing.
+
+  /// The relay the private pairings go through. Give two fakes the same one to link them.
+  FakePrivateNet privateNet = FakePrivateNet();
+
+  /// The private pairings, apart from [records] as LEPIC keeps them.
+  final List<PairingRecord> privateRecords = [];
+
+  /// For each private pairing, the fake and the record on the other end.
+  final Map<String, ({FakePairing fake, String id})> _peers = {};
+  final List<_PrivateMail> _inbox = [];
+  final List<_PrivateMail> _outbox = [];
+  final List<PairingPayload> _payloads = [];
+
+  /// Every payload posted, in order: (pairing id, bytes). Tests read it.
+  final List<({String id, List<int> bytes})> posted = [];
+
+  int _privateIndex(String id) => privateRecords.indexWhere((r) => r.id == id);
+
+  PairingRecord _private(String id) {
+    final i = _privateIndex(id);
+    if (i < 0) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'no private pairing with that id');
+    return privateRecords[i];
+  }
+
+  void _putPrivate(PairingRecord r) {
+    final i = _privateIndex(r.id);
+    if (i >= 0) {
+      privateRecords[i] = r;
+    } else {
+      privateRecords.insert(0, r);
+    }
+  }
+
+  void _deliver(FakePairing to, _PrivateMail mail) {
+    if (relayUnreachable) {
+      _outbox.add(mail.._to = to);
+    } else {
+      to._inbox.add(mail);
+    }
+  }
+
+  @override
+  bool get privateSupported => enabled;
+
+  @override
+  Future<List<PairingRecord>> privatePairings() async => enabled ? [...privateRecords] : const [];
+
+  @override
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) async {
+    _require('makePrivateInvite');
+    calls.add('makePrivateInvite');
+    final id = _id('device');
+    final token = privateNet._next('t');
+    final expires = clock().add(expiry);
+    final link = fakePairingLink('pair', {'t': token, 'n': name, 'r': homeRelay, 'e': expires.millisecondsSinceEpoch, 'class': 'private'});
+    privateNet._invites[token] = (fake: this, id: id);
+    final record = PairingRecord(
+      id: id,
+      state: PairingState.pendingInvite,
+      way: PairingWay.link,
+      inviter: true,
+      createdAt: clock(),
+      homeRelay: homeRelay,
+      expiresAt: expires,
+      inviteLink: link,
+    );
+    _putPrivate(record);
+    return record;
+  }
+
+  @override
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) async {
+    _require('acceptPrivateInvite');
+    calls.add('acceptPrivateInvite');
+    final body = _readLink(link, 'pair');
+    if (body == null || body['class'] != 'private') throw pairingError(PairingFailure.invalid);
+    final token = body['t'] as String? ?? '';
+    final invite = privateNet._invites[token];
+    if (invite == null) throw pairingError(PairingFailure.notFound);
+    if (identical(invite.fake, this)) throw pairingError(PairingFailure.ownCard);
+    if (privateNet._used.contains(token)) throw pairingError(PairingFailure.alreadyUsed);
+    final expires = DateTime.fromMillisecondsSinceEpoch((body['e'] as num?)?.toInt() ?? 0);
+    if (!clock().isBefore(expires)) throw pairingError(PairingFailure.expired);
+    privateNet._used.add(token);
+    final id = _id('device');
+    final record = PairingRecord(
+      id: id,
+      state: PairingState.pendingReply,
+      way: PairingWay.link,
+      inviter: false,
+      createdAt: clock(),
+      name: body['n'] as String?,
+      homeRelay: body['r'] as String? ?? homeRelay,
+      expiresAt: clock().add(pairingReplyWait),
+    );
+    _putPrivate(record);
+    _deliver(invite.fake, _PrivateMail.answer(to: invite.id, from: this, fromId: id, name: name, token: token));
+    return record;
+  }
+
+  @override
+  Future<int> collectPrivate({List<String>? only}) async {
+    if (!enabled) return 0;
+    calls.add('collectPrivate');
+    if (!relayUnreachable) {
+      for (final m in _outbox) {
+        m._to!._inbox.add(m);
+      }
+      _outbox.clear();
+    } else {
+      return 0;
+    }
+    var taken = 0;
+    for (final m in [..._inbox]) {
+      if (only != null && !only.contains(m.to)) continue;
+      _inbox.remove(m);
+      final i = _privateIndex(m.to);
+      if (i < 0) continue;
+      final r = privateRecords[i];
+      switch (m.kind) {
+        case _MailKind.answer:
+          if (r.state != PairingState.pendingInvite) continue;
+          _peers[r.id] = (fake: m.from!, id: m.fromId!);
+          _putPrivate(r.copyWith(state: PairingState.paired, name: m.name, sas: fakeSasWords('private:${m.token}')));
+          _deliver(m.from!, _PrivateMail.confirm(to: m.fromId!, from: this, fromId: r.id, token: m.token!));
+          taken++;
+        case _MailKind.confirm:
+          if (r.state != PairingState.pendingReply) continue;
+          _peers[r.id] = (fake: m.from!, id: m.fromId!);
+          _putPrivate(r.copyWith(state: PairingState.paired, sas: fakeSasWords('private:${m.token}')));
+          taken++;
+        case _MailKind.payload:
+          if (!r.state.isPaired || r.removedByPeer) continue;
+          _payloads.add(PairingPayload(id: privateNet._next('payload'), pairingId: r.id, bytes: m.bytes!, receivedAt: clock()));
+        case _MailKind.unpaired:
+          _putPrivate(r.copyWith(removedByPeer: true));
+          taken++;
+      }
+    }
+    return taken;
+  }
+
+  @override
+  Future<void> postPayload({required String id, required List<int> bytes}) async {
+    _require('postPayload');
+    // A contact pairing never carries a payload.
+    final r = _private(id);
+    if (!r.state.isPaired || r.removedByPeer) throw pairingError(PairingFailure.invalid);
+    if (bytes.length > privatePayloadMaxBytes) {
+      throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'payload too large');
+    }
+    posted.add((id: id, bytes: List.unmodifiable(bytes)));
+    final peer = _peers[id];
+    if (peer == null) return;
+    _deliver(peer.fake, _PrivateMail.payload(to: peer.id, bytes: List.unmodifiable(bytes)));
+  }
+
+  @override
+  Future<List<PairingPayload>> payloads() async => enabled ? [..._payloads] : const [];
+
+  @override
+  Future<void> ackPayloads(List<String> ids) async {
+    _payloads.removeWhere((p) => ids.contains(p.id));
+  }
+
+  PairingRecord? _checkPrivate(String id, PairingCheck check) {
+    final r = _private(id);
+    if (!r.state.isPaired) throw pairingError(PairingFailure.invalid);
+    switch (check) {
+      case PairingCheck.match:
+        final verified = r.copyWith(state: PairingState.verified, verifiedAt: clock(), checkSkipped: false);
+        _putPrivate(verified);
+        return verified;
+      case PairingCheck.mismatch:
+        privateRecords.removeAt(_privateIndex(id));
+        _peers.remove(id);
+        return null;
+      // A private pairing has no "check later".
+      case PairingCheck.skip:
+        throw pairingError(PairingFailure.invalid);
+    }
+  }
+
+  void _removePrivate(String id) {
+    privateRecords.removeAt(_privateIndex(id));
+    final peer = _peers.remove(id);
+    if (peer != null) _deliver(peer.fake, _PrivateMail.unpaired(to: peer.id));
+    privateNet._invites.removeWhere((_, v) => identical(v.fake, this) && v.id == id);
+  }
+
+  /// A payload as if the private pairing [id] had received [bytes] (tests).
+  void receivePayload(String id, List<int> bytes) =>
+      _payloads.add(PairingPayload(id: privateNet._next('payload'), pairingId: id, bytes: bytes, receivedAt: clock()));
+}
+
+/// The relay two [FakePairing]s share for private pairings: open invites by token.
+class FakePrivateNet {
+  final Map<String, ({FakePairing fake, String id})> _invites = {};
+  final Set<String> _used = {};
+  int _n = 0;
+
+  String _next(String prefix) => '$prefix-${++_n}';
+}
+
+enum _MailKind { answer, confirm, payload, unpaired }
+
+class _PrivateMail {
+  _PrivateMail.answer({required this.to, required FakePairing this.from, required String this.fromId, required String this.name, required String this.token})
+    : kind = _MailKind.answer,
+      bytes = null;
+
+  _PrivateMail.confirm({required this.to, required FakePairing this.from, required String this.fromId, required String this.token})
+    : kind = _MailKind.confirm,
+      name = null,
+      bytes = null;
+
+  _PrivateMail.payload({required this.to, required List<int> this.bytes})
+    : kind = _MailKind.payload,
+      from = null,
+      fromId = null,
+      name = null,
+      token = null;
+
+  _PrivateMail.unpaired({required this.to})
+    : kind = _MailKind.unpaired,
+      from = null,
+      fromId = null,
+      name = null,
+      token = null,
+      bytes = null;
+
+  final _MailKind kind;
+
+  /// The receiving fake's record.
+  final String to;
+  final FakePairing? from;
+  final String? fromId;
+  final String? name;
+  final String? token;
+  final List<int>? bytes;
+
+  /// Set while it waits in an outbox.
+  FakePairing? _to;
 }

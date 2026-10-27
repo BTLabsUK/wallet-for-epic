@@ -535,6 +535,12 @@ class GatedWalletSession implements WalletSession {
       _inner.estimateMax(minimumConfirmations: minimumConfirmations);
 
   @override
+  Set<String> get heldOutputs => _inner.heldOutputs;
+
+  @override
+  set heldOutputs(Set<String> commitments) => _inner.heldOutputs = commitments;
+
+  @override
   Future<List<WalletOutput>> outputs() => _inner.outputs();
 
   @override

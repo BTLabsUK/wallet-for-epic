@@ -17938,4 +17938,341 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txDetailsOtherWalletIn =>
       'Inny portfel z Twoją frazą odzyskiwania odebrał te monety. Ten portfel pokazuje kwotę, a nie nadawcę.';
+
+  @override
+  String get expLinkedDevices => 'Połączone urządzenia';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'Ten portfel na dwóch lub więcej własnych urządzeniach: każde informuje pozostałe o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na pozostałych, a jego płatności widać w ich historii. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
+
+  @override
+  String get devicesThisPhone => 'Telefon';
+
+  @override
+  String get devicesThisComputer => 'Komputer';
+
+  @override
+  String get devicesNone => 'Brak';
+
+  @override
+  String get devicesSeenNow => 'widziane przed chwilą';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'widziane $count min temu',
+      many: 'widziane $count min temu',
+      few: 'widziane $count min temu',
+      one: 'widziane $count min temu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'widziane $count godz. temu',
+      many: 'widziane $count godz. temu',
+      few: 'widziane $count godz. temu',
+      one: 'widziane $count godz. temu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'widziane $count dni temu',
+      many: 'widziane $count dni temu',
+      few: 'widziane $count dni temu',
+      one: 'widziane $count dzień temu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => 'jeszcze niewidziane';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count urządzenia',
+      many: '$count urządzeń',
+      few: '$count urządzenia',
+      one: '$count urządzenie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serwera',
+      many: '$count serwerów',
+      few: '$count serwery',
+      one: '$count serwer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => 'To urządzenie';
+
+  @override
+  String get devicesOthers => 'Urządzenia';
+
+  @override
+  String get devicesEmpty => 'Nie połączono jeszcze żadnego urządzenia.';
+
+  @override
+  String get devicesLink => 'Połącz urządzenie';
+
+  @override
+  String get devicesServers => 'Serwery';
+
+  @override
+  String get devicesServersNote =>
+      'Powiadomienia między twoimi urządzeniami idą przez każdy wybrany serwer.';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return 'Czekanie, aż $name przyjmie nowe serwery.';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name proponuje te serwery: $servers.';
+  }
+
+  @override
+  String get devicesAccept => 'Przyjmij';
+
+  @override
+  String get devicesNotNow => 'Nie teraz';
+
+  @override
+  String get devicesPause => 'Wstrzymaj synchronizację';
+
+  @override
+  String get devicesPauseHint =>
+      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła powiadomień; czekają na serwerach do 7 dni. Tryb offline też wstrzymuje.';
+
+  @override
+  String get devicesHeld => 'Wstrzymane monety';
+
+  @override
+  String devicesHeldBy(String name) {
+    return 'Wstrzymane przez płatność z: $name';
+  }
+
+  @override
+  String get devicesRelease => 'Zwolnij';
+
+  @override
+  String get devicesReleaseTitle => 'Zwolnić te monety?';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name może jeszcze kończyć tę płatność. Wtedy płatność z tych monet się nie powiedzie. Dotyczy to tylko tego urządzenia.';
+  }
+
+  @override
+  String get devicesReleased => 'Zwolniono na tym urządzeniu.';
+
+  @override
+  String get devicesRename => 'Zmień nazwę';
+
+  @override
+  String get devicesNameLabel => 'Nazwa';
+
+  @override
+  String get devicesRemove => 'Usuń';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return 'Usunąć: $name?';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name przestaje odbierać i wysyłać powiadomienia, a monety wstrzymane przez nie tutaj zostają zwolnione. To nie chroni pieniędzy: urządzenie z frazą odzyskiwania zawsze może je wydać. Jeśli $name może być w cudzych rękach, przenieś środki do portfela z nową frazą odzyskiwania.';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return 'Usunięto: $name.';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name usunęło to urządzenie z połączenia.';
+  }
+
+  @override
+  String get devicesMoneyNote =>
+      'Połączenie udostępnia płatności między twoimi urządzeniami. Nie chroni pieniędzy: każde urządzenie z frazą odzyskiwania może je wydać.';
+
+  @override
+  String get devicesUnsupported =>
+      'Ta wersja nie może jeszcze łączyć urządzeń.';
+
+  @override
+  String get linkLead =>
+      'Oba urządzenia muszą mieć ten portfel. Jedno pokazuje kod, drugie go skanuje lub wkleja.';
+
+  @override
+  String get linkShow => 'Pokaż kod';
+
+  @override
+  String get linkScan => 'Skanuj kod';
+
+  @override
+  String get linkPaste => 'Wklej kod';
+
+  @override
+  String get linkShowLead =>
+      'Na drugim urządzeniu otwórz „Połącz urządzenie” i zeskanuj ten kod albo skopiuj go i wklej tam.';
+
+  @override
+  String get linkCopy => 'Kopiuj kod';
+
+  @override
+  String get linkCopied => 'Skopiowano kod.';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Kod działa $count min.',
+      many: 'Kod działa $count min.',
+      few: 'Kod działa $count min.',
+      one: 'Kod działa $count min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => 'Czekanie na drugie urządzenie…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return 'Czekanie na: $name…';
+  }
+
+  @override
+  String get linkPasteLabel => 'Kod połączenia';
+
+  @override
+  String get linkGo => 'Połącz';
+
+  @override
+  String get linkCheckTitle => 'Sprawdź obrazki';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name też pokazuje cztery obrazki. Połącz tylko, jeśli są takie same i w tej samej kolejności.';
+  }
+
+  @override
+  String get linkPicturesLabel => 'Cztery obrazki';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return 'Czekanie, aż $name sprawdzi obrazki.';
+  }
+
+  @override
+  String get linkDoneTitle => 'Połączono';
+
+  @override
+  String linkDone(String name) {
+    return '$name: połączono. Płatność z jednego urządzenia widać na obu, a jej monety są wstrzymane na drugim.';
+  }
+
+  @override
+  String get linkFailedTitle => 'Nie połączono';
+
+  @override
+  String get linkFailInvalid =>
+      'To nie jest kod połączenia urządzeń albo jest uszkodzony.';
+
+  @override
+  String get linkFailExpired => 'Kod wygasł. Utwórz nowy.';
+
+  @override
+  String get linkFailNotFound => 'Ten kod został już użyty albo anulowany.';
+
+  @override
+  String get linkFailOwn =>
+      'Ten kod pochodzi z tego urządzenia. Zeskanuj go na drugim.';
+
+  @override
+  String get linkFailOtherWallet => 'To urządzenie ma inny portfel.';
+
+  @override
+  String get linkFailMismatch =>
+      'Obrazki się różnią, więc urządzeń nie połączono.';
+
+  @override
+  String get linkFailCancelled =>
+      'Drugie urządzenie przerwało albo nie sprawdziło obrazków na czas.';
+
+  @override
+  String linkFailTooMany(int count) {
+    return 'Połączono już $count urządzeń. Najpierw usuń jedno.';
+  }
+
+  @override
+  String get linkFailUnreachable =>
+      'Żaden serwer nie odpowiedział. Spróbuj później.';
+
+  @override
+  String get linkTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get linkOffTitle => 'Połączone urządzenia są eksperymentalne';
+
+  @override
+  String txSentFromDevice(String device) {
+    return 'Wysłano z: $device';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return 'Utworzono na: $device. Szczegóły pochodzą z tego urządzenia; kwota i potwierdzenia z łańcucha.';
+  }
+
+  @override
+  String get txDeviceHeld =>
+      'Jej monety są wstrzymane na tym urządzeniu, dopóki łańcuch nie pokaże płatności albo drugie urządzenie jej nie zakończy.';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC jest wstrzymane przez płatność, którą wykonuje: $name.';
+  }
+
+  @override
+  String get offerLinkRestore =>
+      'Ten portfel jest też na innym urządzeniu? Połącz je, aby dzielić historię i widzieć wzajemnie płatności.';
+
+  @override
+  String get offerLinkOtherWallet =>
+      'Czy to twoje drugie urządzenie? Połącz je, aby widzieć, komu zapłacono, i trzymać oba w zgodzie.';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'Zwolniono tutaj · $name może ją jeszcze wysłać';
+  }
 }

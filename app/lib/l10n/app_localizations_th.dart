@@ -17176,4 +17176,318 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txDetailsOtherWalletIn =>
       'กระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณได้รับเหรียญเหล่านี้ กระเป๋าเงินนี้แสดงจำนวน ไม่แสดงผู้ส่ง';
+
+  @override
+  String get expLinkedDevices => 'อุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get expLinkedDevicesHint =>
+      'ใช้กระเป๋าเงินนี้บนอุปกรณ์ของคุณสองเครื่องขึ้นไป แต่ละเครื่องแจ้งรายการของตนให้เครื่องอื่นทราบ เหรียญที่เครื่องหนึ่งกำลังใช้จึงถูกพักไว้บนเครื่องอื่น และรายการของมันจะแสดงในประวัติของเครื่องอื่น การเชื่อมโยงปกป้องสิ่งที่แชร์ ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+
+  @override
+  String get devicesThisPhone => 'โทรศัพท์';
+
+  @override
+  String get devicesThisComputer => 'คอมพิวเตอร์';
+
+  @override
+  String get devicesNone => 'ไม่มี';
+
+  @override
+  String get devicesSeenNow => 'เห็นเมื่อสักครู่';
+
+  @override
+  String devicesSeenMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เห็นเมื่อ $count นาทีที่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เห็นเมื่อ $count ชั่วโมงที่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSeenDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เห็นเมื่อ $count วันที่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesNotSeen => 'ยังไม่เห็น';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count อุปกรณ์',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesServerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เซิร์ฟเวอร์ $count เครื่อง',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesThisDevice => 'อุปกรณ์นี้';
+
+  @override
+  String get devicesOthers => 'อุปกรณ์';
+
+  @override
+  String get devicesEmpty => 'ยังไม่ได้เชื่อมโยงอุปกรณ์';
+
+  @override
+  String get devicesLink => 'เชื่อมโยงอุปกรณ์';
+
+  @override
+  String get devicesServers => 'เซิร์ฟเวอร์';
+
+  @override
+  String get devicesServersNote =>
+      'การแจ้งเตือนระหว่างอุปกรณ์ของคุณจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
+
+  @override
+  String devicesServersWaiting(String name) {
+    return 'กำลังรอ $name ยอมรับเซิร์ฟเวอร์ใหม่';
+  }
+
+  @override
+  String devicesProposal(String name, String servers) {
+    return '$name เสนอเซิร์ฟเวอร์เหล่านี้: $servers';
+  }
+
+  @override
+  String get devicesAccept => 'ยอมรับ';
+
+  @override
+  String get devicesNotNow => 'ไม่ใช่ตอนนี้';
+
+  @override
+  String get devicesPause => 'หยุดซิงค์ชั่วคราว';
+
+  @override
+  String get devicesPauseHint =>
+      'ระหว่างหยุดชั่วคราว อุปกรณ์นี้จะไม่อ่านและไม่ส่งการแจ้งเตือน การแจ้งเตือนจะรอบนเซิร์ฟเวอร์ได้นานถึง 7 วัน โหมดออฟไลน์ก็หยุดเช่นกัน';
+
+  @override
+  String get devicesHeld => 'เหรียญที่ถูกพักไว้';
+
+  @override
+  String devicesHeldBy(String name) {
+    return 'ถูกพักไว้โดยรายการของ $name';
+  }
+
+  @override
+  String get devicesRelease => 'ปล่อย';
+
+  @override
+  String get devicesReleaseTitle => 'ปล่อยเหรียญเหล่านี้หรือไม่';
+
+  @override
+  String devicesReleaseBody(String name) {
+    return '$name อาจยังทำรายการนี้ไม่เสร็จ ถ้าเป็นเช่นนั้น รายการที่คุณใช้เหรียญเหล่านี้จะล้มเหลว มีผลกับอุปกรณ์นี้เท่านั้น';
+  }
+
+  @override
+  String get devicesReleased => 'ปล่อยบนอุปกรณ์นี้แล้ว';
+
+  @override
+  String get devicesRename => 'เปลี่ยนชื่อ';
+
+  @override
+  String get devicesNameLabel => 'ชื่อ';
+
+  @override
+  String get devicesRemove => 'นำออก';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return 'นำ $name ออกหรือไม่';
+  }
+
+  @override
+  String devicesRemoveBody(String name) {
+    return '$name จะไม่รับและไม่ส่งการแจ้งเตือนอีก และเหรียญที่มันพักไว้ที่นี่จะถูกปล่อย การนำออกไม่ได้ปกป้องเงิน อุปกรณ์ที่มีวลีกู้คืนใช้จ่ายได้เสมอ ถ้า $name อาจอยู่ในมือคนอื่น ให้ย้ายเงินไปยังกระเป๋าเงินที่มีวลีกู้คืนใหม่';
+  }
+
+  @override
+  String devicesRemoved(String name) {
+    return 'นำ $name ออกแล้ว';
+  }
+
+  @override
+  String devicesRemovedBy(String name) {
+    return '$name นำอุปกรณ์นี้ออกจากการเชื่อมโยงแล้ว';
+  }
+
+  @override
+  String get devicesMoneyNote =>
+      'การเชื่อมโยงแชร์รายการระหว่างอุปกรณ์ของคุณ แต่ไม่ได้ปกป้องเงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้';
+
+  @override
+  String get devicesUnsupported => 'เวอร์ชันนี้ยังเชื่อมโยงอุปกรณ์ไม่ได้';
+
+  @override
+  String get linkLead =>
+      'อุปกรณ์ทั้งสองต้องมีกระเป๋าเงินนี้ เครื่องหนึ่งแสดงรหัส อีกเครื่องสแกนหรือวาง';
+
+  @override
+  String get linkShow => 'แสดงรหัส';
+
+  @override
+  String get linkScan => 'สแกนรหัส';
+
+  @override
+  String get linkPaste => 'วางรหัส';
+
+  @override
+  String get linkShowLead =>
+      'บนอุปกรณ์อีกเครื่อง เปิด เชื่อมโยงอุปกรณ์ แล้วสแกนรหัสนี้ หรือคัดลอกไปวางที่นั่น';
+
+  @override
+  String get linkCopy => 'คัดลอกรหัส';
+
+  @override
+  String get linkCopied => 'คัดลอกรหัสแล้ว';
+
+  @override
+  String linkExpires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รหัสใช้ได้ $count นาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkWaiting => 'กำลังรออุปกรณ์อีกเครื่อง…';
+
+  @override
+  String linkWaitingFor(String name) {
+    return 'กำลังรอ $name…';
+  }
+
+  @override
+  String get linkPasteLabel => 'รหัสเชื่อมโยง';
+
+  @override
+  String get linkGo => 'เชื่อมโยง';
+
+  @override
+  String get linkCheckTitle => 'ตรวจภาพ';
+
+  @override
+  String linkCheckLead(String name) {
+    return '$name ก็แสดงภาพสี่ภาพเช่นกัน เชื่อมโยงเฉพาะเมื่อภาพเหมือนกันและเรียงลำดับเดียวกัน';
+  }
+
+  @override
+  String get linkPicturesLabel => 'ภาพสี่ภาพ';
+
+  @override
+  String linkWaitingCheck(String name) {
+    return 'กำลังรอ $name ตรวจภาพ';
+  }
+
+  @override
+  String get linkDoneTitle => 'เชื่อมโยงแล้ว';
+
+  @override
+  String linkDone(String name) {
+    return 'เชื่อมโยง $name แล้ว รายการที่อุปกรณ์เครื่องใดทำจะแสดงบนทั้งสองเครื่อง และเหรียญของรายการจะถูกพักไว้บนอีกเครื่อง';
+  }
+
+  @override
+  String get linkFailedTitle => 'ไม่ได้เชื่อมโยง';
+
+  @override
+  String get linkFailInvalid => 'นี่ไม่ใช่รหัสเชื่อมโยงอุปกรณ์ หรือรหัสเสียหาย';
+
+  @override
+  String get linkFailExpired => 'รหัสหมดเวลาแล้ว สร้างรหัสใหม่';
+
+  @override
+  String get linkFailNotFound => 'รหัสนี้ถูกใช้แล้วหรือถูกยกเลิก';
+
+  @override
+  String get linkFailOwn => 'รหัสนี้มาจากอุปกรณ์นี้ ให้สแกนบนอีกเครื่อง';
+
+  @override
+  String get linkFailOtherWallet => 'อุปกรณ์นี้มีกระเป๋าเงินอื่น';
+
+  @override
+  String get linkFailMismatch => 'ภาพไม่ตรงกัน จึงไม่ได้เชื่อมโยงอุปกรณ์';
+
+  @override
+  String get linkFailCancelled =>
+      'อุปกรณ์อีกเครื่องหยุด หรือไม่ได้ตรวจภาพทันเวลา';
+
+  @override
+  String linkFailTooMany(int count) {
+    return 'เชื่อมโยงไว้แล้ว $count อุปกรณ์ นำออกหนึ่งเครื่องก่อน';
+  }
+
+  @override
+  String get linkFailUnreachable => 'ไม่มีเซิร์ฟเวอร์ตอบ ลองใหม่ภายหลัง';
+
+  @override
+  String get linkTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get linkOffTitle => 'อุปกรณ์ที่เชื่อมโยงเป็นฟีเจอร์ทดลอง';
+
+  @override
+  String txSentFromDevice(String device) {
+    return 'ส่งจาก $device';
+  }
+
+  @override
+  String txDeviceMadeOn(String device) {
+    return 'ทำบน $device รายละเอียดมาจากอุปกรณ์นั้น ส่วนจำนวนเงินและการยืนยันมาจากเชน';
+  }
+
+  @override
+  String get txDeviceHeld =>
+      'เหรียญของรายการถูกพักไว้บนอุปกรณ์นี้จนกว่าเชนจะแสดงรายการ หรืออุปกรณ์อีกเครื่องจะจบรายการ';
+
+  @override
+  String sendHeldByDevice(String amount, String name) {
+    return '$amount EPIC ถูกพักไว้โดยรายการที่ $name กำลังทำ';
+  }
+
+  @override
+  String get offerLinkRestore =>
+      'ใช้กระเป๋าเงินนี้บนอุปกรณ์อื่นด้วยหรือไม่ เชื่อมโยงเพื่อแชร์ประวัติและเห็นรายการของกันและกัน';
+
+  @override
+  String get offerLinkOtherWallet =>
+      'นี่คืออุปกรณ์อีกเครื่องของคุณหรือไม่ เชื่อมโยงเพื่อดูว่าจ่ายให้ใคร และให้ทั้งสองเครื่องตรงกัน';
+
+  @override
+  String devicesReleasedRow(String name) {
+    return 'ปล่อยที่นี่แล้ว · $name อาจยังส่งรายการนี้';
+  }
 }

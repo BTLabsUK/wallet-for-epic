@@ -32,6 +32,12 @@ PairingRecord? openWordsInvite(Iterable<PairingRecord> all, {String? contactId, 
     )
     .firstOrNull;
 
+/// How long a private invite (a device link's QR) is good for.
+const Duration privateInviteExpiry = Duration(minutes: 15);
+
+/// The largest payload a private pairing posts.
+const int privatePayloadMaxBytes = 32 * 1024;
+
 /// How many words a pairing-words invite has, and the check.
 const int pairingWordCount = 5;
 const int sasWordCount = 4;
@@ -226,6 +232,44 @@ abstract interface class PairingApi {
   /// What happens to pairings as collecting and answers find it. Informational: no event
   /// pays anything.
   Stream<PairingEvent> events();
+
+  // Private pairings (LEPIC's pairing class `private`): the channel between this wallet's own
+  // linked devices (`devices/`). Their keys are their own domain, mixed with fresh secrets from
+  // the QR and the answer, so the phrase alone does not find them. They have no pairing words
+  // (QR or paste only), are never listed by [pairings], Pending invites or a backup, and carry
+  // only opaque payloads: no slates, invoices or notices. A contact pairing never takes a
+  // payload. [checkWords] and [removePairing] work on both classes.
+
+  /// True when this core makes private pairings. The other private calls throw when false.
+  bool get privateSupported;
+
+  /// Every private pairing of this wallet, pending ones included, newest first.
+  Future<List<PairingRecord>> privatePairings();
+
+  /// Makes a private invite on [homeRelay] (a server `host[:port]`), shown as [name] to the
+  /// device that answers it within [expiry]. Returns the pending record; its
+  /// [PairingRecord.inviteLink] is what the QR or the pasted text carries.
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry});
+
+  /// Answers the private invite [link] as [name]. A contact invite is refused
+  /// ([PairingFailure.invalid]), so is this wallet's own ([PairingFailure.ownCard]). Returns the
+  /// record, [PairingState.pendingReply] until the inviter's confirm is collected.
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name});
+
+  /// Collects the private pairings' mailboxes once ([only]: just these pairings): answers,
+  /// confirms, payloads and removals. Payloads wait in [payloads]. Returns how many pairings it
+  /// completed or ended.
+  Future<int> collectPrivate({List<String>? only});
+
+  /// Posts [bytes] to the private pairing [id] (outbox: retried until a server took it).
+  /// Refused for a contact pairing and for one not paired.
+  Future<void> postPayload({required String id, required List<int> bytes});
+
+  /// The payloads collected and not acknowledged yet, oldest first.
+  Future<List<PairingPayload>> payloads();
+
+  /// Takes the payloads [ids] off [payloads], once their effect is stored.
+  Future<void> ackPayloads(List<String> ids);
 }
 
 /// The error of a pairing call on a core without pairing.
@@ -360,6 +404,32 @@ class NoPairing implements PairingApi {
 
   @override
   Stream<PairingEvent> events() => const Stream.empty();
+
+  @override
+  bool get privateSupported => false;
+
+  @override
+  Future<List<PairingRecord>> privatePairings() async => const [];
+
+  @override
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) async =>
+      throw pairingUnsupported('makePrivateInvite');
+
+  @override
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) async =>
+      throw pairingUnsupported('acceptPrivateInvite');
+
+  @override
+  Future<int> collectPrivate({List<String>? only}) async => 0;
+
+  @override
+  Future<void> postPayload({required String id, required List<int> bytes}) async => throw pairingUnsupported('postPayload');
+
+  @override
+  Future<List<PairingPayload>> payloads() async => const [];
+
+  @override
+  Future<void> ackPayloads(List<String> ids) async {}
 }
 
 /// What kind of pairing link [text] holds, by its scheme and path, without opening it. The

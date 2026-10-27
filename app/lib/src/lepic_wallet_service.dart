@@ -1263,6 +1263,12 @@ class LepicWalletSession implements WalletSession {
     changeOutputs: 1,
   );
 
+  // Every call that chooses coins goes through [_optionsFor] or [estimateMax]: at the LEPIC pin
+  // with `SendOptions.exclude_outputs`, both pass [heldOutputs] there (and a non-empty set
+  // turns LEPIC's default, null, into the standard options with the exclusion).
+  @override
+  Set<String> heldOutputs = const {};
+
   /// The caller's [options] when given. Else send-all when [amount] is still the wallet's
   /// maximum, checked again now: a max remembered from before the balance changed must not
   /// turn a typed amount into a send-all. Null (LEPIC's default) otherwise.
@@ -3204,6 +3210,42 @@ class _LepicPairing implements PairingApi {
     _s._watchEvents();
     return _events.stream;
   }
+
+  // Private pairings (linked devices) wait for the LEPIC pin with the private pairing class;
+  // the lead wires each call to the LEPIC call named beside it.
+
+  @override
+  bool get privateSupported => false;
+
+  // LEPIC `private_pairings()`.
+  @override
+  Future<List<PairingRecord>> privatePairings() async => const [];
+
+  // LEPIC `pairing_invite(class: PairingClass::Private, home_relay:, name:, expiry:)`, no words.
+  @override
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) async =>
+      throw pairingUnsupported('makePrivateInvite');
+
+  // LEPIC `pairing_accept(class: PairingClass::Private, link:, name:)`.
+  @override
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) async =>
+      throw pairingUnsupported('acceptPrivateInvite');
+
+  // LEPIC `contacts_collect(only: [ids])` over the private pairings, then `contacts_outbox_deliver`.
+  @override
+  Future<int> collectPrivate({List<String>? only}) async => 0;
+
+  // LEPIC `contact_post_payload(contact_id, bytes, relay_mode)`.
+  @override
+  Future<void> postPayload({required String id, required List<int> bytes}) async => throw pairingUnsupported('postPayload');
+
+  // LEPIC's received payloads (from collect, kept until acknowledged).
+  @override
+  Future<List<PairingPayload>> payloads() async => const [];
+
+  // LEPIC `contact_payloads_ack(ids)`.
+  @override
+  Future<void> ackPayloads(List<String> ids) async {}
 
   /// A LEPIC wallet event about a contact, as the app's, or nothing for any other.
   Future<void> onWalletEvent(lepic.WalletEvent e) async {

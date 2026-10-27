@@ -64,6 +64,7 @@ void main() {
     'Finalize a response file': {l.deskRecvFinalizeTitle},
     'Contacts': {l.settingsContacts, l.deskShellNavContacts},
     'Invoices': {l.invoicesTitle, l.deskInvNav, l.deskInvSetTitle},
+    'Linked devices': {l.expLinkedDevices},
     'To pay': {l.invoicesToPaySection},
     'Pay': {l.deskInvTabPay},
     'Issue': {l.deskInvTabIssue},

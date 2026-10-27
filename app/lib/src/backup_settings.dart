@@ -364,6 +364,8 @@ BackupSettingsPlan _plan(
           final own = platformOnlyFeatures[here]!;
           features = {...features.difference(own).difference(platformOnlyFeatures[from]!), ...m.features.intersection(own)};
         }
+        // Linked devices is this install's own choice: a file neither sets nor clears it.
+        features = {...features.where((f) => f != AdvancedFeature.linkedDevices), if (m.linkedDevicesOn) AdvancedFeature.linkedDevices};
         decide(BackupItem.features, _names(m.features), _names(d.features), _names(features));
       }
       if (NetworkMode.values.any((x) => x.name == raw['networkMode'])) {
@@ -568,7 +570,9 @@ AdvancedPrefs advancedFromBackup(AdvancedPrefs current, Map<String, Object?> val
       features: {
         for (final n in features)
           for (final f in AdvancedFeature.values)
-            if (f.name == n) f,
+            if (f.name == n && f != AdvancedFeature.linkedDevices) f,
+        // This install's own choice, never from a file.
+        if (current.linkedDevicesOn) AdvancedFeature.linkedDevices,
       },
       networkMode: next.networkMode,
       nodeFailover: next.nodeFailover,

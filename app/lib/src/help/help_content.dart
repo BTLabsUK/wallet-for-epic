@@ -7,6 +7,7 @@ library;
 
 import '../../l10n/app_localizations.dart';
 import '../advanced.dart';
+import 'help_devices.dart';
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
 /// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
@@ -113,6 +114,9 @@ const Map<String, AdvancedFeature> helpTopicFeature = {
   HelpId.strategy: AdvancedFeature.outputs,
   HelpId.split: AdvancedFeature.outputs,
   HelpId.invoices: AdvancedFeature.invoices,
+  HelpId.linkedDevices: AdvancedFeature.linkedDevices,
+  HelpId.lostDevice: AdvancedFeature.linkedDevices,
+  HelpId.heldCoins: AdvancedFeature.linkedDevices,
 };
 
 /// [topics] without those of a feature [prefs] keeps hidden.
@@ -157,6 +161,9 @@ abstract final class HelpId {
   static const importWarning = 'import-warning';
   static const cancel = 'cancel';
   static const otherWallet = 'other-wallet';
+  static const linkedDevices = 'linked-devices';
+  static const lostDevice = 'lost-device';
+  static const heldCoins = 'held-coins';
 }
 
 /// The headings of [HelpId.cancel] ("Cancelling a payment"), which the quiet line beside every
@@ -610,6 +617,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         ],
         id: HelpId.cleanup,
       ),
+    ...deviceHelpTopics('en', phone: phone),
   ];
 }
 

@@ -1016,6 +1016,10 @@ class RemoteWalletSession implements WalletSession {
         'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
       });
 
+  // Linked devices hold coins in the app that holds the wallet, not over the remote protocol.
+  @override
+  Set<String> heldOutputs = const {};
+
   @override
   Future<List<WalletOutput>> outputs() =>
       _call(SessionMember.outputs, listOf(walletOutputWire));
@@ -1330,4 +1334,31 @@ class RemotePairing implements PairingApi {
 
   @override
   Stream<PairingEvent> events() => _session._stream(SessionMember.pairingEvents, pairingEventWire);
+
+  // Linked devices run in the app that holds the wallet, not over the remote protocol.
+  @override
+  bool get privateSupported => false;
+
+  @override
+  Future<List<PairingRecord>> privatePairings() async => const [];
+
+  @override
+  Future<PairingRecord> makePrivateInvite({required String name, required String homeRelay, Duration expiry = privateInviteExpiry}) async =>
+      throw pairingUnsupported('makePrivateInvite');
+
+  @override
+  Future<PairingRecord> acceptPrivateInvite({required String link, required String name}) async =>
+      throw pairingUnsupported('acceptPrivateInvite');
+
+  @override
+  Future<int> collectPrivate({List<String>? only}) async => 0;
+
+  @override
+  Future<void> postPayload({required String id, required List<int> bytes}) async => throw pairingUnsupported('postPayload');
+
+  @override
+  Future<List<PairingPayload>> payloads() async => const [];
+
+  @override
+  Future<void> ackPayloads(List<String> ids) async {}
 }

@@ -150,14 +150,20 @@ abstract final class NetGate {
   /// wallet opens, and on every change; on until then, so a core test without settings pairs.
   static bool _pairing = true;
   static bool _invoices = true;
+  static bool _linkedDevices = true;
 
   static bool get pairing => _pairing;
 
   static bool get invoices => _invoices && _pairing;
 
+  /// Linked devices: their private pairings are collected and posted to ([linkedDevices]), with
+  /// the contact mailboxes left alone while [pairing] is off.
+  static bool get linkedDevices => _linkedDevices;
+
   static void setExperimental(AdvancedPrefs prefs) {
     _pairing = prefs.pairingOn;
     _invoices = prefs.invoicesOn;
+    _linkedDevices = prefs.linkedDevicesOn;
   }
 
   /// Every change of [mode], after it is set.

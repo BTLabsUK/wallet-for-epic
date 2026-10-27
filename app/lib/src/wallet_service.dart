@@ -478,6 +478,12 @@ abstract interface class WalletSession {
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
 
+  /// Coins another linked device is spending (`devices/`, LEPIC `SendOptions.exclude_outputs`):
+  /// every send, estimate and Send all of this session leaves these commitments out until the
+  /// set changes. Empty by default.
+  Set<String> get heldOutputs;
+  set heldOutputs(Set<String> commitments);
+
   // Outputs (F13). A split and a consolidate are normal network transactions to the wallet
   // itself, never through its Epicbox address; each spends every output with
   // [minimumConfirmations], so the whole balance is locked until it confirms.
@@ -2225,22 +2231,23 @@ class FakeWalletSession implements WalletSession {
   Future<FeeEstimate> estimateMax({
     required BigInt minimumConfirmations,
   }) async {
-    if (summaryValue.spendable <= fee) {
+    final spendable = summaryValue.spendable - _heldSpendable;
+    if (spendable <= fee) {
       throw const WalletError(
         kind: WalletErrorKind.notEnoughFunds,
         message: 'not enough funds',
       );
     }
     return FeeEstimate(
-      amount: summaryValue.spendable - fee,
+      amount: spendable - fee,
       fee: fee,
-      locked: summaryValue.spendable,
+      locked: spendable,
       inputCount: 1,
     );
   }
 
   void _checkFunds(BigInt amount) {
-    if (amount + fee > summaryValue.spendable) {
+    if (amount + fee > summaryValue.spendable - _heldSpendable) {
       throw const WalletError(
         kind: WalletErrorKind.notEnoughFunds,
         message: 'not enough funds',
@@ -2254,6 +2261,14 @@ class FakeWalletSession implements WalletSession {
 
   /// The wallet's outputs; empty keeps the estimates as they were (fee only).
   List<WalletOutput> outputsValue = [];
+
+  @override
+  Set<String> heldOutputs = const {};
+
+  /// What [heldOutputs] takes from the spendable balance: the held coins among [outputsValue].
+  BigInt get _heldSpendable => outputsValue
+      .where((o) => o.category == OutputCategory.spendable && heldOutputs.contains(o.commitment))
+      .fold(BigInt.zero, (a, o) => a + o.value);
 
   /// What one change or split output past the first adds to [fee].
   BigInt changeOutputFee = BigInt.from(400000);
@@ -2271,7 +2286,7 @@ class FakeWalletSession implements WalletSession {
   Future<List<WalletOutput>> outputs() async => List.unmodifiable(outputsValue);
 
   List<WalletOutput> get _spendableOutputs =>
-      outputsValue.where((o) => o.category == OutputCategory.spendable).toList()
+      outputsValue.where((o) => o.category == OutputCategory.spendable && !heldOutputs.contains(o.commitment)).toList()
         ..sort((a, b) => a.value.compareTo(b.value));
 
   static const WalletError _notEnough = WalletError(

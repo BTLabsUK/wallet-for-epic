@@ -36,6 +36,7 @@ import 'receive_screen.dart' show ReceiveView;
 import 'restore_card.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_route.dart';
+import '../devices/phone_devices.dart' show DeviceLifecycle, watchHistory;
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
 import 'send_screen.dart' show SendView, trackedSendProvider;
 import 'shell_header.dart';
@@ -625,6 +626,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const InvoicesEntry(visible: false),
             // Pairing events as notices; draws nothing.
             const PairingNotices(),
+            // Linked devices' runs (resume, the 5 s reads while on screen); draws nothing.
+            const DeviceLifecycle(child: SizedBox.shrink()),
             if (scan)
               IconButton(
                 tooltip: l.homeScanTooltip,
@@ -718,7 +721,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final backedUp = demo || (ref.watch(backedUpProvider).value ?? true);
     final backupDismissed =
         ref.watch(backupCardDismissedProvider).value ?? false;
-    final transactions = data?.transactions ?? const <TxEntry>[];
+    final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     Widget column(Widget child) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),

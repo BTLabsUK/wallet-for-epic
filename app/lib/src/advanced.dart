@@ -2,7 +2,8 @@
 /// the phone (`AppSettings.advanced`) and the desktop (`DeskSettings.advanced`), so the Advanced
 /// page reads the same on both.
 ///
-/// Every feature is off for a new wallet. On, it appears where it belongs (the Outputs page in
+/// Every feature is off for a new wallet but Linked devices, which is on until the user turns it
+/// off (opt-out, still marked Experimental). On, it appears where it belongs (the Outputs page in
 /// Settings or the sidebar, the technical rows on a transaction, the strategy fold on Send); the
 /// Advanced page only holds the switches and says in one line what each shows.
 library;
@@ -45,11 +46,19 @@ enum AdvancedFeature {
   /// Experimental: invoices from and to paired contacts. Needs [pairing]
   /// ([AdvancedPrefs.withExperimental] keeps the rule).
   invoices,
+
+  /// Experimental: linked devices (`devices/`): this wallet on two or more devices that tell
+  /// each other about their payments. On by default (opt-out): a stored value without it reads
+  /// as on, a user who turned it off stays off. Linking itself needs the QR and the check on
+  /// both devices, and nothing connects while no device is linked or being linked. Runs the
+  /// pairing engine for the devices' private pairings even while [pairing] is off; nothing of
+  /// it shows in Contacts or Pairing.
+  linkedDevices,
 }
 
 /// The features listed in Settings › Advanced › Experimental, not with the others: Hide all
 /// leaves them and the count of features on does not include them.
-const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices};
+const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
 /// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's
 /// in [standard], locked on in [torOnly] and off in [offline].
@@ -69,7 +78,7 @@ enum NetworkMode {
 /// What the Advanced page holds, as stored.
 class AdvancedPrefs {
   const AdvancedPrefs({
-    this.features = const {},
+    this.features = const {AdvancedFeature.linkedDevices},
     NetworkMode networkMode = NetworkMode.standard,
     this.nodeFailover = true,
   }) : networkMode = !torBuilt && networkMode == NetworkMode.torOnly ? NetworkMode.standard : networkMode;
@@ -84,7 +93,7 @@ class AdvancedPrefs {
   /// from before it existed reads as on.
   final bool nodeFailover;
 
-  /// The defaults: nothing on, standard network, node failover on.
+  /// The defaults: nothing on but Linked devices, standard network, node failover on.
   static const AdvancedPrefs none = AdvancedPrefs();
 
   /// Every feature on (tests and the screenshot tour), standard network.
@@ -97,6 +106,12 @@ class AdvancedPrefs {
 
   /// Invoices are on; never without [pairingOn].
   bool get invoicesOn => has(AdvancedFeature.invoices);
+
+  /// Linked devices are on (Settings › Advanced › Experimental), independent of [pairingOn].
+  bool get linkedDevicesOn => has(AdvancedFeature.linkedDevices);
+
+  /// The pairing engine runs: for contacts ([pairingOn]) or for linked devices.
+  bool get pairingEngineOn => pairingOn || linkedDevicesOn;
 
   /// The features on outside [experimentalFeatures]: what the Advanced page counts and Hide
   /// all turns off.
@@ -120,7 +135,9 @@ class AdvancedPrefs {
 
   /// Whether anything is on beyond the simple app: the hub's state line and the About row
   /// read it. Node failover is on by default, so only its being off counts.
-  bool get any => features.isNotEmpty || networkMode != NetworkMode.standard || !nodeFailover;
+  /// Linked devices is on by default, so only its being off counts.
+  bool get any =>
+      features.any((f) => f != AdvancedFeature.linkedDevices) || !linkedDevicesOn || networkMode != NetworkMode.standard || !nodeFailover;
 
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;
@@ -141,11 +158,12 @@ class AdvancedPrefs {
   AdvancedPrefs withNodeFailover(bool on) =>
       AdvancedPrefs(features: features, networkMode: networkMode, nodeFailover: on);
 
-  /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off: one string
+  /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off and
+  /// `|noLinkedDevices` when Linked devices is off (on by default, so never listed): one string
   /// for a key-value store.
   String encode() =>
-      '${(features.map((f) => f.name).toList()..sort()).join(',')}|${networkMode.name}'
-      '${nodeFailover ? '' : '|noFailover'}';
+      '${(features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()).join(',')}|${networkMode.name}'
+      '${nodeFailover ? '' : '|noFailover'}${linkedDevicesOn ? '' : '|noLinkedDevices'}';
 
   /// Unknown names are dropped, so a build without a feature still opens its settings.
   static AdvancedPrefs decode(String? raw) {
@@ -161,16 +179,17 @@ class AdvancedPrefs {
               NetworkMode.standard
         : NetworkMode.standard;
     return AdvancedPrefs(
-      features: features,
+      features: {...features, if (!parts.skip(2).contains('noLinkedDevices')) AdvancedFeature.linkedDevices},
       networkMode: mode,
       nodeFailover: !parts.skip(2).contains('noFailover'),
     );
   }
 
   Map<String, Object?> toJson() => {
-    'features': (features.map((f) => f.name).toList()..sort()),
+    'features': (features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()),
     'networkMode': networkMode.name,
     'nodeFailover': nodeFailover,
+    'linkedDevices': linkedDevicesOn,
   };
 
   static AdvancedPrefs fromJson(Object? j) {
@@ -182,7 +201,9 @@ class AdvancedPrefs {
         if (list is List)
           for (final n in list)
             for (final f in AdvancedFeature.values)
-              if (f.name == n) f,
+              if (f.name == n && f != AdvancedFeature.linkedDevices) f,
+        // On unless the user turned it off.
+        if (j['linkedDevices'] != false) AdvancedFeature.linkedDevices,
       },
       networkMode:
           NetworkMode.values.where((m) => m.name == mode).firstOrNull ??

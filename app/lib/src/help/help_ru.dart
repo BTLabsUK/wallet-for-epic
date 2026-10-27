@@ -3,6 +3,7 @@
 library;
 
 import 'help_content.dart';
+import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsRu = [
   (id: 'start', title: 'Начало работы', lede: 'Получение, отправка и способ с файлом.', art: 'help-start'),
@@ -449,5 +450,6 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    ...deviceHelpTopics('ru', phone: phone),
   ];
 }

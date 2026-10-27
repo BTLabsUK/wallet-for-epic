@@ -22,6 +22,7 @@ import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../tor_build.dart';
 import '../price.dart';
+import '../devices/phone_devices.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../restore_scan.dart' show restoreScanProvider;
@@ -34,6 +35,8 @@ import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'devices/device_parts.dart' show devicesStateLine;
+import 'devices/linked_devices_screen.dart';
 import 'demo_screens.dart' show endDemo;
 import 'info_hint.dart';
 import 'language_flag.dart';
@@ -148,6 +151,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
   AdvancedFeature.pairing => l.expPairing,
   AdvancedFeature.invoices => l.expInvoices,
+  AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
 /// A network mode's name.
@@ -708,6 +712,20 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           subtitle: Text(l.settingsInvoicesSubtitle),
           onTap: () => _push(const InvoiceSettingsScreen()),
         ),
+      // Linked devices (Experimental, on unless turned off): the state line names the device
+      // seen last.
+      if (walletOpen && ref.watch(linkedDevicesOnProvider))
+        ListTile(
+          key: settingsLinkedDevicesKey,
+          leading: const Icon(Icons.devices_outlined),
+          title: Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [Text(l.expLinkedDevices), EBadge(l.advExperimental)],
+          ),
+          subtitle: Text(devicesStateLine(l, ref.watch(phoneDevices.devices), ref.watch(clockProvider)())),
+          onTap: () => _push(const LinkedDevicesScreen()),
+        ),
       if (!demo) ...[
         SettingsHeader(l.settingsSectionHistory),
         ListTile(
@@ -1040,7 +1058,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(children: [EBadge(l.advExperimental)]),
       ),
-      value: f == AdvancedFeature.pairing ? adv.pairingOn : adv.invoicesOn,
+      value: switch (f) {
+        AdvancedFeature.pairing => adv.pairingOn,
+        AdvancedFeature.invoices => adv.invoicesOn,
+        _ => adv.has(f),
+      },
       onChanged: (on) => _settings.setExperimental(f, on),
     );
     Widget mode(NetworkMode m, String title, String line, {bool enabled = true}) =>
@@ -1164,6 +1186,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
         ),
       ),
+      // Linked devices stands on its own: it runs the pairing engine for the devices only.
+      experimental(AdvancedFeature.linkedDevices, Icons.devices_outlined, l.expLinkedDevices, l.expLinkedDevicesHint),
       const PushNotificationsTile(),
       const Divider(height: 24),
       ListTile(
@@ -1299,6 +1323,9 @@ Widget? withTorWay(Widget? subtitle, TorWay way) {
 }
 
 /// A small header over a run of rows on a Settings page.
+/// The Linked devices row on the Wallet page, for tests.
+const Key settingsLinkedDevicesKey = ValueKey('settings-linked-devices');
+
 class SettingsHeader extends StatelessWidget {
   const SettingsHeader(this.title, {super.key});
 
