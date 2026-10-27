@@ -116,6 +116,21 @@ enum SessionMember {
   pairingEvents,
 }
 
+/// PairingApi members the client answers without the server: linked devices' private
+/// pairings (not offered through the protocol) and the Connection servers, which only apply to a
+/// wallet that pairs in this process.
+const Set<String> localPairingMembers = {
+  'privateSupported',
+  'privatePairings',
+  'makePrivateInvite',
+  'acceptPrivateInvite',
+  'collectPrivate',
+  'postPayload',
+  'payloads',
+  'ackPayloads',
+  'setConnectionServers',
+};
+
 /// Interface members the client answers without the server.
 const Set<String> localServiceMembers = {
   'validateMnemonic',
@@ -133,6 +148,9 @@ const Set<String> localServiceMembers = {
 };
 const Set<String> localSessionMembers = {
   'supportsInvoices',
+  // Linked devices are not offered through the remote protocol: no coins are held here;
+  // answered by the client.
+  'heldOutputs',
   'supportsRequestFiles',
   // Reach other computers or open a port on the server; refused by the client.
   'sendHttp',

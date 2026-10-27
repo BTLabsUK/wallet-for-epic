@@ -52,7 +52,9 @@ void main() {
   test('PairingApi members are all served, one pairing* member each', () {
     final pairing = File('lib/src/pairing_api.dart').readAsStringSync();
     // supported crosses with the session handle.
-    final members = interfaceMembers(pairing, 'PairingApi')..remove('supported');
+    final members = interfaceMembers(pairing, 'PairingApi')
+      ..remove('supported')
+      ..removeAll(localPairingMembers);
     expect(members, containsAll(['makeInvite', 'checkWords', 'events']));
     final served = [for (final m in SessionMember.values) if (m.name.startsWith('pairing')) m.name];
     expect(served, hasLength(members.length));
