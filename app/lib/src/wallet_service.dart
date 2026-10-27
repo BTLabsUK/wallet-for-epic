@@ -1909,12 +1909,22 @@ class FakeWalletSession implements WalletSession {
   /// What [setMinimumConfirmations] stored, or the default.
   int minimumConfirmationsValue = defaultMinimumConfirmations;
 
+  /// Every count [setMinimumConfirmations] was asked to store, in order.
+  final List<int> minimumConfirmationsSets = [];
+
+  /// When set, [setMinimumConfirmations] throws it and stores nothing.
+  Object? setMinimumConfirmationsError;
+
+  /// The count [summaryValue] reports, as LEPIC answers from its stored setting.
   @override
-  Future<int> minimumConfirmations() async => minimumConfirmationsValue;
+  Future<int> minimumConfirmations() async => summaryValue.minimumConfirmations.toInt();
 
   @override
   Future<void> setMinimumConfirmations(int count) async {
-    if (count < 1 || count > 30) {
+    minimumConfirmationsSets.add(count);
+    final error = setMinimumConfirmationsError;
+    if (error != null) throw error;
+    if (count < minMinimumConfirmations || count > maxMinimumConfirmations) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'minimum confirmations must be 1–30',

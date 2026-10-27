@@ -314,7 +314,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'A transaction is final after $confirmations confirmations, usually about $confirmations minutes.',
       [
         const HelpBlock.p('When the network accepts a transaction, a miner puts it in a block. A new block comes about every minute. The block that holds the transaction is the first confirmation, and every block after it adds one more and makes the transaction harder to undo.'),
-        HelpBlock.p('This wallet treats a transaction as final after **$confirmations confirmations**. Until then it shows as **Confirming**, and received outputs cannot be spent yet. The number is fixed.'),
+        HelpBlock.p('This wallet treats a transaction as final after **$confirmations confirmations**. Until then it shows as **Confirming**, and received outputs cannot be spent yet. The number is a setting: 6 by default, any count from 1 to 30. Fewer confirmations are faster but give less protection against chain reorganisations.'),
         const HelpBlock.p('Taking longer than usual? The wallet sees new blocks only through its node: check that the node is synced.'),
       ],
       id: HelpId.confirmations,
@@ -531,6 +531,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
+        if (phone) const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but give less protection against chain reorganisations.'),
         const HelpBlock.p('**Experimental** holds **Pairing** and **Invoices**, both off to begin with. Pairing adds Pair and paired contacts; Invoices adds requests and invoices between paired contacts and needs Pairing. Off, they are hidden and nothing is checked for them; pairings already made stay saved and come back when the switch is on again.'),
         if (phone) HelpBlock.p('**Notifications** (experimental) is the last switch on the page. It tells you when a payment or an invoice arrives while the app is closed${tor ? ', and it is off while Tor is on' : ''}.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),

@@ -6697,11 +6697,11 @@ abstract class AppLocalizations {
   /// **'Consolidate needs at least 2 spendable outputs.'**
   String get outputsConsolidateNeeds;
 
-  /// Caption under the buttons: a send is in progress.
+  /// Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Wait until the send in progress confirms (about 3 blocks).'**
-  String get outputsWaitLocked;
+  /// **'Wait until the send in progress confirms (about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}).'**
+  String outputsWaitLocked(int blocks);
 
   /// Row: which outputs a send spends.
   ///
@@ -6967,15 +6967,16 @@ abstract class AppLocalizations {
   /// **'Split outputs'**
   String get outputsSplitTitle;
 
-  /// Split sheet paragraph. {spent} and {made} are counts such as "3 outputs".
+  /// Split sheet paragraph. {spent} and {made} are counts such as "3 outputs". {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.'**
+  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after {blocks, plural, one{{blocks} block} other{{blocks} blocks}} like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.'**
   String outputsSplitText(
     String amount,
     String each,
     String made,
     String spent,
+    int blocks,
   );
 
   /// Stepper label in the Split sheet.
@@ -7014,11 +7015,11 @@ abstract class AppLocalizations {
   /// **'Locked'**
   String get outputsFactLocked;
 
-  /// Sheet fact value.
+  /// Sheet fact value. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'{amount}, about 3 blocks'**
-  String outputsFactLockedValue(String amount);
+  /// **'{amount}, about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}'**
+  String outputsFactLockedValue(String amount, int blocks);
 
   /// Warning line in the sheets.
   ///
@@ -7044,11 +7045,16 @@ abstract class AppLocalizations {
   /// **'Consolidate outputs'**
   String get outputsConsolidateTitle;
 
-  /// Consolidate sheet paragraph. {spent} is a count such as "3 outputs".
+  /// Consolidate sheet paragraph. {spent} is a count such as "3 outputs". {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
-  String outputsConsolidateText(String amount, String result, String spent);
+  /// **'Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after {blocks, plural, one{{blocks} block} other{{blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  );
 
   /// Button in the Consolidate sheet.
   ///
@@ -7068,17 +7074,17 @@ abstract class AppLocalizations {
   /// **'Confirm with your PIN to consolidate outputs'**
   String get outputsConsolidatePin;
 
-  /// Notice after a split was posted.
+  /// Notice after a split was posted. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Split started: {count} outputs, confirming in about 3 blocks'**
-  String outputsSplitStarted(int count);
+  /// **'Split started: {count} outputs, confirming in about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}'**
+  String outputsSplitStarted(int count, int blocks);
 
-  /// Notice after a consolidation was posted.
+  /// Notice after a consolidation was posted. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Consolidate started: one output, confirming in about 3 blocks'**
-  String get outputsConsolidateStarted;
+  /// **'Consolidate started: one output, confirming in about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}'**
+  String outputsConsolidateStarted(int blocks);
 
   /// Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change.
   ///
@@ -22324,6 +22330,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
   String get advNodeFailoverHint;
+
+  /// Advanced page: heading above the Confirmations row. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get advBalanceHeader;
+
+  /// Advanced page row: how many confirmations a received output needs before it can be spent. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get advConfirmations;
+
+  /// Info sheet of the Confirmations row on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'How many blocks a received payment waits before its outputs can be spent. {byDefault} by default; any count from {min} to {max}.'**
+  String advConfirmationsHint(int byDefault, int min, int max);
+
+  /// Small tag on the Confirmations row while it is at the default count. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get advConfirmationsDefault;
+
+  /// Button on the Confirmations row, shown when the count is not the default: sets it back. {count} is the default count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to {count}'**
+  String advConfirmationsReset(int count);
+
+  /// Screen-reader label of the minus button on the Confirmations row.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer confirmations'**
+  String get advConfirmationsFewer;
+
+  /// Screen-reader label of the plus button on the Confirmations row.
+  ///
+  /// In en, this message translates to:
+  /// **'More confirmations'**
+  String get advConfirmationsMore;
+
+  /// Screen-reader value of the Confirmations row: the count it is set to.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} confirmation} other{{count} confirmations}}'**
+  String advConfirmationsCount(int count);
+
+  /// Quiet note under the Confirmations row while the count is below the default. Factual, no alarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer confirmations are faster but give less protection against chain reorganisations.'**
+  String get advConfirmationsLowNote;
 
   /// Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
   ///

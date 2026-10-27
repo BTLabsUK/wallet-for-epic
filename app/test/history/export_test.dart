@@ -62,14 +62,16 @@ void main() {
         amountCredited: BigInt.from(100000000),
       );
       // Tip 12 is the block holding it: one confirmation.
-      final line = historyCsv([receipt], BigInt.from(12)).split('\n')[1];
+      final line = historyCsv([receipt], BigInt.from(12), target: 3).split('\n')[1];
       expect(line, contains('Confirming 1/3'));
+      // Without the wallet's count, the default.
+      expect(historyCsv([receipt], BigInt.from(12)), contains('Confirming 1/6'));
       expect(line, isNot(contains('/10')));
     });
 
     test('status words follow the app status chip', () {
       String words(TxEntry t, int? tip) =>
-          statusWords(t, tip == null ? null : BigInt.from(tip));
+          statusWords(t, tip == null ? null : BigInt.from(tip), target: 3);
       final t = _tx('', '');
       // The sent fixture is in block 12: tip 13 is two confirmations of three.
       expect(words(t, 13), 'Confirming 2/3');

@@ -232,6 +232,14 @@ class DemoServer {
     // An open that was queued or running when the demo ended leaves nothing behind.
     ended: () => d.ended,
     afterLateOpen: () => _removeDir(d),
+    // Test coins spend about a block after they land, as the demo's app counts.
+    afterCreate: (s) async {
+      try {
+        await s.setMinimumConfirmations(1);
+      } on Object catch (e) {
+        serverLog(ServerLogLevel.warn, 'demo ${d.short}: setMinimumConfirmations: $e');
+      }
+    },
   );
 
   Future<void> _removeDir(_LiveDemo d) async {

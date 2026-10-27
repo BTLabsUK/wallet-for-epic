@@ -291,14 +291,14 @@ String typeWord(TxKind kind) => switch (kind) {
 
 /// The status column, in the words of the app's status chip, with [tip] the wallet's last
 /// confirmed height when known.
-String statusWords(TxEntry tx, BigInt? tip) {
+String statusWords(TxEntry tx, BigInt? tip, {int target = confirmationsTarget}) {
   final h = tx.blockHeight;
   final confirmations = h != null && tip != null
       ? (tip + BigInt.one - h).isNegative
             ? BigInt.zero
             : tip + BigInt.one - h
       : null;
-  final target = BigInt.from(confirmationsTarget);
+  final needed = BigInt.from(target);
   final incoming =
       tx.kind == TxKind.received || tx.kind == TxKind.receivedCancelled;
   return switch (tx.status) {
@@ -309,9 +309,9 @@ String statusWords(TxEntry tx, BigInt? tip) {
     TxStatus.awaitingConfirmation when h == null && incoming =>
       'Waiting for sender',
     TxStatus.awaitingConfirmation =>
-      'Confirming ${confirmations ?? 0}/$confirmationsTarget',
-    TxStatus.confirmed when confirmations != null && confirmations < target =>
-      'Confirming $confirmations/$confirmationsTarget',
+      'Confirming ${confirmations ?? 0}/$target',
+    TxStatus.confirmed when confirmations != null && confirmations < needed =>
+      'Confirming $confirmations/$target',
     TxStatus.confirmed => 'Completed',
   };
 }
@@ -338,7 +338,7 @@ String methodWord(String? transport) => switch (transport) {
 };
 
 /// One row per payment, newest first as given.
-String historyCsv(List<TxEntry> txs, BigInt? tip) {
+String historyCsv(List<TxEntry> txs, BigInt? tip, {int target = confirmationsTarget}) {
   final out = StringBuffer('$csvHeader\n');
   for (final tx in txs) {
     out
@@ -346,7 +346,7 @@ String historyCsv(List<TxEntry> txs, BigInt? tip) {
         [
           csvField(isoUtc(tx.timeUnix), text: false),
           csvField(typeWord(tx.kind), text: false),
-          csvField(statusWords(tx, tip), text: false),
+          csvField(statusWords(tx, tip, target: target), text: false),
           csvField(epicDecimal(netAmount(tx)), text: false),
           csvField(tx.fee == null ? '' : epicDecimal(tx.fee!), text: false),
           csvField(tx.counterparty ?? '', text: true),

@@ -4053,8 +4053,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'การรวมต้องมีเอาต์พุตที่ใช้ได้อย่างน้อย 2 รายการ';
 
   @override
-  String get outputsWaitLocked =>
-      'รอให้การส่งที่กำลังดำเนินการได้รับการยืนยัน (ประมาณ 3 บล็อก)';
+  String outputsWaitLocked(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return 'รอให้การส่งที่กำลังดำเนินการได้รับการยืนยัน (ประมาณ $_temp0)';
+  }
 
   @override
   String get outputsStrategy => 'วิธีเลือกเอาต์พุตตอนส่ง';
@@ -4220,8 +4226,14 @@ class AppLocalizationsTh extends AppLocalizations {
     String each,
     String made,
     String spent,
+    int blocks,
   ) {
-    return 'ใช้ $spent ($amount) และสร้าง $made ประมาณ $each ต่อเอาต์พุต เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน เอาต์พุตที่มากขึ้นช่วยให้การส่งครั้งถัดไปหลายรายการออกไปได้โดยไม่ต้องรอเงินทอนของกันและกัน';
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return 'ใช้ $spent ($amount) และสร้าง $made ประมาณ $each ต่อเอาต์พุต เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง $_temp0เหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน เอาต์พุตที่มากขึ้นช่วยให้การส่งครั้งถัดไปหลายรายการออกไปได้โดยไม่ต้องรอเงินทอนของกันและกัน';
   }
 
   @override
@@ -4245,8 +4257,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsFactLocked => 'ล็อก';
 
   @override
-  String outputsFactLockedValue(String amount) {
-    return '$amount ประมาณ 3 บล็อก';
+  String outputsFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return '$amount ประมาณ $_temp0';
   }
 
   @override
@@ -4264,8 +4281,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsConsolidateTitle => 'รวมเอาต์พุต';
 
   @override
-  String outputsConsolidateText(String amount, String result, String spent) {
-    return 'ใช้ $spent ($amount) และสร้างเอาต์พุตเดียวมูลค่า $result เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน การส่งครั้งถัดไปจะใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return 'ใช้ $spent ($amount) และสร้างเอาต์พุตเดียวมูลค่า $result เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง $_temp0เหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน การส่งครั้งถัดไปจะใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
   }
 
   @override
@@ -4278,13 +4305,24 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsConsolidatePin => 'ยืนยันด้วย PIN เพื่อรวมเอาต์พุต';
 
   @override
-  String outputsSplitStarted(int count) {
-    return 'เริ่มแยกแล้ว: $count เอาต์พุต ยืนยันในประมาณ 3 บล็อก';
+  String outputsSplitStarted(int count, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return 'เริ่มแยกแล้ว: $count เอาต์พุต ยืนยันในประมาณ $_temp0';
   }
 
   @override
-  String get outputsConsolidateStarted =>
-      'เริ่มรวมแล้ว: 1 เอาต์พุต ยืนยันในประมาณ 3 บล็อก';
+  String outputsConsolidateStarted(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks บล็อก',
+    );
+    return 'เริ่มรวมแล้ว: 1 เอาต์พุต ยืนยันในประมาณ $_temp0';
+  }
 
   @override
   String get outputsAdvanced => 'จัดการเอาต์พุต';
@@ -13661,6 +13699,45 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get advNodeFailoverHint =>
       'เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
+
+  @override
+  String get advBalanceHeader => 'ยอดเงิน';
+
+  @override
+  String get advConfirmations => 'การยืนยัน';
+
+  @override
+  String advConfirmationsHint(int byDefault, int min, int max) {
+    return 'จำนวนบล็อกที่การชำระเงินที่ได้รับต้องรอก่อนที่เอาต์พุตจะใช้ได้ ค่าเริ่มต้นคือ $byDefault ตั้งได้ตั้งแต่ $min ถึง $max';
+  }
+
+  @override
+  String get advConfirmationsDefault => 'ค่าเริ่มต้น';
+
+  @override
+  String advConfirmationsReset(int count) {
+    return 'รีเซ็ตเป็น $count';
+  }
+
+  @override
+  String get advConfirmationsFewer => 'ลดการยืนยัน';
+
+  @override
+  String get advConfirmationsMore => 'เพิ่มการยืนยัน';
+
+  @override
+  String advConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ยืนยัน $count ครั้ง',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advConfirmationsLowNote =>
+      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง';
 
   @override
   String nodeFailoverSwitched(String host) {

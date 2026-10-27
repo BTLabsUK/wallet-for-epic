@@ -34,6 +34,7 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'confirmations_row.dart';
 import 'contacts_screen.dart';
 import 'devices/device_parts.dart' show devicesStateLine;
 import 'devices/linked_devices_screen.dart';
@@ -1171,6 +1172,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: adv.nodeFailover,
         onChanged: _settings.setNodeFailover,
       ),
+      // The wallet's own count, stored in the core: how long received coins wait.
+      const SizedBox(height: 8),
+      SettingsHeader(l.advBalanceHeader),
+      const ConfirmationsRow(),
       // Experimental, so last: Pairing and Invoices (off by default), then push, nothing
       // where the phone cannot push.
       const SizedBox(height: 8),

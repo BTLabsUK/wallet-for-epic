@@ -461,6 +461,11 @@ class WalletDispatcher {
       ),
       walletSummaryWire,
     ),
+    SessionMember.minimumConfirmations => _once(s.minimumConfirmations(), intWire),
+    SessionMember.setMinimumConfirmations => _once(
+      s.setMinimumConfirmations(p.of('count', intWire)),
+      voidWire,
+    ),
     SessionMember.refresh => _many(
       s.refresh(minimumConfirmations: p.of('minimumConfirmations', bigIntWire)),
       refreshProgressWire,

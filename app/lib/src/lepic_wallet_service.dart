@@ -1892,8 +1892,12 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<String> exportHistoryCsv() => _guard(() async {
-    final tip = (await _wallet.summary(refresh: false)).lastConfirmedHeight;
-    return _history.csv(await _live(), tip);
+    final summary = await _wallet.summary(refresh: false);
+    return _history.csv(
+      await _live(),
+      summary.lastConfirmedHeight,
+      target: summary.minimumConfirmations.toInt(),
+    );
   });
 
   @override

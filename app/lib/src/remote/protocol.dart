@@ -42,6 +42,8 @@ enum SessionMember {
   receiveSlate,
   scan,
   summary,
+  minimumConfirmations,
+  setMinimumConfirmations,
   refresh,
   transactions,
   enrichHistory,

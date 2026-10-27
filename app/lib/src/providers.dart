@@ -541,6 +541,28 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       ),
     );
   }
+  /// Reads the balance again from the wallet's own files, keeping the list, so a changed
+  /// minimum confirmations re-splits spendable and confirming at once, without the node.
+  /// Nothing while a load runs: that one reads the balance itself.
+  Future<void> resummarize() async {
+    final shown = state.value;
+    final session = shown?.session;
+    if (state.isLoading || shown == null || session == null) return;
+    final summary = await session.summary(
+      refresh: false,
+      minimumConfirmations: ref.read(minimumConfirmationsProvider),
+    );
+    if (!ref.mounted || state.isLoading || !identical(state.value?.session, session)) return;
+    final now = state.requireValue;
+    state = AsyncData(
+      HomeData(
+        summary: summary,
+        transactions: now.transactions,
+        syncing: now.syncing,
+        session: session,
+      ),
+    );
+  }
 }
 
 /// Whether home is refreshing against the node: a reload, or the background refresh after a

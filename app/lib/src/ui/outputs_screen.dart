@@ -202,7 +202,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final reason = list == null || summary == null
         ? null
         : locked > BigInt.zero
-        ? l.outputsWaitLocked
+        ? l.outputsWaitLocked(ref.watch(countedConfirmationsProvider).toInt())
         : [
             if (!canSplit) l.outputsSplitNeeds,
             if (!canConsolidate) l.outputsConsolidateNeeds,
@@ -980,7 +980,10 @@ class _SplitSheetState extends ConsumerState<_SplitSheet>
     if (!done || !mounted) return;
     ref
         .read(noticeProvider.notifier)
-        .show(l.outputsSplitStarted(n), level: NoticeLevel.success);
+        .show(
+          l.outputsSplitStarted(n, ref.read(countedConfirmationsProvider).toInt()),
+          level: NoticeLevel.success,
+        );
     Navigator.pop(context);
   }
 
@@ -990,6 +993,7 @@ class _SplitSheetState extends ConsumerState<_SplitSheet>
     final t = context.tokens;
     final theme = Theme.of(context);
     final hidden = ref.watch(appSettingsProvider).value?.hideBalances ?? false;
+    final blocks = ref.watch(countedConfirmationsProvider).toInt();
     final e = estimate;
     String money(BigInt v) => shownEpic(l, v, hidden: hidden);
     final tooSmall = e != null && e.amount < BigInt.from(_minSplitEach);
@@ -1002,6 +1006,7 @@ class _SplitSheetState extends ConsumerState<_SplitSheet>
             money(e.amount),
             l.outputsCount(_count),
             l.outputsCount(e.inputCount),
+            blocks,
           ),
           style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
         ),
@@ -1067,7 +1072,7 @@ class _SplitSheetState extends ConsumerState<_SplitSheet>
         _fact(
           context,
           l.outputsFactLocked,
-          _monoText(context, l.outputsFactLockedValue(money(e.locked))),
+          _monoText(context, l.outputsFactLockedValue(money(e.locked), blocks)),
         ),
         Text(
           l.outputsNothingSpendable,
@@ -1125,7 +1130,10 @@ class _ConsolidateSheetState extends ConsumerState<_ConsolidateSheet>
     if (!done || !mounted) return;
     ref
         .read(noticeProvider.notifier)
-        .show(l.outputsConsolidateStarted, level: NoticeLevel.success);
+        .show(
+          l.outputsConsolidateStarted(ref.read(countedConfirmationsProvider).toInt()),
+          level: NoticeLevel.success,
+        );
     Navigator.pop(context);
   }
 
@@ -1135,6 +1143,7 @@ class _ConsolidateSheetState extends ConsumerState<_ConsolidateSheet>
     final t = context.tokens;
     final theme = Theme.of(context);
     final hidden = ref.watch(appSettingsProvider).value?.hideBalances ?? false;
+    final blocks = ref.watch(countedConfirmationsProvider).toInt();
     final e = estimate;
     String money(BigInt v) => shownEpic(l, v, hidden: hidden);
     return _sheetFrame(context, l.outputsConsolidateTitle, [
@@ -1144,6 +1153,7 @@ class _ConsolidateSheetState extends ConsumerState<_ConsolidateSheet>
             money(e.locked),
             money(e.amount),
             l.outputsCount(e.inputCount),
+            blocks,
           ),
           style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
         ),
@@ -1163,7 +1173,7 @@ class _ConsolidateSheetState extends ConsumerState<_ConsolidateSheet>
         _fact(
           context,
           l.outputsFactLocked,
-          _monoText(context, l.outputsFactLockedValue(money(e.locked))),
+          _monoText(context, l.outputsFactLockedValue(money(e.locked), blocks)),
         ),
         Text(
           l.outputsNothingSpendable,

@@ -626,7 +626,7 @@ void main() {
   setUpAll(initializeDateFormatting);
   group('status words', () {
     test('name who or what the transaction waits for', () {
-      String label(TxEntry tx) => txStatusLabel(englishStrings, tx, _tip);
+      String label(TxEntry tx) => txStatusLabel(englishStrings, tx, _tip, target: 3);
       expect(
         label(fakeTx(kind: TxKind.sent, status: TxStatus.awaitingRecipient)),
         'Waiting for recipient',

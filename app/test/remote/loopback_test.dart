@@ -506,6 +506,13 @@ void main() {
       expect(await s.restoreScanRequired(), isTrue);
       session.fingerprintValue = '0a1b2c3d';
       expect(await s.fingerprint(), '0a1b2c3d');
+      // Minimum confirmations: the stored count both ways, the core's refusal as its kind.
+      expect(await s.minimumConfirmations(), session.summaryValue.minimumConfirmations.toInt());
+      await s.setMinimumConfirmations(12);
+      expect(session.minimumConfirmationsSets, [12]);
+      expect(await s.minimumConfirmations(), 12);
+      await expectLater(s.setMinimumConfirmations(31), throwsKind(WalletErrorKind.invalidArgument));
+      expect(await s.minimumConfirmations(), 12);
       expect(
         await s.estimateFee(amount: amount, minimumConfirmations: ten),
         FeeEstimate(amount: amount, fee: session.fee),

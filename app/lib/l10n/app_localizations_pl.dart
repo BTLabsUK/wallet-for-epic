@@ -4240,8 +4240,17 @@ class AppLocalizationsPl extends AppLocalizations {
       'Scalanie wymaga co najmniej 2 wyjść do wydania.';
 
   @override
-  String get outputsWaitLocked =>
-      'Poczekaj na potwierdzenie trwającej wysyłki (około 3 bloków).';
+  String outputsWaitLocked(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks bloków',
+      few: '$blocks bloków',
+      one: '$blocks bloku',
+    );
+    return 'Poczekaj na potwierdzenie trwającej wysyłki (około $_temp0).';
+  }
 
   @override
   String get outputsStrategy => 'Strategia wysyłek';
@@ -4412,8 +4421,17 @@ class AppLocalizationsPl extends AppLocalizations {
     String each,
     String made,
     String spent,
+    int blocks,
   ) {
-    return 'Wydaje $spent ($amount) i tworzy $made po około $each. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane. Więcej wyjść pozwala następnym wysyłkom wyjść bez czekania na resztę z poprzednich.';
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks blokach',
+      few: '$blocks blokach',
+      one: '$blocks bloku',
+    );
+    return 'Wydaje $spent ($amount) i tworzy $made po około $each. Zwykła transakcja sieciowa do tego portfela, potwierdzona po $_temp0 jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane. Więcej wyjść pozwala następnym wysyłkom wyjść bez czekania na resztę z poprzednich.';
   }
 
   @override
@@ -4437,8 +4455,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsFactLocked => 'Zablokowane';
 
   @override
-  String outputsFactLockedValue(String amount) {
-    return '$amount, około 3 bloków';
+  String outputsFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks bloków',
+      few: '$blocks bloków',
+      one: '$blocks bloku',
+    );
+    return '$amount, około $_temp0';
   }
 
   @override
@@ -4457,8 +4483,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsConsolidateTitle => 'Scalanie wyjść';
 
   @override
-  String outputsConsolidateText(String amount, String result, String spent) {
-    return 'Wydaje $spent ($amount) i tworzy jedno wyjście na $result. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane. Następna wysyłka wyda jedno wyjście, więc jej opłata będzie najmniejsza.';
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks blokach',
+      few: '$blocks blokach',
+      one: '$blocks bloku',
+    );
+    return 'Wydaje $spent ($amount) i tworzy jedno wyjście na $result. Zwykła transakcja sieciowa do tego portfela, potwierdzona po $_temp0 jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane. Następna wysyłka wyda jedno wyjście, więc jej opłata będzie najmniejsza.';
   }
 
   @override
@@ -4471,13 +4510,30 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsConsolidatePin => 'Potwierdź PIN-em, aby scalić wyjścia';
 
   @override
-  String outputsSplitStarted(int count) {
-    return 'Podział rozpoczęty, nowe wyjścia: $count; potwierdzenie za około 3 bloki';
+  String outputsSplitStarted(int count, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks bloków',
+      few: '$blocks bloków',
+      one: '$blocks bloku',
+    );
+    return 'Podział rozpoczęty, nowe wyjścia: $count; potwierdzenie za około $_temp0';
   }
 
   @override
-  String get outputsConsolidateStarted =>
-      'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki';
+  String outputsConsolidateStarted(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks bloku',
+      many: '$blocks bloków',
+      few: '$blocks bloków',
+      one: '$blocks bloku',
+    );
+    return 'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około $_temp0';
+  }
 
   @override
   String get outputsAdvanced => 'Zarządzaj wyjściami';
@@ -14271,6 +14327,48 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get advNodeFailoverHint =>
       'Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
+
+  @override
+  String get advBalanceHeader => 'Saldo';
+
+  @override
+  String get advConfirmations => 'Potwierdzenia';
+
+  @override
+  String advConfirmationsHint(int byDefault, int min, int max) {
+    return 'Ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać. Domyślnie $byDefault; od $min do $max.';
+  }
+
+  @override
+  String get advConfirmationsDefault => 'Domyślnie';
+
+  @override
+  String advConfirmationsReset(int count) {
+    return 'Przywróć $count';
+  }
+
+  @override
+  String get advConfirmationsFewer => 'Mniej potwierdzeń';
+
+  @override
+  String get advConfirmationsMore => 'Więcej potwierdzeń';
+
+  @override
+  String advConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count potwierdzenia',
+      many: '$count potwierdzeń',
+      few: '$count potwierdzenia',
+      one: '$count potwierdzenie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advConfirmationsLowNote =>
+      'Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.';
 
   @override
   String nodeFailoverSwitched(String host) {

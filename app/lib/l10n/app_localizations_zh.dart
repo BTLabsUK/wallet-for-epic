@@ -3890,7 +3890,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateNeeds => '合并需要至少 2 个可用输出。';
 
   @override
-  String get outputsWaitLocked => '请等待进行中的发送确认（约 3 个区块）。';
+  String outputsWaitLocked(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '请等待进行中的发送确认（约 $_temp0）。';
+  }
 
   @override
   String get outputsStrategy => '发送策略';
@@ -4053,8 +4060,14 @@ class AppLocalizationsZh extends AppLocalizations {
     String each,
     String made,
     String spent,
+    int blocks,
   ) {
-    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。输出多了，接下来的几笔发送就不必互相等待找零。';
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 $_temp0后确认；在此之前所有可用余额都被锁定。输出多了，接下来的几笔发送就不必互相等待找零。';
   }
 
   @override
@@ -4078,8 +4091,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsFactLocked => '锁定';
 
   @override
-  String outputsFactLockedValue(String amount) {
-    return '$amount，约 3 个区块';
+  String outputsFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '$amount，约 $_temp0';
   }
 
   @override
@@ -4097,8 +4115,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateTitle => '合并输出';
 
   @override
-  String outputsConsolidateText(String amount, String result, String spent) {
-    return '花掉 $spent（$amount），生成一个 $result 的输出。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。下一次发送只花一个输出，因此费用最低。';
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '花掉 $spent（$amount），生成一个 $result 的输出。这是发往本钱包的普通网络交易，与任何发送一样在 $_temp0后确认；在此之前所有可用余额都被锁定。下一次发送只花一个输出，因此费用最低。';
   }
 
   @override
@@ -4111,12 +4139,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidatePin => '输入 PIN 码以确认合并输出';
 
   @override
-  String outputsSplitStarted(int count) {
-    return '拆分已开始：$count 个输出，约 3 个区块后确认';
+  String outputsSplitStarted(int count, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '拆分已开始：$count 个输出，约 $_temp0后确认';
   }
 
   @override
-  String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
+  String outputsConsolidateStarted(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks 个区块',
+    );
+    return '合并已开始：一个输出，约 $_temp0后确认';
+  }
 
   @override
   String get outputsAdvanced => '管理输出';
@@ -13178,6 +13218,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNodeFailoverHint => '当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。';
+
+  @override
+  String get advBalanceHeader => '余额';
+
+  @override
+  String get advConfirmations => '确认数';
+
+  @override
+  String advConfirmationsHint(int byDefault, int min, int max) {
+    return '收到的付款要等待多少个区块，其输出才能花费。默认 $byDefault，可设为 $min 到 $max。';
+  }
+
+  @override
+  String get advConfirmationsDefault => '默认';
+
+  @override
+  String advConfirmationsReset(int count) {
+    return '恢复为 $count';
+  }
+
+  @override
+  String get advConfirmationsFewer => '减少确认数';
+
+  @override
+  String get advConfirmationsMore => '增加确认数';
+
+  @override
+  String advConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个确认',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advConfirmationsLowNote => '确认数越少越快，但对链重组的防护越弱。';
 
   @override
   String nodeFailoverSwitched(String host) {

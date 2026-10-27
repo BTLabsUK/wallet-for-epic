@@ -4178,8 +4178,15 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zum Zusammenführen sind mindestens 2 verfügbare Outputs nötig.';
 
   @override
-  String get outputsWaitLocked =>
-      'Warten, bis die laufende Zahlung bestätigt ist (etwa 3 Blöcke).';
+  String outputsWaitLocked(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcke',
+      one: '$blocks Block',
+    );
+    return 'Warten, bis die laufende Zahlung bestätigt ist (etwa $_temp0).';
+  }
 
   @override
   String get outputsStrategy => 'Strategie für Zahlungen';
@@ -4350,8 +4357,15 @@ class AppLocalizationsDe extends AppLocalizations {
     String each,
     String made,
     String spent,
+    int blocks,
   ) {
-    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an diese Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Mit mehreren Outputs können die nächsten Zahlungen hinausgehen, ohne auf das Wechselgeld der anderen zu warten.';
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcken',
+      one: '$blocks Block',
+    );
+    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an diese Wallet, nach $_temp0 bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Mit mehreren Outputs können die nächsten Zahlungen hinausgehen, ohne auf das Wechselgeld der anderen zu warten.';
   }
 
   @override
@@ -4375,8 +4389,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsFactLocked => 'Gesperrt';
 
   @override
-  String outputsFactLockedValue(String amount) {
-    return '$amount, etwa 3 Blöcke';
+  String outputsFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcke',
+      one: '$blocks Block',
+    );
+    return '$amount, etwa $_temp0';
   }
 
   @override
@@ -4396,8 +4416,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsConsolidateTitle => 'Outputs zusammenführen';
 
   @override
-  String outputsConsolidateText(String amount, String result, String spent) {
-    return 'Verbraucht $spent ($amount) und erzeugt einen Output über $result. Eine normale Netzwerktransaktion an diese Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Die nächste Zahlung verbraucht einen Output, daher ist ihre Gebühr am kleinsten.';
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcken',
+      one: '$blocks Block',
+    );
+    return 'Verbraucht $spent ($amount) und erzeugt einen Output über $result. Eine normale Netzwerktransaktion an diese Wallet, nach $_temp0 bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Die nächste Zahlung verbraucht einen Output, daher ist ihre Gebühr am kleinsten.';
   }
 
   @override
@@ -4412,13 +4443,26 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mit der PIN bestätigen, um Outputs zusammenzuführen';
 
   @override
-  String outputsSplitStarted(int count) {
-    return 'Aufteilen gestartet: $count Outputs, Bestätigung in etwa 3 Blöcken';
+  String outputsSplitStarted(int count, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcken',
+      one: '$blocks Block',
+    );
+    return 'Aufteilen gestartet: $count Outputs, Bestätigung in etwa $_temp0';
   }
 
   @override
-  String get outputsConsolidateStarted =>
-      'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
+  String outputsConsolidateStarted(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks Blöcken',
+      one: '$blocks Block',
+    );
+    return 'Zusammenführen gestartet: ein Output, Bestätigung in etwa $_temp0';
+  }
 
   @override
   String get outputsAdvanced => 'Outputs verwalten';
@@ -14062,6 +14106,46 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get advNodeFailoverHint =>
       'Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.';
+
+  @override
+  String get advBalanceHeader => 'Guthaben';
+
+  @override
+  String get advConfirmations => 'Bestätigungen';
+
+  @override
+  String advConfirmationsHint(int byDefault, int min, int max) {
+    return 'Wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind. Standardmäßig $byDefault; jeder Wert von $min bis $max.';
+  }
+
+  @override
+  String get advConfirmationsDefault => 'Voreinstellung';
+
+  @override
+  String advConfirmationsReset(int count) {
+    return 'Auf $count zurücksetzen';
+  }
+
+  @override
+  String get advConfirmationsFewer => 'Weniger Bestätigungen';
+
+  @override
+  String get advConfirmationsMore => 'Mehr Bestätigungen';
+
+  @override
+  String advConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Bestätigungen',
+      one: '$count Bestätigung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advConfirmationsLowNote =>
+      'Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.';
 
   @override
   String nodeFailoverSwitched(String host) {

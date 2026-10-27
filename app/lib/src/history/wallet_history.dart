@@ -861,7 +861,8 @@ class WalletHistory {
     return rows.length == 1 ? rows.single.key : null;
   }
 
-  /// The transaction list as CSV, with [tip] the wallet's last confirmed height.
-  String csv(List<TxEntry> live, BigInt? tip) =>
-      historyCsv(transactions(live), tip);
+  /// The transaction list as CSV, with [tip] the wallet's last confirmed height and [target]
+  /// the confirmations its balance counts with.
+  String csv(List<TxEntry> live, BigInt? tip, {int target = confirmationsTarget}) =>
+      historyCsv(transactions(live), tip, target: target);
 }

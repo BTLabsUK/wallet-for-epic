@@ -501,7 +501,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.session.splits, [5]);
     expect(find.text(_l.outputsSplitTitle), findsNothing);
-    expect(container.read(noticeProvider)?.text, _l.outputsSplitStarted(5));
+    expect(container.read(noticeProvider)?.text, _l.outputsSplitStarted(5, 3));
   });
 
   testWidgets('Consolidate posts once after the PIN', (tester) async {
@@ -547,7 +547,7 @@ void main() {
       final b = find.widgetWithText(OutlinedButton, label);
       expect(tester.widget<OutlinedButton>(b).onPressed, isNull);
     }
-    expect(find.text(_l.outputsWaitLocked), findsOneWidget);
+    expect(find.text(_l.outputsWaitLocked(3)), findsOneWidget);
   });
 
   testWidgets('Settings › Wallet lists Outputs with its count and strategy', (

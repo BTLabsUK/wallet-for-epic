@@ -5269,9 +5269,15 @@
   "@outputsConsolidateNeeds": {
     "description": "Caption under the buttons: why Consolidate is disabled."
   },
-  "outputsWaitLocked": "Wait until the send in progress confirms (about 3 blocks).",
+  "outputsWaitLocked": "Wait until the send in progress confirms (about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}).",
   "@outputsWaitLocked": {
-    "description": "Caption under the buttons: a send is in progress."
+    "description": "Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
   },
   "outputsStrategy": "Strategy for sends",
   "@outputsStrategy": {
@@ -5492,9 +5498,9 @@
   "@outputsSplitTitle": {
     "description": "Sheet title."
   },
-  "outputsSplitText": "Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.",
+  "outputsSplitText": "Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after {blocks, plural, one{{blocks} block} other{{blocks} blocks}} like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.",
   "@outputsSplitText": {
-    "description": "Split sheet paragraph. {spent} and {made} are counts such as \"3 outputs\".",
+    "description": "Split sheet paragraph. {spent} and {made} are counts such as \"3 outputs\". {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5507,6 +5513,10 @@
       },
       "spent": {
         "type": "String"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -5539,12 +5549,16 @@
   "@outputsFactLocked": {
     "description": "Sheet fact: what gets locked and for how long."
   },
-  "outputsFactLockedValue": "{amount}, about 3 blocks",
+  "outputsFactLockedValue": "{amount}, about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}",
   "@outputsFactLockedValue": {
-    "description": "Sheet fact value.",
+    "description": "Sheet fact value. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
       "amount": {
         "type": "String"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -5569,9 +5583,9 @@
   "@outputsConsolidateTitle": {
     "description": "Sheet title."
   },
-  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after {blocks, plural, one{{blocks} block} other{{blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
   "@outputsConsolidateText": {
-    "description": "Consolidate sheet paragraph. {spent} is a count such as \"3 outputs\".",
+    "description": "Consolidate sheet paragraph. {spent} is a count such as \"3 outputs\". {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5581,6 +5595,10 @@
       },
       "spent": {
         "type": "String"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
@@ -5596,18 +5614,28 @@
   "@outputsConsolidatePin": {
     "description": "Reason shown in the PIN prompt."
   },
-  "outputsSplitStarted": "Split started: {count} outputs, confirming in about 3 blocks",
+  "outputsSplitStarted": "Split started: {count} outputs, confirming in about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}",
   "@outputsSplitStarted": {
-    "description": "Notice after a split was posted.",
+    "description": "Notice after a split was posted. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
       }
     }
   },
-  "outputsConsolidateStarted": "Consolidate started: one output, confirming in about 3 blocks",
+  "outputsConsolidateStarted": "Consolidate started: one output, confirming in about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}",
   "@outputsConsolidateStarted": {
-    "description": "Notice after a consolidation was posted."
+    "description": "Notice after a consolidation was posted. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
   },
   "outputsAdvanced": "Manage outputs",
   "@outputsAdvanced": {
@@ -18443,6 +18471,68 @@
   "advNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
   "@advNodeFailoverHint": {
     "description": "Info sheet of the Node failover switch on the Advanced page."
+  },
+  "advBalanceHeader": "Balance",
+  "@advBalanceHeader": {
+    "description": "Advanced page: heading above the Confirmations row. One word."
+  },
+  "advConfirmations": "Confirmations",
+  "@advConfirmations": {
+    "description": "Advanced page row: how many confirmations a received output needs before it can be spent. 1 to 3 words."
+  },
+  "advConfirmationsHint": "How many blocks a received payment waits before its outputs can be spent. {byDefault} by default; any count from {min} to {max}.",
+  "@advConfirmationsHint": {
+    "description": "Info sheet of the Confirmations row on the Advanced page.",
+    "placeholders": {
+      "byDefault": {
+        "type": "int",
+        "example": "6"
+      },
+      "min": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "advConfirmationsDefault": "Default",
+  "@advConfirmationsDefault": {
+    "description": "Small tag on the Confirmations row while it is at the default count. One word."
+  },
+  "advConfirmationsReset": "Reset to {count}",
+  "@advConfirmationsReset": {
+    "description": "Button on the Confirmations row, shown when the count is not the default: sets it back. {count} is the default count.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "advConfirmationsFewer": "Fewer confirmations",
+  "@advConfirmationsFewer": {
+    "description": "Screen-reader label of the minus button on the Confirmations row."
+  },
+  "advConfirmationsMore": "More confirmations",
+  "@advConfirmationsMore": {
+    "description": "Screen-reader label of the plus button on the Confirmations row."
+  },
+  "advConfirmationsCount": "{count, plural, one{{count} confirmation} other{{count} confirmations}}",
+  "@advConfirmationsCount": {
+    "description": "Screen-reader value of the Confirmations row: the count it is set to.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "advConfirmationsLowNote": "Fewer confirmations are faster but give less protection against chain reorganisations.",
+  "@advConfirmationsLowNote": {
+    "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."
   },
   "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
   "@nodeFailoverSwitched": {

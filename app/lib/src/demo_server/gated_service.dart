@@ -23,6 +23,7 @@ class GatedWalletService implements WalletService {
     this.beforeOpen,
     this.ended,
     this.afterLateOpen,
+    this.afterCreate,
   });
 
   final WalletService _inner;
@@ -43,7 +44,16 @@ class GatedWalletService implements WalletService {
   /// re-created files the end already removed.
   final Future<void> Function()? afterLateOpen;
 
+  /// Runs on a newly created wallet's session before the visitor gets it: the demo sets its
+  /// wallet's minimum confirmations to 1 there.
+  final Future<void> Function(WalletSession session)? afterCreate;
+
   bool get _ended => ended?.call() ?? false;
+
+  Future<WalletSession> _created(WalletSession s) async {
+    await afterCreate?.call(s);
+    return s;
+  }
 
   Future<T> _opening<T>(
     Future<T> Function() open,
@@ -121,10 +131,11 @@ class GatedWalletService implements WalletService {
     String? mnemonic,
     required String password,
   }) async => _wrap(
-    await _opening(
-      () =>
-          _inner.create(config: config, mnemonic: mnemonic, password: password),
-      _itself,
+    await _created(
+      await _opening(
+        () => _inner.create(config: config, mnemonic: mnemonic, password: password),
+        _itself,
+      ),
     ),
   );
 
@@ -167,6 +178,7 @@ class GatedWalletService implements WalletService {
       () => _inner.createWithPin(config: config, mnemonic: mnemonic, pin: pin),
       (w) => w.session,
     );
+    await _created(w.session);
     return (session: _wrap(w.session), sealedPassword: w.sealedPassword);
   }
 

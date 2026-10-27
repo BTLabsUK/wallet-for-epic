@@ -159,7 +159,7 @@ TxEntry _payment(TxPhase phase) => switch (phase) {
     cancellable: true,
   ),
   TxPhase.confirming => _confirming(1),
-  TxPhase.completed => _confirming(3),
+  TxPhase.completed => _confirming(defaultMinimumConfirmations),
   TxPhase.cancelled => fakeTx(
     slateId: 'pay',
     kind: TxKind.receivedCancelled,
@@ -179,7 +179,7 @@ TxEntry _payment(TxPhase phase) => switch (phase) {
 /// The payment from Bob with [confirmations] at [_tip].
 TxEntry _confirming(int confirmations) => fakeTx(
   slateId: 'pay',
-  status: confirmations >= 3
+  status: confirmations >= defaultMinimumConfirmations
       ? TxStatus.confirmed
       : TxStatus.awaitingConfirmation,
   amountCredited: BigInt.from(250000000),
@@ -297,12 +297,12 @@ void main() {
       expect(tester.binding.transientCallbackCount, 0);
     });
 
-    testWidgets('a real row reads 0 and 1 of 3 from the chain', (
+    testWidgets('a real row reads 0 and 1 of 6 from the chain', (
       tester,
     ) async {
       await _pumpRow(tester, TxIcon(tx: _confirming(1), tip: _tip));
       await tester.pumpAndSettle();
-      expect(_painter(tester).extent, closeTo(1 / 3, 1e-9));
+      expect(_painter(tester).extent, closeTo(1 / defaultMinimumConfirmations, 1e-9));
       final unmined = fakeTx(
         slateId: 'unmined',
         kind: TxKind.sent,
@@ -627,7 +627,7 @@ void main() {
           await check('2/3');
           await _pumpRow(
             tester,
-            TxTile(tx: _confirming(3)),
+            TxTile(tx: _confirming(defaultMinimumConfirmations)),
             width: width,
             textScale: scale,
           );
@@ -690,7 +690,7 @@ void main() {
     testWidgets('the chip counts in tabular figures', (tester) async {
       await _pumpRow(tester, TxStatusChip(tx: _confirming(1), tip: _tip));
       await tester.pumpAndSettle();
-      final text = tester.widget<Text>(find.text(_l.txStatusConfirming(1, 3)));
+      final text = tester.widget<Text>(find.text(_l.txStatusConfirming(1, defaultMinimumConfirmations)));
       expect(
         text.style?.fontFeatures,
         contains(const FontFeature.tabularFigures()),

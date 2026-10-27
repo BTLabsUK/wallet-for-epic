@@ -661,11 +661,11 @@ void main() {
           expect(h.session.confirmations, isNotEmpty);
           // Balance calls ask with the fallback, which LEPIC ignores.
           expect(h.session.confirmations.toSet(), {
-            demo ? BigInt.one : BigInt.from(3),
+            demo ? BigInt.one : BigInt.from(6),
           });
-          // Rows count with what the balance counted (3 here, as the fake LEPIC reports),
+          // Rows count with what the balance counted (6 here, as the fake LEPIC reports),
           // so a row never says Received under coins the balance still has as confirming.
-          expect(find.textContaining(l.txStatusConfirming(1, 3)), findsWidgets);
+          expect(find.textContaining(l.txStatusConfirming(1, 6)), findsWidgets);
           expect(find.textContaining(l.txStatusReceived), findsNothing);
         },
       );

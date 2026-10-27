@@ -4216,8 +4216,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Для объединения нужно минимум 2 доступных выхода.';
 
   @override
-  String get outputsWaitLocked =>
-      'Дождитесь подтверждения текущей отправки (около 3 блоков).';
+  String outputsWaitLocked(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блоков',
+      one: '$blocks блока',
+    );
+    return 'Дождитесь подтверждения текущей отправки (около $_temp0).';
+  }
 
   @override
   String get outputsStrategy => 'Стратегия отправок';
@@ -4387,8 +4396,17 @@ class AppLocalizationsRu extends AppLocalizations {
     String each,
     String made,
     String spent,
+    int blocks,
   ) {
-    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента. Несколько выходов позволяют следующим отправкам уходить, не дожидаясь сдачи друг друга.';
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блока',
+      one: '$blocks блок',
+    );
+    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через $_temp0, как любая отправка; всё доступное блокируется до этого момента. Несколько выходов позволяют следующим отправкам уходить, не дожидаясь сдачи друг друга.';
   }
 
   @override
@@ -4412,8 +4430,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsFactLocked => 'Заблокировано';
 
   @override
-  String outputsFactLockedValue(String amount) {
-    return '$amount, около 3 блоков';
+  String outputsFactLockedValue(String amount, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блоков',
+      one: '$blocks блока',
+    );
+    return '$amount, около $_temp0';
   }
 
   @override
@@ -4432,8 +4458,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsConsolidateTitle => 'Объединение выходов';
 
   @override
-  String outputsConsolidateText(String amount, String result, String spent) {
-    return 'Тратит $spent ($amount) и создаёт один выход на $result. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+  String outputsConsolidateText(
+    String amount,
+    String result,
+    String spent,
+    int blocks,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блока',
+      one: '$blocks блок',
+    );
+    return 'Тратит $spent ($amount) и создаёт один выход на $result. Обычная сетевая транзакция на этот кошелёк, подтверждается через $_temp0, как любая отправка; всё доступное блокируется до этого момента. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
   }
 
   @override
@@ -4447,13 +4486,30 @@ class AppLocalizationsRu extends AppLocalizations {
       'Подтвердите PIN-кодом, чтобы объединить выходы';
 
   @override
-  String outputsSplitStarted(int count) {
-    return 'Разделение начато, выходов: $count; подтверждение примерно через 3 блока';
+  String outputsSplitStarted(int count, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блока',
+      one: '$blocks блок',
+    );
+    return 'Разделение начато, выходов: $count; подтверждение примерно через $_temp0';
   }
 
   @override
-  String get outputsConsolidateStarted =>
-      'Объединение начато: один выход, подтверждение примерно через 3 блока';
+  String outputsConsolidateStarted(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '$blocks блока',
+      many: '$blocks блоков',
+      few: '$blocks блока',
+      one: '$blocks блок',
+    );
+    return 'Объединение начато: один выход, подтверждение примерно через $_temp0';
+  }
 
   @override
   String get outputsAdvanced => 'Управление выходами';
@@ -14234,6 +14290,48 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get advNodeFailoverHint =>
       'Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
+
+  @override
+  String get advBalanceHeader => 'Баланс';
+
+  @override
+  String get advConfirmations => 'Подтверждения';
+
+  @override
+  String advConfirmationsHint(int byDefault, int min, int max) {
+    return 'Сколько блоков полученный платёж ждёт, прежде чем его выходы можно тратить. По умолчанию $byDefault; от $min до $max.';
+  }
+
+  @override
+  String get advConfirmationsDefault => 'По умолчанию';
+
+  @override
+  String advConfirmationsReset(int count) {
+    return 'Сбросить до $count';
+  }
+
+  @override
+  String get advConfirmationsFewer => 'Меньше подтверждений';
+
+  @override
+  String get advConfirmationsMore => 'Больше подтверждений';
+
+  @override
+  String advConfirmationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count подтверждения',
+      many: '$count подтверждений',
+      few: '$count подтверждения',
+      one: '$count подтверждение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advConfirmationsLowNote =>
+      'Меньше подтверждений — быстрее, но слабее защита от реорганизации цепочки.';
 
   @override
   String nodeFailoverSwitched(String host) {
