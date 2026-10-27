@@ -117,16 +117,15 @@ void main() {
     await tapText(tester, 'Reveal phrase');
     await tapText(tester, 'Written down');
     await tapText(tester, 'Continue', last: true);
-    for (var i = 0; i < 4 && !hasText('Unlock wallet'); i++) {
-      await waitText(tester, RegExp(r'^(Continue|Save settings)$'));
-      await settle(tester, ms: 1000);
-      await tapText(tester, hasText('Save settings') ? 'Save settings' : 'Continue', last: true);
-      await settle(tester, ms: 3000);
+    // Setup with its defaults, then the wallet (unlocked at once, or after the password).
+    await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
+    await tapText(tester, 'Skip setup');
+    await waitText(tester, RegExp('Unlock wallet|Available to spend|Skip tour'), timeout: const Duration(seconds: 120));
+    if (hasText('Unlock wallet')) {
+      await typeIn(tester, 0, password);
+      await tapText(tester, 'Unlock', last: true);
     }
-    await waitText(tester, 'Unlock wallet');
-    await typeIn(tester, 0, password);
-    await tapText(tester, 'Unlock', last: true);
-    await waitText(tester, RegExp('Overview|Balance'), timeout: const Duration(seconds: 120));
+    await waitText(tester, RegExp('Overview|Balance|Available to spend'), timeout: const Duration(seconds: 120));
     await settle(tester, ms: 3000);
     if (hasText('Skip tour')) await tapText(tester, 'Skip tour');
     final c = containerOf(tester);
