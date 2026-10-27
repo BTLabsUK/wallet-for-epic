@@ -26,8 +26,12 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
   final out = <TxEntry>[];
   for (final r in rows) {
     if (r.origin == TxOrigin.otherWallet && r.spentCommits.isNotEmpty) {
-      // Any hold: the chain's word is final, whatever this device did with the coins.
-      final h = book.holds.where((h) => !used.contains(h) && h.commitments.any(r.spentCommits.contains)).firstOrNull;
+      // Any hold: the chain's word is final, whatever this device did with the coins. Of the
+      // payments that held these coins (a coin freed by one is often taken by the next), the
+      // one the chain check confirmed, else the newest.
+      final h = (book.holds.where((h) => !used.contains(h) && h.commitments.any(r.spentCommits.contains)).toList()
+            ..sort((a, b) => (a.state == HoldState.spent) != (b.state == HoldState.spent) ? (a.state == HoldState.spent ? -1 : 1) : b.lockedAt.compareTo(a.lockedAt)))
+          .firstOrNull;
       if (h != null) {
         used.add(h);
         out.add(deviceRow(h, _nameOf(book, h), chain: r));

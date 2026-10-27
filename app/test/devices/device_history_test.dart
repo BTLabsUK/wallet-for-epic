@@ -78,6 +78,27 @@ void main() {
     expect(row.counterparty, 'esBob@epicbox.epiccash.com');
   });
 
+  test('a coin a cancelled payment freed and the next payment spent: the chain row is the next one\'s', () {
+    final chain = _otherWallet('k:abc', [1], 1790000500);
+    final cancelled = HeldPayment(
+      deviceId: _desk,
+      slateId: 'first',
+      commitments: [_c(1)],
+      amount: BigInt.from(100),
+      lockedAt: DateTime.fromMillisecondsSinceEpoch(1790000100 * 1000),
+      state: HoldState.released,
+      reason: 'cancelled',
+    );
+    final rows = mergeDeviceHistory([chain], _book([cancelled, _hold('second', [1], state: HoldState.spent, at: 1790000200)]));
+    expect(rows, hasLength(2));
+    final confirmed = rows.singleWhere((r) => r.confirmed);
+    expect(confirmed.slateId, 'second');
+    expect(confirmed.blockHeight, BigInt.from(900));
+    final ended = rows.singleWhere((r) => !r.confirmed);
+    expect(ended.slateId, 'first');
+    expect(ended.deviceEnding, DeviceEnding.cancelled);
+  });
+
   test('another wallet row that matches no hold stays as it is', () {
     final chain = _otherWallet('k:zzz', [5], 1790000500);
     final rows = mergeDeviceHistory([chain], _book([_hold('s1', [1])]));

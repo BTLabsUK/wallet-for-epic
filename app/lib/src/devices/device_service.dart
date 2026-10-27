@@ -189,10 +189,18 @@ class LinkFlow {
   /// The device once linked.
   final LinkedDevice? device;
 
-  LinkFlow to(LinkPhase phase, {String? pairingId, List<SasWord>? sas, String? otherName, LinkFailure? failure, LinkedDevice? device}) => LinkFlow(
+  LinkFlow to(
+    LinkPhase phase, {
+    String? pairingId,
+    List<SasWord>? sas,
+    String? otherName,
+    LinkFailure? failure,
+    LinkedDevice? device,
+    List<String>? servers,
+  }) => LinkFlow(
     role: role,
     phase: phase,
-    servers: servers,
+    servers: servers ?? this.servers,
     pairingId: pairingId ?? this.pairingId,
     code: code,
     expiresAt: expiresAt,
@@ -208,6 +216,14 @@ class _LinkPeer {
   bool matchedHere = false;
   DateTime? matchedAt;
   Notice? hello;
+}
+
+/// The link server of a pairing whose core names it [relay] (`host` or `host:port`): the host
+/// alone for the TLS port, as the link's servers are written; null while the core names none.
+String? linkServerOf(String? relay) {
+  final r = relay?.trim().toLowerCase() ?? '';
+  if (r.isEmpty) return null;
+  return r.endsWith(':443') ? r.substring(0, r.length - 4) : r;
 }
 
 /// Why the service reads the channel now (D-11).
@@ -492,7 +508,7 @@ class DeviceService {
       height: n.body['height'] as int?,
       kernel: n.body['kernel'] as String?,
       why: n.body['why'] as String?,
-      spent: await _spent(),
+      spent: spentFor(book.holds[i], book.holds, await _spent()),
       now: _clock(),
     );
     _book = book.copyWith(holds: [...book.holds]..[i] = next);
@@ -985,7 +1001,7 @@ class DeviceService {
     _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.starting));
     try {
       final r = await _api.acceptPrivateInvite(link: invite, name: book.deviceName);
-      _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.waiting, pairingId: r.id, otherName: r.name, servers: [r.homeRelay]));
+      _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.waiting, pairingId: r.id, otherName: r.name, servers: [?linkServerOf(r.homeRelay)]));
       unawaited(sync(DeviceSyncTrigger.link));
     } on Object catch (e) {
       _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: _failureOf(e)));
@@ -1013,7 +1029,12 @@ class DeviceService {
       return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.cancelled));
     }
     if (flow.phase == LinkPhase.waiting) {
-      if (r.state.isPaired) return _setLink(flow.to(LinkPhase.checking, sas: r.sas, otherName: r.name));
+      if (r.state.isPaired) {
+        // The core names the code's server once the pairing is made, not when it is answered.
+        final server = linkServerOf(r.homeRelay);
+        final servers = flow.servers.isEmpty && server != null ? [server] : null;
+        return _setLink(flow.to(LinkPhase.checking, sas: r.sas, otherName: r.name, servers: servers));
+      }
       final expires = flow.expiresAt ?? r.expiresAt;
       if (expires != null && now.isAfter(expires)) {
         await _unpair(id);
@@ -1093,7 +1114,7 @@ class DeviceService {
       return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.tooMany));
     }
     final r = await _privateRecord(id);
-    final server = r?.homeRelay ?? flow.servers.first;
+    final server = linkServerOf(r?.homeRelay) ?? flow.servers.first;
     final theirServers = [for (final s in hello.body['servers'] as List) s as String];
     final servers = flow.role == LinkRole.shows ? flow.servers : theirServers;
     // Linked again: the old pairings of that device go.
