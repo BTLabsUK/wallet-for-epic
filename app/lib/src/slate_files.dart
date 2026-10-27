@@ -52,6 +52,17 @@ bool isSealedText(String text) => text.trimLeft().startsWith('BEGINEPICSEALED');
 String responseFileName(String slateId) =>
     '${shortSlateId(slateId)}.response';
 
+/// The answer to a payment read from the file [loaded] (its name, without folders):
+/// `<loaded>.response`, so the sender sees at once which answer is for which file (a pool's
+/// `Abc-123.tx` gets `Abc-123.tx.response`, #108). A file with this app's own name for the
+/// slate (`ab12cd34.tx`, also `ab12cd34-2.tx`), pasted text and a scan keep
+/// [responseFileName].
+String replyFileName(String slateId, {String? loaded}) {
+  final own = RegExp('^${RegExp.escape(shortSlateId(slateId))}(-[0-9]+)?\\.tx\$');
+  if (loaded == null || loaded.trim().isEmpty || own.hasMatch(loaded)) return responseFileName(slateId);
+  return '$loaded.response';
+}
+
 /// [name] if [taken] says it is free, else `-2`, `-3`, ... before the suffix
 /// (`ab12cd34-2.response`). Reading never depends on names; this only keeps a save from
 /// overwriting another file.

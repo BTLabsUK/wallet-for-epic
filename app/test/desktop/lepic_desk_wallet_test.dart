@@ -678,9 +678,9 @@ void main() {
       await Process.run('chmod', ['555', ro.path]);
       addTearDown(() => Process.run('chmod', ['755', ro.path]));
       final r = await wallet.receiveFile(incoming.path);
-      expect(r.response, '${files.path}${Platform.pathSeparator}slate-2.response');
+      expect(r.response, '${files.path}${Platform.pathSeparator}in.tx.response');
       expect(File(r.response).readAsStringSync(), service.session.responseSlate.json);
-      expect(File('${ro.path}${Platform.pathSeparator}slate-2.response').existsSync(), isFalse);
+      expect(File('${ro.path}${Platform.pathSeparator}in.tx.response').existsSync(), isFalse);
     }, skip: Platform.isWindows || Platform.environment['USER'] == 'root' ? 'needs POSIX permissions' : false);
 
     test('file send, receive and finalize go through files on disk', () async {
@@ -690,9 +690,10 @@ void main() {
       expect(File(ready.fileName).readAsStringSync(), service.session.sendSlate.json);
 
       final incoming = File('${files.path}${Platform.pathSeparator}in.tx')..writeAsStringSync('{"id":"in"}');
-      expect((await wallet.receiveFile(incoming.path)).response, '${files.path}${Platform.pathSeparator}slate-2.response');
+      // The answer is named after the file it answers (#108).
+      expect((await wallet.receiveFile(incoming.path)).response, '${files.path}${Platform.pathSeparator}in.tx.response');
       expect(service.session.receivedSlates.single, '{"id":"in"}');
-      expect(File('${files.path}${Platform.pathSeparator}slate-2.response').readAsStringSync(), service.session.responseSlate.json);
+      expect(File('${files.path}${Platform.pathSeparator}in.tx.response').readAsStringSync(), service.session.responseSlate.json);
 
       final reply = File('${files.path}${Platform.pathSeparator}reply.tx.response')..writeAsStringSync(service.session.responseSlate.json);
       final tx = await wallet.finalizeFile(reply.path);
@@ -707,13 +708,16 @@ void main() {
     test('receive reads any file name and never overwrites an earlier answer', () async {
       final sep = Platform.pathSeparator;
       const long = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
-      for (final name in ['$long.tx', '$long.tx.response', 'no-suffix', 'odd name (1).slate.json']) {
+      for (final name in ['$long.tx', 'no-suffix', 'odd name (1).slate.json', 'slate-2.tx', 'slate-2.tx']) {
         final f = File('${files.path}$sep$name')..writeAsStringSync('{"id":"in"}');
-        expect((await wallet.receiveFile(f.path)).response.contains('slate-2'), isTrue, reason: name);
+        await wallet.receiveFile(f.path);
       }
+      expect(File('${files.path}$sep$long.tx.response').existsSync(), isTrue);
+      expect(File('${files.path}${sep}no-suffix.response').existsSync(), isTrue);
+      expect(File('${files.path}${sep}odd name (1).slate.json.response').existsSync(), isTrue);
+      // Our own name for the slate keeps the short answer name; a second answer gets -2.
       expect(File('${files.path}${sep}slate-2.response').existsSync(), isTrue);
       expect(File('${files.path}${sep}slate-2-2.response').existsSync(), isTrue);
-      expect(File('${files.path}${sep}slate-2-4.response').existsSync(), isTrue);
     });
 
     test('remove wallet checks the password, then deletes only its folder', () async {

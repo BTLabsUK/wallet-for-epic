@@ -428,7 +428,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       ];
     } else if (_response case final response?) {
       // A sealed answer is its own file type (RFC 3.5).
-      final name = _sealedAnswer != null ? sealedFileName(info!.slateId) : responseFileName(info!.slateId);
+      final name = _sealedAnswer != null
+          ? sealedFileName(info!.slateId)
+          : replyFileName(info!.slateId, loaded: _file.name == pastedSlateName || _file.name == scannedSlateName ? null : _file.name);
       body = [
         _Headline(
           icon: Icons.check_circle,

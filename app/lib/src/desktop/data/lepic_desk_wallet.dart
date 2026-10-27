@@ -56,7 +56,7 @@ import '../../server_list.dart' show ServerKind, ServerList;
 import '../../server_list_store.dart' show builtInRelaysFor;
 import '../../seed_contacts.dart';
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
-import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName, uniqueFileName;
+import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
@@ -2838,9 +2838,8 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// Signs the slate in [fileName] (a path) and writes the answer beside it, as
-  /// `<first 8 of the slate id>.response`; in the app's files folder when that folder
-  /// cannot be written.
+  /// Signs the slate in [fileName] (a path) and writes the answer beside it, named after it
+  /// ([replyFileName]); in the app's files folder when that folder cannot be written.
   @override
   Future<ReceivedFile> receiveFile(String fileName) => _running(() => _receiveFile(fileName));
 
@@ -2855,14 +2854,14 @@ class LepicDeskWallet implements DeskWalletApi {
       throw DeskError.l10n((l) => l.deskErrNotTxFile2);
     }
     // The answer goes where a file of that name in the files folder would put it.
-    return _receiveJson(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted');
+    return _receiveJson(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted', pasted: true);
   });
 
   /// Signs [json], read from [fileName], and writes the answer beside it.
-  Future<ReceivedFile> _receiveJson(String json, String fileName) async {
+  Future<ReceivedFile> _receiveJson(String json, String fileName, {bool pasted = false}) async {
     try {
       final answer = await _open.receiveSlate(slateJson: json);
-      final response = await _writeResponse(fileName, answer.slateId, answer.json);
+      final response = await _writeResponse(fileName, answer.slateId, answer.json, named: !pasted);
       await _reload();
       final tx = _txs().where((t) => t.slateId == answer.slateId).firstOrNull ??
           Tx(id: -1, slateId: answer.slateId, direction: TxDirection.received, state: TxState.posted, method: TxMethod.file, amount: 0, fee: 0, created: DateTime.now(), counterparty: fileName);
@@ -2872,12 +2871,12 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// Writes the response beside [fileName], or in the app's files folder when that fails.
-  /// Returns the path written.
-  Future<String> _writeResponse(String fileName, String slateId, String json) async {
+  /// Writes the response beside [fileName], or in the app's files folder when that fails;
+  /// [named]: called after [fileName] ([replyFileName]). Returns the path written.
+  Future<String> _writeResponse(String fileName, String slateId, String json, {bool named = true}) async {
     final sep = Platform.pathSeparator;
     final dirOf = File(fileName).parent.path;
-    final name = responseFileName(slateId);
+    final name = replyFileName(slateId, loaded: named ? fileName.split(RegExp(r'[\\/]')).last : null);
     final beside = '$dirOf$sep${uniqueFileName(name, (n) => File('$dirOf$sep$n').existsSync())}';
     try {
       await File(beside).writeAsString(json, flush: true);
