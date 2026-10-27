@@ -1768,15 +1768,14 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Future<int> minimumConfirmations() => _guard(
-    () async => (await _wallet.summary(refresh: false)).minimumConfirmations.toInt(),
-  );
+  Future<int> minimumConfirmations() =>
+      _guard(() async => (await _wallet.minimumConfirmations()).toInt());
 
-  // TODO(min-confirmations): LEPIC's setMinimumConfirmations once the binding pin moves.
+  /// LEPIC stores the count per wallet, re-splits every balance and emits balance events;
+  /// out of range (1–30) comes back as [WalletErrorKind.invalidArgument].
   @override
-  Future<void> setMinimumConfirmations(int count) async {
-    throw UnsupportedError('setMinimumConfirmations needs the lepic-flutter pin with the setting');
-  }
+  Future<void> setMinimumConfirmations(int count) =>
+      _guard(() => _wallet.setMinimumConfirmations(count: BigInt.from(count)));
 
   /// As the old core: with the node out of reach the refresh still ends with the local balances,
   /// marked as not checked with the node, so Home shows them instead of an error.
