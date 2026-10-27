@@ -18393,4 +18393,56 @@ class AppLocalizationsPl extends AppLocalizations {
   String devicesStatusInfo(String name) {
     return 'Ten status pochodzi z: $name. Ostateczny stan określa blockchain.';
   }
+
+  @override
+  String get syncHelpOtherDevice => 'Inne urządzenie';
+
+  @override
+  String get syncHelpServer => 'Serwer';
+
+  @override
+  String get syncHelpChain => 'Łańcuch bloków';
+
+  @override
+  String get syncHelpStep1 => 'To urządzenie zaczyna płatność.';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
+      many: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
+      few: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
+      one: 'Zaszyfrowane powiadomienie idzie przez serwer. Odczytać je mogą tylko urządzenia.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 =>
+      'Drugie urządzenie wstrzymuje te monety i pokazuje płatność.';
+
+  @override
+  String get syncHelpStep4 =>
+      'Łańcuch potwierdza. To on decyduje o ostatecznym stanie.';
+
+  @override
+  String get syncHelpDiagram =>
+      'Jak działa synchronizacja: to urządzenie zaczyna płatność; zaszyfrowane powiadomienie idzie przez serwer do drugiego urządzenia, które wstrzymuje te monety; łańcuch potwierdza.';
+
+  @override
+  String get syncHelpStatus => 'Stan na żywo';
+
+  @override
+  String get syncHelpPaused => 'Synchronizacja wstrzymana';
+
+  @override
+  String get syncHelpAnswering => 'Odpowiada';
+
+  @override
+  String get syncHelpNotAnswering => 'Nie odpowiada';
+
+  @override
+  String get syncHelpNotChecked => 'Nie sprawdzono';
 }

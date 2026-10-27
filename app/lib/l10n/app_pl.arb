@@ -4743,5 +4743,18 @@
   "devicesWhyRefused": "Serwer odbiorcy ją odrzucił. Jej monety są znów wolne.",
   "devicesWhyInputsSpent": "Jej monety zostały już wydane.",
   "devicesWhyOther": "Nie udało się jej dokończyć na: {name}. Jej monety są znów wolne.",
-  "devicesStatusInfo": "Ten status pochodzi z: {name}. Ostateczny stan określa blockchain."
+  "devicesStatusInfo": "Ten status pochodzi z: {name}. Ostateczny stan określa blockchain.",
+  "syncHelpOtherDevice": "Inne urządzenie",
+  "syncHelpServer": "Serwer",
+  "syncHelpChain": "Łańcuch bloków",
+  "syncHelpStep1": "To urządzenie zaczyna płatność.",
+  "syncHelpStep2": "{count, plural, one{Zaszyfrowane powiadomienie idzie przez serwer. Odczytać je mogą tylko urządzenia.} few{Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.} many{Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.} other{Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.}}",
+  "syncHelpStep3": "Drugie urządzenie wstrzymuje te monety i pokazuje płatność.",
+  "syncHelpStep4": "Łańcuch potwierdza. To on decyduje o ostatecznym stanie.",
+  "syncHelpDiagram": "Jak działa synchronizacja: to urządzenie zaczyna płatność; zaszyfrowane powiadomienie idzie przez serwer do drugiego urządzenia, które wstrzymuje te monety; łańcuch potwierdza.",
+  "syncHelpStatus": "Stan na żywo",
+  "syncHelpPaused": "Synchronizacja wstrzymana",
+  "syncHelpAnswering": "Odpowiada",
+  "syncHelpNotAnswering": "Nie odpowiada",
+  "syncHelpNotChecked": "Nie sprawdzono"
 }

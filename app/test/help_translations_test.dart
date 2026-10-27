@@ -48,6 +48,7 @@ void main() {
               expect(t.bodyText, isNot(e.bodyText), reason: '$where is not translated');
               expect(t.section, e.section, reason: where);
               expect(t.handshake, e.handshake, reason: where);
+              expect(t.devices, e.devices, reason: where);
               expect([for (final b in t.body) b.kind], [for (final b in e.body) b.kind], reason: where);
               expect([for (final b in t.body) b.anchor], [for (final b in e.body) b.anchor], reason: '$where anchors');
               expect([for (final b in t.body) b.items.length], [for (final b in e.body) b.items.length], reason: where);

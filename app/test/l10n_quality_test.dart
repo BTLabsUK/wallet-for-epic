@@ -11,8 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Keys whose English stays in this language, with why.
 const Map<String, Set<String>> _same = {
-  // "online" and "offline" are everyday German; Node and Epicbox are names.
-  'de': {'statusNodeOnline', 'statusNodeOffline', 'statusEpicboxOnline', 'statusEpicboxOffline'},
+  // "online" and "offline" are everyday German; Node and Epicbox are names; Server and
+  // Blockchain are the German words too (the sync picture's labels).
+  'de': {'statusNodeOnline', 'statusNodeOffline', 'statusEpicboxOnline', 'statusEpicboxOffline', 'syncHelpServer', 'syncHelpChain'},
   // Polish UIs write online/offline as loanwords; Epicbox is a name.
   'pl': {'statusEpicboxOnline', 'statusEpicboxOffline'},
   'ru': {},

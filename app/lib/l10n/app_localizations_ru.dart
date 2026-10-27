@@ -18361,4 +18361,56 @@ class AppLocalizationsRu extends AppLocalizations {
   String devicesStatusInfo(String name) {
     return 'Этот статус сообщило устройство $name. Окончательное состояние определяет блокчейн.';
   }
+
+  @override
+  String get syncHelpOtherDevice => 'Другое устройство';
+
+  @override
+  String get syncHelpServer => 'Сервер';
+
+  @override
+  String get syncHelpChain => 'Блокчейн';
+
+  @override
+  String get syncHelpStep1 => 'Это устройство начинает платёж.';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Зашифрованное уведомление идёт на оба сервера. Прочитать его могут только устройства.',
+      many: 'Зашифрованное уведомление идёт на оба сервера. Прочитать его могут только устройства.',
+      few: 'Зашифрованное уведомление идёт на оба сервера. Прочитать его могут только устройства.',
+      one: 'Зашифрованное уведомление идёт через сервер. Прочитать его могут только устройства.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 =>
+      'Другое устройство удерживает эти монеты и показывает платёж.';
+
+  @override
+  String get syncHelpStep4 =>
+      'Блокчейн подтверждает. Он решает окончательное состояние.';
+
+  @override
+  String get syncHelpDiagram =>
+      'Как работает синхронизация: это устройство начинает платёж; зашифрованное уведомление идёт через сервер на другое устройство, которое удерживает эти монеты; блокчейн подтверждает.';
+
+  @override
+  String get syncHelpStatus => 'Текущее состояние';
+
+  @override
+  String get syncHelpPaused => 'Синхронизация приостановлена';
+
+  @override
+  String get syncHelpAnswering => 'Отвечает';
+
+  @override
+  String get syncHelpNotAnswering => 'Не отвечает';
+
+  @override
+  String get syncHelpNotChecked => 'Не проверен';
 }

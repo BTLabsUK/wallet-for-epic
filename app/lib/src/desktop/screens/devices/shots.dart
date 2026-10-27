@@ -12,7 +12,9 @@ import '../../data/devices_state.dart';
 import '../../data/mock_devices.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpId;
 import '../settings/backup.dart' show HistoryImportOfferDialog;
+import '../settings/help_pairing.dart' show HelpAt;
 import '../transfer/send_screen.dart' show SendArgs, SendStep;
 import 'link_flow.dart';
 
@@ -61,6 +63,9 @@ Future<void> _proposal(ProviderContainer c) async {
 }
 
 final List<DeskShot> deviceShots = [
+  // Help › How linked devices work: the sync picture over the body, the live status panel under it
+  // with the linked phone and the servers.
+  DeskShot(id: '30h-settings-help-linked-devices', title: 'Help › How linked devices work: the sync picture, the body, the live status', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.linkedDevices), height: 1700, prepare: (c, _) => _linked(c)),
   const DeskShot(id: '44a-devices-none', title: 'Settings › Linked devices, none linked', route: DeskRoute.settingsDevices),
   DeskShot(id: '44b-devices-linked', title: 'Settings › Linked devices, a phone and a held payment', route: DeskRoute.settingsDevices, height: 1100, prepare: (c, _) => _linkedHeld(c)),
   DeskShot(

@@ -23915,5 +23915,62 @@
         "type": "String"
       }
     }
+  },
+  "syncHelpOtherDevice": "Other device",
+  "@syncHelpOtherDevice": {
+    "description": "Label over the other device in the sync picture of Help › How linked devices work."
+  },
+  "syncHelpServer": "Server",
+  "@syncHelpServer": {
+    "description": "Label over the one server in the sync picture (plural: devicesServers)."
+  },
+  "syncHelpChain": "Blockchain",
+  "@syncHelpChain": {
+    "description": "Label of the chain under the sync picture."
+  },
+  "syncHelpStep1": "This device starts a payment.",
+  "@syncHelpStep1": {
+    "description": "Sync picture, step 1 caption."
+  },
+  "syncHelpStep2": "{count, plural, one{An encrypted notice goes over the server. Only the devices can read it.} other{An encrypted notice goes to both servers. Only the devices can read it.}}",
+  "@syncHelpStep2": {
+    "description": "Sync picture, step 2 caption; count is the number of servers the link uses (1 or 2).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncHelpStep3": "The other device holds those coins and lists the payment.",
+  "@syncHelpStep3": {
+    "description": "Sync picture, step 3 caption."
+  },
+  "syncHelpStep4": "The blockchain confirms. The chain decides the final state.",
+  "@syncHelpStep4": {
+    "description": "Sync picture, step 4 caption."
+  },
+  "syncHelpDiagram": "How syncing works: this device starts a payment; an encrypted notice goes over the server to the other device, which holds those coins; the blockchain confirms.",
+  "@syncHelpDiagram": {
+    "description": "Screen reader description of the sync picture."
+  },
+  "syncHelpStatus": "Live status",
+  "@syncHelpStatus": {
+    "description": "Title of the status panel under Help › How linked devices work."
+  },
+  "syncHelpPaused": "Sync paused",
+  "@syncHelpPaused": {
+    "description": "Status panel: the Pause sync switch is on."
+  },
+  "syncHelpAnswering": "Answering",
+  "@syncHelpAnswering": {
+    "description": "Status panel: the server answers."
+  },
+  "syncHelpNotAnswering": "Not answering",
+  "@syncHelpNotAnswering": {
+    "description": "Status panel: the server does not answer."
+  },
+  "syncHelpNotChecked": "Not checked",
+  "@syncHelpNotChecked": {
+    "description": "Status panel: the server's state is not known yet."
   }
 }

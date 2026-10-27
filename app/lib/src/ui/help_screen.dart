@@ -19,6 +19,7 @@ import '../settings.dart';
 import '../tor_build.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
+import 'devices/sync_help_phone.dart';
 import 'handshake.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
@@ -555,7 +556,9 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
           const SizedBox(height: 12),
           Divider(height: 1, color: t.line),
           const SizedBox(height: 16),
+          if (topic.devices) ...[const PhoneSyncDiagram(), const SizedBox(height: 20)],
           for (final b in topic.body) HelpBlockView(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null, block: b, style: body),
+          if (topic.devices) ...[const SizedBox(height: 4), const PhoneSyncStatus(), const SizedBox(height: 12)],
           if (topic.handshake)
             Align(
               alignment: Alignment.centerLeft,

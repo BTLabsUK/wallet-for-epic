@@ -28324,6 +28324,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This status comes from {name}. The blockchain decides the final state.'**
   String devicesStatusInfo(String name);
+
+  /// Label over the other device in the sync picture of Help › How linked devices work.
+  ///
+  /// In en, this message translates to:
+  /// **'Other device'**
+  String get syncHelpOtherDevice;
+
+  /// Label over the one server in the sync picture (plural: devicesServers).
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get syncHelpServer;
+
+  /// Label of the chain under the sync picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockchain'**
+  String get syncHelpChain;
+
+  /// Sync picture, step 1 caption.
+  ///
+  /// In en, this message translates to:
+  /// **'This device starts a payment.'**
+  String get syncHelpStep1;
+
+  /// Sync picture, step 2 caption; count is the number of servers the link uses (1 or 2).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{An encrypted notice goes over the server. Only the devices can read it.} other{An encrypted notice goes to both servers. Only the devices can read it.}}'**
+  String syncHelpStep2(int count);
+
+  /// Sync picture, step 3 caption.
+  ///
+  /// In en, this message translates to:
+  /// **'The other device holds those coins and lists the payment.'**
+  String get syncHelpStep3;
+
+  /// Sync picture, step 4 caption.
+  ///
+  /// In en, this message translates to:
+  /// **'The blockchain confirms. The chain decides the final state.'**
+  String get syncHelpStep4;
+
+  /// Screen reader description of the sync picture.
+  ///
+  /// In en, this message translates to:
+  /// **'How syncing works: this device starts a payment; an encrypted notice goes over the server to the other device, which holds those coins; the blockchain confirms.'**
+  String get syncHelpDiagram;
+
+  /// Title of the status panel under Help › How linked devices work.
+  ///
+  /// In en, this message translates to:
+  /// **'Live status'**
+  String get syncHelpStatus;
+
+  /// Status panel: the Pause sync switch is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync paused'**
+  String get syncHelpPaused;
+
+  /// Status panel: the server answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Answering'**
+  String get syncHelpAnswering;
+
+  /// Status panel: the server does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answering'**
+  String get syncHelpNotAnswering;
+
+  /// Status panel: the server's state is not known yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked'**
+  String get syncHelpNotChecked;
 }
 
 class _AppLocalizationsDelegate
