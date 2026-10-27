@@ -17490,4 +17490,53 @@ class AppLocalizationsTh extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return 'ปล่อยที่นี่แล้ว · $name อาจยังส่งรายการนี้';
   }
+
+  @override
+  String get syncHelpOtherDevice => 'อุปกรณ์อีกเครื่อง';
+
+  @override
+  String get syncHelpServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get syncHelpChain => 'บล็อกเชน';
+
+  @override
+  String get syncHelpStep1 => 'อุปกรณ์นี้เริ่มรายการ';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'การแจ้งเตือนที่เข้ารหัสส่งไปยังเซิร์ฟเวอร์ทั้งสอง มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
+      one: 'การแจ้งเตือนที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 =>
+      'อุปกรณ์อีกเครื่องพักเหรียญเหล่านั้นไว้และแสดงรายการ';
+
+  @override
+  String get syncHelpStep4 => 'บล็อกเชนยืนยัน เชนเป็นผู้ตัดสินสถานะสุดท้าย';
+
+  @override
+  String get syncHelpDiagram =>
+      'การซิงค์ทำงานอย่างไร: อุปกรณ์นี้เริ่มรายการ การแจ้งเตือนที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ไปยังอุปกรณ์อีกเครื่องซึ่งพักเหรียญเหล่านั้นไว้ แล้วบล็อกเชนยืนยัน';
+
+  @override
+  String get syncHelpStatus => 'สถานะปัจจุบัน';
+
+  @override
+  String get syncHelpPaused => 'ซิงค์หยุดชั่วคราว';
+
+  @override
+  String get syncHelpAnswering => 'ตอบสนอง';
+
+  @override
+  String get syncHelpNotAnswering => 'ไม่ตอบสนอง';
+
+  @override
+  String get syncHelpNotChecked => 'ยังไม่ได้ตรวจ';
 }

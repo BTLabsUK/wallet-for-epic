@@ -16841,4 +16841,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return '已在此释放 · $name 仍可能发送';
   }
+
+  @override
+  String get syncHelpOtherDevice => '另一台设备';
+
+  @override
+  String get syncHelpServer => '服务器';
+
+  @override
+  String get syncHelpChain => '区块链';
+
+  @override
+  String get syncHelpStep1 => '本设备开始一笔付款。';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '加密通知送到两个服务器。只有设备能读取。',
+      one: '加密通知经服务器送出。只有设备能读取。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 => '另一台设备保留这些币，并列出这笔付款。';
+
+  @override
+  String get syncHelpStep4 => '区块链确认。最终状态由区块链决定。';
+
+  @override
+  String get syncHelpDiagram =>
+      '同步的工作方式：本设备开始一笔付款；加密通知经服务器送到另一台设备，它保留这些币；区块链确认。';
+
+  @override
+  String get syncHelpStatus => '实时状态';
+
+  @override
+  String get syncHelpPaused => '同步已暂停';
+
+  @override
+  String get syncHelpAnswering => '正常响应';
+
+  @override
+  String get syncHelpNotAnswering => '无响应';
+
+  @override
+  String get syncHelpNotChecked => '未检查';
 }

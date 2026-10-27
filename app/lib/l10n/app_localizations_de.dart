@@ -18000,4 +18000,54 @@ class AppLocalizationsDe extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return 'Hier freigegeben · $name sendet sie womöglich noch';
   }
+
+  @override
+  String get syncHelpOtherDevice => 'Anderes Gerät';
+
+  @override
+  String get syncHelpServer => 'Server';
+
+  @override
+  String get syncHelpChain => 'Blockchain';
+
+  @override
+  String get syncHelpStep1 => 'Dieses Gerät beginnt eine Zahlung.';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Eine verschlüsselte Meldung geht an beide Server. Nur die Geräte können sie lesen.',
+      one: 'Eine verschlüsselte Meldung geht über den Server. Nur die Geräte können sie lesen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 =>
+      'Das andere Gerät hält diese Münzen zurück und führt die Zahlung auf.';
+
+  @override
+  String get syncHelpStep4 =>
+      'Die Blockchain bestätigt. Sie entscheidet über den endgültigen Stand.';
+
+  @override
+  String get syncHelpDiagram =>
+      'So funktioniert der Abgleich: Dieses Gerät beginnt eine Zahlung; eine verschlüsselte Meldung geht über den Server an das andere Gerät, das diese Münzen zurückhält; die Blockchain bestätigt.';
+
+  @override
+  String get syncHelpStatus => 'Aktueller Stand';
+
+  @override
+  String get syncHelpPaused => 'Abgleich pausiert';
+
+  @override
+  String get syncHelpAnswering => 'Antwortet';
+
+  @override
+  String get syncHelpNotAnswering => 'Antwortet nicht';
+
+  @override
+  String get syncHelpNotChecked => 'Nicht geprüft';
 }

@@ -17791,4 +17791,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String devicesReleasedRow(String name) {
     return 'Released here · $name may still send it';
   }
+
+  @override
+  String get syncHelpOtherDevice => 'Other device';
+
+  @override
+  String get syncHelpServer => 'Server';
+
+  @override
+  String get syncHelpChain => 'Blockchain';
+
+  @override
+  String get syncHelpStep1 => 'This device starts a payment.';
+
+  @override
+  String syncHelpStep2(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'An encrypted notice goes to both servers. Only the devices can read it.',
+      one: 'An encrypted notice goes over the server. Only the devices can read it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncHelpStep3 =>
+      'The other device holds those coins and lists the payment.';
+
+  @override
+  String get syncHelpStep4 =>
+      'The blockchain confirms. The chain decides the final state.';
+
+  @override
+  String get syncHelpDiagram =>
+      'How syncing works: this device starts a payment; an encrypted notice goes over the server to the other device, which holds those coins; the blockchain confirms.';
+
+  @override
+  String get syncHelpStatus => 'Live status';
+
+  @override
+  String get syncHelpPaused => 'Sync paused';
+
+  @override
+  String get syncHelpAnswering => 'Answering';
+
+  @override
+  String get syncHelpNotAnswering => 'Not answering';
+
+  @override
+  String get syncHelpNotChecked => 'Not checked';
 }
