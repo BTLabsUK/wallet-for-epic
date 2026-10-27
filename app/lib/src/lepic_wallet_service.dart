@@ -35,7 +35,7 @@ import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
 /// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred); macOS gets it from the
-/// build's own copy step.
+/// app's own hook (`hook/build.dart`, libraries from `tools/build-apple.sh lepic`).
 ///
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example

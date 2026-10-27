@@ -79,6 +79,10 @@ dependencies:
     path: third_party/lepic-flutter
   # Help illustrations (assets/help); exact, as the lockfile resolves it.
   flutter_svg: 2.3.0
+  # hook/build.dart, which bundles the macOS lepic-ffi library. The versions package:lepic
+  # already brings in.
+  code_assets: 1.2.1
+  hooks: 2.0.2
 
 dev_dependencies:
   fake_async: ^1.3.3
