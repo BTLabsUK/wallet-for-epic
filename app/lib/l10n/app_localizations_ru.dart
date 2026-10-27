@@ -14927,6 +14927,22 @@ class AppLocalizationsRu extends AppLocalizations {
       'Возможно, приглашение отменено. Попросите новое или выполните сопряжение лично.';
 
   @override
+  String pairWaitingFinish(String name) {
+    return 'Ожидание, пока $name завершит сопряжение…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => 'Не завершено';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return 'Кошелёк $name не завершил сопряжение вовремя. Ничего не сохранено. Попробуйте снова.';
+  }
+
+  @override
+  String get pairLateCheck => 'Проверка запоздалого ответа…';
+
+  @override
   String get pairChangedTitle => 'Приглашение изменено в пути';
 
   @override

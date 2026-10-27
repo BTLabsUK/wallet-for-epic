@@ -14324,6 +14324,22 @@ class AppLocalizationsTh extends AppLocalizations {
       'คำเชิญอาจถูกยกเลิก ขอคำเชิญใหม่ หรือจับคู่แบบพบตัว';
 
   @override
+  String pairWaitingFinish(String name) {
+    return 'กำลังรอ $name จับคู่ให้เสร็จ…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => 'ไม่สำเร็จ';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return 'กระเป๋าเงินของ $name จับคู่ไม่เสร็จทันเวลา ไม่มีการบันทึกสิ่งใด ลองอีกครั้ง';
+  }
+
+  @override
+  String get pairLateCheck => 'กำลังตรวจหาคำตอบที่มาช้า…';
+
+  @override
   String get pairChangedTitle => 'คำเชิญนี้ถูกเปลี่ยนระหว่างทาง';
 
   @override

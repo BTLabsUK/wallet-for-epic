@@ -23381,6 +23381,30 @@ abstract class AppLocalizations {
   /// **'The invite may have been cancelled. Ask for a new one, or pair in person.'**
   String get pairNoAnswerBody;
 
+  /// Title on the answerer's wait for the inviter's confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to finish…'**
+  String pairWaitingFinish(String name);
+
+  /// Outcome on the answerer when the inviter's confirmation never came in time.
+  ///
+  /// In en, this message translates to:
+  /// **'Not completed'**
+  String get pairNotCompletedTitle;
+
+  /// Outcome body: the answerer's half was removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet did not finish the pairing in time. Nothing was kept. Try again.'**
+  String pairNotCompletedBody(String name);
+
+  /// An invite past its time whose relay has not been checked since: a late answer may still be there.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for a late answer…'**
+  String get pairLateCheck;
+
   /// Outcome when the commitment does not match.
   ///
   /// In en, this message translates to:

@@ -19344,6 +19344,34 @@
   "@pairNoAnswerBody": {
     "description": "Outcome body."
   },
+  "pairWaitingFinish": "Waiting for {name} to finish…",
+  "@pairWaitingFinish": {
+    "description": "Title on the answerer's wait for the inviter's confirmation.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairNotCompletedTitle": "Not completed",
+  "@pairNotCompletedTitle": {
+    "description": "Outcome on the answerer when the inviter's confirmation never came in time."
+  },
+  "pairNotCompletedBody": "{name}’s wallet did not finish the pairing in time. Nothing was kept. Try again.",
+  "@pairNotCompletedBody": {
+    "description": "Outcome body: the answerer's half was removed.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairLateCheck": "Checking for a late answer…",
+  "@pairLateCheck": {
+    "description": "An invite past its time whose relay has not been checked since: a late answer may still be there."
+  },
   "pairChangedTitle": "This invite was changed on the way",
   "@pairChangedTitle": {
     "description": "Outcome when the commitment does not match."

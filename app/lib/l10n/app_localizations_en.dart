@@ -14574,6 +14574,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'The invite may have been cancelled. Ask for a new one, or pair in person.';
 
   @override
+  String pairWaitingFinish(String name) {
+    return 'Waiting for $name to finish…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => 'Not completed';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return '$name’s wallet did not finish the pairing in time. Nothing was kept. Try again.';
+  }
+
+  @override
+  String get pairLateCheck => 'Checking for a late answer…';
+
+  @override
   String get pairChangedTitle => 'This invite was changed on the way';
 
   @override

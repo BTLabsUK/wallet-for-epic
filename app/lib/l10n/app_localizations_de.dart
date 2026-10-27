@@ -14752,6 +14752,22 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Einladung wurde vielleicht zurückgezogen. Bitten Sie um eine neue oder koppeln Sie persönlich.';
 
   @override
+  String pairWaitingFinish(String name) {
+    return 'Warten, bis $name die Kopplung abschließt…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => 'Nicht abgeschlossen';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return 'Die Wallet von $name hat die Kopplung nicht rechtzeitig abgeschlossen. Es wurde nichts gespeichert. Versuchen Sie es erneut.';
+  }
+
+  @override
+  String get pairLateCheck => 'Suche nach einer späten Antwort…';
+
+  @override
   String get pairChangedTitle => 'Diese Einladung wurde unterwegs verändert';
 
   @override

@@ -14966,6 +14966,22 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zaproszenie mogło zostać anulowane. Poproś o nowe lub sparuj się osobiście.';
 
   @override
+  String pairWaitingFinish(String name) {
+    return 'Czekam, aż $name zakończy parowanie…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => 'Nie ukończono';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return 'Portfel $name nie zakończył parowania na czas. Nic nie zostało zapisane. Spróbuj ponownie.';
+  }
+
+  @override
+  String get pairLateCheck => 'Sprawdzam, czy przyszła spóźniona odpowiedź…';
+
+  @override
   String get pairChangedTitle => 'To zaproszenie zostało zmienione po drodze';
 
   @override

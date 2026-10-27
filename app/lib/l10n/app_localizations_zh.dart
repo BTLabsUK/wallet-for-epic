@@ -13804,6 +13804,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairNoAnswerBody => '邀请可能已被取消。请索取新的邀请，或当面配对。';
 
   @override
+  String pairWaitingFinish(String name) {
+    return '正在等待 $name 完成配对…';
+  }
+
+  @override
+  String get pairNotCompletedTitle => '未完成';
+
+  @override
+  String pairNotCompletedBody(String name) {
+    return '$name 的钱包未能及时完成配对。未保存任何内容。请重试。';
+  }
+
+  @override
+  String get pairLateCheck => '正在检查迟到的回复…';
+
+  @override
   String get pairChangedTitle => '此邀请在途中被更改';
 
   @override

@@ -2954,6 +2954,10 @@ enum PairingFailure {
   /// No confirm within an hour (C-16).
   noAnswer,
 
+  /// This wallet answered an invite and the inviter's confirmation never came within the
+  /// invite's window: the answer was removed, nothing is kept (no half pairing).
+  notCompleted,
+
   /// The confirm did not match the invite's commitment: changed on the way.
   changedOnTheWay,
 
