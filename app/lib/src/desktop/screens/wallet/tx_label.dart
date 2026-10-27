@@ -50,15 +50,19 @@ Future<void> saveTxLabel(BuildContext context, WidgetRef ref, Tx t, String text)
 /// The single-line field a label is typed in, in place of the title: [style]'s size, a gold
 /// border. Enter, blur and a tap outside save; Esc restores the title. An empty field removes
 /// the label. [onSave] gets the text; [onClose] runs once after, with whether a key ended it
-/// (the host then gives the focus back to its pen).
+/// (the host then gives the focus back to its pen). A wallet's name is edited the same way:
+/// [hint], [semanticsLabel] and [maxLength] name and size the field for it.
 class TxLabelField extends ConsumerStatefulWidget {
-  const TxLabelField({super.key, required this.site, required this.initial, required this.style, required this.onSave, required this.onClose});
+  const TxLabelField({super.key, required this.site, required this.initial, required this.style, required this.onSave, required this.onClose, this.hint, this.semanticsLabel, this.maxLength = txLabelMaxLength});
 
   final TxLabelSite site;
   final String initial;
   final TextStyle style;
   final ValueChanged<String> onSave;
   final void Function({required bool byKey}) onClose;
+  final String? hint;
+  final String? semanticsLabel;
+  final int maxLength;
 
   @override
   ConsumerState<TxLabelField> createState() => _TxLabelFieldState();
@@ -118,13 +122,13 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
         return KeyEventResult.ignored;
       },
       child: Semantics(
-        label: l.deskTxLabelField,
+        label: widget.semanticsLabel ?? l.deskTxLabelField,
         textField: true,
         child: TextField(
           controller: _text,
           focusNode: _focus,
           autofocus: true,
-          maxLength: txLabelMaxLength,
+          maxLength: widget.maxLength,
           maxLengthEnforcement: MaxLengthEnforcement.enforced,
           textInputAction: TextInputAction.done,
           style: widget.style,
@@ -135,7 +139,7 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
           decoration: InputDecoration(
             isDense: true,
             counterText: '',
-            hintText: l.deskTxLabelHint,
+            hintText: widget.hint ?? l.deskTxLabelHint,
             hintStyle: widget.style.copyWith(color: c.faint, fontWeight: FontWeight.w400),
             contentPadding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 5.u),
             filled: true,
@@ -150,14 +154,15 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
   }
 }
 
-/// The pen beside a title: "Add label" or "Edit label". A Tab stop with a visible focus ring;
-/// [visible] false hides it until it has the focus (an Activity row shows it on hover or when
-/// anything in the row has the focus). Its own screen-reader node, so a row's one sentence
-/// does not swallow it.
+/// The pen beside a title: "Add label" or "Edit label" for [tx], or [label] (a wallet's name).
+/// A Tab stop with a visible focus ring; [visible] false hides it until it has the focus (an
+/// Activity row shows it on hover or when anything in the row has the focus). Its own
+/// screen-reader node, so a row's one sentence does not swallow it.
 class TxPen extends StatefulWidget {
-  const TxPen({super.key, required this.tx, required this.onPressed, this.visible = true, this.focusNode});
+  const TxPen({super.key, this.tx, this.label, required this.onPressed, this.visible = true, this.focusNode}) : assert(tx != null || label != null);
 
-  final Tx tx;
+  final Tx? tx;
+  final String? label;
   final VoidCallback onPressed;
   final bool visible;
   final FocusNode? focusNode;
@@ -174,7 +179,7 @@ class _TxPenState extends State<TxPen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final l = context.l10n;
-    final label = widget.tx.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit;
+    final label = widget.label ?? (widget.tx?.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit);
     return Opacity(
       opacity: widget.visible || _focused || _hover ? 1 : 0,
       // Hidden is only a look: a screen reader and the Tab key still find the pen.

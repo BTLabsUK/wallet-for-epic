@@ -1811,7 +1811,6 @@
   "deskOnbRestorePermission": "Nie udało się zapisać plików portfela: brak uprawnień w ~/.config/Epic Cash Desktop.",
   "deskOnbRestoreWait": "To może potrwać do minuty. Saldo pojawi się po pierwszym skanowaniu łańcucha.",
   "deskOnbRestoreSide": "Przywróć portfel",
-  "deskOnbRestoreChoosePassword": "Wybierz hasło",
   "deskOnbRestorePasswordLead": "Fraza z {count} słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze.",
   "deskOnbRestoreNothingToPaste": "Nie ma czego wkleić: w schowku nie ma słów.",
   "deskOnbRestoreBadWord": "Słowo {position}, „{word}”, nie występuje na liście słów.",
@@ -3809,7 +3808,6 @@
   "txLinkTorNeedsTor": "Wymaga Tora. Włącz go w Prywatność i sieć.",
   "txLastMethodNotice": "Przynajmniej jedna metoda płatności musi zostać włączona.",
   "netBlockMethodOff": "Metoda {method} jest wyłączona w Ustawienia › Transakcje.",
-  "sendTurnOnMethod": "Włącz {method}",
   "sendContactOnlyMethod": "{name} ma tylko adres dla metody {method}.",
   "receiveHttpTitle": "Adres Link · HTTP",
   "receiveHttpLanLine": "Dla portfeli w tej sieci Wi-Fi, gdy ten portfel jest otwarty.",
@@ -4139,7 +4137,6 @@
   "invSetAllowFor": "Zezwól na faktury od {name}",
   "reqNoPayers": "Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa lub zapisz prośbę jako plik.",
   "reqPickContact": "Wybierz kontakt",
-  "reqPickContactOrMethod": "Wybierz kontakt lub metodę",
   "reqFileSaved": "Prośba zapisana jako plik",
   "reqSent": "Prośba wysłana do {name}",
   "reqFileTitle": "Prośba o płatność",
@@ -4317,8 +4314,6 @@
   "deskOvRestoredImportBody": "Fraza odzyskiwania przywróciła saldo. Kopia historii wyeksportowana z tego portfela przywraca historię płatności, kontakty, faktury i ustawienia: to plik zapisany poza starym komputerem.",
   "deskOvRestoredImportButton": "Importuj kopię historii",
   "deskOvRestoredImportLater": "Później w Ustawienia › Ten portfel › Kopia zapasowa.",
-  "deskOnbRestoreNameLabel": "Nazwa portfela (opcjonalnie)",
-  "deskOnbRestoreNameHelp": "Widoczna na ekranie odblokowania i na pasku bocznym. Bez nazwy portfel nazywa się „Wallet {number}”.",
   "deskOnbForgotNoCheck": "Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.",
   "deskOnbForgotRestoreHint": "Zamiast tego przywróć go z frazy: {name} znika z listy, a jego pliki zostają na tym komputerze.",
   "deskOnbForgotRestoreInstead": "Przywróć z frazy",
@@ -4438,5 +4433,7 @@
   "cancelNoteRequestWithdraw": "Nic nie zapłacono: wycofanie nie przenosi żadnych monet.",
   "txDetailsCancelRequestBody": "Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać, dopóki te monety nie zostaną ponownie wydane. Anulowanie uwalnia twoje monety tutaj.",
   "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.",
-  "deskOnbUnlockOpened": "Otwarty {when}"
+  "deskOnbWalletNameEdit": "Zmień nazwę portfela",
+  "deskOnbWalletNameField": "Nazwa portfela",
+  "deskOnbWalletNameIs": "Nazwa portfela: {name}"
 }

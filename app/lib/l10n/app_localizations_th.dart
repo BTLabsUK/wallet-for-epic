@@ -9029,9 +9029,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbRestoreSide => 'กู้คืนกระเป๋าเงิน';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'ตั้งรหัสผ่าน';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return 'วลี $count คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้';
   }
@@ -13705,11 +13702,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return 'เปิด $method';
-  }
-
-  @override
   String get txEpicboxLine =>
       'จ่ายหรือรับเงินผ่านรีเลย์ กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
 
@@ -15184,9 +15176,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqPickContact => 'เลือกผู้ติดต่อ';
 
   @override
-  String get reqPickContactOrMethod => 'เลือกผู้ติดต่อหรือวิธี';
-
-  @override
   String get reqFileSaved => 'บันทึกคำขอเป็นไฟล์แล้ว';
 
   @override
@@ -15926,14 +15915,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง';
 
   @override
-  String get deskOnbRestoreNameLabel => 'ชื่อกระเป๋าเงิน (ไม่บังคับ)';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return 'แสดงบนหน้าปลดล็อกและแถบด้านข้าง หากไม่ตั้ง จะใช้ชื่อ “Wallet $number”';
-  }
-
-  @override
   String get deskOnbForgotNoCheck =>
       'ไฟล์ของกระเป๋าเงินนี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม';
 
@@ -16409,7 +16390,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return 'เปิดล่าสุด $when';
+  String get deskOnbWalletNameEdit => 'แก้ไขชื่อกระเป๋าเงิน';
+
+  @override
+  String get deskOnbWalletNameField => 'ชื่อกระเป๋าเงิน';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return 'ชื่อกระเป๋าเงิน: $name';
   }
 }

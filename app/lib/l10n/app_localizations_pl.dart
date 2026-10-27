@@ -9455,9 +9455,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbRestoreSide => 'Przywróć portfel';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Wybierz hasło';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return 'Fraza z $count słów jest poprawna. Ustaw hasło, które odblokowuje ten portfel na tym komputerze.';
   }
@@ -14317,11 +14314,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return 'Włącz $method';
-  }
-
-  @override
   String get txEpicboxLine =>
       'Płać lub dostawaj zapłatę przez przekaźnik. Drugi portfel może być zamknięty.';
 
@@ -15850,9 +15842,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqPickContact => 'Wybierz kontakt';
 
   @override
-  String get reqPickContactOrMethod => 'Wybierz kontakt lub metodę';
-
-  @override
   String get reqFileSaved => 'Prośba zapisana jako plik';
 
   @override
@@ -16639,14 +16628,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Później w Ustawienia › Ten portfel › Kopia zapasowa.';
 
   @override
-  String get deskOnbRestoreNameLabel => 'Nazwa portfela (opcjonalnie)';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return 'Widoczna na ekranie odblokowania i na pasku bocznym. Bez nazwy portfel nazywa się „Wallet $number”.';
-  }
-
-  @override
   String get deskOnbForgotNoCheck =>
       'Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.';
 
@@ -17151,7 +17132,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return 'Otwarty $when';
+  String get deskOnbWalletNameEdit => 'Zmień nazwę portfela';
+
+  @override
+  String get deskOnbWalletNameField => 'Nazwa portfela';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return 'Nazwa portfela: $name';
   }
 }

@@ -9309,9 +9309,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOnbRestoreSide => 'Wallet wiederherstellen';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Passwort wählen';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return 'Die Phrase mit $count Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.';
   }
@@ -14108,11 +14105,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return '$method einschalten';
-  }
-
-  @override
   String get txEpicboxLine =>
       'Zahlen oder bezahlt werden über ein Relay. Die andere Wallet kann geschlossen sein.';
 
@@ -15627,9 +15619,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reqPickContact => 'Kontakt wählen';
 
   @override
-  String get reqPickContactOrMethod => 'Kontakt oder Methode wählen';
-
-  @override
   String get reqFileSaved => 'Anforderung als Datei gespeichert';
 
   @override
@@ -16392,14 +16381,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Später unter Einstellungen › Diese Wallet › Sicherung.';
 
   @override
-  String get deskOnbRestoreNameLabel => 'Wallet-Name (optional)';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return 'Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet $number“.';
-  }
-
-  @override
   String get deskOnbForgotNoCheck =>
       'Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.';
 
@@ -16889,7 +16870,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return 'Geöffnet $when';
+  String get deskOnbWalletNameEdit => 'Wallet-Namen ändern';
+
+  @override
+  String get deskOnbWalletNameField => 'Wallet-Name';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return 'Wallet-Name: $name';
   }
 }

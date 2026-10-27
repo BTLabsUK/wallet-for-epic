@@ -28,8 +28,6 @@
   "deskOvRestoredImportBody": "助记词已找回余额。从这个钱包导出的交易记录备份可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。",
   "deskOvRestoredImportButton": "导入交易记录备份",
   "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 备份”中导入。",
-  "deskOnbRestoreNameLabel": "钱包名称（可选）",
-  "deskOnbRestoreNameHelp": "显示在解锁界面和侧栏中。不填则名为“Wallet {number}”。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
   "deskOnbForgotRestoreInstead": "用助记词恢复"

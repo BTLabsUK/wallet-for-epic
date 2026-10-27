@@ -30,6 +30,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   final _confirm = TextEditingController();
   late CreateStep _step = widget.arg is CreateStep ? widget.arg as CreateStep : CreateStep.account;
   List<String>? _phrase;
+
+  /// The name typed into the title; null keeps the default "Wallet N".
+  String? _name;
   String _stage = 'create';
   String? _failure;
 
@@ -83,7 +86,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     });
     try {
       _before = {for (final w in await api.wallets()) w.id};
-      final phrase = await api.createWallet(password: _password.text);
+      final phrase = await api.createWallet(name: _name ?? '', password: _password.text);
       if (!mounted) return;
       setState(() => _stage = 'save');
       setState(() {
@@ -110,7 +113,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
     }
-    final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet'); // l10n-ok: the wallet's stored default name
+    final added = await addedWallet(ref.read(deskApiProvider), _before, _name ?? defaultWalletName(ref));
     if (!mounted) return;
     await markSetupPending(ref.read(deskApiProvider), added.id);
     if (!mounted) return;
@@ -154,7 +157,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           child: EOnbFrame(
           sideTitle: l.deskOnbCreateSide,
           steps: rail,
-          title: l.deskOnbCreateTitle,
+          title: _name ?? defaultWalletName(ref),
+          heading: WalletNameTitle(place: 'create', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
           lead: l.deskOnbCreateLead,
           actions: [
             backButton(() => nav.back()),

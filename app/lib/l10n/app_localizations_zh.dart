@@ -8703,9 +8703,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbRestoreSide => '恢复钱包';
 
   @override
-  String get deskOnbRestoreChoosePassword => '设置密码';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return '这 $count 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。';
   }
@@ -13221,11 +13218,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return '开启 $method';
-  }
-
-  @override
   String get txEpicboxLine => '通过中继付款或收款。对方的钱包可以处于关闭状态。';
 
   @override
@@ -14638,9 +14630,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqPickContact => '选择联系人';
 
   @override
-  String get reqPickContactOrMethod => '选择联系人或方式';
-
-  @override
   String get reqFileSaved => '请求已保存为文件';
 
   @override
@@ -15339,14 +15328,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 备份”中导入。';
 
   @override
-  String get deskOnbRestoreNameLabel => '钱包名称（可选）';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return '显示在解锁界面和侧栏中。不填则名为“Wallet $number”。';
-  }
-
-  @override
   String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
 
   @override
@@ -15804,7 +15785,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return '上次打开：$when';
+  String get deskOnbWalletNameEdit => '编辑钱包名称';
+
+  @override
+  String get deskOnbWalletNameField => '钱包名称';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return '钱包名称：$name';
   }
 }

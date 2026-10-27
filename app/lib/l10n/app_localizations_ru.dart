@@ -9421,9 +9421,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbRestoreSide => 'Восстановить кошелёк';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Придумайте пароль';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return 'Фраза из $count слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере.';
   }
@@ -14280,11 +14277,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return 'Включить $method';
-  }
-
-  @override
   String get txEpicboxLine =>
       'Платите или получайте платежи через релей. Другой кошелёк может быть закрыт.';
 
@@ -15809,9 +15801,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqPickContact => 'Выберите контакт';
 
   @override
-  String get reqPickContactOrMethod => 'Выберите контакт или способ';
-
-  @override
   String get reqFileSaved => 'Запрос сохранён файлом';
 
   @override
@@ -16601,14 +16590,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Позже: Настройки › Этот кошелёк › Резервная копия.';
 
   @override
-  String get deskOnbRestoreNameLabel => 'Имя кошелька (необязательно)';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return 'Отображается на экране разблокировки и в боковой панели. Без имени кошелёк называется «Wallet $number».';
-  }
-
-  @override
   String get deskOnbForgotNoCheck =>
       'Ничто в файлах этого кошелька не может подтвердить фразу, поэтому пароль остаётся прежним.';
 
@@ -17114,7 +17095,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return 'Открыт $when';
+  String get deskOnbWalletNameEdit => 'Изменить название кошелька';
+
+  @override
+  String get deskOnbWalletNameField => 'Название кошелька';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return 'Название кошелька: $name';
   }
 }

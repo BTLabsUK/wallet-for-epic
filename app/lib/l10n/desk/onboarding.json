@@ -250,10 +250,6 @@
   "@deskOnbRestoreSide": {
     "description": "Title above the step rail on the left of the restore pages and label of the primary button of the password step."
   },
-  "deskOnbRestoreChoosePassword": "Choose a password",
-  "@deskOnbRestoreChoosePassword": {
-    "description": "Title of the password step of the restore flow."
-  },
   "deskOnbRestorePasswordLead": "The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer.",
   "@deskOnbRestorePasswordLead": {
     "description": "Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).",
@@ -1100,11 +1096,19 @@
   "@deskOnbRestoreFromInvalid": {
     "description": "Error under the start block field on Restore when the text is not a number."
   },
-  "deskOnbUnlockOpened": "Opened {when}",
-  "@deskOnbUnlockOpened": {
-    "description": "Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. \"3 d ago\" or \"just now\".",
+  "deskOnbWalletNameEdit": "Edit wallet name",
+  "@deskOnbWalletNameEdit": {
+    "description": "Tooltip and screen-reader name of the pen beside the wallet's name on the Create and Restore password steps."
+  },
+  "deskOnbWalletNameField": "Wallet name",
+  "@deskOnbWalletNameField": {
+    "description": "Screen-reader name of the inline field the wallet's name is typed in (the title of the Create and Restore password steps)."
+  },
+  "deskOnbWalletNameIs": "Wallet name: {name}",
+  "@deskOnbWalletNameIs": {
+    "description": "Screen-reader text of the title that shows the wallet's name on the Create and Restore password steps.",
     "placeholders": {
-      "when": {
+      "name": {
         "type": "String"
       }
     }

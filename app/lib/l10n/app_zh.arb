@@ -1811,7 +1811,6 @@
   "deskOnbRestorePermission": "无法写入钱包文件：~/.config/Epic Cash Desktop 权限被拒绝。",
   "deskOnbRestoreWait": "这最多需要一分钟。首次扫描区块链后会显示余额。",
   "deskOnbRestoreSide": "恢复钱包",
-  "deskOnbRestoreChoosePassword": "设置密码",
   "deskOnbRestorePasswordLead": "这 {count} 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。",
   "deskOnbRestoreNothingToPaste": "没有可粘贴的内容：剪贴板中没有单词。",
   "deskOnbRestoreBadWord": "第 {position} 个单词“{word}”不在词表中。",
@@ -3809,7 +3808,6 @@
   "txLinkTorNeedsTor": "需要 Tor。请在“隐私与网络”中开启。",
   "txLastMethodNotice": "至少保留一种付款方式开启。",
   "netBlockMethodOff": "{method} 已在设置 › 交易中关闭。",
-  "sendTurnOnMethod": "开启 {method}",
   "sendContactOnlyMethod": "{name} 只有 {method} 的地址。",
   "receiveHttpTitle": "链接 · HTTP 地址",
   "receiveHttpLanLine": "供此 Wi-Fi 网络中的钱包使用，本钱包保持打开时有效。",
@@ -4139,7 +4137,6 @@
   "invSetAllowFor": "允许来自 {name} 的账单",
   "reqNoPayers": "还没有可支付请求的已配对联系人。请配对并核对词语，或将请求保存为文件。",
   "reqPickContact": "选择联系人",
-  "reqPickContactOrMethod": "选择联系人或方式",
   "reqFileSaved": "请求已保存为文件",
   "reqSent": "请求已发送给 {name}",
   "reqFileTitle": "付款请求",
@@ -4317,8 +4314,6 @@
   "deskOvRestoredImportBody": "助记词已找回余额。从这个钱包导出的交易记录备份可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。",
   "deskOvRestoredImportButton": "导入交易记录备份",
   "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 备份”中导入。",
-  "deskOnbRestoreNameLabel": "钱包名称（可选）",
-  "deskOnbRestoreNameHelp": "显示在解锁界面和侧栏中。不填则名为“Wallet {number}”。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
   "deskOnbForgotRestoreInstead": "用助记词恢复",
@@ -4438,5 +4433,7 @@
   "cancelNoteRequestWithdraw": "尚未支付任何款项：撤回不会移动任何币。",
   "txDetailsCancelRequestBody": "对方持有你已签名的付款，在这些币被再次花出之前仍可能将其广播。在这里取消会释放你的币。",
   "deskTxCancelNotPostedBody": "发往 {who} 的 {amount} EPIC。两个钱包都已签名，但网络尚未接受它。钱包会先询问节点，如果网络已有这笔付款则拒绝；否则锁定的金额会退回余额。",
-  "deskOnbUnlockOpened": "上次打开：{when}"
+  "deskOnbWalletNameEdit": "编辑钱包名称",
+  "deskOnbWalletNameField": "钱包名称",
+  "deskOnbWalletNameIs": "钱包名称：{name}"
 }

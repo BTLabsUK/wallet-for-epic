@@ -9,8 +9,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shell.dart' show deskVersion;
 import '../../data/api.dart' show DeskWalletApi;
+import '../../../wallet_registry.dart' show WalletRegistry;
+import '../../data/models.dart' show WalletEntry;
+import '../../data/state.dart' show deskProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../wallet/tx_label.dart' show TxLabelField, TxPen, txLabelEditingProvider;
 
 /// The version line under the full-window screens.
 class AuthFoot extends StatelessWidget {
@@ -145,6 +149,87 @@ Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fa
     // Unlock offers the wallet opened last.
   }
   return UnlockAdded(fallback, notice: notice);
+}
+
+/// The "Wallet N" an unnamed wallet gets: N is the first number no listed wallet has (the list
+/// the app holds; none on a first run), as the list names it.
+String defaultWalletName(WidgetRef ref) {
+  final names = {for (final w in ref.read(deskProvider).wallets ?? const <WalletEntry>[]) w.name};
+  var n = 1;
+  while (names.contains('Wallet $n')) { // l10n-ok: the stored default name
+    n++;
+  }
+  return 'Wallet $n'; // l10n-ok: the stored default name
+}
+
+/// The wallet's name as the step's title, with a pen: [fallback] ("Wallet N") until one is
+/// typed. Edited in place like a transaction's label, with the same field: Enter, blur and a
+/// tap outside save, Esc keeps the title, an empty field goes back to the default. Not a step
+/// and never required: the name lands with the wallet ([DeskWalletApi.createWallet]'s name).
+class WalletNameTitle extends ConsumerStatefulWidget {
+  const WalletNameTitle({super.key, required this.place, required this.name, required this.fallback, required this.onChanged});
+
+  /// Which flow edits it (`create`, `restore`): the inline-field site.
+  final String place;
+
+  /// The typed name, or null for [fallback].
+  final String? name;
+  final String fallback;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  ConsumerState<WalletNameTitle> createState() => _WalletNameTitleState();
+}
+
+class _WalletNameTitleState extends ConsumerState<WalletNameTitle> {
+  final FocusNode _pen = FocusNode();
+
+  @override
+  void dispose() {
+    _pen.dispose();
+    super.dispose();
+  }
+
+  ({String key, String place}) get _site => (key: 'wallet-name', place: widget.place);
+
+  void _close({required bool byKey}) {
+    ref.read(txLabelEditingProvider.notifier).close(_site.key, _site.place);
+    if (byKey) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _pen.requestFocus() : null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final style = context.ts.h1;
+    if (ref.watch(txLabelEditingProvider) == _site) {
+      return TxLabelField(
+        key: const ValueKey('wallet-name-field'),
+        site: _site,
+        initial: widget.name ?? '',
+        style: style,
+        hint: widget.fallback,
+        semanticsLabel: l.deskOnbWalletNameField,
+        maxLength: WalletRegistry.maxLabelLength,
+        onSave: (text) => widget.onChanged(text.trim().isEmpty ? null : text.trim()),
+        onClose: _close,
+      );
+    }
+    final name = widget.name ?? widget.fallback;
+    return Row(
+      children: [
+        Flexible(
+          child: Semantics(
+            header: true,
+            label: l.deskOnbWalletNameIs(name),
+            excludeSemantics: true,
+            child: Text(name, key: const ValueKey('wallet-name-title'), style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ),
+        SizedBox(width: Sp.x2),
+        TxPen(key: const ValueKey('wallet-name-pen'), label: l.deskOnbWalletNameEdit, focusNode: _pen, onPressed: () => ref.read(txLabelEditingProvider.notifier).open(_site.key, _site.place)),
+      ],
+    );
+  }
 }
 
 /// Remembers that wallet [id] still has its first-run setup to do (null: the list could not

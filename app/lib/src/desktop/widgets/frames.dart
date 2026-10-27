@@ -315,6 +315,7 @@ class EOnbFrame extends StatelessWidget {
     required this.sideTitle,
     required this.steps,
     required this.title,
+    this.heading,
     this.lead,
     required this.child,
     this.actions = const [],
@@ -325,6 +326,9 @@ class EOnbFrame extends StatelessWidget {
   final String sideTitle;
   final List<ERailStep> steps;
   final String title;
+
+  /// Stands in for [title]'s text: a title with a control in it (the wallet's name with its pen).
+  final Widget? heading;
   final String? lead;
   final Widget child;
 
@@ -355,7 +359,7 @@ class EOnbFrame extends StatelessWidget {
                       Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
                       SizedBox(height: Sp.x2),
                     ],
-                    Semantics(header: true, child: Text(title, style: ts.h1)),
+                    heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
                     if (lead != null) ...[
                       SizedBox(height: Sp.x2),
                       Text(lead!, style: ts.lead),

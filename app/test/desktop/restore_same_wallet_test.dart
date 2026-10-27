@@ -74,7 +74,7 @@ void main() {
     expect(find.text('This wallet is already here'), findsOneWidget);
     expect(find.text('Main wallet'), findsOneWidget);
     expect(find.text('~/.epic/main/wallet_data'), findsOneWidget);
-    expect(find.text('Choose a password'), findsNothing, reason: 'no password step for a wallet that exists');
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'no password step for a wallet that exists');
     await tester.tap(find.text('Open it'));
     await _wait(tester);
     final nav = container.read(deskNavProvider);
@@ -105,7 +105,7 @@ void main() {
     await tester.tap(find.text('Use 12 words'));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsNothing);
-    expect(find.text('Choose a password'), findsOneWidget);
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     await _end(tester);
   });
 
@@ -115,10 +115,9 @@ void main() {
     await _paste(tester, _v12);
     await tester.tap(find.text('Use 12 words'));
     await _wait(tester);
-    expect(find.text('Choose a password'), findsOneWidget);
-    // Field 0 is the optional wallet name (R23).
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
+    await tester.enterText(find.byType(EditableText).at(0), 'password-1234');
     await tester.enterText(find.byType(EditableText).at(1), 'password-1234');
-    await tester.enterText(find.byType(EditableText).at(2), 'password-1234');
     await tester.pump();
     await tester.tap(find.text('Restore wallet').last);
     await _wait(tester);

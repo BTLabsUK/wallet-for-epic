@@ -41,7 +41,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   static const _sample =
       'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor'; // l10n-ok: sample recovery words
 
-  final _name = TextEditingController();
+  /// The name typed into the title; null keeps the default "Wallet N".
+  String? _name;
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
@@ -94,24 +95,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   void dispose() {
-    _name.dispose();
     _password.dispose();
     _confirm.dispose();
     _fromHeight.dispose();
     _entry.removeListener(_onEntry);
     _entry.dispose();
     super.dispose();
-  }
-
-  /// The N of the "Wallet N" an unnamed restore gets: the first one no listed wallet has (the
-  /// list the app holds; none on a first run).
-  int get _nextNumber {
-    final names = {for (final w in ref.read(deskProvider).wallets ?? const <WalletEntry>[]) w.name};
-    var n = 1;
-    while (names.contains('Wallet $n')) { // l10n-ok: the stored default name
-      n++;
-    }
-    return n;
   }
 
   bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text && _fromHeightOk;
@@ -185,7 +174,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       final api = ref.read(deskApiProvider);
       final before = {for (final w in await api.wallets()) w.id};
       await api.restoreWallet(
-        name: _name.text.trim(),
+        name: _name ?? '',
         password: _password.text,
         phrase: _entry.phrase,
         startHeight: _startHeight,
@@ -196,7 +185,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
-      final added = await addedWallet(api, before, 'Restored wallet', notice: context.l10n.deskOnbRestoreDone); // l10n-ok: the wallet's stored default name
+      final added = await addedWallet(api, before, _name ?? defaultWalletName(ref), notice: context.l10n.deskOnbRestoreDone);
       if (!mounted) return;
       await markSetupPending(api, added.id, restored: true);
       if (!mounted) return;
@@ -253,7 +242,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           child: EOnbFrame(
           sideTitle: l.deskOnbRestoreSide,
           steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
-          title: l.deskOnbRestoreChoosePassword,
+          title: _name ?? defaultWalletName(ref),
+          heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
           lead: l.deskOnbRestorePasswordLead(_entry.length),
           actions: [
             backButton(() => setState(() => _step = RestoreStep.words)),
@@ -266,20 +256,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 NetNote(flow.network, l.deskOnbCreateTestNote),
                 SizedBox(height: Sp.x5),
               ],
-              // Optional: without it the wallet is "Wallet N" in the list (R23).
-              EField(
-                label: l.deskOnbRestoreNameLabel,
-                help: l.deskOnbRestoreNameHelp(_nextNumber),
-                child: EInput(
-                  key: const ValueKey('restore-name'),
-                  controller: _name,
-                  semanticLabel: l.deskOnbRestoreNameLabel,
-                  textInputAction: TextInputAction.next,
-                  inputFormatters: [LengthLimitingTextInputFormatter(32)],
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              SizedBox(height: Sp.x5),
               AccountForm(
                 password: _password,
                 confirm: _confirm,

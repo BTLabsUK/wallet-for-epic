@@ -58,7 +58,6 @@
   "deskOnbRestorePermission": "无法写入钱包文件：~/.config/Epic Cash Desktop 权限被拒绝。",
   "deskOnbRestoreWait": "这最多需要一分钟。首次扫描区块链后会显示余额。",
   "deskOnbRestoreSide": "恢复钱包",
-  "deskOnbRestoreChoosePassword": "设置密码",
   "deskOnbRestorePasswordLead": "这 {count} 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。",
   "deskOnbRestoreNothingToPaste": "没有可粘贴的内容：剪贴板中没有单词。",
   "deskOnbRestoreBadWord": "第 {position} 个单词“{word}”不在词表中。",
@@ -223,5 +222,7 @@
   "deskOnbRestoreFromHint": "区块高度",
   "deskOnbRestoreFromHelp": "仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。",
   "deskOnbRestoreFromInvalid": "只能输入数字，或留空。",
-  "deskOnbUnlockOpened": "上次打开：{when}"
+  "deskOnbWalletNameEdit": "编辑钱包名称",
+  "deskOnbWalletNameField": "钱包名称",
+  "deskOnbWalletNameIs": "钱包名称：{name}"
 }

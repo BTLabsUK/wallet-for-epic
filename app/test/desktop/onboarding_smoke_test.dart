@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/data/features.dart';
@@ -101,9 +102,36 @@ void flows() {
     expect(find.text('All 12 words check out.'), findsOneWidget);
     await tester.tap(find.text('Use 12 words'));
     await tester.pump();
-    expect(find.text('Choose a password'), findsOneWidget);
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.text('Name'), findsNothing);
-    expect(find.byType(EditableText), findsNWidgets(3), reason: 'the optional wallet name (R23), password and repeat');
+    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat; the name is the title, its field opens from the pen');
+    await _end(tester);
+  });
+
+  testWidgets('restore: the title is the next free Wallet N; the pen edits it in place and the restored wallet takes the name', (tester) async {
+    final container = await _pump(tester, const RestoreScreen());
+    final words = [...List.filled(11, 'abandon'), 'about'].join(' ');
+    await tester.enterText(_field(0), words);
+    await _wait(tester, 500);
+    await tester.tap(find.text('Use 12 words'));
+    await tester.pump();
+    expect(find.text('Wallet 1'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('wallet-name-field')), findsOneWidget);
+    await tester.enterText(find.descendant(of: find.byKey(const ValueKey('wallet-name-field')), matching: find.byType(EditableText)), 'Savings');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.byKey(const ValueKey('wallet-name-field')), findsNothing, reason: 'Enter saves and closes the field');
+    expect(find.text('Savings'), findsOneWidget);
+    await tester.enterText(_field(0), 'longpassword');
+    await tester.enterText(_field(1), 'longpassword');
+    await tester.pump();
+    await tester.tap(find.text('Restore wallet').last);
+    await _wait(tester, 4000);
+    final nav = container.read(deskNavProvider);
+    expect(nav.route, DeskRoute.setup);
+    expect((nav.arg as SetupFirstRun).added.name, 'Savings');
     await _end(tester);
   });
 
@@ -197,9 +225,11 @@ void flows() {
     await _end(tester);
   });
 
-  testWidgets('create: no name field, no quiz; Continue on the phrase goes to the first-run setup with the new wallet', (tester) async {
+  testWidgets('create: the name is the title, no name step, no quiz; Continue on the phrase goes to the first-run setup with the new wallet', (tester) async {
     final container = await _pump(tester, const CreateScreen());
     expect(find.text('Name'), findsNothing);
+    expect(find.text('Wallet 1'), findsOneWidget, reason: 'the next free default name as the title');
+    expect(find.byKey(const ValueKey('wallet-name-pen')), findsOneWidget);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
     await tester.enterText(_field(0), 'longpassword');
     await tester.enterText(_field(1), 'longpassword');
@@ -225,6 +255,49 @@ void flows() {
     expect(added.id, isNotNull);
     await _end(tester);
     expect(container.read(onbFlowProvider).network, 'mainnet');
+  });
+
+  testWidgets('create: a name typed into the title lands on the new wallet; Esc keeps the title, an empty field goes back to the default', (tester) async {
+    final container = await _pump(tester, const CreateScreen());
+    final field = find.descendant(of: find.byKey(const ValueKey('wallet-name-field')), matching: find.byType(EditableText));
+    await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
+    await tester.pump();
+    await tester.enterText(field, 'Savings');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(find.text('Wallet 1'), findsOneWidget, reason: 'Esc keeps the title');
+    await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
+    await tester.pump();
+    await tester.enterText(field, 'Savings');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.text('Savings'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
+    await tester.pump();
+    await tester.enterText(field, '   ');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.text('Wallet 1'), findsOneWidget, reason: 'an empty name is the default again');
+    await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
+    await tester.pump();
+    await tester.enterText(field, 'Savings');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    await tester.enterText(_field(0), 'longpassword');
+    await tester.enterText(_field(1), 'longpassword');
+    await tester.pump();
+    await tester.tap(find.text('Create wallet').last);
+    await _wait(tester, 4000);
+    await tester.tap(find.text('Reveal phrase'));
+    await tester.pump();
+    await tester.tap(find.textContaining('Written down'));
+    await tester.pump();
+    await tester.tap(find.text('Continue'));
+    await _wait(tester, 500);
+    final nav = container.read(deskNavProvider);
+    expect(nav.route, DeskRoute.setup);
+    expect((nav.arg as SetupFirstRun).added.name, 'Savings');
+    await _end(tester);
   });
 
   testWidgets('unlock: the added wallet is the one selected, not the one that was current', (tester) async {

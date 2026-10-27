@@ -207,11 +207,11 @@ void main() {
     expect(find.text('12 of 12 words'), findsOneWidget);
     expect(_continue(tester).label, 'Use 12 words');
     await _key(tester, LogicalKeyboardKey.enter);
-    expect(find.text('Choose a password'), findsNothing, reason: 'a typed phrase under 24 words goes on with the button only');
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'a typed phrase under 24 words goes on with the button only');
     expect(_focusedOn(tester, 12), isTrue);
     await tester.tap(find.text('Use 12 words'));
     await tester.pump();
-    expect(find.text('Choose a password'), findsOneWidget);
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.textContaining('The 12-word phrase checks out.'), findsOneWidget);
   });
 
@@ -223,11 +223,11 @@ void main() {
       await _type(tester, i, words[i]);
       await _key(tester, LogicalKeyboardKey.enter);
       if (i < 23) {
-        expect(find.text('Choose a password'), findsNothing, reason: 'Enter after word ${i + 1}');
+        expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'Enter after word ${i + 1}');
         expect(_focusedOn(tester, i + 1), isTrue, reason: 'Enter after word ${i + 1} moves on');
       }
     }
-    expect(find.text('Choose a password'), findsOneWidget, reason: 'Enter on the 24th word continues');
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget, reason: 'Enter on the 24th word continues');
     expect(find.textContaining('The 24-word phrase checks out.'), findsOneWidget);
   });
 
@@ -309,8 +309,8 @@ void main() {
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.text('Use 24 words'));
     await tester.pump();
-    expect(find.text('Choose a password'), findsOneWidget);
-    expect(find.byType(EditableText), findsNWidgets(3), reason: 'the optional wallet name (R23), password and confirmation');
+    expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
+    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and confirmation; the wallet name is the title, edited from its pen');
   });
 
   testWidgets('pasting 12 words sets the count to 12 with no error', (tester) async {

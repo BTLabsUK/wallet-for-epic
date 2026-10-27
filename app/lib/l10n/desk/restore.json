@@ -135,19 +135,6 @@
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
-  "deskOnbRestoreNameLabel": "Wallet name (optional)",
-  "@deskOnbRestoreNameLabel": {
-    "description": "Label of the name field on the Restore password step."
-  },
-  "deskOnbRestoreNameHelp": "Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet {number}.",
-  "@deskOnbRestoreNameHelp": {
-    "description": "Helper under the name field; {number} is the next free default number. ⚠ Check the app's existing default-name string for the translated \"Wallet {n}\" form and reuse its wording.",
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
   "deskOnbForgotNoCheck": "Nothing in this wallet's files can confirm the phrase, so the password stays.",
   "@deskOnbForgotNoCheck": {
     "description": "Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed."

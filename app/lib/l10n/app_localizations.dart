@@ -14844,12 +14844,6 @@ abstract class AppLocalizations {
   /// **'Restore wallet'**
   String get deskOnbRestoreSide;
 
-  /// Title of the password step of the restore flow.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a password'**
-  String get deskOnbRestoreChoosePassword;
-
   /// Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).
   ///
   /// In en, this message translates to:
@@ -22391,12 +22385,6 @@ abstract class AppLocalizations {
   /// **'{method} is off in Settings › Transactions.'**
   String netBlockMethodOff(String method);
 
-  /// Phone Send: button under the note that a Link method is off; turns its switch on. {method} is the method's full name, e.g. Link · HTTP.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on {method}'**
-  String sendTurnOnMethod(String method);
-
   /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
   ///
   /// In en, this message translates to:
@@ -24695,12 +24683,6 @@ abstract class AppLocalizations {
   /// **'Choose a contact'**
   String get reqPickContact;
 
-  /// Phone Request screen: placeholder and error of the To field, where a contact, a QR code or a file is chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a contact or method'**
-  String get reqPickContactOrMethod;
-
   /// Notice after Save as file.
   ///
   /// In en, this message translates to:
@@ -25763,18 +25745,6 @@ abstract class AppLocalizations {
   /// **'Later under Settings › This wallet › Backup.'**
   String get deskOvRestoredImportLater;
 
-  /// Label of the name field on the Restore password step.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet name (optional)'**
-  String get deskOnbRestoreNameLabel;
-
-  /// Helper under the name field; {number} is the next free default number. ⚠ Check the app's existing default-name string for the translated "Wallet {n}" form and reuse its wording.
-  ///
-  /// In en, this message translates to:
-  /// **'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet {number}.'**
-  String deskOnbRestoreNameHelp(int number);
-
   /// Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed.
   ///
   /// In en, this message translates to:
@@ -26489,11 +26459,23 @@ abstract class AppLocalizations {
   /// **'{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.'**
   String deskTxCancelNotPostedBody(String amount, String who);
 
-  /// Second line of a wallet in the Unlock list, for a wallet in the app's own folder: when it was last opened. {when} is e.g. "3 d ago" or "just now".
+  /// Tooltip and screen-reader name of the pen beside the wallet's name on the Create and Restore password steps.
   ///
   /// In en, this message translates to:
-  /// **'Opened {when}'**
-  String deskOnbUnlockOpened(String when);
+  /// **'Edit wallet name'**
+  String get deskOnbWalletNameEdit;
+
+  /// Screen-reader name of the inline field the wallet's name is typed in (the title of the Create and Restore password steps).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get deskOnbWalletNameField;
+
+  /// Screen-reader text of the title that shows the wallet's name on the Create and Restore password steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name: {name}'**
+  String deskOnbWalletNameIs(String name);
 }
 
 class _AppLocalizationsDelegate

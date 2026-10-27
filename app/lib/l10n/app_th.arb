@@ -1811,7 +1811,6 @@
   "deskOnbRestorePermission": "เขียนไฟล์กระเป๋าเงินไม่ได้: ไม่มีสิทธิ์ใน ~/.config/Epic Cash Desktop",
   "deskOnbRestoreWait": "อาจใช้เวลาถึงหนึ่งนาที ยอดคงเหลือจะแสดงหลังสแกนบล็อกเชนครั้งแรก",
   "deskOnbRestoreSide": "กู้คืนกระเป๋าเงิน",
-  "deskOnbRestoreChoosePassword": "ตั้งรหัสผ่าน",
   "deskOnbRestorePasswordLead": "วลี {count} คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้",
   "deskOnbRestoreNothingToPaste": "ไม่มีอะไรให้วาง: คลิปบอร์ดไม่มีคำ",
   "deskOnbRestoreBadWord": "คำที่ {position} “{word}” ไม่อยู่ในรายการคำ",
@@ -3809,7 +3808,6 @@
   "txLinkTorNeedsTor": "ต้องใช้ Tor เปิดได้ที่ ความเป็นส่วนตัวและเครือข่าย",
   "txLastMethodNotice": "ต้องเปิดวิธีชำระเงินไว้อย่างน้อยหนึ่งวิธี",
   "netBlockMethodOff": "{method} ปิดอยู่ใน ตั้งค่า › ธุรกรรม",
-  "sendTurnOnMethod": "เปิด {method}",
   "sendContactOnlyMethod": "{name} มีเฉพาะที่อยู่สำหรับ {method}",
   "receiveHttpTitle": "ที่อยู่ ลิงก์ · HTTP",
   "receiveHttpLanLine": "สำหรับกระเป๋าเงินในเครือข่าย Wi-Fi นี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
@@ -4139,7 +4137,6 @@
   "invSetAllowFor": "อนุญาตใบแจ้งหนี้จาก {name}",
   "reqNoPayers": "ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และตรวจคำกับอีกฝ่าย หรือบันทึกคำขอเป็นไฟล์",
   "reqPickContact": "เลือกผู้ติดต่อ",
-  "reqPickContactOrMethod": "เลือกผู้ติดต่อหรือวิธี",
   "reqFileSaved": "บันทึกคำขอเป็นไฟล์แล้ว",
   "reqSent": "ส่งคำขอถึง {name} แล้ว",
   "reqFileTitle": "คำขอชำระเงิน",
@@ -4317,8 +4314,6 @@
   "deskOvRestoredImportBody": "วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ข้อมูลสำรองประวัติที่ส่งออกจากกระเป๋าเงินนี้จะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา: คือไฟล์ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า",
   "deskOvRestoredImportButton": "นำเข้าข้อมูลสำรองประวัติ",
   "deskOvRestoredImportLater": "ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลสำรอง",
-  "deskOnbRestoreNameLabel": "ชื่อกระเป๋าเงิน (ไม่บังคับ)",
-  "deskOnbRestoreNameHelp": "แสดงบนหน้าปลดล็อกและแถบด้านข้าง หากไม่ตั้ง จะใช้ชื่อ “Wallet {number}”",
   "deskOnbForgotNoCheck": "ไฟล์ของกระเป๋าเงินนี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม",
   "deskOnbForgotRestoreHint": "ให้กู้คืนจากวลีแทน: {name} จะออกจากรายการ และไฟล์ยังอยู่บนคอมพิวเตอร์นี้",
   "deskOnbForgotRestoreInstead": "กู้คืนจากวลี",
@@ -4438,5 +4433,7 @@
   "cancelNoteRequestWithdraw": "ยังไม่มีการชำระ: การถอนคำขอไม่ย้ายเหรียญใด ๆ",
   "txDetailsCancelRequestBody": "อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจส่งเข้าเครือข่ายได้จนกว่าเหรียญเหล่านี้จะถูกใช้อีกครั้ง การยกเลิกจะคืนเหรียญของคุณที่นี่",
   "deskTxCancelNotPostedBody": "{amount} EPIC ถึง {who} ทั้งสองกระเป๋าเงินลงนามแล้ว แต่เครือข่ายยังไม่รับรายการ กระเป๋าเงินจะถามโหนดก่อนและปฏิเสธถ้าเครือข่ายมีรายการนี้แล้ว ไม่เช่นนั้นยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ",
-  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
+  "deskOnbWalletNameEdit": "แก้ไขชื่อกระเป๋าเงิน",
+  "deskOnbWalletNameField": "ชื่อกระเป๋าเงิน",
+  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}"
 }

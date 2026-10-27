@@ -2435,7 +2435,6 @@
   "deskOnbRestorePermission": "Die Wallet-Dateien konnten nicht geschrieben werden: Zugriff verweigert in ~/.config/Epic Cash Desktop.",
   "deskOnbRestoreWait": "Das kann bis zu einer Minute dauern. Das Guthaben erscheint nach dem ersten Scan der Blockchain.",
   "deskOnbRestoreSide": "Wallet wiederherstellen",
-  "deskOnbRestoreChoosePassword": "Passwort wählen",
   "deskOnbRestorePasswordLead": "Die Phrase mit {count} Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.",
   "deskOnbRestoreNothingToPaste": "Nichts einzufügen: Die Zwischenablage enthält keine Wörter.",
   "deskOnbRestoreBadWord": "Wort {position}, „{word}“, steht nicht in der Wortliste.",
@@ -3809,7 +3808,6 @@
   "txLinkTorNeedsTor": "Braucht Tor. Schalten Sie es unter Datenschutz & Netzwerk ein.",
   "txLastMethodNotice": "Mindestens eine Zahlungsmethode bleibt eingeschaltet.",
   "netBlockMethodOff": "{method} ist in Einstellungen › Transaktionen ausgeschaltet.",
-  "sendTurnOnMethod": "{method} einschalten",
   "sendContactOnlyMethod": "{name} hat nur eine Adresse für {method}.",
   "receiveHttpTitle": "Link · HTTP-Adresse",
   "receiveHttpLanLine": "Für Wallets in diesem WLAN, solange diese Wallet geöffnet ist.",
@@ -4139,7 +4137,6 @@
   "invSetAllowFor": "Rechnungen von {name} erlauben",
   "reqNoPayers": "Noch kein gekoppelter Kontakt bezahlt Anforderungen. Koppeln Sie und prüfen Sie die Wörter, oder speichern Sie die Anforderung als Datei.",
   "reqPickContact": "Kontakt wählen",
-  "reqPickContactOrMethod": "Kontakt oder Methode wählen",
   "reqFileSaved": "Anforderung als Datei gespeichert",
   "reqSent": "Anforderung an {name} gesendet",
   "reqFileTitle": "Zahlungsanforderung",
@@ -4317,8 +4314,6 @@
   "deskOvRestoredImportBody": "Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Verlaufssicherung bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.",
   "deskOvRestoredImportButton": "Verlaufssicherung importieren",
   "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Sicherung.",
-  "deskOnbRestoreNameLabel": "Wallet-Name (optional)",
-  "deskOnbRestoreNameHelp": "Wird beim Entsperren und in der Seitenleiste angezeigt. Ohne Namen heißt die Wallet „Wallet {number}“.",
   "deskOnbForgotNoCheck": "Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.",
   "deskOnbForgotRestoreHint": "Stellen Sie sie stattdessen aus der Phrase wieder her: {name} verlässt die Liste, ihre Dateien bleiben auf diesem Computer.",
   "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen",
@@ -4438,5 +4433,7 @@
   "cancelNoteRequestWithdraw": "Nichts wurde bezahlt: Zurückziehen bewegt keine Coins.",
   "txDetailsCancelRequestBody": "Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden, bis diese Coins wieder ausgegeben sind. Stornieren gibt Ihre Coins hier frei.",
   "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.",
-  "deskOnbUnlockOpened": "Geöffnet {when}"
+  "deskOnbWalletNameEdit": "Wallet-Namen ändern",
+  "deskOnbWalletNameField": "Wallet-Name",
+  "deskOnbWalletNameIs": "Wallet-Name: {name}"
 }

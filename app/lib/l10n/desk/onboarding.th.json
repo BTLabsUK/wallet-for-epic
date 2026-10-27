@@ -58,7 +58,6 @@
   "deskOnbRestorePermission": "เขียนไฟล์กระเป๋าเงินไม่ได้: ไม่มีสิทธิ์ใน ~/.config/Epic Cash Desktop",
   "deskOnbRestoreWait": "อาจใช้เวลาถึงหนึ่งนาที ยอดคงเหลือจะแสดงหลังสแกนบล็อกเชนครั้งแรก",
   "deskOnbRestoreSide": "กู้คืนกระเป๋าเงิน",
-  "deskOnbRestoreChoosePassword": "ตั้งรหัสผ่าน",
   "deskOnbRestorePasswordLead": "วลี {count} คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้",
   "deskOnbRestoreNothingToPaste": "ไม่มีอะไรให้วาง: คลิปบอร์ดไม่มีคำ",
   "deskOnbRestoreBadWord": "คำที่ {position} “{word}” ไม่อยู่ในรายการคำ",
@@ -223,5 +222,7 @@
   "deskOnbRestoreFromHint": "ความสูงบล็อก",
   "deskOnbRestoreFromHelp": "ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน",
   "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้",
-  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
+  "deskOnbWalletNameEdit": "แก้ไขชื่อกระเป๋าเงิน",
+  "deskOnbWalletNameField": "ชื่อกระเป๋าเงิน",
+  "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}"
 }

@@ -9190,9 +9190,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbRestoreSide => 'Restore wallet';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Choose a password';
-
-  @override
   String deskOnbRestorePasswordLead(int count) {
     return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer.';
   }
@@ -13942,11 +13939,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String sendTurnOnMethod(String method) {
-    return 'Turn on $method';
-  }
-
-  @override
   String get txEpicboxLine =>
       'Pay or get paid through a relay. The other wallet can be closed.';
 
@@ -15439,9 +15431,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqPickContact => 'Choose a contact';
 
   @override
-  String get reqPickContactOrMethod => 'Choose a contact or method';
-
-  @override
   String get reqFileSaved => 'Request saved as a file';
 
   @override
@@ -16196,14 +16185,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Later under Settings › This wallet › Backup.';
 
   @override
-  String get deskOnbRestoreNameLabel => 'Wallet name (optional)';
-
-  @override
-  String deskOnbRestoreNameHelp(int number) {
-    return 'Shown on Unlock and in the sidebar. Without one, the wallet is called Wallet $number.';
-  }
-
-  @override
   String get deskOnbForgotNoCheck =>
       'Nothing in this wallet\'s files can confirm the phrase, so the password stays.';
 
@@ -16690,7 +16671,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String deskOnbUnlockOpened(String when) {
-    return 'Opened $when';
+  String get deskOnbWalletNameEdit => 'Edit wallet name';
+
+  @override
+  String get deskOnbWalletNameField => 'Wallet name';
+
+  @override
+  String deskOnbWalletNameIs(String name) {
+    return 'Wallet name: $name';
   }
 }

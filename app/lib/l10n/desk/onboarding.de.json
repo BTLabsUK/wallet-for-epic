@@ -58,7 +58,6 @@
   "deskOnbRestorePermission": "Die Wallet-Dateien konnten nicht geschrieben werden: Zugriff verweigert in ~/.config/Epic Cash Desktop.",
   "deskOnbRestoreWait": "Das kann bis zu einer Minute dauern. Das Guthaben erscheint nach dem ersten Scan der Blockchain.",
   "deskOnbRestoreSide": "Wallet wiederherstellen",
-  "deskOnbRestoreChoosePassword": "Passwort wählen",
   "deskOnbRestorePasswordLead": "Die Phrase mit {count} Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.",
   "deskOnbRestoreNothingToPaste": "Nichts einzufügen: Die Zwischenablage enthält keine Wörter.",
   "deskOnbRestoreBadWord": "Wort {position}, „{word}“, steht nicht in der Wortliste.",
@@ -223,5 +222,7 @@
   "deskOnbRestoreFromHint": "Blockhöhe",
   "deskOnbRestoreFromHelp": "Nur, wenn die erste Zahlung der Wallet nach diesem Block kam. Leer lassen, um die gesamte Blockchain zu prüfen.",
   "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen.",
-  "deskOnbUnlockOpened": "Geöffnet {when}"
+  "deskOnbWalletNameEdit": "Wallet-Namen ändern",
+  "deskOnbWalletNameField": "Wallet-Name",
+  "deskOnbWalletNameIs": "Wallet-Name: {name}"
 }

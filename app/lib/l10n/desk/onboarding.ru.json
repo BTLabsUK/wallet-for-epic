@@ -58,7 +58,6 @@
   "deskOnbRestorePermission": "Не удалось записать файлы кошелька: нет доступа к ~/.config/Epic Cash Desktop.",
   "deskOnbRestoreWait": "Это может занять до минуты. Баланс появится после первого сканирования блокчейна.",
   "deskOnbRestoreSide": "Восстановить кошелёк",
-  "deskOnbRestoreChoosePassword": "Придумайте пароль",
   "deskOnbRestorePasswordLead": "Фраза из {count} слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере.",
   "deskOnbRestoreNothingToPaste": "Нечего вставить: в буфере обмена нет слов.",
   "deskOnbRestoreBadWord": "Слова {position} («{word}») нет в списке слов.",
@@ -223,5 +222,7 @@
   "deskOnbRestoreFromHint": "Высота блока",
   "deskOnbRestoreFromHelp": "Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.",
   "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым.",
-  "deskOnbUnlockOpened": "Открыт {when}"
+  "deskOnbWalletNameEdit": "Изменить название кошелька",
+  "deskOnbWalletNameField": "Название кошелька",
+  "deskOnbWalletNameIs": "Название кошелька: {name}"
 }

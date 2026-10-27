@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/data/server_lists.dart';
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_label.dart' show TxPen;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform, debugDefaultTargetPlatformOverride;
@@ -76,6 +77,7 @@ String _focused() {
       ServerListPanel() => 'combo:${w.label}',
       EDetails() => 'details',
       ENavItem() => 'nav:${w.label}',
+      TxPen() => 'pen:${w.label}',
       _ => null,
     };
     return name == null;
@@ -150,14 +152,15 @@ Future<void> _mouse(WidgetTester tester, int buttons) async {
 
 void main() {
   group('Tab order', () {
-    testWidgets('Create: Password, Confirm, Create wallet, wrap; Shift+Tab reverses', (tester) async {
+    testWidgets('Create: Password, Confirm, Create wallet, the name pen; Shift+Tab reverses', (tester) async {
       await _open(tester, DeskRoute.create);
       await _type(tester, 'Password', 'longpassword');
       await _type(tester, 'Confirm password', 'longpassword');
       final fwd = await _tabs(tester, _edit('Password'), 3);
-      expect(fwd, ['field:Confirm password', 'button:Create wallet', 'field:Password']);
+      // The wallet's name sits in the title, its pen the first stop (a Tab from the last wraps there).
+      expect(fwd, ['field:Confirm password', 'button:Create wallet', 'pen:Edit wallet name']);
       final back = await _tabs(tester, _edit('Password'), 3, back: true);
-      expect(back, ['button:Create wallet', 'field:Confirm password', 'field:Password']);
+      expect(back, ['pen:Edit wallet name', 'button:Create wallet', 'field:Confirm password']);
       await _end(tester);
     });
 
@@ -481,10 +484,10 @@ void main() {
 
     testWidgets('Restore: Back on the password step goes back to the phrase', (tester) async {
       final container = await _open(tester, DeskRoute.restore, arg: RestoreStep.account);
-      expect(find.text('Choose a password'), findsOneWidget);
+      expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
       await _mouse(tester, kBackMouseButton);
       expect(container.read(deskNavProvider).route, DeskRoute.restore);
-      expect(find.text('Choose a password'), findsNothing, reason: 'back on the phrase step');
+      expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'back on the phrase step');
       await _end(tester);
     });
   });
