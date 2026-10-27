@@ -352,9 +352,9 @@ final List<DeskShot> settingsShots = [
   // Connection servers: the row, the list as a set to tick (the defaults at the limit, two chosen,
   // a server the user added chosen). The window width at 2474 shows the field on one line.
   const DeskShot(id: '43o-connection-servers', title: 'Settings › Advanced › Connection servers', route: DeskRoute.settingsAdvanced, height: 1450),
-  const DeskShot(id: '43p-connection-servers-open', title: 'Connection servers list, the defaults chosen (at the limit)', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1450),
-  DeskShot(id: '43q-connection-servers-two', title: 'Connection servers list, two chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1450, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'epicbox.stackwallet.com'])),
-  DeskShot(id: '43r-connection-servers-added', title: 'Connection servers list, a server the user added chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1450, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'relay.example.org'], added: 'relay.example.org')),
+  const DeskShot(id: '43p-connection-servers-open', title: 'Connection servers list, the defaults chosen (at the limit)', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900),
+  DeskShot(id: '43q-connection-servers-two', title: 'Connection servers list, two chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'epicbox.stackwallet.com'])),
+  DeskShot(id: '43r-connection-servers-added', title: 'Connection servers list, a server the user added chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, ['epicbox.epiccash.com', 'relay.example.org'], added: 'relay.example.org')),
   DeskShot(id: '43s-connection-servers-2474', title: 'Connection servers, 2474x1338', route: DeskRoute.settingsAdvanced, width: 2474, height: 1338),
   const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
   const DeskShot(id: '43m-contacts-pairing-off', title: 'Contacts with Pairing off: no Pair, no paired marks', route: DeskRoute.contacts),

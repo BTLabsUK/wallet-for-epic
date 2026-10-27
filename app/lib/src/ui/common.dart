@@ -830,7 +830,8 @@ List<TimelineStep>? txTimeline(
   DateTime? now,
   ({String name, String relay, bool paused})? mailbox,
 }) {
-  if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
+  // Another wallet made it: this wallet saw only the coins move, so there are no steps.
+  if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase || tx.origin == TxOrigin.otherWallet) return null;
   final phase = txPhase(tx, tip, target: target);
   final confirming = l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
