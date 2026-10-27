@@ -19109,6 +19109,308 @@
       }
     }
   },
+  "contactsPairHint": "Pair with another wallet to seal payment files and invoices between the two.",
+  "@contactsPairHint": {
+    "description": "Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link"
+  },
+  "contactsPairLearn": "How it works",
+  "@contactsPairLearn": {
+    "description": "Text link at the end of the hint row (phone + desktop) → Help › Pairing › Three ways to pair; the row has no second Pair button"
+  },
+  "contactsPairTooltip": "Pair with another wallet",
+  "@contactsPairTooltip": {
+    "description": "Tooltip / semantics of the outlined Pair button in the phone app bar and the desktop page header; the visible label stays pairTitle “Pair”"
+  },
+  "pairBadgePending": "Pairing…",
+  "@pairBadgePending": {
+    "description": "EBadge (info, busy) on a contact row / page while an invite or reply attached to it is in flight"
+  },
+  "pairBadgePendingTip": "Invite sent or answered, not finished yet.",
+  "@pairBadgePendingTip": {
+    "description": "Tooltip of that badge"
+  },
+  "pairWaysLead": "Pair once. Payment files and invoices between the two wallets are then sealed.",
+  "@pairWaysLead": {
+    "description": "Pair screen lead (replaces the longer pairLead there)"
+  },
+  "pairWayWords": "Words",
+  "@pairWayWords": {
+    "description": "Option 1 title"
+  },
+  "pairWayAutomatic": "Automatic",
+  "@pairWayAutomatic": {
+    "description": "EBadge (info) beside “Words”"
+  },
+  "pairWayWordsHint": "Read five words to them. Both wallets must be online; the rest happens by itself.",
+  "@pairWayWordsHint": {
+    "description": "Option 1 line (the one line where they choose)"
+  },
+  "pairWayWordsInfo": "Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.",
+  "@pairWayWordsInfo": {
+    "description": "ⓘ of option 1 (phone InfoSheet, desktop tooltip/InfoHint)"
+  },
+  "pairWayMessage": "Invite by message",
+  "@pairWayMessage": {
+    "description": "Option 2 title"
+  },
+  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.",
+  "@pairWayMessageHint": {
+    "description": "Option 2 line"
+  },
+  "pairWayMessageInfo": "Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.",
+  "@pairWayMessageInfo": {
+    "description": "ⓘ of option 2"
+  },
+  "pairWayInPersonDesk": "Their phone scans your code",
+  "@pairWayInPersonDesk": {
+    "description": "Option 3 line on the desktop (phone keeps pairInPersonHint)"
+  },
+  "pairGotInvite": "Got words or a link?",
+  "@pairGotInvite": {
+    "description": "Row below the three ways (the joiner’s door)"
+  },
+  "pairGotInviteHint": "Type the words, or paste the message they sent.",
+  "@pairGotInviteHint": {
+    "description": "Its line"
+  },
+  "pairHowItWorks": "How pairing works",
+  "@pairHowItWorks": {
+    "description": "Text link at the foot of the Pair screen → Help › Pairing"
+  },
+  "pairWordsBothOnline": "Both wallets must be online. The rest happens by itself.",
+  "@pairWordsBothOnline": {
+    "description": "Inviter’s words screen, under the five words"
+  },
+  "pairWordsWaiting": "Waiting for their wallet…",
+  "@pairWordsWaiting": {
+    "description": "Status line with a spinner while the invite waits"
+  },
+  "pairUseMessageInstead": "Invite by message instead",
+  "@pairUseMessageInstead": {
+    "description": "Button under pair-words-relay’s noRelay / relaysBlocked notice (inviter)"
+  },
+  "pairAskForMessage": "Ask them to invite you by message instead.",
+  "@pairAskForMessage": {
+    "description": "Joiner: words found nothing because no relay answers"
+  },
+  "pairStepInvite": "Invite",
+  "@pairStepInvite": {
+    "description": "Step strip, step 1"
+  },
+  "pairStepReply": "Reply",
+  "@pairStepReply": {
+    "description": "Step strip, step 2"
+  },
+  "pairStepFinish": "Finish link",
+  "@pairStepFinish": {
+    "description": "Step strip, step 3"
+  },
+  "pairStepWords": "Words",
+  "@pairStepWords": {
+    "description": "Step strip, step 4"
+  },
+  "pairStepOf": "Step {n} of 4: {step}",
+  "@pairStepOf": {
+    "description": "Semantics of the step strip",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      },
+      "step": {
+        "type": "String",
+        "example": "Reply"
+      }
+    }
+  },
+  "pairMessageLead": "Send the invite in any chat. Their reply comes back the same way.",
+  "@pairMessageLead": {
+    "description": "Inviter, step 1 lead"
+  },
+  "pairInviteMessage": "Pair with me in Epic Cash: {link}",
+  "@pairInviteMessage": {
+    "description": "The shared/copied invite message (replaces pairShareText). Plain text, no web address",
+    "placeholders": {
+      "link": {
+        "type": "String",
+        "example": "epiccash://pair/1/eyJm…b71a"
+      }
+    }
+  },
+  "pairReplyMessage": "My reply to your Epic Cash pairing: {link}",
+  "@pairReplyMessage": {
+    "description": "The shared/copied reply message",
+    "placeholders": {
+      "link": {
+        "type": "String",
+        "example": "epiccash://pair-reply/1/eyJm…b71a"
+      }
+    }
+  },
+  "pairFinishMessage": "Finish our Epic Cash pairing: {link}",
+  "@pairFinishMessage": {
+    "description": "The shared/copied finish message",
+    "placeholders": {
+      "link": {
+        "type": "String",
+        "example": "epiccash://pair-confirm/1/eyJm…b71a"
+      }
+    }
+  },
+  "pairCopyMessage": "Copy message",
+  "@pairCopyMessage": {
+    "description": "Desktop primary button for all three messages (no share sheet on Linux/Windows)"
+  },
+  "pairMessageCopied": "Copied. Paste it in the chat.",
+  "@pairMessageCopied": {
+    "description": "Toast after Copy message"
+  },
+  "pairAwaitReplyTitle": "Waiting for the reply",
+  "@pairAwaitReplyTitle": {
+    "description": "Inviter, step 2 title"
+  },
+  "pairAwaitReplyBody": "When the reply arrives in the chat, copy it and come back. The wallet finds it.",
+  "@pairAwaitReplyBody": {
+    "description": "Inviter, step 2 body"
+  },
+  "pairByItself": "With a relay on both sides, this step also happens by itself.",
+  "@pairByItself": {
+    "description": "Small print on both waiting steps"
+  },
+  "pairPasteReply": "Paste reply",
+  "@pairPasteReply": {
+    "description": "Inviter, step 2 button (reads the clipboard on tap)"
+  },
+  "pairReplyTitle": "Send your reply",
+  "@pairReplyTitle": {
+    "description": "Joiner, step 2 title (after Pair on “Pair with Anna?”)"
+  },
+  "pairReplyLead": "Send this back to {name} in the same chat.",
+  "@pairReplyLead": {
+    "description": "Joiner, step 2 lead",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairShareReply": "Share reply",
+  "@pairShareReply": {
+    "description": "Joiner, step 2 primary (phone)"
+  },
+  "pairAwaitFinishTitle": "Waiting for the finish link",
+  "@pairAwaitFinishTitle": {
+    "description": "Joiner, step 3 title"
+  },
+  "pairAwaitFinishBody": "{name}’s wallet makes it from your reply. Copy it when it arrives and come back.",
+  "@pairAwaitFinishBody": {
+    "description": "Joiner, step 3 body",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairPasteFinish": "Paste finish link",
+  "@pairPasteFinish": {
+    "description": "Joiner, step 3 button"
+  },
+  "pairFinishTitle": "Send the finish link",
+  "@pairFinishTitle": {
+    "description": "Inviter, step 3 title (opens by itself once the reply is in)"
+  },
+  "pairFinishLead": "One more message: {name}’s wallet needs it to show the words.",
+  "@pairFinishLead": {
+    "description": "Inviter, step 3 lead",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairShareFinish": "Share finish link",
+  "@pairShareFinish": {
+    "description": "Inviter, step 3 primary (phone)"
+  },
+  "pairFinishThenCheck": "Then check the words together.",
+  "@pairFinishThenCheck": {
+    "description": "Inviter, step 3, under the button; then Check the words (sasTitle)"
+  },
+  "pairClipTitle": "Pairing link found",
+  "@pairClipTitle": {
+    "description": "Title of the one-time offer (phone bottom sheet, desktop dialog)"
+  },
+  "pairClipInvite": "An invite from “{name}” is on the clipboard. Use it?",
+  "@pairClipInvite": {
+    "description": "Body for an invite (name read from the invite, shown as claimed)",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairClipReply": "A reply to your invite is on the clipboard. Use it?",
+  "@pairClipReply": {
+    "description": "Body for a reply (offered only while this wallet has an open invite)"
+  },
+  "pairClipFinish": "The finish link for your pairing is on the clipboard. Use it?",
+  "@pairClipFinish": {
+    "description": "Body for a finish link (offered only while this wallet waits for one)"
+  },
+  "pairClipCard": "A pairing code is on the clipboard. Use it?",
+  "@pairClipCard": {
+    "description": "Body for a card link (desktop face to face; offered only on the Pair screen)"
+  },
+  "pairClipUse": "Use it",
+  "@pairClipUse": {
+    "description": "Primary button of the offer (secondary: pairNotNow “Not now”)"
+  },
+  "pairAlreadyPaired": "Already paired with {name}.",
+  "@pairAlreadyPaired": {
+    "description": "Notice when a pasted/found reply or finish link belongs to a pairing that already finished (relay was faster)",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairReplyNotHere": "This reply answers an invite from another wallet.",
+  "@pairReplyNotHere": {
+    "description": "Error when a reply pasted by hand opens nothing here"
+  },
+  "helpPairWaysTitle": "Three ways to pair",
+  "@helpPairWaysTitle": {
+    "description": "New topic, second in Help › Pairing (id pairing-ways); the Pair screen’s “How pairing works” opens it"
+  },
+  "helpPairWaysShort": "Words when both wallets are online, a message in any chat, or in person.",
+  "@helpPairWaysShort": {
+    "description": "Topic summary"
+  },
+  "helpPairWaysP1": "**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.",
+  "@helpPairWaysP1": {
+    "description": "Paragraph"
+  },
+  "helpPairWaysP2": "**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.",
+  "@helpPairWaysP2": {
+    "description": "Paragraph"
+  },
+  "helpPairWaysP3": "**In person.** Each phone scans the other’s code. No network is used.",
+  "@helpPairWaysP3": {
+    "description": "Paragraph"
+  },
+  "helpPairWaysP4": "Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.",
+  "@helpPairWaysP4": {
+    "description": "Paragraph"
+  },
+  "helpPairClipP": "The wallet reads the clipboard only while Pairing is on, only when it comes to the front or the Pair screen opens, and offers each link once. It never stores or logs what it reads.",
+  "@helpPairClipP": {
+    "description": "Paragraph (privacy)"
+  },
   "pairShareWarning": "Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.",
   "@pairShareWarning": {
     "description": "Small print under the preview."
@@ -20909,7 +21211,7 @@
   "@helpPairWhatStep1": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatStep2": "In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.",
+  "helpPairWhatStep2": "Choose a way: Words, Invite by message or In person.",
   "@helpPairWhatStep2": {
     "description": "Topic 1 step."
   },
@@ -20953,7 +21255,7 @@
   "@helpPairWordsShort": {
     "description": "Topic 3 lede."
   },
-  "helpPairWordsP1": "When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.",
+  "helpPairWordsP1": "When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Got words or a link?**; the field completes each name after a few letters. The words are good for 10 minutes.",
   "@helpPairWordsP1": {
     "description": "Topic 3."
   },

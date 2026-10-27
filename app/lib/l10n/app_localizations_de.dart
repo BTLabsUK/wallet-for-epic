@@ -14600,6 +14600,231 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint =>
+      'Koppeln Sie mit einer anderen Wallet, um Zahlungsdateien und Rechnungen zwischen beiden zu versiegeln.';
+
+  @override
+  String get contactsPairLearn => 'So funktioniert es';
+
+  @override
+  String get contactsPairTooltip => 'Mit einer anderen Wallet koppeln';
+
+  @override
+  String get pairBadgePending => 'Kopplung läuft…';
+
+  @override
+  String get pairBadgePendingTip =>
+      'Einladung gesendet oder beantwortet, noch nicht abgeschlossen.';
+
+  @override
+  String get pairWaysLead =>
+      'Einmal koppeln. Danach sind Zahlungsdateien und Rechnungen zwischen beiden Wallets versiegelt.';
+
+  @override
+  String get pairWayWords => 'Wörter';
+
+  @override
+  String get pairWayAutomatic => 'Automatisch';
+
+  @override
+  String get pairWayWordsHint =>
+      'Lesen Sie fünf Wörter vor. Beide Wallets müssen online sein; der Rest geschieht von selbst.';
+
+  @override
+  String get pairWayWordsInfo =>
+      'Beide Wallets müssen online sein und ein Epicbox-Relay erreichen. Ihre Wallet legt die Einladung auf den drei eingebauten Relays ab; die andere findet sie über die fünf Wörter. Danach prüfen Sie gemeinsam die vier Wörter.';
+
+  @override
+  String get pairWayMessage => 'Einladung per Nachricht';
+
+  @override
+  String get pairWayMessageHint =>
+      'Senden Sie einen Link in einem beliebigen Chat: Telegram, WhatsApp, SMS, E-Mail. Kein Relay nötig.';
+
+  @override
+  String get pairWayMessageInfo =>
+      'Drei Nachrichten: Ihre Einladung, die Antwort, Ihr Abschlusslink. Kopieren Sie jede, wenn sie ankommt; die Wallet findet sie in der Zwischenablage, wenn Sie zurückkehren. Funktioniert auch, wenn ein Relay gesperrt oder eine Wallet offline ist.';
+
+  @override
+  String get pairWayInPersonDesk =>
+      'Das Telefon der anderen Seite scannt Ihren Code';
+
+  @override
+  String get pairGotInvite => 'Wörter oder Link erhalten?';
+
+  @override
+  String get pairGotInviteHint =>
+      'Tippen Sie die Wörter oder fügen Sie die erhaltene Nachricht ein.';
+
+  @override
+  String get pairHowItWorks => 'So funktioniert Koppeln';
+
+  @override
+  String get pairWordsBothOnline =>
+      'Beide Wallets müssen online sein. Der Rest geschieht von selbst.';
+
+  @override
+  String get pairWordsWaiting => 'Warten auf die andere Wallet…';
+
+  @override
+  String get pairUseMessageInstead => 'Stattdessen per Nachricht einladen';
+
+  @override
+  String get pairAskForMessage =>
+      'Bitten Sie die andere Seite, Sie stattdessen per Nachricht einzuladen.';
+
+  @override
+  String get pairStepInvite => 'Einladung';
+
+  @override
+  String get pairStepReply => 'Antwort';
+
+  @override
+  String get pairStepFinish => 'Abschlusslink';
+
+  @override
+  String get pairStepWords => 'Wörter';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return 'Schritt $n von 4: $step';
+  }
+
+  @override
+  String get pairMessageLead =>
+      'Senden Sie die Einladung in einem beliebigen Chat. Die Antwort kommt auf demselben Weg zurück.';
+
+  @override
+  String pairInviteMessage(String link) {
+    return 'Einladung zur Kopplung in Epic Cash: $link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return 'Meine Antwort zur Epic-Cash-Kopplung: $link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return 'Abschluss unserer Epic-Cash-Kopplung: $link';
+  }
+
+  @override
+  String get pairCopyMessage => 'Nachricht kopieren';
+
+  @override
+  String get pairMessageCopied => 'Kopiert. Fügen Sie es im Chat ein.';
+
+  @override
+  String get pairAwaitReplyTitle => 'Warten auf die Antwort';
+
+  @override
+  String get pairAwaitReplyBody =>
+      'Wenn die Antwort im Chat ankommt, kopieren Sie sie und kehren Sie zurück. Die Wallet findet sie.';
+
+  @override
+  String get pairByItself =>
+      'Erreichen beide Seiten ein Relay, geschieht dieser Schritt auch von selbst.';
+
+  @override
+  String get pairPasteReply => 'Antwort einfügen';
+
+  @override
+  String get pairReplyTitle => 'Antwort senden';
+
+  @override
+  String pairReplyLead(String name) {
+    return 'Senden Sie dies im selben Chat an $name zurück.';
+  }
+
+  @override
+  String get pairShareReply => 'Antwort teilen';
+
+  @override
+  String get pairAwaitFinishTitle => 'Warten auf den Abschlusslink';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return 'Die Wallet von $name erstellt ihn aus Ihrer Antwort. Kopieren Sie ihn, wenn er ankommt, und kehren Sie zurück.';
+  }
+
+  @override
+  String get pairPasteFinish => 'Abschlusslink einfügen';
+
+  @override
+  String get pairFinishTitle => 'Abschlusslink senden';
+
+  @override
+  String pairFinishLead(String name) {
+    return 'Noch eine Nachricht: Die Wallet von $name braucht sie, um die Wörter zu zeigen.';
+  }
+
+  @override
+  String get pairShareFinish => 'Abschlusslink teilen';
+
+  @override
+  String get pairFinishThenCheck => 'Prüfen Sie dann gemeinsam die Wörter.';
+
+  @override
+  String get pairClipTitle => 'Kopplungslink gefunden';
+
+  @override
+  String pairClipInvite(String name) {
+    return 'In der Zwischenablage liegt eine Einladung von „$name“. Verwenden?';
+  }
+
+  @override
+  String get pairClipReply =>
+      'In der Zwischenablage liegt eine Antwort auf Ihre Einladung. Verwenden?';
+
+  @override
+  String get pairClipFinish =>
+      'In der Zwischenablage liegt der Abschlusslink Ihrer Kopplung. Verwenden?';
+
+  @override
+  String get pairClipCard =>
+      'In der Zwischenablage liegt ein Kopplungscode. Verwenden?';
+
+  @override
+  String get pairClipUse => 'Verwenden';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return 'Bereits mit $name gekoppelt.';
+  }
+
+  @override
+  String get pairReplyNotHere =>
+      'Diese Antwort gehört zu einer Einladung einer anderen Wallet.';
+
+  @override
+  String get helpPairWaysTitle => 'Drei Wege zu koppeln';
+
+  @override
+  String get helpPairWaysShort =>
+      'Wörter, wenn beide Wallets online sind, eine Nachricht in einem beliebigen Chat oder persönlich.';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**Wörter.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den drei eingebauten Relays ab: epicbox.epiccash.com, epicbox.stackwallet.com und dem BT-Labs-Relay. Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und eines dieser Relays erreichen.';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**Einladung per Nachricht.** Drei Nachrichten in einem beliebigen Chat: die Einladung, die Antwort, der Abschlusslink. Es ist kein Relay nötig, daher funktioniert das auch, wenn ein Netz Epicbox sperrt. Kopieren Sie jede Nachricht, wenn sie ankommt; die Wallet bietet sie an, wenn Sie zurückkehren.';
+
+  @override
+  String get helpPairWaysP3 =>
+      '**Persönlich.** Jedes Telefon scannt den Code des anderen. Es wird kein Netz verwendet.';
+
+  @override
+  String get helpPairWaysP4 =>
+      'Prüfen Sie auf jedem Weg am Ende gemeinsam die vier Wörter. Sie zeigen, dass niemand die Nachrichten unterwegs verändert hat.';
+
+  @override
+  String get helpPairClipP =>
+      'Die Wallet liest die Zwischenablage nur, solange Kopplung eingeschaltet ist, nur wenn sie in den Vordergrund kommt oder der Kopplungsbildschirm öffnet, und bietet jeden Link einmal an. Sie speichert und protokolliert nie, was sie liest.';
+
+  @override
   String get pairShareWarning =>
       'Wer diese Einladung hat, kann sich bis zum Ablauf als Sie koppeln. Senden Sie sie nur an die gemeinte Person und prüfen Sie danach gemeinsam die Wörter.';
 
@@ -15761,7 +15986,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Persönlich: Ihren Code zeigen, den anderen scannen. Online: die Einladung senden oder die Kopplungswörter vorlesen.';
+      'Wählen Sie einen Weg: Wörter, Einladung per Nachricht oder Persönlich.';
 
   @override
   String get helpPairWhatStep3 =>
@@ -15803,7 +16028,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'Wenn eine Wallet keine Kamera hat oder sich die Einladung nicht als Link senden lässt, zeigt die einladende Wallet fünf Kopplungswörter. Die andere Person tippt die Namen unter **Link oder Wörter eingeben**; das Feld ergänzt jeden Namen nach wenigen Buchstaben. Die Wörter sind 10 Minuten gültig.';
+      'Wenn eine Wallet keine Kamera hat oder sich die Einladung nicht als Link senden lässt, zeigt die einladende Wallet fünf Kopplungswörter. Die andere Person tippt die Namen unter **Wörter oder Link erhalten?**; das Feld ergänzt jeden Namen nach wenigen Buchstaben. Die Wörter sind 10 Minuten gültig.';
 
   @override
   String get helpPairWordsP2 =>

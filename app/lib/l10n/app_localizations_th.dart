@@ -14173,6 +14173,225 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint =>
+      'จับคู่กับกระเป๋าเงินอีกใบเพื่อปิดผนึกไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างกัน';
+
+  @override
+  String get contactsPairLearn => 'ทำงานอย่างไร';
+
+  @override
+  String get contactsPairTooltip => 'จับคู่กับกระเป๋าเงินอีกใบ';
+
+  @override
+  String get pairBadgePending => 'กำลังจับคู่…';
+
+  @override
+  String get pairBadgePendingTip => 'ส่งหรือตอบคำเชิญแล้ว แต่ยังไม่เสร็จ';
+
+  @override
+  String get pairWaysLead =>
+      'จับคู่ครั้งเดียว จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
+
+  @override
+  String get pairWayWords => 'คำ';
+
+  @override
+  String get pairWayAutomatic => 'อัตโนมัติ';
+
+  @override
+  String get pairWayWordsHint =>
+      'อ่านห้าคำให้อีกฝ่ายฟัง กระเป๋าเงินทั้งสองต้องออนไลน์ ที่เหลือจะทำงานเอง';
+
+  @override
+  String get pairWayWordsInfo =>
+      'กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงรีเลย์ Epicbox ได้ กระเป๋าเงินของคุณส่งคำเชิญไปยังรีเลย์ในตัวทั้งสามแห่ง กระเป๋าเงินของอีกฝ่ายหาคำเชิญจากห้าคำ จากนั้นตรวจสี่คำด้วยกัน';
+
+  @override
+  String get pairWayMessage => 'เชิญทางข้อความ';
+
+  @override
+  String get pairWayMessageHint =>
+      'ส่งลิงก์ในแชตใดก็ได้: Telegram, WhatsApp, SMS, อีเมล ไม่ต้องใช้รีเลย์';
+
+  @override
+  String get pairWayMessageInfo =>
+      'สามข้อความ: คำเชิญของคุณ คำตอบของอีกฝ่าย และลิงก์ปิดท้ายของคุณ คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะพบในคลิปบอร์ดเมื่อคุณกลับมา ใช้ได้แม้รีเลย์ถูกบล็อกหรือกระเป๋าเงินออฟไลน์';
+
+  @override
+  String get pairWayInPersonDesk => 'โทรศัพท์ของอีกฝ่ายสแกนโค้ดของคุณ';
+
+  @override
+  String get pairGotInvite => 'ได้รับคำหรือลิงก์มาแล้ว?';
+
+  @override
+  String get pairGotInviteHint => 'พิมพ์คำ หรือวางข้อความที่ได้รับ';
+
+  @override
+  String get pairHowItWorks => 'การจับคู่ทำงานอย่างไร';
+
+  @override
+  String get pairWordsBothOnline =>
+      'กระเป๋าเงินทั้งสองต้องออนไลน์ ที่เหลือจะทำงานเอง';
+
+  @override
+  String get pairWordsWaiting => 'กำลังรอกระเป๋าเงินของอีกฝ่าย…';
+
+  @override
+  String get pairUseMessageInstead => 'เชิญทางข้อความแทน';
+
+  @override
+  String get pairAskForMessage => 'ขอให้อีกฝ่ายเชิญคุณทางข้อความแทน';
+
+  @override
+  String get pairStepInvite => 'คำเชิญ';
+
+  @override
+  String get pairStepReply => 'คำตอบ';
+
+  @override
+  String get pairStepFinish => 'ลิงก์ปิดท้าย';
+
+  @override
+  String get pairStepWords => 'คำ';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return 'ขั้นที่ $n จาก 4: $step';
+  }
+
+  @override
+  String get pairMessageLead =>
+      'ส่งคำเชิญในแชตใดก็ได้ คำตอบจะกลับมาทางเดียวกัน';
+
+  @override
+  String pairInviteMessage(String link) {
+    return 'จับคู่กับฉันใน Epic Cash: $link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return 'คำตอบของฉันสำหรับการจับคู่ Epic Cash: $link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return 'จบการจับคู่ Epic Cash ของเรา: $link';
+  }
+
+  @override
+  String get pairCopyMessage => 'คัดลอกข้อความ';
+
+  @override
+  String get pairMessageCopied => 'คัดลอกแล้ว วางในแชตได้เลย';
+
+  @override
+  String get pairAwaitReplyTitle => 'กำลังรอคำตอบ';
+
+  @override
+  String get pairAwaitReplyBody =>
+      'เมื่อคำตอบมาถึงในแชต ให้คัดลอกแล้วกลับมา กระเป๋าเงินจะพบเอง';
+
+  @override
+  String get pairByItself =>
+      'หากทั้งสองฝ่ายเข้าถึงรีเลย์ได้ ขั้นนี้จะเกิดขึ้นเองด้วย';
+
+  @override
+  String get pairPasteReply => 'วางคำตอบ';
+
+  @override
+  String get pairReplyTitle => 'ส่งคำตอบ';
+
+  @override
+  String pairReplyLead(String name) {
+    return 'ส่งสิ่งนี้กลับไปยัง $name ในแชตเดิม';
+  }
+
+  @override
+  String get pairShareReply => 'แชร์คำตอบ';
+
+  @override
+  String get pairAwaitFinishTitle => 'กำลังรอลิงก์ปิดท้าย';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return 'กระเป๋าเงินของ $name สร้างจากคำตอบของคุณ คัดลอกเมื่อได้รับแล้วกลับมา';
+  }
+
+  @override
+  String get pairPasteFinish => 'วางลิงก์ปิดท้าย';
+
+  @override
+  String get pairFinishTitle => 'ส่งลิงก์ปิดท้าย';
+
+  @override
+  String pairFinishLead(String name) {
+    return 'อีกหนึ่งข้อความ: กระเป๋าเงินของ $name ต้องใช้เพื่อแสดงคำ';
+  }
+
+  @override
+  String get pairShareFinish => 'แชร์ลิงก์ปิดท้าย';
+
+  @override
+  String get pairFinishThenCheck => 'จากนั้นตรวจคำด้วยกัน';
+
+  @override
+  String get pairClipTitle => 'พบลิงก์จับคู่';
+
+  @override
+  String pairClipInvite(String name) {
+    return 'มีคำเชิญจาก “$name” อยู่ในคลิปบอร์ด ใช้เลยไหม';
+  }
+
+  @override
+  String get pairClipReply =>
+      'มีคำตอบสำหรับคำเชิญของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
+
+  @override
+  String get pairClipFinish =>
+      'มีลิงก์ปิดท้ายการจับคู่ของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
+
+  @override
+  String get pairClipCard => 'มีโค้ดจับคู่อยู่ในคลิปบอร์ด ใช้เลยไหม';
+
+  @override
+  String get pairClipUse => 'ใช้';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return 'จับคู่กับ $name แล้ว';
+  }
+
+  @override
+  String get pairReplyNotHere => 'คำตอบนี้เป็นของคำเชิญจากกระเป๋าเงินอื่น';
+
+  @override
+  String get helpPairWaysTitle => 'สามวิธีจับคู่';
+
+  @override
+  String get helpPairWaysShort =>
+      'ใช้คำเมื่อทั้งสองกระเป๋าเงินออนไลน์ ใช้ข้อความในแชตใดก็ได้ หรือพบตัว';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**คำ** กระเป๋าเงินหนึ่งแสดงห้าคำและส่งคำเชิญที่ปิดผนึกไปยังรีเลย์ในตัวสามแห่ง: epicbox.epiccash.com, epicbox.stackwallet.com และรีเลย์ของ BT Labs อีกกระเป๋าเงินพิมพ์คำแล้วหาคำเชิญพบ กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงรีเลย์เหล่านี้ได้อย่างน้อยหนึ่งแห่ง';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**เชิญทางข้อความ** สามข้อความในแชตใดก็ได้: คำเชิญ คำตอบ และลิงก์ปิดท้าย ไม่ต้องใช้รีเลย์ จึงใช้ได้แม้เครือข่ายบล็อก Epicbox คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะเสนอให้ใช้เมื่อคุณกลับมา';
+
+  @override
+  String get helpPairWaysP3 =>
+      '**แบบพบตัว** โทรศัพท์แต่ละเครื่องสแกนโค้ดของอีกเครื่อง ไม่ใช้เครือข่าย';
+
+  @override
+  String get helpPairWaysP4 =>
+      'ไม่ว่าวิธีใด ตอนท้ายให้ตรวจสี่คำด้วยกัน คำเหล่านี้แสดงว่าไม่มีใครแก้ไขข้อความระหว่างทาง';
+
+  @override
+  String get helpPairClipP =>
+      'กระเป๋าเงินอ่านคลิปบอร์ดเฉพาะเมื่อเปิดการจับคู่ไว้ เฉพาะตอนกลับมาที่หน้าจอหรือเปิดหน้าจับคู่ และเสนอแต่ละลิงก์เพียงครั้งเดียว ไม่เคยเก็บหรือบันทึกสิ่งที่อ่าน';
+
+  @override
   String get pairShareWarning =>
       'ใครก็ตามที่มีคำเชิญนี้จับคู่ในนามคุณได้จนกว่าจะหมดอายุ ส่งให้เฉพาะคนที่ตั้งใจเท่านั้น แล้วตรวจคำด้วยกัน';
 
@@ -15317,8 +15536,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เปิด [[ผู้ติดต่อ|Contacts]] แล้วเลือก **จับคู่**';
 
   @override
-  String get helpPairWhatStep2 =>
-      'แบบพบตัว: แสดงโค้ดของคุณ สแกนโค้ดของอีกฝ่าย ออนไลน์: ส่งคำเชิญ หรืออ่านคำจับคู่ให้ฟัง';
+  String get helpPairWhatStep2 => 'เลือกวิธี: คำ, เชิญทางข้อความ หรือ แบบพบตัว';
 
   @override
   String get helpPairWhatStep3 => 'ตรวจคำด้วยกัน แล้วเลือก **ตรงกัน**';
@@ -15359,7 +15577,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'เมื่อกระเป๋าเงินหนึ่งไม่มีกล้อง หรือส่งคำเชิญเป็นลิงก์ไม่ได้ กระเป๋าเงินที่เชิญจะแสดงคำจับคู่ห้าคำ อีกฝ่ายพิมพ์ชื่อเหล่านั้นที่ **ใส่ลิงก์หรือคำ** ช่องจะเติมชื่อให้หลังพิมพ์ไม่กี่ตัวอักษร คำเหล่านี้ใช้ได้ 10 นาที';
+      'เมื่อกระเป๋าเงินหนึ่งไม่มีกล้อง หรือส่งคำเชิญเป็นลิงก์ไม่ได้ กระเป๋าเงินที่เชิญจะแสดงคำจับคู่ห้าคำ อีกฝ่ายพิมพ์ชื่อเหล่านั้นที่ **ได้รับคำหรือลิงก์มาแล้ว?** ช่องจะเติมชื่อให้หลังพิมพ์ไม่กี่ตัวอักษร คำเหล่านี้ใช้ได้ 10 นาที';
 
   @override
   String get helpPairWordsP2 =>

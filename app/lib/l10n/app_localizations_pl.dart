@@ -14814,6 +14814,228 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint =>
+      'Sparuj z innym portfelem, aby zapieczętować pliki płatności i faktury między nimi.';
+
+  @override
+  String get contactsPairLearn => 'Jak to działa';
+
+  @override
+  String get contactsPairTooltip => 'Sparuj z innym portfelem';
+
+  @override
+  String get pairBadgePending => 'Parowanie…';
+
+  @override
+  String get pairBadgePendingTip =>
+      'Zaproszenie wysłane lub przyjęte, jeszcze nie zakończone.';
+
+  @override
+  String get pairWaysLead =>
+      'Sparuj raz. Potem pliki płatności i faktury między oboma portfelami są zapieczętowane.';
+
+  @override
+  String get pairWayWords => 'Słowa';
+
+  @override
+  String get pairWayAutomatic => 'Automatycznie';
+
+  @override
+  String get pairWayWordsHint =>
+      'Przeczytaj drugiej osobie pięć słów. Oba portfele muszą być online; reszta dzieje się sama.';
+
+  @override
+  String get pairWayWordsInfo =>
+      'Oba portfele muszą być online i mieć dostęp do przekaźnika Epicbox. Twój portfel wysyła zaproszenie na trzy wbudowane przekaźniki; portfel drugiej osoby znajduje je po pięciu słowach. Potem sprawdźcie razem cztery słowa.';
+
+  @override
+  String get pairWayMessage => 'Zaproszenie w wiadomości';
+
+  @override
+  String get pairWayMessageHint =>
+      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Przekaźnik nie jest potrzebny.';
+
+  @override
+  String get pairWayMessageInfo =>
+      'Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy przekaźnik jest zablokowany albo portfel jest offline.';
+
+  @override
+  String get pairWayInPersonDesk => 'Telefon drugiej osoby skanuje twój kod';
+
+  @override
+  String get pairGotInvite => 'Masz słowa lub link?';
+
+  @override
+  String get pairGotInviteHint => 'Wpisz słowa lub wklej otrzymaną wiadomość.';
+
+  @override
+  String get pairHowItWorks => 'Jak działa parowanie';
+
+  @override
+  String get pairWordsBothOnline =>
+      'Oba portfele muszą być online. Reszta dzieje się sama.';
+
+  @override
+  String get pairWordsWaiting => 'Czekam na portfel drugiej osoby…';
+
+  @override
+  String get pairUseMessageInstead => 'Zaproś w wiadomości';
+
+  @override
+  String get pairAskForMessage =>
+      'Poproś drugą osobę o zaproszenie w wiadomości.';
+
+  @override
+  String get pairStepInvite => 'Zaproszenie';
+
+  @override
+  String get pairStepReply => 'Odpowiedź';
+
+  @override
+  String get pairStepFinish => 'Link kończący';
+
+  @override
+  String get pairStepWords => 'Słowa';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return 'Krok $n z 4: $step';
+  }
+
+  @override
+  String get pairMessageLead =>
+      'Wyślij zaproszenie w dowolnym czacie. Odpowiedź wróci tą samą drogą.';
+
+  @override
+  String pairInviteMessage(String link) {
+    return 'Sparuj się ze mną w Epic Cash: $link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return 'Moja odpowiedź na parowanie w Epic Cash: $link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return 'Dokończ nasze parowanie w Epic Cash: $link';
+  }
+
+  @override
+  String get pairCopyMessage => 'Kopiuj wiadomość';
+
+  @override
+  String get pairMessageCopied => 'Skopiowano. Wklej to w czacie.';
+
+  @override
+  String get pairAwaitReplyTitle => 'Czekam na odpowiedź';
+
+  @override
+  String get pairAwaitReplyBody =>
+      'Gdy odpowiedź przyjdzie w czacie, skopiuj ją i wróć. Portfel ją znajdzie.';
+
+  @override
+  String get pairByItself =>
+      'Gdy obie strony mają dostęp do przekaźnika, ten krok dzieje się też sam.';
+
+  @override
+  String get pairPasteReply => 'Wklej odpowiedź';
+
+  @override
+  String get pairReplyTitle => 'Wyślij odpowiedź';
+
+  @override
+  String pairReplyLead(String name) {
+    return 'Odeślij to do $name w tym samym czacie.';
+  }
+
+  @override
+  String get pairShareReply => 'Udostępnij odpowiedź';
+
+  @override
+  String get pairAwaitFinishTitle => 'Czekam na link kończący';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return 'Portfel $name tworzy go z twojej odpowiedzi. Skopiuj go, gdy przyjdzie, i wróć.';
+  }
+
+  @override
+  String get pairPasteFinish => 'Wklej link kończący';
+
+  @override
+  String get pairFinishTitle => 'Wyślij link kończący';
+
+  @override
+  String pairFinishLead(String name) {
+    return 'Jeszcze jedna wiadomość: portfel $name potrzebuje jej, by pokazać słowa.';
+  }
+
+  @override
+  String get pairShareFinish => 'Udostępnij link kończący';
+
+  @override
+  String get pairFinishThenCheck => 'Potem sprawdźcie razem słowa.';
+
+  @override
+  String get pairClipTitle => 'Znaleziono link parowania';
+
+  @override
+  String pairClipInvite(String name) {
+    return 'W schowku jest zaproszenie od „$name”. Użyć?';
+  }
+
+  @override
+  String get pairClipReply =>
+      'W schowku jest odpowiedź na twoje zaproszenie. Użyć?';
+
+  @override
+  String get pairClipFinish =>
+      'W schowku jest link kończący twoje parowanie. Użyć?';
+
+  @override
+  String get pairClipCard => 'W schowku jest kod parowania. Użyć?';
+
+  @override
+  String get pairClipUse => 'Użyj';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return 'Już sparowano z: $name.';
+  }
+
+  @override
+  String get pairReplyNotHere =>
+      'Ta odpowiedź dotyczy zaproszenia z innego portfela.';
+
+  @override
+  String get helpPairWaysTitle => 'Trzy sposoby parowania';
+
+  @override
+  String get helpPairWaysShort =>
+      'Słowa, gdy oba portfele są online, wiadomość w dowolnym czacie albo osobiście.';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**Słowa.** Jeden portfel pokazuje pięć słów i wysyła zapieczętowane zaproszenie na trzy wbudowane przekaźniki: epicbox.epiccash.com, epicbox.stackwallet.com i przekaźnik BT Labs. Drugi portfel wpisuje słowa i je znajduje. Oba portfele muszą być online i mieć dostęp do jednego z tych przekaźników.';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Przekaźnik nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.';
+
+  @override
+  String get helpPairWaysP3 =>
+      '**Osobiście.** Każdy telefon skanuje kod drugiego. Sieć nie jest używana.';
+
+  @override
+  String get helpPairWaysP4 =>
+      'Niezależnie od sposobu, na końcu sprawdźcie razem cztery słowa. Pokazują, że nikt nie zmienił wiadomości po drodze.';
+
+  @override
+  String get helpPairClipP =>
+      'Portfel czyta schowek tylko wtedy, gdy parowanie jest włączone, tylko gdy wraca na pierwszy plan lub otwiera się ekran parowania, i proponuje każdy link raz. Nigdy nie zapisuje ani nie loguje tego, co przeczytał.';
+
+  @override
   String get pairShareWarning =>
       'Każdy, kto ma to zaproszenie, może się sparować jako ty, dopóki nie wygaśnie. Wyślij je tylko właściwej osobie, a potem sprawdźcie razem słowa.';
 
@@ -15984,7 +16206,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Osobiście: pokaż swój kod, zeskanuj kod drugiej osoby. Online: wyślij zaproszenie lub przeczytaj słowa parowania.';
+      'Wybierz sposób: Słowa, Zaproszenie w wiadomości lub Osobiście.';
 
   @override
   String get helpPairWhatStep3 =>
@@ -16026,7 +16248,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'Gdy jeden portfel nie ma aparatu albo zaproszenia nie da się wysłać jako linku, zapraszający portfel pokazuje pięć słów parowania. Druga osoba wpisuje ich nazwy w **Wpisz link lub słowa**; pole uzupełnia każdą nazwę po kilku literach. Słowa są ważne przez 10 minut.';
+      'Gdy jeden portfel nie ma aparatu albo zaproszenia nie da się wysłać jako linku, zapraszający portfel pokazuje pięć słów parowania. Druga osoba wpisuje ich nazwy w **Masz słowa lub link?**; pole uzupełnia każdą nazwę po kilku literach. Słowa są ważne przez 10 minut.';
 
   @override
   String get helpPairWordsP2 =>

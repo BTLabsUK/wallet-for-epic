@@ -14423,6 +14423,228 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint =>
+      'Pair with another wallet to seal payment files and invoices between the two.';
+
+  @override
+  String get contactsPairLearn => 'How it works';
+
+  @override
+  String get contactsPairTooltip => 'Pair with another wallet';
+
+  @override
+  String get pairBadgePending => 'Pairing…';
+
+  @override
+  String get pairBadgePendingTip =>
+      'Invite sent or answered, not finished yet.';
+
+  @override
+  String get pairWaysLead =>
+      'Pair once. Payment files and invoices between the two wallets are then sealed.';
+
+  @override
+  String get pairWayWords => 'Words';
+
+  @override
+  String get pairWayAutomatic => 'Automatic';
+
+  @override
+  String get pairWayWordsHint =>
+      'Read five words to them. Both wallets must be online; the rest happens by itself.';
+
+  @override
+  String get pairWayWordsInfo =>
+      'Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.';
+
+  @override
+  String get pairWayMessage => 'Invite by message';
+
+  @override
+  String get pairWayMessageHint =>
+      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.';
+
+  @override
+  String get pairWayMessageInfo =>
+      'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.';
+
+  @override
+  String get pairWayInPersonDesk => 'Their phone scans your code';
+
+  @override
+  String get pairGotInvite => 'Got words or a link?';
+
+  @override
+  String get pairGotInviteHint =>
+      'Type the words, or paste the message they sent.';
+
+  @override
+  String get pairHowItWorks => 'How pairing works';
+
+  @override
+  String get pairWordsBothOnline =>
+      'Both wallets must be online. The rest happens by itself.';
+
+  @override
+  String get pairWordsWaiting => 'Waiting for their wallet…';
+
+  @override
+  String get pairUseMessageInstead => 'Invite by message instead';
+
+  @override
+  String get pairAskForMessage => 'Ask them to invite you by message instead.';
+
+  @override
+  String get pairStepInvite => 'Invite';
+
+  @override
+  String get pairStepReply => 'Reply';
+
+  @override
+  String get pairStepFinish => 'Finish link';
+
+  @override
+  String get pairStepWords => 'Words';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return 'Step $n of 4: $step';
+  }
+
+  @override
+  String get pairMessageLead =>
+      'Send the invite in any chat. Their reply comes back the same way.';
+
+  @override
+  String pairInviteMessage(String link) {
+    return 'Pair with me in Epic Cash: $link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return 'My reply to your Epic Cash pairing: $link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return 'Finish our Epic Cash pairing: $link';
+  }
+
+  @override
+  String get pairCopyMessage => 'Copy message';
+
+  @override
+  String get pairMessageCopied => 'Copied. Paste it in the chat.';
+
+  @override
+  String get pairAwaitReplyTitle => 'Waiting for the reply';
+
+  @override
+  String get pairAwaitReplyBody =>
+      'When the reply arrives in the chat, copy it and come back. The wallet finds it.';
+
+  @override
+  String get pairByItself =>
+      'With a relay on both sides, this step also happens by itself.';
+
+  @override
+  String get pairPasteReply => 'Paste reply';
+
+  @override
+  String get pairReplyTitle => 'Send your reply';
+
+  @override
+  String pairReplyLead(String name) {
+    return 'Send this back to $name in the same chat.';
+  }
+
+  @override
+  String get pairShareReply => 'Share reply';
+
+  @override
+  String get pairAwaitFinishTitle => 'Waiting for the finish link';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return '$name’s wallet makes it from your reply. Copy it when it arrives and come back.';
+  }
+
+  @override
+  String get pairPasteFinish => 'Paste finish link';
+
+  @override
+  String get pairFinishTitle => 'Send the finish link';
+
+  @override
+  String pairFinishLead(String name) {
+    return 'One more message: $name’s wallet needs it to show the words.';
+  }
+
+  @override
+  String get pairShareFinish => 'Share finish link';
+
+  @override
+  String get pairFinishThenCheck => 'Then check the words together.';
+
+  @override
+  String get pairClipTitle => 'Pairing link found';
+
+  @override
+  String pairClipInvite(String name) {
+    return 'An invite from “$name” is on the clipboard. Use it?';
+  }
+
+  @override
+  String get pairClipReply =>
+      'A reply to your invite is on the clipboard. Use it?';
+
+  @override
+  String get pairClipFinish =>
+      'The finish link for your pairing is on the clipboard. Use it?';
+
+  @override
+  String get pairClipCard => 'A pairing code is on the clipboard. Use it?';
+
+  @override
+  String get pairClipUse => 'Use it';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return 'Already paired with $name.';
+  }
+
+  @override
+  String get pairReplyNotHere =>
+      'This reply answers an invite from another wallet.';
+
+  @override
+  String get helpPairWaysTitle => 'Three ways to pair';
+
+  @override
+  String get helpPairWaysShort =>
+      'Words when both wallets are online, a message in any chat, or in person.';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.';
+
+  @override
+  String get helpPairWaysP3 =>
+      '**In person.** Each phone scans the other’s code. No network is used.';
+
+  @override
+  String get helpPairWaysP4 =>
+      'Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.';
+
+  @override
+  String get helpPairClipP =>
+      'The wallet reads the clipboard only while Pairing is on, only when it comes to the front or the Pair screen opens, and offers each link once. It never stores or logs what it reads.';
+
+  @override
   String get pairShareWarning =>
       'Anyone with this invite can pair as you until it expires. Send it only to the person you mean, then check the words together.';
 
@@ -15572,7 +15794,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.';
+      'Choose a way: Words, Invite by message or In person.';
 
   @override
   String get helpPairWhatStep3 =>
@@ -15614,7 +15836,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.';
+      'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Got words or a link?**; the field completes each name after a few letters. The words are good for 10 minutes.';
 
   @override
   String get helpPairWordsP2 =>

@@ -13660,6 +13660,212 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint => '与另一个钱包配对，即可密封两者之间的付款文件和账单。';
+
+  @override
+  String get contactsPairLearn => '如何运作';
+
+  @override
+  String get contactsPairTooltip => '与另一个钱包配对';
+
+  @override
+  String get pairBadgePending => '配对中…';
+
+  @override
+  String get pairBadgePendingTip => '邀请已发送或已回复，尚未完成。';
+
+  @override
+  String get pairWaysLead => '只需配对一次。之后两个钱包之间的付款文件和账单都会被密封。';
+
+  @override
+  String get pairWayWords => '配对词';
+
+  @override
+  String get pairWayAutomatic => '自动';
+
+  @override
+  String get pairWayWordsHint => '把五个词念给对方。两个钱包都需在线，其余会自动完成。';
+
+  @override
+  String get pairWayWordsInfo =>
+      '两个钱包都需在线并能连上 Epicbox 中继。你的钱包会把邀请发布到三个内置中继；对方的钱包通过五个词找到它。之后一起核对四个词。';
+
+  @override
+  String get pairWayMessage => '通过消息邀请';
+
+  @override
+  String get pairWayMessageHint => '在任意聊天中发送链接：Telegram、WhatsApp、短信、电子邮件。无需中继。';
+
+  @override
+  String get pairWayMessageInfo =>
+      '三条消息：你的邀请、对方的回复、你的完成链接。每条到达后复制它；你回来时钱包会在剪贴板中找到。中继被屏蔽或钱包离线时也可用。';
+
+  @override
+  String get pairWayInPersonDesk => '对方的手机扫描你的码';
+
+  @override
+  String get pairGotInvite => '收到了配对词或链接？';
+
+  @override
+  String get pairGotInviteHint => '输入配对词，或粘贴对方发来的消息。';
+
+  @override
+  String get pairHowItWorks => '配对如何运作';
+
+  @override
+  String get pairWordsBothOnline => '两个钱包都需在线，其余会自动完成。';
+
+  @override
+  String get pairWordsWaiting => '正在等待对方的钱包…';
+
+  @override
+  String get pairUseMessageInstead => '改为通过消息邀请';
+
+  @override
+  String get pairAskForMessage => '请对方改为通过消息邀请你。';
+
+  @override
+  String get pairStepInvite => '邀请';
+
+  @override
+  String get pairStepReply => '回复';
+
+  @override
+  String get pairStepFinish => '完成链接';
+
+  @override
+  String get pairStepWords => '核对词语';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return '第 $n 步，共 4 步：$step';
+  }
+
+  @override
+  String get pairMessageLead => '在任意聊天中发送邀请。回复会以同样方式回来。';
+
+  @override
+  String pairInviteMessage(String link) {
+    return '在 Epic Cash 中与我配对：$link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return '我对 Epic Cash 配对的回复：$link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return '完成我们的 Epic Cash 配对：$link';
+  }
+
+  @override
+  String get pairCopyMessage => '复制消息';
+
+  @override
+  String get pairMessageCopied => '已复制。粘贴到聊天中即可。';
+
+  @override
+  String get pairAwaitReplyTitle => '正在等待回复';
+
+  @override
+  String get pairAwaitReplyBody => '回复到达聊天后，复制它再回来，钱包会自动找到。';
+
+  @override
+  String get pairByItself => '若双方都能连上中继，此步骤也会自动完成。';
+
+  @override
+  String get pairPasteReply => '粘贴回复';
+
+  @override
+  String get pairReplyTitle => '发送你的回复';
+
+  @override
+  String pairReplyLead(String name) {
+    return '在同一聊天中把它发回给 $name。';
+  }
+
+  @override
+  String get pairShareReply => '分享回复';
+
+  @override
+  String get pairAwaitFinishTitle => '正在等待完成链接';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return '$name 的钱包会根据你的回复生成它。收到后复制并回来。';
+  }
+
+  @override
+  String get pairPasteFinish => '粘贴完成链接';
+
+  @override
+  String get pairFinishTitle => '发送完成链接';
+
+  @override
+  String pairFinishLead(String name) {
+    return '还差一条消息：$name 的钱包需要它来显示词语。';
+  }
+
+  @override
+  String get pairShareFinish => '分享完成链接';
+
+  @override
+  String get pairFinishThenCheck => '然后一起核对词语。';
+
+  @override
+  String get pairClipTitle => '发现配对链接';
+
+  @override
+  String pairClipInvite(String name) {
+    return '剪贴板中有来自“$name”的邀请。要使用吗？';
+  }
+
+  @override
+  String get pairClipReply => '剪贴板中有对你邀请的回复。要使用吗？';
+
+  @override
+  String get pairClipFinish => '剪贴板中有你配对的完成链接。要使用吗？';
+
+  @override
+  String get pairClipCard => '剪贴板中有配对码。要使用吗？';
+
+  @override
+  String get pairClipUse => '使用';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return '已与 $name 配对。';
+  }
+
+  @override
+  String get pairReplyNotHere => '此回复对应的是另一个钱包的邀请。';
+
+  @override
+  String get helpPairWaysTitle => '三种配对方式';
+
+  @override
+  String get helpPairWaysShort => '两个钱包都在线时用配对词，或在任意聊天中发消息，或当面配对。';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**配对词。**一个钱包显示五个词，并把密封的邀请发布到三个内置中继：epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 中继。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个中继。';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**通过消息邀请。**在任意聊天中发三条消息：邀请、回复、完成链接。无需中继，因此网络屏蔽 Epicbox 时也可用。每条消息到达后复制它；你回来时钱包会提示使用。';
+
+  @override
+  String get helpPairWaysP3 => '**当面。**两部手机互相扫描对方的码。不使用网络。';
+
+  @override
+  String get helpPairWaysP4 => '无论哪种方式，最后都要一起核对四个词。它们表明消息在途中没有被人改动。';
+
+  @override
+  String get helpPairClipP =>
+      '钱包仅在配对开启时、仅在回到前台或打开配对界面时读取剪贴板，每个链接只提示一次。它从不保存或记录读取的内容。';
+
+  @override
   String get pairShareWarning =>
       '在邀请过期前，任何拥有此邀请的人都能以你的身份配对。只发送给你要配对的人，然后一起核对词语。';
 
@@ -14765,7 +14971,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairWhatStep1 => '打开[[联系人|Contacts]]，选择**配对**。';
 
   @override
-  String get helpPairWhatStep2 => '当面：出示你的码，扫描对方的码。在线：发送邀请，或念出配对词。';
+  String get helpPairWhatStep2 => '选择一种方式：配对词、通过消息邀请或当面。';
 
   @override
   String get helpPairWhatStep3 => '一起核对词语，然后选择**一致**。';
@@ -14802,7 +15008,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      '当一个钱包没有相机，或邀请无法以链接发送时，发出邀请的钱包会显示五个配对词。对方在**输入链接或词**中输入它们的名称；输入几个字母后，输入框会补全名称。这些词 10 分钟内有效。';
+      '当一个钱包没有相机，或邀请无法以链接发送时，发出邀请的钱包会显示五个配对词。对方在**收到了配对词或链接？**中输入它们的名称；输入几个字母后，输入框会补全名称。这些词 10 分钟内有效。';
 
   @override
   String get helpPairWordsP2 =>

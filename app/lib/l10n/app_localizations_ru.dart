@@ -14776,6 +14776,229 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get contactsPairHint =>
+      'Выполните сопряжение с другим кошельком, чтобы запечатать файлы платежей и счета между ними.';
+
+  @override
+  String get contactsPairLearn => 'Как это работает';
+
+  @override
+  String get contactsPairTooltip => 'Сопрячь с другим кошельком';
+
+  @override
+  String get pairBadgePending => 'Сопряжение…';
+
+  @override
+  String get pairBadgePendingTip =>
+      'Приглашение отправлено или принято, сопряжение не завершено.';
+
+  @override
+  String get pairWaysLead =>
+      'Сопряжение выполняется один раз. После него файлы платежей и счета между двумя кошельками запечатаны.';
+
+  @override
+  String get pairWayWords => 'Слова';
+
+  @override
+  String get pairWayAutomatic => 'Автоматически';
+
+  @override
+  String get pairWayWordsHint =>
+      'Зачитайте собеседнику пять слов. Оба кошелька должны быть онлайн; остальное произойдёт само.';
+
+  @override
+  String get pairWayWordsInfo =>
+      'Оба кошелька должны быть онлайн и иметь доступ к ретранслятору Epicbox. Ваш кошелёк размещает приглашение на трёх встроенных ретрансляторах; кошелёк собеседника находит его по пяти словам. Затем вместе проверьте четыре слова.';
+
+  @override
+  String get pairWayMessage => 'Приглашение в сообщении';
+
+  @override
+  String get pairWayMessageHint =>
+      'Отправьте ссылку в любом чате: Telegram, WhatsApp, SMS, почта. Ретранслятор не нужен.';
+
+  @override
+  String get pairWayMessageInfo =>
+      'Три сообщения: ваше приглашение, ответ, ваша завершающая ссылка. Копируйте каждое, когда оно придёт; кошелёк найдёт его в буфере обмена, когда вы вернётесь. Работает, когда ретранслятор заблокирован или кошелёк офлайн.';
+
+  @override
+  String get pairWayInPersonDesk => 'Телефон собеседника сканирует ваш код';
+
+  @override
+  String get pairGotInvite => 'Получили слова или ссылку?';
+
+  @override
+  String get pairGotInviteHint =>
+      'Введите слова или вставьте полученное сообщение.';
+
+  @override
+  String get pairHowItWorks => 'Как работает сопряжение';
+
+  @override
+  String get pairWordsBothOnline =>
+      'Оба кошелька должны быть онлайн. Остальное произойдёт само.';
+
+  @override
+  String get pairWordsWaiting => 'Ожидание кошелька собеседника…';
+
+  @override
+  String get pairUseMessageInstead => 'Пригласить сообщением';
+
+  @override
+  String get pairAskForMessage =>
+      'Попросите собеседника прислать приглашение сообщением.';
+
+  @override
+  String get pairStepInvite => 'Приглашение';
+
+  @override
+  String get pairStepReply => 'Ответ';
+
+  @override
+  String get pairStepFinish => 'Завершающая ссылка';
+
+  @override
+  String get pairStepWords => 'Слова';
+
+  @override
+  String pairStepOf(int n, String step) {
+    return 'Шаг $n из 4: $step';
+  }
+
+  @override
+  String get pairMessageLead =>
+      'Отправьте приглашение в любом чате. Ответ придёт тем же путём.';
+
+  @override
+  String pairInviteMessage(String link) {
+    return 'Приглашение к сопряжению в Epic Cash: $link';
+  }
+
+  @override
+  String pairReplyMessage(String link) {
+    return 'Мой ответ на сопряжение в Epic Cash: $link';
+  }
+
+  @override
+  String pairFinishMessage(String link) {
+    return 'Завершение нашего сопряжения в Epic Cash: $link';
+  }
+
+  @override
+  String get pairCopyMessage => 'Копировать сообщение';
+
+  @override
+  String get pairMessageCopied => 'Скопировано. Вставьте в чат.';
+
+  @override
+  String get pairAwaitReplyTitle => 'Ожидание ответа';
+
+  @override
+  String get pairAwaitReplyBody =>
+      'Когда ответ придёт в чат, скопируйте его и вернитесь. Кошелёк найдёт его.';
+
+  @override
+  String get pairByItself =>
+      'Если обе стороны видят ретранслятор, этот шаг происходит и сам.';
+
+  @override
+  String get pairPasteReply => 'Вставить ответ';
+
+  @override
+  String get pairReplyTitle => 'Отправьте ответ';
+
+  @override
+  String pairReplyLead(String name) {
+    return 'Отправьте это $name в том же чате.';
+  }
+
+  @override
+  String get pairShareReply => 'Поделиться ответом';
+
+  @override
+  String get pairAwaitFinishTitle => 'Ожидание завершающей ссылки';
+
+  @override
+  String pairAwaitFinishBody(String name) {
+    return 'Кошелёк $name создаёт её из вашего ответа. Скопируйте её, когда она придёт, и вернитесь.';
+  }
+
+  @override
+  String get pairPasteFinish => 'Вставить завершающую ссылку';
+
+  @override
+  String get pairFinishTitle => 'Отправьте завершающую ссылку';
+
+  @override
+  String pairFinishLead(String name) {
+    return 'Ещё одно сообщение: кошельку $name оно нужно, чтобы показать слова.';
+  }
+
+  @override
+  String get pairShareFinish => 'Поделиться ссылкой';
+
+  @override
+  String get pairFinishThenCheck => 'Затем вместе проверьте слова.';
+
+  @override
+  String get pairClipTitle => 'Найдена ссылка сопряжения';
+
+  @override
+  String pairClipInvite(String name) {
+    return 'В буфере обмена приглашение от «$name». Использовать?';
+  }
+
+  @override
+  String get pairClipReply =>
+      'В буфере обмена ответ на ваше приглашение. Использовать?';
+
+  @override
+  String get pairClipFinish =>
+      'В буфере обмена завершающая ссылка вашего сопряжения. Использовать?';
+
+  @override
+  String get pairClipCard => 'В буфере обмена код сопряжения. Использовать?';
+
+  @override
+  String get pairClipUse => 'Использовать';
+
+  @override
+  String pairAlreadyPaired(String name) {
+    return 'Уже сопряжено: $name.';
+  }
+
+  @override
+  String get pairReplyNotHere =>
+      'Этот ответ относится к приглашению другого кошелька.';
+
+  @override
+  String get helpPairWaysTitle => 'Три способа сопряжения';
+
+  @override
+  String get helpPairWaysShort =>
+      'Слова, когда оба кошелька онлайн, сообщение в любом чате или лично.';
+
+  @override
+  String get helpPairWaysP1 =>
+      '**Слова.** Один кошелёк показывает пять слов и размещает запечатанное приглашение на трёх встроенных ретрансляторах: epicbox.epiccash.com, epicbox.stackwallet.com и ретрансляторе BT Labs. Второй кошелёк вводит слова и находит его. Оба кошелька должны быть онлайн и иметь доступ к одному из этих ретрансляторов.';
+
+  @override
+  String get helpPairWaysP2 =>
+      '**Приглашение в сообщении.** Три сообщения в любом чате: приглашение, ответ, завершающая ссылка. Ретранслятор не нужен, поэтому способ работает, когда сеть блокирует Epicbox. Копируйте каждое сообщение, когда оно придёт; кошелёк предложит его, когда вы вернётесь.';
+
+  @override
+  String get helpPairWaysP3 =>
+      '**Лично.** Каждый телефон сканирует код другого. Сеть не используется.';
+
+  @override
+  String get helpPairWaysP4 =>
+      'Каким бы способом вы ни воспользовались, в конце вместе проверьте четыре слова. Они показывают, что никто не изменил сообщения по пути.';
+
+  @override
+  String get helpPairClipP =>
+      'Кошелёк читает буфер обмена, только пока сопряжение включено, только когда выходит на передний план или открывается экран сопряжения, и предлагает каждую ссылку один раз. Он никогда не сохраняет и не записывает в журнал прочитанное.';
+
+  @override
   String get pairShareWarning =>
       'Любой, у кого есть это приглашение, может выполнить сопряжение от вашего имени, пока оно действует. Отправляйте его только нужному человеку, затем проверьте слова вместе.';
 
@@ -15942,7 +16165,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Лично: покажите свой код, отсканируйте код собеседника. Онлайн: отправьте приглашение или зачитайте слова сопряжения.';
+      'Выберите способ: Слова, Приглашение в сообщении или Лично.';
 
   @override
   String get helpPairWhatStep3 =>
@@ -15984,7 +16207,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWordsP1 =>
-      'Когда у одного кошелька нет камеры или приглашение нельзя отправить ссылкой, приглашающий кошелёк показывает пять слов сопряжения. Собеседник вводит их названия в **Ввести ссылку или слова**; поле дополняет каждое название после нескольких букв. Слова действуют 10 минут.';
+      'Когда у одного кошелька нет камеры или приглашение нельзя отправить ссылкой, приглашающий кошелёк показывает пять слов сопряжения. Собеседник вводит их названия в **Получили слова или ссылку?**; поле дополняет каждое название после нескольких букв. Слова действуют 10 минут.';
 
   @override
   String get helpPairWordsP2 =>

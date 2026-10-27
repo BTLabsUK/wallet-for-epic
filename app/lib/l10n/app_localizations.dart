@@ -23147,6 +23147,372 @@ abstract class AppLocalizations {
   /// **'{name} wants to pair Epic Cash wallets with you. Expires {date}.\n\nOpen in Epic Cash:\n{link}'**
   String pairShareText(String name, String link, String date);
 
+  /// Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with another wallet to seal payment files and invoices between the two.'**
+  String get contactsPairHint;
+
+  /// Text link at the end of the hint row (phone + desktop) → Help › Pairing › Three ways to pair; the row has no second Pair button
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get contactsPairLearn;
+
+  /// Tooltip / semantics of the outlined Pair button in the phone app bar and the desktop page header; the visible label stays pairTitle “Pair”
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with another wallet'**
+  String get contactsPairTooltip;
+
+  /// EBadge (info, busy) on a contact row / page while an invite or reply attached to it is in flight
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing…'**
+  String get pairBadgePending;
+
+  /// Tooltip of that badge
+  ///
+  /// In en, this message translates to:
+  /// **'Invite sent or answered, not finished yet.'**
+  String get pairBadgePendingTip;
+
+  /// Pair screen lead (replaces the longer pairLead there)
+  ///
+  /// In en, this message translates to:
+  /// **'Pair once. Payment files and invoices between the two wallets are then sealed.'**
+  String get pairWaysLead;
+
+  /// Option 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Words'**
+  String get pairWayWords;
+
+  /// EBadge (info) beside “Words”
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get pairWayAutomatic;
+
+  /// Option 1 line (the one line where they choose)
+  ///
+  /// In en, this message translates to:
+  /// **'Read five words to them. Both wallets must be online; the rest happens by itself.'**
+  String get pairWayWordsHint;
+
+  /// ⓘ of option 1 (phone InfoSheet, desktop tooltip/InfoHint)
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets must be online and reach an Epicbox relay. Your wallet posts the invite to the three built-in relays; theirs finds it from the five words. Afterwards, check the four words together.'**
+  String get pairWayWordsInfo;
+
+  /// Option 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Invite by message'**
+  String get pairWayMessage;
+
+  /// Option 2 line
+  ///
+  /// In en, this message translates to:
+  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.'**
+  String get pairWayMessageHint;
+
+  /// ⓘ of option 2
+  ///
+  /// In en, this message translates to:
+  /// **'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.'**
+  String get pairWayMessageInfo;
+
+  /// Option 3 line on the desktop (phone keeps pairInPersonHint)
+  ///
+  /// In en, this message translates to:
+  /// **'Their phone scans your code'**
+  String get pairWayInPersonDesk;
+
+  /// Row below the three ways (the joiner’s door)
+  ///
+  /// In en, this message translates to:
+  /// **'Got words or a link?'**
+  String get pairGotInvite;
+
+  /// Its line
+  ///
+  /// In en, this message translates to:
+  /// **'Type the words, or paste the message they sent.'**
+  String get pairGotInviteHint;
+
+  /// Text link at the foot of the Pair screen → Help › Pairing
+  ///
+  /// In en, this message translates to:
+  /// **'How pairing works'**
+  String get pairHowItWorks;
+
+  /// Inviter’s words screen, under the five words
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets must be online. The rest happens by itself.'**
+  String get pairWordsBothOnline;
+
+  /// Status line with a spinner while the invite waits
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their wallet…'**
+  String get pairWordsWaiting;
+
+  /// Button under pair-words-relay’s noRelay / relaysBlocked notice (inviter)
+  ///
+  /// In en, this message translates to:
+  /// **'Invite by message instead'**
+  String get pairUseMessageInstead;
+
+  /// Joiner: words found nothing because no relay answers
+  ///
+  /// In en, this message translates to:
+  /// **'Ask them to invite you by message instead.'**
+  String get pairAskForMessage;
+
+  /// Step strip, step 1
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get pairStepInvite;
+
+  /// Step strip, step 2
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get pairStepReply;
+
+  /// Step strip, step 3
+  ///
+  /// In en, this message translates to:
+  /// **'Finish link'**
+  String get pairStepFinish;
+
+  /// Step strip, step 4
+  ///
+  /// In en, this message translates to:
+  /// **'Words'**
+  String get pairStepWords;
+
+  /// Semantics of the step strip
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of 4: {step}'**
+  String pairStepOf(int n, String step);
+
+  /// Inviter, step 1 lead
+  ///
+  /// In en, this message translates to:
+  /// **'Send the invite in any chat. Their reply comes back the same way.'**
+  String get pairMessageLead;
+
+  /// The shared/copied invite message (replaces pairShareText). Plain text, no web address
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with me in Epic Cash: {link}'**
+  String pairInviteMessage(String link);
+
+  /// The shared/copied reply message
+  ///
+  /// In en, this message translates to:
+  /// **'My reply to your Epic Cash pairing: {link}'**
+  String pairReplyMessage(String link);
+
+  /// The shared/copied finish message
+  ///
+  /// In en, this message translates to:
+  /// **'Finish our Epic Cash pairing: {link}'**
+  String pairFinishMessage(String link);
+
+  /// Desktop primary button for all three messages (no share sheet on Linux/Windows)
+  ///
+  /// In en, this message translates to:
+  /// **'Copy message'**
+  String get pairCopyMessage;
+
+  /// Toast after Copy message
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. Paste it in the chat.'**
+  String get pairMessageCopied;
+
+  /// Inviter, step 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the reply'**
+  String get pairAwaitReplyTitle;
+
+  /// Inviter, step 2 body
+  ///
+  /// In en, this message translates to:
+  /// **'When the reply arrives in the chat, copy it and come back. The wallet finds it.'**
+  String get pairAwaitReplyBody;
+
+  /// Small print on both waiting steps
+  ///
+  /// In en, this message translates to:
+  /// **'With a relay on both sides, this step also happens by itself.'**
+  String get pairByItself;
+
+  /// Inviter, step 2 button (reads the clipboard on tap)
+  ///
+  /// In en, this message translates to:
+  /// **'Paste reply'**
+  String get pairPasteReply;
+
+  /// Joiner, step 2 title (after Pair on “Pair with Anna?”)
+  ///
+  /// In en, this message translates to:
+  /// **'Send your reply'**
+  String get pairReplyTitle;
+
+  /// Joiner, step 2 lead
+  ///
+  /// In en, this message translates to:
+  /// **'Send this back to {name} in the same chat.'**
+  String pairReplyLead(String name);
+
+  /// Joiner, step 2 primary (phone)
+  ///
+  /// In en, this message translates to:
+  /// **'Share reply'**
+  String get pairShareReply;
+
+  /// Joiner, step 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the finish link'**
+  String get pairAwaitFinishTitle;
+
+  /// Joiner, step 3 body
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet makes it from your reply. Copy it when it arrives and come back.'**
+  String pairAwaitFinishBody(String name);
+
+  /// Joiner, step 3 button
+  ///
+  /// In en, this message translates to:
+  /// **'Paste finish link'**
+  String get pairPasteFinish;
+
+  /// Inviter, step 3 title (opens by itself once the reply is in)
+  ///
+  /// In en, this message translates to:
+  /// **'Send the finish link'**
+  String get pairFinishTitle;
+
+  /// Inviter, step 3 lead
+  ///
+  /// In en, this message translates to:
+  /// **'One more message: {name}’s wallet needs it to show the words.'**
+  String pairFinishLead(String name);
+
+  /// Inviter, step 3 primary (phone)
+  ///
+  /// In en, this message translates to:
+  /// **'Share finish link'**
+  String get pairShareFinish;
+
+  /// Inviter, step 3, under the button; then Check the words (sasTitle)
+  ///
+  /// In en, this message translates to:
+  /// **'Then check the words together.'**
+  String get pairFinishThenCheck;
+
+  /// Title of the one-time offer (phone bottom sheet, desktop dialog)
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing link found'**
+  String get pairClipTitle;
+
+  /// Body for an invite (name read from the invite, shown as claimed)
+  ///
+  /// In en, this message translates to:
+  /// **'An invite from “{name}” is on the clipboard. Use it?'**
+  String pairClipInvite(String name);
+
+  /// Body for a reply (offered only while this wallet has an open invite)
+  ///
+  /// In en, this message translates to:
+  /// **'A reply to your invite is on the clipboard. Use it?'**
+  String get pairClipReply;
+
+  /// Body for a finish link (offered only while this wallet waits for one)
+  ///
+  /// In en, this message translates to:
+  /// **'The finish link for your pairing is on the clipboard. Use it?'**
+  String get pairClipFinish;
+
+  /// Body for a card link (desktop face to face; offered only on the Pair screen)
+  ///
+  /// In en, this message translates to:
+  /// **'A pairing code is on the clipboard. Use it?'**
+  String get pairClipCard;
+
+  /// Primary button of the offer (secondary: pairNotNow “Not now”)
+  ///
+  /// In en, this message translates to:
+  /// **'Use it'**
+  String get pairClipUse;
+
+  /// Notice when a pasted/found reply or finish link belongs to a pairing that already finished (relay was faster)
+  ///
+  /// In en, this message translates to:
+  /// **'Already paired with {name}.'**
+  String pairAlreadyPaired(String name);
+
+  /// Error when a reply pasted by hand opens nothing here
+  ///
+  /// In en, this message translates to:
+  /// **'This reply answers an invite from another wallet.'**
+  String get pairReplyNotHere;
+
+  /// New topic, second in Help › Pairing (id pairing-ways); the Pair screen’s “How pairing works” opens it
+  ///
+  /// In en, this message translates to:
+  /// **'Three ways to pair'**
+  String get helpPairWaysTitle;
+
+  /// Topic summary
+  ///
+  /// In en, this message translates to:
+  /// **'Words when both wallets are online, a message in any chat, or in person.'**
+  String get helpPairWaysShort;
+
+  /// Paragraph
+  ///
+  /// In en, this message translates to:
+  /// **'**Words.** One wallet shows five words and posts a sealed invite to the three built-in relays: epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs relay. The other wallet types the words and finds it. Both wallets must be online and reach one of these relays.'**
+  String get helpPairWaysP1;
+
+  /// Paragraph
+  ///
+  /// In en, this message translates to:
+  /// **'**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.'**
+  String get helpPairWaysP2;
+
+  /// Paragraph
+  ///
+  /// In en, this message translates to:
+  /// **'**In person.** Each phone scans the other’s code. No network is used.'**
+  String get helpPairWaysP3;
+
+  /// Paragraph
+  ///
+  /// In en, this message translates to:
+  /// **'Whichever way, check the four words together at the end. They show that nobody changed the messages on the way.'**
+  String get helpPairWaysP4;
+
+  /// Paragraph (privacy)
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet reads the clipboard only while Pairing is on, only when it comes to the front or the Pair screen opens, and offers each link once. It never stores or logs what it reads.'**
+  String get helpPairClipP;
+
   /// Small print under the preview.
   ///
   /// In en, this message translates to:
@@ -24896,7 +25262,7 @@ abstract class AppLocalizations {
   /// Topic 1 step.
   ///
   /// In en, this message translates to:
-  /// **'In person: show your code, scan theirs. Online: send the invite, or read out the pairing words.'**
+  /// **'Choose a way: Words, Invite by message or In person.'**
   String get helpPairWhatStep2;
 
   /// Topic 1 step.
@@ -24962,7 +25328,7 @@ abstract class AppLocalizations {
   /// Topic 3.
   ///
   /// In en, this message translates to:
-  /// **'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Enter link or words**; the field completes each name after a few letters. The words are good for 10 minutes.'**
+  /// **'When one wallet has no camera, or the invite cannot be sent as a link, the inviting wallet shows five pairing words. The other person types their names under **Got words or a link?**; the field completes each name after a few letters. The words are good for 10 minutes.'**
   String get helpPairWordsP1;
 
   /// Topic 3.
