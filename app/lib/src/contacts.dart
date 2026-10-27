@@ -5,6 +5,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'l10n.dart';
+import 'tor_build.dart';
 import 'payment_method.dart' show MethodKind;
 import 'providers.dart';
 import 'recipient.dart';
@@ -175,6 +176,8 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
   final recipient = parseRecipient(text);
   switch (recipient.kind) {
     case RecipientKind.tor:
+      // No Tor in this build: an onion cannot be paid, whatever its checksum.
+      if (!torBuilt) return l.sendTorNotInVersion;
       return service.validateOnionAddress(address: recipient.address)
           ? null
           : l.sendOnionIncomplete;
@@ -187,7 +190,9 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
     case RecipientKind.epicbox:
       return service.validateEpicboxAddress(address: recipient.address)
           ? null
-          : l.contactsAddressInvalidAny;
+          : torBuilt
+          ? l.contactsAddressInvalidAny
+          : l.contactsAddressInvalidAnyNoTor;
   }
 }
 

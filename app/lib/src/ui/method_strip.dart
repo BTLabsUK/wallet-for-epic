@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../settings.dart';
 import 'method_art.dart';
 import 'theme/tokens.dart';
@@ -146,7 +147,7 @@ class MethodStrip extends StatelessWidget {
           ),
           TransferMethod.direct => (
             l.methodSendHttpTitle,
-            l.methodSendDirectLine,
+            torBuilt ? l.methodSendDirectLine : l.methodSendDirectLineNoTor,
           ),
           TransferMethod.qr => (l.methodSendQrTitle, l.methodSendQrLine),
           TransferMethod.file => (l.methodSendFileTitle, l.methodSendFileLine),

@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -315,10 +316,27 @@ void main() {
         await tester.enterText(find.widgetWithText(TextField, _l.addrField), address);
         await tester.tap(find.text(_l.contactsSave));
         await tester.pumpAndSettle();
+        if (!torBuilt && name == 'onion') {
+          // The build without Tor refuses a new onion, in one short line.
+          expect(find.text(_l.sendTorNotInVersion), findsOneWidget);
+          expect((await h.session.contacts()).map((c) => c.name), isNot(contains('Dan')));
+          return;
+        }
         expect(find.textContaining('not a valid'), findsNothing);
         expect((await h.session.contacts()).map((c) => c.name), contains('Dan'));
       });
     }
+
+    testWidgets('without Tor, a contact keeps the onion it has', (tester) async {
+      final h = _Harness();
+      final saved = await h.session.saveContact(contact: Contact(id: '', name: 'Tor friend', address: _onion));
+      await h.pump(tester, ContactEditScreen(contact: saved));
+      expect(find.text(_onion), findsOneWidget);
+      await tester.tap(find.text(_l.contactsSave));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendTorNotInVersion), findsNothing);
+      expect((await h.session.contacts()).single.tor, _onion);
+    }, skip: torBuilt);
 
     testWidgets('Edit opens the edit screen', (tester) async {
       await open(tester);

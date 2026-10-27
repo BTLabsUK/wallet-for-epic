@@ -30,6 +30,7 @@ import 'network_gate.dart';
 import 'net/http.dart';
 import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
+import 'tor_build.dart';
 
 /// Where releases publish the signed `update.json`. Override with
 /// `--dart-define=WFE_UPDATE_URL=...`; an override must still be signed with the bundled keys.
@@ -615,7 +616,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
     return const UpdateState(UpdatePhase.idle);
   }
 
-  bool get supported => ref.read(updatePlatformProvider) != null;
+  /// Never in the build without Tor ([inAppUpdates]): its store updates it.
+  bool get supported => inAppUpdates && ref.read(updatePlatformProvider) != null;
 
   void _onInstallEvent(({String status, String? message}) event) {
     switch (event.status) {
@@ -655,7 +657,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// quiet reports itself and still keeps a known update.
   Future<void> check({bool quiet = false}) async {
     final platform = ref.read(updatePlatformProvider);
-    if (platform == null) return;
+    // No update.json is asked in the build without Tor ([inAppUpdates]).
+    if (platform == null || !inAppUpdates) return;
     // An update waiting for the install permission keeps its line ([resumed] carries it on).
     final busy = {
       UpdatePhase.checking,

@@ -3,6 +3,7 @@
 library;
 
 import '../../l10n.dart';
+import '../../tor_build.dart';
 
 /// Where a step happens: the three tabs of Home, or a screen opened over it.
 enum TourPlace {
@@ -39,7 +40,7 @@ List<PhoneTourStep> phoneTourSteps({required bool invoices}) => [
     place: TourPlace.wallet,
     targets: const ['tour-balance'],
     titleOf: (l) => l.tourPhoneWalletTitle,
-    textOf: (l) => l.tourPhoneWalletText,
+    textOf: (l) => torBuilt ? l.tourPhoneWalletText : l.tourPhoneWalletTextNoTor,
   ),
   PhoneTourStep(
     place: TourPlace.send,
@@ -77,13 +78,13 @@ List<PhoneTourStep> phoneTourSteps({required bool invoices}) => [
     place: TourPlace.privacy,
     targets: const ['tour-privacy-servers', 'tour-privacy-tor'],
     titleOf: (l) => l.tourPhonePrivacyTitle,
-    textOf: (l) => l.tourPhonePrivacyText,
+    textOf: (l) => torBuilt ? l.tourPhonePrivacyText : l.tourPhonePrivacyTextNoTor,
   ),
   PhoneTourStep(
     place: TourPlace.advanced,
     targets: const ['tour-advanced-top', 'tour-advanced-modes'],
     titleOf: (l) => l.tourPhoneAdvancedTitle,
-    textOf: (l) => l.tourPhoneAdvancedText,
+    textOf: (l) => torBuilt ? l.tourPhoneAdvancedText : l.tourPhoneAdvancedTextNoTor,
   ),
   PhoneTourStep(
     place: TourPlace.help,

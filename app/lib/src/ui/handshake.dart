@@ -13,6 +13,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import '../tor_build.dart';
 import 'method_icons.dart';
 import 'theme/tokens.dart';
 
@@ -103,7 +104,7 @@ List<HandshakeStep> handshakeSteps(HandshakeFlow flow) {
           actor: _you,
           from: _you,
           to: _them,
-          caption: (l) => l.handshakeLink1,
+          caption: (l) => torBuilt ? l.handshakeLink1 : l.handshakeLink1NoTor,
         ),
         HandshakeStep(
           actor: _them,

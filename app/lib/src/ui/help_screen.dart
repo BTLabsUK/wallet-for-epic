@@ -71,7 +71,7 @@ List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
   final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
   final out = <HelpSection>[];
-  for (final s in localizedHelpSections(lang)) {
+  for (final s in localizedHelpSections(lang, tor: torBuilt)) {
     if (s.id == 'trouble' && used.contains(pairingHelpSection)) {
       out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
     }

@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 
 WalletSummary _summary({bool validated = true, int height = 2499990, BigInt? spendable}) =>
     WalletSummary(
@@ -609,7 +610,7 @@ void main() {
       expect(find.byKey(nodeStatusKey), findsNothing);
       // Tor's own icon stays: it is how the user sees Tor start.
       expect(find.byKey(torIconKey), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Tor only with Tor connected: the icons are back', (
       tester,

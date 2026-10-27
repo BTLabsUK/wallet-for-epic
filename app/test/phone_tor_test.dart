@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_phone.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -117,6 +118,11 @@ void _foreground() => _lifecycle(const [
 ]);
 
 void main() {
+  // Tor's own behaviour: nothing of it is in the build without Tor.
+  if (!torBuilt) {
+    test('Tor', () {}, skip: 'no Tor in this build');
+    return;
+  }
   TestWidgetsFlutterBinding.ensureInitialized();
   late _Harness h;
 

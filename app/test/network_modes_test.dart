@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -144,7 +145,7 @@ void main() {
       expect(torWayIn(TorRoute.onionDirect, TorState.off, NetworkMode.torOnly), TorWay.wait);
       expect(torWayIn(TorRoute.node, TorState.failed, NetworkMode.torOnly), TorWay.blocked);
       expect(torWayIn(TorRoute.appHttp, TorState.on, NetworkMode.torOnly), TorWay.overTor);
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
 
     test('Offline: nothing goes; Standard is torWay', () {
       for (final route in TorRoute.values) {
@@ -255,7 +256,7 @@ void main() {
       await p.until(() => p.session.listenerStarts == 1 && p.session.torStarts.length == 1);
       await p.until(() => p.session.refreshCalls > 0);
       expect(p.container.read(listenerProvider).offline, isFalse);
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
 
     test('going Offline while open stops tor and the listener', () async {
       p.store.values[p.torKey] = 'true';
@@ -268,7 +269,7 @@ void main() {
       expect(p.tor.phase, PhoneTorPhase.off);
       // The switch itself is kept for when the mode changes.
       expect(p.store.values[p.torKey], 'true');
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
   });
 
   group('phone, Tor only', () {
@@ -287,7 +288,7 @@ void main() {
       expect(p.store.values[p.torKey], 'true');
       await p.container.read(epicboxOverTorProvider.notifier).set(false);
       expect(p.container.read(epicboxOverTorProvider), isTrue);
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
 
     test('choosing Tor only while open turns the switch on; Standard leaves it on', () async {
       await p.unlock();
@@ -299,6 +300,6 @@ void main() {
       expect(p.tor.receiving, isTrue);
       await p.container.read(phoneTorProvider.notifier).setReceiving(false);
       expect(p.tor.receiving, isFalse);
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
   });
 }

@@ -6,6 +6,7 @@ import 'btlabs_onions.dart';
 import 'net/tor_net.dart';
 import 'net/tor_switch.dart';
 import 'phone_tor.dart';
+import 'tor_build.dart';
 import 'tor_routes.dart';
 
 /// Off while the switch is off (tor started only for one send stays a send's own) or this
@@ -34,9 +35,9 @@ void phoneTorFollow(PhoneTorState s) {
 
 /// At launch, before any request: the phone's saved Tor switch on holds the app's own
 /// requests waiting for tor (and the price on BT Labs' copy) until the wallet is open and tor
-/// has connected; [phoneTorFollow] takes over from there.
+/// has connected; [phoneTorFollow] takes over from there. Never in the build without Tor.
 void phoneTorAtLaunch({required bool savedOn}) {
-  if (savedOn) TorNet.follow(TorState.starting);
+  if (savedOn && torBuilt) TorNet.follow(TorState.starting);
 }
 
 /// tor's SOCKS proxy while it can carry requests, else null (requests then wait).

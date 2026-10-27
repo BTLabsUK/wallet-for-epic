@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../demo.dart';
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../errors.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -125,7 +126,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   state: [
                     l.serverNodeTitle,
                     l.serverEpicboxTitle,
-                    l.netStatusTor,
+                    if (torBuilt) l.netStatusTor,
                   ].reduce(l.settingsStateJoin),
                 ),
                 if (walletOpen)

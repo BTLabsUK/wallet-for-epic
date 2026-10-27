@@ -19,6 +19,7 @@ import 'providers.dart';
 import 'push.dart';
 import 'push_registration.dart';
 import 'settings.dart';
+import 'tor_build.dart';
 import 'tor_phone.dart';
 import 'tor_routes.dart';
 import 'wallet_service.dart';
@@ -55,8 +56,10 @@ final pushControllerProvider = NotifierProvider<PushController, bool>(
   PushController.new,
 );
 
-/// The Tor switch's hooks for push (`main.dart` puts them in [torSwitchHooksProvider]).
+/// The Tor switch's hooks for push (`main.dart` puts them in [torSwitchHooksProvider]). None
+/// in the build without Tor ([torBuilt]): there is no switch.
 final pushTorHooksProvider = Provider<TorSwitchHooks>((ref) {
+  if (!torBuilt) return const TorSwitchHooks();
   final push = ref.read(pushControllerProvider.notifier);
   return TorSwitchHooks(beforeOn: push.beforeTorOn, afterOff: push.afterTorOff);
 });
@@ -146,6 +149,7 @@ class PushController extends Notifier<bool> {
   /// The saved Tor switch is on for this wallet: tor starts with it, and until the controller
   /// has read that, its state says off.
   Future<bool> _torSavedOn() async {
+    if (!torBuilt) return false;
     final config = ref.read(walletConfigProvider);
     if (config == null) return false;
     final saved = await ref

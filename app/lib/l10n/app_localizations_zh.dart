@@ -16321,4 +16321,70 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskUpdLater => '稍后';
+
+  @override
+  String get sendTorNotInVersion => '此版本无法向 Tor 地址发送。';
+
+  @override
+  String get methodSendDirectLineNoTor => '对方钱包必须处于打开状态。';
+
+  @override
+  String get sendDirectAddressShapeNoTor => '链接地址以 http:// 或 https:// 开头。';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）或链接地址（https://…）。';
+
+  @override
+  String get handshakeLink1NoTor => '你的钱包通过互联网 把付款直接发到对方的钱包。你的币被锁定。';
+
+  @override
+  String get advNetworkHintNoTor =>
+      '钱包如何连接网络。“标准”直接连接。“离线”只限这部手机和你的本地网络：二维码付款和文件传输仍可通过正在使用的节点进行；如果你的网络中有节点，还可以向本地地址发送，余额也会刷新。';
+
+  @override
+  String get advModeStandardLineNoTor => '直接连接。';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      '离线会暂停 Epicbox、状态检查和通知。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      '实验性功能：可能变化或出错。在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      '你的余额，下面是节点和 Epicbox 的图标。仍在确认中的金额在下方的卡片里。';
+
+  @override
+  String get tourPhonePrivacyTextNoTor => '钱包使用哪个节点和 Epicbox 服务器。点一个服务器即可更改。';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor => '离线模式、输出和技术详情都在这里。需要什么就开启什么。';
+
+  @override
+  String get deskNoTorSendDirectLine2 => 'http(s) 地址。对方钱包必须处于打开状态。';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      '钱包如何连接网络。“标准”直接连接。“离线”只限这台电脑和你的本地网络：文件传输仍可通过正在使用的节点进行；如果这里或你的网络中有节点，还可以向本地地址发送并通过“链接”接收，余额也会刷新。内置节点会继续运行，它的对等节点是节点本身的设置。';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。';
+
+  @override
+  String get deskNoTorTxDetailsFromBad => '请使用 Epicbox 或 http(s) 地址。';
+
+  @override
+  String get deskNoTorTourAdvancedText => '输出和技术详情都在这里。需要什么就开启什么。';
 }

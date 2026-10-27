@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import '../tor_build.dart';
 import '../tor_licence.dart';
 import 'common.dart';
 import 'settings_screen.dart' show openFlutterLicences, projectRepoPublic, projectRepoUrl;
@@ -38,7 +39,7 @@ class LicencesScreen extends StatelessWidget {
             l.licencesApp,
             l.licencesFlutter,
             l.licencesLepic,
-            l.licencesTor,
+            if (torBuilt) l.licencesTor,
             l.licencesFonts,
             flagsLicenceNote,
           ])
@@ -49,10 +50,12 @@ class LicencesScreen extends StatelessWidget {
           const SizedBox(height: 6),
           // The legal minimum for the bundled tor: which build, which licence, where its
           // source is. English, as the licence texts themselves.
-          Text(
-            torSourceNote,
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-          ),
+          // No tor in the build without Tor ([torBuilt]): nothing to name.
+          if (torBuilt)
+            Text(
+              torSourceNote,
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
           if (projectRepoPublic) ...[
             const SizedBox(height: 8),
             SelectableText(

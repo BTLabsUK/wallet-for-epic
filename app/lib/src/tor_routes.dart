@@ -5,6 +5,7 @@
 library;
 
 import 'advanced.dart';
+import 'tor_build.dart';
 
 /// What the Tor switch is doing now, shown the same everywhere (status card, Send, Receive,
 /// Settings › Privacy).
@@ -80,9 +81,11 @@ const Set<TorRoute> torStops = {TorRoute.httpListener, TorRoute.push};
 /// A node on this computer (local or built-in) never goes over Tor: there is nothing to hide.
 const bool torSkipsLocalNode = true;
 
-/// How [route] goes while the switch is [state].
+/// How [route] goes while the switch is [state]. In the build without Tor ([torBuilt]) an
+/// onion is never offered ([TorWay.off]): nothing can turn Tor on for it.
 TorWay torWay(TorRoute route, TorState state) {
   if (route == TorRoute.onionDirect) {
+    if (!torBuilt) return TorWay.off;
     return switch (state) {
       TorState.off => TorWay.needsTor,
       TorState.starting => TorWay.wait,

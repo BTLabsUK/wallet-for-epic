@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -135,6 +136,11 @@ Switch _pushSwitch(WidgetTester tester) => tester.widget<Switch>(
 );
 
 void main() {
+  // Tor's own behaviour: nothing of it is in the build without Tor.
+  if (!torBuilt) {
+    test('Tor', () {}, skip: 'no Tor in this build');
+    return;
+  }
   group('network modes', () {
     Switch torSwitch(WidgetTester tester) => tester.widget<Switch>(
       find.descendant(

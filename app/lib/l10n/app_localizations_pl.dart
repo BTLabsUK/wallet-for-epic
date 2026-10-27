@@ -17704,4 +17704,76 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskUpdLater => 'Później';
+
+  @override
+  String get sendTorNotInVersion => 'Ta wersja nie może wysyłać na adresy Tor.';
+
+  @override
+  String get methodSendDirectLineNoTor => 'Portfel odbiorcy musi być otwarty.';
+
+  @override
+  String get sendDirectAddressShapeNoTor =>
+      'Adres Link zaczyna się od http:// lub https://.';
+
+  @override
+  String get contactsAddressInvalidAnyNoTor =>
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com) lub adresu Link (https://…).';
+
+  @override
+  String get handshakeLink1NoTor =>
+      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet. Twoje monety są wstrzymane.';
+
+  @override
+  String get advNetworkHintNoTor =>
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio. Offline zostaje na tym telefonie i w twojej sieci lokalnej: Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; z węzłem w twojej sieci możesz też wysyłać na adresy lokalne, a saldo się odświeża.';
+
+  @override
+  String get advModeStandardLineNoTor => 'Łączy się bezpośrednio.';
+
+  @override
+  String get advOfflineNoteNoTor =>
+      'Offline wstrzymuje Epicbox, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+
+  @override
+  String get txLinkHttpHintNoTor =>
+      'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany i nie jest osiągalny z internetu ani przez dane komórkowe. Dodaje Link · HTTP do Wyślij i Odbierz.';
+
+  @override
+  String get settingsNotificationsHintNoTor =>
+      'Eksperymentalne: może się zmienić lub zawodzić. Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu.';
+
+  @override
+  String get tourPhoneWalletTextNoTor =>
+      'Twoje saldo, a pod nim ikony węzła i Epicbox. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+
+  @override
+  String get tourPhonePrivacyTextNoTor =>
+      'Z jakiego węzła i serwera Epicbox korzysta portfel. Dotknij serwera, aby go zmienić.';
+
+  @override
+  String get tourPhoneAdvancedTextNoTor =>
+      'Tryb offline, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+
+  @override
+  String get deskNoTorSendDirectLine2 =>
+      'Adres http(s). Portfel odbiorcy musi być otwarty.';
+
+  @override
+  String get deskNoTorSetTxDirectHint =>
+      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:3415), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+
+  @override
+  String get deskNoTorAdvNetworkHint =>
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio. Offline zostaje na tym komputerze i w twojej sieci lokalnej: Przesyłanie pliku nadal działa przez używany węzeł; z węzłem tutaj lub w twojej sieci możesz też wysyłać na adresy lokalne i odbierać przez Link, a saldo się odświeża. Wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
+
+  @override
+  String get deskNoTorAdvOfflineNote =>
+      'Epicbox i sprawdzanie stanu są wstrzymane. Przesyłanie pliku nadal działa przez używany węzeł, także publiczny. Z węzłem na tym komputerze lub w twojej sieci działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne.';
+
+  @override
+  String get deskNoTorTxDetailsFromBad => 'Użyj adresu Epicbox lub http(s).';
+
+  @override
+  String get deskNoTorTourAdvancedText =>
+      'Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
 }
