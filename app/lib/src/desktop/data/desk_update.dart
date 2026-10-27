@@ -124,6 +124,10 @@ final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (desk
 /// only (`main_desktop.dart`), not the mock or widget tests.
 final deskUpdateAutoProvider = Provider<bool>((ref) => false);
 
+/// Whether this system looks for updates at all: not macOS, which has no update file yet (no
+/// checks, notices or downloads there; the About page leaves out its Updates group).
+bool get deskUpdatesSupported => kIsWeb || !Platform.isMacOS;
+
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
 
@@ -204,7 +208,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// Looks for an update that did not finish right away, then checks [deskUpdateFirst] from now
   /// and every [deskUpdateEvery] after, once per run (the shell calls it when the wallet opens).
   void schedule() {
-    if (_every != null) return;
+    if (_every != null || !deskUpdatesSupported) return;
     unawaited(detect());
     final (first, every) = ref.read(deskUpdateScheduleProvider);
     _first = Timer(first, () => unawaited(check()));
@@ -216,6 +220,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   /// Checks once per run, when About first opens.
   Future<void> checkOnce() async {
+    if (!deskUpdatesSupported) return;
     await detect();
     if (state.phase == DeskUpdatePhase.idle) await check();
   }
@@ -290,6 +295,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   Future<void> check() async {
+    if (!deskUpdatesSupported) return;
     // A download under way or done stays as it is; one whose install failed is looked for again;
     // an update that did not finish waits for its Try again.
     final p = state.phase;
