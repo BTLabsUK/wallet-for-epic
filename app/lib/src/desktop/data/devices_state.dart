@@ -11,6 +11,7 @@ import '../../devices/device_model.dart';
 import '../../devices/device_providers.dart';
 import '../../devices/device_service.dart';
 import '../../devices/device_store.dart';
+import '../../log.dart' show logWarn;
 import '../../models.dart' show Chain;
 import '../../network_gate.dart';
 import '../../providers.dart' show secretStoreProvider;
@@ -27,6 +28,14 @@ final deskPairingEngineOnProvider = Provider<bool>((ref) => ref.watch(deskProvid
 /// The clock the devices' times are read against; the screenshot tour and the tests give the
 /// mock's pairing clock, which the fake engine stamps its invites with.
 final deskDeviceClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// Where the controller finds the open wallet's service: the service provider depends on the
+/// controller's state, so the controller cannot read it as a provider (a circular dependency).
+class DeskDeviceHandle {
+  DeviceService? service;
+}
+
+final deskDeviceHandleProvider = Provider<DeskDeviceHandle>((ref) => DeskDeviceHandle());
 
 /// The open wallet's devices, or null while locked or with Linked devices off. It reads the
 /// channel when the wallet opens, then every 5 s while the app runs (minimized too); the shell
@@ -46,8 +55,10 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   );
   // What the history, the balance and the outputs show of the other devices.
   api.useDevices(() => service.loaded ? service.book : null);
+  final handle = ref.read(deskDeviceHandleProvider)..service = service;
   ref.onDispose(() {
     api.useDevices(null);
+    if (identical(handle.service, service)) handle.service = null;
     service.dispose();
   });
   // A change of the book (a notice read, a coin released) shows in the lists at once.
@@ -60,7 +71,12 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   ref.onDispose(sub.cancel);
   // The app runs while it is minimized, and the channel is read the whole time.
   service.setForeground(true);
-  unawaited(service.load().then((_) => service.sync(DeviceSyncTrigger.unlock)));
+  // A store that cannot be read leaves the devices unloaded; the app itself goes on.
+  unawaited(
+    service.load().then((_) => service.sync(DeviceSyncTrigger.unlock)).catchError((Object e) {
+      logWarn('devices', 'linked devices not loaded: ${e.runtimeType}');
+    }),
+  );
   return service;
 });
 

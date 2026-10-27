@@ -29,7 +29,7 @@ Future<MockPhone> _linked(ProviderContainer c, {bool pay = false, bool ended = f
   final (wallet, desk) = await _desk(c);
   final phone = await MockPhone.create(wallet);
   await phone.link(desk);
-  if (pay) await phone.pay(desk, commitment: mockCommitment(6), message: message ?? 'Rent for November');
+  if (pay) await phone.makePayment(desk, commitment: mockCommitment(6), message: message ?? 'Rent for November');
   if (ended) await phone.end(desk, commitment: mockCommitment(6));
   await c.read(deskProvider.notifier).refresh();
   return phone;

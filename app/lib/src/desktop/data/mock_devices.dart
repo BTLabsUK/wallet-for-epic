@@ -63,7 +63,7 @@ class MockPhone {
 
   /// The phone starts paying [epic] EPIC to [to] with the coin [commitment]: its coin is locked
   /// by the payment, and the computer hears of it.
-  Future<void> pay(
+  Future<void> makePayment(
     DeviceService desk, {
     required String commitment,
     String slateId = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d',

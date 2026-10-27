@@ -168,7 +168,7 @@ void main() {
     final phone = await linkedPhone(tester, desk);
     final coin = mockCommitment(6);
     final before = (await tester.runAsync(wallet.balance))!;
-    await tester.runAsync(() => phone.pay(desk, commitment: coin, message: 'Rent'));
+    await tester.runAsync(() => phone.makePayment(desk, commitment: coin, message: 'Rent'));
     await settle(tester);
 
     final hold = desk.book.holds.single;
@@ -216,7 +216,7 @@ void main() {
     final phone = await linkedPhone(tester, desk);
     final coin = mockCommitment(6);
     final before = (await tester.runAsync(wallet.balance))!;
-    await tester.runAsync(() => phone.pay(desk, commitment: coin));
+    await tester.runAsync(() => phone.makePayment(desk, commitment: coin));
     await tester.runAsync(() => phone.end(desk, commitment: coin, reason: CancelReason.failed));
     await settle(tester);
     expect(desk.book.holds.single.state, HoldState.released);

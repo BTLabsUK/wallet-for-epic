@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import 'api.dart';
-import 'devices_state.dart' show deskDeviceServiceProvider;
+import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
@@ -278,7 +278,7 @@ class DeskController extends Notifier<DeskState> {
   /// node could not be asked; the lists are reloaded either way.
   Future<void> syncNow() async {
     // The other devices are read at the same time, not after the node.
-    final devices = ref.read(deskDeviceServiceProvider);
+    final devices = ref.read(deskDeviceHandleProvider).service;
     if (devices != null) unawaited(devices.sync(DeviceSyncTrigger.refresh));
     try {
       await api.syncNow();
@@ -424,9 +424,12 @@ class DeskController extends Notifier<DeskState> {
 
   Future<SendResult> send(SendRequest r) async {
     // One read of the other devices before coins are chosen (at most 3 s): what they hold is left out.
-    final devices = ref.read(deskDeviceServiceProvider);
-    await devices?.beforeSend();
-    final result = await ref.read(deskSendingProvider.notifier).during(() => api.send(r));
+    final devices = ref.read(deskDeviceHandleProvider).service;
+    // Counted from here on, so a Quit waits for it (the read of the other devices is part of it).
+    final result = await ref.read(deskSendingProvider.notifier).during(() async {
+      await devices?.beforeSend();
+      return api.send(r);
+    });
     // The other devices hear of it at once, not at the next tick.
     if (devices != null) unawaited(devices.announceNow());
     // The lists catch up; a failure here does not change what happened to the payment.
