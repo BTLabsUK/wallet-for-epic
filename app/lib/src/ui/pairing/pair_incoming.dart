@@ -135,7 +135,7 @@ Future<void> showIncomingInvite(
   if (answered == null || !context.mounted) return;
   // A link came in a message: the reply goes back the same way (it also goes to the relay).
   // Words: the relay carries the answer, and the wait follows.
-  final Widget screen = viaLink ? PairReplyScreen(pairingId: answered.id) : PairingWaitingScreen(pairingId: answered.id);
+  final Widget screen = viaLink ? PairReplyScreen(pairingId: answered.id, name: preview.name) : PairingWaitingScreen(pairingId: answered.id);
   final nav = Navigator.of(context);
   await (replace ? nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => screen)) : nav.push(MaterialPageRoute<void>(builder: (_) => screen)));
 }
@@ -287,9 +287,12 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 /// when the relay could not take the answer, and opens the words check when the confirm
 /// arrives. It can be closed: the pairing goes on in the background.
 class PairingWaitingScreen extends ConsumerStatefulWidget {
-  const PairingWaitingScreen({super.key, required this.pairingId, this.byMessage = false});
+  const PairingWaitingScreen({super.key, required this.pairingId, this.byMessage = false, this.name = ''});
 
   final String pairingId;
+
+  /// The inviter's name from its invite, until the records have it.
+  final String name;
 
   /// Invite by message, step 3: the finish link comes back in the chat (Paste finish link, or
   /// the clipboard offer), or through a relay by itself.
@@ -380,7 +383,8 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
         }
       });
     }
-    final name = record?.shownName ?? '';
+    final known = record?.shownName ?? '';
+    final name = known.isEmpty ? widget.name : known;
     final overTor = ref.watch(epicboxOverTorProvider);
     final net = ref.watch(pairNetProvider);
     final unreachable = (record?.relayDown ?? false) || net != PairNet.online;
@@ -500,9 +504,12 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
 /// the relay as well, so with a relay on both sides the pairing may finish by itself: the
 /// words check opens then. After sharing, the wait for the finish link.
 class PairReplyScreen extends ConsumerStatefulWidget {
-  const PairReplyScreen({super.key, required this.pairingId});
+  const PairReplyScreen({super.key, required this.pairingId, this.name = ''});
 
   final String pairingId;
+
+  /// The inviter's name from its invite, until the records have it.
+  final String name;
 
   @override
   ConsumerState<PairReplyScreen> createState() => _PairReplyScreenState();
@@ -548,14 +555,15 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
     if (!mounted || _left) return;
     _left = true;
     await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: widget.pairingId, byMessage: true)),
+      MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: widget.pairingId, byMessage: true, name: widget.name)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final name = ref.watch(pairingNameProvider(widget.pairingId));
+    final known = ref.watch(pairingNameProvider(widget.pairingId));
+    final name = known.isEmpty ? widget.name : known;
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
     final link = _link;
     final canShare = ref.watch(slateFilesProvider).canShareText;
