@@ -280,7 +280,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   // Not money yet: the row's caption, by the big amount too (P-1).
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
-                  if (t.otherWallet)
+                  if (t.otherWallet || t.deviceName != null)
                     Text(whoOf(l, t), style: ts.small)
                   else if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
@@ -371,6 +371,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 size: EBtnSize.inline,
                 onPressed: () => showTxDetailsDialog(context, t),
               ),
+            if (t.deviceName == null)
             EButton(
               label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
               icon: EIcons.pencil,

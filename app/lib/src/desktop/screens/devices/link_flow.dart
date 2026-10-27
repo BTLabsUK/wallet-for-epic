@@ -31,13 +31,16 @@ const Key deskLinkRetryKey = ValueKey('desk-link-retry');
 
 /// Opens the link dialog. With [pasted], a device code that came in as text (Send's field, the
 /// Pair page) is answered at once; else this computer shows its own code.
-Future<void> showDeskLinkDevice(BuildContext context, {String? pasted}) =>
-    showEDialog<void>(context, dismissible: false, builder: (_) => DeskLinkDialog(pasted: pasted));
+Future<void> showDeskLinkDevice(BuildContext context, {String? pasted, bool paste = false}) =>
+    showEDialog<void>(context, dismissible: false, builder: (_) => DeskLinkDialog(pasted: pasted, paste: paste));
 
 class DeskLinkDialog extends ConsumerStatefulWidget {
-  const DeskLinkDialog({super.key, this.pasted});
+  const DeskLinkDialog({super.key, this.pasted, this.paste = false});
 
   final String? pasted;
+
+  /// Opens on the Paste code tab (a computer links another computer).
+  final bool paste;
 
   @override
   ConsumerState<DeskLinkDialog> createState() => _DeskLinkDialogState();
@@ -56,10 +59,16 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
   void initState() {
     super.initState();
     final pasted = widget.pasted;
+    final running = _service?.link;
     if (pasted != null) {
       _tab = _Tab.paste;
       _text.text = pasted;
       WidgetsBinding.instance.addPostFrameCallback((_) => _answer());
+    } else if (running != null) {
+      // A link already under way (the pictures to check): the dialog shows it, as it is.
+      _tab = running.role == LinkRole.scans ? _Tab.paste : _Tab.show;
+    } else if (widget.paste) {
+      _tab = _Tab.paste;
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) => _show());
     }
@@ -272,7 +281,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
             Expanded(child: Text(l.linkWaiting, style: ts.small)),
           ],
         ),
-        if (until != null) ...[SizedBox(height: Sp.x1), Text(l.linkExpires(_minutesLeft(until)), style: ts.caption)],
+        if (until != null) ...[SizedBox(height: Sp.x1), Text(l.linkExpires(_minutesLeft(until, ref.read(deskDeviceClockProvider)())), style: ts.caption)],
         SizedBox(height: Sp.x1),
         Text(l.deskDevServersLine(link.servers.join(', ')), style: ts.caption),
       ],
@@ -342,7 +351,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
 }
 
 /// Whole minutes until [t], at least 1 (the code's remaining time).
-int _minutesLeft(DateTime t) => ((t.difference(DateTime.now()).inSeconds + 59) ~/ 60).clamp(1, 60);
+int _minutesLeft(DateTime t, DateTime now) => ((t.difference(now).inSeconds + 59) ~/ 60).clamp(1, 60);
 
 /// Why a link did not complete, in a sentence ([name]: the other device, when known).
 String deskLinkFailureText(AppLocalizations l, LinkFailure? failure, String? name) => switch (failure) {

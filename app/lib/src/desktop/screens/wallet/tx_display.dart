@@ -99,7 +99,7 @@ String? whoTip(AppLocalizations l, Tx t) =>
     t.detail ?? (t.foundByScan && t.contactName == null && t.counterparty == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
 
 /// Whether the name is an address (shown in mono).
-bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
+bool whoIsAddress(Tx t) => t.deviceName == null && t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodLabel(l, t.method);
@@ -411,7 +411,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final l = context.l10n;
     final fromDevice = deskStatusFromDevice(t);
-    final editing = widget.labelEditable && ref.watch(txLabelEditingProvider) == _site;
+    // Another device's payment takes no label here: the row is rebuilt from its notices.
+    final labelEditable = widget.labelEditable && t.deviceName == null;
+    final editing = labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
     final restoredMethod = restoredMethodOf(l, t);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
@@ -456,7 +458,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                   child: _Tip(message: widget.title == null && !labelled && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null, child: name),
                 ),
               ),
-              if (widget.labelEditable) ...[
+              if (labelEditable) ...[
                 SizedBox(width: Sp.x1),
                 TxPen(
                   tx: t,

@@ -35,25 +35,31 @@ class DeskLinkOffer extends ConsumerWidget {
     return Padding(
       key: deskLinkOfferKey,
       padding: EdgeInsets.only(top: Sp.x3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Text(text, style: ts.small)),
-          SizedBox(width: Sp.x3),
-          EBadge(l.advExperimental),
-          SizedBox(width: Sp.x2),
-          EButton(
-            key: deskLinkOfferButtonKey,
-            label: l.devicesLink,
-            icon: EIcons.devices,
-            size: EBtnSize.inline,
-            onPressed: () {
-              if (!inDialog) return unawaited(showDeskLinkDevice(context));
-              // The dialog holding the offer goes first; the link dialog opens over the app.
-              Navigator.of(context).pop();
-              final host = deskNavigatorKey.currentContext;
-              if (host != null) unawaited(showDeskLinkDevice(host));
-            },
+          Text(text, style: ts.small),
+          SizedBox(height: Sp.x2),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              EButton(
+                key: deskLinkOfferButtonKey,
+                label: l.devicesLink,
+                icon: EIcons.devices,
+                size: EBtnSize.inline,
+                onPressed: () {
+                  if (!inDialog) return unawaited(showDeskLinkDevice(context));
+                  // The dialog holding the offer goes first; the link dialog opens over the app.
+                  Navigator.of(context).pop();
+                  final host = deskNavigatorKey.currentContext;
+                  if (host != null) unawaited(showDeskLinkDevice(host));
+                },
+              ),
+              EBadge(l.advExperimental),
+            ],
           ),
         ],
       ),

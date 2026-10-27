@@ -139,7 +139,7 @@ class _DevicesGroup extends ConsumerWidget {
     final l = context.l10n;
     final ts = context.ts;
     final book = view.book;
-    final now = DateTime.now();
+    final now = ref.watch(deskDeviceClockProvider)();
     final canLink = view.supported && service.canLinkMore;
     return ESetGroup(
       title: l.devicesOthers,
