@@ -7,6 +7,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../errors.dart';
@@ -14,13 +15,13 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../wallet_service.dart';
 import '../../pairing_text.dart';
-import '../../slate_files.dart';
 import '../common.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
-import 'pair_incoming.dart' show PairingByHandScreen;
+import 'pair_incoming.dart' show PairFinishScreen, PairingByHandScreen, openPairingLink;
 import 'pair_screen.dart';
+import 'pairing_clip_offer.dart' show markPairingLinkSeen, sharePairingMessage;
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -29,6 +30,9 @@ const Key pendingCheckKey = ValueKey('pending-check');
 const Key pendingRemoveStrayKey = ValueKey('pending-remove-stray');
 const Key pendingRemoveReplyKey = ValueKey('pending-remove-reply');
 const Key pendingByHandKey = ValueKey('pending-by-hand');
+
+/// The menu of an invite nobody answered yet, by its id.
+Key pendingInviteMenuKey(String id) => ValueKey('pending-invite-menu-$id');
 
 /// The menu of a pairing whose words wait to be checked, by its id.
 Key pendingRowMenuKey(String id) => ValueKey('pending-row-menu-$id');
@@ -160,11 +164,13 @@ class _PendingRow extends ConsumerWidget {
         return _Row(
           avatar: avatar,
           title: name,
+          // Past its time the wallet still collects a late answer once: it says so, or that the
+          // relay is not answering, until the invite ends.
           subtitle: Text.rich(
             TextSpan(
               children: [
                 TextSpan(text: l.pendingExpired, style: TextStyle(color: t.warn)),
-                TextSpan(text: ' · ${localDayMonth(l, r.expiresAt!)}'),
+                TextSpan(text: ' · ${r.relayDown ? l.pairRelayUnreachableTitle : l.pairLateCheck}'),
               ],
             ),
           ),
@@ -184,15 +190,18 @@ class _PendingRow extends ConsumerWidget {
           title: name,
           subtitle: Text(r.way == PairingWay.words ? l.pendingWords(pairingSpan(l, left)) : l.pendingLink(pairingSpan(l, left))),
           trailing: PopupMenuButton<String>(
+            key: pendingInviteMenuKey(r.id),
             tooltip: l.contactMore,
             onSelected: (v) => switch (v) {
               'share' => _share(context, ref),
+              'paste' => _pasteReply(context, ref),
               'words' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingWordsScreen(invite: r))),
               'cancel' => _cancel(context, ref, name),
               _ => null,
             },
             itemBuilder: (context) => [
               if (r.inviteLink != null) PopupMenuItem(value: 'share', child: Text(l.pendingShareAgain)),
+              if (r.inviteLink != null) PopupMenuItem(value: 'paste', child: Text(l.pairPasteReply)),
               if (r.inviteWords.isNotEmpty) PopupMenuItem(value: 'words', child: Text(l.pendingShowWords)),
               PopupMenuItem(value: 'cancel', child: Text(l.pairCancelInvite, style: TextStyle(color: t.risk))),
             ],
@@ -243,7 +252,7 @@ class _PendingRow extends ConsumerWidget {
                 tooltip: l.contactMore,
                 onSelected: (v) async {
                   if (v == 'byhand') {
-                    await Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: r.id, confirm: true)));
+                    await Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairFinishScreen(pairingId: r.id)));
                   } else if (await confirmRemovePairing(context, name)) {
                     await pairingCall(ref, (api) => api.removePairing(r.id));
                   }
@@ -261,17 +270,22 @@ class _PendingRow extends ConsumerWidget {
   }
 
   Future<void> _share(BuildContext context, WidgetRef ref) async {
-    final l = context.l10n;
     final link = record.inviteLink;
     if (link == null) return;
-    final name = ref.read(pairingSeenAsProvider).value ?? '';
-    final text = l.pairShareText(name, link, formatDateTime(l, record.expiresAt!));
-    final files = ref.read(slateFilesProvider);
-    if (files.canShareText) {
-      await files.shareText(text);
-    } else if (context.mounted) {
-      await copyText(context, text, l.pairCopied);
+    await sharePairingMessage(context, ref, context.l10n.pairInviteMessage(link), link: link);
+  }
+
+  /// Paste reply, as on the invite's own screen.
+  Future<void> _pasteReply(BuildContext context, WidgetRef ref) async {
+    final l = context.l10n;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!context.mounted) return;
+    if (pairingLinkKind(text) != PairingLinkKind.reply) {
+      ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
+      return;
     }
+    await markPairingLinkSeen(ref, pairingLinkIn(text)!);
+    if (context.mounted) await openPairingLink(context, ref, text);
   }
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, String name) async {

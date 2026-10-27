@@ -20,6 +20,7 @@ import 'method_names.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
+import 'pairing/pending_invites.dart' show PendingInvitesScreen;
 import 'pairing/pairing_notices.dart' show pairingContactNoticeTag, pairingNewsOnScreen;
 import 'scan_route.dart' show sendPayments;
 import 'status_icons.dart' show EpicGlyphs;
@@ -32,6 +33,7 @@ const Key contactPageEditKey = ValueKey('contact-page-edit');
 const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
 const Key contactPagePairKey = ValueKey('contact-page-pair');
+const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
 const Key contactPageSealKey = ValueKey('contact-page-seal');
 const Key contactPageInvoicesKey = ValueKey('contact-page-invoices');
 const Key contactPageRemovePairingKey = ValueKey('contact-page-remove-pairing');
@@ -211,6 +213,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     }
     final pairs = ref.watch(pairingSupportedProvider);
     final pairing = pairs ? ref.watch(contactPairingProvider(contact.id)) : null;
+    // An invite or answer for this contact in flight.
+    final inFlight = pairs &&
+        pairing == null &&
+        (ref.watch(pairingsProvider).value ?? const <PairingRecord>[]).any((r) => r.contactId == contact.id && r.state.isPending);
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     return SlotScaffold(
       appBar: AppBar(
@@ -252,13 +258,23 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       ),
       body: ScreenBody(
         children: [
-          _Header(contact: contact, pairing: pairing, starred: starred, onSend: () => _send(contact, pairing), onCode: () => _showCode(contact)),
+          _Header(
+            contact: contact,
+            pairing: pairing,
+            starred: starred,
+            onSend: () => _send(contact, pairing),
+            onCode: () => _showCode(contact),
+            onPair: pairs && pairing == null && !inFlight ? () => _pair(contact) : null,
+            onPending: pairs && pairing == null && inFlight
+                ? () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PendingInvitesScreen()))
+                : null,
+          ),
           PairSection(l.contactAddresses),
           _Addresses(contact: contact, pairing: pairing),
           if (pairs) ...[
             PairSection(l.contactPairing),
             if (pairing == null)
-              _NotPaired(onPair: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairScreen(contact: contact))))
+              _NotPaired(onPair: () => _pair(contact))
             else
               _PairingBlock(
                 contact: contact,
@@ -277,18 +293,56 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     );
   }
 
+  void _pair(Contact contact) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairScreen(contact: contact)));
+
   void _openCheck(String id) =>
       Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: id, recheck: true)));
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({required this.contact, required this.pairing, required this.starred, required this.onSend, required this.onCode});
+  const _Header({
+    required this.contact,
+    required this.pairing,
+    required this.starred,
+    required this.onSend,
+    required this.onCode,
+    this.onPair,
+    this.onPending,
+  });
 
   final Contact contact;
   final PairingRecord? pairing;
   final bool starred;
   final VoidCallback onSend;
   final VoidCallback onCode;
+
+  /// Not paired: Pair opens the Pair screen for this contact.
+  final VoidCallback? onPair;
+
+  /// An invite or answer for it in flight: Pairing… opens Pending invites.
+  final VoidCallback? onPending;
+
+  /// A header button: 36 dp, hugging its content; [soft] the primary's soft gold (accentSoft
+  /// fill, accentText ink, a gold hairline), the rest outlined.
+  static ButtonStyle _headerStyle(BuildContext context, {bool soft = false}) {
+    final t = context.tokens;
+    final base = ButtonStyle(
+      minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+      fixedSize: const WidgetStatePropertyAll(Size.fromHeight(36)),
+      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 14)),
+      tapTargetSize: MaterialTapTargetSize.padded,
+      visualDensity: VisualDensity.compact,
+    );
+    if (!soft) return base.copyWith(side: WidgetStatePropertyAll(BorderSide(color: t.lineStrong)), foregroundColor: WidgetStatePropertyAll(t.text));
+    return base.copyWith(
+      backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.surfaceHi : t.accentSoft),
+      foregroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.accentText),
+      iconColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.accentText),
+      side: WidgetStateProperty.resolveWith(
+        (s) => BorderSide(color: s.contains(WidgetState.disabled) ? t.line : t.accent.withValues(alpha: 0.35)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -347,26 +401,65 @@ class _Header extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 16),
+        // One row of compact buttons, each hugging its icon and one word (Pairing UX plan
+        // 4.2): Send in soft gold, not a filled block; Pair while not paired, outlined as in
+        // Contacts' app bar ("Pair with Anna" only as its tooltip); Show code a glyph beside
+        // Pair, so the row fits Russian at 360 dp.
         Row(
           children: [
-            Expanded(
-              child: FilledButton.icon(
-                key: contactPageSendKey,
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                icon: const Icon(Icons.north_east, size: 18),
-                label: Text(l.contactsSendAction),
-                onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
-              ),
+            FilledButton.tonalIcon(
+              key: contactPageSendKey,
+              style: _headerStyle(context, soft: true),
+              icon: const Icon(Icons.north_east, size: 18),
+              label: Text(l.contactsSendAction),
+              onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
             ),
+            if (onPair != null) ...[
+              const SizedBox(width: 8),
+              Tooltip(
+                message: l.pairWithName(contact.name),
+                excludeFromSemantics: true,
+                child: Semantics(
+                  label: l.pairWithName(contact.name),
+                  button: true,
+                  excludeSemantics: true,
+                  child: OutlinedButton.icon(
+                    key: contactPageHeaderPairKey,
+                    style: _headerStyle(context),
+                    icon: const Icon(EpicGlyphs.verified, size: 18),
+                    label: Text(l.pairTitle),
+                    onPressed: onPair,
+                  ),
+                ),
+              ),
+            ] else if (onPending != null) ...[
+              const SizedBox(width: 8),
+              Tooltip(
+                message: l.pairBadgePendingTip,
+                child: OutlinedButton.icon(
+                  key: contactPageHeaderPairKey,
+                  style: _headerStyle(context),
+                  icon: const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                  label: Text(l.pairBadgePending),
+                  onPressed: onPending,
+                ),
+              ),
+            ],
             const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            if (onPair != null || onPending != null)
+              IconButton.outlined(
+                tooltip: l.contactsShowCode,
+                style: IconButton.styleFrom(side: BorderSide(color: t.lineStrong), fixedSize: const Size(36, 36), minimumSize: const Size(36, 36)),
+                icon: const Icon(Icons.qr_code_2, size: 18),
+                onPressed: contact.addresses.isEmpty ? null : onCode,
+              )
+            else
+              OutlinedButton.icon(
+                style: _headerStyle(context),
                 icon: const Icon(Icons.qr_code_2, size: 18),
                 label: Text(l.contactsShowCode),
                 onPressed: contact.addresses.isEmpty ? null : onCode,
               ),
-            ),
           ],
         ),
         // A contact with only a pairing that cannot take a payment now: why Send is off.

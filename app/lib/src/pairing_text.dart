@@ -79,3 +79,8 @@ T? sameNamedContact<T>(PairingRecord record, Iterable<T> contacts, String Functi
   if (withPairing.length == 1) return withPairing.single;
   return withPairing.isEmpty && same.length == 1 ? same.single : null;
 }
+
+/// Words or a code that could not go out or be found because no relay answers: the message
+/// way, which needs none, is offered instead (Pairing UX plan 3).
+bool pairingNoRelay(PairingFailure failure) =>
+    failure == PairingFailure.noRelay || failure == PairingFailure.relaysBlocked || failure == PairingFailure.relayUnreachable;

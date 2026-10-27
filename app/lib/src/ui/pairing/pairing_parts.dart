@@ -255,6 +255,17 @@ class TrustBadge extends StatelessWidget {
   }
 }
 
+/// "Pairing…": an invite or answer for the contact is in flight, not finished yet.
+class PairPendingBadge extends StatelessWidget {
+  const PairPendingBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = _l10n(context);
+    return EBadge(l.pairBadgePending, tone: BadgeTone.info, busy: true, tooltip: l.pairBadgePendingTip);
+  }
+}
+
 /// The Sealed badge; "Sealed for Anna" with [name].
 class SealedBadge extends StatelessWidget {
   const SealedBadge({super.key, this.name});

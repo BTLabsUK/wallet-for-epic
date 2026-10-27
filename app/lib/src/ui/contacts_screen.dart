@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
+import '../help/help_content.dart' show HelpId;
 import '../errors.dart';
 import '../l10n.dart';
+import '../pairing_clipboard.dart' show PairingClipTrigger;
 import '../pairing_providers.dart';
 import '../pairing_text.dart' show sameNamedContact;
 import '../providers.dart';
@@ -14,9 +16,11 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
+import 'help_screen.dart' show openHelp;
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_screen.dart';
+import 'pairing/pairing_clip_offer.dart' show lookForPairingLink;
 import 'pairing/pairing_parts.dart';
 import 'pairing/pending_invites.dart';
 import 'scan_screen.dart';
@@ -28,6 +32,8 @@ import 'tour/tour_target.dart';
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
 const Key contactsPendingKey = ValueKey('contacts-pending');
+const Key contactsPairHintKey = ValueKey('contacts-pair-hint');
+const Key contactsPairLearnKey = ValueKey('contacts-pair-learn');
 const Key contactsMoreKey = ValueKey('contacts-more');
 const Key contactsImportKey = ValueKey('contacts-import');
 const Key contactsExportKey = ValueKey('contacts-export');
@@ -83,6 +89,17 @@ const int _groupAbove = 8;
 
 class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   final _search = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // A pairing link copied in a chat is offered here too (Pairing UX plan 5).
+    if (!widget.pick) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) lookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -141,12 +158,29 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       appBar: AppBar(
         title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
         actions: [
+          // Pair in one place, labelled, beside Add contact; never a gold button (Pairing UX
+          // plan 4.1).
           if (pairs)
-            IconButton(
-              key: contactsPairKey,
-              tooltip: l.pairTitle,
-              icon: const Icon(EpicGlyphs.verified),
-              onPressed: _pair,
+            Tooltip(
+              message: l.contactsPairTooltip,
+              excludeFromSemantics: true,
+              child: Semantics(
+                label: l.contactsPairTooltip,
+                button: true,
+                excludeSemantics: true,
+                child: OutlinedButton.icon(
+                  key: contactsPairKey,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 36),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    tapTargetSize: MaterialTapTargetSize.padded,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  icon: const Icon(EpicGlyphs.verified, size: 18),
+                  label: Text(l.pairTitle),
+                  onPressed: _pair,
+                ),
+              ),
             ),
           IconButton(
             tooltip: l.contactsAdd,
@@ -209,6 +243,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                           label: Text(l.pairTitle),
                           onPressed: _pair,
                         ),
+                        const SizedBox(height: 16),
+                        const _PairHint(center: true),
                       ],
                     ],
                   ),
@@ -269,7 +305,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final t = context.tokens;
     final l = context.l10n;
     final query = _search.text.trim().toLowerCase();
+    // What pairing is for, while nobody is paired yet (Pairing UX plan 4.1).
+    final hint = ref.watch(pairingSupportedProvider) && !widget.pick && query.isEmpty && ref.watch(pairedProvider).isEmpty;
     final rows = <Widget>[
+      if (hint) ...[const _PairHint(), Divider(height: 1, color: t.line)],
       // Pairings in no contact, by the name they chose: Add to contacts or Remove pairing.
       for (final r in orphans)
         if (query.isEmpty || r.shownName.toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
@@ -439,6 +478,10 @@ class _ContactRow extends ConsumerWidget {
     final theme = Theme.of(context);
     final note = contact.note?.trim();
     final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
+    // An invite or answer for this contact in flight: Pairing… until it is paired.
+    final inFlight = pairing == null &&
+        ref.watch(pairingSupportedProvider) &&
+        (ref.watch(pairingsProvider).value ?? const <PairingRecord>[]).any((r) => r.contactId == contact.id && r.state.isPending);
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final address = shortAddress(contact.address);
@@ -501,6 +544,8 @@ class _ContactRow extends ConsumerWidget {
                         // Paired: its trust badge; not paired: how it is reached (SPEC 2.1).
                         if (pairing != null)
                           Flexible(child: TrustBadge(pairing, short: true))
+                        else if (inFlight)
+                          const Flexible(child: PairPendingBadge())
                         else if (!several && contact.addresses.isNotEmpty)
                           Flexible(child: EBadge.kind(parseRecipient(contact.address).kind, l: l)),
                       ],
@@ -900,6 +945,46 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The line over the list while no contact is paired: what pairing is for, and How it works
+/// (Help › Pairing › Three ways to pair). Pair itself is in the app bar only.
+class _PairHint extends StatelessWidget {
+  const _PairHint({this.center = false});
+
+  /// In the empty state, under its caption.
+  final bool center;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final text = Text(
+      l.contactsPairHint,
+      textAlign: center ? TextAlign.center : TextAlign.start,
+      style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+    );
+    final learn = TextButton(
+      key: contactsPairLearnKey,
+      style: TextButton.styleFrom(minimumSize: const Size(0, 44), padding: const EdgeInsets.symmetric(horizontal: 8)),
+      onPressed: () => openHelp(context, HelpId.pairingWays),
+      child: Text(l.contactsPairLearn),
+    );
+    if (center) return Column(key: contactsPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, learn]);
+    return Padding(
+      key: contactsPairHintKey,
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+      child: Row(
+        children: [
+          Icon(EpicGlyphs.verified, size: 18, color: t.dim),
+          const SizedBox(width: 12),
+          Expanded(child: text),
+          learn,
+        ],
+      ),
     );
   }
 }

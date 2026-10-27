@@ -1,5 +1,6 @@
 /// The pairing events as notices (SPEC 2.10): docked under the app bar, one line, the next
-/// step as its action. Mounted on home, so they show wherever the user is.
+/// step as its action. Mounted on home, so they show wherever the user is. It also looks for a
+/// pairing link on the clipboard when the app comes to the front (Pairing UX plan 5).
 library;
 
 import 'dart:async';
@@ -10,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../contacts.dart';
 import '../../l10n.dart';
+import '../../pairing_clipboard.dart' show PairingClipTrigger;
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../providers.dart' show homeProvider, pendingInvoicesProvider;
@@ -18,6 +20,7 @@ import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
 import 'pair_check.dart';
+import 'pairing_clip_offer.dart';
 import 'pending_invites.dart';
 import '../tx_details_screen.dart';
 
@@ -93,6 +96,16 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   static const _tick = Duration(seconds: 45);
   Timer? _timer;
+  Timer? _clip;
+
+  /// Once per return to the app, after its window has the focus again: Android 10 and later
+  /// hand the clipboard only to the app in focus, which comes a moment after the resume.
+  void _lookAtClipboard() {
+    _clip?.cancel();
+    _clip = Timer(const Duration(milliseconds: 400), () {
+      if (mounted) lookForPairingLink(context, ref, PairingClipTrigger.resume).ignore();
+    });
+  }
 
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
@@ -109,8 +122,10 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (state == AppLifecycleState.resumed) {
       _collect(PairingCollectTrigger.open);
       _startTick();
+      _lookAtClipboard();
     } else if (state == AppLifecycleState.paused) {
       _timer?.cancel();
+      _clip?.cancel();
     }
   }
 
@@ -118,6 +133,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _clip?.cancel();
     super.dispose();
   }
 

@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../errors.dart';
@@ -22,6 +23,8 @@ import '../common.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_screen.dart';
+import 'pair_steps.dart';
+import 'pairing_clip_offer.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
 
@@ -31,11 +34,19 @@ const Key incomingNotNowKey = ValueKey('incoming-not-now');
 const Key incomingAllowKey = ValueKey('incoming-allow');
 const Key waitingByHandKey = ValueKey('waiting-by-hand');
 const Key byHandCheckWordsKey = ValueKey('by-hand-check-words');
+const Key waitingPasteFinishKey = ValueKey('waiting-paste-finish');
+const Key replyShareKey = ValueKey('reply-share');
+const Key replyCopyKey = ValueKey('reply-copy');
+const Key finishShareKey = ValueKey('finish-share');
+const Key finishCheckKey = ValueKey('finish-check');
 
-/// Opens the pairing link in [text] (an invite, an answer or confirm sent by hand, or a card):
-/// the incoming sheet, the words check, or the screen that says why not. [contact] is the
-/// address-book contact the pairing attaches to, when known. With [replace] the screen that
-/// opens takes the place of the current one. Text without a pairing link does nothing.
+/// Opens the pairing link in [pasted] (an invite, a reply or finish link of Invite by message,
+/// or a card): the incoming sheet, the finish link to send, the words check, or the screen
+/// that says why not. [contact] is the address-book contact the pairing attaches to, when
+/// known. With [replace] the screen that opens takes the place of the current one. Text
+/// without a pairing link does nothing. A reply or finish link of a pairing that finished
+/// already (the relay was faster) only says so; one whose message step is on screen
+/// ([pairingStepsOnScreen]) leaves the next screen to that step.
 Future<void> openPairingLink(
   BuildContext context,
   WidgetRef ref,
@@ -49,20 +60,35 @@ Future<void> openPairingLink(
   final text = pairingLinkIn(pasted)!;
   final api = ref.read(pairingApiProvider);
   final nav = Navigator.of(context);
+  final notices = ref.read(noticeProvider.notifier);
+  final l = context.l10n;
   Future<void> show(Widget screen) =>
       replace ? nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => screen)) : nav.push(MaterialPageRoute<void>(builder: (_) => screen));
+  // The pairings already finished before this link: a late reply or finish link changes nothing.
+  final pairedBefore = {
+    for (final r in ref.read(pairingsProvider).value ?? const <PairingRecord>[])
+      if (r.state.isPaired) r.id,
+  };
+  bool already(PairingRecord r) {
+    if (!pairedBefore.contains(r.id)) return false;
+    notices.show(l.pairAlreadyPaired(ref.read(pairingNameProvider(r.id)).isEmpty ? r.shownName : ref.read(pairingNameProvider(r.id))), level: NoticeLevel.info);
+    return true;
+  }
+
   try {
     switch (kind) {
       case PairingLinkKind.invite:
         final preview = await api.openInvite(text);
         if (context.mounted) await showIncomingInvite(context, ref, preview, contact: contact, replace: replace);
       case PairingLinkKind.reply:
-        // Their answer came by hand, so the confirm goes back by hand before the words: their
-        // wallet shows the words only once it has it (PAIR-AND-10).
+        // Their reply came in the chat: the finish link goes back the same way before the
+        // words, which their wallet shows only once it has it (PAIR-AND-10).
         final record = await pairingCall(ref, (a) => a.openReply(text));
-        await show(PairingByHandScreen(pairingId: record.id, confirm: true));
+        if (already(record) || pairingStepsOnScreen.contains(record.id)) return;
+        await show(PairFinishScreen(pairingId: record.id));
       case PairingLinkKind.confirm:
         final record = await pairingCall(ref, (a) => a.openConfirm(text));
+        if (already(record) || pairingStepsOnScreen.contains(record.id)) return;
         await show(CheckWordsScreen(pairingId: record.id));
       case PairingLinkKind.card:
         // Their code was scanned first: show this phone's, and the pairing follows.
@@ -71,17 +97,25 @@ Future<void> openPairingLink(
   } catch (error) {
     final failure = pairingFailureOf(error);
     if (failure == null) rethrow;
+    // A reply no invite of this wallet's opens: the other side answered someone else's.
+    if (kind == PairingLinkKind.reply && failure == PairingFailure.notFound) {
+      notices.show(l.pairReplyNotHere, level: NoticeLevel.warning);
+      return;
+    }
     await show(PairingOutcomeScreen(failure: failure));
   }
 }
 
-/// "Pair with Anna?" for [preview]. Pair answers it and opens the wait for the confirm.
+/// "Pair with Anna?" for [preview]. Pair answers it; an invite that came as a link
+/// ([viaLink]) opens the reply to send back (Invite by message, step 2), one found by its
+/// words the wait for the confirm.
 Future<void> showIncomingInvite(
   BuildContext context,
   WidgetRef ref,
   PairingInvitePreview preview, {
   Contact? contact,
   bool replace = false,
+  bool viaLink = true,
 }) async {
   final answered = await showModalBottomSheet<PairingRecord>(
     context: context,
@@ -91,7 +125,9 @@ Future<void> showIncomingInvite(
     builder: (_) => IncomingInviteSheet(preview: preview, contact: contact),
   );
   if (answered == null || !context.mounted) return;
-  final screen = PairingWaitingScreen(pairingId: answered.id);
+  // A link came in a message: the reply goes back the same way (it also goes to the relay).
+  // Words: the relay carries the answer, and the wait follows.
+  final Widget screen = viaLink ? PairReplyScreen(pairingId: answered.id) : PairingWaitingScreen(pairingId: answered.id);
   final nav = Navigator.of(context);
   await (replace ? nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => screen)) : nav.push(MaterialPageRoute<void>(builder: (_) => screen)));
 }
@@ -243,9 +279,13 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 /// when the relay could not take the answer, and opens the words check when the confirm
 /// arrives. It can be closed: the pairing goes on in the background.
 class PairingWaitingScreen extends ConsumerStatefulWidget {
-  const PairingWaitingScreen({super.key, required this.pairingId});
+  const PairingWaitingScreen({super.key, required this.pairingId, this.byMessage = false});
 
   final String pairingId;
+
+  /// Invite by message, step 3: the finish link comes back in the chat (Paste finish link, or
+  /// the clipboard offer), or through a relay by itself.
+  final bool byMessage;
 
   @override
   ConsumerState<PairingWaitingScreen> createState() => _PairingWaitingScreenState();
@@ -261,6 +301,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
+    pairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(pairingApiProvider);
     _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
     _events = api.events().listen((e) {
@@ -269,17 +310,34 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
       // build below closes this one instead.
       if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
       final nav = Navigator.of(context);
+      if (_left) return;
       if (e.kind == PairingEventKind.confirmed) {
+        _left = true;
         nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
       } else if (e.kind == PairingEventKind.failed && e.failure != null) {
+        _left = true;
         nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => PairingOutcomeScreen(failure: e.failure!, name: e.name)));
       }
     });
   }
 
+  /// Paste finish link: the confirm in the clipboard, opened here.
+  Future<void> _pasteFinish() async {
+    final l = context.l10n;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!mounted) return;
+    if (pairingLinkKind(text) != PairingLinkKind.confirm) {
+      ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
+      return;
+    }
+    await markPairingLinkSeen(ref, pairingLinkIn(text)!);
+    if (mounted) await openPairingLink(context, ref, text);
+  }
+
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
+    pairingStepsOnScreen.remove(widget.pairingId);
     _collector?.stop();
     _events?.cancel();
     super.dispose();
@@ -304,10 +362,13 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
         if (!mounted) return;
         final route = ModalRoute.of(context);
         if (route == null) return;
-        if (route.isCurrent) {
-          Navigator.of(context).pop();
-        } else {
+        if (!route.isCurrent) {
           Navigator.of(context).removeRoute(route);
+        } else if (record != null && record.state.isPaired) {
+          // The finish link came another way (pasted, offered, by the relay): the words.
+          Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
+        } else {
+          Navigator.of(context).pop();
         }
       });
     }
@@ -315,26 +376,72 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     final overTor = ref.watch(epicboxOverTorProvider);
     final net = ref.watch(pairNetProvider);
     final unreachable = (record?.relayDown ?? false) || net != PairNet.online;
-    return SlotScaffold(
-      appBar: AppBar(automaticallyImplyLeading: false, title: Text(l.pairWaitingTitleShort)),
-      body: ScreenBody(
-        bottom: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                key: waitingByHandKey,
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: _byHand,
-                child: Text(l.pairSendByHand),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: FilledButton(
+    if (widget.byMessage) {
+      return SlotScaffold(
+        appBar: AppBar(automaticallyImplyLeading: false, title: Text(l.pairWayMessage)),
+        body: ScreenBody(
+          bottom: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton.icon(
+                key: waitingPasteFinishKey,
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                icon: const Icon(Icons.content_paste, size: 18),
+                label: Text(l.pairPasteFinish),
+                onPressed: _pasteFinish,
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 onPressed: () => Navigator.pop(context),
                 child: Text(l.pairClosed),
               ),
+            ],
+          ),
+          children: [
+            const PairSteps(current: 3),
+            const SizedBox(height: 28),
+            const Center(child: SizedBox.square(dimension: 32, child: CircularProgressIndicator(strokeWidth: 3))),
+            const SizedBox(height: 16),
+            Semantics(
+              header: true,
+              liveRegion: true,
+              child: Text(l.pairAwaitFinishTitle, textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+            ),
+            const SizedBox(height: 8),
+            Text(l.pairAwaitFinishBody(name), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+            const SizedBox(height: 16),
+            if (record?.expiresAt != null)
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 260),
+                  child: PairCountdown(until: record!.expiresAt!),
+                ),
+              ),
+            if (net == PairNet.online) ...[const SizedBox(height: 16), PairSmallPrint(l.pairByItself)],
+          ],
+        ),
+      );
+    }
+    return SlotScaffold(
+      appBar: AppBar(automaticallyImplyLeading: false, title: Text(l.pairWaitingTitleShort)),
+      body: ScreenBody(
+        bottom: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () => Navigator.pop(context),
+              child: Text(l.pairClosed),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              key: waitingByHandKey,
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: _byHand,
+              child: Text(l.pairSendByHand),
             ),
           ],
         ),
@@ -345,7 +452,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
           Semantics(
             header: true,
             liveRegion: true,
-            child: Text(l.pairWaitingTitle(name), textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+            child: Text(l.pairWaitingFinish(name), textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
           ),
           const SizedBox(height: 8),
           // By hand (Offline, Epicbox off) nothing continues in the background.
@@ -375,6 +482,225 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Invite by message, the joiner's step 2: the reply to send back in the same chat. It went to
+/// the relay as well, so with a relay on both sides the pairing may finish by itself: the
+/// words check opens then. After sharing, the wait for the finish link.
+class PairReplyScreen extends ConsumerStatefulWidget {
+  const PairReplyScreen({super.key, required this.pairingId});
+
+  final String pairingId;
+
+  @override
+  ConsumerState<PairReplyScreen> createState() => _PairReplyScreenState();
+}
+
+class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
+  String? _link;
+  String? _error;
+  bool _left = false;
+  PairingCollector? _collector;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
+
+  @override
+  void initState() {
+    super.initState();
+    pairingWordsOnScreen.add(_onScreen);
+    pairingStepsOnScreen.add(widget.pairingId);
+    if (ref.read(pairNetProvider) == PairNet.online) {
+      _collector = PairingCollector(ref.read(pairingApiProvider), every: const Duration(seconds: 5))..start();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final link = await ref.read(pairingApiProvider).replyLink(widget.pairingId);
+        if (mounted) setState(() => _link = link);
+      } catch (error) {
+        if (mounted) setState(() => _error = describeError(context.l10n, error));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
+    pairingStepsOnScreen.remove(widget.pairingId);
+    _collector?.stop();
+    super.dispose();
+  }
+
+  Future<void> _share({required bool copy}) async {
+    final link = _link;
+    if (link == null) return;
+    await sharePairingMessage(context, ref, context.l10n.pairReplyMessage(link), link: link, copy: copy);
+    if (!mounted || _left) return;
+    _left = true;
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: widget.pairingId, byMessage: true)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final name = ref.watch(pairingNameProvider(widget.pairingId));
+    final record = ref.watch(pairingByIdProvider(widget.pairingId));
+    final link = _link;
+    final canShare = ref.watch(slateFilesProvider).canShareText;
+    // Finished through the relay while the reply was still to send: the words.
+    if (!_left && record != null && record.state.isPaired) {
+      _left = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && (ModalRoute.of(context)?.isCurrent ?? false)) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
+        }
+      });
+    }
+    return SlotScaffold(
+      appBar: AppBar(title: Text(l.pairWayMessage)),
+      body: ScreenBody(
+        bottom: FilledButton.icon(
+          key: replyShareKey,
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
+          label: Text(canShare ? l.pairShareReply : l.pairCopyMessage),
+          onPressed: link == null ? null : () => _share(copy: !canShare),
+        ),
+        children: [
+          const PairSteps(current: 2),
+          const SizedBox(height: 16),
+          Semantics(header: true, child: Text(l.pairReplyTitle, style: Theme.of(context).textTheme.titleLarge)),
+          const SizedBox(height: 8),
+          PairLead(l.pairReplyLead(name)),
+          const SizedBox(height: 16),
+          if (_error != null) ErrorText(_error!),
+          if (link != null) ...[
+            ShareBox(label: l.pairWhatTheyReceive, text: l.pairReplyMessage(link)),
+            if (canShare)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  key: replyCopyKey,
+                  style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                  icon: const Icon(Icons.copy, size: 18),
+                  label: Text(l.pairCopyMessage),
+                  onPressed: () => _share(copy: true),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Invite by message, the inviter's step 3: the finish link, which the other wallet needs to
+/// show the words; opens by itself once the reply is in. Then the words check.
+class PairFinishScreen extends ConsumerStatefulWidget {
+  const PairFinishScreen({super.key, required this.pairingId});
+
+  final String pairingId;
+
+  @override
+  ConsumerState<PairFinishScreen> createState() => _PairFinishScreenState();
+}
+
+class _PairFinishScreenState extends ConsumerState<PairFinishScreen> {
+  String? _link;
+  String? _error;
+  bool _shared = false;
+  bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
+
+  @override
+  void initState() {
+    super.initState();
+    pairingWordsOnScreen.add(_onScreen);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final link = await ref.read(pairingApiProvider).confirmLink(widget.pairingId);
+        if (mounted) setState(() => _link = link);
+      } catch (error) {
+        if (mounted) setState(() => _error = describeError(context.l10n, error));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    pairingWordsOnScreen.remove(_onScreen);
+    super.dispose();
+  }
+
+  Future<void> _share({required bool copy}) async {
+    final link = _link;
+    if (link == null) return;
+    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), link: link, copy: copy);
+    if (mounted) setState(() => _shared = true);
+  }
+
+  void _check() => Navigator.of(context).pushReplacement(
+    MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final name = ref.watch(pairingNameProvider(widget.pairingId));
+    final link = _link;
+    final canShare = ref.watch(slateFilesProvider).canShareText;
+    final share = FilledButton.icon(
+      key: finishShareKey,
+      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+      icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
+      label: Text(canShare ? l.pairShareFinish : l.pairCopyMessage),
+      onPressed: link == null ? null : () => _share(copy: !canShare),
+    );
+    // Once it is sent, the words are the main step.
+    final check = _shared
+        ? FilledButton(key: finishCheckKey, style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.sasTitle))
+        : OutlinedButton(key: finishCheckKey, style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.sasTitle));
+    return SlotScaffold(
+      appBar: AppBar(title: Text(l.pairWayMessage)),
+      body: ScreenBody(
+        bottom: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: _shared
+              ? [check, const SizedBox(height: 8), OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
+                  label: Text(canShare ? l.pairShareFinish : l.pairCopyMessage),
+                  onPressed: link == null ? null : () => _share(copy: !canShare),
+                )]
+              : [share, const SizedBox(height: 8), check],
+        ),
+        children: [
+          const PairSteps(current: 3),
+          const SizedBox(height: 16),
+          Semantics(header: true, child: Text(l.pairFinishTitle, style: Theme.of(context).textTheme.titleLarge)),
+          const SizedBox(height: 8),
+          PairLead(l.pairFinishLead(name)),
+          const SizedBox(height: 16),
+          if (_error != null) ErrorText(_error!),
+          if (link != null) ...[
+            ShareBox(label: l.pairWhatTheyReceive, text: l.pairFinishMessage(link)),
+            if (canShare)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                  icon: const Icon(Icons.copy, size: 18),
+                  label: Text(l.pairCopyMessage),
+                  onPressed: () => _share(copy: true),
+                ),
+              ),
+          ],
+          const SizedBox(height: 8),
+          PairSmallPrint(l.pairFinishThenCheck),
         ],
       ),
     );

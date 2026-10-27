@@ -84,6 +84,10 @@ class FakePairing implements PairingApi {
   /// The name the other side gives itself when it answers on its own.
   String autoAnswerName = 'Anna';
 
+  /// An invite answered on its own came back as a message (Invite by message, step 2), not
+  /// through the relay: its finish link is there to send, as after [openReply].
+  bool autoAnswerByMessage = false;
+
   /// When set, the relay is not reachable: answers wait to go by hand, words cannot be made
   /// or found ([PairingFailure.noRelay]).
   bool relayUnreachable = false;
@@ -102,6 +106,9 @@ class FakePairing implements PairingApi {
   final List<PairingStray> strayList = [];
   final Map<String, PairingInvitePreview> _previews = {};
   final Map<String, String> _cards = {};
+
+  /// Invites whose reply was opened by hand: as LEPIC, only these hold a finish link.
+  final Set<String> _repliedByHand = {};
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
   final List<Timer> _timers = [];
   int _seq = 0;
@@ -399,7 +406,10 @@ class FakePairing implements PairingApi {
     );
     _put(record);
     _later(() {
-      if (records.any((r) => r.id == id && r.state == PairingState.pendingInvite)) answerInvite(id);
+      if (!records.any((r) => r.id == id && r.state == PairingState.pendingInvite)) return;
+      // Words always come back through the relay.
+      if (autoAnswerByMessage && !words) _repliedByHand.add(id);
+      answerInvite(id);
     });
     return record;
   }
@@ -420,8 +430,12 @@ class FakePairing implements PairingApi {
     final id = body['t'] as String?;
     final invite = records.where((r) => r.id == id).firstOrNull;
     if (invite == null) throw pairingError(PairingFailure.notFound);
+    // The same reply again (it came through the relay first): LEPIC answers it with the same
+    // finish link and changes nothing.
+    if (invite.state.isPaired && invite.inviter) return invite;
     if (invite.state != PairingState.pendingInvite) throw pairingError(PairingFailure.alreadyUsed);
     calls.add('openReply');
+    _repliedByHand.add(invite.id);
     return answerInvite(invite.id, name: body['n'] as String?);
   }
 
@@ -429,6 +443,8 @@ class FakePairing implements PairingApi {
   Future<String> confirmLink(String id) async {
     _require('confirmLink');
     final r = _get(id);
+    // A reply that came through the relay was confirmed through it too: no link to send.
+    if (!_repliedByHand.contains(id)) throw pairingError(PairingFailure.notFound);
     return fakePairingLink('pair-confirm', {'t': r.id, 'n': r.shownName});
   }
 
