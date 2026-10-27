@@ -70,6 +70,8 @@ sha256() { shasum -a 256 "$1" | cut -d' ' -f1; }
 build_id() { git -C "$root" rev-parse --short=8 HEAD; }
 # The dart-define of the build without Tor (WFE_TOR=0), else nothing.
 tor_define() { if [ "${WFE_TOR:-1}" = 0 ]; then echo --dart-define=WFE_TOR=false; fi; }
+# The file name mark of the build without Tor, as the other platforms' packages have it.
+variant() { if [ "${WFE_TOR:-1}" = 0 ]; then echo -notor; fi; }
 app_version() { sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' "$app/pubspec.yaml"; }
 
 doctor() {
@@ -180,6 +182,9 @@ macos() {
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Contents/Frameworks/lepic_ffi.framework/lepic_ffi" ] \
     || die "the bundle has no lepic_ffi.framework (app/hook/build.dart)"
+  # Flutter rebuilds the bundle in place and leaves Contents/Resources/bin alone: a tor from an
+  # earlier build with Tor would stay in a build without it.
+  rm -rf "$res"
   mkdir -p "$res"
   # The built-in node: Contents/Resources/bin/epic (lib/src/builtin_node_provider.dart).
   if [ "${WFE_NODE_FETCH:-0}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}${WFE_NODE_BIN_MAC_X64:-}" ]; then
@@ -236,9 +241,9 @@ dmg() {
   ditto "$bundle" "$stage/$desktop_name.app"
   ln -s /Applications "$stage/Applications"
   hdiutil create -quiet -volname "$desktop_name" -srcfolder "$stage" -ov -format UDZO \
-    "$out/EpicCashDesktop-$version-macos.dmg"
+    "$out/EpicCashDesktop-$version$(variant)-macos.dmg"
   rm -rf "$stage"
-  result PASS dmg "EpicCashDesktop-$version-macos.dmg $(du -h "$out/EpicCashDesktop-$version-macos.dmg" | cut -f1)"
+  result PASS dmg "EpicCashDesktop-$version$(variant)-macos.dmg $(du -h "$out/EpicCashDesktop-$version$(variant)-macos.dmg" | cut -f1)"
 }
 
 # The udid of SIM_DEVICE (a name or udid), else of the first available iPhone.
@@ -266,7 +271,7 @@ ios_sim() {
   sleep 15
   mkdir -p "$out"
   xcrun simctl io "$udid" screenshot "$out/ios-sim.png"
-  ditto -c -k --keepParent "$bundle" "$out/EpicCashMobile-$(app_version)-ios-simulator.zip"
+  ditto -c -k --keepParent "$bundle" "$out/EpicCashMobile-$(app_version)$(variant)-ios-simulator.zip"
   result PASS ios-sim "$udid, screenshot ios-sim.png"
 }
 
@@ -277,7 +282,7 @@ ipa() {
   (cd "$app" && flutter pub get && flutter build ios --release --no-codesign -t lib/main.dart \
     --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
-  local ipa_file="$out/EpicCashMobile-$(app_version)-ios-unsigned.ipa"
+  local ipa_file="$out/EpicCashMobile-$(app_version)$(variant)-ios-unsigned.ipa"
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Frameworks/lepic_ffi.framework/lepic_ffi" ] || die "the .app has no lepic_ffi.framework"
   rm -rf "$stage" "$ipa_file"
