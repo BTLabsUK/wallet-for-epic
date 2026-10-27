@@ -975,15 +975,22 @@ class _PairHint extends StatelessWidget {
       child: Text(l.contactsPairLearn),
     );
     if (center) return Column(key: contactsPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, learn]);
+    // The link goes under the sentence, as on the desktop: beside it, the German and Russian
+    // sentences squeeze into four short lines at 360 dp.
     return Padding(
       key: contactsPairHintKey,
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(EpicGlyphs.verified, size: 18, color: t.dim),
+          Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EpicGlyphs.verified, size: 18, color: t.dim)),
           const SizedBox(width: 12),
-          Expanded(child: text),
-          learn,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [text, Transform.translate(offset: const Offset(-8, 0), child: learn)],
+            ),
+          ),
         ],
       ),
     );
