@@ -188,7 +188,7 @@ void main() {
     await meet(tester, 'ready');
 
     // (a) An online invite link.
-    containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+    containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.message);
     await settle(tester, ms: 2000);
     if (role == 'A') {
       await tester.tap(find.byKey(deskPairCopyInviteKey));
@@ -290,7 +290,7 @@ void main() {
       await take(tester, 'e-removed');
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
       await settle(tester, ms: 1000);
-      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.words);
       await settle(tester, ms: 4000);
       final code = (await pairings(tester)).where((p) => p.way == PairingWay.words && p.inviteWords.isNotEmpty).firstOrNull;
       await shot(tester, 'A-b-code');
@@ -317,7 +317,7 @@ void main() {
     await removeAll(tester);
     await meet(tester, 'c-clean');
     if (role == 'A') {
-      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair);
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.inPerson);
       await settle(tester, ms: 2000);
       // Under the fold since the name field sits above both panels.
       // Centred: at the bottom edge a toast can cover it.
