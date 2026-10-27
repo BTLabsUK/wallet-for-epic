@@ -13221,6 +13221,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return '开启 $method';
+  }
+
+  @override
   String get txEpicboxLine => '通过中继付款或收款。对方的钱包可以处于关闭状态。';
 
   @override
@@ -14631,6 +14636,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reqPickContact => '选择联系人';
+
+  @override
+  String get reqPickContactOrMethod => '选择联系人或方式';
 
   @override
   String get reqFileSaved => '请求已保存为文件';

@@ -189,6 +189,9 @@ const Key sendQueuedHeadlineKey = ValueKey('send-queued-headline');
 /// address, for tests.
 const Key sendMethodsKey = ValueKey('send-methods');
 
+/// The off-note's Turn on button, under a Link method switched off.
+const Key sendTurnOnMethodKey = ValueKey('send-turn-on-method');
+
 /// The Smallest / All choice for this payment, shown with Advanced › Send options.
 const Key sendStrategyKey = ValueKey('send-strategy');
 const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
@@ -575,7 +578,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_pairingTo != null || recipientShaped(parseRecipient(_recipient.text))) return true;
     return switch (_method) {
       TransferMethod.epicbox => payments.epicbox,
-      TransferMethod.direct => payments.offersFamily(MethodFamily.link),
+      // Link is always listed: with its switches off it stays, with the note and Turn on.
       _ => true,
     };
   }
@@ -2117,9 +2120,25 @@ class _SendViewState extends ConsumerState<SendView> {
   /// and for the file routes (their gate is [_postBlock]).
   MethodKind? get _sendMethod {
     if (_method == TransferMethod.epicbox) return MethodKind.epicbox;
-    if (_method != TransferMethod.direct || _recipient.text.trim().isEmpty) return null;
+    if (_method != TransferMethod.direct) return null;
+    // Link chosen with both its switches off: Link · HTTP is the one to turn on (Tor's needs Tor).
+    if (_recipient.text.trim().isEmpty) return _linkOff ? MethodKind.linkHttp : null;
     final kind = parseRecipient(_recipient.text).kind;
     return kind == RecipientKind.epicbox ? null : MethodKind.ofRecipient(kind);
+  }
+
+  /// Settings › Transactions, watched: the build follows a switch (the defaults until it loads).
+  PaymentPrefs get _watchedPayments =>
+      ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+      (ref.watch(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults);
+
+  /// Both Link switches are off: Send still lists Link, and says how to turn it on.
+  bool get _linkOff => !_watchedPayments.offersFamily(MethodFamily.link);
+
+  /// One tap on the off-note's button: [m]'s switch on, as Settings › Transactions would.
+  Future<void> _turnOn(MethodKind m) async {
+    final notifier = ref.read(appSettingsProvider.notifier);
+    await notifier.setPayments(_payments.withMethod(m, true));
   }
 
   /// The method the form sends by is off in Settings › Transactions: its reason, then, when
@@ -2250,8 +2269,19 @@ class _SendViewState extends ConsumerState<SendView> {
                   NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
                 else if (offlineNode)
                   const OfflineNodeNote()
-                else
+                else ...[
                   NetBlockNote(note, line: _methodOffLine(note)),
+                  // A Link method off: one tap turns it on here (Epicbox keeps its own way).
+                  if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
+                    OutlinedButton(
+                      key: sendTurnOnMethodKey,
+                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+                      onPressed: () => _turnOn(m),
+                      child: Text(context.l10n.sendTurnOnMethod(MethodIcons.fullName(context.l10n, m))),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ],
                 bottom,
               ],
             )
@@ -2391,11 +2421,7 @@ class _SendViewState extends ConsumerState<SendView> {
     // Settings › Transactions says which methods are offered; the method in use stays
     // whatever the switch says (a pasted onion picks Link; a file send, the failed-Epicbox
     // file fallback and a file waiting for its reply keep File).
-    final payments =
-        ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
-        (ref.watch(phonePaymentsProvider)
-            ? PaymentPrefs.phoneDefaults
-            : PaymentPrefs.defaults);
+    final payments = _watchedPayments;
     final filePending = hasPendingFileSend(
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
@@ -2404,10 +2430,10 @@ class _SendViewState extends ConsumerState<SendView> {
       // back for this send, where the note says it is off.
       if (selected == TransferMethod.epicbox || payments.epicbox || _pairingTo != null)
         segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-      // Link · HTTP and Link · Tor both off hide it; a pasted http or onion address brings it
-      // back for this send, where the note names the method that is off.
+      // Link is listed from the start (#16): sending by it needs no listener. With Link · HTTP
+      // and Link · Tor both off the note names the method and Turn on is one tap.
       // A pairing recipient has no Link address.
-      if (selected == TransferMethod.direct || (payments.offersFamily(MethodFamily.link) && _pairingTo == null))
+      if (selected == TransferMethod.direct || _pairingTo == null)
         segment(TransferMethod.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
       if (selected == TransferMethod.qr || (payments.directQr && offersQrPayment(ref)))
         segment(TransferMethod.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
@@ -4296,6 +4322,9 @@ class _ReadyLine extends ConsumerWidget {
             dimension: 16,
             child: CircularProgressIndicator(strokeWidth: 2),
           );
+    // While the send runs the button turns (BusyButton), as every busy button in the app does:
+    // the line keeps its words beside a still glyph, so one thing moves at a time.
+    final still = Icon(Icons.hourglass_empty, size: 18, color: t.dim);
     final running =
         checks.node == CheckOutcome.running ||
         checks.relayOutcome == CheckOutcome.running;
@@ -4309,13 +4338,13 @@ class _ReadyLine extends ConsumerWidget {
       VoidCallback? retry,
     ) = switch (()) {
       _ when sending && tor != null => (
-        spinner,
+        still,
         tor.canSend ? l.sendTorReaching : l.torStateStarting(tor.progress ?? 0),
         t.dim,
         null,
       ),
-      _ when sending && http => (spinner, l.sendHttpReaching, t.dim, null),
-      _ when sending => (spinner, l.sendSending, t.dim, null),
+      _ when sending && http => (still, l.sendHttpReaching, t.dim, null),
+      _ when sending => (still, l.sendSending, t.dim, null),
       _ when failed != null => (
         Icon(Icons.warning_amber, size: 18, color: t.warn),
         failed,

@@ -396,18 +396,36 @@ const _directOn = PaymentPrefs(linkHttp: true, linkTor: true);
 
 void main() {
   group('selector and strip', () {
-    testWidgets('Epicbox and File by default; Link on adds Link', (
+    testWidgets('Link is listed from the start, its switches on or not (#16)', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       expect(_segment('Epicbox'), findsOneWidget);
       expect(_segment('Direct · File'), findsOneWidget);
-      expect(_segment('Link'), findsNothing);
+      expect(_segment('Link'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       final on = _Harness();
       await on.pump(tester, payments: _directOn);
       expect(_segment('Link'), findsOneWidget);
+      expect(find.byKey(sendTurnOnMethodKey), findsNothing);
+    });
+
+    testWidgets('Link picked with both switches off: the note, and Turn on turns Link · HTTP on', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, _segment('Link'));
+      expect(_method(tester), TransferMethod.direct);
+      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'Turn on Link · HTTP'), findsOneWidget);
+      await _tap(tester, find.byKey(sendTurnOnMethodKey));
+      expect(h.container.read(appSettingsProvider).value!.payments.linkHttp, isTrue);
+      expect(h.container.read(appSettingsProvider).value!.payments.linkTor, isFalse);
+      expect(find.byKey(sendTurnOnMethodKey), findsNothing);
+      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsNothing);
+      expect(_method(tester), TransferMethod.direct);
     });
 
     testWidgets('three segments, Epicbox first; each with its strip and shape', (
@@ -507,10 +525,12 @@ void main() {
       expect(_segment('Direct · File'), findsNothing);
     });
 
-    testWidgets('only Epicbox offered: no selector', (tester) async {
+    testWidgets('only Epicbox offered: Epicbox and Link, nothing else', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(directFile: false, directQr: false));
-      expect(find.byKey(sendMethodsKey), findsNothing);
+      expect(_segment('Epicbox'), findsOneWidget);
+      expect(_segment('Link'), findsOneWidget);
+      expect(_segment('Direct · File'), findsNothing);
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
     });
 
@@ -773,8 +793,8 @@ void main() {
           await tester.pumpWidget(const SizedBox());
           final h = _Harness();
           await h.pump(tester);
-          // Link is off: the selector has Epicbox and File only.
-          expect(_segment('Link'), findsNothing);
+          // Link is off, and listed all the same (#16).
+          expect(_segment('Link'), findsOneWidget);
           clip = address;
           await _tap(tester, find.text('Paste'));
           // The method follows the address and Link shows for this send.
@@ -1131,7 +1151,7 @@ void main() {
       final h = _Harness();
       // Every method off: Send opens on Epicbox and says it is off.
       await h.pump(tester, payments: const PaymentPrefs(epicbox: false, directFile: false, directQr: false));
-      expect(find.byKey(sendMethodsKey), findsNothing);
+      expect(_segment('Direct · File'), findsNothing);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);

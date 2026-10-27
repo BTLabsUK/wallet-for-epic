@@ -14317,6 +14317,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return 'Włącz $method';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Płać lub dostawaj zapłatę przez przekaźnik. Drugi portfel może być zamknięty.';
 
@@ -15843,6 +15848,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqPickContact => 'Wybierz kontakt';
+
+  @override
+  String get reqPickContactOrMethod => 'Wybierz kontakt lub metodę';
 
   @override
   String get reqFileSaved => 'Prośba zapisana jako plik';

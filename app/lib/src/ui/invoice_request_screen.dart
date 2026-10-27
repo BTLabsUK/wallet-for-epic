@@ -340,7 +340,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final l = context.l10n;
     final to = _to;
     if (to == null) {
-      setState(() => _payerError = l.reqPickContact);
+      setState(() => _payerError = l.reqPickContactOrMethod);
       _amountOrSay();
       return;
     }
@@ -550,7 +550,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                       ],
                     )
                   : to == null
-                  ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContact, style: TextStyle(color: t.dim))
+                  ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContactOrMethod, style: TextStyle(color: t.dim))
                   : Row(
                       children: [
                         PairAvatar(name: pairingName(to, contacts), kind: to.kind, size: 28),

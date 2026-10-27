@@ -18512,6 +18512,15 @@
       }
     }
   },
+  "sendTurnOnMethod": "Turn on {method}",
+  "@sendTurnOnMethod": {
+    "description": "Phone Send: button under the note that a Link method is off; turns its switch on. {method} is the method's full name, e.g. Link · HTTP.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "txEpicboxLine": "Pay or get paid through a relay. The other wallet can be closed.",
   "@txEpicboxLine": {
     "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
@@ -20686,6 +20695,10 @@
   "reqPickContact": "Choose a contact",
   "@reqPickContact": {
     "description": "Placeholder of the To field."
+  },
+  "reqPickContactOrMethod": "Choose a contact or method",
+  "@reqPickContactOrMethod": {
+    "description": "Phone Request screen: placeholder and error of the To field, where a contact, a QR code or a file is chosen."
   },
   "reqFileSaved": "Request saved as a file",
   "@reqFileSaved": {

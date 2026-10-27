@@ -13942,6 +13942,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return 'Turn on $method';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Pay or get paid through a relay. The other wallet can be closed.';
 
@@ -15432,6 +15437,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqPickContact => 'Choose a contact';
+
+  @override
+  String get reqPickContactOrMethod => 'Choose a contact or method';
 
   @override
   String get reqFileSaved => 'Request saved as a file';

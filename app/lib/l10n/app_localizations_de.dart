@@ -14108,6 +14108,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return '$method einschalten';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Zahlen oder bezahlt werden über ein Relay. Die andere Wallet kann geschlossen sein.';
 
@@ -15620,6 +15625,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reqPickContact => 'Kontakt wählen';
+
+  @override
+  String get reqPickContactOrMethod => 'Kontakt oder Methode wählen';
 
   @override
   String get reqFileSaved => 'Anforderung als Datei gespeichert';

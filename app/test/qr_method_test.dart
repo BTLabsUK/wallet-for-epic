@@ -257,7 +257,7 @@ void main() {
   });
 
   group('where it is offered', () {
-    testWidgets('Send: Epicbox · QR on a new phone, File and Link not', (
+    testWidgets('Send: Epicbox · Link · QR on a new phone (Link listed with its switches off), File not', (
       tester,
     ) async {
       final h = _Harness();
@@ -265,7 +265,7 @@ void main() {
       expect(_segment('Epicbox'), findsOneWidget);
       expect(_segment('Direct · QR'), findsOneWidget);
       expect(_segment('Direct · File'), findsNothing);
-      expect(_segment('Link'), findsNothing);
+      expect(_segment('Link'), findsOneWidget);
     });
 
     testWidgets('Send: the order is Epicbox · Link · QR · File', (
@@ -283,7 +283,7 @@ void main() {
       (tester) async {
         var h = _Harness(scanner: false);
         await h.pump(tester, SendView(onDone: () {}));
-        expect(find.byKey(sendMethodsKey), findsNothing);
+        expect(_segment('Direct · QR'), findsNothing);
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
         expect(_segment('Direct · QR'), findsNothing);

@@ -375,9 +375,25 @@ void main() {
   });
 
   group('Send follows the switches', () {
-    testWidgets('default: Epicbox and Direct · File', (tester) async {
+    testWidgets('default: Epicbox, Link (listed from the start, #16) and Direct · File', (tester) async {
       await _open(tester, DeskRoute.send);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Direct · File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+    });
+
+    testWidgets('Link picked with its switches off: the reason, and Turn on Link · HTTP turns it on here', (tester) async {
+      await _open(tester, DeskRoute.send);
+      await tester.tap(find.descendant(of: find.byType(ESegmented<TxMethod>), matching: find.text('Link')));
+      await _settle(tester);
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      await tester.tap(find.widgetWithText(EButton, 'Turn on Link · HTTP'));
+      await _settle(tester);
+      expect(_payments.linkHttp, isTrue);
+      expect(_payments.linkTor, isFalse);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(_selected<TxMethod>(tester), TxMethod.http);
     });
 
     testWidgets('Link appears with either of its switches, named for the family', (tester) async {
@@ -387,7 +403,7 @@ void main() {
 
     testWidgets('File Transfer off: the segment is gone', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod>(tester), ['Epicbox']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link']);
     });
 
     testWidgets('a pasted onion with Link off brings Link for this send, with the reason it is off, never a silent refusal', (tester) async {

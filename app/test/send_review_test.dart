@@ -1054,6 +1054,8 @@ void main() {
         ),
         findsOneWidget,
       );
+      // One spinner only: the button's. The Sending… line keeps a still glyph.
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
       slow.gate.complete();
       await tester.pumpAndSettle();
       expect(find.text('Waiting for their wallet'), findsOneWidget);

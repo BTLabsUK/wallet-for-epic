@@ -14280,6 +14280,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return 'Включить $method';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Платите или получайте платежи через релей. Другой кошелёк может быть закрыт.';
 
@@ -15802,6 +15807,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqPickContact => 'Выберите контакт';
+
+  @override
+  String get reqPickContactOrMethod => 'Выберите контакт или способ';
 
   @override
   String get reqFileSaved => 'Запрос сохранён файлом';

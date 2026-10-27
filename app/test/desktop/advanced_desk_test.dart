@@ -222,10 +222,10 @@ void main() {
       expect(segment(tester, 'Epicbox').enabled, isTrue);
     });
 
-    testWidgets('Link receiving off: a pasted onion brings the Link segment for this send', (tester) async {
+    testWidgets('Link receiving off: Link is listed, and a pasted onion picks it for this send', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
       List<String> labels() => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.map((s) => s.label).toList();
-      expect(labels(), ['Epicbox', 'Direct · File']);
+      expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);

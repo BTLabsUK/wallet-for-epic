@@ -32,9 +32,13 @@ class _Wallet extends MockDeskWallet {
     return super.estimateSend(amount, options: options);
   }
 
+  /// While set, a send waits for it.
+  Completer<void>? sendHold;
+
   @override
-  Future<SendResult> send(SendRequest r) {
+  Future<SendResult> send(SendRequest r) async {
     sent.add(r);
+    await sendHold?.future;
     return super.send(r);
   }
 }
@@ -93,6 +97,18 @@ void main() {
     for (final r in tester.widgetList<ERadioRow>(find.byType(ERadioRow))) {
       expect(r.onSelected, isNull);
     }
+  });
+
+  testWidgets('while it sends, one spinner: the button\'s; the line beside it stays still', (tester) async {
+    await pump(tester, const SendArgs(recipient: anna, amount: '25', step: SendStep.review));
+    await enterReviewPassword(tester);
+    wallet.sendHold = Completer<void>();
+    await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.label.startsWith('Send 25')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byWidgetPredicate((w) => w is EButton && w.busy), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    wallet.sendHold!.complete();
+    await tester.pumpAndSettle();
   });
 
   testWidgets('the review repeats the lock', (tester) async {

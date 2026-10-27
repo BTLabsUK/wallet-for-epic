@@ -13705,6 +13705,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String sendTurnOnMethod(String method) {
+    return 'เปิด $method';
+  }
+
+  @override
   String get txEpicboxLine =>
       'จ่ายหรือรับเงินผ่านรีเลย์ กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
 
@@ -15177,6 +15182,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqPickContact => 'เลือกผู้ติดต่อ';
+
+  @override
+  String get reqPickContactOrMethod => 'เลือกผู้ติดต่อหรือวิธี';
 
   @override
   String get reqFileSaved => 'บันทึกคำขอเป็นไฟล์แล้ว';

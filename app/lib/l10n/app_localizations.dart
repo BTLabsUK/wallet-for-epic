@@ -22391,6 +22391,12 @@ abstract class AppLocalizations {
   /// **'{method} is off in Settings › Transactions.'**
   String netBlockMethodOff(String method);
 
+  /// Phone Send: button under the note that a Link method is off; turns its switch on. {method} is the method's full name, e.g. Link · HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on {method}'**
+  String sendTurnOnMethod(String method);
+
   /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
   ///
   /// In en, this message translates to:
@@ -24688,6 +24694,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose a contact'**
   String get reqPickContact;
+
+  /// Phone Request screen: placeholder and error of the To field, where a contact, a QR code or a file is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a contact or method'**
+  String get reqPickContactOrMethod;
 
   /// Notice after Save as file.
   ///

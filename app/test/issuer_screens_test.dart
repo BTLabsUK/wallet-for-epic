@@ -291,7 +291,9 @@ void main() {
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
       await tester.tap(find.text(_l.reqNewSend));
       await tester.pumpAndSettle();
-      expect(find.text(_l.reqPickContact), findsWidgets);
+      // A contact, the QR code or a file: the placeholder names both kinds (#1102).
+      expect(find.text(_l.reqPickContactOrMethod), findsWidgets);
+      expect(_l.reqPickContactOrMethod, 'Choose a contact or method');
       expect(find.text(_l.sendAmountZero), findsOneWidget);
       await h.request(tester, amount: '0');
       expect(find.text(_l.sendAmountZero), findsOneWidget);

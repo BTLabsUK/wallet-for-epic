@@ -1068,7 +1068,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ref.listen(deskProvider.select((s) => s.settings.payments), (_, p) {
       if (_result != null || _to.text.trim().isNotEmpty) return;
       final on = switch (_method) {
-        TxMethod.http || TxMethod.tor => p.offersFamily(MethodFamily.link),
+        // Link stays listed with its switches off: the notice says so and turns it on.
+        TxMethod.http || TxMethod.tor => true,
         _ => p.offers(methodKindOf(_method)),
       };
       if (!on) setState(() => _method = _nextMethod(p));
@@ -1132,6 +1133,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     );
   }
 
+  bool _turningOn = false;
+
+  /// The method-off notice's Turn on: Link · HTTP starts its listener with the switch, as
+  /// Settings › Transactions does; Link · Tor only shows the onion, so its switch alone.
+  Future<void> _turnOn(MethodKind m) async {
+    final n = ref.read(deskProvider.notifier);
+    setState(() => _turningOn = true);
+    try {
+      if (m == MethodKind.linkHttp) {
+        await n.setHttp(true);
+      } else {
+        final s = ref.read(deskProvider).settings;
+        await n.saveSettings(s.copyWith(payments: s.payments.withMethod(m, true)));
+      }
+    } on Object catch (e) {
+      if (mounted) showEToast(context, context.l10n.deskRecvTurnOnFailed(MethodIcons.fullName(context.l10n, m)), text: deskErrorText(e, context.l10n), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _turningOn = false);
+    }
+  }
+
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
@@ -1157,7 +1179,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         text: contact == null || contact.kinds.length > 1 ? null : l.sendContactOnlyMethod(contact.name, MethodIcons.fullName(l, _kind)),
         tone: ETone.warn,
         icon: MethodIcons.of(_kind),
-        actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
+        actions: [
+          // A Link method: one click turns it on here, as its switch would.
+          if (_kind.family == MethodFamily.link)
+            EButton(label: l.sendTurnOnMethod(MethodIcons.fullName(l, _kind)), icon: MethodIcons.of(_kind), size: EBtnSize.inline, busy: _turningOn, onPressed: _turningOn ? null : () => _turnOn(_kind)),
+          EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving)),
+        ],
       );
     }
     if (net != NetBlock.none) {
@@ -1315,8 +1342,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // the segment names the family. Settings › Transactions: the methods on. The
             // method in use stays (a pasted onion picks Link; a file send in progress or the
             // file fallback of a failed Epicbox keeps File Transfer).
-            if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
-                (st.settings.payments.offersFamily(MethodFamily.link) || _segmentOf(_method) == TxMethod.http))
+            // Listed from the start (#16), its switches on or not: sending by Link needs no
+            // listener, and with both off the notice above turns one on.
+            if (DeskFeatures.httpDirect || DeskFeatures.tor)
               // A pairing recipient has no Link address.
               pairing != null
                   ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
@@ -2221,11 +2249,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               ),
             ),
           ],
+          // The Send button turns while it runs; the line beside it stays still (one spinner).
           if (_busy) ...[
             SizedBox(height: Sp.x4),
             Row(
               children: [
-                const ESpinner(),
+                Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim),
                 SizedBox(width: Sp.x3),
                 Expanded(
                   child: Text(
