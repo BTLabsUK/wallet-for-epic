@@ -14324,7 +14324,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Płać lub dostawaj zapłatę przez przekaźnik. Drugi portfel może być zamknięty.';
+      'Płać lub dostawaj zapłatę przez serwer Epicbox. Drugi portfel może być zamknięty.';
 
   @override
   String get txEpicboxOffTitle => 'Wyłączyć Epicbox?';
@@ -14367,7 +14367,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Płatności od nadawców czekają na przekaźniku, aż Epicbox znów będzie włączony.';
+      'Płatności od nadawców czekają na serwerze, aż Epicbox znów będzie włączony.';
 
   @override
   String get receiveNoMethods => 'Żadna metoda odbioru nie jest włączona';
@@ -14860,11 +14860,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Przekaźnik nie jest potrzebny.';
+      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Serwer Epicbox nie jest potrzebny.';
 
   @override
   String get pairWayMessageInfo =>
-      'Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy przekaźnik jest zablokowany albo portfel jest offline.';
+      'Trzy wiadomości: twoje zaproszenie, odpowiedź, twój link kończący. Kopiuj każdą, gdy przyjdzie; portfel znajdzie ją w schowku, gdy wrócisz. Działa, gdy serwer jest zablokowany albo portfel jest offline.';
 
   @override
   String get pairWayInPersonDesk => 'Telefon drugiej osoby skanuje twój kod';
@@ -14943,7 +14943,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'Gdy obie strony mają dostęp do przekaźnika, ten krok dzieje się też sam.';
+      'Gdy oba portfele mają dostęp do serwera Epicbox, ten krok dzieje się też sam.';
 
   @override
   String get pairPasteReply => 'Wklej odpowiedź';
@@ -15028,7 +15028,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Przekaźnik nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.';
+      '**Zaproszenie w wiadomości.** Trzy wiadomości w dowolnym czacie: zaproszenie, odpowiedź, link kończący. Serwer nie jest potrzebny, więc to działa, gdy sieć blokuje Epicbox. Kopiuj każdą wiadomość, gdy przyjdzie; portfel zaproponuje jej użycie, gdy wrócisz.';
 
   @override
   String get helpPairWaysP3 =>
@@ -15127,22 +15127,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairSendByHand => 'Wyślij ręcznie';
 
   @override
-  String get pairRelayUnreachableTitle => 'Brak połączenia z przekaźnikiem';
+  String get pairRelayUnreachableTitle => 'Brak połączenia z serwerem';
 
   @override
   String get pairRelayUnreachableBody => 'Wysłać odpowiedź ręcznie?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Brak połączenia z przekaźnikiem przez Tor. Wysłać odpowiedź ręcznie?';
+      'Brak połączenia z serwerem przez Tor. Wysłać odpowiedź ręcznie?';
 
   @override
   String get pairNoRelay =>
-      'Brak połączenia z żadnym przekaźnikiem parowania. Sparuj zamiast tego linkiem z zaproszeniem.';
+      'Brak połączenia z żadnym serwerem połączeń. Sparuj zamiast tego linkiem z zaproszeniem.';
 
   @override
   String get pairRelaysBlocked =>
-      'Ta sieć blokuje przekaźniki parowania. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.';
+      'Ta sieć blokuje serwery połączeń. Przyczyną może być filtr sieciowy. Sparuj zamiast tego linkiem z zaproszeniem.';
 
   @override
   String get pairByHandTitle => 'Wyślij ręcznie';
@@ -15412,7 +15412,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Przekaźnik $name nie odpowiada';
+    return 'Serwer $name nie odpowiada';
   }
 
   @override
@@ -15599,7 +15599,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Prośby czekają na przekaźniku i dotrą, gdy Epicbox znów będzie włączony.';
+      'Prośby czekają na serwerze i dotrą, gdy Epicbox znów będzie włączony.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15664,12 +15664,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Dostarczono do przekaźnika $name';
+    return 'Dostarczono na serwer $name';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Odpowiedź dostarczona do przekaźnika $name';
+    return 'Odpowiedź dostarczona na serwer $name';
   }
 
   @override
@@ -15718,7 +15718,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twoje środki są bezpieczne; zostaną odblokowane, jeśli płatność nie zostanie opublikowana. Dostarczanie jest ponawiane.';
 
   @override
-  String get reqRelayRetrying => 'Przekaźnik nie odpowiada · ponawianie';
+  String get reqRelayRetrying => 'Serwer nie odpowiada · ponawianie';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15924,7 +15924,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Przekaźnik $name nie odpowiada. Ponawianie.';
+    return 'Serwer $name nie odpowiada. Ponawianie.';
   }
 
   @override

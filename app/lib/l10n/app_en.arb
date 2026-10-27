@@ -18521,7 +18521,7 @@
       }
     }
   },
-  "txEpicboxLine": "Pay or get paid through a relay. The other wallet can be closed.",
+  "txEpicboxLine": "Pay or get paid through an Epicbox server. The other wallet can be closed.",
   "@txEpicboxLine": {
     "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
   },
@@ -18571,7 +18571,7 @@
       }
     }
   },
-  "receiveEpicboxOffText": "Senders' payments wait at the relay until Epicbox is on again.",
+  "receiveEpicboxOffText": "Senders' payments wait on the server until Epicbox is on again.",
   "@receiveEpicboxOffText": {
     "description": "Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile."
   },
@@ -19151,11 +19151,11 @@
   "@pairWayMessage": {
     "description": "Option 2 title"
   },
-  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.",
+  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.",
   "@pairWayMessageHint": {
     "description": "Option 2 line"
   },
-  "pairWayMessageInfo": "Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.",
+  "pairWayMessageInfo": "Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.",
   "@pairWayMessageInfo": {
     "description": "ⓘ of option 2"
   },
@@ -19271,7 +19271,7 @@
   "@pairAwaitReplyBody": {
     "description": "Inviter, step 2 body"
   },
-  "pairByItself": "With a relay on both sides, this step also happens by itself.",
+  "pairByItself": "When both wallets reach an Epicbox server, this step also happens by itself.",
   "@pairByItself": {
     "description": "Small print on both waiting steps"
   },
@@ -19393,7 +19393,7 @@
   "@helpPairWaysP1": {
     "description": "Paragraph"
   },
-  "helpPairWaysP2": "**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.",
+  "helpPairWaysP2": "**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.",
   "@helpPairWaysP2": {
     "description": "Paragraph"
   },
@@ -19541,7 +19541,7 @@
   "@pairSendByHand": {
     "description": "Button on the waiting screen and the relay notice."
   },
-  "pairRelayUnreachableTitle": "Can’t reach the relay",
+  "pairRelayUnreachableTitle": "Can’t reach the server",
   "@pairRelayUnreachableTitle": {
     "description": "Notice on the waiting screen (cases file)."
   },
@@ -19549,15 +19549,15 @@
   "@pairRelayUnreachableBody": {
     "description": "Notice body."
   },
-  "pairRelayUnreachableTor": "Can’t reach the relay over Tor. Send your answer by hand?",
+  "pairRelayUnreachableTor": "Can’t reach the server over Tor. Send your answer by hand?",
   "@pairRelayUnreachableTor": {
     "description": "The same notice with Epicbox over Tor on."
   },
-  "pairNoRelay": "Can’t reach any pairing relay. Pair with an invite link instead.",
+  "pairNoRelay": "Can’t reach any connection server. Pair with an invite link instead.",
   "@pairNoRelay": {
     "description": "Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead."
   },
-  "pairRelaysBlocked": "This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.",
+  "pairRelaysBlocked": "This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.",
   "@pairRelaysBlocked": {
     "description": "Pairing words: the built-in relays answered with a refused TLS handshake, as a network or DNS filter does (same wording as epicboxBlockedBody). The user pairs with an invite link instead."
   },
@@ -19999,7 +19999,7 @@
       }
     }
   },
-  "contactRelayDownTitle": "{name}’s relay isn’t answering",
+  "contactRelayDownTitle": "{name}’s server isn’t answering",
   "@contactRelayDownTitle": {
     "description": "Notice on the contact page (cases file C-05).",
     "placeholders": {
@@ -20280,7 +20280,7 @@
   "@invSetEmpty": {
     "description": "Empty state."
   },
-  "invSetPausedBody": "Requests wait on the relay and arrive when it is back on.",
+  "invSetPausedBody": "Requests wait on the server and arrive when it is back on.",
   "@invSetPausedBody": {
     "description": "Docked notice body while Epicbox is off."
   },
@@ -20370,7 +20370,7 @@
   "@reqTlPaid": {
     "description": "Timeline step."
   },
-  "reqTlDelivered": "Delivered to {name}’s relay",
+  "reqTlDelivered": "Delivered to {name}’s server",
   "@reqTlDelivered": {
     "description": "Timeline step.",
     "placeholders": {
@@ -20380,7 +20380,7 @@
       }
     }
   },
-  "reqTlAnswerDelivered": "Answer delivered to {name}’s relay",
+  "reqTlAnswerDelivered": "Answer delivered to {name}’s server",
   "@reqTlAnswerDelivered": {
     "description": "Timeline step for a withdrawal.",
     "placeholders": {
@@ -20466,7 +20466,7 @@
   "@reqUnreachableBody": {
     "description": "Body."
   },
-  "reqRelayRetrying": "Relay not answering · retrying",
+  "reqRelayRetrying": "Server not answering · retrying",
   "@reqRelayRetrying": {
     "description": "Timeline detail."
   },
@@ -20795,7 +20795,7 @@
       }
     }
   },
-  "noticeRelayDown": "{name}’s relay isn’t answering. Retrying.",
+  "noticeRelayDown": "{name}’s server isn’t answering. Retrying.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
     "placeholders": {

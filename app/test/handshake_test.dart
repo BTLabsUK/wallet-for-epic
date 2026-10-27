@@ -140,7 +140,7 @@ void main() {
       ]);
     });
 
-    test('only the relay flows name a relay; the others never do', () {
+    test('only the relay flows name the server; the others never do', () {
       final l = lookupAppLocalizations(const Locale('en'));
       for (final flow in [
         HandshakeFlow.direct,
@@ -148,22 +148,22 @@ void main() {
         HandshakeFlow.qrReceive,
       ]) {
         for (final s in handshakeSteps(flow)) {
-          expect(s.caption(l).toLowerCase(), isNot(contains('relay')));
+          expect(s.caption(l).toLowerCase(), isNot(contains('server')));
           expect(s.caption(l).toLowerCase(), isNot(contains('slate')));
           expect({s.from, s.to}, isNot(contains(_relay)));
         }
       }
     });
 
-    test('relay captions name the relay; file captions do not', () {
+    test('relay captions name the server; file captions do not', () {
       final l = lookupAppLocalizations(const Locale('en'));
       for (final flow in [HandshakeFlow.payment, HandshakeFlow.request]) {
         for (final s in handshakeSteps(flow).take(4)) {
-          expect(s.caption(l), contains('relay'), reason: '$flow');
+          expect(s.caption(l), contains('server'), reason: '$flow');
         }
       }
       for (final s in handshakeSteps(HandshakeFlow.file)) {
-        expect(s.caption(l), isNot(contains('relay')));
+        expect(s.caption(l), isNot(contains('server')));
       }
     });
   });

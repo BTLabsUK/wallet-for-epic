@@ -22400,7 +22400,7 @@ abstract class AppLocalizations {
   /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Pay or get paid through a relay. The other wallet can be closed.'**
+  /// **'Pay or get paid through an Epicbox server. The other wallet can be closed.'**
   String get txEpicboxLine;
 
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
@@ -22448,7 +22448,7 @@ abstract class AppLocalizations {
   /// Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile.
   ///
   /// In en, this message translates to:
-  /// **'Senders\' payments wait at the relay until Epicbox is on again.'**
+  /// **'Senders\' payments wait on the server until Epicbox is on again.'**
   String get receiveEpicboxOffText;
 
   /// Receive, empty state title when every method is off in Settings › Transactions.
@@ -23234,13 +23234,13 @@ abstract class AppLocalizations {
   /// Option 2 line
   ///
   /// In en, this message translates to:
-  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.'**
+  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.'**
   String get pairWayMessageHint;
 
   /// ⓘ of option 2
   ///
   /// In en, this message translates to:
-  /// **'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.'**
+  /// **'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.'**
   String get pairWayMessageInfo;
 
   /// Option 3 line on the desktop (phone keeps pairInPersonHint)
@@ -23372,7 +23372,7 @@ abstract class AppLocalizations {
   /// Small print on both waiting steps
   ///
   /// In en, this message translates to:
-  /// **'With a relay on both sides, this step also happens by itself.'**
+  /// **'When both wallets reach an Epicbox server, this step also happens by itself.'**
   String get pairByItself;
 
   /// Inviter, step 2 button (reads the clipboard on tap)
@@ -23510,7 +23510,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.'**
+  /// **'**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.'**
   String get helpPairWaysP2;
 
   /// Paragraph
@@ -23660,7 +23660,7 @@ abstract class AppLocalizations {
   /// Notice on the waiting screen (cases file).
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach the relay'**
+  /// **'Can’t reach the server'**
   String get pairRelayUnreachableTitle;
 
   /// Notice body.
@@ -23672,19 +23672,19 @@ abstract class AppLocalizations {
   /// The same notice with Epicbox over Tor on.
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach the relay over Tor. Send your answer by hand?'**
+  /// **'Can’t reach the server over Tor. Send your answer by hand?'**
   String get pairRelayUnreachableTor;
 
   /// Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead.
   ///
   /// In en, this message translates to:
-  /// **'Can’t reach any pairing relay. Pair with an invite link instead.'**
+  /// **'Can’t reach any connection server. Pair with an invite link instead.'**
   String get pairNoRelay;
 
   /// Pairing words: the built-in relays answered with a refused TLS handshake, as a network or DNS filter does (same wording as epicboxBlockedBody). The user pairs with an invite link instead.
   ///
   /// In en, this message translates to:
-  /// **'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.'**
+  /// **'This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.'**
   String get pairRelaysBlocked;
 
   /// Screen title.
@@ -24104,7 +24104,7 @@ abstract class AppLocalizations {
   /// Notice on the contact page (cases file C-05).
   ///
   /// In en, this message translates to:
-  /// **'{name}’s relay isn’t answering'**
+  /// **'{name}’s server isn’t answering'**
   String contactRelayDownTitle(String name);
 
   /// Notice body.
@@ -24386,7 +24386,7 @@ abstract class AppLocalizations {
   /// Docked notice body while Epicbox is off.
   ///
   /// In en, this message translates to:
-  /// **'Requests wait on the relay and arrive when it is back on.'**
+  /// **'Requests wait on the server and arrive when it is back on.'**
   String get invSetPausedBody;
 
   /// Notice when the switch goes off.
@@ -24470,13 +24470,13 @@ abstract class AppLocalizations {
   /// Timeline step.
   ///
   /// In en, this message translates to:
-  /// **'Delivered to {name}’s relay'**
+  /// **'Delivered to {name}’s server'**
   String reqTlDelivered(String name);
 
   /// Timeline step for a withdrawal.
   ///
   /// In en, this message translates to:
-  /// **'Answer delivered to {name}’s relay'**
+  /// **'Answer delivered to {name}’s server'**
   String reqTlAnswerDelivered(String name);
 
   /// Timeline step.
@@ -24548,7 +24548,7 @@ abstract class AppLocalizations {
   /// Timeline detail.
   ///
   /// In en, this message translates to:
-  /// **'Relay not answering · retrying'**
+  /// **'Server not answering · retrying'**
   String get reqRelayRetrying;
 
   /// After a signed withdrawn notice.
@@ -24830,7 +24830,7 @@ abstract class AppLocalizations {
   /// Docked notice for HomeRelayUnreachable.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s relay isn’t answering. Retrying.'**
+  /// **'{name}’s server isn’t answering. Retrying.'**
   String noticeRelayDown(String name);
 
   /// Docked notice when a contact withdrew a paid request.

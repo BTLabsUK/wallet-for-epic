@@ -14115,7 +14115,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Zahlen oder bezahlt werden über ein Relay. Die andere Wallet kann geschlossen sein.';
+      'Zahlen oder bezahlt werden über einen Epicbox-Server. Die andere Wallet kann geschlossen sein.';
 
   @override
   String get txEpicboxOffTitle => 'Epicbox ausschalten?';
@@ -14154,7 +14154,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Zahlungen von Absendern warten beim Relay, bis Epicbox wieder an ist.';
+      'Zahlungen von Absendern warten auf dem Server, bis Epicbox wieder an ist.';
 
   @override
   String get receiveNoMethods => 'Keine Empfangsmethode ist an';
@@ -14646,11 +14646,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Senden Sie einen Link in einem beliebigen Chat: Telegram, WhatsApp, SMS, E-Mail. Kein Relay nötig.';
+      'Senden Sie einen Link in einem beliebigen Chat: Telegram, WhatsApp, SMS, E-Mail. Kein Epicbox-Server nötig.';
 
   @override
   String get pairWayMessageInfo =>
-      'Drei Nachrichten: Ihre Einladung, die Antwort, Ihr Abschlusslink. Kopieren Sie jede, wenn sie ankommt; die Wallet findet sie in der Zwischenablage, wenn Sie zurückkehren. Funktioniert auch, wenn ein Relay gesperrt oder eine Wallet offline ist.';
+      'Drei Nachrichten: Ihre Einladung, die Antwort, Ihr Abschlusslink. Kopieren Sie jede, wenn sie ankommt; die Wallet findet sie in der Zwischenablage, wenn Sie zurückkehren. Funktioniert auch, wenn ein Server gesperrt oder eine Wallet offline ist.';
 
   @override
   String get pairWayInPersonDesk =>
@@ -14731,7 +14731,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'Erreichen beide Seiten ein Relay, geschieht dieser Schritt auch von selbst.';
+      'Erreichen beide Wallets einen Epicbox-Server, geschieht dieser Schritt auch von selbst.';
 
   @override
   String get pairPasteReply => 'Antwort einfügen';
@@ -14817,7 +14817,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**Einladung per Nachricht.** Drei Nachrichten in einem beliebigen Chat: die Einladung, die Antwort, der Abschlusslink. Es ist kein Relay nötig, daher funktioniert das auch, wenn ein Netz Epicbox sperrt. Kopieren Sie jede Nachricht, wenn sie ankommt; die Wallet bietet sie an, wenn Sie zurückkehren.';
+      '**Einladung per Nachricht.** Drei Nachrichten in einem beliebigen Chat: die Einladung, die Antwort, der Abschlusslink. Es ist kein Server nötig, daher funktioniert das auch, wenn ein Netz Epicbox sperrt. Kopieren Sie jede Nachricht, wenn sie ankommt; die Wallet bietet sie an, wenn Sie zurückkehren.';
 
   @override
   String get helpPairWaysP3 =>
@@ -14916,22 +14916,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairSendByHand => 'Von Hand senden';
 
   @override
-  String get pairRelayUnreachableTitle => 'Das Relay ist nicht erreichbar';
+  String get pairRelayUnreachableTitle => 'Der Server ist nicht erreichbar';
 
   @override
   String get pairRelayUnreachableBody => 'Antwort von Hand senden?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Das Relay ist über Tor nicht erreichbar. Antwort von Hand senden?';
+      'Der Server ist über Tor nicht erreichbar. Antwort von Hand senden?';
 
   @override
   String get pairNoRelay =>
-      'Kein Kopplungs-Relay ist erreichbar. Koppeln Sie stattdessen mit einem Einladungslink.';
+      'Kein Verbindungsserver ist erreichbar. Koppeln Sie stattdessen mit einem Einladungslink.';
 
   @override
   String get pairRelaysBlocked =>
-      'Dieses Netzwerk blockiert die Kopplungs-Relays. Ursache kann ein Netzwerkfilter sein. Koppeln Sie stattdessen mit einem Einladungslink.';
+      'Dieses Netzwerk blockiert die Verbindungsserver. Ursache kann ein Netzwerkfilter sein. Koppeln Sie stattdessen mit einem Einladungslink.';
 
   @override
   String get pairByHandTitle => 'Von Hand senden';
@@ -15203,7 +15203,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Das Relay von $name antwortet nicht';
+    return 'Der Server von $name antwortet nicht';
   }
 
   @override
@@ -15387,7 +15387,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Anforderungen warten auf dem Relay und kommen an, sobald Epicbox wieder an ist.';
+      'Anforderungen warten auf dem Server und kommen an, sobald Epicbox wieder an ist.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15450,12 +15450,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'An das Relay von $name zugestellt';
+    return 'An den Server von $name zugestellt';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Antwort an das Relay von $name zugestellt';
+    return 'Antwort an den Server von $name zugestellt';
   }
 
   @override
@@ -15504,7 +15504,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihr Geld ist sicher; es wird freigegeben, wenn nicht veröffentlicht wird. Die Zustellung wird weiter versucht.';
 
   @override
-  String get reqRelayRetrying => 'Relay antwortet nicht · neuer Versuch';
+  String get reqRelayRetrying => 'Server antwortet nicht · neuer Versuch';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15707,7 +15707,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Das Relay von $name antwortet nicht. Wird erneut versucht.';
+    return 'Der Server von $name antwortet nicht. Wird erneut versucht.';
   }
 
   @override

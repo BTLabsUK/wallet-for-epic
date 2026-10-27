@@ -13226,7 +13226,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txEpicboxLine => '通过中继付款或收款。对方的钱包可以处于关闭状态。';
+  String get txEpicboxLine => '通过 Epicbox 服务器付款或收款。对方的钱包可以处于关闭状态。';
 
   @override
   String get txEpicboxOffTitle => '关闭 Epicbox？';
@@ -13261,7 +13261,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get receiveEpicboxOffText => '发送方的付款会在中继等待，直到 Epicbox 再次开启。';
+  String get receiveEpicboxOffText => '发送方的付款会在服务器上等待，直到 Epicbox 再次开启。';
 
   @override
   String get receiveNoMethods => '没有开启任何收款方式';
@@ -13701,11 +13701,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairWayMessage => '通过消息邀请';
 
   @override
-  String get pairWayMessageHint => '在任意聊天中发送链接：Telegram、WhatsApp、短信、电子邮件。无需中继。';
+  String get pairWayMessageHint =>
+      '在任意聊天中发送链接：Telegram、WhatsApp、短信、电子邮件。无需 Epicbox 服务器。';
 
   @override
   String get pairWayMessageInfo =>
-      '三条消息：你的邀请、对方的回复、你的完成链接。每条到达后复制它；你回来时钱包会在剪贴板中找到。中继被屏蔽或钱包离线时也可用。';
+      '三条消息：你的邀请、对方的回复、你的完成链接。每条到达后复制它；你回来时钱包会在剪贴板中找到。服务器被屏蔽或钱包离线时也可用。';
 
   @override
   String get pairWayInPersonDesk => '对方的手机扫描你的码';
@@ -13779,7 +13780,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairAwaitReplyBody => '回复到达聊天后，复制它再回来，钱包会自动找到。';
 
   @override
-  String get pairByItself => '若双方都能连上中继，此步骤也会自动完成。';
+  String get pairByItself => '若双方都能连上 Epicbox 服务器，此步骤也会自动完成。';
 
   @override
   String get pairPasteReply => '粘贴回复';
@@ -13860,7 +13861,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**通过消息邀请。**在任意聊天中发三条消息：邀请、回复、完成链接。无需中继，因此网络屏蔽 Epicbox 时也可用。每条消息到达后复制它；你回来时钱包会提示使用。';
+      '**通过消息邀请。**在任意聊天中发三条消息：邀请、回复、完成链接。无需服务器，因此网络屏蔽 Epicbox 时也可用。每条消息到达后复制它；你回来时钱包会提示使用。';
 
   @override
   String get helpPairWaysP3 => '**当面。**两部手机互相扫描对方的码。不使用网络。';
@@ -13952,19 +13953,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairSendByHand => '手动发送';
 
   @override
-  String get pairRelayUnreachableTitle => '无法连接中继';
+  String get pairRelayUnreachableTitle => '无法连接服务器';
 
   @override
   String get pairRelayUnreachableBody => '手动发送你的回复？';
 
   @override
-  String get pairRelayUnreachableTor => '无法通过 Tor 连接中继。手动发送你的回复？';
+  String get pairRelayUnreachableTor => '无法通过 Tor 连接服务器。手动发送你的回复？';
 
   @override
-  String get pairNoRelay => '无法连接任何配对中继。请改用邀请链接配对。';
+  String get pairNoRelay => '无法连接任何连接服务器。请改用邀请链接配对。';
 
   @override
-  String get pairRelaysBlocked => '此网络拦截了配对中继。可能是网络过滤所致。请改用邀请链接配对。';
+  String get pairRelaysBlocked => '此网络拦截了连接服务器。可能是网络过滤所致。请改用邀请链接配对。';
 
   @override
   String get pairByHandTitle => '手动发送';
@@ -14229,7 +14230,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name 的中继没有响应';
+    return '$name 的服务器没有响应';
   }
 
   @override
@@ -14405,7 +14406,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invSetEmpty => '还没有已配对的联系人。与商店、交易所或个人配对，验证，然后在这里允许其账单。';
 
   @override
-  String get invSetPausedBody => '请求在中继上等待，Epicbox 重新开启后送达。';
+  String get invSetPausedBody => '请求在服务器上等待，Epicbox 重新开启后送达。';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -14465,12 +14466,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return '已送达 $name 的中继';
+    return '已送达 $name 的服务器';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return '回复已送达 $name 的中继';
+    return '回复已送达 $name 的服务器';
   }
 
   @override
@@ -14517,7 +14518,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqUnreachableBody => '你的资金是安全的；如果未发布，资金会解锁。投递会持续重试。';
 
   @override
-  String get reqRelayRetrying => '中继无响应 · 重试中';
+  String get reqRelayRetrying => '服务器无响应 · 重试中';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -14707,7 +14708,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return '$name 的中继没有响应。正在重试。';
+    return '$name 的服务器没有响应。正在重试。';
   }
 
   @override

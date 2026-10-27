@@ -14287,7 +14287,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Платите или получайте платежи через релей. Другой кошелёк может быть закрыт.';
+      'Платите или получайте платежи через сервер Epicbox. Другой кошелёк может быть закрыт.';
 
   @override
   String get txEpicboxOffTitle => 'Выключить Epicbox?';
@@ -14330,7 +14330,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Платежи отправителей ждут на релее, пока Epicbox снова не включён.';
+      'Платежи отправителей ждут на сервере, пока Epicbox снова не включён.';
 
   @override
   String get receiveNoMethods => 'Ни один способ приёма не включён';
@@ -14823,11 +14823,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Отправьте ссылку в любом чате: Telegram, WhatsApp, SMS, почта. Ретранслятор не нужен.';
+      'Отправьте ссылку в любом чате: Telegram, WhatsApp, SMS, почта. Сервер Epicbox не нужен.';
 
   @override
   String get pairWayMessageInfo =>
-      'Три сообщения: ваше приглашение, ответ, ваша завершающая ссылка. Копируйте каждое, когда оно придёт; кошелёк найдёт его в буфере обмена, когда вы вернётесь. Работает, когда ретранслятор заблокирован или кошелёк офлайн.';
+      'Три сообщения: ваше приглашение, ответ, ваша завершающая ссылка. Копируйте каждое, когда оно придёт; кошелёк найдёт его в буфере обмена, когда вы вернётесь. Работает, когда сервер заблокирован или кошелёк офлайн.';
 
   @override
   String get pairWayInPersonDesk => 'Телефон собеседника сканирует ваш код';
@@ -14907,7 +14907,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'Если обе стороны видят ретранслятор, этот шаг происходит и сам.';
+      'Если обе стороны видят сервер Epicbox, этот шаг происходит и сам.';
 
   @override
   String get pairPasteReply => 'Вставить ответ';
@@ -14992,7 +14992,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**Приглашение в сообщении.** Три сообщения в любом чате: приглашение, ответ, завершающая ссылка. Ретранслятор не нужен, поэтому способ работает, когда сеть блокирует Epicbox. Копируйте каждое сообщение, когда оно придёт; кошелёк предложит его, когда вы вернётесь.';
+      '**Приглашение в сообщении.** Три сообщения в любом чате: приглашение, ответ, завершающая ссылка. Сервер не нужен, поэтому способ работает, когда сеть блокирует Epicbox. Копируйте каждое сообщение, когда оно придёт; кошелёк предложит его, когда вы вернётесь.';
 
   @override
   String get helpPairWaysP3 =>
@@ -15090,22 +15090,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairSendByHand => 'Отправить вручную';
 
   @override
-  String get pairRelayUnreachableTitle => 'Ретранслятор недоступен';
+  String get pairRelayUnreachableTitle => 'Сервер недоступен';
 
   @override
   String get pairRelayUnreachableBody => 'Отправить ответ вручную?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Ретранслятор недоступен через Tor. Отправить ответ вручную?';
+      'Сервер недоступен через Tor. Отправить ответ вручную?';
 
   @override
   String get pairNoRelay =>
-      'Ни один ретранслятор для сопряжения недоступен. Сопрягите кошельки по ссылке-приглашению.';
+      'Ни один сервер подключения недоступен. Сопрягите кошельки по ссылке-приглашению.';
 
   @override
   String get pairRelaysBlocked =>
-      'Эта сеть блокирует ретрансляторы для сопряжения. Причиной может быть сетевой фильтр. Сопрягите кошельки по ссылке-приглашению.';
+      'Эта сеть блокирует серверы подключения. Причиной может быть сетевой фильтр. Сопрягите кошельки по ссылке-приглашению.';
 
   @override
   String get pairByHandTitle => 'Отправить вручную';
@@ -15376,7 +15376,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Ретранслятор $name не отвечает';
+    return 'Сервер $name не отвечает';
   }
 
   @override
@@ -15562,7 +15562,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Запросы ждут на ретрансляторе и придут, когда Epicbox снова включится.';
+      'Запросы ждут на сервере и придут, когда Epicbox снова включится.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15627,12 +15627,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Доставлено на ретранслятор $name';
+    return 'Доставлено на сервер $name';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Ответ доставлен на ретранслятор $name';
+    return 'Ответ доставлен на сервер $name';
   }
 
   @override
@@ -15681,7 +15681,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ваши средства в безопасности; они разблокируются, если платёж не опубликуют. Доставка повторяется.';
 
   @override
-  String get reqRelayRetrying => 'Ретранслятор не отвечает · повтор';
+  String get reqRelayRetrying => 'Сервер не отвечает · повтор';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15883,7 +15883,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Ретранслятор $name не отвечает. Повторная попытка.';
+    return 'Сервер $name не отвечает. Повторная попытка.';
   }
 
   @override

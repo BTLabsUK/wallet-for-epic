@@ -13713,7 +13713,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'จ่ายหรือรับเงินผ่านรีเลย์ กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
+      'จ่ายหรือรับเงินผ่านเซิร์ฟเวอร์ Epicbox กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
 
   @override
   String get txEpicboxOffTitle => 'ปิด Epicbox หรือไม่';
@@ -13751,7 +13751,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'รายการจากผู้ส่งจะรออยู่ที่รีเลย์จนกว่าจะเปิด Epicbox อีกครั้ง';
+      'รายการจากผู้ส่งจะรออยู่ที่เซิร์ฟเวอร์จนกว่าจะเปิด Epicbox อีกครั้ง';
 
   @override
   String get receiveNoMethods => 'ไม่มีวิธีรับเงินที่เปิดอยู่';
@@ -14219,11 +14219,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'ส่งลิงก์ในแชตใดก็ได้: Telegram, WhatsApp, SMS, อีเมล ไม่ต้องใช้รีเลย์';
+      'ส่งลิงก์ในแชตใดก็ได้: Telegram, WhatsApp, SMS, อีเมล ไม่ต้องใช้เซิร์ฟเวอร์ Epicbox';
 
   @override
   String get pairWayMessageInfo =>
-      'สามข้อความ: คำเชิญของคุณ คำตอบของอีกฝ่าย และลิงก์ปิดท้ายของคุณ คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะพบในคลิปบอร์ดเมื่อคุณกลับมา ใช้ได้แม้รีเลย์ถูกบล็อกหรือกระเป๋าเงินออฟไลน์';
+      'สามข้อความ: คำเชิญของคุณ คำตอบของอีกฝ่าย และลิงก์ปิดท้ายของคุณ คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะพบในคลิปบอร์ดเมื่อคุณกลับมา ใช้ได้แม้เซิร์ฟเวอร์ถูกบล็อกหรือกระเป๋าเงินออฟไลน์';
 
   @override
   String get pairWayInPersonDesk => 'โทรศัพท์ของอีกฝ่ายสแกนโค้ดของคุณ';
@@ -14301,7 +14301,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'หากทั้งสองฝ่ายเข้าถึงรีเลย์ได้ ขั้นนี้จะเกิดขึ้นเองด้วย';
+      'หากทั้งสองฝ่ายเข้าถึงเซิร์ฟเวอร์ Epicbox ได้ ขั้นนี้จะเกิดขึ้นเองด้วย';
 
   @override
   String get pairPasteReply => 'วางคำตอบ';
@@ -14385,7 +14385,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**เชิญทางข้อความ** สามข้อความในแชตใดก็ได้: คำเชิญ คำตอบ และลิงก์ปิดท้าย ไม่ต้องใช้รีเลย์ จึงใช้ได้แม้เครือข่ายบล็อก Epicbox คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะเสนอให้ใช้เมื่อคุณกลับมา';
+      '**เชิญทางข้อความ** สามข้อความในแชตใดก็ได้: คำเชิญ คำตอบ และลิงก์ปิดท้าย ไม่ต้องใช้เซิร์ฟเวอร์ จึงใช้ได้แม้เครือข่ายบล็อก Epicbox คัดลอกแต่ละข้อความเมื่อได้รับ กระเป๋าเงินจะเสนอให้ใช้เมื่อคุณกลับมา';
 
   @override
   String get helpPairWaysP3 =>
@@ -14483,22 +14483,22 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairSendByHand => 'ส่งด้วยตนเอง';
 
   @override
-  String get pairRelayUnreachableTitle => 'เชื่อมต่อรีเลย์ไม่ได้';
+  String get pairRelayUnreachableTitle => 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้';
 
   @override
   String get pairRelayUnreachableBody => 'ส่งคำตอบด้วยตนเองหรือไม่';
 
   @override
   String get pairRelayUnreachableTor =>
-      'เชื่อมต่อรีเลย์ผ่าน Tor ไม่ได้ ส่งคำตอบด้วยตนเองหรือไม่';
+      'เชื่อมต่อเซิร์ฟเวอร์ผ่าน Tor ไม่ได้ ส่งคำตอบด้วยตนเองหรือไม่';
 
   @override
   String get pairNoRelay =>
-      'เชื่อมต่อรีเลย์สำหรับจับคู่ไม่ได้เลย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
+      'เชื่อมต่อเซิร์ฟเวอร์เชื่อมต่อไม่ได้เลย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
 
   @override
   String get pairRelaysBlocked =>
-      'เครือข่ายนี้บล็อกรีเลย์สำหรับจับคู่ อาจเกิดจากตัวกรองของเครือข่าย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
+      'เครือข่ายนี้บล็อกเซิร์ฟเวอร์เชื่อมต่อ อาจเกิดจากตัวกรองของเครือข่าย ให้จับคู่ด้วยลิงก์คำเชิญแทน';
 
   @override
   String get pairByHandTitle => 'ส่งด้วยตนเอง';
@@ -14768,7 +14768,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'รีเลย์ของ $name ไม่ตอบสนอง';
+    return 'เซิร์ฟเวอร์ของ $name ไม่ตอบสนอง';
   }
 
   @override
@@ -14950,7 +14950,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'คำขอจะรออยู่บนรีเลย์ และมาถึงเมื่อเปิด Epicbox อีกครั้ง';
+      'คำขอจะรออยู่บนเซิร์ฟเวอร์ และมาถึงเมื่อเปิด Epicbox อีกครั้ง';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15012,12 +15012,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'ส่งถึงรีเลย์ของ $name แล้ว';
+    return 'ส่งถึงเซิร์ฟเวอร์ของ $name แล้ว';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'ส่งคำตอบถึงรีเลย์ของ $name แล้ว';
+    return 'ส่งคำตอบถึงเซิร์ฟเวอร์ของ $name แล้ว';
   }
 
   @override
@@ -15066,7 +15066,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เงินของคุณปลอดภัย จะปลดล็อกหากไม่มีการประกาศ ระบบยังคงลองส่งต่อไป';
 
   @override
-  String get reqRelayRetrying => 'รีเลย์ไม่ตอบสนอง · กำลังลองใหม่';
+  String get reqRelayRetrying => 'เซิร์ฟเวอร์ไม่ตอบสนอง · กำลังลองใหม่';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15264,7 +15264,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'รีเลย์ของ $name ไม่ตอบสนอง กำลังลองใหม่';
+    return 'เซิร์ฟเวอร์ของ $name ไม่ตอบสนอง กำลังลองใหม่';
   }
 
   @override

@@ -13951,7 +13951,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEpicboxLine =>
-      'Pay or get paid through a relay. The other wallet can be closed.';
+      'Pay or get paid through an Epicbox server. The other wallet can be closed.';
 
   @override
   String get txEpicboxOffTitle => 'Turn Epicbox off?';
@@ -13989,7 +13989,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Senders\' payments wait at the relay until Epicbox is on again.';
+      'Senders\' payments wait on the server until Epicbox is on again.';
 
   @override
   String get receiveNoMethods => 'No receiving method is on';
@@ -14471,11 +14471,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No relay needed.';
+      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.';
 
   @override
   String get pairWayMessageInfo =>
-      'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a relay is blocked or a wallet is offline.';
+      'Three messages: your invite, their reply, your finish link. Copy each one when it arrives; the wallet finds it on the clipboard when you come back. Works when a server is blocked or a wallet is offline.';
 
   @override
   String get pairWayInPersonDesk => 'Their phone scans your code';
@@ -14554,7 +14554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairByItself =>
-      'With a relay on both sides, this step also happens by itself.';
+      'When both wallets reach an Epicbox server, this step also happens by itself.';
 
   @override
   String get pairPasteReply => 'Paste reply';
@@ -14639,7 +14639,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWaysP2 =>
-      '**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No relay is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.';
+      '**Invite by message.** Three messages in any chat: the invite, the reply, the finish link. No server is needed, so this works when a network blocks Epicbox. Copy each message when it arrives; the wallet offers it when you come back.';
 
   @override
   String get helpPairWaysP3 =>
@@ -14737,22 +14737,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairSendByHand => 'Send by hand';
 
   @override
-  String get pairRelayUnreachableTitle => 'Can’t reach the relay';
+  String get pairRelayUnreachableTitle => 'Can’t reach the server';
 
   @override
   String get pairRelayUnreachableBody => 'Send your answer by hand?';
 
   @override
   String get pairRelayUnreachableTor =>
-      'Can’t reach the relay over Tor. Send your answer by hand?';
+      'Can’t reach the server over Tor. Send your answer by hand?';
 
   @override
   String get pairNoRelay =>
-      'Can’t reach any pairing relay. Pair with an invite link instead.';
+      'Can’t reach any connection server. Pair with an invite link instead.';
 
   @override
   String get pairRelaysBlocked =>
-      'This network blocks the pairing relays. A network filter may be the cause. Pair with an invite link instead.';
+      'This network blocks the connection servers. A network filter may be the cause. Pair with an invite link instead.';
 
   @override
   String get pairByHandTitle => 'Send by hand';
@@ -15020,7 +15020,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return '$name’s relay isn’t answering';
+    return '$name’s server isn’t answering';
   }
 
   @override
@@ -15203,7 +15203,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the relay and arrive when it is back on.';
+      'Requests wait on the server and arrive when it is back on.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15266,12 +15266,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Delivered to $name’s relay';
+    return 'Delivered to $name’s server';
   }
 
   @override
   String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s relay';
+    return 'Answer delivered to $name’s server';
   }
 
   @override
@@ -15320,7 +15320,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.';
 
   @override
-  String get reqRelayRetrying => 'Relay not answering · retrying';
+  String get reqRelayRetrying => 'Server not answering · retrying';
 
   @override
   String reqWithdrewTitle(String name) {
@@ -15520,7 +15520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return '$name’s relay isn’t answering. Retrying.';
+    return '$name’s server isn’t answering. Retrying.';
   }
 
   @override
