@@ -302,6 +302,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Tor and Logs', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
   const DeskShot(id: '30f-settings-help-cleanup', title: 'Help › Maintenance: clean up old wallet folders', route: DeskRoute.settingsHelp, arg: HelpAt('maintenance'), height: 1000),
   const DeskShot(id: '30g-settings-help-cancel', title: 'Help › Cancelling a payment, opened at Receiving', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.cancel, anchor: HelpAnchor.receiving), height: 1000),
+  const DeskShot(id: '30h-settings-help-linked-devices', title: 'Help › How linked devices work: the sync picture, the body, the live status', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.linkedDevices), height: 1700),
   DeskShot(
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',
