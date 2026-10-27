@@ -3,7 +3,7 @@
 /// Use it runs what a paste runs. The rules are `pairing_clipboard.dart`'s.
 library;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -154,8 +154,11 @@ class PairingClipSheet extends StatelessWidget {
       PairingLinkKind.confirm => l.pairClipFinish,
       PairingLinkKind.card => l.pairClipCard,
     };
+    // Android 12+ shows its "pasted from your clipboard" toast at the bottom the moment the
+    // link was read, right where the sheet's buttons land: room under them keeps Use it clear.
+    final toastRoom = !kIsWeb && defaultTargetPlatform == TargetPlatform.android ? 56.0 : 0.0;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + toastRoom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
