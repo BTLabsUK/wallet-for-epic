@@ -360,6 +360,7 @@ String deskLinkFailureText(AppLocalizations l, LinkFailure? failure, String? nam
   LinkFailure.notFound => l.linkFailNotFound,
   LinkFailure.ownCode => l.linkFailOwn,
   LinkFailure.otherWallet => l.linkFailOtherWallet,
+  LinkFailure.otherWalletCode => l.linkFailOtherWalletCode,
   LinkFailure.mismatch => l.linkFailMismatch,
   LinkFailure.tooMany => l.linkFailTooMany(maxLinkedDevices),
   LinkFailure.unreachable => l.linkFailUnreachable,

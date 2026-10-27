@@ -44,6 +44,12 @@ abstract interface class DeviceHost {
   /// This wallet's payments key (its Epicbox address without the server).
   Future<String> walletKey();
 
+  /// [message] signed with this wallet's address key ([WalletSession.signWithAddressKey]).
+  Future<String> signProof(List<int> message);
+
+  /// Whether [signature] is [signProof] of [message] by the wallet with payments key [key].
+  Future<bool> verifyProof(String key, List<int> message, String signature);
+
   Future<List<WalletOutput>> outputs();
 
   /// This wallet's history as the session lists it, chain-check rows included.
@@ -75,6 +81,13 @@ class SessionDeviceHost implements DeviceHost {
   Future<String> walletKey() async => epicboxKey(await session.epicboxAddress());
 
   @override
+  Future<String> signProof(List<int> message) => session.signWithAddressKey(message);
+
+  @override
+  Future<bool> verifyProof(String key, List<int> message, String signature) =>
+      session.verifyAddressSignature(key: key, message: message, signature: signature);
+
+  @override
   Future<List<WalletOutput>> outputs() => session.outputs();
 
   @override
@@ -87,6 +100,12 @@ class SessionDeviceHost implements DeviceHost {
   @override
   set heldOutputs(Set<String> commitments) => session.heldOutputs = commitments;
 }
+
+/// What a hello's `proof` signs: a tag, the sending device's id and the four pictures of the
+/// link's private pairing, which both devices see alike and LEPIC derives from both sides' keys,
+/// so a proof holds for this pairing and sender only. JSON keeps the parts apart.
+List<int> helloTranscript(String deviceId, List<SasWord> sas) =>
+    utf8.encode(jsonEncode(['epiccash/device-link/hello/v1', deviceId, for (final w in sas) w.name]));
 
 /// How far ahead of the next expected notice one is kept; further ones are dropped.
 const int noticeWindow = 64;
@@ -122,8 +141,11 @@ enum LinkFailure {
   /// The code is this device's own.
   ownCode,
 
-  /// The other device holds another wallet.
+  /// The other device holds another wallet: its hello did not prove this wallet.
   otherWallet,
+
+  /// The scanned code was made by another wallet; refused before answering it.
+  otherWalletCode,
 
   /// The pictures did not match on this device.
   mismatch,
@@ -984,23 +1006,30 @@ class DeviceService {
     _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.starting, servers: set));
     try {
       final r = await _api.makePrivateInvite(name: book.deviceName, homeRelay: set.first);
-      _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.waiting, servers: set, pairingId: r.id, code: deviceLinkText(r.inviteLink!), expiresAt: r.expiresAt));
+      final code = deviceLinkText(r.inviteLink!, fingerprint: deviceLinkFingerprint(await host.walletKey()));
+      _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.waiting, servers: set, pairingId: r.id, code: code, expiresAt: r.expiresAt));
     } on Object catch (e) {
       _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.failed, servers: set, failure: _failureOf(e)));
     }
   }
 
-  /// This device answers the device link in [text] (scanned or pasted).
+  /// This device answers the device link in [text] (scanned or pasted). A code that carries
+  /// another wallet's fingerprint is refused before it is answered; one without a fingerprint
+  /// is answered, and the hello's proof decides ([_finishLink]).
   Future<void> startScanned(String text) async {
     if (!loaded) await load();
     _peer = _LinkPeer();
-    final invite = deviceInviteIn(text);
+    final code = deviceLinkIn(text);
     if (!supported) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.unsupported));
-    if (invite == null) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.invalidCode));
+    if (code == null) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.invalidCode));
     if (!canLinkMore) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.tooMany));
     _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.starting));
     try {
-      final r = await _api.acceptPrivateInvite(link: invite, name: book.deviceName);
+      if (code.fingerprint != null && code.fingerprint != deviceLinkFingerprint(await host.walletKey())) {
+        logInfo('devices', 'link code of another wallet refused');
+        return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.otherWalletCode));
+      }
+      final r = await _api.acceptPrivateInvite(link: code.invite, name: book.deviceName);
       _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.waiting, pairingId: r.id, otherName: r.name, servers: [?linkServerOf(r.homeRelay)]));
       unawaited(sync(DeviceSyncTrigger.link));
     } on Object catch (e) {
@@ -1067,7 +1096,13 @@ class DeviceService {
         seq: 1,
         dev: book.deviceId,
         ts: _clock().millisecondsSinceEpoch,
-        body: {'deviceId': book.deviceId, 'name': book.deviceName, 'walletAddress': await host.walletKey(), 'servers': flow.servers},
+        body: {
+          'deviceId': book.deviceId,
+          'name': book.deviceName,
+          'walletAddress': await host.walletKey(),
+          'servers': flow.servers,
+          'proof': await host.signProof(helloTranscript(book.deviceId, flow.sas)),
+        },
       );
       await _api.postPayload(id: id, bytes: hello.encode());
     } on Object catch (e) {
@@ -1104,7 +1139,15 @@ class DeviceService {
     final hello = _peer.hello;
     final id = flow?.pairingId;
     if (flow == null || hello == null || id == null || flow.phase == LinkPhase.done) return;
-    if (hello.body['walletAddress'] != await host.walletKey()) {
+    // The address is public, so it only turns another wallet away early; the proof is the
+    // check: only a device holding this wallet's address key can sign this pairing's transcript.
+    final key = await host.walletKey();
+    final proof = hello.body['proof'];
+    if (hello.body['walletAddress'] != key ||
+        proof is! String ||
+        flow.sas.length != 4 ||
+        !await host.verifyProof(key, helloTranscript(hello.dev, flow.sas), proof)) {
+      logWarn('devices', 'link hello did not prove this wallet');
       await _unpair(id);
       return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.otherWallet));
     }

@@ -18189,6 +18189,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkFailOtherWallet => 'На этом устройстве другой кошелёк.';
 
   @override
+  String get linkFailOtherWalletCode => 'Этот код из другого кошелька.';
+
+  @override
   String get linkFailMismatch =>
       'Картинки различаются, поэтому устройства не связаны.';
 

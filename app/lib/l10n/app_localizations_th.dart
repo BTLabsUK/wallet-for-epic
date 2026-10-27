@@ -17439,6 +17439,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkFailOtherWallet => 'อุปกรณ์นี้มีกระเป๋าเงินอื่น';
 
   @override
+  String get linkFailOtherWalletCode => 'รหัสนี้มาจากกระเป๋าเงินอื่น';
+
+  @override
   String get linkFailMismatch => 'ภาพไม่ตรงกัน จึงไม่ได้เชื่อมโยงอุปกรณ์';
 
   @override

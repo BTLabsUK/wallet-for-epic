@@ -43,6 +43,7 @@ String linkFailureText(AppLocalizations l, LinkFailure f) => switch (f) {
   LinkFailure.notFound => l.linkFailNotFound,
   LinkFailure.ownCode => l.linkFailOwn,
   LinkFailure.otherWallet => l.linkFailOtherWallet,
+  LinkFailure.otherWalletCode => l.linkFailOtherWalletCode,
   LinkFailure.mismatch => l.linkFailMismatch,
   LinkFailure.cancelled => l.linkFailCancelled,
   LinkFailure.tooMany => l.linkFailTooMany(maxLinkedDevices - 1),

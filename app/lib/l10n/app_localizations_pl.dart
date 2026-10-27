@@ -18222,6 +18222,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkFailOtherWallet => 'To urządzenie ma inny portfel.';
 
   @override
+  String get linkFailOtherWalletCode => 'Ten kod pochodzi z innego portfela.';
+
+  @override
   String get linkFailMismatch =>
       'Obrazki się różnią, więc urządzeń nie połączono.';
 

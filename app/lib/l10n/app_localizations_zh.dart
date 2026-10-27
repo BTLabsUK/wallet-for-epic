@@ -16794,6 +16794,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkFailOtherWallet => '该设备持有另一个钱包。';
 
   @override
+  String get linkFailOtherWalletCode => '此代码来自另一个钱包。';
+
+  @override
   String get linkFailMismatch => '图片不同，因此设备未关联。';
 
   @override

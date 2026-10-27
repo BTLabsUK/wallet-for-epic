@@ -800,6 +800,17 @@ class RemoteWalletSession implements WalletSession {
     required int timestamp,
   }) async => throw _noPush;
 
+  static const WalletError _noDeviceLink = WalletError(
+    kind: WalletErrorKind.other,
+    message: 'Linked devices are not offered remotely',
+  );
+
+  @override
+  Future<String> signWithAddressKey(List<int> message) async => throw _noDeviceLink;
+
+  @override
+  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async => false;
+
   @override
   Future<String> onionAddress() async => throw _noTor;
 

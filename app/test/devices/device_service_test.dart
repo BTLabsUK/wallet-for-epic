@@ -108,14 +108,81 @@ void main() {
       expect(b.service.book.devices, isEmpty);
     });
 
-    test('the hello wallet check refuses a device of another wallet', () async {
+    test('a code of another wallet is refused at the scan, before it is answered', () async {
       final other = Side('Phone', clock: clock, net: net, key: 'esAnotherWallet');
-      await linkBoth(a, other);
+      await a.service.load();
+      await other.service.load();
+      await a.service.startShowing([_s1]);
+      await other.service.startScanned(a.service.link!.code!);
+      await settle(a, other);
+      expect(other.service.link!.phase, LinkPhase.failed);
+      expect(other.service.link!.failure, LinkFailure.otherWalletCode);
+      expect(await other.pairing.privatePairings(), isEmpty);
+      // The code was never answered: the showing device still waits.
+      expect(a.service.link!.phase, LinkPhase.waiting);
+    });
+
+    test('a code without a fingerprint is answered, and the hello proof refuses another wallet', () async {
+      final other = Side('Phone', clock: clock, net: net, key: 'esAnotherWallet');
+      await a.service.load();
+      await other.service.load();
+      await a.service.startShowing([_s1]);
+      final old = a.service.link!.code!.replaceFirst(RegExp(r'/[0-9a-f]{16}$'), '');
+      await other.service.startScanned(old);
+      await settle(a, other);
+      await a.service.answerCheck(true);
+      await settle(a, other);
+      await other.service.answerCheck(true);
+      await settle(a, other);
       expect(a.service.link!.failure, LinkFailure.otherWallet);
       expect(other.service.link!.failure, LinkFailure.otherWallet);
       expect(a.service.book.devices, isEmpty);
       expect(other.service.book.devices, isEmpty);
       expect(await a.pairing.privatePairings(), isEmpty);
+    });
+
+    for (final (what, proof) in [('no proof', null), ('a proof of another wallet', 'other'), ('a proof of another pairing', 'sas')]) {
+      test('a hello with the right wallet address and $what is refused and unpaired', () async {
+        await showAndScan(a, b);
+        final id = b.service.link!.pairingId!;
+        final sas = b.service.link!.sas;
+        // B hand-builds its hello: the right address, as anyone could, but no valid proof.
+        final forged = switch (proof) {
+          'other' => fakeAddressSignature('esAnotherWallet', helloTranscript(b.service.book.deviceId, sas)),
+          'sas' => await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas.reversed.toList())),
+          _ => null,
+        };
+        await b.pairing.checkWords(id, PairingCheck.match);
+        final hello = Notice(
+          type: NoticeType.hello,
+          id: randomHexId(),
+          seq: 1,
+          dev: b.service.book.deviceId,
+          ts: 1,
+          body: {'deviceId': b.service.book.deviceId, 'name': 'Phone', 'walletAddress': 'esSameWalletKey', 'servers': [_s1], 'proof': ?forged},
+        );
+        await b.pairing.postPayload(id: id, bytes: hello.encode());
+        await a.service.answerCheck(true);
+        await settle(a, b);
+        expect(a.service.link!.failure, LinkFailure.otherWallet);
+        expect(a.service.book.devices, isEmpty);
+        expect(await a.pairing.privatePairings(), isEmpty);
+      });
+    }
+
+    test("each device's hello carries a proof the other checks with its own wallet key", () async {
+      await showAndScan(a, b);
+      final sas = a.service.link!.sas;
+      final proof = await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas));
+      final key = epicboxKey(a.session.address);
+      expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(b.service.book.deviceId, sas), signature: proof), isTrue);
+      expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(a.service.book.deviceId, sas), signature: proof), isFalse);
+      await a.service.answerCheck(true);
+      await settle(a, b);
+      await b.service.answerCheck(true);
+      await settle(a, b);
+      expect(a.service.link!.phase, LinkPhase.done);
+      expect(b.service.link!.phase, LinkPhase.done);
     });
 
     test('a contact invite does not link, and a device link does not pair a contact', () async {

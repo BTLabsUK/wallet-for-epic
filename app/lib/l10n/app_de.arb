@@ -4702,6 +4702,7 @@
   "linkFailNotFound": "Dieser Code wurde schon benutzt oder abgebrochen.",
   "linkFailOwn": "Dieser Code stammt von diesem Gerät. Ihn auf dem anderen scannen.",
   "linkFailOtherWallet": "Dieses Gerät enthält eine andere Wallet.",
+  "linkFailOtherWalletCode": "Dieser Code stammt von einer anderen Wallet.",
   "linkFailMismatch": "Die Bilder unterscheiden sich, daher wurden die Geräte nicht verknüpft.",
   "linkFailCancelled": "Das andere Gerät hat abgebrochen oder die Bilder nicht rechtzeitig geprüft.",
   "linkFailTooMany": "Es sind schon {count} Geräte verknüpft. Zuerst eines entfernen.",

@@ -4702,6 +4702,7 @@
   "linkFailNotFound": "此代码已被使用或已取消。",
   "linkFailOwn": "此代码来自本设备。请在另一台设备上扫描。",
   "linkFailOtherWallet": "该设备持有另一个钱包。",
+  "linkFailOtherWalletCode": "此代码来自另一个钱包。",
   "linkFailMismatch": "图片不同，因此设备未关联。",
   "linkFailCancelled": "另一台设备已停止，或未及时核对图片。",
   "linkFailTooMany": "已关联 {count} 台设备。请先移除一台。",

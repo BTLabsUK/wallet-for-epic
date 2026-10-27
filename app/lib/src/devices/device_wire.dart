@@ -151,6 +151,10 @@ bool _commit(Object? v) => v is String && RegExp(r'^[0-9a-f]{66}$').hasMatch(v);
 bool _servers(Object? v) => v is List && v.isNotEmpty && v.length <= maxLinkServers && v.every((s) => _str(s, max: 255));
 bool _sas(Object? v) => v is List && v.length == 4 && v.every((s) => _str(s, max: 64));
 
+/// A hello's proof: an address key signature, DER in hex (8 to 72 bytes). Absent in a hello of
+/// an app from before proofs; such a hello is read and the link refused ([DeviceService]).
+bool _optProof(Object? v) => v == null || (v is String && RegExp(r'^[0-9a-f]{16,144}$').hasMatch(v));
+
 /// The payment states a `status` notice names.
 const noticeStatusStates = {'finalized', 'posted', 'cancelled', 'expired', 'failed', 'released'};
 
@@ -161,7 +165,11 @@ const noticeFailureCodes = {'notDelivered', 'refused', 'inputsSpent', 'other'};
 /// Whether [body] is a valid body of [type].
 bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.hello =>
-    isHexId(b['deviceId']) && _str(b['name'], max: deviceNameMaxLength) && _str(b['walletAddress'], max: 128) && _servers(b['servers']),
+    isHexId(b['deviceId']) &&
+        _str(b['name'], max: deviceNameMaxLength) &&
+        _str(b['walletAddress'], max: 128) &&
+        _servers(b['servers']) &&
+        _optProof(b['proof']),
   NoticeType.send =>
     _str(b['slateId'], max: 64) &&
         _optInt(b['txId']) &&

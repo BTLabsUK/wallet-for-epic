@@ -1581,6 +1581,13 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
+  Future<String> signWithAddressKey(List<int> message) => _guard(() => _wallet.signWithAddressKey(message: message));
+
+  @override
+  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async =>
+      _guardSync(() => lepic.verifyAddressSignature(publicKey: key, message: message, signature: signature));
+
+  @override
   Future<String> onionAddress() => _guard(_wallet.onionAddress);
 
   @override
