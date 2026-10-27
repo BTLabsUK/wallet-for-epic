@@ -29,11 +29,12 @@
 #                              screenshots, logs and results.txt with one PASS/FAIL line per step
 #   LEPIC_REPO, LEPIC_FLUTTER_REPO   where `sources` clones from (a git URL or path)
 #   WFE_NODE_BIN_MAC_ARM64, WFE_NODE_BIN_MAC_X64
-#                              the built-in node's epic binary per architecture (the GUI 6.1.6's
-#                              resources/bin/macsilicon/epic and mac/epic); joined with lipo into
-#                              Contents/Resources/bin/epic. Without them the app has no built-in node.
-#   WFE_NODE_FETCH=1           fetch both from the GUI 6.1.6 build commit pinned below (by SHA-256)
-#                              when WFE_NODE_BIN_MAC_* are not set (CI does this)
+#                              the built-in node's epic binary per architecture (epic 4.1 or newer:
+#                              the app's epic-server.toml has no foundation_path, which 4.0 needs);
+#                              joined with lipo into Contents/Resources/bin/epic. Without them the
+#                              app has no built-in node.
+#   WFE_NODE_FETCH=1           fetch the node release pinned below (by SHA-256) when
+#                              WFE_NODE_BIN_MAC_* are not set
 #   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
@@ -57,11 +58,13 @@ darwin_targets="aarch64-apple-darwin x86_64-apple-darwin"
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
 desktop_name="Epic Cash Desktop"
 phone_id=uk.btlabs.epiccash.mobile
-# The built-in node for WFE_NODE_FETCH: the GUI wallet 6.1.6's macOS binaries (epic 4.1.0), x86_64
-# and arm64, at the commit that last changed them.
-node_base=https://raw.githubusercontent.com/blacktyger/epic-gui-wallet/7b56cdbb2638bd3a877b2a35074fc54b278cdb92/resources/bin
-node_sha_x64=9ee8a4704a65acc40ed75376fdf28d6ede4308d73cdd8cc06876361bb85b3400
-node_sha_arm64=e3e7c83a5a4a3461bafcb5278be8d6f61d2e7fc3b378e77a920cb6dac458bf2c
+# The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
+# bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, so an
+# Intel Mac has no built-in node (the GUI 6.1.6's macOS binaries are epic 4.0.0, which stops at
+# once on the app's toml: "missing field `foundation_path`", exit 101).
+node_version=4.1.1
+node_zip_url=https://github.com/EpicCash/epic/releases/download/v4.1.1/MacOS-aarch64-v4.1.1.zip
+node_zip_sha=35bacc695c251723ecb4379b4a50270a8118fc140373723bb80fb73c65e36133
 
 die() { echo "build-apple.sh: $*" >&2; exit 1; }
 say() { printf '\n== %s\n' "$*"; }
@@ -165,12 +168,17 @@ join_arches() {
   chmod 755 "$dest"
 }
 
-# Downloads the GUI's node binary for $1 (mac or macsilicon) to $3 and checks it against $2.
+# Downloads the node release zip, checks it against its pinned SHA-256 and puts its epic at $1.
 fetch_node() {
-  mkdir -p "$(dirname "$3")"
-  curl -fsSL --retry 3 -o "$3" "$node_base/$1/epic"
-  [ "$(sha256 "$3")" = "$2" ] || die "the $1 node binary does not match its pinned SHA-256"
-  chmod 755 "$3"
+  local tmp="$out/node-zip"
+  rm -rf "$tmp"
+  mkdir -p "$tmp" "$(dirname "$1")"
+  curl -fsSL --retry 3 -o "$tmp/node.zip" "$node_zip_url"
+  [ "$(sha256 "$tmp/node.zip")" = "$node_zip_sha" ] || die "the node zip does not match its pinned SHA-256"
+  ditto -x -k "$tmp/node.zip" "$tmp"
+  cp "$tmp"/MacOS-aarch64-v$node_version/epic "$1"
+  chmod 755 "$1"
+  rm -rf "$tmp"
 }
 
 macos() {
@@ -188,9 +196,8 @@ macos() {
   mkdir -p "$res"
   # The built-in node: Contents/Resources/bin/epic (lib/src/builtin_node_provider.dart).
   if [ "${WFE_NODE_FETCH:-0}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}${WFE_NODE_BIN_MAC_X64:-}" ]; then
-    fetch_node macsilicon "$node_sha_arm64" "$out/node/arm64/epic"
-    fetch_node mac "$node_sha_x64" "$out/node/x86_64/epic"
-    WFE_NODE_BIN_MAC_ARM64="$out/node/arm64/epic" WFE_NODE_BIN_MAC_X64="$out/node/x86_64/epic"
+    fetch_node "$out/node/arm64/epic"
+    WFE_NODE_BIN_MAC_ARM64="$out/node/arm64/epic"
   fi
   local nodes=""
   [ -n "${WFE_NODE_BIN_MAC_ARM64:-}" ] && nodes="$nodes $WFE_NODE_BIN_MAC_ARM64"
@@ -198,6 +205,11 @@ macos() {
   if [ -n "$nodes" ]; then
     join_arches "$res/epic" $nodes
     echo "node: $(lipo -archs "$res/epic")"
+    # epic 4.0 needs foundation_path, which the app's toml leaves out: it would stop at once.
+    local nv
+    nv="$("$res/epic" --version 2>/dev/null | sed -n 's/^epic \([0-9.]*\).*/\1/p')"
+    echo "node version: ${nv:-unknown (cannot run here)}"
+    case "$nv" in 4.0.*|[0-3].*) die "the built-in node is epic $nv; the app needs 4.1 or newer" ;; esac
   else
     echo "no WFE_NODE_BIN_MAC_*: no built-in node"
   fi
