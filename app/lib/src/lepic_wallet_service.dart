@@ -34,16 +34,34 @@ import 'secret_store_api.dart';
 import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
-/// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).
+/// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred); macOS gets it from the
+/// build's own copy step.
 ///
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
 /// `third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
-Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
-  externalLibrary: libraryPath == null
-      ? null
-      : ExternalLibrary.open(libraryPath),
-);
+///
+/// On iOS and macOS the library is `lepic_ffi.framework` in the bundle's Frameworks folder,
+/// opened by its full path when it is there ([appleFrameworkLibrary]); else by the loader's
+/// own `lepic_ffi.framework/lepic_ffi`.
+Future<void> initLepic({String? libraryPath}) {
+  final path = libraryPath ?? appleFrameworkLibrary();
+  return lepic.RustLib.init(
+    externalLibrary: path == null ? null : ExternalLibrary.open(path),
+  );
+}
+
+/// `<Runner.app>/Frameworks/lepic_ffi.framework/lepic_ffi` on iOS,
+/// `<App>.app/Contents/Frameworks/lepic_ffi.framework/lepic_ffi` on macOS; null elsewhere or
+/// when the file is not there.
+String? appleFrameworkLibrary() {
+  if (!(Platform.isIOS || Platform.isMacOS)) return null;
+  final exeDir = File(Platform.resolvedExecutable).parent;
+  // iOS: the executable is at the bundle's top; macOS: in Contents/MacOS.
+  final base = Platform.isMacOS ? exeDir.parent.path : exeDir.path;
+  final file = '$base/Frameworks/lepic_ffi.framework/lepic_ffi';
+  return File(file).existsSync() ? file : null;
+}
 
 /// LEPIC info lines that come on a timer and say nothing new (the refresh every minute was
 /// a third of a support log): logged as debug, so only Detailed logging keeps them.
