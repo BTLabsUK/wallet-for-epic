@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../devices/phone_devices.dart' show watchHistory;
+import 'devices/device_tx_details.dart';
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import 'cancel_note.dart';
@@ -570,7 +572,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final home = ref.watch(homeProvider);
-    final tx = home.value?.transactions
+    final tx = watchHistory(ref, home.value?.transactions ?? const <TxEntry>[])
         .where((t) => t.key == widget.txKey)
         .firstOrNull;
     if (tx == null) {
@@ -588,6 +590,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               ),
       );
     }
+
+    // Another linked device's payment: what it told this one, with the chain's view.
+    if (tx.origin == TxOrigin.linkedDevice) return DeviceTxDetails(tx: tx);
 
     final theme = Theme.of(context);
     final display = amountDisplay(ref);

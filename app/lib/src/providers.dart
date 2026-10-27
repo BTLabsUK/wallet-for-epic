@@ -27,6 +27,8 @@ import 'wallet_service.dart';
 export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
 import 'pairing_providers.dart' show invoiceSessionProvider;
+import 'devices/device_service.dart' show DeviceSyncTrigger;
+import 'devices/phone_devices.dart' show deviceServiceProvider;
 
 final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
@@ -369,6 +371,9 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       if (ref.mounted) progress.report(null);
     }
     if (summary == null) throw StateError('Refresh ended without balances');
+    // A refresh reads the linked devices' notices too (D-11), and sweeps their holds against
+    // the chain just read.
+    unawaited(ref.read(deviceServiceProvider)?.sync(DeviceSyncTrigger.refresh));
     final transactions = await session.transactions(refresh: false);
     ref.read(blockWatchProvider).saw(transactions, summary.lastConfirmedHeight, now: ref.read(clockProvider)());
     // Heights and dates for history rows come afterwards, so they never hold up the balance.

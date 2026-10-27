@@ -35,6 +35,8 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../utf8_limit.dart';
 import '../wallet_service.dart';
+import '../devices/device_providers.dart' show heldValueByDevice;
+import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'centered_body.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
@@ -1320,6 +1322,25 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// Runs one wallet action at a time; a second tap while one runs does nothing.
+  /// "x EPIC is held by a payment Desktop is making.", one line per device holding coins here.
+  List<Widget> _heldLines(BuildContext context) {
+    final l = context.l10n;
+    final view = ref.watch(phoneDevices.view);
+    if (view == null || view.held.isEmpty) return const [];
+    final outputs = ref.watch(walletOutputsProvider).value ?? const <WalletOutput>[];
+    return [
+      for (final e in heldValueByDevice(view.book, outputs).entries)
+        if (e.value > BigInt.zero)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              l.sendHeldByDevice(localDecimal(l, formatEpic(e.value)), view.nameOf(e.key)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
+            ),
+          ),
+    ];
+  }
+
   Future<void> _run(Future<void> Function(WalletSession session) action) async {
     if (_busy) return;
     final session = ref.read(sessionProvider);
@@ -1328,12 +1349,17 @@ class _SendViewState extends ConsumerState<SendView> {
       _busy = true;
       _error = null;
     });
+    // Linked devices: one read (at most 3 s) so coins another device just took stay out, and
+    // after the send the others hear at once.
+    final devices = ref.read(deviceServiceProvider);
     try {
+      await devices?.beforeSend();
       await action(session);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
+      unawaited(devices?.announceNow());
     }
   }
 
@@ -2846,6 +2872,8 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       if (_estimateError != null) ErrorText(_estimateError!),
+      // Coins another linked device is spending: why the amount does not fit.
+      if (_estimateError != null) ..._heldLines(context),
       if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions))
         _strategyPicker(context),
       const SizedBox(height: 12),
