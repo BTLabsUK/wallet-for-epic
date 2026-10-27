@@ -4405,6 +4405,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if ((start == null || t.timeUnix >= start) && (end == null || t.timeUnix < end)) t,
       ],
       _tip > 0 ? BigInt.from(_tip) : null,
+      target: _minConf.toInt(),
     );
   }
 
