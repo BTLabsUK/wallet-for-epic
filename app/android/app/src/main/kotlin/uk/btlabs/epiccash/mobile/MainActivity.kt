@@ -16,6 +16,9 @@ import io.flutter.plugin.common.MethodChannel
 private const val MAX_BYTES = 1 shl 20
 private const val MAX_LINK_CHARS = 4096
 
+/** ClipDescription.EXTRA_IS_SENSITIVE (API 33), by value so older SDK levels compile. */
+private const val EXTRA_IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"
+
 class MainActivity : FlutterFragmentActivity() {
     private var updater: AppUpdater? = null
     private var incomingChannel: MethodChannel? = null
@@ -42,8 +45,9 @@ class MainActivity : FlutterFragmentActivity() {
         createNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         // Lets Dart block screenshots, screen recording and the recent-apps preview
-        // (FLAG_SECURE) while a recovery phrase or a payment QR is on screen, keeps the screen
-        // on (FLAG_KEEP_SCREEN_ON) during a restore's scan, and opens the app's settings page.
+        // (FLAG_SECURE) while a payment QR is on screen, hide only the recent-apps preview while
+        // a recovery phrase is shown, copy a phrase as sensitive clipboard content, keep the
+        // screen on (FLAG_KEEP_SCREEN_ON) during a restore's scan, and open the app's settings.
         MethodChannel(messenger, "epic_wallet/secure_screen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "setSecure") {
@@ -53,6 +57,32 @@ class MainActivity : FlutterFragmentActivity() {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     }
                     result.success(null)
+                } else if (call.method == "hidePreview") {
+                    // Android 13+: no recent-apps thumbnail, screenshots still allowed (the
+                    // phrase screens). Older versions have no switch for the preview alone.
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        setRecentsScreenshotEnabled(call.arguments != true)
+                    }
+                    result.success(Build.VERSION.SDK_INT >= 33)
+                } else if (call.method == "copySensitive") {
+                    // A recovery phrase: marked sensitive, so Android 13+ hides it from the copy
+                    // preview and keyboards leave it out of their clipboard history.
+                    val text = call.arguments as? String
+                    if (text == null) {
+                        result.success(false)
+                    } else {
+                        try {
+                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                            val clip = android.content.ClipData.newPlainText("", text)
+                            clip.description.extras = android.os.PersistableBundle().apply {
+                                putBoolean(EXTRA_IS_SENSITIVE, true)
+                            }
+                            clipboard.setPrimaryClip(clip)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.success(false)
+                        }
+                    }
                 } else if (call.method == "keepScreenOn") {
                     // A restore's chain scan: the screen stays on, so Android does not cut the
                     // app's network while it runs.
@@ -248,6 +278,7 @@ class MainActivity : FlutterFragmentActivity() {
             }
             else -> null
         } ?: return null
+        if (!isForeignContent(uri)) return null
         return try {
             var name = uri.lastPathSegment ?: "transaction.tx"
             contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
@@ -263,6 +294,22 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (e: Exception) {
             null
         }
+    }
+
+    /**
+     * Whether [uri] is another app's content: the activity is exported, so any app can name it
+     * with a file:// URI into this app's own folder, or a URI of one of this app's own
+     * providers, and the read would run with this app's permissions.
+     */
+    private fun isForeignContent(uri: Uri): Boolean {
+        if (uri.scheme?.lowercase() != "content") return false
+        val authority = uri.authority ?: return false
+        val owner = try {
+            packageManager.resolveContentProvider(authority, 0)?.packageName
+        } catch (e: Exception) {
+            null
+        }
+        return owner != packageName
     }
 
     private fun java.io.InputStream.readNBytesCompat(limit: Int): ByteArray {

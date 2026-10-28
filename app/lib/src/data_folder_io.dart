@@ -38,14 +38,29 @@ Future<Directory> appCacheDirectory({Map<String, String>? environment}) async {
   return getApplicationCacheDirectory();
 }
 
-/// Creates the desktop data folder at start, so it exists before anything reads it. The phone:
-/// nothing.
+/// Creates the desktop data folder at start, so it exists before anything reads it, and keeps
+/// it to its owner ([ownerOnly]). The phone: nothing, its folder is the app's own.
 Future<void> settleDataFolder({Map<String, String>? environment}) async {
   if (!_isDesktop && dataFolderOverride == null) return;
   try {
-    await (await appDataDirectory(environment: environment)).create(recursive: true);
+    final dir = await appDataDirectory(environment: environment);
+    await dir.create(recursive: true);
+    await ownerOnly(dir.path);
   } on FileSystemException {
     // The first write reports it.
+  }
+}
+
+/// On Linux and macOS, sets [path] to 0700, so the wallets, logs, remembered passwords, contacts
+/// and cache below it are out of other accounts' reach whatever mode the umask gave each file.
+/// Run on every start, so a folder an older version created with the umask's mode is closed
+/// too. Windows: the profile folder's ACL already keeps it to the user.
+Future<void> ownerOnly(String path) async {
+  if (!(Platform.isLinux || Platform.isMacOS)) return;
+  try {
+    await Process.run('chmod', ['700', path]);
+  } on ProcessException {
+    // No chmod on the PATH: the folder keeps the mode it has.
   }
 }
 

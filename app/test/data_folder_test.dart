@@ -1,7 +1,22 @@
+import 'dart:io';
+
 import 'package:epic_wallet/src/data_folder_io.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('the desktop data folder is closed to other accounts at every start', () async {
+    final root = Directory.systemTemp.createTempSync('wfe_data_');
+    addTearDown(() {
+      dataFolderOverride = null;
+      root.deleteSync(recursive: true);
+    });
+    final data = Directory('${root.path}/data')..createSync();
+    await Process.run('chmod', ['775', data.path]);
+    dataFolderOverride = data.path;
+    await settleDataFolder();
+    expect(data.statSync().mode & 0x1ff, 0x1c0); // 0700
+  }, skip: Platform.isWindows ? 'POSIX modes only' : null);
+
   test('the Linux and macOS data folder is ~/.epic_cash_desktop, whatever XDG or the app ID say', () {
     expect(desktopDataFolder({'HOME': '/home/a'}, windows: false), '/home/a/.epic_cash_desktop');
     expect(desktopDataFolder({'HOME': '/home/a/'}, windows: false), '/home/a/.epic_cash_desktop');

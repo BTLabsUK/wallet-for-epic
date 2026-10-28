@@ -12,9 +12,12 @@ import 'package:win32/win32.dart';
 
 import 'windows_secret_store.dart';
 
-/// CryptProtectData / CryptUnprotectData for the current user: no description, no entropy, no
-/// prompt, flags 0, as the plugin's `DpapiJsonFileMapStorage`, so its files read and ours read
-/// in an older build.
+/// CryptProtectData / CryptUnprotectData for the current user: no description, no entropy, as
+/// the plugin's `DpapiJsonFileMapStorage`, so its files read and ours read in an older build.
+/// The one flag, [_uiForbidden], only stops DPAPI from ever showing a prompt and leaves the
+/// blob as it was. Any process of the same Windows user can unprotect the store file; an
+/// entropy value built into the app would not change that and would lock older builds out, so
+/// there is none.
 class DpapiCipher implements SecretCipher {
   const DpapiCipher();
 
@@ -33,8 +36,8 @@ class DpapiCipher implements SecretCipher {
       ..pbData = pIn;
     final blobOut = alloc<CRYPT_INTEGER_BLOB>();
     final Win32Result(value: ok, :error) = protect
-        ? CryptProtectData(blobIn, null, null, null, 0, blobOut)
-        : CryptUnprotectData(blobIn, null, null, null, 0, blobOut);
+        ? CryptProtectData(blobIn, null, null, null, _uiForbidden, blobOut)
+        : CryptUnprotectData(blobIn, null, null, null, _uiForbidden, blobOut);
     if (!ok) {
       throw WindowsException(
         error.toHRESULT(),
@@ -57,6 +60,9 @@ class DpapiCipher implements SecretCipher {
     }
   });
 }
+
+/// CRYPTPROTECT_UI_FORBIDDEN: fail instead of prompting, which a background call cannot answer.
+const int _uiForbidden = 0x1;
 
 /// [IoStoreFiles] with MoveFileEx(REPLACE_EXISTING | WRITE_THROUGH) for [replace]: atomic on
 /// NTFS, and the rename is on the disk when it returns. A scanner or indexer holding the target

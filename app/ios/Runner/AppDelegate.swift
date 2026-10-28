@@ -19,8 +19,9 @@ import UIKit
 }
 
 /// Covers the app's windows while the app is inactive, so the app switcher's snapshot never
-/// shows a recovery phrase. Dart turns it on for the phrase screens
-/// (`epic_wallet/secure_screen`, lib/src/secure_screen.dart).
+/// shows a recovery phrase or a payment QR. Dart turns it on with `setSecure` (the payment QR)
+/// or `hidePreview` (the phrase screens, which allow screenshots); iOS cannot block a
+/// screenshot either way (`epic_wallet/secure_screen`, lib/src/secure_screen.dart).
 final class SecureScreen: NSObject, FlutterPlugin {
   private var secure = false
   private var covers: [UIView] = []
@@ -51,7 +52,7 @@ final class SecureScreen: NSObject, FlutterPlugin {
       result(nil)
       return
     }
-    guard call.method == "setSecure" else {
+    guard call.method == "setSecure" || call.method == "hidePreview" else {
       result(FlutterMethodNotImplemented)
       return
     }

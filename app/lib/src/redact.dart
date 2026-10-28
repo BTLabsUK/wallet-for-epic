@@ -2,12 +2,13 @@
 ///
 /// It runs at the call (`AppLog` in `log.dart`) and again at the log file sink (`FileLogSink` in
 /// `app_log.dart`). The Rust twin `rust/src/core/redact.rs` applies the same rules in the same
-/// order to the old core's lines until R-01 removes it; each has tests:
+/// order to the old core's lines; each has tests:
 ///
 /// 1. A slate (text with `"participant_data"`, `"public_blind_excess"` or `"part_sig"`) becomes
 ///    `[slate]` from its first `{` on.
-/// 2. A run of [phraseRun] or more recovery-phrase words, separated only by spaces, digits and
-///    list punctuation, becomes `[words]`.
+/// 2. A run of [phraseRun] or more recovery-phrase words becomes `[words]`, whatever separates
+///    them (spaces, digits, commas, pipes, quotes: a JSON array or a numbered list) as long as it
+///    holds no letters, and with one other word inside the run (a typo) counted as one of them.
 /// 3. The value after a secret key (`password=`, `pin: `, `"token":"`, `Bearer `) becomes
 ///    `[redacted]`, and so does a 4 to 8 digit number right after `pin`.
 /// 4. A UUID keeps its first 8 characters and gets `…`. 32 or more hex digits become `[hex]`.
@@ -84,37 +85,53 @@ String _redactSlate(String text) {
 }
 
 final RegExp _word = RegExp(r'[A-Za-z]+');
-final RegExp _join = RegExp(r'^[\s0-9,.;:)(-]+$');
+
+/// What may separate two words of one phrase: no letters, and not a paragraph of something else.
+const int _maxJoin = 12;
+final RegExp _letter = RegExp('[A-Za-z]');
 
 bool _isPhraseWord(String word) =>
     word.length >= 3 &&
     word.length <= 8 &&
     bip39Words.contains(word.toLowerCase());
 
+bool _joins(String gap) => gap.length <= _maxJoin && !_letter.hasMatch(gap);
+
 String _redactPhrases(String text) {
-  final spans = <(int, int, int)>[]; // start, end, words
+  final spans = <(int, int, int)>[]; // start, end, words (a typo counts as one)
   (int, int, int)? run;
+  // A non-phrase word inside the current run, not yet followed by a phrase word.
+  var missPending = false;
+  var missUsed = false;
   RegExpMatch? previous;
+  void close() {
+    if (run != null) spans.add(run!);
+    run = null;
+    missPending = false;
+    missUsed = false;
+  }
+
   for (final m in _word.allMatches(text)) {
-    if (!_isPhraseWord(m[0]!)) {
-      if (run != null) spans.add(run);
-      run = null;
-    } else {
-      final current = run;
-      final continues =
-          current != null &&
-          previous != null &&
-          _join.hasMatch(text.substring(previous.end, m.start));
-      if (current != null && continues) {
-        run = (current.$1, m.end, current.$3 + 1);
-      } else {
-        if (current != null) spans.add(current);
+    final word = m[0]!;
+    final joined = previous != null && _joins(text.substring(previous.end, m.start));
+    if (run != null && !joined) close();
+    final current = run;
+    if (_isPhraseWord(word)) {
+      if (current == null) {
         run = (m.start, m.end, 1);
+      } else {
+        run = (current.$1, m.end, current.$3 + (missPending ? 2 : 1));
+        missPending = false;
       }
+    } else if (current != null && !missUsed && word.length >= 3 && word.length <= 8) {
+      missPending = true;
+      missUsed = true;
+    } else {
+      close();
     }
     previous = m;
   }
-  if (run != null) spans.add(run);
+  close();
   final out = StringBuffer();
   var at = 0;
   for (final (start, end, count) in spans) {

@@ -8,6 +8,7 @@ import '../providers.dart';
 import 'common.dart';
 import 'pin.dart';
 import '../phrase_clipboard.dart';
+import '../secure_screen.dart' show hidePreview;
 
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
@@ -35,8 +36,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   void dispose() {
     _words = const [];
+    if (_previewHidden) unawaited(hidePreview(false));
     super.dispose();
   }
+
+  /// The app switcher shows no preview while the words are on screen; screenshots stay allowed.
+  bool _previewHidden = false;
 
   Future<void> _load() async {
     setState(() => _asked = true);
@@ -55,6 +60,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       Navigator.pop(context, false);
       return;
     }
+    _previewHidden = true;
+    unawaited(hidePreview(true));
     setState(() => _words = phrase.split(' '));
   }
 

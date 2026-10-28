@@ -1,10 +1,16 @@
 /// A recovery phrase on the clipboard, phone and desktop: copied on request, cleared after
-/// [phraseClipboardLifetime] and when the wallet locks.
+/// [phraseClipboardLifetime] and when the wallet locks. Clearing removes only the current clip,
+/// so the copy is marked private where the system allows it: sensitive on Android 13+ (no
+/// preview, left out of keyboards' clipboard history), out of the clipboard history and the
+/// cloud clipboard on Windows. Desktop clipboard managers on Linux and macOS may still keep it.
 library;
 
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+
+import 'secure_screen.dart' show copySensitiveText;
+import 'windows_clipboard_io.dart' if (dart.library.js_interop) 'windows_clipboard_web.dart';
 
 /// How long a copied recovery phrase stays on the clipboard (the help says 60 seconds).
 const Duration phraseClipboardLifetime = Duration(seconds: 60);
@@ -16,7 +22,9 @@ String? _copied;
 /// screen that copied.
 Future<bool> copyPhraseToClipboard(String phrase) async {
   try {
-    await Clipboard.setData(ClipboardData(text: phrase));
+    if (!await copySensitiveText(phrase) && !copyPrivateText(phrase)) {
+      await Clipboard.setData(ClipboardData(text: phrase));
+    }
   } on Object {
     return false;
   }

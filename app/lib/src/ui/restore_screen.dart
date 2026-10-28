@@ -10,7 +10,7 @@ import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
 import '../restore_scan.dart';
-import '../secure_screen.dart' show keepScreenOn;
+import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
 import 'centered_body.dart';
@@ -108,6 +108,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   void initState() {
     super.initState();
+    // The typed phrase stays out of the app switcher's preview.
+    unawaited(hidePreview(true));
     _restoreScan = ref.read(restoreScanProvider.notifier)..hold();
     // After the first frame: a provider may not change while the tree builds.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,6 +124,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   void dispose() {
     _release();
     unawaited(keepScreenOn(false));
+    unawaited(hidePreview(false));
     // Drop the phrase from the controller and the state, so they no longer point at it.
     _phrase.clear();
     _validPhrase = '';

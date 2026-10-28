@@ -20,6 +20,19 @@ void main() {
       expect(redact(_phrase.toUpperCase()), isNot(contains('ABANDON')));
     });
 
+    test('scrubs a phrase in a JSON array, a pipe list or with one typo', () {
+      final words = _phrase.split(' ');
+      final json = '{"words":[${words.map((w) => '"$w"').join(',')}]}';
+      expect(redact(json), isNot(contains('abandon')));
+      expect(redact(json), isNot(contains('accident')));
+      expect(redact(words.join(' | ')), isNot(contains('absorb')));
+      final typo = [...words.take(5), 'abuot', ...words.skip(5).take(3)].join(' ');
+      expect(redact(typo), '[words]');
+      // Two words that are not on the list end the run.
+      const broken = 'abandon ability able about above qwerty zxcvbn absent absorb abstract';
+      expect(redact(broken), broken);
+    });
+
     test('keeps ordinary sentences', () {
       const text =
           'the payment to alice could not reach the node, please try again later';
