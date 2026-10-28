@@ -2532,6 +2532,7 @@ void main() {
           label: 'Sending 2 EPIC to Bob, waiting for recipient, Today, 09:00',
           isButton: true,
           hasTapAction: true,
+          hasLongPressAction: true,
         ),
       );
       expect(
@@ -2540,6 +2541,7 @@ void main() {
           label: 'Received 5 EPIC, received, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
+          hasLongPressAction: true,
         ),
       );
       // The chip text is part of the sentence only.
@@ -2566,6 +2568,7 @@ void main() {
           label: 'Received a hidden amount, received, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
+          hasLongPressAction: true,
         ),
       );
       expect(find.bySemanticsLabel(RegExp('5 EPIC')), findsNothing);
