@@ -26,6 +26,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/close_guard.dart' show deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/desk_window.dart';
+import 'src/desktop/app/window_placement.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/close_down.dart';
 import 'src/desktop/data/desk_node.dart';
@@ -52,10 +53,14 @@ const bool _mock = bool.fromEnvironment('WFE_DESK_MOCK');
 // ignore: unused_element
 AppLifecycleListener? _exitListener;
 
+/// Keeps the window's size and place (Linux, macOS); saved once more on the way out.
+DeskWindowKeeper? _windowKeeper;
+
 Future<void> main() async {
   if (_mock) {
     WidgetsFlutterBinding.ensureInitialized();
     final window = await SystemDeskWindow.init();
+    await placeDeskWindow(null);
     runApp(ProviderScope(overrides: [if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
@@ -83,6 +88,8 @@ Future<void> main() async {
     // anything (it would hold the window's thread, so no window showed).
     final keyring = await checkLinuxKeyring();
     if (keyring != null) {
+      // The first-start size: the settings with the saved one are behind the keyring.
+      await placeDeskWindow(null);
       final ready = Completer<void>();
       runApp(KeyringApp(problem: keyring, check: checkLinuxKeyring, onReady: () => ready.isCompleted ? null : ready.complete()));
       await ready.future;
@@ -91,9 +98,15 @@ Future<void> main() async {
     // The app's own title bar from here on (the keyring screen above keeps the system's).
     final window = await SystemDeskWindow.init();
     if (window != null) overrides.add(deskWindowProvider.overrideWithValue(window));
+    // Size and place before the first frame, which shows the window (window_placement.dart).
+    _windowKeeper = await placeDeskWindow(DeskStore(createSecretStore()));
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, overrides: overrides, child: const DeskApp()));
-  }, (error, stack) => logError('zone', error, stack));
+  }, (error, stack) {
+    logError('zone', error, stack);
+    // macOS keeps the window hidden until it is placed: never leave it so after a failed start.
+    unawaited(showDeskWindow());
+  });
 }
 
 /// The real wallet behind the desktop UI, its saved settings read before the first frame, and
@@ -160,6 +173,7 @@ Future<List<Override>> deskOverrides() async {
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
       if (deskHoldExit()) return AppExitResponse.cancel;
+      await _windowKeeper?.save();
       await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
       return AppExitResponse.exit;
     },
@@ -191,6 +205,7 @@ Future<List<Override>> deskOverrides() async {
     deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
     deskUpdateAutoProvider.overrideWithValue(true),
     deskQuitProvider.overrideWithValue(() async {
+      await _windowKeeper?.save();
       await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
       exit(0);
     }),

@@ -101,6 +101,34 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
 }
 
+// The smallest window: the app's deskWindowMinSize (as windows/runner/window_placement.cpp), or
+// the work area of the display the pointer is on where that is smaller (1920x1080 at 150% leaves
+// about 1280x690). GTK puts these hints back on every resize, over window_manager's own minimum,
+// so they have to fit here.
+static GdkGeometry& hints_for_display() {
+  static GdkGeometry hints{};
+  hints.min_width = 800;
+  hints.min_height = 700;
+  GdkDisplay* display = gdk_display_get_default();
+  if (display == nullptr) return hints;
+  GdkMonitor* monitor = nullptr;
+  GdkSeat* seat = gdk_display_get_default_seat(display);
+  GdkDevice* pointer = seat != nullptr ? gdk_seat_get_pointer(seat) : nullptr;
+  if (pointer != nullptr) {
+    gint x = 0, y = 0;
+    gdk_device_get_position(pointer, nullptr, &x, &y);
+    monitor = gdk_display_get_monitor_at_point(display, x, y);
+  }
+  if (monitor == nullptr) monitor = gdk_display_get_primary_monitor(display);
+  if (monitor != nullptr) {
+    GdkRectangle work;
+    gdk_monitor_get_workarea(monitor, &work);
+    if (work.width > 0) hints.min_width = MIN(hints.min_width, work.width);
+    if (work.height > 0) hints.min_height = MIN(hints.min_height, work.height);
+  }
+  return hints;
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -129,12 +157,10 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_icon_from_file(window, icon, nullptr);
   }
 
-  // The first size; the smallest keeps the sidebar a rail (as windows/runner/window_placement.cpp).
+  // Until the app places the window before its first frame (lib/src/desktop/app/
+  // window_placement.dart: 80% of the display's work area, the saved size afterwards).
   gtk_window_set_default_size(window, 1280, 820);
-  GdkGeometry hints{};
-  hints.min_width = 800;
-  hints.min_height = 640;
-  gtk_window_set_geometry_hints(window, nullptr, &hints, GDK_HINT_MIN_SIZE);
+  gtk_window_set_geometry_hints(window, nullptr, &hints_for_display(), GDK_HINT_MIN_SIZE);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
