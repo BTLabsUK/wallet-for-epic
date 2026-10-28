@@ -290,6 +290,12 @@ void main() {
         '$_onion:3415',
       ]) {
         await _enter(tester, 'To', form);
+        // The field's × wraps the address to a third line: the card may sit below the fold.
+        await tester.scrollUntilVisible(
+          find.byType(RecipientCard),
+          100,
+          scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first,
+        );
         expect(
           find.descendant(
             of: find.byType(RecipientCard),

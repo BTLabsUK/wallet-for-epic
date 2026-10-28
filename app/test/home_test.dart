@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/method_art.dart' show TransferMethod;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -4558,5 +4559,73 @@ void main() {
         }
       }
     }
+  });
+
+  // Tester report 26.10.21: Send keeps its draft across tabs, and a filled recipient always
+  // has × to empty it, with the method it moved back where Send starts (the owner).
+  group('Send recipient Clear', () {
+    TransferMethod method(WidgetTester tester) => tester
+        .widget<SegmentedButton<TransferMethod>>(find.byKey(sendMethodsKey))
+        .selected
+        .single;
+    Finder continueButton() => find.widgetWithText(FilledButton, 'Continue');
+    bool canContinue(WidgetTester tester) =>
+        tester.widget<FilledButton>(continueButton()).onPressed != null;
+
+    /// Wallet, then Receive, then back to Send.
+    Future<void> leaveAndBack(WidgetTester tester) async {
+      await _tab(tester, 'Wallet');
+      await _tab(tester, 'Receive');
+      await _tab(tester, 'Send');
+    }
+
+    Future<void> clear(WidgetTester tester) async {
+      expect(find.byTooltip('Clear recipient'), findsOneWidget);
+      await _tap(tester, find.byKey(sendRecipientClearKey));
+      expect(_toField(tester), isEmpty);
+      expect(method(tester), TransferMethod.epicbox, reason: 'the method Send starts on');
+      expect(canContinue(tester), isFalse);
+      expect(find.byKey(sendRecipientClearKey), findsNothing);
+    }
+
+    testWidgets('a pasted Link address stays across tabs; × empties it and the method', (tester) async {
+      final h = _Harness(still: true);
+      await h.pump(tester);
+      await _tab(tester, 'Send');
+      expect(find.byKey(sendRecipientClearKey), findsNothing, reason: 'nothing to clear yet');
+      const link = 'http://10.0.1.24:3415';
+      await tester.enterText(find.widgetWithText(TextField, 'To'), link);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      expect(method(tester), TransferMethod.direct, reason: 'the address moved the method');
+      await leaveAndBack(tester);
+      expect(_toField(tester), link);
+      expect(method(tester), TransferMethod.direct);
+      await clear(tester);
+    });
+
+    testWidgets('a pasted Epicbox address and a picked contact both clear', (tester) async {
+      final h = _Harness(still: true);
+      final carol = '${'c' * 52}@epicbox.epicnet.us';
+      await h.session.saveContact(
+        contact: Contact(id: '', name: 'Carol', address: carol, note: null),
+      );
+      await h.pump(tester);
+      await _tab(tester, 'Send');
+      final bob = '${'b' * 52}@epicbox.epiccash.com';
+      await tester.enterText(find.widgetWithText(TextField, 'To'), bob);
+      await tester.pumpAndSettle();
+      await leaveAndBack(tester);
+      expect(_toField(tester), bob);
+      expect(canContinue(tester), isTrue);
+      await clear(tester);
+
+      await _tap(tester, find.byTooltip('Choose a contact'));
+      await _tap(tester, find.text('Carol'));
+      expect(_toField(tester), carol);
+      await leaveAndBack(tester);
+      expect(_toField(tester), carol);
+      await clear(tester);
+    });
   });
 }

@@ -164,6 +164,9 @@ const Key amountSuffixKey = ValueKey('send-amount-suffix');
 const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
 const Key sendAmountFieldKey = ValueKey('send-amount-field');
 const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
+
+/// The × in the filled To field, for tests.
+const Key sendRecipientClearKey = ValueKey('send-recipient-clear');
 const Key sendNoteFieldKey = ValueKey('send-note-field');
 
 /// The review's "Uses all N outputs · change 1 output" line (strategy All).
@@ -957,12 +960,31 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// × on the pairing card: back to the empty To field.
-  void _clearPairing() => setState(() {
-    _pairingTo = null;
-    _recipientError = null;
-    _error = null;
-  });
+  /// × on the filled To field or on the pairing card. Leaving Send keeps the draft (people
+  /// switch tabs to check the balance), so a filled recipient always has this way out: the
+  /// recipient goes with everything that followed from it (the method it moved, a code's
+  /// untouched amount and note, the warnings), back to step 1's empty start. Amount and note
+  /// typed by hand stay.
+  void _clearRecipient() {
+    _closeChecks();
+    _tagTimer?.cancel();
+    setState(() {
+      _recipient.clear();
+      _lastTo = '';
+      _leaveRequest();
+      _pairingTo = null;
+      _viaMailbox = false;
+      _plainHttpOk = false;
+      _switchedTo = null;
+      _tagOn = false;
+      _recipientError = null;
+      _error = null;
+      _viaQr = false;
+      _stage = SendStage.recipient;
+      _method = TransferMethod.epicbox;
+      _startOn(_payments.startMethod);
+    });
+  }
 
   /// Fills the recipient and checks it at once, as after a paste.
   void _setRecipient(String text, {CodeOrigin? origin}) {
@@ -2212,7 +2234,7 @@ class _SendViewState extends ConsumerState<SendView> {
     // The pairing went (removed elsewhere): back to the To field.
     if (_pairingTo != null && _toPairing() == null && ref.watch(pairingsProvider).hasValue && !_holdsPayment) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _pairingTo != null && _toPairing(watch: false) == null) _clearPairing();
+        if (mounted && _pairingTo != null && _toPairing(watch: false) == null) _clearRecipient();
       });
     }
     // A file or QR Payment is made, finalized and posted through the node in use, which
@@ -2566,7 +2588,7 @@ class _SendViewState extends ConsumerState<SendView> {
         Semantics(
           label: l.sendToLabel,
           container: true,
-          child: PairingRecipientCard(pairing: pairing, name: name, onClear: _clearPairing),
+          child: PairingRecipientCard(pairing: pairing, name: name, onClear: _clearRecipient),
         ),
         const SizedBox(height: 8),
         SendPairingMailbox(
@@ -2632,6 +2654,14 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
           hintText: l.sendToHint,
           floatingLabelBehavior: FloatingLabelBehavior.always,
+          suffixIcon: _recipient.text.isEmpty
+              ? null
+              : IconButton(
+                  key: sendRecipientClearKey,
+                  tooltip: l.sendClearRecipient,
+                  icon: const Icon(Icons.close),
+                  onPressed: _clearRecipient,
+                ),
           error: _recipientError == null
               ? null
               : LiveFieldError(_recipientError!),

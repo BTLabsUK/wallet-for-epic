@@ -205,6 +205,38 @@ String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi 
 TxMethod _segmentOf(TxMethod m) => m == TxMethod.tor ? TxMethod.http : m;
 
 
+/// The Send form as it was left, for the wallet it was filled in: people leave Send to check
+/// the balance and come back to it (the owner). Clear in To empties the recipient; a payment
+/// made or New send forgets it.
+class _KeptSend {
+  const _KeptSend({
+    required this.wallet,
+    required this.to,
+    required this.amount,
+    required this.message,
+    required this.method,
+    required this.pairingTo,
+    required this.code,
+    required this.codeBanner,
+  });
+
+  final String? wallet;
+  final String to;
+  final String amount;
+  final String message;
+  final TxMethod method;
+  final String? pairingTo;
+  final SendCode? code;
+  final bool codeBanner;
+}
+
+/// Holds [_KeptSend] while the page is closed. Written from dispose, so it tells no one.
+class _SendKeeper {
+  _KeptSend? kept;
+}
+
+final _sendKeeperProvider = Provider<_SendKeeper>((ref) => _SendKeeper());
+
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.arg});
 
@@ -274,9 +306,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// A mailbox payment made now waits in the outbox: Epicbox is off (LEPIC queues it).
   bool _queues() => _viaPairing && ref.read(deskPairNetProvider) == DeskPairNet.epicboxOff;
 
+  // Read in initState: dispose writes the draft and may not use ref.
+  late final _SendKeeper _keeper;
+  late final String? _wallet;
+
   @override
   void initState() {
     super.initState();
+    _keeper = ref.read(_sendKeeperProvider);
+    _wallet = ref.read(deskProvider).account?.folder;
     final a = widget.arg;
     SendArgs args = const SendArgs();
     if (a is SendArgs) {
@@ -306,6 +344,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (mounted) openPaymentText(code, origin: args.codeOrigin);
       });
     }
+    // Send opened plainly (the sidebar, Overview) takes the form as it was left.
+    final kept = _keeper.kept;
+    _keeper.kept = null;
+    if (a == null && kept != null && kept.wallet == _wallet) _restore(kept);
     switch (args.step) {
       case SendStep.errors:
         _submitted = true;
@@ -336,8 +378,41 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     counterparty: to,
   );
 
+  void _restore(_KeptSend kept) {
+    _to.text = kept.to;
+    _lastTo = kept.to;
+    _amount.text = kept.amount;
+    _message.text = kept.message;
+    _method = kept.method;
+    _pairingTo = kept.pairingTo;
+    _code = kept.code;
+    _codeBanner = kept.codeBanner;
+    _suggestOff = true;
+    if (kept.amount.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_loadFee());
+      });
+    }
+  }
+
+  /// What the page keeps when it closes: a form with something in it, never a finished one.
+  _KeptSend? get _toKeep {
+    if (_result != null || (_to.text.isEmpty && _amount.text.isEmpty && _message.text.isEmpty && _pairingTo == null)) return null;
+    return _KeptSend(
+      wallet: _wallet,
+      to: _to.text,
+      amount: _all ? '' : _amount.text,
+      message: _message.text,
+      method: _method,
+      pairingTo: _pairingTo,
+      code: _code,
+      codeBanner: _codeBanner,
+    );
+  }
+
   @override
   void dispose() {
+    _keeper.kept = _toKeep;
     _tagTimer?.cancel();
     _to.dispose();
     _amount.dispose();
@@ -1069,6 +1144,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The last send was a mailbox payment queued while Epicbox is off: to whom, for its notice.
   String? _queuedFor;
 
+  /// Clear in To, on the contact's card or the pairing's (the owner: Send keeps its draft, so a
+  /// filled recipient always has a way out): the recipient goes with what followed from it,
+  /// the method it moved, a code's untouched amount and note, the switch tag and the errors,
+  /// back to the method Send starts on. Amount and Message typed by hand stay.
+  void _clearRecipient() {
+    _tagTimer?.cancel();
+    setState(() {
+      _to.clear();
+      _pairingTo = null;
+      _method = _nextMethod(ref.read(deskProvider).settings.payments);
+      _switchedTo = null;
+      _tagOn = false;
+      _codeError = null;
+      _submitted = false;
+    });
+    _changed(to: true);
+  }
+
   void _reset() => setState(() {
     _result = null;
     _failure = null;
@@ -1450,10 +1543,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               name: pairingName,
               paused: ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff,
               onCheck: () => unawaited(showDeskCheckWords(context, ref, pairing.id, recheck: true)),
-              onClear: () => setState(() {
-                _pairingTo = null;
-                _failure = null;
-              }),
+              onClear: _clearRecipient,
             ),
           ),
           SizedBox(height: Sp.x5),
@@ -1477,11 +1567,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // A Tab stop when no contact card below has its own Clear.
                   if (_to.text.isNotEmpty)
-                    EIconButton(icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, tabStop: false, onPressed: () {
-                      _to.clear();
-                      _changed(to: true);
-                    })
+                    EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, tabStop: contact == null, onPressed: _clearRecipient)
                   else
                     EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
                   SizedBox(width: Sp.x1),
@@ -1528,10 +1616,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _PickedCard(
               contact: contact,
               address: _to.text.trim(),
-              onClear: () {
-                _to.clear();
-                _changed(to: true);
-              },
+              onClear: _clearRecipient,
             ),
           ],
           // The payee's words; the name not when the contact has it already (ui.md U-4).
