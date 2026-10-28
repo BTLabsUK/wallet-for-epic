@@ -560,6 +560,19 @@ void main() {
       for (final code in [2001, 2002]) {
         manifests[code] = await manifest(code);
       }
+      // 1: the newer app at a lower serial; 0: the newer app re-signed at a higher serial, then
+      // its payload changed (the signature no longer matches).
+      manifests[1] = await signedUpdate(testUpdatePayload(
+        versionName: '1.0.1',
+        notes: null,
+        apks: [testApk(versionCode: 2002, sha256: sha256.convert(apkBytes).toString(), size: apkBytes.length)],
+        serial: 1790000050,
+      ));
+      final good = jsonDecode(manifests[2002]!) as Map<String, Object?>;
+      final payload = jsonDecode(utf8.decode(base64.decode(good['payload']! as String))) as Map<String, Object?>;
+      payload['serial'] = 1790000900;
+      good['payload'] = base64.encode(utf8.encode(jsonEncode(payload)));
+      manifests[0] = jsonEncode(good);
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       server.listen((request) {
         requests++;
@@ -570,11 +583,25 @@ void main() {
           response.close();
           return;
         }
-        // A copy of the manifest that is not there (the download server without update.json).
-        if (request.uri.path.startsWith('/gone/')) {
-          response.statusCode = HttpStatus.notFound;
-          response.close();
-          return;
+        // Two sources of the manifest: /gone/ has none, /down/ fails, /old/ has the lower
+        // serial, /bad/ one whose payload was changed after signing.
+        switch (request.uri.path.split('/')[1]) {
+          case 'gone':
+            response.statusCode = HttpStatus.notFound;
+            response.close();
+            return;
+          case 'down':
+            response.statusCode = HttpStatus.serviceUnavailable;
+            response.close();
+            return;
+          case 'old':
+            response.write(manifests[1]);
+            response.close();
+            return;
+          case 'bad':
+            response.write(manifests[0]);
+            response.close();
+            return;
         }
         switch (reply) {
           case 'newer':
@@ -739,28 +766,73 @@ void main() {
       },
     );
 
-    test('a copy with no manifest: the next copy is read, against the same keys', () async {
+    // Two sources on the local server, in the order of updateManifestSources.
+    ProviderContainer sources(String first, String second) {
       final c = ProviderContainer(
         overrides: [
           updatePlatformProvider.overrideWithValue(platform),
+          secretStoreProvider.overrideWithValue(MemorySecretStore()),
           updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
-          updateManifestUrlProvider.overrideWithValue(Uri.parse('http://127.0.0.1:${server.port}/gone/update.json')),
-          updateManifestFallbacksProvider.overrideWithValue([Uri.parse('http://127.0.0.1:${server.port}/update.json')]),
+          updateManifestUrlsProvider.overrideWithValue([
+            for (final p in [first, second]) Uri.parse('http://127.0.0.1:${server.port}/$p/update.json'),
+          ]),
           updateKeyringProvider.overrideWithValue(testUpdateKeyring),
           updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
           updateApkUrlProvider.overrideWithValue((url) => url),
         ],
       );
       addTearDown(c.dispose);
-      await c.read(updateProvider.notifier).check();
-      expect(c.read(updateProvider).phase, UpdatePhase.available);
-      expect(requests, 2);
+      return c;
+    }
+
+    test('GitHub Pages down or without the file: the other source is used', () async {
+      for (final down in ['gone', 'down']) {
+        final c = sources(down, 'new');
+        await c.read(updateProvider.notifier).check();
+        expect(c.read(updateProvider).phase, UpdatePhase.available, reason: down);
+      }
     });
 
-    test('the download server first, then GitHub Pages; an override has no fallback', () {
-      expect(updateManifestFallbacks(Uri.parse(updateManifestPrimaryUrl)).map((u) => '$u'), [updateManifestFallbackUrl]);
-      expect(updateManifestFallbacks(Uri.parse('https://example.org/update.json')), isEmpty);
-      expect(updateManifestUrl, updateManifestPrimaryUrl);
+    test('our server down: GitHub Pages is used; both down: the check failed', () async {
+      final c = sources('new', 'down');
+      await c.read(updateProvider.notifier).check();
+      expect(c.read(updateProvider).phase, UpdatePhase.available);
+      final none = sources('down', 'down');
+      await none.read(updateProvider.notifier).check();
+      expect(none.read(updateProvider).phase, UpdatePhase.failed);
+    });
+
+    test('both answer: the manifest with the higher serial is used, whichever source has it', () async {
+      // /old/ offers 1.0.1 at a lower serial than /new/'s 1.0.1 (serial 1790000100): the
+      // stored state is /new/'s either way.
+      for (final (first, second) in [('old', 'new'), ('new', 'old')]) {
+        final c = sources(first, second);
+        await c.read(updateProvider.notifier).check();
+        expect(c.read(updateProvider).phase, UpdatePhase.available);
+        final stored = await c.read(secretStoreProvider).read(updateStateKey);
+        expect(stored, contains('1790000100'), reason: '$first, $second');
+      }
+    });
+
+    test('a tampered manifest is refused from either source, even with the higher serial', () async {
+      for (final (first, second) in [('bad', 'new'), ('new', 'bad')]) {
+        final c = sources(first, second);
+        await c.read(updateProvider.notifier).check();
+        expect(c.read(updateProvider).phase, UpdatePhase.available, reason: '$first, $second');
+        final stored = await c.read(secretStoreProvider).read(updateStateKey);
+        expect(stored, isNot(contains('1790000900')));
+      }
+      final both = sources('bad', 'bad');
+      await both.read(updateProvider.notifier).check();
+      expect(both.read(updateProvider).phase, UpdatePhase.upToDate);
+    });
+
+    test('the sources live in one list: GitHub Pages, then BT Labs\' own server', () {
+      expect(updateManifestSources, [
+        'https://btlabs-epic.github.io/update.json',
+        'https://examples.btlabs.uk/epic-cash-wallets/update.json',
+      ]);
+      expect(updateManifestUrls.map((u) => '$u'), updateManifestSources);
     });
 
     test('a manifest past the expiry offers nothing', () async {

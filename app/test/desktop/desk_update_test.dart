@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskQuitProvider;
 import 'package:epic_wallet/src/desktop/desk_l10n.dart' show deskStrings;
-import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider, updateManifestFallbackUrl, updateManifestPrimaryUrl;
+import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider, updateManifestSources;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -266,15 +266,18 @@ Future<void> main(List<String> a) async {
       DeskUpdateMarks? marks,
       int status = 200,
       Map<String, int>? statusAt,
+      Map<String, Future<String> Function()>? bodyAt,
       List<Uri>? asked,
     }) {
       final fake = applier ?? _FakeApplier();
       final c = ProviderContainer(overrides: [
         deskManifestFetchProvider.overrideWithValue((url) async {
-          onFetch?.call();
+          // A check asks every source: count the checks by the first.
+          if ('$url' == updateManifestSources.first) onFetch?.call();
           asked?.add(url);
           final code = statusAt?[url.toString()] ?? status;
           if (code != 200) return (code, '');
+          if (bodyAt?[url.toString()] case final body?) return (200, await body());
           return (200, await signedUpdate(testUpdatePayload(desktop: desktop ?? _desktop())));
         }),
         deskUpdateClockProvider.overrideWithValue(() => now),
@@ -290,23 +293,55 @@ Future<void> main(List<String> a) async {
       return c;
     }
 
-    test('the download server first; GitHub Pages only when it has no manifest or does not answer', () async {
-      for (final primary in [404, 503]) {
+    // The two sources (updateManifestSources): GitHub Pages, then BT Labs' own server.
+    final github = updateManifestSources[0], ours = updateManifestSources[1];
+    Future<String> Function() offering(String version, int serial) =>
+        () => signedUpdate(testUpdatePayload(serial: serial, desktop: _desktop(version: version)));
+    // A manifest whose payload was changed after signing: the signature no longer matches.
+    Future<String> Function() tampered(String version, int serial) => () async {
+      final envelope = jsonDecode(await offering('1.0.0', serial)()) as Map<String, Object?>;
+      final payload = jsonDecode(utf8.decode(base64.decode(envelope['payload']! as String))) as Map<String, Object?>;
+      payload['desktop'] = _desktop(version: version);
+      envelope['payload'] = base64.encode(utf8.encode(jsonEncode(payload)));
+      return jsonEncode(envelope);
+    };
+
+    test('GitHub Pages down or without the file: our server\'s manifest is used', () async {
+      for (final down in [404, 503]) {
         final asked = <Uri>[];
-        final c = make(statusAt: {updateManifestPrimaryUrl: primary}, asked: asked);
+        final c = make(statusAt: {github: down}, asked: asked);
         await c.read(deskUpdateProvider.notifier).check();
-        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: '$primary');
-        expect(asked.map((u) => '$u'), [updateManifestPrimaryUrl, updateManifestFallbackUrl], reason: '$primary');
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: '$down');
+        expect(asked.map((u) => '$u'), unorderedEquals([github, ours]));
       }
-      final asked = <Uri>[];
-      final c = make(asked: asked);
+    });
+
+    test('our server down: GitHub Pages\' manifest is used; both down: the check failed', () async {
+      final c = make(statusAt: {ours: 503});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
-      expect(asked.map((u) => '$u'), [updateManifestPrimaryUrl], reason: 'a copy that verifies ends the search');
-      // Neither answers: the last failure stands.
       final none = make(status: 503);
       await none.read(deskUpdateProvider.notifier).check();
       expect(none.read(deskUpdateProvider).phase, DeskUpdatePhase.failed);
+    });
+
+    test('both answer: the manifest with the higher serial is used, whichever source has it', () async {
+      for (final (newerAt, older) in [(ours, github), (github, ours)]) {
+        final c = make(bodyAt: {newerAt: offering('99.3.0', 1790000300), older: offering('99.2.0', 1790000200)});
+        await c.read(deskUpdateProvider.notifier).check();
+        expect(c.read(deskUpdateProvider).version, '99.3.0', reason: 'newer at $newerAt');
+      }
+    });
+
+    test('a tampered manifest is refused from either source, even with the higher serial', () async {
+      for (final (bad, good) in [(github, ours), (ours, github)]) {
+        final c = make(bodyAt: {bad: tampered('99.9.0', 1790000900), good: offering('99.2.0', 1790000200)});
+        await c.read(deskUpdateProvider.notifier).check();
+        expect(c.read(deskUpdateProvider).version, '99.2.0', reason: 'tampered at $bad');
+      }
+      final both = make(bodyAt: {github: tampered('99.9.0', 1790000900), ours: tampered('99.9.0', 1790000900)});
+      await both.read(deskUpdateProvider.notifier).check();
+      expect(both.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
     });
 
     test('offers the release file, downloads and checks it, then Restart to update applies it', () async {

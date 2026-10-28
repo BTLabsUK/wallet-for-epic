@@ -32,25 +32,25 @@ import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
 import 'tor_build.dart';
 
-/// Where releases publish the signed `update.json`: BT Labs' own download server, beside the
-/// release files. Override with `--dart-define=WFE_UPDATE_URL=...`; an override must still be
-/// signed with the bundled keys, and has no fallback.
-const String updateManifestUrl = String.fromEnvironment(
-  'WFE_UPDATE_URL',
-  defaultValue: updateManifestPrimaryUrl,
-);
+/// Where releases publish the signed `update.json`, in order. Every source is read and checked
+/// against the same keys and anti-rollback state; the valid copy with the highest serial is
+/// used, the first source on a tie. The release lead publishes the same signed file to each
+/// (https://docs.btlabs.uk/developers/releases/). Add, remove or reorder sources here only.
+const List<String> updateManifestSources = [
+  'https://btlabs-epic.github.io/update.json',
+  // BT Labs' own server, beside the download page: GitHub hid the Pages site on 2026-10-28
+  // and no app saw 26.10.20.
+  'https://examples.btlabs.uk/epic-cash-wallets/update.json',
+];
 
-/// The release lead publishes the same signed `update.json` to both: the download server
-/// first, GitHub Pages second (GitHub once hid the whole site, 2026-10-28, and no app saw an
-/// update). Every copy is read against the same keys and anti-rollback state; the first that
-/// answers and verifies is used.
-const String updateManifestPrimaryUrl = 'https://examples.btlabs.uk/epic-cash-wallets/update.json';
-const String updateManifestFallbackUrl = 'https://btlabs-epic.github.io/update.json';
+/// `--dart-define=WFE_UPDATE_URL=...` replaces the sources with that one; it must still be
+/// signed with the bundled keys.
+const String _updateUrlOverride = String.fromEnvironment('WFE_UPDATE_URL');
 
-/// The copies after [url] to try when it does not answer or verify: GitHub Pages behind the
-/// download server; none for any other address (an override, a test server).
-List<Uri> updateManifestFallbacks(Uri url) =>
-    url.toString() == updateManifestPrimaryUrl ? [Uri.parse(updateManifestFallbackUrl)] : const [];
+/// [updateManifestSources] (or the override) as addresses.
+final List<Uri> updateManifestUrls = [
+  for (final u in _updateUrlOverride.isEmpty ? updateManifestSources : const [_updateUrlOverride]) Uri.parse(u),
+];
 
 /// The installed app, as Android reports it.
 class InstalledApp {
@@ -479,14 +479,16 @@ final updateTempDirProvider = Provider<Future<Directory> Function()>(
   (ref) => getTemporaryDirectory,
 );
 
+/// The first source; a test that puts a server of its own here reads only that one.
 final updateManifestUrlProvider = Provider<Uri>(
-  (ref) => Uri.parse(updateManifestUrl),
+  (ref) => updateManifestUrls.first,
 );
 
-/// The copies tried after [updateManifestUrlProvider] ([updateManifestFallbacks]).
-final updateManifestFallbacksProvider = Provider<List<Uri>>(
-  (ref) => updateManifestFallbacks(ref.watch(updateManifestUrlProvider)),
-);
+/// Every source the check reads ([updateManifestSources]).
+final updateManifestUrlsProvider = Provider<List<Uri>>((ref) {
+  final first = ref.watch(updateManifestUrlProvider);
+  return first == updateManifestUrls.first ? updateManifestUrls : [first];
+});
 
 /// The keys `update.json` must be signed with; tests use the test keyring.
 final updateKeyringProvider = Provider<Keyring>((ref) => btlabsKeyring);
@@ -694,7 +696,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (state.phase == UpdatePhase.checking) state = next;
     }
 
-    final urls = [ref.read(updateManifestUrlProvider), ...ref.read(updateManifestFallbacksProvider)];
+    final urls = ref.read(updateManifestUrlsProvider);
     try {
       await _readState();
       await _readDismissed();
@@ -719,12 +721,11 @@ class UpdateNotifier extends Notifier<UpdateState> {
         );
       }
 
-      // Each copy in turn ([updateManifestFallbacks]); the first that answers and verifies
-      // is read. When none does, the last copy's outcome stands: no information, or the error.
-      UpdateManifestRead? read;
-      Object? failure;
-      for (final url in urls) {
-        failure = null;
+      // Every source ([updateManifestSources]), read and checked alike: the valid copy with the
+      // highest serial is used, the first source on a tie. With none, a source that has no
+      // manifest or a bad one means nothing newer is known; only every source failing is an
+      // error (the first one's).
+      Future<(UpdateManifestRead?, Object?)> readOne(Uri url) async {
         // A plain GET: no User-Agent, no cookies, nothing about this wallet.
         final HttpReply response;
         try {
@@ -735,17 +736,16 @@ class UpdateNotifier extends Notifier<UpdateState> {
           );
         } on NetTooLarge {
           logInfo('update', 'update.json not used: ${RejectReason.tooLarge.code} ($url)');
-          continue;
+          return (null, null);
         } catch (error) {
           logInfo('update', 'update.json not reached at $url: $error');
-          failure = error;
-          continue;
+          return (null, error);
         }
-        if (response.status == HttpStatus.notFound) continue;
+        if (response.status == HttpStatus.notFound) return (null, null);
         if (response.status != HttpStatus.ok) {
           final code = response.status;
-          failure = UpdateError((l) => l.updateServerHttpStatus(code));
-          continue;
+          logInfo('update', 'update.json at $url: HTTP $code');
+          return (null, UpdateError((l) => l.updateServerHttpStatus(code)));
         }
         final candidate = await readUpdateManifest(
           response.body,
@@ -754,18 +754,24 @@ class UpdateNotifier extends Notifier<UpdateState> {
           now: ref.read(updateClockProvider)(),
           state: _manifestState,
         );
-        if (!ref.mounted) return;
         if (candidate.rejected case final reason?) {
           // Never shown as an error: the user cannot act on it (FORMAT.md §5).
           logInfo('update', 'update.json not used: ${reason.code} ($url)');
-          continue;
+          return (null, null);
         }
-        read = candidate;
-        break;
+        return (candidate, null);
+      }
+
+      final results = await Future.wait([for (final url in urls) readOne(url)]);
+      if (!ref.mounted) return;
+      UpdateManifestRead? read;
+      for (final (candidate, _) in results) {
+        if (candidate == null) continue;
+        if (read == null || candidate.state!.serial > read.state!.serial) read = candidate;
       }
       if (read == null) {
-        if (failure != null) throw failure;
-        if (ref.mounted) noInformation();
+        if (results.every((r) => r.$2 != null)) throw results.first.$2!;
+        noInformation();
         return;
       }
       await _keepState(read.state);

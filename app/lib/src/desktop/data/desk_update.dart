@@ -1,7 +1,7 @@
 /// Whether a newer Epic Cash Desktop is out, and getting it: the sidebar's slot and Settings ›
 /// About › Updates (`app/update_notice.dart`). Checked shortly after the wallet opens and every
 /// [deskUpdateEvery] while the app runs ([DeskUpdateController.schedule]), and when About opens.
-/// Reads the signed manifest the phone's updater reads ([updateManifestUrl], one constant for
+/// Reads the signed manifest the phone's updater reads ([updateManifestUrls], one list for
 /// both), verified with the same bundled keys
 /// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:
 /// the phone's `versionName` is the Android build's. The entry is
@@ -30,7 +30,7 @@ import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
 import '../../tor_build.dart' show inAppUpdates;
-import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestFallbacks, updateManifestUrl, updateStateKey;
+import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrls, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
 import 'state.dart' show deskProvider, deskQuitProvider;
@@ -316,32 +316,48 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     if (next.phase == DeskUpdatePhase.latest) unawaited(_dropDownloads());
   }
 
-  /// The manifest, fetched and verified: what it offers this copy. Each copy in turn
-  /// ([updateManifestFallbacks]): the first that does not fail is used, else the last failure.
+  /// The manifest from every source ([updateManifestUrls]), each fetched and checked against the
+  /// same keys and anti-rollback state: the valid copy with the highest serial is used, the
+  /// first source on a tie. With none, a source with no manifest or a bad one means nothing
+  /// newer is known; only every source failing fails the check (the first one's reason).
   Future<DeskUpdateState> _fetchAndRead() async {
-    final primary = Uri.parse(updateManifestUrl);
-    late DeskUpdateState result;
-    for (final url in [primary, ...updateManifestFallbacks(primary)]) {
-      _noInformation = false;
-      result = await _fetchAndReadOne(url);
-      // Failed, not published there or not verifying: the next copy is asked.
-      if (result.phase != DeskUpdatePhase.failed && !_noInformation) return result;
+    await _readState();
+    final reads = await Future.wait([for (final url in updateManifestUrls) _fetchAndVerify(url)]);
+    Accepted<WalletUpdate>? best;
+    for (final (accepted, _) in reads) {
+      if (accepted == null) continue;
+      if (best == null || accepted.state.serial > best.state.serial) best = accepted;
     }
-    return result;
+    if (best != null) return _offer(best);
+    if (reads.every((r) => r.$2 != null)) return reads.first.$2!;
+    return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
-  /// Set by [_read] when the copy it read told nothing (not there, or did not verify).
-  bool _noInformation = false;
-
-  Future<DeskUpdateState> _fetchAndReadOne(Uri url) async {
+  /// One source: its manifest when it verifies; else no manifest (no information) or, when
+  /// the source failed, the failed state that says why.
+  Future<(Accepted<WalletUpdate>?, DeskUpdateState?)> _fetchAndVerify(Uri url) async {
     try {
       final (status, body) = await ref.read(deskManifestFetchProvider)(url);
-      return await _read(status, body);
+      if (status == 404) return (null, null);
+      if (status == deskManifestTooLarge) {
+        logInfo('update', 'desktop: update.json not used: ${RejectReason.tooLarge.code} ($url)');
+        return (null, null);
+      }
+      if (status != 200) return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(status)));
+      final result = await verifyWalletUpdate(
+        body,
+        keyring: ref.read(updateKeyringProvider),
+        state: _manifestState,
+        now: ref.read(deskUpdateClockProvider)().toUtc(),
+      );
+      if (result is Accepted<WalletUpdate>) return (result, null);
+      logInfo('update', 'desktop: update.json not used: ${(result as Rejected<WalletUpdate>).reason.code} ($url)');
+      return (null, null);
     } on TimeoutException {
-      return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout);
+      return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout));
     } on Object catch (e) {
       logInfo('update', 'desktop check failed at $url: ${e.runtimeType}');
-      return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdUnreachable);
+      return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdUnreachable));
     }
   }
 
@@ -481,22 +497,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// manifest does not verify or none is published (FORMAT.md §5: keep what you have).
   DeskUpdateState? _known;
 
-  Future<DeskUpdateState> _read(int status, String body) async {
-    // No manifest published: nothing newer is known, which is no error.
-    if (status == 404) {
-      _noInformation = true;
-      return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
-    }
-    if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
-    if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(status));
-    await _readState();
-    final result = await verifyWalletUpdate(
-      body,
-      keyring: ref.read(updateKeyringProvider),
-      state: _manifestState,
-      now: ref.read(deskUpdateClockProvider)().toUtc(),
-    );
-    if (result is! Accepted<WalletUpdate>) return _notVerified((result as Rejected<WalletUpdate>).reason);
+  Future<DeskUpdateState> _offer(Accepted<WalletUpdate> result) async {
     await _keepState(result.state);
     _known = null;
     final mine = result.manifest.desktop?.forSystem(_system);
@@ -527,15 +528,6 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       logInfo('update', 'desktop: cannot install updates here: $e');
       return null;
     }
-  }
-
-  /// A manifest that is unsigned, forged, expired or older than one seen in this run: no
-  /// information, like no manifest at all; an update an earlier manifest offered stays
-  /// offered. The reason goes to the log only (FORMAT.md §5).
-  DeskUpdateState _notVerified(RejectReason reason) {
-    logInfo('update', 'desktop: update.json not used: ${reason.code}');
-    _noInformation = true;
-    return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
   static String get _system => kIsWeb ? 'linux' : Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
