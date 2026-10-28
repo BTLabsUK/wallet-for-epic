@@ -125,7 +125,7 @@ $env:RUSTFLAGS = '-C target-feature=+crt-static'
 Push-Location $clone
 try {
     # -NoTor: LEPIC without its tor feature, so lepic_ffi.dll carries no Tor code either.
-    $lepicNoTor = if ($NoTor) { @('--no-tor') } else { @() }
+    $lepicNoTor = @(if ($NoTor) { '--no-tor' })
     cargo xtask mobile --package --target x86_64-pc-windows-msvc @lepicNoTor --out (Join-Path $binding 'native')
     if ($LASTEXITCODE) { throw 'LEPIC build failed' }
 } finally { Pop-Location; Remove-Item Env:RUSTFLAGS }
