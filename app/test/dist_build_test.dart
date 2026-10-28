@@ -3,6 +3,7 @@
 //   flutter test test/dist_build_test.dart
 //   flutter test --dart-define=WFE_DIST=play test/dist_build_test.dart
 //   flutter test --dart-define=WFE_DIST=fdroid test/dist_build_test.dart
+//   flutter test --dart-define=WFE_DIST=msstore test/dist_build_test.dart
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/dist_build.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -21,7 +22,7 @@ void main() {
     expect(dist.name, _define);
     expect(distUpdates, _define == 'web');
     expect(inAppUpdates, torBuilt && _define == 'web');
-    expect(distStore, switch (_define) { 'play' => 'Google Play', 'fdroid' => 'F-Droid', _ => null });
+    expect(distStore, switch (_define) { 'play' => 'Google Play', 'fdroid' => 'F-Droid', 'msstore' => 'Microsoft Store', _ => null });
   });
 
   test('no updater where the build has none', () {
@@ -35,6 +36,7 @@ void main() {
     for (final lang in ['en', 'de', 'pl', 'ru', 'zh', 'th']) {
       final l = lookupAppLocalizations(Locale(lang));
       expect(l.settingsUpdatesFrom('F-Droid'), contains('F-Droid'), reason: lang);
+      expect(l.settingsUpdatesFrom('Microsoft Store'), contains('Microsoft Store'), reason: lang);
     }
   });
 }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The MSIX package of Epic Cash Desktop for the Microsoft Store (https://docs.btlabs.uk/developers/build/variants/).
+  tool/build_windows_release.ps1 -Dist msstore fills the $...$ fields: the identity from
+  Partner Center (Product management > Product identity) or, for a test build, a test
+  publisher that matches the test certificate; the version is pubspec.yaml's YY.MM.patch.0.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 desktop rescap">
+
+  <Identity Name="$IdentityName$" Publisher="$Publisher$" Version="$Version$" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Epic Cash Desktop</DisplayName>
+    <PublisherDisplayName>$PublisherDisplayName$</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <!-- The app's six languages: Partner Center asks for a Store listing in each. -->
+  <Resources>
+    <Resource Language="en-us" />
+    <Resource Language="de-de" />
+    <Resource Language="pl-pl" />
+    <Resource Language="ru-ru" />
+    <Resource Language="zh-hans" />
+    <Resource Language="th-th" />
+  </Resources>
+
+  <Applications>
+    <Application Id="EpicCashDesktop" Executable="epic_wallet.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Epic Cash Desktop"
+        Description="Epic Cash wallet for the desktop"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png" />
+      <Extensions>
+        <!-- epic-cash-desktop.exe on PATH (%LOCALAPPDATA%\Microsoft\WindowsApps): starts the app with its
+             package identity, from a terminal or a script. -->
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="epic_wallet.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="epic-cash-desktop.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <!-- A Win32 (Flutter) app that starts its bundled tor.exe and epic.exe: full trust only. -->
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

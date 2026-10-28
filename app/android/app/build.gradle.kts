@@ -51,10 +51,10 @@ val torBuilt = dartDefines.none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE
 
 // Where the build is distributed (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): web (unset, our
 // own download page), play (Google Play) or fdroid (F-Droid, IzzyOnDroid). Only web has the
-// in-app updater and its install permissions (src/updater/).
+// in-app updater and its install permissions (src/updater/). msstore is the Windows build only.
 val dist: String = dartDefines.lastOrNull { it.startsWith("WFE_DIST=") }?.removePrefix("WFE_DIST=") ?: "web"
 if (dist !in setOf("web", "play", "fdroid")) {
-    throw GradleException("WFE_DIST=$dist: use web, play or fdroid (https://docs.btlabs.uk/developers/build/variants/).")
+    throw GradleException("WFE_DIST=$dist: use web, play or fdroid on Android (https://docs.btlabs.uk/developers/build/variants/).")
 }
 val distUpdates = dist == "web"
 // The F-Droid build reads QR codes with a free scanner: Google ML Kit (mobile_scanner) must be

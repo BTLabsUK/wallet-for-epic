@@ -1,5 +1,6 @@
 import '../../../app_info.dart';
 import '../../../app_version.dart';
+import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show torSourceNote;
@@ -86,6 +87,11 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                               Text(l.deskSetAboutNode(node ?? '-'), style: ts.small),
                             ],
                           ),
+                          // A store build: the store updates it, there is no Updates group.
+                          if (distStore != null) ...[
+                            SizedBox(height: Sp.x2),
+                            Text(l.settingsUpdatesFrom(distStore!), key: const ValueKey('about-updates-from'), style: ts.small),
+                          ],
                         ],
                       ),
                     ),
