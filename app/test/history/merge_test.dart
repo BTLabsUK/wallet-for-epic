@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The merge of LEPIC's rows with the archive. Ported from the tests in
 // app/rust/src/core/history.rs; live rows are TxEntry values as lepicTxEntry makes them.
 import 'package:epic_wallet/src/history/merge.dart';

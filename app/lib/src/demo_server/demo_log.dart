@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The demo server's log: one line per entry on stdout (pm2 keeps it), through [redact].
 ///
 /// Nothing about a visitor is logged but [shortDemoId] of their demo: no address, cookie, PIN,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where the window opens and how big it is. The first start opens at [deskWindowShare] of the
 /// work area of the display the pointer is on (the display minus taskbars, docks and panels),
 /// capped at [deskWindowMaxStart] and never under [deskWindowMinSize], centred. Afterwards the

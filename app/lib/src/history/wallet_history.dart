@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Notes, contacts, imported records and history files of one open wallet, over the archive in
 /// `meta_store.dart`. The core-neutral half of the old core's `Session` history calls: the
 /// session hands in the live rows and does the sealing.

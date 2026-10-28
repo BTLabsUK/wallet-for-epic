@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// "Details differ": what a history backup says about payments the user described here, when it
 /// says something else. Per value two cards, Mine (chosen at first) and Backup.
 library;

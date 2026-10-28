@@ -1,4 +1,5 @@
-// Live: F32 on the real LEPIC core through LepicDeskWallet. A new wallet in a temp dir (temp
+// SPDX-License-Identifier: Apache-2.0
+// Live: Change password on the real LEPIC core through LepicDeskWallet. A new wallet in a temp dir (temp
 // key store, unreachable node) changes its password; then only the new one opens it, also from
 // a fresh app over the same folders, and its remembered password is forgotten. A PIN wallet
 // refuses a password change. Needs the Linux library:

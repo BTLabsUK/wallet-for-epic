@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The rules for coins another linked device holds: what a send notice holds, what a status does,
 // the chain deciding, and each fallback when no word comes.
 import 'package:epic_wallet/src/devices/device_locks.dart';

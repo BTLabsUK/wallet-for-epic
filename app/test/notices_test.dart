@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The notice standard (`app/README.md` "Notifications"): levels and their timing, the queue,
 // dismissal, the dock under the app bar, semantics and large text.
 

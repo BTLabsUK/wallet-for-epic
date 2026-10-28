@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// "How it works": an Epic payment as the handshake it is, in a bottom sheet. Four nodes,
 /// You, the Relay (epicbox, or the file passed by hand), Them and the Network, with one
 /// arrow lit at a time and a token moving along it.
@@ -386,7 +387,7 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               selected: {_flow},
               showSelectedIcon: false,
               // The chosen flow is a neutral fill with the text colour: gold is the brand
-              // and the primary action, never a selection (UI-011).
+              // and the primary action, never a selection.
               style: SegmentedButton.styleFrom(
                 backgroundColor: t.surface,
                 foregroundColor: t.dim,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Wave 2 keyboard rules (widgets/keyboard.dart): Tab visits a form's fields in visual order,
 // then its main button, then wraps, never an icon; Enter moves to the next field and runs the
 // main action from the last one; Esc closes the top-most thing; Back/Forward by mouse buttons,
@@ -179,7 +180,7 @@ void main() {
       final tabs = await _tabs(tester, _edit('Recipient'), 8);
       // Contacts and All are the stops right after their fields; paste and clear are not. The
       // address is the BT Labs contact: its card's Clear comes next; the Advanced disclosure
-      // follows Message (outputs spec §4.4).
+      // follows Message.
       expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'button:Review']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
@@ -241,7 +242,7 @@ void main() {
 
     testWidgets('Settings › Node: from the node field no icon is a Tab stop', (tester) async {
       await _open(tester, DeskRoute.settingsNode);
-      // The closed combo is a button (F27): no text field to focus.
+      // The closed combo is a button: no text field to focus.
       expect(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(EditableText)), findsNothing);
       tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
       await tester.pump();
@@ -492,7 +493,7 @@ void main() {
     });
   });
 
-  group('Settings combo (F27)', () {
+  group('Settings combo', () {
     Future<void> pumpCombo(WidgetTester tester, {bool busy = false, ValueChanged<String>? onPicked}) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -518,7 +519,7 @@ void main() {
     testWidgets('the closed combo is a button with no text field; Esc and a pick leave nothing selected', (tester) async {
       String? picked;
       await pumpCombo(tester, onPicked: (v) => picked = v);
-      expect(closedField(), findsNothing, reason: 'no TextField in the closed state (F27)');
+      expect(closedField(), findsNothing, reason: 'no TextField in the closed state');
       await tester.tap(find.text('a.example'));
       await tester.pump();
       expect(find.text('b.example', findRichText: true), findsOneWidget, reason: 'the list is open');
@@ -557,7 +558,7 @@ void main() {
       await pumpCombo(tester, busy: true);
       expect(find.byIcon(EIcons.chevronDown), findsOneWidget);
       expect(find.text('Checking…'), findsOneWidget);
-      expect(find.byType(ESpinner), findsNothing, reason: 'no spinner in the field (F27)');
+      expect(find.byType(ESpinner), findsNothing, reason: 'no spinner in the field');
       await tester.pump(const Duration(seconds: 3));
       expect(find.text('No answer yet'), findsOneWidget);
       expect(find.byIcon(EIcons.chevronDown), findsOneWidget);

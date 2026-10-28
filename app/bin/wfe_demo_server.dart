@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The web demo's server: one temporary floonet wallet per visitor, on LEPIC.
 //
 //   dart run bin/wfe_demo_server.dart --help        (from app/, with Flutter's dart)

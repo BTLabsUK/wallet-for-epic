@@ -1,4 +1,5 @@
-/// Settings › Invoices, its own tab below Receiving (SPEC 2.7, desktop): who may ask this
+// SPDX-License-Identifier: Apache-2.0
+/// Settings › Invoices, its own tab below Receiving: who may ask this
 /// wallet to pay. A paired, verified contact with Allow invoices on; the group lists them with
 /// their switch, Pair with a shop or exchange opens Pair, and Time to pay stays in the
 /// collapsed details.

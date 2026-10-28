@@ -1,4 +1,5 @@
-/// Settings › This wallet › Backup (F34): export and import of the history backup, and the
+// SPDX-License-Identifier: Apache-2.0
+/// Settings › This wallet › Backup: export and import of the history backup, and the
 /// payments as CSV, each through its dialog and the system Save or Open dialog.
 library;
 
@@ -742,7 +743,7 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
   }
 }
 
-// ---- The import offer of a restored wallet (R13, copy D6).
+// ---- The import offer of a restored wallet .
 
 /// A wallet restored from its phrase (or rebuilt from a damaged database) has its funds back but
 /// not who was paid, fees or notes: Overview asks once, at the first unlock, whether to import a
@@ -782,10 +783,10 @@ class HistoryImportOfferDialog extends StatelessWidget {
   }
 }
 
-// ---- The reminder on Overview (F33).
+// ---- The reminder on Overview.
 
 /// The history backup reminder for the notice stack on Overview: shown while
-/// [HistoryBackupState.reminder] names a count (the F33 rule).
+/// [HistoryBackupState.reminder] names a count (the backup reminder rule).
 class HistoryReminder extends ConsumerWidget {
   const HistoryReminder({super.key, required this.state});
 

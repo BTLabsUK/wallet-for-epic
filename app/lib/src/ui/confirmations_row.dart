@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Advanced › Confirmations: the open wallet's minimum confirmations as a stepper
 /// (−, the count, +), 1–30. The default (6) carries a Default tag; any other count offers
 /// Reset, and a count below the default a quiet line on what it trades. Each tap applies at

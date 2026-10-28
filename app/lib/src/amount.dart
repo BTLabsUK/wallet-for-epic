@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Conversion between atomic units and the decimal EPIC strings the user sees.
 ///
 /// Amounts stay [BigInt] end to end. Doubles would lose precision above 2^53 atomic units.

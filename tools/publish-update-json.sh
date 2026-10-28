@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Publishes a signed update.json to every source the apps read (updateManifestSources in
 # app/lib/src/updater.dart): the GitHub Pages repository and BT Labs' download server. The apps
 # check every copy against the same keys and use the one with the higher serial, so both must

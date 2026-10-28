@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The other side of a payment, on the desktop detail as on the phone: "Sent to" / "Received
 // from" with Add to contacts while no contact holds the address. It opens the contact form
 // with the address in; Save goes back to the payment, which then shows the name. Not for a

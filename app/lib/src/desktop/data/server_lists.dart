@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's Node and Epicbox lists ([ServerList], shared with the phone): one per kind on
 /// the app's chain, kept in [DeskStore] (`desk.serverList.<kind>.<chain>`).
 ///

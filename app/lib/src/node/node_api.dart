@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A client for an Epic node's JSON-RPC API (epic-server 4.1.0): the foreign API for what any
 /// node answers, the owner API (Basic auth with the node's `.api_secret`) for status and peers.
 ///
@@ -267,7 +268,7 @@ Future<({int status, String body})> _ioTransport(
   Map<String, String> headers,
   Duration timeout,
 ) async {
-  // No User-Agent: nothing that names the app or its version (F35).
+  // No User-Agent: nothing that names the app or its version.
   final client = HttpClient()
     ..connectionTimeout = timeout
     ..userAgent = null;

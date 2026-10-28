@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Invoices screen, review and paid-invoice details (I-03), against FakeWalletSession. The
 // rule under test throughout: nothing pays an invoice but Approve, and Approve pays only after
 // the PIN or biometric gate.
@@ -296,7 +297,7 @@ void main() {
       },
     );
 
-    testWidgets('an invoice arriving while Invoices is open: listed at once, View opens it (PAIR-AND-3)', (tester) async {
+    testWidgets('an invoice arriving while Invoices is open: listed at once, View opens it', (tester) async {
       final h = _Harness();
       // Paired before: only the invoice is new.
       h.session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
@@ -315,7 +316,7 @@ void main() {
       expect(find.text(_l.reqTitle), findsOneWidget, reason: 'View opens that invoice');
     });
 
-    testWidgets('withdrawn while Review is open: Approve off, the notice names the person, the list drops it (PAIR-AND-13)', (tester) async {
+    testWidgets('withdrawn while Review is open: Approve off, the notice names the person, the list drops it', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Anna', allowInvoices: true, paymentsAddress: _shop);
       await h.invoice(slateId: 'w1');
@@ -745,7 +746,7 @@ void main() {
       tall: true,
     );
 
-    testWidgets('a paired person\'s request just paid: its own card and steps, no generic Waiting card, no Cancel yet (PAIR-AND-4)', (tester) async {
+    testWidgets('a paired person\'s request just paid: its own card and steps, no generic Waiting card, no Cancel yet', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Floo C', kind: PairingParty.person, allowInvoices: true, paymentsAddress: _shop);
       await h.invoice();
@@ -758,7 +759,7 @@ void main() {
       expect(find.byType(TxStatusChip), findsNothing, reason: 'the request block says where it stands');
       expect(find.text(_l.txDetailsWaitingEpicbox), findsNothing);
       expect(find.text(_l.txDetailsCancelPayment), findsNothing, reason: 'Cancel comes once its time runs out');
-      // Named by its pairing, never by the mailbox it was paid to (PAIR-AND-5).
+      // Named by its pairing, never by the mailbox it was paid to.
       expect(find.descendant(of: find.byType(AppBar), matching: find.textContaining('Floo C')), findsOneWidget);
     });
 
@@ -768,7 +769,7 @@ void main() {
       final h = await paid(tester);
       await details(tester, h);
       expect(find.text(_l.invoiceDetailsSection), findsOneWidget);
-      expect(find.text('My Exchange'), findsWidgets, reason: 'the block, and the title names it (PAIR-AND-5)');
+      expect(find.text('My Exchange'), findsWidgets, reason: 'the block, and the title names it');
       expect(find.text('Order 1042'), findsOneWidget);
       expect(
         find.text(_l.invoiceDetailsReplied('My Exchange')),
@@ -868,7 +869,7 @@ void main() {
       expect(h.session.cancelledTxIds, isEmpty);
       await tester.tap(cancel);
       await tester.pumpAndSettle();
-      // The dialog's cancelling choice is the red one (UI-015).
+      // The dialog's cancelling choice is the red one.
       await tester.tap(
         find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
       );
@@ -921,7 +922,7 @@ void main() {
       await withdrawnOnHome(tester, h);
       await tester.tap(noticeButton(_l.txDetailsCancelPayment));
       await tester.pumpAndSettle();
-      // The dialog's cancelling choice is the red one (UI-015).
+      // The dialog's cancelling choice is the red one.
       await tester.tap(
         find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
       );

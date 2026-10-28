@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's first-unlock tour: coach marks over the real screens, one step per screen. Each
 /// step opens its screen (a Home tab, or a screen pushed over Home), lights what matters on it
 /// and says in a line or two what is there; Skip, Back and Next, a step counter, Done on the
@@ -135,7 +136,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
 
   /// Home idle: its route is the current one (no PIN screen, dialog or sheet over it) on the
   /// Wallet tab. A payment link opened at unlock moved to Send: the link wins, and the tour
-  /// waits until Wallet shows again (AND-1).
+  /// waits until Wallet shows again.
   void _tryStart() {
     if (!mounted) return;
     final route = ModalRoute.of(context);

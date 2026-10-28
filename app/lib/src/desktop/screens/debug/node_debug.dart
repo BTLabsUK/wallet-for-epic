@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A plain debug view of the node service layer: the local node's state and controls, its
 /// peers, node info, detection and found chain data. For developers only; the real screens are
 /// designed separately. Started by `lib/main_node_debug.dart`, never part of a release build.
@@ -42,11 +43,11 @@ class NodeDebugView extends ConsumerWidget {
             error: (e, _) => Text('$e'),
             loading: () => const LinearProgressIndicator(),
           ),
-          const _Head('Fallback (D-7)'),
+          const _Head('Fallback'),
           Text(fallback.when(data: (d) => d.toString(), error: (e, _) => '$e', loading: () => '…')),
           const _Head('Peers'),
           _Peers(chain),
-          const _Head('Detect (F24)'),
+          const _Head('Detect'),
           Consumer(builder: (context, ref, _) {
             final p = ref.watch(localNodeProbeProvider(chain));
             return Text(p.when(
@@ -65,7 +66,7 @@ class NodeDebugView extends ConsumerWidget {
               loading: () => '…',
             ));
           }),
-          const _Head('Node info (F27)'),
+          const _Head('Node info'),
           for (final url in ['https://node.btlabs.uk', 'http://127.0.0.1:3413']) _Info(url),
         ],
       ),

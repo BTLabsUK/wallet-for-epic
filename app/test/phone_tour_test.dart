@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's first-unlock tour: it opens once after the first unlock (never over a screen that
 // is not idle), Skip ends it and marks it seen, Back and Next open the right screens, Help can
 // show it again, every step lights something that exists with Advanced off and switches
@@ -242,7 +243,7 @@ void main() {
       expect(_overlay, findsNothing);
     });
 
-    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet (AND-1)', (tester) async {
+    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet', (tester) async {
       final rig = await _pump(tester);
       rig.container.read(incomingLinkProvider.notifier).deliver('epic:${'b' * 52}@epicbox.epiccash.com?amount=0.4');
       await tester.pumpAndSettle();

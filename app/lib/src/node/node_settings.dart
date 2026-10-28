@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node's settings of one chain, kept in the app's settings store under
 /// `node.<chain>.<name>`. A value that does not read (garbage, an older format) gives the
 /// default, never an error.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The network status card (Settings › Privacy & network; Home shows the compact status icons
 /// of `home_status.dart` instead): one row each for the node, Epicbox and Tor. A row's tap
 /// opens the server picker for it, or Settings › Privacy for Tor. A row whose connection goes
@@ -106,7 +107,7 @@ class NetworkStatusCard extends ConsumerWidget {
             port: config.epicboxPort,
           ).label
         : choice?.relay.label ?? '';
-    // In Offline both services are paused by choice: neutral, never red or blue (UI-027).
+    // In Offline both services are paused by choice: neutral, never red or blue.
     final paused = watchNetBlock(context, ref) == NetBlock.offline;
     final pausedFace = (level: SignalLevel.none, color: t.dim, word: l.netStatusPausedOffline);
     final node = paused
@@ -217,7 +218,7 @@ class _StatusRow extends StatelessWidget {
   final NetFace face;
   final bool pulse;
 
-  /// The service's glyph, drawn with the state dot (one icon per meaning, UI-008).
+  /// The service's glyph, drawn with the state dot (one icon per meaning).
   final IconData glyph;
 
   /// How the connection goes under the Tor switch: over Tor, or waiting for it, is a line of

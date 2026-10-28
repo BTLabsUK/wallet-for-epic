@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [RpcChannel] over a browser WebSocket, through `dart:js_interop` alone, so `remote/` keeps
 /// to its import rule.
 library;

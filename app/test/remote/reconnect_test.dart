@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // RemoteWalletService with a connector: the first call connects, a drop fails what was
 // pending and retries with a doubling wait, and a session the server dropped is reported.
 

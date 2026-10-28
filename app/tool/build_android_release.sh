@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,

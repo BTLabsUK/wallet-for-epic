@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The sidebar rail as it looks: each row's icon at the left, the bars at the right, one
 // hairline between every two rows. At a 1280 px window at 100 % and a 2474 px window at 150 %.
 // Regenerate with `flutter test --no-pub --update-goldens test/desktop/rail_golden_test.dart`.

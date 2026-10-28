@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Export and Import contacts: the shared address book as a small JSON file, on the phone and
 /// the desktop. The file holds names, at most one address per kind and notes; never a key, a
 /// pairing, trust, a star, a picture or anything else of one wallet. A contact paid only

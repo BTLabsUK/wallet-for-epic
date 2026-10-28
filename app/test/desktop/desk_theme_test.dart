@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/theme/tokens.dart';
 import 'package:flutter/material.dart';

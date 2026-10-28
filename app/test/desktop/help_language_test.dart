@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Help language switch on the desktop: the flag and own name of the help's language, a menu
 // of the six languages, a choice that is remembered and changes only the help, and the default
 // that follows the interface language, which follows the computer's unless one is chosen.

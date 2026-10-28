@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The camera screen that reads an animated payment QR: the count rises with each new part, a
 // code that is no payment is said so and the rest kept, a part of another payment starts
 // over, a silent camera is told to hold steady, and a refused camera has a way out.

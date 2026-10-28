@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Tor on the phone, as the user sees it: the one Tor switch in Settings › Privacy
 /// ([phoneTorProvider] is the one source of truth), its state in the same four words
 /// everywhere, and the words for each way Tor can fail.

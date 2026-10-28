@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 import 'dart:math';
 
@@ -330,7 +331,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _RestoreStep.importOffer => _importOffer(),
     };
     // The phrase form is long and keeps Continue at the foot; the import offer keeps its
-    // two choices there too (UI-016); the scan sits in the middle.
+    // two choices there too; the scan sits in the middle.
     final form = _step == _RestoreStep.phrase;
     final offer = _step == _RestoreStep.importOffer;
     return SlotScaffold(
@@ -430,7 +431,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
-        // The app's tab style, no check mark (UI-053).
+        // The app's tab style, no check mark.
         SegmentedButton<_StartBy>(
           segments: [
             ButtonSegment(
@@ -571,7 +572,7 @@ class _DateChoice extends StatelessWidget {
       firstDate: mainnetFirstDay,
       lastDate: now,
       helpText: context.l10n.restoreDatePickerTitle,
-      // The app's faces and a neutral selection instead of Material's stock look (UI-053).
+      // The app's faces and a neutral selection instead of Material's stock look.
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           datePickerTheme: DatePickerThemeData(
@@ -636,7 +637,7 @@ class _DateChoice extends StatelessWidget {
 }
 
 /// The words of the phrase as typed, each checked against the word list, with a count line
-/// (UI-068, as the desktop's grid): a word the list lacks is in the risk colour; 12 or 24
+/// (as the desktop's grid): a word the list lacks is in the risk colour; 12 or 24
 /// known words read "All 24 words check out."
 class RestoreWordCheck extends StatelessWidget {
   const RestoreWordCheck({super.key, required this.text});

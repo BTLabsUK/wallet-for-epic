@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/redact.dart';
 import 'package:flutter_test/flutter_test.dart';

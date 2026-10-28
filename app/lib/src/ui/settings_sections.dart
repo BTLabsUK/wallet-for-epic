@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Settings pages, one per group of the hub (`settings_screen.dart`): Security,
 /// Privacy & network, Wallet, Display and About. Each page is a short list of label-only rows
 /// (an explanation sits behind an info icon, a value or a state on the row's second line), so
@@ -69,10 +70,10 @@ import 'wallet_delete.dart';
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
 /// The project's source code.
-const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
+const String projectRepoUrl = 'https://gitlab.com/epic-cash-bt/wallet-for-epic';
 
 /// Whether the repositories are public. Until they are, no screen links to them (the phone's
-/// and the desktop's About, the Licences page) and no text says the code is on GitHub; set it
+/// and the desktop's About, the Licences page) and no text says the code is public; set it
 /// to true when they are, and the links come back.
 const bool projectRepoPublic = false;
 const String epicCashUrl = 'https://epiccash.com';
@@ -600,7 +601,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    // One row per thing (the owner, 26.10.11): Node and Epicbox with their host and health, each
+    // One row per thing (26.10.11): Node and Epicbox with their host and health, each
     // opening its picker (the status card's rows, the same pickers as the icons on Home), the
     // Tor switch, then the other privacy settings. With no wallet open there is no health to
     // show: plain rows open the same pickers.
@@ -1159,7 +1160,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: Text(
             note,
-            // Body text, not a warning (UI-028).
+            // Body text, not a warning.
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
           ),
         ),
@@ -1338,7 +1339,7 @@ class SettingsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // Neutral, as the desktop's section headers: gold is for the brand and the primary
-    // action only (UI-030).
+    // action only.
     final text = Semantics(
       header: true,
       child: Text(

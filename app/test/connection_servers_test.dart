@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Connection servers (connection_servers.dart): the stored set, the state line, the defaults,
 // and what the fake pairing sees of the set.
 import 'package:epic_wallet/src/connection_servers.dart';
@@ -76,10 +77,10 @@ void main() {
 
   test('the fake pairing sees the set a words call is made with; null is the defaults', () async {
     final p = FakePairing();
-    await p.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+    await p.makeInvite(name: 'Alex', expiry: const Duration(minutes: 10), words: true);
     p.setConnectionServers([_cash, _net]);
-    await p.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
-    await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+    await p.makeInvite(name: 'Alex', expiry: const Duration(minutes: 10), words: true);
+    await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
     expect([for (final e in p.wordsServers) '${e.call}:${e.servers?.join(',')}'], ['invite:null', 'invite:$_cash,$_net']);
     p.setConnectionServers(null);
     expect(p.connectionServers, isNull);

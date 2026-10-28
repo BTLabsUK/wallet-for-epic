@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 // F34 data: LepicDeskWallet's history backup over the shared core session (FakeWalletSession):
-// the backup record and the F33 reminder rule, export and import with the refusals in the
+// the backup record and the backup reminder rule, export and import with the refusals in the
 // design's words, the CSV range, and WALLET.txt in the wallet folder.
 import 'dart:convert';
 import 'dart:io';
@@ -19,7 +20,7 @@ const _password = 'test-pass-1234';
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
 
 void main() {
-  group('the F33 rule (a copy of the phone\'s)', () {
+  group('the backup reminder rule (a copy of the phone\'s)', () {
     final now = DateTime(2026, 10, 22, 12);
     List<core.TxEntry> payments(int n, {DateTime? at}) => [
       for (var i = 0; i < n; i++) core.fakeTx(key: 'l:$i', id: i, timeUnix: _at(at ?? now.subtract(Duration(days: 40 + i))), confirmed: true),

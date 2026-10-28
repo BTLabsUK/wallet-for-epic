@@ -1,4 +1,5 @@
-// The desktop's restore and unlock fixes (restore map R4 R5 R6 R11 R13 R19 R23 R26 R37) over
+// SPDX-License-Identifier: Apache-2.0
+// The desktop's restore and unlock fixes over
 // FakeWalletService, whose core here refuses what the real one refuses: a delete or a password
 // reset of a wallet still open, and calls on a closed session.
 import 'dart:async';
@@ -24,7 +25,7 @@ const _other = 'legal winner thank year wave sausage worth useful legal winner t
 class _Core extends core.FakeWalletService {
   _Core() : super(password: _password);
 
-  /// When set, [create] writes the vault, then fails (R37).
+  /// When set, [create] writes the vault, then fails.
   bool failCreate = false;
 
   /// When set, [resetPassword] fails with it and changes nothing.
@@ -73,7 +74,7 @@ class _Unverifiable extends MockDeskWallet {
   }
 }
 
-/// A store whose writes of the wallet meta fail once [failMeta] is set (R11).
+/// A store whose writes of the wallet meta fail once [failMeta] is set.
 class _Store extends MemorySecretStore {
   bool failMeta = false;
 
@@ -117,7 +118,7 @@ void main() {
 
     Future<Map<String, dynamic>> meta(String key) async => jsonDecode(await secrets.read(key) ?? '{}') as Map<String, dynamic>;
 
-    test('R6: the scan-due note is written before the core makes the wallet', () async {
+    test('the scan-due note is written before the core makes the wallet', () async {
       await wallet.createWallet(name: 'Main', password: _password);
       service.createGate = Completer<void>();
       final restoring = wallet.restoreWallet(name: 'Old', password: _password, phrase: _other.split(' '));
@@ -134,7 +135,7 @@ void main() {
       expect(await meta(key), containsPair('name', 'Old'));
     });
 
-    test('R37: a failed restore of the first wallet takes back what the core wrote, and its note', () async {
+    test('a failed restore of the first wallet takes back what the core wrote, and its note', () async {
       service.failCreate = true;
       await expectLater(wallet.restoreWallet(password: _password, phrase: _other.split(' ')), throwsA(isA<DeskError>()));
       expect(service.deletedWallets, ['${support.path}/wallets/mainnet']);
@@ -142,19 +143,19 @@ void main() {
       expect(await wallet.wallets(), isEmpty);
     });
 
-    test('R23: a restore takes the typed name', () async {
+    test('a restore takes the typed name', () async {
       await wallet.restoreWallet(name: 'Savings', password: _password, phrase: _other.split(' '));
       expect((await wallet.wallets()).single.name, 'Savings');
     });
 
-    test('R26: a password is counted in characters, as the core counts', () async {
+    test('a password is counted in characters, as the core counts', () async {
       expect(passwordLongEnough('😀😀😀😀'), isFalse, reason: 'four emoji: eight UTF-16 units, four characters');
       expect(passwordLongEnough('😀😀😀😀😀😀😀😀'), isTrue);
       await expectLater(wallet.createWallet(password: '😀😀😀😀'), throwsA(isA<DeskError>()));
       expect(service.createdConfig, isNull);
     });
 
-    test('R19: Delete also removes WALLET.txt, the folder and the autostart choice', () async {
+    test('Delete also removes WALLET.txt, the folder and the autostart choice', () async {
       await wallet.createWallet(name: 'Main', password: _password);
       await wallet.createWallet(name: 'Savings', password: _password);
       final id = service.createdConfig!.walletId!;
@@ -169,7 +170,7 @@ void main() {
       expect(await secrets.read('desk.autostart.$id'), isNull);
     });
 
-    test('R11: a Setup mark the store cannot clear is noted in the wallet folder, so Setup does not come back', () async {
+    test('a Setup mark the store cannot clear is noted in the wallet folder, so Setup does not come back', () async {
       await wallet.createWallet(name: 'Main', password: _password);
       final id = (await wallet.wallets()).single.id;
       await wallet.setSetupPending(id, true);
@@ -184,7 +185,7 @@ void main() {
       expect(await again.setupPending(id), isTrue, reason: 'a new mark takes the note away');
     });
 
-    test('R13: a restored wallet offers the history import until it is answered; a created one never', () async {
+    test('a restored wallet offers the history import until it is answered; a created one never', () async {
       await wallet.createWallet(name: 'Main', password: _password);
       expect(await wallet.unlock(_password), isTrue);
       expect((await wallet.historyBackupState()).importOffer, isFalse);
@@ -196,7 +197,7 @@ void main() {
       expect((await wallet.historyBackupState()).importOffer, isFalse);
     });
 
-    group('R4: Forgot password', () {
+    group('Forgot password', () {
       test('the wallet\'s own phrase sets a new password; an open wallet locks first; the remembered one is forgotten', () async {
         await wallet.createWallet(name: 'Main', password: _password);
         final id = (await wallet.wallets()).single.id;
@@ -260,7 +261,7 @@ void main() {
       return container;
     }
 
-    testWidgets('R4: a wallet whose files cannot confirm the phrase offers Restore from the phrase, which takes it off the list only', (tester) async {
+    testWidgets('a wallet whose files cannot confirm the phrase offers Restore from the phrase, which takes it off the list only', (tester) async {
       final api = _Unverifiable();
       final id = (await tester.runAsync(api.wallets))!.first.id;
       final container = await pump(tester, api, DeskRoute.resetPassword, ResetPasswordArg(id, phrase: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'.split(' ')));
@@ -281,7 +282,7 @@ void main() {
       await tester.pump(const Duration(seconds: 10));
     });
 
-    testWidgets('R5: a mistyped password in Delete stays in the dialog; the wallet stays open', (tester) async {
+    testWidgets('a mistyped password in Delete stays in the dialog; the wallet stays open', (tester) async {
       final container = await pump(tester, MockDeskWallet(delay: Duration.zero), DeskRoute.settingsAccount);
       showDeleteWalletDialog(tester.element(find.byType(EPage)));
       await settle(tester);
@@ -299,7 +300,7 @@ void main() {
       await tester.pump(const Duration(seconds: 10));
     });
 
-    testWidgets('R4: Unlock › Forgot password? › phrase › new password › Unlock with the notice', (tester) async {
+    testWidgets('Unlock › Forgot password? › phrase › new password › Unlock with the notice', (tester) async {
       final api = MockDeskWallet(delay: Duration.zero);
       final container = await pump(tester, api, DeskRoute.unlock);
       await tester.tap(find.byKey(const ValueKey('unlock-forgot')));
@@ -327,7 +328,7 @@ void main() {
       await tester.pump(const Duration(seconds: 10));
     });
 
-    testWidgets('R4: a phrase of another wallet stays on the phrase step with the reason', (tester) async {
+    testWidgets('a phrase of another wallet stays on the phrase step with the reason', (tester) async {
       final api = MockDeskWallet(delay: Duration.zero);
       final id = (await tester.runAsync(api.wallets))!.first.id;
       final container = await pump(tester, api, DeskRoute.resetPassword, ResetPasswordArg(id, phrase: _other.split(' ')));

@@ -5,8 +5,8 @@ Thank you for helping. Bug reports, translations and code are all welcome.
 ## Before you start
 
 - Wallet engine changes (slates, keys, transactions, Epicbox, the node client) belong in
-  [LEPIC](https://gitlab.com/bt-labs-group/lepic), and binding changes in
-  [lepic-flutter](https://gitlab.com/bt-labs-group/lepic-flutter). This repository is the app.
+  [LEPIC](https://gitlab.com/epic-cash-bt/lepic), and binding changes in
+  [lepic-flutter](https://gitlab.com/epic-cash-bt/lepic-flutter). This repository is the app.
 - For anything larger than a small fix, open an issue first so we can agree on the approach.
 - Security problems go to support@btlabs.uk, never to a public issue ([SECURITY.md](SECURITY.md)).
 

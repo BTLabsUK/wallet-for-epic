@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one close rule. The title bar's ✕, Alt+F4, the taskbar's and the window menu's Close,
 /// Ctrl+Q and the app menu's Quit all come here: with no send running the wallet locks, the
 /// built-in node stops and the app ends; while a send runs the app stays open and asks (Keep

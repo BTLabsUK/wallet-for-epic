@@ -11,14 +11,14 @@
 [![Version 26.10](https://img.shields.io/badge/version-26.10-informational.svg)](app/pubspec.yaml)
 
 [Build](#build-from-source) · [Documentation](https://docs.btlabs.uk) ·
-[LEPIC](https://gitlab.com/bt-labs-group/lepic) · [Security](SECURITY.md)
+[LEPIC](https://gitlab.com/epic-cash-bt/lepic) · [Security](SECURITY.md)
 
 </div>
 
 Epic Cash Mobile (Android) and Epic Cash Desktop (Linux, Windows and macOS) are one Flutter app with
-two front ends. The wallet itself is [LEPIC](https://gitlab.com/bt-labs-group/lepic), a Rust wallet
+two front ends. The wallet itself is [LEPIC](https://gitlab.com/epic-cash-bt/lepic), a Rust wallet
 engine that runs inside the app's process; the app calls it through its Flutter binding,
-[lepic-flutter](https://gitlab.com/bt-labs-group/lepic-flutter). The app creates and restores
+[lepic-flutter](https://gitlab.com/epic-cash-bt/lepic-flutter). The app creates and restores
 wallets, scans the chain through an Epic node, and sends and receives with the standard
 `epic-wallet`.
 
@@ -60,7 +60,7 @@ default; set the variable to use your own.
 ### Linux
 
 ```bash
-git clone https://gitlab.com/bt-labs-group/wallet-for-epic && cd wallet-for-epic
+git clone https://gitlab.com/epic-cash-bt/wallet-for-epic && cd wallet-for-epic
 . tools/env.sh
 tools/lepic.sh sync            # lepic-flutter and LEPIC at the pinned commits, into app/third_party/
 tools/lepic.sh build linux     # the native library for this host
@@ -143,19 +143,19 @@ on a device or desktop. Builds and tests run on our own machines, not on hosted 
 
 Do not open public issues for vulnerabilities. [SECURITY.md](SECURITY.md) explains how to report
 one privately: email support@btlabs.uk or open a confidential issue. The wallet
-engine's security model is described in [LEPIC](https://gitlab.com/bt-labs-group/lepic) and on
+engine's security model is described in [LEPIC](https://gitlab.com/epic-cash-bt/lepic) and on
 [docs.btlabs.uk](https://docs.btlabs.uk/developers/security-model/).
 
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Changes to the wallet
-engine belong in [LEPIC](https://gitlab.com/bt-labs-group/lepic).
+engine belong in [LEPIC](https://gitlab.com/epic-cash-bt/lepic).
 
 ## Documentation
 
 - User guide and developer guide: https://docs.btlabs.uk (building from source:
   https://docs.btlabs.uk/developers/build/)
-- Wiki: https://gitlab.com/bt-labs-group/wallet-for-epic/-/wikis/home
+- Wiki: https://gitlab.com/epic-cash-bt/wallet-for-epic/-/wikis/home
 
 ## License
 

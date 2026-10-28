@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Coins a linked device is spending count as locked on Home, not as available (the core can
 // still spend them; this wallet holds them back).
 import 'package:epic_wallet/src/providers.dart';

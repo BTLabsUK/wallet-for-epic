@@ -1,4 +1,5 @@
-/// Pairing on the desktop (SPEC 2.1 to 2.3, 2.6, desktop frames): no camera, so Show my code
+// SPDX-License-Identifier: Apache-2.0
+/// Pairing on the desktop: no camera, so Show my code
 /// is an invite's code with its pairing words beside it, and Enter link or words takes a
 /// pasted link (an invite, an answer or a confirm sent by hand, or the other wallet's card
 /// link for pairing face to face) or typed words. Invite online
@@ -75,7 +76,7 @@ const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
 const Key deskSavedAddToNamedKey = ValueKey('desk-saved-add-to-named');
 
 /// The contact's (or the invite's) initials in the desktop avatar; [icon] instead for an
-/// invite nobody named yet (PAIR-LNX-8).
+/// invite nobody named yet.
 class DeskPairAvatar extends StatelessWidget {
   const DeskPairAvatar({super.key, required this.name, this.size, this.icon});
 
@@ -245,7 +246,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     ref.read(deskSeenAsProvider.notifier).set(_name.text);
     setState(() => _triedName = false);
     // The first name typed makes the words or the code once typing pauses; a later change on
-    // Enter or New words, so none is made per key (PAIR-LNX-6).
+    // Enter or New words, so none is made per key.
     _typed?.cancel();
     if (_seenAs.isEmpty) return;
     final words = _way == DeskPairWay.words && _code == null;
@@ -440,7 +441,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
         constraints: BoxConstraints(maxWidth: 420.u),
         child: EField(
         label: l.pairSeenAs,
-        // Only once something needed the name, never on a page just opened (PAIR-LNX-2).
+        // Only once something needed the name, never on a page just opened.
         error: _triedName && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
         child: EInput(
           key: deskPairNameKey,
@@ -924,7 +925,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
   final api = ref.read(deskPairingApiProvider);
   final l = context.l10n;
   final kind = pairingLinkKind(pasted);
-  // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
+  // A shared message holds the link among words: the calls take the link alone.
   final text = pairingLinkIn(pasted) ?? pasted;
   // The pairings already finished before this link: a late reply or finish link changes nothing.
   var before = const <PairingRecord>[];
@@ -950,7 +951,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
         if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
       case PairingLinkKind.reply:
         // Their reply came in the chat: the finish link goes back the same way before the
-        // words, which their wallet shows only once it has it (PAIR-AND-10).
+        // words, which their wallet shows only once it has it.
         final r = await deskPairingCall(ref, (a) => a.openReply(text));
         if (already(r)) return;
         deskPairingFinishing.add(r.id);
@@ -1594,7 +1595,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
 
 /// The words check as a dialog: the four large tiles, Skip for now, They don't match, They
 /// match; then the result as a toast.
-/// Asks before removing the pairing with [name] (SPEC 2.4): Keep, or Remove in risk.
+/// Asks before removing the pairing with [name]: Keep, or Remove in risk.
 Future<bool> deskConfirmRemovePairing(BuildContext context, String name) async {
   final l = context.l10n;
   final sure = await showEDialog<bool>(
@@ -1630,7 +1631,7 @@ Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, Pairi
     contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
     name = saved;
   } else {
-    // Not Send's picker: the pairing joins the contact (PAIR-LNX-11).
+    // Not Send's picker: the pairing joins the contact.
     final picked = await showContactPicker(context, description: context.l10n.deskConPickForPairing);
     if (picked == null) return false;
     contactId = picked.id;
@@ -1686,7 +1687,7 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
 }
 
 /// The contact of the name the pairing [r] chose, to offer first (a restore or a re-pair:
-/// attaching it starts the key check, PAIR-LNX-7); null when there is none or several.
+/// attaching it starts the key check); null when there is none or several.
 Contact? deskSuggestedContact(WidgetRef ref, PairingRecord r) {
   final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
   if (r.contactId != null && contacts.any((c) => c.id == r.contactId)) return null;
@@ -1786,7 +1787,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       final saved = r == null || (r.contactId != null && contacts.any((c) => c.id == r.contactId));
       Navigator.pop(context);
       // Not in the contacts yet: the result asks where it goes, as the phone's Verified screen
-      // does (PAIR-LNX-4); else the toast says it.
+      // does; else the toast says it.
       if (!saved && check != PairingCheck.mismatch && !widget.recheck && host.mounted) {
         await showEDialog<void>(host, builder: (_) => DeskPairedSaveDialog(pairingId: r.id, verified: check == PairingCheck.match));
         return;
@@ -1951,7 +1952,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
   @override
   void initState() {
     super.initState();
-    // The rows' times move on while the page is open (PAIR-AND-11).
+    // The rows' times move on while the page is open.
     _tick = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) setState(() {});
     });
@@ -2030,7 +2031,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
           l.pendingPairedCheck,
           [
             EButton.primary(label: l.contactCheckAgain, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
-            // An abandoned pairing need not be checked to go (PAIR-AND-7).
+            // An abandoned pairing need not be checked to go.
             EButton(
               key: deskPendingRemovePairedKey,
               label: l.contactRemove,

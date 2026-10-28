@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/foundation.dart';
 import 'package:screen_brightness/screen_brightness.dart' as plugin;
 

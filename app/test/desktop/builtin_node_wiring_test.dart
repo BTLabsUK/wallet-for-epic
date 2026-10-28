@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop adapter turning the built-in node on and off: the node starts before the wallet
 // moves to it, the wallet goes back to its old node when it is turned off, and a node that cannot
 // start leaves everything as it was.
@@ -153,7 +154,7 @@ void main() {
     await wallet.dispose();
   });
 
-  test('a local node at height 0 is Syncing, never Online (O2)', () async {
+  test('a local node at height 0 is Syncing, never Online', () async {
     service.tip = BigInt.zero;
     final wallet = make();
     expect(await wallet.unlock(_password), isTrue);
@@ -170,7 +171,7 @@ void main() {
     await wallet.dispose();
   });
 
-  test('a node that says it is not ready for transactions is Syncing, at any height (O2)', () async {
+  test('a node that says it is not ready for transactions is Syncing, at any height', () async {
     service.ready = false;
     final wallet = make();
     expect(await wallet.unlock(_password), isTrue);
@@ -188,7 +189,7 @@ void main() {
     await wallet.dispose();
   });
 
-  test('a public node at height 0 is still Online: only the local node syncs from nothing (O2)', () async {
+  test('a public node at height 0 is still Online: only the local node syncs from nothing', () async {
     service.tip = BigInt.zero;
     final wallet = make();
     expect(await wallet.unlock(_password), isTrue);

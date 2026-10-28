@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Issuing invoices (I-05) against the fake: issue, withdraw, each payer answer to its state,
 // the bounced signal, records in wfe_meta.json across a reopen, the payments drain on open and
 // on resume, and that no issuer path spends.

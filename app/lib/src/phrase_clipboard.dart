@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A recovery phrase on the clipboard, phone and desktop: copied on request, cleared after
 /// [phraseClipboardLifetime] and when the wallet locks. Clearing removes only the current clip,
 /// so the copy is marked private where the system allows it: sensitive on Android 13+ (no

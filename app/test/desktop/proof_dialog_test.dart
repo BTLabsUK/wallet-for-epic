@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The payment-proof dialog shows the proof the transaction carries and nothing it made up:
 // the real sender, signature and kernel; a typed sender never; and without a proof an empty state.
 import 'dart:io';

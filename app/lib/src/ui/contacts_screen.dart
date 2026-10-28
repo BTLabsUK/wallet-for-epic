@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -361,7 +362,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   }
 }
 
-/// A pairing of this wallet in no contact (PAIR-AND-8): the name it chose, its trust badge and
+/// A pairing of this wallet in no contact: the name it chose, its trust badge and
 /// "Not in contacts"; the menu adds it to the contacts (a contact of its name first, which
 /// starts a re-pair's key check) or removes the pairing.
 class _OrphanRow extends ConsumerWidget {
@@ -543,7 +544,7 @@ class _ContactRow extends ConsumerWidget {
                         ),
                         if (starred) ...[const SizedBox(width: 4), const ContactStar()],
                         const SizedBox(width: 8),
-                        // Paired: its trust badge; not paired: how it is reached (SPEC 2.1).
+                        // Paired: its trust badge; not paired: how it is reached.
                         if (pairing != null)
                           Flexible(child: TrustBadge(pairing, short: true))
                         else if (inFlight)
@@ -592,7 +593,7 @@ class _AddressField {
 }
 
 /// Adds a contact, prefilled with [name] and [address], or edits [contact]. One address per
-/// kind (SPEC 2.5): the kind shows on the field once the address is valid, Add another address
+/// kind: the kind shows on the field once the address is valid, Add another address
 /// adds a field while a kind is free, and a second address of a kind asks which to keep. Pops
 /// with the saved contact.
 class ContactEditScreen extends ConsumerStatefulWidget {
@@ -731,7 +732,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
         f.error = text.isEmpty ? null : _problem(l, service, text);
       }
       // A contact saved without one (from a pairing) may stay so: only a new plain contact
-      // needs an address (PAIR-AND-9).
+      // needs an address.
       final optional = widget.addressOptional || (widget.contact?.addresses.isEmpty ?? false);
       if (!optional && _fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
       _error = null;

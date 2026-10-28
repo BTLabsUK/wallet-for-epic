@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The first-unlock tour: one page per step. Each step opens a real page, lights the area that
 /// matters on it and the page's sidebar entry, and says in a line or two what is there. Skip
 /// (Esc) on every step, Back and Next (Enter, the arrow keys), a step counter; the card keeps
@@ -374,7 +375,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   }
 
   /// Done, Skip or Esc: the tour closes on Overview, wherever its step was (its last page is
-  /// Help), so a wallet just restored or imported shows its scan at once (#76).
+  /// Help), so a wallet just restored or imported shows its scan at once.
   void _end() {
     ref.read(deskTourProvider.notifier).close();
     if (ref.read(deskNavProvider).route != DeskRoute.overview) ref.read(deskNavProvider.notifier).go(DeskRoute.overview);

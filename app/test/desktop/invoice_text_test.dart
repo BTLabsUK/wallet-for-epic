@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // cleanInvoiceText: text from another wallet shows as one plain line, with nothing invisible
 // or direction-changing left in it.
 import 'package:epic_wallet/src/desktop/data/invoices.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
 import '../../l10n.dart' show localDay, localInt;

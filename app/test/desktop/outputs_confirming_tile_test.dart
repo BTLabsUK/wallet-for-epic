@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // linux-08: Outputs read "Confirming 0.0000 · 1 output". The tile counted an output awaiting
 // finalization (a payment received, not yet posted by its sender) but showed only the value
 // confirming on chain. Its value is the confirming and the finalizing value, as the phone's.

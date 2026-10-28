@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The balance and the rows under it tell one story: coins on hold are said plainly beside a
 // spendable 0 (design review F-05), and a payment's row never says Received while the balance
 // still counts it as confirming (one of the F-06 disagreements; Send's re-estimate is another,

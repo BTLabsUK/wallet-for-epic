@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -106,14 +107,14 @@ final List<DeskShot> invoiceSetShotsCore = [
     route: DeskRoute.pairPending,
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
-      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Tom');
-      await p.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+      await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Tom');
+      await p.makeInvite(name: 'Alex', expiry: const Duration(minutes: 10), words: true);
       final preview = await p.openInvite(p.inviteLinkFrom(name: 'Ola'));
-      await p.acceptInvite(token: preview.token, name: 'the owner');
+      await p.acceptInvite(token: preview.token, name: 'Alex');
       c.invalidate(deskPairingsProvider);
     },
   ),
-  // A re-pair after a restore: the result offers the contact of its name first (PAIR-LNX-7).
+  // A re-pair after a restore: the result offers the contact of its name first.
   DeskShot(
     id: 'pair-04-result-add-to',
     title: 'The words-check result of a pairing in no contact: Add to Anna Kowalska first',
@@ -124,7 +125,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     },
     dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-anna-new', verified: true)),
   ),
-  // A contact with all three kinds of address: the list row shows their tags (PAIR-WIN-2).
+  // A contact with all three kinds of address: the list row shows their tags.
   DeskShot(
     id: 'pair-05-contacts-three-addresses',
     title: 'Contacts: a contact with Epicbox, Link · HTTP and Link · Tor addresses',
@@ -141,7 +142,7 @@ final List<DeskShot> invoiceSetShotsCore = [
       );
     },
   ),
-  // The words check with the table's longest names: each one whole (acceptance F1).
+  // The words check with the table's longest names: each one whole.
   DeskShot(
     id: 'pair-03-check-words',
     title: 'The words check dialog, the longest names',
@@ -164,7 +165,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     arg: DeskPairWay.message,
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
-      final invite = await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+      final invite = await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
       await p.openReply(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Anna'}));
       c.invalidate(deskPairingsProvider);
     },
@@ -182,7 +183,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
       final preview = await p.openInvite(p.inviteLinkFrom(name: 'Anna'));
-      await p.acceptInvite(token: preview.token, name: 'the owner');
+      await p.acceptInvite(token: preview.token, name: 'Alex');
       c.invalidate(deskPairingsProvider);
     },
     dialog: (ctx) async {
@@ -205,7 +206,7 @@ final List<DeskShot> invoiceSetShotsCore = [
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
       p.records.clear();
       final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).where((x) => x.name == 'BT Labs').firstOrNull;
-      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
+      await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
       c.invalidate(deskPairingsProvider);
     },
   ),

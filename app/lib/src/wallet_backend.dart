@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the app runs on, chosen by platform at compile time: LEPIC on this device
 /// (`wallet_backend_io.dart`), or in the browser the wallet server (`wallet_backend_web.dart`).
 ///

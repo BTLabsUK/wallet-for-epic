@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // QR as a phone payment method: where it is offered (Send, Receive, Settings › Transactions),
 // File moved behind Advanced and kept on phones that had it, the status line that says where a
 // payment stands, and the whole exchange on the fake wallet: the sender makes the payment and
@@ -231,7 +232,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      // The file way has its own help in the header instead (one help icon per header, UI-052).
+      // The file way has its own help in the header instead (one help icon per header).
       await tester.tap(_segment('Direct · File'));
       await tester.pumpAndSettle();
       expect(find.byTooltip(_l.sendHowItWorks), findsNothing);

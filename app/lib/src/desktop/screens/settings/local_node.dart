@@ -1,4 +1,5 @@
-/// The local node panel of Settings › Node (spec §19): the Status and Peers tabs, the
+// SPDX-License-Identifier: Apache-2.0
+/// The local node panel of Settings › Node: the Status and Peers tabs, the
 /// controls, the sync bar and step strip, the notices of every phase, the tiles, and the rows
 /// under the panel (start with the app, the fallback while syncing, the data folder, the chain
 /// data). Everything goes through [DeskNodeApi]; nothing here starts a node or downloads
@@ -142,7 +143,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     final ts = context.ts;
     final l = context.l10n;
     final api = ref.read(deskNodeProvider);
-    // The D-7 question, once, when the node first syncs and nothing was answered.
+    // The fallback question, once, when the node first syncs and nothing was answered.
     ref.listen(deskFallbackDecisionProvider, (_, d) {
       if (d?.action == FallbackAction.ask) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? maybeAskFallback(context, ref) : null);
     });

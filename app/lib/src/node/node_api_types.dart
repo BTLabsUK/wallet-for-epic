@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What an Epic node's JSON-RPC API answers, as typed values, and the parsers that read them.
 ///
 /// Shapes are those of epic-server 4.1.0 (`api/src/types.rs`, `p2p/src/types.rs`,

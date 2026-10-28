@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: how soon each side of a payment sees it move (watch mode, watch_mode.dart), on the real
 // LEPIC core through LepicDeskWallet against floonet. Run as two processes side by side, one
 // per wallet, which meet through files in WFE_PACE_DIR:

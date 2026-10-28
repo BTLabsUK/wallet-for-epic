@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Generates the installer's images from the untouched sources (ImageMagick 7):
 #   images/back-<w>x<h>.png  the landing-page hero, cropped to Inno's 497:360 wizard area with the
 #                            left and bottom fade baked in, at the three sizes Inno picks from

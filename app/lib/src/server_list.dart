@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The Node and Epicbox lists the phone and the desktop share: one editable list per kind,
 /// seeded from the built-in servers and status.btlabs.uk, then the user's.
 ///

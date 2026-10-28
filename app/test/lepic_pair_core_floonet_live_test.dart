@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live on floonet (26.10.18 pairing fixes): two wallets in data folders of their own, each a
 // LepicWalletSession over the real LEPIC library, the real node and the real relay. Skipped
 // unless WFE_LEPIC_LIB (the Linux library built at the pins) and WFE_LIVE_DIR (a folder kept
@@ -165,7 +166,7 @@ void main() {
         final aSeen = <PairingEvent>[];
         final bSeen = <PairingEvent>[];
         final subs = [a.pairing.events().listen(aSeen.add), b.pairing.events().listen(bSeen.add)];
-        final invite = await a.pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 1), words: true);
+        final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), words: true);
         _say('A words invite on ${invite.homeRelay}, ${invite.inviteWords.length} words, expires ${invite.expiresAt?.toUtc()}');
         final preview = await b.pairing.openWords([for (final w in invite.inviteWords) w.name]);
         final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
@@ -214,7 +215,7 @@ void main() {
 
         Future<({String aSide, String bSide, LepicWalletSession b})> rePair(String name) async {
           final (b, _) = await _wallet(name, mnemonic: phrase);
-          final invite = await a.pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+          final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
           final preview = await b.pairing.openInvite(invite.inviteLink!);
           final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
           await _collectUntil(a, () async => (await a.pairing.pairing(invite.id))?.state.isPaired ?? false);
@@ -276,7 +277,7 @@ void main() {
       case 'mailbox':
         final (a, aw) = await _wallet('A');
         final (b, _) = await _wallet('B');
-        final invite = await a.pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+        final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
         final preview = await b.pairing.openInvite(invite.inviteLink!);
         final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
         await _collectUntil(a, () async => (await a.pairing.pairing(invite.id))?.state.isPaired ?? false);

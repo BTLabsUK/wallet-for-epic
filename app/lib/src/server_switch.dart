@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Switching the node or the epicbox relay of the open wallet without locking it.
 library;
 

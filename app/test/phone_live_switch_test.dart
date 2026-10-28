@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The server pickers on the phone (Home's status icons, Settings › Privacy & network, the
 // first-run and lock-screen button) switch the node or the epicbox relay of the open wallet
 // live: no LaunchScreen, no PIN, the session stays open and the listener keeps running and

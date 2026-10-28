@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Help › Pairing: the section with its six topics, before trouble, the deep link and search.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_pairing.dart';

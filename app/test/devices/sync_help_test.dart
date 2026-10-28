@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Help › How linked devices work: the sync picture animates through its four steps, stands
 // still with its steps numbered under reduced motion, pauses on a tap and fits a 360 dp phone
 // and a 1280 px desktop; the status panel shows the empty state with Link a device, and a linked

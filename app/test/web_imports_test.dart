@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -45,7 +46,7 @@ void main() {
         for (final uri in uris)
           if (uri == 'dart:ffi' ||
               uri.startsWith('package:lepic/') ||
-              // The updater runs on Android only; W-03's claim, Needs 1.
+              // The updater runs on Android only; the web build's claim.
               (uri.startsWith('package:path_provider/') &&
                   file != 'lib/src/updater.dart'))
             '$file: $uri',
@@ -57,7 +58,7 @@ void main() {
     // These compile on the web and are never called there: the legacy file cleanup is
     // replaced by wallet_backend_web.dart, the history file store runs only inside
     // LepicWalletService, and the updater and the feedback screen are hidden in demo mode.
-    // W-03's claim, Needs 1, asks whether to split them.
+    // the web build's claim, asks whether to split them.
     const allowed = {
       'lib/src/vault.dart',
       'lib/src/history/meta_store.dart',

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Phone first run with Use status.btlabs.uk off: the network setup lists the built-in Epicbox
 // servers, says nothing about the site and asks it nothing.
 import 'package:epic_wallet/src/app.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop HTTP From the internet on the real LEPIC core: the listener on 0.0.0.0, Receive showing
 // the router's public IP (api.ipify.org) and the port check (portchecker.io) on the real network.
 // A throwaway empty wallet; nothing is sent. On a network without a forwarded port the warning shows.

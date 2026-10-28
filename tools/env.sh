@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # Toolchain environment for wallet-for-epic. Source it, do not execute it:
 #   . tools/env.sh
 # This file is the single place that names toolchain paths. The values are defaults; set the

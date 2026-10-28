@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,7 @@ String contactAddress(Contact c, PaymentPrefs payments) {
   return c.address;
 }
 
-/// The way a contact's [address] ([Contact.address] when null) is sent to (by its kind, spec 7).
+/// The way a contact's [address] ([Contact.address] when null) is sent to (by its kind).
 TxMethod contactMethod(Contact c, [String? address]) => switch (addressKindOf(address ?? c.address)) {
   AddressKind.tor when DeskFeatures.tor => TxMethod.tor,
   AddressKind.http when DeskFeatures.httpDirect => TxMethod.http,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Receive's method tabs (PH-1): every label at one size; a label too wide breaks at its " · ".
 import 'package:epic_wallet/src/ui/receive_screen.dart' show fitTabLabels;
 import 'package:flutter/material.dart';

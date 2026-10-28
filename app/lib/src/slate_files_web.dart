@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `slate_files.dart`'s file calls in the browser: a save is a download, and there is no share
 /// sheet and no temporary copy. Picking a file needs nothing here: file_picker reads its bytes
 /// on the web as everywhere else.

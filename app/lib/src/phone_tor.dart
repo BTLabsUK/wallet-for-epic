@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's one owner of Tor for the open wallet: starts it on unlock when the user's
 /// "Tor receiving" switch is on, on demand for a send to an onion, restarts it after the app
 /// comes back or the network returns, and resets on lock (LEPIC stops tor then).

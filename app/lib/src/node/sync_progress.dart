@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// How far a syncing node is: its stage, the stage's own progress, a rough overall progress, and
 /// an ETA from the recent rate. Pure: the node's status in, values out.
 library;

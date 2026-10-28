@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The Import wizard's contacts step: an old GUI's address book into the shared one, through
 /// the new wallet's session, and the proof lines that say what happened.
 library;

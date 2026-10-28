@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The synchronous checks [RemoteWalletService] answers without the server.
 library;
 

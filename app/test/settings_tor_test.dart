@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Privacy & network: the one Tor switch, bound to the phone's Tor controller, with one line
-// saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
+// saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced,
 // and absent where the app has no Tor.
 
 import 'dart:async';

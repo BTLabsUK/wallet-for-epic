@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, part 2: restore the wallet made by desktop_test.dart into a second fresh
 // data dir and compare the receive address. The phrase is read from RC_PHRASE_FILE (a mode-600
 // file in the scratch dir, throwaway empty wallet only), kept in memory and the file is deleted

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The public node and relay lists: status.btlabs.uk's answer (a copy captured on 2026-10-22),
 // the built-in lists and their merge, and the directory's timeout and cache.
 import 'dart:async';
@@ -64,7 +65,7 @@ void main() {
   });
 
   group('merge', () {
-    test('the monitor down: the built-in lists, BT Labs and Epic Cash first (D-13)', () {
+    test('the monitor down: the built-in lists, BT Labs and Epic Cash first', () {
       final nodes = mergePublicNodes(null);
       expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
       expect(nodes, hasLength(5));

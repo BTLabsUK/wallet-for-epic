@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // /api/ws over a real loopback socket: who may connect, what the wallet sees, expiry, idle
 // dispose and resume, and the frame cap.
 

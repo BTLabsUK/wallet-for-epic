@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The archive file: format, atomic writes, damaged and newer files. Ported from the tests in
 // app/rust/src/core/meta.rs.
 import 'dart:convert';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The other devices' payments in this wallet's history: "Sent from `<device>`".
 ///
 /// A payment another device is making shows as a pending row from its `send` notice. Once the

@@ -1,11 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node screens' window on the node service layer (`lib/src/node/node.dart`): the local
-/// node's state and controls, its peers and folder, node info for any node (F27) and the
-/// public-node fallback (D-7). [DeskNodeApi] is the one interface the screens use; the app
+/// node's state and controls, its peers and folder, node info for any node and the
+/// public-node fallback. [DeskNodeApi] is the one interface the screens use; the app
 /// overrides [deskNodeProvider] with [LepicDeskNode] (main_desktop.dart), the mock, the tour and
 /// the tests use [MockDeskNode].
 ///
 /// Nothing here starts a node or downloads anything by being read: only [DeskNodeApi.start]
-/// does, after the user agreed (O2).
+/// does, after the user agreed.
 library;
 
 import 'dart:async';
@@ -68,10 +69,10 @@ abstract interface class DeskNodeApi {
   Future<LocalNodeProbe> probe({String? url});
   Future<LocalNodeFacts> facts();
 
-  /// What the app can tell about any node (F27). [mine]: the user marked a listed node as theirs.
+  /// What the app can tell about any node. [mine]: the user marked a listed node as theirs.
   Future<NodeInfo> nodeInfo(String url, {bool mine = false});
 
-  /// Owner access to an own node (own-node spec §3–§4), by node URL.
+  /// Owner access to an own node, by node URL.
   Future<bool> hasOwnerSecret(String url);
   Future<OwnerCheck> addOwnerSecret(String url, String secret);
   Future<void> removeOwnerSecret(String url);
@@ -89,7 +90,7 @@ final deskNodeProvider = Provider<DeskNodeApi>((ref) => MockDeskNode());
 /// The local node's state; loading until the controller is up, an error where the build has none.
 final deskLocalNodeProvider = StreamProvider<LocalNodeState>((ref) => ref.watch(deskNodeProvider).states());
 
-/// The D-7 answer, saved through [DeskFallback.set].
+/// The fallback answer, saved through [DeskFallback.set].
 final deskFallbackProvider = AsyncNotifierProvider<DeskFallback, FallbackChoice>(DeskFallback.new);
 
 class DeskFallback extends AsyncNotifier<FallbackChoice> {
@@ -117,7 +118,7 @@ class DeskFallback extends AsyncNotifier<FallbackChoice> {
   Future<void> node(String url) => set(FallbackChoice(state.value?.consent ?? FallbackConsent.unasked, nodeUrl: url, at: state.value?.at));
 }
 
-/// What the wallet does about its node now (D-7), from the state and the answer.
+/// What the wallet does about its node now, from the state and the answer.
 final deskFallbackDecisionProvider = Provider<FallbackDecision?>((ref) {
   final l = ref.watch(deskLocalNodeProvider).value;
   final c = ref.watch(deskFallbackProvider).value;
@@ -155,11 +156,11 @@ String nodeHost(String url) {
 }
 
 /// How long the local node is not synced, without a break, before the wallet leaves it for the
-/// public node (D-7). A synced node can drop out of "synced" for a moment (no peers, a few
+/// public node. A synced node can drop out of "synced" for a moment (no peers, a few
 /// blocks behind); each move reopens the wallet.
 const Duration fallbackLeaveAfter = Duration(seconds: 60);
 
-/// The fallback decisions as the wallet acts on them (D-7): to the local node as soon as it is
+/// The fallback decisions as the wallet acts on them: to the local node as soon as it is
 /// synced, to the public node only once it has been wanted for [leaveAfter] without a break.
 /// [FallbackAction.ask] moves nothing. [apply] gets each decision that moves the wallet.
 class FallbackSwitch {
@@ -214,7 +215,7 @@ class FallbackSwitch {
 }
 
 /// The real node layer, on the app's providers. [onDecision] moves the wallet's node when the
-/// fallback decision changes (D-7), through [FallbackSwitch].
+/// fallback decision changes, through [FallbackSwitch].
 class LepicDeskNode implements DeskNodeApi {
   /// [fallbackTimer] is for tests (a fake clock).
   LepicDeskNode(this._ref, {required this.chain, this.onDecision, Timer Function(Duration, void Function())? fallbackTimer})
@@ -251,7 +252,7 @@ class LepicDeskNode implements DeskNodeApi {
   }
 
   /// The public node for a wallet moving to the local node now, or null for the local node:
-  /// the decision on the node's state and the answer as they are (D-7).
+  /// the decision on the node's state and the answer as they are.
   Future<String?> nodeWhileSyncing() async {
     final d = decideFallback((await _c).state, await fallbackChoice());
     return d.action == FallbackAction.usePublic ? d.nodeUrl : null;

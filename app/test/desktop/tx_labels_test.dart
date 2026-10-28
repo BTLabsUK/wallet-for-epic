@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Labels on any payment, typed details on a scan find, and the import's "Details differ":
 // the title rule, the inline field (Enter, blur, Esc, empty), the pen as a Tab stop with its
 // screen-reader name, the details editor only on restored rows, the proof dialog, the dialog
@@ -156,7 +157,7 @@ void main() {
       expect(find.text('Label saved'), findsOneWidget);
     });
 
-    testWidgets('the mouse moving off the row keeps the typed text, and a click outside saves it (#107)', (tester) async {
+    testWidgets('the mouse moving off the row keeps the typed text, and a click outside saves it', (tester) async {
       await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Rent')));
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: tester.getCenter(find.byType(TxPen).first));

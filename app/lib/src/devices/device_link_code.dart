@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The text a device link's QR carries, and that is copied to paste on the other device:
 /// `epiccash://device-link/1/<base64url of the private invite>/<wallet fingerprint>`. The prefix
 /// tells the scan and paste routes it is a device link (Linked devices › Link a device), not a

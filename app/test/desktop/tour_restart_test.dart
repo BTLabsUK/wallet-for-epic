@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The tour opens by itself once: across restarts of the real adapter (LepicDeskWallet over the
 // fake core) on one secret store, through the calls the app makes on a start (settings load,
 // remembered unlock, refresh, startLive) and with the tour opened and closed in between.

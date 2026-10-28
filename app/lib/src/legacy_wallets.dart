@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Finds the Epic Cash wallets older programs left on a desktop, for the Import wizard's Find and
 /// Choose steps. Read only: nothing here creates, moves, renames, locks or deletes a file in a
 /// scanned folder. Plain Dart (dart:io), no Flutter.
@@ -30,7 +31,7 @@ const String chainOnlyText = 'Blockchain data, not a wallet.';
 /// The text for a folder with nothing to import.
 const String noWalletText = 'No wallet in this folder. A wallet folder contains wallet_data/wallet.seed.';
 
-/// The text for a wallet folder with links in it (B15).
+/// The text for a wallet folder with links in it.
 const String linksText = 'This wallet’s folder has links in it, so it is not imported. Restore it from the recovery phrase.';
 
 /// The text for a wallet folder that could not be read to the end.

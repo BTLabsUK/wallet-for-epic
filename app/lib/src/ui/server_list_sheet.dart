@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
 /// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
 /// the top starts empty, filters the list while typed in, and offers Add as soon as nothing
@@ -740,7 +741,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     // Add shows as soon as nothing matches, whatever is typed (a tap says when it is no
     // address), and for an address no row has even while some rows match its text.
     final listedTyped = typed != null && all.any((e) => _same(e.value, typed));
-    // Text that is not an address gets the error line alone, never an Add for it (UI-031).
+    // Text that is not an address gets the error line alone, never an Add for it.
     final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding) && _fieldError != l.slNotAnAddress;
     final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
     if (_node) ref.watch(nodeFailoverProvider);
@@ -1127,7 +1128,7 @@ class _ServerRow extends StatelessWidget {
                               )
                             : null,
                       ),
-                    // The server in use cannot go: switch first (UI-044).
+                    // The server in use cannot go: switch first.
                     IconButton(
                       key: serverListRemoveKey(e.value),
                       tooltip: current ? l.slSwitchFirst : l.slRemove,
@@ -1573,7 +1574,7 @@ const Duration ownNodeAskEvery = Duration(seconds: 15);
 /// (with `at tip`), Version, Peers and Uptime 24 h as a grid, each only when known; then the
 /// monitor's view of the network and when it last checked. The user's own node (this phone,
 /// the home network, a VPN) is asked directly every 15 s instead: Height against the network
-/// tip, Version, Latency, Accepts transactions and Mempool (own-node spec §2, §6).
+/// tip, Version, Latency, Accepts transactions and Mempool.
 class _CurrentNodeFacts extends ConsumerStatefulWidget {
   const _CurrentNodeFacts({required this.choice});
 

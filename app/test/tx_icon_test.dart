@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -12,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// D-12: a payment tile's square is its loader.
+/// A payment tile's square is its loader.
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -572,7 +573,7 @@ void main() {
     expect(tile.edge, side.color);
     expect(side.width, currentMarkStroke);
     expect(tile.halo, mark.boxShadow!.single.color);
-    // The timeline mark is round, as the send tracker's nodes (UI-036); the tile keeps its
+    // The timeline mark is round, as the send tracker's nodes; the tile keeps its
     // rounded square.
     expect(mark.shape, BoxShape.circle);
     expect(tile.radius, _t.radiusSmall);

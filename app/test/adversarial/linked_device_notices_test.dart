@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A linked device that turned hostile (lost, stolen, or linked by mistake) can only send
 // notices. Whatever it says, it must not freeze this device's coins for good, write a payment
 // row larger than its coins, steer the link to a server of its choice or spoof what the user

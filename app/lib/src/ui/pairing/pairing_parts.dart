@@ -1,4 +1,5 @@
-/// The pieces every pairing screen shares, on the phone (SPEC 3): the word tiles, the trust
+// SPDX-License-Identifier: Apache-2.0
+/// The pieces every pairing screen shares, on the phone: the word tiles, the trust
 /// badges, the contact avatar, the countdown, the switch rows with their info icon, the share
 /// box and the outcome card. The desktop reads the tiles and badges too.
 library;
@@ -228,7 +229,7 @@ class _DashedBox extends CustomPainter {
 AppLocalizations _l10n(BuildContext context) =>
     Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
 
-/// The trust badge of [record] (SPEC 3): Verified (ok), Paired, not verified (warn, "Paired"
+/// The trust badge of [record]: Verified (ok), Paired, not verified (warn, "Paired"
 /// with [short]), Keys changed (risk). Nothing for a pending record.
 class TrustBadge extends StatelessWidget {
   const TrustBadge(this.record, {super.key, this.short = false});

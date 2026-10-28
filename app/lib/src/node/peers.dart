@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node's peers through its owner API: who it is connected to, which peers it banned,
 /// ban and unban, and peer counts over the session for small graphs.
 ///

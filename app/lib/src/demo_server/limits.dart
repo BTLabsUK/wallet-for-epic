@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The server's limits: new demos per client, and Argon2id work at once.
 library;
 

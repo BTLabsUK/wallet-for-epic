@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 @TestOn('browser')
 library;
 
-// W-06 in the browser: the web DemoApi's fetch side (the faucet claim goes without a
+// The demo server in the browser: the web DemoApi's fetch side (the faucet claim goes without a
 // preflight or a cookie) and the socket's `opened`, which the reconnecting client waits on.
 
 import 'dart:async';

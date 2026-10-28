@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Which Epicbox relays the app knows, so Send can warn about an address whose relay it has
 /// never heard of (a mistyped domain, linux-14). A warning only: any relay may be typed.
 library;

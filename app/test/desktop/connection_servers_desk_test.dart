@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Advanced › Connection servers on the desktop (connection_servers_row.dart): the row
 // sits under the Pairing switch, hidden while Pairing is off; the field lists every chosen host;
 // the list takes ticks up to three and stores the set (the defaults store nothing); the state

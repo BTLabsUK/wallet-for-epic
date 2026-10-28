@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // How an old Epic GUI's address book maps into the app's contacts (lib/src/legacy/gui_contacts.dart):
 // kinds read from the content, bare keys completed, untrusted text cleaned, matches merged without
 // changing what is saved. Synthetic names and addresses only.

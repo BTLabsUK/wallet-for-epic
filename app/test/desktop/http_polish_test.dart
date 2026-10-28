@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Polish from the first real-funds HTTP test: the notice after a send, how a receipt over the
 // HTTP listener is labelled, one copy button on the listener address, and an Epicbox send that
 // waits for the recipient.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's linked devices pieces shared by its screens: the "seen" line, why a link failed,
 /// the rename and confirm dialogs, the servers sheet, and the quiet offer that turns the
 /// feature on.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Advanced › Confirmations on the phone: the wallet's stored count as a stepper,
 // 6 marked Default, 1 and 30 the bounds, Reset back to 6, the quiet note below 6, quick taps
 // stored as one, the balance re-split at once, and a refusal reverted with a notice.

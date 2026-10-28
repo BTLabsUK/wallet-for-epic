@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The distribution switch (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): which parts a build
 // for our own page, Google Play or F-Droid carries. Run each way:
 //   flutter test test/dist_build_test.dart

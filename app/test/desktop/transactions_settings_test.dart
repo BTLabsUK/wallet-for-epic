@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Transactions on the desktop (26.10.13): the renamed page and its groups, the Link
 // and File switches, the method Send starts on (limited to the methods that are on), Send's
 // defaults only with Advanced › Send options, and what follows from the switches on Send,
@@ -110,7 +111,7 @@ void main() {
       expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text('HTTP')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text('File Transfer')), findsOneWidget);
       expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, 'Link · Tor');
-      // Epicbox's receiving rows sit under its switch (tester #112), nothing is duplicated.
+      // Epicbox's receiving rows sit under its switch, nothing is duplicated.
       expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
       expect(find.text('Epicbox receiving'), findsNothing, reason: 'no group of its own at the bottom any more');
@@ -295,7 +296,7 @@ void main() {
       expect(_selected<TxMethod>(tester), TxMethod.epicbox);
     });
 
-    testWidgets('Epicbox switched off while Send is open: an empty form moves to the start method (AND-4)', (tester) async {
+    testWidgets('Epicbox switched off while Send is open: an empty form moves to the start method', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkHttp: true));
       expect(_selected<TxMethod>(tester), TxMethod.epicbox);
       await tester.runAsync(() => _container.read(deskProvider.notifier).saveSettings(_container.read(deskProvider).settings.copyWith(payments: const PaymentPrefs(epicbox: false, linkHttp: true))));
@@ -384,7 +385,7 @@ void main() {
   });
 
   group('Send follows the switches', () {
-    testWidgets('default: Epicbox, Link (listed from the start, #16) and Direct · File', (tester) async {
+    testWidgets('default: Epicbox, Link (listed from the start) and Direct · File', (tester) async {
       await _open(tester, DeskRoute.send);
       expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
@@ -517,7 +518,7 @@ void main() {
   });
 
   group('Receive and the sidebar follow the switches', () {
-    testWidgets('Link · HTTP off: no HTTP card; the HTTP row stays, reading Off (bot #123)', (tester) async {
+    testWidgets('Link · HTTP off: no HTTP card; the HTTP row stays, reading Off', (tester) async {
       await _open(tester, DeskRoute.receive);
       expect(find.text('Link · HTTP address'), findsNothing);
       final row = await _railHttp(tester);

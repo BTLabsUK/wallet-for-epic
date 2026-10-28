@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Debug only: the node service layer in a plain view, for developers.
 //
 //   WFE_NODE_BIN=<path to epic> flutter run -d linux -t lib/main_node_debug.dart

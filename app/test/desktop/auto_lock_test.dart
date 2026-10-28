@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Auto-lock on the desktop (Settings › Account › Security): the open wallet locks after the
 // chosen minutes without a key or the mouse (15 by default, 1 to 60), any input starts the
 // time again, and off never locks by itself while Lock wallet still works.

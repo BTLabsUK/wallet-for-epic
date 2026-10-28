@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Checks from Linux that LEPIC builds for the Apple targets, with no Apple SDK: a quick early
 # check, never the libraries an app ships (tools/build-apple.sh builds those on the Mac).
 #   aarch64-apple-darwin, x86_64-apple-darwin  linked liblepic_ffi.dylib, cargo-zigbuild (zig
 #                                              carries the macOS headers and link stubs)
 #   aarch64-apple-ios, aarch64-apple-ios-sim   liblepic_ffi.a only (no link step): clang with
 #                                              zig's macOS headers as a stand-in SDKROOT
-# Notes and results: docs/apple-port-notes.md.
 #
 # Usage: tools/apple-cross-check.sh [target...]   (default: all four)
 # Env:   ZIG_DIR=<zig folder>   default ~/.local/opt/zig-x86_64-linux-0.15.2

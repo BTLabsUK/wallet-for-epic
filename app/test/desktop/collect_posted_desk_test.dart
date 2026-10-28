@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A payment the contacts' collect finalized and posted reads posted on the desktop (LNX3-4):
 // the listener's "finalized" comes before the post, so the list read then shows it not on the
 // network; the collect's paymentFinalized reads it again. And a payment through a pairing

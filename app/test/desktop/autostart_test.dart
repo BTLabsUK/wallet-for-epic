@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // W4 §0 task 2: per-method on/off and Start with the wallet. LepicDeskWallet over
 // FakeWalletSession (one session for every open, so the counts run on); the password is a
 // throwaway test value; no tor runs.

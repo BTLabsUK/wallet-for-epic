@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The desktop's clock, for screens that say how long ago something happened or how long is

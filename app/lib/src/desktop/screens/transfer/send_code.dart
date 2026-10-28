@@ -1,4 +1,5 @@
-/// Send's side of the scan router (epic-uri spec §3.2, §7.1; design ui.md §2–§6, §9): a pasted
+// SPDX-License-Identifier: Apache-2.0
+/// Send's side of the scan router a pasted
 /// or linked `epic:` code, the payee's claims it carries, and the dialogs a link gets for codes
 /// Send does not take. A code only fills the form; the review and the password stay the only
 /// way to send.
@@ -67,9 +68,9 @@ IconData codeOriginIcon(CodeOrigin o) => switch (o) {
   CodeOrigin.paste => EIcons.paste,
 };
 
-/// The parts of a code that were dropped, one line each, the amount first (ui.md U-2).
+/// The parts of a code that were dropped, one line each, the amount first.
 /// The banner under To while a payment request fills the form: "check the amount", or what was
-/// dropped from the code, in the warning colour (ui.md §2).
+/// dropped from the code, in the warning colour.
 class CodeBanner extends StatelessWidget {
   const CodeBanner({super.key, required this.code, required this.onDismiss});
 
@@ -97,7 +98,7 @@ class CodeBanner extends StatelessWidget {
 }
 
 /// The payee's own words from a code: a quoted block with a start rule, labelled "not verified",
-/// plain text, never a contact's name style (spec §7.1.3, ui.md §4). Nothing when both are absent.
+/// plain text, never a contact's name style. Nothing when both are absent.
 class EPayeeClaims extends StatelessWidget {
   const EPayeeClaims({super.key, this.label, this.note});
 
@@ -177,7 +178,7 @@ void showSlateTextDialog(BuildContext context, {required VoidCallback onOpen}) =
   ),
 );
 
-/// A link Send cannot take (ui.md §6): what it is, the start of the text, Copy (the whole text)
+/// A link Send cannot take: what it is, the start of the text, Copy (the whole text)
 /// and OK. Pairing comes here too until the desktop pairs: the one place to swap for that flow.
 void showCodeDialog(BuildContext context, {required IconData icon, required String title, required String text, required String code}) {
   final shown = scanPreview(code);

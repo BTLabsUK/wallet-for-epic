@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Prints the `desktop` block of update.json for a release (btlabs-public FORMAT.md section 6):
 # per system the version and the release file the desktop downloads and installs by itself
 # (lib/src/desktop/data/desk_update.dart), with its SHA-256 and size read from the file.

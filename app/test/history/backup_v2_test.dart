@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Version 2 of the history file: invoices both ways, the pairing and slate messages of each
 // payment, the wallet's name and the app's settings; the shared address book as a whole; and
 // version 1 files, which still open. Sealing is LEPIC's and runs in

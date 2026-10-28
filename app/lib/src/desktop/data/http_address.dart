@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Direct HTTP addresses: the rule Send checks before it asks LEPIC, and this computer's
 /// address for Receive.
 library;

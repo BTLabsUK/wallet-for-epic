@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's pairing state (RFC 0002): the open wallet's [PairingApi], its records, its
 /// events, and what the screens need around them. Empty while the wallet is locked or its
 /// core does not pair, so nothing pairing-related shows then.
@@ -141,7 +142,7 @@ final pairedProvider = Provider<List<PairingRecord>>((ref) => [
 ]);
 
 /// Pairings of this wallet in no address-book contact (never saved, or the contact was
-/// deleted from the shared book): Contacts lists them by the name they chose (PAIR-AND-8).
+/// deleted from the shared book): Contacts lists them by the name they chose.
 final orphanPairingsProvider = Provider<List<PairingRecord>>((ref) {
   final ids = {for (final c in ref.watch(contactsProvider).value ?? const <Contact>[]) c.id};
   return [
@@ -167,7 +168,7 @@ final pairingStraysProvider = FutureProvider<List<PairingStray>>((ref) {
 final pairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(pairingApiProvider).events());
 
 /// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
-/// docks "keys are back" until OK (SPEC 2.4). [PairingNotices] keeps it listening.
+/// docks "keys are back" until OK. [PairingNotices] keeps it listening.
 final keysBackProvider = NotifierProvider<KeysBack, Set<String>>(KeysBack.new);
 
 class KeysBack extends Notifier<Set<String>> {
@@ -206,7 +207,7 @@ class PairingSeenAs extends AsyncNotifier<String> {
   }
 
   /// The name being typed: current for the screens at once, kept once typing pauses (the
-  /// screen may close first, PAIR-AND-1).
+  /// screen may close first).
   void type(String name) {
     final text = name.trim();
     state = AsyncData(text);

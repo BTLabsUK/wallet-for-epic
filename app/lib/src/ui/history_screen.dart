@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import '../devices/phone_devices.dart' show watchHistory;
@@ -307,7 +308,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 : Icons.search_off,
           ),
           message: empty,
-          // The way out of a search that matches nothing, as on the desktop (UI-049).
+          // The way out of a search that matches nothing, as on the desktop.
           action: _query.trim().isEmpty
               ? null
               : TextButton(onPressed: _clearSearch, child: Text(l.historyClearSearch)),

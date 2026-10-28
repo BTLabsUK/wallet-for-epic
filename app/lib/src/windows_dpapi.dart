@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The Windows halves of `windows_secret_store.dart`: DPAPI exactly as
 /// flutter_secure_storage_windows 4.2.2 calls it, and an atomic write-through replace.
 /// Imported only off the web; the functions resolve on first call, so this loads on any OS.

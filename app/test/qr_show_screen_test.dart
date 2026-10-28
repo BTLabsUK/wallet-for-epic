@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The screen that shows a payment or its reply as an animated QR code: hidden until shown,
 // 3 · 2 · 1, the code for 40 s, then covered again; covered at once when the app leaves; the
 // whole route blocks screenshots.

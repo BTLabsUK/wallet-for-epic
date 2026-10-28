@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The sheet after a scan, paste or link that is not for Send: not an Epic code, an address of
 /// the other network, a transaction file's text, a pairing link. Shaped like [InfoSheet].
 library;

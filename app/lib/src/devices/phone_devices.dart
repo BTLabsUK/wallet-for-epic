@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's linked devices: the open wallet's [DeviceService] while Linked devices is on
 /// (Settings › Advanced › Experimental), and the runs on start, resume and unlock.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The 256 entries of the pairing word table, LEPIC's `testdata/sas/emoji-v1.txt` (RFC 0002
 /// 7.5), in its order: byte value `i` is entry `i`. The four words of a check and the five
 /// pairing words are entries of it; the Enter link or words field completes names from it.

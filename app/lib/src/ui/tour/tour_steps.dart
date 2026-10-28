@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone tour's steps: one per screen, in order. Every target is on its screen with
 /// Advanced off ([AdvancedPrefs.none]), and no step switches anything on.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A server's tile, shared by the phone's sheets and the desktop's panels: the operator's icon
 /// from status.btlabs.uk (initials on a muted tint while there is none, or it fails), and the
 /// health as a dot in the corner. Each app passes its own colours ([ServerTileColors]).

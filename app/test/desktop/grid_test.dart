@@ -1,5 +1,6 @@
-// One grid on desktop (docs/plans/w7-layout.md): panels side by side share their top, bottom
-// and header line; every Settings row control is Ctl.sm tall, one of the R4 widths, and the
+// SPDX-License-Identifier: Apache-2.0
+// One grid on desktop: panels side by side share their top, bottom
+// and header line; every Settings row control is Ctl.sm tall, one of the row widths, and the
 // controls of a card end on one right edge; the balance trace is as wide as the balance row.
 import 'dart:io';
 
@@ -116,7 +117,7 @@ const _settingsPages = [
   DeskRoute.settingsHelp,
 ];
 
-/// R4 on the page shown: control sizes, nothing cut short, one right edge per card.
+/// The row widths on the page shown: control sizes, nothing cut short, one right edge per card.
 void _expectRowControls(WidgetTester tester, String what) {
   final widths = [Ctl.rowW, Ctl.rowWide];
   for (final e in find.byType(ERowControl).evaluate()) {

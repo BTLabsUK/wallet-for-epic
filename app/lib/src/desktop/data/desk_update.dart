@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Whether a newer Epic Cash Desktop is out, and getting it: the sidebar's slot and Settings ›
 /// About › Updates (`app/update_notice.dart`). Checked shortly after the wallet opens and every
 /// [deskUpdateEvery] while the app runs ([DeskUpdateController.schedule]), and when About opens.

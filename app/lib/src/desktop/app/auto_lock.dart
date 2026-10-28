@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Auto-lock (Settings › Account › Security), the phone's choices and default: the wallet locks
 /// after [DeskSettings.autoLockMinutes] (1 to 60) without a key press or the mouse in the
 /// window. Off ([DeskSettings.autoLockOn]) leaves locking to the user.

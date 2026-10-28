@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the phone app as a clickable web preview on the fake wallet (no server, no demo mode)
 # and stages it for publishing under any path: the app starts in the wallet with no PIN, Lock
 # still works and Unlock is one tap (demo.dart, pinlessBuild).

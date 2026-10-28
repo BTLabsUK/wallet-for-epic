@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's one "restore not finished" state, driven by the core's flag.
 ///
 /// A wallet rebuilt from its phrase (a restore, or a damaged database the core set aside) gets

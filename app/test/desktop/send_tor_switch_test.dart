@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The one Tor switch on desktop Send: every gate and chip comes from torWay. Starting and
 // not connected hold covered sends (Epicbox, an onion); nothing falls back to the clearnet;
 // Link to http(s) goes on the clearnet even with Tor on; an onion with Tor off needs Tor.

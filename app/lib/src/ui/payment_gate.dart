@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Which payment methods Send and Receive show: the ones Settings › Transactions offers
 /// (`AppSettings.payments`), plus any a payment in use still needs. A method is never taken
 /// away under a payment half-way: a file send waiting for its reply keeps Direct · File Transfer,

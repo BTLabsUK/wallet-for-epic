@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Node failover on the phone (`node_failover.dart` has the rules): watches the node status
 /// Home shows ([walletStatusProvider]) and, once the node in use has not answered for
 /// [nodeFailoverAfter], moves the open wallet to the next working node of the user's list for

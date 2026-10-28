@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Independent release check: drives the real desktop wallet (LEPIC, a real node, a real Epicbox
 # relay) on Linux under xvfb, with throwaway data dirs and a throwaway keyring.
 #

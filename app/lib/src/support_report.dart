@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Problem reports, sealed to the developer and posted to the support intake. The same format as
 /// the Electron GUI's "Report a problem" (its `src/shared/supportBundle.js`), so the developer's
 /// `support:list` and `support:fetch` tools read reports from both apps:
@@ -26,7 +27,7 @@ import 'package:cryptography/cryptography.dart';
 import 'net/http.dart';
 
 /// The developer's public key (the GUI's `src/shared/supportKey.js`), and its id: the first 8
-/// bytes of its SHA-256. Rotating it: the GUI repo's `docs/support/KEYS.md`.
+/// bytes of its SHA-256. Rotating it means shipping a new key with the next release.
 const String supportPublicKey = 'YM65I1OjO76rTaLGRAbLux2+rIObMMd+3v092QufNSU=';
 const String supportKeyId = 'd9749febd701c2fe';
 

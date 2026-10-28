@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// History files: the payload LEPIC seals as a `.wfeh` file, and the plain CSV. A port of
 /// `app/rust/src/core/export.rs`; the encryption is LEPIC's (`EpicWallet.sealAppData`), in the
 /// same `WFEH` version 1 format, so files of the old core open and the other way round.

@@ -1,4 +1,5 @@
-/// What Send's summary shows (F11): the amount, the fee, what the balance is after the send,
+// SPDX-License-Identifier: Apache-2.0
+/// What Send's summary shows: the amount, the fee, what the balance is after the send,
 /// and what the send locks until its change confirms. Pure: amounts in nanoepic, as the
 /// desktop UI keeps them; no wallet calls.
 library;
@@ -57,7 +58,7 @@ class SendEstimate {
       'SendEstimate(amount: $amount, fee: $fee, inputs: $inputCount, change: $change in $changeOutputs, locked: $locked)';
 }
 
-/// The summary rows of a send (F11, decision D-4).
+/// The summary rows of a send.
 class SendSummary {
   const SendSummary._({
     required this.amount,

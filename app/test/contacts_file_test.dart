@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Export and Import contacts (contacts_file.dart): the file, its refusals, and the import's
 // rules (the GUI import's planner: nothing saved changes, a match only gains what it lacks).
 import 'dart:convert';

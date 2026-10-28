@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What counts as local in the Offline mode: this computer (loopback, `localhost`) and the
 /// private local network (10/8, 172.16/12, 192.168/16, link-local 169.254/16, IPv6 ULA fc00::/7
 /// and link-local fe80::/10). Never a public address, an onion, or a name that resolves to a
@@ -174,7 +175,7 @@ Future<String?> localUrl(String url, HostLookup lookup) async {
   return host == u.host ? u.toString() : u.replace(host: host).toString();
 }
 
-/// What a node is to the user, from its address (own-node spec §1). It decides where its facts
+/// What a node is to the user, from its address. It decides where its facts
 /// come from (the node itself for every own class, never status.btlabs.uk), the panel's label
 /// and whether an owner secret may travel to it.
 enum NodeClass {

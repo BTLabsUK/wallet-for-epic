@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// JSON codecs for every `models.dart` type that crosses [WalletService] and [WalletSession].
 ///
 /// Wire forms: `BigInt` as a decimal string, bytes as base64, times as UTC milliseconds since

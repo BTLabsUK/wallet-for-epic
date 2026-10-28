@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Node and Epicbox lists ([ServerList], shared with the desktop), kept in the
 /// secret store: one JSON object per kind and chain under `app.serverList.<kind>.<chain>`.
 ///

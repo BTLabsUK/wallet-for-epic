@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the web app the way the demo serves it, then
 # precompresses it and prints what a first load transfers.
 #

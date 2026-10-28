@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Help in a chosen language: the English topics and sections of help_content.dart, each replaced
 /// by its translation (help_de.dart, help_pl.dart, help_ru.dart, help_zh.dart, help_th.dart) with
 /// the same id when the language has it. A topic or section the language lacks stays English, so

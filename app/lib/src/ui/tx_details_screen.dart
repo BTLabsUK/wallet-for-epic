@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import '../devices/phone_devices.dart' show deviceServiceProvider, watchHistory;
@@ -543,7 +544,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 : HelpAnchor.sending,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
-          // One destructive look (UI-015): the cancelling choice in red, the safe one neutral.
+          // One destructive look: the cancelling choice in red, the safe one neutral.
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context, false),
@@ -668,7 +669,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     // A withdrawal from a paired exchange has its own steps (WithdrawalBlock).
     final withdrawal = withdrawalOf(ref, tx);
     // An invoice this payment paid (PaidInvoiceBlock): a paired contact's has its own card and
-    // steps (SPEC 2.8), so the card here keeps only what the user can do (PAIR-AND-4).
+    // steps, so the card here keeps only what the user can do.
     final paidInvoice = switch (tx.slateId) {
       final slate? => ref.watch(paidInvoiceProvider(slate)).value,
       null => null,
@@ -878,7 +879,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           // The request this wallet sent, if it is one (I-06).
           IssuedInvoiceBlock(tx: tx),
-          // A withdrawal a paired exchange sent (SPEC 2.8).
+          // A withdrawal a paired exchange sent.
           WithdrawalBlock(tx: tx),
           if (tx.source != TxSource.wallet) ...[
             const SizedBox(height: 8),
@@ -935,7 +936,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   : l.txDetailsReceivedFrom,
               address: counterparty,
               name: name,
-              // An invoice is paid again by a new invoice, not a send to its address (PAIR-AND-18).
+              // An invoice is paid again by a new invoice, not a send to its address.
               canSendAgain: outgoing && tx.status == TxStatus.confirmed && paidInvoice == null,
               tag: tx.manualFields.contains(ManualField.counterparty)
                   ? ManualTag(editedAtUnix: tx.manualEditedAtUnix, from: true)
@@ -950,7 +951,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             ),
           ]
           // A QR code or file exchange carries no address: the row says so rather than
-          // leaving the payment with no other side (bot #122).
+          // leaving the payment with no other side.
           else if (txNoAddressShown(tx))
             _DetailRow(
               label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,

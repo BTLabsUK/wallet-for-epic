@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -251,7 +252,7 @@ class _EInputState extends State<EInput> {
                   label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
                   child: TextField(
                     controller: widget.controller,
-                    // A mouse caret and selection, never the phone's teardrop handles (UI-001).
+                    // A mouse caret and selection, never the phone's teardrop handles.
                     selectionControls: desktopTextSelectionControls,
                     focusNode: _focus,
                     enabled: widget.enabled,
@@ -443,7 +444,7 @@ class ESegment<T> {
   final String? tooltip;
 }
 
-/// Segmented control: the selected segment is raised, neutral (never gold: R9), with a hairline.
+/// Segmented control: the selected segment is raised, neutral (never gold), with a hairline.
 /// [size] `sm` is 36 u tall (a row's control), `md` 44 u (the Send method selector);
 /// [stretch] gives every segment an equal share of the width.
 class ESegmented<T> extends StatelessWidget {
@@ -573,7 +574,7 @@ class _SegState<T> extends State<_Seg<T>> {
 }
 
 /// A radio option that needs a sentence: icon, title, description; selected is neutral: a raised
-/// fill, a 40 % text edge and a check (never gold: R9).
+/// fill, a 40 % text edge and a check (never gold).
 class EChoiceCard extends StatefulWidget {
   const EChoiceCard({
     super.key,

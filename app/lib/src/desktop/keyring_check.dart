@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Linux: the Secret Service (gnome-keyring, KWallet) holds the app's settings and the wallet's
 /// sealed password. libsecret blocks the window's thread while it waits for a keyring that is
 /// missing or must first be made, so the window never showed (linux-01). Before the first

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:epic_wallet/src/connection_state.dart';
@@ -343,7 +344,7 @@ void main() {
         find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, over Tor$')),
         findsOneWidget,
       );
-      // The node goes over Tor too (LEPIC E-12).
+      // The node goes over Tor too.
       expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsOneWidget);
       handle.dispose();
@@ -431,7 +432,7 @@ void main() {
       expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
     });
 
-    // The owner saw no mark: a long state word in a large font cut " · Tor" off its end. The
+    // A report said no mark showed: a long state word in a large font cut " · Tor" off its end. The
     // icon now leads a line of its own.
     for (final (locale, word) in [
       (const Locale('pl'), 'Przez Tor'),

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Receive's Epicbox tab on a phone, with the real fonts: the fonts decide how many lines the
 // address and the buttons take, and the test font draws every glyph a full em wide. This file
 // loads them for itself, so the other tests keep the test font.

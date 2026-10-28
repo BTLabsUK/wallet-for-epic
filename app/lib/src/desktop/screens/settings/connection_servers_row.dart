@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Advanced › Experimental › Connection servers (desktop): the Epicbox servers where two
 /// wallets find each other when they connect. The row says in one line what it is for, shows the
 /// chosen servers in the field (every host, wrapped, never cut), opens the Epicbox list as a set

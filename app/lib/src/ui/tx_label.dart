@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A payment's label, edited in place: the pen, the one-line field that takes the title's
 /// place, and the "Added by you" tag beside every value the user typed.
 library;

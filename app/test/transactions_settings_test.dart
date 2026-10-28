@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Transactions on the phone: the payment methods, one switch each, grouped by
 // family (Epicbox; Link › HTTP, Tor; Direct › QR Payment, File Transfer), the last one on
 // staying on; the method Send starts on (only among the methods offered, Link once); and, with
@@ -161,7 +162,7 @@ void main() {
     expect(_titleOf(tester, 'tx-http'), 'HTTP');
     expect(_titleOf(tester, 'tx-tor'), 'Tor');
     expect(_titleOf(tester, 'tx-file'), 'File Transfer');
-    // Epicbox: a switch, on; the row is the label only (R5), the explanation behind its info icon.
+    // Epicbox: a switch, on; the row is the label only, the explanation behind its info icon.
     expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxHint)), findsNothing);
     expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
     // Link is off by default, File Transfer on.

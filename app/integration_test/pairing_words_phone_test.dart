@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of pairing by words on a phone (report utc3fhjj, 2026-10-26): the real app on the
 // device with the real LEPIC core and real mainnet relays. The phone's own relay is one outside
-// the words meeting list (epicbox.iniaku.my.id, as the owner had), which LEPIC 26.10.16 refused
+// the words meeting list (epicbox.iniaku.my.id, as a tester had), which LEPIC 26.10.16 refused
 // words for outright ("Can't reach the relay").
 //
 //   WFE_WORDS_MODE=filter: run the emulator with `-dns-server 194.168.4.100` (Virgin Media's DNS,
@@ -203,7 +204,7 @@ void main() {
     final c = await boot(tester, Chain.mainnet);
     await createWallet(tester);
     await tester.runAsync(() => c.read(appSettingsProvider.notifier).setAdvanced(AdvancedPrefs(features: {AdvancedFeature.pairing})));
-    // The relay the owner had, switched live as Settings does (server_switch.dart).
+    // The relay a tester had, switched live as Settings does (server_switch.dart).
     final opened = c.read(walletConfigProvider)!;
     final moved = WalletConfig(
       dataDir: opened.dataDir,

@@ -1,5 +1,6 @@
-// F34 screens on the mock wallet: the Backup group's state line, the export, import and CSV
-// dialogs with their result and error states, the F33 reminder on Overview, and a From backup
+// SPDX-License-Identifier: Apache-2.0
+// History backup screens on the mock wallet: the Backup group's state line, the export, import and CSV
+// dialogs with their result and error states, the backup reminder on Overview, and a From backup
 // row in Activity.
 import 'dart:io';
 

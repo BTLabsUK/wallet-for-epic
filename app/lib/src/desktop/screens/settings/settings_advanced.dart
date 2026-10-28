@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Advanced: the switches that show more of the wallet, each explained in a hover
 /// card, and the one network mode. Nothing here is a value the simple path needs; what a switch
 /// turns on appears where it belongs (the sidebar, Send, a transaction's details).

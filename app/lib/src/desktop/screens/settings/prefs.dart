@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings the settings screens and the shell's status rows share: what 6.1.6 saves in its
 /// config (start Epicbox / HTTP with the wallet, built-in node, sync in background), the HTTP
 /// listener's run state, My nodes' labels and the wallet list edits. The saved part
@@ -73,7 +74,7 @@ class SettingsPrefs {
   /// Listed nodes the user marked as their own ("Mine"): asked directly, owner access offered.
   final Set<String> mineNodes;
 
-  /// An own node's answer to "Use a public node until it is synced?" (D-7), by node URL.
+  /// An own node's answer to "Use a public node until it is synced?", by node URL.
   final Map<String, bool> ownFallback;
 
   /// Own nodes whose plain-http owner secret warning is not shown again.

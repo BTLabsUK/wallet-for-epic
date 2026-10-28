@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: payment requests by file (DESIGN §3) through the app's LEPIC adapter on the real
 // library, with LEPIC's mock chain: a request saved as a file, read as a request, paid by
 // another wallet for its signed amount only, and its answer finished and posted by the issuer;

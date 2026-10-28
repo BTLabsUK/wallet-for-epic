@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Uploads a Play App Bundle to a Google Play testing track (tools/play-upload.sh, https://docs.btlabs.uk/developers/build/variants/).
 
 One edit: edits.insert, bundles.upload, tracks.update (one release, status completed), then

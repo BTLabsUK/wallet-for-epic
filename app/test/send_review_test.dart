@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:epic_wallet/src/known_relays.dart';
@@ -1112,7 +1113,7 @@ void main() {
       await tester.pumpAndSettle();
       await answerPin(tester, settle: false);
       await tester.pump(const Duration(milliseconds: 300));
-      // The line and the busy button both say it (UI-034).
+      // The line and the busy button both say it.
       expect(find.text('Sending…'), findsNWidgets(2));
       expect(
         tester

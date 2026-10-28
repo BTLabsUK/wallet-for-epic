@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -326,7 +327,7 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
       ),
     ),
   );
-  // A toast belongs to the screen it was shown on: leaving the screen closes it (B11).
+  // A toast belongs to the screen it was shown on: leaving the screen closes it.
   ProviderContainer? container;
   try {
     container = ProviderScope.containerOf(context, listen: false);

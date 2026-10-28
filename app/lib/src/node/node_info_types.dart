@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What [NodeInfoService] reports about a node, without the service: the web build shows these
 /// and never reaches the node clients behind them.
 library;
@@ -16,7 +17,7 @@ enum NodeInfoSource {
   none,
 }
 
-/// An own node's head word (own-node spec §2): Synced, Syncing, Behind, Not answering.
+/// An own node's head word: Synced, Syncing, Behind, Not answering.
 enum NodeHead { synced, syncing, behind, down }
 
 /// Where an own node's reference tip came from: never the node itself.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Advanced on the desktop: the More link on a transaction, the locked and the disabled Tor
 // switch, the sidebar and Overview in Offline and Tor only, Send and Receive held by the network
 // mode (File goes on), a pasted onion with Link off, Restore's start height for everyone, and

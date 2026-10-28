@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Catches English left in a translation by mistake: a sentence the template words in English that
 // a language kept as it is, or kept partly English, or (for languages with their own script) wrote
 // without a single letter of that script. test/l10n_test.dart checks keys, placeholders and plurals.

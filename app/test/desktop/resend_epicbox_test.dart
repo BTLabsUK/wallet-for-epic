@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // An undelivered Epicbox, HTTP or Tor send on the desktop: the row says Not delivered and offers
 // Send again beside Cancel; the send being made right now is not offered; unlock sends each
 // Epicbox one again once; Send again goes to the stored URL or onion.

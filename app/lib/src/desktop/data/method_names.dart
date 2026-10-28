@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop names a payment method through `ui/method_icons.dart` (the one source):
 /// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer. LEPIC's `TxMethod` names the
 /// transport; [methodKindOf] maps it to the method.

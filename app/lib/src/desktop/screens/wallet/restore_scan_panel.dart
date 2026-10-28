@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +9,7 @@ import '../../widgets/kit.dart';
 
 /// "Restore not finished" ([ServiceStatus.restoreScan], D3; copy D1): the scan from block 0
 /// runs, waits for the network, or stopped, with Try again. Overview shows it instead of the
-/// empty-wallet state (R16, R35), in the shape of the node-sync panel.
+/// empty-wallet state, in the shape of the node-sync panel.
 class RestoreScanPanel extends ConsumerStatefulWidget {
   const RestoreScanPanel({super.key, required this.scan});
 

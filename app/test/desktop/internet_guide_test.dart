@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Receive from the internet guide shows the first time From the internet is picked, then
 // never again by itself (app-wide, saved); the (?) opens it any time and changes nothing.
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';

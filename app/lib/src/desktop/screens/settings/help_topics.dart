@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's help topics: the content lives in `lib/src/help/help_content.dart`, shared
 /// with the phone, and this file keeps the desktop's names.
 library;

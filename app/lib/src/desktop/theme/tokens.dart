@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop interface's tokens: one set for type, space, sizes, radii and colour, used by
 /// every desktop screen. Values follow the Electron wallet's Modern look (6.1.6,
 /// `src/assets/css/modern/_tokens.scss`), which is Wallet for Epic's Protocol palette; the
-/// sizes are tightened into one consistent scale (see `docs/desktop-ui.md`).
+/// sizes are tightened into one consistent scale.
 library;
 
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class DeskColors extends ThemeExtension<DeskColors> {
   final Color ok, okSoft, warn, warnSoft, risk, riskSoft, info, infoSoft;
 
   /// A transaction's direction on its arrow, icon and amount (Activity, Overview, details,
-  /// Outputs, invoices, toasts). the owner's rule (26.10.18, after 26.10.8's gold): sent red,
+  /// Outputs, invoices, toasts). The rule (26.10.18, after 26.10.8's gold): sent red,
   /// received green, cancelled a neutral grey. [txSent] is money out, not a problem: a vivid
   /// red apart from the softer [risk], which stays for errors, and never the brand gold.
   /// States keep theirs: confirming [info], failed or stalled [warn] or [risk].

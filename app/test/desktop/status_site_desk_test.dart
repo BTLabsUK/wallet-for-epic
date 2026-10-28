@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Node › Privacy › Use status.btlabs.uk on the desktop: off, the wallet asks the site
 // nothing and lists the built-in nodes and Epicbox servers; turning it off drops what the site
 // gave without a restart. The password is a throwaway

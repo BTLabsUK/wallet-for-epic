@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -1150,7 +1151,7 @@ class _PendingSendsCard extends ConsumerWidget {
     final count = waiting.length;
     return Padding(
       padding: const EdgeInsets.only(top: homeCardGap),
-      // In progress, not a warning: the blue edge (UI-029).
+      // In progress, not a warning: the blue edge.
       child: EdgeCard(
         edge: context.tokens.info,
         child: Padding(

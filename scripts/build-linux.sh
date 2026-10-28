@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Reproducible Linux release build: LEPIC release + `flutter build linux --release` + AppImage, all
 # inside an Ubuntu 22.04 container (scripts/linux/Dockerfile). Linux builds are never made on the
 # host: its newer glibc would stop the app starting on older distros.
@@ -11,9 +12,9 @@
 #                                           (tools/fetch-tor.sh, in by default), --dart-define=WFE_TOR=false,
 #                                           and -notor in the AppImage's name
 #        LEPIC_REPO=<url or path>           where the pinned LEPIC commit is read from (default: ~/lepic
-#                                           when it has the commit, else https://gitlab.com/bt-labs-group/lepic.git)
+#                                           when it has the commit, else https://gitlab.com/epic-cash-bt/lepic.git)
 #        LEPIC_FLUTTER_REPO=<url or path>   the same for lepic-flutter (package:lepic): ~/lepic-flutter
-#                                           or https://gitlab.com/bt-labs-group/lepic-flutter.git
+#                                           or https://gitlab.com/epic-cash-bt/lepic-flutter.git
 # Output: build-linux/EpicCashDesktop-<version>[-notor]-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
@@ -22,9 +23,9 @@ image=wfe-linux-build:22.04
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
 binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
 . "$root/tools/env.sh"
-lepic_repo="$(wfe_repo "${LEPIC_REPO:-}" "$HOME/lepic" https://gitlab.com/bt-labs-group/lepic.git "$rev")"
+lepic_repo="$(wfe_repo "${LEPIC_REPO:-}" "$HOME/lepic" https://gitlab.com/epic-cash-bt/lepic.git "$rev")"
 binding_repo="$(wfe_repo "${LEPIC_FLUTTER_REPO:-}" "$HOME/lepic-flutter" \
-  https://gitlab.com/bt-labs-group/lepic-flutter.git "$binding_rev")"
+  https://gitlab.com/epic-cash-bt/lepic-flutter.git "$binding_rev")"
 src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-$rev"
 binding_src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-flutter-$binding_rev"
 

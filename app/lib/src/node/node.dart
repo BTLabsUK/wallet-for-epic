@@ -1,13 +1,14 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node service layer, one import for the node screens (`package:epic_wallet/src/node/node.dart`).
 ///
-/// The data and service layer behind the node screens (F24, F26, F27, O2, D-7): the bundled local
+/// The data and service layer behind the node screens: the bundled local
 /// node's state and controls, its peers and data folder, and what the app can tell about any node.
 /// Desktop only (the local node); `NodeInfo` works anywhere. Pure Dart over `dart:io`; every
 /// outside call (HTTP, clock, disk, process, lock) can be injected, so tests need no real node.
 /// `test/node/node_live_test.dart` drives the real epic binary (see its header).
 ///
 /// Reading a provider never starts a node or downloads anything. Only `LocalNodeController.start()`
-/// does, after the user agreed (O2). In Riverpod 3 a provider that nobody listens to is paused, so
+/// does, after the user agreed. In Riverpod 3 a provider that nobody listens to is paused, so
 /// screens `watch` and tests `listen`.
 ///
 /// ## Providers (`node_providers.dart`)
@@ -19,11 +20,11 @@
 /// | `nodeMaintenanceProvider(chain)` | `NodeMaintenance` | change folder, reuse, delete chain data |
 /// | `peersProvider(chain)` | `PeerSnapshot` stream | autoDispose: reads every 10 s only while watched |
 /// | `peerServiceProvider(chain)` | `PeerService` | `ban`, `unban`, `history` (30 s samples) |
-/// | `nodeInfoProvider((url:, preset:))` | `NodeInfo` | F27, any node; `ref.invalidate` to refresh |
-/// | `localNodeProbeProvider(chain)` | `LocalNodeProbe` | F24: a node already on 127.0.0.1 |
-/// | `localNodeFactsProvider(chain)` | `LocalNodeFacts` | F24 explanation step facts |
+/// | `nodeInfoProvider((url:, preset:))` | `NodeInfo` | any node; `ref.invalidate` to refresh |
+/// | `localNodeProbeProvider(chain)` | `LocalNodeProbe` | a node already on 127.0.0.1 |
+/// | `localNodeFactsProvider(chain)` | `LocalNodeFacts` | facts of the explanation step |
 /// | `chainDataCandidatesProvider(chain)` | `List<ChainDataInfo>` | other nodes' chain data to reuse |
-/// | `fallbackChoiceProvider(chain)` | `FallbackChoice` | D-7 answer (unasked/accepted/declined) |
+/// | `fallbackChoiceProvider(chain)` | `FallbackChoice` | the fallback answer (unasked/accepted/declined) |
 /// | `fallbackDecisionProvider(chain)` | `FallbackDecision` | what the wallet should use now |
 /// | `nodeSettingsProvider(chain)` | `NodeSettings` | start with the app, folder, peers, fallback |
 ///
@@ -32,7 +33,7 @@
 /// `LocalNodeState.phase`: `stopped`, `starting`, `syncing`, `synced`, `error`. `online` is true
 /// only when synced: the node answered `ready_for_txs == true` (or, for a node older than 4.1.0, its
 /// status says `no_sync`), its height is above 0, it has peers, and it is at most 10 blocks behind
-/// the network tip when that is known (O2: never "Online · 0"). A stalled node is `error` with `stalled`, its reason
+/// the network tip when that is known (never "Online · 0"). A stalled node is `error` with `stalled`, its reason
 /// kept. A failed one is `error` with `failure` (`NodeFailure`: binaryMissing, portInUse, diskLow,
 /// spawnFailed, exited, restartFailed, orphanStuck) and `reason`.
 ///
@@ -88,7 +89,7 @@
 /// (the first read the peer was in; kept over one missed read). The node gives no ping,
 /// connected-since or byte counts, and no bandwidth.
 ///
-/// ## Node info (F27)
+/// ## Node info
 ///
 /// `NodeInfo.source`:
 /// - `directory`: status.btlabs.uk lists the node. Gives state, reason, height, blocksBehind,
@@ -103,7 +104,7 @@
 /// `directoryReachedAt` is when the monitor last answered. `NetworkStatus` gives the tip height and
 /// time, tip age, released versions, nodes and Epicbox healthy/total, forked and the health score.
 ///
-/// ## First run (F24) and fallback (D-7)
+/// ## First run and fallback
 ///
 /// `detectLocalNode(chain, url:)` → `LocalNodeProbe` (answers, version, height, readyForTxs,
 /// latencyMs, ours/otherNode). `localNodeFacts` → `LocalNodeFacts` (chainBytes: a dated estimate of

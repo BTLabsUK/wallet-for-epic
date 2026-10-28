@@ -1,4 +1,5 @@
-// The `epic:` payment URI and the scan router (spec docs/feedback/designs/epic-uri/spec.md):
+// SPDX-License-Identifier: Apache-2.0
+// The `epic:` payment URI and the scan router:
 // the vectors of §2.5, the routing table of §3.1, build → parse round trips, the Send
 // address rule, and the strings Stack Wallet and Epic Pay write.
 
@@ -632,7 +633,7 @@ void main() {
       "Stack's label comes first; we keep it as the payee name, not the note",
       () {
         // Stack shows `label` as the note when `message` is missing (send_view.dart:165-169);
-        // spec §2.3: we do not.
+        // we do not.
         final p = _pay('epic:$_e?label=Anna&message=x');
         expect(p.label, 'Anna');
         expect(p.note, 'x');
@@ -680,7 +681,7 @@ void main() {
     // our codes fills the address and nothing else.
   });
 
-  test('a shared invite message routes as its pairing link, its lines kept or run together (PAIR-LNX-1)', () {
+  test('a shared invite message routes as its pairing link, its lines kept or run together', () {
     const link = 'epiccash://pair/1/AbCdEfGh123-_=';
     final message = 'Anna wants to pair Epic Cash wallets with you. Expires 26 Oct, 06:11.\n\nOpen in Epic Cash:\n$link';
     for (final text in [message, message.replaceAll('\n', '')]) {

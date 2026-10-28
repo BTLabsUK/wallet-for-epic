@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Whether this build has Tor: the one build-time switch of the variant without Tor (for app
 /// stores and countries where Tor is a problem). `--dart-define=WFE_TOR=false` (or `0`, `off`)
 /// builds it; the build scripts set it from their `WFE_TOR=0`, which also leaves the tor

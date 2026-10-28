@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The shared badge: one widget for the phone and the desktop, styled from each theme's
 // tokens, drawn in the look [badgeLook] picks.
 import 'package:epic_wallet/src/desktop/theme/theme.dart';

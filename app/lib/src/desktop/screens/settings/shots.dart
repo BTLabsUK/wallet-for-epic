@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:io' show File;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,7 +84,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '20d-node-limited', title: 'Node card, limited info', route: DeskRoute.settingsNode, arg: NodeDemo.limited),
   const DeskShot(id: '20e-node-down', title: 'Node card, not answering', route: DeskRoute.settingsNode, arg: NodeDemo.down),
   const DeskShot(id: '22-settings-node', title: 'Settings, node', route: DeskRoute.settingsNode),
-  // The user's own node (own-node spec): home network, asked directly; owner access; big screens.
+  // The user's own node: home network, asked directly; owner access; big screens.
   const DeskShot(id: '20o-own-node', title: 'Own node, asked directly', route: DeskRoute.settingsNode, arg: NodeDemo.own),
   const DeskShot(id: '20o-own-node-2474', title: 'Own node, asked directly, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.own, width: 2474, height: 1338),
   const DeskShot(id: '20p-own-node-access', title: 'Own node with owner access', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess),
@@ -129,7 +130,7 @@ final List<DeskShot> settingsShots = [
   ),
   DeskShot(
     id: '21b-dlg-fallback-ask',
-    title: 'Use the public node until synced? (D-7)',
+    title: 'Use the public node until synced?',
     route: DeskRoute.settingsNode,
     arg: NodeDemo.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975), FallbackConsent.unasked),

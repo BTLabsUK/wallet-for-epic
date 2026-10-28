@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's explanation marks: a row shows its label only, and the sentence that explains
 /// it sits behind a small info icon. A tap opens an info sheet ([InfoSheet]): a small card
 /// with the icon, the title (the row's name) and the full explanation, above the navigation
@@ -24,7 +25,7 @@ class InfoHint extends StatelessWidget {
   final IconData? icon;
 
   /// False where the row's own title names it already: a disabled row merges the icon into
-  /// itself, and its label would say the title twice (AND-7).
+  /// itself, and its label would say the title twice.
   final bool labelled;
 
   @override

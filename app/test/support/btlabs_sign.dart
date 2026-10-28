@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Test helper: signs BT Labs envelopes the way the Python tool does.
 // Self-contained; vendor it into a test/ folder next to btlabs_public.dart.
 import 'dart:convert';

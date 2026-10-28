@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop app's product name, in every desktop title, header and footer (the phone's is
 /// `appTitle` in l10n: "Epic Cash Mobile"). "Epic Cash" alone is the coin and its network. The
 /// runners and the installer spell it too: `windows/runner/main.cpp`, `windows/runner/Runner.rc`

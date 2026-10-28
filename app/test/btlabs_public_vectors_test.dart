@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The vendored verifier (lib/src/btlabs_public.dart, a copy of btlabs-public's
 // dart/btlabs_public) must reproduce btlabs-public's shared vectors, for both the public file
 // and the signed update manifest.

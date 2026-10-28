@@ -1,4 +1,5 @@
-// Cancelling an incoming, unconfirmed payment on the desktop (decision D5): the button follows the
+// SPDX-License-Identifier: Apache-2.0
+// Cancelling an incoming, unconfirmed payment on the desktop: the button follows the
 // core's `cancellable` flag, the dialog speaks of a payment, and a refusal (the node already has
 // it) is a toast that leaves the row. The send cancel keeps its words.
 import 'dart:io';
@@ -123,7 +124,7 @@ void main() {
     }
   });
 
-  // The owner, 2026-10-25: once this wallet signed and returned its half, the sender can post at
+  // 2026-10-25: once this wallet signed and returned its half, the sender can post at
   // any time, so Cancel waits out receiveCancelHold and any sender report (models.dart).
   group('the hold on an incoming payment', () {
     Tx waiting({required Duration ago, bool senderPosted = false}) =>

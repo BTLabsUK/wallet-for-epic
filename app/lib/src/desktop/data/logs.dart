@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Help › Logs: the log level (Normal, or Detailed for a day), the log's files, and
 /// clearing them. The level is app-wide, saved under [logsKey] in [DeskStore].
 ///

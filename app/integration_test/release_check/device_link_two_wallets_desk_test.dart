@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Linked devices as a tester had them (26.10.20): the desktop holds two wallets, "Desktop" (its
 // own phrase) and "P7" (the phone's phrase), P7 open; the desktop shows the device link, the phone
 // (integration_test/device_link_two_wallets_phone_test.dart on an emulator) pastes it, and while the

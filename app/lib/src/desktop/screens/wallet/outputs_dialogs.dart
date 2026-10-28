@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -25,12 +26,12 @@ class SelfSendDemo {
   final int txId;
 }
 
-/// Split outputs (F13): asks how many, shows the fee, posts it. Returns when closed; the
+/// Split outputs: asks how many, shows the fee, posts it. Returns when closed; the
 /// caller reloads the outputs and the balance.
 Future<void> showSplitDialog(BuildContext context, {SelfSendDemo? demo}) =>
     showEDialog<void>(context, dismissible: false, builder: (_) => _SelfSendDialog(split: true, demo: demo));
 
-/// Consolidate outputs (F13). [spendableCount] of 1 shows why there is nothing to do.
+/// Consolidate outputs. [spendableCount] of 1 shows why there is nothing to do.
 Future<void> showConsolidateDialog(BuildContext context, {int? spendableCount, SelfSendDemo? demo}) => showEDialog<void>(
   context,
   dismissible: false,

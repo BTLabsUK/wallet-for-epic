@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's list of wallets: several named wallets, each with its own data directory and
 /// store keys (D9; phones keep one). Pure Dart over `dart:io`, no Flutter.
 ///

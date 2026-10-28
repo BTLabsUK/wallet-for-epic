@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// German help: the topics and sections of help_content.dart in German, by the same ids. A topic or
 /// section missing here shows in English.
 library;

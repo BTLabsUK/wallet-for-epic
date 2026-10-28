@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Item 3 of 26.10.18: Android cuts a background app's network within seconds, which failed a
 // restore scan or Recheck balance there, and the retry showed 0 % until its first page. The
 // scan now pauses with the app and goes on, with the same start, when it is back.

@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [DeskWalletApi] over the app's wallet core ([WalletService], LEPIC on a computer).
 ///
 /// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. Several
-/// named wallets of one network (mainnet), listed in the [registry] (D9): the first one at
+/// named wallets of one network (mainnet), listed in the [registry]: the first one at
 /// `<app support>/wallets/<chain>` ([WalletDirResolver]) with a null [core.WalletConfig.walletId],
 /// as 0.1.0 made it, each later one at `<app support>/wallets/<id>/<chain>` with walletId = id.
 /// Each wallet's own data (name, scan due, favourites) is saved under its own keys
@@ -92,7 +93,7 @@ final List<NodeServer> deskPublicNodes = [
 
 /// Built-in public Epicbox servers, the default first; status.btlabs.uk can add more.
 /// The Epicbox server 0.1.0 used when none was saved (the desktop's first relay then). An
-/// install with a wallet keeps it (D-13); see [LepicDeskWallet._settleRelay].
+/// install with a wallet keeps it; see [LepicDeskWallet._settleRelay].
 const String oldDefaultEpicboxHost = 'epicbox.stackwallet.com';
 
 final List<EpicboxServer> deskEpicboxes = [
@@ -195,6 +196,8 @@ class LepicDeskWallet implements DeskWalletApi {
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
+    this.nodeRecheck = const Duration(seconds: 60),
+    this.nodeStale = const Duration(minutes: 3),
     this.watchPoll = watchTipEvery,
     this.nodeTimeout = const Duration(seconds: 15),
     this.nodeTorTimeout = const Duration(seconds: 90),
@@ -239,7 +242,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _followTor();
   }
 
-  /// Passwords remembered on this computer, per wallet (F6).
+  /// Passwords remembered on this computer, per wallet.
   final RememberedPasswords _remember;
 
   /// The public IP and port check for HTTP From the internet.
@@ -324,6 +327,13 @@ class LepicDeskWallet implements DeskWalletApi {
   }
   final Duration nodePoll;
 
+  /// How old the node list's checks may get before the list asks every node again.
+  final Duration nodeRecheck;
+
+  /// A check older than this gives no height: the list says nothing about "behind" rather
+  /// than compare a stale height with a fresh one.
+  final Duration nodeStale;
+
   /// How often the node is asked instead while a payment can move with the next block
   /// (watch_mode.dart).
   final Duration watchPoll;
@@ -356,7 +366,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Drain the invoice address when the window gains focus (off in tests).
   final bool invoiceFocus;
 
-  /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
+  /// Makes the built-in node of a network (desktop builds with the bundled `epic`); null
   /// where there is none.
   final Future<BuiltInNode> Function(core.Chain chain)? _builtInNode;
   BuiltInNode? _node;
@@ -380,7 +390,7 @@ class LepicDeskWallet implements DeskWalletApi {
   String? _password;
 
   /// Every move of the wallet's node runs alone, in call order ([_nodeLock]): the user's picks,
-  /// the built-in node on and off, the fallback (D-7).
+  /// the built-in node on and off, the fallback.
   Future<void> _nodeMoves = Future<void>.value();
 
   /// Set while [_switchTo] reopens the wallet: a send or a scan starting then waits for it.
@@ -443,7 +453,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// When tor last connected; null while it is starting, restarting or off.
   DateTime? _torConnectedAt;
 
-  /// The node's last answer said it is not ready for transactions (O2): a sync that reached it
+  /// The node's last answer said it is not ready for transactions: a sync that reached it
   /// does not turn that back into Online.
   bool _nodeNotReady = false;
   ServiceHealth _epicboxHealth = ServiceHealth.off;
@@ -463,6 +473,10 @@ class LepicDeskWallet implements DeskWalletApi {
   DateTime? _lastUpdate;
   String? _notice;
   final Map<String, NodeServer> _checked = {};
+
+  /// When each [_checked] node answered. Heights are compared across the list ("12 behind"):
+  /// a check kept for good froze the others while a node checked later moved on.
+  final Map<String, DateTime> _checkedAt = {};
 
   /// Whether each [_checked] node was asked through tor. A latency is shown only while the way
   /// is still the same: a direct figure never stands in for one over Tor.
@@ -520,7 +534,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!_changes.isClosed) _changes.add(null);
   }
 
-  /// tor's SOCKS proxy for the app's own requests, from LEPIC's tor events (E-12); null while
+  /// tor's SOCKS proxy for the app's own requests, from LEPIC's tor events; null while
   /// tor is not running.
   SocksProxy? _torSocks;
 
@@ -597,7 +611,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Once per run: an install that never saved its Epicbox server keeps the one 0.1.0 used
   /// ([oldDefaultEpicboxHost]) when it already holds a wallet, since the server is part of the
-  /// wallet's address; only an install without a wallet starts on the new default (D-13). The
+  /// wallet's address; only an install without a wallet starts on the new default. The
   /// choice is saved either way, so a wallet made later keeps it too.
   Future<void> _settleRelay() async {
     try {
@@ -798,14 +812,14 @@ class LepicDeskWallet implements DeskWalletApi {
       await _setMeta({'setupPending': pending}, _metaKey(e.walletId));
     } on Object catch (error) {
       if (pending) rethrow;
-      // The store refused (R11): a file in the wallet's folder says the setup was done or
+      // The store refused: a file in the wallet's folder says the setup was done or
       // skipped, so a store that keeps failing does not bring Setup back at every start.
       logWarn('desk', 'setup mark not cleared in the store: ${error.runtimeType}; noted in the wallet folder');
       await done.writeAsString('', flush: true);
     }
   }
 
-  /// [setupPending]'s second answer, when the store could not clear the mark (R11).
+  /// [setupPending]'s second answer, when the store could not clear the mark.
   Future<String> _setupDoneFile(reg.WalletEntry e) async =>
       '${e.isLegacy ? (await _configOf(null)).dataDir : e.dataDir}${Platform.pathSeparator}$setupDoneFileName';
 
@@ -904,7 +918,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// WALLET.txt is the app's own file in a deleted wallet's folder ([writeWalletTxt]): it goes
-  /// too, then the folders the registry kept for it, each only while empty (R19).
+  /// too, then the folders the registry kept for it, each only while empty.
   Future<void> _removeWalletTxt(String dir, {required bool legacy}) async {
     try {
       for (final name in ['WALLET.txt', 'WALLET.txt.tmp', setupDoneFileName]) {
@@ -1054,7 +1068,7 @@ class LepicDeskWallet implements DeskWalletApi {
       // scan brings the funds back.
       logWarn('desk', 'wallet database damaged; rebuilding');
       _notice = deskStrings.deskErrDbDamaged;
-      // A rebuild scans the whole chain: never from a start height kept since a restore (R21).
+      // A rebuild scans the whole chain: never from a start height kept since a restore.
       await _setMeta({'scanPending': true, 'scanFrom': null, 'historyOffer': true}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
@@ -1067,7 +1081,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _sessionRevision++;
     session.heldOutputs = _deviceHeld;
     // Every unlock asks the core whether a restore's scan is still owed, also for a wallet whose
-    // app was closed before the scan-due note was written (R6).
+    // app was closed before the scan-due note was written.
     _restoreFailed = false;
     _restoreUnfinished = false;
     _dueAfterHeight = null;
@@ -1398,7 +1412,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final label = name.trim().isEmpty ? null : name.trim();
     final metaKey = _metaKey(entry?.walletId);
     // Written before the core makes the wallet: an app closed halfway still finds the scan
-    // due at the next unlock (R6).
+    // due at the next unlock.
     await _store.writeJson(metaKey, {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta});
     final T result;
     try {
@@ -1438,7 +1452,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// Takes back what the core wrote for a first wallet it did not finish making (a vault
-  /// without its database, say), so the next start does not take it for a wallet (R37). Only
+  /// without its database, say), so the next start does not take it for a wallet. Only
   /// the first wallet's folder, which held no wallet before ([_newWallet]).
   Future<void> _unmakeFirst(core.WalletConfig config) async {
     try {
@@ -1489,7 +1503,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// A wallet made before the list kept the core's fingerprint, or an import from before:
-  /// kept now, so a restore of its phrase finds it (R15). A failure is logged only.
+  /// kept now, so a restore of its phrase finds it. A failure is logged only.
   Future<void> _keepWalletFingerprint(reg.WalletEntry entry, core.WalletSession session) async {
     try {
       final fp = await session.fingerprint();
@@ -1515,7 +1529,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// The listed wallet of this network that is [mnemonic]'s (O1, R15): the same core
+  /// The listed wallet of this network that is [mnemonic]'s: the same core
   /// fingerprint ([reg.WalletEntry.walletFingerprint], kept for created, restored and imported
   /// wallets, and for older ones at their next unlock), or for an entry with only that, the
   /// same phrase fingerprint. A wallet never unlocked since it was made before either is kept
@@ -1612,7 +1626,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  // ---- Import (B01–B32 as LEPIC takes them: wallet.seed only, history from a scan).
+  // ---- Import (as LEPIC takes them: wallet.seed only, history from a scan).
 
   static String _testNetText(AppLocalizations l) => l.deskErrTestNet;
 
@@ -1752,7 +1766,7 @@ class LepicDeskWallet implements DeskWalletApi {
         final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
         try {
           // The same keys restored or imported before (another seed file of the same phrase):
-          // that wallet is the one to use, not a second copy (R15).
+          // that wallet is the one to use, not a second copy.
           walletFp = await _fingerprintOf(session);
           final fp = walletFp;
           final twin = fp == null ? null : (await _inList())?.where((e) => e.walletFingerprint == fp).firstOrNull;
@@ -1779,7 +1793,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
     logInfo('desk', 'import: wallet made');
-    // R12: the older app's Epicbox server is part of the old address. Kept for this wallet
+    // The older app's Epicbox server is part of the old address. Kept for this wallet
     // unless the Done step's choice says otherwise (keepOldRelay).
     final relay = await _appRelay();
     final box = profile.epicboxDomain;
@@ -1987,7 +2001,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (!_rescanning && _restoreDue && !_restoreUnfinished) {
         // A restore from a block height (Restore's start height) scans from there once; while
         // the core's flag stays, the scan with no height (from block 0, resuming a stopped one)
-        // follows by itself (D2). A rebuild never reuses the height ([_scanEnded]).
+        // follows by itself. A rebuild never reuses the height ([_scanEnded]).
         final from = due['scanFrom'];
         var start = from is int ? BigInt.from(from) : null;
         _restoreFailed = false;
@@ -2164,8 +2178,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final grew = h > _tip;
       _tip = h;
       // The local node answers from its first second, at height 0 while it downloads the
-      // chain: that is "Syncing" (slow), never "Online · 0" (O2). Its sync progress past
-      // height 0 (headers, then blocks, against the network's tip) is wave 6.
+      // chain: that is "Syncing" (slow), never "Online · 0". Its sync progress past
+      // height 0 (headers, then blocks, against the network's tip) is later work.
       // A node that says it is not ready for transactions is syncing too, whatever its height;
       // one that does not say (null) is judged as before.
       _nodeNotReady = tip.readyForTxs == false;
@@ -2252,7 +2266,7 @@ class LepicDeskWallet implements DeskWalletApi {
       spendable: s.spendable.toInt() - held,
       awaitingConfirmation: s.awaitingConfirmation.toInt(),
       locked: s.locked.toInt() + held,
-      // An unpaid issued invoice is in no figure: LEPIC files its output apart (P-1, W-25).
+      // An unpaid issued invoice is in no figure: LEPIC files its output apart.
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
       minConfirmations: _minConf.toInt(),
@@ -2404,9 +2418,18 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<List<NodeServer>> nodes() async {
     final all = await _listed(readDirectory: true);
-    // Each node is checked once in the background; the lists show it when the check is in.
+    // Each node is checked in the background; the lists show it when the check is in. Once a
+    // check is older than [nodeRecheck], every node is asked again together, so the heights
+    // the rows are compared by stay of one moment.
+    final now = DateTime.now();
+    bool known(String url) => _checked.containsKey(url) && _checkedSameWay(url);
+    // A node still being asked does not count: its old check would ask the others in a loop.
+    final again = all.any((n) {
+      final at = _checkedAt[n.url];
+      return _checked.containsKey(n.url) && !_checking.contains(n.url) && (at == null || now.difference(at) >= nodeRecheck);
+    });
     for (final n in all) {
-      if ((_checked.containsKey(n.url) && _checkedSameWay(n.url)) || !_checking.add(n.url)) continue;
+      if ((known(n.url) && !again) || !_checking.add(n.url)) continue;
       unawaited(checkNode(n.url).whenComplete(() {
         _checking.remove(n.url);
         _changed();
@@ -2423,7 +2446,9 @@ class LepicDeskWallet implements DeskWalletApi {
       final c = _checked[n.url];
       if (c == null) return n;
       final latency = _checkedSameWay(n.url) ? c.latencyMs : null;
-      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: c.height, version: c.version, own: n.own, icon: n.icon, listedAs: n.listedAs);
+      final at = _checkedAt[n.url];
+      final height = at != null && DateTime.now().difference(at) < nodeStale ? c.height : null;
+      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: height, version: c.version, own: n.own, icon: n.icon, listedAs: n.listedAs);
     }
 
     return [
@@ -3141,7 +3166,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
   }
 
-  // ---- Seed contacts (F31, spec 9).
+  // ---- Seed contacts.
 
   /// Reads the website's list ([fetchSeeds] in the app); null reads nothing (tests).
   final Future<String?> Function(Uri url)? _seedFetch;
@@ -3556,7 +3581,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // The setting and the saved node change only once the wallet runs on the new node, so a
     // failed start or move leaves both as they were.
     if (on) {
-      // A fallback decision while it starts is applied once the setting is on (D-7).
+      // A fallback decision while it starts is applied once the setting is on.
       final seq = _fallbackSeq;
       final node = await _theNode();
       try {
@@ -3568,7 +3593,7 @@ class LepicDeskWallet implements DeskWalletApi {
         // A stop that came in while it was starting wins.
         if (!node.wantsRunning) throw DeskError.l10n((l) => l.deskErrLocalNodeStopped);
         final current = await _nodeUrl();
-        // While it syncs, the public node the user agreed to (D-7).
+        // While it syncs, the public node the user agreed to.
         final target = await nodeWhileSyncing?.call() ?? node.url;
         if (current != target) {
           try {
@@ -3588,7 +3613,7 @@ class LepicDeskWallet implements DeskWalletApi {
         await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
         logInfo('desk', 'built-in node on');
       });
-      // The status reads "Syncing" from now on while the node is at height 0 (O2).
+      // The status reads "Syncing" from now on while the node is at height 0.
       unawaited(_checkTip());
       if (_fallbackSeq != seq) unawaited(_applyFallback(_fallbackSeq));
       return;
@@ -3608,11 +3633,11 @@ class LepicDeskWallet implements DeskWalletApi {
     });
   }
 
-  /// The public node to use until the local node is synced (D-7), or null for the local node.
+  /// The public node to use until the local node is synced, or null for the local node.
   /// Set by the node layer (main_desktop.dart).
   Future<String?> Function()? nodeWhileSyncing;
 
-  /// D-7: the fallback decision changed. With the local node in use, the wallet moves to the
+  /// The fallback decision changed. With the local node in use, the wallet moves to the
   /// agreed public node while it syncs and back to the local node once it is synced. Only the
   /// latest decision moves it, after any send, finalize or scan running has ended.
   Future<void> applyNodeFallback({required bool usePublic, String? publicUrl}) {
@@ -3714,6 +3739,7 @@ class LepicDeskWallet implements DeskWalletApi {
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own, icon: base.icon, listedAs: base.listedAs);
     }
     _checked[url] = r;
+    _checkedAt[url] = DateTime.now();
     _checkedOverTor[url] = overTor;
     return r;
   }
@@ -3729,6 +3755,7 @@ class LepicDeskWallet implements DeskWalletApi {
     ];
     await _store.writeJson(DeskStore.nodesKey, list);
     _checked[node.url] = node;
+    _checkedAt[node.url] = DateTime.now();
     _checkedOverTor[node.url] = _overTorNow(node.url);
   }
 
@@ -4214,7 +4241,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// After any scan that ran to its end (the due scan, a Recheck): the scan-due note and the
-  /// start height go (R21: a height is used once, by the restore that typed it), and the core
+  /// start height go (a height is used once, by the restore that typed it), and the core
   /// says whether the scan from block 0 is still owed.
   Future<void> _scanEnded(core.WalletSession session, String key) async {
     await _setMeta({'scanPending': false, 'scanFrom': null}, key);
@@ -4264,7 +4291,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _rescanStopAsked = false;
     final ended = _rescanEnded = Completer<void>();
     var finished = false;
-    // A scan counts as a running operation: the fallback waits for it (D-7).
+    // A scan counts as a running operation: the fallback waits for it.
     _busy++;
     try {
       await for (final p in session.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed)) {
@@ -4325,7 +4352,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// Re-encrypts the open wallet under [next], then forgets its remembered password (F6). A
+  /// Re-encrypts the open wallet under [next], then forgets its remembered password. A
   /// wrong [current] throws a [DeskError] with `wrongPassword`; any other failure leaves the
   /// old password working.
   @override
@@ -4349,7 +4376,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (id != null) await _remember.forget(id);
   }
 
-  // ---- History backup (F34) and its reminder (F33). The archive, the sealing and the merge
+  // ---- History backup and its reminder. The archive, the sealing and the merge
   // are the shared ones (`history/`, the core session), so a phone file opens here and back.
 
   @override
@@ -4441,7 +4468,7 @@ class LepicDeskWallet implements DeskWalletApi {
       stars.addAll(await session.favouriteContacts());
       if (stars.length != before && _session == session) await _store.writeJson(_favouritesKey, stars.toList());
       logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
-      // A restored wallet's offer to import is answered (R13).
+      // A restored wallet's offer to import is answered.
       await _setMeta({'historyOffer': false});
       await _reload();
       return HistoryImport(
@@ -4599,11 +4626,11 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> dismissHistoryReminder(DateTime when) => _setMeta({'historyReminderDismissedAt': when.millisecondsSinceEpoch ~/ 1000});
 
-  // ---- Invoices over Epicbox (docs/invoices/flow.md). The shared session's invoice calls,
+  // ---- Invoices over Epicbox. The shared session's invoice calls,
   // mapped onto the desktop's own types (invoices.dart), not renamed. LEPIC keeps the
   // pairings and the waiting invoices; the session keeps what became of each invoice in
   // `wfe_meta.json`. Nothing here pays but [payInvoice], whose only
-  // caller is Review's Approve, after the password; no event, drain or timer leads to it (P-2).
+  // caller is Review's Approve, after the password; no event, drain or timer leads to it.
 
   /// Drains on a timer and on focus while a wallet is open ([_startInvoices]).
   InvoiceScheduler? _invoiceTimers;
@@ -4860,7 +4887,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final people = await _contactsOr();
     final entries = _entries ?? await session.transactions(refresh: false);
     final minConf = _minConf.toInt();
-    // The name is the user's contact's, or the pairing's own; never a name from the invoice (P-6).
+    // The name is the user's contact's, or the pairing's own; never a name from the invoice.
     String labelOf(String? pairingId, String sender) =>
         _pairedName(pairings, people, pairingId) ?? shortAddress(sender, compact: true);
 
@@ -5077,7 +5104,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _ => invoiceError(e),
   };
 
-  /// The only call that pays an invoice (P-2): Review's Approve, after the password, which is
+  /// The only call that pays an invoice: Review's Approve, after the password, which is
   /// checked here first. [amount] is the invoice's own; LEPIC refuses any other.
   @override
   Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password}) => _running(() async {
@@ -5138,7 +5165,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
-  /// The user's cancel of an invoice payment (P-3): LEPIC asks the node first and refuses one
+  /// The user's cancel of an invoice payment: LEPIC asks the node first and refuses one
   /// in the pool or on chain. Never automatic.
   @override
   Future<void> cancelInvoicePayment(String slateId) async {
@@ -5149,7 +5176,7 @@ class LepicDeskWallet implements DeskWalletApi {
         ?.id;
     if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment'); // l10n-ok
     // The coins it locks, read first: after the cancel they are this wallet's again, and
-    // "Spend them to myself now" spends exactly these (D-2).
+    // "Spend them to myself now" spends exactly these.
     var inputs = const <String>[];
     try {
       inputs = [
@@ -5396,7 +5423,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmations: confirmations,
     confirmationsNeeded: minConf,
     counterparty: to,
-    // A split or consolidate: both sides are this wallet (F13).
+    // A split or consolidate: both sides are this wallet.
     contactName: e.transport == 'self' ? null : contactName,
     toSelf: e.transport == 'self',
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
@@ -5436,7 +5463,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
   );
 }
 
-/// Where a paid invoice stands (flow.md §4.4), from its payment and what the session recorded
+/// Where a paid invoice stands, from its payment and what the session recorded
 /// of the reply and the service's notices. A payment still waiting at [overdueAt] is past its
 /// time: LEPIC never marks an invoice payment releasable, and by then the service's invoice has
 /// expired, so the user may cancel it (LEPIC still asks the node first).
@@ -5457,7 +5484,7 @@ PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, 
   return PayState.delivered;
 }
 
-/// Where an issued invoice stands (flow.md §3.3), from the session's state and, once paid,
+/// Where an issued invoice stands, from the session's state and, once paid,
 /// its transaction.
 RequestState requestState(core.IssuedInvoiceState state, core.TxEntry? e, {required int tip, required int minConf}) {
   switch (state) {
@@ -5500,7 +5527,7 @@ InvoiceError invoiceError(core.WalletError e, {bool issuing = false}) => Invoice
 /// History backups are small; a file far larger is not one (the phone's limit).
 const int maxDeskHistoryBytes = 32 << 20;
 
-/// A history file the core refused, in the backup design's words (F34).
+/// A history file the core refused, in the backup design's words.
 Object historyFileError(core.WalletError e) {
   if (e.kind != core.WalletErrorKind.invalidArgument) return _deskError(e);
   final m = e.message;
@@ -5514,7 +5541,7 @@ Object historyFileError(core.WalletError e) {
   };
 }
 
-/// Writes `WALLET.txt` into the wallet folder [dir] (M19): what the folder is and that it is
+/// Writes `WALLET.txt` into the wallet folder [dir]: what the folder is and that it is
 /// not a backup. No address, no id, no path, no secret. A failure is logged, never shown.
 Future<void> writeWalletTxt(String dir, {required String label, required String network, required DateTime created}) async {
   String two(int v) => v.toString().padLeft(2, '0');

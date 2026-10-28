@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet's look: a token set per brightness, mapped onto Material by [buildWalletTheme].
 ///
-/// The values come from the Protocol mockup (`docs/themes/protocol/protocol.css`), which takes
-/// them from the devhub's Protocol scope system. Widgets read [WalletTokens] through
+/// The values come from the Protocol design system's scope colours. Widgets read [WalletTokens] through
 /// `context.tokens` for anything Material has no slot for.
 library;
 
@@ -101,7 +101,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color selectedLine;
 
   /// A transaction's direction, on its arrow, icon and amount wherever a payment shows
-  /// (Activity, recent activity, details, outputs, invoices, notices). the owner's rule
+  /// (Activity, recent activity, details, outputs, invoices, notices). the rule
   /// (26.10.18, after 26.10.8's gold): sent is red, received is green, cancelled is a neutral
   /// grey, so a list reads like a ledger at a glance. [txSent] is money out, not a problem:
   /// a vivid red apart from the softer [risk], which stays for errors and failures, and
@@ -247,7 +247,7 @@ extension WalletTokensOf on BuildContext {
 const String montserrat = 'Montserrat';
 const String jetBrainsMono = 'JetBrainsMonoNL';
 
-/// Protocol, dark. From `epic-devdocs/mockups/shared.css`; the status set (amber apart from the
+/// Protocol, dark. The status set (amber apart from the
 /// gold, a blue for in-progress states, a neutral selection) is the wallet's own.
 const WalletTokens protocolDark = WalletTokens(
   bg: Color(0xFF08080A),
@@ -493,7 +493,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       style: SegmentedButton.styleFrom(
         backgroundColor: t.field,
         foregroundColor: t.dim,
-        // A selection is neutral: gold is the brand and the primary action only (UI-011).
+        // A selection is neutral: gold is the brand and the primary action only.
         selectedBackgroundColor: t.selected,
         selectedForegroundColor: t.text,
         side: BorderSide(color: t.line),
@@ -526,7 +526,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       contentTextStyle: TextStyle(color: t.bg),
       actionTextColor: t.bg,
     ),
-    // Progress is work in progress: the blue, never the gold (UI-062).
+    // Progress is work in progress: the blue, never the gold.
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: t.info,
       linearTrackColor: t.line,

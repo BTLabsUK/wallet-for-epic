@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `app_log.dart` in the browser: a page has no file to write, so the log stays in memory for
 /// the life of the tab, redacted at the call as everywhere (`AppLog` in `log.dart`), and is gone
 /// on reload. Nothing goes to the browser console, which any extension or shared screen can

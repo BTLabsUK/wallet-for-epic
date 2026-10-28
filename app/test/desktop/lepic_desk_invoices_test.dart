@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Invoices on the desktop's LEPIC adapter: LepicDeskWallet over the real LepicWalletSession on
 // a stand-in `EpicWallet` that keeps a paired contact, its waiting invoices and transactions as
 // LEPIC does (RFC 11). No native library is loaded; the password is a test value.
@@ -487,7 +488,7 @@ void main() {
       expect(book.invoice('inv-1')!.state, PayState.delivered);
       final tx = (await wallet.transactions()).single;
       expect(tx.isInvoice, isTrue);
-      expect(tx.incoming, isFalse, reason: 'an invoice paid is money going out (P-1)');
+      expect(tx.incoming, isFalse, reason: 'an invoice paid is money going out');
     });
 
     test('a bounce withdraws the issued invoice once and tells once', () async {
@@ -603,7 +604,7 @@ void main() {
 
     test('paid, then the service withdrew it while offline: its later notice offers Cancel payment', () async {
       // The payer's side of the sequence: pay, the service goes offline and withdraws, comes
-      // back and refuses the payment, answering it with `withdrawn` (LEPIC W-28).
+      // back and refuses the payment, answering it with `withdrawn`.
       lepicWallet.park('inv-1', 12000);
       await wallet.invoices();
       final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
@@ -635,7 +636,7 @@ void main() {
       await expectLater(wallet.cancelInvoicePayment('inv-1'), throwsA(isA<InvoiceError>()), reason: 'LEPIC asks the node first');
     });
 
-    test('Cancel payment, then Spend them to myself now: exactly the coins the payment locked (D-2)', () async {
+    test('Cancel payment, then Spend them to myself now: exactly the coins the payment locked', () async {
       lepicWallet.park('inv-1', 12000);
       await wallet.invoices();
       final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
@@ -680,7 +681,7 @@ void main() {
     expect(payments, 0);
   });
 
-  test('payInvoice has one caller on the desktop: Review\'s Approve (P-2)', () {
+  test('payInvoice has one caller on the desktop: Review\'s Approve', () {
     final callers = <String>[];
     for (final f in Directory('lib/src/desktop').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'))) {
       final text = f.readAsStringSync();

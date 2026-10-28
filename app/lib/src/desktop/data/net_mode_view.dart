@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The network mode (Settings › Advanced) as the desktop screens show it: what blocks network
 /// actions now, and the one sentence that says why. Every screen asks here, so they all say the
 /// same thing (`network_gate.dart`'s [netBlockFor] decides).

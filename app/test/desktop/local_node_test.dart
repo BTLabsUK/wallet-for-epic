@@ -1,4 +1,5 @@
-// The local node panel (spec §19, §22): a fake state stream through starting → headers →
+// SPDX-License-Identifier: Apache-2.0
+// The local node panel: a fake state stream through starting → headers →
 // chain state download → kernels → blocks → synced, asserting the word, the stage line, the
 // overall %, the step strip and the rail line; then stalled, each failure, stopped; the Ask
 // dialog once and never again; Change… under While syncing; Delete's typed confirm; Reuse's
@@ -179,7 +180,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('the Ask dialog (D-7) shows once when syncing starts unasked; its title names the fallback; never again after an answer', (tester) async {
+  testWidgets('the Ask dialog shows once when syncing starts unasked; its title names the fallback; never again after an answer', (tester) async {
     await show(tester, state: mockLocalNode(LocalNodePhase.stopped));
     expect(find.text('Use node.epiccash.com until the local node is synced?'), findsNothing);
     await step(tester, mockLocalNode(LocalNodePhase.syncing, overall: 0.1));

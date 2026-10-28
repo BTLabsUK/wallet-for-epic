@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Picking a transaction file from disk through the system's file dialog, and opening folders and
 /// links in the system's file manager and browser.
 library;

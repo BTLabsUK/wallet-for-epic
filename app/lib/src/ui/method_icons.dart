@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The payment methods' one icon each, and their short names, for the whole app: badges,
 /// the Send and Receive segments, settings, contacts, history, help.
 ///
-/// The owner's model (2026-10-25): Epicbox · Link (Link · HTTP, Link · Tor) · Direct (Direct · QR
+/// The model of 2026-10-25: Epicbox · Link (Link · HTTP, Link · Tor) · Direct (Direct · QR
 /// Payment, Direct · File Transfer). Where space is short (a badge, a segment) the short name:
 /// Epicbox, HTTP, Tor, QR, File, with the icon where it helps, or the icon alone with the full
 /// name in a tooltip where the meaning is obvious. This file is the single source: every other
@@ -46,7 +47,7 @@ abstract final class MethodIcons {
   };
 
   /// The name where space is short (badges, tags, segments): Epicbox, Link · HTTP, Link · Tor,
-  /// Direct · QR, Direct · File. Never a sub-option alone (the owner, 2026-10-25).
+  /// Direct · QR, Direct · File. Never a sub-option alone (2026-10-25).
   static String shortName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.epicbox => l.methodEpicbox,
     MethodKind.linkHttp => l.methodShortHttp,

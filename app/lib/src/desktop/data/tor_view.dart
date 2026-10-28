@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch as the desktop shows it: its [TorState] from the open wallet's status,
 /// and the words every place uses for it (status card, Settings › Privacy, Send, Receive).
 library;
@@ -28,7 +29,7 @@ TorState torStateOf(DeskSettings settings, ServiceStatus? status) {
 String torNetworkLabel(AppLocalizations l) => l.deskTorNetworkLabel;
 
 /// What the switch does and what Tor is, in plain words. It never lists what does not go
-/// over Tor (the owner's rule); a send that skips Tor says so on that send.
+/// over Tor (the rule); a send that skips Tor says so on that send.
 String torNetworkHint(AppLocalizations l) => l.deskTorNetworkHint;
 
 /// The state word: Off, Starting…, On, Not connected.
@@ -40,7 +41,7 @@ String torWord(AppLocalizations l, TorState s) => switch (s) {
 };
 
 /// What goes over Tor, from [torCovered]: one short sentence. The switch never lists what
-/// does not (the owner's rule); a send that skips Tor says so on that send.
+/// does not (the rule); a send that skips Tor says so on that send.
 String torCoverageText(AppLocalizations l) => l.deskTorCoverage;
 
 /// A node on this computer: never over Tor ([torSkipsLocalNode]).

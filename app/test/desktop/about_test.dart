@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/dist_build.dart' show distStore;
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';

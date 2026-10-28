@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The words for a linked device's payment that ended without spending its coins: every ending
 // and every failure code has a line in all six languages, and the codes go over the wire as codes.
 import 'package:epic_wallet/src/devices/device_ending.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   bool _biometrics = false;
 
   /// The biometric prompt is up. The PIN field stays usable meanwhile: a prompt the system
-  /// never answers (AND-8) must not hold the screen.
+  /// never answers must not hold the screen.
   bool _reading = false;
 
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.

@@ -1,4 +1,5 @@
-// W-04: the web demo in the UI. Every check that hides something runs with demo mode on and
+// SPDX-License-Identifier: Apache-2.0
+// The web demo in the UI. Every check that hides something runs with demo mode on and
 // off, so the phone app is shown to keep it.
 
 import 'dart:async';

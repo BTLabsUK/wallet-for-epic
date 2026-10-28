@@ -1,6 +1,7 @@
-/// Riverpod state for invoices on desktop (`docs/invoices/flow.md` on `plan/invoices`): the
+// SPDX-License-Identifier: Apache-2.0
+/// Riverpod state for invoices on desktop: the
 /// open wallet's [InvoiceBook], reloaded on the wallet's change events, drained when the wallet
-/// opens and when the Invoices page opens (flow.md §4.1; the wallet drains on its own timer and
+/// opens and when the Invoices page opens (the wallet drains on its own timer and
 /// on focus, `invoice_scheduler.dart`), and the calls the screens make. Null while locked,
 /// loading, or when the wallet has no invoices.
 library;

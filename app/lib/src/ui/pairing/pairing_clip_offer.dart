@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's clipboard offer (Pairing UX plan 4.7, 5): a pairing link copied in a chat is
 /// offered once, as a small sheet, when the app comes to the front or Pair or Contacts opens.
 /// Use it runs what a paste runs. The rules are `pairing_clipboard.dart`'s.

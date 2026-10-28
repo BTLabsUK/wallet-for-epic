@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # Builds the Windows release and zips it. Run from anywhere in PowerShell 7 on Windows.
 #
 # Needs: Flutter 3.47.5 (default C:\Users\<you>\flutter), rustup (LEPIC's rust-toolchain.toml

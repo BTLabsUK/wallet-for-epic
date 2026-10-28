@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Demos on disk: `<root>/demos/<id>/` with `demo.json`, the wallet and its secret store.
 library;
 

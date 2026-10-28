@@ -1,4 +1,5 @@
-// EShortAddress (spec 7.1): the full short form when it fits, the compact form when it does not,
+// SPDX-License-Identifier: Apache-2.0
+// EShortAddress: the full short form when it fits, the compact form when it does not,
 // never a tail ellipsis; the whole address in the tooltip and the screen-reader label.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,7 +25,7 @@ void main() {
   for (final (a, full, compact) in [
     (_epicbox, 'esWxbo…3jUcNK@epicbox.epiccash.com', 'esWxbo…3jUcNK'),
     (_tor, 'wfe7q3…abcdid.onion', 'wfe7q3…abcdid'),
-    // Lists drop a link's scheme (UI-003); the tooltip and Copy keep it.
+    // Lists drop a link's scheme; the tooltip and Copy keep it.
     (_http, 'pay.example.org/…', 'pay.example.org/…'),
   ]) {
     testWidgets('$full in a wide cell and its compact form in a narrow one', (tester) async {

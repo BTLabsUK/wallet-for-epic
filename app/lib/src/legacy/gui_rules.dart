@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The cleaning rules GUI 6.1.6 applies when it imports an older wallet, ported one to one so the
 /// Import wizard brings the same values across. Sources (epic-gui-wallet, release 6.1.6, 5a83e2f):
 /// src/shared/importer.js, nodeAddress.js, settingsStore.js (cleanLabel), myNodes.js,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../theme/tokens.dart';
 
-/// Two panels side by side as one unit (rule R1 of `docs/plans/w7-layout.md`): [main] takes
+/// Two panels side by side as one unit: [main] takes
 /// the width left over, [side] is [sideWidth] wide, [gap] apart ([Sp.col] by default). Both get
 /// the taller one's height, so they share their top and bottom edges.
 ///

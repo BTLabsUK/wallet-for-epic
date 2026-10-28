@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [RpcChannel] over a `dart:io` [WebSocket]: the server's side of `/api/ws`, and a client
 /// for tests and the VM end-to-end run.
 library;

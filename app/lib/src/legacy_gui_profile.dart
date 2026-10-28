@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the Import wizard brings across from an older Epic GUI besides the wallet itself: its
 /// label, node, Epicbox server and contacts, as GUI 6.1.6's own importer brings them
 /// (epic-gui-wallet src/shared/importer.js at release 6.1.6). Its language and built-in node

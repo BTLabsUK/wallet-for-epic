@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The smart scan router: what a scanned, pasted or linked text is, and the `epic:` payment URI
-/// (spec `docs/feedback/designs/epic-uri/spec.md`). Pure Dart: no I/O, no wallet, no
+///. Pure Dart: no I/O, no wallet, no
 /// providers. Address checks come in as [AddressCheck], so the router never invents its own.
 ///
 /// Nothing here pays or opens anything: it only says what the text is. Slates and pairing
@@ -26,7 +27,7 @@ const int maxUriParams = 8;
 /// characters, each `%XX%XX%XX%XX`.
 const int maxUriValueLength = maxNoteLength * 12;
 
-/// Longest note (`message`) a code may carry, in characters, after cleaning (D-4).
+/// Longest note (`message`) a code may carry, in characters, after cleaning.
 const int maxNoteLength = 264;
 
 /// Longest payee name (`label`), in characters, after cleaning.

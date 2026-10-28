@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Snappy decompression (the raw block format, not the framed stream), for the LevelDB tables of
 /// older GUIs' IndexedDB. Pure Dart; every length and offset is checked, so a bad block throws a
 /// [FormatException] and never reads outside its input or loops.

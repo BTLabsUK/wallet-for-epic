@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// One invoice, approved or declined (I-03), and the invoice part of a paid payment's details.
 /// The one caller of `payInvoice` in the app: Approve asks for the PIN (or its biometric
 /// copy) first, every time.
@@ -1114,7 +1115,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     );
 
     final now = ref.watch(clockProvider)();
-    // A paired contact's request: the states of SPEC 2.8 in the contact's own words.
+    // A paired contact's request: the states in the contact's own words.
     final paired = paid.pairingId != null;
     final age = now.difference(DateTime.fromMillisecondsSinceEpoch(widget.tx.createdAtUnix * 1000));
     final Widget? pairedState = !paired
@@ -1133,7 +1134,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
               PairEdgeNotice(tone: BadgeTone.info, title: l.reqWithdrewTitle(service), body: l.reqWithdrewBody),
             _ => null,
           };
-    // Confirmed on the network: done, whatever the contact last reported (PAIR-AND-18).
+    // Confirmed on the network: done, whatever the contact last reported.
     final status = widget.tx.status == TxStatus.confirmed
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1241,14 +1242,14 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
               ),
             ),
           status,
-          // A paired contact's request: where the payment is on its way (SPEC 2.8).
+          // A paired contact's request: where the payment is on its way.
           if (paid.pairingId != null) ...[
             const SizedBox(height: 12),
             if (paid.status == InvoiceStatus.replied && txConfirmations(widget.tx, tip) == null) ...[
               PairEdgeNotice(
                 tone: BadgeTone.info,
                 title: l.reqPaidWaiting(service),
-                // A person's wallet posts it, not "the exchange" (PAIR-AND-4).
+                // A person's wallet posts it, not "the exchange".
                 body: (ref.watch(pairingByIdProvider(paid.pairingId!))?.kind ?? PairingParty.exchange) == PairingParty.person
                     ? l.reqPaidWaitingBodyPerson
                     : l.reqPaidWaitingBody,
@@ -1263,7 +1264,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
   }
 }
 
-/// A paid request's way (SPEC 2.8): Paid, delivered to the contact's relay, posted by the
+/// A paid request's way: Paid, delivered to the contact's relay, posted by the
 /// contact, then the confirmations. The current step says what the wallet waits for.
 class RequestTimeline extends StatelessWidget {
   const RequestTimeline({super.key, required this.paid, required this.tx, required this.name, required this.tip, required this.target});

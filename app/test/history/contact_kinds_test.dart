@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A contact holds one address of each kind (RFC 0002 17.2): the model sorts an address into
 // its kind, the file keeps one address as the old core wrote it and several by kind, and the
 // history keeps them through a save and a history file.
@@ -78,7 +79,7 @@ void main() {
     expect((await other.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
   });
 
-  // R33: a contact the device knows by one address gains the kinds the backup adds, by the
+  // A contact the device knows by one address gains the kinds the backup adds, by the
   // contacts file's rules, in the archive's own list and in the shared address book.
   for (final shared in [false, true]) {
     final where = shared ? 'shared book' : 'archive';
@@ -100,7 +101,7 @@ void main() {
       expect((await here.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
     });
 
-    // R14: the stars travel with the contacts they belong to.
+    // The stars travel with the contacts they belong to.
     test('stars travel in the backup to the contacts they became ($where)', () async {
       final from = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
       final anna = await from.saveContact(Contact(id: '', name: 'Anna', epicbox: _box));

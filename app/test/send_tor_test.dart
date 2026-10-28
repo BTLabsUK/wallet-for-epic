@@ -1,4 +1,5 @@
-// Send to a Tor address: an onion in any form (F9) is a Link recipient (F10): the recipient
+// SPDX-License-Identifier: Apache-2.0
+// Send to a Tor address: an onion in any form is a Link recipient: the recipient
 // card says "Over Tor". With the Tor switch off it needs Tor: Turn on Tor, and the review
 // waits until Tor is on. Then it reaches their wallet ("Reaching their wallet over Tor…", no
 // time promised) and lands on the tracker like any send. A failure to reach them leaves the

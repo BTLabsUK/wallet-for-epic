@@ -1,4 +1,5 @@
-/// The node info providers (F27), apart from the rest of the node layer so that the phone's
+// SPDX-License-Identifier: Apache-2.0
+/// The node info providers, apart from the rest of the node layer so that the phone's
 /// server list can ask an own node without the desktop's node controls; the web build takes
 /// node_info_provider_web.dart.
 library;
@@ -9,7 +10,7 @@ import '../network.dart';
 import '../relay_directory.dart';
 import 'node_info.dart';
 
-/// Node info for any node URL (F27), shared by the picker, the card and the status rail.
+/// Node info for any node URL, shared by the picker, the card and the status rail.
 final nodeInfoServiceProvider = Provider<NodeInfoService>((ref) {
   final directory = ref.watch(relayDirectoryProvider);
   return NodeInfoService(

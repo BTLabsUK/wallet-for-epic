@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
 // The tour, one page per step: each step opens its page and lights its area and sidebar entry,
 // Next / Back / Enter / the arrow keys move, Done, Esc, Skip and a click outside end it on
-// Overview (#76), its last step is Help, it opens from Help › Show the tour again and not from Appearance, it
+// Overview, its last step is Help, it opens from Help › Show the tour again and not from Appearance, it
 // opens by itself once (the seen flag survives a restart), and the Invoices step is there
 // exactly when the Invoices page is.
 import 'package:epic_wallet/src/advanced.dart';
@@ -252,7 +253,7 @@ void main() {
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     container.read(deskTourProvider.notifier).close();
-    // Settings scrolls its own column beside the section list (UI-032): bring the link in.
+    // Settings scrolls its own column beside the section list: bring the link in.
     await tester.ensureVisible(find.text('Show the tour again'));
     await _settle(tester);
     await tester.tap(find.text('Show the tour again'));
@@ -316,7 +317,7 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsNothing);
     second.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
-    // Settings scrolls its own column beside the section list (UI-032): bring the link in.
+    // Settings scrolls its own column beside the section list: bring the link in.
     await tester.ensureVisible(find.text('Show the tour again'));
     await _settle(tester);
     await tester.tap(find.text('Show the tour again'));

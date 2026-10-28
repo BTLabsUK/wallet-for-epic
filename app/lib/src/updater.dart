@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// In-app updates for Android builds distributed outside an app store.
 ///
 /// A release publishes `update.json` (written and signed by `tool/release_android.sh`) on BT

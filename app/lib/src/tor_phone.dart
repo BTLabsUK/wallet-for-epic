@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch on the phone: its [TorState] from [PhoneTorState] (the switch is the
 /// per-wallet `receiving`), and the app's own requests following it.
 library;
@@ -22,7 +23,7 @@ TorState phoneTorState(PhoneTorState s) {
 
 /// For a `ref.listen(phoneTorProvider, …)` on a screen that is always up while a wallet is
 /// open: the app's requests and the price follow the switch, through tor's SOCKS port once tor
-/// has connected (LEPIC E-12), and wait while it has not. Before the wallet's switch is read
+/// has connected, and wait while it has not. Before the wallet's switch is read
 /// (locked, or opening) a switch that was on, saved at launch or the last one followed, keeps
 /// them waiting: never direct for a moment.
 void phoneTorFollow(PhoneTorState s) {

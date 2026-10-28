@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's main screens in the longest languages (German, Russian) and the one without
 // spaces (Thai) at the smallest supported window, 1280 x 800: an overflow or a build error fails.
 // The full set, in every language and at 1920 x 1080 too, is the shot tour

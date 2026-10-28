@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node's data folder as one safe sequence each: stop the node, do the file work,
 /// save the setting, start it again when it ran before. The file work is in
 /// `data_folder_ops.dart`; this file only orders it around the node.

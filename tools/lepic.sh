@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Pins and builds LEPIC for the app. The app depends on package:lepic, the Flutter binding, which
 # lives in its own repository and pins its LEPIC commit. This script clones lepic-flutter
 # into the git-ignored app/third_party/lepic-flutter at the commit in tools/lepic-flutter.rev,
 # and LEPIC into app/third_party/lepic at the commit in tools/lepic.rev, which must be the
 # binding's own pin. They come from LEPIC_FLUTTER_REPO and LEPIC_REPO (a URL or a path) when set,
 # else from ~/lepic-flutter and ~/lepic when those have the pinned commits, else from
-# https://gitlab.com/bt-labs-group/{lepic-flutter,lepic}.git. The binding's tool/lepic.sh then
+# https://gitlab.com/epic-cash-bt/{lepic-flutter,lepic}.git. The binding's tool/lepic.sh then
 # builds the libraries from that LEPIC clone, so neither source repository gets a new worktree, branch or build output.
 #
 # Usage:
@@ -25,9 +26,9 @@ clone="$root/app/third_party/lepic"
 binding="$root/app/third_party/lepic-flutter"
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
 binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
-source_repo="$(wfe_repo "${LEPIC_REPO:-}" "$HOME/lepic" https://gitlab.com/bt-labs-group/lepic.git "$rev")"
+source_repo="$(wfe_repo "${LEPIC_REPO:-}" "$HOME/lepic" https://gitlab.com/epic-cash-bt/lepic.git "$rev")"
 binding_repo="$(wfe_repo "${LEPIC_FLUTTER_REPO:-}" "$HOME/lepic-flutter" \
-  https://gitlab.com/bt-labs-group/lepic-flutter.git "$binding_rev")"
+  https://gitlab.com/epic-cash-bt/lepic-flutter.git "$binding_rev")"
 # One target directory per clone: a shared one bakes the wrong paths into xtask.
 unset CARGO_TARGET_DIR
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // HTTP From the internet: the public IP and port check cache, and the notice on Receive and in
 // Settings, over a fake probe (nothing is asked of the internet).
 import 'dart:async';

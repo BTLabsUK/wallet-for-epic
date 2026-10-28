@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -349,7 +350,7 @@ class ESelect<T> extends StatefulWidget {
     this.keepBelow = 0,
   });
 
-  /// Room the open list leaves free under it, so the form's main button stays in view (UI-017).
+  /// Room the open list leaves free under it, so the form's main button stays in view.
   final double keepBelow;
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).

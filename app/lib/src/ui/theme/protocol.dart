@@ -1,9 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The devices that make the Protocol look recognisable: corner ticks and the measurement grid
 /// (on the screens that open the app or end a task, through `brand.dart`: the Epic mark, glyph
 /// tiles, the lit backdrop), the sweep along the app bar when a payment lands, the gold-rule
 /// section head, accent-edged notices and the payment timeline. Lists and forms stay
 /// hairlines.
-/// Spec: `docs/themes/protocol/FLUTTER.md`.
 library;
 
 import 'dart:ui' as ui;
@@ -287,7 +287,7 @@ class _Mark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    // Round, as the send tracker's nodes: squares read as checkboxes (UI-036).
+    // Round, as the send tracker's nodes: squares read as checkboxes.
     return Container(
       width: 20,
       height: 20,

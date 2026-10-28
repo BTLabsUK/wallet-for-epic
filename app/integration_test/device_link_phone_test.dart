@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of linked devices on a phone: the real app on an emulator with the real LEPIC core
 // on floonet, against the desktop app (integration_test/release_check/device_link_desk_test.dart)
 // holding the same wallet. They meet through files in the app's external files folder

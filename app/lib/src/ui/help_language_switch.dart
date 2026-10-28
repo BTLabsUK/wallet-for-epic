@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The small switch at the top of Help on the phone: the help language's flag and own name, and a
 /// compact menu of the app's languages. It sets only the language of the help topics.
 library;

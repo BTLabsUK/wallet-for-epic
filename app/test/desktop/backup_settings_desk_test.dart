@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's settings in a history backup (desktop/data/backup_settings_desk.dart): planned
 // and applied over the mock through the desktop's own state (one settings save, the Outputs
 // choices, the servers, Tor, the wallet's name and items), and read and sealed by the LEPIC

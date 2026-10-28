@@ -1,4 +1,5 @@
-/// The Invoice block of a transaction's details (docs/invoices/flow.md §6): the request or the
+// SPDX-License-Identifier: Apache-2.0
+/// The Invoice block of a transaction's details: the request or the
 /// invoice behind an invoice-flow transaction, where it stands, and its actions.
 library;
 
@@ -55,7 +56,7 @@ class TxInvoiceBlock extends ConsumerWidget {
         PayState.stalled => l.deskInvPayerStalledText,
         PayState.posted || PayState.confirming || PayState.completed => l.invoiceDetailsPosted(inv.label),
         PayState.withdrawnAfterPay => l.invoiceDetailsWithdrawn(inv.label),
-        // A cancel is final only once these coins are spent again (P-3).
+        // A cancel is final only once these coins are spent again.
         PayState.cancelled => l.deskInvPayerCancelText,
         _ => payStateWord(context, inv, deskMinConfirmations(ref)).$1,
       };

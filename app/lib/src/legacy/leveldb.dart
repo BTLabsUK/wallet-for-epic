@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A minimal read-only LevelDB reader, for the IndexedDB of older Epic GUIs (Chromium keeps each
 /// origin's IndexedDB in one LevelDB folder). Plain dart:io.
 ///

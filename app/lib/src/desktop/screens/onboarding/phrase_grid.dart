@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -514,7 +515,7 @@ class _Cell extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Ctrl+V and the menu's Paste read the clipboard themselves (F29).
+                    // Ctrl+V and the menu's Paste read the clipboard themselves.
                     Actions(
                       actions: {
                         PasteTextIntent: CallbackAction<PasteTextIntent>(

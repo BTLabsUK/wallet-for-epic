@@ -1,4 +1,5 @@
-// Live: the user's own node reached by its home-network address (tester #113), with the app's
+// SPDX-License-Identifier: Apache-2.0
+// Live: the user's own node reached by its home-network address, with the app's
 // real node client, the node relay and the owner secret. Needs a node answering plain http on
 // WFE_OWN_NODE (e.g. http://10.0.0.44:33413, never 127.0.0.1) and its `.api_secret` at
 // WFE_OWN_NODE_SECRET; WFE_OWN_NODE_CHAIN is the status site's chain name (none for usernet).

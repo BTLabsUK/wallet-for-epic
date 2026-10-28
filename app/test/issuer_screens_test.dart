@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Requesting a payment (I-06), against FakeWalletSession: Receive's card, the request form,
 // the requests in the Invoices list, the request block in a transaction's details, withdraw
 // with its confirm, and the notices of each issuer event. Nothing on this side pays.

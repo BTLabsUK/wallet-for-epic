@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's side of the settings a history backup carries (`backup_settings.dart`).
 ///
 /// The wallet ([DeskWalletApi.backupSettings]) reads what the open wallet has now and what a

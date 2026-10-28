@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The window's first size and its kept place (lib/src/desktop/app/window_placement.dart): the
 // first-start rule on the display sizes testers have, the restore rule (valid, off-screen, too
 // big, display gone), the minimum, the memory's JSON, and the place written to and read from the

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Offline = nothing beyond this computer and the local network (net/local_address.dart): the
 // classifier at every range edge, the gate's local-node input, and the LEPIC adapter letting a
 // local node and Link sends to local addresses through while refusing the rest. No native

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Export contacts and Import contacts on the desktop (the Contacts header's More menu): the
 /// shared address book to a file and back (`contacts_file.dart`), through the system Save and
 /// Open dialogs. Import says what it does in a dialog before anything is saved.

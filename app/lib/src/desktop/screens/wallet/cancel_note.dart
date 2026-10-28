@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The quiet line beside every Cancel (and Withdraw) button on the desktop: what cancelling does
 /// in this one case, and "More in Help", which opens Settings › Help › "Cancelling a payment" at
 /// the matching heading. The phone's twin is `ui/cancel_note.dart`.

@@ -1,4 +1,5 @@
-/// The rows of the Invoices screen (spec §5.1): an invoice to pay and a request this wallet
+// SPDX-License-Identifier: Apache-2.0
+/// The rows of the Invoices screen: an invoice to pay and a request this wallet
 /// sent. Card-less, a hairline between rows; the amount in mono at the end, without a sign.
 library;
 

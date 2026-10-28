@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone in the build without Tor (lib/src/tor_build.dart): tor is unavailable at once and
 // never started, a saved Tor switch reads as off, an onion cannot be paid, and no update is
 // asked for. Run both ways; the variant's checks are skipped with Tor in:

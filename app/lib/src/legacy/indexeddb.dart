@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Reads object stores of a Chromium IndexedDB database from its LevelDB folder, without
 /// Chromium: enough of Chromium's key encoding to find a database and its object stores, and of
 /// Blink's and V8's value serialization to decode plain records (objects, arrays, strings,

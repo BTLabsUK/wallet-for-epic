@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: a wallet.seed made by the real epic-wallet 4.1 imported through the real LEPIC
 // service and LepicDeskWallet, then opened. Everything lives in a temp dir: the program runs
 // with HOME there, the app's folder and key store are temp, the node is unreachable. The
@@ -80,7 +81,7 @@ void main() {
     expect(await wallet.unlock(oldPassword), isTrue);
     expect((await wallet.revealPhrase(oldPassword)).join(' '), phrase, reason: 'same wallet as epic-wallet made');
     await wallet.lock();
-    // R15: the core's fingerprint of the imported wallet is the phrase's, so a restore of the
+    // The core's fingerprint of the imported wallet is the phrase's, so a restore of the
     // phrase finds this wallet instead of making a second one.
     final fp = LepicWalletService(secrets: secrets, oneWalletPerChain: true).walletFingerprint(mnemonic: phrase, chain: core.Chain.mainnet);
     expect((await wallet.registry()).byId(r.id)!.walletFingerprint, fp);

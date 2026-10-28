@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Link HTTP on the desktop: LepicDeskWallet over FakeWalletSession, which records each
 // sendHttp and startHttpListener call. The password is a throwaway test value.
 import 'dart:io';

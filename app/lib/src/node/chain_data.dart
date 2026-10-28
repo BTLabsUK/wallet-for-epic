@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Chain data folders of Epic nodes on this machine: what is in one (size, age, whether a node of
 /// 4.1.0 can sync on from it), whether a node runs on it, and where the CLI node and GUI 6.1 keep
 /// theirs. Read only: nothing here creates, writes, renames or deletes a file.

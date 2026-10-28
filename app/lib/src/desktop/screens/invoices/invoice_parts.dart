@@ -1,4 +1,5 @@
-/// Pieces every invoice screen shares (docs/invoices/flow.md): the three standard control
+// SPDX-License-Identifier: Apache-2.0
+/// Pieces every invoice screen shares: the three standard control
 /// widths, the state words and tones of requests and invoices, and the countdown text.
 library;
 
@@ -10,7 +11,7 @@ import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 
-/// Buttons and dropdowns come in three widths, labels centred (the owner's UI rule): [sm] for a
+/// Buttons and dropdowns come in three widths, labels centred (a UI rule): [sm] for a
 /// row's or a dialog's action, [md] for a page's main action and dropdowns, [lg] for a lone
 /// call to action.
 abstract final class InvW {
@@ -191,7 +192,7 @@ class _InvRevealState extends State<InvReveal> {
   Widget build(BuildContext context) => Semantics(selected: widget.selected, child: widget.child);
 }
 
-/// Why a received invoice can no longer be paid, naming who sent it (PAIR-AND-13).
+/// Why a received invoice can no longer be paid, naming who sent it.
 String deskInvoiceEndedText(AppLocalizations l, IncomingInvoice i) => switch (i.state) {
   PayState.withdrawn => i.label.isEmpty ? l.invoiceNoticeWithdrawn : l.deskInvNoticeWithdrawn(i.label),
   PayState.expired || PayState.waiting => l.invoiceExpired,

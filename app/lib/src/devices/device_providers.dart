@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod glue for linked devices, shared by the phone and the desktop: each app makes a
 /// [DeviceProviders] over its own provider of the open wallet's [DeviceService] (null while
 /// locked or with Linked devices off) and reads [DeviceProviders.view].

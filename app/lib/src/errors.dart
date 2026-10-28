@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'advanced.dart' show NetworkMode;
 import 'l10n.dart';
 import 'network_gate.dart';

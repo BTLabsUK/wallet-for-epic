@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `ws_probe.dart` in the browser, with `dart:js_interop` only.
 library;
 
