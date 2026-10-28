@@ -829,6 +829,7 @@
   "settingsVersion": "เวอร์ชัน",
   "settingsAboutNetwork": "เครือข่าย",
   "settingsCheckUpdates": "ตรวจหาอัปเดต",
+  "settingsUpdatesFrom": "การอัปเดตมาจาก {store}",
   "settingsHelp": "ช่วยเหลือ",
   "settingsSendFeedback": "รายงานปัญหา",
   "settingsSendFeedbackHint": "แจ้งปัญหาหรือเสนอไอเดียให้ผู้พัฒนา ล็อกจะส่งไปเฉพาะเมื่อคุณแนบ โดยลบวลีกู้คืน PIN และข้อมูลลับอื่นๆ ออกก่อน",

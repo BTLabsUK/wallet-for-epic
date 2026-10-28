@@ -1,0 +1,14 @@
+<!-- The in-app updater (AppUpdater.kt beside this file), merged into the build from our own
+     download page only (WFE_DIST=web, android/app/build.gradle.kts). The store builds have
+     neither the permission nor the receiver. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The second lets Android 12+ update without a prompt once this app installed the
+         current version. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION"/>
+    <application>
+        <receiver
+            android:name=".InstallResultReceiver"
+            android:exported="false"/>
+    </application>
+</manifest>

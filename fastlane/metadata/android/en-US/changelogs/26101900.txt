@@ -1,0 +1,4 @@
+- Send and Receive show the Node and Epicbox status in the top bar, so a dropped connection shows before sending.
+- The BT Labs donation contact is in Contacts. A deleted one stays deleted.
+- The Send review shows a Tor address once, not twice.
+- Shorter pairing names in German, Polish and Russian, so they fit small phones.

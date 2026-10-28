@@ -4005,6 +4005,16 @@
   "@settingsCheckUpdates": {
     "description": "Settings row."
   },
+  "settingsUpdatesFrom": "Updates come from {store}.",
+  "@settingsUpdatesFrom": {
+    "description": "Settings › About, under the version, in a store build (F-Droid, Google Play) that has no in-app updater: where updates come from. {store} is the store's name, never translated.",
+    "placeholders": {
+      "store": {
+        "type": "String",
+        "example": "F-Droid"
+      }
+    }
+  },
   "settingsHelp": "Help",
   "@settingsHelp": {
     "description": "Settings row that opens the help page."

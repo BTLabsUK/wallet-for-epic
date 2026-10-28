@@ -10,12 +10,15 @@
 /// never called.
 library;
 
+import 'dist_build.dart';
+
 const String _torDefine = String.fromEnvironment('WFE_TOR', defaultValue: 'true');
 
 /// Tor is in this build (the default).
 const bool torBuilt = _torDefine != 'false' && _torDefine != '0' && _torDefine != 'off';
 
-/// The in-app update check and download run: never in the build without Tor. The update feed
-/// (update.json) names the builds with Tor, under the same app ids, so an in-app update would
-/// put Tor back; app stores update their own builds (and Google Play allows no other way).
-const bool inAppUpdates = torBuilt;
+/// The in-app update check and download run: never in the build without Tor, nor in a store
+/// build ([distUpdates]). The update feed (update.json) names the builds with Tor, under the same
+/// app ids, so an in-app update would put Tor back; app stores update their own builds (and
+/// Google Play allows no other way).
+const bool inAppUpdates = torBuilt && distUpdates;

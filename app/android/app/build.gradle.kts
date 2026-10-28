@@ -39,14 +39,32 @@ val releaseSigningProblem: String? = run {
     }
 }
 
-// The build without Tor (lib/src/tor_build.dart, https://docs.btlabs.uk/developers/build/variants/): Flutter hands its
-// --dart-define values to Gradle as `dart-defines` (base64, comma separated). With WFE_TOR=false
-// (or 0, off) no tor is packed, even when tools/fetch-tor.sh left one in src/main/tor-jniLibs.
-val torBuilt = (project.findProperty("dart-defines") as String?).orEmpty()
+// Flutter hands its --dart-define values to Gradle as `dart-defines` (base64, comma separated).
+val dartDefines: List<String> = (project.findProperty("dart-defines") as String?).orEmpty()
     .split(",")
     .filter { it.isNotEmpty() }
     .map { String(Base64.getDecoder().decode(it)) }
-    .none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
+
+// The build without Tor (lib/src/tor_build.dart, https://docs.btlabs.uk/developers/build/variants/). With WFE_TOR=false
+// (or 0, off) no tor is packed, even when tools/fetch-tor.sh left one in src/main/tor-jniLibs.
+val torBuilt = dartDefines.none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
+
+// Where the build is distributed (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): web (unset, our
+// own download page), play (Google Play) or fdroid (F-Droid, IzzyOnDroid). Only web has the
+// in-app updater and its install permissions (src/updater/).
+val dist: String = dartDefines.lastOrNull { it.startsWith("WFE_DIST=") }?.removePrefix("WFE_DIST=") ?: "web"
+if (dist !in setOf("web", "play", "fdroid")) {
+    throw GradleException("WFE_DIST=$dist: use web, play or fdroid (https://docs.btlabs.uk/developers/build/variants/).")
+}
+val distUpdates = dist == "web"
+// The F-Droid build reads QR codes with a free scanner: Google ML Kit (mobile_scanner) must be
+// gone from pubspec.yaml before Gradle runs.
+if (dist == "fdroid" && rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names only
+    throw GradleException(
+        "WFE_DIST=fdroid with the Google ML Kit scanner still in pubspec.yaml: run " +
+            "tools/dist-prep.sh fdroid first (https://docs.btlabs.uk/developers/build/variants/).",
+    )
+}
 
 android {
     namespace = "uk.btlabs.epiccash.mobile"
@@ -102,6 +120,15 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
         }
+    }
+}
+
+// The in-app updater follows WFE_DIST: its Kotlin (or a stub that answers nothing), in the main
+// source set where the Kotlin plugin compiles it, and its manifest, merged into every variant.
+android.sourceSets["main"].java.srcDir(if (distUpdates) "src/updater/kotlin" else "src/noupdater/kotlin")
+androidComponents {
+    onVariants { variant ->
+        if (distUpdates) variant.sources.manifests.addStaticManifestFile("src/updater/AndroidManifest.xml")
     }
 }
 

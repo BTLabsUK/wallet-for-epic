@@ -3272,6 +3272,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsCheckUpdates => 'Sprawdź aktualizacje';
 
   @override
+  String settingsUpdatesFrom(String store) {
+    return 'Aktualizacje dostarcza $store.';
+  }
+
+  @override
   String get settingsHelp => 'Pomoc';
 
   @override

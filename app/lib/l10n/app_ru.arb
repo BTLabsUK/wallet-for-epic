@@ -829,6 +829,7 @@
   "settingsVersion": "Версия",
   "settingsAboutNetwork": "Сеть",
   "settingsCheckUpdates": "Проверить обновления",
+  "settingsUpdatesFrom": "Обновления устанавливает {store}.",
   "settingsHelp": "Справка",
   "settingsSendFeedback": "Сообщить о проблеме",
   "settingsSendFeedbackHint": "Сообщите о проблеме или предложите разработчикам идею. Журналы отправляются, только если вы их приложите; фраза восстановления, PIN-код и другие секретные данные удаляются заранее.",
