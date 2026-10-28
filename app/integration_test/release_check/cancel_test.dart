@@ -87,7 +87,7 @@ Future<void> createA(WidgetTester tester, String password) async {
   await tapText(tester, 'Reveal phrase');
   final words = tester.widget<ESeedGrid>(find.byType(ESeedGrid)).words;
   record('A made (throwaway, phrase not kept)', words.length == 24, '${words.length} words');
-  await tapText(tester, 'Written down');
+  await tapText(tester, RegExp('[Ww]ritten down'));
   await tapText(tester, 'Continue', last: true);
   await unlockToOverview(tester, password);
 }
@@ -184,7 +184,7 @@ void main() {
     await shot(tester, 'cancel-01-detail-waiting-send');
 
     // The dialog: the same guarantee, the same link.
-    await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
+    await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 1200);
     record('the cancel dialog says the recipient cannot finish it', hasText('Cancel this payment?') && hasText('cannot finish it without yours'), textMatching('cannot finish'));
     await shot(tester, 'cancel-02-dialog');
@@ -197,9 +197,9 @@ void main() {
     // Back to the send and cancel it for real.
     await go(tester, DeskRoute.activity, sentTx.id);
     await waitText(tester, 'Not posted yet: cancelling frees the coins.', timeout: const Duration(seconds: 30));
-    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel').first);
+    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 600);
-    await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
+    await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 1200);
     await tapText(tester, 'Cancel payment', last: true);
     await waitText(tester, RegExp(r'^Cancelled\.?$'), timeout: const Duration(seconds: 60));

@@ -276,7 +276,7 @@ Future<void> createA(WidgetTester tester, String password) async {
   final words = tester.widget<ESeedGrid>(find.byType(ESeedGrid)).words;
   writeSecret(hbPath('a-secret.json'), {'phrase': words.join(' '), 'password': password});
   record('build: A made, phrase kept (mode 600)', words.length == 24, '${words.length} words');
-  await tapText(tester, 'Written down');
+  await tapText(tester, RegExp('[Ww]ritten down'));
   await tapText(tester, 'Continue', last: true);
   await unlockToOverview(tester, password);
 }
@@ -284,8 +284,8 @@ Future<void> createA(WidgetTester tester, String password) async {
 /// Welcome › Restore from a phrase, with [phrase]; then Unlock. The scan is waited for by the
 /// caller.
 Future<void> restoreA(WidgetTester tester, String phrase, String password, {String offer = 'not-now', String tag = ''}) async {
-  await waitText(tester, 'Restore from a phrase', timeout: const Duration(seconds: 90));
-  await tapText(tester, 'Restore from a phrase');
+  await waitText(tester, 'Restore from phrase', timeout: const Duration(seconds: 90));
+  await tapText(tester, 'Restore from phrase');
   await typeIn(tester, 0, phrase);
   await settle(tester, ms: 1500);
   record('restore$tag: 24 words accepted', hasText('All 24 words check out.'), '');
@@ -338,8 +338,8 @@ Future<void> deleteA(WidgetTester tester, String password, {String tag = ''}) as
   await settle(tester);
   await tapText(tester, 'The recovery phrase is written down');
   await tapText(tester, 'Delete wallet', last: true);
-  await waitText(tester, 'Restore from a phrase', timeout: const Duration(minutes: 2));
-  record('delete$tag: A deleted in the app, Welcome opens', hasText('Restore from a phrase'), '');
+  await waitText(tester, 'Restore from phrase', timeout: const Duration(minutes: 2));
+  record('delete$tag: A deleted in the app, Welcome opens', hasText('Restore from phrase'), '');
 }
 
 /// Settings › This wallet › Backup › Export…, saved as [name] in [hbDir].
@@ -368,7 +368,7 @@ class ImportRun {
 
 /// Settings › This wallet › Backup › Import…, the file [path] picked. Answers the settings
 /// question with [settings] ("Use the backup's" or "Keep mine") and takes pairings over.
-Future<ImportRun> importUi(WidgetTester tester, String path, {String shotName = '', String settings = "Use the backup's", bool fromOffer = false}) async {
+Future<ImportRun> importUi(WidgetTester tester, String path, {String shotName = '', String settings = 'Use the file’s', bool fromOffer = false}) async {
   if (!fromOffer) {
     await go(tester, DeskRoute.settingsAccount);
     await tapRowButton(tester, 'Import…', opens: 'Choose file…');
@@ -383,7 +383,7 @@ Future<ImportRun> importUi(WidgetTester tester, String path, {String shotName = 
   var quiet = 0;
   while (DateTime.now().isBefore(end)) {
     await settle(tester, ms: 800);
-    if (hasText('Use the settings from this backup?')) {
+    if (hasText('Use the settings from this file?')) {
       asked++;
       await shot(tester, '$shotName-settings-question');
       dump('settings question');
@@ -807,7 +807,7 @@ Future<void> restorePhase(WidgetTester tester) async {
   await settle(tester, ms: 800);
   final r2 = await importUi(tester, hbPath('F1.wfeh'), shotName: 'hb-07-import-again');
   final themeAfter = containerOf(tester).read(deskProvider).settings.theme;
-  record('settings conflict: "Use the settings from this backup?" asked once', r2.settingsAsked == 1, '${r2.settingsAsked} asked; ${r2.summary}');
+  record('settings conflict: "Use the settings from this file?" asked once', r2.settingsAsked == 1, '${r2.settingsAsked} asked; ${r2.summary}');
   record('settings conflict: Use the backup\'s takes the file\'s theme', themeAfter.name == want['settings']['theme'], themeAfter.name);
 
   // Step 9: another wallet's file is refused; nothing changes.

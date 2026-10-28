@@ -165,7 +165,7 @@ void main() {
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
     // A throwaway wallet: the phrase is shown but never read or kept.
     await tapText(tester, 'Reveal phrase');
-    await tapText(tester, 'Written down');
+    await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     for (var i = 0; i < 4 && !hasText('Unlock wallet'); i++) {
       await waitText(tester, RegExp(r'^(Continue|Save settings)$'));

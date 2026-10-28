@@ -26,7 +26,7 @@ void main() {
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
     await tapText(tester, 'Reveal phrase');
-    await tapText(tester, 'Written down');
+    await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
     await tapText(tester, 'Skip setup');

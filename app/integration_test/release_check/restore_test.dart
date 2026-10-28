@@ -27,8 +27,8 @@ void main() {
     final password = randomPassword();
 
     await boot(tester);
-    record('restore: second fresh data dir starts on Welcome', hasText('Restore from a phrase') && !hasText('Unlock wallet'), '');
-    await tapText(tester, 'Restore from a phrase');
+    record('restore: second fresh data dir starts on Welcome', hasText('Restore from phrase') && !hasText('Unlock wallet'), '');
+    await tapText(tester, 'Restore from phrase');
     await shot(tester, '20-restore-words');
     await typeIn(tester, 0, phrase);
     await settle(tester, ms: 1500);

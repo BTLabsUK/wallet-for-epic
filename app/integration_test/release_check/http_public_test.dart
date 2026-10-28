@@ -22,7 +22,7 @@ void main() {
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
     await tapText(tester, 'Reveal phrase');
-    await tapText(tester, 'Written down');
+    await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     // Setup: node, Epicbox and Review with their defaults.
     for (var i = 0; i < 4 && !hasText('Unlock wallet'); i++) {

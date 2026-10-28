@@ -21,7 +21,7 @@ void main() {
     final password = randomPassword();
     await boot(tester);
     await shot(tester, '01-welcome');
-    record('first start shows Welcome', hasText('Create a new wallet') && hasText('Restore from a phrase'), texts().take(6).join(' | '));
+    record('first start shows Welcome', hasText('Create a new wallet') && hasText('Restore from phrase'), texts().take(6).join(' | '));
 
     // Create.
     await tapText(tester, 'Create a new wallet');
@@ -41,7 +41,7 @@ void main() {
       File(phraseFile).writeAsStringSync(words.join(' '));
       Process.runSync('chmod', ['600', phraseFile]);
     }
-    await tapText(tester, 'Written down');
+    await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     // First run: Setup (node, Epicbox, review); Skip keeps the defaults release_check picked.
     await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
