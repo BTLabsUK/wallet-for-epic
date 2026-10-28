@@ -2149,6 +2149,12 @@ abstract class AppLocalizations {
   /// **'Balance hidden'**
   String get homeBalanceHiddenLabel;
 
+  /// Tooltip on the big balance figure (phone: tap; desktop: hover): the amount with every decimal, as the figure itself shows only two. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact amount: {amount}'**
+  String balanceExactTip(String amount);
+
   /// Tooltip of the eye button while amounts are hidden.
   ///
   /// In en, this message translates to:

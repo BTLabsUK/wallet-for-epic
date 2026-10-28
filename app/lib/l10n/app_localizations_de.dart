@@ -1323,6 +1323,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeBalanceHiddenLabel => 'Guthaben verborgen';
 
   @override
+  String balanceExactTip(String amount) {
+    return 'Genauer Betrag: $amount';
+  }
+
+  @override
   String get homeShowBalances => 'Guthaben anzeigen';
 
   @override

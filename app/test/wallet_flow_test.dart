@@ -667,7 +667,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.50');
       final handle = tester.ensureSemantics();
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
@@ -1080,7 +1080,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Received 3 EPIC from zz…'), findsNothing);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.00');
 
       await _clearNotices(tester);
       await _tap(tester, find.byTooltip('Lock wallet'));

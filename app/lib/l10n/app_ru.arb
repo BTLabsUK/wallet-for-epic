@@ -338,6 +338,7 @@
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Всё в этом кошельке, доступное и нет.",
   "homeBalanceHiddenLabel": "Баланс скрыт",
+  "balanceExactTip": "Точная сумма: {amount}",
   "homeShowBalances": "Показать баланс",
   "homeHideBalances": "Скрыть суммы",
   "homeBalanceConfirming": "Подтверждается",
