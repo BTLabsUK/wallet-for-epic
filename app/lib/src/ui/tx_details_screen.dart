@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../devices/phone_devices.dart' show watchHistory;
+import '../devices/phone_devices.dart' show deviceServiceProvider, watchHistory;
 import 'devices/device_tx_details.dart';
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
@@ -563,6 +563,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     setState(() => _busy = true);
     try {
       await session.cancelTransaction(txId: id);
+      // The linked devices free its coins at once, not at the next tick.
+      unawaited(ref.read(deviceServiceProvider)?.announceNow());
       if (!mounted) return;
       _showMessage(
         context.l10n.txDetailsPaymentCancelled,

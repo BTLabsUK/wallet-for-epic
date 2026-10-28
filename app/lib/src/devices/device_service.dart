@@ -291,6 +291,10 @@ class DeviceService {
     _book ??= await store.load(defaultName: defaultName);
     host.heldOutputs = book.heldCommitments;
     _changed();
+    // The apps set the foreground before the book is read: with devices linked already (a
+    // start, a wallet switch) the timer starts only now. Without it nothing was read or told
+    // until a window focus or Refresh, and a cancel reached the other device minutes late.
+    _schedule();
   }
 
   void dispose() {

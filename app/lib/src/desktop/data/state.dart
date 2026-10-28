@@ -468,6 +468,9 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> cancelTx(int id) async {
     await api.cancelTx(id);
+    // The other devices free its coins at once, not at the next tick.
+    final devices = ref.read(deskDeviceHandleProvider).service;
+    if (devices != null) unawaited(devices.announceNow());
     final txs = await api.transactions();
     state = state.copyWith(txs: txs);
   }
