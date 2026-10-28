@@ -3468,6 +3468,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNoteHelper => 'ผู้รับเห็นข้อความนี้';
 
   @override
+  String get sendReviewMessageKept =>
+      'ผู้รับเห็นข้อความนี้ และจะเก็บไว้กับการชำระเงินนี้ในประวัติของคุณด้วย';
+
+  @override
   String get sendNetworkFee => 'ค่าธรรมเนียม';
 
   @override

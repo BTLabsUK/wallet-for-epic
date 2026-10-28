@@ -169,6 +169,9 @@ const Key sendNoteFieldKey = ValueKey('send-note-field');
 /// The review's "Uses all N outputs · change 1 output" line (strategy All).
 const Key sendUsesAllOutputsKey = ValueKey('send-uses-all-outputs');
 const Key sendFileNoteFieldKey = ValueKey('send-file-note-field');
+
+/// The review's Message block: the text as entered, and that it is kept in the history.
+const Key sendReviewMessageKey = ValueKey('send-review-message');
 const Key sendReplyFieldKey = ValueKey('send-reply-field');
 
 /// The keys of the QR buttons of the file made step, for tests.
@@ -3135,6 +3138,31 @@ class _SendViewState extends ConsumerState<SendView> {
               Icon(Icons.warning_amber, size: 18, color: t.warn),
               const SizedBox(width: 8),
               Expanded(child: Text(l.sendPlainHttpRow)),
+            ],
+          ),
+        ),
+      // What the recipient will read, as entered; the history keeps it as the private note.
+      if (_noteText.isNotEmpty)
+        Padding(
+          key: sendReviewMessageKey,
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.sendNoteLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                _noteText,
+                style: theme.textTheme.bodyMedium?.copyWith(color: t.text),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l.sendReviewMessageKept,
+                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              ),
             ],
           ),
         ),

@@ -3636,6 +3636,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendNoteHelper => 'Odbiorca ją zobaczy.';
 
   @override
+  String get sendReviewMessageKept =>
+      'Odbiorca ją zobaczy. Zostaje też przy tej płatności w Twojej historii.';
+
+  @override
   String get sendNetworkFee => 'Opłata sieciowa';
 
   @override

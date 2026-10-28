@@ -3333,6 +3333,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNoteHelper => '收款人能看到。';
 
   @override
+  String get sendReviewMessageKept => '收款人能看到。它也会和这笔付款一起保存在你的历史记录中。';
+
+  @override
   String get sendNetworkFee => '网络手续费';
 
   @override
