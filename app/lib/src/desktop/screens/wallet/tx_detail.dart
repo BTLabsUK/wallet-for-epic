@@ -91,7 +91,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   String _now(AppLocalizations l, Tx t) => t.fromBackup
       ? l.deskTxNowBackup
       : t.otherWallet
-      ? (t.incoming ? l.txDetailsOtherWalletIn : l.txDetailsOtherWallet)
+      ? (t.incoming
+            ? l.txDetailsOtherWalletIn
+            : (t.unverified ? '${l.txDetailsOtherWallet} ${l.txDetailsUnverified}' : l.txDetailsOtherWallet))
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {

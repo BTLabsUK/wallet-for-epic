@@ -4614,6 +4614,8 @@
   "txSentFromOtherWallet": "由另一个钱包发出",
   "txSpokenSentFromOtherWallet": "由另一个钱包发出，{amount}",
   "txDetailsOtherWallet": "节点显示这些币已被花掉，而本钱包没有花它们：很可能是另一个使用你助记词的钱包花掉的。本钱包只显示离开的金额，不显示收款方和手续费。",
+  "txSentFromOtherWalletUnverified": "由另一个钱包发出 · 未核实",
+  "txDetailsUnverified": "未核实：目前只有节点报告了这笔付款。用“重新核对余额”来确认。",
   "txDetailsNotKnown": "未知",
   "txReceivedByOtherWallet": "由另一个钱包收到",
   "txSpokenReceivedByOtherWallet": "由另一个钱包收到，{amount}",
@@ -4786,5 +4788,6 @@
   "contactsImportAddsAddress": "{name} 新增 {method} 地址：{address}",
   "netStatusTurnOnHint": "已关闭。在“设置 › 交易”中开启。",
   "netStatusTurnOnHintPrivacy": "已关闭。在“设置 › 隐私与网络”中开启。",
-  "deskBarTurnOnHint": "已关闭。在“设置 › 交易”中开启。"
+  "deskBarTurnOnHint": "已关闭。在“设置 › 交易”中开启。",
+  "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 Epic Cash Desktop 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。"
 }

@@ -132,7 +132,11 @@ String txExplanation(
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
   // Coins another wallet on this recovery phrase spent or received: only the chain shows it.
-  if (tx.origin == TxOrigin.otherWallet) return outgoing ? l.txDetailsOtherWallet : l.txDetailsOtherWalletIn;
+  if (tx.origin == TxOrigin.otherWallet) {
+    if (!outgoing) return l.txDetailsOtherWalletIn;
+    // Only the node's answers show it so far: the next completed scan checks it.
+    return tx.unverified ? '${l.txDetailsOtherWallet} ${l.txDetailsUnverified}' : l.txDetailsOtherWallet;
+  }
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip, target: target)) {
     TxPhase.waitingRecipient when tx.undelivered => switch ((tx.transport, _epicboxRelayOf(tx))) {

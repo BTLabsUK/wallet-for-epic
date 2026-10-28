@@ -17753,6 +17753,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Node zeigt diese Coins als ausgegeben, und diese Wallet hat sie nicht ausgegeben: Wahrscheinlich war es eine andere Wallet mit Ihrer Wiederherstellungsphrase. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Von einer anderen Wallet gesendet · ungeprüft';
+
+  @override
+  String get txDetailsUnverified =>
+      'Ungeprüft: Bisher meldet das nur der Node. Bestätigen Sie es mit „Guthaben neu prüfen“.';
+
+  @override
   String get txDetailsNotKnown => 'Nicht bekannt';
 
   @override
@@ -18495,4 +18503,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskBarTurnOnHint =>
       'Aus. Einschalten unter Einstellungen › Transaktionen.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.';
 }

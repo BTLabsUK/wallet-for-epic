@@ -18162,6 +18162,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Węzeł pokazuje te monety jako wydane, a ten portfel ich nie wydał: najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Wysłano z innego portfela · niezweryfikowane';
+
+  @override
+  String get txDetailsUnverified =>
+      'Niezweryfikowane: na razie zgłasza to tylko węzeł. Potwierdź to przez „Sprawdź saldo”.';
+
+  @override
   String get txDetailsNotKnown => 'Nieznane';
 
   @override
@@ -18923,4 +18931,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'Wyłączone. Włącz w Ustawienia › Transakcje.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij Epic Cash Desktop i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”.';
 }

@@ -4614,6 +4614,8 @@
   "txSentFromOtherWallet": "Von einer anderen Wallet gesendet",
   "txSpokenSentFromOtherWallet": "Von einer anderen Wallet gesendet, {amount}",
   "txDetailsOtherWallet": "Der Node zeigt diese Coins als ausgegeben, und diese Wallet hat sie nicht ausgegeben: Wahrscheinlich war es eine andere Wallet mit Ihrer Wiederherstellungsphrase. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.",
+  "txSentFromOtherWalletUnverified": "Von einer anderen Wallet gesendet · ungeprüft",
+  "txDetailsUnverified": "Ungeprüft: Bisher meldet das nur der Node. Bestätigen Sie es mit „Guthaben neu prüfen“.",
   "txDetailsNotKnown": "Nicht bekannt",
   "txReceivedByOtherWallet": "Von einer anderen Wallet empfangen",
   "txSpokenReceivedByOtherWallet": "Von einer anderen Wallet empfangen, {amount}",
@@ -4786,5 +4788,6 @@
   "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}",
   "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
   "netStatusTurnOnHintPrivacy": "Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.",
-  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen."
+  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
+  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“."
 }

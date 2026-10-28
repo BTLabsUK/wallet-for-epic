@@ -18142,6 +18142,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Узел показывает эти монеты потраченными, а этот кошелёк их не тратил: скорее всего, это сделал другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Отправлено из другого кошелька · не проверено';
+
+  @override
+  String get txDetailsUnverified =>
+      'Не проверено: пока об этом сообщает только узел. Подтвердите через «Сверка баланса».';
+
+  @override
   String get txDetailsNotKnown => 'Неизвестно';
 
   @override
@@ -18904,4 +18912,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskBarTurnOnHint =>
       'Выключено. Включите в «Настройки › Транзакции».';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS не разрешила приложению прочитать его сохранённые данные в связке ключей. Закройте Epic Cash Desktop и откройте снова; когда macOS спросит, введите пароль входа в Mac и выберите «Всегда разрешать».';
 }

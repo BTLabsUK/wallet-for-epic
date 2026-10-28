@@ -16511,6 +16511,12 @@ class AppLocalizationsZh extends AppLocalizations {
       '节点显示这些币已被花掉，而本钱包没有花它们：很可能是另一个使用你助记词的钱包花掉的。本钱包只显示离开的金额，不显示收款方和手续费。';
 
   @override
+  String get txSentFromOtherWalletUnverified => '由另一个钱包发出 · 未核实';
+
+  @override
+  String get txDetailsUnverified => '未核实：目前只有节点报告了这笔付款。用“重新核对余额”来确认。';
+
+  @override
   String get txDetailsNotKnown => '未知';
 
   @override
@@ -17208,4 +17214,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 Epic Cash Desktop 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。';
 }

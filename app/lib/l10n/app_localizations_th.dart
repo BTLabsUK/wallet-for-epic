@@ -17148,6 +17148,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดแสดงว่าเหรียญเหล่านี้ถูกใช้ไปแล้ว และกระเป๋าเงินนี้ไม่ได้ใช้ เป็นไปได้มากว่ากระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณใช้ไป กระเป๋าเงินนี้แสดงจำนวนที่ออกไป ไม่แสดงผู้รับและค่าธรรมเนียม';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'ส่งจากกระเป๋าเงินอื่น · ยังไม่ได้ตรวจสอบ';
+
+  @override
+  String get txDetailsUnverified =>
+      'ยังไม่ได้ตรวจสอบ: ตอนนี้มีเพียงโหนดที่รายงานรายการนี้ ใช้ \"ตรวจยอดใหม่\" เพื่อยืนยัน';
+
+  @override
   String get txDetailsNotKnown => 'ไม่ทราบ';
 
   @override
@@ -17865,4 +17873,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด Epic Cash Desktop แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านเข้าสู่ระบบ Mac แล้วเลือก \"อนุญาตเสมอ\"';
 }

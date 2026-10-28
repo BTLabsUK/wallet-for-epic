@@ -3185,6 +3185,7 @@ TxEntry fakeTx({
   String? pairingId,
   TxOrigin origin = TxOrigin.thisWallet,
   List<String> spentCommits = const [],
+  bool unverified = false,
 }) {
   final resolvedStatus =
       status ??
@@ -3236,6 +3237,7 @@ TxEntry fakeTx({
     pairingId: pairingId,
     origin: origin,
     spentCommits: spentCommits,
+    unverified: unverified,
   );
 }
 
@@ -3292,4 +3294,5 @@ TxEntry copyTx(
       senderReportedPostedAtUnix ?? tx.senderReportedPostedAtUnix,
   origin: tx.origin,
   spentCommits: tx.spentCommits,
+  unverified: tx.unverified,
 );

@@ -219,14 +219,23 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
               alignment: Alignment.center,
               children: [
                 ESeedGrid(words: phrase, revealed: _revealed, columns: 4),
+                // On a backdrop of its own: in a small window the caption sits over the word boxes.
                 if (!_revealed)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      EButton.primary(label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
-                      SizedBox(height: Sp.x2),
-                      Text(l.deskOnbCreateCheckScreen, style: ts.small),
-                    ],
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                    decoration: BoxDecoration(
+                      color: context.dc.s1,
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                      border: Border.all(color: context.dc.line),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        EButton.primary(label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
+                        SizedBox(height: Sp.x2),
+                        Text(l.deskOnbCreateCheckScreen, style: ts.small, textAlign: TextAlign.center),
+                      ],
+                    ),
                   ),
               ],
             ),

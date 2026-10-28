@@ -23294,6 +23294,14 @@
   "@txDetailsOtherWallet": {
     "description": "Details of a row sent from another wallet: what it is and what is not known about it."
   },
+  "txSentFromOtherWalletUnverified": "Sent from another wallet · unverified",
+  "@txSentFromOtherWalletUnverified": {
+    "description": "Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet)."
+  },
+  "txDetailsUnverified": "Unverified: so far only the node reports this. Recheck balance to confirm it.",
+  "@txDetailsUnverified": {
+    "description": "Details line of a row sent from another wallet that no completed scan has checked yet: only the node reports it. Recheck balance is the name of the action in Settings."
+  },
   "txDetailsNotKnown": "Not known",
   "@txDetailsNotKnown": {
     "description": "Value of a details row (the fee) that this wallet cannot know."
@@ -24291,5 +24299,9 @@
   "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
+  },
+  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.",
+  "@deskErrMacKeychain": {
+    "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names."
   }
 }

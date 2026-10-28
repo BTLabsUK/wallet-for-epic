@@ -22,6 +22,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart' show PlatformException;
 import '../../data_folder_io.dart' show appDataDirectory;
 
 import '../../address_format.dart' show shortAddress;
@@ -105,6 +106,13 @@ const String scanRunning = 'A scan is already running.'; // l10n-ok: the English
 /// Why a cancel was refused: LEPIC reports a payment in the pool or on chain as invalid input.
 const String cancelRefusedText = 'Not cancelled: the node already has this payment.'; // l10n-ok: the English the tests compare; the throws word deskErrCancelRefused
 
+/// A keychain read or write macOS refused (flutter_secure_storage reports the OSStatus as the
+/// code): the login keychain's password is wrong (-25293) or it is locked and may not ask
+/// (-25308), the user cancelled its prompt (-128), or the app lacks the entitlement (-34018).
+/// An unsigned app meets these after every update (a new signature) or a password change.
+bool isMacKeychainRefusal(Object error) =>
+    error is PlatformException && const {'-25293', '-25308', '-128', '-34018'}.contains(error.code);
+
 /// [error] in [l]'s language; English without [l] (logs, and callers not yet localised).
 String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
@@ -115,6 +123,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     if (error.notLocal) return l.deskErrOfflineOnlyLocal;
     return error.mode == NetworkMode.offline ? l.deskShellOffline : l.deskSetAdvModeTorOnlyText;
   }
+  if (isMacKeychainRefusal(error)) return l.deskErrMacKeychain;
   if (error is! core.WalletError) return l.deskErrSomethingWrong;
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {
@@ -5380,6 +5389,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
+    unverified: e.unverified,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

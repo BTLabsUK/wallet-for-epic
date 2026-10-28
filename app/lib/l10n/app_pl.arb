@@ -4614,6 +4614,8 @@
   "txSentFromOtherWallet": "Wysłano z innego portfela",
   "txSpokenSentFromOtherWallet": "Wysłano z innego portfela, {amount}",
   "txDetailsOtherWallet": "Węzeł pokazuje te monety jako wydane, a ten portfel ich nie wydał: najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.",
+  "txSentFromOtherWalletUnverified": "Wysłano z innego portfela · niezweryfikowane",
+  "txDetailsUnverified": "Niezweryfikowane: na razie zgłasza to tylko węzeł. Potwierdź to przez „Sprawdź saldo”.",
   "txDetailsNotKnown": "Nieznane",
   "txReceivedByOtherWallet": "Odebrano w innym portfelu",
   "txSpokenReceivedByOtherWallet": "Odebrano w innym portfelu, {amount}",
@@ -4786,5 +4788,6 @@
   "contactsImportAddsAddress": "{name} dostaje adres {method}: {address}",
   "netStatusTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
   "netStatusTurnOnHintPrivacy": "Wyłączone. Włącz w Ustawienia › Prywatność i sieć.",
-  "deskBarTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje."
+  "deskBarTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
+  "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij Epic Cash Desktop i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”."
 }

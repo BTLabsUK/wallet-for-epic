@@ -644,6 +644,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
     // counterparty; the direction picks sent or received.
     origin: d.origin == lepic.TxOrigin.otherWallet ? TxOrigin.otherWallet : TxOrigin.thisWallet,
     spentCommits: d.spentCommits,
+    unverified: d.unverified,
     counterparty: d.counterparty,
     transport: d.transport,
     messages: lepicMessages(d.messages),

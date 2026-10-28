@@ -17549,6 +17549,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Sent from another wallet · unverified';
+
+  @override
+  String get txDetailsUnverified =>
+      'Unverified: so far only the node reports this. Recheck balance to confirm it.';
+
+  @override
   String get txDetailsNotKnown => 'Not known';
 
   @override
@@ -18281,4 +18289,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'Off. Turn on in Settings › Transactions.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.';
 }
