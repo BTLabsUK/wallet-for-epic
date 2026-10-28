@@ -310,10 +310,13 @@ String? seenAsError(AppLocalizations l, String name) {
 /// camera read the other card, the words check opens. [scanned] is a card read before this
 /// screen opened (the Home scan), paired as soon as this phone's card is shown.
 class InPersonScreen extends ConsumerStatefulWidget {
-  const InPersonScreen({super.key, this.contact, this.scanned, this.startOnScan = false});
+  const InPersonScreen({super.key, this.contact, this.scanned, this.scannedByCamera = false, this.startOnScan = false});
 
   final Contact? contact;
   final String? scanned;
+
+  /// [scanned] was read by the camera (the Home scan), not pasted or taken from the clipboard.
+  final bool scannedByCamera;
   final bool startOnScan;
 
   @override
@@ -354,13 +357,13 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
         _cardFor = name;
       });
       final pending = widget.scanned;
-      if (pending != null) await _paired(pending);
+      if (pending != null) await _paired(pending, byCamera: widget.scannedByCamera);
     } catch (error) {
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(l, error), level: NoticeLevel.error);
     }
   }
 
-  Future<void> _paired(String text) async {
+  Future<void> _paired(String text, {bool byCamera = true}) async {
     final card = _card;
     if (card == null || _pairing) return;
     _pairing = true;
@@ -371,7 +374,7 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
       if (!mounted) return;
       SemanticsService.sendAnnouncement(View.of(context), context.l10n.pairInPersonDone, Directionality.of(context));
       await Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id, inPerson: true)),
+        MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id, inPerson: true, byCamera: byCamera)),
       );
     } catch (error) {
       _pairing = false;

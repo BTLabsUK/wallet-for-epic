@@ -103,7 +103,7 @@ Future<void> openScannedCode(
     case PairingLink() when !ref.read(pairingOnProvider):
       await showExperimentalOffSheet(context, ref);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):
-      await openPairingLink(context, ref, text);
+      await openPairingLink(context, ref, text, byCamera: origin == CodeOrigin.qr);
     case PairingLink(:final text):
       await showPairingSheet(context, text, origin: origin);
     case WrongNetwork(:final recipient):

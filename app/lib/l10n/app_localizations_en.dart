@@ -18167,4 +18167,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOwnAccessOnPlain =>
       'Added · goes to the node unencrypted (plain http), readable on that network';
+
+  @override
+  String get sasNotFromCamera =>
+      'Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.';
 }

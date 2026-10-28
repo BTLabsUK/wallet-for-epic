@@ -17097,4 +17097,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOwnAccessOnPlain => '已添加 · 以未加密方式（http）发送到节点，该网络上可被读取';
+
+  @override
+  String get sasNotFromCamera =>
+      '对方的代码是通过消息收到的，而不是用你的相机扫描的。除非对方钱包从这个屏幕扫描过你的代码，否则这些词无法证明是谁发送的，因此这里不提供确认：可以先不核对保留配对，或用邀请配对。';
 }

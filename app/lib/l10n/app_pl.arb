@@ -4761,5 +4761,6 @@
   "slPlainHttpUse": "Użyj tego węzła",
   "slRefusedLocal": "Nie wybrano: inne portfele nie dotrą do serwera pod adresem lokalnym lub prywatnym.",
   "slRefusedOnion": "Nie wybrano: serwer onion działa tylko z włączonym Torem.",
-  "deskOwnAccessOnPlain": "Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci"
+  "deskOwnAccessOnPlain": "Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci",
+  "sasNotFromCamera": "Ich kod przyszedł w wiadomości, a nie z twojego aparatu. Jeśli ich portfel nie zeskanował twojego kodu z tego ekranu, te słowa nie dowodzą, kto go wysłał, więc nie ma tu potwierdzenia: zachowaj parowanie bez sprawdzania albo sparuj przez zaproszenie."
 }

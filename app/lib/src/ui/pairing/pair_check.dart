@@ -75,11 +75,15 @@ Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(con
 );
 
 class CheckWordsScreen extends ConsumerStatefulWidget {
-  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.inPerson = false});
+  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.inPerson = false, this.byCamera = true});
 
   final String pairingId;
   final bool recheck;
   final bool inPerson;
+
+  /// In person: the other code was read by this phone's camera. A pasted one cannot be
+  /// confirmed by the words (RFC 0002 7.4), so They match is not offered for it.
+  final bool byCamera;
 
   @override
   ConsumerState<CheckWordsScreen> createState() => _CheckWordsScreenState();
@@ -173,13 +177,18 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FilledButton(
-              key: checkMatchKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: _busy ? null : () => _answer(PairingCheck.match),
-              child: Text(l.sasMatch),
-            ),
-            const SizedBox(height: 8),
+            if (widget.byCamera) ...[
+              FilledButton(
+                key: checkMatchKey,
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: _busy ? null : () => _answer(PairingCheck.match),
+                child: Text(l.sasMatch),
+              ),
+              const SizedBox(height: 8),
+            ] else ...[
+              Text(l.sasNotFromCamera, style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 8),
+            ],
             Row(
               children: [
                 Expanded(

@@ -18805,4 +18805,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskOwnAccessOnPlain =>
       'Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci';
+
+  @override
+  String get sasNotFromCamera =>
+      'Ich kod przyszedł w wiadomości, a nie z twojego aparatu. Jeśli ich portfel nie zeskanował twojego kodu z tego ekranu, te słowa nie dowodzą, kto go wysłał, więc nie ma tu potwierdzenia: zachowaj parowanie bez sprawdzania albo sparuj przez zaproszenie.';
 }

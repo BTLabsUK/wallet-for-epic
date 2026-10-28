@@ -54,6 +54,7 @@ Future<void> openPairingLink(
   String pasted, {
   Contact? contact,
   bool replace = false,
+  bool byCamera = false,
 }) async {
   final kind = pairingLinkKind(pasted);
   if (kind == null) return;
@@ -101,7 +102,7 @@ Future<void> openPairingLink(
         await show(CheckWordsScreen(pairingId: record.id));
       case PairingLinkKind.card:
         // Their code was scanned first: show this phone's, and the pairing follows.
-        await show(InPersonScreen(contact: contact, scanned: text));
+        await show(InPersonScreen(contact: contact, scanned: text, scannedByCamera: byCamera));
     }
   } catch (error) {
     final failure = pairingFailureOf(error);

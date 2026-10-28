@@ -974,6 +974,8 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
         if (own == null && context.mounted) {
           await showEDialog<void>(context, builder: (_) => _CardBackDialog(name: r.shownName, link: card.link));
         }
+        // The phone's camera read this computer's code from its screen, so the words check
+        // holds (RFC 0002 7.4) although the phone's code came back by paste.
         if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case null:
         final words = pairingWordParts(text);

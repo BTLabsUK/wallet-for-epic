@@ -4761,5 +4761,6 @@
   "slPlainHttpUse": "Node nutzen",
   "slRefusedLocal": "Nicht gewählt: Andere Wallets erreichen keinen Server an einer lokalen oder privaten Adresse.",
   "slRefusedOnion": "Nicht gewählt: Ein Onion-Server funktioniert nur mit eingeschaltetem Tor.",
-  "deskOwnAccessOnPlain": "Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar"
+  "deskOwnAccessOnPlain": "Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar",
+  "sasNotFromCamera": "Der Code kam per Nachricht, nicht von Ihrer Kamera. Sofern die andere Wallet Ihren Code nicht von diesem Bildschirm gescannt hat, beweisen diese Wörter nicht, wer ihn geschickt hat; daher gibt es hier keine Bestätigung: Behalten Sie die Kopplung ungeprüft, oder koppeln Sie per Einladung."
 }

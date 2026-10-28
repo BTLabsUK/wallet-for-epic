@@ -28483,6 +28483,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added · goes to the node unencrypted (plain http), readable on that network'**
   String get deskOwnAccessOnPlain;
+
+  /// Words check of an in-person pairing whose other code was pasted or came from the clipboard, not read by the camera: "They match" is not offered (a code passed by message can be swapped on the way, and four words cannot catch that unless the other wallet scanned this one from its screen). Skip keeps the pairing unchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.'**
+  String get sasNotFromCamera;
 }
 
 class _AppLocalizationsDelegate

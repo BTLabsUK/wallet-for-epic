@@ -18377,4 +18377,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOwnAccessOnPlain =>
       'Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar';
+
+  @override
+  String get sasNotFromCamera =>
+      'Der Code kam per Nachricht, nicht von Ihrer Kamera. Sofern die andere Wallet Ihren Code nicht von diesem Bildschirm gescannt hat, beweisen diese Wörter nicht, wer ihn geschickt hat; daher gibt es hier keine Bestätigung: Behalten Sie die Kopplung ungeprüft, oder koppeln Sie per Einladung.';
 }

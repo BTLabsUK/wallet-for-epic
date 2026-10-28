@@ -24129,5 +24129,9 @@
   "deskOwnAccessOnPlain": "Added · goes to the node unencrypted (plain http), readable on that network",
   "@deskOwnAccessOnPlain": {
     "description": "Text of the Owner access row when the secret is added and the node is reached over plain http on the home network or a tailnet: the secret travels unencrypted on each owner call. Starts with deskOwnAccessOn's word."
+  },
+  "sasNotFromCamera": "Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.",
+  "@sasNotFromCamera": {
+    "description": "Words check of an in-person pairing whose other code was pasted or came from the clipboard, not read by the camera: \"They match\" is not offered (a code passed by message can be swapped on the way, and four words cannot catch that unless the other wallet scanned this one from its screen). Skip keeps the pairing unchecked."
   }
 }
