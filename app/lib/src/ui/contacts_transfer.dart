@@ -22,6 +22,7 @@ import 'common.dart';
 import 'settings_history.dart' show handOverFile, historyFilesProvider;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
+import 'method_names.dart' show recipientMethodWord;
 
 /// Keys for tests.
 const Key contactsImportDoKey = ValueKey('contacts-import-do');
@@ -144,6 +145,8 @@ class _ImportConfirm extends StatelessWidget {
     final lines = [
       if (plan.add.isNotEmpty) (Icons.person_add_alt, l.contactsImportNew(plan.add.length), t.text),
       if (plan.update.isNotEmpty) (Icons.edit_note, l.contactsImportMerged(plan.update.length), t.text),
+      for (final a in plan.addedToSaved)
+        (Icons.add_link, l.contactsImportAddsAddress(a.name, recipientMethodWord(l, a.kind), a.address), t.text),
       if (plan.same > 0) (Icons.check, l.contactsImportSame(plan.same), t.dim),
       if (plan.leftOut > 0) (Icons.block, l.contactsImportLeftOut(plan.leftOut), t.dim),
       if (plan.otherNetwork > 0) (Icons.public_off_outlined, l.contactsImportOtherNet(plan.otherNetwork), t.dim),

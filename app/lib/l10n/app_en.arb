@@ -24264,5 +24264,20 @@
   "deskSetRescanPickDateFirst": "Pick a date first.",
   "@deskSetRescanPickDateFirst": {
     "description": "Error when Recheck is pressed with From a date chosen and no date picked."
+  },
+  "contactsImportAddsAddress": "{name} gets a {method} address: {address}",
+  "@contactsImportAddsAddress": {
+    "description": "Line of the contacts import confirm, one per address the file adds to a contact already saved; the user checks it is really theirs. {method} is the payment method word (Epicbox, Link · HTTP, Link · Tor); {address} the full address.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
   }
 }

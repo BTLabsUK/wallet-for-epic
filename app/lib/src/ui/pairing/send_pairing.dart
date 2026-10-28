@@ -34,7 +34,13 @@ PairingRecord? sendPairingFor(WidgetRef ref, String address, {bool watch = true}
   final contact = contactFor(contacts, address);
   if (contact == null) return null;
   final pairing = contactPairingProvider(contact.id);
-  return watch ? ref.watch(pairing) : ref.read(pairing);
+  final p = watch ? ref.watch(pairing) : ref.read(pairing);
+  // The pairing proves the Epicbox address it carries, not the contact's other addresses: an
+  // HTTP or Tor address, or one a contacts file added, never shows its badge.
+  if (p == null || parseRecipient(address).kind != RecipientKind.epicbox) return null;
+  final paired = p.paymentsAddress;
+  if (paired != null && epicboxKey(paired) != epicboxKey(address)) return null;
+  return p;
 }
 
 /// How long without a sealed message from a contact before Send says so (SPEC 2.9).

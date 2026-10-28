@@ -4782,5 +4782,6 @@
   "deskSetRescanRecheckAgain": "Сверить снова",
   "deskSetRescanFromDate": "С даты",
   "deskSetRescanPickDate": "Выбрать дату",
-  "deskSetRescanPickDateFirst": "Сначала выберите дату."
+  "deskSetRescanPickDateFirst": "Сначала выберите дату.",
+  "contactsImportAddsAddress": "{name} получает адрес {method}: {address}"
 }

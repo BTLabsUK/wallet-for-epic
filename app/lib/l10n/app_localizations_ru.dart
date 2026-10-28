@@ -18887,4 +18887,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'Сначала выберите дату.';
+
+  @override
+  String contactsImportAddsAddress(String name, String method, String address) {
+    return '$name получает адрес $method: $address';
+  }
 }

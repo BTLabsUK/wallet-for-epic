@@ -186,6 +186,9 @@ class ContactsImportPlan {
   /// Saved contacts (by id) with the kinds and the note they gain; nothing else of them changes.
   List<ContactFields> get update => _plan.update;
 
+  /// Each address [update] adds to a saved contact, which the confirm names one by one.
+  List<({String name, RecipientKind kind, String address})> get addedToSaved => _plan.addedToSaved;
+
   /// Contacts already here, with nothing to add.
   int get same => _plan.alreadySaved + savedAsIs;
 

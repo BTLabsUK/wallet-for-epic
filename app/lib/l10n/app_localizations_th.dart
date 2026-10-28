@@ -17850,4 +17850,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'เลือกวันที่ก่อน';
+
+  @override
+  String contactsImportAddsAddress(String name, String method, String address) {
+    return '$name ได้ที่อยู่ $method: $address';
+  }
 }

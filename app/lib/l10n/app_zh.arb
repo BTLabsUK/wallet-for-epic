@@ -4782,5 +4782,6 @@
   "deskSetRescanRecheckAgain": "再次核对",
   "deskSetRescanFromDate": "从某个日期",
   "deskSetRescanPickDate": "选择日期",
-  "deskSetRescanPickDateFirst": "请先选择日期。"
+  "deskSetRescanPickDateFirst": "请先选择日期。",
+  "contactsImportAddsAddress": "{name} 新增 {method} 地址：{address}"
 }

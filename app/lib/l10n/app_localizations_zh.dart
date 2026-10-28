@@ -17194,4 +17194,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => '请先选择日期。';
+
+  @override
+  String contactsImportAddsAddress(String name, String method, String address) {
+    return '$name 新增 $method 地址：$address';
+  }
 }

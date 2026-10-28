@@ -28609,6 +28609,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a date first.'**
   String get deskSetRescanPickDateFirst;
+
+  /// Line of the contacts import confirm, one per address the file adds to a contact already saved; the user checks it is really theirs. {method} is the payment method word (Epicbox, Link · HTTP, Link · Tor); {address} the full address.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} gets a {method} address: {address}'**
+  String contactsImportAddsAddress(String name, String method, String address);
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,7 @@ import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../../../ui/method_names.dart' show recipientMethodWord;
 
 /// Keys for tests.
 const Key deskContactsMoreKey = ValueKey('desk-contacts-more');
@@ -216,6 +217,8 @@ class _ImportConfirm extends StatelessWidget {
     final lines = [
       if (plan.add.isNotEmpty) (EIcons.userPlus, l.contactsImportNew(plan.add.length), true),
       if (plan.update.isNotEmpty) (EIcons.pencil, l.contactsImportMerged(plan.update.length), true),
+      for (final a in plan.addedToSaved)
+        (EIcons.link, l.contactsImportAddsAddress(a.name, recipientMethodWord(l, a.kind), a.address), true),
       if (plan.same > 0) (EIcons.check, l.contactsImportSame(plan.same), false),
       if (plan.leftOut > 0) (EIcons.close, l.contactsImportLeftOut(plan.leftOut), false),
       if (plan.otherNetwork > 0) (EIcons.close, l.contactsImportOtherNet(plan.otherNetwork), false),

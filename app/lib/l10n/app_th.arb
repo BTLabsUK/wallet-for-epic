@@ -4782,5 +4782,6 @@
   "deskSetRescanRecheckAgain": "ตรวจอีกครั้ง",
   "deskSetRescanFromDate": "ตั้งแต่วันที่",
   "deskSetRescanPickDate": "เลือกวันที่",
-  "deskSetRescanPickDateFirst": "เลือกวันที่ก่อน"
+  "deskSetRescanPickDateFirst": "เลือกวันที่ก่อน",
+  "contactsImportAddsAddress": "{name} ได้ที่อยู่ {method}: {address}"
 }

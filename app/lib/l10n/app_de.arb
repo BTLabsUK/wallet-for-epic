@@ -4782,5 +4782,6 @@
   "deskSetRescanRecheckAgain": "Noch einmal prüfen",
   "deskSetRescanFromDate": "Ab einem Datum",
   "deskSetRescanPickDate": "Datum wählen",
-  "deskSetRescanPickDateFirst": "Zuerst ein Datum wählen."
+  "deskSetRescanPickDateFirst": "Zuerst ein Datum wählen.",
+  "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}"
 }

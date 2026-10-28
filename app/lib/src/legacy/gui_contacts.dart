@@ -65,6 +65,11 @@ class GuiContactPlan {
   /// address belongs to another saved contact.
   int addressesLeftOut = 0;
 
+  /// Every address the import adds to a contact already saved, by kind: the confirm lists each
+  /// one, as a file can name a saved contact's public Epicbox address and add an address of its
+  /// author's own.
+  final List<({String name, RecipientKind kind, String address})> addedToSaved = [];
+
   int get added => add.length;
 }
 
@@ -214,6 +219,7 @@ GuiContactPlan planGuiContacts(
         RecipientKind.http => c.copyWith(http: e.value),
         RecipientKind.tor => c.copyWith(tor: e.value),
       };
+      if (entry.added == null) plan.addedToSaved.add((name: c.name, kind: e.key, address: e.value));
       changed = true;
     }
     if (note.isNotEmpty && (c.note ?? '').trim().isEmpty) {

@@ -18907,4 +18907,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'Najpierw wybierz datę.';
+
+  @override
+  String contactsImportAddsAddress(String name, String method, String address) {
+    return '$name dostaje adres $method: $address';
+  }
 }

@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/contacts_file.dart';
 import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/legacy/gui_contacts.dart';
+import 'package:epic_wallet/src/recipient.dart' show RecipientKind;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -139,18 +140,26 @@ void main() {
       expect(p.update.where((c) => c.id == 'c1' && c.epicbox != _anna), isEmpty);
     });
 
-    test(
-      'a_contacts_file_never_adds_a_payment_address_to_a_saved_contact',
-      () {
-        // Anna's Epicbox address is public: a file can name it to reach her saved contact.
-        const saved = ContactFields(id: 'c1', name: 'Anna', epicbox: _anna);
-        final p = plan(file([
-          {'name': 'Anna', 'epicbox': _anna, 'http': 'https://pay.example.com', 'tor': '${'a' * 55}d.onion'},
-        ]), [saved]);
-        expect(p.update.where((c) => c.id == 'c1' && (c.http != null || c.tor != null)), isEmpty);
-      },
-      skip: 'Import fills the kinds a matched contact lacks by design; open decision with the app lead',
-    );
+    test('a_contacts_file_that_adds_a_payment_address_to_a_saved_contact_names_every_one', () {
+      // Anna's Epicbox address is public: a file can name it to reach her saved contact. The
+      // import may still add the kinds she lacks, but the confirm lists each address it adds,
+      // and Send shows her pairing's badge only on the Epicbox address the pairing proves
+      // (sendPairingFor), never on these.
+      const saved = ContactFields(id: 'c1', name: 'Anna', epicbox: _anna);
+      final tor = '${'a' * 55}d.onion';
+      final p = plan(file([
+        {'name': 'Anna', 'epicbox': _anna, 'http': 'https://pay.example.com', 'tor': tor},
+      ]), [saved]);
+      final added = {for (final a in p.addedToSaved) a.kind: (a.name, a.address)};
+      expect(added.keys.toSet(), {RecipientKind.http, RecipientKind.tor});
+      expect(added[RecipientKind.http], ('Anna', 'https://pay.example.com'));
+      expect(added[RecipientKind.tor]!.$2, contains(tor.substring(0, 20)));
+      // A new contact's own addresses are not "added to a saved one".
+      final fresh = plan(file([
+        {'name': 'Bob', 'http': 'https://bob.example.com'},
+      ]), [saved]);
+      expect(fresh.addedToSaved, isEmpty);
+    });
   });
 
   group('history backups', () {
