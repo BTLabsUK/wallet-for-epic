@@ -117,4 +117,17 @@ void main() {
     await leaveAndBack(tester);
     expect(toText(tester), isEmpty);
   });
+
+  testWidgets('a lock drops the draft with the rest of the open wallet', (tester) async {
+    await show(tester);
+    await tester.enterText(find.byType(EditableText).first, _onion);
+    await tester.pump(const Duration(seconds: 4));
+    await pump(tester, const Text('Overview'));
+    await tester.runAsync(() async {
+      await container.read(deskProvider.notifier).lock();
+      await container.read(deskProvider.notifier).refresh();
+    });
+    await pump(tester, const SendScreen());
+    expect(toText(tester), isEmpty);
+  });
 }

@@ -235,7 +235,12 @@ class _SendKeeper {
   _KeptSend? kept;
 }
 
-final _sendKeeperProvider = Provider<_SendKeeper>((ref) => _SendKeeper());
+/// A new keeper for every wallet opened: a lock or a switch drops the draft with the rest of
+/// the open wallet's data.
+final _sendKeeperProvider = Provider<_SendKeeper>((ref) {
+  ref.watch(deskProvider.select((s) => s.account?.id));
+  return _SendKeeper();
+});
 
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.arg});
