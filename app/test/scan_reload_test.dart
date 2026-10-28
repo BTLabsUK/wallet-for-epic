@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // android-07: a scan that finished (the restore's, or Settings' rescan) reloads the balances,
 // so Home and Outputs show what it found instead of the zero read before it.
 import 'package:epic_wallet/src/providers.dart';

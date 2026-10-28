@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send's method follows the address: a complete address of another kind, or a
 // pasted one, switches; text still being typed never does, and nothing switches back.
 import 'package:epic_wallet/src/tor_build.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Pairing between two real desktop apps (RFC 0002): this file runs in two app instances at
 // once, each with its own HOME, keyring and wallet, which meet through files in RC_SYNC.
 // RC_ROLE is A or B. Driven by tool/two_apps_check.sh, which builds the app once with this

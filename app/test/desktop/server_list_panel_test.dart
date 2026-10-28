@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's Node and Epicbox lists (server_list_panel.dart, server_lists.dart): the field
 // at the top starts empty and filters; a Node row switches at once, an Epicbox row asks in a
 // dialog; Add shows when nothing matches, says plainly

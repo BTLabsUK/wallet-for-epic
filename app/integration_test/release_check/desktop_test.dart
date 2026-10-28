@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, part 1: first run, create, lock, sync, receive, settings, hidden features.
 // Real LEPIC, real node and Epicbox relay (see tool/release_check.sh). Never prints the phrase or
 // the password. The phrase is written to RC_PHRASE_FILE (a throwaway dir) for restore_test.dart.

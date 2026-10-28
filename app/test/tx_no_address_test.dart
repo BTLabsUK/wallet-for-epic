@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A payment that came without an address (a QR code or file exchange): its details say who it
 // was is not known, on the phone and the desktop, instead of leaving out the other side.
 import 'package:epic_wallet/src/desktop/data/models.dart';

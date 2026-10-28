@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live round trip of the history backup (.wfeh v2) on a phone: the real app on the device, the
 // real LEPIC core, the floonet node and relay, the floonet faucet and a second LEPIC wallet in
 // this process. Nothing is mocked but the system file dialogs (the file stays in memory).

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Checks from Linux that LEPIC builds for the Apple targets, with no Apple SDK: a quick early
 # check, never the libraries an app ships (tools/build-apple.sh builds those on the Mac).
 #   aarch64-apple-darwin, x86_64-apple-darwin  linked liblepic_ffi.dylib, cargo-zigbuild (zig

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where this build is distributed: the one build-time switch of the store builds
 /// (https://docs.btlabs.uk/developers/build/variants/). `--dart-define=WFE_DIST=web` (or unset) is the build from our own
 /// download page, as every build before the switch; `play` is the Google Play build, `fdroid` the

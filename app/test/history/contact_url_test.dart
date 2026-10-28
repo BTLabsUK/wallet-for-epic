@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Phone contacts take an Epicbox address, an http(s) wallet address or an onion (the Link
 // methods), checked the way Send checks a recipient; an incomplete URL is refused with the
 // example. The archive underneath stores an address as typed and leaves the rule to each screen.

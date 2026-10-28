@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A send by another wallet on this recovery phrase that only the node's answers show so far
 // (LEPIC's unverified): the desktop row says so, until the next completed scan clears it.
 import 'package:epic_wallet/src/desktop/data/models.dart';

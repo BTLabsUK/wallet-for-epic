@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Linked devices at work for one open wallet: linking, the notices between devices, the coins
 /// they hold, the runs that read the channel. Shared by the phone and the desktop; each app
 /// gives it a [DeviceHost] and wraps it in its providers (`device_providers.dart`).

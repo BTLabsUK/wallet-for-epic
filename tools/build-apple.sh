@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds Epic Cash Desktop for macOS and Epic Cash Mobile for the iOS Simulator on a Mac, from a
 # clean checkout of this repository: LEPIC for the four Apple targets, an ad-hoc-signed .app and
 # .dmg, a Simulator .app, and the smoke run. No Apple account is needed for any of it. Prototype

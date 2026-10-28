@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// How an old Epic GUI's address book comes into the app's contacts: each GUI contact cleaned,
 /// its addresses read by what they are (not by the field they were typed in), and then added,
 /// merged into a saved contact, or skipped, never overwriting what the user saved. Pure Dart: the

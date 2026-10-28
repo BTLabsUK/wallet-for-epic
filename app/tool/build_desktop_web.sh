@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the desktop interface (canned data only) as a static web site that works from any
 # sub-path of a host: base href "./".
 #

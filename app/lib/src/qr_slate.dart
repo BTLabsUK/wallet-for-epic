@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Paying in person by QR: a payment file as an animated code (LEPIC's `ur:epic-slate`
 /// transport, behind [WalletService.encodeQrSlate] and [WalletService.decodeQrSlate]), the
 /// frames the show screen draws, and the reader the scan screen feeds.

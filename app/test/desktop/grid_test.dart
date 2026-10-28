@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // One grid on desktop: panels side by side share their top, bottom
 // and header line; every Settings row control is Ctl.sm tall, one of the row widths, and the
 // controls of a card end on one right edge; the balance trace is as wide as the balance row.

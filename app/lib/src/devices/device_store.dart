@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where a wallet's [DeviceBook] is kept: one JSON value in the app's [SecretStore], keyed by
 /// chain and wallet like the other per-wallet app data (`phone.tor_receiving.<chain>.<wallet>`).
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The boundary between the UI and the native wallet core.
 ///
 /// UI code depends on [WalletService] and [WalletSession] only. [LepicWalletService]

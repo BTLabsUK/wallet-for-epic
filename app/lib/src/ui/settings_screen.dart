@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings on the phone: a hub of groups that fits one screen, in the order people reach for
 /// them. Security, Privacy & network, Wallet, Transactions, Display, Advanced and About open a
 /// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send

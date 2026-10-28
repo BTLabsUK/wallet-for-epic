@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's strings on desktop screens: `context.l10n`, in the language Settings › Appearance
 /// picked (DeskApp installs the delegates). A screen pumped on its own (widget tests) has no
 /// AppLocalizations above it, so it reads English instead of failing.

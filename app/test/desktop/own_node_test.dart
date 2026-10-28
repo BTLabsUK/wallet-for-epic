@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The user's own node: the address classes; the own-node info asked directly
 // (no directory lookup, mempool, the reference tip never from the node, Syncing / Behind); the
 // owner secret (checked, kept per URL, never sent to a public node or over Tor, a later refusal,

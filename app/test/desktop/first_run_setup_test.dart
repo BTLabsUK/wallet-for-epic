@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // After a wallet is created or restored the first run goes password → phrase →
 // Node → Epicbox → Review → Unlock. Setup starts on the node step with no way back to the
 // phrase, preselects only a healthy node, and Save goes to Unlock. A second wallet starts from

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Payer actions other screens call (Activity's Invoice block, Overview): retry a reply that
 /// was not delivered, cancel a payment. Owned by the payer part; the bodies show its dialogs.
 library;

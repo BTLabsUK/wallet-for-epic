@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node info providers, apart from the rest of the node layer so that the phone's
 /// server list can ask an own node without the desktop's node controls; the web build takes
 /// node_info_provider_web.dart.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The public node and relay lists: status.btlabs.uk's answer (a copy captured on 2026-10-22),
 // the built-in lists and their merge, and the directory's timeout and cache.
 import 'dart:async';

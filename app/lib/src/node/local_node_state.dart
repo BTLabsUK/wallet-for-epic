@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local (built-in) node as the app shows it: one phase, the sync progress, the network
 /// height it is measured against, and the node's folder and disk. Pure: [deriveLocalNodeState]
 /// maps a [BuiltInNodeState] plus what else is known onto it.

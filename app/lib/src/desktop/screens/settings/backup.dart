@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › This wallet › Backup: export and import of the history backup, and the
 /// payments as CSV, each through its dialog and the system Save or Open dialog.
 library;

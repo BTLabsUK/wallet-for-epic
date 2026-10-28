@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// One demo's secret store: a JSON file, mode 600, replaced atomically on every write.
 library;
 

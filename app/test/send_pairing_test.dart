@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send to a contact that has only a pairing (DESIGN 1.2): the contact page's Send by the
 // pairing's state, Send with the pairing as recipient (its card, the mailbox readout, no
 // address), the queue while Epicbox is off, and "Waiting for Anna" on the payment's row.

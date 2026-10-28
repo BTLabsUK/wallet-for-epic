@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live (a report: the computer showed the link, the phone listed it, the
 // computer did not list the phone): two installs of one mainnet phrase over the real LEPIC
 // library and real relays link with the computer showing the code on two servers; both list each

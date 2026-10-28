@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live checks against mainnet through LEPIC, for a real Mac (`-d macos`, an iOS Simulator) and
 // Linux: a new wallet on a public node, its sync to the node's tip, a restore from its phrase,
 // and its Epicbox listener online. Needs the internet; a check whose servers do not answer is

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A contact holds one address of each kind (RFC 0002 17.2): the model sorts an address into
 // its kind, the file keeps one address as the old core wrote it and several by kind, and the
 // history keeps them through a save and a history file.

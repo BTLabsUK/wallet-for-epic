@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node screens' window on the node service layer (`lib/src/node/node.dart`): the local
 /// node's state and controls, its peers and folder, node info for any node and the
 /// public-node fallback. [DeskNodeApi] is the one interface the screens use; the app

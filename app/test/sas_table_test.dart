@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The pairing word table is LEPIC's (`testdata/sas/emoji-v1.txt`): the app's copy must match
 // the pinned clone entry for entry, or typed pairing words a LEPIC wallet shows are refused.
 // Skipped without the clone (tools/lepic.sh sync).

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send's output lines: Balance after, Spendable until change confirms and
 // its caption, the split line, the strategy line, Advanced, and the review dialog's facts.
 import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart';

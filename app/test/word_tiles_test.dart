@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The pairing word tiles never cut a name: the longest names of the table in
 // every slot, the five pairing words and the four-word check on a 360 dp phone, the desktop's
 // small tiles and its words check dialog. Each name is laid out whole, on one line, inside its

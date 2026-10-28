@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What a tour step lights: screens wrap the widget in a [PhoneTourTarget] with an id the step
 /// names. Kept apart from the tour itself so a screen imports nothing but this.
 ///

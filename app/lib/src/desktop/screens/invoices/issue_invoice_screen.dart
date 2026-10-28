@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Request a payment: a paired contact whose wallet pays requests, or a
 /// payment file for anyone; how much and why. Nothing leaves the wallet, so no password.
 library;

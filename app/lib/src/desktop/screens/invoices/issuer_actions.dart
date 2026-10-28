@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Issuer actions other screens call (Requests › Sent, Activity's Invoice block): withdraw a
 /// waiting request, repost a finalized one, cancel one that was never posted.
 library;

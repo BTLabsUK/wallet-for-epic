@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // NodeApiClient over a fake transport: auth, error mapping, failovers, validation, body cap.
 import 'dart:async';
 import 'dart:convert';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // LepicDeskWallet on FakeWalletService: the desktop UI's adapter over the wallet core. The
 // passwords and phrases here are throwaway test values.
 import 'dart:async';

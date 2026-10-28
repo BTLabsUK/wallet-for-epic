@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The peer count of a node, for the Offline line that a payment waits in the node's pool
 /// while the node has none. Owner `get_status` answers without the node's secret (epic 4.1.0).
 /// Over `http.dart`, so also on the web.

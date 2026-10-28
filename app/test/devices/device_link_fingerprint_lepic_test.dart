@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The link code's wallet fingerprint over the real LEPIC library: two installs of one phrase
 // on different Epicbox servers, one opened by password and one by PIN (desktop and phone), give
 // the same fingerprint for a code; a wallet of another phrase gives another. Tester report

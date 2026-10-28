@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Node failover, the rules both apps share (Settings › Advanced › Node failover, on by
 /// default): when the node in use has not answered for [nodeFailoverAfter], the wallet moves
 /// to the next working node in the user's list for this session only. The chosen node stays

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // F34 data: LepicDeskWallet's history backup over the shared core session (FakeWalletSession):
 // the backup record and the backup reminder rule, export and import with the refusals in the
 // design's words, the CSV range, and WALLET.txt in the wallet folder.

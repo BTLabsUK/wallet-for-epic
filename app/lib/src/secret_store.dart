@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The platform's secret storage, and a biometric-gated variant. The [SecretStore] interface
 /// and [MemorySecretStore] are in `secret_store_api.dart`, without Flutter, and re-exported here.
 ///

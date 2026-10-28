@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A node already answering on this computer, and the facts of the explanation step.
 import 'dart:convert';
 import 'dart:io';

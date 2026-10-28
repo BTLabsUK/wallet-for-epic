@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Receive: no QR code on open in any state, the Epicbox reveal keeps the hero's size,
 // the compact reveal opens and closes in the same time, panels grow with their switch, and
 // the page carries none of the banned words.

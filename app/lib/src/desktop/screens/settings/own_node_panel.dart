@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The panel of Settings › Node for the user's own node: the
 /// node's facts asked directly every 15 s (never status.btlabs.uk, which cannot see it), the
 /// failover and syncing notices, and the Owner access row. With owner access the built-in

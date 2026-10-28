@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: pairing (RFC 0002) through the app's LEPIC adapter on the real library, with LEPIC's
 // mock chain and mock relay: an invite answered and its words checked, in person by cards,
 // a request to a verified contact paid and finalized, a payment through a contact's mailbox,

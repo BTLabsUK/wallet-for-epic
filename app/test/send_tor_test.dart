@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send to a Tor address: an onion in any form is a Link recipient: the recipient
 // card says "Over Tor". With the Tor switch off it needs Tor: Turn on Tor, and the review
 // waits until Tor is on. Then it reaches their wallet ("Reaching their wallet over Tor…", no

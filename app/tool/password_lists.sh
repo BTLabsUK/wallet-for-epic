@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Rebuilds the word lists behind the password crack-time hint (lib/src/password_estimate.dart)
 # from zxcvbn-ts's npm packages: assets/passwords/<lang>.txt.gz and assets/passwords/NOTICE.txt.
 #

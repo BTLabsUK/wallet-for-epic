@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every GitHub Action a workflow uses is pinned to a full commit SHA: a moved tag cannot change
 // what runs with the workflow's secrets (the Apple build holds LEPIC deploy keys). No Dependabot
 // keeps them current, as it would open pull requests on the published copies; a version moves

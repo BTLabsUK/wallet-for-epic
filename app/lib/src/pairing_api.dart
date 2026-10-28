@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pairing (LEPIC RFC 0002, sections 7 to 11): the calls the screens make, on the open
 /// wallet's [WalletSession.pairing]. The types are the app's own, in `models.dart`; LEPIC's
 /// adapter maps its binding onto them (U-24), the fakes play both sides for tests, the

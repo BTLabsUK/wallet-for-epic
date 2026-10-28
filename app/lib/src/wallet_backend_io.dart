@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `wallet_backend.dart` on the phone and desktop: LEPIC in this process, the platform
 /// keystore, and wallet directories under the app's support directory.
 library;

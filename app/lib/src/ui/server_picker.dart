@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where the phone's Node and Epicbox pickers open ([showNodePicker], [showEpicboxPicker]),
 /// and the monitor's views they show: the public nodes and the network as a whole.
 ///

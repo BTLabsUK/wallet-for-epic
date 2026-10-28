@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The node layer against a real epic node: the bundled binary in a scratch folder, mainnet,
 // header sync only. Off unless WFE_NODE_LIVE=1 (it downloads chain headers, ~1 GB a million).
 //

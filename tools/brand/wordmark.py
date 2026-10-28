@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Exports the product wordmark as SVG (text as paths) and PNG, the same layout as
 `BrandWordmark` in app/lib/src/ui/theme/brand.dart: "Epic Cash" in Montserrat SemiBold at size
 S with -0.02 em tracking, filled with the mark's gold gradient (#F6D471 to #C98A3E); under it

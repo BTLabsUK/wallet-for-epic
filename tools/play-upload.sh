@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Uploads the Play App Bundle of the version in pubspec.yaml to a Google Play testing track
 # (https://docs.btlabs.uk/developers/build/variants/, "Google Play"). Production stays a click in Play Console.
 #   tools/play-upload.sh <aab> [--track internal] [--notes-file <file>] [--validate]

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Wave 1 of the 0.1.0 feedback: the small desktop fixes that are not covered by their own
 // files.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

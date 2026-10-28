@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import '../../desk_l10n.dart';
 import '../../../app_info.dart';
 import 'package:flutter/material.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Contacts and settings on the desktop's LEPIC adapter: a contact's addresses and the invoice
 // expiry kept with the wallet. LepicDeskWallet over the real
 // LepicWalletSession on a stand-in `EpicWallet`; no native library is loaded.

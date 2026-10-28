@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The local node panel: a fake state stream through starting → headers →
 // chain state download → kernels → blocks → synced, asserting the word, the stage line, the
 // overall %, the step strip and the rail line; then stalled, each failure, stopped; the Ask

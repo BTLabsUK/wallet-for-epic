@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Help content shared by the desktop and the phone: the topic structure ([HelpTopic],
 /// [HelpBlock], [helpInline]), the sections and the topics themselves. The desktop renders
 /// them in Settings › Help, the phone in its Help screen. One source, so the two apps

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Metadata beside each tour screenshot, for the release screen catalog (tools/screens.sh): with
 // SHOTS_META=1 a tour writes `<shot>.json` next to `<shot>.png` holding the text the screen shows
 // and the widget classes on stage, so an agent can find a screen by its words or its code.

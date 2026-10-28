@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › This wallet › Change password. The adapter over the fake core (the new
 // password opens, the old one not; Remember forgotten; each core error worded), and the dialog
 // (validation, Enter rules, a wrong current password on its field, the toast).

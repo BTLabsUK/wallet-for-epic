@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The fake pairing engine (RFC 0002) the screens, the tour and the web preview run on: the
 // states a pairing goes through, the key check, invoices only from a verified contact with
 // Allow invoices on, and the per-wallet backup.

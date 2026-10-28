@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's first-unlock tour: coach marks over the real screens, one step per screen. Each
 /// step opens its screen (a Home tab, or a screen pushed over Home), lights what matters on it
 /// and says in a line or two what is there; Skip, Back and Next, a step counter, Done on the

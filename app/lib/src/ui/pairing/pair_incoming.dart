@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// An invite from someone else: "Pair with Anna?", the answer and the wait for the
 /// inviter's confirm, the answer by hand when no relay answers, and one outcome screen per
 /// case of the cases file. [openPairingLink] is the entry for any pairing link: a scan, a

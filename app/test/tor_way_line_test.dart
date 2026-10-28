@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // TorWayLine: what a connection does under the Tor switch, in the words the status card and
 // the server lists share: nothing with Tor off, "Over Tor", or "Waiting for Tor" (warn while
 // Tor starts, risk with "Tor is not connected" when it failed).

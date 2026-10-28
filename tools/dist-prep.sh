@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Prepares a checkout for a distribution build (https://docs.btlabs.uk/developers/build/variants/). Only the F-Droid build
 # needs it: Flutter packs every plugin named in pubspec.yaml, so a dart-define alone cannot keep
 # Google ML Kit (the QR scanner of the other builds) out of the APK. The app has no Firebase or

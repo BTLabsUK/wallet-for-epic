@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Linked devices: what one wallet keeps about the other devices that hold the same wallet,
 /// and about the coins they are spending. App data, per wallet (`device_store.dart`); LEPIC
 /// only carries the bytes over private pairings (`pairing_api.dart`).

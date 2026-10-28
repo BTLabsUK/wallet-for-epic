@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The LEPIC adapter's pure parts: error mapping, history keys and rows. No native library is
 // loaded.
 import 'package:epic_wallet/src/lepic_wallet_service.dart';

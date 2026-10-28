@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Builds app/assets/fonts/EpicStatusIcons.ttf from app/assets/icons/*.svg.
 
 The status, method and trust glyphs ship as an icon font so they stay plain IconData (colour,

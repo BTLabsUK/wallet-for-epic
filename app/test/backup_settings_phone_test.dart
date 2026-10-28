@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's settings in a history backup (ui/backup_settings_phone.dart): collected on one
 // phone, planned and applied on a fresh one over the app's own notifiers and store, and the
 // questions a changed phone gets.

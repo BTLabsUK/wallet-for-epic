@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Scrubs secrets from text before it is logged or put in a feedback report.
 ///
 /// It runs at the call (`AppLog` in `log.dart`) and again at the log file sink (`FileLogSink` in

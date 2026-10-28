@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // History on LEPIC (H-01): the archive and history file the old epic-wallet core wrote
 // (test/history/fixtures/, made before that core was removed) open and show the same list, and
 // the import rules hold.

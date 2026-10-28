@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Labels on any payment, typed details on a scan find, and the import's "Details differ":
 // the title rule, the inline field (Enter, blur, Esc, empty), the pen as a Tab stop with its
 // screen-reader name, the details editor only on restored rows, the proof dialog, the dialog

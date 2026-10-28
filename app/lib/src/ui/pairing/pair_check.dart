@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Check the words: the four words both wallets show, then They match
 /// (Verified), They don't match (the pairing goes on this side) or Skip for now (Paired, not
 /// verified). The results offer to save the contact; the app never decides on its own which

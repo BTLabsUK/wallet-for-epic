@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
 /// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
 /// the top starts empty, filters the list while typed in, and offers Add as soon as nothing

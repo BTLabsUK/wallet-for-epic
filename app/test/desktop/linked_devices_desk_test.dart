@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Linked devices on the desktop (Settings › Linked devices, the link dialog, the other device's
 // payments): the code, the four pictures on both sides and the link; a payment of the phone holds
 // its coins here (Locked in the balance, held in the outputs, a row Sent from the phone, the Send

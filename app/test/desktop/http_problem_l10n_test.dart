@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The HTTP listener's failure is kept structured and worded at display time, so the sidebar and
 // the status card read right in every language, not only in English.
 import 'package:epic_wallet/l10n/app_localizations.dart';

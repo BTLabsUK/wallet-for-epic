@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pairing links found on the clipboard (Pairing UX plan, section 5): when the wallet may read
 /// it, what it offers, and the once-set that keeps each link to one offer. Plain Dart, so the
 /// phone, the desktop and the tests share the rules; each app brings its [ClipboardProbe].

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Linked devices between the desktop app and the phone app (integration_test/device_link_phone_test.dart
 // on an emulator), the same floonet wallet restored on both, real LEPIC, node and relays. The
 // desktop shows the device link, the phone pastes it, both check the pictures; then the desktop

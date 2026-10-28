@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Hostile scans, pastes and links: what a QR code, a shared message or another app's link can
 // and cannot make the wallet do. Each case is a text a bad actor controls; the router must read
 // it as something harmless or refuse it.

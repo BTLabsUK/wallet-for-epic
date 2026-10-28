@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Epicbox over Tor on the desktop, the mechanism the app's Tor setting drives: on by default and
 // handed to the open wallet at unlock and on change, with the onion routes; tor that starts with
 // the wallet is announced before the first Epicbox connection; a retry keeps the connection

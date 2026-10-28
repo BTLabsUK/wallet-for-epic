@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The camera library behind QR scanning: the only file that imports it. The F-Droid build
 /// swaps this file for scanner_backend_foss.dart, the same API on free code
 /// (tools/dist-prep.sh), so keep the two in step.

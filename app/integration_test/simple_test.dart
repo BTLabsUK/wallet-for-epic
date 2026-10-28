@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Runs against the real cores: epic-wallet for the core API and history tests, LEPIC for the
 // PIN vault and the first run. Needs no node: the node URL points at a closed port.
 //

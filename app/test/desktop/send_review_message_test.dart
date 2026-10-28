@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A report: the review showed no trace of the message typed on Send, so the sender could not
 // tell whether it would go with the payment. The review dialog lists it as typed, none when
 // empty, and Send hands it to the wallet, where the transaction keeps it.

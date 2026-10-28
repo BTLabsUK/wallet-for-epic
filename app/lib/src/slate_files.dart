@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Transaction files, the way epic-wallet's CLI exchanges them: the sender writes a slate file
 /// (`send -m file`), the recipient answers with `<same name>.response` (`receive -i`), and the
 /// sender finalizes that (`finalize -i`). The contents are slate JSON.

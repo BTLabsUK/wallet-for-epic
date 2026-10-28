@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The install permission trip never costs the download: the permission is asked before any
 // download, the downloaded file is kept and checked against the manifest, and on return with
 // the permission the update installs from that file. Leaving the app mid-download (Android 15+

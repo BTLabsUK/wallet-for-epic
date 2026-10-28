@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The pairing events as notices: docked under the app bar, one line, the next
 /// step as its action. Mounted on home, so they show wherever the user is. It also looks for a
 /// pairing link on the clipboard when the app comes to the front (Pairing UX plan 5).

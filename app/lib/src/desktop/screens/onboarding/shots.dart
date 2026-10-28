@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import '../../app/shots.dart';
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../widgets/kit.dart';

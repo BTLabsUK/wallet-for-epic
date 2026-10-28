@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What `http.dart`'s calls return and throw, the same on every platform.
 library;
 

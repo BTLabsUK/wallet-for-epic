@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The automatic retries phone and desktop share (stall_retry.dart): a finished payment the
 // chain has not taken is posted again on a backoff for as long as the wallet is open; a paid
 // invoice's answer is sent again a few times, and reads Stalled after that. Nothing cancels.

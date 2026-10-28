@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Node failover on the desktop (`node_failover.dart` has the rules): once the wallet's node has
 /// read down ([ServiceStatus.nodeHealth], what the rail shows) for [nodeFailoverAfter], the
 /// open wallet moves to the next working node of the user's list for this session

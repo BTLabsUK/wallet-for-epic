@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of pairing by words on a phone (report utc3fhjj, 2026-10-26): the real app on the
 // device with the real LEPIC core and real mainnet relays. The phone's own relay is one outside
 // the words meeting list (epicbox.iniaku.my.id, as a tester had), which LEPIC 26.10.16 refused

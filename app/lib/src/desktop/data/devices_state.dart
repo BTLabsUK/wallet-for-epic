@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's linked devices: the open wallet's [DeviceService] (shared with the phone,
 /// `devices/`), its lifecycle and the places that read it. Linked devices is an Experimental
 /// switch, on unless the user turned it off; off, there is no service and nothing of it shows.

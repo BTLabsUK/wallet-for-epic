@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The LEPIC adapter's pairing calls over a stand-in `EpicWallet` (26.10.18): late pairing
 // messages, a pairing the other side removed, removal that tells it, and a key check that may
 // not run. No native library is loaded.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What a typed, pasted or scanned recipient is: an Epicbox address, an onion (Tor) or a
 /// wallet URL (HTTP). Pure Dart, shared by the phone and desktop screens.
 library;

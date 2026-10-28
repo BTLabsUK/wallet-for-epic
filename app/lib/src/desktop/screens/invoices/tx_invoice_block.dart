@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The Invoice block of a transaction's details: the request or the
 /// invoice behind an invoice-flow transaction, where it stands, and its actions.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Closing the app always closes: a wallet lock or a node stop that fails or never ends is
 // skipped after its limit (the window's exit hook waited on them without one).
 import 'dart:async';

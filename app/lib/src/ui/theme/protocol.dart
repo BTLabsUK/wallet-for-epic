@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The devices that make the Protocol look recognisable: corner ticks and the measurement grid
 /// (on the screens that open the app or end a task, through `brand.dart`: the Epic mark, glyph
 /// tiles, the lit backdrop), the sweep along the app bar when a payment lands, the gold-rule

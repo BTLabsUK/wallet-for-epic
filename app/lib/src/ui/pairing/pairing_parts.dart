@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The pieces every pairing screen shares, on the phone: the word tiles, the trust
 /// badges, the contact avatar, the countdown, the switch rows with their info icon, the share
 /// box and the outcome card. The desktop reads the tiles and badges too.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What Send shows under the recipient for a saved contact: "Send via" with the
 /// kinds of address the contact has, when it has several (a kind whose method is off in
 /// Settings › Transactions shows disabled, with the reason); for a paired contact its trust and

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The first run's node step: the combo preselects the first healthy node in
 // the neutral order (never a hard-coded host); Local goes to its own step; the existing node
 // needs a successful check; nothing starts the node before Save; Save sets the fallback answer.

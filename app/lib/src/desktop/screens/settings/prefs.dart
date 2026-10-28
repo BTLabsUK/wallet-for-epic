@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings the settings screens and the shell's status rows share: what 6.1.6 saves in its
 /// config (start Epicbox / HTTP with the wallet, built-in node, sync in background), the HTTP
 /// listener's run state, My nodes' labels and the wallet list edits. The saved part

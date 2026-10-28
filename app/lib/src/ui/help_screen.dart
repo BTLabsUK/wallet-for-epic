@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Help on the phone: the shared topics (`help/help_content.dart`, the same words as the
 /// desktop's Settings › Help) in a phone-fit shape. The index lists the sections with their
 /// topics and searches them; a topic opens as its own page, where a bold term is a term and a

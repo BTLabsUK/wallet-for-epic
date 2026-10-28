@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live on floonet (linked devices, chain check, Connection servers): two installs of ONE wallet
 // (A shows the link, B is restored from A's phrase), each a LepicWalletSession over the real
 // LEPIC library, driven by a DeviceService on the real node and real relays, plus a receiver R

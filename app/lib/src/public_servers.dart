@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The public mainnet nodes and Epicbox relays built into the app, and their merge with the
 /// live lists from `status.btlabs.uk` ([NodeDirectory], [RelayDirectory]).
 ///

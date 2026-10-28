@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where the desktop UI is. One flat list of places; [DeskRoute.bare] places fill the window
 /// (first run, unlock), the rest sit in the app shell with the sidebar.
 library;

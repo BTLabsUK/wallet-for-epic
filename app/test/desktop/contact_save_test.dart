@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Saving a contact never hangs: the address is checked as text only, a refused save ends the
 // spinner with a notice, and an http(s) address is stored without reaching the host.
 import 'package:flutter/material.dart';

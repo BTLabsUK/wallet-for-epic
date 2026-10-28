@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's side of Help › How linked devices work: the sync picture with the servers the
 /// link uses, and the live status panel read from the phone's device providers
 /// (`phone_devices.dart`), the servers' health from the monitor the server lists use.

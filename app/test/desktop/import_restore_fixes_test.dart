@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The import wizard's restore-review fixes on the mock wallet: the Epicbox server choice at
 // Done, the password line, the Windows close-first line and the line for
 // Stack Wallet and Epic Pay users.

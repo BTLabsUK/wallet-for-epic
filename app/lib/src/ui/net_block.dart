@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the Advanced network mode says to a screen with a network action: one answer
 /// ([watchNetBlock]), one reason line ([NetBlockNote]) for Send, Recheck balance, feedback and
 /// the rest, so they all say the same thing. The rule itself is `netBlockFor`.

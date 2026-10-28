@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `http.dart` in the browser, over `fetch`, with `dart:js_interop` only.
 ///
 /// Cross-origin calls need the server's CORS answer; a refused check reads as [NetError], the

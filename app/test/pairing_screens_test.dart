@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's pairing screens against the fake engine: the three ways in,
 // an online invite from making to answered, entering words or a link, the incoming invite,
 // the words check and what follows it, Pending invites, and a contact's Pairing block.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `http.dart` on the phone and desktop, over `dart:io`'s `HttpClient`.
 library;
 

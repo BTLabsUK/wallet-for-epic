@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the node screens say about a node: one word, a state, the rail's second line and the
 /// tooltip's lines, the local node's stage line and time left (§15.2). Pure, so the
 /// rail, the node card and the local node panel say the same thing.

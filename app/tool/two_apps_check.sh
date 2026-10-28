@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Pairing between two real desktop apps: builds the Linux app once with
 # integration_test/release_check/two_apps_test.dart as its entry, then starts it twice under
 # xvfb, as A and B, each with its own HOME (the data folder is $HOME/.epic_cash_desktop), XDG

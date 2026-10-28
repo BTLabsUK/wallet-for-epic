@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Canned answers for the desktop design run: a funded mainnet wallet with a varied history,
 /// contacts, nodes and relays. Delays are short but real, so busy states show. The password
 /// is anything but "wrong"; "wrong" fails the unlock.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Tor on the mock wallet: Settings › Receiving turns it on per wallet and shows its state and
 // onion; Send routes an onion (a Link send) to Tor and offers Turn on Tor while it is off. Every screen spot
 // is behind DeskFeatures.tor, so these run once the flag is on.

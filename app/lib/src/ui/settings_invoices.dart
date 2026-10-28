@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Wallet › Invoices: who may ask this wallet to pay. Since RFC 0002
 /// that is a paired, verified contact with Allow invoices on; the screen lists the paired
 /// contacts with their switch and offers Pair with a shop or exchange. Time to pay stays a

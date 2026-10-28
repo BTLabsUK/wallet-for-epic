@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The web demo end to end, without a browser: the real demo server on real LEPIC on
 // floonet, reached the way the web app reaches it (ServerDemoApi over HTTP with the cookie,
 // RemoteWalletService over /api/ws). Two demos: A claims test coins, they arrive and

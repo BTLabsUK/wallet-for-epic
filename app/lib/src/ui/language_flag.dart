@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The small flag next to a language's own name in the language pickers (assets/flags, from
 /// lipis/flag-icons, MIT). Bundled SVGs, not emoji: emoji flags do not draw on Windows.
 library;

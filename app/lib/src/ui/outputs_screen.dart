@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Outputs: the pieces the balance is made of, with Split and Consolidate, the strategy a
 /// send uses and the list of every output.
 library;

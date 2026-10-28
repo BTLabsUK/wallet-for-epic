@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [WalletService] and [WalletSession] over an [RpcChannel], for a wallet that runs elsewhere.
 library;
 

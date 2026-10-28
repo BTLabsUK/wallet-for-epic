@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Transactions on the phone: the payment methods, one switch each, grouped by
 // family (Epicbox; Link › HTTP, Tor; Direct › QR Payment, File Transfer), the last one on
 // staying on; the method Send starts on (only among the methods offered, Link once); and, with

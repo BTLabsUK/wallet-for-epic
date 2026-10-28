@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// "How it works": an Epic payment as the handshake it is, in a bottom sheet. Four nodes,
 /// You, the Relay (epicbox, or the file passed by hand), Them and the Network, with one
 /// arrow lit at a time and a token moving along it.

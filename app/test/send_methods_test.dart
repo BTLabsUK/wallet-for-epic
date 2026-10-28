@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send's four methods: a selector with Epicbox, HTTP, Tor and File, a strip with a
 // picture and one plain line, the shape of the method's address under To. The method follows
 // the address: a paste, a pick or a whole address of another kind moves it,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [DeskWalletApi] over the app's wallet core ([WalletService], LEPIC on a computer).
 ///
 /// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. Several

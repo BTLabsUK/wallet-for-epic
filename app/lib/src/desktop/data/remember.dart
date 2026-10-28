@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// "Remember on this computer": a wallet's password kept so the app opens it at start
 /// without asking.
 ///

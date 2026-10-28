@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A pasted or linked `epic:` code on desktop Send:
 // a payment request fills To, Amount and Message, the payee's words stay in a "not verified"
 // block, and nothing is sent until the review and the password. Pasted codes Send cannot take

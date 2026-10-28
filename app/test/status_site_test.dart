@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Privacy › Use status.btlabs.uk: off, no request reaches the site and every reader
 // takes the site-down path at once; requests that do go out say nothing about the wallet.
 import 'dart:async';

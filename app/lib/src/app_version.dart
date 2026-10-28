@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's version and the core's, the two numbers About shows (https://docs.btlabs.uk/developers/releases/).
 library;
 

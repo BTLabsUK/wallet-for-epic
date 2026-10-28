@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's Pair page: the code with its words, an online invite
 // copied with the name they will see, a pasted invite answered, and Pending invites.
 import 'dart:async';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, Cancel (2026-10-25): a floonet send to a wallet that never
 // answers shows the quiet line beside Cancel and its Help link; the dialog says the same; the
 // link opens Help › Cancelling a payment at Sending; the cancel frees the coins. Real LEPIC,

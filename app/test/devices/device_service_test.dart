@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Linked devices end to end over the fake engine: a link needs the pictures checked on both
 // devices and the same wallet; notices hold and release coins; the one receive path drops what
 // it must and keeps the order; removing a device re-keys the others.

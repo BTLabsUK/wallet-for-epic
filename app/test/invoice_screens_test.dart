@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Invoices screen, review and paid-invoice details (I-03), against FakeWalletSession. The
 // rule under test throughout: nothing pays an invoice but Approve, and Approve pays only after
 // the PIN or biometric gate.

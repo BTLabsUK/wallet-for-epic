@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod state for the desktop UI: the API seam and one snapshot of the open wallet.
 library;
 

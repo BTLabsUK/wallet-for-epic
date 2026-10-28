@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone Outputs screen: tiles from the balance, filters, rows,
 // the output sheet, Split and Consolidate behind the PIN, and the strategy pref.
 

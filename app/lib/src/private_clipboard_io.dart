@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A recovery phrase on the Windows clipboard, kept out of the clipboard history (Win+V), the
 /// cloud clipboard and clipboard monitors: the text goes up with the formats Windows reads for
 /// that (`ExcludeClipboardContentFromMonitorProcessing`, `CanIncludeInClipboardHistory` = 0,

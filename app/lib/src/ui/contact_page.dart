@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A contact as a page: the header with the trust badge, Send and Show code, then
 /// the contact's addresses (one per kind) and, where the wallet pairs, its Pairing
 /// block: the trust state, Seal payments, Allow invoices, the relay it delivers through, the

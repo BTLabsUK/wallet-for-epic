@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The first-unlock tour: one page per step. Each step opens a real page, lights the area that
 /// matters on it and the page's sidebar entry, and says in a line or two what is there. Skip
 /// (Esc) on every step, Back and Next (Enter, the arrow keys), a step counter; the card keeps

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Connection servers (connection_servers.dart): the stored set, the state line, the defaults,
 // and what the fake pairing sees of the set.
 import 'package:epic_wallet/src/connection_servers.dart';

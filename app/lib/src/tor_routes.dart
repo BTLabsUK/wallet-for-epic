@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch: which connections go over Tor while it is on, which wait for it, and
 /// which stay on the clearnet. Every screen and the wallet adapters ask [torWay] (or
 /// [torWayIn] with the network mode of Settings › Advanced); nothing decides a route on its

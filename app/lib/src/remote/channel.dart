@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The transport under the wallet protocol: text frames in, text frames out.
 library;
 

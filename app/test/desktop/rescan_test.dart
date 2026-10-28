@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Recheck balance: Stop, Delete unconfirmed and the result, on the mock wallet; and
 // LepicDeskWallet's rescan over FakeWalletSession (the flag passed, Stop calling cancelScan).
 import 'dart:async';

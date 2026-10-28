@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The rules for coins another linked device holds ("Output locks" of linked devices).
 /// Pure: the service hands in the chain's view and the clock.
 ///

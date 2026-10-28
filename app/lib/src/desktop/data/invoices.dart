@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Invoices over Epicbox on desktop: requests this
 /// wallet sends (it is paid) and invoices it receives (it pays). The UI word for an invoice this
 /// wallet sends is a request; for one it receives, an invoice.

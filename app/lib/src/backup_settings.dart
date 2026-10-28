@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The settings a history backup (`.wfeh` v2) carries, and how an import takes them back.
 ///
 /// One portable map for the phone and the desktop, written by each app's glue

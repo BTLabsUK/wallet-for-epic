@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the app can tell about any node, remote or local: from the public monitor at
 /// status.btlabs.uk when it lists the node, else "limited info" from the node's own foreign API.
 /// One service shared by the picker, the node card and the status rail.

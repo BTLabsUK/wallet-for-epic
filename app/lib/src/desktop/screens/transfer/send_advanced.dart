@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Send › Advanced (the strategy and Split change for this
 /// send only. The defaults live on the Outputs page; nothing here is stored.
 library;

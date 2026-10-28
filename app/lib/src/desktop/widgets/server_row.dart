@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one picker row for nodes and Epicbox servers: bars, host, operator, the
 /// relay's default tag, the node's tip column, latency and version: the local node's fallback
 /// picker shows servers through [ServerRow], in the neutral order of [neutralOrder]. The

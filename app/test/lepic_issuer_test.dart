@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The issuer's side of the LEPIC adapter (I-05, RFC 11.2) against a stand-in `EpicWallet`:
 // requests to a paired contact, LEPIC's events to states, withdraw, bounces, the payments
 // drain and sweep, reconciling missed events, records across a reopen, and that no issuer

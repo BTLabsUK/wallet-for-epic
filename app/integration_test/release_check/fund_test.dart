@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Pays a floonet address from a funded floonet wallet of this machine's QA homes, for the live
 // checks when the floonet faucet is down (it finalizes stale replies, 2026-10-25). Runs as a
 // Linux integration test under the QA home's unlocked keyring, since the desktop keeps the

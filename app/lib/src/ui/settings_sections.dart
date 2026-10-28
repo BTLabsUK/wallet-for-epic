@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Settings pages, one per group of the hub (`settings_screen.dart`): Security,
 /// Privacy & network, Wallet, Display and About. Each page is a short list of label-only rows
 /// (an explanation sits behind an info icon, a value or a state on the row's second line), so

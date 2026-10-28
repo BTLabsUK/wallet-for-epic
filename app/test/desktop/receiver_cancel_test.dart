@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Cancelling an incoming, unconfirmed payment on the desktop: the button follows the
 // core's `cancellable` flag, the dialog speaks of a payment, and a refusal (the node already has
 // it) is a toast that leaves the row. The send cancel keeps its words.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The progress tracker Send shows once a payment is out: round step markers that move as
 /// both wallets finish, driven by the real transaction ([sendTrackerAt]).
 library;

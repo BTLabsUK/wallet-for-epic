@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod wiring for the opt-in built-in node (desktop only). Nothing here starts a node by
 /// itself: with the setting off (the default) no provider is read and behaviour is unchanged.
 library;

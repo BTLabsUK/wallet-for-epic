@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Requests › To pay: the inbox of invoices from paired contacts the user allows and the payments to settle
 ///. Answered invoices leave it; paid ones live in Activity,
 /// and one opened from there shows under Paid, selected. Owned by the payer part.

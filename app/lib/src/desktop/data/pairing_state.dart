@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's pairing state (RFC 0002): the open wallet's [PairingApi] through
 /// [DeskWalletApi.pairing], its records, its events, and the name others see. The types are
 /// the core's, shared with the phone.

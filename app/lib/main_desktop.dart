@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop interface on the wallet core (LEPIC), as `main.dart` starts the phone app.
 /// `flutter run -d linux -t lib/main_desktop.dart`.
 ///

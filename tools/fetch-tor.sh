@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Fetches the Tor Expert Bundle pinned in tools/tor-bundle.json and keeps only what the desktop
 # app runs (app/lib/src/tor_location.dart): tor and its libraries, and Tor's licence. The tarball
 # and every kept file are checked against the pinned SHA-256; any mismatch fails and writes

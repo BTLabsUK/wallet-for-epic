@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Fails on text the user reads that is written into a desktop screen instead of the ARB files
 // (lib/l10n/desk/, merged by tool/desk_l10n.py): every string literal under lib/src/desktop that
 // reads like words, outside log calls, keys and other technical places.

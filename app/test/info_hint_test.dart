@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's info icons (android-18): every one opens an info sheet with the row's name and
 // the whole explanation, inside the safe area, closed by Close, a tap outside or Back.
 

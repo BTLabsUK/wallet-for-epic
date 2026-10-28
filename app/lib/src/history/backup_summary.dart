@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one summary a history backup import ends with, on the phone and the desktop:
 /// "Restored: 12 payments, 5 notes, 2 pairings and settings."
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A copied recovery phrase leaves the clipboard after 60 s and when the wallet locks, on the
 // phone and on the desktop; a clipboard that has something else by then keeps it.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The details of a payment another linked device made ("Sent from Desktop"): what that device
 /// told this one (recipient, message, fee) with the chain's view (status, block), and, while its
 /// coins are held here, Release.

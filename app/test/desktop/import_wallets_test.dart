@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The import of old wallets through LepicDeskWallet on FakeWalletService. Old wallets are
 // fixture folders in a temp dir; the real home folder is never scanned. The passwords and
 // seeds here are throwaway test values.

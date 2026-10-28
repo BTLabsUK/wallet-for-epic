@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;

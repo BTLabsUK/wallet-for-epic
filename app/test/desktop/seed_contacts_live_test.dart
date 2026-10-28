@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: the bundled BT Labs address passes the real LEPIC checksum and is on the default
 // Epicbox server. Needs the Linux library:
 //

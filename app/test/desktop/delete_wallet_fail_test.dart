@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Delete wallet when the core refuses (tester report 26.10.16): the failed delete locks the
 // wallet, so the dialog must not leave Settings open over a locked wallet (an endless spinner,
 // no node or Epicbox, no wallet name). Unlock opens with the error instead.

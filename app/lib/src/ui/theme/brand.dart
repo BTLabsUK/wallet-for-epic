@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet's identity: the Epic Cash mark, the framed tile that carries it (or an icon) on
 /// hero screens, the lit backdrop behind those screens, and the empty state built from them.
 /// They reuse the Protocol devices in `protocol.dart` (grid, corner ticks), so every hero screen

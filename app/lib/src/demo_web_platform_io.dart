@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `demo_web_platform.dart` off the web: the demo runs only in the browser.
 library;
 

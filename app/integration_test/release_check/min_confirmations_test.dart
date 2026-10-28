@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check: the minimum confirmations setting on a real LEPIC wallet (ADR 0027).
 // Creates a throwaway mainnet wallet against the check's node, opens Settings › Advanced,
 // reads the Confirmations row (6, Default), sets 7 with the stepper, checks the wallet's

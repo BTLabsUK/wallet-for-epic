@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Outputs data on the desktop, no screens: LepicDeskWallet over FakeWalletSession maps outputs,
 // passes send options, returns the whole estimate, runs splits and consolidates, and reads
 // the per-wallet Outputs choices. The password is a throwaway test value.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's side of the settings a history backup carries (`backup_settings.dart`): what it
 /// writes into the file, what it has now and what a fresh install has, in the map's form, and
 /// applying a plan through the app's own setters, so the running app follows at once (the

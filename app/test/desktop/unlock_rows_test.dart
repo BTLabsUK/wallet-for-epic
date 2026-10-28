@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Unlock list's second line: wallets in the app's own folder say when they were
 // opened (their path differs by an id only); others show their folder from `~`, the end kept.
 import 'package:epic_wallet/l10n/app_localizations_en.dart';

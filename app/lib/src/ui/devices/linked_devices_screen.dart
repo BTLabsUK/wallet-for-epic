@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Wallet › Linked devices (phone): this device, the linked ones (last seen, servers),
 /// Link a device, the link's servers, the pause switch, and the coins other devices hold here
 /// with Release. Removing a device stops sync; it does not protect the money.

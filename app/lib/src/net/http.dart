@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// One small HTTP GET and POST for the app's side calls: the price, relay health and feedback.
 ///
 /// The phone and desktop use `dart:io`'s `HttpClient` (`http_io.dart`); the browser uses

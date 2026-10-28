@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Problem reports, sealed to the developer and posted to the support intake. The same format as
 /// the Electron GUI's "Report a problem" (its `src/shared/supportBundle.js`), so the developer's
 /// `support:list` and `support:fetch` tools read reports from both apps:

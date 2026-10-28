@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The keys that may sign BT Labs' public files: `btlabs.json` (the donation contact) and the
 /// wallet's release manifest, `update.json` (btlabs-public FORMAT.md §2 and §6).
 ///

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's own updates (data/desk_update.dart, data/desk_update_apply.dart): the release
 // file in the signed manifest, the old clients' view of it, the download with its checks, the
 // timed checks, Restart to update, and the Windows and Linux appliers.

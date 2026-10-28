@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Words for pairing that the phone, the desktop and the data layers share: failures, names,
 /// time spans. Plain Dart over the app's strings, so a data layer can word an error too.
 library;

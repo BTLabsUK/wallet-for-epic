@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// scanner_backend.dart on free code only, for the F-Droid build: the camera plugin (CameraX,
 /// Apache-2.0) for the picture and zxing-cpp (Apache-2.0, through flutter_zxing) for the
 /// codes, in place of mobile_scanner's ML Kit. tools/dist-prep.sh points the imports of

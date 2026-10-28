@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // NodeInfoService: the monitor's view when it lists the node, else limited info from the node.
 import 'dart:convert';
 import 'dart:io';

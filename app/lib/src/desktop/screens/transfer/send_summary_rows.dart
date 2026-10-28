@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Send's summary lines for the outputs a send spends:
 /// the split line under Network fee, Balance after and Spendable until change confirms with
 /// the lock caption under Total, and the review dialog's Locks and Strategy facts. The Send

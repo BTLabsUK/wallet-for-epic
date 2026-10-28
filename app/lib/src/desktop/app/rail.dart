@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The status rows of the sidebar: Node, a divider, then Epicbox, HTTP and Tor,
 /// each with signal bars, a name and one short line; the details in a hover card; a click
 /// opens that service's settings. Every row is 40 u tall in every state, so the rail never

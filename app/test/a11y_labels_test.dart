@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Screen-reader labels say each word once: a disabled switch row with an info hint, and
 // Home's status icons.
 import 'package:epic_wallet/src/l10n.dart';

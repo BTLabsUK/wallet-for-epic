@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/node/local_node_state.dart';
 import 'package:epic_wallet/src/node/node_api_types.dart';

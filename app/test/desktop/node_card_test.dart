@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The node card: one golden with the five states; limited info shows exactly four
 // facts and the tag; nothing spins; the Switch action names the healthiest other node; the
 // words match the rail's.

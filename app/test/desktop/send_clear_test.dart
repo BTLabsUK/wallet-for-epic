@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send keeps its draft when the page is left and opened again (people check the balance and
 // come back), and a filled recipient always has Clear: it empties To and puts the method back
 // where Send starts (tester report 26.10.21).

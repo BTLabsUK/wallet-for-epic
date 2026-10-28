@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Link a device (phone): one device shows a code, the other scans or pastes it; both compare
 /// four pictures and tap They match. Nothing is linked until both did, and the two must hold the
 /// same wallet (`devices/device_service.dart`).

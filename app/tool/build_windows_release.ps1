@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # Builds the Windows installer, epic-cash-desktop-<version>[-notor]-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
 # -Dist msstore builds the Microsoft Store package instead, epic-cash-desktop-<version>-msstore-x64.msix

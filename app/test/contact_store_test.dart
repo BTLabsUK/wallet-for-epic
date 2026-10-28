@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The address book every wallet shares (lib/src/contact_store.dart) and WalletHistory over it:
 // one file in a temp folder, two wallets' histories reading and writing it. Synthetic data.
 import 'dart:convert';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The invoice service layer (I-01) against the fake: drains, pay, decline, expiry, a failed
 // reply, invoices only from paired contacts with Allow invoices on, and the providers over them.
 import 'dart:io';

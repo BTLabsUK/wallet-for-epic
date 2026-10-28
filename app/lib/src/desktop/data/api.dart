@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one seam between the desktop UI and a wallet. Screens never call this directly: they
 /// read [deskProvider] (`state.dart`) and call its actions. Today [MockDeskWallet] answers;
 /// a LEPIC adapter over `WalletService` replaces it by overriding [deskApiProvider].

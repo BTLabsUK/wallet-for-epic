@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A network that ends the TLS handshake with the Epicbox relay (relay_block.dart) reads as
 // blocked on the desktop: the wallet counts the listener's refused handshakes (direct only),
 // the status shows one steady state with the relay to offer, Receive says it with one button

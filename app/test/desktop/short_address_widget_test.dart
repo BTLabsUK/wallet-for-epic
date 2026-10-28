@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // EShortAddress: the full short form when it fits, the compact form when it does not,
 // never a tail ellipsis; the whole address in the tooltip and the screen-reader label.
 import 'package:flutter/material.dart';

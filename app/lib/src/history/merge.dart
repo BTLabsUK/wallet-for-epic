@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The transaction list: LEPIC's rows merged with the app's archive (`meta_store.dart`).
 ///
 /// A port of `app/rust/src/core/history.rs`, where the live rows were epic-wallet's log. Here

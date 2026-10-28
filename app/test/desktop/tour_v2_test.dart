@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The tour, one page per step: each step opens its page and lights its area and sidebar entry,
 // Next / Back / Enter / the arrow keys move, Done, Esc, Skip and a click outside end it on
 // Overview, its last step is Help, it opens from Help › Show the tour again and not from Appearance, it

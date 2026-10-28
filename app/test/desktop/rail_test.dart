@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The sidebar rail: Node, Epicbox, HTTP, Tor with a divider between every two; every row 40 u in
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.

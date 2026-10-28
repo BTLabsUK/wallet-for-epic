@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // macOS: the tor bundled in the release .app, started through LEPIC as the desktop app starts it,
 // connects to the Tor network, and the wallet asks a public node for its tip over it. Run by
 // tools/build-apple.sh smoke with --dart-define=WFE_TEST_TOR=<the .app's

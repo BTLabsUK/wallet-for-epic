@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings of the demo server, from flags and `WFE_DEMO_*` environment variables.
 library;
 

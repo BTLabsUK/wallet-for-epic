@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What Send's summary shows: the amount, the fee, what the balance is after the send,
 /// and what the send locks until its change confirms. Pure: amounts in nanoepic, as the
 /// desktop UI keeps them; no wallet calls.

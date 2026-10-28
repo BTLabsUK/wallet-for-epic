@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Test helper: signed update.json envelopes (btlabs-public FORMAT.md §6), signed with the
 // committed TEST keys in test/fixtures/btlabs. Never trusted by a release build.
 import 'dart:convert';

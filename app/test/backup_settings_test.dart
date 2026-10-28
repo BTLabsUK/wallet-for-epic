@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The settings a history backup carries (backup_settings.dart): the planner's rule (a fresh
 // install's value is taken, a value the user changed is asked about), the safety rules (a local
 // node is never made the node in use, lists only grow, a less strict network mode is asked

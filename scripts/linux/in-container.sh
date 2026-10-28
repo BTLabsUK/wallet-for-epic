@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Runs inside the build container (see scripts/build-linux.sh). /work is the repo.
 set -euo pipefail
 target="${WFE_TARGET:-lib/main_desktop.dart}"

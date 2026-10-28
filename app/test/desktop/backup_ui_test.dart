@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // History backup screens on the mock wallet: the Backup group's state line, the export, import and CSV
 // dialogs with their result and error states, the backup reminder on Overview, and a From backup
 // row in Activity.

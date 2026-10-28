@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What [NodeInfoService] reports about a node, without the service: the web build shows these
 /// and never reaches the node clients behind them.
 library;

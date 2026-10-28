@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // linux-01: without a usable keyring the desktop app starts on a screen that says what is
 // missing, instead of a window that never shows (libsecret held its thread) or a bogus
 // "Unlock wallet … Something went wrong". The check asks the Secret Service over D-Bus in

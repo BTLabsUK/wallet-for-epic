@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where a place in Help goes on the desktop: `Settings › Privacy › Tor` is the Privacy page with
 /// the Tor switch flashed. [deskHelpPlace] is pure, so a test can hold every link in Help to a
 /// page that exists.

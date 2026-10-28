@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import '../../app/shots.dart';
 import '../../widgets/kit.dart';
 import '../settings/help_pairing.dart';

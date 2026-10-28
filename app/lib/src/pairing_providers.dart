@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's pairing state (RFC 0002): the open wallet's [PairingApi], its records, its
 /// events, and what the screens need around them. Empty while the wallet is locked or its
 /// core does not pair, so nothing pairing-related shows then.

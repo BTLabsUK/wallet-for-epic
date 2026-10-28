@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The opt-in built-in Epic node of the desktop build: a bundled `epic` binary the wallet starts
 /// itself, with its own folder, config and API on loopback. Off unless the user turns it on; phones
 /// never have it. Pure Dart over dart:io, with the process starter, clock, port checker, disk probe

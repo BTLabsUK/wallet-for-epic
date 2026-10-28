@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Export contacts and Import contacts on the phone (the Contacts list's More menu): the shared
 /// address book to a file and back (`contacts_file.dart`). The file leaves the app like a
 /// history backup, through Share or Save to device; it comes back through the file picker, then

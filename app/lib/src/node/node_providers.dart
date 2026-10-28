@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod providers of the node service layer, for the desktop screens to bind to: the local
 /// node's state and controls, its peers, node info for any node, local node detection and
 /// facts, reusable chain data, and the public-node fallback.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 part of 'mock_wallet.dart';
 
 /// The prototype's network, set from the Prototype panel: what the next call meets.

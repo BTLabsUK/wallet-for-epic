@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Linked devices (This wallet group, Experimental): the devices that hold this
 /// wallet, how to link one, the servers they use, a pause switch and the coins another device's
 /// payment holds here. Removing a device stops the sync; it does not protect the money.

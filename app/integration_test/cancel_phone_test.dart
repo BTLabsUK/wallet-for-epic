@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of Cancel on a phone (2026-10-25): the real app on the device, the real
 // LEPIC core, the floonet node, relay and faucet, and a second LEPIC wallet in this process that
 // pays the phone and never finishes. The phone signs the payment; its details show the quiet

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop UI's view of a wallet. Plain immutable types; the UI reads only these and the
 /// [DeskWalletApi] in `api.dart`. The mock (`mock_wallet.dart`) fills them with canned data; a
 /// LEPIC adapter will map `WalletService` and `models.dart` onto them later.

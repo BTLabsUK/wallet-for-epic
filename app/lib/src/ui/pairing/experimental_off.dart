@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What a pairing link or a sealed file meets while Pairing (or an invoice while Invoices) is
 /// off in Settings › Advanced › Experimental (or a device link while Linked devices is): it is
 /// experimental, and Open Advanced goes there.

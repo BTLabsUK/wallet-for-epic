@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Makes the MSIX logos in Assets/ from the 1024 px app icon (macOS set, a full square).
 
 Tiles and the Store logo use the square; the taskbar and Start list icons (targetsize, unplated)

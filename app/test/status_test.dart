@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 
 import 'package:epic_wallet/src/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

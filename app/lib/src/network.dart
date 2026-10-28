@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'wallet_service.dart';
 
 /// A chain with the node and epicbox relay the wallet uses by default.

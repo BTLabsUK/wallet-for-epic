@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The LEPIC adapter's invoice calls over a stand-in `EpicWallet` that keeps contact invoices
 // as LEPIC does (RFC 11). No native library is loaded.
 import 'dart:async';

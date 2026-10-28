@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The old wallet’s history brings another sender or method than details the user typed: the shell
 // asks with the same "Details differ" dialog as a history backup, every field starts as Mine,
 // Theirs (Old wallet) applies, Cancel postpones, and nothing asks when nothing differs.

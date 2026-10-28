@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The window's own title bar and the one close rule: ✕, the window's close request (Alt+F4)
 // and Quit close the app with no send running; mid-send they ask, and "Close when it
 // finishes" closes once the send is done. No "close now".

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `data_folder.dart` off the web.
 library;
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Review invoice: one invoice to pay or decline. The only way
 /// to [DeskInvoices.pay]. Owned by the payer part.
 library;

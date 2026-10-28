@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The real server binary on real LEPIC: two demos create wallets with PINs, read different
 // epicbox addresses, and leave no directory once they expire. Needs the Linux library and
 // creates floonet wallets locally; run it by hand, from app/:

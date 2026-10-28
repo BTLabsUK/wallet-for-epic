@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pair (Pairing UX plan 4.4): three ways, Words (both wallets online, the relay does the
 /// rest), Invite by message (three messages in any chat) and In person (each phone scans the
 /// other's code), and Got words or a link? for the one who was invited. Each ends at the words

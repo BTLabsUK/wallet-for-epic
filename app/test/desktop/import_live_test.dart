@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: a wallet.seed made by the real epic-wallet 4.1 imported through the real LEPIC
 // service and LepicDeskWallet, then opened. Everything lives in a temp dir: the program runs
 // with HOME there, the app's folder and key store are temp, the node is unreachable. The

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// SmartOutputs: when a send would leave the wallet with too few spendable outputs, its
 /// change comes back in several outputs, so the next send need not wait for this one to
 /// confirm. Pure: the rule, and the plan that asks for the estimate with the split.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's restore and unlock fixes over
 // FakeWalletService, whose core here refuses what the real one refuses: a delete or a password
 // reset of a wallet still open, and calls on a closed session.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Help as the settings design draws it: the support bar first, six sections with their
 // art, lede and count, the topic set with bodies, search over the bodies, and the copy rules.
 import 'package:epic_wallet/src/tor_build.dart';

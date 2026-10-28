@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's way in for `epic:` payment codes:
 // Home's scan, the Send field's paste, and links from other apps, through the scan router to
 // Send prefilled (banner, amount marker, unverified payee block, origin on the review) or to

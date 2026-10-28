@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Desktop updates, the part that touches files and processes: the download of the release file
 /// the signed manifest names for this system (btlabs-public FORMAT.md §6), checked for size and
 /// SHA-256 as the phone checks its APK (`updater.dart`), and putting it in place at "Restart to

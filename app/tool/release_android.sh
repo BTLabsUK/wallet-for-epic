@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the split-per-ABI release APKs and writes the signed update.json, the manifest the
 # in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). The APKs go
 # to the GitHub release; update.json goes to BT Labs' Pages repo, BTLabs-EPIC/btlabs-epic.github.io,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Advanced › Confirmations on the desktop: the wallet's minimum confirmations at the
 // default 6, each step applied at once and the balance split again, the note below the default,
 // the bounds, Reset, and a refused count going back.

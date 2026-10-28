@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_places.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';

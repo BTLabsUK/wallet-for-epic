@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The EPIC price in the user's display currency: from CoinGecko, or with the Tor switch on
 /// from BT Labs' copy of it on the status site ([BtlabsPriceSource]), never CoinGecko directly.
 /// With Tor off, BT Labs' copy also stands in when CoinGecko gives no price.

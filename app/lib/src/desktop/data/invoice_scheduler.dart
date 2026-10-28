@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// When the desktop wallet asks Epicbox for invoices and payments by itself
 ///. The invoice address has no listener, so it is
 /// drained every [invoicesEvery] and when the window gains focus; the payments address is

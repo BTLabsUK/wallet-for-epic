@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Home's status icons, in Wallet's fiat row: the node and Epicbox always, Tor while its
 /// switch is on, Direct receive while the onion listener is up. Each is one [StatusIcon]: a
 /// glyph with a state dot, the service and its state word for a screen reader, the detail in

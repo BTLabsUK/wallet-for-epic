@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The payer's dialogs: approve with the wallet password,
 /// decline, cancel a payment. Each reads its own [WidgetRef], so the screenshot tour and other
 /// screens can open them with a [BuildContext] alone. Owned by the payer part.

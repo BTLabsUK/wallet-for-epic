@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Wave 2 keyboard rules (widgets/keyboard.dart): Tab visits a form's fields in visual order,
 // then its main button, then wraps, never an icon; Enter moves to the next field and runs the
 // main action from the last one; Esc closes the top-most thing; Back/Forward by mouse buttons,

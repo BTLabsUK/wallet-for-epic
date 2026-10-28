@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's first-unlock tour: it opens once after the first unlock (never over a screen that
 // is not idle), Skip ends it and marks it seen, Back and Next open the right screens, Help can
 // show it again, every step lights something that exists with Advanced off and switches

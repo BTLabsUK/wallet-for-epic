@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A plain debug view of the node service layer: the local node's state and controls, its
 /// peers, node info, detection and found chain data. For developers only; the real screens are
 /// designed separately. Started by `lib/main_node_debug.dart`, never part of a release build.

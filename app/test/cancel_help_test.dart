@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Help › "Cancelling a payment" (2026-10-25): one topic on both platforms, in six
 // languages, with Sending / Receiving / Requests headings that the quiet line beside every
 // Cancel button opens it at; the words a stuck user searches for find it; no protocol jargon.

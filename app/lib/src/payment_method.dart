@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The payment methods, by family (the model of 2026-10-25): Epicbox · Link (Link · HTTP,
 /// Link · Tor) · Direct (Direct · QR Payment, Direct · File Transfer). Pure Dart: the settings
 /// model (`payment_prefs.dart`) and the gate (`network_gate.dart`) read it; the icons and

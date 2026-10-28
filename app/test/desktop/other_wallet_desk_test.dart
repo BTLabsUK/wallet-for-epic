@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The chain check on the desktop: Activity names coins another wallet on this recovery phrase
 // spent or received, and the details say what it is, with no recipient and no known fee.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';

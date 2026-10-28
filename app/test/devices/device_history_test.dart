@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The other devices' payments in history: a pending row from the notice, merged with the chain
 // check's "another wallet" row once spent, never shown twice; freed coins show nothing.
 import 'package:epic_wallet/src/devices/device_history.dart';

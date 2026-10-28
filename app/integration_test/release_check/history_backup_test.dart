@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, history backup (.wfeh v2) round trip on floonet: the real desktop
 // wallet with real LEPIC, the floonet node and relay, the floonet faucet. Two phases, each in
 // its own fresh HOME:

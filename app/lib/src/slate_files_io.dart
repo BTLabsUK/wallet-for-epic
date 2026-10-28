@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `slate_files.dart`'s file calls on the phone and desktop: the save dialog, the share sheet
 /// and its temporary copies.
 library;

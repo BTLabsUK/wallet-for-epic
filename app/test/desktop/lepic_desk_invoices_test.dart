@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Invoices on the desktop's LEPIC adapter: LepicDeskWallet over the real LepicWalletSession on
 // a stand-in `EpicWallet` that keeps a paired contact, its waiting invoices and transactions as
 // LEPIC does (RFC 11). No native library is loaded; the password is a test value.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Several wallets on the desktop: Unlock's Wallet select and the Remove wallet dialog's two
 // modes, on the mock with its calls recorded.
 import 'dart:async';

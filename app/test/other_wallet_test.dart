@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The chain check on the phone: coins another wallet on this recovery phrase spent or received.
 // The history row names it, the details say what it is and what is not known, the row after
 // that is a spot for the Linked devices offer; a failed post says why.

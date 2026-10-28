@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// One invoice, approved or declined (I-03), and the invoice part of a paid payment's details.
 /// The one caller of `payInvoice` in the app: Approve asks for the PIN (or its biometric
 /// copy) first, every time.

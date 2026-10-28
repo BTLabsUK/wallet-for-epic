@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's side of Help › How linked devices work: the sync picture with the servers the
 /// link uses, and the live status panel from the desktop's device view (`data/devices_state.dart`),
 /// the servers' health from the Epicbox list the wallet keeps, Link a device as the Linked

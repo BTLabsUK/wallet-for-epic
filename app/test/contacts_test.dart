@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's Contacts screen and contact page, against
 // FakeWalletSession.
 

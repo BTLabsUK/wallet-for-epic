@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// How the app's own requests leave this computer, set from the Tor switch: directly, through
 /// the wallet's tor, or not at all while Tor is on but not connected. `http_io.dart`,
 /// `ws_probe_io.dart` and the node probes ask it for every client they make, so no request

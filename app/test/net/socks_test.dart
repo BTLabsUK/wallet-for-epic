@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The SOCKS5 client and TorNet: names go to tor as names (address type 3), every request
 // goes through the proxy while Tor is on, none goes out while it is not connected, and plain
 // http never leaves through an exit.

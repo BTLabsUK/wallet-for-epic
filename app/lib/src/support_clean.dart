@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Cleans text before it goes into a problem report: the Electron GUI's `logSanitize.js` rules,
 /// then the app's own [redact]. On top of what [redact] does for every log line, a report loses:
 ///

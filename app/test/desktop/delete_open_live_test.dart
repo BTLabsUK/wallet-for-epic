@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: deleting the open wallet on the real LEPIC core through LepicDeskWallet (tester report
 // 26.10.16: "Wallet busy", then a Settings page that never loads). Needs the Linux library:
 //

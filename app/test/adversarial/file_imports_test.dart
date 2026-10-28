@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Files from outside: transaction files another app hands over, contacts files and history
 // backups. A file's name and contents are the sender's to choose; reading one must never write
 // outside the app's folders, crash, or quietly change who the user pays.

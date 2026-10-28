@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // After the Epicbox server is switched, the address the desktop shows (Receive, QR,
 // copy, the own-address checks) carries the relay now in use, not the one from before.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// [WalletService] over the LEPIC library (`package:lepic`, pinned by `tools/lepic.rev`).
 ///
 /// The app's only core. It implements [WalletService], so the UI and its fakes never see

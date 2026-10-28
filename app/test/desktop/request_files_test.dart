@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Payment requests by file on the desktop (DESIGN §3.2, §3.3), on the mock wallet: the request
 // form's "Save as a file for anyone" and its saved panel, and Import reading a request file into
 // its Review, paying it behind the password and saving the answer.

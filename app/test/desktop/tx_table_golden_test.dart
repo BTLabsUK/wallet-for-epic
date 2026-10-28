@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;

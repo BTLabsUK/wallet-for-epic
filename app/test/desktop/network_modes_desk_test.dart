@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop wallet follows the network mode of Settings › Advanced (network_gate.dart):
 // Offline asks no node, starts no listener or tor and keeps the wallet open on its own files,
 // and leaving it starts everything again without a restart; Tor only turns the Tor switch on

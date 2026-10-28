@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The Local node step of the first run and the same content as a dialog from
 /// Settings › Node: what running the node here means, then the choice between a node already
 /// running on this computer and the bundled node, with the fallback checkbox. Nothing here

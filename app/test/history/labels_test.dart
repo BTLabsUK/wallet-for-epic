@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Labels on any transaction and details on restored ones: the archive, the merge, exports and
 // imports.
 import 'dart:convert';

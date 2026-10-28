@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Transactions › Direct (HTTP receiving): Reachable (Local only / From the
 /// internet, with the guide) and the port. HTTP answers from the internet only after the
 /// guide's "Receive from the internet".

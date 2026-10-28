@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Host side of integration_test/usernet_e2e_test.dart: the whole app on an Android emulator
 # against the local usernet, the local epicbox relay and a stock epic-wallet CLI.
 #

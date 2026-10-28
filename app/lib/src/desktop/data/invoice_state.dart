@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod state for invoices on desktop: the
 /// open wallet's [InvoiceBook], reloaded on the wallet's change events, drained when the wallet
 /// opens and when the Invoices page opens (the wallet drains on its own timer and

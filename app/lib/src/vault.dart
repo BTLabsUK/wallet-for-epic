@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The PIN and biometrics that open a wallet, over LEPIC's PIN vault.
 ///
 /// LEPIC generates each wallet's password, seals it under the PIN and a key it keeps in the

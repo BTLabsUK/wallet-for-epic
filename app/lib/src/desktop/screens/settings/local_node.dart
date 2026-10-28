@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node panel of Settings › Node: the Status and Peers tabs, the
 /// controls, the sync bar and step strip, the notices of every phase, the tiles, and the rows
 /// under the panel (start with the app, the fallback while syncing, the data folder, the chain

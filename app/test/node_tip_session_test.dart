@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone asks the node only through the open wallet (WalletSession.nodeTipFor), so the
 // request follows the wallet's Tor; never the direct WalletService.nodeTip, and nothing while
 // locked.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A restored (or new) wallet's first-run Setup saves while the wallet is still locked: the
 // node and Epicbox choices are only stored, and Save goes on to Unlock. Through the real
 // adapter (LepicDeskWallet over the fake core), whose locked wallet has no address to read.

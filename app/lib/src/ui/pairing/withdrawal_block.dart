@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A withdrawal from a paired exchange on its payment page: the
 /// exchange sent it sealed, the wallet signed and answered it on its own, and the exchange
 /// posts it. "Received. Waiting for Northwind Exchange to post" until it is on the chain, and

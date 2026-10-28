@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A client for an Epic node's JSON-RPC API (epic-server 4.1.0): the foreign API for what any
 /// node answers, the owner API (Basic auth with the node's `.api_secret`) for status and peers.
 ///

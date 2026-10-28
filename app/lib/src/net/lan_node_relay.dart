@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A node on the local network, as LEPIC can reach it.
 ///
 /// LEPIC talks plain http to loopback nodes only (anything else must be https or an onion),

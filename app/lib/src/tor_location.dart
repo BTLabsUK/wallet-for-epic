@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where the desktop app finds the bundled tor (the Tor Expert Bundle, `tools/fetch-tor.sh`).
 library;
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the app does again by itself, while the wallet is open, for a payment that has not
 /// reached the chain: a finished payment is posted to the node again, and the answer to a paid
 /// invoice is sent to the service again. Phone and desktop share the policy and the runner.

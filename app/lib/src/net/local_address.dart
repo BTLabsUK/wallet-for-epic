@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What counts as local in the Offline mode: this computer (loopback, `localhost`) and the
 /// private local network (10/8, 172.16/12, 192.168/16, link-local 169.254/16, IPv6 ULA fc00::/7
 /// and link-local fe80::/10). Never a public address, an onion, or a name that resolves to a

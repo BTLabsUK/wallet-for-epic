@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's side of the app (`app/README.md` "Web demo"): whether this build is the demo,
 /// what the demo server answers about the visitor's demo, and the floonet faucet. Everything
 /// the demo changes in the UI asks [demoModeProvider] first; with it off nothing here runs.

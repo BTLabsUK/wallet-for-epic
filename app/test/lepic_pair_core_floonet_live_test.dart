@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live on floonet (26.10.18 pairing fixes): two wallets in data folders of their own, each a
 // LepicWalletSession over the real LEPIC library, the real node and the real relay. Skipped
 // unless WFE_LEPIC_LIB (the Linux library built at the pins) and WFE_LIVE_DIR (a folder kept

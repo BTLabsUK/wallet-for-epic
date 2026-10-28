@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `wallet_backend.dart` in the browser. The wallet runs on the demo server, reached over one
 /// WebSocket to `<origin>/api/ws` (the demo server's protocol); this side keeps only the PIN-sealed text,
 /// in `localStorage`. A `WFE_WEB_FAKE=true` build runs on [previewWalletService] instead, with

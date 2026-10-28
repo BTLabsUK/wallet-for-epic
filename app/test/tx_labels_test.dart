@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Transaction labels on the phone: the title rule, the pen and its inline field, the details
 // of a restored payment, and the "Details differ" sheet of a history import.
 

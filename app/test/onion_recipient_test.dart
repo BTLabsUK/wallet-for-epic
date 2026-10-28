@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // An onion address in every form a user meets: bare, with `.onion`, with `http://`, a
 // port, a trailing slash, upper case, stray whitespace. All of them become one recipient over
 // Tor, shown as `<56 characters>.onion`; epicbox addresses and wallet URLs are untouched.

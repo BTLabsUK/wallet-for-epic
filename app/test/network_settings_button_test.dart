@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The labelled network settings button on first run and unlock.
 //
 // The owner, 2026-10-05: the icon alone was impossible to spot, and on first run it hid behind

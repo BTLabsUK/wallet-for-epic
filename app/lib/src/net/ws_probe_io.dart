@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `ws_probe.dart` on the phone and desktop, over `dart:io`.
 library;
 

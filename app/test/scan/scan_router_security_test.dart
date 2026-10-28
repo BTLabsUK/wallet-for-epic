@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Security of the scan router (the epic: URI spec's security items): what a hostile or odd text can and cannot make of a scan. Decisions:
 // note cap 264 code points, whole text 4096, raw value 3168, any non-ASCII host refused,
 // invalid parameter names ignored like unknown ones, no NFC step.

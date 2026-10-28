@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop interface's tokens: one set for type, space, sizes, radii and colour, used by
 /// every desktop screen. Values follow the Electron wallet's Modern look (6.1.6,
 /// `src/assets/css/modern/_tokens.scss`), which is Wallet for Epic's Protocol palette; the

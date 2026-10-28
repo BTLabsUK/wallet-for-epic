@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every WalletService and WalletSession member through a loopback channel, against
 // FakeWalletService: arguments arrive, results return, errors keep their kind.
 

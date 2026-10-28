@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Server settings a pasted or typed value controls: Connection servers must never point the
 // pairing words at this device or its local network in any spelling, nor leak an onion name with
 // Tor off; a node address must never hide its host; the local node relay must serve only the

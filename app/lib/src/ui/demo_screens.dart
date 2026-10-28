@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's own screens and controls (`app/README.md` "Web demo"): the gate before the
 /// app's usual start, the welcome and ended screens, the Test coins pill with the countdown,
 /// Get test coins and End demo. Nothing here shows unless [demoModeProvider] is on. The demo

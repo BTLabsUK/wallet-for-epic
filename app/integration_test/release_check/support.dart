@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Shared helpers of the release check: boots the real desktop wallet as main_desktop.dart does,
 // finds things by their text, takes screenshots. Never print the phrase or password.
 import 'dart:io';

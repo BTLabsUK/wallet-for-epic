@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Pairing links on the clipboard (Pairing UX plan 5): what is offered for each kind and pending
 // state, the once-set, links this wallet sent, and when nothing is read at all.
 import 'package:epic_wallet/src/models.dart';

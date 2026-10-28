@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The payment methods' one icon each, and their short names, for the whole app: badges,
 /// the Send and Receive segments, settings, contacts, history, help.
 ///

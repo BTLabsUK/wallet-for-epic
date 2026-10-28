@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Node and Settings › Receiving list every public node and Epicbox server: the
 // built-in ones when status.btlabs.uk is down, plus any it adds. The password is a throwaway
 // test value.

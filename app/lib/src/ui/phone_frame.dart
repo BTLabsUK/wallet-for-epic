@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app in a browser window wider than a phone: a phone-sized frame in the middle of the
 /// page, so screens laid out for a phone keep their proportions instead of stretching across a
 /// desktop. A phone's own browser, and every native build, get the whole screen.

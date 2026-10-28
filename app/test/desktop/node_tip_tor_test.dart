@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The node is never asked directly while the Tor switch is on: with a wallet open every tip and
 // node check goes through the wallet (WalletSession.nodeTipFor, LEPIC's tor), announced to it
 // before the first one; locked, a remote node is not asked at all (a node on this computer

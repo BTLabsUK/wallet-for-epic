@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Invoices: invoices to pay and invoices issued, on two tabs. The
 /// frame: tabs with their counts, Issue an invoice, the last check and the relay notice. The
 /// wallet checks Epicbox by itself (on open and on a timer); there is no button for it.

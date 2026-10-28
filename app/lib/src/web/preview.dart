@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet a `WFE_WEB_FAKE=true` web build shows: [FakeWalletService] with the desktop
 /// Overview's numbers and payments, outputs, contacts, two invoices to pay and two requests
 /// sent, so every phone screen can be previewed in a browser with no server. Nothing here talks

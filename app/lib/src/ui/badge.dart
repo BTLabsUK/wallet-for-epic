@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one badge of the app, on the phone and on the desktop: a glyph or a dot that carries
 /// the state and one to three muted words ("Default", "Experimental", "Epicbox", "Over Tor",
 /// "Added by you"), beside a title or in a row.

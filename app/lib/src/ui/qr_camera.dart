@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The camera behind the payment QR scanner, behind an interface so widget tests can feed it
 /// scanned texts and draw a placeholder where the camera view would be.
 library;

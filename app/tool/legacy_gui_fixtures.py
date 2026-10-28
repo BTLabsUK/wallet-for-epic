@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Builds the IndexedDB fixtures of test/fixtures/legacy_gui with real Chromium.
 
 The older Epic GUIs (Electron) keep contacts and per-wallet settings in IndexedDB 'Epicwallet'

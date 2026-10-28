@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // An answer to this wallet's invite while another screen is open: the
 // shell's toast says so and its Check the words opens the words check, once per pairing.
 import 'package:epic_wallet/src/desktop/app/shell.dart';

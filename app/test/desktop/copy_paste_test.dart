@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Copy and paste on the desktop: every copy control sets the clipboard and says "Copied",
 // Receive has one copy control for its address, and text fields paste with Ctrl+V and from the
 // right-click menu (password fields: paste only).

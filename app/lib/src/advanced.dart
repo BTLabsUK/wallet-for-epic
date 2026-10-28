@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Advanced: the expert features a wallet shows and the network mode it runs in. One model for
 /// the phone (`AppSettings.advanced`) and the desktop (`DeskSettings.advanced`), so the Advanced
 /// page reads the same on both.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Byte limits on text the wallet signs: LEPIC counts a slate message in UTF-8 bytes, so the
 /// phone's and the desktop's fields count and stop the same way.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Finds the Epic Cash wallets older programs left on a desktop, for the Import wizard's Find and
 /// Choose steps. Read only: nothing here creates, moves, renames, locks or deletes a file in a
 /// scanned folder. Plain Dart (dart:io), no Flutter.

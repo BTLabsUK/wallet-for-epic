@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The smart scan router: what a scanned, pasted or linked text is, and the `epic:` payment URI
 ///. Pure Dart: no I/O, no wallet, no
 /// providers. Address checks come in as [AddressCheck], so the router never invents its own.

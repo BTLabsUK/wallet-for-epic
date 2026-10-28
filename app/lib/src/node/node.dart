@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node service layer, one import for the node screens (`package:epic_wallet/src/node/node.dart`).
 ///
 /// The data and service layer behind the node screens: the bundled local

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The address book every wallet on this device shares: `<app data>/contacts.json`. A contact is
 /// a name, at most one address of each kind (Epicbox, Link · HTTP, Link · Tor) and a note. What
 /// belongs to one wallet (a pairing, whether a contact is trusted or may send invoices, the

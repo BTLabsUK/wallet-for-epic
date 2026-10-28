@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check with a phone (report utc3fhjj and the copy bug, 2026-10-26): the phone
 // (integration_test/pairing_words_phone_test.dart, WFE_WORDS_JOINER=desk) offers pairing words
 // on a relay outside the meeting list with epicbox.epiccash.com blocked on its network, and

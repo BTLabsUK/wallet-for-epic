@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Invoices from paired contacts the user allows (I-03, RFC 0002 11): home's entry with its badge, the list, and the
 /// notices for what the drains find. Paying is the review screen's, behind the PIN gate;
 /// nothing here pays. The list also holds the requests this wallet sent (I-06), and home's

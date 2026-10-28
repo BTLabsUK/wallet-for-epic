@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The settled statuses (walletStatusProvider): node offline, node syncing and Epicbox offline
 // show only once they have lasted statusSettle (5 s); a shorter drop or refresh shows nothing,
 // and a way back shows at once. Driven by a fake raw status on a fake clock.

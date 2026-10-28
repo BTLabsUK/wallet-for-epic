@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The one confirmed public node while the local node syncs; never a rotation.
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/node/fallback.dart';

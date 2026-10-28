@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › About › Licences: a few sentences, not a catalogue. The wallet, Flutter, LEPIC
 /// with its key crates, Tor and the fonts, one line each with its licence, the bundled tor's
 /// source note (its GPL asks for it), and the way to every full text.

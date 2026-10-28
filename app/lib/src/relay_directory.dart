@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Epicbox relays and public nodes with their health, from the public monitor at
 /// `status.btlabs.uk`.
 ///

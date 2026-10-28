@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every control of every desktop screen in the shots catalogue (screens/*/shots.dart) does
 // something real: each enabled button, icon button, link, switch, checkbox, segment, select,
 // nav item, choice card and row is pressed on a fresh app over the mock wallet, and the press

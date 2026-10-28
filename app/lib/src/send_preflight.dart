@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Checks the review runs beside the fee estimate before an epicbox send: the node answers,
 /// our listener is connected, and the recipient's relay answers: healthy at the monitor, or,
 /// for a relay the monitor does not list or when it cannot be reached, a WebSocket handshake

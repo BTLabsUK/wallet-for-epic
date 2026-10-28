@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop interface in a browser, on canned data only: a clickable prototype that needs no
 /// wallet core. Build with `tool/build_desktop_web.sh`.
 library;

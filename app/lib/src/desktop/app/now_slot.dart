@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The sidebar's bottom slot: what is going on now, else a quiet resting row. The wallet's name,
 /// the status rows and Lock live in the title bar (title_bar.dart), so nothing is said twice:
 /// the slot shows progress and events (Offline mode, a scan, an update out or to restart, a

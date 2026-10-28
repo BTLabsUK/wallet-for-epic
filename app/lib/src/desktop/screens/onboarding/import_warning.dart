@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The warning before the first import of wallets from older software (Welcome and All wallets
 /// › Import wallets; our own history backup needs none):
 /// an early version, the import only reads, have a backup of every wallet, at your own risk.

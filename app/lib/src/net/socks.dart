@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A SOCKS5 client for the wallet's own tor (RFC 1928, username/password of RFC 1929), so the
 /// app's HTTP can go through it while the Tor switch is on. Names always go to tor as names
 /// (address type 3): this computer never looks one up. `dart:io` only.

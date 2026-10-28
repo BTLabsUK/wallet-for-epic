@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Outputs page's cards and its Split and Consolidate dialogs.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show nothingToConsolidate;

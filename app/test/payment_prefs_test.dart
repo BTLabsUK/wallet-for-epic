@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Transactions' model: one switch per method, defaults, the stored forms (today's
 // and the ones before the split), Send's first method, at least one on, and the old Advanced
 // "Link receiving" switch taken over.

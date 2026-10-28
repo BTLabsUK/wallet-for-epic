@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Requesting a payment: the issuer's side of invoices. The form that asks a
 /// paired contact to pay (through its mailbox) or saves the request as a file for anyone, the
 /// request's part of a transaction's details, and the withdraw confirm both share. Nothing

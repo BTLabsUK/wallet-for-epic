@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop adapter turning the built-in node on and off: the node starts before the wallet
 // moves to it, the wallet goes back to its old node when it is turned off, and a node that cannot
 // start leaves everything as it was.

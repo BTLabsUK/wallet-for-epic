@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The quiet offer to link another device: one line and a button, at the moment the need shows
 /// (the end of the history offer after a restore, the details of a payment another wallet made).
 /// Nothing to turn on: Linked devices is on unless the user switched it off, and then the offer

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pairing on the desktop: no camera, so Show my code
 /// is an invite's code with its pairing words beside it, and Enter link or words takes a
 /// pasted link (an invite, an answer or a confirm sent by hand, or the other wallet's card

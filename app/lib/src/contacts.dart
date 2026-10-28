@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Recipients and the address book: names for epicbox addresses, Tor addresses and wallet
 /// URLs.
 library;

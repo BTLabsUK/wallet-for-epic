@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Send's side of the scan router a pasted
 /// or linked `epic:` code, the payee's claims it carries, and the dialogs a link gets for codes
 /// Send does not take. A code only fills the form; the review and the password stay the only

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A contact's Pairing block on the desktop: Verified with its switches, Allow
 // invoices off for a contact not verified, keys changed, Not paired with Pair, and deleting a
 // paired contact removes this wallet's pairing too.

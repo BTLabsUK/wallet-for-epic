@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Home's parts taken from the desktop Overview: the balance tiles with icons, one per balance
 /// that is not spendable, and the row of destinations that stands in for the sidebar.
 library;

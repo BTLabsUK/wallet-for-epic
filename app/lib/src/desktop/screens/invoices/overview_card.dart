@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Overview's Requests card: what waits for the user and for others.
 /// Amounts to pay are outgoing ("You pay"), never income; requested amounts are not counted.
 library;

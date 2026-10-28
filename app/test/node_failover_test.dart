@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Node failover (Settings › Advanced, on by default): the shared rules, the stored switch, and
 // the phone's watcher on a fake clock. When the node in use has not answered for 30 s the
 // wallet moves to the next working node of the list for this session; the chosen node and the

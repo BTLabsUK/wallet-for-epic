@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Contacts › Pending invites: every pairing in flight. Invites this wallet made and
 /// nobody answered (how and until when; expired ones with Invite again), answers waiting for
 /// their confirm, pairings whose words are still to be checked, and second answers to a used

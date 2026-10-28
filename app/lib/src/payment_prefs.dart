@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Transactions: which payment methods Send and Receive offer, and the one Send
 /// starts on. One model for the phone (`AppSettings.payments`) and the desktop
 /// (`DeskSettings.payments`), so the page reads the same on both.

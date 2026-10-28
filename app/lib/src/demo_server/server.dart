@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The demo server: one temporary floonet wallet per visitor, behind `/api/`.
 ///
 /// `app/README.md` ("Web demo", the server) describes the API. Only `dart:io`.

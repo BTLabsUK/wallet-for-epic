@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of the Pairing UX (26.10.18) on a phone, with the desktop app as the other side
 // (integration_test/release_check/pairing_message_desk_test.dart) and tool/pairing_message_check.sh
 // carrying the messages between them, as a chat would:

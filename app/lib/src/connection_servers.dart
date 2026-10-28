@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Connection servers: the Epicbox servers where two wallets find each other when they connect
 /// by the spoken method (Settings › Advanced › Experimental, under Pairing), shared by the phone
 /// and the desktop. A set of up to [connectionServersLimit], any server of the Epicbox list;

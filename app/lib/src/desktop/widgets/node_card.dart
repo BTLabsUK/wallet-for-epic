@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node card of Settings › Node: the remote node's word and host, its facts
 /// (height, version, latency, uptime, peers, operator; four facts and a "Limited info" tag
 /// when only the node itself answered), the down notice with a Switch action, then the

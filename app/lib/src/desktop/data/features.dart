@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What the desktop UI shows that the wallet core (LEPIC) or the app cannot do yet. Every spot
 /// of a false flag is hidden, not faked: a screen, row, segment, menu item, status line or
 /// onboarding path. The adapter (`lepic_desk_wallet.dart`) throws [UnsupportedError] for the

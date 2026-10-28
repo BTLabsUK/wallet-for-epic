@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Receive's Link tab: receiving straight to this wallet at its onion address, over Tor
 //. With the Tor switch off it says Link · Tor receiving needs Tor, with Turn on Tor; with Tor
 // on, the onion address in the same card as the epicbox address, a QR code of it dimmed until

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet's look: a token set per brightness, mapped onto Material by [buildWalletTheme].
 ///
 /// The values come from the Protocol design system's scope colours. Widgets read [WalletTokens] through

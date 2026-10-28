@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Settings hub's second lines name the main things on each page, never live values
 // (26.10.11): Security "Backup · PIN · Biometrics" (the backup warning instead while
 // the phrase is not backed up), Privacy & network "Node · Epicbox · Tor", Wallet "Contacts ·

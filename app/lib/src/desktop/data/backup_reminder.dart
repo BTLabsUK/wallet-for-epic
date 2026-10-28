@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The history backup reminder rule, for the desktop. A copy of the phone's, unchanged:
 /// `historyReminderMinPayments`, `historyReminderPause`, `historyReminderQuiet`,
 /// `unbackedPayments` and `paymentsNotInBackup` in `lib/src/ui/home_screen.dart`. The desktop

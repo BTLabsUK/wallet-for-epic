@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/widgets.dart';
 
 /// The status, method and trust glyphs (the Link family is the link), drawn from assets/icons/*.svg

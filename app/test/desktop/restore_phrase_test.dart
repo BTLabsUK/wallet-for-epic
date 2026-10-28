@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Restore's phrase grid: 24 numbered fields, a paste sets the count, words are checked on
 // blur or commit only, the checksum once the phrase is complete. The mock wallet answers the
 // checksum with the real BIP-39 rule, so the standard vectors apply.

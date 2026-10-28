@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, pairing by words (RFC 0002 7.7, report utc3fhjj): a second LEPIC
 // wallet in this process, on a relay outside the words meeting list (WFE_WORDS_RELAY, by
 // default epicbox.iniaku.my.id), offers pairing words; the real desktop types them under Enter

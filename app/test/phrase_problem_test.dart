@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's phrase error: which word is not a phrase word, a wrong count, or a phrase
 // whose check does not match.
 

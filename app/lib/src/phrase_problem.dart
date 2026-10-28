@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'bip39_words.dart';
 
 /// What is wrong with a recovery phrase the core refused, so the error can say it.

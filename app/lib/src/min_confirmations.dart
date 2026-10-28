@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's Settings › Advanced › Confirmations: the open wallet's minimum confirmations
 /// (LEPIC keeps it per wallet, 1–30, default 6). A change applies at once; taps in quick
 /// succession are stored as one, then the balance is read again so Spendable and Confirming

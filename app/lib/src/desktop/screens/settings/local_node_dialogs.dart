@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node's dialogs: the one-time fallback question, Delete chain
 /// data with a typed confirm, Reuse existing chain data, the node log, Change folder.
 library;

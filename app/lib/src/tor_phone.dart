@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch on the phone: its [TorState] from [PhoneTorState] (the switch is the
 /// per-wallet `receiving`), and the app's own requests following it.
 library;

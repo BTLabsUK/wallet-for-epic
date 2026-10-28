@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The summary rows and SmartOutputs rule, pure; one plan runs against the fake
 // session's input selection.
 

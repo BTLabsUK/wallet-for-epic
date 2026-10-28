@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The network status card (Settings › Privacy & network; Home shows the compact status icons
 /// of `home_status.dart` instead): one row each for the node, Epicbox and Tor. A row's tap
 /// opens the server picker for it, or Settings › Privacy for Tor. A row whose connection goes

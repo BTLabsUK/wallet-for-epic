@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Response headers from the plan's serving rules, and static files for `--web-root` and
 /// `--landing-root`. Production puts nginx in front instead; this is for this host and the
 /// tailnet.

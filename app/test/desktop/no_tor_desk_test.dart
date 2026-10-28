@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The build without Tor (`--dart-define=WFE_TOR=false`) on the desktop: no Tor only mode, no Tor
 // chip, an onion in To says this version cannot send there, no update check. Skipped in the
 // default build.

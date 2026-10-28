@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch as the desktop shows it: its [TorState] from the open wallet's status,
 /// and the words every place uses for it (status card, Settings › Privacy, Send, Receive).
 library;

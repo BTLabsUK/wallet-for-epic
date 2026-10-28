@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Checks that Android release builds are signed with the release key only
 # (android/app/build.gradle.kts): a release build stops when key.properties is missing,
 # incomplete, names the debug key or a keystore inside the repository, and goes ahead with the

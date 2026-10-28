@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The quiet line beside every Cancel (and Withdraw) button: what cancelling does in this one
 /// case, and a link that opens Help › "Cancelling a payment" at the matching heading. One
 /// widget, so the phone says it the same way everywhere (2026-10-25: the rule is

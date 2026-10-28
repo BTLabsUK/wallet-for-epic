@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Peers tab: 14 fakes render 8 and "6 more"; Ban moves a row; a changed
 // maximum shows the restart notice; First seen is the app's first poll, not anything from the
 // node; the version column; ip:port validation.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pieces every invoice screen shares: the three standard control
 /// widths, the state words and tones of requests and invoices, and the countdown text.
 library;

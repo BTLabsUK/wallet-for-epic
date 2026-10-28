@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The `epic:` payment URI and the scan router:
 // the vectors of §2.5, the routing table of §3.1, build → parse round trips, the Send
 // address rule, and the strings Stack Wallet and Epic Pay write.

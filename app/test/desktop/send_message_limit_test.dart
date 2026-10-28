@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // linux-09: a long emoji message. LEPIC signs at most 256 UTF-8 bytes of a message and cuts the
 // rest, but Send counted characters ("368 / 256" with no error) and Review took it; and the
 // Check and send dialog grew past the window, so Send was off the screen.
