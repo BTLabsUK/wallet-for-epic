@@ -53,6 +53,14 @@ void main() {
     await tester.pump(const Duration(seconds: 31));
   }
 
+  /// A syncing node's status dot pulses for as long as it syncs, so pumpAndSettle never ends:
+  /// dialogs get a fixed time to open and close instead.
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 60));
+    }
+  }
+
   Future<void> step(WidgetTester tester, LocalNodeState s) async {
     node.show(s);
     await tester.pump();
@@ -175,15 +183,15 @@ void main() {
     await show(tester, state: mockLocalNode(LocalNodePhase.stopped));
     expect(find.text('Use node.epiccash.com until the local node is synced?'), findsNothing);
     await step(tester, mockLocalNode(LocalNodePhase.syncing, overall: 0.1));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Use node.epiccash.com until the local node is synced?'), findsOneWidget);
     await tester.tap(find.text('Use node.epiccash.com'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.byType(EDialog), findsNothing);
     expect(node.calls, contains('fallback accepted $defaultFallbackNodeUrl'));
     await step(tester, mockLocalNode(LocalNodePhase.stopped));
     await step(tester, mockLocalNode(LocalNodePhase.syncing, overall: 0.2));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.byType(EDialog), findsNothing, reason: 'asked once');
     await end(tester);
   });
@@ -194,7 +202,7 @@ void main() {
     await tester.pump();
     expect(node.calls.last, startsWith('fallback accepted'));
     await step(tester, mockLocalNode(LocalNodePhase.syncing, overall: 0.1));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.byType(EDialog), findsNothing);
     await end(tester);
   });
@@ -204,11 +212,11 @@ void main() {
     expect(find.text('Use node.epiccash.com until the local node is synced'), findsOneWidget);
     // Two Change… buttons: While syncing comes before Data folder.
     await tester.tap(find.text('Change…').first);
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Node while syncing'), findsOneWidget);
     expect(find.descendant(of: find.byType(EDialog), matching: find.text('Local node')), findsNothing, reason: 'no This computer group in the fallback list');
     await tester.tap(find.text('node.btlabs.uk'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Use node.btlabs.uk until the local node is synced'), findsOneWidget);
     expect(find.textContaining('using node.btlabs.uk meanwhile', findRichText: true), findsOneWidget);
     expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.btlabs.uk').second, 'btlabs.uk · 12%');
