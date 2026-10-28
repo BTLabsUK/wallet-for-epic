@@ -9,7 +9,7 @@ import '../../data/state.dart';
 import 'pay_dialogs.dart';
 
 /// Screenshot tour entries of the invoice screens' pay part (see shots.dart beside this file):
-/// the payer's inbox, Review, the dialogs, and the states after paying (flow.md §4, §5).
+/// the payer's inbox, Review, the dialogs, and the states after paying.
 
 MockDeskWallet _mock(ProviderContainer c) => c.read(deskApiProvider) as MockDeskWallet;
 InvoiceProto _proto(ProviderContainer c) => _mock(c).proto;
@@ -169,7 +169,7 @@ final List<DeskShot> invoicePayShots = [
   ),
   DeskShot(
     id: 'inv-pay-15-cancel-dialog',
-    title: 'Cancel payment: what cancelling does (D-2)',
+    title: 'Cancel payment: what cancelling does',
     route: DeskRoute.invoices,
     arg: InvoicesTab.pay,
     prepare: (c, _) => _withRoute(c, () => _pastTtl(c)),

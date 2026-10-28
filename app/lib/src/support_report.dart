@@ -26,7 +26,7 @@ import 'package:cryptography/cryptography.dart';
 import 'net/http.dart';
 
 /// The developer's public key (the GUI's `src/shared/supportKey.js`), and its id: the first 8
-/// bytes of its SHA-256. Rotating it: the GUI repo's `docs/support/KEYS.md`.
+/// bytes of its SHA-256. Rotating it means shipping a new key with the next release.
 const String supportPublicKey = 'YM65I1OjO76rTaLGRAbLux2+rIObMMd+3v092QufNSU=';
 const String supportKeyId = 'd9749febd701c2fe';
 

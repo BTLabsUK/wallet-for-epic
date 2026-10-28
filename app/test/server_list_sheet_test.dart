@@ -687,7 +687,7 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
       final before = _saved(env.store, ServerKind.node);
-      // The row in use has no live Remove: the button is disabled and says why (UI-044).
+      // The row in use has no live Remove: the button is disabled and says why.
       final remove = tester.widget<IconButton>(find.byKey(serverListRemoveKey(_btlabs)));
       expect(remove.onPressed, isNull);
       expect(remove.tooltip, 'Switch first');

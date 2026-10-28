@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // What a screen reader (AT-SPI on Linux) sees and can do: buttons carry a tap, text fields a
-// name, and Cancel on a pending send opens its dialog from the semantics tap (EPI-02, EPI-03).
+// name, and Cancel on a pending send opens its dialog from the semantics tap.
 
 Widget _kit(Widget child) => ProviderScope(
   child: MaterialApp(

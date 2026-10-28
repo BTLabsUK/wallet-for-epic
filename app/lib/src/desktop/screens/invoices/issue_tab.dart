@@ -1,5 +1,4 @@
-/// Requests › Sent: the requests this wallet sent and their states (docs/invoices/flow.md
-/// §3.3, §3.4). A list and, beside it, the selected request; both panels share their edges.
+/// Requests › Sent: the requests this wallet sent and their states. A list and, beside it, the selected request; both panels share their edges.
 library;
 
 import 'package:flutter/material.dart';

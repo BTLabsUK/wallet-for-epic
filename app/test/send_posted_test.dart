@@ -1,4 +1,4 @@
-// The sender's posted report on an incoming Epicbox payment (LEPIC W-31): the sender says it
+// The sender's posted report on an incoming Epicbox payment: the sender says it
 // pushed the transaction. Advisory: the row and detail say "Sender reports posted" (info) while
 // the payment waits, never received; the report asks for one chain check, never a second
 // refresh beside a running one; Link and Direct payments never show it; the hour ends it.

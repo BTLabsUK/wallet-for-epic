@@ -197,7 +197,7 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
 }
 
 /// [checkRecipient] for a contact's address: a wallet URL is refused, since the wallet pays
-/// over epicbox and by transaction file only (OD-2), as Send refuses it.
+/// over epicbox and by transaction file only, as Send refuses it.
 String? checkContactAddress(
   AppLocalizations l,
   WalletService service,

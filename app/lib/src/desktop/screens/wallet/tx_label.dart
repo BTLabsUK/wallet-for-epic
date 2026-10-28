@@ -126,7 +126,7 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
         textField: true,
         child: TextField(
           controller: _text,
-          // A mouse caret and selection, never the phone's teardrop handles (UI-001).
+          // A mouse caret and selection, never the phone's teardrop handles.
           selectionControls: desktopTextSelectionControls,
           focusNode: _focus,
           autofocus: true,

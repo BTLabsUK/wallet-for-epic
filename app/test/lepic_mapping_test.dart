@@ -150,7 +150,7 @@ void main() {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
         lepic.WalletError(kind: kind, code: 0, message: 'm');
 
-    test('a pairing text for the other network or a newer wallet says so, not "not a pairing link" (PAIR-AND-22)', () {
+    test('a pairing text for the other network or a newer wallet says so, not "not a pairing link"', () {
       lepic.WalletError refused(String why) =>
           lepic.WalletError(kind: lepic.WalletErrorKind.invalidPairingText, code: 58, message: 'pairing text was refused: $why');
       expect(pairingFailureOf(mapLepicError(refused('made for the other network'))), PairingFailure.wrongNetwork);
@@ -744,7 +744,7 @@ void main() {
       expect(row.datedByBlock, isTrue);
     });
 
-    test('F17: which scan found an output, and whether its time is the block\'s', () {
+    test('which scan found an output, and whether its time is the block\'s', () {
       TxEntry found(lepic.FoundDuring during, bool byBlock) => lepicTxEntry(
         details(
           direction: lepic.TxDirection.incoming,

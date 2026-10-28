@@ -1,4 +1,4 @@
-// The Outputs page's cards and its Split and Consolidate dialogs (design spec §5.3, §6.5).
+// The Outputs page's cards and its Split and Consolidate dialogs.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show nothingToConsolidate;
 import 'package:epic_wallet/src/desktop/screens/wallet/outputs_dialogs.dart';

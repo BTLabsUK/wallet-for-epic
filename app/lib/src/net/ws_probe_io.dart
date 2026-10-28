@@ -17,7 +17,7 @@ Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
     await TorNet.untilConnected();
     if (TorNet.mode == TorNetMode.waiting) throw const ProbeNotRun();
   }
-  // No User-Agent: nothing that names the app or its version (F35).
+  // No User-Agent: nothing that names the app or its version.
   final client = HttpClient()
     ..connectionTimeout = timeout
     ..userAgent = null;

@@ -1,4 +1,4 @@
-/// The pairing events as notices (SPEC 2.10): docked under the app bar, one line, the next
+/// The pairing events as notices: docked under the app bar, one line, the next
 /// step as its action. Mounted on home, so they show wherever the user is. It also looks for a
 /// pairing link on the clipboard when the app comes to the front (Pairing UX plan 5).
 library;
@@ -66,7 +66,7 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.failed => (text: pairingFailureText(l, e.failure ?? PairingFailure.invalid, name: name), level: NoticeLevel.warning),
     PairingEventKind.keysRestored => (text: '${l.contactKeysBack(name)} ${l.contactKeysBackBody}', level: NoticeLevel.success),
     PairingEventKind.keysChanged => (text: l.noticeKeysChanged(name), level: NoticeLevel.warning),
-    // A warning, so the "Saved as" that follows the attach queues behind it (PAIR-AND-16).
+    // A warning, so the "Saved as" that follows the attach queues behind it.
     PairingEventKind.keyCheckRefused => (text: l.noticeKeyCheckRefused(name), level: NoticeLevel.warning),
     PairingEventKind.invoiceFromContact => (text: l.noticeRequest(name, epic(e.amount)), level: NoticeLevel.info),
     PairingEventKind.withdrawalFromContact => (text: l.noticeWithdrawal(epic(e.amount), name), level: NoticeLevel.success),
@@ -164,7 +164,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
         e.kind == PairingEventKind.paymentFinalized) {
       ref.invalidate(homeProvider);
     }
-    // A request from a contact: an open Invoices screen lists it now (PAIR-AND-3).
+    // A request from a contact: an open Invoices screen lists it now.
     if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
       ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
@@ -176,7 +176,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
         ? null
         : (ref.read(contactsProvider).value ?? const <Contact>[]).where((c) => c.id == contactId).firstOrNull;
     // The navigator now, while this widget is mounted: the action may run after it was rebuilt
-    // away, and a context of its own would then open nothing (PAIR-AND-15).
+    // away, and a context of its own would then open nothing.
     final nav = Navigator.of(context);
     void push(Widget screen) => nav.push<void>(MaterialPageRoute<void>(builder: (_) => screen));
     final NoticeAction? action = switch (e.kind) {
@@ -205,7 +205,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.withdrawalFromContact when e.slateId != null => pairingSlateNoticeTag(e.slateId!),
       _ => null,
     };
-    // Old keys not checked is news the user must not miss: it stays until closed (PAIR-AND-16).
+    // Old keys not checked is news the user must not miss: it stays until closed.
     ref.read(noticeProvider.notifier).show(
       notice.text,
       level: notice.level,

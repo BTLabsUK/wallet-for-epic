@@ -1,4 +1,4 @@
-/// The Local node step of the first run (spec §21) and the same content as a dialog from
+/// The Local node step of the first run and the same content as a dialog from
 /// Settings › Node: what running the node here means, then the choice between a node already
 /// running on this computer and the bundled node, with the fallback checkbox. Nothing here
 /// starts or downloads anything: the caller does, on Save.
@@ -26,7 +26,7 @@ class LocalNodeChoice {
   /// The address of the node already running here (the existing option).
   final String existingUrl;
 
-  /// Use the public fallback until the bundled node is synced (D-7, answered here).
+  /// Use the public fallback until the bundled node is synced (answered here).
   final bool useFallback;
 
   /// The last check of [existingUrl].
@@ -197,7 +197,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
               children: [
                 Row(
                   children: [
-                    // Field and button one height and one of the row widths (R4).
+                    // Field and button one height and one of the row widths.
                     ERowControl(
                       child: EInput(
                         size: EBtnSize.sm,

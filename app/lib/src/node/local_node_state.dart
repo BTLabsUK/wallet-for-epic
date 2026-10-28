@@ -175,7 +175,7 @@ class LocalNodeState {
       'failure: $failure, reason: $reason, stalled: $stalled, restartNeeded: $restartNeeded)';
 }
 
-/// The app's view of the node. The rules (O2: never "Online" at height 0):
+/// The app's view of the node. The rules (never "Online" at height 0):
 ///
 /// | node state        | condition                                                  | phase    |
 /// |-------------------|------------------------------------------------------------|----------|

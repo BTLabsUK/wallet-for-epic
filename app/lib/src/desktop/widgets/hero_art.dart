@@ -6,7 +6,7 @@ import '../desk_l10n.dart';
 import '../data/models.dart';
 import '../theme/tokens.dart';
 
-/// The Send strip's picture of a method (spec 8.2, `assets/hero-*.svg`): the two people dim,
+/// The Send strip's picture of a method (`assets/hero-*.svg`): the two people dim,
 /// the way the payment goes in the accent, a caption under it. 160 × 96 u.
 class HeroArt extends StatelessWidget {
   const HeroArt(this.method, {super.key});

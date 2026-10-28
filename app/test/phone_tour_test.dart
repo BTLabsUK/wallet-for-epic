@@ -242,7 +242,7 @@ void main() {
       expect(_overlay, findsNothing);
     });
 
-    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet (AND-1)', (tester) async {
+    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet', (tester) async {
       final rig = await _pump(tester);
       rig.container.read(incomingLinkProvider.notifier).deliver('epic:${'b' * 52}@epicbox.epiccash.com?amount=0.4');
       await tester.pumpAndSettle();

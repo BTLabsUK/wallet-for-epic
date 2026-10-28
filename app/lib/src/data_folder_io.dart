@@ -22,7 +22,7 @@ Future<Directory> appDataDirectory({Map<String, String>? environment}) async {
   return getApplicationSupportDirectory();
 }
 
-/// Set by integration tests that run the real app (integration_test/fixes_01/isolation.dart)
+/// Set by integration tests that run the real app (the Windows fixes check's isolation helper)
 /// before anything asks for a folder: the data and cache folders then live under it.
 String? dataFolderOverride;
 

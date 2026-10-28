@@ -72,7 +72,7 @@ class EpicboxRelay {
   int get hashCode => Object.hash(host, port);
 }
 
-/// The Epicbox server a new wallet starts on (D-13): the mainnet preset, the first built-in
+/// The Epicbox server a new wallet starts on: the mainnet preset, the first built-in
 /// relay and the "default" tag all use it. Existing wallets keep the server their address names.
 const String defaultEpicboxHost = 'epicbox.epiccash.com';
 

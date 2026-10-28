@@ -314,7 +314,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.feedbackTitle)),
       body: ScreenBody(
-        // The main action at the foot of the screen, as on every form (UI-016).
+        // The main action at the foot of the screen, as on every form.
         bottom: url != null
             ? Column(
                 mainAxisSize: MainAxisSize.min,

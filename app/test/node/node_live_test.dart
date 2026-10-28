@@ -89,14 +89,14 @@ void main() {
       await controller.load();
       expect(controller.state.phase, LocalNodePhase.stopped);
 
-      // F24: nothing answers before the start (else another node holds the port).
+      // Nothing answers before the start (else another node holds the port).
       final before = await detectLocalNode(Chain.mainnet, ours: node);
       expect(before.answers, isFalse, reason: 'port 3413 must be free for this test');
 
       await controller.start();
       final syncing = await _until(controller, (s) => s.phase == LocalNodePhase.syncing, const Duration(seconds: 90), 'syncing');
       _say('syncing: stage ${syncing.progress?.stage.name}, version ${syncing.version}');
-      expect(syncing.online, isFalse, reason: 'O2: never online while syncing');
+      expect(syncing.online, isFalse, reason: 'never online while syncing');
       expect(syncing.startedAt, isNotNull);
       final firstStart = syncing.startedAt;
 
@@ -108,7 +108,7 @@ void main() {
       expect(probe.ours, isTrue);
       expect(probe.otherNode, isFalse);
 
-      // F27 limited info (monitor unreachable): from the node itself.
+      // Limited info (monitor unreachable): from the node itself.
       final info = await NodeInfoService(nodes: _NoMonitor()).info(node.url, chain: 'mainnet');
       expect(info.source, NodeInfoSource.limited);
       expect(info.readyForTxs, isFalse);

@@ -61,7 +61,7 @@ TextSpan marked(BuildContext context, String text, List<String> words, TextStyle
   }
   ranges.sort((a, b) => a.$1 - b.$1);
   final c = context.dc;
-  // Every hit neutral and bold (UI-067): gold is for the brand and the main action, not for each word.
+  // Every hit neutral and bold: gold is for the brand and the main action, not for each word.
   final mark = style.copyWith(backgroundColor: c.lineStrong, color: c.text, fontWeight: FontWeight.w700);
   final spans = <TextSpan>[];
   var pos = 0;

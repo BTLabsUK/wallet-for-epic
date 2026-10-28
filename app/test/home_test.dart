@@ -1510,7 +1510,7 @@ void main() {
   group('addresses', () {
     test('lists shorten the key around an ellipsis and keep the relay', () {
       expect(shortAddress(_bob), 'esBobA…567890@epicbox.epiccash.com');
-      // A link: host and port without the scheme, the ends kept (UI-003).
+      // A link: host and port without the scheme, the ends kept.
       expect(shortAddress('http://203.0.113.5:3415'), '203.0.…5:3415');
       expect(shortAddress('https://pay.example.com:3415/'), 'pay.ex…m:3415');
       expect(shortAddress('http://host:3415'), 'host:3415');
@@ -2536,7 +2536,7 @@ void main() {
       final h = _Harness();
       h.store.values['app.hide_balances'] = 'true';
       await h.pump(tester);
-      // Wallet's figure reads its caption too (D-10).
+      // Wallet's figure reads its caption too.
       expect(
         find.bySemanticsLabel('Spendable: Balance hidden'),
         findsOneWidget,
@@ -4425,7 +4425,7 @@ void main() {
         await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
         await _tab(tester, tab);
         // Receive's short address is selectable text, 24 dp tall, inside the address card
-        // that D-02 rebuilds; every button there passes.
+        // that a rebuild repeats; every button there passes.
         if (tab != 'Receive') {
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         }
@@ -4457,7 +4457,7 @@ void main() {
     }
   });
   group('amounts', () {
-    // The brief's matrix (D-09): each amount on Wallet's figure and Send's and Receive's
+    // The brief's matrix: each amount on Wallet's figure and Send's and Receive's
     // title, at three phone widths, at text scale 1 and 2, with the fiat value, without it,
     // and hidden.
     final matrix = [

@@ -1,5 +1,5 @@
 /// Outputs: the pieces the balance is made of, with Split and Consolidate, the strategy a
-/// send uses and the list of every output (design spec: phone §4, desktop outputs §5, §6).
+/// send uses and the list of every output.
 library;
 
 import 'package:flutter/material.dart';

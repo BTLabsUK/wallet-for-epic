@@ -1,4 +1,4 @@
-// The phone's phrase error (R22): which word is not a phrase word, a wrong count, or a phrase
+// The phone's phrase error: which word is not a phrase word, a wrong count, or a phrase
 // whose check does not match.
 
 import 'package:epic_wallet/src/phrase_problem.dart';

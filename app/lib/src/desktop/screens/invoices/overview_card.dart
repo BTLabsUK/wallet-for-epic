@@ -1,4 +1,4 @@
-/// Overview's Requests card (docs/invoices/flow.md §1): what waits for the user and for others.
+/// Overview's Requests card: what waits for the user and for others.
 /// Amounts to pay are outgoing ("You pay"), never income; requested amounts are not counted.
 library;
 

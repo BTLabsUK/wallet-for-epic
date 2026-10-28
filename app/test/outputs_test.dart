@@ -1,4 +1,4 @@
-// The phone Outputs screen (design spec phone §4): tiles from the balance, filters, rows,
+// The phone Outputs screen: tiles from the balance, filters, rows,
 // the output sheet, Split and Consolidate behind the PIN, and the strategy pref.
 
 import 'dart:io';

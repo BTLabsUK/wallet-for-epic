@@ -1,4 +1,4 @@
-/// Send › Advanced (F11, F12, D-5; design spec §4.4): the strategy and Split change for this
+/// Send › Advanced (the strategy and Split change for this
 /// send only. The defaults live on the Outputs page; nothing here is stored.
 library;
 

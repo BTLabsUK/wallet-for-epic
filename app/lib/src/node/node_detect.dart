@@ -1,6 +1,6 @@
-/// The first-run "Local node" choice (F24): is a node already running on this computer (the CLI
+/// The first-run "Local node" choice: is a node already running on this computer (the CLI
 /// node, the Epic GUI's node), and the facts the explanation step shows before anything starts
-/// or downloads (O2): disk space, chain size, sync time, the Windows firewall prompt.
+/// or downloads: disk space, chain size, sync time, the Windows firewall prompt.
 library;
 
 import 'dart:async';

@@ -514,7 +514,7 @@ class _Cell extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Ctrl+V and the menu's Paste read the clipboard themselves (F29).
+                    // Ctrl+V and the menu's Paste read the clipboard themselves.
                     Actions(
                       actions: {
                         PasteTextIntent: CallbackAction<PasteTextIntent>(

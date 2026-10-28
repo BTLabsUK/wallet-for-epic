@@ -73,7 +73,7 @@ class SettingsPrefs {
   /// Listed nodes the user marked as their own ("Mine"): asked directly, owner access offered.
   final Set<String> mineNodes;
 
-  /// An own node's answer to "Use a public node until it is synced?" (D-7), by node URL.
+  /// An own node's answer to "Use a public node until it is synced?", by node URL.
   final Map<String, bool> ownFallback;
 
   /// Own nodes whose plain-http owner secret warning is not shown again.

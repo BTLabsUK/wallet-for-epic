@@ -44,7 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
       GetCommandLineArguments();
 
   // Skia by default: on Flutter 3.47 Impeller (its Windows default) draws light text thinner than
-  // Skia, and neither renders ClearType (docs/desktop-ui.md, "Text on Windows"). --impeller opts
+  // Skia, and neither renders ClearType. --impeller opts
   // in, to compare on a given machine; --skia is accepted and means the default.
   flutter::ImpellerSwitch renderer = flutter::ImpellerSwitch::Disabled;
   for (const std::string& arg : command_line_arguments) {

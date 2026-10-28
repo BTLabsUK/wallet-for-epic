@@ -18,7 +18,7 @@ class Recipient {
 
 /// Reads a bare epicbox address, `epicbox://<address>`, an onion address in any of its forms,
 /// or an `http(s)://` wallet URL from typed, pasted or scanned text. Removes whitespace, which
-/// QR codes and chat apps sometimes add. An onion (F9: with or without `.onion`, with
+/// QR codes and chat apps sometimes add. An onion (with or without `.onion`, with
 /// `http://`, a port, a trailing slash, in upper case) comes back as `<56 characters>.onion`
 /// in lower case, the one form the app shows. Does not validate; see [checkRecipient].
 Recipient parseRecipient(String text) {

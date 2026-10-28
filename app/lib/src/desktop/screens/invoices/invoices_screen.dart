@@ -1,4 +1,4 @@
-/// Invoices: invoices to pay and invoices issued, on two tabs (docs/invoices/flow.md §1). The
+/// Invoices: invoices to pay and invoices issued, on two tabs. The
 /// frame: tabs with their counts, Issue an invoice, the last check and the relay notice. The
 /// wallet checks Epicbox by itself (on open and on a timer); there is no button for it.
 /// The tabs' content is [PayTab] (payer part) and [IssueTab] (issuer part).
@@ -36,7 +36,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     super.initState();
     final a = widget.arg;
     if (a is InvoicesTab) _tab = a;
-    // Opening Requests asks the relay (flow.md §4.1).
+    // Opening Requests asks the relay.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) unawaited(ref.read(deskInvoicesProvider.notifier).check(quiet: true));
     });

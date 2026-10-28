@@ -451,7 +451,7 @@ void main() {
       final merged = await s.consolidateOutputs(minimumConfirmations: ten);
       expect(merged.inputCount, 2);
       expect(session.consolidations, 1);
-      // A cancelled payment's coins, spent to the wallet itself by name (D-2).
+      // A cancelled payment's coins, spent to the wallet itself by name.
       session.outputsValue = [out('c5', 200000000)];
       await s.spendOutputsToSelf(commitments: ['c5'], minimumConfirmations: ten);
       expect(session.spentToSelf, [

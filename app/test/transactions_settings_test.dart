@@ -161,7 +161,7 @@ void main() {
     expect(_titleOf(tester, 'tx-http'), 'HTTP');
     expect(_titleOf(tester, 'tx-tor'), 'Tor');
     expect(_titleOf(tester, 'tx-file'), 'File Transfer');
-    // Epicbox: a switch, on; the row is the label only (R5), the explanation behind its info icon.
+    // Epicbox: a switch, on; the row is the label only, the explanation behind its info icon.
     expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxHint)), findsNothing);
     expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
     // Link is off by default, File Transfer on.

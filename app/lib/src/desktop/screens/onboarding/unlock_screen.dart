@@ -356,7 +356,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         title: l.deskOnbUnlockTitle,
         lead: l.deskOnbUnlockLead,
         alternatives: [
-          // The wallet's phrase sets a new password (R4).
+          // The wallet's phrase sets a new password.
           if (selected != null && !selected.missing)
             ELink(key: const ValueKey('unlock-forgot'), label: l.deskOnbForgotLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
           if (DeskFeatures.multiWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
@@ -464,7 +464,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                     size: EBtnSize.sm,
                     onPressed: selected == null ? null : () => _removeMissing(selected),
                   ),
-                  // The folder is what is missing: Try again is the way on, Unlock waits (UI-023).
+                  // The folder is what is missing: Try again is the way on, Unlock waits.
                   EButton(
                     label: l.deskOnbUnlockTryAgain,
                     icon: EIcons.refresh,
@@ -490,7 +490,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 bool inWalletsFolder(String folder) =>
     RegExp(r'[/\\]\.epic_cash_desktop[/\\]wallets[/\\][^/\\]+[/\\][^/\\]+[/\\]?$').hasMatch(folder);
 
-/// [folder] with the home folder as `~`, the way the list shows it (#104).
+/// [folder] with the home folder as `~`, the way the list shows it.
 String shortFolder(String folder, {String? home}) {
   final h = home ?? Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'];
   if (h == null || h.isEmpty) return folder;

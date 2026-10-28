@@ -18,7 +18,7 @@ Future<void> retryInvoicePayment(BuildContext context, WidgetRef ref, IncomingIn
 /// dialog, success is a toast.
 Future<void> showCancelInvoicePayment(BuildContext context, WidgetRef ref, IncomingInvoice invoice) => showCancelPaymentDialog(context, invoice);
 
-/// Spends a cancelled payment's coins to this wallet ([IncomingInvoice.spendToSelf], D-2),
+/// Spends a cancelled payment's coins to this wallet ([IncomingInvoice.spendToSelf]),
 /// which makes the cancel final. A toast says whether it went.
 Future<void> spendCancelledPayment(BuildContext context, WidgetRef ref, IncomingInvoice invoice) async {
   final l = context.l10n;

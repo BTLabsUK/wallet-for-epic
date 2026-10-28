@@ -5,10 +5,10 @@
 /// wallet is on the chosen node; the shell says it in a toast and the rail and Settings › Node
 /// name the chosen node under the one in use.
 ///
-/// The user's own node (own-node spec §5): while a public node stands in for it, it is asked
+/// The user's own node: while a public node stands in for it, it is asked
 /// again every [ownAskBackEvery] and the wallet moves back after [ownBackAfter] good answers in
 /// a row, a home node coming back being the normal case. An own node that is syncing moves the
-/// wallet to a public node only when the user said so for that node (the D-7 question on its
+/// wallet to a public node only when the user said so for that node (the fallback question on its
 /// panel), and back once it accepts transactions.
 library;
 

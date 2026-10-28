@@ -1,4 +1,4 @@
-// The providers bind without starting anything (O2): reading them never starts a node.
+// The providers bind without starting anything: reading them never starts a node.
 import 'dart:io';
 
 import 'package:epic_wallet/src/builtin_node.dart' show stopAllBuiltInNodes;

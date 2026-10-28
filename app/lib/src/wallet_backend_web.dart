@@ -1,5 +1,5 @@
 /// `wallet_backend.dart` in the browser. The wallet runs on the demo server, reached over one
-/// WebSocket to `<origin>/api/ws` (W-01's protocol); this side keeps only the PIN-sealed text,
+/// WebSocket to `<origin>/api/ws` (the demo server's protocol); this side keeps only the PIN-sealed text,
 /// in `localStorage`. A `WFE_WEB_FAKE=true` build runs on [previewWalletService] instead, with
 /// nothing kept across a reload and no network at all.
 library;

@@ -1,5 +1,5 @@
 /// Requests › To pay: the inbox of invoices from paired contacts the user allows and the payments to settle
-/// (docs/invoices/flow.md §4.2, §4.4, §4.5). Answered invoices leave it; paid ones live in Activity,
+///. Answered invoices leave it; paid ones live in Activity,
 /// and one opened from there shows under Paid, selected. Owned by the payer part.
 library;
 

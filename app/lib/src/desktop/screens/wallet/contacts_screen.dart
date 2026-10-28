@@ -170,7 +170,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final long = all.length > _longList;
     final count = q.isEmpty ? l.deskConCount(all.length) : (shown.isEmpty ? l.deskConNoMatches : l.deskConMatches(shown.length));
 
-    // The search in the list's header band, level with the detail's (docs/plans/w7-layout.md R2).
+    // The search in the list's header band, level with the detail's.
     final list = TourTarget(
       id: 'contacts-list',
       child: EPanel(
@@ -229,7 +229,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             const DeskPairHint(),
             Divider(height: 1, color: c.line),
           ],
-          // Pairings in no contact, by the name they chose (PAIR-AND-8).
+          // Pairings in no contact, by the name they chose.
           for (final r in orphans)
             if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
           if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
@@ -296,7 +296,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         const ContactsMoreButton(),
       ],
       child: split
-          // The list and the detail are one unit (docs/plans/w7-layout.md R1): same top and bottom.
+          // The list and the detail are one unit: same top and bottom.
           ? PanelRow(
               sideFirst: true,
               sideWidth: Ctl.sideList,
@@ -411,7 +411,7 @@ class _Pic extends StatelessWidget {
 }
 
 /// A pairing of this wallet in no contact: the name it chose, its badge and "Not in contacts",
-/// with the choices of Settings › Invoices (a contact of its name first, PAIR-LNX-7).
+/// with the choices of Settings › Invoices (a contact of its name first).
 class _OrphanRow extends ConsumerWidget {
   const _OrphanRow({required this.record});
 
@@ -804,7 +804,7 @@ class _AddrField {
   void disposeLater() => WidgetsBinding.instance.addPostFrameCallback((_) => dispose());
 }
 
-/// The form in the detail pane (SPEC 2.5, desktop): Name, one field per address with its kind
+/// The form in the detail pane: Name, one field per address with its kind
 /// badge and ×, a dashed free field while a kind is free, Note.
 class _ContactFormState extends ConsumerState<_ContactForm> {
   late final _name = TextEditingController(text: widget.contact?.name);
@@ -909,7 +909,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   }
 
   /// A contact saved without an address (from a pairing) may stay so; only a new one needs
-  /// an address (PAIR-AND-9).
+  /// an address.
   bool get _addressOptional => widget.contact != null && widget.contact!.addresses.isEmpty;
 
   Future<void> _save() async {
@@ -1119,7 +1119,7 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x, {bool pai
   },
 );
 
-/// A contact's Pairing (SPEC 2.4, desktop): Not paired with Pair; or the status row (Verified
+/// A contact's Pairing: Not paired with Pair; or the status row (Verified
 /// with the date and Check again, or Paired, not verified with Check the words), Seal
 /// payments and Allow invoices with their info, Delivered via, Remove pairing; the keys-changed
 /// and relay notices above it; Issue an invoice for a verified contact that pays requests.

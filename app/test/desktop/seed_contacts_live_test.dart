@@ -1,5 +1,5 @@
 // Live: the bundled BT Labs address passes the real LEPIC checksum and is on the default
-// Epicbox server (spec 9). Needs the Linux library:
+// Epicbox server. Needs the Linux library:
 //
 //   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/seed_contacts_live_test.dart

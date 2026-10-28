@@ -147,7 +147,7 @@ class _Draft {
   final bool sendAll;
   final bool dandelion;
 
-  /// What the send spends, locks and leaves (F11); null without an estimate.
+  /// What the send spends, locks and leaves; null without an estimate.
   final SendSummary? summary;
 
   /// The strategy and change outputs the estimate was made with; the send uses the same.
@@ -179,7 +179,7 @@ int? _parseAmount(AppLocalizations l, String raw) {
   }
 }
 
-/// What is wrong with the recipient for method [m], or null (spec 7: one parser for every kind).
+/// What is wrong with the recipient for method [m], or null (one parser for every kind).
 String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi api) {
   final t = v.trim();
   if (m == TxMethod.file) return null;
@@ -271,12 +271,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _suggestOff = false;
   int? _fee;
   int _feeFor = -1;
-  // The estimate with this send's strategy and Split change (F11, F12): [_fee] is its fee.
+  // The estimate with this send's strategy and Split change: [_fee] is its fee.
   SmartSendPlan? _plan;
   // Advanced: this send's choices; null takes the Outputs default.
   late SelectionStrategy? _strategyOverride = _args.strategy;
   late bool? _smartOverride = _args.smart;
-  // The auto-switch (spec 8.4): the To text before this change, and the tag's method while
+  // The auto-switch: the To text before this change, and the tag's method while
   // it shows (3 s).
   String _lastTo = '';
   TxMethod? _switchedTo;
@@ -438,7 +438,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_args.nodeSync != null) return _args.nodeSync;
     final s = st.status;
     if (s == null) return -1;
-    // The local node at height 0 is still downloading the chain (O2): no send until it has it.
+    // The local node at height 0 is still downloading the chain: no send until it has it.
     if (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0) return -1;
     return s.nodeHealth == ServiceHealth.ok || s.nodeHealth == ServiceHealth.slow ? null : -1;
   }
@@ -567,7 +567,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     });
   }
 
-  /// The method follows the address (spec 8.4): a complete address of another kind, or any
+  /// The method follows the address: a complete address of another kind, or any
   /// address that was pasted ([forced], or one change adding 8 or more characters), moves it to
   /// that kind. Text still being typed never does, and nothing switches back when the text
   /// becomes incomplete. The field keeps its text.
@@ -595,7 +595,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _ => TxMethod.epicbox,
   };
 
-  /// Where an empty form goes when its method was switched off (AND-4): the start method, or
+  /// Where an empty form goes when its method was switched off: the start method, or
   /// for one the desktop does not send by (QR Payment) the first it does that is on.
   TxMethod _nextMethod(PaymentPrefs p) {
     final link = (DeskFeatures.httpDirect || DeskFeatures.tor) && p.offersFamily(MethodFamily.link);
@@ -730,7 +730,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _changed(to: true);
   }
 
-  /// A pasted or linked [text] through the scan router (epic-uri spec §3.2, ui.md §1). A payment
+  /// A pasted or linked [text] through the scan router. A payment
   /// request fills To, Amount and Message; a link's address fills To. Pasted, a code Send cannot
   /// take stays in To with the reason under it (a transaction file opens its dialog); from a
   /// link every such code opens a dialog. Nothing is sent: Review send and the password stay the
@@ -819,7 +819,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// To, Amount and Message from [r]; the method follows the address. A field the code leaves
   /// out keeps what was typed, but a dropped amount empties Amount. The note goes into Message
-  /// only when a slate can carry it (ui.md U-5); it shows in full in the payee block anyway.
+  /// only when a slate can carry it; it shows in full in the payee block anyway.
   void _fillFrom(PaymentRequest r, CodeOrigin origin) {
     final l = context.l10n;
     final st = ref.read(deskProvider);
@@ -885,7 +885,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   SendCode? get _codeNow => _code != null && _to.text.trim() == _code!.address ? _code : null;
 
   /// To moved off the code's address: the code goes, and with it the amount and the note it
-  /// put in that are still untouched (ui.md §2, lifetime). True when Amount was cleared.
+  /// put in that are still untouched. True when Amount was cleared.
   bool _leaveCode() {
     final code = _code;
     if (code == null || _to.text.trim() == code.address) return false;
@@ -960,7 +960,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// "This is the wallet's own address." when the Epicbox recipient is this wallet (M18): the
+  /// "This is the wallet's own address." when the Epicbox recipient is this wallet: the
   /// part before @ the same, exactly (it is case-sensitive), and the server this wallet's or
   /// left out (":443" is the same server).
   String? _ownAddressError(DeskState st) {
@@ -1190,7 +1190,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ref.listen(deskProvider.select((s) => s.balance), (_, _) => _replan());
     // A method switched off in Settings › Transactions while Send is open: with To empty and
     // nothing sent, Send moves to the method it starts on now, as after a restart. An address
-    // in To keeps its method, with the note that it is off (AND-4).
+    // in To keeps its method, with the note that it is off.
     ref.listen(deskProvider.select((s) => s.settings.payments), (_, p) {
       if (_result != null || _to.text.trim().isNotEmpty) return;
       final on = switch (_method) {
@@ -1204,7 +1204,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return LayoutBuilder(
       builder: (context, outer) {
         // Two columns need 720 u inside the page's padding; below that the summary falls under
-        // the form, so Total and Review stay in a bar pinned to the bottom (UI-018).
+        // the form, so Total and Review stay in a bar pinned to the bottom.
         final narrow = outer.maxWidth - 2 * Sp.x8 < 720.u;
         final form = res is! SendFileReady && res is! SendDone;
         return DeskStepBack(
@@ -1239,7 +1239,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: notices),
                             ),
                           ),
-                        // Form and Summary are one unit (docs/plans/w7-layout.md R1, R2).
+                        // Form and Summary are one unit.
                         if (!wide) ...[form, SizedBox(height: Sp.col), summary] else PanelRow(main: form, side: summary, sideWidth: Ctl.sideSm),
                       ],
                     ),
@@ -1513,7 +1513,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // the segment names the family. Settings › Transactions: the methods on. The
             // method in use stays (a pasted onion picks Link; a file send in progress or the
             // file fallback of a failed Epicbox keeps File Transfer).
-            // Listed from the start (#16), its switches on or not: sending by Link needs no
+            // Listed from the start, its switches on or not: sending by Link needs no
             // listener, and with both off the notice above turns one on.
             if (DeskFeatures.httpDirect || DeskFeatures.tor)
               // A pairing recipient has no Link address.
@@ -1587,7 +1587,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => contactAddress(x, st.settings.payments), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
-          // A payment request's banner (ui.md §2): it keeps the last code's words while it closes.
+          // A payment request's banner: it keeps the last code's words while it closes.
           ExpandFade(
             open: code != null && code.banner && _codeBanner,
             child: _code == null
@@ -1624,7 +1624,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               onClear: _clearRecipient,
             ),
           ],
-          // The payee's words; the name not when the contact has it already (ui.md U-4).
+          // The payee's words; the name not when the contact has it already.
           if (code != null && (code.note != null || EPayeeClaims.labelBeside(code.label, contact?.name) != null)) ...[
             SizedBox(height: Sp.x2),
             EPayeeClaims(label: EPayeeClaims.labelBeside(code.label, contact?.name), note: code.note),
@@ -1779,7 +1779,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 }
 
 /// The Send page's summary panel: amount, fee, total, balance after, Review send and the
-/// line under it. One widget so the summary rows can grow (outputs, wave 5) without the form.
+/// line under it. One widget so the summary rows can grow (outputs) without the form.
 class _SendSummary extends StatelessWidget {
   const _SendSummary({
     required this.amount,
@@ -1801,7 +1801,7 @@ class _SendSummary extends StatelessWidget {
   /// The Review button sits in the panel; false when the narrow page pins it to the bottom.
   final bool review;
 
-  /// What the send spends, locks and leaves (F11, F12); null until it is estimated.
+  /// What the send spends, locks and leaves; null until it is estimated.
   final SendSummary? summary;
 
   /// The wallet's minimum confirmations: blocks until the change confirms.
@@ -1876,7 +1876,7 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture, what it does in bold and what it needs (spec 8.2).
+/// Under the selector: the method's picture, what it does in bold and what it needs.
 /// The art goes above the text in a narrow column; a method change crossfades.
 class _MethodStrip extends StatelessWidget {
   const _MethodStrip(this.method);
@@ -1960,7 +1960,7 @@ class _SwitchTag extends StatelessWidget {
   }
 }
 
-/// The contact the To field holds: name and kind, the short address, Clear (spec 7.1).
+/// The contact the To field holds: name and kind, the short address, Clear.
 class _PickedCard extends StatelessWidget {
   const _PickedCard({required this.contact, required this.address, required this.onClear});
 
@@ -2164,7 +2164,7 @@ class _ReviewDialog extends StatefulWidget {
   /// options moved, null when the shown one still holds.
   final Future<_Draft?> Function(_Draft shown)? recheck;
 
-  /// Set when this send asks the wallet's password first (F6); true when it is right.
+  /// Set when this send asks the wallet's password first; true when it is right.
   final Future<bool> Function(String password)? checkPassword;
 
   @override
@@ -2303,7 +2303,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       TxMethod.file => l.deskSendViaFile,
     };
     final code = d.code;
-    // The payee's words under the facts; the name not when the contact has it (ui.md U-4).
+    // The payee's words under the facts; the name not when the contact has it.
     final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
     final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostBesideOf(d.to!) : null;
@@ -2412,7 +2412,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ],
           if (_asks && !_busy) ...[
             SizedBox(height: Sp.x4),
-            // Enter in the password sends once it is filled (wave 2 rules).
+            // Enter in the password sends once it is filled.
             EForm(
               onSubmit: _ready ? _go : null,
               child: EField(

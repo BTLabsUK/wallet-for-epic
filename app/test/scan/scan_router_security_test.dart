@@ -1,5 +1,4 @@
-// Security of the scan router (spec docs/feedback/designs/epic-uri/spec.md §7.2, §7.3,
-// §7.5, §7.6 items 1–10): what a hostile or odd text can and cannot make of a scan. Decisions:
+// Security of the scan router (the epic: URI spec's security items): what a hostile or odd text can and cannot make of a scan. Decisions:
 // note cap 264 code points, whole text 4096, raw value 3168, any non-ASCII host refused,
 // invalid parameter names ignored like unknown ones, no NFC step.
 

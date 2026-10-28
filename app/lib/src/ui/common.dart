@@ -763,7 +763,7 @@ String txStatusLabel(
   return switch (phase) {
     TxPhase.completed => (Icons.check_circle_outline, t.ok),
     TxPhase.confirming => (Icons.timelapse, t.info),
-    // Waiting for the other side is work under way, so the in-progress blue (UI-012).
+    // Waiting for the other side is work under way, so the in-progress blue.
     TxPhase.waitingRecipient ||
     TxPhase.waitingSender ||
     TxPhase.waitingPayer => (Icons.hourglass_empty, t.info),
@@ -987,8 +987,8 @@ String? contactName(WidgetRef ref, String? address) {
 
 /// The name of [tx]'s other side: the saved contact of its address, else the pairing it was
 /// exchanged with ([TxEntry.pairingId]: a payment through a contact's mailbox has no address,
-/// and a request's counterparty is the contact's mailbox, which no address-book entry holds,
-/// PAIR-AND-5), else, for a payment of a paired contact's request, that pairing's name.
+/// and a request's counterparty is the contact's mailbox, which no address-book entry holds),
+/// else, for a payment of a paired contact's request, that pairing's name.
 String? txPartyName(WidgetRef ref, TxEntry tx) {
   final saved = contactName(ref, tx.counterparty);
   if (saved != null) return saved;
@@ -1043,7 +1043,7 @@ class TxStatusChip extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     final tone = switch (txPhase(tx, tip, target: target)) {
       TxPhase.waitingSender when senderReportsPosted(tx, now: now) => BadgeTone.info,
-      // Waiting for the other side is work under way, not a warning (UI-012).
+      // Waiting for the other side is work under way, not a warning.
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
       TxPhase.waitingPayer => BadgeTone.info,
@@ -1655,7 +1655,7 @@ class TxTile extends ConsumerWidget {
               label: tx.label,
             ),
             onTap: open,
-            // A long press labels the payment in place; the pen left the row (UI-064). Screen
+            // A long press labels the payment in place; the pen left the row. Screen
             // readers offer it as the row's long-press action, named Add or Edit label.
             onLongPress: tx.origin == TxOrigin.linkedDevice ? null : () => edit?.call(),
             onLongPressHint: tx.origin == TxOrigin.linkedDevice
@@ -1838,7 +1838,7 @@ class ErrorText extends StatelessWidget {
 }
 
 /// A primary button that shows a spinner beside its words and ignores taps while [busy];
-/// [busyLabel] replaces the words then ("Sending…"), so the state stays readable (UI-034).
+/// [busyLabel] replaces the words then ("Sending…"), so the state stays readable.
 class BusyButton extends StatelessWidget {
   const BusyButton({
     super.key,
@@ -1875,7 +1875,7 @@ class BusyButton extends StatelessWidget {
   }
 }
 
-/// The one destructive look (UI-015): an outlined button in the risk colour, for the action
+/// The one destructive look: an outlined button in the risk colour, for the action
 /// that cancels, removes or deletes, on screens and as a dialog's confirm. The safe choice
 /// beside it is a neutral [OutlinedButton].
 class DangerButton extends StatelessWidget {

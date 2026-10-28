@@ -1,5 +1,5 @@
 // Wave 1 of the 0.1.0 feedback: the small desktop fixes that are not covered by their own
-// files (F11, F17, F20, F21, F30, F31/B04, D06, M18, B11, O2's dialog, O7).
+// files.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
@@ -33,7 +33,7 @@ class _Wallet extends MockDeskWallet {
   }
 }
 
-/// The local node just started: answering, at height 0 (O2).
+/// The local node just started: answering, at height 0.
 class _NodeAtZero extends _Wallet {
   @override
   Future<ServiceStatus> status() async {
@@ -73,7 +73,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {MockDeskWall
 Finder _input(String label) => find.descendant(of: find.widgetWithText(EField, label), matching: find.byType(EditableText));
 
 void main() {
-  group('amounts always carry decimals (D06)', () {
+  group('amounts always carry decimals', () {
     test('four decimals at least, eight at most, thousands grouped', () {
       expect(formatEpic(0), '0.0000');
       expect(formatEpic(150000000), '1.5000');
@@ -85,7 +85,7 @@ void main() {
   });
 
   group('wording', () {
-    test('no Tor text states a duration (F21)', () {
+    test('no Tor text states a duration', () {
       final tor = helpTopicsFor(3).where((t) => t.title == 'Tor');
       for (final t in tor) {
         expect('${t.short} ${t.bodyText}'.toLowerCase(), isNot(contains('minute')));
@@ -95,7 +95,7 @@ void main() {
       }
     });
 
-    test('a payment found by a scan says so; an older entry makes no time claim (F17)', () {
+    test('a payment found by a scan says so; an older entry makes no time claim', () {
       final t = Tx(
         id: 1,
         slateId: '',
@@ -113,14 +113,14 @@ void main() {
     });
   });
 
-  testWidgets('Report a problem is the first block of Help (F20)', (tester) async {
+  testWidgets('Report a problem is the first block of Help', (tester) async {
     await _pump(tester, const SettingsHelpScreen());
     final report = tester.getTopLeft(find.text('Report a problem').first);
     final search = tester.getTopLeft(find.text('Search help').first);
     expect(report.dy, lessThan(search.dy));
   });
 
-  testWidgets('the Internet guide says "the wallet answers" and offers Tor (F30)', (tester) async {
+  testWidgets('the Internet guide says "the wallet answers" and offers Tor', (tester) async {
     InternetGuideChoice? choice;
     await _pump(
       tester,
@@ -143,7 +143,7 @@ void main() {
     expect(find.byType(InternetGuide), findsNothing);
   });
 
-  testWidgets('the Transactions page turns Tor on from the guide (F30)', (tester) async {
+  testWidgets('the Transactions page turns Tor on from the guide', (tester) async {
     final api = _Wallet();
     final container = await _pump(tester, const SettingsReceivingScreen(), api: api);
     // Link · HTTP on (its one switch since the methods split) shows the HTTP group with its
@@ -167,7 +167,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   });
 
-  testWidgets('a contact form has no format hint and one error naming every accepted form (F31)', (tester) async {
+  testWidgets('a contact form has no format hint and one error naming every accepted form', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
     expect(find.textContaining('starts with “es”'), findsNothing);
     expect(find.textContaining('e.g. @epicbox'), findsNothing);
@@ -182,13 +182,13 @@ void main() {
     }
   });
 
-  testWidgets('an empty contact list beside the form never says "No contacts match" (B04)', (tester) async {
+  testWidgets('an empty contact list beside the form never says "No contacts match"', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
     expect(find.text('No contacts match'), findsNothing);
     expect(find.text('Clear search'), findsNothing);
   });
 
-  testWidgets('sending to the wallet\'s own Epicbox address is refused at review; "Balance after" (M18, F11)', (tester) async {
+  testWidgets('sending to the wallet\'s own Epicbox address is refused at review; "Balance after"', (tester) async {
     final api = _Wallet();
     final own = await api.epicboxAddress();
     await _pump(tester, SendScreen(arg: SendArgs(recipient: own, amount: '1')), api: api);
@@ -200,7 +200,7 @@ void main() {
     expect(find.text('Send 1.0000 EPIC'), findsNothing, reason: 'no review dialog');
   });
 
-  // The own-address check: the key exactly, the server this one, missing or with :443 (M18).
+  // The own-address check: the key exactly, the server this one, missing or with :443.
   const ownKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
   for (final (to, refused) in [
     (ownKey, true),
@@ -209,7 +209,7 @@ void main() {
     ('${ownKey.toLowerCase()}@epicbox.epiccash.com', false),
     ('$ownKey@epicbox.stackwallet.com', false),
   ]) {
-    testWidgets('"$to" is ${refused ? '' : 'not '}the wallet\'s own address (M18)', (tester) async {
+    testWidgets('"$to" is ${refused ? '': 'not '}the wallet\'s own address', (tester) async {
       final api = _Wallet();
       expect((await api.epicboxAddress()).split('@').first, ownKey);
       await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
@@ -221,7 +221,7 @@ void main() {
     });
   }
 
-  testWidgets('no send while the local node is at height 0 (O2)', (tester) async {
+  testWidgets('no send while the local node is at height 0', (tester) async {
     await _pump(tester, const SendScreen(arg: SendArgs(recipient: 'abc.onion', amount: '1')), api: _NodeAtZero());
     expect(find.text('Node not synced'), findsOneWidget);
     expect(find.text('Waiting for the node to sync.'), findsOneWidget);
@@ -235,7 +235,7 @@ void main() {
     expect(find.text('Add an address.'), findsOneWidget);
   });
 
-  testWidgets('the local node asks before it starts (O2)', (tester) async {
+  testWidgets('the local node asks before it starts', (tester) async {
     bool? answer;
     await _pump(
       tester,
@@ -257,7 +257,7 @@ void main() {
     expect(answer, isTrue);
   });
 
-  testWidgets('a toast closes when the screen changes (B11)', (tester) async {
+  testWidgets('a toast closes when the screen changes', (tester) async {
     final container = await _pump(
       tester,
       Builder(builder: (c) => EButton(label: 'toast', onPressed: () => showEToast(c, 'Saved', tone: ETone.ok))),
@@ -284,7 +284,7 @@ void main() {
     }
   });
 
-  testWidgets('a copy refused once is tried again (O7)', (tester) async {
+  testWidgets('a copy refused once is tried again', (tester) async {
     var calls = 0;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') {

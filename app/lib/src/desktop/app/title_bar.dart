@@ -890,7 +890,7 @@ class _StatusCluster extends ConsumerWidget {
     return ServiceRows(
       builder: (context, items) {
         final ts = context.ts;
-        // Every service, enabled or not (bot #123): a faint glyph without a dot is off; its
+        // Every service, enabled or not: a faint glyph without a dot is off; its
         // row in the list opens the switch.
         final shown = items;
         final summary = '${l.deskBarStatus}: ${[for (final i in items) '${i.name} ${i.word}'].join(', ')}';

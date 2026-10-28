@@ -1,4 +1,4 @@
-// Send's method follows the address (spec 8.4): a complete address of another kind, or a
+// Send's method follows the address: a complete address of another kind, or a
 // pasted one, switches; text still being typed never does, and nothing switches back.
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

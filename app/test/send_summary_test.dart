@@ -1,4 +1,4 @@
-// F11's summary rows and F12's SmartOutputs rule, pure; one plan runs against the fake
+// The summary rows and SmartOutputs rule, pure; one plan runs against the fake
 // session's input selection.
 
 import 'package:epic_wallet/src/send_summary.dart';
@@ -157,7 +157,7 @@ void main() {
 
     test('the default is on', () => expect(smartOutputsDefault, true));
 
-    test('the design spec\'s table (§3.2)', () {
+    test('the summary table', () {
       int e(num v) => (v * epic).round();
       for (final (left, change, enabled, n) in [
         (0, e(98.98), true, 4),

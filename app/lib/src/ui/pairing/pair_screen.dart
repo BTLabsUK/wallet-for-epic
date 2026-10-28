@@ -248,8 +248,8 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
     widget.onChanged?.call(name);
   }
 
-  /// Every key: the screens read the name at once (Share invite tapped with the keyboard up,
-  /// PAIR-AND-1); it is kept, and [SeenAsField.onChanged] told, once typing pauses.
+  /// Every key: the screens read the name at once (Share invite tapped with the keyboard up);
+  /// it is kept, and [SeenAsField.onChanged] told, once typing pauses.
   void _typed(String text) {
     ref.read(pairingSeenAsProvider.notifier).type(text);
     _pause?.cancel();

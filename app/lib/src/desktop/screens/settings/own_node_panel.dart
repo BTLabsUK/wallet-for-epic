@@ -1,4 +1,4 @@
-/// The panel of Settings › Node for the user's own node (own-node spec §2–§5, direction C): the
+/// The panel of Settings › Node for the user's own node: the
 /// node's facts asked directly every 15 s (never status.btlabs.uk, which cannot see it), the
 /// failover and syncing notices, and the Owner access row. With owner access the built-in
 /// node's Status and Peers come from the node's owner API: the sync stage and its tiles, the
@@ -46,7 +46,7 @@ String? epicDataFolder(String? chain) {
   return '$home${Platform.pathSeparator}.epic${Platform.pathSeparator}${chain == 'floonet' ? 'floo' : 'main'}';
 }
 
-/// The fallback node for an own node: the one standing in now, else the D-7 default.
+/// The fallback node for an own node: the one standing in now, else the fallback default.
 String ownFallbackHost(NodeFailover? f) => nodeHost(f?.inUse ?? defaultFallbackNodeUrl);
 
 class OwnNodePanel extends ConsumerStatefulWidget {

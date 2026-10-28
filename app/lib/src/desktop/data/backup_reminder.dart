@@ -1,8 +1,8 @@
-/// The F33 history backup reminder rule, for the desktop. A copy of the phone's, unchanged:
+/// The history backup reminder rule, for the desktop. A copy of the phone's, unchanged:
 /// `historyReminderMinPayments`, `historyReminderPause`, `historyReminderQuiet`,
 /// `unbackedPayments` and `paymentsNotInBackup` in `lib/src/ui/home_screen.dart`. The desktop
 /// does not import a phone screen; when the rule moves to a shared pure-Dart file both import
-/// it and this copy goes (backup spec, open question 1).
+/// it and this copy goes .
 library;
 
 import '../../settings.dart' show HistoryExportSnapshot;

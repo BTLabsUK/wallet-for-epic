@@ -1,4 +1,4 @@
-// The sidebar rail (spec §5, §16): Node, Epicbox, HTTP, Tor with a divider between every two; every row 40 u in
+// The sidebar rail: Node, Epicbox, HTTP, Tor with a divider between every two; every row 40 u in
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -212,7 +212,7 @@ void main() {
     final since = DateTime(2026, 10, 22, 14, 2);
     final fixtures = <String, (NodeView, String, EState, String?)>{
       'remote at tip, version current': (remoteNodeView(englishStrings, url, mockNodeInfo(url, latencyMs: 722)), 'Synced', EState.ok, null),
-      // Synced is green whatever the version; the version line carries the warning (UI-042).
+      // Synced is green whatever the version; the version line carries the warning.
       'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.ok, null),
       'remote behind': (remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
       'remote no answer': (remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),

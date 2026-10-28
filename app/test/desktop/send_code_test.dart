@@ -1,4 +1,4 @@
-// A pasted or linked `epic:` code on desktop Send (epic-uri spec §3.2, §7.1; ui.md §1–§6, §9):
+// A pasted or linked `epic:` code on desktop Send:
 // a payment request fills To, Amount and Message, the payee's words stay in a "not verified"
 // block, and nothing is sent until the review and the password. Pasted codes Send cannot take
 // stay in To with the reason under it; links get dialogs; plain text is typed text.
@@ -233,7 +233,7 @@ void main() {
     await tester.pump();
     expect(find.byType(Dialog), findsNothing);
     expect(text(tester, 'To'), 'Anna');
-    // An epic: text that is no request: today's path too (ui.md §1).
+    // An epic: text that is no request: today's path too.
     await clearTo(tester);
     await paste(tester, 'epic:$_e?amount=1&amount=2');
     expect(find.byType(Dialog), findsNothing);

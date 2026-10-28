@@ -1,4 +1,4 @@
-/// The Peers tab of the local node panel (spec §20): the connected peers in a fixed-column
+/// The Peers tab of the local node panel: the connected peers in a fixed-column
 /// table (eight rows, then "N more"), Ban on hover or focus, the banned list with Unban,
 /// preferred peers and the two maxima (they apply at the next restart). For an own node with
 /// owner access ([PeersTab.ownUrl]) the same table and lists through its owner API; its peer

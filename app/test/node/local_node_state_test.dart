@@ -77,7 +77,7 @@ void main() {
         LocalNodePhase.synced,
       ),
       (
-        'running at height 0 (O2)',
+        'running at height 0',
         const BuiltInNodeState(running, height: 0, readyForTxs: true),
         null,
         LocalNodePhase.syncing,

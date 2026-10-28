@@ -4,7 +4,7 @@
 /// The monitor probes every known relay and node every few seconds (endpoint
 /// `/api/v1/status.json`, open CORS, `no-store`). The lists are advice for the network
 /// settings screens. Nothing switches relay or node on its own: the relay is part of the
-/// wallet's address, and the node is the user's pick (D4).
+/// wallet's address, and the node is the user's pick.
 library;
 
 import 'dart:async';

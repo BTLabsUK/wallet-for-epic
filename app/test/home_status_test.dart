@@ -250,7 +250,7 @@ IconData _icon(WidgetTester tester, Key key) => tester
 Color _dot(WidgetTester tester, Key key) {
   final t = tester.element(find.byKey(key)).tokens;
   final dots = find.descendant(of: find.byKey(key), matching: find.byType(StateDot));
-  // Off draws no dot: the glyph is faded with a slash instead (UI-006).
+  // Off draws no dot: the glyph is faded with a slash instead.
   if (dots.evaluate().isEmpty) return t.faint;
   return tester.widget<StateDot>(dots).dot.color(t);
 }
@@ -299,7 +299,7 @@ void main() {
         'Connected · epicbox.epiccash.com\nServer: epicbox.epiccash.com:443',
       );
       // Tor and Link off: both stay, faint and without a dot, their labels say Off and a
-      // tap opens the switch (bot #123); no Tor words on the two.
+      // tap opens the switch; no Tor words on the two.
       expect(find.byKey(torIconKey), findsOneWidget);
       expect(_label(tester, torIconKey), 'Tor, Off');
       expect(_dot(tester, torIconKey), t.faint);
@@ -358,7 +358,7 @@ void main() {
           statusInset,
         );
         // An enabled service's outline is green; the dot and the words say its connection
-        // (bot #123).
+        //.
         expect(tester.widget<Icon>(glyph).color, t.ok);
         final dot = tester.getRect(
           find.descendant(
@@ -668,7 +668,7 @@ void main() {
         await tester.pumpAndSettle();
         final height = tester.getSize(find.byKey(walletBalanceKey)).height;
         final two = tester.getRect(find.byKey(fiatValueKey));
-        // Tor off is still on the row, faint (bot #123).
+        // Tor off is still on the row, faint.
         expect(find.byKey(torIconKey), findsOneWidget);
         await tester.pumpWidget(const SizedBox());
         await _pump(
@@ -708,7 +708,7 @@ void main() {
     }
   });
 
-  group("in Send's and Receive's app bar (#119)", () {
+  group("in Send's and Receive's app bar", () {
     // The shell's bar: logo, the title, and the scan, lock and settings buttons.
     Widget bar({double openness = 0}) => AppBar(
       leadingWidth: shellLeadingWidth,
@@ -734,7 +734,7 @@ void main() {
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Connected');
       expect(_dot(tester, barNodeIconKey), t.ok);
       expect(_dot(tester, barEpicboxIconKey), t.ok);
-      // Off services show only on Wallet (bot #123): the bar keeps its room for the figure.
+      // Off services show only on Wallet: the bar keeps its room for the figure.
       expect(find.byKey(barTorIconKey), findsNothing);
       expect(find.byKey(barLinkIconKey), findsNothing);
       // Right after the figure, on its line.

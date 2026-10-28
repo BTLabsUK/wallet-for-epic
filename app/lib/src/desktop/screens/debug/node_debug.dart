@@ -42,11 +42,11 @@ class NodeDebugView extends ConsumerWidget {
             error: (e, _) => Text('$e'),
             loading: () => const LinearProgressIndicator(),
           ),
-          const _Head('Fallback (D-7)'),
+          const _Head('Fallback'),
           Text(fallback.when(data: (d) => d.toString(), error: (e, _) => '$e', loading: () => '…')),
           const _Head('Peers'),
           _Peers(chain),
-          const _Head('Detect (F24)'),
+          const _Head('Detect'),
           Consumer(builder: (context, ref, _) {
             final p = ref.watch(localNodeProbeProvider(chain));
             return Text(p.when(
@@ -65,7 +65,7 @@ class NodeDebugView extends ConsumerWidget {
               loading: () => '…',
             ));
           }),
-          const _Head('Node info (F27)'),
+          const _Head('Node info'),
           for (final url in ['https://node.btlabs.uk', 'http://127.0.0.1:3413']) _Info(url),
         ],
       ),

@@ -1,4 +1,4 @@
-/// Request a payment (SPEC 2.8, desktop): a paired contact whose wallet pays requests, or a
+/// Request a payment: a paired contact whose wallet pays requests, or a
 /// payment file for anyone; how much and why. Nothing leaves the wallet, so no password.
 library;
 

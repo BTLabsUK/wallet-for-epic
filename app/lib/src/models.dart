@@ -2959,7 +2959,7 @@ class PairingRecord {
 /// null when none attached to it is paired. A contact can carry several: a re-pair after the
 /// other side restored its wallet adds one, and when the key check is refused the old ones
 /// stay. Only one is still read by the other side, so a payment goes through the one heard
-/// from last ([PairingRecord.heardAt]), never simply the newest (PAIR-AND-20). One whose keys
+/// from last ([PairingRecord.heardAt]), never simply the newest. One whose keys
 /// changed comes first, as the contact waits on the user's choice; one still checking keys
 /// is taken only when nothing else is, and one the other side removed (RFC 7.6) last of all.
 PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contactId) {

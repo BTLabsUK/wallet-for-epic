@@ -1,7 +1,7 @@
 /// The desktop interface's tokens: one set for type, space, sizes, radii and colour, used by
 /// every desktop screen. Values follow the Electron wallet's Modern look (6.1.6,
 /// `src/assets/css/modern/_tokens.scss`), which is Wallet for Epic's Protocol palette; the
-/// sizes are tightened into one consistent scale (see `docs/desktop-ui.md`).
+/// sizes are tightened into one consistent scale.
 library;
 
 import 'package:flutter/material.dart';

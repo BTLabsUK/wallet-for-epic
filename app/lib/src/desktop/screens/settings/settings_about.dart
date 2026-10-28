@@ -20,7 +20,7 @@ import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
-/// The Epic Cash community links (D-11: the public Telegram group).
+/// The Epic Cash community links (the public Telegram group).
 const telegramUrl = 'https://t.me/EpicCash';
 const websiteUrl = 'https://epiccash.com';
 
@@ -126,7 +126,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
-              if (projectRepoPublic) linkRow(l.deskSetAboutSource, 'github.com/BTLabs-EPIC/wallet-for-epic', projectRepoUrl),
+              if (projectRepoPublic) linkRow(l.deskSetAboutSource, 'gitlab.com/bt-labs-group/wallet-for-epic', projectRepoUrl),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(

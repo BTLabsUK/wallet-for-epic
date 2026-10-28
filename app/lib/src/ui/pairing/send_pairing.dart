@@ -1,4 +1,4 @@
-/// What Send shows under the recipient for a saved contact (SPEC 2.5, 2.9): "Send via" with the
+/// What Send shows under the recipient for a saved contact: "Send via" with the
 /// kinds of address the contact has, when it has several (a kind whose method is off in
 /// Settings › Transactions shows disabled, with the reason); for a paired contact its trust and
 /// whether the payment is sealed, and for Epicbox the switch to send through its mailbox.
@@ -43,7 +43,7 @@ PairingRecord? sendPairingFor(WidgetRef ref, String address, {bool watch = true}
   return p;
 }
 
-/// How long without a sealed message from a contact before Send says so (SPEC 2.9).
+/// How long without a sealed message from a contact before Send says so.
 const Duration sealQuietFor = Duration(days: 90);
 
 class SendPairingLine extends ConsumerWidget {

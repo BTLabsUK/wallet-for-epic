@@ -1,4 +1,4 @@
-/// Send's summary lines for the outputs a send spends (F11, F12; design spec §4.2, §4.3, §4.5):
+/// Send's summary lines for the outputs a send spends:
 /// the split line under Network fee, Balance after and Spendable until change confirms with
 /// the lock caption under Total, and the review dialog's Locks and Strategy facts. The Send
 /// page keeps Amount, Network fee and Total.
@@ -52,7 +52,7 @@ class SummaryLine extends StatelessWidget {
 }
 
 /// "Change split into 4 outputs (+0.012 EPIC fee)" with a help icon that explains why, on
-/// hover, click or Enter (F12).
+/// hover, click or Enter.
 class SendSplitLine extends StatelessWidget {
   const SendSplitLine({super.key, required this.outputs, required this.extraFee, required this.change});
 

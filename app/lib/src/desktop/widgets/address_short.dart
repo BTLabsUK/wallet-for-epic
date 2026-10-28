@@ -47,7 +47,7 @@ class EShortAddress extends StatelessWidget {
   }
 }
 
-/// An address in full where a detail view shows it (never cut, UI-010): the checked part in
+/// An address in full where a detail view shows it (never cut): the checked part in
 /// fixed chunks of [chunk] characters, one per line, its first and last six in the accent as
 /// on Receive; a server part ("@epicbox.epiccash.com") whole on its own line.
 class EFullAddress extends StatelessWidget {
@@ -105,7 +105,7 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   final w = tp.width;
   tp.dispose();
   // A few pixels over the measure: Windows draws monospace a little wider than measured, which
-  // clipped the last letter of the domain (PAIR-WIN-3).
+  // clipped the last letter of the domain.
   return w.ceilToDouble() + _drawSlack;
 }
 
@@ -134,11 +134,11 @@ class EKindTag extends StatelessWidget {
   }
 }
 
-/// The two text lines of a row that carries an address (spec 7.1): name, [nameTrailing] and
+/// The two text lines of a row that carries an address: name, [nameTrailing] and
 /// the kind tag; then the short address and the note. When the row is narrow the note gives way
 /// first (down to 12 characters), then the address falls to its compact form, then the note
 /// goes. Nothing wraps. A contact with several [addresses] shows its default one short, then
-/// their kind tags; a row too narrow for both shows the tags alone (SPEC 2.5, UI-045).
+/// their kind tags; a row too narrow for both shows the tags alone.
 class EAddressLines extends StatelessWidget {
   const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle});
 
@@ -167,7 +167,7 @@ class EAddressLines extends StatelessWidget {
           children: [
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
-            // A contact with no address (paired only) has no kind to tag (PAIR-LNX-5).
+            // A contact with no address (paired only) has no kind to tag.
             if (address.trim().isNotEmpty && !several) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: true)],
           ],
         ),
@@ -177,7 +177,7 @@ class EAddressLines extends StatelessWidget {
             if (address.trim().isEmpty) return Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis);
             if (several) {
               // The default address, short, before the tags when the row has room for both
-              // (UI-045); a narrow row keeps the tags alone (PAIR-WIN-2).
+              //; a narrow row keeps the tags alone.
               final tags = addresses!.length * (22.u + Sp.x1);
               final withAddress = _width(context, shortAddress(address, compact: true), aStyle) + 1 + Sp.x2 + tags <= box.maxWidth;
               return Row(

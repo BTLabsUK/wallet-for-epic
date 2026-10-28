@@ -1,4 +1,4 @@
-/// The rules for coins another linked device holds (D-14, "Output locks" in the sync plan).
+/// The rules for coins another linked device holds ("Output locks" of linked devices).
 /// Pure: the service hands in the chain's view and the clock.
 ///
 /// - A `send` notice holds the inputs this wallet has (unspent or locked); one naming none of

@@ -1,4 +1,4 @@
-// D-14, spec §21: after a wallet is created or restored the first run goes password → phrase →
+// After a wallet is created or restored the first run goes password → phrase →
 // Node → Epicbox → Review → Unlock. Setup starts on the node step with no way back to the
 // phrase, preselects only a healthy node, and Save goes to Unlock. A second wallet starts from
 // the current node.
@@ -342,7 +342,7 @@ void main() {
       await wait(tester, 800);
       expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'pending: Unlock sends it to Setup');
       final l = lookupAppLocalizations(const Locale('en'));
-      expect(find.byKey(const ValueKey('setup-skip')), findsOneWidget, reason: 'Skip from the first step (R11)');
+      expect(find.byKey(const ValueKey('setup-skip')), findsOneWidget, reason: 'Skip from the first step');
       expect(find.text(l.deskSetupResumeLead), findsOneWidget, reason: 'a resumed Setup says so');
       await tester.tap(find.text('Continue'));
       await wait(tester, 1000);

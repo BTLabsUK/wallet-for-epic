@@ -1,5 +1,5 @@
 // A payment that came without an address (a QR code or file exchange): its details say who it
-// was is not known, on the phone and the desktop, instead of leaving out the other side (#122).
+// was is not known, on the phone and the desktop, instead of leaving out the other side.
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart' show txNoAddressShown;

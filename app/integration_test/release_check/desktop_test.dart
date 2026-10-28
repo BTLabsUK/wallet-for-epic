@@ -90,7 +90,7 @@ void main() {
     // EAddress draws it as SelectableText.rich (the first and last six marked).
     final rich = find.byType(SelectableText).evaluate().map((e) => (e.widget as SelectableText).textSpan?.toPlainText() ?? '').join(' ');
     record('Receive shows the Epicbox address', hasText('Epicbox address') && rich.contains(id.substring(0, 6)) && rich.contains(id.substring(id.length - 6)), '');
-    record('Epicbox address is <id>@<relay> on the D-13 default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
+    record('Epicbox address is <id>@<relay> on the default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
     await shot(tester, '06-receive');
 
     // ---- Send on an empty wallet, up to the review step.

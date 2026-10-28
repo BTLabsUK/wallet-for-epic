@@ -11,7 +11,7 @@ import 'phrase_grid.dart';
 import 'restore_screen.dart' show RestoreSample;
 import 'unlock_screen.dart' show UnlockPick;
 
-/// Forgot password (R4, D4) for the listed wallet [walletId]: its recovery phrase, then a new
+/// Forgot password for the listed wallet [walletId]: its recovery phrase, then a new
 /// password. [phrase]: already typed (Restore's "This wallet is already here"), so the flow
 /// starts on the password.
 class ResetPasswordArg {

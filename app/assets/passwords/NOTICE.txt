@@ -53,7 +53,7 @@ This package includes data derived from OpenSubtitles via OPUS in commonWords.js
 Source dataset: OpenSubtitles 2024
 Provider: Helsinki-NLP / OPUS
 
-License: ODC-BY (Open Data Commons Attribution License)
+License: ODC-BY (Open Data Commons Attribution License), https://opendatacommons.org/licenses/by/1-0/
 
 Original data is attributed to subtitle contributors and rights holders.
 This package contains a processed derivative:
@@ -64,7 +64,7 @@ This package contains a processed derivative:
 Any redistribution of this package must retain this notice.
 commonWords.json:
 - OpenSubtitles 2024 (via OPUS)
-  License: ODC-BY
+  License: ODC-BY, https://opendatacommons.org/licenses/by/1-0/
   Source: https://opus.nlpl.eu/
   Provider: Helsinki-NLP
 === @zxcvbn-ts/language-de ===
@@ -96,7 +96,7 @@ This package includes data derived from OpenSubtitles via OPUS in commonWords.js
 Source dataset: OpenSubtitles 2024
 Provider: Helsinki-NLP / OPUS
 
-License: ODC-BY (Open Data Commons Attribution License)
+License: ODC-BY (Open Data Commons Attribution License), https://opendatacommons.org/licenses/by/1-0/
 
 Original data is attributed to subtitle contributors and rights holders.
 This package contains a processed derivative:
@@ -107,7 +107,7 @@ This package contains a processed derivative:
 Any redistribution of this package must retain this notice.
 commonWords.json:
 - OpenSubtitles 2024 (via OPUS)
-  License: ODC-BY
+  License: ODC-BY, https://opendatacommons.org/licenses/by/1-0/
   Source: https://opus.nlpl.eu/
   Provider: Helsinki-NLP
 === @zxcvbn-ts/language-pl ===
@@ -139,7 +139,7 @@ This package includes data derived from OpenSubtitles via OPUS in commonWords.js
 Source dataset: OpenSubtitles 2024
 Provider: Helsinki-NLP / OPUS
 
-License: ODC-BY (Open Data Commons Attribution License)
+License: ODC-BY (Open Data Commons Attribution License), https://opendatacommons.org/licenses/by/1-0/
 
 Original data is attributed to subtitle contributors and rights holders.
 This package contains a processed derivative:
@@ -150,7 +150,7 @@ This package contains a processed derivative:
 Any redistribution of this package must retain this notice.
 commonWords.json:
 - OpenSubtitles 2024 (via OPUS)
-  License: ODC-BY
+  License: ODC-BY, https://opendatacommons.org/licenses/by/1-0/
   Source: https://opus.nlpl.eu/
   Provider: Helsinki-NLP
 === @zxcvbn-ts/language-ru ===
@@ -205,7 +205,7 @@ This package includes data derived from OpenSubtitles via OPUS in commonWords.js
 Source dataset: OpenSubtitles 2024
 Provider: Helsinki-NLP / OPUS
 
-License: ODC-BY (Open Data Commons Attribution License)
+License: ODC-BY (Open Data Commons Attribution License), https://opendatacommons.org/licenses/by/1-0/
 
 Original data is attributed to subtitle contributors and rights holders.
 This package contains a processed derivative:
@@ -216,6 +216,6 @@ This package contains a processed derivative:
 Any redistribution of this package must retain this notice.
 commonWords.json:
 - OpenSubtitles 2024 (via OPUS)
-  License: ODC-BY
+  License: ODC-BY, https://opendatacommons.org/licenses/by/1-0/
   Source: https://opus.nlpl.eu/
   Provider: Helsinki-NLP

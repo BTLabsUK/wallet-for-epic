@@ -114,7 +114,7 @@ const int noticeWindow = 64;
 /// How long a missing notice is waited for before the ones after it apply.
 const Duration gapWait = Duration(hours: 1);
 
-/// How often the channel is read in the foreground with a device linked (D-11), and while a link
+/// How often the channel is read in the foreground with a device linked, and while a link
 /// is being made.
 const Duration deviceSyncEvery = Duration(seconds: 5);
 const Duration linkPollEvery = Duration(seconds: 2);
@@ -249,7 +249,7 @@ String? linkServerOf(String? relay) {
   return r.endsWith(':443') ? r.substring(0, r.length - 4) : r;
 }
 
-/// Why the service reads the channel now (D-11).
+/// Why the service reads the channel now.
 enum DeviceSyncTrigger { start, resume, unlock, refresh, tick, beforeSend, link }
 
 class DeviceService {
@@ -322,7 +322,7 @@ class DeviceService {
     _changed();
   }
 
-  // Runs (D-11): start, resume, unlock and refresh read the channel once; while in the
+  // Runs: start, resume, unlock and refresh read the channel once; while in the
   // foreground with a device linked it is read every [deviceSyncEvery].
 
   /// The app is on screen ([on]) or not: the timer runs only while it is.

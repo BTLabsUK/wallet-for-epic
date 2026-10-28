@@ -149,7 +149,7 @@ String? _longPressHint(SemanticsNode node) {
   return null;
 }
 
-/// Opens a row's label field: a long press on the row (the pen left the rows, UI-064).
+/// Opens a row's label field: a long press on the row (the pen left the rows).
 Future<void> _openLabel(WidgetTester tester, [String key = 's:plain']) async {
   await tester.longPress(find.byKey(ValueKey('tx-$key')));
   await tester.pumpAndSettle();

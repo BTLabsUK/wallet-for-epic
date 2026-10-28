@@ -94,7 +94,7 @@ final class TestCoinsFailed extends TestCoinsResult {
   const TestCoinsFailed();
 }
 
-/// The demo server and the faucet, as the UI needs them. W-06 serves it from the server; tests
+/// The demo server and the faucet, as the UI needs them. The demo server serves it; tests
 /// and the tour use [FakeDemoApi].
 abstract interface class DemoApi {
   /// The visitor's demo, as the server knows it.
@@ -113,9 +113,9 @@ abstract interface class DemoApi {
   Stream<void> get ended;
 }
 
-/// The [DemoApi] in use. Until the server's (W-06) exists, the fake, so a demo build without a
+/// The [DemoApi] in use. Until the server's exists, the fake, so a demo build without a
 /// server still reaches its screens. The fake reports test coins it never pays, so no demo
-/// build may be deployed before W-06 replaces it.
+/// build may be deployed before the server's replaces it.
 final demoApiProvider = Provider<DemoApi>((ref) {
   final api = FakeDemoApi();
   ref.onDispose(api.dispose);

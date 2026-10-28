@@ -9,7 +9,7 @@ const List<String> thaiFallback = ['NotoSansThai'];
 
 /// [thaiFallback] where the phone theme needs it: never on Android, which has Thai in its own
 /// fonts, and where any fallback list moved body text off Roboto on Android 11 to a font that
-/// draws Polish ś, ć, ń, ź and ż as a letter with a loose accent (AND-10). The real system is
+/// draws Polish ś, ć, ń, ź and ż as a letter with a loose accent. The real system is
 /// asked, not the target platform, so tests and tours on a desktop host keep the bundled font.
 List<String>? get phoneFontFallback => !kIsWeb && Platform.isAndroid ? null : thaiFallback;
 

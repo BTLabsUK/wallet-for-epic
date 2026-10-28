@@ -1,4 +1,4 @@
-/// A withdrawal from a paired exchange on its payment page (SPEC 2.8, RFC 12.5): the
+/// A withdrawal from a paired exchange on its payment page: the
 /// exchange sent it sealed, the wallet signed and answered it on its own, and the exchange
 /// posts it. "Received. Waiting for Northwind Exchange to post" until it is on the chain, and
 /// the timeline: the answer delivered to its relay, posted by it, then the confirmations.

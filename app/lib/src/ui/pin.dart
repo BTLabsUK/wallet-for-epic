@@ -75,7 +75,7 @@ class PinSetupView extends ConsumerStatefulWidget {
   final void Function(String pin, bool useBiometrics) onDone;
 
   /// The step's buttons at the foot of the screen (needs a bounded height), as first run
-  /// does (UI-016); otherwise they follow the content.
+  /// does; otherwise they follow the content.
   final bool actionsAtFoot;
 
   /// Whether to offer biometric unlock after the PIN. Off when changing an existing PIN.
@@ -143,7 +143,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = context.l10n;
-    // The step's content, then its actions: at the foot of the screen when asked (UI-016).
+    // The step's content, then its actions: at the foot of the screen when asked.
     final (List<Widget> content, List<Widget> actions) = switch (_step) {
       _PinStep.choose => (_chooseStep(theme, l), const <Widget>[]),
       _PinStep.confirm => (_confirmStep(theme, l), [_chooseDifferent(l)]),

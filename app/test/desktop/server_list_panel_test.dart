@@ -292,7 +292,7 @@ void main() {
 
   testWidgets('the row in use has no live bin: In use. Switch first.', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
-    // UI-044: the bin is shown disabled and says why.
+    // The bin is shown disabled and says why.
     final bin = tester.widget<EIconButton>(find.byKey(const ValueKey('server-row-remove-$_btlabs')));
     expect(bin.onPressed, isNull);
     expect(bin.label, 'In use. Switch first.');

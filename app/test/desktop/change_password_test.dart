@@ -1,6 +1,6 @@
-// F32: Settings › This wallet › Change password. The adapter over the fake core (the new
+// Settings › This wallet › Change password. The adapter over the fake core (the new
 // password opens, the old one not; Remember forgotten; each core error worded), and the dialog
-// (validation, Enter rules of wave 2, a wrong current password on its field, the toast).
+// (validation, Enter rules, a wrong current password on its field, the toast).
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -218,7 +218,7 @@ void main() {
       expect(mock.passwordChanges, [('right password', _next)]);
       expect(find.byType(ChangePasswordDialog), findsNothing);
       expect(find.text('Password changed.'), findsOneWidget);
-      expect(await tester.runAsync(() => mock.isRemembered('')), isFalse, reason: 'F6: forgotten on a change');
+      expect(await tester.runAsync(() => mock.isRemembered('')), isFalse, reason: 'forgotten on a change');
       await end(tester);
     });
 

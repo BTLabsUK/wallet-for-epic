@@ -12,7 +12,7 @@ void main() {
     expect(sendFileName('slate-1'), 'slate-1.tx');
   });
 
-  test('an answer to a loaded file is named after it; our own names, paste and scan keep the short name (#108)', () {
+  test('an answer to a loaded file is named after it; our own names, paste and scan keep the short name', () {
     expect(replyFileName(uuid, loaded: 'Abc-123.tx'), 'Abc-123.tx.response');
     expect(replyFileName(uuid, loaded: 'withdrawal_42.slatepack'), 'withdrawal_42.slatepack.response');
     expect(replyFileName(uuid, loaded: '0a1b2c3d.tx'), '0a1b2c3d.response');

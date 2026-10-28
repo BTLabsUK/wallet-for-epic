@@ -5,7 +5,6 @@
 #                                              carries the macOS headers and link stubs)
 #   aarch64-apple-ios, aarch64-apple-ios-sim   liblepic_ffi.a only (no link step): clang with
 #                                              zig's macOS headers as a stand-in SDKROOT
-# Notes and results: docs/apple-port-notes.md.
 #
 # Usage: tools/apple-cross-check.sh [target...]   (default: all four)
 # Env:   ZIG_DIR=<zig folder>   default ~/.local/opt/zig-x86_64-linux-0.15.2

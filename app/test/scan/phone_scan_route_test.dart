@@ -1,4 +1,4 @@
-// The phone's way in for `epic:` payment codes (docs/feedback/designs/epic-uri/ui.md §1–§8):
+// The phone's way in for `epic:` payment codes:
 // Home's scan, the Send field's paste, and links from other apps, through the scan router to
 // Send prefilled (banner, amount marker, unverified payee block, origin on the review) or to
 // a sheet that says why not. Nothing is ever sent without the review and the PIN.
@@ -43,7 +43,7 @@ import '../support/send_pin.dart';
 
 const _key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';
 
-/// A valid Epicbox address (E of the spec's §2.5).
+/// A valid Epicbox address (the one the epic: URI examples use).
 const _e = '$_key@epicbox.epiccash.com';
 
 /// Another valid Epicbox address.
@@ -831,7 +831,7 @@ void main() {
     });
   });
 
-  testWidgets('a Tor code shows the onion address once on the review (#118)', (
+  testWidgets('a Tor code shows the onion address once on the review', (
     tester,
   ) async {
     const name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';

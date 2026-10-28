@@ -1,4 +1,4 @@
-/// The payer's dialogs (docs/invoices/flow.md §4.3, §4.4): approve with the wallet password,
+/// The payer's dialogs: approve with the wallet password,
 /// decline, cancel a payment. Each reads its own [WidgetRef], so the screenshot tour and other
 /// screens can open them with a [BuildContext] alone. Owned by the payer part.
 library;
@@ -13,7 +13,7 @@ import '../../../help/help_content.dart' show HelpAnchor;
 import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
 
-/// Approve → password → pay (flow.md §4.3). The only path to [DeskInvoices.pay]. On success the
+/// Approve → password → pay. The only path to [DeskInvoices.pay]. On success the
 /// app goes back to To pay with a toast. [demoPassword] fills and submits the field at once
 /// (the screenshot tour's wrong-password state).
 Future<void> showApproveInvoice(BuildContext context, IncomingInvoice invoice, {String? demoPassword}) async {
@@ -176,7 +176,7 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
   }
 }
 
-/// Decline → confirm → decline → back to To pay with a toast (flow.md §4.3).
+/// Decline → confirm → decline → back to To pay with a toast.
 Future<void> showDeclineInvoice(BuildContext context, IncomingInvoice invoice) async {
   final ok = await showEDialog<bool>(context, builder: (_) => _DeclineDialog(invoice: invoice));
   if (ok != true || !context.mounted) return;
@@ -226,7 +226,7 @@ class _DeclineDialogState extends ConsumerState<_DeclineDialog> {
 /// What a Cancel payment dialog ended with.
 enum _Cancelled { no, cancelled, spent, spendFailed }
 
-/// Cancel payment (flow.md §4.4, D-2): always the user's choice; LEPIC asks the node first.
+/// Cancel payment: always the user's choice; LEPIC asks the node first.
 /// "Spend them to myself now" then spends the unlocked coins to this wallet itself, which makes
 /// the cancel final. [demoConfirm] presses Cancel payment at once (the screenshot tour's error
 /// states).
@@ -258,7 +258,7 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
   bool _busy = false;
   String? _error;
 
-  /// Spend the unlocked coins to this wallet right after the cancel (D-2); off unless chosen,
+  /// Spend the unlocked coins to this wallet right after the cancel; off unless chosen,
   /// as it costs a fee.
   bool _spend = false;
 

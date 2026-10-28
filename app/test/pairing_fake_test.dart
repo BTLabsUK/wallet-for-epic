@@ -138,7 +138,7 @@ void main() {
     expect((await other.pairing('p1'))!.otherDevice, isFalse);
   });
 
-  group('which pairing a contact uses (PAIR-AND-20)', () {
+  group('which pairing a contact uses', () {
     PairingRecord rec(String id, {required DateTime created, DateTime? heard, PairingState state = PairingState.verified, bool checking = false, String? contact = 'anna'}) =>
         PairingRecord(id: id, state: state, way: PairingWay.link, inviter: false, createdAt: created, lastSealedIn: heard ?? created, contactId: contact, checksKeys: checking);
     final t0 = DateTime(2026, 10, 25, 5);

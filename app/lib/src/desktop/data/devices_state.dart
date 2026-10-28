@@ -111,7 +111,7 @@ final deskHeldProvider = Provider<List<({String device, int value})>>((ref) {
   return [for (final e in byDevice.entries) (device: e.key, value: e.value)];
 });
 
-/// The servers a first link proposes (D-3): this wallet's Epicbox server, then on mainnet one
+/// The servers a first link proposes: this wallet's Epicbox server, then on mainnet one
 /// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
 /// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
 /// 443.

@@ -30,7 +30,7 @@ enum DeskRoute {
   importTx(section: DeskSection.receive),
   finalize(section: DeskSection.receive),
 
-  /// Invoices (docs/invoices/flow.md): the To pay and Sent tabs ([InvoicesTab] or a slate id
+  /// Invoices: the To pay and Sent tabs ([InvoicesTab] or a slate id
   /// to select), the request form (a [Contact] or an invoice address to start from) and the
   /// review of one invoice (its slate id).
   invoices(section: DeskSection.invoices),

@@ -24,7 +24,7 @@ class InfoHint extends StatelessWidget {
   final IconData? icon;
 
   /// False where the row's own title names it already: a disabled row merges the icon into
-  /// itself, and its label would say the title twice (AND-7).
+  /// itself, and its label would say the title twice.
   final bool labelled;
 
   @override

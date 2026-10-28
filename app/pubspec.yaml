@@ -124,7 +124,7 @@ flutter:
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
     - assets/licenses/status-icons.txt
-    # Help illustrations (settings design, F20); drawn in the theme colours by HelpArt.
+    # Help illustrations (settings design); drawn in the theme colours by HelpArt.
     - assets/help/
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
     # lib/src/ui/theme/fonts.dart).

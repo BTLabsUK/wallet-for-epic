@@ -45,7 +45,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
 
-  /// The history import offer was asked on this Overview (R13).
+  /// The history import offer was asked on this Overview.
   bool _importOffered = false;
 
   /// Asks the node now, as 6.1.6's refresh does; says so when it could not.
@@ -79,7 +79,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final loading = demo == OverviewDemo.loading || s.balance == null;
-    // The scan a restore owes: its progress, not the empty-wallet state (R16, R35).
+    // The scan a restore owes: its progress, not the empty-wallet state.
     final restore = demo == null ? s.status?.restoreScan : null;
     final empty = demo == OverviewDemo.empty || (demo == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
@@ -100,7 +100,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
-    // A restored wallet's first unlock asks once about its history backup (R13), after the
+    // A restored wallet's first unlock asks once about its history backup, after the
     // first-run tour, never over it.
     final tour = ref.watch(deskTourProvider);
     if (demo == null && !_importOffered && tour.seen && !tour.open && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
@@ -587,7 +587,7 @@ class _BigAmount extends StatelessWidget {
   }
 }
 
-/// The gold signal trace under the balance (R5): as wide as the balance row, easing to a new
+/// The gold signal trace under the balance: as wide as the balance row, easing to a new
 /// width when the balance changes (at once under reduced motion).
 class _Trace extends StatelessWidget {
   const _Trace({required this.width});
@@ -618,7 +618,7 @@ class _Break extends StatelessWidget {
     this.decimals = 4,
   });
 
-  /// Decimals shown: the same in every tile of the row (UI-013).
+  /// Decimals shown: the same in every tile of the row.
   final int decimals;
 
   /// The cell's width, for fitting the amount.

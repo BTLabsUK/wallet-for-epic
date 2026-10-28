@@ -139,7 +139,7 @@ List<BalanceTileData> balanceTiles(
   ];
 }
 
-/// How many decimals every balance tile shows (UI-013): the same for all, five when any
+/// How many decimals every balance tile shows: the same for all, five when any
 /// amount needs five or more (the rest is cut, never rounded), else four; so the figures
 /// line up and compare, on the phone as on the desktop.
 int tileDecimals(Iterable<BigInt> values) {

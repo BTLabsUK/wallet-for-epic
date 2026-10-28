@@ -4,7 +4,7 @@
 /// app's store, and hands Dart only the sealed text (`createWithPin`). This vault stores that
 /// text per chain and passes it back to open the wallet, show its phrase or change its PIN.
 /// LEPIC counts wrong PINs and makes later tries wait ([pinDelay]); [PinRejected] reports its
-/// count. Biometrics keep a copy of the PIN in [BiometricStore] (OD-5). Nothing here logs the
+/// count. Biometrics keep a copy of the PIN in [BiometricStore]. Nothing here logs the
 /// PIN or the sealed text.
 library;
 
@@ -267,7 +267,7 @@ class WalletVault {
     final was = await biometricsEnabled(chain);
     await store.delete(_key(chain, 'pinBiometrics'));
     // Only a copy that was stored is deleted: opening the biometric store can show the
-    // system prompt, and a new wallet whose owner said "Not now" must never see one (AND-5).
+    // system prompt, and a new wallet whose owner said "Not now" must never see one.
     if (was) await biometrics.delete(_key(chain, 'pin'));
   }
 

@@ -1,4 +1,4 @@
-/// The one picker row for nodes and Epicbox servers (spec §18): bars, host, operator, the
+/// The one picker row for nodes and Epicbox servers: bars, host, operator, the
 /// relay's default tag, the node's tip column, latency and version: the local node's fallback
 /// picker shows servers through [ServerRow], in the neutral order of [neutralOrder]. The
 /// Node and Epicbox pickers are `server_list_panel.dart`.
@@ -47,7 +47,7 @@ class ServerInfo {
   final String? version;
   final bool versionOld;
 
-  /// The D-13 Epicbox default: a tag on relay rows only, never on a node row.
+  /// The Epicbox default: a tag on relay rows only, never on a node row.
   final bool isDefault;
 
   bool get down => state == EState.risk;

@@ -497,7 +497,7 @@ abstract interface class WalletSession {
   Set<String> get heldOutputs;
   set heldOutputs(Set<String> commitments);
 
-  // Outputs (F13). A split and a consolidate are normal network transactions to the wallet
+  // Outputs. A split and a consolidate are normal network transactions to the wallet
   // itself, never through its Epicbox address; each spends every output with
   // [minimumConfirmations], so the whole balance is locked until it confirms.
 

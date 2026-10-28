@@ -343,7 +343,7 @@ void main() {
         find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, over Tor$')),
         findsOneWidget,
       );
-      // The node goes over Tor too (LEPIC E-12).
+      // The node goes over Tor too.
       expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsOneWidget);
       handle.dispose();

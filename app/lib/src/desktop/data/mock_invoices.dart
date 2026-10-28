@@ -264,14 +264,14 @@ class InvoiceProto {
     _setInv(slateId, (x) => x.state.cancellable || x.state == PayState.delivered ? x.copyWith(state: PayState.cancelled, spendToSelf: true) : x);
   }
 
-  /// Spends a cancelled payment's coins to the wallet itself (D-2): the cancel is final.
+  /// Spends a cancelled payment's coins to the wallet itself: the cancel is final.
   IncomingInvoice spendToSelf(String slateId) {
     final i = toPay.firstWhere((x) => x.slateId == slateId && x.spendToSelf, orElse: () => throw const DeskError('Nothing to spend'));
     _setInv(slateId, (x) => x.copyWith(spendToSelf: false));
     return i;
   }
 
-  /// Expiries the wallet's sweep applies (flow.md §3.3, §4.4, §4.5).
+  /// Expiries the wallet's sweep applies.
   void _sweep() {
     for (final r in [...sent]) {
       if (r.state == RequestState.waiting && !r.expiresAt.isAfter(now)) _setReq(r.slateId, (x) => x.copyWith(state: RequestState.expired, answeredAt: r.expiresAt), sync: false);

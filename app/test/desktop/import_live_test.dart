@@ -80,7 +80,7 @@ void main() {
     expect(await wallet.unlock(oldPassword), isTrue);
     expect((await wallet.revealPhrase(oldPassword)).join(' '), phrase, reason: 'same wallet as epic-wallet made');
     await wallet.lock();
-    // R15: the core's fingerprint of the imported wallet is the phrase's, so a restore of the
+    // The core's fingerprint of the imported wallet is the phrase's, so a restore of the
     // phrase finds this wallet instead of making a second one.
     final fp = LepicWalletService(secrets: secrets, oneWalletPerChain: true).walletFingerprint(mnemonic: phrase, chain: core.Chain.mainnet);
     expect((await wallet.registry()).byId(r.id)!.walletFingerprint, fp);

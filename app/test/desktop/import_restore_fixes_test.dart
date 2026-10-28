@@ -1,6 +1,6 @@
 // The import wizard's restore-review fixes on the mock wallet: the Epicbox server choice at
-// Done (R12), the password line (R41), the Windows close-first line (R28) and the line for
-// Stack Wallet and Epic Pay users (R31).
+// Done, the password line, the Windows close-first line and the line for
+// Stack Wallet and Epic Pay users.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';

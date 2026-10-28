@@ -1,4 +1,4 @@
-// Remember on this computer (F6): the sealed password, its expiry and every forget rule, on
+// Remember on this computer: the sealed password, its expiry and every forget rule, on
 // RememberedPasswords with an injected clock, and through LepicDeskWallet over the fake core.
 import 'dart:io';
 

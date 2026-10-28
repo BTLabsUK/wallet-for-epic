@@ -12,7 +12,7 @@
 //                     (A pays) and is asked twice (one request withdrawn, one declined); A
 //                     asks once more by file; contacts B never names, a star, labels and
 //                     settings away from their defaults, a new wallet name. Settings › Backup
-//                     exports the file (F1), then A is deleted in the app. B's own backup and a
+//                     exports the file, then A is deleted in the app. B's own backup and a
 //                     version 1 file of A (sealed by a twin of A made from its phrase) are
 //                     left beside F1.
 //   HB_PHASE=restore  a new computer: A restored from its phrase, F1 imported (one summary,
@@ -736,7 +736,7 @@ Future<void> buildPhase(WidgetTester tester) async {
   log('expect: ${txs.length} payments, ${contacts.length} contacts, ${mine.length} pairings, ${invoices.sent.length} requests, ${invoices.toPay.length} invoices, settings ${jsonEncode(expect['settings'])}');
   record('build: pairing seen-as name kept as a setting', settingsNow.pairingSeenAs == seenAs, settingsNow.pairingSeenAs);
 
-  // Activity with the labels, then the export (F1).
+  // Activity with the labels, then the export.
   await go(tester, DeskRoute.activity);
   await shot(tester, 'hb-build-04-activity');
   final shown = await exportUi(tester, 'F1.wfeh', shotName: 'hb-03-export-dialog');
@@ -752,15 +752,15 @@ Future<void> buildPhase(WidgetTester tester) async {
   final twin = await io(tester, () => twinOf(secret['phrase'] as String, twinDir.path));
   final f1 = await io(tester, () => openFile(twin, hbPath('F1.wfeh')));
   final f1Contacts = (f1['contacts'] as List).cast<Map>();
-  record('F1: version 2', f1['version'] == 2, '${f1['version']}');
-  record('F1: the whole shared address book', f1Contacts.length >= contacts.length && [carol, dave].every((n) => f1Contacts.any((c) => c['name'] == n)), '${f1Contacts.length} contacts in file, ${contacts.length} in the app: ${f1Contacts.map((c) => c['name']).join(', ')}');
-  record('F1: the star', jsonEncode(f1['favourites'] ?? []).length > 2, 'favourites ${jsonEncode(f1['favourites'])}');
-  record('F1: issued and paid invoices', (f1['issued_invoices'] as Map? ?? {}).length >= 3 && (f1['paid_invoices'] as Map? ?? {}).isNotEmpty, 'issued ${(f1['issued_invoices'] as Map? ?? {}).length}, paid ${(f1['paid_invoices'] as Map? ?? {}).length}');
-  record('F1: the pairing', f1['pairings'] != null, '');
-  record('F1: the wallet name', jsonEncode(f1['wallet']).contains(walletName), jsonEncode(f1['wallet']));
+  record('version 2', f1['version'] == 2, '${f1['version']}');
+  record('the whole shared address book', f1Contacts.length >= contacts.length && [carol, dave].every((n) => f1Contacts.any((c) => c['name'] == n)), '${f1Contacts.length} contacts in file, ${contacts.length} in the app: ${f1Contacts.map((c) => c['name']).join(', ')}');
+  record('the star', jsonEncode(f1['favourites'] ?? []).length > 2, 'favourites ${jsonEncode(f1['favourites'])}');
+  record('issued and paid invoices', (f1['issued_invoices'] as Map? ?? {}).length >= 3 && (f1['paid_invoices'] as Map? ?? {}).isNotEmpty, 'issued ${(f1['issued_invoices'] as Map? ?? {}).length}, paid ${(f1['paid_invoices'] as Map? ?? {}).length}');
+  record('the pairing', f1['pairings'] != null, '');
+  record('the wallet name', jsonEncode(f1['wallet']).contains(walletName), jsonEncode(f1['wallet']));
   final fs = f1['settings'];
-  record('F1: the settings', fs is Map && jsonEncode(fs).contains('light'), fs is Map ? 'keys ${(fs['values'] ?? fs).keys.join(',')}' : '$fs');
-  record('F1: no phrase, password or keys', !jsonEncode(f1).contains(secret['phrase'] as String) && !jsonEncode(f1).contains(password), '');
+  record('the settings', fs is Map && jsonEncode(fs).contains('light'), fs is Map ? 'keys ${(fs['values'] ?? fs).keys.join(',')}': '$fs');
+  record('no phrase, password or keys', !jsonEncode(f1).contains(secret['phrase'] as String) && !jsonEncode(f1).contains(password), '');
   final v1 = await io(tester, () => twin.sealAppData(payload: utf8.encode(jsonEncode(asVersion1(f1)))));
   await tester.runAsync(() => File(hbPath('V1.wfeh')).writeAsBytes(v1, flush: true));
   twin.dispose();
@@ -859,8 +859,8 @@ Future<void> restorePhase(WidgetTester tester) async {
   final recs = await recordsOf('F2.wfeh', 'twin-a2');
   bool inFile(Tx t) => inFileOf(recs, t);
   final untouched = restored.skip(2).toList();
-  record('F2: edited restored rows kept', edited.every(inFile), '${recs.length} records; ${edited.map((t) => inFile(t)).join(',')}');
-  record('F2: untouched restored rows left out', untouched.every((t) => !inFile(t)), '${untouched.where(inFile).length} of ${untouched.length} untouched in the file');
+  record('edited restored rows kept', edited.every(inFile), '${recs.length} records; ${edited.map((t) => inFile(t)).join(',')}');
+  record('untouched restored rows left out', untouched.every((t) => !inFile(t)), '${untouched.where(inFile).length} of ${untouched.length} untouched in the file');
   await deleteA(tester, password, tag: ' 3');
   await restoreA(tester, phrase, password, tag: ' 3');
   final rows3 = await waitScan(tester, total, tag: ' 3');

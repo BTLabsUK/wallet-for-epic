@@ -69,10 +69,10 @@ import 'wallet_delete.dart';
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
 /// The project's source code.
-const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
+const String projectRepoUrl = 'https://gitlab.com/bt-labs-group/wallet-for-epic';
 
 /// Whether the repositories are public. Until they are, no screen links to them (the phone's
-/// and the desktop's About, the Licences page) and no text says the code is on GitHub; set it
+/// and the desktop's About, the Licences page) and no text says the code is public; set it
 /// to true when they are, and the links come back.
 const bool projectRepoPublic = false;
 const String epicCashUrl = 'https://epiccash.com';
@@ -1159,7 +1159,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: Text(
             note,
-            // Body text, not a warning (UI-028).
+            // Body text, not a warning.
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
           ),
         ),
@@ -1338,7 +1338,7 @@ class SettingsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // Neutral, as the desktop's section headers: gold is for the brand and the primary
-    // action only (UI-030).
+    // action only.
     final text = Semantics(
       header: true,
       child: Text(

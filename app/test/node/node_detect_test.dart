@@ -1,4 +1,4 @@
-// F24: a node already answering on this computer, and the facts of the explanation step.
+// A node already answering on this computer, and the facts of the explanation step.
 import 'dart:convert';
 import 'dart:io';
 

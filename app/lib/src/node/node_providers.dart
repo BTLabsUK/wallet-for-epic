@@ -1,9 +1,9 @@
 /// Riverpod providers of the node service layer, for the desktop screens to bind to: the local
-/// node's state and controls, its peers, node info for any node (F27), local node detection and
-/// facts (F24), reusable chain data, and the public-node fallback (D-7).
+/// node's state and controls, its peers, node info for any node, local node detection and
+/// facts, reusable chain data, and the public-node fallback.
 ///
 /// Reading a provider starts no node and downloads nothing: only [LocalNodeController.start]
-/// does, after the user chose to (O2).
+/// does, after the user chose to.
 library;
 
 import 'dart:async';
@@ -119,7 +119,7 @@ final peersProvider = StreamProvider.autoDispose.family<PeerSnapshot, Chain>((re
   }
 });
 
-/// Whether a node already answers on this computer's standard port (F24).
+/// Whether a node already answers on this computer's standard port.
 final localNodeProbeProvider = FutureProvider.autoDispose.family<LocalNodeProbe, Chain>((ref, chain) async {
   BuiltInNode? ours;
   if (ref.watch(builtInNodeSupportedProvider)) {
@@ -134,7 +134,7 @@ final chainDataCandidatesProvider = FutureProvider.autoDispose.family<List<Chain
   return findChainData(chain, roots: LegacyRoots.current(), bundledRoot: where.root);
 });
 
-/// The facts of the "Local node" explanation step (F24).
+/// The facts of the "Local node" explanation step.
 final localNodeFactsProvider = FutureProvider.autoDispose.family<LocalNodeFacts, Chain>((ref, chain) async {
   // Both asked before the first await: read once with nobody listening, this provider is
   // disposed while it waits, and a watch after that throws.
@@ -150,7 +150,7 @@ final fallbackChoiceProvider = FutureProvider.family<FallbackChoice, Chain>(
   (ref, chain) => ref.watch(nodeSettingsProvider(chain)).fallbackChoice(),
 );
 
-/// What the wallet should do about its node while the local node syncs (D-7).
+/// What the wallet should do about its node while the local node syncs.
 final fallbackDecisionProvider = Provider.family<AsyncValue<FallbackDecision>, Chain>((ref, chain) {
   final local = ref.watch(localNodeStateProvider(chain));
   final choice = ref.watch(fallbackChoiceProvider(chain));

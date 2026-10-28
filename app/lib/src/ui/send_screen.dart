@@ -237,7 +237,7 @@ const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
 /// The tag beside To that says whether the payment goes over Tor, for tests.
 const Key sendTorTagKey = ValueKey('send-tor-tag');
 
-/// Keys of the sealed file route (SPEC 2.9), for tests.
+/// Keys of the sealed file route, for tests.
 const Key sendSealedOptionKey = ValueKey('send-sealed-option');
 const Key sendPlainOptionKey = ValueKey('send-plain-option');
 const Key sendPlainShortKey = ValueKey('send-plain-short');
@@ -566,7 +566,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// A method switched off in Settings › Transactions while Send is open: an idle form moves to
   /// the method Send starts on now, as after a restart. An address in To keeps its method,
-  /// with the note that it is off (AND-4).
+  /// with the note that it is off.
   void _paymentsChanged(PaymentPrefs? payments) {
     if (payments == null || !mounted || _holdsPayment || _formOffered(payments)) return;
     setState(() {
@@ -783,7 +783,7 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  /// The method follows the address (desktop spec 8.4): a whole address of another kind, or
+  /// The method follows the address: a whole address of another kind, or
   /// any address that was pasted, scanned or picked ([forced], or one change adding 8 or more
   /// characters), moves it to that kind, with a tag for 3 s. Text still being typed never
   /// does, nothing switches back when the text becomes incomplete, and the field keeps its
@@ -2152,7 +2152,7 @@ class _SendViewState extends ConsumerState<SendView> {
   bool _queues({bool watch = true}) =>
       _pairingTo != null && (watch ? ref.watch(pairNetProvider) : ref.read(pairNetProvider)) == PairNet.epicboxOff;
 
-  /// The file route seals for the paired contact the recipient belongs to (SPEC 2.9) unless
+  /// The file route seals for the paired contact the recipient belongs to unless
   /// the user chose plain ("Seal this file?", or Send plain from the 90-day hint).
   bool _filePlain = false;
 
@@ -2398,7 +2398,7 @@ class _SendViewState extends ConsumerState<SendView> {
       child: LayoutBuilder(
         builder: (context, box) {
           // At a large text size or on a narrow phone the step counter goes under the
-          // title, so the title still breaks by word, never by letter (UI-002).
+          // title, so the title still breaks by word, never by letter.
           final scale = MediaQuery.textScalerOf(context).scale(1);
           final stacked = step != null && (scale >= 1.5 || box.maxWidth < 340);
           final heading = Semantics(
@@ -2432,7 +2432,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ),
               if (step != null && !stacked)
                 Text(l.sendStepOf(step, 3), style: counterStyle),
-              // One help icon per header (UI-052): a step with its own help shows that.
+              // One help icon per header: a step with its own help shows that.
               if (extra != null)
                 extra
               else
@@ -2506,7 +2506,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // back for this send, where the note says it is off.
       if (selected == TransferMethod.epicbox || payments.epicbox || _pairingTo != null)
         segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-      // Link is listed from the start (#16): sending by it needs no listener. With Link · HTTP
+      // Link is listed from the start: sending by it needs no listener. With Link · HTTP
       // and Link · Tor both off the note names the method and Turn on is one tap.
       // A pairing recipient has no Link address.
       if (selected == TransferMethod.direct || _pairingTo == null)
@@ -3217,7 +3217,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ),
         strong: true,
       ),
-      // What stays after this send (outputs spec §4.6): the balance once it is out, and,
+      // What stays after this send: the balance once it is out, and,
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
         _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
@@ -3600,7 +3600,7 @@ class _SendViewState extends ConsumerState<SendView> {
         context,
         _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
-        // The file way has its own help; the QR way keeps the ⓘ (UI-052).
+        // The file way has its own help; the QR way keeps the ⓘ.
         extra: _viaQr
             ? null
             : IconButton(
@@ -3683,7 +3683,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_viaQr) {
       // The code has its own screen; this step is where the send waits for the reply.
       return [
-        // Finished from the header: Scan their reply stays the one primary at the foot (UI-061).
+        // Finished from the header: Scan their reply stays the one primary at the foot.
         _header(
           context,
           MethodIcons.fullName(l, MethodKind.directQr),
@@ -3698,7 +3698,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
         const SizedBox(height: 12),
-        // Second to the primary at the foot (Scan their reply); Done is in the header (UI-061).
+        // Second to the primary at the foot (Scan their reply); Done is in the header.
         OutlinedButton.icon(
           key: sendShowQrKey,
           style: OutlinedButton.styleFrom(
@@ -3755,7 +3755,7 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  /// The file route to a paired contact (SPEC 2.9): "Sealed for Anna"; after a plain file
+  /// The file route to a paired contact: "Sealed for Anna"; after a plain file
   /// went to it, "Seal this file?" with Sealed preselected; and after 90 days without a sealed
   /// message from it, a hint that offers Send plain.
   List<Widget> _sealChoice(BuildContext context) {
@@ -3828,7 +3828,7 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  /// The file sealed for [r] (SPEC 2.9): the lock tile, "Sealed for Anna", the file and the
+  /// The file sealed for [r]: the lock tile, "Sealed for Anna", the file and the
   /// amount, Save file and Share; then, for a contact whose wallet does not answer, "Send as
   /// plain instead", which asks first.
   List<Widget> _sealedFileStep(BuildContext context, Slate slate, String sealed, PairingRecord r) {

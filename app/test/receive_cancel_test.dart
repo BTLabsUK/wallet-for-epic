@@ -214,7 +214,7 @@ void main() {
       final h = _Harness(_waiting(ago: const Duration(minutes: 40)));
       await h.pump(tester);
       expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget);
-      // One destructive look on both sides (UI-015): the same red Cancel as a send's.
+      // One destructive look on both sides: the same red Cancel as a send's.
       expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(
         find.text('${_l.txDetailsAcceptedAgoMinutes(40)} ${_l.txDetailsCancelOffered}'),

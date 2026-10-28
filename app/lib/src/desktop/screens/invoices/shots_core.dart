@@ -113,7 +113,7 @@ final List<DeskShot> invoiceSetShotsCore = [
       c.invalidate(deskPairingsProvider);
     },
   ),
-  // A re-pair after a restore: the result offers the contact of its name first (PAIR-LNX-7).
+  // A re-pair after a restore: the result offers the contact of its name first.
   DeskShot(
     id: 'pair-04-result-add-to',
     title: 'The words-check result of a pairing in no contact: Add to Anna Kowalska first',
@@ -124,7 +124,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     },
     dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-anna-new', verified: true)),
   ),
-  // A contact with all three kinds of address: the list row shows their tags (PAIR-WIN-2).
+  // A contact with all three kinds of address: the list row shows their tags.
   DeskShot(
     id: 'pair-05-contacts-three-addresses',
     title: 'Contacts: a contact with Epicbox, Link · HTTP and Link · Tor addresses',
@@ -141,7 +141,7 @@ final List<DeskShot> invoiceSetShotsCore = [
       );
     },
   ),
-  // The words check with the table's longest names: each one whole (acceptance F1).
+  // The words check with the table's longest names: each one whole.
   DeskShot(
     id: 'pair-03-check-words',
     title: 'The words check dialog, the longest names',

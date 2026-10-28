@@ -128,7 +128,7 @@ class NodeFailover {
   /// When the wallet moved ("since 14:02").
   final DateTime? at;
 
-  /// The chosen node is the user's own and syncing (the D-7 answer), not down.
+  /// The chosen node is the user's own and syncing (the fallback answer), not down.
   final bool syncing;
 
   @override

@@ -2677,7 +2677,7 @@ SlateStage lepicSlateStage(lepic.SlateStage s) => switch (s) {
 
 /// The app's pairing failure for LEPIC's contact errors, or null for any other kind.
 PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '']) => switch (k) {
-  // LEPIC words why a text was refused; the kind alone says only "not readable" (PAIR-AND-22).
+  // LEPIC words why a text was refused; the kind alone says only "not readable".
   lepic.WalletErrorKind.invalidPairingText when message.contains('other network') => PairingFailure.wrongNetwork,
   lepic.WalletErrorKind.invalidPairingText when message.contains('newer wallet') => PairingFailure.newerVersion,
   lepic.WalletErrorKind.invalidPairingText || lepic.WalletErrorKind.invalidPairingWords => PairingFailure.invalid,
@@ -2737,7 +2737,7 @@ class _LepicPairing implements PairingApi {
 
   /// New pairings the engine folded into the old one when the key check found the old keys.
   /// It deletes them once their last message is out, a collect later and with no event, so
-  /// they are never listed meanwhile: a contact has one pairing, the old one (PAIR-LNX-15).
+  /// they are never listed meanwhile: a contact has one pairing, the old one.
   final Set<String> _folded = {};
 
   /// A call to LEPIC: its pairing errors as the app's [PairingFailure], the rest mapped.
@@ -2976,7 +2976,7 @@ class _LepicPairing implements PairingApi {
     return _preview(found.link, found.preview);
   }, words: true);
 
-  /// This wallet's own invite, opened here: refused before "Pair with …?" (PAIR-AND-2), which
+  /// This wallet's own invite, opened here: refused before "Pair with …?", which
   /// LEPIC would only refuse on the answer. Known by its link while this run made it, else by
   /// a pending invite of this wallet with the same name and expiry to the second (the link
   /// carries seconds).
@@ -3151,7 +3151,7 @@ class _LepicPairing implements PairingApi {
         if (started == lepic.KeyCheckStart.sent) _checking[id] = old.contactId;
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'key check not started: ${error.kind.name}');
-        // Said, not silent: the contact now uses the new pairing (PAIR-AND-16).
+        // Said, not silent: the contact now uses the new pairing.
         if (error.kind == lepic.WalletErrorKind.keyCheckRefused && !_events.isClosed) {
           _events.add(PairingEvent(PairingEventKind.keyCheckRefused, pairingId: id, name: await _nameOf(id)));
         }
@@ -3169,7 +3169,7 @@ class _LepicPairing implements PairingApi {
     );
     if (choice == KeysChoice.useNew) {
       // The new keys are the contact's: its older pairings are the ones the other side lost
-      // (a restore), dead, so they do not stay on the contact as if they worked (PAIR-AND-21).
+      // (a restore), dead, so they do not stay on the contact as if they worked.
       final kept = await _w.contact(contactId: id);
       if (app != null) {
         for (final c in await _w.pairingsForAppContact(appContact: app)) {

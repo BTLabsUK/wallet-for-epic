@@ -33,11 +33,11 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Transactions (spec 6.1, 26.10.13; one switch per method 26.10.16): how payments
+/// Settings › Transactions (26.10.13; one switch per method 26.10.16): how payments
 /// are made. Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
 /// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
 /// options, its defaults. Each method's receiving details sit under its own switch, shown
-/// only while it is on (tester #112: no scrolling to the bottom for feedback): Epicbox its
+/// only while it is on (no scrolling to the bottom to see them): Epicbox its
 /// listener switch, Start with the wallet and the server; Link · HTTP its state line and
 /// options (the method switch is the one HTTP switch, there is no second one) while it is on
 /// or its listener still runs; Link · Tor its state line (Tor itself is Settings › Privacy's).

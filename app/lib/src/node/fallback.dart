@@ -1,6 +1,6 @@
-/// The public-node fallback while the local node syncs (decision D-7): the wallet may use one
+/// The public-node fallback while the local node syncs: the wallet may use one
 /// public node until the local node is synced, only after the user said yes once, and the state
-/// says so. Never an automatic rotation between public nodes (D4): the one node is the one the
+/// says so. Never an automatic rotation between public nodes: the one node is the one the
 /// user agreed to.
 ///
 /// Pure: the switch itself is the wallet's (it calls [decideFallback] on every local node state

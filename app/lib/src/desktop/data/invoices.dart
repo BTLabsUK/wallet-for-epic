@@ -1,4 +1,4 @@
-/// Invoices over Epicbox on desktop (`docs/invoices/flow.md` on `plan/invoices`): requests this
+/// Invoices over Epicbox on desktop: requests this
 /// wallet sends (it is paid) and invoices it receives (it pays). The UI word for an invoice this
 /// wallet sends is a request; for one it receives, an invoice.
 ///
@@ -21,7 +21,7 @@ const List<Duration> invoiceExpiries = [Duration(hours: 12), Duration(hours: 24)
 /// The longest message a request carries: 256 bytes, as on Send.
 const int requestMessageMaxBytes = 256;
 
-/// The longest message line a list shows (flow.md §4.2).
+/// The longest message line a list shows.
 const int invoiceLineMaxChars = 120;
 
 /// The key part of an Epicbox address, before `@`. Senders are matched on it alone: the relay
@@ -40,7 +40,7 @@ String cleanInvoiceText(String? text, {int? max}) {
   return '${s.characters.take(max - 1).toString().trimRight()}…';
 }
 
-/// Where a request this wallet sent stands (flow.md §3.3). Only [waiting] moves to the
+/// Where a request this wallet sent stands. Only [waiting] moves to the
 /// endings; [paid] → [confirming] → [completed] follow the chain.
 enum RequestState {
   /// Delivered to the payer's mailbox, no answer yet. It can be withdrawn.
@@ -70,7 +70,7 @@ enum RequestState {
   /// The payer's wallet cannot pay invoices and sent it back (a stock epic-wallet).
   bounced,
 
-  /// Paid but never posted, then cancelled here (flow.md draft 2 §3.3, Advanced): it will not
+  /// Paid but never posted, then cancelled here: it will not
   /// arrive.
   cancelled;
 
@@ -119,7 +119,7 @@ class IssuedRequest {
   /// When it left [RequestState.waiting].
   final DateTime? answeredAt;
 
-  /// A payment for it arrived after it ended and was refused (flow.md §5, late I2).
+  /// A payment for it arrived after it ended and was refused.
   final bool lateReplyRefused;
 
   /// Saved as a payment file for anyone (DESIGN §3.2): no payer, the answer comes as a file.
@@ -190,7 +190,7 @@ class RequestFile {
   int get total => amount + fee;
 }
 
-/// Where an invoice this wallet received stands (flow.md §4.4, §4.5).
+/// Where an invoice this wallet received stands.
 enum PayState {
   /// In Requests › To pay: nothing is paid until the user approves it.
   waiting,
@@ -307,7 +307,7 @@ class IncomingInvoice {
   final String? kernel;
 
   /// A [PayState.cancelled] payment whose coins this wallet can still spend to itself, which
-  /// makes the cancel final (D-2).
+  /// makes the cancel final.
   final bool spendToSelf;
 
   int get total => amount + fee;
@@ -401,7 +401,7 @@ class InvoiceBook {
     ..sort((a, b) => a.receivedAt.compareTo(b.receivedAt));
 
   /// Invoices answered or ended, newest answer first: paid ones until they complete or for a day,
-  /// the rest for a day (flow.md D-3); a payment that needs the user stays until it is settled.
+  /// the rest for a day; a payment that needs the user stays until it is settled.
   List<IncomingInvoice> get answered => [
     for (final i in toPay)
       if (i.state != PayState.waiting || !i.expiresAt.isAfter(now))
@@ -420,8 +420,7 @@ class InvoiceBook {
   IncomingInvoice? invoiceOfTx(int txId) => toPay.where((i) => i.txId == txId).firstOrNull;
   IssuedRequest? requestOfTx(int txId) => sent.where((r) => r.txId == txId).firstOrNull;
 
-  /// Another paid invoice from the same sender for the same amount in the last 48 h
-  /// (flow.md §5: the same bill twice).
+  /// Another paid invoice from the same sender for the same amount in the last 48 h.
   IncomingInvoice? samePaidBefore(IncomingInvoice i) => toPay
       .where(
         (p) =>
@@ -448,8 +447,8 @@ class PaymentRequestDraft {
 }
 
 /// What a notice about an invoice says, as the wallet learns it (drains, the listener, sweeps):
-/// the screens word it (flow.md §3.3, §4.5). None ever says money was received for an
-/// invoice this wallet pays (P-1).
+/// the screens word it. None ever says money was received for an
+/// invoice this wallet pays.
 enum InvoiceNoticeKind {
   /// A payer paid an invoice this wallet issued; the wallet finalized it.
   paid,
@@ -505,7 +504,7 @@ enum InvoiceProblem {
   cannotCheck,
   amountMismatch,
 
-  /// The invoice's kernel is locked above the chain's tip: it cannot be paid (P-4).
+  /// The invoice's kernel is locked above the chain's tip: it cannot be paid.
   lockedAboveTip,
 
   /// The invoice changed from what was stored, or cannot be paid for another reason.

@@ -1,4 +1,4 @@
-// The phone's pairing screens (SPEC 2.1-2.6, 2.11) against the fake engine: the three ways in,
+// The phone's pairing screens against the fake engine: the three ways in,
 // an online invite from making to answered, entering words or a link, the incoming invite,
 // the words check and what follows it, Pending invites, and a contact's Pairing block.
 import 'package:epic_wallet/src/sas_table.dart';
@@ -124,7 +124,7 @@ String? _notice(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
 void main() {
-  test('a key check LEPIC refuses (one a day) is said, not silent (PAIR-AND-16)', () {
+  test('a key check LEPIC refuses (one a day) is said, not silent', () {
     final n = pairingNoticeOf(_l, const PairingEvent(PairingEventKind.keyCheckRefused, pairingId: 'p', name: 'Anna'));
     expect(n?.text, _l.noticeKeyCheckRefused('Anna'));
   });
@@ -145,7 +145,7 @@ void main() {
       expect(find.bySemanticsLabel(_l.pairStepOf(1, _l.pairStepInvite)), findsOneWidget);
     });
 
-    testWidgets('offline: Words is off with the reason, the message way works (PAIR-LNX-6)', (tester) async {
+    testWidgets('offline: Words is off with the reason, the message way works', (tester) async {
       final h = _Harness();
       await h.pump(tester, const PairScreen(), net: PairNet.offline);
       final words = tester.widget<ListTile>(find.descendant(of: find.byKey(pairWordsKey), matching: find.byType(ListTile)));
@@ -181,7 +181,7 @@ void main() {
       final invite = h.api.records.single;
       expect(invite.state, PairingState.pendingInvite);
       expect(h.files.sharedTexts.single, _l.pairInviteMessage(invite.inviteLink!));
-      // The link ends the text: a one-line field drops the line breaks (PAIR-LNX-1).
+      // The link ends the text: a one-line field drops the line breaks.
       expect(h.files.sharedTexts.single, endsWith(invite.inviteLink!));
       expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
       expect(find.byKey(pairPasteReplyKey), findsOneWidget);
@@ -245,7 +245,7 @@ void main() {
       expect(h.api.records, isEmpty);
     });
 
-    testWidgets('a name typed and Share tapped at once, keyboard still up: the invite carries it (PAIR-AND-1)', (tester) async {
+    testWidgets('a name typed and Share tapped at once, keyboard still up: the invite carries it', (tester) async {
       final h = _Harness(seenAs: null);
       await h.pump(tester, const PairMessageScreen());
       await tester.enterText(find.byKey(pairNameFieldKey), 'Ola');
@@ -392,7 +392,7 @@ void main() {
       expect(field.controller!.text, '${word.name} ');
     });
 
-    testWidgets('this wallet\'s own invite: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {
+    testWidgets('this wallet\'s own invite: This is your own code, no Pair with …', (tester) async {
       final h = _Harness();
       final mine = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
       await h.pump(tester, const EnterLinkScreen());
@@ -405,7 +405,7 @@ void main() {
       expect(h.api.records.single.state, PairingState.pendingInvite, reason: 'nothing answered');
     });
 
-    testWidgets('the incoming invite with no name kept: the field stays while typing, and Pair with the keyboard up uses it (PAIR-AND-1)', (tester) async {
+    testWidgets('the incoming invite with no name kept: the field stays while typing, and Pair with the keyboard up uses it', (tester) async {
       final h = _Harness(seenAs: null);
       await h.pump(tester, const EnterLinkScreen());
       await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
@@ -424,7 +424,7 @@ void main() {
       expect(h.api.records.single.state, PairingState.pendingReply);
     });
 
-    testWidgets('the incoming invite with the keyboard up: the name field and Pair stay above it (PAIR-AND-17)', (tester) async {
+    testWidgets('the incoming invite with the keyboard up: the name field and Pair stay above it', (tester) async {
       final h = _Harness(seenAs: null);
       await h.pump(tester, const EnterLinkScreen());
       await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
@@ -538,7 +538,7 @@ void main() {
       expect(find.text(_l.pairSaveContactTitle('Anna')), findsNothing);
     });
 
-    testWidgets('a re-pair: a contact of its name with an old pairing is offered first, and Add to starts the key check (PAIR-LNX-7)', (tester) async {
+    testWidgets('a re-pair: a contact of its name with an old pairing is offered first, and Add to starts the key check', (tester) async {
       final h = _Harness();
       final anna = await h.session.saveContact(contact: Contact(id: '', name: ' anna  ', address: _anna));
       h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
@@ -560,7 +560,7 @@ void main() {
       expect(find.byType(ContactPage), findsOneWidget);
     });
 
-    testWidgets('re-pair answered while the old contact page is open: the notice opens the new words, They match shows the result (PAIR-AND-15)', (tester) async {
+    testWidgets('re-pair answered while the old contact page is open: the notice opens the new words, They match shows the result', (tester) async {
       final h = _Harness();
       final anna = await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
       h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
@@ -584,7 +584,7 @@ void main() {
       expect(find.byType(PairingResultScreen), findsOneWidget);
     });
 
-    testWidgets('the notice\'s Check the words opens the words even after the widget that showed it was rebuilt away (PAIR-AND-15)', (tester) async {
+    testWidgets('the notice\'s Check the words opens the words even after the widget that showed it was rebuilt away', (tester) async {
       final h = _Harness();
       await h.pump(tester, const Scaffold(body: PairingNotices(key: ValueKey('first'))));
       tester.view.physicalSize = const Size(1800, 2340);
@@ -602,7 +602,7 @@ void main() {
       expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
-    testWidgets('no contact of its name, or two unpaired ones: nothing is suggested (PAIR-LNX-7)', (tester) async {
+    testWidgets('no contact of its name, or two unpaired ones: nothing is suggested', (tester) async {
       final h = _Harness();
       await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
       await h.session.saveContact(contact: Contact(id: '', name: 'ANNA', address: 'esOtherKeyForAnnaTwo@epicbox.example'));
@@ -645,7 +645,7 @@ void main() {
   });
 
   group('Contacts', () {
-    testWidgets('a pairing in no contact is listed by its name with Not in contacts and its menu (PAIR-AND-8)', (tester) async {
+    testWidgets('a pairing in no contact is listed by its name with Not in contacts and its menu', (tester) async {
       final h = _Harness();
       h.api.seedPaired(id: 'p-floo', name: 'Floo C', state: PairingState.verified);
       await h.pump(tester, const ContactsScreen());
@@ -665,7 +665,7 @@ void main() {
     });
   });
 
-  testWidgets('a contact saved without an address keeps none: its name and note change and save (PAIR-AND-9)', (tester) async {
+  testWidgets('a contact saved without an address keeps none: its name and note change and save', (tester) async {
     final h = _Harness();
     final saved = await h.session.saveContact(contact: Contact(id: '', name: 'Floo C'));
     await h.pump(tester, ContactEditScreen(contact: saved));
@@ -676,7 +676,7 @@ void main() {
     expect((await h.session.contacts()).single.name, 'Floo Cee');
   });
 
-  testWidgets('a new plain contact still needs an address (PAIR-AND-9)', (tester) async {
+  testWidgets('a new plain contact still needs an address', (tester) async {
     final h = _Harness();
     await h.pump(tester, const ContactEditScreen());
     await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel).first, 'Nobody');
@@ -686,7 +686,7 @@ void main() {
     expect(await h.session.contacts(), isEmpty);
   });
 
-  testWidgets('a scan of the same card again replaces the unchecked one; the row has Remove (PAIR-AND-7)', (tester) async {
+  testWidgets('a scan of the same card again replaces the unchecked one; the row has Remove', (tester) async {
     final h = _Harness();
     final first = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
     final second = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
@@ -704,7 +704,7 @@ void main() {
     expect(await h.api.pairing(second.id), isNull);
   });
 
-  testWidgets('by hand: the inviter takes the answer, sends the confirm back, then checks the words (PAIR-AND-10)', (tester) async {
+  testWidgets('by hand: the inviter takes the answer, sends the confirm back, then checks the words', (tester) async {
     // The inviter, Epicbox off: an invite, then the answer pasted by hand.
     final a = _Harness();
     final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
@@ -726,7 +726,7 @@ void main() {
     expect((await a.api.pairing(invite.id))!.state, PairingState.verified);
   });
 
-  testWidgets('by hand: the one who answered pastes the confirm and its words open (PAIR-AND-10)', (tester) async {
+  testWidgets('by hand: the one who answered pastes the confirm and its words open', (tester) async {
     final a = _Harness();
     final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
     final b = _Harness();
@@ -764,7 +764,7 @@ void main() {
     expect(find.byType(PairingWaitingScreen, skipOffstage: false), findsNothing, reason: 'Done never lands on the old wait');
   });
 
-  testWidgets('an answer the relay did not take: Send by hand on its row while the link is known (PAIR-AND-11)', (tester) async {
+  testWidgets('an answer the relay did not take: Send by hand on its row while the link is known', (tester) async {
     final h = _Harness();
     h.api.relayUnreachable = true;
     final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
@@ -935,7 +935,7 @@ void main() {
       expect(find.text(_l.pendingEmpty), findsOneWidget);
     });
 
-    testWidgets('an answer waiting for a confirm can be removed; an unnamed invite has a glyph (PAIR-LNX-8)', (tester) async {
+    testWidgets('an answer waiting for a confirm can be removed; an unnamed invite has a glyph', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
       await h.api.acceptInvite(token: preview.token, name: 'Alex');
@@ -1010,7 +1010,7 @@ void main() {
       expect(find.text(_l.contactKeysChangedTitle('Anna')), findsNothing);
     });
 
-    testWidgets('keys back while the page is open: the page docks the notice until OK (PAIR-LNX-15)', (tester) async {
+    testWidgets('keys back while the page is open: the page docks the notice until OK', (tester) async {
       final h = await open(tester);
       expect(find.text(_l.contactKeysBack('Anna')), findsNothing);
       h.api.restoreKeys('p1');
@@ -1056,7 +1056,7 @@ void main() {
     });
   });
 
-  group('opening a sealed file (SPEC 2.9)', () {
+  group('opening a sealed file', () {
     const json = '{"id":"in-1"}';
 
     /// A payment Anna's wallet sent, as the fake reads it.
@@ -1113,7 +1113,7 @@ void main() {
     });
   });
 
-  group('a withdrawal from a paired exchange (SPEC 2.8)', () {
+  group('a withdrawal from a paired exchange', () {
     testWidgets('its page: Withdrawal from …, waiting for it to post, the timeline', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(Contact(id: 'c8', name: 'Northwind Exchange', address: _anna));

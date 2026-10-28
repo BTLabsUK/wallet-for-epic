@@ -267,7 +267,7 @@ Future<({int status, String body})> _ioTransport(
   Map<String, String> headers,
   Duration timeout,
 ) async {
-  // No User-Agent: nothing that names the app or its version (F35).
+  // No User-Agent: nothing that names the app or its version.
   final client = HttpClient()
     ..connectionTimeout = timeout
     ..userAgent = null;

@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin in en, de and pl; ru, zh and th name it in their own word, as Direct (AND-11).
+/// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin in en, de and pl; ru, zh and th name it in their own word, as Direct.
 const _names = <String, List<String>>{
   'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
   'de': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direkt · Dateiübertragung'],

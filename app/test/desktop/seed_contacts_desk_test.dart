@@ -1,4 +1,4 @@
-// The BT Labs contact on the desktop (spec 9): a new wallet gets it once, at once; deleting
+// The BT Labs contact on the desktop: a new wallet gets it once, at once; deleting
 // it keeps it gone after a relaunch; the website's copy updates it unless the user edited it;
 // a failed or bad website read changes nothing. On the fake core.
 import 'dart:async';

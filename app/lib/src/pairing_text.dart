@@ -68,8 +68,7 @@ String pairingWordsText(List<SasWord> words) => words.map((w) => w.name).join(' 
 /// The address-book contact a new pairing [record] most likely belongs to: the one whose name
 /// is the name it chose, ignoring case and spaces. One with a pairing of its own comes first
 /// (a restore or a re-pair, whose key check starts once the user attaches it); several
-/// unpaired ones of that name are no suggestion. Only offered, never attached on its own
-/// (PAIR-LNX-7).
+/// unpaired ones of that name are no suggestion. Only offered, never attached on its own.
 T? sameNamedContact<T>(PairingRecord record, Iterable<T> contacts, String Function(T) nameOf, {required bool Function(T) paired}) {
   String norm(String s) => s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
   final names = {for (final n in [record.name, record.label]) if (n != null && norm(n).isNotEmpty) norm(n)};

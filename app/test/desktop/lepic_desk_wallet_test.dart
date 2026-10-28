@@ -287,7 +287,7 @@ void main() {
       expect(wallet.checkPhrase(['abandon', 'h4rbor']), isFalse);
     });
 
-    group('a phrase that is already here (O1)', () {
+    group('a phrase that is already here', () {
       late _TwoPhrases two;
       final words = core.FakeWalletService().phrase.split(' ');
       final fp = phraseFingerprint(words.join(' '));
@@ -411,7 +411,7 @@ void main() {
     });
   });
 
-  group('the Epicbox server of an install that never saved one (D-13)', () {
+  group('the Epicbox server of an install that never saved one', () {
     test('a wallet in the first folder keeps the server 0.1.0 used, and it is saved', () async {
       service.existingWallets.add(await walletDir(core.Chain.mainnet));
       expect((await wallet.status()).epicbox.domain, 'epicbox.stackwallet.com');
@@ -561,7 +561,7 @@ void main() {
       expect(st.node.url, 'https://node.btlabs.uk');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
-      // Made on a fresh install: the new default (D-13).
+      // Made on a fresh install: the new default.
       expect(st.epicbox.domain, defaultEpicboxHost);
       expect(st.epicboxHealth, ServiceHealth.off);
       expect(st.syncProgress, isNull);
@@ -711,7 +711,7 @@ void main() {
       expect(File(ready.fileName).readAsStringSync(), service.session.sendSlate.json);
 
       final incoming = File('${files.path}${Platform.pathSeparator}in.tx')..writeAsStringSync('{"id":"in"}');
-      // The answer is named after the file it answers (#108).
+      // The answer is named after the file it answers.
       expect((await wallet.receiveFile(incoming.path)).response, '${files.path}${Platform.pathSeparator}in.tx.response');
       expect(service.session.receivedSlates.single, '{"id":"in"}');
       expect(File('${files.path}${Platform.pathSeparator}in.tx.response').readAsStringSync(), service.session.responseSlate.json);
@@ -1386,7 +1386,7 @@ void main() {
 
     testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
-      // The method's switch; its receiving rows sit under it while it is on (tester #112).
+      // The method's switch; its receiving rows sit under it while it is on.
       expect(find.byKey(const ValueKey('st-method-linkHttp')), findsOneWidget);
       expect(find.text('Tor receiving'), findsNothing);
       await done(tester);

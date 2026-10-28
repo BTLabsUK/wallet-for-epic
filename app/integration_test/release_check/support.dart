@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const node = String.fromEnvironment('WFE_CHECK_NODE', defaultValue: 'https://node.btlabs.uk');
 const node2 = String.fromEnvironment('WFE_CHECK_NODE2', defaultValue: 'https://node.epicnet.us:3413');
-/// D-13: a fresh install starts on this relay whatever relay the run picked for reachability.
+/// A fresh install starts on this relay whatever relay the run picked for reachability.
 const freshRelay = 'epicbox.epiccash.com';
 
 final shotsDir = Platform.environment['RC_SHOTS'] ?? 'build/rc_shots';

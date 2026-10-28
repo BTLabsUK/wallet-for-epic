@@ -231,7 +231,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      // The file way has its own help in the header instead (one help icon per header, UI-052).
+      // The file way has its own help in the header instead (one help icon per header).
       await tester.tap(_segment('Direct · File'));
       await tester.pumpAndSettle();
       expect(find.byTooltip(_l.sendHowItWorks), findsNothing);

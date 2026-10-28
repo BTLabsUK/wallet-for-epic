@@ -1191,7 +1191,7 @@ void main() {
       expect(find.byType(RestoreScreen), findsOneWidget);
     });
 
-    // R7: the phrase comes first; the wallet goes only once it checks out and the warning and
+    // The phrase comes first; the wallet goes only once it checks out and the warning and
     // the PIN confirmed, and the restored wallet keeps the PIN.
     testWidgets(
       'Settings › Wallet › Restore from a phrase asks for the phrase first, then the delete '
@@ -1271,7 +1271,7 @@ void main() {
       },
     );
 
-    // R10: a delete that fails after the wallet closed leaves for the launch screen.
+    // A delete that fails after the wallet closed leaves for the launch screen.
     // The automatic restore scan never holds a delete: it is stopped first. A Recheck the user
     // started still is.
     testWidgets('Delete stops the automatic restore scan; a running Recheck still waits', (tester) async {

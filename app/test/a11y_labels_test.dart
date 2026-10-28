@@ -1,4 +1,4 @@
-// Screen-reader labels say each word once (AND-7): a disabled switch row with an info hint, and
+// Screen-reader labels say each word once: a disabled switch row with an info hint, and
 // Home's status icons.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';

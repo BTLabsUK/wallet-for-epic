@@ -4,7 +4,7 @@
 #
 #   bash integration_test/demo_e2e.sh            (from app/ or anywhere)
 #
-# Floonet is not mined around the clock (OD-12): this starts `floo-miner` in pm2 when it is
+# Floonet is not mined around the clock: this starts `floo-miner` in pm2 when it is
 # stopped, and stops it again on exit. The test's own server runs on a free loopback port with
 # a data root under /tmp, removed by the test. Set WFE_DEMO_WEB_ROOT to have the server serve a
 # built app/build/web under /app/ as well.

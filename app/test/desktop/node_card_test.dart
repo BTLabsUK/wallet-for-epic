@@ -1,4 +1,4 @@
-// The node card (spec §17): one golden with the five states; limited info shows exactly four
+// The node card: one golden with the five states; limited info shows exactly four
 // facts and the tag; nothing spins; the Switch action names the healthiest other node; the
 // words match the rail's.
 //

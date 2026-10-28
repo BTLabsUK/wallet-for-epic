@@ -162,11 +162,11 @@ Future<List<Override>> deskOverrides() async {
     // bin/tor-bundle beside the app (tools/fetch-tor.sh); without it Tor cannot be turned on.
     torBundle: findTorBundle,
     torSwitch: torSwitch,
-    // The BT Labs contact's website copy (F31); the bundled one is used until it answers.
+    // The BT Labs contact's website copy; the bundled one is used until it answers.
     seedFetch: LepicDeskWallet.fetchSeeds,
     onions: container.read(onionDirectoryProvider),
   );
-  // Off by default (D10): this starts a node only when the user turned it on before.
+  // Off by default: this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());
   // Closing the window must not leave the node running, nor cut off a send: while one runs
   // the app stays open and asks (close_guard.dart, the rule of the title bar's close and Ctrl+Q).

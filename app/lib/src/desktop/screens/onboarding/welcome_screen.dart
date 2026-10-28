@@ -94,7 +94,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             ],
             SizedBox(height: Sp.x3),
             // The other apps' line belongs to Restore (their wallets come back by phrase), inside
-            // its card, so the cards keep one rhythm (UI-038).
+            // its card, so the cards keep one rhythm.
             EChoiceCard(
               title: l.deskOnbWelcomeRestore,
               description: l.deskOnbWelcomeRestoreSub,

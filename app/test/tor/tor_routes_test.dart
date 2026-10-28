@@ -17,7 +17,7 @@ void main() {
       expect(torCovered, contains(TorRoute.epicbox));
     });
 
-    test('the node and the app\'s own requests go over Tor (E-12)', () {
+    test('the node and the app\'s own requests go over Tor', () {
       expect(torCovered, containsAll([TorRoute.epicbox, TorRoute.node, TorRoute.appHttp]));
       expect(torSkipsLocalNode, isTrue);
     });

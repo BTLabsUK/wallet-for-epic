@@ -169,7 +169,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               )
             : _answer == null && choosing
             // The hero centred in the room above the two choices, which sit at the foot of
-            // the screen, above a keyboard (UI-016).
+            // the screen, above a keyboard.
             ? SafeArea(
                 child: Center(
                   child: ConstrainedBox(
@@ -234,7 +234,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                   else if (_answer == null && choosing)
                     // Two plain choices and no text field, so no keyboard can cover either. A new
                     // wallet is the primary one; Restore stands beside it at the same size. They
-                    // sit at the foot of the screen, as every primary action (UI-016).
+                    // sit at the foot of the screen, as every primary action.
                     const SizedBox.shrink()
                   else if (_answer == null) ...[
                     if (demo)

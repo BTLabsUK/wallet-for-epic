@@ -1,4 +1,4 @@
-// The wallet's side of the public-node fallback (D-7): every node move runs alone, the latest
+// The wallet's side of the public-node fallback: every node move runs alone, the latest
 // decision wins, a user's pick beats a fallback switch under way, a decision that came in while
 // the built-in node started is applied once it is on, and no switch cuts a send in flight.
 

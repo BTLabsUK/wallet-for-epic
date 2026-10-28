@@ -109,7 +109,7 @@ abstract interface class DeskWalletApi {
   /// before the password step, so a phrase already here opens that wallet instead.
   Future<WalletEntry?> walletWithPhrase(List<String> words);
 
-  /// Forgot password (R4): [phrase] must be wallet [id]'s own recovery phrase; then its
+  /// Forgot password: [phrase] must be wallet [id]'s own recovery phrase; then its
   /// password becomes [newPassword]. The history, notes and labels stay, and nothing is scanned
   /// again. An open [id] is locked first (the core changes only a closed wallet). Another
   /// wallet's phrase throws a [DeskError] and changes nothing; a remembered password of [id]
@@ -143,7 +143,7 @@ abstract interface class DeskWalletApi {
   /// [oldPassword] throws [DeskError.wrongPassword] and makes nothing.
   Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword});
 
-  /// R12: whether the wallet [id] this run imported keeps the older app's Epicbox server
+  /// Whether the wallet [id] this run imported keeps the older app's Epicbox server
   /// ([ImportedWallet.oldRelay]) as its own, which keeps its address; it does from the import
   /// on. Keep puts the server in the Epicbox list; false goes back to the app's server (a new
   /// address) and takes the server out of the list again when the import put it there. The
@@ -197,13 +197,13 @@ abstract interface class DeskWalletApi {
   /// Send it with `SendOptions(strategy: SelectionStrategy.all)`.
   Future<SendEstimate> estimateMax();
 
-  /// What a send of [amount] with [options] would spend, pay and get back now (F11's summary,
-  /// F12's SmartOutputs: `planSend` in `smart_outputs.dart`); nothing is locked. Null
+  /// What a send of [amount] with [options] would spend, pay and get back now (the summary,
+  /// SmartOutputs: `planSend` in `smart_outputs.dart`); nothing is locked. Null
   /// [options] is the wallet's default. A split the coins cannot build throws a [DeskError]
   /// with [DeskError.unbuildable].
   Future<SendEstimate> estimateSend(int amount, {SendOptions? options});
 
-  /// The open wallet's Outputs choices: default strategy and SmartOutputs (F13, D-5).
+  /// The open wallet's Outputs choices: default strategy and SmartOutputs.
   Future<OutputPrefs> outputPrefs();
 
   /// Keeps the open wallet's Outputs choices; Send uses them from its next estimate.
@@ -219,7 +219,7 @@ abstract interface class DeskWalletApi {
   /// [DeskError].
   Future<void> setMinimumConfirmations(int count);
 
-  // Outputs (F13, the Outputs page). A split and a consolidate are normal
+  // Outputs (the Outputs page). A split and a consolidate are normal
   // network transactions to the wallet itself; each spends every spendable output, so the
   // whole balance is locked until it confirms.
 
@@ -336,7 +336,7 @@ abstract interface class DeskWalletApi {
   /// [current] throws a [DeskError] with `wrongPassword`. Only when [DeskFeatures.changePassword].
   Future<void> changePassword(String current, String next);
 
-  // History backup (F34) and its reminder (F33).
+  // History backup and its reminder.
   /// The open wallet's history backup record. Notes the first time there was something to
   /// remind of (the start of the reminder's 30 days).
   Future<HistoryBackupState> historyBackupState();
@@ -395,7 +395,7 @@ abstract interface class DeskWalletApi {
   /// import that went in answers it too.
   Future<void> dismissHistoryImportOffer();
 
-  // Invoices over Epicbox (docs/invoices/flow.md on plan/invoices; types in invoices.dart).
+  // Invoices over Epicbox.
   // Everything shows only when [supportsInvoices].
   bool get supportsInvoices;
 
@@ -456,7 +456,7 @@ abstract interface class DeskWalletApi {
   Future<void> cancelInvoicePayment(String slateId);
 
   /// After [cancelInvoicePayment]: spends the coins that payment had locked to this wallet
-  /// itself (D-2), so the service's signed copy can never complete. Costs a fee; asks no
+  /// itself, so the service's signed copy can never complete. Costs a fee; asks no
   /// password, as a consolidate does. Throws a [DeskError] when it did not go out.
   Future<SelfSend> spendCancelledToSelf(String slateId);
 

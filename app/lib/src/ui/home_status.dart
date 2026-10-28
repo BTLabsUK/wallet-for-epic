@@ -72,7 +72,7 @@ StatusDot torDot(TorState state) => switch (state) {
   return (dot: StatusDot.busy, word: l.netStatusPublishing);
 }
 
-/// Link's dot and words for the status icons (bot #123): off while neither Link method is
+/// Link's dot and words for the status icons: off while neither Link method is
 /// on; with Link · Tor on, the onion's state ([directFace]); else the HTTP listener's.
 ({StatusDot dot, String word, String detail}) linkFace(AppLocalizations l, WalletTokens t, PhoneTorState s, PaymentPrefs p, PhoneHttpPhase http, {required bool linkOn}) {
   if (!linkOn) return (dot: StatusDot.off, word: l.netStatusOff, detail: l.netStatusTurnOnHint);
@@ -269,7 +269,7 @@ class StatusIcons extends ConsumerWidget {
             onTap: status.epicbox == null ? () => openSettingsSection(context, SettingsSection.transactions) : () => showEpicboxPicker(context),
           ),
         ],
-        // Tor and Link are always there on Wallet (bot #123): off, faint without a dot, a tap
+        // Tor and Link are always there on Wallet: off, faint without a dot, a tap
         // opens the switch; on, the dot says how the connection goes. The compact row in Send's
         // and Receive's bar shows them only when on: its room goes to the balance beside it.
         if (block != NetBlock.offline && torShown(tor) && (!compact || torIconShown(tor)))

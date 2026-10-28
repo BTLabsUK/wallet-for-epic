@@ -71,7 +71,7 @@ class AccountForm extends StatelessWidget {
           ],
         ),
       ),
-      // The reserved error line above is part of the gap: no second full gap (UI-037).
+      // The reserved error line above is part of the gap: no second full gap.
       SizedBox(height: Sp.x2),
       EField(
         label: l.deskSetupConfirmPassword,

@@ -315,7 +315,7 @@ void main() {
     expect(await busy.checkOldWallet(byName(found, 'Savings').id), OldWalletUse.free);
     await expectLater(busy.checkOldWallet('nope'), throwsA(isA<DeskError>()));
   });
-  group('R12 the older app\'s Epicbox server', () {
+  group('the older app\'s Epicbox server', () {
     const box = 'epicbox.example.org';
     const listKey = 'desk.serverList.relay.mainnet';
 
@@ -405,7 +405,7 @@ void main() {
     });
   });
 
-  group('R15 one fingerprint for the same wallet', () {
+  group('one fingerprint for the same wallet', () {
     List<String> words() => service.phrase.split(' ');
 
     // Savings' seed file holds the test phrase.
@@ -451,7 +451,7 @@ void main() {
     });
   });
 
-  test('R27 an older GUI wallet takes its name from the old profile', () async {
+  test('an older GUI wallet takes its name from the old profile', () async {
     const fixtures = 'test/fixtures/legacy_gui';
     final dir = await oldWallet('$home/.epic/alpha/main', '{"seed":"alpha-old"}');
     await File('$fixtures/gui531/.epic/alpha/main/config.json').copy('$dir/config.json');
@@ -471,7 +471,7 @@ void main() {
     expect(r.oldRelay, 'epicbox.fastepic.eu');
   });
 
-  test('R41 Done knows whether the wallet got a new password', () async {
+  test('Done knows whether the wallet got a new password', () async {
     final found = await wallet.findOldWallets();
     final kept = await wallet.importOldWallet(byName(found, 'Savings').id, oldPassword: _old);
     expect(kept.newPassword, isFalse);

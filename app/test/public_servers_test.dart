@@ -64,7 +64,7 @@ void main() {
   });
 
   group('merge', () {
-    test('the monitor down: the built-in lists, BT Labs and Epic Cash first (D-13)', () {
+    test('the monitor down: the built-in lists, BT Labs and Epic Cash first', () {
       final nodes = mergePublicNodes(null);
       expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
       expect(nodes, hasLength(5));

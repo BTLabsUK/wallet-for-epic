@@ -1,4 +1,4 @@
-/// Settings › Transactions › Direct (HTTP receiving) (G01, G03, G04, G06): Reachable (Local only / From the
+/// Settings › Transactions › Direct (HTTP receiving): Reachable (Local only / From the
 /// internet, with the guide) and the port. HTTP answers from the internet only after the
 /// guide's "Receive from the internet".
 library;
@@ -28,7 +28,7 @@ int? parsePort(String text) {
   return n != null && n >= 1 && n <= 65535 ? n : null;
 }
 
-/// The HTTP group's options (spec 6.1): Reachable (Local only / From the internet, which opens
+/// The HTTP group's options: Reachable (Local only / From the internet, which opens
 /// the guide) and the port. The switch and Start with the wallet are the group's own rows.
 class HttpOptions extends ConsumerStatefulWidget {
   const HttpOptions({super.key});
@@ -174,7 +174,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
   }
 }
 
-/// Receive from the internet (G04, G05): Local only or From the internet, how to forward the
+/// Receive from the internet: Local only or From the internet, how to forward the
 /// port, and Tor as the way with nothing to set up. Pops an [InternetGuideChoice], null on Close.
 /// What the guide was closed with: "Receive from the internet", "Back to local only" or
 /// "Turn on Tor receiving".

@@ -1,5 +1,5 @@
 /// When the desktop wallet asks Epicbox for invoices and payments by itself
-/// (`docs/invoices/flow.md` §3.3 and §4.1). The invoice address has no listener, so it is
+///. The invoice address has no listener, so it is
 /// drained every [invoicesEvery] and when the window gains focus; the payments address is
 /// drained every [paymentsEvery] while an issued invoice waits and the Epicbox listener is off
 /// (the listener finalizes payments itself while it runs). Opening the wallet and the Invoices

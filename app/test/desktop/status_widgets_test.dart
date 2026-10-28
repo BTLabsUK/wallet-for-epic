@@ -38,7 +38,7 @@ void main() {
   test('state mapping', () {
     expect(stateOf(ServiceHealth.ok), EState.ok);
     expect(stateOf(ServiceHealth.slow), EState.warn);
-    // Checking is in progress (blue), not a warning (UI-005).
+    // Checking is in progress (blue), not a warning.
     expect(stateOf(ServiceHealth.checking), EState.active);
     expect(stateOf(ServiceHealth.down), EState.risk);
     expect(stateOf(ServiceHealth.off), EState.off);
@@ -47,7 +47,7 @@ void main() {
   });
 
   testWidgets('bars, method icons and status glyphs at every state (golden)', (tester) async {
-    // Five states: ok, in progress, warn, risk, off (UI-005); the glyph's second cue (UI-006).
+    // Five states: ok, in progress, warn, risk, off; the glyph's second cue.
     tester.view.physicalSize = const Size(560, 440);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
@@ -120,7 +120,7 @@ void main() {
 
   for (final reduce in [false, true]) {
     testWidgets('an in-progress glyph pulses a few beats, then stops drawing${reduce ? ' (reduced motion: never pulses)' : ''}', (tester) async {
-      // #126: a pulse that never ended redrew the window 60 times a second for as long as
+      // A pulse that never ended redrew the window 60 times a second for as long as
       // Epicbox over Tor kept retrying.
       await tester.pumpWidget(_app(const Center(child: EStatusGlyph(icon: EIcons.epicbox, state: EState.active, label: 'Epicbox: Connecting')), reduce: reduce));
       await tester.pump(const Duration(milliseconds: 400));

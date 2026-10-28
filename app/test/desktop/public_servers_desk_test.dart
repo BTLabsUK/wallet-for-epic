@@ -77,17 +77,17 @@ void main() {
     expect(nodes.map((n) => n.operator), ['BT Labs', 'EpicNet', 'Epic Cash', 'Cypher Stack', 'Iniaku pool']);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
-    // A fresh install: the new default (D-13).
+    // A fresh install: the new default.
     expect((await w.status()).epicbox.domain, defaultEpicboxHost);
   });
 
-  test('an install with a wallet and no saved server keeps the server 0.1.0 used (D-13)', () async {
+  test('an install with a wallet and no saved server keeps the server 0.1.0 used', () async {
     final w = make(_Down(), existing: {'${support.path}/wallets/mainnet'});
     addTearDown(w.dispose);
     expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
   });
 
-  test('the default Epicbox server is one constant: preset, first relay, status (D-13)', () {
+  test('the default Epicbox server is one constant: preset, first relay, status', () {
     expect(defaultEpicboxHost, 'epicbox.epiccash.com');
     expect(mainnetPreset.epicboxDomain, defaultEpicboxHost);
     expect(builtInRelays.first.relay.host, defaultEpicboxHost);

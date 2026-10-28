@@ -1,4 +1,4 @@
-/// The status rows of the sidebar (spec §5, §16): Node, a divider, then Epicbox, HTTP and Tor,
+/// The status rows of the sidebar: Node, a divider, then Epicbox, HTTP and Tor,
 /// each with signal bars, a name and one short line; the details in a hover card; a click
 /// opens that service's settings. Every row is 40 u tall in every state, so the rail never
 /// changes height.
@@ -112,7 +112,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     ),
   ];
   // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
-  // Always listed (bot #123): off, its row and the bar's glyph say so and open the switch.
+  // Always listed: off, its row and the bar's glyph say so and open the switch.
   final run = httpRun(st);
   if (DeskFeatures.httpDirect) {
     final public = settings.publicMode;
@@ -278,7 +278,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     if (prefs.builtin) {
       _url = null;
       // The node the wallet actually reads through: the public fallback until the local node
-      // takes over (D-7), whatever the local node's phase.
+      // takes over, whatever the local node's phase.
       node = localNodeView(context.l10n, ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
     } else if (status == null) {
       _url = null;

@@ -183,7 +183,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
       );
     }
   }
-  // 8. The user's own node syncing (own-node spec §5): its progress here, its health on the rail.
+  // 8. The user's own node syncing: its progress here, its health on the rail.
   if (!ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
     final prefs = ref.watch(settingsPrefsProvider);
     final chosen = ref.watch(deskFailoverProvider)?.chosen ?? (prefs.typedNode ?? status?.node)?.url;

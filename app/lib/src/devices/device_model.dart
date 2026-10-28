@@ -10,10 +10,10 @@ import 'dart:math';
 
 import '../models.dart' show DeviceEnding;
 
-/// The most devices one wallet links, this one included (D-8).
+/// The most devices one wallet links, this one included.
 const int maxLinkedDevices = 5;
 
-/// The most servers a link uses (D-3).
+/// The most servers a link uses.
 const int maxLinkServers = 2;
 
 /// A random 128-bit id, 32 lowercase hex characters: a device id or a notice id.
@@ -506,7 +506,7 @@ class DeviceBook {
 
 DateTime? _time(Object? ms) => ms is num ? DateTime.fromMillisecondsSinceEpoch(ms.toInt()) : null;
 
-/// The servers a first link proposes (D-3): this wallet's Epicbox server, then on mainnet one
+/// The servers a first link proposes: this wallet's Epicbox server, then on mainnet one
 /// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
 /// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
 /// 443.

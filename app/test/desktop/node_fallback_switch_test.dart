@@ -1,4 +1,4 @@
-// The fallback decisions as the wallet acts on them (D-7): to the local node at once when it is
+// The fallback decisions as the wallet acts on them: to the local node at once when it is
 // synced, to the public node only after 60 s of not synced without a break, nothing before the
 // user answered, nothing after a no. On a fake clock and a fake local node state stream.
 

@@ -3,7 +3,7 @@
 ///
 /// The built-in lists are what the monitor listed in October 2026, so the pickers are complete
 /// offline or when the monitor is down. The monitor can add servers; it cannot remove or reorder
-/// the built-in ones. Nothing here picks a server: the user does (D4).
+/// the built-in ones. Nothing here picks a server: the user does.
 library;
 
 import 'network.dart';
@@ -40,7 +40,7 @@ const List<PublicNode> builtInNodes = [
   PublicNode(url: 'https://epic-node.iniaku.my.id', operator: 'Iniaku pool'),
 ];
 
-/// Public mainnet Epicbox relays, in the desktop's order: [defaultEpicboxHost] first (D-13).
+/// Public mainnet Epicbox relays, in the desktop's order: [defaultEpicboxHost] first.
 const List<PublicRelay> builtInRelays = [
   PublicRelay(relay: EpicboxRelay(host: defaultEpicboxHost), operator: 'Epic Cash'),
   PublicRelay(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), operator: 'Cypher Stack'),

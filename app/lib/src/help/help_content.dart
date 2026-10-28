@@ -630,7 +630,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   ];
 }
 
-/// Help › Pairing's six topics (SPEC 2.11). Localized, unlike the rest, as they were written
+/// Help › Pairing's six topics. Localized, unlike the rest, as they were written
 /// for all six languages with the screens. The strings name the desktop's places; on the phone
 /// [_phonePairingPlace] gives each the phone's own.
 List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = HelpPlatform.desktop}) {

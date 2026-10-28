@@ -376,7 +376,7 @@ class EAddress extends StatelessWidget {
         : [TextSpan(text: a)];
     final restStyle = base.copyWith(color: c.dim);
     // When the address needs two lines it breaks only before "@": the server stays whole on
-    // the last line, never "epicca" / "sh.com" (UI-009).
+    // the last line, never "epicca" / "sh.com".
     final text = LayoutBuilder(
       builder: (context, box) {
         final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
@@ -449,7 +449,7 @@ class _ECopyButtonState extends State<ECopyButton> {
   bool _failed = false;
 
   /// One retry on a [PlatformException]: on Windows another program may hold the clipboard
-  /// for a moment (O7). Every refusal is logged.
+  /// for a moment. Every refusal is logged.
   Future<void> _copy() async {
     for (var attempt = 1; attempt <= 2; attempt++) {
       try {

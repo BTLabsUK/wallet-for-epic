@@ -1,4 +1,4 @@
-/// The system Save and Open dialogs for history backups and the CSV (F34), behind a seam so
+/// The system Save and Open dialogs for history backups and the CSV, behind a seam so
 /// the mock and the tests answer without a dialog.
 library;
 

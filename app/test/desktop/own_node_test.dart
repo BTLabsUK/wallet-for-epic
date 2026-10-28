@@ -1,4 +1,4 @@
-// The user's own node (own-node spec): the address classes; the own-node info asked directly
+// The user's own node: the address classes; the own-node info asked directly
 // (no directory lookup, mempool, the reference tip never from the node, Syncing / Behind); the
 // owner secret (checked, kept per URL, never sent to a public node or over Tor, a later refusal,
 // redacted in logs, not in the saved prefs); and Settings › Node at 1280 and 2474 wide.
@@ -286,7 +286,7 @@ void main() {
       await end(tester);
     });
 
-    testWidgets('syncing: the D-7 offer per node, remembered', (tester) async {
+    testWidgets('syncing: the fallback offer per node, remembered', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownSyncing);
       expect(find.text('Use a public node until this node is synced?'), findsOneWidget);
       await tester.tap(find.text('Wait for this node'));

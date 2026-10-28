@@ -346,7 +346,7 @@ class StatusIcon extends StatelessWidget {
   });
 
   /// Whether the service is on: the outline is green then and the dot shows its connection;
-  /// off, the glyph is faint and has no dot, and a tap opens the switch (bot #123).
+  /// off, the glyph is faint and has no dot, and a tap opens the switch.
   final bool enabled;
 
   final IconData icon;
@@ -373,7 +373,7 @@ class StatusIcon extends StatelessWidget {
       container: true,
       button: !compact,
       label: label,
-      // A detail that only repeats the state in the label is said once (AND-7).
+      // A detail that only repeats the state in the label is said once.
       hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, if (!compact) ?actionHint].join('\n'),
       liveRegion: true,
       excludeSemantics: true,
@@ -394,8 +394,8 @@ class StatusIcon extends StatelessWidget {
                 child: SizedBox.square(
                   dimension: glyph,
                   // The outline says on (green) or off (faint, no dot); the dot says how an
-                  // enabled service's connection goes, with a second cue beside its colour
-                  // (UI-006, bot #123): ring = in progress, "!" = a problem, solid = ok.
+                  // enabled service's connection goes, with a second cue beside its colour:
+                  // ring = in progress, "!" = a problem, solid = ok.
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [

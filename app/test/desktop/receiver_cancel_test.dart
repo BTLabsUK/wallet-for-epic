@@ -1,4 +1,4 @@
-// Cancelling an incoming, unconfirmed payment on the desktop (decision D5): the button follows the
+// Cancelling an incoming, unconfirmed payment on the desktop: the button follows the
 // core's `cancellable` flag, the dialog speaks of a payment, and a refusal (the node already has
 // it) is a toast that leaves the row. The send cancel keeps its words.
 import 'dart:io';

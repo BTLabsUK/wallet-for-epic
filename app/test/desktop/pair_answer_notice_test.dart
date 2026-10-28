@@ -1,4 +1,4 @@
-// An answer to this wallet's invite while another screen is open (SPEC 2.10, PAIR-LNX-16): the
+// An answer to this wallet's invite while another screen is open: the
 // shell's toast says so and its Check the words opens the words check, once per pairing.
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -18,7 +18,7 @@ final _l = englishStrings;
 void main() {
   setUpAll(initializeDateFormatting);
 
-  testWidgets('an answer on another screen: the toast offers Check the words, which opens the check (PAIR-LNX-16)', (tester) async {
+  testWidgets('an answer on another screen: the toast offers Check the words, which opens the check', (tester) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

@@ -111,7 +111,7 @@ class PlatformBiometricStore implements BiometricStore {
       storageNamespace: 'wfe_biometric',
       // The plugin takes a namespace it never saw for one made by its old default (RSA) and
       // migrates it under a prompt whose cancel it never answers: Setup waited for good after
-      // "Use PIN" (AND-5). Nothing here is worth migrating: the entry is a copy of the PIN.
+      // "Use PIN". Nothing here is worth migrating: the entry is a copy of the PIN.
       migrateOnAlgorithmChange: false,
       biometricPromptTitle: 'Unlock wallet',
       biometricPromptSubtitle: 'Confirm with your fingerprint or face',
@@ -146,7 +146,7 @@ class PlatformBiometricStore implements BiometricStore {
 
   /// How long a call into the biometric store may wait for its prompt. flutter_secure_storage
   /// 11.2.0 never answers when its prompt is dismissed with "Use PIN" (Android logs "Unknown
-  /// cookie"); past this the call counts as dismissed rather than waiting for good (AND-5).
+  /// cookie"); past this the call counts as dismissed rather than waiting for good.
   static const Duration promptLimit = Duration(seconds: 90);
 
   /// How long a call may stay unanswered once the app is back in front, the prompt gone. A
@@ -170,7 +170,7 @@ class PlatformBiometricStore implements BiometricStore {
 
   /// [call], or [BiometricCancelled] once the app was covered by a prompt, came back to the
   /// front and [answerGrace] passed with no answer: the prompt was dismissed and the store will
-  /// not say so (AND-5). Covered again meanwhile (the store's own prompt after local_auth's),
+  /// not say so. Covered again meanwhile (the store's own prompt after local_auth's),
   /// the wait starts over.
   Future<T> _promptAnswer<T>(Future<T> call) {
     final done = Completer<T>();
@@ -229,7 +229,7 @@ class PlatformBiometricStore implements BiometricStore {
   @override
   Future<void> write(String key, String value) => _guard(() async {
     // local_auth first: it answers a dismissed prompt, which the store's own prompt does not
-    // (AND-5). The store then asks once more, for its key.
+    //. The store then asks once more, for its key.
     if (!await _authenticate()) {
       throw const BiometricCancelled('dismissed');
     }

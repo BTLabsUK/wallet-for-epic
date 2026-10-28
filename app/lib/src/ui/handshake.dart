@@ -386,7 +386,7 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               selected: {_flow},
               showSelectedIcon: false,
               // The chosen flow is a neutral fill with the text colour: gold is the brand
-              // and the primary action, never a selection (UI-011).
+              // and the primary action, never a selection.
               style: SegmentedButton.styleFrom(
                 backgroundColor: t.surface,
                 foregroundColor: t.dim,

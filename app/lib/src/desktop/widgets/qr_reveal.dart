@@ -15,7 +15,7 @@ import 'surfaces.dart';
 /// Epicbox hero); [compact] is a QR button in the address box and an expand under it.
 enum QrRevealForm { covered, compact }
 
-/// A QR code shown only on demand (spec 4.4): hidden whenever it is built, never remembered,
+/// A QR code shown only on demand: hidden whenever it is built, never remembered,
 /// hidden again by the same control. [tag] ("Paused", "Starting", "Not reachable") sits on the
 /// shown code, dimmed to 0.35.
 class EQrReveal extends StatefulWidget {

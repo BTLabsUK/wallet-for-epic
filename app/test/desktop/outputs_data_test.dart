@@ -1,4 +1,4 @@
-// F11–F13 data on the desktop, no screens: LepicDeskWallet over FakeWalletSession maps outputs,
+// Outputs data on the desktop, no screens: LepicDeskWallet over FakeWalletSession maps outputs,
 // passes send options, returns the whole estimate, runs splits and consolidates, and reads
 // the per-wallet Outputs choices. The password is a throwaway test value.
 import 'dart:io';
@@ -75,7 +75,7 @@ void main() {
       expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.awaitingConfirmation), OutputWord.confirming);
       expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingFinalization), OutputWord.finalizing);
       expect(w(core.WalletOutputStatus.unconfirmed, null, coinbase: true), OutputWord.mining);
-      // Unconfirmed in any other category, a reward included, is confirming (spec §2.2).
+      // Unconfirmed in any other category, a reward included, is confirming.
       expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingConfirmation), OutputWord.confirming);
       expect(w(core.WalletOutputStatus.unconfirmed, null), OutputWord.confirming);
       expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingConfirmation, coinbase: true), OutputWord.confirming);

@@ -208,7 +208,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.keepBelow = 0,
   });
 
-  /// Room the open list leaves free under it, so the page's main button stays in view (UI-017).
+  /// Room the open list leaves free under it, so the page's main button stays in view.
   final double keepBelow;
 
   final ServerKind kind;
@@ -1309,7 +1309,7 @@ class _Row extends StatelessWidget {
                 EIconButton(
                   key: ValueKey('server-row-remove-${s.value}'),
                   icon: EIcons.trash,
-                  // The server in use cannot go: switch first (UI-044).
+                  // The server in use cannot go: switch first.
                   label: inUse ? l.slInUseSwitchFirst : l.deskSlRemoveHost(s.host),
                   size: EBtnSize.inline,
                   tabStop: false,
