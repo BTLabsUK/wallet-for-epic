@@ -1265,7 +1265,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         key: const ValueKey('send-tor-wait'),
         title: l.deskSendTorStarting,
         text: l.deskSendTorStartingText,
-        icon: EIcons.tor,
+        tone: ETone.info,
       );
     }
     final eb = _epicboxHealth(st);

@@ -108,7 +108,8 @@ class _EButtonState extends State<EButton> {
       case EBtnKind.primary:
         bg = disabled ? c.s3 : (_down ? c.accentDeep : (_hover ? Color.lerp(c.accent, c.text, 0.12)! : c.accent));
         fg = disabled ? c.faint : c.accentInk;
-        border = disabled ? c.lineStrong : Colors.transparent;
+        // Disabled keeps a 40 % gold edge: still the main action, so the hierarchy holds.
+        border = disabled ? c.accent.withValues(alpha: 0.4) : Colors.transparent;
       case EBtnKind.primarySoft:
         bg = disabled ? Colors.transparent : (_down ? c.press : (_hover ? Color.lerp(c.accentSoft, c.accent, 0.12)! : c.accentSoft));
         fg = disabled ? c.faint : c.accentText;
@@ -123,8 +124,9 @@ class _EButtonState extends State<EButton> {
         border = Colors.transparent;
       case EBtnKind.danger:
         bg = _hover && !disabled ? c.riskSoft : Colors.transparent;
-        fg = disabled ? c.faint : c.risk;
-        border = disabled ? c.line : c.risk;
+        // Disabled stays red at 40 %: a destructive action that waits (typing "delete").
+        fg = disabled ? c.risk.withValues(alpha: 0.55) : c.risk;
+        border = disabled ? c.risk.withValues(alpha: 0.4) : c.risk;
     }
     final lead = widget.busy
         ? SizedBox.square(

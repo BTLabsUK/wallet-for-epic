@@ -27,7 +27,8 @@ enum ReceivingDemo { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, 
 
 ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => ETone.ok,
-  ServiceHealth.slow || ServiceHealth.checking => ETone.warn,
+  ServiceHealth.checking => ETone.info,
+  ServiceHealth.slow => ETone.warn,
   ServiceHealth.down => ETone.risk,
   ServiceHealth.off => ETone.neutral,
 };

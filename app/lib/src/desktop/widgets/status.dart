@@ -5,28 +5,42 @@ import '../data/models.dart';
 import '../data/tor_view.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import 'surfaces.dart' show ETone;
 
-/// One state mapping for the rail, the Receive header, panel dots and Settings heads.
-enum EState { ok, warn, risk, off }
+/// One state mapping for the rail, the Receive header, panel dots and Settings heads:
+/// [active] is in progress (starting, connecting, syncing, waiting for Tor), drawn blue;
+/// [warn] amber is for real warnings only (behind, slow).
+enum EState { ok, active, warn, risk, off }
 
 EState stateOf(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => EState.ok,
-  ServiceHealth.slow || ServiceHealth.checking => EState.warn,
+  ServiceHealth.checking => EState.active,
+  ServiceHealth.slow => EState.warn,
   ServiceHealth.down => EState.risk,
   ServiceHealth.off => EState.off,
 };
 
 Color stateColor(DeskColors c, EState s) => switch (s) {
   EState.ok => c.ok,
+  EState.active => c.info,
   EState.warn => c.warn,
   EState.risk => c.risk,
   EState.off => c.faint,
 };
 
+/// The badge and notice tone of a state.
+ETone stateTone(EState s) => switch (s) {
+  EState.ok => ETone.ok,
+  EState.active => ETone.info,
+  EState.warn => ETone.warn,
+  EState.risk => ETone.risk,
+  EState.off => ETone.neutral,
+};
+
 /// Lit bars of [ESignalBars] for a state.
 int stateBars(EState s) => switch (s) {
   EState.ok => 3,
-  EState.warn => 2,
+  EState.active || EState.warn => 2,
   EState.risk => 1,
   EState.off => 0,
 };
@@ -184,13 +198,13 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       // With the Tor switch on, Epicbox goes through Tor or waits for it (tor_routes.dart).
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
-        if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.warn, detail: host);
+        if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.active, detail: host);
         if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: host);
         if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodEpicboxOffDetail),
-        ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.warn, detail: host),
+        ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.active, detail: host),
         ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: host),
         ServiceHealth.slow => MethodLine(l.deskKitMethodSlow, EState.warn, detail: host),
         ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown(host)),
@@ -199,7 +213,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       final port = settings.httpPort;
       return switch (s.httpListener) {
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodHttpOffDetail),
-        ServiceHealth.checking => MethodLine(l.deskKitMethodStarting, EState.warn),
+        ServiceHealth.checking => MethodLine(l.deskKitMethodStarting, EState.active),
         ServiceHealth.ok || ServiceHealth.slow => MethodLine(
           l.deskKitMethodOn,
           EState.ok,
@@ -219,8 +233,8 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       return switch (s.tor) {
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodTorOffDetail),
         ServiceHealth.checking => s.torCanSend
-            ? MethodLine(l.deskKitMethodTorPublishing, EState.warn)
-            : MethodLine(l.deskKitMethodTorConnecting, EState.warn, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
+            ? MethodLine(l.deskKitMethodTorPublishing, EState.active)
+            : MethodLine(l.deskKitMethodTorConnecting, EState.active, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
         ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodTorOnDetail),
         ServiceHealth.slow => MethodLine(l.deskKitMethodTorNotPublished, EState.warn, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
         ServiceHealth.down => MethodLine(l.deskKitMethodTorStopped, EState.risk, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),
@@ -275,4 +289,140 @@ class EStateLine extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A state dot with a second cue besides its colour (WCAG 1.4.1): ok a filled green dot,
+/// in progress a blue ring, warn and risk a filled dot with "!", off a grey ring. [ring]
+/// draws a 2 u ring of the background around it, so it reads over a glyph.
+class EStateDot extends StatelessWidget {
+  const EStateDot(this.state, {super.key, this.size, this.ring = false, this.dim = false});
+
+  final EState state;
+  final double? size;
+  final bool ring;
+
+  /// The surface around it is dimmed (a modal over the bar): the dot follows at 60 %.
+  final bool dim;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final px = size ?? 8.u;
+    final outer = ring ? px + 4 : px;
+    final color = (state == EState.off ? c.lineField : stateColor(c, state)).withValues(alpha: dim ? 0.6 : 1);
+    return SizedBox.square(
+      dimension: outer,
+      child: CustomPaint(painter: _DotPainter(state: state, color: color, ink: c.bg, ring: ring ? c.bg : null)),
+    );
+  }
+}
+
+class _DotPainter extends CustomPainter {
+  _DotPainter({required this.state, required this.color, required this.ink, this.ring});
+
+  final EState state;
+  final Color color, ink;
+  final Color? ring;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final o = size.center(Offset.zero);
+    var r = size.width / 2;
+    if (ring != null) {
+      canvas.drawCircle(o, r, Paint()..color = ring!);
+      r -= 2;
+    }
+    switch (state) {
+      case EState.ok:
+        canvas.drawCircle(o, r, Paint()..color = color);
+      case EState.active || EState.off:
+        final w = (r * 0.45).clamp(1.2, 2.0);
+        canvas.drawCircle(o, r - w / 2, Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w);
+      case EState.warn || EState.risk:
+        canvas.drawCircle(o, r, Paint()..color = color);
+        final mark = Paint()
+          ..color = ink
+          ..strokeWidth = (r * 0.36).clamp(1.0, 2.0)
+          ..strokeCap = StrokeCap.round;
+        canvas.drawLine(o.translate(0, -r * 0.5), o.translate(0, r * 0.12), mark);
+        canvas.drawCircle(o.translate(0, r * 0.52), mark.strokeWidth * 0.55, Paint()..color = ink);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DotPainter old) => old.state != state || old.color != color || old.ink != ink || old.ring != ring;
+}
+
+/// A service glyph in a status cluster (title bar, sidebar): the glyph with its [EStateDot];
+/// off draws the glyph at 40 % with a slash and no dot. [label] ("Node: Synced") is the
+/// semantics; the cluster's own tooltip lists every glyph.
+class EStatusGlyph extends StatelessWidget {
+  const EStatusGlyph({super.key, required this.icon, required this.state, required this.label, this.size, this.dim = false});
+
+  final IconData icon;
+  final EState state;
+  final String label;
+  final double? size;
+  final bool dim;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final px = size ?? 17.u;
+    final off = state == EState.off;
+    final box = px + 9.u;
+    return Semantics(
+      label: label,
+      excludeSemantics: true,
+      child: SizedBox.square(
+        dimension: box,
+        child: Stack(
+          children: [
+            Center(
+              child: Opacity(
+                opacity: off ? 0.4 : 1,
+                child: Icon(icon, size: px, color: dim ? c.faint : c.dim),
+              ),
+            ),
+            if (off) Center(child: CustomPaint(size: Size.square(px), painter: _SlashPainter(c.dim.withValues(alpha: 0.7), c.bg))),
+            if (!off)
+              PositionedDirectional(
+                end: 1.u,
+                bottom: 1.u,
+                child: AnimatedSwitcher(
+                  duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
+                  child: EStateDot(state, key: ValueKey(state), ring: true, dim: dim),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SlashPainter extends CustomPainter {
+  _SlashPainter(this.color, this.gap);
+
+  final Color color, gap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final a = Offset(size.width * 0.12, size.height * 0.12), b = Offset(size.width * 0.88, size.height * 0.88);
+    // A background gap under the slash keeps it apart from the glyph's strokes.
+    canvas.drawLine(a, b, Paint()
+      ..color = gap
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.round);
+    canvas.drawLine(a, b, Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(_SlashPainter old) => old.color != color || old.gap != gap;
 }

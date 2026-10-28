@@ -18868,4 +18868,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Подключено';
+
+  @override
+  String get deskOvSendWaitsNode =>
+      'Отправка станет доступна, когда узел ответит.';
 }

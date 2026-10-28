@@ -4776,5 +4776,6 @@
   "pairInvitedOn": "Eingeladen am {day}",
   "deskActNoneUnderFilter": "Nichts unter diesem Filter",
   "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
-  "deskKitMethodConnected": "Verbunden"
+  "deskKitMethodConnected": "Verbunden",
+  "deskOvSendWaitsNode": "Senden ist wieder möglich, sobald der Node antwortet."
 }

@@ -18459,4 +18459,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Verbunden';
+
+  @override
+  String get deskOvSendWaitsNode =>
+      'Senden ist wieder möglich, sobald der Node antwortet.';
 }

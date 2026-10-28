@@ -28573,6 +28573,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connected'**
   String get deskKitMethodConnected;
+
+  /// Small text under the buttons on Overview while Send is disabled because the node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending resumes when the node answers.'**
+  String get deskOvSendWaitsNode;
 }
 
 class _AppLocalizationsDelegate

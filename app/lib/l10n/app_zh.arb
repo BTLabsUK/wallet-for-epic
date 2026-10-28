@@ -4776,5 +4776,6 @@
   "pairInvitedOn": "已邀请 {day}",
   "deskActNoneUnderFilter": "此筛选下没有内容",
   "deskRecvHttpIntroInternet": "供互联网上的钱包使用，仅在此钱包打开时。",
-  "deskKitMethodConnected": "已连接"
+  "deskKitMethodConnected": "已连接",
+  "deskOvSendWaitsNode": "节点响应后即可继续发送。"
 }

@@ -117,7 +117,7 @@ void main() {
       await show(tester, null, refresh: false);
       expect(find.text('Node'), findsOneWidget);
       expect(find.text('Epicbox'), findsOneWidget);
-      final bars = tester.widgetList<ESignalBars>(find.byType(ESignalBars)).map((b) => b.state);
+      final bars = tester.widgetList<EStatusGlyph>(find.byType(EStatusGlyph)).map((b) => b.state);
       expect(bars.every((s) => s == EState.off), isTrue);
     });
 

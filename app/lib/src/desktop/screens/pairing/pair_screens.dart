@@ -811,7 +811,7 @@ class _DeskWayTile extends StatelessWidget {
         color: selected ? c.s3 : c.s1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rad.sm),
-          side: BorderSide(color: selected ? c.accent : c.line, width: selected ? 1.5 : 1),
+          side: BorderSide(color: selected ? c.text.withValues(alpha: 0.4) : c.line),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -2020,6 +2020,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
             EButton(
               key: deskPendingRemoveKey,
               label: l.contactRemove,
+              kind: EBtnKind.danger,
               size: EBtnSize.sm,
               onPressed: () => deskPairingCall(ref, (api) => api.cancelInvite(r.id)),
             ),
@@ -2033,6 +2034,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
             EButton(
               key: deskPendingRemovePairedKey,
               label: l.contactRemove,
+              kind: EBtnKind.danger,
               size: EBtnSize.sm,
               onPressed: () async {
                 if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));

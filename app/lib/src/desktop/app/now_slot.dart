@@ -112,7 +112,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   if (inAppUpdates && u.offered) {
     final w = deskUpdateWords(l, u);
     if (u.phase == DeskUpdatePhase.downloading) {
-      downloading = NowItem(id: 'update', icon: EIcons.download, tone: ETone.gold, title: w.title, progress: u.progress ?? -1);
+      downloading = NowItem(id: 'update', icon: EIcons.download, tone: ETone.info, title: w.title, progress: u.progress ?? -1);
     } else {
       items.add(
         NowItem(

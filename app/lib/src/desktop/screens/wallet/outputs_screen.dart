@@ -489,7 +489,7 @@ class _Tiles extends StatelessWidget {
           // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
           // as the phone's: they are in no other figure and not in Total.
           tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b.minConfirmations, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
-          if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
+          if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b.immature, n?.immature),
           tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked, hint: b.locked > 0 ? l.deskOutLockedNote : null),
           tile(l.deskOutTileTotal, null, b.total, n?.total, total: true),
         ],
@@ -635,11 +635,11 @@ class _OutputRow extends StatelessWidget {
     final o = output;
     return switch (o.word) {
       OutputWord.spendable => (l.deskOutStatusSpendable, null, c.ok),
-      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.warn),
+      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.info),
       OutputWord.finalizing => (l.deskOutStatusAwaiting, l.deskOutNoteWaitingSender, c.dim),
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
-      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.warn),
-      OutputWord.mining => (l.deskOutStatusMining, null, c.warn),
+      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.info),
+      OutputWord.mining => (l.deskOutStatusMining, null, c.info),
       OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : l.deskOutNoteBySend(o.txId!)), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
     };
@@ -663,7 +663,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.confirming => ERing(confirmations: o.confirmations, needed: o.confirmationsNeeded, size: 18.u),
       OutputWord.finalizing => ERing(confirmations: 0, size: 18.u),
       OutputWord.unpaidInvoice => Icon(EIcons.invoice, size: Ctl.iconSm, color: c.dim),
-      OutputWord.immature || OutputWord.mining => Icon(EIcons.sand, size: Ctl.iconSm, color: c.warn),
+      OutputWord.immature || OutputWord.mining => Icon(EIcons.sand, size: Ctl.iconSm, color: c.info),
       OutputWord.locked => Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim),
       OutputWord.spent => Icon(EIcons.minusCircle, size: Ctl.iconSm, color: c.faint),
     };

@@ -4776,5 +4776,6 @@
   "pairInvitedOn": "Приглашение отправлено {day}",
   "deskActNoneUnderFilter": "Под этим фильтром ничего нет",
   "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт.",
-  "deskKitMethodConnected": "Подключено"
+  "deskKitMethodConnected": "Подключено",
+  "deskOvSendWaitsNode": "Отправка станет доступна, когда узел ответит."
 }

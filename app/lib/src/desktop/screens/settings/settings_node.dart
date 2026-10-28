@@ -63,7 +63,8 @@ bool versionOld(String? v) {
 
 ETone nodeTone(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => ETone.ok,
-  ServiceHealth.slow || ServiceHealth.checking => ETone.warn,
+  ServiceHealth.checking => ETone.info,
+  ServiceHealth.slow => ETone.warn,
   ServiceHealth.down => ETone.risk,
   ServiceHealth.off => ETone.neutral,
 };
@@ -460,12 +461,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                         : failover != null
                         ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
                         : (prefs.nodeLabels[current.url] ?? current.operator),
-                    tone: switch (view.state) {
-                      EState.ok => ETone.ok,
-                      EState.warn => ETone.warn,
-                      EState.risk => ETone.risk,
-                      EState.off => ETone.neutral,
-                    },
+                    tone: stateTone(view.state),
                     servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
                       final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
                       return c.own ? ownLabel(l, c, url) : null;

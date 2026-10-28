@@ -876,13 +876,6 @@ class _WalletChip extends ConsumerWidget {
   }
 }
 
-Color _dotColor(DeskColors c, EState s) => switch (s) {
-  EState.ok => c.ok,
-  EState.warn => c.warn,
-  EState.risk => c.risk,
-  EState.off => c.lineField,
-};
-
 /// Node · Epicbox · Tor, each a glyph with a state dot; a click lists the rows of the sidebar's
 /// status, each opening its settings.
 class _StatusCluster extends ConsumerWidget {
@@ -896,7 +889,6 @@ class _StatusCluster extends ConsumerWidget {
     final p = ref.read(settingsPrefsProvider.notifier);
     return ServiceRows(
       builder: (context, items) {
-        final c = context.dc;
         final ts = context.ts;
         // The bar keeps three: the node, Epicbox and Tor (HTTP, when on, is in the list).
         final shown = [
@@ -920,36 +912,14 @@ class _StatusCluster extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-status'),
             label: summary,
-            tooltip: l.deskBarStatus,
+            tooltip: [for (final i in shown) '${i.name}: ${i.word}'].join('\n'),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 6.u),
             onPressed: () => _toggle(m),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final i in shown)
-                  SizedBox.square(
-                    dimension: 26.u,
-                    child: Stack(
-                      children: [
-                        Center(child: Icon(i.icon, size: 17.u, color: dim || i.state == EState.off ? c.faint : c.dim)),
-                        PositionedDirectional(
-                          end: 3.u - 2,
-                          bottom: 3.u - 2,
-                          child: AnimatedContainer(
-                            duration: Dur.base,
-                            width: 7.u + 4,
-                            height: 7.u + 4,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _dotColor(c, i.state).withValues(alpha: dim ? 0.6 : 1),
-                              border: Border.all(color: c.bg, width: 2),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                for (final i in shown) EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', dim: dim),
                 if (shown.isEmpty) Text('–', style: ts.caption), // l10n-ok: placeholder
               ],
             ),
@@ -992,7 +962,7 @@ class _StatusRow extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 8.u, height: 8.u, decoration: BoxDecoration(shape: BoxShape.circle, color: _dotColor(c, i.state))),
+            EStateDot(i.state),
             SizedBox(width: Sp.x2),
             Text(i.word, style: ts.small.copyWith(color: c.dim)),
           ],

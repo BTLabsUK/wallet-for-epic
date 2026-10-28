@@ -4776,5 +4776,6 @@
   "pairInvitedOn": "เชิญเมื่อ {day}",
   "deskActNoneUnderFilter": "ไม่มีรายการในตัวกรองนี้",
   "deskRecvHttpIntroInternet": "สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่",
-  "deskKitMethodConnected": "เชื่อมต่อแล้ว"
+  "deskKitMethodConnected": "เชื่อมต่อแล้ว",
+  "deskOvSendWaitsNode": "การส่งจะกลับมาเมื่อโหนดตอบสนอง"
 }

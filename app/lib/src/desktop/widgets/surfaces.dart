@@ -246,10 +246,11 @@ class ENotice extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
       decoration: BoxDecoration(
-        color: tone == ETone.neutral || tone == ETone.ok ? c.s1 : (tone == ETone.gold ? c.accentFaint : bg),
+        // In progress (info) is not a warning: the neutral panel with a blue icon.
+        color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.s1 : (tone == ETone.gold ? c.accentFaint : bg),
         borderRadius: BorderRadius.circular(Rad.sm),
         border: Border.all(
-          color: tone == ETone.neutral || tone == ETone.ok ? c.lineStrong : fg.withValues(alpha: 0.4),
+          color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.lineStrong : fg.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
@@ -878,7 +879,8 @@ class EProgress extends StatelessWidget {
         value: value,
         minHeight: 4.u,
         backgroundColor: c.s3,
-        color: c.accent,
+        // Progress is in progress: blue, never the brand gold.
+        color: c.info,
       ),
     );
   }

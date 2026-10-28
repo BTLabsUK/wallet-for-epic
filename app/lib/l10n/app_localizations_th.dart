@@ -17832,4 +17832,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'เชื่อมต่อแล้ว';
+
+  @override
+  String get deskOvSendWaitsNode => 'การส่งจะกลับมาเมื่อโหนดตอบสนอง';
 }

@@ -18888,4 +18888,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Połączono';
+
+  @override
+  String get deskOvSendWaitsNode =>
+      'Wysyłanie będzie możliwe, gdy węzeł odpowie.';
 }

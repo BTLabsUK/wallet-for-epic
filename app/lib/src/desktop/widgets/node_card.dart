@@ -153,8 +153,8 @@ class NodeCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              ESignalBars(v.state),
-              SizedBox(width: Sp.x2),
+              EStatusGlyph(icon: EIcons.node, state: v.state, label: v.word, size: 16.u),
+              SizedBox(width: Sp.x1),
               Flexible(
                 child: Text.rich(
                   TextSpan(

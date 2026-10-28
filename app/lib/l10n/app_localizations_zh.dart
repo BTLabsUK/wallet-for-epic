@@ -17176,4 +17176,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => '已连接';
+
+  @override
+  String get deskOvSendWaitsNode => '节点响应后即可继续发送。';
 }

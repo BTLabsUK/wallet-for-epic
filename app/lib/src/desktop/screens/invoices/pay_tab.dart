@@ -205,7 +205,7 @@ class _NeedsNotice extends ConsumerWidget {
           InvButton(label: l.deskTxSendAgain, kind: EBtnKind.primary, icon: EIcons.refresh, onPressed: () => retryPayment(context, i)),
         // A stalled payment may still be finished by the service: no cancel until its time passed.
         if (i.state.cancellable)
-          InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, onPressed: () => showCancelPaymentDialog(context, i)),
+          InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, kind: EBtnKind.danger, onPressed: () => showCancelPaymentDialog(context, i)),
         if (i.txId != null)
           InvButton(label: l.deskInvPayerView, kind: EBtnKind.ghost, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
       ],

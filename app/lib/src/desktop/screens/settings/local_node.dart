@@ -341,6 +341,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
               ERowControl(
                 child: EButton(
                   label: l.deskSetLnodeDelete,
+                  kind: EBtnKind.danger,
                   size: EBtnSize.sm,
                   onPressed: s.chainDataOrigin == ChainDataOrigin.pointed ? null : () => showDeleteChainDataDialog(context, api, s),
                 ),
@@ -542,8 +543,8 @@ class _StatusTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            ESignalBars(v.state),
-            SizedBox(width: Sp.x2),
+            EStatusGlyph(icon: EIcons.node, state: v.state, label: v.word, size: 16.u),
+            SizedBox(width: Sp.x1),
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -675,7 +676,7 @@ class NodeSyncBar extends StatelessWidget {
         child: LinearProgressIndicator(
           value: value ?? (reduced ? 1 : null),
           backgroundColor: c.s3,
-          color: value == null && reduced ? c.accent.withValues(alpha: 0.35) : c.accent,
+          color: value == null && reduced ? c.info.withValues(alpha: 0.35) : c.info,
           semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
           semanticsValue: value == null ? null : '${(value! * 100).floor()}%',
         ),

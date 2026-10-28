@@ -441,7 +441,7 @@ class ESegment<T> {
   final String? tooltip;
 }
 
-/// Segmented control: the selected segment is raised with an accent underline.
+/// Segmented control: the selected segment is raised, neutral (never gold: R9), with a hairline.
 /// [size] `sm` is 36 u tall (a row's control), `md` 44 u (the Send method selector);
 /// [stretch] gives every segment an equal share of the width.
 class ESegmented<T> extends StatelessWidget {
@@ -510,7 +510,7 @@ class _SegState<T> extends State<_Seg<T>> {
     final c = context.dc;
     final sel = widget.selected;
     final off = widget.onTap == null;
-    final fg = sel ? c.accentText : (off ? c.faint : (_hover ? c.text : c.dim));
+    final fg = sel ? c.text : (off ? c.faint : (_hover ? c.text : c.dim));
     final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg);
     final tip = widget.seg.tooltip;
     final seg = Semantics(
@@ -534,9 +534,9 @@ class _SegState<T> extends State<_Seg<T>> {
                 height: (widget.md ? Ctl.md : Ctl.sm) - 2 * 3.u - 2,
                 padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
-                  color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
+                  color: sel ? c.s4 : (_hover ? c.hover : Colors.transparent),
                   borderRadius: BorderRadius.circular(6.u),
-                  border: sel ? Border(bottom: BorderSide(color: c.accent, width: 2)) : null,
+                  border: Border.all(color: sel ? c.lineStrong : Colors.transparent),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -566,7 +566,8 @@ class _SegState<T> extends State<_Seg<T>> {
   }
 }
 
-/// A radio option that needs a sentence: icon, title, description, selected with an accent edge.
+/// A radio option that needs a sentence: icon, title, description; selected is neutral: a raised
+/// fill, a 40 % text edge and a check (never gold: R9).
 class EChoiceCard extends StatefulWidget {
   const EChoiceCard({
     super.key,
@@ -614,15 +615,15 @@ class _EChoiceCardState extends State<EChoiceCard> {
                 duration: Dur.fast,
                 padding: EdgeInsets.all(Sp.x4),
                 decoration: BoxDecoration(
-                  color: sel ? c.accentFaint : c.s1,
+                  color: sel ? c.s3 : c.s1,
                   borderRadius: BorderRadius.circular(Rad.sm),
-                  border: Border.all(color: sel ? c.accent : (_hover ? c.dim : c.lineStrong)),
+                  border: Border.all(color: sel ? c.text.withValues(alpha: 0.4) : (_hover ? c.dim : c.lineStrong)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.icon != null) ...[
-                      Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : c.faint),
+                      Icon(widget.icon, size: Ctl.icon, color: sel ? c.text : c.faint),
                       SizedBox(width: Sp.x3),
                     ],
                     Expanded(
@@ -637,6 +638,12 @@ class _EChoiceCardState extends State<EChoiceCard> {
                           if (widget.tag != null) ...[SizedBox(height: Sp.x2), widget.tag!],
                         ],
                       ),
+                    ),
+                    SizedBox(width: Sp.x3),
+                    AnimatedOpacity(
+                      opacity: sel ? 1 : 0,
+                      duration: Dur.fast,
+                      child: Icon(EIcons.check, size: Ctl.iconSm, color: c.text),
                     ),
                   ],
                 ),

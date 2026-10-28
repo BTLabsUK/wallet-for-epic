@@ -34,6 +34,7 @@
   "deskOvSend": "Wyślij",
   "deskOvReceive": "Odbierz",
   "deskOvSendWaits": "Wysyłanie wróci po synchronizacji węzła.",
+  "deskOvSendWaitsNode": "Wysyłanie będzie możliwe, gdy węzeł odpowie.",
   "deskOvAvailable": "Do wydania",
   "deskOvAsOfBlock": "Stan na blok {block}",
   "deskOvEmptyHint": "Udostępnij adres Epicbox, aby odebrać pierwsze EPIC.",

@@ -4776,5 +4776,6 @@
   "pairInvitedOn": "Zaproszenie wysłano {day}",
   "deskActNoneUnderFilter": "Nic pod tym filtrem",
   "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
-  "deskKitMethodConnected": "Połączono"
+  "deskKitMethodConnected": "Połączono",
+  "deskOvSendWaitsNode": "Wysyłanie będzie możliwe, gdy węzeł odpowie."
 }

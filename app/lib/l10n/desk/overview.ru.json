@@ -34,6 +34,7 @@
   "deskOvSend": "Отправить",
   "deskOvReceive": "Получить",
   "deskOvSendWaits": "Отправка возобновится, когда узел синхронизируется.",
+  "deskOvSendWaitsNode": "Отправка станет доступна, когда узел ответит.",
   "deskOvAvailable": "Доступно",
   "deskOvAsOfBlock": "На блоке {block}",
   "deskOvEmptyHint": "Поделитесь адресом Epicbox, чтобы получить первые EPIC.",

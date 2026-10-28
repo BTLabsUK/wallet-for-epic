@@ -172,7 +172,7 @@ MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status,
   if (!included) return MethodLine(l.deskSetPrivNotInBuild, EState.off);
   return switch (tor) {
     TorState.off => MethodLine(l.deskSetFrameOff, EState.off),
-    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.warn, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
+    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.active, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
     TorState.on when status?.tor == ServiceHealth.slow =>
       MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
     TorState.on => MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: l.deskSetPrivConnected),

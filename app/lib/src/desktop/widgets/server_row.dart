@@ -64,7 +64,7 @@ class ServerInfo {
 
 int _rank(EState s) => switch (s) {
   EState.ok => 0,
-  EState.warn => 1,
+  EState.active || EState.warn => 1,
   EState.risk => 2,
   EState.off => 3,
 };

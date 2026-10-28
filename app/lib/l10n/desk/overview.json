@@ -173,6 +173,10 @@
   "@deskOvSendWaits": {
     "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
   },
+  "deskOvSendWaitsNode": "Sending resumes when the node answers.",
+  "@deskOvSendWaitsNode": {
+    "description": "Small text under the buttons on Overview while Send is disabled because the node does not answer."
+  },
   "deskOvAvailable": "Available to spend",
   "@deskOvAvailable": {
     "description": "Label above the big balance amount on Overview."

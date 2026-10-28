@@ -437,7 +437,7 @@ class _Learn extends ConsumerWidget {
                 title: l.deskActEmptyTitle,
                 text: l.deskActEmptyText,
               ),
-              stage(Icon(EIcons.sand, size: 20.u, color: c.warn), l.deskActStageWaiting, l.deskActStageWaitingText),
+              stage(Icon(EIcons.sand, size: 20.u, color: c.info), l.deskActStageWaiting, l.deskActStageWaitingText),
               stage(ERing(confirmations: 1, needed: needed), l.deskActStageConfirming, l.deskActStageConfirmingText),
               stage(ERing(confirmations: needed, needed: needed), l.deskActStageSpendable, l.deskActStageSpendableText(needed)),
               SizedBox(height: Sp.x5),

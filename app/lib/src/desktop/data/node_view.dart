@@ -101,7 +101,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
     final h = info.height;
     return NodeView(
       word: l.deskNodeSyncing,
-      state: EState.warn,
+      state: EState.active,
       host: host,
       marker: behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null,
       lines: [
@@ -132,7 +132,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   }
   return NodeView(
     word: l.deskNodeSynced,
-    state: old ? EState.warn : EState.ok,
+    state: EState.ok,
     host: host,
     lines: [
       [full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip].join(' · '),
@@ -160,7 +160,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
     case LocalNodePhase.starting:
       return NodeView(
         word: l.deskNodeStarting,
-        state: EState.warn,
+        state: EState.active,
         host: host,
         marker: l.deskNodeMarkerStarting,
         lines: [name, l.deskNodeConnectingPeers, if (fallback != null) l.deskNodeUsingUntilSynced(fallback)],
@@ -169,7 +169,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
       final pct = p?.overall == null ? null : percent(p!.overall!);
       return NodeView(
         word: l.deskNodeSyncing,
-        state: EState.warn,
+        state: EState.active,
         host: host,
         marker: pct,
         lines: [

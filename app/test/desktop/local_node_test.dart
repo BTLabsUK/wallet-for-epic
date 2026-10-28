@@ -59,7 +59,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  String headText(WidgetTester tester) => tester.widget<ESignalBars>(find.byType(ESignalBars).last).state.name;
+  String headText(WidgetTester tester) => tester.widget<EStatusGlyph>(find.byType(EStatusGlyph).last).state.name;
 
   testWidgets('a notice that goes away eases out with its own words, not an empty box', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow));

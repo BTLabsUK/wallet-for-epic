@@ -731,28 +731,17 @@ class _TimelineStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    // The phone tracker's stepper (UI-036): round nodes, a green check done, a blue ring now,
+    // a grey ring to come.
     final mark = Container(
       width: 20.u,
       height: 20.u,
       decoration: BoxDecoration(
-        color: c.s1,
-        borderRadius: BorderRadius.circular(5.u),
-        border: Border.all(
-          color: switch (step.state) {
-            _S.done => c.ok.withValues(alpha: 0.5),
-            _S.now => c.info,
-            _S.todo => c.lineStrong,
-          },
-        ),
+        color: step.state == _S.done ? c.ok : c.s1,
+        shape: BoxShape.circle,
+        border: step.state == _S.done ? null : Border.all(color: step.state == _S.now ? c.info : c.lineStrong, width: 2),
       ),
-      child: switch (step.state) {
-        _S.done => Icon(EIcons.check, size: 13.u, color: c.ok),
-        _S.now => Padding(
-          padding: EdgeInsets.all(4.u),
-          child: CircularProgressIndicator(strokeWidth: 1.5, color: c.info),
-        ),
-        _S.todo => null,
-      },
+      child: step.state == _S.done ? Icon(EIcons.check, size: 13.u, color: c.bg) : null,
     );
     return IntrinsicHeight(
       child: Row(
@@ -768,7 +757,7 @@ class _TimelineStep extends StatelessWidget {
                     child: Container(
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 2),
-                      color: step.state == _S.done ? c.ok.withValues(alpha: 0.5) : c.lineStrong,
+                      color: step.state == _S.done ? c.ok : c.lineStrong,
                     ),
                   ),
               ],

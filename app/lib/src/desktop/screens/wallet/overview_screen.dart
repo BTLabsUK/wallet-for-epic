@@ -15,7 +15,7 @@ import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, sh
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 
 /// States the tour can start Overview in.
 enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
@@ -151,6 +151,14 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           ],
         ),
       if (syncing) _SyncNotice(part: _syncPart, walletTip: _walletTip),
+      // Tor only, Tor not up yet: the node waits for it (in progress, as Send and Receive say).
+      if (netBlock == NetBlock.waitingForTor)
+        ENotice(
+          key: const ValueKey('overview-waiting-tor'),
+          tone: ETone.info,
+          title: l.deskNetWaitingTorReason,
+          actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+        ),
     ];
 
     return EPage(
@@ -188,6 +196,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               offline: offline,
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
+              nodeAnswers: !(nodeDown || demo == OverviewDemo.nodeProblem),
             ),
           ),
           SizedBox(height: Sp.x2),
@@ -275,8 +284,7 @@ class _SyncNotice extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ENotice(
-          tone: ETone.warn,
-          icon: EIcons.server,
+          tone: ETone.info,
           title: l.deskOvSyncTitle((part * 100).round()),
           text: l.deskOvSyncText,
         ),
@@ -295,8 +303,11 @@ class _SyncNotice extends StatelessWidget {
 
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
+/// The decimals [nano] needs, trailing zeros dropped.
+int _decimalsOf(int nano) => (nano.abs() % nanoPerEpic).toString().padLeft(8, '0').replaceFirst(RegExp(r'0+$'), '').length;
+
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.offline = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false});
 
   final Balance? balance;
   final bool empty;
@@ -308,6 +319,9 @@ class _BalancePanel extends ConsumerWidget {
 
   /// The node is not synced: Send waits, and says why.
   final bool sendBlocked;
+
+  /// The node answers (Send waits for its sync); false when it does not answer at all.
+  final bool nodeAnswers;
 
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
@@ -348,7 +362,7 @@ class _BalancePanel extends ConsumerWidget {
           SizedBox(height: Sp.x2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 240.u),
-            child: Text(l.deskOvSendWaits, style: ts.small),
+            child: Text(nodeAnswers ? l.deskOvSendWaits : l.deskOvSendWaitsNode, style: ts.small),
           ),
         ],
       ],
@@ -420,53 +434,47 @@ class _BalancePanel extends ConsumerWidget {
           Divider(height: 1, color: c.line),
           LayoutBuilder(
             builder: (context, box) {
+              // The phone's order (GP-007); Available to spend is the big figure above.
               final items = <(String, int?, Widget?)>[
-                (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
                 if (b == null || b.immature > 0) (l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
               ];
-              // Two columns on a narrow panel, one row otherwise.
-              if (box.maxWidth < items.length * 180.u) {
-                final half = (box.maxWidth / 2).floorToDouble();
-                return Wrap(
-                  children: [
-                    for (final (i, it) in items.indexed)
-                      SizedBox(
-                        width: i == items.length - 1 && items.length.isOdd ? box.maxWidth : half,
-                        child: _Break(
-                          width: i == items.length - 1 && items.length.isOdd ? box.maxWidth : half,
-                          label: it.$1,
-                          nano: it.$2,
-                          lead: it.$3,
-                          dim: updating,
-                          right: i.isEven && !(i == items.length - 1 && items.length.isOdd),
-                          bottom: i < items.length - (items.length.isEven ? 2 : 1),
-                        ),
+              // One precision for every tile: the most any of them needs, never under 4.
+              final decimals = [for (final it in items) if (it.$2 != null) _decimalsOf(it.$2!)].fold(4, (a, d) => d > a ? d : a);
+              // One row when it fits; else rows of three (two for four tiles), the last row's
+              // tiles stretching, so no tile is left alone beside an empty cell.
+              final perRow = box.maxWidth >= items.length * 180.u ? items.length : (items.length == 4 ? 2 : 3);
+              final rows = [for (var i = 0; i < items.length; i += perRow) items.sublist(i, i + perRow > items.length ? items.length : i + perRow)];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (r, row) in rows.indexed)
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, it) in row.indexed)
+                            Expanded(
+                              child: _Break(
+                                label: it.$1,
+                                nano: it.$2,
+                                lead: it.$3,
+                                decimals: decimals,
+                                width: box.maxWidth / row.length,
+                                dim: updating,
+                                first: i == 0,
+                                right: i < row.length - 1,
+                                bottom: r < rows.length - 1,
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
-                );
-              }
-              return IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, it) in items.indexed)
-                      Expanded(
-                        child: _Break(
-                          label: it.$1,
-                          nano: it.$2,
-                          lead: it.$3,
-                          width: box.maxWidth / items.length,
-                          dim: updating,
-                          first: i == 0,
-                          right: i < items.length - 1,
-                        ),
-                      ),
-                  ],
-                ),
+                    ),
+                ],
               );
             },
           ),
@@ -599,7 +607,11 @@ class _Break extends StatelessWidget {
     this.right = false,
     this.bottom = false,
     this.dim = false,
+    this.decimals = 4,
   });
+
+  /// Decimals shown: the same in every tile of the row (UI-013).
+  final int decimals;
 
   /// The cell's width, for fitting the amount.
   final double width;
@@ -623,8 +635,10 @@ class _Break extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(right: right ? side : BorderSide.none, bottom: bottom ? side : BorderSide.none),
       ),
+      // Label at the top, value at the bottom: values share one baseline when a label wraps.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
@@ -634,15 +648,18 @@ class _Break extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: Sp.x1),
-          nano == null
+          Padding(
+            padding: EdgeInsets.only(top: Sp.x1),
+            child: nano == null
               ? _Skeleton(width: 90.u, height: 16.u)
               : FitMoney(
                   nano!,
+                  decimals: decimals,
                   sizes: const [Fs.lg, Fs.md, Fs.sm, Fs.xs],
                   width: width - (first ? Sp.x8 : Sp.x5) - Sp.x5,
                   color: zero || dim ? c.faint : c.text,
                 ),
+          ),
         ],
       ),
     );

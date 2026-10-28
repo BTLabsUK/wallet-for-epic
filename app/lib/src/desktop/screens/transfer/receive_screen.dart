@@ -293,8 +293,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final offline = net == NetBlock.offline;
     return ENotice(
       key: const ValueKey('rx-net-blocked'),
-      tone: ETone.warn,
-      icon: offline ? EIcons.lanOff : EIcons.tor,
+      // Waiting for Tor is in progress (blue ⓘ); Offline is the mode's hold.
+      tone: offline ? ETone.warn : ETone.info,
+      icon: offline ? EIcons.lanOff : null,
       title: netBlockReason(l, net)!,
       text: offline ? l.deskNetRecvOfflineText : l.deskNetRecvWaitTorText,
       actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
@@ -324,7 +325,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final l = context.l10n;
     return ENotice(
       key: const ValueKey('rx-tor-notice'),
-      tone: failed ? ETone.risk : ETone.warn,
+      tone: failed ? ETone.risk : ETone.info,
       title: failed ? l.deskRecvTorNotConnected : l.deskRecvTorStarting,
       text: failed ? l.deskRecvTorDownText : l.deskRecvTorStartingText,
       actions: [

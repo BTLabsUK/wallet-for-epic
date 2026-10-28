@@ -117,7 +117,7 @@ class _RingPainter extends CustomPainter {
 
 /// An amount in EPIC: mono, tabular, blurred while amounts are hidden.
 class EMoney extends ConsumerWidget {
-  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight});
+  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals});
 
   final int nano;
   final double size;
@@ -128,11 +128,14 @@ class EMoney extends ConsumerWidget {
   final bool unit;
   final FontWeight? weight;
 
+  /// At least this many decimals (default 4).
+  final int? decimals;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano)}';
+    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano, minDecimals: decimals ?? 4)}';
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
     final row = Text.rich(
       TextSpan(

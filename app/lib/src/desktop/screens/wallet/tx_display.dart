@@ -84,7 +84,7 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
 /// Epicbox is off ([paused]) a send waits in the outbox, and the row says that instead.
 (String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false}) =>
     mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted
-    ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), ETone.warn)
+    ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), paused ? ETone.warn : ETone.info)
     : statusOf(l, t);
 
 /// What a row is called: the user's label, else [whoOf].
@@ -133,14 +133,15 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
     : t.fromBackup
     ? (l.deskTxFromBackup, ETone.neutral)
     : t.immature
-    ? (l.deskTxStatusImmature, ETone.warn)
+    ? (l.deskTxStatusImmature, ETone.info)
     : switch (t.state) {
         TxState.waitingRecipient when t.undelivered => (l.deskTxStatusUndelivered, ETone.warn),
         // The sender's word, not the chain's: in progress, never Received before a block.
         TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
         TxState.waitingRecipient => (
           t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
-          ETone.warn,
+          // Waiting is in progress (blue); amber only for a wait that went wrong.
+          ETone.info,
         ),
         TxState.posted when t.notPosted => (l.deskTxStatusNotPosted, ETone.warn),
         TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
@@ -193,7 +194,7 @@ double fitFontSize(BuildContext context, String text, TextStyle style, List<doub
 
 /// An [EMoney] that steps its size down through [sizes] to fit its width.
 class FitMoney extends ConsumerWidget {
-  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width});
+  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width, this.decimals});
 
   final int nano;
   final List<double> sizes;
@@ -206,19 +207,22 @@ class FitMoney extends ConsumerWidget {
   final bool unit;
   final FontWeight? weight;
 
+  /// At least this many decimals (a row of tiles shows one precision).
+  final int? decimals;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpicL(context.l10n, nano)}${unit ? ' EPIC' : ''}';
+    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpicL(context.l10n, nano, minDecimals: decimals ?? 4)}${unit ? ' EPIC' : ''}';
     final style = context.ts.mono(weight: weight ?? FontWeight.w500);
     if (width != null) {
-      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight);
+      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight, decimals: decimals);
     }
     return LayoutBuilder(
       builder: (context, box) {
         final size = box.maxWidth.isFinite ? fitFontSize(context, text, style, sizes, box.maxWidth) : sizes.first;
         return ClipRect(
-          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight),
+          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight, decimals: decimals),
         );
       },
     );
@@ -295,12 +299,12 @@ class TxStateMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.warn);
+    if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.info);
     // The chain was not asked about a payment only a backup knows: no count to show.
     if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
-      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.senderPosted ? c.info : c.warn),
+      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.undelivered ? c.warn : c.info),
       TxState.posted => ERing(confirmations: 0, size: size),
       _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),
     };

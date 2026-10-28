@@ -93,7 +93,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       state: st == null
           ? EState.off
           : ebWaits
-          ? (ebWay == TorWay.blocked ? EState.risk : EState.warn)
+          ? (ebWay == TorWay.blocked ? EState.risk : EState.active)
           : stateOf(eb),
       // Tor only says what it waits for on the row itself; the other modes keep the host.
       second: ebWaits && settings.advanced.networkMode == NetworkMode.torOnly
@@ -127,7 +127,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         },
         state: switch (run) {
           HttpRun.on => EState.ok,
-          HttpRun.busy => EState.warn,
+          HttpRun.busy => EState.active,
           HttpRun.failed => EState.risk,
           HttpRun.off => EState.off,
         },
@@ -160,7 +160,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
             ? EState.off
             : switch (tor) {
                 TorState.off => EState.off,
-                TorState.starting => EState.warn,
+                TorState.starting => EState.active,
                 TorState.on => EState.ok,
                 TorState.failed => EState.risk,
               },
@@ -313,7 +313,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
         icon: nodeItem.icon,
         name: nodeItem.name,
         word: l.deskRailWaitingTor,
-        state: EState.warn,
+        state: EState.active,
         second: l.deskRailWaitingTor,
         lines: [l.deskRailWaitsForTor],
         open: nodeItem.open,
@@ -379,7 +379,7 @@ class _RailRowState extends State<RailRow> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ESignalBars(i.state),
+            EStateDot(i.state),
             SizedBox(width: Sp.x2),
             Text('${i.name} · ${i.word}', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
           ],
@@ -407,16 +407,15 @@ class _RailRowState extends State<RailRow> {
       content = Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(i.icon, size: 16.u, color: c.dim),
-          SizedBox(width: 5.u),
-          ESignalBars(i.state),
+          EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', size: 16.u),
         ],
       );
     } else {
       content = Row(
         children: [
-          Icon(i.icon, size: 16.u, color: c.dim),
-          SizedBox(width: 10.u),
+          // The glyph with its state dot, as the title bar; bars only where latency shows.
+          EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', size: 16.u),
+          SizedBox(width: 6.u),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -432,8 +431,6 @@ class _RailRowState extends State<RailRow> {
               ],
             ),
           ),
-          SizedBox(width: 8.u),
-          ESignalBars(i.state),
         ],
       );
     }

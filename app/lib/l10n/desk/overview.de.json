@@ -34,6 +34,7 @@
   "deskOvSend": "Senden",
   "deskOvReceive": "Empfangen",
   "deskOvSendWaits": "Senden ist wieder möglich, sobald der Node synchronisiert ist.",
+  "deskOvSendWaitsNode": "Senden ist wieder möglich, sobald der Node antwortet.",
   "deskOvAvailable": "Verfügbar",
   "deskOvAsOfBlock": "Stand Block {block}",
   "deskOvEmptyHint": "Teilen Sie die Epicbox-Adresse, um die ersten EPIC zu empfangen.",
