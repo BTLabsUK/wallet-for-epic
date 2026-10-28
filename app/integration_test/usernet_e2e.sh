@@ -23,7 +23,7 @@ APP="$(cd "$HERE/.." && pwd)"
 NET="${EPIC_STABLE_NET:-$HOME/epic/stable-network}"
 RELAY_DIR="${EPIC_RELAY_DIR:-$HOME/epic/epic-relay}"
 CLI_BIN="${EPIC_STOCK_CLI:-$HOME/epic/user-env/bin/epic-wallet}"
-LOGS=/tmp/epic-build/wfe-app-logs
+LOGS="$HOME/epic-build/wfe-app-logs"
 CLI_PASS=e2e-stock-cli
 mkdir -p "$LOGS"
 . "$APP/../tools/env.sh"

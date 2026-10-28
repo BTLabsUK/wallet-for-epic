@@ -11,7 +11,7 @@
 # No funds move; recovery phrases and passwords are never printed.
 set -uo pipefail
 here="$(cd "$(dirname "$0")/.." && pwd)"
-. "$(git rev-parse --show-toplevel)/tools/env.sh"
+. "$(cd "$(dirname "$0")/../.." && pwd)/tools/env.sh"
 OUT="${RC_OUT:-${TMPDIR:-$HOME/.cache/release-check}}"
 mkdir -p "$OUT/shots/desktop"
 

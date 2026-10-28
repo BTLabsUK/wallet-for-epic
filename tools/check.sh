@@ -3,7 +3,7 @@
 # Usage: tools/check.sh   (from anywhere inside a checkout or worktree)
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
-. "$(git rev-parse --show-toplevel)/tools/env.sh"
+. "$(cd "$(dirname "$0")" && pwd)/env.sh"
 
 step() { printf '\n== %s\n' "$1"; }
 

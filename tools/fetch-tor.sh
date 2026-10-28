@@ -14,6 +14,14 @@
 #                          a cached tarball is used only when its hash matches.
 #        TOR_ANDROID_ABIS  ABIs for `android` (default "arm64-v8a x86_64", the ABIs the app ships;
 #                          the pins also cover armeabi-v7a and x86).
+#
+# The pins are SHA-256 only; this script never checks a signature. Moving them to a new bundle is
+# done by hand, and the new hashes are written only after the Tor Project's signature checks:
+#   gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org   (the `wkd`)
+#   gpg --fingerprint EF6E286DDA85EA2A4BA7DE684E2C6E8793298290                    (`signingKey`)
+#   curl -fLO --proto '=https' <baseUrl><version>/<tarball> and the same URL + .asc
+#   gpg --verify <tarball>.asc <tarball>     (Good signature from that key, or stop)
+#   sha256sum <tarball>, then the kept files after extracting, into tools/tor-bundle.json.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"

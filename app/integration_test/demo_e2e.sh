@@ -14,10 +14,10 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP="$(cd "$HERE/.." && pwd)"
 LIB="${WFE_DEMO_LEPIC_LIB:-$APP/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so}"
-LOGS=/tmp/epic-build/wfe-app-logs
+LOGS="$HOME/epic-build/wfe-app-logs"
 LOG="$LOGS/demo-e2e-$(date -u +%Y%m%dT%H%M%SZ).log"
 mkdir -p "$LOGS"
-. "$(git rev-parse --show-toplevel)/tools/env.sh"
+. "$(cd "$(dirname "$0")/../.." && pwd)/tools/env.sh"
 
 [ -f "$LIB" ] || { echo "no LEPIC library at $LIB; run tools/lepic.sh build linux"; exit 1; }
 
