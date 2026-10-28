@@ -16,6 +16,7 @@ import 'help_sync.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
+import '../../../ui/settings_screen.dart' show supportEmail;
 import 'settings_advanced.dart' show advancedHas, advancedOf, AdvancedFeature;
 import 'settings_logs.dart';
 
@@ -332,6 +333,14 @@ class _SupportBar extends StatelessWidget {
                 Semantics(header: true, child: Text(context.l10n.deskSetReportTitle, style: ts.strong)),
                 SizedBox(height: 2.u),
                 Text(context.l10n.deskSetHelpReportText, style: ts.small),
+                SizedBox(height: 2.u),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${context.l10n.contactLabel}: ', style: ts.small),
+                    SelectableText(supportEmail, style: ts.small),
+                  ],
+                ),
               ],
             ),
           ),

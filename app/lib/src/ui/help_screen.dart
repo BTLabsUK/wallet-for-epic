@@ -482,6 +482,7 @@ class _StillStuck extends ConsumerWidget {
               onPressed: () => openFeedback(context),
             ),
           ),
+          LinkTile(title: l.contactLabel, url: supportEmail),
         ],
       ),
     );

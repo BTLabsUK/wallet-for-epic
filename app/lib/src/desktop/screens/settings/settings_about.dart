@@ -3,7 +3,7 @@ import '../../../app_version.dart';
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show torSourceNote;
-import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl;
+import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl, supportEmail;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
@@ -99,6 +99,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
             rows: [
               linkRow('Telegram', 't.me/EpicCash', telegramUrl), // l10n-ok: a name
               linkRow('epiccash.com', 'epiccash.com', websiteUrl),
+              _LinkRow(title: l.contactLabel, shown: supportEmail, url: 'mailto:$supportEmail', copy: supportEmail),
             ],
           ),
           if (deskUpdatesSupported) const _Updates(),
@@ -140,11 +141,14 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
 
 /// A link: its title, Open (the browser), and the address under it with a copy button.
 class _LinkRow extends ConsumerWidget {
-  const _LinkRow({required this.title, required this.shown, required this.url});
+  const _LinkRow({required this.title, required this.shown, required this.url, this.copy});
 
   final String title;
   final String shown;
   final String url;
+
+  /// What the copy button puts on the clipboard, when it is not [url].
+  final String? copy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,7 +166,7 @@ class _LinkRow extends ConsumerWidget {
         children: [
           Flexible(child: Text(shown, style: context.ts.mono(size: Fs.sm, color: c.faint), overflow: TextOverflow.ellipsis)),
           SizedBox(width: Sp.x1),
-          LinkCopyButton(url: url),
+          LinkCopyButton(url: copy ?? url),
         ],
       ),
     );

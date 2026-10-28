@@ -832,6 +832,7 @@
   "settingsSendFeedback": "报告问题",
   "settingsSendFeedbackHint": "向开发者报告问题或提出建议。只有你选择附上时才会发送日志，且会先移除助记词、PIN 码和其他机密信息。",
   "settingsSourceCode": "源代码",
+  "contactLabel": "联系方式",
   "settingsLicences": "许可证",
   "licencesLead": "本钱包包含的开源软件，各自适用其许可证。",
   "licencesApp": "Epic Cash Mobile，BT Labs 出品：Apache 2.0。",

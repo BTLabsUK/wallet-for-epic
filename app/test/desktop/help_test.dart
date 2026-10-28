@@ -93,6 +93,12 @@ void main() {
     expect(find.byType(HelpArt), findsNWidgets(7));
   }, skip: !torBuilt);
 
+  testWidgets('the support bar shows the contact address', (tester) async {
+    await _pump(tester);
+    expect(find.text('Contact: '), findsOneWidget);
+    expect(find.text('support@btlabs.uk'), findsOneWidget);
+  });
+
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {
     await _pump(tester);
     final title = find.text('Why does a transaction need both sides?');

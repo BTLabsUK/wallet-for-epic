@@ -1922,6 +1922,8 @@ void main() {
       expect(find.text('Licences'), findsOneWidget);
       expect(find.text('Source code'), findsNothing);
       expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
+      await _reveal(tester, find.text('support@btlabs.uk'));
+      expect(find.text('Contact'), findsOneWidget);
       await _reveal(tester, find.byKey(settingsLicencesKey));
       await tester.tap(find.byKey(settingsLicencesKey));
       await tester.pump();

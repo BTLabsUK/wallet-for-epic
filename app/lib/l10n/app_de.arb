@@ -832,6 +832,7 @@
   "settingsSendFeedback": "Problem melden",
   "settingsSendFeedbackHint": "Ein Problem melden oder den Entwicklern eine Idee vorschlagen. Protokolle gehen nur mit, wenn Sie sie anhängen; Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.",
   "settingsSourceCode": "Quellcode",
+  "contactLabel": "Kontakt",
   "settingsLicences": "Lizenzen",
   "licencesLead": "Open-Source-Software in dieser Wallet, jede unter ihrer eigenen Lizenz.",
   "licencesApp": "Epic Cash Mobile von BT Labs: Apache 2.0.",

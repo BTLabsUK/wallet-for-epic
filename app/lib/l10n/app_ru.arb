@@ -832,6 +832,7 @@
   "settingsSendFeedback": "Сообщить о проблеме",
   "settingsSendFeedbackHint": "Сообщите о проблеме или предложите разработчикам идею. Журналы отправляются, только если вы их приложите; фраза восстановления, PIN-код и другие секретные данные удаляются заранее.",
   "settingsSourceCode": "Исходный код",
+  "contactLabel": "Контакт",
   "settingsLicences": "Лицензии",
   "licencesLead": "Открытое ПО в этом кошельке, каждое под своей лицензией.",
   "licencesApp": "Epic Cash Mobile от BT Labs: Apache 2.0.",

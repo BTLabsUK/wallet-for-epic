@@ -78,6 +78,9 @@ const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
 const bool projectRepoPublic = false;
 const String epicCashUrl = 'https://epiccash.com';
 
+/// The public contact address, shown in Help and About. Never translated.
+const String supportEmail = 'support@btlabs.uk';
+
 
 /// The app version and the core's: the installed package's on Android, else the one this
 /// build was made from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit
@@ -1279,6 +1282,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // A proper name, the same in every language.
       const LinkTile(title: 'Epic Cash', url: epicCashUrl),
       if (projectRepoPublic) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
+      LinkTile(title: l.contactLabel, url: supportEmail),
     ];
   }
 }

@@ -72,6 +72,12 @@ void main() {
     expect(find.textContaining('Apache-2.0'), findsWidgets, reason: 'the licence line stays');
   });
 
+  testWidgets('About shows the contact address', (tester) async {
+    await pump(tester, (_) async => (200, newer));
+    expect(find.text('Contact'), findsOneWidget);
+    expect(find.text('support@btlabs.uk'), findsOneWidget);
+  });
+
   test('versions compare by number', () {
     expect(isNewerVersion('0.1.1', '0.1.0'), isTrue);
     expect(isNewerVersion('0.1.10', '0.1.9'), isTrue);

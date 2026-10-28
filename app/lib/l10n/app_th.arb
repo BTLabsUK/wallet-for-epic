@@ -832,6 +832,7 @@
   "settingsSendFeedback": "รายงานปัญหา",
   "settingsSendFeedbackHint": "แจ้งปัญหาหรือเสนอไอเดียให้ผู้พัฒนา ล็อกจะส่งไปเฉพาะเมื่อคุณแนบ โดยลบวลีกู้คืน PIN และข้อมูลลับอื่นๆ ออกก่อน",
   "settingsSourceCode": "ซอร์สโค้ด",
+  "contactLabel": "ติดต่อ",
   "settingsLicences": "สัญญาอนุญาต",
   "licencesLead": "ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนมีสัญญาอนุญาตของตนเอง",
   "licencesApp": "Epic Cash Mobile โดย BT Labs: Apache 2.0",

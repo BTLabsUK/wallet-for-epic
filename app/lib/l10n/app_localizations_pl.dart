@@ -3284,6 +3284,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSourceCode => 'Kod źródłowy';
 
   @override
+  String get contactLabel => 'Kontakt';
+
+  @override
   String get settingsLicences => 'Licencje';
 
   @override

@@ -3261,6 +3261,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSourceCode => 'Исходный код';
 
   @override
+  String get contactLabel => 'Контакт';
+
+  @override
   String get settingsLicences => 'Лицензии';
 
   @override

@@ -5113,6 +5113,12 @@ abstract class AppLocalizations {
   /// **'Source code'**
   String get settingsSourceCode;
 
+  /// Label before the public contact email address, in Help (report a problem) and About.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactLabel;
+
   /// Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text.
   ///
   /// In en, this message translates to:

@@ -3224,6 +3224,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSourceCode => 'Quellcode';
 
   @override
+  String get contactLabel => 'Kontakt';
+
+  @override
   String get settingsLicences => 'Lizenzen';
 
   @override

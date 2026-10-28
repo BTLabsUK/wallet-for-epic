@@ -3121,6 +3121,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSourceCode => 'ซอร์สโค้ด';
 
   @override
+  String get contactLabel => 'ติดต่อ';
+
+  @override
   String get settingsLicences => 'สัญญาอนุญาต';
 
   @override

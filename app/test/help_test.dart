@@ -125,6 +125,13 @@ void main() {
   });
 
   group('help screen', () {
+    testWidgets('the index ends with the contact address', (tester) async {
+      final h = AppHarness();
+      await h.pump(tester, const HelpScreen());
+      await tester.scrollUntilVisible(find.text('support@btlabs.uk'), 300, scrollable: _list.last);
+      expect(find.text('Contact'), findsOneWidget);
+    });
+
     testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
