@@ -28,7 +28,7 @@
   "deskConDelete": "Löschen",
   "deskConNotDeleted": "Nicht gelöscht",
   "deskConDeleted": "{name} wurde gelöscht",
-  "deskConNote": "Notiz (optional)",
+  "deskConNote": "Notiz",
   "deskConTxWith": "Zahlungen mit {name}",
   "deskConAllTx": "Alle Zahlungen",
   "deskConTxNone": "Noch keine Zahlungen mit diesem Kontakt. Zahlungen an ihn über Senden erscheinen hier.",

@@ -1611,7 +1611,7 @@
   "deskConDelete": "删除",
   "deskConNotDeleted": "未删除",
   "deskConDeleted": "已删除 {name}",
-  "deskConNote": "备注（可选）",
+  "deskConNote": "备注",
   "deskConTxWith": "与 {name} 的付款",
   "deskConAllTx": "全部付款",
   "deskConTxNone": "还没有与此联系人的付款。从“发送”付给对方的付款会显示在这里。",
@@ -4783,5 +4783,8 @@
   "deskSetRescanFromDate": "从某个日期",
   "deskSetRescanPickDate": "选择日期",
   "deskSetRescanPickDateFirst": "请先选择日期。",
-  "contactsImportAddsAddress": "{name} 新增 {method} 地址：{address}"
+  "contactsImportAddsAddress": "{name} 新增 {method} 地址：{address}",
+  "netStatusTurnOnHint": "已关闭。在“设置 › 交易”中开启。",
+  "netStatusTurnOnHintPrivacy": "已关闭。在“设置 › 隐私与网络”中开启。",
+  "deskBarTurnOnHint": "已关闭。在“设置 › 交易”中开启。"
 }

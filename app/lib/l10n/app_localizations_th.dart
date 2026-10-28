@@ -7731,7 +7731,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => 'บันทึก (ไม่บังคับ)';
+  String get deskConNote => 'บันทึก';
 
   @override
   String deskConTxWith(String name) {
@@ -17855,4 +17855,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String contactsImportAddsAddress(String name, String method, String address) {
     return '$name ได้ที่อยู่ $method: $address';
   }
+
+  @override
+  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+
+  @override
+  String get netStatusTurnOnHintPrivacy =>
+      'ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย';
+
+  @override
+  String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
 }

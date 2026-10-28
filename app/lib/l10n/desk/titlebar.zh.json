@@ -28,5 +28,6 @@
   "deskBarBuildTip": "版本 {version}，提交 {commit}。点击可复制构建信息。",
   "deskBarBuildTipRebuild": "版本 {version}，重建 {rebuild}，提交 {commit}。点击可复制构建信息。",
   "deskBarBuildTipDev": "版本 {version}。开发版本。点击可复制构建信息。",
-  "deskBarKeyMenu": "打开应用菜单"
+  "deskBarKeyMenu": "打开应用菜单",
+  "deskBarTurnOnHint": "已关闭。在“设置 › 交易”中开启。"
 }

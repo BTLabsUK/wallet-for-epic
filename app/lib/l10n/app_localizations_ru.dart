@@ -8236,7 +8236,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => 'Заметка (необязательно)';
+  String get deskConNote => 'Заметка';
 
   @override
   String deskConTxWith(String name) {
@@ -18892,4 +18892,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String contactsImportAddsAddress(String name, String method, String address) {
     return '$name получает адрес $method: $address';
   }
+
+  @override
+  String get netStatusTurnOnHint =>
+      'Выключено. Включите в «Настройки › Транзакции».';
+
+  @override
+  String get netStatusTurnOnHintPrivacy =>
+      'Выключено. Включите в «Настройки › Приватность и сеть».';
+
+  @override
+  String get deskBarTurnOnHint =>
+      'Выключено. Включите в «Настройки › Транзакции».';
 }

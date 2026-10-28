@@ -139,7 +139,7 @@
       }
     }
   },
-  "deskConNote": "Note (optional)",
+  "deskConNote": "Note",
   "@deskConNote": {
     "description": "Label above the note in a contact's detail; also the label of the note field in the form."
   },

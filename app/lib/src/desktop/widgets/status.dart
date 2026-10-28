@@ -374,6 +374,10 @@ class EStatusGlyph extends StatelessWidget {
     final px = size ?? 17.u;
     final off = state == EState.off;
     final box = px + 9.u;
+    // The outline says whether the service is on (green) or off (faint); the dot, only on
+    // an enabled one, says how its connection goes: green connected, blue (pulsing) in
+    // progress, red down, amber a warning (bot #123). The label says the state in words.
+    final outline = off ? c.faint : c.ok;
     return Semantics(
       label: label,
       excludeSemantics: true,
@@ -383,18 +387,21 @@ class EStatusGlyph extends StatelessWidget {
           children: [
             Center(
               child: Opacity(
-                opacity: off ? 0.4 : 1,
-                child: Icon(icon, size: px, color: dim ? c.faint : c.dim),
+                opacity: off ? 0.5 : (dim ? 0.6 : 1),
+                child: Icon(icon, size: px, color: outline),
               ),
             ),
-            if (off) Center(child: CustomPaint(size: Size.square(px), painter: _SlashPainter(c.dim.withValues(alpha: 0.7), c.bg))),
             if (!off)
               PositionedDirectional(
                 end: 1.u,
                 bottom: 1.u,
                 child: AnimatedSwitcher(
                   duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
-                  child: EStateDot(state, key: ValueKey(state), ring: true, dim: dim),
+                  child: _MaybePulse(
+                    key: ValueKey(state),
+                    active: state == EState.active,
+                    child: EStateDot(state, ring: true, dim: dim),
+                  ),
                 ),
               ),
           ],
@@ -404,25 +411,35 @@ class EStatusGlyph extends StatelessWidget {
   }
 }
 
-class _SlashPainter extends CustomPainter {
-  _SlashPainter(this.color, this.gap);
+/// [child] fading between 45 % and full opacity while [active]; still with reduced motion.
+class _MaybePulse extends StatefulWidget {
+  const _MaybePulse({super.key, required this.active, required this.child});
 
-  final Color color, gap;
+  final bool active;
+  final Widget child;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final a = Offset(size.width * 0.12, size.height * 0.12), b = Offset(size.width * 0.88, size.height * 0.88);
-    // A background gap under the slash keeps it apart from the glyph's strokes.
-    canvas.drawLine(a, b, Paint()
-      ..color = gap
-      ..strokeWidth = 3.5
-      ..strokeCap = StrokeCap.round);
-    canvas.drawLine(a, b, Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round);
+  State<_MaybePulse> createState() => _MaybePulseState();
+}
+
+class _MaybePulseState extends State<_MaybePulse> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
   }
 
   @override
-  bool shouldRepaint(_SlashPainter old) => old.color != color || old.gap != gap;
+  Widget build(BuildContext context) {
+    final still = !widget.active || MediaQuery.disableAnimationsOf(context);
+    if (still) {
+      _c.stop();
+      return widget.child;
+    }
+    if (!_c.isAnimating) _c.repeat(reverse: true);
+    return FadeTransition(opacity: Tween(begin: 0.45, end: 1.0).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)), child: widget.child);
+  }
 }
+

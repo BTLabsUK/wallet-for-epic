@@ -342,7 +342,12 @@ class StatusIcon extends StatelessWidget {
     this.actionHint,
     this.pulse = false,
     this.compact = false,
+    this.enabled = true,
   });
+
+  /// Whether the service is on: the outline is green then and the dot shows its connection;
+  /// off, the glyph is faint and has no dot, and a tap opens the switch (bot #123).
+  final bool enabled;
 
   final IconData icon;
   final StatusDot dot;
@@ -372,7 +377,7 @@ class StatusIcon extends StatelessWidget {
       hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, if (!compact) ?actionHint].join('\n'),
       liveRegion: true,
       excludeSemantics: true,
-      onTap: compact ? null : onTap,
+      onTap: compact && enabled ? null : onTap,
       child: Tooltip(
         message: detail,
         triggerMode: TooltipTriggerMode.longPress,
@@ -381,23 +386,21 @@ class StatusIcon extends StatelessWidget {
           width: compact ? statusCompactWidth : statusTarget,
           height: statusTarget,
           child: InkResponse(
-            onTap: compact ? null : onTap,
+            onTap: compact && enabled ? null : onTap,
             radius: statusTarget / 2,
             child: Center(
               child: Pulse(
                 active: pulse,
                 child: SizedBox.square(
                   dimension: glyph,
-                  // A second cue beside the dot's colour (UI-006): off = the glyph faded
-                  // with a slash and no dot; in progress = a ring; a problem = "!" in the
-                  // dot; ok = the solid dot.
+                  // The outline says on (green) or off (faint, no dot); the dot says how an
+                  // enabled service's connection goes, with a second cue beside its colour
+                  // (UI-006, bot #123): ring = in progress, "!" = a problem, solid = ok.
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Icon(icon, size: glyph, color: dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.dim),
-                      if (dot == StatusDot.off)
-                        Positioned.fill(child: CustomPaint(painter: _SlashPainter(t.dim, ring)))
-                      else
+                      Icon(icon, size: glyph, color: !enabled || dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.ok),
+                      if (enabled && dot != StatusDot.off)
                         Positioned(
                           right: -3,
                           bottom: -3,
@@ -450,24 +453,6 @@ class StateDot extends StatelessWidget {
 }
 
 /// A diagonal slash over a status glyph that is off, haloed in the page colour so it reads
-/// over the glyph's strokes.
-class _SlashPainter extends CustomPainter {
-  const _SlashPainter(this.color, this.halo);
-
-  final Color color;
-  final Color halo;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final a = Offset(size.width * 0.9, size.height * 0.05);
-    final b = Offset(size.width * 0.1, size.height * 0.95);
-    canvas.drawLine(a, b, Paint()..color = halo..strokeWidth = 4..strokeCap = StrokeCap.round);
-    canvas.drawLine(a, b, Paint()..color = color..strokeWidth = 1.6..strokeCap = StrokeCap.round);
-  }
-
-  @override
-  bool shouldRepaint(_SlashPainter old) => old.color != color || old.halo != halo;
-}
 
 /// The node's glyph, label word and tooltip for the status icons ([StatusIcon]): the state's
 /// cloud glyph as the header's icons had it (a shape cue beside the dot's colour), the word

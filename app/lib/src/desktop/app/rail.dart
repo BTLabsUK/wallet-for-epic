@@ -112,8 +112,9 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     ),
   ];
   // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
+  // Always listed (bot #123): off, its row and the bar's glyph say so and open the switch.
   final run = httpRun(st);
-  if (DeskFeatures.httpDirect && (settings.payments.linkHttp || run != HttpRun.off)) {
+  if (DeskFeatures.httpDirect) {
     final public = settings.publicMode;
     items.add(
       RailItem(

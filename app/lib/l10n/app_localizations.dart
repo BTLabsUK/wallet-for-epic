@@ -12672,7 +12672,7 @@ abstract class AppLocalizations {
   /// Label above the note in a contact's detail; also the label of the note field in the form.
   ///
   /// In en, this message translates to:
-  /// **'Note (optional)'**
+  /// **'Note'**
   String get deskConNote;
 
   /// Heading above the list of payments with this contact.
@@ -28615,6 +28615,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} gets a {method} address: {address}'**
   String contactsImportAddsAddress(String name, String method, String address);
+
+  /// Status icons: tooltip and hint of a payment method that is off; a tap opens the switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Turn on in Settings › Transactions.'**
+  String get netStatusTurnOnHint;
+
+  /// Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Turn on in Settings › Privacy & network.'**
+  String get netStatusTurnOnHintPrivacy;
+
+  /// Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Turn on in Settings › Transactions.'**
+  String get deskBarTurnOnHint;
 }
 
 class _AppLocalizationsDelegate

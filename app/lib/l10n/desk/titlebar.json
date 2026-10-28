@@ -152,5 +152,9 @@
   "deskBarKeyMenu": "Open the app menu",
   "@deskBarKeyMenu": {
     "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
+  },
+  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "@deskBarTurnOnHint": {
+    "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
   }
 }

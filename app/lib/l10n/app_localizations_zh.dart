@@ -7438,7 +7438,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => '备注（可选）';
+  String get deskConNote => '备注';
 
   @override
   String deskConTxWith(String name) {
@@ -17199,4 +17199,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String contactsImportAddsAddress(String name, String method, String address) {
     return '$name 新增 $method 地址：$address';
   }
+
+  @override
+  String get netStatusTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+
+  @override
+  String get netStatusTurnOnHintPrivacy => '已关闭。在“设置 › 隐私与网络”中开启。';
+
+  @override
+  String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
 }

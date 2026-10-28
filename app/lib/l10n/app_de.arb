@@ -1611,7 +1611,7 @@
   "deskConDelete": "Löschen",
   "deskConNotDeleted": "Nicht gelöscht",
   "deskConDeleted": "{name} wurde gelöscht",
-  "deskConNote": "Notiz (optional)",
+  "deskConNote": "Notiz",
   "deskConTxWith": "Zahlungen mit {name}",
   "deskConAllTx": "Alle Zahlungen",
   "deskConTxNone": "Noch keine Zahlungen mit diesem Kontakt. Zahlungen an ihn über Senden erscheinen hier.",
@@ -4783,5 +4783,8 @@
   "deskSetRescanFromDate": "Ab einem Datum",
   "deskSetRescanPickDate": "Datum wählen",
   "deskSetRescanPickDateFirst": "Zuerst ein Datum wählen.",
-  "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}"
+  "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}",
+  "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
+  "netStatusTurnOnHintPrivacy": "Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.",
+  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen."
 }

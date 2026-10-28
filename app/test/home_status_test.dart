@@ -298,9 +298,14 @@ void main() {
         _tip_(tester, epicboxStatusKey),
         'Connected · epicbox.epiccash.com\nServer: epicbox.epiccash.com:443',
       );
-      // Tor off: no Tor, no Link, and no Tor words on the two.
-      expect(find.byKey(torIconKey), findsNothing);
-      expect(find.byKey(directIconKey), findsNothing);
+      // Tor and Link off: both stay, faint and without a dot, their labels say Off and a
+      // tap opens the switch (bot #123); no Tor words on the two.
+      expect(find.byKey(torIconKey), findsOneWidget);
+      expect(_label(tester, torIconKey), 'Tor, Off');
+      expect(_dot(tester, torIconKey), t.faint);
+      expect(find.byKey(directIconKey), findsOneWidget);
+      expect(_label(tester, directIconKey), 'Link, Off');
+      expect(_hint(tester, directIconKey), contains('Turn on in Settings › Transactions'));
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
     });
 
@@ -352,8 +357,9 @@ void main() {
           tester.getRect(glyph).left - tester.getRect(find.byKey(key)).left,
           statusInset,
         );
-        // The glyph carries no state colour: the dot does, and the words.
-        expect(tester.widget<Icon>(glyph).color, t.dim);
+        // An enabled service's outline is green; the dot and the words say its connection
+        // (bot #123).
+        expect(tester.widget<Icon>(glyph).color, t.ok);
         final dot = tester.getRect(
           find.descendant(
             of: find.byKey(key),
@@ -426,7 +432,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Off\nServer: epicbox.epiccash.com:443',
+        'Off. Turn on in Settings › Transactions.',
       );
     });
 
@@ -466,7 +472,8 @@ void main() {
       expect(_dot(tester, torIconKey), t.info);
       expect(_tip_(tester, torIconKey), 'Connecting to Tor… 40%');
       expect(_hint(tester, torIconKey), endsWith('\nOpens the privacy settings'));
-      expect(find.byKey(directIconKey), findsNothing);
+      // Link waits for Tor too: on, with a blue ring, publishing.
+      expect(find.byKey(directIconKey), findsOneWidget);
       for (final key in [nodeStatusKey, epicboxStatusKey]) {
         expect(_label(tester, key), endsWith(', Waiting for Tor'));
         expect(_dot(tester, key), t.info);
@@ -524,7 +531,7 @@ void main() {
       final t = _tokens(tester);
       expect(_label(tester, torIconKey), 'Tor, Not connected');
       expect(_dot(tester, torIconKey), t.risk);
-      expect(find.byKey(directIconKey), findsNothing);
+      expect(find.byKey(directIconKey), findsOneWidget);
       for (final key in [nodeStatusKey, epicboxStatusKey]) {
         expect(_label(tester, key), endsWith(', Waiting for Tor'));
         expect(_dot(tester, key), t.risk);
@@ -540,8 +547,8 @@ void main() {
           receiving: true,
         ),
       );
-      expect(find.byKey(torIconKey), findsNothing);
-      expect(find.byKey(directIconKey), findsNothing);
+      expect(find.byKey(torIconKey), findsNothing, reason: 'no Tor on this phone: nothing to switch on');
+      expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
     });
 
@@ -661,7 +668,8 @@ void main() {
         await tester.pumpAndSettle();
         final height = tester.getSize(find.byKey(walletBalanceKey)).height;
         final two = tester.getRect(find.byKey(fiatValueKey));
-        expect(find.byKey(torIconKey), findsNothing);
+        // Tor off is still on the row, faint (bot #123).
+        expect(find.byKey(torIconKey), findsOneWidget);
         await tester.pumpWidget(const SizedBox());
         await _pump(
           tester,
@@ -726,8 +734,9 @@ void main() {
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Connected');
       expect(_dot(tester, barNodeIconKey), t.ok);
       expect(_dot(tester, barEpicboxIconKey), t.ok);
-      expect(find.byKey(barTorIconKey), findsNothing);
-      expect(find.byKey(directIconKey), findsNothing);
+      // Off services stay on the bar too, faint (bot #123).
+      expect(find.byKey(barTorIconKey), findsOneWidget);
+      expect(find.byKey(barLinkIconKey), findsOneWidget);
       // Right after the figure, on its line.
       final figure = tester.getRect(find.byKey(titleFigureKey));
       final node = tester.getRect(find.byKey(barNodeIconKey));

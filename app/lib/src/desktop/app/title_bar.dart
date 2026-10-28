@@ -890,11 +890,9 @@ class _StatusCluster extends ConsumerWidget {
     return ServiceRows(
       builder: (context, items) {
         final ts = context.ts;
-        // The bar keeps three: the node, Epicbox and Tor (HTTP, when on, is in the list).
-        final shown = [
-          for (final i in items)
-            if (i.icon == EIcons.node || i.icon == EIcons.epicbox || i.icon == EIcons.tor) i,
-        ];
+        // Every service, enabled or not (bot #123): a faint glyph without a dot is off; its
+        // row in the list opens the switch.
+        final shown = items;
         final summary = '${l.deskBarStatus}: ${[for (final i in items) '${i.name} ${i.word}'].join(', ')}';
         return _BarMenu(
           minWidth: 300.u,
@@ -912,14 +910,14 @@ class _StatusCluster extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-status'),
             label: summary,
-            tooltip: [for (final i in shown) '${i.name}: ${i.word}'].join('\n'),
+            tooltip: [for (final i in shown) i.state == EState.off ? '${i.name}: ${i.word} · ${l.deskBarTurnOnHint}' : '${i.name}: ${i.word}'].join('\n'),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 6.u),
             onPressed: () => _toggle(m),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final i in shown) EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', dim: dim),
+                for (final i in shown) EStatusGlyph(icon: i.icon, state: i.state, label: i.state == EState.off ? '${i.name}: ${i.word} · ${l.deskBarTurnOnHint}' : '${i.name}: ${i.word}', dim: dim),
                 if (shown.isEmpty) Text('–', style: ts.caption), // l10n-ok: placeholder
               ],
             ),

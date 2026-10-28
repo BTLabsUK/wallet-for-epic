@@ -28,7 +28,7 @@
   "deskConDelete": "Удалить",
   "deskConNotDeleted": "Не удалено",
   "deskConDeleted": "Контакт «{name}» удалён",
-  "deskConNote": "Заметка (необязательно)",
+  "deskConNote": "Заметка",
   "deskConTxWith": "Платежи с контактом «{name}»",
   "deskConAllTx": "Все платежи",
   "deskConTxNone": "Платежей с этим контактом пока нет. Платежи ему со страницы «Отправить» появятся здесь.",

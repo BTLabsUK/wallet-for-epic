@@ -10314,7 +10314,7 @@
       }
     }
   },
-  "deskConNote": "Note (optional)",
+  "deskConNote": "Note",
   "@deskConNote": {
     "description": "Label above the note in a contact's detail; also the label of the note field in the form."
   },
@@ -24279,5 +24279,17 @@
         "type": "String"
       }
     }
+  },
+  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "@netStatusTurnOnHint": {
+    "description": "Status icons: tooltip and hint of a payment method that is off; a tap opens the switch."
+  },
+  "netStatusTurnOnHintPrivacy": "Off. Turn on in Settings › Privacy & network.",
+  "@netStatusTurnOnHintPrivacy": {
+    "description": "Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch."
+  },
+  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "@deskBarTurnOnHint": {
+    "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
   }
 }

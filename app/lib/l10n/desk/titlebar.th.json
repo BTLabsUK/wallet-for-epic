@@ -28,5 +28,6 @@
   "deskBarBuildTip": "เวอร์ชัน {version} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
   "deskBarBuildTipRebuild": "เวอร์ชัน {version} บิลด์ใหม่ {rebuild} คอมมิต {commit} คลิกเพื่อคัดลอกข้อมูลบิลด์",
   "deskBarBuildTipDev": "เวอร์ชัน {version} บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์",
-  "deskBarKeyMenu": "เปิดเมนูแอป"
+  "deskBarKeyMenu": "เปิดเมนูแอป",
+  "deskBarTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม"
 }

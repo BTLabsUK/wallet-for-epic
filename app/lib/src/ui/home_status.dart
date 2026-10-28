@@ -20,6 +20,9 @@ import 'network_status.dart' show nodeBehind, nodeTorWay;
 import 'net_block.dart' show watchNetBlock;
 import 'receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import 'server_picker.dart';
+import '../payment_prefs.dart' show PaymentPrefs;
+import '../phone_http.dart' show PhoneHttpPhase, phoneHttpProvider;
+import '../settings.dart' show appSettingsProvider;
 import 'settings_screen.dart' show openPrivacySettings;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'status.dart';
@@ -36,6 +39,9 @@ const Key directIconKey = ValueKey('status-direct');
 const Key barNodeIconKey = ValueKey('bar-status-node');
 const Key barEpicboxIconKey = ValueKey('bar-status-epicbox');
 const Key barTorIconKey = ValueKey('bar-status-tor');
+
+/// The Link icon in Send's and Receive's app bar, for tests.
+const Key barLinkIconKey = ValueKey('bar-link-icon');
 const Key barNetModeKey = ValueKey('bar-status-net-mode');
 
 /// Whether the Tor icon shows: while the switch is on (Starting…, On, Not connected).
@@ -64,6 +70,23 @@ StatusDot torDot(TorState state) => switch (state) {
     return (dot: StatusDot.bad, word: l.netStatusNotReachable);
   }
   return (dot: StatusDot.busy, word: l.netStatusPublishing);
+}
+
+/// Link's dot and words for the status icons (bot #123): off while neither Link method is
+/// on; with Link · Tor on, the onion's state ([directFace]); else the HTTP listener's.
+({StatusDot dot, String word, String detail}) linkFace(AppLocalizations l, WalletTokens t, PhoneTorState s, PaymentPrefs p, PhoneHttpPhase http, {required bool linkOn}) {
+  if (!linkOn) return (dot: StatusDot.off, word: l.netStatusOff, detail: l.netStatusTurnOnHint);
+  if (directIconShown(s) || (p.linkTor && torIconShown(s))) {
+    final d = directFace(l, s);
+    return (dot: d.dot, word: d.word, detail: torStatusOf(l, t, s).text);
+  }
+  if (p.linkTor && !p.linkHttp) return (dot: StatusDot.bad, word: l.torWordNotConnected, detail: l.torNeeds);
+  return switch (http) {
+    PhoneHttpPhase.listening => (dot: StatusDot.ok, word: l.netStatusOn, detail: l.netStatusOn),
+    PhoneHttpPhase.starting => (dot: StatusDot.busy, word: l.statusNodeConnecting, detail: l.statusNodeConnecting),
+    PhoneHttpPhase.off => (dot: StatusDot.off, word: l.netStatusOff, detail: l.netStatusOff),
+    _ => (dot: StatusDot.bad, word: l.netStatusNotConnected, detail: l.netStatusNotConnected),
+  };
 }
 
 /// A service's dot and words once its route under the Tor switch is known: waiting for Tor
@@ -207,7 +230,10 @@ class StatusIcons extends ConsumerWidget {
       way: torWay(TorRoute.epicbox, torState),
     );
     final torFace = torStatusOf(l, t, tor);
-    final direct = directFace(l, tor);
+    final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
+    // On by either Link switch, or while the onion is published anyway (a running Link · Tor).
+    final linkOn = payments.linkHttp || payments.linkTor || directIconShown(tor);
+    final link = linkFace(l, t, tor, payments, ref.watch(phoneHttpProvider).listener, linkOn: linkOn);
     final block = watchNetBlock(context, ref);
     final row = Row(
       mainAxisSize: MainAxisSize.min,
@@ -234,47 +260,56 @@ class StatusIcons extends ConsumerWidget {
           StatusIcon(
             key: compact ? barEpicboxIconKey : epicboxStatusKey,
             compact: compact,
+            enabled: status.epicbox != null,
             icon: epicbox.icon,
             dot: epicboxTor.dot,
             label: epicboxTor.label,
-            detail: epicboxTor.detail,
-            actionHint: l.netStatusOpenHint,
-            onTap: () => showEpicboxPicker(context),
+            detail: status.epicbox == null ? l.netStatusTurnOnHint : epicboxTor.detail,
+            actionHint: status.epicbox == null ? l.netStatusTurnOnHint : l.netStatusOpenHint,
+            onTap: status.epicbox == null ? () => openSettingsSection(context, SettingsSection.transactions) : () => showEpicboxPicker(context),
           ),
         ],
-        if (torIconShown(tor) && block != NetBlock.offline)
+        // Tor and Link are always there (bot #123): off, faint without a dot, a tap opens
+        // the switch; on, the dot says how the connection goes.
+        if (block != NetBlock.offline && torShown(tor))
           StatusIcon(
             key: compact ? barTorIconKey : torIconKey,
             compact: compact,
+            enabled: torIconShown(tor),
             icon: torIcon,
             dot: torDot(torState),
-            label: '${l.netStatusTor}, ${torWord(l, torState)}',
-            detail: torState == TorState.on ? l.netStatusOn : torFace.text,
+            label: torIconShown(tor) ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}',
+            detail: !torIconShown(tor) ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text,
             actionHint: l.netStatusTorOpenHint,
             pulse: torState == TorState.starting,
             onTap: () => openPrivacySettings(context),
           ),
-        if (!compact && directIconShown(tor) && block == NetBlock.none)
+        if (block == NetBlock.none)
           StatusIcon(
-            key: directIconKey,
+            key: compact ? barLinkIconKey : directIconKey,
+            compact: compact,
+            enabled: linkOn,
             icon: EpicGlyphs.link,
-            dot: direct.dot,
-            label: '${l.receiveTabDirect}, ${direct.word}',
-            detail: torFace.text,
-            actionHint: l.netStatusDirectOpenHint,
-            pulse: direct.dot == StatusDot.busy,
-            onTap: () {
-              ref.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
-              ref.read(shellTabProvider.notifier).go(ShellTab.receive);
-            },
+            dot: link.dot,
+            label: '${l.receiveTabDirect}, ${link.word}',
+            detail: linkOn ? link.detail : l.netStatusTurnOnHint,
+            actionHint: linkOn ? l.netStatusDirectOpenHint : l.netStatusTurnOnHint,
+            pulse: link.dot == StatusDot.busy,
+            onTap: linkOn
+                ? () {
+                    ref.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
+                    ref.read(shellTabProvider.notifier).go(ShellTab.receive);
+                  }
+                : () => openSettingsSection(context, SettingsSection.transactions),
           ),
       ],
     );
     if (!compact || block != NetBlock.none) return row;
     // The compact row is one tap target (its icons are too narrow to be one each): it says
     // every status, and a tap opens what has a problem first, else the node list.
-    final torShown = torIconShown(tor);
-    final torBad = torShown && torDot(torState) == StatusDot.bad;
+    final torOn = torIconShown(tor);
+    final torBad = torOn && torDot(torState) == StatusDot.bad;
+    final torLabel = torOn ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}';
     void open() => nodeTor.dot == StatusDot.bad || epicboxTor.dot != StatusDot.bad && !torBad
         ? showNodePicker(context)
         : epicboxTor.dot == StatusDot.bad
@@ -283,7 +318,7 @@ class StatusIcons extends ConsumerWidget {
     return Semantics(
       container: true,
       button: true,
-      label: [nodeTor.label, epicboxTor.label, if (torShown) '${l.netStatusTor}, ${torWord(l, torState)}'].join('\n'),
+      label: [nodeTor.label, epicboxTor.label, torLabel, '${l.receiveTabDirect}, ${link.word}'].join('\n'),
       hint: l.netStatusOpenHint,
       liveRegion: true,
       excludeSemantics: true,

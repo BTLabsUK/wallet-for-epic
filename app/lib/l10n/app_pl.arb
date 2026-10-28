@@ -1611,7 +1611,7 @@
   "deskConDelete": "Usuń",
   "deskConNotDeleted": "Nie usunięto",
   "deskConDeleted": "Usunięto: {name}",
-  "deskConNote": "Notatka (opcjonalnie)",
+  "deskConNote": "Notatka",
   "deskConTxWith": "Płatności z: {name}",
   "deskConAllTx": "Wszystkie płatności",
   "deskConTxNone": "Brak płatności z tym kontaktem. Płatności wysłane do niego z ekranu Wyślij pojawią się tutaj.",
@@ -4783,5 +4783,8 @@
   "deskSetRescanFromDate": "Od daty",
   "deskSetRescanPickDate": "Wybierz datę",
   "deskSetRescanPickDateFirst": "Najpierw wybierz datę.",
-  "contactsImportAddsAddress": "{name} dostaje adres {method}: {address}"
+  "contactsImportAddsAddress": "{name} dostaje adres {method}: {address}",
+  "netStatusTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
+  "netStatusTurnOnHintPrivacy": "Wyłączone. Włącz w Ustawienia › Prywatność i sieć.",
+  "deskBarTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje."
 }

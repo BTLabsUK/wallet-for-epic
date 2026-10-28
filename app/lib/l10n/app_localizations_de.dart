@@ -8037,7 +8037,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => 'Notiz (optional)';
+  String get deskConNote => 'Notiz';
 
   @override
   String deskConTxWith(String name) {
@@ -18483,4 +18483,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String contactsImportAddsAddress(String name, String method, String address) {
     return '$name erhält eine $method-Adresse: $address';
   }
+
+  @override
+  String get netStatusTurnOnHint =>
+      'Aus. Einschalten unter Einstellungen › Transaktionen.';
+
+  @override
+  String get netStatusTurnOnHintPrivacy =>
+      'Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.';
+
+  @override
+  String get deskBarTurnOnHint =>
+      'Aus. Einschalten unter Einstellungen › Transaktionen.';
 }

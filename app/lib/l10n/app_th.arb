@@ -1611,7 +1611,7 @@
   "deskConDelete": "ลบ",
   "deskConNotDeleted": "ไม่ได้ลบ",
   "deskConDeleted": "ลบ {name} แล้ว",
-  "deskConNote": "บันทึก (ไม่บังคับ)",
+  "deskConNote": "บันทึก",
   "deskConTxWith": "รายการกับ {name}",
   "deskConAllTx": "รายการทั้งหมด",
   "deskConTxNone": "ยังไม่มีรายการกับผู้ติดต่อนี้ รายการที่ส่งให้จากหน้า ส่ง จะแสดงที่นี่",
@@ -4783,5 +4783,8 @@
   "deskSetRescanFromDate": "ตั้งแต่วันที่",
   "deskSetRescanPickDate": "เลือกวันที่",
   "deskSetRescanPickDateFirst": "เลือกวันที่ก่อน",
-  "contactsImportAddsAddress": "{name} ได้ที่อยู่ {method}: {address}"
+  "contactsImportAddsAddress": "{name} ได้ที่อยู่ {method}: {address}",
+  "netStatusTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม",
+  "netStatusTurnOnHintPrivacy": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย",
+  "deskBarTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม"
 }

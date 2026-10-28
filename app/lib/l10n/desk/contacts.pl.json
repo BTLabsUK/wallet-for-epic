@@ -28,7 +28,7 @@
   "deskConDelete": "Usuń",
   "deskConNotDeleted": "Nie usunięto",
   "deskConDeleted": "Usunięto: {name}",
-  "deskConNote": "Notatka (opcjonalnie)",
+  "deskConNote": "Notatka",
   "deskConTxWith": "Płatności z: {name}",
   "deskConAllTx": "Wszystkie płatności",
   "deskConTxNone": "Brak płatności z tym kontaktem. Płatności wysłane do niego z ekranu Wyślij pojawią się tutaj.",

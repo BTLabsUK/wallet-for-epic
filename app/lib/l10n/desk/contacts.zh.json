@@ -28,7 +28,7 @@
   "deskConDelete": "删除",
   "deskConNotDeleted": "未删除",
   "deskConDeleted": "已删除 {name}",
-  "deskConNote": "备注（可选）",
+  "deskConNote": "备注",
   "deskConTxWith": "与 {name} 的付款",
   "deskConAllTx": "全部付款",
   "deskConTxNone": "还没有与此联系人的付款。从“发送”付给对方的付款会显示在这里。",
