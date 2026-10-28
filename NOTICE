@@ -1,5 +1,5 @@
-Epic Wallet
-Copyright The Epic Wallet Developers
+Epic Cash Desktop and Epic Cash Mobile
+Copyright 2026 BT Labs
 
 This product includes material ported from the Epic Cash desktop wallet
 (https://github.com/EpicCash/epic-gui-wallet), licensed under the Apache
@@ -10,9 +10,18 @@ desktop icons and colours. Source comments name the files each port follows.
 
 The BIP-39 English word list (app/lib/src/bip39_words.dart) is copied from
 the Epic Cash node's keychain (https://github.com/EpicCash/epic), licensed
-under the Apache License, Version 2.0.
+under the Apache License, Version 2.0. The list itself comes from the BIP-39
+specification (https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt),
+MIT licence.
+
+The status and method icons (app/assets/icons, app/assets/fonts/EpicStatusIcons.ttf)
+are drawn from Bootstrap Icons (Copyright The Bootstrap Authors, MIT licence),
+Carbon Icons (Copyright IBM Corp., Apache License 2.0) and Material Symbols
+(Copyright Google LLC, Apache License 2.0); app/assets/licenses/status-icons.txt
+names the icon each glyph comes from.
 
 The wallet engine is LEPIC (https://github.com/BTLabs-EPIC/lepic), licensed
 under the Apache License, Version 2.0, with its own NOTICE.
 
-Bundled fonts and password lists carry their own licences in app/assets/.
+Bundled fonts, flag icons, password lists and Tor carry their own licences in
+app/assets/.
