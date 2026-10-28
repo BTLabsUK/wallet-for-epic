@@ -198,6 +198,7 @@
   "txDetailsDate": "Data",
   "txDetailsCreated": "Utworzono",
   "txDetailsSentTo": "Wysłano do",
+  "txDetailsNoAddress": "Nieznany: ta płatność przyszła bez adresu (kod QR lub plik). Dodaj etykietę, aby ją rozpoznać.",
   "txDetailsReceivedFrom": "Otrzymano od",
   "txDetailsCopyAddress": "Kopiuj adres",
   "txDetailsAddressCopied": "Skopiowano adres",

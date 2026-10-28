@@ -850,6 +850,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsSentTo => 'Wysłano do';
 
   @override
+  String get txDetailsNoAddress =>
+      'Nieznany: ta płatność przyszła bez adresu (kod QR lub plik). Dodaj etykietę, aby ją rozpoznać.';
+
+  @override
   String get txDetailsReceivedFrom => 'Otrzymano od';
 
   @override

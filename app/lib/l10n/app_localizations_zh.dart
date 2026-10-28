@@ -776,6 +776,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsSentTo => '发送至';
 
   @override
+  String get txDetailsNoAddress => '未知：这笔付款没有附带地址（二维码或文件）。添加标签以便识别。';
+
+  @override
   String get txDetailsReceivedFrom => '来自';
 
   @override

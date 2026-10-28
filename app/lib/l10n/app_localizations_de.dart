@@ -821,6 +821,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsSentTo => 'Gesendet an';
 
   @override
+  String get txDetailsNoAddress =>
+      'Unbekannt: Diese Zahlung kam ohne Adresse (QR-Code oder Datei). Fügen Sie eine Bezeichnung hinzu, um sie wiederzuerkennen.';
+
+  @override
   String get txDetailsReceivedFrom => 'Empfangen von';
 
   @override

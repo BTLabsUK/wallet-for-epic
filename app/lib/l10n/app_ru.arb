@@ -198,6 +198,7 @@
   "txDetailsDate": "Дата",
   "txDetailsCreated": "Создан",
   "txDetailsSentTo": "Получатель",
+  "txDetailsNoAddress": "Неизвестно: этот платёж пришёл без адреса (QR-код или файл). Добавьте метку, чтобы его узнать.",
   "txDetailsReceivedFrom": "Отправитель",
   "txDetailsCopyAddress": "Копировать адрес",
   "txDetailsAddressCopied": "Адрес скопирован",

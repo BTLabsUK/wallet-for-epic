@@ -801,6 +801,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsSentTo => 'ส่งถึง';
 
   @override
+  String get txDetailsNoAddress =>
+      'ไม่ทราบ: รายการนี้มาโดยไม่มีที่อยู่ (คิวอาร์โค้ดหรือไฟล์) เพิ่มป้ายกำกับเพื่อให้จำได้';
+
+  @override
   String get txDetailsReceivedFrom => 'ได้รับจาก';
 
   @override
