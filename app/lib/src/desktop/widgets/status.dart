@@ -430,7 +430,12 @@ class _MaybePulse extends StatefulWidget {
 const int statusPulseBeats = 5;
 
 class _MaybePulseState extends State<_MaybePulse> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600), value: 1);
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600), value: 1)
+    // The beats end at full opacity: a frame that lands past the last beat could leave the
+    // value part way down.
+    ..addStatusListener((status) {
+      if (!_c.isAnimating && (status == AnimationStatus.completed || status == AnimationStatus.dismissed) && _played) _c.value = 1;
+    });
 
   /// The beats ran for this active stretch (a new state gives a new pulse: the glyph keys it).
   bool _played = false;
