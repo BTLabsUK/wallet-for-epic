@@ -70,10 +70,10 @@ class ReceiveTabNotifier extends Notifier<ReceiveTab> {
 const Key receiveTabsKey = ValueKey('receive-tabs');
 
 /// The QR code's side on Receive: at most [receiveQrMaxSize], and less when the Epicbox tab
-/// would not fit the screen otherwise, down to [receiveQrMinSize]: 112 dp (18 mm) still scans
+/// would not fit the screen otherwise, down to [receiveQrMinSize]: 110 dp (17.5 mm) still scans
 /// from a phone held close, and lets the tab fit a 360 x 800 dp phone. Below that the page
 /// scrolls.
-const double receiveQrMaxSize = 240, receiveQrMinSize = 112;
+const double receiveQrMaxSize = 240, receiveQrMinSize = 110;
 
 /// Receiving: epicbox payments arrive by themselves while connected; with Link · Tor and Tor
 /// on, other wallets reach this one at its onion address while the app is open; with
