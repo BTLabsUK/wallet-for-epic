@@ -1863,6 +1863,8 @@ class _SendViewState extends ConsumerState<SendView> {
     });
     try {
       await session.cancelTransaction(txId: stuck.id!);
+      // The linked devices free its coins at once, not at the next tick.
+      unawaited(container.read(deviceServiceProvider)?.announceNow());
       container.invalidate(homeProvider);
       if (!mounted) return;
       _closeChecks();

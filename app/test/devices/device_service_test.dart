@@ -3,6 +3,8 @@
 // it must and keeps the order; removing a device re-keys the others.
 import 'dart:convert';
 
+import 'package:fake_async/fake_async.dart';
+
 import 'package:epic_wallet/src/devices/device_history.dart';
 import 'package:epic_wallet/src/devices/device_locks.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
@@ -81,6 +83,40 @@ void main() {
       expect(await a.pairing.pairings(), isEmpty);
       expect(await b.pairing.pairings(), isEmpty);
       expect((await a.pairing.privatePairings()).single.state, PairingState.verified);
+    });
+
+    test("a service let go never writes: the wallet's next service keeps the link it saved", () async {
+      await linkBoth(a, b);
+      final key = a.service.store.key;
+      final saved = await a.store.read(key);
+      final next = DeviceService(host: SessionDeviceHost(a.session), store: a.service.store, defaultName: 'Desktop', clock: clock.call);
+      await next.load();
+      expect(next.book.devices.single.name, 'Phone');
+      // The old one goes while a run of it is still under way: what it would save stays out.
+      a.service.dispose();
+      await a.service.renameDevice(b.service.book.deviceId, 'stale');
+      expect(await a.store.read(key), saved);
+      next.dispose();
+    });
+
+    // A tester, 2026-10-28: the computer cancelled, the phone held the coins for minutes. The apps
+    // set the foreground before the book is read; a service made with a device linked already
+    // (a start, a wallet switch) never started its 5 s reads.
+    test('a service started with a device linked reads every 5 s once its book is read', () {
+      fakeAsync((time) {
+        linkBoth(a, b);
+        time.flushMicrotasks();
+        expect(a.service.book.devices, hasLength(1));
+        a.service.dispose();
+        final again = DeviceService(host: SessionDeviceHost(a.session), store: a.service.store, defaultName: 'Desktop', clock: clock.call);
+        again.setForeground(true);
+        again.load();
+        time.flushMicrotasks();
+        a.pairing.calls.clear();
+        time.elapse(deviceSyncEvery + const Duration(milliseconds: 100));
+        expect(a.pairing.calls, contains('collectPrivate'));
+        again.dispose();
+      });
     });
 
     test('nothing is linked until both devices checked the pictures', () async {

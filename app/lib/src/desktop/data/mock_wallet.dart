@@ -952,6 +952,8 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> useNode(String url) async {
     await _wait();
     _node = url;
+    // The real wallet reopens on the new node: a new session.
+    _sessionRevision++;
   }
 
   /// Every [useNodeForSession] call, in order, for tests.
@@ -1083,7 +1085,8 @@ class MockDeskWallet implements DeskWalletApi {
   bool supportsRequestFiles = true;
 
   @override
-  int get sessionRevision => 0;
+  int get sessionRevision => _sessionRevision;
+  int _sessionRevision = 0;
 
   /// The prototype shows its other side's moves on the page itself.
   @override

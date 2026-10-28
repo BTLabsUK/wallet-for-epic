@@ -22,10 +22,14 @@ enum UnlockShow { wrongPassword, progress, failed, missing, listOpen }
 /// Unlock with the wallet [id] selected, then [then] instead of Overview: Settings › This
 /// wallet when "Unlock this wallet" was chosen in the remove dialog of another wallet.
 class UnlockPick {
-  const UnlockPick(this.id, {this.then});
+  const UnlockPick(this.id, {this.then, this.switched = false});
 
   final String id;
   final DeskRoute? then;
+
+  /// Chosen in the wallet switch: a wallet remembered on this computer opens as at start,
+  /// without asking (a tester, 26.10.20).
+  final bool switched;
 }
 
 /// Opens the app. [arg] is an [UnlockShow], an [UnlockAdded] or an [UnlockPick].
@@ -96,9 +100,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   }
 
   Future<void> _loadWallets() async {
-    // At start only: Unlock after a Lock, after adding a wallet, or a second load of this
-    // screen (a wallet removed from the list) always asks.
-    final tryRemembered = !rememberAutoTried && widget.arg == null;
+    // At start, and for a wallet chosen in the wallet switch: Unlock after a Lock, after
+    // adding a wallet, or a second load of this screen (a wallet removed from the list) asks.
+    final arg = widget.arg;
+    final tryRemembered = (!rememberAutoTried && arg == null) || (arg is UnlockPick && arg.switched);
     rememberAutoTried = true;
     final List<WalletEntry> w;
     try {

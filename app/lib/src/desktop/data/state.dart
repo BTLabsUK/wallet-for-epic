@@ -208,7 +208,8 @@ class DeskController extends Notifier<DeskState> {
     if (_statusPoll == null && _changes == null) return;
     try {
       final s = await api.status();
-      if (_changes != null) state = state.copyWith(status: s);
+      // A reopen the wallet made by itself (node fallback, the built-in node) shows here too.
+      if (_changes != null) state = state.copyWith(status: s, session: api.sessionRevision);
     } on Object {
       // Locked meanwhile.
     }
@@ -271,6 +272,7 @@ class DeskController extends Notifier<DeskState> {
       epicboxAddress: results[7] as String,
       wallets: results[8] as List<WalletEntry>,
       oldHistory: a.oldHistoryConflicts,
+      session: a.sessionRevision,
     );
   }
 
@@ -466,6 +468,9 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> cancelTx(int id) async {
     await api.cancelTx(id);
+    // The other devices free its coins at once, not at the next tick.
+    final devices = ref.read(deskDeviceHandleProvider).service;
+    if (devices != null) unawaited(devices.announceNow());
     final txs = await api.transactions();
     state = state.copyWith(txs: txs);
   }

@@ -291,6 +291,10 @@ class DeviceService {
     _book ??= await store.load(defaultName: defaultName);
     host.heldOutputs = book.heldCommitments;
     _changed();
+    // The apps set the foreground before the book is read: with devices linked already (a
+    // start, a wallet switch) the timer starts only now. Without it nothing was read or told
+    // until a window focus or Refresh, and a cancel reached the other device minutes late.
+    _schedule();
   }
 
   void dispose() {
@@ -310,7 +314,9 @@ class DeviceService {
     _book = next;
     host.heldOutputs = next.heldCommitments;
     final json = jsonEncode(next.toJson());
-    if (json == _saved) return;
+    // A service that was let go never writes: the wallet's next service owns the book now, and
+    // a run still under way here would put an older book over it.
+    if (json == _saved || _disposed) return;
     _saved = json;
     await store.save(next);
     _changed();
