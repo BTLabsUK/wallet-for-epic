@@ -1567,6 +1567,10 @@ class TxEntry {
   /// [TxOrigin.otherWallet]); empty otherwise.
   final List<String> spentCommits;
 
+  /// A [TxOrigin.otherWallet] send that only the node's answers show so far: no completed scan
+  /// has covered its blocks yet (LEPIC clears it after the next one). False for every other row.
+  final bool unverified;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1611,6 +1615,7 @@ class TxEntry {
     this.pairingId,
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
+    this.unverified = false,
   });
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1671,7 +1676,8 @@ class TxEntry {
       senderReportedPostedAtUnix.hashCode ^
       pairingId.hashCode ^
       origin.hashCode ^
-      Object.hashAll(spentCommits);
+      Object.hashAll(spentCommits) ^
+      unverified.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1721,7 +1727,8 @@ class TxEntry {
           senderReportedPostedAtUnix == other.senderReportedPostedAtUnix &&
           pairingId == other.pairingId &&
           origin == other.origin &&
-          _listEquals(spentCommits, other.spentCommits);
+          _listEquals(spentCommits, other.spentCommits) &&
+          unverified == other.unverified;
 }
 
 /// How long a sender's posted report shows, as LEPIC keeps it.

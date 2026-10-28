@@ -613,7 +613,8 @@ String? _specialTitle(
   if (tx.origin == TxOrigin.linkedDevice) return l.txSentFromDevice(tx.deviceName ?? '');
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
   if (tx.origin == TxOrigin.otherWallet) {
-    return _outgoingKind(tx) ? l.txSentFromOtherWallet : l.txReceivedByOtherWallet;
+    if (!_outgoingKind(tx)) return l.txReceivedByOtherWallet;
+    return tx.unverified ? l.txSentFromOtherWalletUnverified : l.txSentFromOtherWallet;
   }
   if (tx.source == TxSource.restored && !hasCounterparty) {
     return l.txRestoredFunds;

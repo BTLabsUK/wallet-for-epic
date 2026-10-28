@@ -4614,6 +4614,8 @@
   "txSentFromOtherWallet": "ส่งจากกระเป๋าเงินอื่น",
   "txSpokenSentFromOtherWallet": "ส่งจากกระเป๋าเงินอื่น {amount}",
   "txDetailsOtherWallet": "โหนดแสดงว่าเหรียญเหล่านี้ถูกใช้ไปแล้ว และกระเป๋าเงินนี้ไม่ได้ใช้ เป็นไปได้มากว่ากระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณใช้ไป กระเป๋าเงินนี้แสดงจำนวนที่ออกไป ไม่แสดงผู้รับและค่าธรรมเนียม",
+  "txSentFromOtherWalletUnverified": "ส่งจากกระเป๋าเงินอื่น · ยังไม่ได้ตรวจสอบ",
+  "txDetailsUnverified": "ยังไม่ได้ตรวจสอบ: ตอนนี้มีเพียงโหนดที่รายงานรายการนี้ ใช้ \"ตรวจยอดใหม่\" เพื่อยืนยัน",
   "txDetailsNotKnown": "ไม่ทราบ",
   "txReceivedByOtherWallet": "รับโดยกระเป๋าเงินอื่น",
   "txSpokenReceivedByOtherWallet": "รับโดยกระเป๋าเงินอื่น {amount}",

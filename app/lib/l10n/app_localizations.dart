@@ -27596,6 +27596,18 @@ abstract class AppLocalizations {
   /// **'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.'**
   String get txDetailsOtherWallet;
 
+  /// Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet).
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from another wallet · unverified'**
+  String get txSentFromOtherWalletUnverified;
+
+  /// Details line of a row sent from another wallet that no completed scan has checked yet: only the node reports it. Recheck balance is the name of the action in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified: so far only the node reports this. Recheck balance to confirm it.'**
+  String get txDetailsUnverified;
+
   /// Value of a details row (the fee) that this wallet cannot know.
   ///
   /// In en, this message translates to:

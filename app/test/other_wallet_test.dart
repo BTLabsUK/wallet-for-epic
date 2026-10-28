@@ -135,4 +135,24 @@ void main() {
       'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.',
     );
   });
+
+  test('a send only the node shows so far reads unverified, row and details; a received one does not', () {
+    final l = lookupAppLocalizations(const Locale('en'));
+    TxEntry row({required bool sent, bool unverified = true}) => fakeTx(
+      id: 3,
+      kind: sent ? TxKind.sent : TxKind.received,
+      status: TxStatus.confirmed,
+      origin: TxOrigin.otherWallet,
+      createdAtUnix: 1790000000,
+      amountDebited: sent ? _epic(1) : BigInt.zero,
+      amountCredited: sent ? BigInt.zero : _epic(1),
+      blockHeight: _tip - BigInt.from(5),
+      unverified: unverified,
+    );
+    expect(txTitle(l, row(sent: true)), 'Sent from another wallet · unverified');
+    expect(txExplanation(l, row(sent: true), _tip), endsWith('Recheck balance to confirm it.'));
+    expect(txTitle(l, row(sent: true, unverified: false)), 'Sent from another wallet');
+    expect(txExplanation(l, row(sent: true, unverified: false), _tip), isNot(contains('Unverified')));
+    expect(txTitle(l, row(sent: false)), isNot(contains('unverified')));
+  });
 }

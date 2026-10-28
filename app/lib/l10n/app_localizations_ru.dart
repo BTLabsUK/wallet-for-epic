@@ -18142,6 +18142,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Узел показывает эти монеты потраченными, а этот кошелёк их не тратил: скорее всего, это сделал другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Отправлено из другого кошелька · не проверено';
+
+  @override
+  String get txDetailsUnverified =>
+      'Не проверено: пока об этом сообщает только узел. Подтвердите через «Сверка баланса».';
+
+  @override
   String get txDetailsNotKnown => 'Неизвестно';
 
   @override

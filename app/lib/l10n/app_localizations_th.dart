@@ -17148,6 +17148,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดแสดงว่าเหรียญเหล่านี้ถูกใช้ไปแล้ว และกระเป๋าเงินนี้ไม่ได้ใช้ เป็นไปได้มากว่ากระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณใช้ไป กระเป๋าเงินนี้แสดงจำนวนที่ออกไป ไม่แสดงผู้รับและค่าธรรมเนียม';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'ส่งจากกระเป๋าเงินอื่น · ยังไม่ได้ตรวจสอบ';
+
+  @override
+  String get txDetailsUnverified =>
+      'ยังไม่ได้ตรวจสอบ: ตอนนี้มีเพียงโหนดที่รายงานรายการนี้ ใช้ \"ตรวจยอดใหม่\" เพื่อยืนยัน';
+
+  @override
   String get txDetailsNotKnown => 'ไม่ทราบ';
 
   @override

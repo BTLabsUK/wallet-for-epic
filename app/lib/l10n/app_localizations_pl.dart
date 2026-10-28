@@ -18162,6 +18162,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Węzeł pokazuje te monety jako wydane, a ten portfel ich nie wydał: najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Wysłano z innego portfela · niezweryfikowane';
+
+  @override
+  String get txDetailsUnverified =>
+      'Niezweryfikowane: na razie zgłasza to tylko węzeł. Potwierdź to przez „Sprawdź saldo”.';
+
+  @override
   String get txDetailsNotKnown => 'Nieznane';
 
   @override

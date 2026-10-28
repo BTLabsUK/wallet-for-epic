@@ -17549,6 +17549,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.';
 
   @override
+  String get txSentFromOtherWalletUnverified =>
+      'Sent from another wallet · unverified';
+
+  @override
+  String get txDetailsUnverified =>
+      'Unverified: so far only the node reports this. Recheck balance to confirm it.';
+
+  @override
   String get txDetailsNotKnown => 'Not known';
 
   @override

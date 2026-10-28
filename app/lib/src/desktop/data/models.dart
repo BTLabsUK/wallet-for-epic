@@ -289,6 +289,7 @@ class Tx {
     this.proofSignature,
     this.coinbase = false,
     this.otherWallet = false,
+    this.unverified = false,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -387,6 +388,10 @@ class Tx {
   /// it and this wallet has no record. Confirmed, no counterparty, and for a send no fee known.
   final bool otherWallet;
 
+  /// An [otherWallet] send only the node's answers show so far (no completed scan has covered
+  /// its blocks yet); LEPIC clears it after the next one.
+  final bool unverified;
+
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
 
@@ -483,6 +488,7 @@ class Tx {
       proofSignature: proofSignature,
       coinbase: coinbase,
       otherWallet: otherWallet,
+      unverified: unverified,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,

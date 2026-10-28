@@ -16511,6 +16511,12 @@ class AppLocalizationsZh extends AppLocalizations {
       '节点显示这些币已被花掉，而本钱包没有花它们：很可能是另一个使用你助记词的钱包花掉的。本钱包只显示离开的金额，不显示收款方和手续费。';
 
   @override
+  String get txSentFromOtherWalletUnverified => '由另一个钱包发出 · 未核实';
+
+  @override
+  String get txDetailsUnverified => '未核实：目前只有节点报告了这笔付款。用“重新核对余额”来确认。';
+
+  @override
   String get txDetailsNotKnown => '未知';
 
   @override

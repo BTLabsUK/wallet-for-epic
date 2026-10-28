@@ -23294,6 +23294,14 @@
   "@txDetailsOtherWallet": {
     "description": "Details of a row sent from another wallet: what it is and what is not known about it."
   },
+  "txSentFromOtherWalletUnverified": "Sent from another wallet · unverified",
+  "@txSentFromOtherWalletUnverified": {
+    "description": "Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet)."
+  },
+  "txDetailsUnverified": "Unverified: so far only the node reports this. Recheck balance to confirm it.",
+  "@txDetailsUnverified": {
+    "description": "Details line of a row sent from another wallet that no completed scan has checked yet: only the node reports it. Recheck balance is the name of the action in Settings."
+  },
   "txDetailsNotKnown": "Not known",
   "@txDetailsNotKnown": {
     "description": "Value of a details row (the fee) that this wallet cannot know."
