@@ -2,7 +2,6 @@
 // was is not known, on the phone and the desktop, instead of leaving out the other side (#122).
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
-import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart' show txNoAddressShown;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
