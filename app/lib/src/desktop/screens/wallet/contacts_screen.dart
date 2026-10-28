@@ -290,7 +290,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           DeskContactsPairButton(foldPending: compactBar),
         ],
         // Already on the new contact form: nothing more to add from here.
-        EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _adding ? null : _add),
+        compactBar
+            ? EIconButton(icon: EIcons.userPlus, label: l.deskConAdd, onPressed: _adding ? null : _add)
+            : EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _adding ? null : _add),
         const ContactsMoreButton(),
       ],
       child: split
