@@ -431,7 +431,7 @@ void main() {
       expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
     });
 
-    // The owner saw no mark: a long state word in a large font cut " · Tor" off its end. The
+    // A report said no mark showed: a long state word in a large font cut " · Tor" off its end. The
     // icon now leads a line of its own.
     for (final (locale, word) in [
       (const Locale('pl'), 'Przez Tor'),

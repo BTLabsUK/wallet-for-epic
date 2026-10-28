@@ -21,7 +21,7 @@ void main() {
   test('an invite: answered, then paired with four words, then verified', () async {
     final events = <PairingEvent>[];
     api.events().listen(events.add);
-    final invite = await api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+    final invite = await api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
     expect(invite.state, PairingState.pendingInvite);
     expect(invite.expiresAt, now.add(const Duration(hours: 24)));
     expect(pairingLinkKind(invite.inviteLink!), PairingLinkKind.invite);
@@ -40,12 +40,12 @@ void main() {
   });
 
   test('words: offered for 10 minutes, found once, refused without the relay', () async {
-    final invite = await api.makeInvite(name: 'the owner', expiry: const Duration(days: 7), words: true);
+    final invite = await api.makeInvite(name: 'Alex', expiry: const Duration(days: 7), words: true);
     expect(invite.inviteWords, hasLength(pairingWordCount));
     expect(invite.expiresAt, now.add(pairingWordsExpiry));
     api.relayUnreachable = true;
     await expectLater(
-      api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1), words: true),
+      api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), words: true),
       _failure(PairingFailure.noRelay),
     );
   });
@@ -54,12 +54,12 @@ void main() {
     final link = api.inviteLinkFrom(name: 'Northwind', kind: PairingParty.exchange, asksInvoices: true);
     final preview = await api.openInvite(link);
     expect((preview.name, preview.kind, preview.asksInvoices), ('Northwind', PairingParty.exchange, true));
-    final answered = await api.acceptInvite(token: preview.token, name: 'the owner', allowInvoices: true);
+    final answered = await api.acceptInvite(token: preview.token, name: 'Alex', allowInvoices: true);
     expect(answered.state, PairingState.pendingReply);
     api.confirmAnswer(answered.id);
     final verified = await api.checkWords(answered.id, PairingCheck.match);
     expect(verified!.allowInvoices, isTrue, reason: 'the user turned it on when answering');
-    await expectLater(api.acceptInvite(token: preview.token, name: 'the owner'), _failure(PairingFailure.invalid));
+    await expectLater(api.acceptInvite(token: preview.token, name: 'Alex'), _failure(PairingFailure.invalid));
   });
 
   test('an expired invite cannot be opened; a link that is none is invalid', () async {
@@ -72,8 +72,8 @@ void main() {
 
   test('an answer without a confirm for an hour ends; an expired invite stays listed', () async {
     final preview = await api.openInvite(api.inviteLinkFrom(name: 'Anna'));
-    final answered = await api.acceptInvite(token: preview.token, name: 'the owner');
-    final invite = await api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+    final answered = await api.acceptInvite(token: preview.token, name: 'Alex');
+    final invite = await api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
     now = now.add(const Duration(hours: 2));
     expect(await api.collect(), 1);
     expect(await api.pairing(answered.id), isNull);
@@ -127,7 +127,7 @@ void main() {
 
   test('the backup carries the paired records; restored elsewhere they are marked so', () async {
     api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
-    await api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+    await api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
     final backup = api.exportBackup();
     expect((backup!['records'] as List), hasLength(1), reason: 'pending invites stay behind');
     final other = FakeWalletSession().pairing;

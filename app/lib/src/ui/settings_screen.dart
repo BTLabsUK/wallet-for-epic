@@ -105,7 +105,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     key: settingsGroupKey(SettingsSection.security),
                     section: SettingsSection.security,
                     // The hub's second lines name what is inside, never live values
-                    // (the owner, 26.10.11); Security warns instead while the recovery phrase
+                    // (26.10.11); Security warns instead while the recovery phrase
                     // is not backed up.
                     state: demo
                         // The demo's Security page holds none of these.

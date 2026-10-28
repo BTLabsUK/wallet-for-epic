@@ -826,7 +826,7 @@ void main() {
     record('Contacts shows everyone, a star', hasText('Carol Link') && hasText('Dave Link') && hasText('Ben Shop') && find.byIcon(Icons.star_rounded).evaluate().isNotEmpty, screen());
     await toShell(tester);
 
-    // ---- 6. the owner's restored-row test: restore without the import, edit two found rows in
+    // ---- 6. the restored-row test: restore without the import, edit two found rows in
     // the UI, export F2, restore again, import F2: the edits are on the same payments.
     await deleteWalletUi(tester);
     await restoreWallet(tester, phrase);

@@ -1,6 +1,6 @@
 // Send keeps its draft when the page is left and opened again (people check the balance and
 // come back), and a filled recipient always has Clear: it empties To and puts the method back
-// where Send starts (the owner, tester report 26.10.21).
+// where Send starts (tester report 26.10.21).
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';

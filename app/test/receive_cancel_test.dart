@@ -1,4 +1,4 @@
-// Cancel of an incoming payment (the owner, 2026-10-25): once this wallet signed and returned its
+// Cancel of an incoming payment (2026-10-25): once this wallet signed and returned its
 // half, the sender can finalize and post at any time, so Cancel stays out of the way for
 // receiveCancelHold (15 minutes) and while the sender reports it posted; a line says when it
 // comes. After the hold it is a quiet button for a payment the sender never posted: LEPIC asks

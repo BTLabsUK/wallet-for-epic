@@ -491,7 +491,7 @@ void main() {
       expect(find.byType(Switch), findsNothing);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       expect(find.byType(MarkedQr), findsNothing);
-      // None of the words the owner struck out.
+      // None of the words that were struck out.
       for (final word in ['Listener', 'listener', 'Advanced', 'Epic address']) {
         expect(find.textContaining(word), findsNothing);
       }

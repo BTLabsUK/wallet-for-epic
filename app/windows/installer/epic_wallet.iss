@@ -15,7 +15,7 @@
 ; is in. The app finds the mark at its next start and offers the update again
 ; (lib\src\desktop\data\desk_update.dart).
 ;
-; Look (docs/feedback/designs/installer, the owner's OK of 2026-10-22): one dark wizard page with
+; Look (docs/feedback/designs/installer, agreed 2026-10-22): one dark wizard page with
 ; the landing-page hero behind it, one Install button, folder and shortcuts behind an "Options"
 ; link, a gold progress bar, "Open Epic Cash Desktop" at the end. Everything is stock Inno 6.7: the
 ; built-in dark style, WizardSetBackImage for the hero (dimmed while files copy), TNewStaticText

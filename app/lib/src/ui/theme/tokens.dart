@@ -101,7 +101,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color selectedLine;
 
   /// A transaction's direction, on its arrow, icon and amount wherever a payment shows
-  /// (Activity, recent activity, details, outputs, invoices, notices). the owner's rule
+  /// (Activity, recent activity, details, outputs, invoices, notices). the rule
   /// (26.10.18, after 26.10.8's gold): sent is red, received is green, cancelled is a neutral
   /// grey, so a list reads like a ledger at a glance. [txSent] is money out, not a problem:
   /// a vivid red apart from the softer [risk], which stays for errors and failures, and

@@ -427,7 +427,7 @@ FakeWalletSession _previewSession() {
         label: 'BT Labs',
         contactId: 'c2',
         expiresAt: now.add(const Duration(hours: 22)),
-        inviteLink: fakePairingLink('pair', {'t': 'pairing-btlabs', 'n': 'the owner', 'e': now.add(const Duration(hours: 22)).millisecondsSinceEpoch}),
+        inviteLink: fakePairingLink('pair', {'t': 'pairing-btlabs', 'n': 'Alex', 'e': now.add(const Duration(hours: 22)).millisecondsSinceEpoch}),
       ),
     )
     ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: anna, verifiedAt: now.subtract(const Duration(days: 4)))

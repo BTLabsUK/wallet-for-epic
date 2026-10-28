@@ -10,7 +10,7 @@ import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 
-/// Buttons and dropdowns come in three widths, labels centred (the owner's UI rule): [sm] for a
+/// Buttons and dropdowns come in three widths, labels centred (a UI rule): [sm] for a
 /// row's or a dialog's action, [md] for a page's main action and dropdowns, [lg] for a lone
 /// call to action.
 abstract final class InvW {

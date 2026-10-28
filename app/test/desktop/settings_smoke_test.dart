@@ -142,7 +142,7 @@ void main() {
     }
   }
 
-  // The owner, build 6: the jump painted the whole section solid gold for seconds. Now a thin
+  // Build 6: the jump painted the whole section solid gold for seconds. Now a thin
   // outline that is gone after a second, no fill, and nothing at all with reduced motion.
   for (final reduce in [false, true]) {
     testWidgets('a jump marks its section with a fading outline only (reduced motion: $reduce)', (tester) async {

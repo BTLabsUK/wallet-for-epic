@@ -121,7 +121,7 @@ void main() {
       lepic.PendingPairingView(
         contactId: 'invite-1',
         inviter: true,
-        inviteName: 'the owner',
+        inviteName: 'Alex',
         label: '',
         expiresAtMs: 1792900600000,
         createdAtMs: 1792900000000,

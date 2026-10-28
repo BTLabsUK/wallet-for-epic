@@ -106,10 +106,10 @@ final List<DeskShot> invoiceSetShotsCore = [
     route: DeskRoute.pairPending,
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
-      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Tom');
-      await p.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+      await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Tom');
+      await p.makeInvite(name: 'Alex', expiry: const Duration(minutes: 10), words: true);
       final preview = await p.openInvite(p.inviteLinkFrom(name: 'Ola'));
-      await p.acceptInvite(token: preview.token, name: 'the owner');
+      await p.acceptInvite(token: preview.token, name: 'Alex');
       c.invalidate(deskPairingsProvider);
     },
   ),
@@ -164,7 +164,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     arg: DeskPairWay.message,
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
-      final invite = await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+      final invite = await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
       await p.openReply(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Anna'}));
       c.invalidate(deskPairingsProvider);
     },
@@ -182,7 +182,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     prepare: (c, _) async {
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
       final preview = await p.openInvite(p.inviteLinkFrom(name: 'Anna'));
-      await p.acceptInvite(token: preview.token, name: 'the owner');
+      await p.acceptInvite(token: preview.token, name: 'Alex');
       c.invalidate(deskPairingsProvider);
     },
     dialog: (ctx) async {
@@ -205,7 +205,7 @@ final List<DeskShot> invoiceSetShotsCore = [
       final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
       p.records.clear();
       final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).where((x) => x.name == 'BT Labs').firstOrNull;
-      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
+      await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: tom?.name, contactId: tom?.id);
       c.invalidate(deskPairingsProvider);
     },
   ),

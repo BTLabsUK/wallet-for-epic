@@ -1,4 +1,4 @@
-// Help › "Cancelling a payment" (the owner, 2026-10-25): one topic on both platforms, in six
+// Help › "Cancelling a payment" (2026-10-25): one topic on both platforms, in six
 // languages, with Sending / Receiving / Requests headings that the quiet line beside every
 // Cancel button opens it at; the words a stuck user searches for find it; no protocol jargon.
 import 'package:epic_wallet/src/help/help_content.dart';

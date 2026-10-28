@@ -600,7 +600,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    // One row per thing (the owner, 26.10.11): Node and Epicbox with their host and health, each
+    // One row per thing (26.10.11): Node and Epicbox with their host and health, each
     // opening its picker (the status card's rows, the same pickers as the icons on Home), the
     // Tor switch, then the other privacy settings. With no wallet open there is no health to
     // show: plain rows open the same pickers.

@@ -1,5 +1,5 @@
 // The Settings hub's second lines name the main things on each page, never live values
-// (the owner, 26.10.11): Security "Backup · PIN · Biometrics" (the backup warning instead while
+// (26.10.11): Security "Backup · PIN · Biometrics" (the backup warning instead while
 // the phrase is not backed up), Privacy & network "Node · Epicbox · Tor", Wallet "Contacts ·
 // Outputs · Payment history", Display "Theme · Language · Currency", About none. Every item
 // named is on its page.

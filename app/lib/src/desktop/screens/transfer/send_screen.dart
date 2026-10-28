@@ -1149,7 +1149,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The last send was a mailbox payment queued while Epicbox is off: to whom, for its notice.
   String? _queuedFor;
 
-  /// Clear in To, on the contact's card or the pairing's (the owner: Send keeps its draft, so a
+  /// Clear in To, on the contact's card or the pairing's (Send keeps its draft, so a
   /// filled recipient always has a way out): the recipient goes with what followed from it,
   /// the method it moved, a code's untouched amount and note, the switch tag and the errors,
   /// back to the method Send starts on. Amount and Message typed by hand stay.

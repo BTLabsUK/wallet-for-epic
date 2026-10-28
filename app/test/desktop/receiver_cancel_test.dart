@@ -123,7 +123,7 @@ void main() {
     }
   });
 
-  // The owner, 2026-10-25: once this wallet signed and returned its half, the sender can post at
+  // 2026-10-25: once this wallet signed and returned its half, the sender can post at
   // any time, so Cancel waits out receiveCancelHold and any sender report (models.dart).
   group('the hold on an incoming payment', () {
     Tx waiting({required Duration ago, bool senderPosted = false}) =>

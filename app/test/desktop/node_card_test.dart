@@ -119,7 +119,7 @@ void main() {
     expect(find.textContaining('Status site last reached'), findsNothing, reason: 'never reached this session');
   });
 
-  // The owner's 26.10.x desktop: a 4.1.1 node whose ready_for_txs call failed read "node before 4.1.0".
+  // a 26.10.x desktop: a 4.1.1 node whose ready_for_txs call failed read "node before 4.1.0".
   testWidgets('limited info, readiness unknown: "node before 4.1.0" only for a node that says so', (tester) async {
     NodeInfo info(String? version) =>
         NodeInfo(url: _url, source: NodeInfoSource.limited, at: _now, height: 3766864, version: version);

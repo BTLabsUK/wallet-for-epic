@@ -9,7 +9,7 @@ library;
 
 import 'local_node_state.dart';
 
-/// The public node the fallback offers by default while the local node syncs (the owner,
+/// The public node the fallback offers by default while the local node syncs
 /// 2026-10-22: node.epiccash.com, changeable; no node is the wallet's own).
 const String defaultFallbackNodeUrl = 'https://node.epiccash.com:3413';
 

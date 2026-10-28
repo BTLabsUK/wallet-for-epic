@@ -125,7 +125,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await tester.tap(find.byKey(deskPairMessageKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
@@ -153,7 +153,7 @@ void main() {
 
   testWidgets('the joiner by message: Pair, the reply to copy, then Paste finish link opens the words', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await tester.enterText(
       find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)),
       _l.pairInviteMessage(_pairing.inviteLinkFrom(name: 'Anna')),
@@ -193,7 +193,7 @@ void main() {
 
   testWidgets('a pasted invite opens the incoming dialog; Pair answers it', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     final link = _pairing.inviteLinkFrom(name: 'Northwind', asksInvoices: true);
     await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), link);
     await tester.pump();
@@ -209,7 +209,7 @@ void main() {
 
   testWidgets('pairing words pasted with their emoji, as the copy once put them, open the invite', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     final preview = (await tester.runAsync(() => _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Northwind'))))!;
     final five = [sasTable[7], sasTable[42], sasTable[7], sasTable[200], sasTable[3]];
     _pairing.wordsInvites[five.map((w) => w.name).join(' ')] = preview;
@@ -223,19 +223,19 @@ void main() {
 
   testWidgets('this wallet\'s own invite pasted: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
-    final mine = (await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24))))!;
+    await _seenAs(tester, 'Alex');
+    final mine = (await tester.runAsync(() => _pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 24))))!;
     await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), mine.inviteLink!);
     await tester.pump();
     await tester.tap(find.byKey(deskPairGoKey));
     await _real(tester);
     expect(find.text(_l.pairOwnCode), findsOneWidget);
-    expect(find.text(_l.pairIncomingTitle('the owner')), findsNothing);
+    expect(find.text(_l.pairIncomingTitle('Alex')), findsNothing);
   });
 
   testWidgets('the whole shared invite message, its lines run together by the field, opens the invite (PAIR-LNX-1)', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     final link = _pairing.inviteLinkFrom(name: 'Northwind', asksInvoices: true);
     final message = _l.pairInviteMessage(link).replaceAll('\n', '');
     await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), message);
@@ -247,7 +247,7 @@ void main() {
 
   testWidgets('a pasted card link pairs face to face: this wallet\'s card to hand back, then the words', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
     await tester.pump();
     await tester.tap(find.byKey(deskPairGoKey));
@@ -265,7 +265,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await tester.tap(find.byKey(deskPairInPersonKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
@@ -297,7 +297,7 @@ void main() {
     _c.invalidate(deskPairingsProvider);
     await tester.tap(find.byKey(deskPairInPersonKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
@@ -322,7 +322,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await tester.tap(find.byKey(deskPairInPersonKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
@@ -346,7 +346,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await tester.tap(find.byKey(deskPairInPersonKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
     await tester.tap(find.byKey(deskPairCopyCardKey));
@@ -377,7 +377,7 @@ void main() {
     await _open(tester, const DeskPairScreen());
     // The mock pins its pairing clock for the shots; the page counts in real time.
     _pairing.clock = DateTime.now;
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     final first = _pairing.records.where((r) => r.state == PairingState.pendingInvite && r.inviteWords.isNotEmpty).toList();
     expect(first, hasLength(1));
@@ -396,7 +396,7 @@ void main() {
   testWidgets('the code appears once a name is typed, without opening the page again (PAIR-LNX-6)', (tester) async {
     await _open(tester, const DeskPairScreen());
     expect(find.text(_l.pairNameForCode), findsOneWidget);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     expect(find.text(_l.pairNameForCode), findsNothing);
     expect(find.byType(WordTiles), findsOneWidget);
@@ -409,7 +409,7 @@ void main() {
     expect(find.byKey(deskPairMessagePanelKey), findsOneWidget, reason: 'the message way opens first');
     await tester.tap(find.byKey(deskPairInPersonKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await _real(tester, 1200);
     expect(find.bySemanticsLabel(_l.pairCodeLabel), findsOneWidget);
     expect(_c.read(deskOwnCardProvider)?.link, startsWith('epiccash://contact/'));
@@ -459,7 +459,7 @@ void main() {
     await _open(tester, const DeskPendingScreen());
     // The mock's pairings live on its own date; this one is made now, as the screen counts.
     _pairing.clock = DateTime.now;
-    await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Ola'));
+    await tester.runAsync(() => _pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Ola'));
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
     expect(find.text('Ola'), findsOneWidget);
@@ -472,8 +472,8 @@ void main() {
     _pairing.clock = DateTime.now;
     await tester.runAsync(() async {
       final preview = await _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Anna'));
-      await _pairing.acceptInvite(token: preview.token, name: 'the owner');
-      await _pairing.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+      await _pairing.acceptInvite(token: preview.token, name: 'Alex');
+      await _pairing.makeInvite(name: 'Alex', expiry: const Duration(minutes: 10), words: true);
     });
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
@@ -608,8 +608,8 @@ void main() {
 
   testWidgets('an answer pasted by hand: the confirm to send back, then the words (PAIR-AND-10)', (tester) async {
     await _open(tester, const DeskPairScreen());
-    await _seenAs(tester, 'the owner');
-    final invite = (await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24))))!;
+    await _seenAs(tester, 'Alex');
+    final invite = (await tester.runAsync(() => _pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 24))))!;
     await tester.enterText(
       find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)),
       fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}),
@@ -628,17 +628,17 @@ void main() {
     await _open(tester, const DeskPairScreen());
     await tester.tap(find.byKey(deskPairMessageKey));
     await _real(tester);
-    await _seenAs(tester, 'the owner');
+    await _seenAs(tester, 'Alex');
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
-    expect(_c.read(deskProvider).settings.pairingSeenAs, 'the owner');
-    expect(_c.read(deskSeenAsProvider), 'the owner');
+    expect(_c.read(deskProvider).settings.pairingSeenAs, 'Alex');
+    expect(_c.read(deskSeenAsProvider), 'Alex');
   });
 
   test('the settings file keeps the name, and an old file reads without it', () {
-    final kept = deskSettingsFromJson(deskSettingsToJson(const DeskSettings(pairingSeenAs: 'the owner')));
-    expect(kept.pairingSeenAs, 'the owner');
+    final kept = deskSettingsFromJson(deskSettingsToJson(const DeskSettings(pairingSeenAs: 'Alex')));
+    expect(kept.pairingSeenAs, 'Alex');
     expect(deskSettingsFromJson(const {}).pairingSeenAs, '');
     expect(deskSettingsToJson(const DeskSettings()).containsKey('pairingSeenAs'), isFalse);
   });

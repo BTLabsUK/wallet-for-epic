@@ -55,7 +55,7 @@ class _NoPrice implements PriceSource {
 }
 
 class _Harness {
-  _Harness({String? seenAs = 'the owner'}) {
+  _Harness({String? seenAs = 'Alex'}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
   }
 
@@ -227,7 +227,7 @@ void main() {
 
     testWidgets('a reply pasted after the relay finished the pairing: Already paired, nothing else', (tester) async {
       final h = _Harness();
-      final invite = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
       h.api.answerInvite(invite.id, name: 'Ola');
       await h.pump(tester, const EnterLinkScreen());
       await tester.enterText(find.byKey(pairEnterFieldKey), fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}));
@@ -394,14 +394,14 @@ void main() {
 
     testWidgets('this wallet\'s own invite: This is your own code, no Pair with … (PAIR-AND-2)', (tester) async {
       final h = _Harness();
-      final mine = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+      final mine = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
       await h.pump(tester, const EnterLinkScreen());
       await tester.enterText(find.byKey(pairEnterFieldKey), mine.inviteLink!);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(pairEnterGoKey));
       await _frames(tester);
       expect(find.text(_l.pairOwnCode), findsOneWidget);
-      expect(find.text(_l.pairIncomingTitle('the owner')), findsNothing);
+      expect(find.text(_l.pairIncomingTitle('Alex')), findsNothing);
       expect(h.api.records.single.state, PairingState.pendingInvite, reason: 'nothing answered');
     });
 
@@ -483,7 +483,7 @@ void main() {
       final h = _Harness();
       h.api.relayUnreachable = true;
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-      final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner');
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex');
       await h.pump(tester, PairingWaitingScreen(pairingId: answered.id), settle: false);
       expect(find.text(_l.pairRelayUnreachableTitle), findsOneWidget);
       await tester.tap(find.byKey(waitingByHandKey));
@@ -495,7 +495,7 @@ void main() {
       for (final (net, text) in [(PairNet.offline, _l.pairOfflineHint), (PairNet.epicboxOff, _l.pairEpicboxOffNotice)]) {
         final h = _Harness();
         final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-        final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+        final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
         await h.pump(tester, PairingWaitingScreen(pairingId: answered.id), net: net, settle: false);
         expect(find.text(text), findsOneWidget, reason: '$net');
         expect(find.text(_l.pairRelayUnreachableTitle), findsNothing, reason: '$net');
@@ -567,7 +567,7 @@ void main() {
       await h.pump(tester, const Scaffold(body: PairingNotices()));
       // The test font's wide glyphs: the notice with its action needs more than 360 dp.
       tester.view.physicalSize = const Size(1800, 2340);
-      final invite = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
       final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => ContactPage(contactId: anna.id))));
       await tester.pumpAndSettle();
@@ -588,7 +588,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const Scaffold(body: PairingNotices(key: ValueKey('first'))));
       tester.view.physicalSize = const Size(1800, 2340);
-      final invite = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
       h.api.answerInvite(invite.id, name: 'Anna');
       await tester.pumpAndSettle();
       final c = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
@@ -688,8 +688,8 @@ void main() {
 
   testWidgets('a scan of the same card again replaces the unchecked one; the row has Remove (PAIR-AND-7)', (tester) async {
     final h = _Harness();
-    final first = await h.api.scanCard(cardId: (await h.api.showCard(name: 'the owner')).id, text: h.api.cardLinkFrom('Ola'));
-    final second = await h.api.scanCard(cardId: (await h.api.showCard(name: 'the owner')).id, text: h.api.cardLinkFrom('Ola'));
+    final first = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
+    final second = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
     await dropOlderInPersonPairings(h.api, second);
     expect(await h.api.pairing(first.id), isNull);
     expect((await h.api.pairing(second.id))!.state, PairingState.paired);
@@ -707,7 +707,7 @@ void main() {
   testWidgets('by hand: the inviter takes the answer, sends the confirm back, then checks the words (PAIR-AND-10)', (tester) async {
     // The inviter, Epicbox off: an invite, then the answer pasted by hand.
     final a = _Harness();
-    final invite = await a.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+    final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
     final reply = fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'});
     await a.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
     await tester.enterText(find.byKey(pairEnterFieldKey), reply);
@@ -728,11 +728,11 @@ void main() {
 
   testWidgets('by hand: the one who answered pastes the confirm and its words open (PAIR-AND-10)', (tester) async {
     final a = _Harness();
-    final invite = await a.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+    final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
     final b = _Harness();
     final preview = await b.api.openInvite(invite.inviteLink!);
     final answered = await b.api.acceptInvite(token: preview.token, name: 'Ola', byHand: true);
-    final confirm = fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'the owner'});
+    final confirm = fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Alex'});
     await b.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
     await tester.enterText(find.byKey(pairEnterFieldKey), confirm);
     await tester.pumpAndSettle();
@@ -745,7 +745,7 @@ void main() {
   testWidgets('the wait for the confirm closes once the confirm came by hand under it (item 25)', (tester) async {
     final h = _Harness();
     final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-    final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+    final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
     await h.pump(tester, const Scaffold(body: Text('home')));
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
     unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: answered.id))));
@@ -768,7 +768,7 @@ void main() {
     final h = _Harness();
     h.api.relayUnreachable = true;
     final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-    await h.api.acceptInvite(token: preview.token, name: 'the owner');
+    await h.api.acceptInvite(token: preview.token, name: 'Alex');
     await h.pump(tester, const PendingInvitesScreen());
     expect(find.byKey(pendingByHandKey), findsOneWidget);
     expect(find.byKey(pendingRemoveReplyKey), findsOneWidget);
@@ -804,7 +804,7 @@ void main() {
         ..add(Contact(id: 'c2', name: 'Bob', address: 'es${'b' * 50}@epicbox.epiccash.com'))
         ..add(Contact(id: 'c3', name: 'Dan', address: 'es${'d' * 50}@epicbox.epiccash.com'));
       h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
-      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Bob', contactId: 'c2');
+      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Bob', contactId: 'c2');
       await h.pump(tester, const ContactsScreen(), settle: false);
       expect(find.byKey(contactsPairHintKey), findsNothing);
       expect(find.text(_l.trustVerified), findsOneWidget);
@@ -890,7 +890,7 @@ void main() {
     testWidgets('the joiner\'s reply: an answer never confirmed ends as Not completed', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-      final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
       await h.pump(tester, PairReplyScreen(pairingId: answered.id, name: 'Anna'), settle: false);
       h.api.failPending(answered.id, PairingFailure.notCompleted);
       await _frames(tester);
@@ -938,8 +938,8 @@ void main() {
     testWidgets('an answer waiting for a confirm can be removed; an unnamed invite has a glyph (PAIR-LNX-8)', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-      await h.api.acceptInvite(token: preview.token, name: 'the owner');
-      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+      await h.api.acceptInvite(token: preview.token, name: 'Alex');
+      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
       await h.pump(tester, const PendingInvitesScreen());
       expect(find.text(_l.pairUnnamedInvite), findsOneWidget);
       final open = find.ancestor(of: find.text(_l.pairUnnamedInvite), matching: find.byType(Row)).first;
@@ -953,10 +953,10 @@ void main() {
 
     testWidgets('lists a link, words, and an expired invite with Invite again', (tester) async {
       final h = _Harness();
-      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
-      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1), words: true, label: 'Tom');
+      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
+      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), words: true, label: 'Tom');
       h.api.clock = () => DateTime.now().subtract(const Duration(hours: 3));
-      await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1), label: 'Marta');
+      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), label: 'Marta');
       h.api.clock = DateTime.now;
       await h.pump(tester, const PendingInvitesScreen());
       for (final name in ['Anna', 'Tom', 'Marta']) {
