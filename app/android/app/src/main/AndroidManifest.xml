@@ -4,14 +4,18 @@
     <!-- Network lost and regained (NetworkWatch.kt), so tor is refreshed or restarted. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-    <!-- In-app updates (AppUpdater.kt). The second lets Android 12+ update without a prompt
-         once this app installed the current version. -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION"/>
-    <!-- QR scanning on the send screen (mobile_scanner). Asked for when the scanner opens;
-         devices without a camera can still install the app. -->
+    <!-- The in-app updater's install permissions are in src/updater/AndroidManifest.xml:
+         build.gradle.kts merges them into the build from our own page only (WFE_DIST,
+         https://docs.btlabs.uk/developers/build/variants/). -->
+    <!-- QR scanning on the send screen (mobile_scanner; camera + flutter_zxing in the F-Droid
+         build). Asked for when the scanner opens; devices without a camera can still install
+         the app. The camera plugin's audio, storage and camera.any lines are not wanted: the
+         scanner records no sound and saves no pictures. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
     <!-- No auto backup and no device-to-device transfer: Keystore keys do not move to a new
          device, so restored secure storage would be unreadable, and the wallet database,
          metadata and logs stay on this one. allowBackup and fullBackupContent cover Android 11
@@ -85,14 +89,14 @@
                 <data android:mimeType="application/json"/>
             </intent-filter>
         </activity>
-        <receiver
-            android:name=".InstallResultReceiver"
-            android:exported="false"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- image_picker (pulled in by flutter_zxing in the F-Droid build) asks Play services
+             for its photo picker backport; no Google code in that build. -->
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies" tools:node="remove"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

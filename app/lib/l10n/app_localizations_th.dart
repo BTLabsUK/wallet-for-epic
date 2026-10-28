@@ -3111,6 +3111,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsCheckUpdates => 'ตรวจหาอัปเดต';
 
   @override
+  String settingsUpdatesFrom(String store) {
+    return 'การอัปเดตมาจาก $store';
+  }
+
+  @override
   String get settingsHelp => 'ช่วยเหลือ';
 
   @override

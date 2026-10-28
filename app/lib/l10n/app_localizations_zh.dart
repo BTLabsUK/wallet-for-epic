@@ -2987,6 +2987,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsCheckUpdates => '检查更新';
 
   @override
+  String settingsUpdatesFrom(String store) {
+    return '更新由 $store 提供。';
+  }
+
+  @override
   String get settingsHelp => '帮助';
 
   @override

@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../demo.dart';
 import '../l10n.dart';
 import '../settings.dart';
 import '../wallet_backend.dart' show hostIsPhone;
 import 'common.dart';
+import 'scanner_backend.dart';
 
 /// QR scanning needs a camera plugin that exists on Android and iOS only.
 bool get qrScanSupported => !kIsWeb && hostIsPhone;
@@ -75,15 +77,14 @@ class ScanScreen extends ConsumerStatefulWidget {
 
 class _ScanScreenState extends ConsumerState<ScanScreen> {
   // Started by hand, so the camera permission prompt runs under the auto-lock hold.
-  final _controller = MobileScannerController(
-    autoStart: false,
-    formats: const [BarcodeFormat.qrCode],
-  );
+  final _controller = ScannerController();
+  StreamSubscription<String>? _codes;
   bool _done = false;
 
   @override
   void initState() {
     super.initState();
+    _codes = _controller.codes.listen(_onCode);
     _start();
   }
 
@@ -92,27 +93,22 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   Future<void> _start() async {
     try {
       await ref.read(autoLockHoldProvider.notifier).during(_controller.start);
-    } on MobileScannerException {
+    } on ScannerException {
       // Also recorded in the controller's state, which the error builder shows.
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _codes?.cancel();
+    unawaited(_controller.close());
     super.dispose();
   }
 
-  void _onDetect(BarcodeCapture capture) {
-    if (_done) return;
-    for (final code in capture.barcodes) {
-      final text = code.rawValue?.trim();
-      if (text != null && text.isNotEmpty) {
-        _done = true;
-        Navigator.pop(context, text);
-        return;
-      }
-    }
+  void _onCode(String text) {
+    if (_done || !mounted) return;
+    _done = true;
+    Navigator.pop(context, text);
   }
 
   @override
@@ -123,9 +119,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          MobileScanner(
+          ScannerPreview(
             controller: _controller,
-            onDetect: _onDetect,
             errorBuilder: (context, error) =>
                 _ScanError(error: error, onRetry: _start),
           ),
@@ -196,12 +191,12 @@ class _Viewfinder extends StatelessWidget {
 class _ScanError extends StatelessWidget {
   const _ScanError({required this.error, required this.onRetry});
 
-  final MobileScannerException error;
+  final ScannerError error;
   final Future<void> Function() onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final denied = error.errorCode == MobileScannerErrorCode.permissionDenied;
+    final denied = error == ScannerError.denied;
     final theme = Theme.of(context);
     final l = context.l10n;
     return ColoredBox(

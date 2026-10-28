@@ -3250,6 +3250,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsCheckUpdates => 'Проверить обновления';
 
   @override
+  String settingsUpdatesFrom(String store) {
+    return 'Обновления устанавливает $store.';
+  }
+
+  @override
   String get settingsHelp => 'Справка';
 
   @override

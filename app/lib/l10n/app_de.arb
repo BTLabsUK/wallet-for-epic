@@ -829,6 +829,7 @@
   "settingsVersion": "Version",
   "settingsAboutNetwork": "Netzwerk",
   "settingsCheckUpdates": "Nach Updates suchen",
+  "settingsUpdatesFrom": "Updates liefert {store}.",
   "settingsHelp": "Hilfe",
   "settingsSendFeedback": "Problem melden",
   "settingsSendFeedbackHint": "Ein Problem melden oder den Entwicklern eine Idee vorschlagen. Protokolle gehen nur mit, wenn Sie sie anhängen; Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.",

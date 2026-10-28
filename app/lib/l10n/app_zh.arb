@@ -829,6 +829,7 @@
   "settingsVersion": "版本",
   "settingsAboutNetwork": "网络",
   "settingsCheckUpdates": "检查更新",
+  "settingsUpdatesFrom": "更新由 {store} 提供。",
   "settingsHelp": "帮助",
   "settingsSendFeedback": "报告问题",
   "settingsSendFeedbackHint": "向开发者报告问题或提出建议。只有你选择附上时才会发送日志，且会先移除助记词、PIN 码和其他机密信息。",

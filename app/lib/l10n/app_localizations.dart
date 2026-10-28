@@ -5095,6 +5095,12 @@ abstract class AppLocalizations {
   /// **'Check for updates'**
   String get settingsCheckUpdates;
 
+  /// Settings › About, under the version, in a store build (F-Droid, Google Play) that has no in-app updater: where updates come from. {store} is the store's name, never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates come from {store}.'**
+  String settingsUpdatesFrom(String store);
+
   /// Settings row that opens the help page.
   ///
   /// In en, this message translates to:

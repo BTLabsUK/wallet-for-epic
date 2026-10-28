@@ -1,3 +1,4 @@
+import 'package:epic_wallet/src/dist_build.dart' show distStore;
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
@@ -70,6 +71,19 @@ void main() {
     expect(find.textContaining('wallet-for-epic'), findsNothing);
     expect(find.textContaining('code is on GitHub'), findsNothing);
     expect(find.textContaining('Apache-2.0'), findsWidgets, reason: 'the licence line stays');
+  });
+
+  // Run also with --dart-define=WFE_DIST=msstore (https://docs.btlabs.uk/developers/build/variants/).
+  testWidgets('a store build names its store and has no Updates group', (tester) async {
+    await pump(tester, (_) async => (200, newer));
+    final from = find.byKey(const ValueKey('about-updates-from'));
+    if (distStore == null) {
+      expect(from, findsNothing);
+    } else {
+      expect(find.text('Updates come from $distStore.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('about-update-act')), findsNothing);
+      expect(find.text('Check now'), findsNothing);
+    }
   });
 
   testWidgets('About shows the contact address', (tester) async {

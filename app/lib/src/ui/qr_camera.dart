@@ -7,7 +7,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+
+import 'scanner_backend.dart';
 
 /// Why the camera is not usable.
 enum QrCameraProblem {
@@ -86,19 +87,15 @@ final qrCameraFactoryProvider = Provider<QrCameraFactory>(
   (ref) => MobileQrCamera.new,
 );
 
-/// The phone camera, through mobile_scanner.
+/// The phone camera, through scanner_backend.dart.
 class MobileQrCamera extends ChangeNotifier implements QrCamera {
   MobileQrCamera() {
     _controller.addListener(_sync);
   }
 
-  // Started by hand, so the permission prompt runs under the auto-lock hold. Unrestricted: the
-  // codes change six times a second, and the controller would swallow repeats of a part.
-  final MobileScannerController _controller = MobileScannerController(
-    autoStart: false,
-    formats: const [BarcodeFormat.qrCode],
-    detectionSpeed: DetectionSpeed.unrestricted,
-  );
+  // Every frame: the codes change six times a second, and dropping repeats would swallow
+  // repeats of a part.
+  final ScannerController _controller = ScannerController(everyFrame: true);
 
   QrCameraState _state = const QrCameraState();
   bool _disposed = false;
@@ -107,13 +104,7 @@ class MobileQrCamera extends ChangeNotifier implements QrCamera {
   QrCameraState get value => _state;
 
   @override
-  Stream<String> get codes => _controller.barcodes.expand(
-    (capture) => [
-      for (final code in capture.barcodes)
-        if (code.rawValue case final text? when text.trim().isNotEmpty)
-          text.trim(),
-    ],
-  );
+  Stream<String> get codes => _controller.codes;
 
   void _set(QrCameraState next) {
     if (_disposed || next == _state) return;
@@ -121,18 +112,19 @@ class MobileQrCamera extends ChangeNotifier implements QrCamera {
     notifyListeners();
   }
 
+  static QrCameraProblem _problemOf(ScannerError error) =>
+      error == ScannerError.denied
+      ? QrCameraProblem.denied
+      : QrCameraProblem.failed;
+
   void _sync() {
-    final error = _controller.value.error;
+    final error = _controller.error;
     _set(
       _state.copyWith(
-        problem: error == null
-            ? null
-            : error.errorCode == MobileScannerErrorCode.permissionDenied
-            ? QrCameraProblem.denied
-            : QrCameraProblem.failed,
+        problem: error == null ? null : _problemOf(error),
         clearProblem: error == null,
-        torchAvailable: _controller.value.torchState != TorchState.unavailable,
-        torchOn: _controller.value.torchState == TorchState.on,
+        torchAvailable: _controller.torchAvailable,
+        torchOn: _controller.torchOn,
       ),
     );
   }
@@ -141,14 +133,8 @@ class MobileQrCamera extends ChangeNotifier implements QrCamera {
   Future<void> start() async {
     try {
       await _controller.start();
-    } on MobileScannerException catch (error) {
-      _set(
-        _state.copyWith(
-          problem: error.errorCode == MobileScannerErrorCode.permissionDenied
-              ? QrCameraProblem.denied
-              : QrCameraProblem.failed,
-        ),
-      );
+    } on ScannerException catch (error) {
+      _set(_state.copyWith(problem: _problemOf(error.error)));
     }
   }
 
@@ -157,22 +143,20 @@ class MobileQrCamera extends ChangeNotifier implements QrCamera {
 
   @override
   Future<void> setZoom({required bool twice}) async {
-    await _controller.setZoomScale(twice ? 0.5 : 0);
+    await _controller.setZoom(twice: twice);
     _set(_state.copyWith(zoomed: twice));
   }
 
   @override
-  Widget preview(BuildContext context) => MobileScanner(
-    controller: _controller,
-    errorBuilder: (context, error) => const SizedBox.shrink(),
-  );
+  Widget preview(BuildContext context) =>
+      ScannerPreview(controller: _controller);
 
   @override
   Future<void> close() async {
     if (_disposed) return;
     _disposed = true;
     _controller.removeListener(_sync);
-    await _controller.dispose();
+    await _controller.close();
     super.dispose();
   }
 }

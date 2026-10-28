@@ -3167,6 +3167,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCheckUpdates => 'Check for updates';
 
   @override
+  String settingsUpdatesFrom(String store) {
+    return 'Updates come from $store.';
+  }
+
+  @override
   String get settingsHelp => 'Help';
 
   @override
