@@ -1024,9 +1024,10 @@ class TxStatusChip extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     final tone = switch (txPhase(tx, tip, target: target)) {
       TxPhase.waitingSender when senderReportsPosted(tx, now: now) => BadgeTone.info,
+      // Waiting for the other side is work under way, not a warning (UI-012).
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
-      TxPhase.waitingPayer => BadgeTone.warn,
+      TxPhase.waitingPayer => BadgeTone.info,
       TxPhase.confirming => BadgeTone.info,
       // Cancelled is over, not wrong: the same neutral badge as a completed payment.
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,

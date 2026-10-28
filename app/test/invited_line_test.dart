@@ -1,4 +1,3 @@
-import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
