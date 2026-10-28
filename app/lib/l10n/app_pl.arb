@@ -4776,5 +4776,8 @@
   "pairInvitedOn": "Zaproszenie wysłano {day}",
   "deskActNoneUnderFilter": "Nic pod tym filtrem",
   "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
-  "deskKitMethodConnected": "Połączono"
+  "deskKitMethodConnected": "Połączono",
+  "restoreWordsAllOk": "{count, plural, one{{count} słowo się zgadza.} few{Wszystkie {count} słowa się zgadzają.} many{Wszystkie {count} słów się zgadza.} other{Wszystkie {count} słowa się zgadzają.}}",
+  "restoreWordsSoFar": "{count, plural, one{{count} słowo} few{{count} słowa} many{{count} słów} other{{count} słowa}}",
+  "restoreWordsUnknown": "{count, plural, one{{count} słowa nie ma na liście.} few{{count} słów nie ma na liście.} many{{count} słów nie ma na liście.} other{{count} słowa nie ma na liście.}}"
 }

@@ -18248,4 +18248,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Connected';
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $count words check out.',
+      one: 'The word checks out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words',
+      one: '1 word',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words are not in the list.',
+      one: '1 word is not in the list.',
+    );
+    return '$_temp0';
+  }
 }

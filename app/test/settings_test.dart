@@ -446,7 +446,7 @@ void main() {
       h.files.picks.add(await h.session.exportHistory());
       await _tapText(tester, 'Import wallet data');
       expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
-      await _tapText(tester, 'OK');
+      await _tapText(tester, 'Done');
       expect(find.byType(RestoreScreen), findsNothing);
     });
   });
@@ -969,7 +969,7 @@ void main() {
       expect(deleteButton().onPressed, isNull);
       await _enter(tester, 'Type "delete" to confirm', 'delete');
       expect(deleteButton().onPressed, isNotNull);
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
 
       // Cancelling the PIN keeps the wallet.
@@ -979,7 +979,7 @@ void main() {
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
 
@@ -1034,7 +1034,7 @@ void main() {
       h.files.picks.add(h.files.saved.first.bytes);
       await _tapText(tester, 'Import wallet data');
       expect(find.text(englishStrings.historyBackupImportedTitle), findsOneWidget);
-      await _tapText(tester, 'OK');
+      await _tapText(tester, 'Done');
 
       // A cancelled pick does nothing.
       await _tapText(tester, 'Import wallet data');
@@ -1220,7 +1220,7 @@ void main() {
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
 
@@ -1288,7 +1288,7 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(havePhrase);
           await _enter(tester, 'Type "delete" to confirm', 'delete');
-          await tester.tap(find.text('Delete wallet'));
+          await tester.tap(find.text('Delete wallet').last);
           await tester.pumpAndSettle();
         }
 
@@ -1345,7 +1345,7 @@ void main() {
       await tester.tap(find.text('I have written down my recovery phrase'));
       await tester.enterText(find.widgetWithText(TextField, 'Type "delete" to confirm'), 'delete');
       await frames();
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       await frames();
       await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
       await frames();
@@ -1370,7 +1370,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(h.container.read(scanProvider).running, isTrue);
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -1390,7 +1390,7 @@ void main() {
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
-      await tester.tap(find.text('Delete wallet'));
+      await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
 

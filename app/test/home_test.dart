@@ -897,7 +897,7 @@ void main() {
       expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connecting');
       // 2 EPIC are locked, so the Locked in sends tile says so.
-      expect(_inTile(BalanceKind.locked, '2'), findsOneWidget);
+      expect(_inTile(BalanceKind.locked, '2.0000'), findsOneWidget);
       // The height is only in the tooltip.
       expect(
         _statusTip(tester, nodeStatusKey),
@@ -1258,9 +1258,9 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      // One label for the message, whoever wrote it (GP-011).
       expect(find.text('Message'), findsOneWidget);
       expect(find.text('September rent'), findsOneWidget);
-      expect(find.text('Message'), findsNothing);
       expect(find.text('Private note'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
     });
@@ -1290,7 +1290,6 @@ void main() {
       expect(find.text('for the pizza'), findsOneWidget);
       expect(find.text('Message from the recipient'), findsOneWidget);
       expect(find.text('thanks!'), findsOneWidget);
-      expect(find.text('Message'), findsNothing);
     });
 
     testWidgets('a payment without messages shows none', (tester) async {
@@ -1328,12 +1327,12 @@ void main() {
       expect(find.text('Payment started'), findsOneWidget);
       expect(find.textContaining('by block 2,500,120'), findsOneWidget);
 
-      final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');
+      final cancel = find.widgetWithText(DangerButton, 'Cancel payment').first;
       await _tap(tester, cancel);
       await _tap(tester, find.text('Keep'));
       expect(h.session.cancelledTxIds, isEmpty);
       await _tap(tester, cancel);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
+      await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(h.session.cancelledTxIds, [4]);
       expect(find.text('Payment cancelled'), findsOneWidget);
     });
@@ -1416,7 +1415,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.widgetWithText(OutlinedButton, 'Cancel payment'),
+        find.widgetWithText(DangerButton, 'Cancel payment'),
         findsNothing,
       );
     });
@@ -2049,14 +2048,14 @@ void main() {
       expect(find.text('Cancel this payment?'), findsOneWidget);
       expect(find.textContaining('may already have posted'), findsOneWidget);
       expect(find.textContaining('a later post still arrives'), findsOneWidget);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
+      await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(h.session.cancelledTxIds, [7]);
     });
 
     testWidgets('cancelling a send keeps the send wording', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      await _tap(tester, find.widgetWithText(OutlinedButton, 'Cancel payment'));
+      await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').first);
       expect(find.textContaining('Cancelling frees your coins'), findsOneWidget);
       expect(find.textContaining('rescan'), findsNothing);
     });
@@ -2391,7 +2390,7 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
       expect(find.textContaining('can no longer complete'), findsOneWidget);
       expect(
-        find.widgetWithText(OutlinedButton, 'Cancel payment'),
+        find.widgetWithText(DangerButton, 'Cancel payment').first,
         findsOneWidget,
       );
     });
@@ -2965,9 +2964,8 @@ void main() {
       });
     });
 
-    const reminder =
-        '11 payments are not in your exported wallet data. A restore from your recovery '
-        'phrase brings back only your balance.';
+    // The desktop's words (GP-046).
+    const reminder = '11 payments are not in your exported wallet data.';
 
     testWidgets('home reminds to export, and export clears it', (tester) async {
       final h = _Harness(transactions: _backlog());
@@ -3571,11 +3569,11 @@ void main() {
       expect(tile, findsOneWidget);
       expect(tester.getRect(tile).top, greaterThanOrEqualTo(eye.bottom));
       expect(_inTile(BalanceKind.locked, 'Locked in sends'), findsOneWidget);
-      expect(_inTile(BalanceKind.locked, '2'), findsOneWidget);
+      expect(_inTile(BalanceKind.locked, '2.0000'), findsOneWidget);
       expect(
         tester.getSemantics(tile),
         matchesSemantics(
-          label: 'Locked in sends: 2',
+          label: 'Locked in sends: 2.0000',
           isButton: true,
           hasTapAction: true,
         ),
@@ -3596,7 +3594,7 @@ void main() {
         expect(
           tester.getSemantics(find.byKey(balanceTileKey(BalanceKind.locked))),
           matchesSemantics(
-            label: 'Locked in sends: 2',
+            label: 'Locked in sends: 2.0000',
             isButton: true,
             hasTapAction: true,
           ),
@@ -3671,7 +3669,7 @@ void main() {
       // Only what is pending.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);
-      expect(_inTile(BalanceKind.confirming, '2'), findsOneWidget);
+      expect(_inTile(BalanceKind.confirming, '2.0000'), findsOneWidget);
       expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsNothing);
       // Everything confirmed, then a wallet without payments.
       final tokens = protocolLight;
@@ -3696,7 +3694,7 @@ void main() {
       await _reload(tester);
       await _tap(tester, find.byTooltip('Hide amounts'));
       expect(_inTile(BalanceKind.confirming, hiddenAmount), findsOneWidget);
-      expect(_inTile(BalanceKind.confirming, '2'), findsNothing);
+      expect(_inTile(BalanceKind.confirming, '2.0000'), findsNothing);
       handle.dispose();
     });
 
@@ -3756,7 +3754,8 @@ void main() {
           await _tap(tester, find.byTooltip('Show balances'));
           h.session.transactionsValue = [];
           await state('empty', _balances());
-          expect(find.text('Nothing here yet'), findsOneWidget);
+          // Total alone on an empty wallet (GP-009): no "Nothing here yet" tile.
+          expect(find.text('Nothing here yet'), findsNothing);
           expect(
             states.values.toSet(),
             hasLength(1),

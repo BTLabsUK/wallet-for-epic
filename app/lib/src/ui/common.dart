@@ -1599,9 +1599,11 @@ class TxTile extends ConsumerWidget {
       contactName: name,
       ownServer: ownEpicboxServer(ref),
     );
+    // The row's label field opens from a long press; the builder below hands its opener out.
+    VoidCallback? edit;
     // One sentence for screen readers instead of the pieces (title, chip, date, amount, fiat),
     // so the status is said once and in order. It sits under the row, which is on top of it
-    // only where there is something to read: the pen is its own button above it.
+    // only where there is something to read.
     return Stack(
       children: [
         Positioned.fill(
@@ -1633,10 +1635,13 @@ class TxTile extends ConsumerWidget {
               label: tx.label,
             ),
             onTap: open,
+            onLongPress: () => edit?.call(),
             excludeSemantics: true,
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: open,
+              // A long press labels the payment in place; the pen left the row (UI-064).
+              onLongPress: () => edit?.call(),
             ),
           ),
         ),
@@ -1668,24 +1673,20 @@ class TxTile extends ConsumerWidget {
                         horizontal: 12,
                         vertical: 4,
                       ),
-                      idle: (context, edit) => Row(
-                        children: [
-                          Expanded(
-                            child: IgnorePointer(
-                              child: ExcludeSemantics(
-                                child: Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodyLarge,
-                                ),
-                              ),
+                      idle: (context, startEdit) {
+                        // Another linked device's payment has no record here to label.
+                        edit = tx.origin == TxOrigin.linkedDevice ? null : startEdit;
+                        return IgnorePointer(
+                          child: ExcludeSemantics(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyLarge,
                             ),
                           ),
-                          // Another linked device's payment has no record here to label.
-                          if (tx.origin != TxOrigin.linkedDevice) LabelPen(hasLabel: tx.label != null, onPressed: edit),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
                   Transform.translate(

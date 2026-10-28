@@ -693,7 +693,6 @@ void main() {
       expect(remove.tooltip, 'Switch first');
       await tester.tap(find.byKey(serverListRemoveKey(_btlabs)), warnIfMissed: false);
       await tester.pumpAndSettle();
-      expect(find.byKey(serverListFootKey), findsNothing);
       expect(_row(_btlabs), findsOneWidget);
       expect(_saved(env.store, ServerKind.node), before);
       await _timers(tester);

@@ -17832,4 +17832,34 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'เชื่อมต่อแล้ว';
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ทั้ง $count คำถูกต้อง',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count คำ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count คำไม่อยู่ในรายการ',
+    );
+    return '$_temp0';
+  }
 }

@@ -140,7 +140,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         if (!didPop) setState(() => _creating = false);
       },
       child: SlotScaffold(
-        centered: !(_answer == null && choosing),
+        centered: !(_answer == null && choosing) && !onPinStep,
         glow: heroGlow,
         // The title is the hero's heading; the bar only holds the network action, and on the
         // PIN step the way back to the choice.
@@ -155,7 +155,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),
           ],
         ),
-        body: _answer == null && choosing
+        body: onPinStep && !demo
+            ? SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: PinSetupView(onDone: _finish, actionsAtFoot: true),
+                    ),
+                  ),
+                ),
+              )
+            : _answer == null && choosing
             ? ScreenBody(
                 // The two choices at the foot of the screen, above a keyboard (UI-016); the
                 // hero keeps the room above them.

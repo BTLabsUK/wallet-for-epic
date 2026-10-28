@@ -28573,6 +28573,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connected'**
   String get deskKitMethodConnected;
+
+  /// Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The word checks out.} other{All {count} words check out.}}'**
+  String restoreWordsAllOk(int count);
+
+  /// Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 word} other{{count} words}}'**
+  String restoreWordsSoFar(int count);
+
+  /// Restore: the line under the word chips when words are not in the recovery word list; count is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}'**
+  String restoreWordsUnknown(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -24240,5 +24240,32 @@
   "deskKitMethodConnected": "Connected",
   "@deskKitMethodConnected": {
     "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
+  },
+  "restoreWordsAllOk": "{count, plural, one{The word checks out.} other{All {count} words check out.}}",
+  "@restoreWordsAllOk": {
+    "description": "Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreWordsSoFar": "{count, plural, one{1 word} other{{count} words}}",
+  "@restoreWordsSoFar": {
+    "description": "Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreWordsUnknown": "{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}",
+  "@restoreWordsUnknown": {
+    "description": "Restore: the line under the word chips when words are not in the recovery word list; count is how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

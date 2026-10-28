@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../bip39_words.dart';
 import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
@@ -395,10 +396,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ],
       TextField(
         controller: _phrase,
-        // A phrase error is about the words as they were: an edit takes it away.
-        onChanged: (_) {
-          if (_error != null) setState(() => _error = null);
-        },
+        // A phrase error is about the words as they were: an edit takes it away; the word
+        // chips under the field follow every keystroke.
+        onChanged: (_) => setState(() => _error = null),
         minLines: 3,
         maxLines: 5,
         autocorrect: false,
@@ -412,6 +412,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           border: const OutlineInputBorder(),
         ),
       ),
+      RestoreWordCheck(text: _phrase.text),
       if (!advanced)
         Align(
           alignment: AlignmentDirectional.centerStart,
@@ -429,6 +430,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
+        // The app's tab style, no check mark (UI-053).
         SegmentedButton<_StartBy>(
           segments: [
             ButtonSegment(
@@ -441,6 +443,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             ),
           ],
           selected: {_startBy},
+          showSelectedIcon: false,
+          style: const ButtonStyle(minimumSize: WidgetStatePropertyAll(Size(0, 44))),
           onSelectionChanged: (s) => setState(() => _startBy = s.first),
         ),
         const SizedBox(height: 12),
@@ -560,12 +564,32 @@ class _DateChoice extends StatelessWidget {
 
   Future<void> _pick(BuildContext context) async {
     final now = DateTime.now();
+    final t = context.tokens;
     final picked = await showDatePicker(
       context: context,
       initialDate: date ?? now,
       firstDate: mainnetFirstDay,
       lastDate: now,
       helpText: context.l10n.restoreDatePickerTitle,
+      // The app's faces and a neutral selection instead of Material's stock look (UI-053).
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          datePickerTheme: DatePickerThemeData(
+            backgroundColor: t.surface,
+            headerHeadlineStyle: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: 24, color: t.text),
+            headerHelpStyle: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: 13, color: t.dim),
+            dayStyle: TextStyle(fontFamily: t.monoFamily, fontSize: 14),
+            yearStyle: TextStyle(fontFamily: t.monoFamily, fontSize: 14),
+            dayBackgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? t.selected : null),
+            dayForegroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.text),
+            todayBackgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+            todayForegroundColor: WidgetStatePropertyAll(t.text),
+            todayBorder: BorderSide(color: t.selectedLine),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radiusSmall)),
+          ),
+        ),
+        child: child!,
+      ),
     );
     if (picked != null) onChanged(picked);
   }
@@ -610,6 +634,75 @@ class _DateChoice extends StatelessWidget {
     );
   }
 }
+
+/// The words of the phrase as typed, each checked against the word list, with a count line
+/// (UI-068, as the desktop's grid): a word the list lacks is in the risk colour; 12 or 24
+/// known words read "All 24 words check out."
+class RestoreWordCheck extends StatelessWidget {
+  const RestoreWordCheck({super.key, required this.text});
+
+  final String text;
+
+  /// The words typed so far.
+  static List<String> wordsOf(String text) => [for (final w in text.trim().toLowerCase().split(RegExp(r'\s+'))) if (w.isNotEmpty) w];
+
+  @override
+  Widget build(BuildContext context) {
+    final words = wordsOf(text);
+    if (words.isEmpty) return const SizedBox.shrink();
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final unknown = words.where((w) => !bip39Words.contains(w)).length;
+    final complete = unknown == 0 && (words.length == 12 || words.length == 24);
+    final line = complete
+        ? l.restoreWordsAllOk(words.length)
+        : unknown > 0
+        ? l.restoreWordsUnknown(unknown)
+        : l.restoreWordsSoFar(words.length);
+    return Padding(
+      key: restoreWordCheckKey,
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final (i, w) in words.indexed)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: t.surfaceHi,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: bip39Words.contains(w) ? t.line : t.risk),
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: '${i + 1} ', style: TextStyle(color: t.dim, fontSize: 11)),
+                        TextSpan(text: w, style: TextStyle(color: bip39Words.contains(w) ? t.text : t.risk)),
+                      ],
+                    ),
+                    style: TextStyle(fontFamily: t.monoFamily, fontSize: 13),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            line,
+            style: theme.textTheme.bodySmall?.copyWith(color: complete ? t.ok : unknown > 0 ? t.risk : t.dim),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The key of the word check under the phrase field, for tests.
+const Key restoreWordCheckKey = ValueKey('restore-word-check');
 
 /// The words for a scan's progress: starting, a percentage, or complete. Null when no scan
 /// has run, or the last one failed (the error says so instead).

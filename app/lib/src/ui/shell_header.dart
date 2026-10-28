@@ -362,26 +362,29 @@ class _Figure extends StatelessWidget {
         builder: (context, constraints) {
           final unitWidth =
               8 + _textWidth('EPIC', unitStyle, unitScaler, direction);
-          bool fits(double size) =>
+          bool fits(double size, {bool unit = true}) =>
               _textWidth(text, figure(size), TextScaler.noScaling, direction) +
-                  unitWidth <=
+                  (unit ? unitWidth : 0) <=
               constraints.maxWidth;
           // The widths grow with the size, so a binary search over whole sizes finds it.
-          var size = figureMinSize;
-          if (fits(figureSize)) {
-            size = figureSize;
-          } else {
+          double best({required bool unit}) {
+            if (fits(figureSize, unit: unit)) return figureSize;
             var low = figureMinSize, high = figureSize;
             while (high - low > 1) {
               final mid = ((low + high) / 2).floorToDouble();
-              if (fits(mid)) {
+              if (fits(mid, unit: unit)) {
                 low = mid;
               } else {
                 high = mid;
               }
             }
-            size = low;
+            return low;
           }
+          var size = best(unit: true);
+          // Before the figure goes under its least size, the unit goes (UI-002): the
+          // figure stays readable, and the semantics still say EPIC.
+          final showUnit = size > figureMinSize || fits(figureMinSize);
+          if (!showUnit) size = best(unit: false);
           // The figure and its unit are centred as one; the figure's Flexible is loose, so
           // the row's free space falls on both sides.
           return Row(
@@ -404,16 +407,17 @@ class _Figure extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8, top: 7),
-                child: Text(
-                  'EPIC',
-                  key: balanceUnitKey,
-                  maxLines: 1,
-                  textScaler: unitScaler,
-                  style: unitStyle,
+              if (showUnit)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8, top: 7),
+                  child: Text(
+                    'EPIC',
+                    key: balanceUnitKey,
+                    maxLines: 1,
+                    textScaler: unitScaler,
+                    style: unitStyle,
+                  ),
                 ),
-              ),
             ],
           );
         },

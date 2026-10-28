@@ -69,9 +69,14 @@ class PinSetupView extends ConsumerStatefulWidget {
     this.intro,
     this.askBiometrics = true,
     this.chooseTitle,
+    this.actionsAtFoot = false,
   });
 
   final void Function(String pin, bool useBiometrics) onDone;
+
+  /// The step's buttons at the foot of the screen (needs a bounded height), as first run
+  /// does (UI-016); otherwise they follow the content.
+  final bool actionsAtFoot;
 
   /// Whether to offer biometric unlock after the PIN. Off when changing an existing PIN.
   final bool askBiometrics;
@@ -138,10 +143,31 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = context.l10n;
+    // The step's content, then its actions: at the foot of the screen when asked (UI-016).
+    final (List<Widget> content, List<Widget> actions) = switch (_step) {
+      _PinStep.choose => (_chooseStep(theme, l), const <Widget>[]),
+      _PinStep.confirm => (_confirmStep(theme, l), [_chooseDifferent(l)]),
+      _PinStep.biometrics => (_biometricsStep(theme, l), _biometricsActions(l)),
+    };
+    if (!widget.actionsAtFoot || actions.isEmpty) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...content, ...actions]);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: switch (_step) {
-        _PinStep.choose => [
+      children: [
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: content),
+            ),
+          ),
+        ),
+        ...actions,
+      ],
+    );
+  }
+
+  List<Widget> _chooseStep(ThemeData theme, AppLocalizations l) => [
           ?widget.intro,
           Text(
             widget.chooseTitle ?? l.pinChooseTitle(pinLength),
@@ -156,8 +182,9 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             errorText: _mismatch ? l.pinMismatch : null,
             onCompleted: _chosenPin,
           ),
-        ],
-        _PinStep.confirm => [
+        ];
+
+  List<Widget> _confirmStep(ThemeData theme, AppLocalizations l) => [
           Text(
             l.pinConfirmTitle,
             style: theme.textTheme.titleMedium,
@@ -171,16 +198,18 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             onCompleted: _confirmed,
           ),
           const SizedBox(height: 8),
-          TextButton(
-            onPressed: () {
-              _pin.clear();
-              _confirm.clear();
-              setState(() => _step = _PinStep.choose);
-            },
-            child: Text(l.pinChooseDifferent),
-          ),
-        ],
-        _PinStep.biometrics => [
+        ];
+
+  Widget _chooseDifferent(AppLocalizations l) => TextButton(
+        onPressed: () {
+          _pin.clear();
+          _confirm.clear();
+          setState(() => _step = _PinStep.choose);
+        },
+        child: Text(l.pinChooseDifferent),
+      );
+
+  List<Widget> _biometricsStep(ThemeData theme, AppLocalizations l) => [
           Icon(
             Icons.fingerprint,
             size: 64,
@@ -196,6 +225,9 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
           const SizedBox(height: 8),
           Text(l.pinBiometricsPinStillWorks, textAlign: TextAlign.center),
           const SizedBox(height: 24),
+        ];
+
+  List<Widget> _biometricsActions(AppLocalizations l) => [
           BusyButton(
             label: l.pinBiometricsEnable,
             onPressed: () => widget.onDone(_chosen, true),
@@ -208,10 +240,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             onPressed: () => widget.onDone(_chosen, false),
             child: Text(l.pinBiometricsNotNow),
           ),
-        ],
-      },
-    );
-  }
+        ];
 }
 
 /// A sentence for a wait before LEPIC checks a PIN: seconds up to two minutes, then minutes.

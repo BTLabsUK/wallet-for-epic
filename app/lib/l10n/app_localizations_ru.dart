@@ -18868,4 +18868,43 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Подключено';
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Все $count слова верные.',
+      many: 'Все $count слов верные.',
+      few: 'Все $count слова верные.',
+      one: '$count слово верное.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count слова',
+      many: '$count слов',
+      few: '$count слова',
+      one: '$count слово',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count слова нет в списке.',
+      many: '$count слов нет в списке.',
+      few: '$count слов нет в списке.',
+      one: '$count слова нет в списке.',
+    );
+    return '$_temp0';
+  }
 }

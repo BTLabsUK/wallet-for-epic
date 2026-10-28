@@ -500,7 +500,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
           SizedBox(height: Sp.x4),
-          Row(
+          Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               if (cancelable)
                 EButton(
@@ -513,7 +516,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _cancel,
                 ),
-              const Spacer(),
               if (t.undelivered)
                 EButton.primary(
                   label: context.l10n.deskTxSendAgain,

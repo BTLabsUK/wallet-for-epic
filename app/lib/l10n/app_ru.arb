@@ -4776,5 +4776,8 @@
   "pairInvitedOn": "Приглашение отправлено {day}",
   "deskActNoneUnderFilter": "Под этим фильтром ничего нет",
   "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт.",
-  "deskKitMethodConnected": "Подключено"
+  "deskKitMethodConnected": "Подключено",
+  "restoreWordsAllOk": "{count, plural, one{{count} слово верное.} few{Все {count} слова верные.} many{Все {count} слов верные.} other{Все {count} слова верные.}}",
+  "restoreWordsSoFar": "{count, plural, one{{count} слово} few{{count} слова} many{{count} слов} other{{count} слова}}",
+  "restoreWordsUnknown": "{count, plural, one{{count} слова нет в списке.} few{{count} слов нет в списке.} many{{count} слов нет в списке.} other{{count} слова нет в списке.}}"
 }

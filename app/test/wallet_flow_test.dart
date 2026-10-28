@@ -736,12 +736,12 @@ void main() {
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
       expect(find.text('0.008 EPIC'), findsOneWidget);
-      final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');
+      final cancel = find.widgetWithText(DangerButton, 'Cancel payment').first;
       await _tap(tester, cancel);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
       await _tap(tester, cancel);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
+      await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(session.cancelledTxIds, [2]);
       expect(find.text('Payment cancelled'), findsOneWidget);
 

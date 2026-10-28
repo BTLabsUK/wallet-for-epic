@@ -15,6 +15,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
+import '../tor_build.dart' show torBuilt;
 import '../phone_tor.dart';
 import '../pairing_providers.dart' show invoicesOnProvider, invoicesShownProvider, pairingSupportedProvider;
 import '../providers.dart';
@@ -171,9 +172,9 @@ class ReceiveView extends ConsumerWidget {
         // Epicbox off (Settings › Transactions): no address to hand out, no tab.
         if (payments.epicbox)
           segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-        // Settings › Transactions says which are offered: Link while either Link method is.
-        if (linkTor || linkHttp)
-          segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
+        // Link stays whatever Settings › Transactions says, so the strip never jumps (UI-051):
+        // with both Link methods off its page offers to turn one on.
+        segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
         // QR is the phone next to this one: offered where the camera works.
         if (tab == ReceiveTab.qr || (payments.directQr && offersQrPayment(ref)))
           segment(ReceiveTab.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
@@ -301,6 +302,16 @@ class ReceiveView extends ConsumerWidget {
       above = column([
         strip,
         const _FileCard(),
+        const SizedBox(height: 8),
+        help,
+      ]);
+      code = null;
+      below = const SizedBox.shrink();
+    } else if (tab == ReceiveTab.direct && !payments.linkHttp && !payments.linkTor) {
+      // Both Link methods off: say so and offer the switches (GP-024, UI-051).
+      above = column([
+        strip,
+        _LinkOff(payments: payments),
         const SizedBox(height: 8),
         help,
       ]);
@@ -862,11 +873,58 @@ class _EpicboxLine extends ConsumerWidget {
 }
 
 /// The key of Turn on Tor on Receive's Link tab, for tests.
+/// The Turn on buttons of Receive › Link while both Link methods are off, for tests.
+const Key receiveTurnOnHttpKey = ValueKey('receive-turn-on-http');
+const Key receiveTurnOnLinkTorKey = ValueKey('receive-turn-on-link-tor');
+
 const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 
 /// Receive's Link tab with Link · Tor on and Tor off: Link · Tor receiving needs Tor, the
 /// Epicbox address works meanwhile (while [epicbox] is on), and Turn on Tor (the one switch,
 /// as in Settings › Privacy).
+/// Receive › Link with both Link methods off: the reason and a Turn on for each (UI-051).
+class _LinkOff extends ConsumerWidget {
+  const _LinkOff({required this.payments});
+
+  final PaymentPrefs payments;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    Future<void> turnOn(MethodKind m) =>
+        ref.read(appSettingsProvider.notifier).setPayments(payments.withMethod(m, true));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l.netBlockMethodOff(MethodIcons.familyName(l, MethodFamily.link)),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(color: context.tokens.dim),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.tonalIcon(
+          key: receiveTurnOnHttpKey,
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
+          icon: Icon(MethodIcons.of(MethodKind.linkHttp)),
+          label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkHttp))),
+          onPressed: () => turnOn(MethodKind.linkHttp),
+        ),
+        if (torBuilt) ...[
+          const SizedBox(height: 8),
+          FilledButton.tonalIcon(
+            key: receiveTurnOnLinkTorKey,
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
+            icon: Icon(MethodIcons.of(MethodKind.linkTor)),
+            label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkTor))),
+            onPressed: () => turnOn(MethodKind.linkTor),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _DirectNeedsTor extends ConsumerWidget {
   const _DirectNeedsTor({required this.epicbox, this.offline = false});
 

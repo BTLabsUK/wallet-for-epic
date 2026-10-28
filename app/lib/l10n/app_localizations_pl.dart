@@ -18888,4 +18888,43 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Połączono';
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wszystkie $count słowa się zgadzają.',
+      many: 'Wszystkie $count słów się zgadza.',
+      few: 'Wszystkie $count słowa się zgadzają.',
+      one: '$count słowo się zgadza.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count słowa',
+      many: '$count słów',
+      few: '$count słowa',
+      one: '$count słowo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count słowa nie ma na liście.',
+      many: '$count słów nie ma na liście.',
+      few: '$count słów nie ma na liście.',
+      one: '$count słowa nie ma na liście.',
+    );
+    return '$_temp0';
+  }
 }

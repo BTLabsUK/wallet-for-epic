@@ -17176,4 +17176,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => '已连接';
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '全部 $count 个单词都正确。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个单词',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个单词不在词表中。',
+    );
+    return '$_temp0';
+  }
 }

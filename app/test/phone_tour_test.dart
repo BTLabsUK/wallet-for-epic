@@ -454,7 +454,10 @@ void main() {
       expect(_overlay, findsNothing);
       unawaited(openHelp(tester.element(find.byType(HomeScreen))));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.byKey(helpShowTourKey), 300, scrollable: find.descendant(of: find.byType(HelpScreen), matching: find.byType(Scrollable)).first);
+      await tester.scrollUntilVisible(find.byKey(helpShowTourKey), 300, scrollable: find.descendant(of: find.descendant(of: find.byType(HelpScreen), matching: find.byType(ListView)), matching: find.byType(Scrollable)).first);
+      // The last row of a long page: wholly on screen before the tap.
+      await tester.ensureVisible(find.byKey(helpShowTourKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(helpShowTourKey));
       await tester.pumpAndSettle();
       expect(_overlay, findsOneWidget);

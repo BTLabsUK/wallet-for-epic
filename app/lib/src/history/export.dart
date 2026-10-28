@@ -304,7 +304,7 @@ String statusWords(TxEntry tx, BigInt? tip, {int target = confirmationsTarget}) 
   return switch (tx.status) {
     TxStatus.cancelled => 'Cancelled',
     _ when tx.id == null && tx.status != TxStatus.confirmed =>
-      'Imported, status unknown',
+      'Imported',
     TxStatus.awaitingRecipient => 'Waiting for recipient',
     TxStatus.awaitingConfirmation when h == null && incoming =>
       'Waiting for sender',

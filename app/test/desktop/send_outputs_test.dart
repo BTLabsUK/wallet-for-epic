@@ -91,7 +91,7 @@ void main() {
 
   testWidgets('Send all turns the strategy off', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, advancedOpen: true));
-    await tester.tap(find.widgetWithText(EButton, 'All'));
+    await tester.tap(find.widgetWithText(EButton, 'Max'));
     await tester.pumpAndSettle();
     expect(find.text('Sending everything spends every output.'), findsOneWidget);
     for (final r in tester.widgetList<ERadioRow>(find.byType(ERadioRow))) {

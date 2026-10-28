@@ -191,7 +191,8 @@ void main() {
       expect(find.textContaining('cannot finish it without yours: the locked amount returns to the balance'), findsOneWidget);
       // One beside the Cancel button, one in the dialog.
       expect(find.text('More in Help'), findsNWidgets(2));
-      expect(find.text('Cancel payment'), findsOneWidget);
+      // The pane's button and the dialog's confirm say the same (GP-012).
+      expect(find.text('Cancel payment'), findsNWidgets(2));
     });
   });
 
@@ -201,7 +202,7 @@ void main() {
       await _pump(tester, _tx(incoming: true), desk);
       await tester.tap(_cancelButton);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancel payment'));
+      await tester.tap(find.text('Cancel payment').last);
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
       expect(find.text('Not cancelled: the network already has this payment. It completes when the blockchain confirms it.'), findsOneWidget);
@@ -215,7 +216,7 @@ void main() {
       await _pump(tester, _tx(incoming: true), desk);
       await tester.tap(_cancelButton);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancel payment'));
+      await tester.tap(find.text('Cancel payment').last);
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
       expect(find.text('Transaction cancelled'), findsOneWidget);
