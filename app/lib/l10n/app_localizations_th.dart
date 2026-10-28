@@ -17769,11 +17769,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactPaymentsWith(String name) {
-    return 'ธุรกรรมกับ $name';
+    return 'รายการกับ $name';
   }
 
   @override
-  String get contactPaymentsAll => 'ธุรกรรมทั้งหมด';
+  String get contactPaymentsAll => 'รายการทั้งหมด';
 
   @override
   String receiveEpicboxNotConnected(String server) {

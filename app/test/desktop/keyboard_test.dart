@@ -180,7 +180,7 @@ void main() {
       // Contacts and All are the stops right after their fields; paste and clear are not. The
       // address is the BT Labs contact: its card's Clear comes next; the Advanced disclosure
       // follows Message (outputs spec §4.4).
-      expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'button:Review send']);
+      expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'button:Review']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
       await _end(tester);

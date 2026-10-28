@@ -28505,13 +28505,13 @@ abstract class AppLocalizations {
   /// Contact page: heading of the payments with this contact; name is the contact’s.
   ///
   /// In en, this message translates to:
-  /// **'Transactions with {name}'**
+  /// **'Payments with {name}'**
   String contactPaymentsWith(String name);
 
   /// Contact page: the button under the newest payments that opens Activity searched by the contact’s name.
   ///
   /// In en, this message translates to:
-  /// **'All transactions'**
+  /// **'All payments'**
   String get contactPaymentsAll;
 
   /// Receive: the Epicbox line while the server does not answer; server is its host name.

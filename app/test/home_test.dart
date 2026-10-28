@@ -698,7 +698,7 @@ void main() {
           englishStrings,
           fakeTx(counterparty: 'http://203.0.113.5:3415'),
         ),
-        'http://203.0.113.5:3415',
+        '203.0.…5:3415',
       );
     });
 
@@ -1479,10 +1479,10 @@ void main() {
   group('addresses', () {
     test('lists shorten the key around an ellipsis and keep the relay', () {
       expect(shortAddress(_bob), 'esBobA…567890@epicbox.epiccash.com');
-      expect(
-        shortAddress('http://203.0.113.5:3415'),
-        'http://203.0.113.5:3415',
-      );
+      // A link: host and port without the scheme, the ends kept (UI-003).
+      expect(shortAddress('http://203.0.113.5:3415'), '203.0.…5:3415');
+      expect(shortAddress('https://pay.example.com:3415/'), 'pay.ex…m:3415');
+      expect(shortAddress('http://host:3415'), 'host:3415');
       expect(shortAddress('short@relay'), 'short@relay');
       expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
     });
@@ -1501,7 +1501,7 @@ void main() {
       );
       expect(
         shortAddress('http://203.0.113.5:3415', ownServer: own),
-        'http://203.0.113.5:3415',
+        '203.0.…5:3415',
       );
       final tx = fakeTx(kind: TxKind.sent, counterparty: _bob);
       expect(txTitle(englishStrings, tx, ownServer: own), 'esBobA…567890');
@@ -3689,7 +3689,8 @@ void main() {
         ..summaryValue = _balances()
         ..transactionsValue = [];
       await _reload(tester);
-      expect(_inTile(BalanceKind.calm, 'Nothing here yet'), findsOneWidget);
+      // Total alone on an empty wallet (GP-009): no second tile.
+      expect(find.byKey(balanceTileKey(BalanceKind.calm)), findsNothing);
       // Hidden amounts hide these too.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);
@@ -3755,7 +3756,7 @@ void main() {
           await _tap(tester, find.byTooltip('Show balances'));
           h.session.transactionsValue = [];
           await state('empty', _balances());
-          expect(find.text('Nothing here yet'), findsWidgets);
+          expect(find.text('Nothing here yet'), findsOneWidget);
           expect(
             states.values.toSet(),
             hasLength(1),

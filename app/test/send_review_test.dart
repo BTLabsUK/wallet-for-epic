@@ -1035,7 +1035,8 @@ void main() {
       await tester.pumpAndSettle();
       await answerPin(tester, settle: false);
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Sending…'), findsOneWidget);
+      // The line and the busy button both say it (UI-034).
+      expect(find.text('Sending…'), findsNWidgets(2));
       expect(
         tester
             .widget<IconButton>(

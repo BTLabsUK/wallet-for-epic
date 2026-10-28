@@ -208,7 +208,7 @@ class BalanceTiles extends ConsumerWidget {
       height,
       24 + scaler.scale(12) * 1.4 + 4 + scaler.scale(15) * 1.2,
     );
-    final decimals = tileDecimals([for (final x in tiles) if (x.value case final v?) v]);
+    final decimals = tileDecimals([for (final x in tiles) ?x.value]);
     Widget tile(BalanceTileData tile) {
       final value = tile.value;
       final text = value == null

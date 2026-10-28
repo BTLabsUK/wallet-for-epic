@@ -70,7 +70,7 @@ Future<void> _pump(WidgetTester tester, Tx tx, _Desk desk) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-Finder get _cancelButton => find.widgetWithText(EButton, 'Cancel');
+Finder get _cancelButton => find.widgetWithText(EButton, 'Cancel payment');
 
 /// Unmounts the detail and lets Riverpod's auto-dispose timer run before the test ends.
 Future<void> _end(WidgetTester tester) async {

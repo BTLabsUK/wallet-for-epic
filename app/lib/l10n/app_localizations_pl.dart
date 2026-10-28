@@ -18816,11 +18816,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactPaymentsWith(String name) {
-    return 'Transakcje z: $name';
+    return 'Płatności z: $name';
   }
 
   @override
-  String get contactPaymentsAll => 'Wszystkie transakcje';
+  String get contactPaymentsAll => 'Wszystkie płatności';
 
   @override
   String receiveEpicboxNotConnected(String server) {

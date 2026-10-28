@@ -281,7 +281,7 @@ void main() {
       final rig = await _pump(tester);
       await _startAuto(tester);
       await _tap(tester, 'Next');
-      await _tap(tester, 'Skip');
+      await _tap(tester, 'Skip tour');
       expect(_overlay, findsNothing);
       expect(rig.container.read(shellTabProvider), ShellTab.wallet);
       expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
@@ -454,7 +454,7 @@ void main() {
       expect(_overlay, findsNothing);
       unawaited(openHelp(tester.element(find.byType(HomeScreen))));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.byKey(helpShowTourKey), 300, scrollable: find.byType(Scrollable).last);
+      await tester.scrollUntilVisible(find.byKey(helpShowTourKey), 300, scrollable: find.descendant(of: find.byType(HelpScreen), matching: find.byType(Scrollable)).first);
       await tester.tap(find.byKey(helpShowTourKey));
       await tester.pumpAndSettle();
       expect(_overlay, findsOneWidget);
@@ -525,7 +525,7 @@ void main() {
         expect(card.height, lessThanOrEqualTo(800 * 0.5 + 1));
         expect(tester.takeException(), isNull);
         // The buttons stay reachable under the long text.
-        expect(_button('Skip'), findsOneWidget);
+        expect(_button('Skip tour'), findsOneWidget);
         expect(find.descendant(of: _card, matching: find.text(i == 1 ? 'Done' : 'Next')), findsOneWidget);
         if (i == 0) await _tap(tester, 'Next');
       }
@@ -548,7 +548,7 @@ void main() {
       await _startAuto(tester);
       expect(find.bySemanticsLabel('Wallet tour'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Next$')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp(r'^Skip$')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^Skip tour$')), findsOneWidget);
       handle.dispose();
     });
   });

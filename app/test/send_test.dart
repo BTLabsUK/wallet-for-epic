@@ -646,7 +646,7 @@ void main() {
         // A name keeps its address beside it.
         expect(find.text('bbbbbb…bbbbbb@epicbox.epiccash.com'), findsOneWidget);
         expect(find.text('aaaaaa…aaaaaa@epicbox.epiccash.com'), findsOneWidget);
-        expect(find.text(url), findsOneWidget);
+        expect(find.text('203.0.…5:3415'), findsOneWidget);
         final handle = tester.ensureSemantics();
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));

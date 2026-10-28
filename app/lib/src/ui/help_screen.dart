@@ -701,13 +701,18 @@ class _PlaceLink extends StatelessWidget {
 /// Where a place in Help goes on the phone.
 enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, transactions, display, about }
 
-/// The rows of each Settings page that Help names: `Settings › Wallet › Recheck balance`.
+/// The rows of each Settings page that Help names: `Settings › This wallet › Recheck balance`.
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
+<<<<<<< HEAD
   'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor network', 'Node', 'Epicbox'}),
   'Wallet': (HelpPhonePlace.wallet, {'Export wallet data', 'Recheck balance', 'Invoices', 'Linked devices'}),
+=======
+  'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node', 'Epicbox'}),
+  'This wallet': (HelpPhonePlace.wallet, {'Export wallet data', 'Recheck balance', 'Invoices', 'Linked devices'}),
+>>>>>>> df4b9c30 (UX audit Batches 4+5, phone and wording, second pass: Help places follow the renamed sections, Receive line state-first with the server, first-run choices in the screen's foot, tests follow the new words)
   'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
-  'Display': (HelpPhonePlace.display, <String>{}),
+  'Appearance': (HelpPhonePlace.display, <String>{}),
   'About': (HelpPhonePlace.about, <String>{}),
 };
 

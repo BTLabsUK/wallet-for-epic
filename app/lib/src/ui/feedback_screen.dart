@@ -314,6 +314,31 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.feedbackTitle)),
       body: ScreenBody(
+        // The main action at the foot of the screen, as on every form (UI-016).
+        bottom: url != null
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BusyButton(
+                    label: l.feedbackSend,
+                    busy: _busy,
+                    onPressed: block == NetBlock.none ? () => _send(url) : null,
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    onPressed: _busy ? null : _handOver,
+                    child: Text(l.feedbackShareOrSaveInstead),
+                  ),
+                ],
+              )
+            : BusyButton(
+                label: l.feedbackShareOrSave,
+                busy: _busy,
+                onPressed: _handOver,
+              ),
         children: [
           Text(l.feedbackIntro, style: theme.textTheme.bodyLarge),
           const SizedBox(height: 16),
@@ -369,31 +394,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           if (_error != null) ErrorText(_error!),
           if (url != null) NetBlockNote(block) else Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
         ],
-        // The main action at the foot of the screen, as on every form (UI-016).
-        bottom: url != null
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  BusyButton(
-                    label: l.feedbackSend,
-                    busy: _busy,
-                    onPressed: block == NetBlock.none ? () => _send(url) : null,
-                  ),
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    onPressed: _busy ? null : _handOver,
-                    child: Text(l.feedbackShareOrSaveInstead),
-                  ),
-                ],
-              )
-            : BusyButton(
-                label: l.feedbackShareOrSave,
-                busy: _busy,
-                onPressed: _handOver,
-              ),
       ),
     );
   }

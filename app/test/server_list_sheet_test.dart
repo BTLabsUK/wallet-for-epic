@@ -687,13 +687,13 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
       final before = _saved(env.store, ServerKind.node);
-      await tester.tap(find.byKey(serverListRemoveKey(_btlabs)));
+      // The row in use has no live Remove: the button is disabled and says why (UI-044).
+      final remove = tester.widget<IconButton>(find.byKey(serverListRemoveKey(_btlabs)));
+      expect(remove.onPressed, isNull);
+      expect(remove.tooltip, 'Switch first');
+      await tester.tap(find.byKey(serverListRemoveKey(_btlabs)), warnIfMissed: false);
       await tester.pumpAndSettle();
-      expect(_foot('In use. Switch first.'), findsOneWidget);
-      expect(
-        find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
-        findsNothing,
-      );
+      expect(find.byKey(serverListFootKey), findsNothing);
       expect(_row(_btlabs), findsOneWidget);
       expect(_saved(env.store, ServerKind.node), before);
       await _timers(tester);

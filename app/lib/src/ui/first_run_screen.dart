@@ -155,11 +155,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),
           ],
         ),
-        bottomNavigationBar: _answer == null && choosing
-            ? SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                  child: Column(
+        body: _answer == null && choosing
+            ? ScreenBody(
+                // The two choices at the foot of the screen, above a keyboard (UI-016); the
+                // hero keeps the room above them.
+                bottom: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FilledButton.icon(
@@ -182,11 +182,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                         onPressed: () => _leave(const RestoreScreen()),
                       ),
                     ],
-                  ),
                 ),
+                children: [
+                  const SizedBox(height: 24),
+                  BrandHero(title: '${l.firstRunTitle}$network'),
+                ],
               )
-            : null,
-        body: CenteredBody(
+            : CenteredBody(
           children: [
             // The demo has no PIN to choose and no network to name: it only sets itself up.
             BrandHero(

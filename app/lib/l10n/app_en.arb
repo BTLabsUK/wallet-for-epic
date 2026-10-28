@@ -24154,8 +24154,8 @@
   "@contactPaymentsNone": {
     "description": "Contact page: shown under the payments heading while there are none with this contact."
   },
-  "contactPaymentsWith": "Transactions with {name}",
-  "contactPaymentsAll": "All transactions",
+  "contactPaymentsWith": "Payments with {name}",
+  "contactPaymentsAll": "All payments",
   "receiveEpicboxNotConnected": "Not connected · {server}",
   "@contactPaymentsWith": {
     "description": "Contact page: heading of the payments with this contact; name is the contact’s.",

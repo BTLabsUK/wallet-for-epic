@@ -18796,11 +18796,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactPaymentsWith(String name) {
-    return 'Транзакции с контактом «$name»';
+    return 'Платежи с контактом «$name»';
   }
 
   @override
-  String get contactPaymentsAll => 'Все транзакции';
+  String get contactPaymentsAll => 'Все платежи';
 
   @override
   String receiveEpicboxNotConnected(String server) {

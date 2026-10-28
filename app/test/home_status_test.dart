@@ -248,10 +248,11 @@ IconData _icon(WidgetTester tester, Key key) => tester
 
 /// The colour of the state dot at the glyph's bottom right.
 Color _dot(WidgetTester tester, Key key) {
-  final box = tester.widget<Container>(
-    find.descendant(of: find.byKey(key), matching: find.byType(Container)),
-  );
-  return (box.decoration! as BoxDecoration).color!;
+  final t = tester.element(find.byKey(key)).tokens;
+  final dots = find.descendant(of: find.byKey(key), matching: find.byType(StateDot));
+  // Off draws no dot: the glyph is faded with a slash instead (UI-006).
+  if (dots.evaluate().isEmpty) return t.faint;
+  return tester.widget<StateDot>(dots).dot.color(t);
 }
 
 WalletTokens _tokens2(WidgetTester tester) =>
@@ -295,7 +296,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), t.ok);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Epicbox connected\nServer: epicbox.epiccash.com:443',
+        'Connected · epicbox.epiccash.com\nServer: epicbox.epiccash.com:443',
       );
       // Tor off: no Tor, no Link, and no Tor words on the two.
       expect(find.byKey(torIconKey), findsNothing);

@@ -26,12 +26,12 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
       : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[Einstellungen › Wallet › Wallet-Daten exportieren|Settings › Wallet › Export wallet data]]'
+      ? '[[Einstellungen › Diese Wallet › Wallet-Daten exportieren|Settings › This wallet › Export wallet data]]'
       : '[[Einstellungen › Diese Wallet › Wallet-Daten exportieren|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
-      ? '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm oder unter [[Einstellungen › Wallet|Settings › Wallet]])'
+      ? '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm oder unter [[Einstellungen › Diese Wallet|Settings › This wallet]])'
       : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Alle Wallets|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]]' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Einstellungen › Diese Wallet › Guthaben neu prüfen|Settings › This wallet › Recheck balance]]' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Seed-Phrase|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -105,8 +105,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.methods,
     ),
-    if (phone)
-      HelpTopic(
+    HelpTopic(
         'start',
         'So sieht eine Adresse aus',
         tor ? 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse oder endet auf .onion.' : 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse.',
@@ -351,7 +350,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ bei einer Blockhöhe oder einem Datum beginnen statt beim ersten Block. Beim Wiederherstellen steht die Wahl immer offen.'
           else
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl.',
-          if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: Lokaler Node unter Einstellungen › Node.',
+          if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: Lokaler Node unter $nodePlace.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
         HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),

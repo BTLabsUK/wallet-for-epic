@@ -33,7 +33,7 @@ import 'method_strip.dart';
 import 'payment_gate.dart';
 import 'receive_http_card.dart';
 import 'settings_screen.dart';
-import 'status.dart' show EpicboxState;
+import 'status.dart' show EpicboxState, relayLabel;
 import 'qr_scan_screen.dart';
 import 'relay_blocked.dart';
 import 'request_qr_screen.dart' show openQrRequest;
@@ -794,15 +794,18 @@ class _EpicboxLine extends ConsumerWidget {
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
     final offline = epicbox == null || epicbox == EpicboxState.offline;
     final blocked = epicbox == EpicboxState.blocked;
+    final config = ref.watch(walletConfigProvider);
+    // State first, then the server (GP-021): the server matters after a switch, as the
+    // address changes with it.
+    final host = config == null ? null : relayLabel(config);
     final (IconData icon, String word, Color color) =
         epicbox == EpicboxState.online
-        ? (EpicGlyphs.epicbox, l.statusEpicboxOnline, t.ok)
+        ? (EpicGlyphs.epicbox, host == null ? l.statusEpicboxOnline : l.receiveEpicboxConnected(host), t.ok)
         : blocked
         ? (EpicGlyphs.epicbox, l.statusEpicboxBlocked, t.risk)
         : offline
-        ? (EpicGlyphs.epicbox, l.statusEpicboxOffline, t.risk)
+        ? (EpicGlyphs.epicbox, host == null ? l.statusEpicboxOffline : l.receiveEpicboxNotConnected(host), t.risk)
         : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
-    final config = ref.watch(walletConfigProvider);
     return Column(
       key: receiveEpicboxKey,
       crossAxisAlignment: CrossAxisAlignment.stretch,

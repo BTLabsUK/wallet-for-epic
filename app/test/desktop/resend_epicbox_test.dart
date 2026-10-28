@@ -86,7 +86,7 @@ void main() {
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       // linux-14: the relay that did not answer is named.
       expect(find.textContaining('epicbox.example did not answer'), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Cancel payment'), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
       expect(desk.resent, [77]);
@@ -158,7 +158,7 @@ void main() {
       await _pump(tester, _tx(), _Desk());
       expect(statusOf(englishStrings, _tx()).$1, 'Waiting for recipient');
       expect(find.widgetWithText(EButton, 'Send again'), findsNothing);
-      expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Cancel payment'), findsOneWidget);
     },
   );
 

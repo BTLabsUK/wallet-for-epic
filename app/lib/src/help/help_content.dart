@@ -199,11 +199,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Settings › Privacy & network › Tor network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
-  final historyBackupPlace = phone ? '[[Settings › Wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
+  final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
-      ? '**Restore from a phrase** (on the first screen, or under [[Settings › Wallet]])'
+      ? '**Restore from a phrase** (on the first screen, or under [[Settings › This wallet]])'
       : '**Restore from a phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Settings › Wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -526,7 +526,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             '**Recheck from a height**: lets Recheck balance start from a block height or a date instead of the first block. Restore always offers the choice.'
           else
             '**Recheck from a height**: lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone.',
-          if (!phone) '**Built-in node**: lets this computer run its own node: Local node under Settings › Node.',
+          if (!phone) '**Built-in node**: lets this computer run its own node: Local node under $nodePlace.',
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
@@ -691,7 +691,7 @@ String _phonePairingPlace(AppLocalizations l, String inner, String whole) {
   String link(List<String> words, String place) => '[[${words.join(' › ')}|$place]]';
   return switch (target) {
     'Invoices › Pay' => link([l.invoicesTitle, l.invoicesToPaySection], 'Invoices › To pay'),
-    'Settings › Invoices' => link([l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices], 'Settings › Wallet › Invoices'),
+    'Settings › Invoices' => link([l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices], 'Settings › This wallet › Invoices'),
     _ => whole,
   };
 }

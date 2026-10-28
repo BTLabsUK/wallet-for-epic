@@ -252,16 +252,16 @@ void main() {
     testWidgets('lists the methods that are on, Link once for its family, and the choice saves', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
-      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File')));
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
+      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File Transfer')));
       await _settle(tester);
       expect(_payments.defaultMethod, MethodKind.directFile);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer']);
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File'], reason: 'Link once');
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer'], reason: 'Link once');
     }, skip: !torBuilt);
 
     testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
@@ -271,7 +271,7 @@ void main() {
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.startMethod, MethodKind.epicbox);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
       expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.epicbox);
     });
 
@@ -386,7 +386,7 @@ void main() {
   group('Send follows the switches', () {
     testWidgets('default: Epicbox, Link (listed from the start, #16) and Direct · File', (tester) async {
       await _open(tester, DeskRoute.send);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File Transfer']);
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
     });
 
@@ -407,7 +407,7 @@ void main() {
 
     testWidgets('Link appears with either of its switches, named for the family', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true));
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File Transfer']);
     });
 
     testWidgets('File Transfer off: the segment is gone', (tester) async {
@@ -419,7 +419,7 @@ void main() {
       await _open(tester, DeskRoute.send, arg: const SendArgs());
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'Direct · File Transfer']);
       expect(_selected<TxMethod>(tester), TxMethod.http);
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
@@ -475,13 +475,13 @@ void main() {
 
     testWidgets('LNX-1: Epicbox switched off is no failure, so File Transfer off stays off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.off), payments: const PaymentPrefs(epicbox: false, linkTor: true, directFile: false));
-      expect(_segments<TxMethod>(tester), isNot(contains('Direct · File')));
+      expect(_segments<TxMethod>(tester), isNot(contains('Direct · File Transfer')));
       expect(_segments<TxMethod>(tester), contains('Link'));
     });
 
     testWidgets('LNX-1: a failed Epicbox still offers the file fallback with File Transfer off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod>(tester), contains('Direct · File'));
+      expect(_segments<TxMethod>(tester), contains('Direct · File Transfer'));
     });
 
     testWidgets('LNX-1b: Link with an empty To and only Link · Tor on names no method as off', (tester) async {
@@ -497,7 +497,7 @@ void main() {
 
     testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod>(tester), contains('Direct · File'));
+      expect(_segments<TxMethod>(tester), contains('Direct · File Transfer'));
     });
 
     testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
@@ -512,7 +512,7 @@ void main() {
 
     testWidgets('Epicbox not connected keeps the file fallback with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod>(tester), contains('Direct · File'));
+      expect(_segments<TxMethod>(tester), contains('Direct · File Transfer'));
     });
   });
 

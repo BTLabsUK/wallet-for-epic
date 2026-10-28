@@ -20,6 +20,11 @@ import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 /// A full-length address, as long as a real one.
+/// The address on the Receive card: a rich text whose server sits on its own line (UI-009).
+final Finder _addressText = find.byWidgetPredicate(
+  (w) => w is SelectableText && w.textSpan?.toPlainText().replaceAll('\n', '') == _address,
+);
+
 const String _address =
     'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com';
 
@@ -288,7 +293,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       // Advanced options is off, and the address is still whole.
-      expect(find.text(_address), findsOneWidget);
+      expect(_addressText, findsOneWidget);
       final card = tester.getRect(find.byKey(receiveAddressKey));
       final qr = tester.getRect(find.byType(MarkedQr));
       expect(card.bottom, lessThan(qr.top));
@@ -311,7 +316,7 @@ void main() {
       for (final target in [
         find.text('Epicbox address'),
         find.byIcon(Icons.copy),
-        find.text(_address),
+        _addressText,
       ]) {
         await _tap(tester, target);
         expect(find.text('Address copied'), findsOneWidget);
@@ -361,7 +366,7 @@ void main() {
       expect(find.byKey(receiveShareKey), findsNothing);
       expect(find.byTooltip('Share'), findsNothing);
       expect(find.byIcon(Icons.copy), findsOneWidget);
-      await _tap(tester, find.text(_address));
+      await _tap(tester, _addressText);
       expect(h.copied, [_address]);
     });
 
@@ -519,22 +524,30 @@ void main() {
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Epicbox connected'), findsOneWidget);
+      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
       expect(find.byIcon(EpicGlyphs.epicbox), findsWidgets);
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
+<<<<<<< HEAD
       expect(find.text('Epicbox not connected'), findsOneWidget);
+=======
+      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
+>>>>>>> df4b9c30 (UX audit Batches 4+5, phone and wording, second pass: Help places follow the renamed sections, Receive line state-first with the server, first-run choices in the screen's foot, tests follow the new words)
       expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
+<<<<<<< HEAD
       expect(find.text('Epicbox connected'), findsOneWidget);
+=======
+      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
+>>>>>>> df4b9c30 (UX audit Batches 4+5, phone and wording, second pass: Help places follow the renamed sections, Receive line state-first with the server, first-run choices in the screen's foot, tests follow the new words)
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
 
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
-      expect(find.text('Epicbox not connected'), findsOneWidget);
+      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -561,7 +574,7 @@ void main() {
       expect(find.text('Epicbox connecting'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Epicbox connected'), findsOneWidget);
+      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
     });
 
     testWidgets(
@@ -589,7 +602,7 @@ void main() {
       await h.session.listenerEvents.close();
       await tester.pumpAndSettle();
       expect(h.container.read(listenerProvider).stopped, isTrue);
-      expect(find.text('Epicbox not connected'), findsOneWidget);
+      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -676,7 +689,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
       await tester.pumpAndSettle();
-      expect(find.text('Epicbox not connected'), findsOneWidget);
+      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
       expect(find.text('Epicbox blocked'), findsNothing);
       expect(find.textContaining('Switch to'), findsNothing);
       expect(find.text('Retry'), findsOneWidget);

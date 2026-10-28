@@ -17114,11 +17114,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactPaymentsWith(String name) {
-    return '与 $name 的交易';
+    return '与 $name 的付款';
   }
 
   @override
-  String get contactPaymentsAll => '全部交易';
+  String get contactPaymentsAll => '全部付款';
 
   @override
   String receiveEpicboxNotConnected(String server) {

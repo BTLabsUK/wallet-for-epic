@@ -93,9 +93,9 @@ void main() {
   testWidgets('Cancel on a pending send opens its dialog from the semantics tap', (tester) async {
     final handle = tester.ensureSemantics();
     await pumpPendingSend(tester);
-    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel'));
+    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment'));
     await tester.pump();
-    tester.semantics.tap(find.semantics.byLabel('Cancel'));
+    tester.semantics.tap(find.semantics.byLabel('Cancel payment'));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('Cancel this payment?'), findsOneWidget);
     expect(tester.takeException(), isNull);

@@ -26,12 +26,12 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[Ustawienia › Portfel › Eksportuj dane portfela|Settings › Wallet › Export wallet data]]'
+      ? '[[Ustawienia › Ten portfel › Eksportuj dane portfela|Settings › This wallet › Export wallet data]]'
       : '[[Ustawienia › Ten portfel › Eksportuj dane portfela|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
-      ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Portfel|Settings › Wallet]])'
+      ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Ten portfel|Settings › This wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Ustawienia › Ten portfel › Sprawdź saldo|Settings › This wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -350,7 +350,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             '**Sprawdź od wysokości**: pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Przywracanie zawsze daje taki wybór.'
           else
             '**Sprawdź od wysokości**: pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego.',
-          if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: Lokalny węzeł w Ustawienia › Węzeł.',
+          if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: Lokalny węzeł w $nodePlace.',
           if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
         ]),
         HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybie offline${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),

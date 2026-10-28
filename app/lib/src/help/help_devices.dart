@@ -18,7 +18,7 @@ List<HelpTopic> deviceHelpTopics(String lang, {required bool phone}) => switch (
 };
 
 List<HelpTopic> _en(bool phone) {
-  final place = phone ? '[[Settings › Wallet › Linked devices]]' : 'the **Linked devices** section in Settings';
+  final place = phone ? '[[Settings › This wallet › Linked devices]]' : 'the **Linked devices** section in Settings';
   return [
     HelpTopic(
       'how',
@@ -82,7 +82,7 @@ List<HelpTopic> _en(bool phone) {
 
 List<HelpTopic> _de(bool phone) {
   final place = phone
-      ? '[[Einstellungen › Wallet › Verknüpfte Geräte|Settings › Wallet › Linked devices]]'
+      ? '[[Einstellungen › Diese Wallet › Verknüpfte Geräte|Settings › This wallet › Linked devices]]'
       : 'den Bereich **Verknüpfte Geräte** in den Einstellungen';
   return [
     HelpTopic(
@@ -147,7 +147,7 @@ List<HelpTopic> _de(bool phone) {
 
 List<HelpTopic> _pl(bool phone) {
   final place = phone
-      ? '[[Ustawienia › Portfel › Połączone urządzenia|Settings › Wallet › Linked devices]]'
+      ? '[[Ustawienia › Ten portfel › Połączone urządzenia|Settings › This wallet › Linked devices]]'
       : 'sekcję **Połączone urządzenia** w Ustawieniach';
   return [
     HelpTopic(
@@ -212,7 +212,7 @@ List<HelpTopic> _pl(bool phone) {
 
 List<HelpTopic> _ru(bool phone) {
   final place = phone
-      ? '[[Настройки › Кошелёк › Связанные устройства|Settings › Wallet › Linked devices]]'
+      ? '[[Настройки › Этот кошелёк › Связанные устройства|Settings › This wallet › Linked devices]]'
       : 'раздел **Связанные устройства** в Настройках';
   return [
     HelpTopic(
@@ -276,7 +276,7 @@ List<HelpTopic> _ru(bool phone) {
 }
 
 List<HelpTopic> _zh(bool phone) {
-  final place = phone ? '[[设置 › 钱包 › 关联设备|Settings › Wallet › Linked devices]]' : '设置中的 **关联设备** 部分';
+  final place = phone ? '[[设置 › 此钱包 › 关联设备|Settings › This wallet › Linked devices]]' : '设置中的 **关联设备** 部分';
   return [
     HelpTopic(
       'how',
@@ -340,7 +340,7 @@ List<HelpTopic> _zh(bool phone) {
 
 List<HelpTopic> _th(bool phone) {
   final place = phone
-      ? '[[การตั้งค่า › กระเป๋าเงิน › อุปกรณ์ที่เชื่อมโยง|Settings › Wallet › Linked devices]]'
+      ? '[[การตั้งค่า › กระเป๋าเงินนี้ › อุปกรณ์ที่เชื่อมโยง|Settings › This wallet › Linked devices]]'
       : 'ส่วน **อุปกรณ์ที่เชื่อมโยง** ในการตั้งค่า';
   return [
     HelpTopic(

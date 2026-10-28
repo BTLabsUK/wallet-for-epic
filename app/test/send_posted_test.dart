@@ -170,8 +170,10 @@ void main() {
         'Confirming 2/10',
       );
       final steps = txTimeline(_l, _waiting(), tip, now: _now)!;
-      expect(steps[1].label, 'Sender reports posted');
-      expect(steps[1].state, TimelineState.current);
+      expect(steps[1].label, 'Signed and returned');
+      expect(steps[1].state, TimelineState.done);
+      expect(steps[2].label, 'Sender reports posted');
+      expect(steps[2].state, TimelineState.current);
       expect(txExplanation(_l, _waiting(), tip, now: _now), _l.txDetailsSenderPosted);
     });
 

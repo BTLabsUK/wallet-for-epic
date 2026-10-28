@@ -477,7 +477,8 @@ void main() {
       expect(app().locale, isNull);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.display);
-      expect(find.text('System'), findsOneWidget);
+      // The theme and the language both follow the system (GP-027).
+      expect(find.text('System'), findsNWidgets(2));
       await _tapText(tester, 'Language');
       for (final language in appLanguages) {
         expect(find.text(language.name), findsOneWidget);

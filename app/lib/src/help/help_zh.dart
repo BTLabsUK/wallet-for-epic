@@ -24,12 +24,12 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[设置 › 钱包 › 导出钱包数据|Settings › Wallet › Export wallet data]]'
+      ? '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]'
       : '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
-      ? '**用助记词恢复**（在首屏或[[设置 › 钱包|Settings › Wallet]]中）'
+      ? '**用助记词恢复**（在首屏或[[设置 › 此钱包|Settings › This wallet]]中）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
-  final recheckPlace = phone ? '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[设置 › 此钱包 › 重新核对余额|Settings › This wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 助记词|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -348,7 +348,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '**从某个高度重新核对**：让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。恢复钱包时始终可以选择。'
           else
             '**从某个高度重新核对**：让“重新核对余额”同时丢弃未确认的交易。恢复钱包时会向所有人提供起始区块。',
-          if (!phone) '**内置节点**：让这台电脑运行自己的节点：“设置 › 节点”下的“本地节点”。',
+          if (!phone) '**内置节点**：让这台电脑运行自己的节点：$nodePlace下的“本地节点”。',
           if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
         ]),
         HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。离线模式下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}${tor ? '；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点' : ''}。'),
