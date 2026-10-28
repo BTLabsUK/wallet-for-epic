@@ -205,7 +205,11 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.openInitially = false,
     this.demo,
     this.selection,
+    this.keepBelow = 0,
   });
+
+  /// Room the open list leaves free under it, so the page's main button stays in view (UI-017).
+  final double keepBelow;
 
   final ServerKind kind;
 
@@ -1025,8 +1029,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
     // As tall as the window below the button allows.
     final box = context.findRenderObject() as RenderBox?;
-    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - Ctl.sm - Sp.x4;
-    final maxHeight = below.clamp(260.u, 520.u);
+    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - Ctl.sm - Sp.x4 - widget.keepBelow;
+    final maxHeight = below.clamp(widget.keepBelow > 0 ? 160.u : 260.u, 520.u);
 
     return CompositedTransformFollower(
       link: _link,
@@ -1303,10 +1307,11 @@ class _Row extends StatelessWidget {
                 EIconButton(
                   key: ValueKey('server-row-remove-${s.value}'),
                   icon: EIcons.trash,
-                  label: l.deskSlRemoveHost(s.host),
+                  // The server in use cannot go: switch first (UI-044).
+                  label: inUse ? l.deskSlRemoveInUse : l.deskSlRemoveHost(s.host),
                   size: EBtnSize.inline,
                   tabStop: false,
-                  onPressed: onRemove,
+                  onPressed: inUse ? null : onRemove,
                 ),
               ],
             ),

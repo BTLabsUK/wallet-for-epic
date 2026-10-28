@@ -38,10 +38,11 @@ void main() {
   test('state mapping', () {
     expect(stateOf(ServiceHealth.ok), EState.ok);
     expect(stateOf(ServiceHealth.slow), EState.warn);
-    expect(stateOf(ServiceHealth.checking), EState.warn);
+    // Checking is in progress (blue), not a warning (UI-005).
+    expect(stateOf(ServiceHealth.checking), EState.active);
     expect(stateOf(ServiceHealth.down), EState.risk);
     expect(stateOf(ServiceHealth.off), EState.off);
-    expect([for (final s in EState.values) stateBars(s)], [3, 2, 1, 0]);
+    expect([for (final s in EState.values) stateBars(s)], [3, 2, 2, 1, 0]);
     expect(methodIcon(TxMethod.tor), EIcons.tor);
   });
 

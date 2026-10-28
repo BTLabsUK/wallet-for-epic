@@ -1043,8 +1043,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
     );
     if (!mounted || res == null) return;
-    // Money out is gold, as its row in Activity.
-    if (res is SendDone) showEToast(context, draft.queued ? context.l10n.sendQueuedHeadline : context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC', tone: ETone.gold);
     setState(() {
       switch (res) {
         case final SendFailed failed:
@@ -1105,21 +1103,30 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (!on) setState(() => _method = _nextMethod(p));
     });
     // A half-filled form holds Back (mouse, Alt+Left).
-    return DeskStepBack(
+    return LayoutBuilder(
+      builder: (context, outer) {
+        // Two columns need 720 u inside the page's padding; below that the summary falls under
+        // the form, so Total and Review stay in a bar pinned to the bottom (UI-018).
+        final narrow = outer.maxWidth - 2 * Sp.x8 < 720.u;
+        final form = res is! SendFileReady && res is! SendDone;
+        return DeskStepBack(
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
       child: EPage(
       title: context.l10n.deskSendTitle,
+      footer: narrow && form ? _reviewBar(st) : null,
       titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
+          : res is SendDone
+          ? _done(res, nav)
           : LayoutBuilder(
               builder: (context, box) {
                 final wide = box.maxWidth >= 720.u;
                 // Tab: the notices' actions, the form's fields, then Review send; Enter in Amount reviews.
                 final notices = _notices(st);
                 final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
-                final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res)));
+                final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res, review: !narrow)));
                 return EForm(
                   onSubmit: _canSend(st) && !_reviewing ? _review : null,
                   child: FocusTraversalGroup(
@@ -1143,6 +1150,57 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               },
             ),
     ),
+    );
+      },
+    );
+  }
+
+  /// The narrow page's pinned bar: the total and the Review button, always in view.
+  Widget _reviewBar(DeskState st) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final s = _summary(st, _result);
+    final n = _amountNano;
+    final total = n > 0 ? n + (_fee ?? 0) : 0;
+    return Container(
+      key: const ValueKey('send-review-bar'),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x8, vertical: Sp.x3),
+      decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
+      child: Row(
+        children: [
+          Text(l.deskSendTotal, style: ts.bodyDim),
+          SizedBox(width: Sp.x3),
+          Flexible(
+            child: total > 0 ? EMoney(total, size: Fs.lg, weight: FontWeight.w600) : Text('—', style: ts.mono(size: Fs.md, color: c.faint)), // l10n-ok: no amount yet
+          ),
+          SizedBox(width: Sp.x4),
+          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, onPressed: s.onReview),
+        ],
+      ),
+    );
+  }
+
+  /// Sent (or queued for a paired contact): the same result card as a file send's.
+  Widget _done(SendDone r, DeskNav nav) {
+    final l = context.l10n;
+    final queued = _queuedFor != null;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: Ctl.narrow),
+      child: ResultPanel(
+        key: queued ? const ValueKey('send-queued') : const ValueKey('send-done'),
+        title: queued ? l.sendQueuedHeadline : l.deskSendSent,
+        text: switch (r.tx.method) {
+          _ when queued => l.sendQueuedBody(_queuedFor!),
+          TxMethod.tor || TxMethod.http => l.deskSendDoneViaDirect,
+          _ => l.deskSendDoneViaEpicbox,
+        },
+        body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
+        actions: [
+          EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+          EButton.ghost(label: l.deskSendNewSend, onPressed: _reset),
+        ],
+      ),
     );
   }
 
@@ -1291,27 +1349,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// What happened and what blocks a send, above both columns (Send done, failed, node, Epicbox).
   List<Widget> _notices(DeskState st) {
-    final res = _result;
     final block = _blockNotice(st);
     final l = context.l10n;
     return [
-        if (res is SendDone) ...[
-          ENotice(
-            key: _queuedFor == null ? null : const ValueKey('send-queued'),
-            title: _queuedFor == null ? l.deskSendSent : l.sendQueuedHeadline,
-            text: switch (res.tx.method) {
-              _ when _queuedFor != null => l.sendQueuedBody(_queuedFor!),
-              TxMethod.tor || TxMethod.http => l.deskSendDoneViaDirect,
-              _ => l.deskSendDoneViaEpicbox,
-            },
-            tone: ETone.ok,
-            icon: EIcons.okCircle,
-            actions: [
-              EButton(label: l.deskSendViewTx, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, res.tx.id)),
-            ],
-          ),
-          SizedBox(height: Sp.x5),
-        ],
         if (_failure != null) ...[
           ENotice(
             title: l.deskSendFailedTitle,
@@ -1509,7 +1549,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           },
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
-              : ELink(label: l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpicL(l, spendable)), dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
+              : Text(
+                  l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpicL(l, spendable)),
+                  style: ts.small.copyWith(color: st.status?.syncProgress != null ? context.dc.faint : context.dc.dim),
+                ),
           child: EInput(
             controller: _amount,
             mono: true,
@@ -1591,7 +1634,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   /// What the summary shows now: the amounts and the one line under Review send.
-  Widget _summary(DeskState st, SendResult? res) {
+  _SendSummary _summary(DeskState st, SendResult? res, {bool review = true}) {
     final l = context.l10n;
     final spendable = st.balance?.spendable;
     final n = _amountNano;
@@ -1637,6 +1680,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       },
       reviewing: _reviewing,
       onReview: _canSend(st) && !_reviewing ? _review : null,
+      review: review,
     );
   }
 }
@@ -1658,7 +1702,11 @@ class _SendSummary extends StatelessWidget {
     this.strategy = SelectionStrategy.smallest,
     this.defaultStrategy = SelectionStrategy.smallest,
     this.confirmations = defaultMinimumConfirmations,
+    this.review = true,
   });
+
+  /// The Review button sits in the panel; false when the narrow page pins it to the bottom.
+  final bool review;
 
   /// What the send spends, locks and leaves (F11, F12); null until it is estimated.
   final SendSummary? summary;
@@ -1724,8 +1772,10 @@ class _SendSummary extends StatelessWidget {
           SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations),
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
-          EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
-          SizedBox(height: Sp.x3),
+          if (review) ...[
+            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
+            SizedBox(height: Sp.x3),
+          ],
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
         ],
       ),

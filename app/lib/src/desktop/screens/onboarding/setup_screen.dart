@@ -406,6 +406,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       source: nodeSource(nodes ?? const [], removedNodes: ref.watch(settingsPrefsProvider).removedNodes, inUse: st.status?.node.url ?? _currentNode),
       listNote: nodeListNoteText(l),
       chooseOnly: true,
+      keepBelow: Ctl.md + Sp.x8,
       openInitially: _demo?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;
@@ -508,6 +509,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 servers: [...rows, if (row == null) PanelServer.bare(ServerKind.relay, _relay)],
                 source: relaySource(boxes ?? const [], inUse: _relay),
                 chooseOnly: true,
+                keepBelow: Ctl.md + Sp.x8,
                 openInitially: _demo?.listOpen ?? false,
                 onChoose: (v) async => setState(() => _relay = v),
                 onTest: _testRelay,

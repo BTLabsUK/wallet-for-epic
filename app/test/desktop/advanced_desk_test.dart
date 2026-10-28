@@ -271,14 +271,14 @@ void main() {
     testWidgets('Offline: Recheck balance is disabled with the reason', (tester) async {
       await _open(tester, DeskRoute.settingsRescan, advanced: _offline);
       expect(find.byKey(const ValueKey('rescan-net-blocked')), findsOneWidget);
-      final start = tester.widget<EButton>(find.widgetWithText(EButton, 'Start'));
+      final start = tester.widget<EButton>(find.widgetWithText(EButton, 'Recheck'));
       expect(start.onPressed, isNull);
     });
 
     testWidgets('Standard: Recheck balance starts', (tester) async {
       await _open(tester, DeskRoute.settingsRescan);
       expect(find.byKey(const ValueKey('rescan-net-blocked')), findsNothing);
-      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Start')).onPressed, isNotNull);
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Recheck')).onPressed, isNotNull);
       expect(find.text('Delete unconfirmed'), findsNothing, reason: 'behind Recheck from a height');
     });
   });
@@ -289,6 +289,10 @@ void main() {
       expect(_advanced.has(AdvancedFeature.recheckFromHeight), isFalse);
       expect(find.byKey(const ValueKey('restore-from-link')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('restore-from-link')));
+      await _settle(tester);
+      // The phone's choice (GP-031): Date first on mainnet, Block height beside it.
+      expect(find.byKey(const ValueKey('start-date-pick')), findsOneWidget);
+      await tester.tap(find.text('Block height'));
       await _settle(tester);
       await tester.enterText(find.byKey(const ValueKey('restore-from-height')), 'x12');
       await _settle(tester);

@@ -122,7 +122,33 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         };
 
   /// The core's own fields: ids, height, kernel, status and type.
-  Widget _techFacts(Tx t, AppLocalizations l, DeskText ts) =>
+  /// The phone's block explorer link (GP-015): the kernel on Floonet, the block on mainnet,
+  /// once the payment is confirmed; null before that.
+  String? _explorerUrl(Tx t) {
+    if (t.state != TxState.confirmed) return null;
+    final network = ref.watch(deskProvider.select((s) => s.account?.network)) ?? 'mainnet'; // l10n-ok: network id
+    return switch (network) {
+      'floonet' when t.kernel != null => 'https://floo-explorer.btlabs.uk/kernel/${t.kernel}', // l10n-ok: url
+      'mainnet' when t.height != null => 'https://explorer.epicmine.io/block/${t.height}', // l10n-ok: url
+      _ => null,
+    };
+  }
+
+  Widget _techFacts(Tx t, AppLocalizations l, DeskText ts) {
+    final url = _explorerUrl(t);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _techRows(t, l, ts),
+        if (url != null) ...[
+          SizedBox(height: Sp.x2),
+          ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
+        ],
+      ],
+    );
+  }
+
+  Widget _techRows(Tx t, AppLocalizations l, DeskText ts) =>
       EFacts(labelWidth: 96.u, [
             (l.deskTxTechId, Text('${t.id}', style: ts.mono(size: Fs.xs))),
             (
@@ -299,7 +325,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                                   : mailboxName != null
                                   ? TextSpan(text: mailboxName, style: TextStyle(color: c.text))
                                   : TextSpan(
-                                      text: whoOf(l, t),
+                                      text: fileNameOf(t) ?? whoOf(l, t),
                                       style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
                                     ),
                             TextSpan(text: part),
@@ -407,14 +433,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            t.counterparty!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: ts.mono(size: Fs.xs),
-                          ),
+                          child: t.method == TxMethod.file
+                              ? EMiddleEllipsis(fileNameOf(t)!, style: ts.mono(size: Fs.xs))
+                              : Padding(padding: const EdgeInsets.only(top: 2), child: EFullAddress(t.counterparty!)),
                         ),
                         ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
                       ],
@@ -446,6 +470,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
           if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
         ]),
+        if (_typed(t)) ...[SizedBox(height: Sp.x2), ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label))],
         // A payment another linked device made: where its details come from, and why its coins
         // are held here while it is under way.
         if (t.deviceName != null) ...[
@@ -574,14 +599,18 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   /// Whether the user has typed a sender, method or note on this scan find.
   bool _typed(Tx t) => t.manualFields.any((f) => f != ManualField.label);
 
-  /// [value] with "Added by you" under it when the user typed [field].
+  /// [value] with a pen after it when the user typed [field]; the one "Added by you" line sits
+  /// under the details (UI-065).
   Widget _withTag(Tx t, ManualField field, Widget value) => t.manualFields.contains(field)
-      ? Column(
+      ? Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            value,
-            SizedBox(height: Sp.x1),
-            ManualTag(t, field),
+            Flexible(child: value),
+            SizedBox(width: Sp.x1),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: ExcludeSemantics(child: Icon(EIcons.pencil, size: 12.u, color: context.dc.faint)),
+            ),
           ],
         )
       : value;

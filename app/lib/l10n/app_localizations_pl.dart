@@ -18892,4 +18892,22 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskOvSendWaitsNode =>
       'Wysyłanie będzie możliwe, gdy węzeł odpowie.';
+
+  @override
+  String get deskSetRescanRecheck => 'Sprawdź';
+
+  @override
+  String get deskSetRescanRecheckAgain => 'Sprawdź ponownie';
+
+  @override
+  String get deskSetRescanFromDate => 'Od daty';
+
+  @override
+  String get deskSetRescanPickDate => 'Wybierz datę';
+
+  @override
+  String get deskSetRescanPickDateFirst => 'Najpierw wybierz datę.';
+
+  @override
+  String get deskSlRemoveInUse => 'Najpierw przełącz na inny serwer.';
 }

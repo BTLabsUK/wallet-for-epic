@@ -63,7 +63,8 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
         title: l.deskSetLndPickTitle,
         description: l.deskSetLndPickDesc,
         icon: EIcons.node,
-        width: 560.u,
+        // Room for the host before the fixed operator, tip and latency columns (UI-043).
+        width: 680.u,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -17835,4 +17835,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvSendWaitsNode => 'การส่งจะกลับมาเมื่อโหนดตอบสนอง';
+
+  @override
+  String get deskSetRescanRecheck => 'ตรวจใหม่';
+
+  @override
+  String get deskSetRescanRecheckAgain => 'ตรวจอีกครั้ง';
+
+  @override
+  String get deskSetRescanFromDate => 'ตั้งแต่วันที่';
+
+  @override
+  String get deskSetRescanPickDate => 'เลือกวันที่';
+
+  @override
+  String get deskSetRescanPickDateFirst => 'เลือกวันที่ก่อน';
+
+  @override
+  String get deskSlRemoveInUse => 'สลับไปใช้เซิร์ฟเวอร์อื่นก่อน';
 }

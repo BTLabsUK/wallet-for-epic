@@ -374,6 +374,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   value: _id ?? wallets.first.id,
                   onChanged: _select,
                   openInitially: widget.arg == UnlockShow.listOpen,
+                  keepBelow: Ctl.md + Sp.x10,
                   items: [
                     for (final w in wallets)
                       ESelectItem(
@@ -458,9 +459,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                     size: EBtnSize.sm,
                     onPressed: selected == null ? null : () => _removeMissing(selected),
                   ),
+                  // The folder is what is missing: Try again is the way on, Unlock waits (UI-023).
                   EButton(
                     label: l.deskOnbUnlockTryAgain,
                     icon: EIcons.refresh,
+                    kind: EBtnKind.primarySoft,
                     size: EBtnSize.sm,
                     onPressed: () => setState(() => _missing = false),
                   ),
@@ -468,7 +471,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
             ],
             SizedBox(height: Sp.x6),
-            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
+            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: DeskFeatures.multiWallet && _missing ? null : _unlock),
           ],
         ),
       ),

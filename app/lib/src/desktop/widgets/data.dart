@@ -346,7 +346,11 @@ class ESelect<T> extends StatefulWidget {
     this.semanticLabel,
     this.size = EBtnSize.md,
     this.openInitially = false,
+    this.keepBelow = 0,
   });
+
+  /// Room the open list leaves free under it, so the form's main button stays in view (UI-017).
+  final double keepBelow;
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
   final EBtnSize size;
@@ -393,12 +397,18 @@ class _ESelectState<T> extends State<ESelect<T>> {
     final size = widget.size;
     final semanticLabel = widget.semanticLabel;
     final current = items.where((i) => i.value == value).firstOrNull;
+    // As tall as the window under the field allows, less the room kept for what follows.
+    final anchor = context.findRenderObject() as RenderBox?;
+    final below = anchor == null || !anchor.hasSize ? 420.u : MediaQuery.sizeOf(context).height - anchor.localToGlobal(Offset(0, anchor.size.height)).dy - widget.keepBelow - 8.u;
+    final maxHeight = below.clamp(120.u, 420.u);
     return LayoutBuilder(
       builder: (context, box) {
         // The text column of each option: the field's width less the check and trailing room.
         final width = math.max(120.u, box.maxWidth - 160.u);
         return MenuAnchor(
           controller: _controller,
+          // Measured again when it opens: the field may have moved since the last build.
+          onOpen: () => setState(() {}),
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
           style: MenuStyle(
@@ -406,7 +416,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
             surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
             padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
             minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
-            maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, 420.u)),
+            maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, maxHeight)),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
             ),

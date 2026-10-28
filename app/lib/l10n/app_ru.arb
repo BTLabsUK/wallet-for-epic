@@ -4777,5 +4777,11 @@
   "deskActNoneUnderFilter": "Под этим фильтром ничего нет",
   "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт.",
   "deskKitMethodConnected": "Подключено",
-  "deskOvSendWaitsNode": "Отправка станет доступна, когда узел ответит."
+  "deskOvSendWaitsNode": "Отправка станет доступна, когда узел ответит.",
+  "deskSlRemoveInUse": "Сначала переключитесь на другой сервер.",
+  "deskSetRescanRecheck": "Сверить",
+  "deskSetRescanRecheckAgain": "Сверить снова",
+  "deskSetRescanFromDate": "С даты",
+  "deskSetRescanPickDate": "Выбрать дату",
+  "deskSetRescanPickDateFirst": "Сначала выберите дату."
 }

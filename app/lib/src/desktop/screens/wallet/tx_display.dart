@@ -30,7 +30,8 @@ String whoOf(AppLocalizations l, Tx t) {
   // An invoice from a backup with no address (asked by file) is named as the live one is.
   if (cp == null && t.fromBackup && !t.isInvoice) return t.incoming ? l.deskTxReceived : l.deskTxSent;
   if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
-  if (t.method == TxMethod.file) return cp;
+  // A file is the transaction file; its name is the row's second line ([fileNameOf]).
+  if (t.method == TxMethod.file) return l.slateFileTitle;
   // An invoice's other side is an Epicbox address: first six and last six, no host.
   return shortAddress(cp, compact: t.isInvoice);
 }
@@ -86,6 +87,9 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
     mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted
     ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), paused ? ETone.warn : ETone.info)
     : statusOf(l, t);
+
+/// A file payment's file name, without its folder; null for any other payment.
+String? fileNameOf(Tx t) => t.method == TxMethod.file && t.counterparty != null ? t.counterparty!.split(RegExp(r'[\\/]')).last : null;
 
 /// What a row is called: the user's label, else [whoOf].
 String titleOf(AppLocalizations l, Tx t) => t.labelText ?? whoOf(l, t);
@@ -426,8 +430,11 @@ class _TxRowState extends ConsumerState<TxRow> {
     final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
-    final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
-    final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
+    final file = fileNameOf(t);
+    final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
+    // A file row is titled Transaction file; the file's name is its second line.
+    final fileLine = replaced == null && t.contactName == null ? file : null;
+    final parts = <String>[?method, ?restoredMethod, ?replaced, ?fileLine, ?extra];
     final meta = <InlineSpan>[
       for (final (i, p) in parts.indexed) ...[
         if (i > 0)
@@ -536,27 +543,28 @@ class _TxRowState extends ConsumerState<TxRow> {
           SizedBox(width: Sp.x4),
           Expanded(
             flex: 10,
+            // The state, always; a file send's Finalize shows on hover or selection (UI-040),
+            // and in the detail pane.
             child: ExcludeSemantics(
-              child: finalizable
-                  ? Align(
-                      alignment: Alignment.centerLeft,
-                      child: EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
-                    )
-                  : Row(
-                      children: [
-                        TxStateMark(t),
-                        SizedBox(width: Sp.x2),
-                        Flexible(
-                          child: Text(
-                            word,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: ts.small.copyWith(color: toneColor),
-                          ),
-                        ),
-                        if (fromDevice) deskDeviceStatusInfo(l, t),
-                      ],
+              child: Row(
+                children: [
+                  TxStateMark(t),
+                  SizedBox(width: Sp.x2),
+                  Flexible(
+                    child: Text(
+                      word,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: ts.small.copyWith(color: toneColor),
                     ),
+                  ),
+                  if (fromDevice) deskDeviceStatusInfo(l, t),
+                  if (finalizable && (_hover || _within || widget.selected)) ...[
+                    SizedBox(width: Sp.x2),
+                    EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
+                  ],
+                ],
+              ),
             ),
           ),
           SizedBox(width: Sp.x4),

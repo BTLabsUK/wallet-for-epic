@@ -158,11 +158,11 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
           ),
         ),
         ESetRow(
-          title: l.deskSetBackupCsvTitle,
+          title: l.deskSetBackupCsvDialogTitle,
           hint: l.deskSetBackupCsvHint,
           control: ERowControl(
             child: EButton(
-              label: l.deskSetBackupCsvButton,
+              label: l.deskSetBackupExportButton,
               icon: EIcons.table,
               size: EBtnSize.sm,
               onPressed: busy != null ? null : () => _run(_Busy.csv, showExportCsvDialog),

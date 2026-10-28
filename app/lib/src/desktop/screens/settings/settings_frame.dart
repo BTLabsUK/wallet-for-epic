@@ -58,13 +58,17 @@ class SettingsFrame extends ConsumerWidget {
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), devices: ref.watch(deskLinkedDevicesOnProvider));
+    // A big window centres the capped column instead of leaving it at the left (UI-063).
     final content = Align(
-      alignment: AlignmentDirectional.topStart,
+      alignment: Alignment.topCenter,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),
     );
     return EPage(
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
+      // Wide: the section list stays in view while the page scrolls (a Help topic far down
+      // keeps Help selected beside it, UI-032).
+      scroll: !wide,
       child: wide
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +86,7 @@ class SettingsFrame extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(width: Sp.x8),
-                Expanded(child: content),
+                Expanded(child: SingleChildScrollView(child: content)),
               ],
             )
           : Column(

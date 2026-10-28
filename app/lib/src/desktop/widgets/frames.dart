@@ -24,9 +24,13 @@ class EPage extends StatelessWidget {
     this.width = EPageWidth.mid,
     this.scroll = true,
     this.titleTrailing,
+    this.footer,
   });
 
   final String title;
+
+  /// Pinned under the scrolling content, full width (a narrow form's main action).
+  final Widget? footer;
 
   /// Right after the title, e.g. a state chip.
   final Widget? titleTrailing;
@@ -83,6 +87,7 @@ class EPage extends StatelessWidget {
               ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: body)
               : Padding(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: body),
         ),
+        ?footer,
       ],
     );
     return DeskStepBack(onBack: onBack, child: page);
@@ -206,13 +211,16 @@ class _Grid extends CustomPainter {
 
 /// The Epic mark on a ticked tile with a soft glow.
 class EGlyphTile extends StatelessWidget {
-  const EGlyphTile({super.key, this._size, this.icon});
+  const EGlyphTile({super.key, this._size, this.icon, this.risk = false});
 
   final double? _size;
   double get size => _size ?? 72.u;
 
   /// An icon instead of the mark.
   final IconData? icon;
+
+  /// A failure: the icon in red on a neutral frame, no gold and no glow (UI-022).
+  final bool risk;
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +233,14 @@ class EGlyphTile extends StatelessWidget {
           color: c.s1,
           border: Border.all(color: c.lineStrong),
           borderRadius: BorderRadius.circular(Rad.sm),
-          boxShadow: [BoxShadow(color: c.glow.withValues(alpha: c.glow.a * 0.7), blurRadius: 36.u, spreadRadius: -8.u)],
+          boxShadow: risk ? null : [BoxShadow(color: c.glow.withValues(alpha: c.glow.a * 0.7), blurRadius: 36.u, spreadRadius: -8.u)],
         ),
         child: CustomPaint(
           painter: GridFieldPainter(c.grid.withValues(alpha: c.grid.a * 2), step: size / 6),
-          foregroundPainter: CornerTicksPainter(c.tick, length: size / 9),
+          foregroundPainter: CornerTicksPainter(risk ? c.lineStrong : c.tick, length: size / 9),
           child: Center(
             child: icon != null
-                ? Icon(icon, size: size * 0.4, color: c.accentText)
+                ? Icon(icon, size: size * 0.4, color: risk ? c.risk : c.accentText)
                 : EpicMark(size: size * 0.46, color: c.accent),
           ),
         ),

@@ -23,7 +23,11 @@ String shortAddress(String address, {bool compact = false}) {
     final host = colon < 0 ? authority : authority.substring(0, colon);
     final port = colon < 0 ? '' : authority.substring(colon);
     final tail = path.isEmpty || path == '/' ? '' : '/…';
-    return '${compact ? '' : scheme}${host.length > 32 ? _mid(host) : host}$port$tail';
+    // An onion host is shortened as a bare onion address is: its 56 characters never fit a row.
+    final shown = host.toLowerCase().endsWith('.onion')
+        ? '${_mid(host.substring(0, host.length - 6))}${host.substring(host.length - 6)}'
+        : (host.length > 32 ? _mid(host) : host);
+    return '${compact ? '' : scheme}$shown$port$tail';
   }
   if (lower.endsWith('.onion')) {
     return '${_mid(t.substring(0, t.length - 6))}${compact ? '' : '.onion'}';

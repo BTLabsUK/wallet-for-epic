@@ -54,7 +54,8 @@ class AccountForm extends StatelessWidget {
       EField(
         label: l.deskOnbStepPassword,
         error: passwordError,
-        reserveError: true,
+        // The hint under the field already holds the room; no second blank line for an error
+        // that is not there (UI-037).
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -546,7 +547,7 @@ class ProgressView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(child: EGlyphTile(size: 72.u, icon: failure != null ? EIcons.alert : null)),
+            Center(child: EGlyphTile(size: 72.u, icon: failure != null ? EIcons.alert : null, risk: failure != null)),
             SizedBox(height: Sp.x5),
             Semantics(
               header: true,

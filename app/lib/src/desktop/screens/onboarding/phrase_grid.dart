@@ -526,6 +526,7 @@ class _Cell extends StatelessWidget {
                       },
                       child: TextField(
                         controller: controller,
+                        selectionControls: desktopTextSelectionControls,
                         focusNode: entry.focus[index],
                         autofocus: autofocus,
                         maxLines: 1,

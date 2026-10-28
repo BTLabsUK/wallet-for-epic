@@ -359,7 +359,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ExcludeSemantics(child: Text(l.deskRecvReceiving, style: ts.small.copyWith(color: c.dim))),
+          // The word only while something receives; with every method off it would claim it (UI-057).
+          if (lines.values.any((m) => m != null && m.state != EState.off)) ExcludeSemantics(child: Text(l.deskRecvReceiving, style: ts.small.copyWith(color: c.dim))),
           for (final m in methods) ...[
             SizedBox(width: Sp.x2),
             Tooltip(

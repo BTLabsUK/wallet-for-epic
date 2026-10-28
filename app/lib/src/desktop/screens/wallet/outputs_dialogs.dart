@@ -399,7 +399,7 @@ class _NothingToConsolidate extends StatelessWidget {
         ),
         style: context.ts.bodyDim,
       ),
-      actions: [EButton.primary(label: l.commonOk, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }

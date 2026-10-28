@@ -26,8 +26,10 @@ class EShortAddress extends StatelessWidget {
     final dir = Directionality.of(context);
     Widget text = LayoutBuilder(
       builder: (context, box) {
-        var shown = shortAddress(address);
-        if (box.maxWidth.isFinite) {
+        // Lists drop a link's scheme (http://, https://); the tooltip and Copy keep it.
+        final link = RegExp(r'^\s*https?://', caseSensitive: false).hasMatch(address);
+        var shown = shortAddress(address, compact: link);
+        if (!link && box.maxWidth.isFinite) {
           final tp = TextPainter(text: TextSpan(text: shown, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
           if (tp.width + _drawSlack > box.maxWidth) shown = shortAddress(address, compact: true);
           tp.dispose();
@@ -43,6 +45,52 @@ class EShortAddress extends StatelessWidget {
       child: text,
     );
   }
+}
+
+/// An address in full where a detail view shows it (never cut, UI-010): the checked part in
+/// fixed chunks of [chunk] characters, one per line, its first and last six in the accent as
+/// on Receive; a server part ("@epicbox.epiccash.com") whole on its own line.
+class EFullAddress extends StatelessWidget {
+  const EFullAddress(this.address, {super.key, this.chunk = 26, this.size});
+
+  final String address;
+  final int chunk;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final base = context.ts.mono(size: size ?? Fs.xs, color: c.text);
+    final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
+    final (key, rest) = splitAddress(address);
+    final mark = key.length > 14 && !key.toLowerCase().startsWith('http');
+    final spans = <TextSpan>[];
+    var i = 0;
+    while (i < key.length) {
+      // The next stop: a chunk's end or the edge of a highlighted end.
+      final stops = [((i ~/ chunk) + 1) * chunk, if (mark && i < 6) 6, if (mark && i < key.length - 6) key.length - 6, key.length];
+      final end = stops.reduce((a, b) => a < b ? a : b);
+      final lit = mark && (i < 6 || i >= key.length - 6);
+      spans.add(TextSpan(text: key.substring(i, end), style: lit ? hl : null));
+      i = end;
+      if (i < key.length && i % chunk == 0) spans.add(const TextSpan(text: '\n'));
+    }
+    if (rest.isNotEmpty) spans.add(TextSpan(text: rest.startsWith('@') ? '\n$rest' : rest, style: base.copyWith(color: c.dim)));
+    return Semantics(
+      label: address,
+      excludeSemantics: true,
+      child: Text.rich(TextSpan(style: base, children: spans), softWrap: true),
+    );
+  }
+}
+
+/// [address] as the part people check and the server or kind after it: `(key, @host)`,
+/// `(onion label, .onion)`, or `(address, '')`.
+(String, String) splitAddress(String address) {
+  final at = address.indexOf('@');
+  final onion = at < 0 && address.toLowerCase().endsWith('.onion');
+  final cut = at > 0 ? at : (onion ? address.length - 6 : address.length);
+  return (address.substring(0, cut), address.substring(cut));
 }
 
 /// The width [EShortAddress] takes for [address] in [style] when it is not squeezed: the full
@@ -89,8 +137,8 @@ class EKindTag extends StatelessWidget {
 /// The two text lines of a row that carries an address (spec 7.1): name, [nameTrailing] and
 /// the kind tag; then the short address and the note. When the row is narrow the note gives way
 /// first (down to 12 characters), then the address falls to its compact form, then the note
-/// goes. Nothing wraps. A contact with several [addresses] shows their kind tags instead of
-/// one address (SPEC 2.5).
+/// goes. Nothing wraps. A contact with several [addresses] shows the first (its default) short,
+/// then every kind tag (SPEC 2.5, UI-045).
 class EAddressLines extends StatelessWidget {
   const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle});
 
@@ -130,6 +178,8 @@ class EAddressLines extends StatelessWidget {
             if (several) {
               return Row(
                 children: [
+                  Flexible(child: EShortAddress(address, style: aStyle)),
+                  SizedBox(width: Sp.x2),
                   for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: true), SizedBox(width: Sp.x1)],
                   if (n.isNotEmpty) Flexible(child: Text(' · $n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
                 ],

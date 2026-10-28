@@ -49,6 +49,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   /// Restore's start height: offered to everyone (a restore happens once), empty = the whole chain.
   final _fromHeight = TextEditingController();
   bool _fromOpen = false;
+
+  /// The start by date (mainnet) or by height, as on the phone.
+  bool _byDate = true;
+  DateTime? _fromDate;
   late final PhraseEntry _entry;
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
@@ -105,10 +109,19 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text && _fromHeightOk;
 
-  /// The typed start height: null when empty or not a number.
-  BigInt? get _startHeight => _fromOpen ? BigInt.tryParse(_fromHeight.text.trim()) : null;
+  /// Dates map to heights only on mainnet; a test network starts by height.
+  bool get _datesOk => !ref.read(onbFlowProvider).testNet;
 
-  bool get _fromHeightOk => !_fromOpen || _fromHeight.text.trim().isEmpty || _startHeight != null;
+  bool get _usesDate => _byDate && _datesOk;
+
+  /// The start: the chosen date's block, or the typed height; null for the whole chain.
+  BigInt? get _startHeight => !_fromOpen
+      ? null
+      : _usesDate
+      ? (_fromDate == null ? null : mainnetHeightForDate(_fromDate!))
+      : BigInt.tryParse(_fromHeight.text.trim());
+
+  bool get _fromHeightOk => !_fromOpen || _usesDate || _fromHeight.text.trim().isEmpty || BigInt.tryParse(_fromHeight.text.trim()) != null;
 
   Future<void> _pasteClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -275,8 +288,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     }
   }
 
-  /// A small link, then the field: the block to start checking from (the whole chain when empty).
+  /// A small link, then the phone's choice: where to start scanning, by date (mainnet) or block
+  /// height; the whole chain when nothing is chosen.
   Widget _startFrom(AppLocalizations l) {
+    final ts = context.ts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -284,7 +299,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           alignment: AlignmentDirectional.centerStart,
           child: ELink(
             key: const ValueKey('restore-from-link'),
-            label: _fromOpen ? l.deskOnbRestoreFromHide : l.deskOnbRestoreFromLink,
+            label: _fromOpen ? l.deskOnbRestoreFromHide : l.restoreStartFromLink,
             onPressed: () => setState(() => _fromOpen = !_fromOpen),
           ),
         ),
@@ -292,20 +307,39 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           open: _fromOpen,
           child: Padding(
             padding: EdgeInsets.only(top: Sp.x3),
-            child: EField(
-              label: l.deskOnbRestoreFromLabel,
-              help: _fromHeightOk ? l.deskOnbRestoreFromHelp : null,
-              error: _fromHeightOk ? null : l.deskOnbRestoreFromInvalid,
-              child: EInput(
-                key: const ValueKey('restore-from-height'),
-                controller: _fromHeight,
-                mono: true,
-                invalid: !_fromHeightOk,
-                hint: l.deskOnbRestoreFromHint,
-                semanticLabel: l.deskOnbRestoreFromLabel,
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text(l.restoreStartHeading, style: ts.label)),
+                SizedBox(height: Sp.x2),
+                if (_datesOk) ...[
+                  ESegmented<bool>(
+                    key: const ValueKey('restore-from-by'),
+                    segments: [ESegment(true, l.restoreStartByDate), ESegment(false, l.restoreStartByHeight)],
+                    value: _byDate,
+                    onChanged: (v) => setState(() => _byDate = v),
+                  ),
+                  SizedBox(height: Sp.x3),
+                ],
+                if (_usesDate)
+                  EStartDate(date: _fromDate, hint: l.restoreDateHint, onChanged: (d) => setState(() => _fromDate = d))
+                else
+                  EField(
+                    label: l.deskOnbRestoreFromLabel,
+                    help: _fromHeightOk ? l.deskOnbRestoreFromHelp : null,
+                    error: _fromHeightOk ? null : l.deskOnbRestoreFromInvalid,
+                    child: EInput(
+                      key: const ValueKey('restore-from-height'),
+                      controller: _fromHeight,
+                      mono: true,
+                      invalid: !_fromHeightOk,
+                      hint: l.deskOnbRestoreFromHint,
+                      semanticLabel: l.deskOnbRestoreFromLabel,
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

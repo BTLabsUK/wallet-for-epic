@@ -469,7 +469,14 @@ class _Tiles extends StatelessWidget {
           SizedBox(
             height: 24.u,
             child: n == null
-                ? Align(alignment: AlignmentDirectional.centerStart, child: SizedBox.square(dimension: 14.u, child: const ESpinner()))
+                ? Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5.u),
+                    child: Container(
+                      key: const ValueKey('outputs-count-loading'),
+                      width: 56.u,
+                      decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.xs)),
+                    ),
+                  )
                 : Text(l.deskOutCount(n), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: n == 0 ? c.dim : c.text)),
           ),
           SizedBox(height: 2.u),
@@ -667,26 +674,32 @@ class _OutputRow extends StatelessWidget {
       OutputWord.locked => Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim),
       OutputWord.spent => Icon(EIcons.minusCircle, size: Ctl.iconSm, color: c.faint),
     };
-    Widget status({String? extra}) => Row(
-      children: [
-        SizedBox(width: 18.u, height: 18.u, child: Center(child: mark)),
-        SizedBox(width: Sp.x2),
-        Flexible(
-          child: Text.rich(
-            TextSpan(
+    Widget status({String? extra}) {
+      final detail = note ?? extra;
+      return Row(
+        children: [
+          SizedBox(width: 18.u, height: 18.u, child: Center(child: mark)),
+          SizedBox(width: Sp.x2),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextSpan(text: word, style: TextStyle(color: color)),
-                if ((note ?? extra) != null) TextSpan(text: ' · ${note ?? extra}', style: TextStyle(color: c.faint)),
+                Text(word, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: color)),
+                if (detail != null)
+                  Text(
+                    detail,
+                    // A coin another device holds names the payment: two lines.
+                    maxLines: o.heldBy != null ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: ts.caption.copyWith(color: c.faint),
+                  ),
               ],
             ),
-            // A coin another device holds names the payment: two lines.
-            maxLines: o.heldBy != null ? 2 : 1,
-            overflow: TextOverflow.ellipsis,
-            style: ts.small,
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    }
     final commitment = Row(
       children: [
         Flexible(child: EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim))),
@@ -701,7 +714,7 @@ class _OutputRow extends StatelessWidget {
     final txCell = onRelease != null
         ? Align(alignment: Alignment.centerLeft, child: ELink(key: ValueKey('out-release-${o.commitment}'), label: l.devicesRelease, onPressed: onRelease))
         : t == null
-        ? Text(o.txId == null ? '–' : '#${o.txId}', style: ts.small.copyWith(color: c.faint))
+        ? Text('–', style: ts.small.copyWith(color: c.faint)) // l10n-ok: no payment known
         : Align(
             alignment: Alignment.centerLeft,
             child: Row(

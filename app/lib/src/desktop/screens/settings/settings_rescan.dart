@@ -20,9 +20,10 @@ enum RescanDemo { running }
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
 
-/// Where Recheck starts (Advanced › Recheck from a height, R20): a little before the last
-/// scan's end, block 0, or a typed height.
-enum _From { recent, wholeChain, height }
+/// Where Recheck starts with Advanced › Recheck from a height (R20), as on the phone: a date's
+/// block (mainnet), a typed height, or block 0. Without the switch it starts a little before
+/// the last scan's end.
+enum _From { date, height, wholeChain }
 
 class SettingsRescanScreen extends ConsumerStatefulWidget {
   const SettingsRescanScreen({super.key, this.arg});
@@ -38,7 +39,14 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   bool _stopping = false;
   _End? _end;
   bool _deleteUnconfirmed = false;
-  _From _from = _From.recent;
+  _From? _fromChoice;
+  DateTime? _fromDate;
+
+  /// Dates map to heights only on mainnet.
+  bool get _datesOk => (ref.read(deskProvider).account?.network ?? 'mainnet') == 'mainnet'; // l10n-ok: network id
+
+  _From get _from => _fromChoice ?? (_datesOk ? _From.date : _From.height);
+  set _from(_From v) => _fromChoice = v;
   final _height = TextEditingController();
   String? _heightError;
 
@@ -92,8 +100,13 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   ({BigInt? start, bool ok}) _startHeight(AppLocalizations l) {
     if (!advancedHas(ref, AdvancedFeature.recheckFromHeight)) return (start: null, ok: true);
     switch (_from) {
-      case _From.recent:
-        return (start: null, ok: true);
+      case _From.date:
+        final d = _fromDate;
+        if (d == null) {
+          setState(() => _heightError = l.deskSetRescanPickDateFirst);
+          return (start: null, ok: false);
+        }
+        return (start: mainnetHeightForDate(d), ok: true);
       case _From.wholeChain:
         return (start: BigInt.zero, ok: true);
       case _From.height:
@@ -207,7 +220,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               if (!_running)
                 ESetRow(
                   text: l.deskSetRescanText,
-                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none && !restoreRuns ? _start : null)),
+                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanRecheckAgain : l.deskSetRescanRecheck, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none && !restoreRuns ? _start : null)),
                   below: reason != null || restoreRuns || choice
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +237,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               SizedBox(height: Sp.x2),
                               // One choice, as radio buttons are (EChoiceCard is a mutually exclusive group).
                               for (final (from, title, hint) in [
-                                (_From.recent, l.deskSetRescanRecent, l.deskSetRescanRecentHint),
+                                if (_datesOk) (_From.date, l.deskSetRescanFromDate, null),
                                 (_From.height, l.deskSetRescanFromHeight, null),
                                 (_From.wholeChain, l.deskSetRescanWholeChain, l.deskSetRescanWholeChainHint),
                               ]) ...[
@@ -238,6 +251,24 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                     _heightError = null;
                                   }),
                                 ),
+                                if (from == _From.date && _from == _From.date)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: Sp.x2, left: Sp.x4),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        EStartDate(
+                                          date: _fromDate,
+                                          label: l.deskSetRescanPickDate,
+                                          onChanged: (d) => setState(() {
+                                            _fromDate = d;
+                                            _heightError = null;
+                                          }),
+                                        ),
+                                        if (_heightError != null) ...[SizedBox(height: Sp.x1), Text(_heightError!, style: ts.small.copyWith(color: c.risk))],
+                                      ],
+                                    ),
+                                  ),
                                 if (from == _From.height && _from == _From.height)
                                   Padding(
                                     padding: EdgeInsets.only(top: Sp.x2, left: Sp.x4),

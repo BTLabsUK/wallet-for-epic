@@ -28579,6 +28579,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sending resumes when the node answers.'**
   String get deskOvSendWaitsNode;
+
+  /// Button on Settings › Recheck balance that starts the recheck (the phone's Recheck).
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck'**
+  String get deskSetRescanRecheck;
+
+  /// The same button after a recheck ended or failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck again'**
+  String get deskSetRescanRecheckAgain;
+
+  /// Choice on Recheck balance (Advanced › Recheck from a height): start from the block of a chosen date.
+  ///
+  /// In en, this message translates to:
+  /// **'From a date'**
+  String get deskSetRescanFromDate;
+
+  /// Button under From a date that opens the date picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get deskSetRescanPickDate;
+
+  /// Error when Recheck is pressed with From a date chosen and no date picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date first.'**
+  String get deskSetRescanPickDateFirst;
+
+  /// Tooltip of the disabled bin on the server row that is in use: it cannot be removed while it is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to another server first.'**
+  String get deskSlRemoveInUse;
 }
 
 class _AppLocalizationsDelegate

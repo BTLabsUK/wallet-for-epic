@@ -289,10 +289,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             ),
           DeskContactsPairButton(foldPending: compactBar),
         ],
-        if (_adding || _editing)
-          EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
-        else
-          EButton.primary(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
+        EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
         const ContactsMoreButton(),
       ],
       child: split
@@ -303,7 +300,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               side: list,
               // A header band like the list's: what the pane shows.
               main: EPanel(
-                    title: _adding ? l.deskConNewTitle : (_editing ? l.deskConEditTitle : l.deskConDetailsTitle),
+                    title: _adding || _editing ? null : l.deskConDetailsTitle,
                     padding: EdgeInsets.all(Sp.x6),
                     child: paneOpen
                         ? Align(

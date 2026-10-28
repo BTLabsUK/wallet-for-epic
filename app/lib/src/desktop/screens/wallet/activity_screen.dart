@@ -11,7 +11,7 @@ import 'tx_display.dart';
 import 'tx_label.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
-enum _Filter { all, received, sent, requests }
+enum _Filter { all, sent, received, pending, cancelled, requests }
 
 /// Starts Activity on a selected transaction, a search, or the empty state.
 class ActivityArgs {
@@ -82,7 +82,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final l = context.l10n;
     return [
       for (final t in all)
-        if ((_filter == _Filter.all || (_filter == _Filter.requests ? t.isInvoice : !t.isInvoice && (_filter == _Filter.received) == t.incoming)) &&
+        if (_matches(t, _filter) &&
             (q.isEmpty ||
                 whoOf(l, t).toLowerCase().contains(q) ||
                 (t.labelText ?? '').toLowerCase().contains(q) ||
@@ -96,6 +96,17 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     ];
   }
 
+  /// The phone's filters (GP-002): Sent and Received leave out cancelled payments, which have
+  /// their own; Pending is what still waits for the other side or for blocks.
+  static bool _matches(Tx t, _Filter f) => switch (f) {
+    _Filter.all => true,
+    _Filter.sent => !t.isInvoice && !t.incoming && t.state != TxState.cancelled,
+    _Filter.received => !t.isInvoice && t.incoming && t.state != TxState.cancelled,
+    _Filter.pending => !t.isInvoice && !t.fromBackup && t.pending,
+    _Filter.cancelled => !t.isInvoice && t.state == TxState.cancelled,
+    _Filter.requests => t.isInvoice,
+  };
+
   /// The search. [full] fills its row (narrow layout).
   Widget _search({required bool full, required bool hasItems}) {
     final width = MediaQuery.sizeOf(context).width;
@@ -103,7 +114,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final input = EInput(
       controller: _query,
       enabled: hasItems,
-      hint: hasItems ? l.deskActSearchHint : l.deskActSearchHintEmpty,
+      hint: l.deskActSearchHint,
       leading: EIcons.search,
       semanticLabel: l.deskActSearchLabel,
       onChanged: (_) => setState(() => _page = 0),
@@ -211,7 +222,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final pages = (shown.length / _pageSize).ceil();
     final page = _page.clamp(0, (pages - 1).clamp(0, 999));
     final slice = shown.skip(page * _pageSize).take(_pageSize).toList();
-    final counts = (all.length, all.where((t) => t.incoming && !t.isInvoice).length, all.where((t) => !t.incoming && !t.isInvoice).length);
+    int count(_Filter f) => all.where((t) => _matches(t, f)).length;
     final rows = <Widget>[];
     String? day;
     for (final t in slice) {
@@ -250,9 +261,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       scrollDirection: Axis.horizontal,
       child: ESegmented<_Filter>(
         segments: [
-          ESegment(_Filter.all, l.deskActFilterAll, count: counts.$1),
-          ESegment(_Filter.received, l.deskActFilterReceived, count: counts.$2),
-          ESegment(_Filter.sent, l.deskActFilterSent, count: counts.$3),
+          ESegment(_Filter.all, l.deskActFilterAll, count: count(_Filter.all)),
+          ESegment(_Filter.sent, l.deskActFilterSent, count: count(_Filter.sent)),
+          ESegment(_Filter.received, l.deskActFilterReceived, count: count(_Filter.received)),
+          ESegment(_Filter.pending, l.historyFilterPending, count: count(_Filter.pending)),
+          ESegment(_Filter.cancelled, l.historyFilterCancelled, count: count(_Filter.cancelled)),
           if (ref.watch(deskInvoicesShownProvider))
             ESegment(_Filter.requests, l.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],

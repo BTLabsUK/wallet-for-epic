@@ -212,21 +212,22 @@ void main() {
     final since = DateTime(2026, 10, 22, 14, 2);
     final fixtures = <String, (NodeView, String, EState, String?)>{
       'remote at tip, version current': (remoteNodeView(englishStrings, url, mockNodeInfo(url, latencyMs: 722)), 'Synced', EState.ok, null),
-      'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.warn, null),
+      // Synced is green whatever the version; the version line carries the warning (UI-042).
+      'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.ok, null),
       'remote behind': (remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
       'remote no answer': (remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),
       'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.off, null),
-      'local starting': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.warn, 'starting'),
+      'local starting': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.active, 'starting'),
       'local syncing, fallback': (
         localNodeView(englishStrings, 
           mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)),
           fallbackUrl: defaultFallbackNodeUrl,
         ),
         'Syncing',
-        EState.warn,
+        EState.active,
         '12%',
       ),
-      'local syncing, no fallback': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.warn, '12%'),
+      'local syncing, no fallback': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.active, '12%'),
       'local synced': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)), 'Synced', EState.ok, null),
       'local stalled': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, stalled: true)), 'Stalled', EState.risk, 'stalled'),
       'local failed': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse)), 'Failed', EState.risk, 'failed'),

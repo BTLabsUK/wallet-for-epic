@@ -27,6 +27,7 @@ void main() {
       'https://pay.ex….co.uk:8443/…',
       'pay.ex….co.uk:8443/…',
     );
+    row('http://$_tor', 'http://wfe7q3…abcdid.onion', 'wfe7q3…abcdid.onion');
     row('localhost:3415', 'localhost:3415', 'localhost:3415');
     row('abc@x.y', 'abc@x.y', 'abc');
     row('abcdefghijklmn', 'abcdefghijklmn', 'abcdefghijklmn');

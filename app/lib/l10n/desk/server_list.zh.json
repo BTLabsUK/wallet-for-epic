@@ -8,5 +8,6 @@
   "deskSlDefault": "默认",
   "deskSlTesting": "正在测试 {host}…",
   "deskSlSetupEpicboxOn": "通过 Epicbox 接收",
-  "deskSlHelpChoose": "选择一个，或输入以筛选列表或添加服务器。"
+  "deskSlHelpChoose": "选择一个，或输入以筛选列表或添加服务器。",
+  "deskSlRemoveInUse": "请先切换到其他服务器。"
 }

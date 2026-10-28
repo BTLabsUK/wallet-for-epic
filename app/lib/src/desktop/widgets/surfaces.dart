@@ -366,14 +366,34 @@ class EAddress extends StatelessWidget {
     final cut = at > 0 ? at : (onion ? address.length - 6 : address.length);
     final a = address.substring(0, cut);
     final rest = address.substring(cut);
-    final spans = a.length > 14 && !a.startsWith('http')
+    final marked = a.length > 14 && !a.startsWith('http');
+    final keySpans = marked
         ? [
             TextSpan(text: a.substring(0, 6), style: hl),
             TextSpan(text: a.substring(6, a.length - 6)),
             TextSpan(text: a.substring(a.length - 6), style: hl),
-            TextSpan(text: rest, style: base.copyWith(color: c.dim)),
           ]
-        : [TextSpan(text: address)];
+        : [TextSpan(text: a)];
+    final restStyle = base.copyWith(color: c.dim);
+    // When the address needs two lines it breaks only before "@": the server stays whole on
+    // the last line, never "epicca" / "sh.com" (UI-009).
+    final text = LayoutBuilder(
+      builder: (context, box) {
+        final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
+        if (!rest.startsWith('@') || !box.maxWidth.isFinite) return SelectableText.rich(whole);
+        final tp = TextPainter(text: whole, textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
+        final fits = tp.width <= box.maxWidth;
+        tp.dispose();
+        if (fits) return SelectableText.rich(whole);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectableText.rich(TextSpan(style: base, children: keySpans)),
+            Text(rest, style: restStyle, softWrap: false, overflow: TextOverflow.fade),
+          ],
+        );
+      },
+    );
     return Container(
       padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x2, Sp.x3),
       decoration: BoxDecoration(
@@ -383,7 +403,7 @@ class EAddress extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
+          Expanded(child: text),
           if (extra != null) ...[SizedBox(width: Sp.x2), extra!],
           if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel ?? context.l10n.commonCopy, onCopied: onCopied)],
         ],

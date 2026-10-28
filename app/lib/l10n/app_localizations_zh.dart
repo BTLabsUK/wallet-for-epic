@@ -17179,4 +17179,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvSendWaitsNode => '节点响应后即可继续发送。';
+
+  @override
+  String get deskSetRescanRecheck => '重新核对';
+
+  @override
+  String get deskSetRescanRecheckAgain => '再次核对';
+
+  @override
+  String get deskSetRescanFromDate => '从某个日期';
+
+  @override
+  String get deskSetRescanPickDate => '选择日期';
+
+  @override
+  String get deskSetRescanPickDateFirst => '请先选择日期。';
+
+  @override
+  String get deskSlRemoveInUse => '请先切换到其他服务器。';
 }

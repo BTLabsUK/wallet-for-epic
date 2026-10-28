@@ -251,6 +251,8 @@ class _EInputState extends State<EInput> {
                   label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
                   child: TextField(
                     controller: widget.controller,
+                    // A mouse caret and selection, never the phone's teardrop handles (UI-001).
+                    selectionControls: desktopTextSelectionControls,
                     focusNode: _focus,
                     enabled: widget.enabled,
                     obscureText: widget.obscure,
@@ -535,6 +537,10 @@ class _SegState<T> extends State<_Seg<T>> {
                 padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
                   color: sel ? c.s4 : (_hover ? c.hover : Colors.transparent),
+                  borderRadius: BorderRadius.circular(6.u),
+                ),
+                // The hairline is drawn over the segment, so choosing one never shifts the row.
+                foregroundDecoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6.u),
                   border: Border.all(color: sel ? c.lineStrong : Colors.transparent),
                 ),

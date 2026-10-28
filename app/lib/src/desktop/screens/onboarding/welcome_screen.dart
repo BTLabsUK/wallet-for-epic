@@ -91,15 +91,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 selected: false,
                 onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
               ),
-              SizedBox(height: Sp.x2),
-              Text(l.deskOnbWelcomeOtherApps, style: ts.small),
             ],
             SizedBox(height: Sp.x3),
+            // The other apps' line belongs to Restore (their wallets come back by phrase), inside
+            // its card, so the cards keep one rhythm (UI-038).
             EChoiceCard(
               title: l.deskOnbWelcomeRestore,
               description: l.deskOnbWelcomeRestoreSub,
               icon: EIcons.key,
               selected: false,
+              tag: DeskFeatures.importWizard ? Text(l.deskOnbWelcomeOtherApps, style: ts.small.copyWith(color: context.dc.faint)) : null,
               onTap: () => nav.go(DeskRoute.restore),
             ),
             if (flow.testNet) ...[

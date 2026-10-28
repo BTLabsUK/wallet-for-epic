@@ -18251,4 +18251,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvSendWaitsNode => 'Sending resumes when the node answers.';
+
+  @override
+  String get deskSetRescanRecheck => 'Recheck';
+
+  @override
+  String get deskSetRescanRecheckAgain => 'Recheck again';
+
+  @override
+  String get deskSetRescanFromDate => 'From a date';
+
+  @override
+  String get deskSetRescanPickDate => 'Pick a date';
+
+  @override
+  String get deskSetRescanPickDateFirst => 'Pick a date first.';
+
+  @override
+  String get deskSlRemoveInUse => 'Switch to another server first.';
 }

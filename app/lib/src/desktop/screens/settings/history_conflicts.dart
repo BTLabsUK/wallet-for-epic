@@ -140,8 +140,9 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
         ],
       ),
       actions: [
+        // The phone's order (UI-047): Cancel as text first, Keep all mine, Import last.
+        EButton.ghost(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
         EButton(label: l.deskHistConflictKeepAll, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop(_keepAll)),
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(label: widget.oldWallet ? l.deskHistConflictApply : l.deskHistConflictImport, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop({..._useBackup})),
       ],
     );

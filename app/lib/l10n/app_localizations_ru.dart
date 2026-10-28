@@ -18872,4 +18872,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOvSendWaitsNode =>
       'Отправка станет доступна, когда узел ответит.';
+
+  @override
+  String get deskSetRescanRecheck => 'Сверить';
+
+  @override
+  String get deskSetRescanRecheckAgain => 'Сверить снова';
+
+  @override
+  String get deskSetRescanFromDate => 'С даты';
+
+  @override
+  String get deskSetRescanPickDate => 'Выбрать дату';
+
+  @override
+  String get deskSetRescanPickDateFirst => 'Сначала выберите дату.';
+
+  @override
+  String get deskSlRemoveInUse => 'Сначала переключитесь на другой сервер.';
 }

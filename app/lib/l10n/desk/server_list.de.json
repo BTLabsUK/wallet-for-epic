@@ -8,5 +8,6 @@
   "deskSlDefault": "Standard",
   "deskSlTesting": "{host} wird getestet…",
   "deskSlSetupEpicboxOn": "Über Epicbox empfangen",
-  "deskSlHelpChoose": "Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen."
+  "deskSlHelpChoose": "Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen.",
+  "deskSlRemoveInUse": "Zuerst zu einem anderen Server wechseln."
 }

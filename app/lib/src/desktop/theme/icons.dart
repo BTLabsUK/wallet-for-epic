@@ -59,6 +59,7 @@ abstract final class EIcons {
   static const key = Icons.key_outlined;
   static const cancel = Icons.block;
   static const clock = Icons.schedule;
+  static const calendar = Icons.calendar_today_outlined;
   static const folder = Icons.folder_outlined;
   static const folderOpen = Icons.folder_open_outlined;
   static const translate = Icons.translate;

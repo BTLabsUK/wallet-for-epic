@@ -51,7 +51,7 @@ class ChainOfferDialog extends StatelessWidget {
       ),
       actions: [
         EButton(label: l.deskSetDlgChainFresh, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
-        if (inUse) EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => nav.pop()),
+        if (inUse) EButton.ghost(label: l.commonClose, size: EBtnSize.sm, onPressed: () => nav.pop()),
         EButton.primary(label: l.deskSetDlgChainUse, icon: EIcons.check, size: EBtnSize.sm, onPressed: inUse ? null : () => nav.pop(true)),
       ],
     );

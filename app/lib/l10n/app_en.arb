@@ -24244,5 +24244,29 @@
   "deskOvSendWaitsNode": "Sending resumes when the node answers.",
   "@deskOvSendWaitsNode": {
     "description": "Small text under the buttons on Overview while Send is disabled because the node does not answer."
+  },
+  "deskSetRescanRecheck": "Recheck",
+  "@deskSetRescanRecheck": {
+    "description": "Button on Settings › Recheck balance that starts the recheck (the phone's Recheck)."
+  },
+  "deskSetRescanRecheckAgain": "Recheck again",
+  "@deskSetRescanRecheckAgain": {
+    "description": "The same button after a recheck ended or failed."
+  },
+  "deskSetRescanFromDate": "From a date",
+  "@deskSetRescanFromDate": {
+    "description": "Choice on Recheck balance (Advanced › Recheck from a height): start from the block of a chosen date."
+  },
+  "deskSetRescanPickDate": "Pick a date",
+  "@deskSetRescanPickDate": {
+    "description": "Button under From a date that opens the date picker."
+  },
+  "deskSetRescanPickDateFirst": "Pick a date first.",
+  "@deskSetRescanPickDateFirst": {
+    "description": "Error when Recheck is pressed with From a date chosen and no date picked."
+  },
+  "deskSlRemoveInUse": "Switch to another server first.",
+  "@deskSlRemoveInUse": {
+    "description": "Tooltip of the disabled bin on the server row that is in use: it cannot be removed while it is used."
   }
 }
