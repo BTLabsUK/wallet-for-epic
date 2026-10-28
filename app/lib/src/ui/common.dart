@@ -402,7 +402,8 @@ Widget exactAmountTip(
   required Widget child,
 }) {
   if (hidden) return child;
-  final l = context.l10n;
+  // The desktop's screens may sit outside the phone's localizations (its tests do): English then.
+  final l = Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
   return Tooltip(
     message: l.balanceExactTip(epicExact(l, atomic)),
     triggerMode: TooltipTriggerMode.tap,
