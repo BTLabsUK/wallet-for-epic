@@ -338,6 +338,7 @@
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Wszystko w tym portfelu, dostępne lub nie.",
   "homeBalanceHiddenLabel": "Saldo ukryte",
+  "balanceExactTip": "Dokładna kwota: {amount}",
   "homeShowBalances": "Pokaż salda",
   "homeHideBalances": "Ukryj kwoty",
   "homeBalanceConfirming": "Potwierdzanie",

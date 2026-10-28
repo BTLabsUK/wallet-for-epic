@@ -8,7 +8,9 @@ import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
+import '../../../amount.dart' show headlineEpic;
 import '../../../l10n.dart' show localDigits, localInt;
+import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
@@ -491,7 +493,8 @@ class _UpdatingTag extends StatelessWidget {
   Widget build(BuildContext context) => EBadge(context.l10n.deskOvUpdating, busy: true, liveRegion: true);
 }
 
-/// The balance in Montserrat 44: whole part bright, fraction dim, unit in mono.
+/// The balance in Montserrat 44: whole part bright, the two decimals ([headlineEpic]) dim,
+/// unit in mono. A hover shows the exact amount.
 class _BigAmount extends StatelessWidget {
   const _BigAmount({required this.nano, required this.hidden, this.dim = false});
 
@@ -504,7 +507,7 @@ class _BigAmount extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final canonical = formatEpic(nano);
+    final canonical = headlineEpic(BigInt.from(nano));
     final dot = canonical.indexOf('.');
     final whole = localDigits(l, dot < 0 ? canonical : canonical.substring(0, dot));
     final frac = dot < 0 ? '' : localDigits(l, canonical.substring(dot));
@@ -545,9 +548,13 @@ class _BigAmount extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Semantics(
-              label: hidden ? context.l10n.deskOvHiddenAmount : '$text EPIC',
+              label: hidden ? context.l10n.deskOvHiddenAmount : epicExact(l, BigInt.from(nano)),
               excludeSemantics: true,
-              child: Row(
+              child: exactAmountTip(
+                context,
+                BigInt.from(nano),
+                hidden: hidden,
+                child: Row(
                 key: const ValueKey('balance-row'),
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -568,6 +575,7 @@ class _BigAmount extends StatelessWidget {
                     style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
                   ),
                 ],
+                ),
               ),
             ),
             SizedBox(height: Sp.x4),

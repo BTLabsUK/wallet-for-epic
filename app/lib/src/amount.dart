@@ -55,6 +55,23 @@ String displayEpic(BigInt atomic) {
   return formatEpic(atomic - atomic.remainder(cut), grouped: true);
 }
 
+/// Decimals the headline balance shows: the big figure on the phone's Wallet and in its Send
+/// and Receive bar, and on the desktop's Overview.
+const int headlineDecimals = 2;
+
+/// [atomic] as the headline balance shows it: grouped, with exactly [headlineDecimals]
+/// decimals, the rest cut off, never rounded, so the figure never reads more than the wallet
+/// holds: `1,234.56781234` shows as `1,234.56`, and `0` as `0.00`. The exact amount stays a
+/// tap or a hover away ([formatEpic]); everywhere exactness matters keeps all 8.
+String headlineEpic(BigInt atomic) {
+  final cut = BigInt.from(10).pow(epicDecimals - headlineDecimals);
+  return formatEpic(
+    atomic - atomic.remainder(cut),
+    minDecimals: headlineDecimals,
+    grouped: true,
+  );
+}
+
 String _group(String digits) {
   final out = StringBuffer();
   for (var i = 0; i < digits.length; i++) {

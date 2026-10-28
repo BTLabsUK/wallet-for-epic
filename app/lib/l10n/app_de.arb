@@ -338,6 +338,7 @@
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Alles in dieser Wallet, verfügbar oder nicht.",
   "homeBalanceHiddenLabel": "Guthaben verborgen",
+  "balanceExactTip": "Genauer Betrag: {amount}",
   "homeShowBalances": "Guthaben anzeigen",
   "homeHideBalances": "Beträge verbergen",
   "homeBalanceConfirming": "Wird bestätigt",

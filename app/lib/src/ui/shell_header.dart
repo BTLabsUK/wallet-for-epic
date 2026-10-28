@@ -141,7 +141,7 @@ List<PendingItem> pendingItems(
 String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
     l.balanceHelpRow(
       l.homeBalanceSpendable,
-      hidden ? l.homeBalanceHiddenLabel : epicText(l, spendable),
+      hidden ? l.homeBalanceHiddenLabel : epicExact(l, spendable),
     );
 
 /// Wallet's balance area, with no panel around it, centred as one column: the caption
@@ -321,9 +321,10 @@ double _textWidth(
   return width;
 }
 
-/// Wallet's figure and its gold EPIC, in a box [figureSize] high. The figure takes the largest
-/// whole size from [figureSize] down to [figureMinSize] at which it fits beside the unit. It
-/// does not follow the text scale, which would only shrink it back; the unit does, up to 1.3x.
+/// Wallet's figure (two decimals, [headlineEpic]) and its gold EPIC, in a box [figureSize]
+/// high. The figure takes the largest whole size from [figureSize] down to [figureMinSize] at
+/// which it fits beside the unit. It does not follow the text scale, which would only shrink
+/// it back; the unit does, up to 1.3x. A tap shows the exact amount.
 class _Figure extends StatelessWidget {
   const _Figure({required this.spendable, required this.hidden});
 
@@ -336,7 +337,7 @@ class _Figure extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
-    final text = hidden ? hiddenAmount : localDigits(l, displayEpic(spendable));
+    final text = hidden ? hiddenAmount : localDigits(l, headlineEpic(spendable));
     TextStyle figure(double size) =>
         (theme.textTheme.displaySmall ?? const TextStyle()).copyWith(
           fontFamily: t.headFamily,
@@ -392,7 +393,11 @@ class _Figure extends StatelessWidget {
           if (!showUnit) size = best(unit: false);
           // The figure and its unit are centred as one; the figure's Flexible is loose, so
           // the row's free space falls on both sides.
-          return Row(
+          return exactAmountTip(
+            context,
+            spendable,
+            hidden: hidden,
+            child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -424,6 +429,7 @@ class _Figure extends StatelessWidget {
                   ),
                 ),
             ],
+            ),
           );
         },
       ),
@@ -538,9 +544,10 @@ class ShellBarTitle extends StatelessWidget {
   }
 }
 
-/// The spendable figure as Send's and Receive's title: the app bar's title style with tabular
-/// figures and a small gold EPIC after it; while anything is on hold or coming in, a quiet line
-/// under it with the same words as Wallet's pending line, so the two never disagree.
+/// The spendable figure (two decimals, [headlineEpic]) as Send's and Receive's title: the app
+/// bar's title style with tabular figures and a small gold EPIC after it; while anything is on
+/// hold or coming in, a quiet line under it with the same words as Wallet's pending line, so
+/// the two never disagree. A tap shows the exact amount.
 class _FigureTitle extends ConsumerWidget {
   const _FigureTitle();
 
@@ -565,7 +572,7 @@ class _FigureTitle extends ConsumerWidget {
           TextSpan(
             text: hidden
                 ? hiddenAmount
-                : localDigits(l, displayEpic(summary.spendable)),
+                : localDigits(l, headlineEpic(summary.spendable)),
           ),
           const WidgetSpan(child: SizedBox(width: 6)),
           TextSpan(
@@ -589,7 +596,11 @@ class _FigureTitle extends ConsumerWidget {
         ...pending,
       ].join('\n'),
       excludeSemantics: true,
-      child: FittedBox(
+      child: exactAmountTip(
+        context,
+        summary.spendable,
+        hidden: hidden,
+        child: FittedBox(
         fit: BoxFit.scaleDown,
         alignment: AlignmentDirectional.centerStart,
         child: Column(
@@ -613,6 +624,7 @@ class _FigureTitle extends ConsumerWidget {
                 ),
               ),
           ],
+        ),
         ),
       ),
     );

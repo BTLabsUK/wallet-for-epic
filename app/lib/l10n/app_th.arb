@@ -338,6 +338,7 @@
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "ทุกอย่างในกระเป๋าเงินนี้ ทั้งที่ใช้ได้และยังใช้ไม่ได้",
   "homeBalanceHiddenLabel": "ซ่อนยอดคงเหลืออยู่",
+  "balanceExactTip": "จำนวนที่แน่นอน: {amount}",
   "homeShowBalances": "แสดงยอดเงิน",
   "homeHideBalances": "ซ่อนจำนวน",
   "homeBalanceConfirming": "กำลังยืนยัน",

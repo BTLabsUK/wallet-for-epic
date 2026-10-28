@@ -1589,6 +1589,16 @@
   "@homeBalanceHiddenLabel": {
     "description": "Screen-reader label of the balance while amounts are hidden."
   },
+  "balanceExactTip": "Exact amount: {amount}",
+  "@balanceExactTip": {
+    "description": "Tooltip on the big balance figure (phone: tap; desktop: hover): the amount with every decimal, as the figure itself shows only two. Short.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.56781234 EPIC"
+      }
+    }
+  },
   "homeShowBalances": "Show balances",
   "@homeShowBalances": {
     "description": "Tooltip of the eye button while amounts are hidden."

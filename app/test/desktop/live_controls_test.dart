@@ -9,6 +9,8 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/amount.dart' as amount show formatEpic, headlineEpic;
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +76,27 @@ void main() {
     expect(find.text('Not updated'), findsOneWidget);
     expect(find.text('The node did not answer'), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
+  });
+
+  testWidgets('the Overview balance shows two decimals and the exact amount on hover', (tester) async {
+    final container = await _open(tester, _Wallet(), DeskRoute.overview);
+    final spendable = BigInt.from(container.read(deskProvider).balance!.spendable);
+    final exact = amount.formatEpic(spendable, grouped: true);
+    final headline = amount.headlineEpic(spendable);
+    // The mock's balance has more than two decimals, so the cut shows.
+    expect(exact.length, greaterThan(headline.length), reason: exact);
+    final row = find.byKey(const ValueKey('balance-row'));
+    expect(find.descendant(of: row, matching: find.textContaining(headline, findRichText: true)), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.textContaining(exact, findRichText: true)), findsNothing);
+    expect(find.text('Exact amount: $exact EPIC'), findsNothing);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(row));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Exact amount: $exact EPIC'), findsOneWidget);
+    await mouse.moveTo(Offset.zero);
+    await _settle(tester);
   });
 
   testWidgets('the eye hides every amount on Overview and Activity, and shows them again', (tester) async {

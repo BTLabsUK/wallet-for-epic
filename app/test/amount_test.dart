@@ -28,6 +28,27 @@ void main() {
     });
   });
 
+  group('headlineEpic', () {
+    BigInt epic(String text) => parseEpic(text);
+
+    test('two decimals always, grouped, cut off and never rounded up', () {
+      for (final (exact, shown) in [
+        ('0', '0.00'),
+        ('0.00000001', '0.00'),
+        ('0.5', '0.50'),
+        ('12.5', '12.50'),
+        ('1234.5678', '1,234.56'),
+        ('1234.56781234', '1,234.56'),
+        ('999.99999999', '999.99'),
+        ('20999999.99999999', '20,999,999.99'),
+      ]) {
+        expect(headlineEpic(epic(exact)), shown, reason: exact);
+      }
+      // A negative amount is cut towards zero too.
+      expect(headlineEpic(-epic('2.567')), '-2.56');
+    });
+  });
+
   group('displayEpic', () {
     BigInt epic(String text) => parseEpic(text);
 

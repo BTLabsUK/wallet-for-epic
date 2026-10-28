@@ -338,6 +338,7 @@
   "balanceHelpRow": "{label}：{amount}",
   "balanceTotalHelp": "此钱包中的全部金额，无论能否使用。",
   "homeBalanceHiddenLabel": "余额已隐藏",
+  "balanceExactTip": "精确金额：{amount}",
   "homeShowBalances": "显示余额",
   "homeHideBalances": "隐藏金额",
   "homeBalanceConfirming": "确认中",
