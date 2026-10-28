@@ -138,7 +138,7 @@
   "@deskAppRestartNow": {
     "description": "Button of the local-node-synced dialog: restart the app and switch to the local node. Short."
   },
-  "deskAppFirstScanTitle": "Wallet first scan",
+  "deskAppFirstScanTitle": "First scan",
   "@deskAppFirstScanTitle": {
     "description": "Title of the dialog that shows the first scan of a new wallet."
   },
@@ -318,7 +318,7 @@
   "@deskTourHelpTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourHelpText": "Topics by section and Report a problem. More on every page is here, and this tour can be shown again.",
+  "deskTourHelpText": "Help topics, Report a problem and Show the tour again.",
   "@deskTourHelpText": {
     "description": "Text of the Help step, the last step of the first-run tour."
   },
@@ -357,5 +357,32 @@
   "deskTourAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
   "@deskTourAdvancedText": {
     "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
+  },
+  "deskAppFirstScanProgress": "Scanning the chain · {percent}%",
+  "@deskAppFirstScanProgress": {
+    "description": "First-scan dialog: the progress line. {percent} is 0–100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskAppFirstScanFound": "{count, plural, one{{count} output found} other{{count} outputs found}}",
+  "@deskAppFirstScanFound": {
+    "description": "First-scan dialog: how many of the wallet's outputs the scan has found so far.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "deskAppFirstScanShowLog": "Show log",
+  "@deskAppFirstScanShowLog": {
+    "description": "First-scan dialog: button that shows the scan's raw output lines."
+  },
+  "deskAppFirstScanHideLog": "Hide log",
+  "@deskAppFirstScanHideLog": {
+    "description": "First-scan dialog: button that hides the raw output lines again."
   }
 }

@@ -134,7 +134,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         return ProgressView(
           title: _failure != null || _diskFull ? l.deskOnbCreateNotCreated : l.deskOnbCreateCreating,
           lead: flow.testNet ? l.deskOnbCreateTestLead(networkName(flow.network)) : null,
-          failureTitle: l.deskOnbCreateFailedTitle,
           stages: _createStages(l),
           current: _stage,
           failed: _stage,

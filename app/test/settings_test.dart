@@ -418,7 +418,7 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
       await _tapText(tester, 'Start from a date or height');
       await _tapText(tester, 'Pick the date you created the wallet');
@@ -1178,7 +1178,7 @@ void main() {
         final create = find.byKey(firstRunCreateKey);
         final restore = find.byKey(firstRunRestoreKey);
         expect(find.text('Create a new wallet'), findsOneWidget);
-        expect(find.text('Restore from a phrase'), findsOneWidget);
+        expect(find.text('Restore from phrase'), findsOneWidget);
         // Both whole buttons inside the part of the screen the keyboard leaves, unscrolled.
         for (final button in [create, restore]) {
           final rect = tester.getRect(button);
@@ -1245,11 +1245,11 @@ void main() {
         await h.openSettings(tester, SettingsSection.wallet);
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
-        expect(find.text('Restore from a phrase'), findsOneWidget);
+        expect(find.text('Restore from phrase'), findsOneWidget);
         expect(find.text('Delete this wallet'), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
-        await _tapText(tester, 'Restore from a phrase');
+        await _tapText(tester, 'Restore from phrase');
         expect(find.byType(RestoreScreen), findsOneWidget);
         expect(find.byType(DeleteWalletDialog), findsNothing);
         await tester.tap(find.byType(BackButton));
@@ -1259,7 +1259,7 @@ void main() {
         expect(h.container.read(sessionProvider), isNotNull);
 
         // A phrase that does not check out never reaches the warning.
-        await _tapText(tester, 'Restore from a phrase');
+        await _tapText(tester, 'Restore from phrase');
         await _enter(tester, 'Recovery phrase', 'abandon abandon abandon');
         await _tapText(tester, 'Continue');
         expect(find.textContaining('This phrase has 3 words.'), findsOneWidget);
@@ -2222,7 +2222,7 @@ void main() {
         // By its semantics label, as label or icon: network_settings_button_test.dart checks
         // which form shows, with the real faces.
         expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
-        await _tapText(tester, 'Restore from a phrase');
+        await _tapText(tester, 'Restore from phrase');
         expect(find.text('Where to start scanning'), findsNothing);
         expect(find.text('Pick the date you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
@@ -2244,7 +2244,7 @@ void main() {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
       expect(find.text('Start from a date or height'), findsOneWidget);
       expect(find.text('Where to start scanning'), findsNothing);

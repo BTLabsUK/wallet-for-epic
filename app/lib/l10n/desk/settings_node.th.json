@@ -1,6 +1,6 @@
 {
   "deskSetNodePortNote": "ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)",
-  "deskSetNodeListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที เวลาตอบสนองวัดจากคอมพิวเตอร์นี้",
+  "deskSetNodeListNote": "สถานะจาก status.btlabs.uk เวลาตอบสนองวัดจากคอมพิวเตอร์นี้",
   "deskSetNodeStartTitle": "เริ่มโหนดในเครื่องไหม?",
   "deskSetNodeStartDesc": "โปรแกรมแยกต่างหากจะซิงก์บล็อกเชน Epic บนคอมพิวเตอร์นี้",
   "deskSetNodeStartLine1": "ดาวน์โหลดบล็อกเชนทั้งหมด: ใช้พื้นที่ดิสก์และแบนด์วิดท์หลาย GB",

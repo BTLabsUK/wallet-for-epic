@@ -45,7 +45,7 @@
   "deskTxNowBackup": "Importiert; die Blockchain wurde nicht abgefragt.",
   "deskTxNowImmature": "{count, plural, one{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigung verfügbar.} other{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigungen verfügbar.}}",
   "deskTxNowWaitingSender": "Signiert und zurückgeschickt. Wartet auf den Abschluss durch den Absender.",
-  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender an das Netzwerk gesendet; abgeschlossen, sobald die Blockchain die Zahlung bestätigt.",
+  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender im Netzwerk; abgeschlossen nach der Bestätigung.",
   "deskTxNowWaitingResponseFile": "Wartet auf die Antwortdatei. Schließen Sie ab, sobald sie da ist.",
   "deskTxNowWaitingRecipient": "Wartet auf die Signatur des Empfängers. Bis zum Abschluss verlässt nichts die Wallet.",
   "deskTxNowPosted": "An das Netzwerk gesendet, wartet auf einen Block.",

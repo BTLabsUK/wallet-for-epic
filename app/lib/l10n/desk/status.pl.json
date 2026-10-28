@@ -63,10 +63,6 @@
   "deskNodeLineCompacting": "Kompaktowanie danych łańcucha",
   "deskNodeLineStopping": "Zatrzymywanie…",
   "deskNodeLineSyncing": "Synchronizacja",
-  "deskNodeNoEstimate": "brak szacunku; do godziny",
-  "deskNodeEstimating": "szacowanie…",
-  "deskNodeAboutHours": "zostało około {hours} h",
-  "deskNodeAboutMinutes": "zostało około {minutes} min",
   "deskNodeDurationHm": "{hours} h {minutes} min",
   "deskNodeDurationM": "{minutes} min",
   "deskTorNetworkLabel": "Sieć Tor",
@@ -75,11 +71,12 @@
   "deskTorStarting": "Uruchamianie…",
   "deskTorOn": "Włączony",
   "deskTorNotConnected": "Brak połączenia",
-  "deskTorRoutes": "Epicbox, węzeł, stan, kurs, aktualizacje, wsparcie i adresy Tor",
   "deskTorCoverage": "Przez Tor: Epicbox, węzeł, stan, kurs, aktualizacje, wsparcie i adresy Tor.",
   "deskTorNodeOver": "Przez Tor",
   "deskTorNodeNotEncrypted": "Za Torem bez szyfrowania",
   "deskTorNodeWaits": "Czeka na połączenie z Torem.",
   "deskNodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
-  "deskNodeFailoverInsteadOf": "Zamiast {host}"
+  "deskNodeFailoverInsteadOf": "Zamiast {host}",
+  "deskNodeDurationDh": "{days} d {hours} h",
+  "deskNodeDurationH": "{hours} h"
 }

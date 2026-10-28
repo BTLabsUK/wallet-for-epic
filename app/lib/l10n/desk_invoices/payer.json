@@ -23,7 +23,7 @@
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "Invoices from allowed paired contacts appear here; nothing is paid without approval.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
@@ -36,7 +36,7 @@
       }
     }
   },
-  "deskInvPayerNotDeliveredText": "It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.",
+  "deskInvPayerNotDeliveredText": "It is signed and kept on this computer; the EPIC stays locked. Retry sends it again without a second approval.",
   "@deskInvPayerNotDeliveredText": {
     "description": "Notice text for a payment that was not delivered."
   },
@@ -317,7 +317,7 @@
   "@deskInvPayerDeclined": {
     "description": "Toast after the user declined an invoice; it leaves To pay at once."
   },
-  "deskInvPayerSpendToSelf": "Spend them to myself now",
+  "deskInvPayerSpendToSelf": "Send them back to this wallet now",
   "@deskInvPayerSpendToSelf": {
     "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
   },
@@ -357,5 +357,14 @@
   "deskInvPayerPaidHead": "Paid",
   "@deskInvPayerPaidHead": {
     "description": "Section head on Invoices › To pay: a paid invoice opened from Activity, which To pay no longer lists."
+  },
+  "deskInvPayerAgoHoursOnly": "{hours} h",
+  "@deskInvPayerAgoHoursOnly": {
+    "description": "Duration in whole hours for the same-bill warning, e.g. \"5 h\".",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
   }
 }

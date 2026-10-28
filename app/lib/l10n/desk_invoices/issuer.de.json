@@ -37,7 +37,7 @@
   "deskInvIssuerCancel": "Zahlung stornieren",
   "deskInvIssuerCancelTitle": "Diese Zahlung stornieren?",
   "deskInvIssuerCancelBody": "Sie kommt dann nicht an. Das Guthaben von {payer} bleibt in dessen Wallet gesperrt, bis dort storniert wird.",
-  "deskInvIssuerBounced": "Die Wallet von {payer} hat die Rechnung zurückgeschickt: Sie kann keine Rechnungen bezahlen. Bitten Sie stattdessen um eine Zahlung.",
+  "deskInvIssuerBounced": "Die Wallet von {payer} kann keine Rechnungen bezahlen; bitten Sie {payer} stattdessen um eine Zahlung.",
   "deskInvIssuerSendFile": "Datei verwenden",
   "deskInvIssuerLate": "Nach dem Ende dieser Rechnung kam eine Zahlung an. Sie wurde abgelehnt; nichts hat sich geändert.",
   "deskInvIssuerPaidText": "{payer} hat bezahlt. Ihre Wallet hat die Zahlung abgeschlossen und an das Netzwerk gesendet.",

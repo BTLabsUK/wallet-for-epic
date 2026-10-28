@@ -110,7 +110,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Remove from list'), findsWidgets);
     expect(find.text('Delete wallet'), findsNothing);
-    expect(find.text('Nothing changes until confirmed.'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Remove from list'));
     await _wait(tester);
     expect(api.calls, ['remove ${demoOtherWallet.id} list']);

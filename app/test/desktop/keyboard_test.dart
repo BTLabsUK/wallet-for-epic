@@ -164,11 +164,11 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Unlock: Wallet, Password, Remember, Unlock, Add a wallet, wrap; never the eye', (tester) async {
+    testWidgets('Unlock: Wallet, Password, Remember, Unlock, Forgot password?, Add a wallet, wrap; never the eye', (tester) async {
       await _open(tester, DeskRoute.unlock);
-      final tabs = await _tabs(tester, _edit('Password'), 5);
-      // Add a wallet stays reachable for keyboard-only users, after the main button.
-      expect(tabs, ['check:Remember on this computer', 'button:Unlock', 'link:Add a wallet', 'select:Wallet', 'field:Password']);
+      final tabs = await _tabs(tester, _edit('Password'), 6);
+      // Forgot password? and Add a wallet stay reachable for keyboard-only users, after the main button.
+      expect(tabs, ['check:Remember on this computer', 'button:Unlock', 'link:Forgot password?', 'link:Add a wallet', 'select:Wallet', 'field:Password']);
       await _end(tester);
     });
 
@@ -180,7 +180,7 @@ void main() {
       // Contacts and All are the stops right after their fields; paste and clear are not. The
       // address is the BT Labs contact: its card's Clear comes next; the Advanced disclosure
       // follows Message (outputs spec §4.4).
-      expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:All', 'field:Message', 'details', 'button:Review send']);
+      expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'button:Review send']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
       await _end(tester);
@@ -298,7 +298,7 @@ void main() {
       await _key(tester, LogicalKeyboardKey.enter);
       await tester.pump();
       expect(find.byKey(const ValueKey('server-list-field')), findsOneWidget, reason: 'the list is open');
-      expect(find.text('Check settings'), findsNothing);
+      expect(find.text('Review settings'), findsNothing);
       await _key(tester, LogicalKeyboardKey.escape);
       await _end(tester);
     });
@@ -736,7 +736,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await _settle(tester, 6);
-      expect(find.text('Check settings'), findsOneWidget);
+      expect(find.text('Review settings'), findsOneWidget);
       await _end(tester);
     });
 

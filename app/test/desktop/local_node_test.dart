@@ -110,16 +110,16 @@ void main() {
     expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, isNull);
 
     final steps = <(LocalNodeState, String, int, String, String)>[
-      (mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), 'Headers · 1,480,200 of 3,764,975', 0, '12 % · about 3 h left', 'epiccash.com · 12 %'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), 'Chain state · 1.9 of 4.1 GB', 1, '46 % · about 40 min left', 'epiccash.com · 46 %'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking kernels · 2.1 of 3.4 million', 1, '70 % · no estimate; up to an hour', 'epiccash.com · 70 %'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), 'Blocks · 3,702,100 of 3,764,975', 2, '96 % · about 12 min left', 'epiccash.com · 96 %'),
+      (mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), 'Headers · 1,480,200 of 3,764,975', 0, '12%', 'epiccash.com · 12%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), 'Chain state · 1.9 of 4.1 GB', 1, '46%', 'epiccash.com · 46%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking kernels · 2.1 of 3.4 million', 1, '70%', 'epiccash.com · 70%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), 'Blocks · 3,702,100 of 3,764,975', 2, '96%', 'epiccash.com · 96%'),
     ];
     for (final (s, line, strip, right, rail) in steps) {
       await step(tester, s);
       expect(find.textContaining('Syncing', findRichText: true), findsWidgets, reason: line);
       expect(find.text(line), findsOneWidget, reason: line);
-      expect(find.text(right), findsOneWidget, reason: line);
+      expect(find.text(right), findsWidgets, reason: line);
       expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, strip, reason: line);
       expect(find.textContaining('using node.epiccash.com meanwhile', findRichText: true), findsOneWidget, reason: line);
       expect(localNodeView(englishStrings, s, fallbackUrl: defaultFallbackNodeUrl).second, rail, reason: line);
@@ -201,7 +201,7 @@ void main() {
 
   testWidgets('Change… under While syncing changes the row text, the detail and the rail line', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.syncing, overall: 0.12));
-    expect(find.text('Use node.epiccash.com until the local node is synced. The local node takes over by itself.'), findsOneWidget);
+    expect(find.text('Use node.epiccash.com until the local node is synced'), findsOneWidget);
     // Two Change… buttons: While syncing comes before Data folder.
     await tester.tap(find.text('Change…').first);
     await tester.pumpAndSettle();
@@ -209,9 +209,9 @@ void main() {
     expect(find.descendant(of: find.byType(EDialog), matching: find.text('Local node')), findsNothing, reason: 'no This computer group in the fallback list');
     await tester.tap(find.text('node.btlabs.uk'));
     await tester.pumpAndSettle();
-    expect(find.text('Use node.btlabs.uk until the local node is synced. The local node takes over by itself.'), findsOneWidget);
+    expect(find.text('Use node.btlabs.uk until the local node is synced'), findsOneWidget);
     expect(find.textContaining('using node.btlabs.uk meanwhile', findRichText: true), findsOneWidget);
-    expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.btlabs.uk').second, 'btlabs.uk · 12 %');
+    expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.btlabs.uk').second, 'btlabs.uk · 12%');
     await end(tester);
   });
 

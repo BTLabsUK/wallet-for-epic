@@ -129,7 +129,7 @@
   "deskDataHttpPort": "Port muss zwischen 1 und 65535 liegen",
   "deskDataUpdTimeout": "Der Update-Server hat nicht geantwortet.",
   "deskDataUpdUnreachable": "Der Update-Server war nicht erreichbar.",
-  "deskDataUpdStatus": "Der Update-Server hat mit {status} geantwortet.",
+  "deskDataUpdStatus": "Fehler des Update-Servers ({status}).",
   "deskDataUpdNone": "Für die Desktop-App sind noch keine Update-Informationen veröffentlicht.",
   "deskErrSecretProtect": "Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Melden Sie sich mit Ihrem eigenen Konto und dessen Passwort bei Windows an, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.",
   "deskErrOldLinks": "Der Ordner dieser Wallet enthält Verknüpfungen und wird deshalb nicht importiert. Stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",

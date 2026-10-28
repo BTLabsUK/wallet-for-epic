@@ -5,9 +5,9 @@
   "deskInvPayerView": "查看",
   "deskInvPayerNoMessage": "无留言",
   "deskInvPayerEmptyTitle": "没有等待中的账单",
-  "deskInvPayerEmptyText": "你允许的已配对联系人请求付款时，账单会显示在这里，在你批准之前不会付款。",
+  "deskInvPayerEmptyText": "已允许的配对联系人发来的账单会显示在这里；未经批准不会付款。",
   "deskInvPayerNotDeliveredTitle": "你给 {service} 的付款未送达",
-  "deskInvPayerNotDeliveredText": "付款已签名并保存在此设备上；资金保持锁定。重试会再次发送，无需再次批准。",
+  "deskInvPayerNotDeliveredText": "付款已签名并保存在这台电脑上；EPIC 保持锁定。重试会再次发送，无需再次批准。",
   "deskInvPayerWithdrawnTitle": "{service} 撤回了一张你已支付的账单",
   "deskInvPayerWithdrawnText": "这笔付款可能永远不会上链。取消它以释放这些币。",
   "deskInvPayerPastTtlTitle": "你给 {service} 的付款不在链上",
@@ -59,7 +59,7 @@
   "deskInvPayerCancelled": "付款已取消",
   "deskInvPayerCancelledText": "你的资金已解锁。",
   "deskInvPayerDeclined": "账单已拒绝。未支付任何款项。",
-  "deskInvPayerSpendToSelf": "立即转给自己",
+  "deskInvPayerSpendToSelf": "立即转回本钱包",
   "deskInvPayerSpendToSelfHelp": "使取消成为最终结果：服务方持有的已签名副本将无法完成。需支付网络手续费。",
   "deskInvPayerSpentText": "你的资金已解锁并在此钱包内转移。取消已为最终结果。",
   "deskInvPayerSpendFailedText": "你的资金已解锁，但转移未成功。取消尚未成为最终结果。",
@@ -67,5 +67,6 @@
   "deskInvPayerRelayDownPay": "Epicbox 服务器没有响应。未支付任何款项。",
   "deskInvPayerStalledTitle": "你给 {service} 的付款已停滞",
   "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。",
-  "deskInvPayerPaidHead": "已支付"
+  "deskInvPayerPaidHead": "已支付",
+  "deskInvPayerAgoHoursOnly": "{hours} 小时"
 }

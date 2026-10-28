@@ -5,9 +5,9 @@
   "deskInvPayerView": "Ansehen",
   "deskInvPayerNoMessage": "Keine Nachricht",
   "deskInvPayerEmptyTitle": "Keine Rechnungen warten",
-  "deskInvPayerEmptyText": "Wenn Sie ein gekoppelter, erlaubter Kontakt um Zahlung bittet, erscheint die Rechnung hier, und nichts wird bezahlt, bis Sie zustimmen.",
+  "deskInvPayerEmptyText": "Rechnungen von erlaubten gekoppelten Kontakten erscheinen hier; bezahlt wird nur nach Zustimmung.",
   "deskInvPayerNotDeliveredTitle": "Ihre Zahlung an {service} wurde nicht zugestellt",
-  "deskInvPayerNotDeliveredText": "Sie ist signiert und auf diesem Gerät gespeichert; das Guthaben bleibt gesperrt. „Erneut senden“ schickt sie ohne zweite Zustimmung noch einmal.",
+  "deskInvPayerNotDeliveredText": "Sie ist signiert und auf diesem Computer gespeichert; die EPIC bleiben gesperrt. „Erneut senden“ schickt sie ohne zweite Zustimmung noch einmal.",
   "deskInvPayerWithdrawnTitle": "{service} hat eine bezahlte Rechnung zurückgezogen",
   "deskInvPayerWithdrawnText": "Die Zahlung erreicht die Chain vielleicht nie. Stornieren Sie sie, um die Coins freizugeben.",
   "deskInvPayerPastTtlTitle": "Ihre Zahlung an {service} ist nicht in der Blockchain",
@@ -59,7 +59,7 @@
   "deskInvPayerCancelled": "Zahlung storniert",
   "deskInvPayerCancelledText": "Ihr Guthaben ist freigegeben.",
   "deskInvPayerDeclined": "Rechnung abgelehnt. Es wurde nichts bezahlt.",
-  "deskInvPayerSpendToSelf": "Jetzt an mich selbst senden",
+  "deskInvPayerSpendToSelf": "Jetzt an diese Wallet zurücksenden",
   "deskInvPayerSpendToSelfHelp": "Macht die Stornierung endgültig: Die signierte Kopie des Dienstes kann nicht mehr abgeschlossen werden. Kostet eine Netzwerkgebühr.",
   "deskInvPayerSpentText": "Ihr Guthaben ist freigegeben und innerhalb dieser Wallet verschoben. Die Stornierung ist endgültig.",
   "deskInvPayerSpendFailedText": "Ihr Guthaben ist freigegeben, aber das Verschieben hat nicht geklappt. Die Stornierung ist noch nicht endgültig.",
@@ -67,5 +67,6 @@
   "deskInvPayerRelayDownPay": "Der Epicbox-Server antwortet nicht. Es wurde nichts bezahlt.",
   "deskInvPayerStalledTitle": "Ihre Zahlung an {service} hängt fest",
   "deskInvPayerStalledText": "Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe.",
-  "deskInvPayerPaidHead": "Bezahlt"
+  "deskInvPayerPaidHead": "Bezahlt",
+  "deskInvPayerAgoHoursOnly": "{hours} Std."
 }

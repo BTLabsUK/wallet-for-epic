@@ -5,9 +5,9 @@
   "deskInvPayerView": "Pokaż",
   "deskInvPayerNoMessage": "Brak wiadomości",
   "deskInvPayerEmptyTitle": "Żadne faktury nie czekają",
-  "deskInvPayerEmptyText": "Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, faktura pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.",
+  "deskInvPayerEmptyText": "Tu pojawiają się faktury od dozwolonych sparowanych kontaktów; nic nie zostanie zapłacone bez zatwierdzenia.",
   "deskInvPayerNotDeliveredTitle": "Twoja płatność dla: {service} nie została dostarczona",
-  "deskInvPayerNotDeliveredText": "Jest podpisana i zapisana na tym urządzeniu; środki pozostają zablokowane. Ponów wysyła ją jeszcze raz bez ponownego zatwierdzania.",
+  "deskInvPayerNotDeliveredText": "Jest podpisana i zapisana na tym komputerze; EPIC pozostają zablokowane. Ponów wysyła ją jeszcze raz bez ponownego zatwierdzania.",
   "deskInvPayerWithdrawnTitle": "Serwis {service} wycofał opłaconą fakturę",
   "deskInvPayerWithdrawnText": "Płatność może nigdy nie trafić do łańcucha. Anuluj ją, aby uwolnić monety.",
   "deskInvPayerPastTtlTitle": "Twojej płatności dla: {service} nie ma w łańcuchu",
@@ -59,7 +59,7 @@
   "deskInvPayerCancelled": "Płatność anulowana",
   "deskInvPayerCancelledText": "Twoje środki są odblokowane.",
   "deskInvPayerDeclined": "Faktura odrzucona. Nic nie zapłacono.",
-  "deskInvPayerSpendToSelf": "Wyślij je teraz do siebie",
+  "deskInvPayerSpendToSelf": "Wyślij je teraz z powrotem do tego portfela",
   "deskInvPayerSpendToSelfHelp": "Czyni anulowanie ostatecznym: podpisanej kopii w serwisie nie da się już zrealizować. Kosztuje opłatę sieciową.",
   "deskInvPayerSpentText": "Twoje środki są odblokowane i przeniesione w obrębie tego portfela. Anulowanie jest ostateczne.",
   "deskInvPayerSpendFailedText": "Twoje środki są odblokowane, ale przeniesienie się nie udało. Anulowanie nie jest jeszcze ostateczne.",
@@ -67,5 +67,6 @@
   "deskInvPayerRelayDownPay": "Serwer Epicbox nie odpowiada. Nic nie zostało zapłacone.",
   "deskInvPayerStalledTitle": "Twoja płatność dla {service} utknęła",
   "deskInvPayerStalledText": "Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody.",
-  "deskInvPayerPaidHead": "Zapłacone"
+  "deskInvPayerPaidHead": "Zapłacone",
+  "deskInvPayerAgoHoursOnly": "{hours} godz."
 }

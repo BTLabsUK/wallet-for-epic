@@ -114,7 +114,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
       expect(find.text('Epicbox receiving'), findsNothing, reason: 'no group of its own at the bottom any more');
-      expect(find.text('Send starts on'), findsOneWidget);
+      expect(find.text('Default method'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('by default File Transfer is on, Link off, and Link’s receiving rows are not shown', (tester) async {

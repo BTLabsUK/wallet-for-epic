@@ -17,8 +17,8 @@
   "deskUpdUnfinished": "Обновление не завершилось. Повторите попытку.",
   "deskUpdManual": "Эта копия не может сама устанавливать обновления.",
   "deskUpdDownloadInstall": "Скачать и установить",
-  "deskUpdReadyTitle": "Epic Cash {version} готов",
-  "deskUpdReadyBody": "Перезапустите сейчас, чтобы обновить. Кошелёк заблокируется, а приложение откроется снова.",
+  "deskUpdReadyTitle": "Перезапустите для обновления",
+  "deskUpdReadyBody": "Кошелёк заблокируется, а приложение откроется снова.",
   "deskUpdRestartNow": "Перезапустить",
   "deskUpdLater": "Позже"
 }

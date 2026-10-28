@@ -30,7 +30,7 @@
   "deskAppNodeSyncedBody": "Węzeł lokalny ma cały łańcuch i można go już używać. Aplikacja uruchomi się ponownie, aby się na niego przełączyć.",
   "deskAppNotNow": "Nie teraz",
   "deskAppRestartNow": "Uruchom ponownie",
-  "deskAppFirstScanTitle": "Pierwsze skanowanie portfela",
+  "deskAppFirstScanTitle": "Pierwsze skanowanie",
   "deskAppFirstScanBody": "Portfel przeszukuje łańcuch w poszukiwaniu swoich wyjść. Można go dalej używać; saldo zaktualizuje się po zakończeniu skanowania.",
   "deskAppScanOutput": "Przebieg skanowania",
   "deskAppWaitingOutput": "Oczekiwanie na pierwsze wyniki…",
@@ -70,12 +70,16 @@
   "deskTourNodeTitle": "Ustawienia › Węzeł",
   "deskTourNodeText": "Z którego węzła portfel czyta łańcuch. Pozostałe strony ustawień są wymienione po lewej.",
   "deskTourHelpTitle": "Pomoc",
-  "deskTourHelpText": "Tematy według sekcji i Zgłoś problem. Więcej o każdej stronie jest tutaj, a przewodnik można pokazać ponownie.",
+  "deskTourHelpText": "Tematy pomocy, Zgłoś problem i Pokaż przewodnik ponownie.",
   "deskTourCounter": "{current} z {total}",
   "deskTourSemantics": "Przewodnik po portfelu",
   "deskTourSkip": "Pomiń przewodnik",
   "deskTourBack": "Wstecz",
   "deskTourNext": "Dalej",
   "deskTourAdvancedTitle": "Zaawansowane",
-  "deskTourAdvancedText": "Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz."
+  "deskTourAdvancedText": "Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.",
+  "deskAppFirstScanProgress": "Skanowanie łańcucha · {percent}%",
+  "deskAppFirstScanFound": "{count, plural, one{Znaleziono {count} wyjście} few{Znaleziono {count} wyjścia} many{Znaleziono {count} wyjść} other{Znaleziono {count} wyjścia}}",
+  "deskAppFirstScanShowLog": "Pokaż log",
+  "deskAppFirstScanHideLog": "Ukryj log"
 }

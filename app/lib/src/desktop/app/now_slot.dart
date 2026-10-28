@@ -88,7 +88,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         icon: EIcons.scan,
         tone: ETone.info,
         title: l.deskSlotScanning,
-        detail: scan.percent == null ? null : '${localInt(l, scan.percent!)} %',
+        detail: scan.percent == null ? null : '${localInt(l, scan.percent!)}%',
         progress: scan.percent == null ? -1 : scan.percent! / 100,
         hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),

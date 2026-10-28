@@ -86,7 +86,7 @@ void main() {
     expect(find.textContaining('Synced', findRichText: true), findsOneWidget);
     expect(find.text('at tip'), findsOneWidget);
     expect(find.text('latest'), findsOneWidget);
-    expect(find.text('99.7 %'), findsOneWidget);
+    expect(find.text('99.7%'), findsOneWidget);
     expect(find.text('listed as official'), findsOneWidget);
     expect(find.textContaining('Nodes agree on 3,764,975 · 5 of 6 nodes up · 4 of 4 Epicbox servers up · last block 40 s ago'), findsOneWidget);
     expect(find.textContaining('status.btlabs.uk, checked 14:02 · latency measured from this computer'), findsOneWidget);

@@ -4291,9 +4291,9 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks บล็อก',
+      other: '$blocks การยืนยัน',
     );
-    return 'ใช้ $spent ($amount) และสร้างเอาต์พุตเดียวมูลค่า $result เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง $_temp0เหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน การส่งครั้งถัดไปจะใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
+    return 'ใช้ $spent ($amount) และสร้างเอาต์พุตเดียวมูลค่า $result ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนครบ $_temp0';
   }
 
   @override
@@ -5036,7 +5036,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvCheckFailedBody =>
-      'รายการแสดงสิ่งที่ได้รับก่อนหน้านี้ ไม่มีข้อมูลสูญหาย กระเป๋าจะลองใหม่ทุก 2 นาที';
+      'รายการแสดงสิ่งที่ได้รับก่อนหน้านี้ กระเป๋าจะลองใหม่เอง';
 
   @override
   String get deskInvReqWaiting => 'รอผู้ชำระ';
@@ -5249,7 +5249,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerBounced(String payer) {
-    return 'กระเป๋าของ $payer ส่งใบแจ้งหนี้กลับมา เพราะชำระใบแจ้งหนี้ไม่ได้ ขอให้ส่งเงินมาให้คุณแทน';
+    return 'กระเป๋าของ $payer ชำระใบแจ้งหนี้ไม่ได้ ขอให้ $payer ส่งเงินมาแทน';
   }
 
   @override
@@ -5328,7 +5328,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน ใบแจ้งหนี้จะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ';
+      'ใบแจ้งหนี้จากผู้ติดต่อที่จับคู่และได้รับอนุญาตจะแสดงที่นี่ จะไม่มีการชำระจนกว่าจะอนุมัติ';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5337,7 +5337,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredText =>
-      'รายการลงนามแล้วและเก็บไว้ในอุปกรณ์นี้ เงินยังถูกล็อกอยู่ ลองใหม่จะส่งอีกครั้งโดยไม่ต้องอนุมัติซ้ำ';
+      'รายการลงนามแล้วและเก็บไว้ในคอมพิวเตอร์นี้ EPIC ยังถูกล็อกอยู่ ลองใหม่จะส่งอีกครั้งโดยไม่ต้องอนุมัติซ้ำ';
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
@@ -5527,7 +5527,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvPayerDeclined => 'ปฏิเสธใบแจ้งหนี้แล้ว ไม่มีการชำระ';
 
   @override
-  String get deskInvPayerSpendToSelf => 'โอนเข้ากระเป๋าตัวเองทันที';
+  String get deskInvPayerSpendToSelf => 'โอนกลับเข้ากระเป๋าเงินนี้ทันที';
 
   @override
   String get deskInvPayerSpendToSelfHelp =>
@@ -6197,7 +6197,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'กำลังเชื่อมต่อ Tor… $percent %';
+    return 'กำลังเชื่อมต่อ Tor… $percent%';
   }
 
   @override
@@ -6270,7 +6270,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskDataUpdStatus(int status) {
-    return 'เซิร์ฟเวอร์อัปเดตตอบกลับ $status';
+    return 'เซิร์ฟเวอร์อัปเดตผิดพลาด ($status)';
   }
 
   @override
@@ -6509,22 +6509,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskNodeLineSyncing => 'กำลังซิงก์';
 
   @override
-  String get deskNodeNoEstimate => 'ประเมินไม่ได้ อาจถึงหนึ่งชั่วโมง';
-
-  @override
-  String get deskNodeEstimating => 'กำลังประเมิน…';
-
-  @override
-  String deskNodeAboutHours(int hours) {
-    return 'เหลือประมาณ $hours ชั่วโมง';
-  }
-
-  @override
-  String deskNodeAboutMinutes(int minutes) {
-    return 'เหลือประมาณ $minutes นาที';
-  }
-
-  @override
   String deskNodeDurationHm(int hours, int minutes) {
     return '$hours ชั่วโมง $minutes นาที';
   }
@@ -6552,10 +6536,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTorNotConnected => 'ไม่ได้เชื่อมต่อ';
-
-  @override
-  String get deskTorRoutes =>
-      'Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor';
 
   @override
   String get deskTorCoverage =>
@@ -6602,13 +6582,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskRecvTorStarting => 'Tor กำลังเริ่ม';
 
   @override
-  String deskRecvTorDownText(String routes) {
-    return 'จะไม่มีอะไรเข้าผ่าน $routes จนกว่า Tor จะเชื่อมต่อ หรือจนกว่าจะปิด Tor';
-  }
+  String get deskRecvTorDownText =>
+      'ทุกการเชื่อมต่อรอ Tor ลองอีกครั้ง หรือปิด Tor';
 
   @override
   String get deskRecvTorStartingText =>
-      'ที่อยู่จะเข้าถึงได้เมื่อ Tor เชื่อมต่อแล้ว ระหว่างนี้ไม่มีอะไรผ่านอินเทอร์เน็ตปกติ';
+      'ที่อยู่จะเข้าถึงได้เมื่อ Tor เชื่อมต่อ';
 
   @override
   String get deskRecvTurnTorOff => 'ปิด Tor';
@@ -6671,7 +6650,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvEpicboxIntro =>
-      'แชร์เพื่อรับเงิน ใช้ได้แม้กระเป๋าเงินปิดอยู่: เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้จนกว่ากระเป๋าเงินจะกลับมา';
+      'แชร์เพื่อรับเงิน เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้ขณะที่กระเป๋าเงินปิดอยู่';
 
   @override
   String get deskRecvCheckSix =>
@@ -6694,7 +6673,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่ ใช้ได้บนคอมพิวเตอร์นี้เท่านั้น เว้นแต่ตั้งค่าไว้เป็นอื่น';
+      'ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -6725,7 +6704,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvSignText =>
-      'ผู้ส่งให้ไฟล์ธุรกรรมมา กระเป๋าเงินจะลงนามและบันทึกไฟล์ตอบกลับให้ผู้ส่ง';
+      'ลงนามไฟล์ธุรกรรมของผู้ส่งและบันทึกไฟล์ตอบกลับ';
 
   @override
   String get deskRecvOpen => 'เปิด';
@@ -6735,7 +6714,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvFinalizeText =>
-      'การส่งด้วยไฟล์ได้ไฟล์ตอบกลับมาแล้ว การทำให้เสร็จจะส่งรายการเข้าเครือข่าย';
+      'ใช้ไฟล์ตอบกลับของผู้รับทำรายการให้เสร็จเพื่อส่งเข้าเครือข่าย';
 
   @override
   String deskRecvSwitchLabel(String title) {
@@ -7014,7 +6993,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendFileReadyText =>
-      'ให้ไฟล์นี้กับผู้รับ กระเป๋าเงินกำลังรอไฟล์ตอบกลับ ทำรายการให้เสร็จเมื่อได้รับคืนมา';
+      'ให้ไฟล์นี้กับผู้รับ แล้วทำรายการให้เสร็จด้วยไฟล์ตอบกลับของผู้รับ';
 
   @override
   String get deskSendFinalize => 'ทำให้เสร็จ';
@@ -7027,7 +7006,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'ส่งได้เมื่อโหนดซิงก์เสร็จ ตอนนี้ $percent% กรอกฟอร์มไว้ก่อนได้';
+    return 'การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ ($percent%)';
   }
 
   @override
@@ -7047,15 +7026,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendTorStarting => 'Tor กำลังเริ่ม';
 
   @override
-  String get deskSendTorStartingText =>
-      'การส่งจะรอจนกว่า Tor จะเชื่อมต่อ ระหว่างนี้ไม่มีอะไรผ่านอินเทอร์เน็ตปกติ';
+  String get deskSendTorStartingText => 'การส่งจะรอ Tor';
 
   @override
   String get deskSendEpicboxOff => 'Epicbox ไม่ได้เชื่อมต่อ';
 
   @override
   String get deskSendEpicboxOffText =>
-      'การส่งผ่าน Epicbox ใช้ได้เมื่อเปิดการรับผ่าน Epicbox ระหว่างนี้ใช้ โดยตรง · โอนไฟล์ ได้';
+      'เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ โดยตรง · โอนไฟล์';
 
   @override
   String get deskSendEpicboxTurnOn => 'เปิดการรับผ่าน Epicbox';
@@ -7114,8 +7092,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendTurnOnTor => 'เปิด Tor';
 
   @override
-  String get deskSendHttpClearnet =>
-      'ลิงก์ · HTTP ผ่านอินเทอร์เน็ตปกติ ไม่ผ่าน Tor';
+  String get deskSendHttpClearnet => 'ลิงก์ · HTTP ส่งตรง ไม่ผ่าน Tor';
 
   @override
   String get deskSendClear => 'ล้าง';
@@ -7163,8 +7140,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่งธุรกรรมผ่านโหนดสุ่มไม่กี่โหนดก่อนกระจายออกไป เครือข่ายจึงบอกไม่ได้ว่ามาจากไหน';
 
   @override
-  String get deskSendHintSent =>
-      'ส่งแล้ว ใส่จำนวนและผู้รับใหม่เพื่อส่งอีกครั้ง';
+  String get deskSendHintSent => 'ส่งแล้ว';
 
   @override
   String get deskSendHintQueued =>
@@ -7227,7 +7203,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'ที่อยู่ http(s) หรือ .onion โดย onion จะผ่าน Tor กระเป๋าเงินของผู้รับต้องเปิดอยู่';
+      'ที่อยู่ http(s) หรือ .onion กระเป๋าเงินของผู้รับต้องเปิดอยู่';
 
   @override
   String get deskSendFileLine1 => 'ไม่ต้องเชื่อมต่อ';
@@ -7430,7 +7406,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskFinTitle => 'ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ';
 
   @override
-  String get deskFinNoticeTitle => 'สำหรับธุรกรรมที่สร้างเป็นไฟล์';
+  String get deskFinNoticeTitle => 'สำหรับการชำระด้วยไฟล์';
 
   @override
   String get deskFinNoticeText => 'ใช้ไฟล์ตอบกลับที่ผู้รับส่งคืนมา';
@@ -7466,7 +7442,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskImpWrongTypeText =>
-      'ไฟล์นี้ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .slate หรือ .tx ที่ผู้ส่งให้มา';
+      'ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .tx ที่ผู้ส่งให้มา';
 
   @override
   String get deskImpUnreadable => 'อ่านไฟล์ไม่ได้';
@@ -7567,7 +7543,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActLoading => 'กำลังโหลดธุรกรรม';
 
   @override
-  String get deskActWaitingNode => 'รอให้โหนดซิงก์เสร็จ';
+  String get deskActWaitingNode => 'รอโหนดซิงก์';
 
   @override
   String get deskActFilterAll => 'ทั้งหมด';
@@ -7615,8 +7591,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActEmptyTitle => 'ยังไม่มีธุรกรรม';
 
   @override
-  String get deskActEmptyText =>
-      'ทุกรายการที่ส่งหรือรับจะแสดงที่นี่ ใหม่สุดก่อน พร้อมคู่ธุรกรรมและความคืบหน้า';
+  String get deskActEmptyText => 'รายการที่ส่งและรับ ใหม่สุดก่อน';
 
   @override
   String get deskActStageWaiting => 'รอ';
@@ -7714,19 +7689,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConAdd => 'เพิ่มผู้ติดต่อ';
 
   @override
-  String get deskConIdle =>
-      'เลือกผู้ติดต่อเพื่อดูรายละเอียด ส่งเงิน แก้ไข หรือลบ';
+  String get deskConIdle => 'เลือกผู้ติดต่อ';
 
   @override
   String get deskConEmptyTitle => 'ยังไม่มีผู้ติดต่อ';
 
   @override
   String get deskConEmptyText =>
-      'บันทึกคนและร้านค้าที่จ่ายบ่อย ที่หน้า ส่ง เลือกชื่อแทนการวางที่อยู่';
+      'บันทึกคนและร้านค้าที่จ่ายบ่อย แล้วเลือกตามชื่อที่หน้า ส่ง';
 
   @override
   String get deskConEmptyLocal =>
-      'ผู้ติดต่ออยู่บนคอมพิวเตอร์นี้ ไม่ได้รวมอยู่ในวลีกู้คืน';
+      'ผู้ติดต่ออยู่บนคอมพิวเตอร์นี้ ส่งออกเพื่อเก็บสำเนา';
 
   @override
   String get deskConSendToAddress => 'ส่งไปยังที่อยู่';
@@ -7822,7 +7796,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConDeleteBody =>
-      'ที่อยู่และบันทึกของผู้ติดต่อจะถูกลบออกจากกระเป๋าเงินนี้ ธุรกรรมที่ผ่านมายังอยู่ในประวัติ ย้อนกลับไม่ได้';
+      'ลบผู้ติดต่อ รายการที่ผ่านมายังอยู่ในประวัติ ย้อนกลับไม่ได้';
 
   @override
   String get deskConKeep => 'เก็บไว้';
@@ -7851,7 +7825,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutIntro =>
-      'เอาต์พุตคือชิ้นส่วนที่ประกอบเป็นยอดคงเหลือ การส่งจะใช้เอาต์พุตทั้งก้อน จ่ายให้ผู้รับ และคืนส่วนที่เหลือเป็นเอาต์พุตใหม่ เอาต์พุตที่ใช้ไปจะถูกล็อกจนกว่าการส่งจะได้รับการยืนยัน';
+      'เอาต์พุตคือชิ้นส่วนที่ประกอบเป็นยอดคงเหลือ การส่งจะใช้เอาต์พุตทั้งก้อนและคืนเงินทอนเป็นเอาต์พุตใหม่';
 
   @override
   String deskOutCount(int count) {
@@ -7950,8 +7924,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOutNoneTitle => 'ยังไม่มีเอาต์พุต';
 
   @override
-  String get deskOutNoneText =>
-      'รายการแรกที่ได้รับจะสร้างเอาต์พุตขึ้น การแยกและรวมต้องมีเอาต์พุตก่อน';
+  String get deskOutNoneText => 'รายการแรกที่ได้รับจะสร้างเอาต์พุตขึ้น';
 
   @override
   String get deskOutFilterAll => 'ทั้งหมด';
@@ -8130,12 +8103,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOutSplitDialogText(String spent, String made, int blocks) {
-    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง $blocks บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น';
+    return 'ใช้ $spent และสร้าง $made ทุกอย่างที่ใช้ได้จะถูกล็อกจนครบ $blocks การยืนยัน';
   }
 
   @override
   String deskOutConsDialogText(String spent, String made, int blocks) {
-    return 'ใช้ $spent และสร้าง $made เป็นธุรกรรมปกติบนเครือข่ายถึงกระเป๋าเงินนี้ ได้รับการยืนยันหลัง $blocks บล็อกเหมือนการส่งทั่วไป ทุกอย่างที่ใช้ได้จะถูกล็อกจนถึงตอนนั้น การส่งครั้งถัดไปใช้เอาต์พุตเดียว ค่าธรรมเนียมจึงต่ำที่สุด';
+    return 'ใช้ $spent และสร้าง $made ทุกอย่างที่ใช้ได้จะถูกล็อกจนครบ $blocks การยืนยัน';
   }
 
   @override
@@ -8209,14 +8182,14 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'ตอนนี้กระเป๋าเงินมี $count เอาต์พุต ก้อนละประมาณ $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน ($blocks บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้',
+          '$count เอาต์พุต ก้อนละประมาณ $amount EPIC กำลังยืนยัน ล็อกจนครบ $blocks การยืนยัน',
     );
     return '$_temp0';
   }
 
   @override
   String deskOutConsDoneText(String amount, int blocks) {
-    return 'เอาต์พุตเดียว $amount EPIC กำลังยืนยัน ทุกอย่างถูกล็อกจนกว่าจะได้รับการยืนยัน ($blocks บล็อก) ประวัติแสดงสองรายการ: การส่งและการรับ ทั้งคู่ถึงกระเป๋าเงินนี้';
+    return 'เอาต์พุตเดียว $amount EPIC กำลังยืนยัน ล็อกจนครบ $blocks การยืนยัน';
   }
 
   @override
@@ -8280,7 +8253,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOutNothingText(String what) {
-    return 'ไม่มีอะไรให้รวม: กระเป๋าเงินมี$what การรวมจะผสานหลายเอาต์พุตเป็นก้อนเดียว';
+    return 'ไม่มีอะไรให้รวม: กระเป๋าเงินมี$what';
   }
 
   @override
@@ -8303,8 +8276,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ตอนนี้ใช้ node.epiccash.com แทน node.epiccash.com:3413';
 
   @override
-  String get deskOvNodeIncompatTitle =>
-      'เวอร์ชันของโหนดนี้ใช้กับกระเป๋าเงินนี้ไม่ได้';
+  String get deskOvNodeIncompatTitle => 'เวอร์ชันโหนดใช้ไม่ได้';
 
   @override
   String deskOvNodeUrl(String url) {
@@ -8385,9 +8357,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskOvSyncText(String block) {
-    return 'กำลังดาวน์โหลดบล็อก ยอดเงินเป็นค่าที่กระเป๋าเงินรู้ ณ บล็อก $block การส่งจะเปิดเมื่อโหนดตามทันแล้ว';
-  }
+  String get deskOvSyncText =>
+      'กำลังดาวน์โหลดบล็อก การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ';
 
   @override
   String get deskOvSyncProgress => 'ความคืบหน้าการซิงก์โหนด';
@@ -8407,7 +8378,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOvReceive => 'รับ';
 
   @override
-  String get deskOvSendWaits => 'การส่งจะเปิดเมื่อโหนดซิงก์แล้ว';
+  String get deskOvSendWaits => 'การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ';
 
   @override
   String get deskOvAvailable => 'ยอดที่ใช้ได้';
@@ -8456,7 +8427,7 @@ class AppLocalizationsTh extends AppLocalizations {
       blocks,
       locale: localeName,
       other:
-          'EPIC ที่ได้รับจะแสดงที่นี่เป็นกำลังยืนยันก่อน แล้วจึงใช้ได้หลัง $blocks บล็อก',
+          'EPIC ที่ได้รับจะแสดงเป็นกำลังยืนยันก่อน แล้วจึงใช้ได้หลัง $blocks การยืนยัน',
     );
     return '$_temp0';
   }
@@ -8480,7 +8451,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'มีการส่งด้วยไฟล์ค้างอยู่ $count รายการ',
+      other: 'การชำระด้วยไฟล์รอทำให้เสร็จ $count รายการ',
     );
     return '$_temp0';
   }
@@ -8648,10 +8619,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxNowImmature(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ยืนยันแล้ว แต่รางวัลการขุดใช้ได้หลังยืนยันครบ $count ครั้ง',
+      other: 'ยืนยันแล้ว แต่รางวัลการขุดใช้ได้หลังยืนยันครบ $countString ครั้ง',
     );
     return '$_temp0';
   }
@@ -8683,10 +8658,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxNowConfirmed(int confirmations) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'ยืนยันแล้ว $confirmations ครั้ง',
+      other: 'ยืนยันแล้ว $confirmationsString ครั้ง',
     );
     return '$_temp0';
   }
@@ -8921,7 +8902,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbWelcomeRestore => 'กู้คืนจากวลีกู้คืน';
 
   @override
-  String get deskOnbWelcomeRestoreSub => 'จากคำในวลีกู้คืน';
+  String get deskOnbWelcomeRestoreSub => 'จากวลีกู้คืน';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -8988,7 +8969,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbStepPhrase => 'วลีกู้คืน';
 
   @override
-  String get deskOnbCreateStageCreate => 'กำลังสร้างกระเป๋าเงินและวลีกู้คืน';
+  String get deskOnbCreateStageCreate => 'กำลังสร้างวลีกู้คืน';
 
   @override
   String get deskOnbCreateStageSave => 'กำลังบันทึกกระเป๋าเงิน';
@@ -9003,9 +8984,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbCreateTestLead(String network) {
     return 'กระเป๋าเงินบน $network ซึ่งเป็นเครือข่ายทดสอบ';
   }
-
-  @override
-  String get deskOnbCreateFailedTitle => 'สร้างกระเป๋าเงินไม่ได้';
 
   @override
   String get deskOnbCreateDiskFull =>
@@ -9025,7 +9003,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbCreateLead =>
-      'รหัสผ่านใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้ แต่กู้เหรียญคืนไม่ได้ วลีในขั้นตอนถัดไปทำได้';
+      'รหัสผ่านใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้ มีเพียงวลีกู้คืนที่กู้เหรียญคืนได้';
 
   @override
   String get deskOnbCreateTestNote =>
@@ -9033,7 +9011,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'คำเหล่านี้เป็นทางเดียวที่จะได้เหรียญคืนถ้าคอมพิวเตอร์นี้เสีย จดลงกระดาษตามลำดับ';
+      'จดคำเหล่านี้ลงกระดาษตามลำดับ: เป็นทางเดียวที่จะกู้เหรียญคืน';
 
   @override
   String get deskOnbCreateRevealFirst => 'แสดงวลีก่อน';
@@ -9073,7 +9051,7 @@ class AppLocalizationsTh extends AppLocalizations {
       locale: localeName,
       other: '$count คำ',
     );
-    return 'จดลงกระดาษครบ $_temp0 แล้ว';
+    return 'ฉันจดครบทั้ง $_temp0 แล้ว';
   }
 
   @override
@@ -9086,11 +9064,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbRestoreRestoring => 'กำลังกู้คืนกระเป๋าเงิน';
 
   @override
-  String get deskOnbRestoreFailedTitle => 'กู้คืนกระเป๋าเงินไม่ได้';
-
-  @override
   String get deskOnbRestorePermission =>
-      'เขียนไฟล์กระเป๋าเงินไม่ได้: ไม่มีสิทธิ์ใน ~/.config/Epic Cash Desktop';
+      'เขียนไฟล์กระเป๋าเงินไม่ได้: ไม่มีสิทธิ์ใน ~/.config/Epic Cash Desktop อนุญาตให้เขียนลงโฟลเดอร์นั้น แล้วลองอีกครั้ง';
 
   @override
   String get deskOnbRestoreWait =>
@@ -9100,9 +9075,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbRestoreSide => 'กู้คืนกระเป๋าเงิน';
 
   @override
-  String deskOnbRestorePasswordLead(int count) {
-    return 'วลี $count คำถูกต้อง ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้';
-  }
+  String get deskOnbRestorePasswordLead =>
+      'ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้';
 
   @override
   String get deskOnbRestoreNothingToPaste =>
@@ -9143,7 +9117,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbRestoreWordsLead =>
-      'พิมพ์คำตามลำดับ หรือวางทั้งวลีลงช่องไหนก็ได้ การขึ้นบรรทัด จุลภาค และเลขลำดับจะถูกข้าม';
+      'พิมพ์คำตามลำดับ หรือวางทั้งวลีลงช่องไหนก็ได้';
 
   @override
   String get deskOnbRestoreClear => 'ล้าง';
@@ -9189,7 +9163,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbKillNote =>
-      'การปิดจะหยุดงานที่ทำอยู่ เช่น การซิงก์โหนดหรือการรับเงิน จะเริ่มใหม่จากแอปนี้หลังปลดล็อก';
+      'การปิดจะหยุดการซิงก์โหนดหรือการรับเงิน แอปนี้จะเริ่มใหม่หลังปลดล็อก';
 
   @override
   String get deskOnbKillClosing => 'กำลังปิด…';
@@ -9209,7 +9183,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'เปิดกระเป๋าเงิน จะถามรหัสผ่านของกระเป๋าเงินนั้น ตั้งรหัสผ่านใหม่ จะใช้วลีนี้แทนรหัสผ่าน ยกเลิก จะเก็บวลีไว้ในตาราง';
+      'เปิดด้วยรหัสผ่านของกระเป๋าเงินนั้น หรือใช้วลีนี้ตั้งรหัสผ่านใหม่';
 
   @override
   String get deskOnbSameOpen => 'เปิดกระเป๋าเงิน';
@@ -9227,7 +9201,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockPortInUse =>
-      'บริการกระเป๋าเงินไม่เริ่มทำงาน: พอร์ต 3415 ถูกโปรแกรมอื่นใช้อยู่';
+      'พอร์ต 3415 ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้นแล้วลองอีกครั้ง';
 
   @override
   String get deskOnbUnlockStageCheck => 'กำลังตรวจไฟล์กระเป๋าเงิน';
@@ -9272,22 +9246,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbUnlockFailed => 'ปลดล็อกไม่สำเร็จ';
 
   @override
-  String get deskOnbUnlockFailedLead => 'กระเป๋าเงินไม่เปิด สาเหตุอยู่ด้านล่าง';
-
-  @override
-  String get deskOnbUnlockFailedBox => 'กระเป๋าเงินไม่เปิด';
-
-  @override
   String deskOnbUnlockUnlocking(String name) {
     return 'กำลังปลดล็อก $name';
   }
 
   @override
-  String get deskOnbUnlockStepsLead => 'แต่ละขั้นตอนจะแสดงเมื่อเสร็จ';
-
-  @override
   String get deskOnbUnlockNote =>
-      'จากนั้นหน้าภาพรวมจะเปิดและทำงานที่เหลือเบื้องหลัง: เชื่อมต่อโหนด อัปเดตยอดเงิน และเปิดการรับเงิน';
+      'จากนั้นโหนด ยอดเงิน และการรับเงินจะทำงานต่อเบื้องหลังจนเสร็จ';
 
   @override
   String get deskOnbUnlockTitle => 'ปลดล็อกกระเป๋าเงิน';
@@ -9325,7 +9290,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbNodeFreeHere(String size) {
-    return 'ที่นี่ว่าง $size';
+    return 'ว่าง $size';
   }
 
   @override
@@ -9342,8 +9307,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbNodeSeparate => 'เป็นโปรแกรมแยก';
 
   @override
-  String get deskOnbNodeSeparateText =>
-      'กระเป๋าเงินเริ่มโหนด Epic และหยุดพร้อมกับแอป';
+  String get deskOnbNodeSeparateText => 'เริ่มและหยุดพร้อมกับแอป';
 
   @override
   String get deskOnbNodeFirewall => 'Windows จะถามครั้งเดียว';
@@ -9354,15 +9318,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbNodeGrowing(String free) {
-    return 'และเพิ่มขึ้นช้า ๆ $free';
+    return 'และเพิ่มขึ้นช้า ๆ · $free';
   }
 
   @override
-  String get deskOnbNodeHours => 'ซิงก์หลายชั่วโมง';
+  String get deskOnbNodeHours => 'การซิงก์ครั้งแรก';
 
   @override
   String get deskOnbNodeHoursText =>
-      'ในครั้งแรก 2 ถึง 6 ชั่วโมงกับอินเทอร์เน็ตทั่วไป กระเป๋าเงินแสดงความคืบหน้าและใช้โหนดสาธารณะระหว่างนั้นได้';
+      'แสดงความคืบหน้า ระหว่างนั้นใช้โหนดสาธารณะแทน';
 
   @override
   String get deskOnbNodeDownload => 'ดาวน์โหลดประมาณ 4 GB';
@@ -9399,7 +9363,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbNodeExistingText =>
-      'โหนดของ Epic GUI หรือ CLI กระเป๋าเงินเชื่อมต่อเข้าไปโดยไม่เริ่มอะไรเอง';
+      'เชื่อมต่อกับโหนดของ Epic GUI หรือ CLI ที่ทำงานอยู่ในเครื่องนี้แล้ว';
 
   @override
   String get deskOnbNodeAddress => 'ที่อยู่ของโหนดบนคอมพิวเตอร์นี้';
@@ -9412,11 +9376,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbNodeBundledText =>
-      'ดาวน์โหลดและซิงก์บล็อกเชนลงในโฟลเดอร์ของกระเป๋าเงินเอง ไม่มีการดาวน์โหลดก่อนกด บันทึก ในขั้นตอนสุดท้าย';
+      'ดาวน์โหลดบล็อกเชนลงในโฟลเดอร์ของกระเป๋าเงินหลังกด บันทึก';
 
   @override
   String deskOnbNodeFallback(String host) {
-    return 'ใช้ $host จนกว่าโหนดในเครื่องจะซิงก์เสร็จ แล้วโหนดในเครื่องจะทำงานแทนเอง';
+    return 'ใช้ $host จนกว่าโหนดในเครื่องจะซิงก์เสร็จ';
   }
 
   @override
@@ -9488,7 +9452,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbImportFindingLead =>
-      'กำลังค้นหาโฟลเดอร์ของ Epic Wallet รุ่นเก่าและโปรแกรม epic ไม่มีอะไรถูกเปลี่ยน';
+      'กำลังค้นหาโฟลเดอร์ของ Epic Wallet รุ่นเก่าและโปรแกรม epic โดยอ่านโฟลเดอร์เดิมเท่านั้น';
 
   @override
   String deskOnbImportFoundTitle(int count) {
@@ -9518,7 +9482,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'กระเป๋าเงินที่เลือกจะถูกเพิ่มในแอป ประวัติจะสร้างใหม่จากการสแกน';
 
   @override
-  String get deskOnbImportCheckTitle => 'กำลังตรวจการใช้งาน';
+  String get deskOnbImportCheckTitle => 'กำลังตรวจกระเป๋าเงิน';
 
   @override
   String get deskOnbImportCheckLead =>
@@ -9575,7 +9539,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbImportOlder => 'Epic Wallet รุ่นเก่า';
 
   @override
-  String get deskOnbImportOlderSub => 'บัญชีและโฟลเดอร์';
+  String get deskOnbImportOlderSub => 'กระเป๋าเงินและโฟลเดอร์';
 
   @override
   String get deskOnbImportEpicProgram => 'โปรแกรม epic';
@@ -9785,7 +9749,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskAppRestartNow => 'เริ่มใหม่ตอนนี้';
 
   @override
-  String get deskAppFirstScanTitle => 'การสแกนครั้งแรกของกระเป๋าเงิน';
+  String get deskAppFirstScanTitle => 'การสแกนครั้งแรก';
 
   @override
   String get deskAppFirstScanBody =>
@@ -9923,7 +9887,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourHelpText =>
-      'หัวข้อแยกตามหมวดและรายงานปัญหา คำอธิบายเพิ่มเติมของทุกหน้าอยู่ที่นี่ และแสดงทัวร์นี้ซ้ำได้';
+      'หัวข้อช่วยเหลือ รายงานปัญหา และแสดงทัวร์อีกครั้ง';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -10171,7 +10135,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitLimitedNetwork =>
-      'เข้าถึง status.btlabs.uk ไม่ได้ ข้อมูลนี้มาจากตัวโหนดเอง: ไม่มีบล็อกล่าสุดให้เทียบ ไม่มี uptime และไม่มีจำนวน peer';
+      'เข้าถึง status.btlabs.uk ไม่ได้ ข้อมูลมาจากโหนดเท่านั้น';
 
   @override
   String get deskKitFactHeight => 'บล็อก';
@@ -10313,11 +10277,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitMethodWaitingTor => 'รอ Tor';
-
-  @override
-  String deskKitMethodTorNotConnected(String host) {
-    return '$host Tor ไม่ได้เชื่อมต่อ';
-  }
 
   @override
   String get deskKitMethodOn => 'เปิด';
@@ -10683,8 +10642,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupFile => 'ไฟล์';
 
   @override
-  String get deskSetBackupFileNote =>
-      'ไฟล์เก็บทุกอย่างถึงปัจจุบัน ส่งออกใหม่หลังมีรายการใหม่หรือการเปลี่ยนแปลง';
+  String get deskSetBackupFileNote => 'ไฟล์เก็บทุกอย่างถึงปัจจุบัน';
 
   @override
   String get deskSetBackupExportDesc =>
@@ -10695,7 +10653,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupKeepCopy =>
-      'เก็บสำเนาไว้นอกคอมพิวเตอร์นี้ด้วย เช่น USB ไดรฟ์อื่น หรือคลาวด์ ส่งออกใหม่หลังมีรายการใหม่';
+      'เก็บสำเนาไว้นอกคอมพิวเตอร์นี้ เช่น USB ไดรฟ์อื่น หรือคลาวด์';
 
   @override
   String get deskSetBackupOpenFolder => 'เปิดโฟลเดอร์';
@@ -10747,17 +10705,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetBackupNever => 'ไม่มีวัน';
-
-  @override
-  String get deskSetBackupNeverValue => 'ลบหรือแก้ไขรายการที่มีอยู่';
-
-  @override
   String get deskSetBackupChooseFile => 'เลือกไฟล์…';
 
   @override
   String get deskSetBackupImportDesc =>
-      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา ไม่มีอะไรถูกลบ และนำเข้าไฟล์เดิมซ้ำก็ไม่เปลี่ยนอะไร';
+      'นำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้กลับมา รายการที่มีอยู่ยังคงอยู่';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'บันทึกรายการเป็น CSV';
@@ -10876,7 +10828,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetDlgChainUpdatedValue => '3 วันที่แล้ว';
 
   @override
-  String get deskSetDlgChainOthers => 'พบสำเนาอื่นด้วย (1) ชุดนี้อัปเดตล่าสุด';
+  String get deskSetDlgChainOthers => 'พบสำเนาอื่นอีก 1 ชุด ชุดนี้ใหม่ที่สุด';
 
   @override
   String get deskSetDlgChainInUse =>
@@ -10903,7 +10855,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetDlgPwDesc =>
-      'ตั้งแต่นี้รหัสผ่านใหม่จะใช้ปลดล็อกกระเป๋าเงินนี้ รหัสผ่านที่จำไว้จะถูกลืม';
+      'ตั้งแต่นี้รหัสผ่านใหม่จะใช้ปลดล็อกกระเป๋าเงินนี้ และ จำไว้บนคอมพิวเตอร์นี้ จะถูกปิด';
 
   @override
   String get deskSetDlgPwCurrent => 'รหัสผ่านปัจจุบัน';
@@ -10936,9 +10888,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetDlgRemoveDesc => 'ไม่มีอะไรเปลี่ยนจนกว่าจะยืนยัน';
-
-  @override
   String get deskSetDlgRemoveWhat => 'สิ่งที่จะนำออก';
 
   @override
@@ -10946,7 +10895,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetDlgRemoveFromListHint(String folder) {
-    return 'ไฟล์ยังอยู่ใน $folder เพิ่มกลับได้ที่ กระเป๋าเงินทั้งหมด';
+    return 'ไฟล์ยังอยู่ใน $folder เพิ่มกระเป๋าเงิน จะนำกลับมา';
   }
 
   @override
@@ -11151,7 +11100,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetLnodeWhileSyncingText(String host) {
-    return 'ใช้ $host จนกว่าโหนดในเครื่องจะซิงก์เสร็จ แล้วโหนดในเครื่องจะทำงานแทนเอง';
+    return 'ใช้ $host จนกว่าโหนดในเครื่องจะซิงก์เสร็จ';
   }
 
   @override
@@ -11245,15 +11194,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetLnodeNoProgress => 'โหนดไม่คืบหน้า';
 
   @override
-  String get deskSetLnodeNoProgressText =>
-      'การเริ่มใหม่มักช่วยได้ ถ้าไม่ได้ บันทึกจะบอกสาเหตุ';
+  String get deskSetLnodeNoProgressText => 'เริ่มใหม่ หรือดูบันทึกของโหนด';
 
   @override
   String get deskSetLnodePortInUse => 'พอร์ต 3413 ถูกโปรแกรมอื่นใช้อยู่';
 
   @override
   String get deskSetLnodePortInUseText =>
-      'ปิดโปรแกรมนั้น (โหนด Epic อีกตัว?) หรือเลือกโหนดที่ทำงานอยู่ที่นั่นใน เซิร์ฟเวอร์โหนด';
+      'ปิดโปรแกรมอื่นนั้น หรือเลือกโหนดนั้นใน เซิร์ฟเวอร์โหนด';
 
   @override
   String get deskSetLnodeDiskLow => 'ไดรฟ์นี้มีพื้นที่ว่างไม่ถึง 2 GB';
@@ -11391,7 +11339,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetLndAskDesc(String host) {
-    return 'การซิงก์ใช้เวลาหลายชั่วโมง ระหว่างนี้กระเป๋าเงินอ่านบล็อกเชนและส่งผ่าน $host ซึ่งเป็นโหนดสาธารณะได้ เมื่อโหนดในเครื่องซิงก์เสร็จจะทำงานแทนเอง';
+    return '$host ซึ่งเป็นโหนดสาธารณะ ใช้แทนได้จนกว่าโหนดในเครื่องจะซิงก์เสร็จ';
   }
 
   @override
@@ -11429,7 +11377,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetLndDeleteDesc(String size, String path) {
-    return 'ลบ $size ออกจาก $path โหนดจะหยุด และบล็อกเชนทั้งหมดจะดาวน์โหลดใหม่เมื่อเริ่มครั้งถัดไป (หลายชั่วโมง) คีย์และประวัติของกระเป๋าเงินไม่ได้รับผลกระทบ';
+    return 'ลบ $size ออกจาก $path บล็อกเชนจะดาวน์โหลดใหม่เมื่อเริ่มครั้งถัดไป คีย์และประวัติยังอยู่';
   }
 
   @override
@@ -11705,7 +11653,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetPeersNote(int min, int max, int def) {
-    return 'พบครั้งแรก คือเวลาที่แอปนี้เห็น peer เชื่อมต่อครั้งแรกในรอบนี้ โหนดไม่ได้บอกว่าการเชื่อมต่อเริ่มเมื่อไร การแบนและยกเลิกแบนใช้ owner API ของโหนด Enter บันทึกค่าสูงสุด ($min ถึง $max ค่าเริ่มต้น $def)';
+    return 'สูงสุดขาเข้าและขาออก: $min ถึง $max (ค่าเริ่มต้น $def)';
   }
 
   @override
@@ -11782,7 +11730,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetNodeListNote =>
-      'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที เวลาตอบสนองวัดจากคอมพิวเตอร์นี้';
+      'สถานะจาก status.btlabs.uk เวลาตอบสนองวัดจากคอมพิวเตอร์นี้';
 
   @override
   String get deskSetNodeStartTitle => 'เริ่มโหนดในเครื่องไหม?';
@@ -11939,8 +11887,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetPrivStarting => 'กำลังเริ่ม…';
 
   @override
-  String deskSetPrivStartingDetail(int progress, String waiting) {
-    return '$progress % $waiting รอจนกว่า Tor จะพร้อม';
+  String deskSetPrivStartingDetail(int progress) {
+    return '$progress% ทุกการเชื่อมต่อรอ Tor';
   }
 
   @override
@@ -11959,13 +11907,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetPrivNotConnected => 'ไม่ได้เชื่อมต่อ';
 
   @override
-  String deskSetPrivStoppedDetail(String waiting) {
-    return 'Tor หยุดแล้ว $waiting รอ ลองอีกครั้ง หรือปิด Tor';
-  }
+  String get deskSetPrivStoppedDetail => 'Tor หยุดแล้ว ลองอีกครั้ง หรือปิด Tor';
 
   @override
-  String deskSetPrivProblemDetail(String problem, String waiting) {
-    return '$problem $waiting รอ ลองอีกครั้ง หรือปิด Tor';
+  String deskSetPrivProblemDetail(String problem) {
+    return '$problem ลองอีกครั้ง หรือปิด Tor';
   }
 
   @override
@@ -12033,8 +11979,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…';
 
   @override
-  String get deskSetRecvListNote =>
-      'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที';
+  String get deskSetRecvListNote => 'สถานะจาก status.btlabs.uk';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12073,7 +12018,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetHttpPublicNote(String port) {
-    return 'ตอบทุก interface เราเตอร์ต้อง forward TCP $port มายังคอมพิวเตอร์นี้ ผู้ส่งบนอินเทอร์เน็ตใช้ http://<public IP>:$port';
+    return 'ตอบทุก interface เราเตอร์ต้อง forward TCP $port มายังคอมพิวเตอร์นี้';
   }
 
   @override
@@ -12100,7 +12045,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetHttpStep1Text(String port) {
-    return 'กระเป๋าเงินจะตอบที่ 0.0.0.0 พอร์ต $port อุปกรณ์อื่นและอินเทอร์เน็ตจึงส่งเงินมาที่กระเป๋าเงินนี้ได้ ไฟร์วอลล์อาจถามว่าจะอนุญาตไหม';
+    return 'กระเป๋าเงินจะตอบที่ 0.0.0.0 พอร์ต $port อุปกรณ์อื่นจึงส่งเงินมาได้';
   }
 
   @override
@@ -12176,7 +12121,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetReportDesc =>
-      'รายงานถูกเข้ารหัสให้นักพัฒนาอ่านได้เท่านั้น ไม่มีอะไรถูกส่งก่อนกด ส่ง ส่วน บันทึกเป็นไฟล์ เก็บรายงานเดียวกันที่ลบข้อมูลลับแล้ว แต่ไม่ได้เข้ารหัส';
+      'เข้ารหัสให้นักพัฒนาอ่านได้เท่านั้น บันทึกเป็นไฟล์ จะเก็บสำเนาที่ไม่เข้ารหัส';
 
   @override
   String get deskSetReportWhat => 'เกิดอะไรขึ้น';
@@ -12224,7 +12169,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'อ่านบล็อกเชนอีกครั้งและคำนวณยอดคงเหลือใหม่จากเอาต์พุตที่พบ ใช้เมื่อยอดดูไม่ถูกต้อง หลังกู้คืน หรือเมื่อเอาต์พุตยังถูกล็อกหลังส่งไม่สำเร็จ ระหว่างนี้ยังใช้กระเป๋าเงินได้';
+      'อ่านบล็อกเชนอีกครั้งและคำนวณยอดคงเหลือใหม่ ใช้เมื่อยอดดูไม่ถูกต้องหรือเอาต์พุตยังถูกล็อก';
 
   @override
   String get deskSetRescanStartAgain => 'เริ่มใหม่';
@@ -12340,13 +12285,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetWalletsCreateText => 'กระเป๋าเงินใหม่พร้อมวลีกู้คืนใหม่';
 
   @override
-  String get deskSetWalletsImport => 'นำเข้า';
+  String get deskSetWalletsImport => 'นำเข้ากระเป๋าเงิน';
 
   @override
   String get deskSetWalletsImportText => 'จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์';
 
   @override
-  String get deskSetWalletsRestore => 'กู้คืน';
+  String get deskSetWalletsRestore => 'กู้คืนจากวลีกู้คืน';
 
   @override
   String get deskSetWalletsRestoreText => 'จากวลีกู้คืน';
@@ -12397,7 +12342,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'กำลังตั้งค่าใหม่ ไม่มีอะไรเปลี่ยนจนกว่าจะกด บันทึก ในขั้นตอนสุดท้าย';
 
   @override
-  String get deskSetupPrefsLead => 'ภาษาของแอป เปลี่ยนได้ภายหลัง';
+  String get deskSetupPrefsLead => 'ภาษาของแอป';
 
   @override
   String get deskSetupNodeTitle => 'เลือกโหนด';
@@ -12429,10 +12374,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetupBackToWallet => 'กลับไปที่กระเป๋าเงิน';
 
   @override
-  String get deskSetupLaterNote =>
-      'ทุกอย่างที่นี่เปลี่ยนได้ภายหลังในการตั้งค่า';
-
-  @override
   String get deskSetupSave => 'บันทึกการตั้งค่า';
 
   @override
@@ -12455,7 +12396,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupLocalNodeText =>
-      'รันโหนด Epic บนคอมพิวเตอร์นี้ ไม่มีข้อมูลแชร์กับผู้ดูแลโหนด ต้องใช้พื้นที่ดิสก์และซิงก์หลายชั่วโมง';
+      'รันบนคอมพิวเตอร์นี้: เป็นส่วนตัว แต่ต้องใช้พื้นที่ดิสก์และการซิงก์ครั้งแรก';
 
   @override
   String get deskSetupEpicboxText =>
@@ -12463,7 +12404,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxPrivacy =>
-      'Epicbox ไม่ได้ซ่อนที่อยู่ IP จากเซิร์ฟเวอร์ Epicbox ใช้ VPN ถ้าเรื่องนี้สำคัญ';
+      'เซิร์ฟเวอร์ Epicbox เห็นที่อยู่ IP ของคอมพิวเตอร์นี้';
 
   @override
   String get deskSetupEpicboxServer => 'เซิร์ฟเวอร์ Epicbox';
@@ -12505,7 +12446,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetupSaveStartsFallback(String node) {
-    return 'บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดและใช้ $node';
+    return 'บันทึก จะเริ่มโหนด และใช้ $node แทนจนกว่าจะซิงก์เสร็จ';
   }
 
   @override
@@ -12520,7 +12461,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicencesLead =>
-      'ซอฟต์แวร์โอเพนซอร์สในกระเป๋าเงินนี้ แต่ละส่วนใช้สัญญาอนุญาตของตัวเอง ข้อความเต็มอยู่ห่างไปแค่คลิกเดียว';
+      'ซอฟต์แวร์โอเพนซอร์สในกระเป๋าเงินนี้ แต่ละส่วนใช้สัญญาอนุญาตของตัวเอง';
 
   @override
   String get deskSetAboutLicenceApp =>
@@ -12656,7 +12597,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetHelpReportText =>
-      'อธิบายสิ่งที่ผิดพลาด แนบบันทึกของแอปไปด้วยได้ โดยลบข้อมูลลับออกและเข้ารหัสให้นักพัฒนา บันทึกเป็นไฟล์ เก็บสำเนาไว้ส่งเอง';
+      'อธิบายสิ่งที่ผิดพลาด แนบบันทึกของแอปที่ลบข้อมูลลับแล้วไปด้วยได้ โดยเข้ารหัสให้นักพัฒนา';
 
   @override
   String get deskSetHelpShowLess => 'ย่อ';
@@ -13190,7 +13131,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advIntro =>
-      'ทุกอย่างปิดอยู่ตอนแรก แต่ละสวิตช์เพิ่มส่วนของกระเป๋าเงินอีกส่วนหนึ่งในที่ที่มันอยู่';
+      'แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน';
 
   @override
   String get advShowsHeader => 'แสดงเพิ่ม';
@@ -13286,7 +13227,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvIntro =>
-      'ทุกอย่างปิดอยู่ตอนแรก แต่ละสวิตช์เพิ่มส่วนของกระเป๋าเงินอีกส่วนหนึ่งในที่ที่มันอยู่';
+      'แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน';
 
   @override
   String get deskSetAdvShows => 'แสดงเพิ่ม';
@@ -13366,7 +13307,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โหนดของคุณทำงานต่อไป เพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
+      'เฉพาะคอมพิวเตอร์นี้และเครือข่ายในพื้นที่ โหนดในเครื่องยังใช้เพียร์ของตัวเอง';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -13608,7 +13549,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'การรับจะเริ่มเมื่อ Tor เชื่อมต่อ โอนไฟล์ยังใช้ได้';
 
   @override
-  String get deskNetCantReceive => 'รับไม่ได้ตอนออฟไลน์';
+  String get deskNetCantReceive => 'หยุดรับชั่วคราว';
 
   @override
   String get deskRailOffline => 'ออฟไลน์';
@@ -13673,7 +13614,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'โอนไฟล์สร้างไฟล์ธุรกรรมที่คุณส่งให้อีกฝ่ายด้วยวิธีใดก็ได้ (ข้อความ อีเมล สายเคเบิล) แล้วเขาส่งกลับมาหนึ่งไฟล์ ไม่ต้องมีการเชื่อมต่อระหว่างสองกระเป๋าเงิน เพิ่มโอนไฟล์ใน ส่ง และ รับ';
 
   @override
-  String get txStartHeader => 'การส่งเริ่มด้วย';
+  String get txStartHeader => 'วิธีเริ่มต้น';
 
   @override
   String get txDefaultsHeader => 'ค่าเริ่มต้นการส่ง';
@@ -13860,7 +13801,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetTxSend => 'ส่ง';
 
   @override
-  String get deskSetTxStart => 'การส่งเริ่มด้วย';
+  String get deskSetTxStart => 'วิธีเริ่มต้น';
 
   @override
   String get deskSetTxStartHint =>
@@ -14000,7 +13941,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetupSaveFailedText(String reason) {
-    return '$reason หากไม่บันทึก กระเป๋าเงินจะใช้การตั้งค่าที่เก็บไว้จนถึงตอนนี้ และเปลี่ยนได้ภายหลังในการตั้งค่า';
+    return '$reason บันทึกอีกครั้ง หรือข้ามเพื่อใช้การตั้งค่าที่บันทึกไว้แล้ว';
   }
 
   @override
@@ -14060,7 +14001,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
+      'ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว จะสำเร็จเมื่อได้รับการยืนยัน';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -14933,8 +14874,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get addrDesktopRule =>
-      'หนึ่งที่อยู่ต่อประเภท ช่องที่สามจะแสดงเฉพาะเมื่อยังมีประเภทว่าง';
+  String get addrDesktopRule => 'หนึ่งที่อยู่ต่อประเภท';
 
   @override
   String get pendingTitle => 'คำเชิญที่รออยู่';
@@ -14966,9 +14906,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pendingInviteAgain => 'เชิญอีกครั้ง';
 
   @override
-  String pendingWaitingConfirm(String time) {
-    return 'รออีกฝ่ายยืนยัน · $time';
-  }
+  String get pendingWaitingConfirm => 'รออีกฝ่ายยืนยัน';
 
   @override
   String get pendingPairedCheck => 'จับคู่แล้ว · ยืนยัน';
@@ -15769,7 +15707,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelWhileReported =>
-      'ไม่มีตัวเลือกยกเลิกขณะที่ผู้ส่งรายงานว่าเผยแพร่แล้ว';
+      'ยกเลิกไม่ได้ขณะที่ผู้ส่งรายงานว่าเผยแพร่แล้ว';
 
   @override
   String get txDetailsCancelRefusedOnNetwork =>
@@ -15822,7 +15760,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ผู้ติดต่อที่มีอยู่ $count รายจะได้ที่อยู่หรือโน้ตเพิ่ม',
+      other: 'อัปเดตผู้ติดต่อ $count ราย',
     );
     return '$_temp0';
   }
@@ -15858,7 +15796,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get contactsImportKeeps => 'ผู้ติดต่อที่บันทึกไว้จะไม่ถูกเปลี่ยน';
+  String get contactsImportKeeps => 'ข้อมูลที่มีอยู่จะคงไว้';
 
   @override
   String get contactsImportDo => 'นำเข้า';
@@ -15923,8 +15861,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ขอรับเงินจากผู้ติดต่อที่จับคู่แล้ว และอนุมัติใบแจ้งหนี้ที่ผู้ติดต่อที่จับคู่แล้วส่งมา ต้องเปิดการจับคู่ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
-  String get expNeedsPairing =>
-      'ใบแจ้งหนี้ต้องใช้การจับคู่: เปิดใบแจ้งหนี้จะเปิดการจับคู่ด้วย ปิดการจับคู่จะปิดใบแจ้งหนี้ด้วย';
+  String get expNeedsPairing => 'ใบแจ้งหนี้ต้องใช้การจับคู่';
 
   @override
   String get expPairingOffTitle => 'การจับคู่เป็นฟีเจอร์ทดลอง';
@@ -16084,7 +16021,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbImportRelayLead(String old) {
-    return 'แอปเดิมรับผ่าน $old ใครที่บันทึกที่อยู่ของกระเป๋าเงินนี้ไว้จะส่งไปที่นั่น';
+    return 'แอปเดิมรับผ่าน $old';
   }
 
   @override
@@ -16094,7 +16031,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayKeepHint =>
-      'ที่อยู่เหมือนเดิม เซิร์ฟเวอร์จะถูกเพิ่มในรายการ Epicbox และใช้กับกระเป๋าเงินนี้';
+      'ที่อยู่เดิม เซิร์ฟเวอร์จะถูกเพิ่มในรายการ Epicbox';
 
   @override
   String deskOnbImportRelayApp(String current) {
@@ -16103,7 +16040,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayAppHint =>
-      'ที่อยู่จะเปลี่ยน ผู้ส่งที่มีที่อยู่เดิมต้องใช้ที่อยู่ใหม่ รายการที่ส่งไปที่อยู่เดิมจะไม่ถึง';
+      'ที่อยู่ใหม่: รายการที่ส่งไปที่อยู่เดิมจะไม่ถึง';
 
   @override
   String get deskOnbImportUnlockOld => 'ปลดล็อกด้วยรหัสผ่านเดิม';
@@ -16208,7 +16145,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupSkipKeeps =>
-      'การข้ามจะคงการตั้งค่าโหนดและ Epicbox ไว้ตามเดิม';
+      'การข้ามจะคงการตั้งค่าโหนดและ Epicbox ปัจจุบันไว้';
 
   @override
   String deskSetupMarkNotCleared(String reason) {
@@ -16485,7 +16422,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskEpicboxBlockedText(String host) {
-    return 'เครือข่ายนี้บล็อก $host อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว';
+    return 'เครือข่ายนี้บล็อก $host เลือกเซิร์ฟเวอร์ Epicbox อื่นหรือใช้ DNS ส่วนตัว';
   }
 
   @override
@@ -16678,7 +16615,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteNotPosted =>
-      'ยังไม่อยู่ในเครือข่าย: การยกเลิกจะคืนเหรียญของคุณ กระเป๋าเงินจะตรวจเครือข่ายก่อน';
+      'ยังไม่อยู่ในเครือข่าย: การยกเลิกจะคืนเหรียญหลังตรวจเครือข่าย';
 
   @override
   String get cancelNoteDirectFailed =>
@@ -16802,7 +16739,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOwnAccessNote =>
-      'Peer และรายละเอียดการซิงค์มาจาก owner API ของโหนด การเริ่ม หยุด และโฟลเดอร์ข้อมูลยังอยู่บนคอมพิวเตอร์ของโหนด';
+      'Peer และรายละเอียดการซิงค์มาจาก owner API ของโหนด';
 
   @override
   String get deskOwnAdd => 'เพิ่ม…';
@@ -16885,7 +16822,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOwnUseForGood(String host) {
-    return 'ใช้ $host ต่อไปเลย';
+    return 'ใช้ $host ต่อ';
   }
 
   @override
@@ -16893,7 +16830,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOwnSyncText(String host) {
-    return 'กระเป๋าส่งหรือรับผ่านโหนดที่กำลังซิงค์ไม่ได้ $host ใช้แทนได้ และกระเป๋าจะกลับมาเมื่อโหนดนี้รับธุรกรรมได้';
+    return '$host ใช้แทนได้จนกว่าโหนดนี้จะซิงก์เสร็จ';
   }
 
   @override
@@ -16913,9 +16850,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskOwnMineHint =>
       'ถามโหนดโดยตรงแทน status.btlabs.uk และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง';
-
-  @override
-  String get deskOwnListNote => 'โหนดของคุณเองจะถูกถามโดยตรง';
 
   @override
   String get deskOwnSlotSyncing => 'โหนดของตัวเองกำลังซิงค์';
@@ -16993,13 +16927,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskUpdDownloadInstall => 'ดาวน์โหลดและติดตั้ง';
 
   @override
-  String deskUpdReadyTitle(String version) {
-    return 'Epic Cash $version พร้อมแล้ว';
-  }
+  String get deskUpdReadyTitle => 'รีสตาร์ทเพื่ออัปเดต';
 
   @override
-  String get deskUpdReadyBody =>
-      'รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่';
+  String get deskUpdReadyBody => 'กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่';
 
   @override
   String get deskUpdRestartNow => 'รีสตาร์ทตอนนี้';
@@ -17758,4 +17689,48 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'ไม่ได้เปลี่ยนการยืนยัน';
+
+  @override
+  String get deskSetPeersFirstSeenHint =>
+      'เวลาที่แอปนี้เห็น peer เชื่อมต่อครั้งแรกในรอบนี้';
+
+  @override
+  String deskAppFirstScanProgress(int percent) {
+    return 'กำลังสแกนบล็อกเชน · $percent%';
+  }
+
+  @override
+  String deskAppFirstScanFound(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'พบ $countString เอาต์พุต',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskAppFirstScanShowLog => 'แสดงบันทึก';
+
+  @override
+  String get deskAppFirstScanHideLog => 'ซ่อนบันทึก';
+
+  @override
+  String deskNodeDurationDh(int days, int hours) {
+    return '$days วัน $hours ชั่วโมง';
+  }
+
+  @override
+  String deskNodeDurationH(int hours) {
+    return '$hours ชั่วโมง';
+  }
+
+  @override
+  String deskInvPayerAgoHoursOnly(int hours) {
+    return '$hours ชั่วโมง';
+  }
 }

@@ -27,7 +27,7 @@
   "@deskUpdOpensPage": {
     "description": "Tooltip of the update notice when the app cannot install the update itself: a click opens the download page in the browser."
   },
-  "deskUpdDownloading": "Downloading {percent} %",
+  "deskUpdDownloading": "Downloading {percent}%",
   "@deskUpdDownloading": {
     "description": "Sidebar notice and Settings › About while the update downloads. {percent} is a whole number from 0 to 100.",
     "placeholders": {
@@ -95,17 +95,11 @@
   "@deskUpdDownloadInstall": {
     "description": "Settings › About › Updates, button: download the newer version in the app; after it is checked, a restart installs it."
   },
-  "deskUpdReadyTitle": "Epic Cash {version} is ready",
+  "deskUpdReadyTitle": "Restart to update",
   "@deskUpdReadyTitle": {
-    "description": "Dialog title when the update the user started downloading is downloaded and checked. 'Epic Cash' is the brand, not translated.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "26.10.19"
-      }
-    }
+    "description": "Dialog title when the update the user started downloading is downloaded and checked; the sidebar slot names the version."
   },
-  "deskUpdReadyBody": "Restart now to update. The wallet locks and the app opens again.",
+  "deskUpdReadyBody": "The wallet locks and the app opens again.",
   "@deskUpdReadyBody": {
     "description": "Dialog text under 'Epic Cash {version} is ready': Restart now locks the wallet, closes the app, installs the update and opens the app again."
   },

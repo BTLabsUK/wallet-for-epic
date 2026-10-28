@@ -17,8 +17,8 @@
   "deskUpdUnfinished": "อัปเดตไม่เสร็จ ลองอีกครั้ง",
   "deskUpdManual": "ชุดนี้ติดตั้งอัปเดตเองไม่ได้",
   "deskUpdDownloadInstall": "ดาวน์โหลดและติดตั้ง",
-  "deskUpdReadyTitle": "Epic Cash {version} พร้อมแล้ว",
-  "deskUpdReadyBody": "รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่",
+  "deskUpdReadyTitle": "รีสตาร์ทเพื่ออัปเดต",
+  "deskUpdReadyBody": "กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่",
   "deskUpdRestartNow": "รีสตาร์ทตอนนี้",
   "deskUpdLater": "ภายหลัง"
 }

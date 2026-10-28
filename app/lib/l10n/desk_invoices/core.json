@@ -48,7 +48,7 @@
   "@deskInvCheckFailedTitle": {
     "description": "Notice title when checking for invoices failed."
   },
-  "deskInvCheckFailedBody": "The lists show what arrived before. Nothing was lost; the wallet tries again every 2 minutes.",
+  "deskInvCheckFailedBody": "The lists show what arrived before; the wallet retries.",
   "@deskInvCheckFailedBody": {
     "description": "Notice text when checking for invoices failed."
   },

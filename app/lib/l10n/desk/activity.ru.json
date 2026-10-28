@@ -26,7 +26,7 @@
   "deskActColTime": "Время",
   "deskActColAmount": "Сумма",
   "deskActEmptyTitle": "Транзакций пока нет",
-  "deskActEmptyText": "Здесь появится каждый отправленный и полученный платёж, сначала новые: с кем он и на каком он этапе.",
+  "deskActEmptyText": "Отправленные и полученные платежи, сначала новые.",
   "deskActStageWaiting": "Ожидание",
   "deskActStageWaitingText": "Оба кошелька подписывают платёж. Через Epicbox это происходит само.",
   "deskActStageConfirming": "Подтверждение",

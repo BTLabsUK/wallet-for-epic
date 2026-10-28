@@ -37,7 +37,7 @@
   "deskInvIssuerCancel": "ยกเลิกรายการ",
   "deskInvIssuerCancelTitle": "ยกเลิกรายการนี้ไหม?",
   "deskInvIssuerCancelBody": "เงินจะไม่เข้ามา เงินของ {payer} จะถูกล็อกในกระเป๋าของผู้ชำระจนกว่าจะยกเลิกทางฝั่งนั้น",
-  "deskInvIssuerBounced": "กระเป๋าของ {payer} ส่งใบแจ้งหนี้กลับมา เพราะชำระใบแจ้งหนี้ไม่ได้ ขอให้ส่งเงินมาให้คุณแทน",
+  "deskInvIssuerBounced": "กระเป๋าของ {payer} ชำระใบแจ้งหนี้ไม่ได้ ขอให้ {payer} ส่งเงินมาแทน",
   "deskInvIssuerSendFile": "ใช้ไฟล์",
   "deskInvIssuerLate": "มีเงินเข้ามาหลังใบแจ้งหนี้นี้สิ้นสุด ถูกปฏิเสธแล้ว ไม่มีสิ่งใดเปลี่ยนแปลง",
   "deskInvIssuerPaidText": "{payer} ชำระแล้ว กระเป๋าของคุณทำรายการให้เสร็จและส่งเข้าเครือข่ายแล้ว",

@@ -185,7 +185,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
         if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.warn, detail: host);
-        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: l.deskKitMethodTorNotConnected(host));
+        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: host);
         if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
@@ -220,7 +220,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodTorOffDetail),
         ServiceHealth.checking => s.torCanSend
             ? MethodLine(l.deskKitMethodTorPublishing, EState.warn)
-            : MethodLine(l.deskKitMethodTorConnecting, EState.warn, detail: '${s.torProgress ?? 0} %', retry: s.torSlowStart),
+            : MethodLine(l.deskKitMethodTorConnecting, EState.warn, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
         ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodTorOnDetail),
         ServiceHealth.slow => MethodLine(l.deskKitMethodTorNotPublished, EState.warn, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
         ServiceHealth.down => MethodLine(l.deskKitMethodTorStopped, EState.risk, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),

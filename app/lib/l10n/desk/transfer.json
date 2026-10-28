@@ -87,7 +87,7 @@
   "@deskFinTitle": {
     "description": "Page title of Finalize."
   },
-  "deskFinNoticeTitle": "For a transaction created as a file",
+  "deskFinNoticeTitle": "For file payments",
   "@deskFinNoticeTitle": {
     "description": "Title of the info notice at the top of the Finalize page."
   },
@@ -131,7 +131,7 @@
   "@deskImpWrongType": {
     "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
   },
-  "deskImpWrongTypeText": "The file is not a transaction file. Choose the .slate or .tx file the sender gave.",
+  "deskImpWrongTypeText": "Not a transaction file. Choose the .tx file the sender gave.",
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
@@ -224,7 +224,7 @@
   "@deskEpicboxBlockedWord": {
     "description": "The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence."
   },
-  "deskEpicboxBlockedText": "This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.",
+  "deskEpicboxBlockedText": "This network blocks {host}. Choose another Epicbox server or use a private DNS.",
   "@deskEpicboxBlockedText": {
     "description": "Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.",
     "placeholders": {

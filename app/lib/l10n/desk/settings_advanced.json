@@ -3,7 +3,7 @@
   "@deskSetFrameAdvanced": {
     "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
   },
-  "deskSetAdvIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "deskSetAdvIntro": "Each switch shows one more part of the wallet, where it belongs.",
   "@deskSetAdvIntro": {
     "description": "First line of Settings › Advanced."
   },
@@ -95,7 +95,7 @@
   "@deskSetAdvModeOffline": {
     "description": "Network mode: no network."
   },
-  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node’s setting.",
+  "deskSetAdvModeOfflineText": "Only this computer and the local network; a local node keeps its own peers.",
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
@@ -168,7 +168,7 @@
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },
-  "deskNetCantReceive": "Cannot receive offline.",
+  "deskNetCantReceive": "Receiving paused",
   "@deskNetCantReceive": {
     "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
   },

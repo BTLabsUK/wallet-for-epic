@@ -15,7 +15,7 @@
   "@deskOvNodeAddrText": {
     "description": "Text of the notice about the corrected node address. The addresses stay as written."
   },
-  "deskOvNodeIncompatTitle": "This node’s version is not compatible with this wallet",
+  "deskOvNodeIncompatTitle": "Node version not compatible",
   "@deskOvNodeIncompatTitle": {
     "description": "Title of a red notice on Overview: the node runs a version the wallet cannot use."
   },
@@ -139,15 +139,9 @@
       }
     }
   },
-  "deskOvSyncText": "Downloading blocks. Balances are what the wallet knew at block {block}. Sending opens when the node has caught up.",
+  "deskOvSyncText": "Downloading blocks. Sending resumes when the node is synced.",
   "@deskOvSyncText": {
-    "description": "Text of the node-syncing notice.",
-    "placeholders": {
-      "block": {
-        "type": "String",
-        "example": "2,903,118"
-      }
-    }
+    "description": "Text of the node-syncing notice."
   },
   "deskOvSyncProgress": "Node sync progress",
   "@deskOvSyncProgress": {
@@ -175,7 +169,7 @@
   "@deskOvReceive": {
     "description": "Button on Overview: opens Receive. Short."
   },
-  "deskOvSendWaits": "Sending opens when the node is synced.",
+  "deskOvSendWaits": "Sending resumes when the node is synced.",
   "@deskOvSendWaits": {
     "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
   },
@@ -237,7 +231,7 @@
   "@deskOvEmptyTitle": {
     "description": "Title of the empty state of Recent activity."
   },
-  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows here first as confirming, then as spendable after {blocks} block.} other{Received EPIC shows here first as confirming, then as spendable after {blocks} blocks.}}",
+  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows as confirming, then spendable after {blocks} confirmation.} other{Received EPIC shows as confirming, then spendable after {blocks} confirmations.}}",
   "@deskOvEmptyText": {
     "description": "Text of the empty state of Recent activity; blocks is the number of confirmations needed.",
     "placeholders": {
@@ -269,7 +263,7 @@
       }
     }
   },
-  "deskOvPendingFiles": "{count, plural, one{{count} file send open} other{{count} file sends open}}",
+  "deskOvPendingFiles": "{count, plural, one{{count} file payment to finalize} other{{count} file payments to finalize}}",
   "@deskOvPendingFiles": {
     "description": "Title of a notice on Overview: file payments waiting for the recipient's response file.",
     "placeholders": {

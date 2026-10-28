@@ -67,7 +67,8 @@ class _Review extends ConsumerWidget {
   /// "3 h 10 min" or "25 min".
   String _ago(BuildContext context, Duration d) {
     final l = context.l10n;
-    return d.inHours < 1 ? l.deskInvPayerAgoMinutes(d.inMinutes) : l.deskInvPayerAgoHours(d.inHours, d.inMinutes % 60);
+    if (d.inHours < 1) return l.deskInvPayerAgoMinutes(d.inMinutes);
+    return d.inMinutes % 60 == 0 ? l.deskInvPayerAgoHoursOnly(d.inHours) : l.deskInvPayerAgoHours(d.inHours, d.inMinutes % 60);
   }
 
   @override

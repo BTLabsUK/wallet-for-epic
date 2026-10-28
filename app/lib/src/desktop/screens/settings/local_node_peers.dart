@@ -177,9 +177,17 @@ class _PeersTabState extends ConsumerState<PeersTab> {
       child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: align, style: mono ? ts.mono(size: Fs.xs, color: color ?? c.dim) : ts.caption.copyWith(color: color ?? c.dim)),
     );
 
-    Widget head(String text, double width, {TextAlign align = TextAlign.left}) => SizedBox(
+    Widget head(String text, double width, {TextAlign align = TextAlign.left, String? hint}) => SizedBox(
       width: width,
-      child: Text(text, textAlign: align, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600)),
+      child: hint == null
+          ? Text(text, textAlign: align, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))
+          : Row(
+              children: [
+                Flexible(child: Text(text, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))),
+                SizedBox(width: Sp.x1),
+                EInfoHint(hint),
+              ],
+            ),
     );
 
     Widget row(PeerView p) {
@@ -237,7 +245,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               head(l.deskSetPeersColVersion, 70.u),
               head(l.deskSetPeersColHeight, 90.u, align: TextAlign.right),
               SizedBox(width: Sp.x3),
-              head(l.deskSetPeersColFirstSeen, 80.u),
+              head(l.deskSetPeersColFirstSeen, 80.u, hint: l.deskSetPeersFirstSeenHint),
               SizedBox(width: 70.u),
             ],
           ),

@@ -10,7 +10,7 @@
   "deskSetReportArrivedRef": "Der Bericht ist angekommen. Seine Referenz ist {id}.",
   "deskSetReportDescribe": "Beschreiben Sie, was passiert ist.",
   "deskSetReportTitle": "Problem melden",
-  "deskSetReportDesc": "Der Bericht wird verschlüsselt, sodass nur der Entwickler ihn lesen kann. Vor „Senden“ wird nichts gesendet. „In Datei speichern“ speichert denselben bereinigten Bericht, unverschlüsselt.",
+  "deskSetReportDesc": "Verschlüsselt, sodass nur der Entwickler ihn lesen kann. „In Datei speichern“ legt eine unverschlüsselte Kopie ab.",
   "deskSetReportWhat": "Was passiert ist",
   "deskSetReportWhatHint": "Was Sie getan haben, was Sie erwartet haben, was stattdessen passiert ist",
   "deskSetReportContact": "Kontakt",

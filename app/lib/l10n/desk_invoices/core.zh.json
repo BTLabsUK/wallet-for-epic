@@ -8,7 +8,7 @@
   "deskInvChecking": "正在检查",
   "deskInvCheckedAt": "{time} 已检查",
   "deskInvCheckFailedTitle": "Epicbox 服务器无响应",
-  "deskInvCheckFailedBody": "列表显示之前收到的内容。没有丢失任何内容；钱包每 2 分钟重试一次。",
+  "deskInvCheckFailedBody": "列表显示之前收到的内容；钱包会自动重试。",
   "deskInvReqWaiting": "等待付款方",
   "deskInvReqPaid": "已付款，正在完成",
   "deskInvReqPosted": "已广播",

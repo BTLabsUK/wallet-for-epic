@@ -139,11 +139,11 @@ void main() {
     expect(find.text('Receive when offline'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
-    expect(find.text('Check settings'), findsOneWidget);
+    expect(find.text('Review settings'), findsOneWidget);
     expect(find.text('Local node, bundled'), findsOneWidget);
     expect(find.text('node.epiccash.com'), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
-    expect(find.textContaining('Save starts the node. The first sync takes hours'), findsOneWidget);
+    expect(find.textContaining('Save starts the node; node.epiccash.com stands in'), findsOneWidget);
     expect(wallet.calls, isEmpty);
     expect(node.calls.where((c) => c.startsWith('start')), isEmpty);
 
@@ -245,7 +245,7 @@ void main() {
   }
 
   Future<void> toReviewAndSave(WidgetTester tester) async {
-    while (find.text('Check settings').evaluate().isEmpty) {
+    while (find.text('Review settings').evaluate().isEmpty) {
       await tester.tap(find.text('Continue'));
       await tester.pump(const Duration(milliseconds: 700));
       await tester.pumpAndSettle();

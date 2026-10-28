@@ -403,7 +403,7 @@ void main() {
       final service = FakeWalletService();
       final device = _Device(advanced: true);
       await _pumpApp(tester, service, device);
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
 
       // The error names the first word that is not a phrase word.
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
@@ -1202,7 +1202,7 @@ void main() {
       final session = FakeWalletSession()..scanStream = scan.stream;
       final service = FakeWalletService(session: session);
       await _pumpApp(tester, service, _Device());
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
       expect(containerOf(tester).read(autoLockHoldProvider), 1);
       await _enter(tester, 'Recovery phrase', service.phrase);
       await _tapText(tester, 'Continue');
@@ -1234,7 +1234,7 @@ void main() {
     testWidgets('Back to the phrase after a failed restore puts the phrase back', (tester) async {
       final service = FakeWalletService();
       await _pumpApp(tester, service, _Device());
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
       await _enter(tester, 'Recovery phrase', service.phrase);
       await _tapText(tester, 'Continue');
       expect(find.text(service.phrase), findsNothing);

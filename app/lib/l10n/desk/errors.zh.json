@@ -129,7 +129,7 @@
   "deskDataHttpPort": "端口必须在 1 到 65535 之间",
   "deskDataUpdTimeout": "更新服务器没有响应。",
   "deskDataUpdUnreachable": "无法连接更新服务器。",
-  "deskDataUpdStatus": "更新服务器返回了 {status}。",
+  "deskDataUpdStatus": "更新服务器错误（{status}）。",
   "deskDataUpdNone": "尚未发布桌面版的更新信息。",
   "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。",
   "deskErrOldLinks": "此钱包的文件夹中含有链接，因此不会导入。请用助记词恢复。",

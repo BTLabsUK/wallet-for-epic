@@ -47,7 +47,7 @@
   "@deskActLoading": {
     "description": "Line with a spinner on Activity while the transactions are being read."
   },
-  "deskActWaitingNode": "Waiting for the node to be synced.",
+  "deskActWaitingNode": "Waiting for the node to sync.",
   "@deskActWaitingNode": {
     "description": "Line with a spinner on Activity while the node has not finished syncing, so there is no list yet."
   },
@@ -117,7 +117,7 @@
   "@deskActEmptyTitle": {
     "description": "Title of the empty state on Activity when the wallet has no transactions."
   },
-  "deskActEmptyText": "Every payment sent or received is listed here, newest first, with who it was with and how far along it is.",
+  "deskActEmptyText": "Payments sent and received, newest first.",
   "@deskActEmptyText": {
     "description": "Text of the empty state on Activity when the wallet has no transactions."
   },

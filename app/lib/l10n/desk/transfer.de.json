@@ -18,7 +18,7 @@
   "deskFinPickTitle": "Antwortdatei",
   "deskFinPosted": "Transaktion gesendet",
   "deskFinTitle": "Antwortdatei abschließen",
-  "deskFinNoticeTitle": "Für eine als Datei erstellte Transaktion",
+  "deskFinNoticeTitle": "Für Zahlungen per Datei",
   "deskFinNoticeText": "Verwenden Sie die Antwortdatei, die der Empfänger zurückgeschickt hat.",
   "deskFinTryAgain": "Erneut versuchen",
   "deskFinPostedText": "Die Zahlung wurde abgeschlossen und an das Netzwerk gesendet. Verfolgen Sie sie unter Aktivität.",
@@ -29,7 +29,7 @@
   "deskFinChooseText": "Die Wallet schließt die Transaktion ab und sendet sie an das Netzwerk.",
   "deskFinChooseFile": "Datei wählen",
   "deskImpWrongType": "Keine Transaktionsdatei",
-  "deskImpWrongTypeText": "Die Datei ist keine Transaktionsdatei. Wählen Sie die .slate- oder .tx-Datei, die Ihnen der Absender gegeben hat.",
+  "deskImpWrongTypeText": "Keine Transaktionsdatei. Wählen Sie die .tx-Datei, die Ihnen der Absender gegeben hat.",
   "deskImpWrongTypePasted": "Der eingefügte Text ist keine Transaktion. Fügen Sie den ganzen Text des Absenders ein oder wählen Sie seine Datei.",
   "deskImpUnreadable": "Datei nicht lesbar",
   "deskImpUnreadableText": "Die Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt oder wird noch kopiert.",
@@ -51,6 +51,6 @@
   "deskImpChooseText": "Die Wallet signiert sie und speichert eine Antwort für den Absender.",
   "deskImpOpenAnother": "Weitere Datei öffnen",
   "deskEpicboxBlockedWord": "Blockiert",
-  "deskEpicboxBlockedText": "Dieses Netzwerk blockiert {host}. Ursache kann ein Netzwerkfilter sein. Versuchen Sie einen anderen Epicbox-Server oder ein privates DNS.",
+  "deskEpicboxBlockedText": "Dieses Netzwerk blockiert {host}. Wählen Sie einen anderen Epicbox-Server oder ein privates DNS.",
   "deskEpicboxBlockedSwitch": "Zu {host} wechseln"
 }

@@ -37,7 +37,7 @@
   "deskInvIssuerCancel": "取消付款",
   "deskInvIssuerCancelTitle": "取消此付款？",
   "deskInvIssuerCancelBody": "这笔款项将不会到账。{payer} 的资金会在其钱包中保持锁定，直到对方在自己那边取消。",
-  "deskInvIssuerBounced": "{payer} 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给你。",
+  "deskInvIssuerBounced": "{payer} 的钱包无法支付账单；请让 {payer} 直接付款。",
   "deskInvIssuerSendFile": "改用文件",
   "deskInvIssuerLate": "此账单结束后收到一笔付款。已被拒绝；没有任何变化。",
   "deskInvIssuerPaidText": "{payer} 已付款。你的钱包已完成并广播该付款。",

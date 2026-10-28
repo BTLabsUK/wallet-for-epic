@@ -75,7 +75,7 @@
   "@deskConAdd": {
     "description": "Button on Contacts that opens the form for a new contact. Short."
   },
-  "deskConIdle": "Choose a contact to see their details, send to them, edit or delete them.",
+  "deskConIdle": "Choose a contact.",
   "@deskConIdle": {
     "description": "Text in the empty detail panel beside the contact list."
   },
@@ -83,11 +83,11 @@
   "@deskConEmptyTitle": {
     "description": "Title of the empty state of Contacts."
   },
-  "deskConEmptyText": "Save the people and shops paid often. On Send, pick a name instead of pasting an address.",
+  "deskConEmptyText": "Save the people and shops paid often, then pick them by name on Send.",
   "@deskConEmptyText": {
     "description": "Text of the empty state of Contacts."
   },
-  "deskConEmptyLocal": "Contacts stay on this computer. They are not part of the recovery phrase.",
+  "deskConEmptyLocal": "Contacts stay on this computer; export them to keep a copy.",
   "@deskConEmptyLocal": {
     "description": "Small text of the empty state of Contacts."
   },
@@ -223,7 +223,7 @@
       }
     }
   },
-  "deskConDeleteBody": "The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.",
+  "deskConDeleteBody": "Removes the contact; past payments stay in Activity. This cannot be undone.",
   "@deskConDeleteBody": {
     "description": "Body of the dialog that asks before deleting a contact."
   },

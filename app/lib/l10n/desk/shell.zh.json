@@ -30,7 +30,7 @@
   "deskAppNodeSyncedBody": "本地节点已拥有完整的区块链，现在可以使用。应用将重启以切换到本地节点。",
   "deskAppNotNow": "以后再说",
   "deskAppRestartNow": "立即重启",
-  "deskAppFirstScanTitle": "钱包首次扫描",
+  "deskAppFirstScanTitle": "首次扫描",
   "deskAppFirstScanBody": "钱包正在区块链中查找属于它的输出。期间钱包仍可使用；扫描完成后余额会更新。",
   "deskAppScanOutput": "扫描进度",
   "deskAppWaitingOutput": "等待第一条输出…",
@@ -70,12 +70,16 @@
   "deskTourNodeTitle": "设置 › 节点",
   "deskTourNodeText": "钱包从哪个节点读取区块链。其余设置页面列在左侧。",
   "deskTourHelpTitle": "帮助",
-  "deskTourHelpText": "按分区查看主题，还有“报告问题”。每个页面的更多说明都在这里，导览也可以再次查看。",
+  "deskTourHelpText": "帮助主题、“报告问题”和“再次查看导览”。",
   "deskTourCounter": "{current}/{total}",
   "deskTourSemantics": "钱包导览",
   "deskTourSkip": "跳过导览",
   "deskTourBack": "上一步",
   "deskTourNext": "下一步",
   "deskTourAdvancedTitle": "高级",
-  "deskTourAdvancedText": "仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。"
+  "deskTourAdvancedText": "仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。",
+  "deskAppFirstScanProgress": "正在扫描区块链 · {percent}%",
+  "deskAppFirstScanFound": "{count, plural, other{已找到 {count} 个输出}}",
+  "deskAppFirstScanShowLog": "显示日志",
+  "deskAppFirstScanHideLog": "隐藏日志"
 }

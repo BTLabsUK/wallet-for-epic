@@ -8,7 +8,7 @@
   "deskInvChecking": "Wird geprüft",
   "deskInvCheckedAt": "Geprüft um {time}",
   "deskInvCheckFailedTitle": "Der Epicbox-Server antwortet nicht",
-  "deskInvCheckFailedBody": "Die Listen zeigen, was zuvor ankam. Nichts ging verloren; die Wallet versucht es alle 2 Minuten erneut.",
+  "deskInvCheckFailedBody": "Die Listen zeigen, was zuvor ankam; die Wallet versucht es erneut.",
   "deskInvReqWaiting": "Wartet auf Zahler",
   "deskInvReqPaid": "Bezahlt, wird abgeschlossen",
   "deskInvReqPosted": "Im Netzwerk",

@@ -18,7 +18,7 @@
   "deskFinPickTitle": "回复文件",
   "deskFinPosted": "交易已广播",
   "deskFinTitle": "完成回复文件",
-  "deskFinNoticeTitle": "用于以文件方式创建的交易",
+  "deskFinNoticeTitle": "用于文件付款",
   "deskFinNoticeText": "使用接收方发回的回复文件。",
   "deskFinTryAgain": "重试",
   "deskFinPostedText": "付款已完成并广播到网络。可在“活动”中查看进度。",
@@ -29,7 +29,7 @@
   "deskFinChooseText": "钱包会完成这笔交易并广播到网络。",
   "deskFinChooseFile": "选择文件",
   "deskImpWrongType": "不是交易文件",
-  "deskImpWrongTypeText": "该文件不是交易文件。请选择发送方提供的 .slate 或 .tx 文件。",
+  "deskImpWrongTypeText": "不是交易文件。请选择发送方提供的 .tx 文件。",
   "deskImpWrongTypePasted": "粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。",
   "deskImpUnreadable": "无法读取文件",
   "deskImpUnreadableText": "无法读取该文件。文件可能已损坏，或仍在复制中。",
@@ -51,6 +51,6 @@
   "deskImpChooseText": "钱包会签署它，并为发送方保存一份回复。",
   "deskImpOpenAnother": "打开另一个文件",
   "deskEpicboxBlockedWord": "被拦截",
-  "deskEpicboxBlockedText": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或专用 DNS。",
+  "deskEpicboxBlockedText": "此网络拦截了 {host}。请选择其他 Epicbox 服务器或使用专用 DNS。",
   "deskEpicboxBlockedSwitch": "切换到 {host}"
 }

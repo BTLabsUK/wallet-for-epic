@@ -301,7 +301,7 @@
       }
     }
   },
-  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.",
+  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable; the facts come from the node only.",
   "@deskKitLimitedNetwork": {
     "description": "Line on the node card when the status website cannot be reached and only the node itself answered."
   },
@@ -530,15 +530,6 @@
   "deskKitMethodWaitingTor": "Waiting for Tor",
   "@deskKitMethodWaitingTor": {
     "description": "Bold status word of the Epicbox line (Receive, Settings › Receiving): waits until Tor is connected."
-  },
-  "deskKitMethodTorNotConnected": "{host}. Tor is not connected.",
-  "@deskKitMethodTorNotConnected": {
-    "description": "Detail of the Epicbox status line when Epicbox must go through Tor but Tor is not connected. {host} is the Epicbox server.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
   },
   "deskKitMethodOn": "On",
   "@deskKitMethodOn": {

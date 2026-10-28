@@ -18,7 +18,7 @@
   "deskFinPickTitle": "Файл ответа",
   "deskFinPosted": "Транзакция отправлена в сеть",
   "deskFinTitle": "Завершить по файлу ответа",
-  "deskFinNoticeTitle": "Для транзакции, созданной файлом",
+  "deskFinNoticeTitle": "Для платежей файлом",
   "deskFinNoticeText": "Используйте файл ответа, который прислал получатель.",
   "deskFinTryAgain": "Повторить",
   "deskFinPostedText": "Платёж завершён и отправлен в сеть. Следите за ним в «Активности».",
@@ -29,7 +29,7 @@
   "deskFinChooseText": "Кошелёк завершит транзакцию и отправит её в сеть.",
   "deskFinChooseFile": "Выбрать файл",
   "deskImpWrongType": "Это не файл транзакции",
-  "deskImpWrongTypeText": "Этот файл не является файлом транзакции. Выберите файл .slate или .tx, который передал отправитель.",
+  "deskImpWrongTypeText": "Это не файл транзакции. Выберите файл .tx, который передал отправитель.",
   "deskImpWrongTypePasted": "Вставленный текст не является транзакцией. Вставьте весь текст от отправителя или выберите его файл.",
   "deskImpUnreadable": "Файл не читается",
   "deskImpUnreadableText": "Не удалось прочитать файл. Возможно, он повреждён или ещё копируется.",
@@ -51,6 +51,6 @@
   "deskImpChooseText": "Кошелёк подпишет его и сохранит ответ для отправителя.",
   "deskImpOpenAnother": "Открыть другой файл",
   "deskEpicboxBlockedWord": "Заблокирован",
-  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.",
+  "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Выберите другой сервер Epicbox или используйте частный DNS.",
   "deskEpicboxBlockedSwitch": "Переключиться на {host}"
 }

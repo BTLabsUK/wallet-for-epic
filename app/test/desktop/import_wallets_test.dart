@@ -107,7 +107,7 @@ void main() {
     expect(found.any((w) => w.folder.contains('.epic-gui')), isFalse, reason: 'GUI 6.1 folder is not searched');
     final floo = found.firstWhere((w) => w.network == 'floonet');
     expect(floo.importable, isFalse);
-    expect(floo.blocked, contains('Only mainnet'));
+    expect(floo.blocked, contains('only mainnet'));
     expect(byName(found, 'Savings').importable, isTrue);
     expect(byName(found, 'Savings').group, OldWalletGroup.gui);
     final cli = cliMain(found);

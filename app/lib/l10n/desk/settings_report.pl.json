@@ -10,7 +10,7 @@
   "deskSetReportArrivedRef": "Raport dotarł. Jego numer referencyjny to {id}.",
   "deskSetReportDescribe": "Opisz, co się stało.",
   "deskSetReportTitle": "Zgłoś problem",
-  "deskSetReportDesc": "Raport jest szyfrowany, więc przeczyta go tylko twórca aplikacji. Nic nie zostanie wysłane przed kliknięciem Wyślij. Zapisz do pliku zachowuje ten sam oczyszczony raport, bez szyfrowania.",
+  "deskSetReportDesc": "Zaszyfrowany, więc przeczyta go tylko twórca aplikacji. Zapisz do pliku zachowuje kopię bez szyfrowania.",
   "deskSetReportWhat": "Co się stało",
   "deskSetReportWhatHint": "Co było robione, czego oczekiwano, co stało się zamiast tego",
   "deskSetReportContact": "Kontakt",

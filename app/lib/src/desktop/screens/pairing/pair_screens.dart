@@ -2011,7 +2011,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
         ),
         // The other side may never confirm (They don't match there): the answer can go.
         PairingState.pendingReply => (
-          l.pendingWaitingConfirm(pairingSpan(l, now.difference(r.createdAt))),
+          l.pendingWaitingConfirm,
           [
             const ESpinner(),
             EButton(

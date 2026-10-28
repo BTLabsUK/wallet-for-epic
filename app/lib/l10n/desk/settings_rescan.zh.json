@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "扫描完成",
   "deskSetRescanStoppedLine": "扫描已停止",
   "deskSetRescanLog": "核对日志",
-  "deskSetRescanText": "重新读取区块链，并根据找到的输出重建余额。在余额看起来不对、恢复钱包之后，或发送失败后输出一直锁定时使用。期间钱包仍可使用。",
+  "deskSetRescanText": "重新读取区块链并重建余额。在余额看起来不对或输出一直锁定时使用。",
   "deskSetRescanStartAgain": "重新开始",
   "deskSetRescanDeleteUnconfirmed": "删除未确认的交易",
   "deskSetRescanDeleteHint": "同时取消未确认的交易并解锁它们的输出。已在途中的付款可能因此失败。",

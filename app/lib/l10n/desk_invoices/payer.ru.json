@@ -5,9 +5,9 @@
   "deskInvPayerView": "Открыть",
   "deskInvPayerNoMessage": "Нет сообщения",
   "deskInvPayerEmptyTitle": "Нет ожидающих счетов",
-  "deskInvPayerEmptyText": "Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, счёт появится здесь, и ничего не будет оплачено без вашего одобрения.",
+  "deskInvPayerEmptyText": "Здесь появляются счета от разрешённых сопряжённых контактов; без одобрения ничего не оплачивается.",
   "deskInvPayerNotDeliveredTitle": "Ваш платёж сервису {service} не доставлен",
-  "deskInvPayerNotDeliveredText": "Он подписан и хранится на этом устройстве; средства заблокированы. «Повторить» отправит его снова без повторного одобрения.",
+  "deskInvPayerNotDeliveredText": "Он подписан и хранится на этом компьютере; EPIC остаются заблокированными. «Повторить» отправит его снова без повторного одобрения.",
   "deskInvPayerWithdrawnTitle": "Сервис {service} отозвал оплаченный вами счёт",
   "deskInvPayerWithdrawnText": "Платёж может так и не попасть в блокчейн. Отмените его, чтобы освободить монеты.",
   "deskInvPayerPastTtlTitle": "Вашего платежа сервису {service} нет в блокчейне",
@@ -59,7 +59,7 @@
   "deskInvPayerCancelled": "Платёж отменён",
   "deskInvPayerCancelledText": "Ваши средства разблокированы.",
   "deskInvPayerDeclined": "Счёт отклонён. Ничего не оплачено.",
-  "deskInvPayerSpendToSelf": "Отправить их себе сейчас",
+  "deskInvPayerSpendToSelf": "Отправить их обратно на этот кошелёк сейчас",
   "deskInvPayerSpendToSelfHelp": "Делает отмену окончательной: подписанная копия у сервиса больше не сможет завершиться. Требует сетевой комиссии.",
   "deskInvPayerSpentText": "Ваши средства разблокированы и перемещены внутри этого кошелька. Отмена окончательная.",
   "deskInvPayerSpendFailedText": "Ваши средства разблокированы, но переместить их не удалось. Отмена ещё не окончательная.",
@@ -67,5 +67,6 @@
   "deskInvPayerRelayDownPay": "Сервер Epicbox не отвечает. Ничего не оплачено.",
   "deskInvPayerStalledTitle": "Ваш платёж для {service} застрял",
   "deskInvPayerStalledText": "Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения.",
-  "deskInvPayerPaidHead": "Оплаченные"
+  "deskInvPayerPaidHead": "Оплаченные",
+  "deskInvPayerAgoHoursOnly": "{hours} ч"
 }

@@ -1,5 +1,5 @@
 {
-  "deskSetAboutLicencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.",
+  "deskSetAboutLicencesLead": "Open-source software in this wallet, each under its own licence.",
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
@@ -18,12 +18,22 @@
   "deskSetAboutVersion": "Version  {version}",
   "@deskSetAboutVersion": {
     "description": "Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.",
-    "placeholders": {"version": {"type": "String", "example": "26.10.2 · core 0.1.0"}}
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.2 · core 0.1.0"
+      }
+    }
   },
   "deskSetAboutNode": "Node  {version}",
   "@deskSetAboutNode": {
     "description": "Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.",
-    "placeholders": {"version": {"type": "String", "example": "3.6.0"}}
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "3.6.0"
+      }
+    }
   },
   "deskSetAboutCommunity": "Community",
   "@deskSetAboutCommunity": {
@@ -44,17 +54,32 @@
   "deskSetAboutChecked": "Checked {ago}.",
   "@deskSetAboutChecked": {
     "description": "Settings › About › Updates: when the app last asked for updates, e.g. 'Checked 5 min ago.' or 'Checked just now.' The {ago} part comes from deskSetAboutAgo*.",
-    "placeholders": {"ago": {"type": "String", "example": "5 min ago"}}
+    "placeholders": {
+      "ago": {
+        "type": "String",
+        "example": "5 min ago"
+      }
+    }
   },
   "deskSetAboutLatest": "{version} is the latest",
   "@deskSetAboutLatest": {
     "description": "Settings › About › Updates: this version is the newest.",
-    "placeholders": {"version": {"type": "String", "example": "26.10.2"}}
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.2"
+      }
+    }
   },
   "deskSetAboutAvailable": "Update available: {version}",
   "@deskSetAboutAvailable": {
     "description": "Settings › About › Updates: a newer version exists.",
-    "placeholders": {"version": {"type": "String", "example": "26.11.0"}}
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.11.0"
+      }
+    }
   },
   "deskSetAboutCouldNotCheck": "Could not check",
   "@deskSetAboutCouldNotCheck": {
@@ -75,17 +100,29 @@
   "deskSetAboutAgoMin": "{count} min ago",
   "@deskSetAboutAgoMin": {
     "description": "Fills {ago} in deskSetAboutChecked: minutes ago (1 to 59). Lower case; 'min' is the short unit.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "deskSetAboutAgoHours": "{count} h ago",
   "@deskSetAboutAgoHours": {
     "description": "Fills {ago} in deskSetAboutChecked: hours ago (1 to 23). Lower case; 'h' is the short unit.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "deskSetAboutAgoDays": "{count} d ago",
   "@deskSetAboutAgoDays": {
     "description": "Fills {ago} in deskSetAboutChecked: days ago. Lower case; 'd' is the short unit.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "deskSetAboutCopyLink": "Copy link",
   "@deskSetAboutCopyLink": {

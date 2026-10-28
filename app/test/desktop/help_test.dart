@@ -109,7 +109,7 @@ void main() {
 
   testWidgets('a search that matches a body opens the topic; no match says so', (tester) async {
     await _pump(tester, arg: 'mimblewimble');
-    expect(find.text('Topics found: 1'), findsOneWidget);
+    expect(find.text('1 topic found'), findsOneWidget);
     expect(find.text('Show less'), findsOneWidget);
     expect(find.text('Getting started'), findsNothing, reason: 'no chips or section heads while searching');
     await _pump(tester, arg: 'zebra');

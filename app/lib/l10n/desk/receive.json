@@ -47,16 +47,11 @@
   "@deskRecvTorStarting": {
     "description": "Title of the notice on Receive while Tor connects."
   },
-  "deskRecvTorDownText": "Nothing arrives over {routes} until it is, or until Tor is turned off.",
+  "deskRecvTorDownText": "Every connection waits for Tor. Retry, or turn Tor off.",
   "@deskRecvTorDownText": {
-    "description": "Text of the notice on Receive when Tor failed. {routes} is a list of the connections that wait for Tor, such as \"Epicbox, the node, status, price, updates, support and Tor addresses\". \"it\" is Tor.",
-    "placeholders": {
-      "routes": {
-        "type": "String"
-      }
-    }
+    "description": "Text of the notice on Receive when Tor failed."
   },
-  "deskRecvTorStartingText": "Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.",
+  "deskRecvTorStartingText": "Addresses become reachable when Tor connects.",
   "@deskRecvTorStartingText": {
     "description": "Text of the notice on Receive while Tor connects. \"it\" is Tor."
   },
@@ -174,7 +169,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.",
+  "deskRecvEpicboxIntro": "Share it to get paid; the Epicbox server holds payments while the wallet is closed.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },
@@ -203,7 +198,7 @@
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
-  "deskRecvHttpIntro": "Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.",
+  "deskRecvHttpIntro": "Straight from another wallet while this one is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
@@ -239,7 +234,7 @@
   "@deskRecvSignTitle": {
     "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
   },
-  "deskRecvSignText": "A sender gave a transaction file. The wallet signs it and saves a response for them.",
+  "deskRecvSignText": "Sign the sender’s transaction file and save the response file.",
   "@deskRecvSignText": {
     "description": "Row text under Sign a transaction file."
   },
@@ -251,7 +246,7 @@
   "@deskRecvFinalizeTitle": {
     "description": "Row title in the transaction files panel: opens the page that finalizes a response file."
   },
-  "deskRecvFinalizeText": "A file send got a response back. Finalizing posts the payment.",
+  "deskRecvFinalizeText": "Finalize the recipient’s response file to post the payment.",
   "@deskRecvFinalizeText": {
     "description": "Row text under Finalize a response file."
   },

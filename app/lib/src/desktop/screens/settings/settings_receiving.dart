@@ -154,11 +154,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice}) {
     final l = context.l10n;
     final busy = _busy.contains(m);
-    // In Settings the description sits above: an "Off" line needs no repeat of it.
+    // The row's info hint describes the method: an "Off" line needs no repeat of it.
     final shown = line.state == EState.off && m != TxMethod.epicbox ? MethodLine(line.word, line.state) : line;
     return ESetRow(
       title: l.deskSetRecvReceiving,
-      text: text,
+      hint: text,
       control: !switchable ? null : SizedBox(
         width: 40.u,
         height: 24.u,

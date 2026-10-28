@@ -3,7 +3,7 @@
   "@deskSetNodePortNote": {
     "description": "Settings > Node: error under the node picker when the typed node does not answer."
   },
-  "deskSetNodeListNote": "State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.",
+  "deskSetNodeListNote": "Status from status.btlabs.uk; latency measured from this computer.",
   "@deskSetNodeListNote": {
     "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
   },

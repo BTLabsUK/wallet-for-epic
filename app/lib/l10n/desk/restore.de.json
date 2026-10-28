@@ -22,7 +22,7 @@
   "deskOnbForgotOtherWallet": "Diese Phrase gehört zu einer anderen Wallet, nicht zu {name}. Es wurde nichts geändert.",
   "deskOnbSameNewPassword": "Neues Passwort festlegen",
   "deskSetupSkip": "Einrichtung überspringen",
-  "deskSetupSkipKeeps": "Überspringen behält die Node- und Epicbox-Einstellungen, wie sie sind.",
+  "deskSetupSkipKeeps": "Überspringen behält die aktuellen Node- und Epicbox-Einstellungen.",
   "deskSetupMarkNotCleared": "Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: {reason}. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ schließt sie.",
   "deskOvRestoredImportTitle": "Verlauf und Einstellungen zurückholen?",
   "deskOvRestoredImportBody": "Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Wallet-Datendatei bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.",

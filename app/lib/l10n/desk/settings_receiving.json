@@ -84,7 +84,7 @@
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."
   },
-  "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
+  "deskSetRecvListNote": "Status from status.btlabs.uk.",
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
@@ -132,7 +132,7 @@
   "@deskSetHttpGuideHelp": {
     "description": "Tooltip and screen reader label of the help button that opens the internet guide."
   },
-  "deskSetHttpPublicNote": "Answers on all interfaces. The router must forward TCP {port} to this computer. Senders on the internet use http://<public IP>:{port}.",
+  "deskSetHttpPublicNote": "Answers on all interfaces; the router must forward TCP {port} to this computer.",
   "@deskSetHttpPublicNote": {
     "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
     "placeholders": {
@@ -169,7 +169,7 @@
   "@deskSetHttpStep1": {
     "description": "Internet guide dialog: step 1 title."
   },
-  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.",
+  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}, so other devices can send to it.",
   "@deskSetHttpStep1Text": {
     "description": "Internet guide dialog: step 1 text. 0.0.0.0 is an address and stays.",
     "placeholders": {

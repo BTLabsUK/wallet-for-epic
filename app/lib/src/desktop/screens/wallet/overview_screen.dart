@@ -278,7 +278,7 @@ class _SyncNotice extends StatelessWidget {
           tone: ETone.warn,
           icon: EIcons.server,
           title: l.deskOvSyncTitle((part * 100).round()),
-          text: l.deskOvSyncText(_group(l, walletTip)),
+          text: l.deskOvSyncText,
         ),
         SizedBox(height: Sp.x2),
         Semantics(

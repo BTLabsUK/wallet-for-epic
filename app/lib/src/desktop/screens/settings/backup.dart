@@ -542,7 +542,6 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
                 _List([
                   (label: l.deskSetBackupBringsBack, value: Text(l.deskSetBackupBringsBackValue), sub: null),
                   (label: l.deskSetBackupNeeds, value: Text(l.deskSetBackupNeedsValue(network == 'mainnet' ? network : toBeginningOfSentenceCase(network))), sub: null),
-                  (label: l.deskSetBackupNever, value: Text(l.deskSetBackupNeverValue), sub: null),
                 ]),
               ],
             );

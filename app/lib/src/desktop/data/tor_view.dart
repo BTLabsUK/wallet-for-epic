@@ -43,9 +43,6 @@ String torWord(AppLocalizations l, TorState s) => switch (s) {
 /// does not (the owner's rule); a send that skips Tor says so on that send.
 String torCoverageText(AppLocalizations l) => l.deskTorCoverage;
 
-/// What waits while Tor starts or is not connected, e.g. "Epicbox and Tor addresses".
-String torWaitingText(AppLocalizations l) => l.deskTorRoutes;
-
 /// A node on this computer: never over Tor ([torSkipsLocalNode]).
 bool isLocalNodeUrl(String url) {
   final host = Uri.tryParse(url)?.host.toLowerCase() ?? '';

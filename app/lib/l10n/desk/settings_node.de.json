@@ -1,6 +1,6 @@
 {
   "deskSetNodePortNote": "Prüfen Sie Adresse und Port (meist 3413).",
-  "deskSetNodeListNote": "Zustand von status.btlabs.uk, alle paar Minuten geprüft. Latenz von diesem Computer aus gemessen.",
+  "deskSetNodeListNote": "Status von status.btlabs.uk; Latenz von diesem Computer aus gemessen.",
   "deskSetNodeStartTitle": "Lokalen Node starten?",
   "deskSetNodeStartDesc": "Ein eigenes Programm synchronisiert die Epic-Blockchain auf diesem Computer.",
   "deskSetNodeStartLine1": "Lädt die ganze Blockchain herunter: mehrere GB Speicher und Datenvolumen.",

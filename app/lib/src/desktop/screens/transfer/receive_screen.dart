@@ -326,7 +326,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       key: const ValueKey('rx-tor-notice'),
       tone: failed ? ETone.risk : ETone.warn,
       title: failed ? l.deskRecvTorNotConnected : l.deskRecvTorStarting,
-      text: failed ? l.deskRecvTorDownText(torWaitingText(l)) : l.deskRecvTorStartingText,
+      text: failed ? l.deskRecvTorDownText : l.deskRecvTorStartingText,
       actions: [
         if (failed) ...[
           EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),

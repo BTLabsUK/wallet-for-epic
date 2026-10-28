@@ -485,7 +485,6 @@ class _StatusTab extends StatelessWidget {
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     final overall = p?.overall;
     final pct = overall == null ? null : percent(overall);
-    final left = p == null ? null : timeLeft(context.l10n, p.stage, s.eta);
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(NodeAct? act) => switch (act) {
@@ -510,7 +509,7 @@ class _StatusTab extends StatelessWidget {
         series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
         chart: nodeChartHeight(wide: wide),
       ),
-      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
+      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100%' : '–'), series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
       if (p?.stage == SyncStage.chainStateDownload)
         NodeTile(
           label: l.deskSetLnodeTileDownload,
@@ -576,7 +575,7 @@ class _StatusTab extends StatelessWidget {
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
                     ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
-                    : [?pct, ?left].join(' · '),
+                    : pct ?? '',
                 style: ts.small.copyWith(color: c.dim),
               ),
             ],
@@ -678,7 +677,7 @@ class NodeSyncBar extends StatelessWidget {
           backgroundColor: c.s3,
           color: value == null && reduced ? c.accent.withValues(alpha: 0.35) : c.accent,
           semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
-          semanticsValue: value == null ? null : '${(value! * 100).floor()} %',
+          semanticsValue: value == null ? null : '${(value! * 100).floor()}%',
         ),
       ),
     );

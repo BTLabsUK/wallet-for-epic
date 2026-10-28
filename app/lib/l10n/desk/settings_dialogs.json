@@ -23,7 +23,7 @@
   "@deskSetDlgChainUpdatedValue": {
     "description": "Existing blockchain data dialog: sample value of Last updated."
   },
-  "deskSetDlgChainOthers": "Other copies were found too (1). This one was updated most recently.",
+  "deskSetDlgChainOthers": "1 other copy found; this one is the newest.",
   "@deskSetDlgChainOthers": {
     "description": "Existing blockchain data dialog: note that another copy exists."
   },
@@ -55,7 +55,7 @@
   "@deskSetDlgPwTitle": {
     "description": "Change password dialog: title and primary button."
   },
-  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on. A remembered password is forgotten.",
+  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on; Remember on this computer is turned off.",
   "@deskSetDlgPwDesc": {
     "description": "Change password dialog: description under the title."
   },
@@ -106,10 +106,6 @@
       }
     }
   },
-  "deskSetDlgRemoveDesc": "Nothing changes until confirmed.",
-  "@deskSetDlgRemoveDesc": {
-    "description": "Remove wallet dialog: description under the title."
-  },
   "deskSetDlgRemoveWhat": "What to remove",
   "@deskSetDlgRemoveWhat": {
     "description": "Remove wallet dialog: screen reader label of the two choices."
@@ -118,7 +114,7 @@
   "@deskSetDlgRemoveFromList": {
     "description": "Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer."
   },
-  "deskSetDlgRemoveFromListHint": "Files stay in {folder}. All wallets can add it back.",
+  "deskSetDlgRemoveFromListHint": "Files stay in {folder}; Add a wallet brings it back.",
   "@deskSetDlgRemoveFromListHint": {
     "description": "Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. \"All wallets\" is the Settings page.",
     "placeholders": {

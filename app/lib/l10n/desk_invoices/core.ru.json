@@ -8,7 +8,7 @@
   "deskInvChecking": "Проверка",
   "deskInvCheckedAt": "Проверено в {time}",
   "deskInvCheckFailedTitle": "Сервер Epicbox не отвечает",
-  "deskInvCheckFailedBody": "Списки показывают то, что пришло раньше. Ничего не потеряно; кошелёк повторяет попытку каждые 2 минуты.",
+  "deskInvCheckFailedBody": "Списки показывают то, что пришло раньше; кошелёк повторит попытку.",
   "deskInvReqWaiting": "Ждёт плательщика",
   "deskInvReqPaid": "Оплачено, завершается",
   "deskInvReqPosted": "Отправлено в сеть",
