@@ -26,13 +26,17 @@ binding_src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-flutter-$bind
 
 # LEPIC and the lepic-flutter binding at their pinned commits, exported to cache dirs outside the
 # repo, so the app's own (possibly stale) app/third_party clones are neither used nor touched.
-if [[ ! -f "$src/.exported" ]]; then
+# LEPIC is a git checkout, not an archive: its xtask records the commit and whether the tree is
+# clean in the SOURCE file beside the library (`git rev-parse HEAD`, `git status`), which the
+# binding's build hook checks against its lepic.rev. A checkout writes every file now, so the
+# shared target volume never sees a commit-time mtime older than its last build.
+if [[ ! -f "$src/.exported-git" ]]; then
   mkdir -p "$src"
-  # -m: files get the extraction time, not the commit time. The target volume is shared by
-  # every pin, so a commit-time mtime older than the last build would leave a crate stale.
-  git -C "$lepic_repo" archive "$rev" | tar -x -m -C "$src"
+  git -C "$src" init --quiet
+  git -C "$src" fetch --quiet "$lepic_repo" "$rev"
+  git -C "$src" checkout --quiet --force --detach FETCH_HEAD
   mkdir -p "$src/target"
-  touch "$src/.exported"
+  touch "$src/.exported-git"
 fi
 if [[ ! -f "$binding_src/.exported" ]]; then
   mkdir -p "$binding_src"
