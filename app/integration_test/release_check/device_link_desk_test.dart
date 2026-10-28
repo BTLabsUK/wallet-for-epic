@@ -79,7 +79,7 @@ void main() {
     await io(tester, () => apiOf(tester).useNetwork('floonet'));
     containerOf(tester).read(onbFlowProvider.notifier).setNetwork('floonet');
     await settle(tester, ms: 800);
-    await tapText(tester, 'Restore from a phrase');
+    await tapText(tester, 'Restore from phrase');
     await typeIn(tester, 0, phrase);
     await settle(tester, ms: 1500);
     await tapText(tester, 'Continue', last: true);
@@ -177,9 +177,9 @@ void main() {
 
     // Cancel, as a person does: the phone frees the coins.
     await go(tester, DeskRoute.activity, tx.id);
-    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel').first);
+    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 600);
-    await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
+    await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 1200);
     await shot(tester, 'd09-cancel-dialog');
     await tapText(tester, 'Cancel payment', last: true);

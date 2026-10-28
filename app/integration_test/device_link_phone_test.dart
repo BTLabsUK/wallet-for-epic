@@ -176,8 +176,8 @@ void main() {
     // The same wallet as the desktop: restored from its phrase.
     final phrase = await take(tester, 'phrase.txt');
     await tester.runAsync(() => File('${_base.path}/dl/phrase.txt').delete());
-    await waitText(tester, 'Restore from a phrase', timeout: const Duration(minutes: 2));
-    await tapText(tester, 'Restore from a phrase');
+    await waitText(tester, 'Restore from phrase', timeout: const Duration(minutes: 2));
+    await tapText(tester, 'Restore from phrase');
     await typeInto(tester, fieldF('Recovery phrase'), phrase);
     await tapText(tester, 'Continue', last: true);
     await typeInto(tester, fieldF('PIN'), _pin);
