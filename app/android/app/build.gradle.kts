@@ -101,12 +101,13 @@ android {
     // tools/fetch-tor.sh android puts the Tor Project's tor here as <abi>/libtor.so. It is an
     // executable, and Android only runs files from the app's native library folder, so the
     // libraries are extracted at install (extractNativeLibs) instead of being mapped from the APK.
-    // The build without Tor packs them the same way: compressed, the website's APK is about half
-    // the size (51.6 MB uncompressed in 26.10.20).
+    // The APKs without Tor (web, fdroid) pack them the same way: compressed, the website's APK
+    // is about half the size (51.6 MB uncompressed in 26.10.20). The Play bundle keeps them
+    // uncompressed without Tor: Play compresses per device itself.
     if (torBuilt) sourceSets["main"].jniLibs.srcDir("src/main/tor-jniLibs")
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = torBuilt || dist != "play"
         }
     }
 
