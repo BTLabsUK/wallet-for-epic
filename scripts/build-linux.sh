@@ -10,17 +10,21 @@
 #        WFE_TOR=0                          the build without Tor (https://docs.btlabs.uk/developers/build/variants/): no Tor bundle
 #                                           (tools/fetch-tor.sh, in by default), --dart-define=WFE_TOR=false,
 #                                           and -notor in the AppImage's name
-#        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
-#        LEPIC_FLUTTER_REPO=~/lepic-flutter where the pinned lepic-flutter (package:lepic) commit is read from
+#        LEPIC_REPO=<url or path>           where the pinned LEPIC commit is read from (default: ~/lepic
+#                                           when it has the commit, else https://github.com/BTLabs-EPIC/lepic.git)
+#        LEPIC_FLUTTER_REPO=<url or path>   the same for lepic-flutter (package:lepic): ~/lepic-flutter
+#                                           or https://github.com/BTLabs-EPIC/lepic-flutter.git
 # Output: build-linux/EpicCashDesktop-<version>[-notor]-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 image=wfe-linux-build:22.04
-lepic_repo="${LEPIC_REPO:-$HOME/lepic}"
-binding_repo="${LEPIC_FLUTTER_REPO:-$HOME/lepic-flutter}"
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
 binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
+. "$root/tools/env.sh"
+lepic_repo="$(wfe_repo "${LEPIC_REPO:-}" "$HOME/lepic" https://github.com/BTLabs-EPIC/lepic.git "$rev")"
+binding_repo="$(wfe_repo "${LEPIC_FLUTTER_REPO:-}" "$HOME/lepic-flutter" \
+  https://github.com/BTLabs-EPIC/lepic-flutter.git "$binding_rev")"
 src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-$rev"
 binding_src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-flutter-$binding_rev"
 
@@ -40,7 +44,13 @@ if [[ ! -f "$src/.exported-git" ]]; then
 fi
 if [[ ! -f "$binding_src/.exported" ]]; then
   mkdir -p "$binding_src"
-  git -C "$binding_repo" archive "$binding_rev" | tar -x -m -C "$binding_src"
+  if [[ -d "$binding_repo" ]]; then
+    git -C "$binding_repo" archive "$binding_rev" | tar -x -m -C "$binding_src"
+  else
+    git -C "$binding_src" init --quiet
+    git -C "$binding_src" fetch --quiet "$binding_repo" "$binding_rev"
+    git -C "$binding_src" checkout --quiet --force --detach FETCH_HEAD
+  fi
   touch "$binding_src/.exported"
 fi
 # The binding builds against its own LEPIC pin; the app's must be the same commit.

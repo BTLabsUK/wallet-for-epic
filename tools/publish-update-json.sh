@@ -13,7 +13,7 @@
 #   UPDATE_SIGN_TOOL  btlabs_sign.py (default ~/code/btlabs-public/tool/btlabs_sign.py)
 set -euo pipefail
 file="${1:?usage: $0 <signed update.json>}"
-conf="$HOME/.config/btlabs/update-publish.env"
+conf="${UPDATE_PUBLISH_CONF:-$HOME/.config/btlabs/update-publish.env}"
 # shellcheck disable=SC1090
 [[ -f "$conf" ]] && { set -a; . "$conf"; set +a; }
 host="${UPDATE_SSH_HOST:?set UPDATE_SSH_HOST (or put it in $conf)}"
