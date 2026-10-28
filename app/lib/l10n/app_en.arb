@@ -4486,6 +4486,10 @@
   "@sendNoteHelper": {
     "description": "Send, step 2: under the note field; the recipient sees the note as well."
   },
+  "sendReviewMessageKept": "They see it. It is also kept with this payment in your history.",
+  "@sendReviewMessageKept": {
+    "description": "Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note)."
+  },
   "sendNetworkFee": "Network fee",
   "@sendNetworkFee": {
     "description": "Send, review: label of the row with the network fee."

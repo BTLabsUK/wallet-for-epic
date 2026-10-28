@@ -935,6 +935,7 @@
   "sendAddNote": "添加留言",
   "sendNoteLabel": "留言",
   "sendNoteHelper": "收款人能看到。",
+  "sendReviewMessageKept": "收款人能看到。它也会和这笔付款一起保存在你的历史记录中。",
   "sendNetworkFee": "网络手续费",
   "sendChecking": "正在检查…",
   "sendReady": "可以发送",

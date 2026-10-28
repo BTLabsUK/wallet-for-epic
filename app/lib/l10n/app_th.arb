@@ -935,6 +935,7 @@
   "sendAddNote": "เพิ่มข้อความ",
   "sendNoteLabel": "ข้อความ",
   "sendNoteHelper": "ผู้รับเห็นข้อความนี้",
+  "sendReviewMessageKept": "ผู้รับเห็นข้อความนี้ และจะเก็บไว้กับการชำระเงินนี้ในประวัติของคุณด้วย",
   "sendNetworkFee": "ค่าธรรมเนียม",
   "sendChecking": "กำลังตรวจสอบ…",
   "sendReady": "พร้อมส่ง",

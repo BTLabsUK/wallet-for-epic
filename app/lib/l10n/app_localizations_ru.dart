@@ -3615,6 +3615,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNoteHelper => 'Получатель его увидит.';
 
   @override
+  String get sendReviewMessageKept =>
+      'Получатель его увидит. Оно также сохранится у этого платежа в вашей истории.';
+
+  @override
   String get sendNetworkFee => 'Комиссия сети';
 
   @override

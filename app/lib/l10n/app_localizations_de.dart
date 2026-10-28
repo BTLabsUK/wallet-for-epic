@@ -3579,6 +3579,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNoteHelper => 'Der Empfänger sieht sie.';
 
   @override
+  String get sendReviewMessageKept =>
+      'Der Empfänger sieht sie. Sie bleibt auch bei dieser Zahlung in Ihrem Verlauf gespeichert.';
+
+  @override
   String get sendNetworkFee => 'Netzwerkgebühr';
 
   @override

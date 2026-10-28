@@ -5731,6 +5731,12 @@ abstract class AppLocalizations {
   /// **'The recipient sees it.'**
   String get sendNoteHelper;
 
+  /// Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note).
+  ///
+  /// In en, this message translates to:
+  /// **'They see it. It is also kept with this payment in your history.'**
+  String get sendReviewMessageKept;
+
   /// Send, review: label of the row with the network fee.
   ///
   /// In en, this message translates to:

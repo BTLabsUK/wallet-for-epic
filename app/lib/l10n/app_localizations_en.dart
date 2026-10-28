@@ -3531,6 +3531,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendNoteHelper => 'The recipient sees it.';
 
   @override
+  String get sendReviewMessageKept =>
+      'They see it. It is also kept with this payment in your history.';
+
+  @override
   String get sendNetworkFee => 'Network fee';
 
   @override

@@ -935,6 +935,7 @@
   "sendAddNote": "Добавить сообщение",
   "sendNoteLabel": "Сообщение",
   "sendNoteHelper": "Получатель его увидит.",
+  "sendReviewMessageKept": "Получатель его увидит. Оно также сохранится у этого платежа в вашей истории.",
   "sendNetworkFee": "Комиссия сети",
   "sendChecking": "Проверка…",
   "sendReady": "Готово к отправке",

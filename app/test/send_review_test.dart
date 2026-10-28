@@ -636,32 +636,90 @@ void main() {
       expect(h.session.epicboxSends.single.to, _bob);
     });
 
-    testWidgets('the review shows the fee and the total, nothing else', (
+    testWidgets(
+      'the review shows the fee and the total, and the message as entered',
+      (tester) async {
+        final h = _Harness();
+        h.relays.list = [_status(_bobRelay, healthy: true)];
+        await h.pump(tester);
+        await h.connect(tester);
+        await _review(tester, _bob, note: 'For rent');
+        expect(find.text('Review'), findsOneWidget);
+        expect(find.text('3 of 3'), findsOneWidget);
+        expect(find.text('New recipient'), findsOneWidget);
+        expect(find.text('1.5 EPIC'), findsOneWidget);
+        expect(find.text('Network fee'), findsOneWidget);
+        expect(find.text('0.008 EPIC'), findsOneWidget);
+        expect(find.text('Total'), findsOneWidget);
+        expect(find.text('1.508 EPIC'), findsOneWidget);
+        // What stays: 40 spendable minus the total. The fake locks nothing beyond the total,
+        // so no "until change confirms" line.
+        expect(find.text('Balance after'), findsOneWidget);
+        expect(find.text('38.492 EPIC'), findsOneWidget);
+        expect(find.text('Spendable until change confirms'), findsNothing);
+        // The message is there as typed, with where it goes.
+        final block = find.byKey(sendReviewMessageKey);
+        expect(
+          find.descendant(of: block, matching: find.text('Message')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: block, matching: find.text('For rent')),
+          findsOneWidget,
+        );
+        expect(
+          find.text(
+            'They see it. It is also kept with this payment in your history.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Goes through'), findsNothing);
+      },
+    );
+
+    testWidgets('a long message wraps whole on the review', (tester) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      final long = List.filled(8, 'Rent for the flat in March').join(' ');
+      await _review(tester, _bob, note: long);
+      expect(
+        find.descendant(
+          of: find.byKey(sendReviewMessageKey),
+          matching: find.text(long),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('without a message the review has no Message row', (
       tester,
     ) async {
       final h = _Harness();
       h.relays.list = [_status(_bobRelay, healthy: true)];
       await h.pump(tester);
       await h.connect(tester);
-      await _review(tester, _bob, note: 'For rent');
-      expect(find.text('Review'), findsOneWidget);
-      expect(find.text('3 of 3'), findsOneWidget);
-      expect(find.text('New recipient'), findsOneWidget);
-      expect(find.text('1.5 EPIC'), findsOneWidget);
-      expect(find.text('Network fee'), findsOneWidget);
-      expect(find.text('0.008 EPIC'), findsOneWidget);
-      expect(find.text('Total'), findsOneWidget);
-      expect(find.text('1.508 EPIC'), findsOneWidget);
-      // What stays: 40 spendable minus the total. The fake locks nothing beyond the total,
-      // so no "until change confirms" line.
-      expect(find.text('Balance after'), findsOneWidget);
-      expect(find.text('38.492 EPIC'), findsOneWidget);
-      expect(find.text('Spendable until change confirms'), findsNothing);
-      // Two rows only: no note, no relay, no method.
-      expect(find.text('For rent'), findsNothing);
-      expect(find.textContaining('Goes through'), findsNothing);
+      await _review(tester, _bob);
+      expect(find.byKey(sendReviewMessageKey), findsNothing);
       expect(find.text('Message'), findsNothing);
+      expect(find.textContaining('kept with this payment'), findsNothing);
     });
+
+    testWidgets(
+      'an Epicbox send signs the message in and keeps it as the note',
+      (tester) async {
+        final h = _Harness();
+        h.relays.list = [_status(_bobRelay, healthy: true)];
+        await h.pump(tester);
+        await h.connect(tester);
+        await _review(tester, _bob, note: ' For rent ');
+        await _tap(tester, _sendButton);
+        expect(h.session.sentMessages, ['For rent']);
+        expect(h.session.notes.values, ['For rent']);
+      },
+    );
 
     testWidgets('the checks run beside the fee, and each review asks again', (
       tester,
@@ -822,23 +880,26 @@ void main() {
         // LEPIC stored it with its coins on hold; the review says so, in plain words.
         expect(h.session.transactionsValue, hasLength(1));
         expect(find.textContaining('relay sent nothing'), findsNothing);
-        expect(
-          find.text(
-            'Their Epicbox server (epicbox.epiccash.com) refused it. The amount stays locked until you cancel '
-            'it, or for up to 1 day.',
-          ),
-          findsOneWidget,
+        expect(find.byTooltip('Back'), findsNothing);
+        // The message block above pushes the line down: scroll to it.
+        final refused = find.text(
+          'Their Epicbox server (epicbox.epiccash.com) refused it. The amount stays locked until you cancel '
+          'it, or for up to 1 day.',
         );
+        await tester.scrollUntilVisible(refused, 100);
+        expect(refused, findsOneWidget);
         // No second payment: neither Send anyway nor a plain file offer.
         expect(find.text('Send anyway'), findsNothing);
         expect(_fileButton, findsNothing);
         expect(_sendButton, findsNothing);
-        expect(find.byTooltip('Back'), findsNothing);
 
         await _tap(tester, find.text('Cancel and pay with a file'));
         expect(h.session.cancelledTxIds, [
           h.session.transactionsValue.single.id,
         ]);
+        // The file page opens at the top, not where the review was scrolled to.
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+        await tester.pumpAndSettle();
         expect(find.text('Direct · File Transfer'), findsOneWidget);
         expect(
           tester

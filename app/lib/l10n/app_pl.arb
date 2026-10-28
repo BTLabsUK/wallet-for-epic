@@ -935,6 +935,7 @@
   "sendAddNote": "Dodaj wiadomość",
   "sendNoteLabel": "Wiadomość",
   "sendNoteHelper": "Odbiorca ją zobaczy.",
+  "sendReviewMessageKept": "Odbiorca ją zobaczy. Zostaje też przy tej płatności w Twojej historii.",
   "sendNetworkFee": "Opłata sieciowa",
   "sendChecking": "Sprawdzanie…",
   "sendReady": "Gotowe do wysłania",

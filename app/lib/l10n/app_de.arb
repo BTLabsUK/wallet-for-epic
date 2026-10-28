@@ -935,6 +935,7 @@
   "sendAddNote": "Nachricht hinzufügen",
   "sendNoteLabel": "Nachricht",
   "sendNoteHelper": "Der Empfänger sieht sie.",
+  "sendReviewMessageKept": "Der Empfänger sieht sie. Sie bleibt auch bei dieser Zahlung in Ihrem Verlauf gespeichert.",
   "sendNetworkFee": "Netzwerkgebühr",
   "sendChecking": "Wird geprüft…",
   "sendReady": "Bereit zum Senden",
