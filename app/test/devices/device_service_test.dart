@@ -99,7 +99,7 @@ void main() {
       next.dispose();
     });
 
-    // a tester, 2026-10-28: the computer cancelled, the phone held the coins for minutes. The apps
+    // A tester, 2026-10-28: the computer cancelled, the phone held the coins for minutes. The apps
     // set the foreground before the book is read; a service made with a device linked already
     // (a start, a wallet switch) never started its 5 s reads.
     test('a service started with a device linked reads every 5 s once its book is read', () {

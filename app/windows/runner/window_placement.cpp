@@ -12,12 +12,17 @@ namespace {
 constexpr const wchar_t kKey[] = L"Software\\BT Labs\\Epic Cash Desktop";
 constexpr const wchar_t kValue[] = L"WindowPlacement";
 
-// The first window, in logical px.
-constexpr int kStartWidth = 1280;
-constexpr int kStartHeight = 820;
-// The smallest: the sidebar stays a rail (Bp.phone is 600 px, 750 at 125% interface scale).
+// The first window: 80% of the work area each way, at most kMaxStart, at least kMin (logical
+// px). The same rule as the app's lib/src/desktop/app/window_placement.dart (Linux, macOS).
+constexpr int kSharePercent = 80;
+constexpr int kMaxStartWidth = 1600;
+constexpr int kMaxStartHeight = 1000;
+// The smallest: the sidebar stays a rail (Bp.phone is 600 px, 750 at 125% interface scale) and
+// Send shows the recipient, the amount and Review without scrolling (deskWindowMinSize).
 constexpr int kMinWidth = 800;
-constexpr int kMinHeight = 640;
+constexpr int kMinHeight = 700;
+// How far a saved frame may be larger than the work area and still be restored (logical px).
+constexpr int kBorderSlack = 16;
 
 // The saved value; a different size (another version) is ignored.
 struct Saved {
@@ -38,23 +43,31 @@ RECT WorkArea(HMONITOR monitor) {
   return info.rcWork;
 }
 
-// |wanted| when it fits in |work|, else 80% of it, but not under |minimum| (itself within |work|).
-LONG Fit(LONG wanted, LONG work, LONG minimum) {
-  if (wanted <= work) return wanted;
-  return std::max(work * 8 / 10, std::min(minimum, work));
+// kSharePercent of |work|, at most |most|, at least |least|; |least| itself never over |work|.
+LONG Fit(LONG work, LONG least, LONG most) {
+  least = std::min(least, work);
+  return std::clamp(work * kSharePercent / 100, least, std::max(least, most));
 }
 
-WindowStart FirstRun() {
-  HMONITOR primary = ::MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
-  const RECT work = WorkArea(primary);
-  const UINT dpi = FlutterDesktopGetDpiForMonitor(primary);
+WindowStart FirstRunOn(HMONITOR monitor, bool maximized) {
+  const RECT work = WorkArea(monitor);
+  const UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   const LONG work_w = work.right - work.left;
   const LONG work_h = work.bottom - work.top;
-  const LONG w = Fit(Scale(kStartWidth, dpi), work_w, Scale(kMinWidth, dpi));
-  const LONG h = Fit(Scale(kStartHeight, dpi), work_h, Scale(kMinHeight, dpi));
+  const LONG w = Fit(work_w, Scale(kMinWidth, dpi), Scale(kMaxStartWidth, dpi));
+  const LONG h = Fit(work_h, Scale(kMinHeight, dpi), Scale(kMaxStartHeight, dpi));
   const LONG left = work.left + (work_w - w) / 2;
   const LONG top = work.top + (work_h - h) / 2;
-  return WindowStart{RECT{left, top, left + w, top + h}, false};
+  return WindowStart{RECT{left, top, left + w, top + h}, maximized};
+}
+
+// On the monitor the pointer is on (where the user started the app), else the primary.
+WindowStart FirstRun() {
+  POINT cursor{0, 0};
+  HMONITOR monitor = ::GetCursorPos(&cursor)
+                         ? ::MonitorFromPoint(cursor, MONITOR_DEFAULTTOPRIMARY)
+                         : ::MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
+  return FirstRunOn(monitor, false);
 }
 
 }  // namespace
@@ -68,8 +81,11 @@ WindowStart InitialWindowPlacement() {
     return FirstRun();
   }
   RECT frame{saved.left, saved.top, saved.right, saved.bottom};
-  // Its monitor was removed (or the layout changed): start as on the first run.
-  HMONITOR monitor = ::MonitorFromRect(&frame, MONITOR_DEFAULTTONULL);
+  const bool maximized = saved.maximized != 0;
+  // Its middle on no monitor (one was removed, the layout changed): start as on the first run.
+  const POINT middle{frame.left + (frame.right - frame.left) / 2,
+                     frame.top + (frame.bottom - frame.top) / 2};
+  HMONITOR monitor = ::MonitorFromPoint(middle, MONITOR_DEFAULTTONULL);
   if (monitor == nullptr) return FirstRun();
   const RECT work = WorkArea(monitor);
   const UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
@@ -80,11 +96,18 @@ WindowStart InitialWindowPlacement() {
     w = MulDiv(w, dpi, saved.dpi);
     h = MulDiv(h, dpi, saved.dpi);
   }
-  w = std::min(w, work.right - work.left);
-  h = std::min(h, work.bottom - work.top);
+  const LONG work_w = work.right - work.left;
+  const LONG work_h = work.bottom - work.top;
+  // Larger than the work area now (a smaller monitor, a larger scale): the first-run size there.
+  // The slack is the frame's invisible resize borders, which may stick out of the work area.
+  const LONG slack = Scale(kBorderSlack, dpi);
+  if (w > work_w + slack || h > work_h + slack) return FirstRunOn(monitor, maximized);
+  // Within the work area, and at least the smallest window (an older version's was smaller).
+  w = std::clamp(w, std::min<LONG>(Scale(kMinWidth, dpi), work_w), work_w);
+  h = std::clamp(h, std::min<LONG>(Scale(kMinHeight, dpi), work_h), work_h);
   const LONG left = std::clamp(frame.left, work.left, work.right - w);
   const LONG top = std::clamp(frame.top, work.top, work.bottom - h);
-  return WindowStart{RECT{left, top, left + w, top + h}, saved.maximized != 0};
+  return WindowStart{RECT{left, top, left + w, top + h}, maximized};
 }
 
 void SaveWindowPlacement(HWND window, const RECT& normal) {

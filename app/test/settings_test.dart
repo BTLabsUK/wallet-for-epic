@@ -1904,6 +1904,67 @@ void main() {
       expect(find.byKey(connectionServersTileKey), findsNothing);
     });
 
+    // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
+    // Pairing off; every width gets the same Settings, which this keeps true.
+    group('the same rows at every width', () {
+      // Width classes in dp: phone, foldable / small tablet, tablet portrait and landscape.
+      const sizes = [(w: 411.0, h: 914.0), (w: 673.0, h: 841.0), (w: 800.0, h: 1280.0), (w: 1280.0, h: 800.0)];
+
+      // Every keyed widget and text a page builds, scrolled from top to bottom.
+      Future<Set<String>> pageRows(WidgetTester tester) async {
+        final rows = <String>{};
+        void collect() {
+          for (final e in find.byWidgetPredicate((w) => w.key is ValueKey<String> || w is Text).evaluate()) {
+            final w = e.widget;
+            rows.add(w is Text ? 'text:${w.data ?? w.textSpan?.toPlainText()}' : 'key:${(w.key! as ValueKey<String>).value}');
+          }
+        }
+
+        final list = find.byType(Scrollable).first;
+        collect();
+        for (var i = 0; i < 40; i++) {
+          final pos = tester.state<ScrollableState>(list).position;
+          if (pos.pixels >= pos.maxScrollExtent) break;
+          await tester.drag(list, const Offset(0, -300));
+          await tester.pumpAndSettle();
+          collect();
+        }
+        return rows;
+      }
+
+      for (final experimental in [false, true]) {
+        testWidgets('every Settings page, Experimental ${experimental ? 'on' : 'off'}: tablet and foldable show what the phone shows', (
+          tester,
+        ) async {
+          final h = _Harness(experimental: experimental, advanced: true);
+          await h.pump(tester);
+          await h.unlock(tester);
+          Map<SettingsSection?, Set<String>>? phone;
+          for (final size in sizes) {
+            tester.view.devicePixelRatio = 2;
+            tester.view.physicalSize = Size(size.w * 2, size.h * 2);
+            final pages = <SettingsSection?, Set<String>>{};
+            for (final section in [null, ...SettingsSection.values]) {
+              await h.openSettings(tester, section);
+              pages[section] = await pageRows(tester);
+              if (section == SettingsSection.advanced) {
+                expect(pages[section], experimental ? contains('key:adv-connection-servers') : isNot(contains('key:adv-connection-servers')), reason: '$size');
+                for (final row in ['adv-pairing', 'adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-offline']) {
+                  expect(pages[section], contains('key:$row'), reason: '$row at $size');
+                }
+              }
+              tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+              await tester.pumpAndSettle();
+            }
+            phone ??= pages;
+            for (final section in pages.keys) {
+              expect(pages[section], phone[section], reason: '${section?.name ?? 'hub'} at ${size.w.round()}x${size.h.round()}');
+            }
+          }
+        });
+      }
+    });
+
     testWidgets(
       'restore scans the whole chain and offers no start without it',
       (tester) async {

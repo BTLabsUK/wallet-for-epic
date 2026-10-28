@@ -1,5 +1,5 @@
 name: epic_wallet
-description: "A new Flutter project."
+description: Epic Cash Desktop and Epic Cash Mobile, wallets for Epic Cash.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -70,6 +70,9 @@ dependencies:
   window_manager: 0.5.2
   # Windows 11's snap layouts flyout on the title bar's maximise button (desk_window.dart).
   snap_layouts: 0.2.0
+  # The displays' work areas and scale for the window's first size and its saved place
+  # (window_placement.dart); window_manager's own dependency, at the version it resolves.
+  screen_retriever: 0.2.2
   # The LEPIC core behind --dart-define=WFE_CORE=lepic: the lepic-flutter binding, a clone pinned
   # by tools/lepic-flutter.rev. tools/lepic.sh sync creates it (and the LEPIC clone at
   # tools/lepic.rev, the binding's own pin) and tools/lepic.sh build builds its libraries.

@@ -12,14 +12,15 @@ struct WindowStart {
 };
 
 // The saved placement, moved onto the work area of its monitor; without one (first run) or when
-// its monitor is gone, 1280x820 logical px (or 80% of a smaller work area) centred on the primary.
+// its monitor is gone, 80% of the work area (at most 1600x1000, at least 800x700 logical px)
+// centred on the monitor the pointer is on.
 WindowStart InitialWindowPlacement();
 
 // Saves |normal| (the window's frame when neither maximised nor minimised, in screen
 // coordinates) and whether |window| is maximised or restores to maximised.
 void SaveWindowPlacement(HWND window, const RECT& normal);
 
-// The smallest window that keeps the desktop layout (800x640 logical px), at |window|'s DPI and
+// The smallest window that keeps the desktop layout (800x700 logical px), at |window|'s DPI and
 // never larger than its monitor's work area.
 POINT MinimumWindowSize(HWND window);
 

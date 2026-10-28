@@ -28,6 +28,10 @@ class DeskStore {
   static const nodesKey = 'desk.nodes';
   static const favouritesKey = 'desk.favourites';
 
+  /// The window's size, place and maximised state per display, for the app
+  /// (`WindowMemory` in `app/window_placement.dart`).
+  static const windowKey = 'desk.window';
+
   /// The wallet of [chain]: name, creation time, whether a scan is due. The first wallet's
   /// key; a wallet added later has [walletMetaKey].
   static String walletKey(String chain) => 'desk.wallet.$chain';
