@@ -300,7 +300,7 @@ void main() {
       await show(tester, const Size(1280, 1000), NodeDemo.ownDown);
       expect(find.text('Own node not answering'), findsOneWidget);
       expect(find.text('Try now'), findsOneWidget);
-      expect(find.text('Use node.btlabs.uk for good'), findsOneWidget);
+      expect(find.text('Keep node.btlabs.uk'), findsOneWidget);
       await end(tester);
     });
   });
