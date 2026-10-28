@@ -1103,6 +1103,10 @@ class FakeWalletSession implements WalletSession {
   int disposeCalls = 0;
   String phrase = FakeWalletService._defaultPhrase;
   final List<int> cancelledTxIds = [];
+
+  /// Thrown by [cancelTransaction] after it records the id, while set: LEPIC refusing a payment
+  /// the network has (`invalidArgument`), or a node it cannot reach.
+  WalletError? cancelError;
   final List<BigInt> sentAmounts = [];
 
   /// The message of every [createSendSlate] and [sendEpicbox] call, null when none was given.
@@ -1195,6 +1199,24 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<void> cancelTransaction({required int txId}) async {
     cancelledTxIds.add(txId);
+    if (cancelError case final error?) throw error;
+    // A receive its sender cancelled ends here as in LEPIC, keeping the sender's report.
+    final r = transactionsValue.indexWhere((t) => t.id == txId && senderCancelPending(t));
+    if (r >= 0) {
+      final tx = transactionsValue[r];
+      transactionsValue[r] = fakeTx(
+        id: tx.id,
+        slateId: tx.slateId,
+        kind: TxKind.receivedCancelled,
+        status: TxStatus.cancelled,
+        createdAtUnix: tx.createdAtUnix,
+        amountCredited: tx.amountCredited,
+        counterparty: tx.counterparty,
+        transport: tx.transport,
+        senderReportedCancelledAtUnix: tx.senderReportedCancelledAtUnix,
+      );
+      return;
+    }
     // A payment a failed send left behind: cancelling it frees its coins, as in LEPIC.
     final i = transactionsValue.indexWhere(
       (t) => t.id == txId && _undelivered.contains(txId),
@@ -2610,6 +2632,22 @@ class FakeWalletSession implements WalletSession {
     _emit(InvoiceEventKind.paymentPosted, slateId, kernelExcess: kernelExcess);
   }
 
+  /// The sender of the incoming payment [slateId] this wallet answered reports it cancelled, as
+  /// LEPIC raises it: the row records the report (at [clock]) and
+  /// [InvoiceEventKind.paymentCancelled] goes out. Nothing is cancelled here.
+  void reportCancelled({required String slateId}) {
+    final i = transactionsValue.indexWhere((t) => t.slateId == slateId);
+    if (i >= 0) {
+      final tx = transactionsValue[i];
+      transactionsValue[i] = copyTx(
+        tx,
+        note: tx.note,
+        senderReportedCancelledAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+      );
+    }
+    _emit(InvoiceEventKind.paymentCancelled, slateId);
+  }
+
   /// Drops the invoices whose time ran out.
   void _sweepExpired() {
     final now = clock();
@@ -3158,6 +3196,7 @@ TxEntry fakeTx({
   CancelReason? cancelReason,
   TxFlow flow = TxFlow.payment,
   int? senderReportedPostedAtUnix,
+  int? senderReportedCancelledAtUnix,
   String? pairingId,
   TxOrigin origin = TxOrigin.thisWallet,
   List<String> spentCommits = const [],
@@ -3210,6 +3249,7 @@ TxEntry fakeTx({
     cancelReason: cancelReason,
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
     pairingId: pairingId,
     origin: origin,
     spentCommits: spentCommits,
@@ -3218,12 +3258,14 @@ TxEntry fakeTx({
 }
 
 /// [tx] with [note] replaced, and [undelivered], [label], [counterparty], [transport],
-/// [manualFields], [manualEditedAtUnix] and [senderReportedPostedAtUnix] when given.
+/// [manualFields], [manualEditedAtUnix], [senderReportedPostedAtUnix] and
+/// [senderReportedCancelledAtUnix] when given.
 TxEntry copyTx(
   TxEntry tx, {
   String? note,
   bool? undelivered,
   int? senderReportedPostedAtUnix,
+  int? senderReportedCancelledAtUnix,
   String? label,
   String? counterparty,
   String? transport,
@@ -3268,6 +3310,8 @@ TxEntry copyTx(
   datedByBlock: tx.datedByBlock,
   senderReportedPostedAtUnix:
       senderReportedPostedAtUnix ?? tx.senderReportedPostedAtUnix,
+  senderReportedCancelledAtUnix:
+      senderReportedCancelledAtUnix ?? tx.senderReportedCancelledAtUnix,
   origin: tx.origin,
   spentCommits: tx.spentCommits,
   unverified: tx.unverified,

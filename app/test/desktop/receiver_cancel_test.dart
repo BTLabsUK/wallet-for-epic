@@ -35,7 +35,7 @@ class _Desk extends MockDeskWallet {
 
 final _now = DateTime(2026, 10, 25, 12);
 
-Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox, bool notPosted = false, DateTime? created, bool senderPosted = false}) => Tx(
+Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox, bool notPosted = false, DateTime? created, bool senderPosted = false, bool senderCancelled = false}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: incoming ? TxDirection.received : TxDirection.sent,
@@ -46,6 +46,7 @@ Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable
   created: created ?? DateTime(2026, 10, 20),
   counterparty: 'esAlice@epicbox.example',
   senderPosted: senderPosted,
+  senderCancelled: senderCancelled,
   cancellable: cancellable,
   fromBackup: fromBackup,
   notPosted: notPosted,
@@ -151,6 +152,20 @@ void main() {
       expect(_cancelButton, findsNothing);
       expect(find.text('Cancel is unavailable while the sender reports it posted.'), findsOneWidget);
       expect(find.byKey(const ValueKey('tx-sender-posted')), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('its sender cancelled it: Cancel at once, the ordinary button, no line to weigh', (tester) async {
+      await _pump(
+        tester,
+        _tx(incoming: true, state: TxState.waitingRecipient, created: _now.subtract(const Duration(minutes: 2)), senderPosted: true, senderCancelled: true),
+        _Desk(),
+      );
+      expect(tester.widget<EButton>(_cancelButton).kind, EBtnKind.danger);
+      expect(find.byKey(const ValueKey('tx-cancel-hold')), findsNothing);
+      expect(find.byKey(const ValueKey('tx-sender-cancelled')), findsOneWidget);
+      expect(find.byKey(const ValueKey('tx-sender-posted')), findsNothing);
+      expect(find.textContaining('Accepted'), findsNothing);
       await _end(tester);
     });
 

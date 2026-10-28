@@ -652,6 +652,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelledIncoming => '已取消。如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
+  String get txStatusSenderCancelled => '已被发送方取消';
+
+  @override
+  String get txDetailsSenderCancelledWaiting => '发送方已取消这笔付款。钱包检查网络后会在此清除它。';
+
+  @override
+  String get txDetailsSenderCancelled => '发送方已取消这笔付款。如果此前已广播，它仍会到账。';
+
+  @override
   String get txDetailsFromBackup =>
       '这笔付款从钱包数据文件导入，导出该文件时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
 

@@ -565,6 +565,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.listen(paymentPostedProvider, (_, event) {
       if (event != null) _notifyPosted(event);
     });
+    // Keeps the release of payments their senders cancelled listening while home shows; the
+    // row words it.
+    ref.listen(paymentCancelledProvider, (_, _) {});
     // The phone's Tor controller lives as long as the shell: it starts tor on unlock when Tor
     // receiving is on, and keeps it for a send. A listen, not a watch: progress ticks must
     // not rebuild the shell. The app's own requests (status, price, updates, support) follow

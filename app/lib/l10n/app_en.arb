@@ -771,6 +771,18 @@
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
   },
+  "txStatusSenderCancelled": "Cancelled by the sender",
+  "@txStatusSenderCancelled": {
+    "description": "Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status."
+  },
+  "txDetailsSenderCancelledWaiting": "The sender cancelled this payment. The wallet clears it here after checking the network.",
+  "@txDetailsSenderCancelledWaiting": {
+    "description": "Payment details, explanation of an incoming payment whose sender reported cancelling it while this wallet still holds it: the wallet removes it after asking the node that it was never posted."
+  },
+  "txDetailsSenderCancelled": "The sender cancelled this payment. If it was posted before that, it still arrives.",
+  "@txDetailsSenderCancelled": {
+    "description": "Payment details, explanation of an incoming payment the sender cancelled and this wallet then cleared. 'Posted' means published to the network; a late post still arrives."
+  },
   "txDetailsFromBackup": "This payment was imported from a wallet data file and was not finished when that file was exported. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.",
   "@txDetailsFromBackup": {
     "description": "Payment details, status explanation of an unfinished payment imported from a history backup file."

@@ -61,6 +61,7 @@ import '../../backup_settings.dart' show mergeServerLists;
 import '../../server_list.dart' show ServerKind, ServerList;
 import '../../server_list_store.dart' show builtInRelaysFor;
 import '../../seed_contacts.dart';
+import '../../sender_cancel.dart' show SenderCancelRelease;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
@@ -1267,6 +1268,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _summary = null;
     _entries = null;
     _stall = StallRetry();
+    _senderCancel = SenderCancelRelease();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     _clearBlocked();
@@ -2197,6 +2199,7 @@ class LepicDeskWallet implements DeskWalletApi {
         unawaited(_reload());
       }
       unawaited(_retryStalled());
+      unawaited(_releaseSenderCancelled());
     } on Object catch (e) {
       _tipPace.failed();
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
@@ -4792,6 +4795,13 @@ class LepicDeskWallet implements DeskWalletApi {
         await _reload();
         if (_session == session) unawaited(sync());
         return;
+      // Not an invoice: the sender of a payment this wallet answered reports it cancelled. The
+      // row says so at once, and the payment is cleared if the network does not have it.
+      case core.InvoiceEventKind.paymentCancelled:
+        logInfo('desk', 'sender reports a payment cancelled');
+        await _reload();
+        if (_session == session) await _releaseSenderCancelled();
+        return;
       case _:
         break;
     }
@@ -5277,6 +5287,23 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// The open wallet's release of incoming payments their senders cancelled; a new one per unlock.
+  SenderCancelRelease _senderCancel = SenderCancelRelease();
+
+  /// Clears each incoming payment its sender cancelled that still waits (sender_cancel.dart),
+  /// then reads the list again. Runs on the sender's notice and with each node check, so one
+  /// that failed (no node, locked) goes again.
+  Future<void> _releaseSenderCancelled() async {
+    final session = _session;
+    final entries = _entries;
+    if (session == null || entries == null) return;
+    try {
+      if (await _senderCancel.run(session, entries) && _session == session) await _reload();
+    } on Object catch (e) {
+      logWarn('desk', 'release of a cancelled payment: ${e.runtimeType}');
+    }
+  }
+
   /// Counts [_reload]s, so one that started earlier and ends later keeps what a later one read.
   int _reloads = 0;
 
@@ -5454,6 +5481,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
+    senderCancelled: core.senderCancelled(e),
     pairingId: e.pairingId,
     blockWait: wait,
     credited: e.amountCredited.toInt(),

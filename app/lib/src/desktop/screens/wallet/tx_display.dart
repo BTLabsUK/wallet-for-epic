@@ -91,7 +91,7 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
 /// "Waiting for Anna" for a payment from it: Anna's wallet finalizes by itself, no file. While
 /// Epicbox is off ([paused]) a send waits in the outbox, and the row says that instead.
 (String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false}) =>
-    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted
+    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted && !t.senderCancelled
     ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), paused ? ETone.warn : ETone.info)
     : statusOf(l, t);
 
@@ -147,6 +147,8 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
     ? (l.deskTxStatusImmature, ETone.info)
     : switch (t.state) {
         TxState.waitingRecipient when t.undelivered => (l.deskTxStatusUndelivered, ETone.warn),
+        // The sender's word: over, and cleared by itself (sender_cancel.dart).
+        TxState.waitingRecipient || TxState.cancelled when t.incoming && t.senderCancelled => (l.txStatusSenderCancelled, ETone.neutral),
         // The sender's word, not the chain's: in progress, never Received before a block.
         TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
         TxState.waitingRecipient => (

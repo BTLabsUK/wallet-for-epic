@@ -713,6 +713,17 @@ class AppLocalizationsPl extends AppLocalizations {
       'Anulowano. Jeśli nadawca opublikuje płatność później, i tak dotrze.';
 
   @override
+  String get txStatusSenderCancelled => 'Anulowana przez nadawcę';
+
+  @override
+  String get txDetailsSenderCancelledWaiting =>
+      'Nadawca anulował tę płatność. Portfel usunie ją tutaj po sprawdzeniu sieci.';
+
+  @override
+  String get txDetailsSenderCancelled =>
+      'Nadawca anulował tę płatność. Jeśli została wcześniej opublikowana, i tak dotrze.';
+
+  @override
   String get txDetailsFromBackup =>
       'Ta płatność została zaimportowana z pliku danych portfela i nie była zakończona, gdy ten plik eksportowano. Ten portfel nie ma własnego zapisu tej płatności, więc nie wie, czy się zakończyła. Nic nie jest zablokowane.';
 

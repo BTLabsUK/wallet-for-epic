@@ -1532,6 +1532,11 @@ class TxEntry {
   /// null otherwise. The sender's word only: [senderReportsPosted] says when to show it.
   final int? senderReportedPostedAtUnix;
 
+  /// When the sender of this incoming payment, already answered by this wallet, reported that
+  /// it cancelled it (unix seconds); null otherwise. LEPIC keeps it after the payment ends here
+  /// and drops it once the payment confirms. [senderCancelled] says when to show it.
+  final int? senderReportedCancelledAtUnix;
+
   /// The pairing this payment was exchanged with (sealed to or from it, through its mailbox
   /// or as a sealed file), as LEPIC links it; null for any other row. The row and its details
   /// name the contact by it, as a mailbox payment has no address.
@@ -1589,6 +1594,7 @@ class TxEntry {
     this.foundDuring,
     this.datedByBlock = true,
     this.senderReportedPostedAtUnix,
+    this.senderReportedCancelledAtUnix,
     this.pairingId,
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
@@ -1651,6 +1657,7 @@ class TxEntry {
       foundDuring.hashCode ^
       datedByBlock.hashCode ^
       senderReportedPostedAtUnix.hashCode ^
+      senderReportedCancelledAtUnix.hashCode ^
       pairingId.hashCode ^
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
@@ -1702,6 +1709,7 @@ class TxEntry {
           foundDuring == other.foundDuring &&
           datedByBlock == other.datedByBlock &&
           senderReportedPostedAtUnix == other.senderReportedPostedAtUnix &&
+          senderReportedCancelledAtUnix == other.senderReportedCancelledAtUnix &&
           pairingId == other.pairingId &&
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
@@ -1723,6 +1731,22 @@ bool senderReportsPosted(TxEntry tx, {required DateTime now}) {
   return now.difference(DateTime.fromMillisecondsSinceEpoch(at * 1000)) < senderReportWindow;
 }
 
+/// Whether [tx] is an incoming payment (not a request) whose sender reported that it cancelled
+/// it, and which has not confirmed: still waiting here ([senderCancelPending]) or already
+/// released. Reads "Cancelled by the sender".
+bool senderCancelled(TxEntry tx) =>
+    tx.senderReportedCancelledAtUnix != null &&
+    !tx.isRequest &&
+    (tx.kind == TxKind.received || tx.kind == TxKind.receivedCancelled) &&
+    tx.status != TxStatus.confirmed &&
+    !tx.confirmed &&
+    tx.blockHeight == null;
+
+/// [senderCancelled] and still waiting for its sender here: the app releases it by itself
+/// (sender_cancel.dart), and Cancel is offered at once, without [receiveCancelHold].
+bool senderCancelPending(TxEntry tx) =>
+    senderCancelled(tx) && tx.kind == TxKind.received && tx.status == TxStatus.awaitingConfirmation;
+
 /// How long after this wallet signs an incoming payment its Cancel stays out of the way. The
 /// sender finalizes and posts in that time, and this wallet, having returned its signature,
 /// cannot stop it: a cancel then would only mislead. Nothing of this wallet's is locked
@@ -1738,6 +1762,7 @@ class IncomingCancel {
     required this.signedAgo,
     required this.holdLeft,
     required this.senderReportsPosted,
+    this.senderCancelled = false,
   });
 
   /// How long ago this wallet signed, never negative.
@@ -1750,8 +1775,13 @@ class IncomingCancel {
   /// not offered, as the payment is most likely on its way to a block.
   final bool senderReportsPosted;
 
-  /// Whether the screen offers Cancel: the hold is over and no sender report stands.
-  bool get offered => holdLeft == Duration.zero && !senderReportsPosted;
+  /// The sender reports it cancelled the payment ([senderCancelPending]): Cancel is offered at
+  /// once, as an ordinary button, whatever the hold and the posted report say.
+  final bool senderCancelled;
+
+  /// Whether the screen offers Cancel: the sender cancelled, or the hold is over and no sender
+  /// report of a post stands.
+  bool get offered => senderCancelled || (holdLeft == Duration.zero && !senderReportsPosted);
 
   /// Whole minutes of the hold left, at least 1 while any is left, for a "becomes possible in
   /// N minutes" line.
@@ -1773,6 +1803,7 @@ IncomingCancel incomingCancelOf(TxEntry tx, {required DateTime now}) {
     signedAt: DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000),
     now: now,
     senderReportsPosted: senderReportsPosted(tx, now: now),
+    senderCancelled: senderCancelPending(tx),
   );
 }
 
@@ -1782,6 +1813,7 @@ IncomingCancel incomingCancelAt({
   required DateTime signedAt,
   required DateTime now,
   required bool senderReportsPosted,
+  bool senderCancelled = false,
 }) {
   var ago = now.difference(signedAt);
   if (ago.isNegative) ago = Duration.zero;
@@ -1790,6 +1822,7 @@ IncomingCancel incomingCancelAt({
     signedAgo: ago,
     holdLeft: left.isNegative ? Duration.zero : left,
     senderReportsPosted: senderReportsPosted,
+    senderCancelled: senderCancelled,
   );
 }
 
@@ -2211,6 +2244,11 @@ enum InvoiceEventKind {
   /// that it posted the transaction (`kernelExcess` is set). Once per payment, only from its
   /// sender. Advisory: refresh now; the payment counts once the chain confirms it.
   paymentPosted,
+
+  /// Not an invoice: the sender of a payment this wallet answered reports that it cancelled it.
+  /// Only from its sender. The app releases the payment if it is still waiting
+  /// (sender_cancel.dart); the node is asked first, so one already on the network stays.
+  paymentCancelled,
 }
 
 class InvoiceEvent {

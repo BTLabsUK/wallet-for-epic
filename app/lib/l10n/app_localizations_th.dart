@@ -673,6 +673,17 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
+  String get txStatusSenderCancelled => 'ผู้ส่งยกเลิกแล้ว';
+
+  @override
+  String get txDetailsSenderCancelledWaiting =>
+      'ผู้ส่งยกเลิกรายการนี้แล้ว กระเป๋าเงินจะล้างรายการนี้หลังตรวจสอบเครือข่าย';
+
+  @override
+  String get txDetailsSenderCancelled =>
+      'ผู้ส่งยกเลิกรายการนี้แล้ว ถ้าเผยแพร่ไปก่อนหน้านั้น รายการจะยังเข้า';
+
+  @override
   String get txDetailsFromBackup =>
       'รายการนี้นำเข้าจากไฟล์ข้อมูลกระเป๋าเงิน และยังไม่เสร็จตอนส่งออกไฟล์นั้น กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง จึงไม่ทราบว่าสำเร็จหรือไม่ ไม่มียอดเงินถูกล็อก';
 

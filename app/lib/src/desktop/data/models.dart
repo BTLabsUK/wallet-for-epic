@@ -311,6 +311,7 @@ class Tx {
     this.manualFields = const {},
     this.manualEditedAt,
     this.senderPosted = false,
+    this.senderCancelled = false,
     this.pairingId,
     this.blockWait = BlockWait.none,
     this.credited = 0,
@@ -426,6 +427,11 @@ class Tx {
   /// only: never shown as received before the chain confirms it.
   final bool senderPosted;
 
+  /// An incoming payment (not an invoice) whose sender reports it cancelled it, not confirmed
+  /// (the core's `senderCancelled`): still waiting and cleared by itself (sender_cancel.dart),
+  /// or already cleared. Reads "Cancelled by the sender".
+  final bool senderCancelled;
+
   /// Why a payment past its watch window is still not in a block (watch_mode.dart), for the
   /// note in its details.
   final BlockWait blockWait;
@@ -514,6 +520,7 @@ class Tx {
       manualFields: manual,
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
       senderPosted: senderPosted,
+      senderCancelled: senderCancelled,
       pairingId: pairingId,
       blockWait: blockWait,
       credited: credited,
@@ -569,6 +576,7 @@ class Tx {
     manualFields: manualFields,
     manualEditedAt: manualEditedAt,
     senderPosted: senderPosted,
+      senderCancelled: senderCancelled,
     pairingId: pairingId,
     blockWait: blockWait,
     credited: credited,
