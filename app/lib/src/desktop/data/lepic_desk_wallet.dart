@@ -1065,6 +1065,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     _session = session;
     _sessionRevision++;
+    session.heldOutputs = _deviceHeld;
     // Every unlock asks the core whether a restore's scan is still owed, also for a wallet whose
     // app was closed before the scan-due note was written (R6).
     _restoreFailed = false;
@@ -1242,6 +1243,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _stopTor();
     final session = _session;
     _session = null;
+    _deviceHeld = const {};
     _password = null;
     _onion = null;
     // The next unlock offers the wallet that was open.
@@ -1315,6 +1317,8 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       _session = session;
       _sessionRevision++;
+      // The coins the linked devices hold stay held through the reopen.
+      session.heldOutputs = _deviceHeld;
       _config = c;
       await _routeEpicbox(session);
       return true;
@@ -5183,11 +5187,22 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Where the book of linked devices is read from ([useDevices]).
   DeviceBook? Function()? _deviceBook;
 
+  /// The coins the linked devices hold, given to every session this wallet opens.
+  Set<String> _deviceHeld = const {};
+
+  /// The open wallet's host for its linked devices. It follows the wallet through a reopen (a
+  /// node or Epicbox change, node failover), so one service keeps the link under way and the
+  /// book the lists show; a service per session lost a link the reopen came in the middle of,
+  /// and the other device listed this one while this one did not list it. While this wallet is
+  /// closed or another is open it reaches nothing.
   @override
   DeviceHost? deviceHost({required bool Function() online}) {
-    final session = _session;
-    return session == null ? null : SessionDeviceHost(session, online: online, minimumConfirmations: _minConf);
+    if (_session == null) return null;
+    return _DeskDeviceHost(this, _openEntry?.id, online);
   }
+
+  /// The open session of the wallet [id], or null while it is not open.
+  core.WalletSession? _sessionOf(String? id) => _openEntry?.id == id ? _session : null;
 
   @override
   void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
@@ -5527,5 +5542,52 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
     await tmp.rename(target);
   } on Object catch (e) {
     logWarn('desk', 'WALLET.txt not written: ${e.runtimeType}');
+  }
+}
+
+/// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now.
+class _DeskDeviceHost implements DeviceHost {
+  _DeskDeviceHost(this._wallet, this._id, this._online);
+
+  final LepicDeskWallet _wallet;
+  final String? _id;
+  final bool Function() _online;
+
+  /// The host over the session open now; a closed wallet throws, as a closed session does.
+  SessionDeviceHost get _host {
+    final session = _wallet._sessionOf(_id);
+    if (session == null) throw StateError('wallet closed');
+    return SessionDeviceHost(session, online: _online, minimumConfirmations: _wallet._minConf);
+  }
+
+  @override
+  core.PairingApi get pairing => _wallet._sessionOf(_id)?.pairing ?? const core.NoPairing();
+
+  @override
+  bool get online => _online();
+
+  @override
+  Future<String> walletKey() => _host.walletKey();
+
+  @override
+  Future<String> signProof(List<int> message) => _host.signProof(message);
+
+  @override
+  Future<bool> verifyProof(String key, List<int> message, String signature) => _host.verifyProof(key, message, signature);
+
+  @override
+  Future<List<core.WalletOutput>> outputs() => _host.outputs();
+
+  @override
+  Future<List<core.TxEntry>> transactions() => _host.transactions();
+
+  @override
+  Future<int?> tipHeight() => _host.tipHeight();
+
+  @override
+  set heldOutputs(Set<String> commitments) {
+    if (_wallet._openEntry?.id != _id) return;
+    _wallet._deviceHeld = commitments;
+    _wallet._session?.heldOutputs = commitments;
   }
 }

@@ -39,10 +39,11 @@ final deskDeviceHandleProvider = Provider<DeskDeviceHandle>((ref) => DeskDeviceH
 
 /// The open wallet's devices, or null while locked or with Linked devices off. It reads the
 /// channel when the wallet opens, then every 5 s while the app runs (minimized too); the shell
-/// reads it again on a window focus and on Refresh ([deskDevicesRefresh]).
+/// reads it again on a window focus and on Refresh ([deskDevicesRefresh]). One service per open
+/// wallet: its host follows the session through a reopen, so a link under way is not lost.
 final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   if (!ref.watch(deskLinkedDevicesOnProvider)) return null;
-  final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network, s.session)));
+  final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network)));
   if (account == null) return null;
   final api = ref.read(deskApiProvider);
   // In Tor only the channel waits for tor, so nothing reaches a link server directly.

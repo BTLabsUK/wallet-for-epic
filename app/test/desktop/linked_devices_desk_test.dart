@@ -16,8 +16,9 @@ import 'package:epic_wallet/src/devices/device_model.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show statusOf;
 import 'package:epic_wallet/src/devices/device_ending.dart';
 import 'package:epic_wallet/src/devices/device_service.dart';
+import 'package:epic_wallet/src/devices/device_store.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/models.dart' show CancelReason, DeviceEnding;
+import 'package:epic_wallet/src/models.dart' show CancelReason, Chain, DeviceEnding;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -123,6 +124,47 @@ void main() {
     await settle(tester);
     expect(find.text('Phone'), findsWidgets);
     expect(desk.book.devices.single.name, 'Phone');
+    await end(tester);
+  });
+
+  // a tester, 2026-10-28: the computer showed the code, the phone listed it, the computer never
+  // listed the phone. A reopen of the wallet (node failover, a node or server change) while
+  // the link was under way made a new devices service: the dialog finished the link on the old
+  // one, the list showed the new one, and the new one saved its empty book over the link.
+  testWidgets('the wallet reopens in the middle of a link: the computer still lists the phone', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = (await tester.runAsync(() => MockPhone.create(wallet)))!;
+    await tester.tap(find.byKey(devicesLinkKey));
+    await settle(tester);
+    await tester.runAsync(() => phone.scan(desk));
+    await settle(tester);
+    await tester.tap(find.byKey(deskLinkMatchKey));
+    await settle(tester);
+    expect(desk.link?.phase, LinkPhase.waitingOther);
+
+    // Another node: the wallet reopens on it, then the lists reload.
+    await tester.runAsync(() => container.read(deskProvider.notifier).useNode('https://node.example'));
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await settle(tester);
+    expect(container.read(deskProvider).session, greaterThan(0));
+    final shown = container.read(deskDeviceServiceProvider)!;
+    expect(shown, same(desk), reason: 'one service for the open wallet, through the reopen');
+
+    await tester.runAsync(() async {
+      await phone.service.answerCheck(true);
+      await phone.rounds(shown);
+    });
+    await settle(tester);
+    expect(shown.link?.phase, LinkPhase.done);
+    await tester.tap(find.byKey(deskLinkDoneKey));
+    await settle(tester);
+    expect(shown.book.devices.single.name, 'Phone');
+    expect(phone.service.book.devices.single.name, 'Desktop');
+    expect(find.byKey(ValueKey('dev-${phone.service.book.deviceId}')), findsOneWidget);
+    // The book is kept: the next start lists the phone too.
+    final again = DeviceStore(container.read(secretStoreProvider), chain: Chain.mainnet, walletId: container.read(deskProvider).account!.id);
+    final stored = (await tester.runAsync(() => again.load(defaultName: 'x')))!;
+    expect(stored.devices.single.deviceId, phone.service.book.deviceId);
     await end(tester);
   });
 
