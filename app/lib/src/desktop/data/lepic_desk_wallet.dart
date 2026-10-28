@@ -196,6 +196,7 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeRecheck = const Duration(seconds: 60),
+    this.nodeStale = const Duration(minutes: 3),
     this.watchPoll = watchTipEvery,
     this.nodeTimeout = const Duration(seconds: 15),
     this.nodeTorTimeout = const Duration(seconds: 90),
@@ -327,6 +328,10 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// How old the node list's checks may get before the list asks every node again.
   final Duration nodeRecheck;
+
+  /// A check older than this gives no height: the list says nothing about "behind" rather
+  /// than compare a stale height with a fresh one.
+  final Duration nodeStale;
 
   /// How often the node is asked instead while a payment can move with the next block
   /// (watch_mode.dart).
@@ -2440,7 +2445,9 @@ class LepicDeskWallet implements DeskWalletApi {
       final c = _checked[n.url];
       if (c == null) return n;
       final latency = _checkedSameWay(n.url) ? c.latencyMs : null;
-      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: c.height, version: c.version, own: n.own, icon: n.icon, listedAs: n.listedAs);
+      final at = _checkedAt[n.url];
+      final height = at != null && DateTime.now().difference(at) < nodeStale ? c.height : null;
+      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: height, version: c.version, own: n.own, icon: n.icon, listedAs: n.listedAs);
     }
 
     return [
