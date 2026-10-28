@@ -241,7 +241,7 @@ void main() {
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
       expect(find.text('Offline is on in Advanced.'), findsWidgets);
       expect(find.text('Epicbox address'), findsWidgets);
-      expect(find.textContaining('Cannot receive offline'), findsWidgets);
+      expect(find.textContaining('Receiving paused'), findsWidgets);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsOneWidget);
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsOneWidget);

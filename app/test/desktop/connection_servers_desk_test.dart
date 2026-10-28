@@ -72,6 +72,8 @@ void main() {
     expect(_container.read(deskPairingRelaysProvider), ['epicbox.epiccash.com', 'epicbox.stackwallet.com']);
     expect(find.text('2 servers · Changed'), findsOneWidget);
 
+    // The reset sits under the list: into view before the tap.
+    await tester.ensureVisible(find.byKey(const ValueKey('server-list-reset')));
     await tester.tap(find.byKey(const ValueKey('server-list-reset')));
     await _settle(tester);
     expect(_container.read(deskPairingRelaysProvider), isNull);
