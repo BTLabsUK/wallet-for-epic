@@ -53,9 +53,5 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
-  },
-  "deskSlRemoveInUse": "Switch to another server first.",
-  "@deskSlRemoveInUse": {
-    "description": "Tooltip of the disabled bin on the server row that is in use: it cannot be removed while it is used."
   }
 }

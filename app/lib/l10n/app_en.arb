@@ -24264,9 +24264,5 @@
   "deskSetRescanPickDateFirst": "Pick a date first.",
   "@deskSetRescanPickDateFirst": {
     "description": "Error when Recheck is pressed with From a date chosen and no date picked."
-  },
-  "deskSlRemoveInUse": "Switch to another server first.",
-  "@deskSlRemoveInUse": {
-    "description": "Tooltip of the disabled bin on the server row that is in use: it cannot be removed while it is used."
   }
 }

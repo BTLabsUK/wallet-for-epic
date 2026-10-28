@@ -382,22 +382,9 @@ class _Line extends StatelessWidget {
         ),
       );
     } else {
-      // A title and detail that do not fit one line go on two (UI-035): never "Local node sta…".
-      content = LayoutBuilder(
-        builder: (context, outer) {
-          final room = outer.maxWidth - 2 * Sp.x2 - Ctl.iconSm - Sp.x2 - (more.isEmpty ? 0 : 36.u);
-          final style = ts.small.copyWith(height: 20 / Fs.sm);
-          final tp = TextPainter(
-            text: TextSpan(text: i.detail == null ? i.title : '${i.title} · ${i.detail}', style: style), // l10n-ok: separator
-            textDirection: Directionality.of(context),
-            textScaler: MediaQuery.textScalerOf(context),
-            maxLines: 1,
-          )..layout();
-          final fits = !outer.maxWidth.isFinite || tp.width <= room;
-          tp.dispose();
-          final under = i.detail != null && (i.stacked || !fits);
-          return Container(
-        height: under ? (bar == null ? 40.u : 48.u) : (bar == null ? Ctl.inline : 36.u),
+      final under = i.stacked && i.detail != null;
+      content = Container(
+        height: under ? 40.u : (bar == null ? Ctl.inline : 36.u),
         padding: EdgeInsets.symmetric(horizontal: Sp.x2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -440,8 +427,6 @@ class _Line extends StatelessWidget {
             if (bar != null) ...[SizedBox(height: 5.u), bar],
           ],
         ),
-      );
-        },
       );
     }
     final line = Semantics(

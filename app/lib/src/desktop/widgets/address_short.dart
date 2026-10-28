@@ -137,8 +137,8 @@ class EKindTag extends StatelessWidget {
 /// The two text lines of a row that carries an address (spec 7.1): name, [nameTrailing] and
 /// the kind tag; then the short address and the note. When the row is narrow the note gives way
 /// first (down to 12 characters), then the address falls to its compact form, then the note
-/// goes. Nothing wraps. A contact with several [addresses] shows the first (its default) short,
-/// then every kind tag (SPEC 2.5, UI-045).
+/// goes. Nothing wraps. A contact with several [addresses] shows its default one short, then
+/// their kind tags; a row too narrow for both shows the tags alone (SPEC 2.5, UI-045).
 class EAddressLines extends StatelessWidget {
   const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle});
 
@@ -176,10 +176,13 @@ class EAddressLines extends StatelessWidget {
           builder: (context, box) {
             if (address.trim().isEmpty) return Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis);
             if (several) {
+              // The default address, short, before the tags when the row has room for both
+              // (UI-045); a narrow row keeps the tags alone (PAIR-WIN-2).
+              final tags = addresses!.length * (22.u + Sp.x1);
+              final withAddress = _width(context, shortAddress(address, compact: true), aStyle) + 1 + Sp.x2 + tags <= box.maxWidth;
               return Row(
                 children: [
-                  Flexible(child: EShortAddress(address, style: aStyle)),
-                  SizedBox(width: Sp.x2),
+                  if (withAddress) ...[Flexible(child: EShortAddress(address, style: aStyle)), SizedBox(width: Sp.x2)],
                   for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: true), SizedBox(width: Sp.x1)],
                   if (n.isNotEmpty) Flexible(child: Text(' · $n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
                 ],

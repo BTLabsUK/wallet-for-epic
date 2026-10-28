@@ -75,6 +75,8 @@ class SettingsFrame extends ConsumerWidget {
               children: [
                 SizedBox(
                   width: 232.u,
+                  // Its own scroll: a short window holds more sections than fit.
+                  child: SingleChildScrollView(
                   child: Semantics(
                     label: l.deskSetFrameSections,
                     child: ESubnav(
@@ -83,6 +85,7 @@ class SettingsFrame extends ConsumerWidget {
                       onTap: (r) => nav.go(r as DeskRoute),
                       wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
                     ),
+                  ),
                   ),
                 ),
                 SizedBox(width: Sp.x8),

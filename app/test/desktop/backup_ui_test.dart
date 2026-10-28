@@ -117,9 +117,10 @@ void main() {
     expect(find.text('Wallet data'), findsOneWidget);
     expect(find.text('Export wallet data'), findsOneWidget);
     expect(find.text('Import wallet data'), findsOneWidget);
-    expect(find.text('Payments as CSV'), findsOneWidget);
+    // GP-049: the CSV row reads as the wallet data rows do.
+    expect(find.text('Export CSV'), findsOneWidget);
     expect(find.text('Last export 3 Oct 2026, 14:02 · 12 payments since.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Export…'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Export…'), findsNWidgets(2));
   });
 
   testWidgets('export: Save as… writes, records the export and shows the path', (tester) async {

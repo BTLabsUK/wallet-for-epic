@@ -17194,7 +17194,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => '请先选择日期。';
-
-  @override
-  String get deskSlRemoveInUse => '请先切换到其他服务器。';
 }

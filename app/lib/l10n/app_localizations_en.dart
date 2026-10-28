@@ -18266,7 +18266,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'Pick a date first.';
-
-  @override
-  String get deskSlRemoveInUse => 'Switch to another server first.';
 }

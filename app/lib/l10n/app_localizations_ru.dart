@@ -18887,7 +18887,4 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'Сначала выберите дату.';
-
-  @override
-  String get deskSlRemoveInUse => 'Сначала переключитесь на другой сервер.';
 }

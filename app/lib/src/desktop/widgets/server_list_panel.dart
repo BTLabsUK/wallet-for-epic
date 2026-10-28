@@ -1308,7 +1308,7 @@ class _Row extends StatelessWidget {
                   key: ValueKey('server-row-remove-${s.value}'),
                   icon: EIcons.trash,
                   // The server in use cannot go: switch first (UI-044).
-                  label: inUse ? l.deskSlRemoveInUse : l.deskSlRemoveHost(s.host),
+                  label: inUse ? l.slInUseSwitchFirst : l.deskSlRemoveHost(s.host),
                   size: EBtnSize.inline,
                   tabStop: false,
                   onPressed: inUse ? null : onRemove,

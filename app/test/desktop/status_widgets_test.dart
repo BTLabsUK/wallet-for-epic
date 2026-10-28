@@ -46,8 +46,9 @@ void main() {
     expect(methodIcon(TxMethod.tor), EIcons.tor);
   });
 
-  testWidgets('bars and method icons at four tones (golden)', (tester) async {
-    tester.view.physicalSize = const Size(560, 320);
+  testWidgets('bars, method icons and status glyphs at every state (golden)', (tester) async {
+    // Five states: ok, in progress, warn, risk, off (UI-005); the glyph's second cue (UI-006).
+    tester.view.physicalSize = const Size(560, 440);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -65,6 +66,8 @@ void main() {
                       ESignalBars(s),
                       const SizedBox(width: 16),
                       for (final m in TxMethod.values) ...[EMethodIcon(m, s), const SizedBox(width: 10)],
+                      const SizedBox(width: 6),
+                      EStatusGlyph(icon: EIcons.node, state: s, label: s.name),
                     ],
                   ),
                 ),

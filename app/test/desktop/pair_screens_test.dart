@@ -543,15 +543,26 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a contact row with several addresses shows their kind tags, not one address (PAIR-WIN-2)', (tester) async {
+  testWidgets('a narrow contact row with several addresses shows their kind tags, not one address (PAIR-WIN-2)', (tester) async {
     const box = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com';
     const tor = 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
     await _open(
       tester,
-      const SizedBox(width: 360, child: EAddressLines(name: 'Floo C', address: box, addresses: [box, 'http://10.0.0.2:3415', tor], note: 'shop')),
+      const SizedBox(width: 150, child: EAddressLines(name: 'Floo C', address: box, addresses: [box, 'http://10.0.0.2:3415', tor], note: 'shop')),
     );
     expect(find.byType(EKindTag), findsNWidgets(3));
     expect(find.byType(EShortAddress), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a wide contact row with several addresses shows the default one short, then the tags (UI-045)', (tester) async {
+    const box = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com';
+    await _open(
+      tester,
+      const SizedBox(width: 600, child: EAddressLines(name: 'Floo C', address: box, addresses: [box, 'http://10.0.0.2:3415'], note: 'shop')),
+    );
+    expect(find.byType(EKindTag), findsNWidgets(2));
+    expect(find.byType(EShortAddress), findsOneWidget);
     expect(find.text(' · shop'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

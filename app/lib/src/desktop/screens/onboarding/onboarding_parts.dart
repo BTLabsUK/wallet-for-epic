@@ -54,8 +54,7 @@ class AccountForm extends StatelessWidget {
       EField(
         label: l.deskOnbStepPassword,
         error: passwordError,
-        // The hint under the field already holds the room; no second blank line for an error
-        // that is not there (UI-037).
+        reserveError: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -72,7 +71,8 @@ class AccountForm extends StatelessWidget {
           ],
         ),
       ),
-      SizedBox(height: Sp.x5),
+      // The reserved error line above is part of the gap: no second full gap (UI-037).
+      SizedBox(height: Sp.x2),
       EField(
         label: l.deskSetupConfirmPassword,
         error: confirmError,

@@ -372,6 +372,18 @@ class ESelect<T> extends StatefulWidget {
 class _ESelectState<T> extends State<ESelect<T>> {
   final _controller = MenuController();
 
+  /// The open list's height: as tall as the window under the field allows, less the room kept
+  /// for what follows; measured when it opens (the field may have moved since).
+  double? _maxHeight;
+
+  void _measure() {
+    final anchor = context.findRenderObject() as RenderBox?;
+    if (anchor == null || !anchor.attached || !anchor.hasSize) return;
+    final below = MediaQuery.sizeOf(context).height - anchor.localToGlobal(Offset(0, anchor.size.height)).dy - widget.keepBelow - 8.u;
+    final h = below.clamp(120.u, 420.u);
+    if (h != _maxHeight) setState(() => _maxHeight = h);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -397,18 +409,14 @@ class _ESelectState<T> extends State<ESelect<T>> {
     final size = widget.size;
     final semanticLabel = widget.semanticLabel;
     final current = items.where((i) => i.value == value).firstOrNull;
-    // As tall as the window under the field allows, less the room kept for what follows.
-    final anchor = context.findRenderObject() as RenderBox?;
-    final below = anchor == null || !anchor.hasSize ? 420.u : MediaQuery.sizeOf(context).height - anchor.localToGlobal(Offset(0, anchor.size.height)).dy - widget.keepBelow - 8.u;
-    final maxHeight = below.clamp(120.u, 420.u);
+    final maxHeight = _maxHeight ?? 420.u;
     return LayoutBuilder(
       builder: (context, box) {
         // The text column of each option: the field's width less the check and trailing room.
         final width = math.max(120.u, box.maxWidth - 160.u);
         return MenuAnchor(
           controller: _controller,
-          // Measured again when it opens: the field may have moved since the last build.
-          onOpen: () => setState(() {}),
+          onOpen: _measure,
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
           style: MenuStyle(

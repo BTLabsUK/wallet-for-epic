@@ -28609,12 +28609,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a date first.'**
   String get deskSetRescanPickDateFirst;
-
-  /// Tooltip of the disabled bin on the server row that is in use: it cannot be removed while it is used.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to another server first.'**
-  String get deskSlRemoveInUse;
 }
 
 class _AppLocalizationsDelegate

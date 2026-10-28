@@ -219,7 +219,7 @@ void main() {
     testWidgets('one output: nothing to do', (tester) async {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 1));
       expect(find.textContaining('Nothing to consolidate'), findsOneWidget);
-      await tester.tap(find.text('OK'));
+      await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
       expect(find.text('Consolidate outputs'), findsNothing);
     });
@@ -229,7 +229,7 @@ void main() {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 2));
       expect(find.textContaining('fewer than two spendable outputs', findRichText: true), findsOneWidget);
       expect(find.text('No estimate'), findsNothing);
-      await tester.tap(find.text('OK'));
+      await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
       expect(find.text('Consolidate outputs'), findsNothing);
     });

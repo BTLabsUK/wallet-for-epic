@@ -24,7 +24,8 @@ void main() {
   for (final (a, full, compact) in [
     (_epicbox, 'esWxbo…3jUcNK@epicbox.epiccash.com', 'esWxbo…3jUcNK'),
     (_tor, 'wfe7q3…abcdid.onion', 'wfe7q3…abcdid'),
-    (_http, 'https://pay.example.org/…', 'pay.example.org/…'),
+    // Lists drop a link's scheme (UI-003); the tooltip and Copy keep it.
+    (_http, 'pay.example.org/…', 'pay.example.org/…'),
   ]) {
     testWidgets('$full in a wide cell and its compact form in a narrow one', (tester) async {
       await _pump(tester, EShortAddress(a), 700);

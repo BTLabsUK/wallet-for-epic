@@ -17850,7 +17850,4 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'เลือกวันที่ก่อน';
-
-  @override
-  String get deskSlRemoveInUse => 'สลับไปใช้เซิร์ฟเวอร์อื่นก่อน';
 }

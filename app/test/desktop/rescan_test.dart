@@ -76,7 +76,9 @@ class _Fails extends MockDeskWallet {
 }
 
 void main() {
-  Future<void> pump(WidgetTester tester, [MockDeskWallet? api]) async {
+  /// [whole]: with Recheck from a height on, From a date comes first and needs a date; the
+  /// tests that only run a recheck start from the whole chain.
+  Future<void> pump(WidgetTester tester, [MockDeskWallet? api, bool whole = true]) async {
     tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -91,6 +93,10 @@ void main() {
       child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsRescanScreen())),
     ));
     await tester.pumpAndSettle();
+    if (whole) {
+      await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
+      await tester.pumpAndSettle();
+    }
   }
 
   // The mock's waits are timers in the test's fake time.
@@ -100,40 +106,32 @@ void main() {
     }
   }
 
-  testWidgets('R20: the start choices pass recent (no height), a typed height, or the whole chain (0)', (tester) async {
+  testWidgets('R20: the phone\u2019s start choices: a date (picked first), a typed height, or the whole chain (0)', (tester) async {
     final api = _Starts();
-    await pump(tester, api);
+    await pump(tester, api, false);
     expect(find.text('Where to start'), findsOneWidget);
-    expect(find.text('Recent blocks'), findsOneWidget);
-    Future<void> start() async {
-      await tester.tap(find.widgetWithText(EButton, 'Start'));
-      await run(tester, const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(EButton, 'Start again'));
-      await tester.pump();
-      await api.stopRescan();
-      await run(tester, const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-    }
-
-    await start();
+    expect(find.text('From a date'), findsOneWidget, reason: 'GP-030: the phone\u2019s choices');
+    // From a date is the first choice on mainnet; Recheck without a date says so.
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.pump();
+    expect(find.text('Pick a date first.'), findsOneWidget);
+    expect(api.starts, isEmpty);
     await tester.tap(find.byKey(const ValueKey('rescan-from-height')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await tester.pump();
     expect(find.text('Enter a block height of 1 or more.'), findsOneWidget, reason: 'an empty height is refused under the field');
     await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck again'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Start again'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck again'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(api.starts.first, isNull);
-    expect(api.starts.where((h) => h != null), [BigInt.from(2800000), BigInt.zero]);
+    expect(api.starts, [BigInt.from(2800000), BigInt.zero]);
   });
 
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
@@ -145,7 +143,7 @@ void main() {
     expect(find.textContaining('coins'), findsNothing);
     await tester.tap(find.text('Delete unconfirmed'));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('Recheck finished'), findsOneWidget);
@@ -155,12 +153,12 @@ void main() {
     expect(find.text('Deleted'), findsOneWidget);
     expect(find.text('Unlocked'), findsOneWidget);
     expect(find.text('The balance is up to date. Unconfirmed transactions were cancelled and their outputs unlocked.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Recheck again'), findsOneWidget);
   });
 
   testWidgets('running and finished without Delete unconfirmed', (tester) async {
     await pump(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 40));
     expect(find.textContaining('Checking…'), findsOneWidget);
     expect(find.text('Scanning the chain. The wallet stays usable; the balance updates when the scan ends.'), findsOneWidget);
@@ -176,7 +174,7 @@ void main() {
     await pump(tester);
     await tester.tap(find.text('Delete unconfirmed'));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 40));
     expect(find.widgetWithText(EButton, 'Stop'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Stop'));
@@ -192,7 +190,7 @@ void main() {
   testWidgets('Stop waits for the scan to answer; leaving the screen stops the scan', (tester) async {
     final api = _Stops();
     await pump(tester, api);
-    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await tester.pump();
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Stop')).onPressed, isNull);
     await run(tester, const Duration(milliseconds: 40));
@@ -204,12 +202,12 @@ void main() {
 
   testWidgets('a failed scan says so, with the error, and offers Start again', (tester) async {
     await pump(tester, _Fails());
-    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 40));
     await tester.pumpAndSettle();
     expect(find.text('Scan failed'), findsOneWidget);
     expect(find.text('The node did not answer.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Recheck again'), findsOneWidget);
     expect(find.text('Recheck finished'), findsNothing);
   });
 

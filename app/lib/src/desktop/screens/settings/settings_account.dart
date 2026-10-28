@@ -132,16 +132,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                   ),
                 ),
               ),
-              ESetRow(
-                title: l.deskSetFramePhrase,
-                hint: l.deskSetAcctPhraseHint,
-                control: ERowControl(child: EButton(label: l.deskSetAcctShowPhrase, icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase))),
-              ),
-              ESetRow(
-                title: l.deskSetFrameRescan,
-                hint: l.deskSetAcctRescanHint,
-                control: ERowControl(child: EButton(label: l.deskSetAcctRecheck, icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
-              ),
             ],
           ),
           BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),

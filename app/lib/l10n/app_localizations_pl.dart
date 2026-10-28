@@ -18907,7 +18907,4 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRescanPickDateFirst => 'Najpierw wybierz datę.';
-
-  @override
-  String get deskSlRemoveInUse => 'Najpierw przełącz na inny serwer.';
 }

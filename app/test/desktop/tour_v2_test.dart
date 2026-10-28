@@ -252,6 +252,9 @@ void main() {
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     container.read(deskTourProvider.notifier).close();
+    // Settings scrolls its own column beside the section list (UI-032): bring the link in.
+    await tester.ensureVisible(find.text('Show the tour again'));
+    await _settle(tester);
     await tester.tap(find.text('Show the tour again'));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);
@@ -313,6 +316,9 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsNothing);
     second.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
+    // Settings scrolls its own column beside the section list (UI-032): bring the link in.
+    await tester.ensureVisible(find.text('Show the tour again'));
+    await _settle(tester);
     await tester.tap(find.text('Show the tour again'));
     await _settle(tester);
     expect(find.byType(DeskTourOverlay), findsOneWidget);
@@ -349,6 +355,8 @@ void main() {
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     // 28 px drawn: 19 px under the centre is outside it, inside 44.
+    await tester.ensureVisible(find.text('Show the tour again'));
+    await _settle(tester);
     await tester.tapAt(tester.getCenter(find.text('Show the tour again')) + const Offset(0, 19));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);

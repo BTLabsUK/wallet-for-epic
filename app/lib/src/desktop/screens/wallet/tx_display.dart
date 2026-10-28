@@ -550,19 +550,26 @@ class _TxRowState extends ConsumerState<TxRow> {
                 children: [
                   TxStateMark(t),
                   SizedBox(width: Sp.x2),
-                  Flexible(
-                    child: Text(
-                      word,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: ts.small.copyWith(color: toneColor),
+                  // Under the pointer the cell offers the action in the state's place; the
+                  // detail pane keeps its Finalize button.
+                  if (finalizable && (_hover || _within))
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
+                      ),
+                    )
+                  else
+                    Flexible(
+                      child: Text(
+                        word,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: ts.small.copyWith(color: toneColor),
+                      ),
                     ),
-                  ),
                   if (fromDevice) deskDeviceStatusInfo(l, t),
-                  if (finalizable && (_hover || _within || widget.selected)) ...[
-                    SizedBox(width: Sp.x2),
-                    EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
-                  ],
                 ],
               ),
             ),
