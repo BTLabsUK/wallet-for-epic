@@ -38,10 +38,15 @@ import 'tor_build.dart';
 /// used, the first source on a tie. The release lead publishes the same signed file to each
 /// (https://docs.btlabs.uk/developers/releases/). Add, remove or reorder sources here only.
 const List<String> updateManifestSources = [
-  'https://btlabs-epic.github.io/update.json',
-  // BT Labs' own server, beside the download page: GitHub hid the Pages site on 2026-10-28
-  // and no app saw 26.10.20.
+  // BT Labs' own server, beside the download page (with Tor on, its onion).
   'https://examples.btlabs.uk/epic-cash-wallets/update.json',
+  // The GitLab copy of BT Labs' signed public files, as the raw file on main. GitLab Pages
+  // would need CI, which the GitLab projects never run. While the project is private this
+  // answers a sign-in page, which is not a manifest, so it is skipped.
+  'https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update.json',
+  // GitHub Pages, last: GitHub hid the site on 2026-10-28 and no app saw 26.10.20. It may
+  // come back.
+  'https://btlabs-epic.github.io/update.json',
 ];
 
 /// `--dart-define=WFE_UPDATE_URL=...` replaces the sources with that one; it must still be
