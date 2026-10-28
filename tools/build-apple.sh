@@ -142,6 +142,12 @@ package_library() {
   (cd "$dir" && printf '%s  liblepic_ffi.dylib\n' "$(sha256 liblepic_ffi.dylib)" > SHA256SUMS)
   # LEPIC's xtask writes the features beside each library; `tor` unless built without it.
   if [ "${WFE_TOR:-1}" = 0 ]; then : > "$dir/FEATURES"; else echo tor > "$dir/FEATURES"; fi
+  # And SOURCE, which package:lepic's hook checks against its lepic.rev (SOURCE_FILE in LEPIC's
+  # xtask/src/mobile.rs): the commit, whether the tree had local changes, the compiler.
+  local tree=clean
+  [ -z "$(git -C "$lepic" status --porcelain --untracked-files=no)" ] || tree=modified
+  printf 'lepic %s\ntree %s\n%s\n' "$(git -C "$lepic" rev-parse HEAD)" "$tree" \
+    "$(cd "$lepic" && rustc --version)" > "$dir/SOURCE"
   echo "packaged $dir/liblepic_ffi.dylib"
 }
 
