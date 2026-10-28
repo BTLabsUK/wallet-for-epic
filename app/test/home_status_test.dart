@@ -734,9 +734,9 @@ void main() {
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Connected');
       expect(_dot(tester, barNodeIconKey), t.ok);
       expect(_dot(tester, barEpicboxIconKey), t.ok);
-      // Off services stay on the bar too, faint (bot #123).
-      expect(find.byKey(barTorIconKey), findsOneWidget);
-      expect(find.byKey(barLinkIconKey), findsOneWidget);
+      // Off services show only on Wallet (bot #123): the bar keeps its room for the figure.
+      expect(find.byKey(barTorIconKey), findsNothing);
+      expect(find.byKey(barLinkIconKey), findsNothing);
       // Right after the figure, on its line.
       final figure = tester.getRect(find.byKey(titleFigureKey));
       final node = tester.getRect(find.byKey(barNodeIconKey));

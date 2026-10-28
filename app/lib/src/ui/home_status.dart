@@ -269,9 +269,10 @@ class StatusIcons extends ConsumerWidget {
             onTap: status.epicbox == null ? () => openSettingsSection(context, SettingsSection.transactions) : () => showEpicboxPicker(context),
           ),
         ],
-        // Tor and Link are always there (bot #123): off, faint without a dot, a tap opens
-        // the switch; on, the dot says how the connection goes.
-        if (block != NetBlock.offline && torShown(tor))
+        // Tor and Link are always there on Wallet (bot #123): off, faint without a dot, a tap
+        // opens the switch; on, the dot says how the connection goes. The compact row in Send's
+        // and Receive's bar shows them only when on: its room goes to the balance beside it.
+        if (block != NetBlock.offline && torShown(tor) && (!compact || torIconShown(tor)))
           StatusIcon(
             key: compact ? barTorIconKey : torIconKey,
             compact: compact,
@@ -284,7 +285,7 @@ class StatusIcons extends ConsumerWidget {
             pulse: torState == TorState.starting,
             onTap: () => openPrivacySettings(context),
           ),
-        if (block == NetBlock.none)
+        if (block == NetBlock.none && (!compact || linkOn))
           StatusIcon(
             key: compact ? barLinkIconKey : directIconKey,
             compact: compact,
