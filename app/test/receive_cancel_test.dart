@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -213,8 +214,8 @@ void main() {
       final h = _Harness(_waiting(ago: const Duration(minutes: 40)));
       await h.pump(tester);
       expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget);
-      expect(find.byType(TextButton), findsWidgets);
-      expect(find.widgetWithText(OutlinedButton, _l.txDetailsCancelPayment), findsNothing, reason: 'not the send\'s button');
+      // One destructive look on both sides (UI-015): the same red Cancel as a send's.
+      expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(
         find.text('${_l.txDetailsAcceptedAgoMinutes(40)} ${_l.txDetailsCancelOffered}'),
         findsOneWidget,
@@ -245,7 +246,7 @@ void main() {
       expect(h.session.cancelledTxIds, isEmpty);
       await tester.tap(find.byKey(txDetailsCancelReceiveKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, _l.txDetailsCancelPayment));
+      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [9]);
       expect(_notice(tester), _l.txDetailsPaymentCancelled);
@@ -257,7 +258,7 @@ void main() {
       await h.pump(tester);
       await tester.tap(find.byKey(txDetailsCancelReceiveKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, _l.txDetailsCancelPayment));
+      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [9]);
       expect(_notice(tester), _l.txDetailsCancelRefusedOnNetwork);

@@ -336,12 +336,13 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
             anchor: HelpAnchor.requests,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
+          // One destructive look (UI-015), as on the payment's details.
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context, false),
               child: Text(l.txDetailsCancelKeep),
             ),
-            FilledButton(
+            DangerButton(
               onPressed: () => Navigator.pop(context, true),
               child: Text(l.txDetailsCancelPayment),
             ),

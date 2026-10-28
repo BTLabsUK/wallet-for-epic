@@ -891,8 +891,9 @@ void main() {
       expect(h.session.cancelledTxIds, isEmpty);
       await tester.tap(cancel);
       await tester.pumpAndSettle();
+      // The dialog's cancelling choice is the red one (UI-015).
       await tester.tap(
-        find.widgetWithText(FilledButton, _l.txDetailsCancelPayment),
+        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
       );
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);
@@ -943,8 +944,9 @@ void main() {
       await withdrawnOnHome(tester, h);
       await tester.tap(noticeButton(_l.txDetailsCancelPayment));
       await tester.pumpAndSettle();
+      // The dialog's cancelling choice is the red one (UI-015).
       await tester.tap(
-        find.widgetWithText(FilledButton, _l.txDetailsCancelPayment),
+        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
       );
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);
