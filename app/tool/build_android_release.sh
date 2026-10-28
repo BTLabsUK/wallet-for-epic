@@ -14,7 +14,7 @@
 # WFE_TOR=0 builds the version without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false,
 # no tor fetched or packed (android/app/build.gradle.kts), LEPIC built without its tor feature,
 # -notor in the APK names, and the checks turned round: no libtor.so, no Tor code in
-# liblepic_ffi.so, no Tor licence, libraries stored uncompressed.
+# liblepic_ffi.so, no Tor licence. Both pack the libraries compressed, extracted at install.
 #
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
 # updater refuses a verified manifest whose packageName differs from the installed app's
@@ -147,15 +147,10 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   rm -r -- "$unpacked"
   "$zipalign" -c -P 16 4 "$apk" >/dev/null && r=0 || r=1; check "zipalign -c -P 16 4" $r
   # The merged manifest must let Android extract the libraries at install (tor runs from
-  # there); without Tor they stay in the APK.
+  # there); the build without Tor packs them compressed the same way, for a smaller download.
   manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$apk")"
-  if [[ $tor == 1 ]]; then
-    grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
-    check "manifest extractNativeLibs=true" $r
-  else
-    grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=1 || r=0
-    check "manifest extractNativeLibs not true" $r
-  fi
+  grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
+  check "manifest extractNativeLibs=true" $r
   # No Firebase or other Google push code since 26.10.20, even with a google-services.json
   # lying in android/app: not in the resources, the manifest or the code.
   "$aapt2" dump resources "$apk" 2>/dev/null | grep -qiE 'google_app_id|gcm_defaultSenderId|firebase' && r=1 || r=0
