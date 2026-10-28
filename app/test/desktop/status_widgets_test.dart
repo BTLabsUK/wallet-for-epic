@@ -118,6 +118,30 @@ void main() {
     });
   }
 
+  for (final reduce in [false, true]) {
+    testWidgets('an in-progress glyph pulses a few beats, then stops drawing${reduce ? ' (reduced motion: never pulses)' : ''}', (tester) async {
+      // #126: a pulse that never ended redrew the window 60 times a second for as long as
+      // Epicbox over Tor kept retrying.
+      await tester.pumpWidget(_app(const Center(child: EStatusGlyph(icon: EIcons.epicbox, state: EState.active, label: 'Epicbox: Connecting')), reduce: reduce));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.binding.hasScheduledFrame, !reduce);
+      if (!reduce) {
+        final fade = tester.widget<FadeTransition>(find.descendant(of: find.byType(EStatusGlyph), matching: find.byType(FadeTransition)).last);
+        expect(fade.opacity.value, lessThan(1));
+      }
+      // Still the same state, well past the beats: nothing left to draw, full opacity.
+      await tester.pump(const Duration(milliseconds: 1600) * statusPulseBeats);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.binding.hasScheduledFrame, isFalse);
+      final fades = find.descendant(of: find.byType(EStatusGlyph), matching: find.byType(FadeTransition));
+      if (!reduce) expect(tester.widget<FadeTransition>(fades.last).opacity.value, 1);
+      // A rebuild in the same state does not start it again.
+      await tester.pumpWidget(_app(const Center(child: EStatusGlyph(icon: EIcons.epicbox, state: EState.active, label: 'Epicbox: Connecting, again')), reduce: reduce));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+  }
+
   testWidgets('ESegmented md + stretch is 44 u tall and fills its width', (tester) async {
     tester.view.physicalSize = const Size(600, 200);
     tester.view.devicePixelRatio = 1;

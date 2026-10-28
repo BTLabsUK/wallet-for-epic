@@ -139,6 +139,19 @@ static void my_application_activate(GApplication* application) {
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
       project, self->dart_entrypoint_arguments);
+  // Skia by default: on Flutter 3.47 Impeller (its Linux default) costs about six times the CPU
+  // per frame on software OpenGL (llvmpipe: VMs, remote desktops, no GPU driver), where every
+  // spinner then filled all cores (#126). --impeller opts in, to compare on a given machine;
+  // --skia is accepted and means the default (as windows/runner/main.cpp).
+  gboolean impeller = FALSE;
+  for (gchar** arg = self->dart_entrypoint_arguments; arg != nullptr && *arg != nullptr; arg++) {
+    if (g_strcmp0(*arg, "--impeller") == 0) {
+      impeller = TRUE;
+    } else if (g_strcmp0(*arg, "--skia") == 0) {
+      impeller = FALSE;
+    }
+  }
+  fl_dart_project_set_enable_impeller(project, impeller);
 
   FlView* view = fl_view_new(project);
   GdkRGBA background_color;
