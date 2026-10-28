@@ -123,7 +123,7 @@ void main() {
     expect(find.text('Enter a block height of 1 or more.'), findsOneWidget, reason: 'an empty height is refused under the field');
     await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck again'));
+    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
