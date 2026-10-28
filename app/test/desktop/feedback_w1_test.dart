@@ -196,7 +196,7 @@ void main() {
     expect(find.text('Left to spend'), findsNothing);
     await tester.tap(find.text('Review send'));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text("This is the wallet's own address."), findsOneWidget);
+    expect(find.text('This is the wallet’s own address.'), findsOneWidget);
     expect(find.text('Send 1.0000 EPIC'), findsNothing, reason: 'no review dialog');
   });
 
@@ -215,7 +215,7 @@ void main() {
       await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
       await tester.tap(find.text('Review send'));
       await tester.pump(const Duration(milliseconds: 600));
-      expect(find.text("This is the wallet's own address."), refused ? findsOneWidget : findsNothing);
+      expect(find.text('This is the wallet’s own address.'), refused ? findsOneWidget : findsNothing);
       // The review dialog that opens for another address starts a timer of its own.
       await tester.pumpAndSettle();
     });

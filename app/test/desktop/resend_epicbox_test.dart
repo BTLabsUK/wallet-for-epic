@@ -144,7 +144,7 @@ void main() {
       expect(statusOf(englishStrings, tx).$1, 'Not on the network');
       expect(find.textContaining('Not on the network.'), findsOneWidget);
       expect(find.textContaining('waiting for a block'), findsNothing);
-      await tester.tap(find.widgetWithText(EButton, 'Broadcast again'));
+      await tester.tap(find.widgetWithText(EButton, 'Post again'));
       await tester.pump();
       expect(desk.reposted, [77]);
       await tester.pumpWidget(const SizedBox());

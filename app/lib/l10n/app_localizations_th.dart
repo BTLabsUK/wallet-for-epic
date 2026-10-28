@@ -121,7 +121,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txMiningReward => 'รางวัลการขุด';
 
   @override
-  String get txRestoredFunds => 'ยอดที่กู้คืน';
+  String get txRestoredFunds => 'พบบนบล็อกเชน';
 
   @override
   String txSpokenLabelled(String label, String row) {
@@ -284,7 +284,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String txSpokenRestoredFunds(String amount) {
-    return 'ยอดที่กู้คืน $amount';
+    return 'พบบนบล็อกเชน $amount';
   }
 
   @override
@@ -548,14 +548,14 @@ class AppLocalizationsTh extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'รอมา $days วันแล้ว Epicbox ลบรายการหลัง 7 วัน รายการนี้จึงทำต่อไม่ได้แล้ว ยกเลิกเพื่อปลดล็อกยอดเงิน แล้วส่งใหม่',
+          'รอมา $days วันแล้ว เซิร์ฟเวอร์ Epicbox ลบรายการหลัง 7 วัน รายการนี้จึงทำต่อไม่ได้แล้ว ยกเลิกเพื่อปลดล็อกเหรียญ แล้วส่งใหม่',
     );
     return '$_temp0';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'ส่งไปยัง Epicbox ของผู้รับแล้ว รายการจะสำเร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์ ยอดเงินจะถูกล็อกจนถึงตอนนั้น หรือจนกว่าจะยกเลิก';
+      'ส่งผ่าน Epicbox แล้ว รายการจะสำเร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์ จำนวนเงินจะถูกล็อกจนถึงตอนนั้น หรือจนกว่าจะยกเลิก';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -567,7 +567,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsSenderPosted =>
-      'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
+      'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อเครือข่ายยืนยัน';
 
   @override
   String get txDetailsPublished =>
@@ -749,8 +749,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsBroadcastAgain => 'ส่งเข้าเครือข่ายอีกครั้ง';
 
   @override
-  String get txDetailsBroadcastAgainDone =>
-      'ส่งเข้าเครือข่ายอีกครั้งแล้ว น่าจะได้รับการยืนยันในไม่กี่นาที';
+  String get txDetailsBroadcastAgainDone => 'ส่งเข้าเครือข่ายอีกครั้งแล้ว';
 
   @override
   String get txDetailsRefusedBody =>
@@ -924,7 +923,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'พบจากการสแกนบล็อกเชน รายละเอียดอย่างผู้ส่งและค่าธรรมเนียมไม่ได้เก็บบนบล็อกเชน นำเข้าข้อมูลกระเป๋าเงินเพื่อกู้คืนรายละเอียด';
+      'พบบนบล็อกเชน ผู้ส่งและค่าธรรมเนียมไม่ได้อยู่บนบล็อกเชน นำเข้าข้อมูลกระเป๋าเงินเพื่อเพิ่มรายละเอียด';
 
   @override
   String get txDetailsSourceImported =>
@@ -1439,7 +1438,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$amount กำลังรอกระเป๋าเงินของผู้รับตอบกลับ ระหว่างนี้ยอดเงินจะถูกล็อก ถ้าไม่มีคำตอบ ให้เปิดรายการแล้วแตะ ยกเลิกรายการ',
+          '$amount กำลังรอกระเป๋าเงินของผู้รับตอบกลับ ระหว่างนี้เหรียญจะถูกล็อก ถ้าไม่มีคำตอบ ให้เปิดรายการแล้วแตะ ยกเลิกรายการ',
     );
     return '$_temp0';
   }
@@ -1594,7 +1593,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return '$service เรียกคืนใบแจ้งหนี้นี้หลังคุณชำระแล้ว ถ้ารายการไม่ได้รับการยืนยัน ให้ยกเลิกเพื่อปลดล็อกยอดเงิน';
+    return '$service เรียกคืนใบแจ้งหนี้นี้หลังคุณชำระแล้ว';
   }
 
   @override
@@ -1752,7 +1751,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'รายการที่ส่งถึงคุณตอนนี้จะรออยู่ที่ Epicbox และเข้าเมื่อกระเป๋าเงินเชื่อมต่อได้อีกครั้ง';
+      'รายการที่ส่งถึงคุณจะรออยู่ที่เซิร์ฟเวอร์ Epicbox และเข้าเมื่อกระเป๋าเงินเชื่อมต่ออีกครั้ง';
 
   @override
   String get receiveShareCardHeadline => 'จ่ายให้ฉันด้วย Epic Cash';
@@ -1764,11 +1763,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveAddressCopied => 'คัดลอกที่อยู่แล้ว';
 
   @override
-  String get receiveFileTitle => 'รับด้วยไฟล์รายการ';
+  String get receiveFileTitle => 'รับด้วยไฟล์ธุรกรรม';
 
   @override
-  String get receiveFileBody =>
-      'ได้ไฟล์รายการจากใครมาไหม? เปิดไฟล์ หรือคัดลอกข้อความแล้ววางที่นี่';
+  String get receiveFileBody => 'เปิดไฟล์ธุรกรรม หรือวางข้อความของไฟล์ที่นี่';
 
   @override
   String get receiveFileOpen => 'เปิดไฟล์';
@@ -2348,7 +2346,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendMethodEpicbox => 'ที่อยู่ Epicbox';
 
   @override
-  String get sendMethodFile => 'ไฟล์ชำระเงิน';
+  String get sendMethodFile => 'ไฟล์ธุรกรรม';
 
   @override
   String get sendFileHelpTooltip => 'การชำระด้วยไฟล์ทำงานอย่างไร';
@@ -3341,7 +3339,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txStepSenderFinished => 'ผู้ส่งทำรายการเสร็จแล้ว';
 
   @override
-  String get fileHelpTitle => 'ไฟล์ชำระเงินทำงานอย่างไร';
+  String get fileHelpTitle => 'ไฟล์ธุรกรรมทำงานอย่างไร';
 
   @override
   String get fileHelpYou => 'คุณ';
@@ -3350,7 +3348,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get fileHelpFriend => 'เพื่อน';
 
   @override
-  String get fileHelpSendStep1 => 'คุณสร้างไฟล์ชำระเงิน';
+  String get fileHelpSendStep1 => 'คุณสร้างไฟล์ธุรกรรม';
 
   @override
   String get fileHelpSendStep2 =>
@@ -3358,24 +3356,24 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get fileHelpSendStep3 =>
-      'เพื่อนเปิดไฟล์ในกระเป๋าของตนแล้วส่งคำตอบที่ลงนามแล้วกลับมา';
+      'เพื่อนเปิดไฟล์ในกระเป๋าของตนแล้วส่งไฟล์ตอบกลับมา';
 
   @override
-  String get fileHelpSendStep4 => 'คุณเปิดคำตอบ แล้วรายการก็ถูกส่งออกไป';
+  String get fileHelpSendStep4 => 'คุณเปิดไฟล์ตอบกลับ แล้วรายการก็ถูกส่งออกไป';
 
   @override
-  String get fileHelpReceiveStep1 => 'เพื่อนสร้างไฟล์ชำระเงินให้คุณ';
+  String get fileHelpReceiveStep1 => 'เพื่อนสร้างไฟล์ธุรกรรมให้คุณ';
 
   @override
   String get fileHelpReceiveStep2 =>
       'เพื่อนส่งไฟล์ให้คุณด้วยวิธีใดก็ได้ เช่น แชตหรืออีเมล';
 
   @override
-  String get fileHelpReceiveStep3 =>
-      'คุณเปิดไฟล์ในกระเป๋าแล้วส่งคำตอบที่ลงนามแล้วกลับไป';
+  String get fileHelpReceiveStep3 => 'คุณเปิดไฟล์ในกระเป๋าแล้วส่งไฟล์ตอบกลับไป';
 
   @override
-  String get fileHelpReceiveStep4 => 'เพื่อนเปิดคำตอบ แล้วเงินก็กำลังมาถึงคุณ';
+  String get fileHelpReceiveStep4 =>
+      'เพื่อนเปิดไฟล์ตอบกลับ แล้วเงินก็กำลังมาถึงคุณ';
 
   @override
   String fileHelpStepOf(int step, int count) {
@@ -3442,7 +3440,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendRecent => 'ล่าสุด';
 
   @override
-  String get sendUseFile => 'ไม่มีที่อยู่? ใช้ไฟล์ชำระเงิน';
+  String get sendUseFile => 'ไม่มีที่อยู่? ใช้ไฟล์ธุรกรรม';
 
   @override
   String sendTo(String who) {
@@ -3460,13 +3458,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get sendAddNote => 'เพิ่มบันทึก';
+  String get sendAddNote => 'เพิ่มข้อความ';
 
   @override
-  String get sendNoteLabel => 'บันทึก';
+  String get sendNoteLabel => 'ข้อความ';
 
   @override
-  String get sendNoteHelper => 'ผู้รับเห็นบันทึกนี้ด้วย';
+  String get sendNoteHelper => 'ผู้รับเห็นข้อความนี้';
 
   @override
   String get sendNetworkFee => 'ค่าธรรมเนียม';
@@ -3482,7 +3480,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendRelayDown(String relay) {
-    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่ตอบสนอง';
+    return 'เซิร์ฟเวอร์ Epicbox ของผู้รับ ($relay) ไม่ตอบสนอง';
   }
 
   @override
@@ -3526,7 +3524,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return 'กระเป๋าของผู้รับจะทำรายการให้เสร็จเมื่อเปิดขึ้นมา ระหว่างนี้ $amount จะถูกพักไว้';
+    return 'กระเป๋าของผู้รับจะลงนามเมื่อเปิดขึ้นมา ระหว่างนี้ $amount จะถูกล็อก';
   }
 
   @override
@@ -3539,28 +3537,28 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNoCoins => 'ยังไม่มีเหรียญให้ส่ง';
 
   @override
-  String get sendFileTitle => 'ชำระด้วยไฟล์';
+  String get sendFileTitle => 'โดยตรง · โอนไฟล์';
 
   @override
-  String get sendMakeFile => 'สร้างไฟล์ชำระเงิน';
+  String get sendMakeFile => 'สร้างไฟล์ธุรกรรม';
 
   @override
   String get sendFileMade => 'สร้างไฟล์แล้ว';
 
   @override
   String sendFileOnHold(String amount) {
-    return 'พัก $amount ไว้';
+    return 'ล็อก $amount';
   }
 
   @override
-  String get sendFileWaitingReply => 'รอคำตอบจากผู้รับ';
+  String get sendFileWaitingReply => 'รอไฟล์ตอบกลับ';
 
   @override
   String get sendFileShareHint =>
-      'ส่งไฟล์นี้ให้ผู้รับ แล้วเปิดคำตอบที่ส่งกลับมา';
+      'ส่งไฟล์นี้ให้ผู้รับ แล้วเปิดไฟล์ตอบกลับที่ส่งกลับมา';
 
   @override
-  String get sendOpenReply => 'เปิดคำตอบ';
+  String get sendOpenReply => 'เปิดไฟล์ตอบกลับ';
 
   @override
   String get handshakePayment => 'ชำระเงิน';
@@ -3579,7 +3577,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'กระเป๋าของคุณส่งรายการไปยังเซิร์ฟเวอร์ Epicbox เหรียญของคุณถูกพักไว้';
+      'กระเป๋าของคุณส่งรายการไปยังเซิร์ฟเวอร์ Epicbox เหรียญถูกล็อก';
 
   @override
   String get handshakePay2 =>
@@ -3600,7 +3598,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เซิร์ฟเวอร์ส่งต่อไป อีกฝ่ายอนุมัติ แล้วกระเป๋าของอีกฝ่ายเพิ่มเหรียญและลงนาม';
 
   @override
-  String get handshakeRelay => 'เซิร์ฟเวอร์';
+  String get handshakeRelay => 'Epicbox';
 
   @override
   String get handshakeFile => 'โอนไฟล์';
@@ -3614,7 +3612,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get handshakeFile1 =>
-      'กระเป๋าของคุณบันทึกไฟล์ชำระเงิน คุณส่งไฟล์ให้อีกฝ่ายเอง';
+      'กระเป๋าของคุณบันทึกไฟล์ธุรกรรม คุณส่งไฟล์ให้อีกฝ่ายเอง';
 
   @override
   String get handshakeFile2 =>
@@ -3631,7 +3629,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get handshakeLink1 =>
-      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ตหรือ Tor เหรียญของคุณถูกพักไว้';
+      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ตหรือ Tor เหรียญถูกล็อก';
 
   @override
   String get handshakeLink2 =>
@@ -3676,14 +3674,14 @@ class AppLocalizationsTh extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'เซิร์ฟเวอร์ Epicbox ของผู้รับ ($relay) ปฏิเสธรายการ จำนวนเงินจะถูกล็อกจนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+    return 'เซิร์ฟเวอร์ Epicbox ของผู้รับ ($relay) ปฏิเสธรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
   }
 
   @override
@@ -3712,7 +3710,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return 'พักไว้ $amount';
+    return 'ล็อก $amount';
   }
 
   @override
@@ -3870,7 +3868,7 @@ class AppLocalizationsTh extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'ติดต่อกระเป๋าของผู้รับผ่าน Tor ไม่ได้ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'ติดต่อกระเป๋าของผู้รับผ่าน Tor ไม่ได้ จำนวนเงินจะถูกล็อกจนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
@@ -4011,7 +4009,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendFilePinReason(String amount) {
-    return 'ป้อน PIN เพื่อสร้างไฟล์ชำระเงิน $amount';
+    return 'ป้อน PIN เพื่อสร้างไฟล์ธุรกรรม $amount';
   }
 
   @override
@@ -4382,7 +4380,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactsCopied => 'คัดลอกที่อยู่แล้ว';
 
   @override
-  String get invoicesNewRequest => 'คำขอใหม่';
+  String get invoicesNewRequest => 'ใบแจ้งหนี้ใหม่';
 
   @override
   String get invoicesSegmentSent => 'ส่งแล้ว';
@@ -4939,7 +4937,7 @@ class AppLocalizationsTh extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'ติดต่อกระเป๋าของผู้รับไม่ได้ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'ติดต่อกระเป๋าของผู้รับไม่ได้ จำนวนเงินจะถูกล็อกจนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
@@ -5265,7 +5263,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'ส่งถึงกล่องรับของ $payer แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
+    return 'ส่งถึงเซิร์ฟเวอร์ Epicbox ของ $payer แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
   }
 
   @override
@@ -5345,7 +5343,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerWithdrawnText =>
-      'รายการอาจไม่ถึงบล็อกเชน ยกเลิกเพื่อปลดล็อกเงิน';
+      'รายการอาจไม่ถึงบล็อกเชน ยกเลิกเพื่อคืนเหรียญ';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
@@ -5354,7 +5352,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerPastTtlText =>
-      'เลยเวลาแล้วและเครือข่ายไม่พบรายการนี้ ยกเลิกเพื่อปลดล็อกเงิน';
+      'เลยเวลาแล้วและเครือข่ายไม่พบรายการนี้ ยกเลิกเพื่อคืนเหรียญ';
 
   @override
   String get deskInvPayerCancelPayment => 'ยกเลิกรายการ';
@@ -5776,7 +5774,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pushConfirmRelayAddress =>
-      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่';
+      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
 
   @override
   String get pushRelaySwitchFailed =>
@@ -5980,7 +5978,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrTestNet =>
-      'กระเป๋าเงินของเครือข่ายทดสอบ นำเข้าได้เฉพาะกระเป๋าเงิน Mainnet';
+      'กระเป๋าเงิน Floonet: นำเข้าได้เฉพาะกระเป๋าเงินเครือข่ายหลัก';
 
   @override
   String get deskErrWalletInApp => 'กระเป๋าเงินนี้อยู่ในแอปแล้ว';
@@ -7134,7 +7132,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendAmountSem => 'จำนวนเป็น EPIC';
 
   @override
-  String get deskSendAllButton => 'ทั้งหมด';
+  String get deskSendAllButton => 'สูงสุด';
 
   @override
   String get deskSendConfirmingHidden =>
@@ -8532,7 +8530,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'พบบนบล็อกเชนระหว่างกู้คืนกระเป๋าเงินนี้ ไม่มีบันทึกผู้ส่ง';
 
   @override
-  String get deskTxFoundRescanLabel => 'พบจากการสแกน';
+  String get deskTxFoundRescanLabel => 'พบจากการตรวจยอดใหม่';
 
   @override
   String get deskTxFoundRescanLine => 'พบจากการตรวจยอดใหม่';
@@ -8990,7 +8988,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbCreateStageCreate => 'กำลังสร้างกระเป๋าเงินและวลีกู้คืน';
 
   @override
-  String get deskOnbCreateStageSave => 'กำลังบันทึกบัญชี';
+  String get deskOnbCreateStageSave => 'กำลังบันทึกกระเป๋าเงิน';
 
   @override
   String get deskOnbCreateNotCreated => 'ไม่ได้สร้างกระเป๋าเงิน';
@@ -9007,7 +9005,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbCreateFailedTitle => 'สร้างกระเป๋าเงินไม่ได้';
 
   @override
-  String get deskOnbCreateDiskFull => 'บันทึกบัญชีไม่ได้: ดิสก์เต็ม';
+  String get deskOnbCreateDiskFull =>
+      'บันทึกกระเป๋าเงินไม่ได้: ดิสก์เต็ม เพิ่มพื้นที่ว่างแล้วลองอีกครั้ง';
 
   @override
   String get deskOnbCreateWait => 'อาจใช้เวลาถึงหนึ่งนาที เปิดแอปไว้';
@@ -10855,11 +10854,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupNotNow => 'ไว้ทีหลัง';
 
   @override
-  String get deskSetDlgChainTitle => 'พบข้อมูลบล็อกเชนที่มีอยู่';
+  String get deskSetDlgChainTitle => 'พบข้อมูลบล็อกเชน';
 
   @override
   String get deskSetDlgChainDesc =>
-      'คอมพิวเตอร์นี้มีข้อมูลบล็อกเชน Epic ที่โหนดในเครื่องใช้ได้อยู่แล้ว';
+      'โหนดในเครื่องใช้ข้อมูลบล็อกเชน Epic ที่มีอยู่แล้วบนคอมพิวเตอร์นี้ได้ ไม่ต้องดาวน์โหลดใหม่';
 
   @override
   String get deskSetDlgChainFolder => 'โฟลเดอร์';
@@ -10881,8 +10880,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'โปรแกรม Epic อื่นกำลังใช้โฟลเดอร์นี้ ปิดโปรแกรมนั้น แล้วเลือกโหนดในเครื่องอีกครั้งเพื่อใช้ข้อมูลนี้';
 
   @override
-  String get deskSetDlgChainUseIt =>
-      'ใช้ข้อมูลนี้ไหม? ไม่ต้องดาวน์โหลดและซิงก์บล็อกเชนทั้งหมด';
+  String get deskSetDlgChainUseIt => 'ใช้ข้อมูลนี้ไหม?';
 
   @override
   String get deskSetDlgChainOlderWallet =>
@@ -11465,7 +11463,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetLndNotInUse => 'ไม่ได้ใช้โฟลเดอร์นี้';
 
   @override
-  String get deskSetLndReuseTitle => 'พบข้อมูลบล็อกเชนบนคอมพิวเตอร์นี้';
+  String get deskSetLndReuseTitle => 'พบข้อมูลบล็อกเชน';
 
   @override
   String get deskSetLndReuseDesc =>
@@ -12219,7 +12217,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetRescanStoppedLine => 'หยุดสแกนแล้ว';
 
   @override
-  String get deskSetRescanLog => 'บันทึกการสแกน';
+  String get deskSetRescanLog => 'บันทึกการตรวจยอดใหม่';
 
   @override
   String get deskSetRescanText =>
@@ -12261,7 +12259,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetRescanNotRead => 'อ่านไม่ได้';
 
   @override
-  String get deskSetRescanFinished => 'สแกนเสร็จแล้ว';
+  String get deskSetRescanFinished => 'ตรวจยอดใหม่เสร็จแล้ว';
 
   @override
   String get deskSetRescanUpToDate => 'ยอดคงเหลือเป็นปัจจุบันแล้ว';
@@ -12784,7 +12782,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsNotDeliveredBody =>
-      'การชำระเงินนี้ยังไปไม่ถึง epicbox ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+      'รายการนี้ยังไปไม่ถึงเซิร์ฟเวอร์ Epicbox ผู้รับจึงยังไม่ได้รับ เหรียญจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
 
   @override
   String get txDetailsSendAgainDone =>
@@ -12832,7 +12830,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxNowUndelivered =>
-      'ส่งไม่ถึง รายการนี้ไปไม่ถึง Epicbox ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+      'ส่งไม่ถึง รายการนี้ไปไม่ถึงเซิร์ฟเวอร์ Epicbox ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเหรียญคืน';
 
   @override
   String get deskTxStatusUndelivered => 'ส่งไม่ถึง';
@@ -12971,8 +12969,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTxDetailsTitleEdit => 'แก้ไขรายละเอียด';
 
   @override
-  String get deskTxDetailsTip =>
-      'ใช้ได้เฉพาะรายการที่พบจากการสแกน จะแสดงว่าคุณเพิ่มเองในกิจกรรม รายละเอียด และไฟล์ที่ส่งออก ยอดเงิน วันที่ และการยืนยันจะไม่เปลี่ยน';
+  String get deskTxDetailsTip => 'ใช้ได้เฉพาะรายการที่พบจากการตรวจยอดใหม่';
 
   @override
   String get deskTxDetailsFrom => 'จาก';
@@ -13430,7 +13427,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsRescanBodyPlain =>
-      'กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก อาจใช้เวลานาน';
+      'กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก';
 
   @override
   String get slNodeField => 'ที่อยู่โหนด';
@@ -13518,7 +13515,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'การเปลี่ยนจะทำให้ที่อยู่ของคุณเปลี่ยน ผู้ส่งต้องใช้ที่อยู่ใหม่';
+      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
 
   @override
   String get slNotAnAddress =>
@@ -13839,7 +13836,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'รายการจากผู้ส่งจะรออยู่ที่เซิร์ฟเวอร์จนกว่าจะเปิด Epicbox อีกครั้ง';
+      'รายการจะรออยู่ที่เซิร์ฟเวอร์ Epicbox จนกว่าจะเปิด Epicbox อีกครั้ง';
 
   @override
   String get receiveNoMethods => 'ไม่มีวิธีรับเงินที่เปิดอยู่';
@@ -14102,7 +14099,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairLead =>
-      'จับคู่กับอีกฝ่ายเพียงครั้งเดียว จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก มีเพียงสองกระเป๋าเงินนี้ที่อ่านได้';
+      'จับคู่กับอีกฝ่ายเพียงครั้งเดียว จากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก มีเพียงสองกระเป๋าเงินนี้ที่อ่านได้';
 
   @override
   String get pairInPerson => 'แบบพบตัว';
@@ -14130,7 +14127,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairNotPairedHint =>
-      'จับคู่เพื่อปิดผนึกไฟล์การชำระเงินและอนุญาตใบแจ้งหนี้';
+      'จับคู่เพื่อปิดผนึกไฟล์ธุรกรรมและอนุญาตใบแจ้งหนี้';
 
   @override
   String get pairInPersonTitle => 'จับคู่แบบพบตัว';
@@ -14270,7 +14267,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsPairHint =>
-      'จับคู่กับกระเป๋าเงินอีกใบเพื่อปิดผนึกไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างกัน';
+      'จับคู่กับกระเป๋าเงินอีกใบเพื่อปิดผนึกไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างกัน';
 
   @override
   String get contactsPairLearn => 'ทำงานอย่างไร';
@@ -14286,7 +14283,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWaysLead =>
-      'จับคู่ครั้งเดียว จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
+      'จับคู่ครั้งเดียว จากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
 
   @override
   String get pairWayWords => 'คำ';
@@ -14296,7 +14293,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWayWordsHint =>
-      'อ่านห้าคำให้อีกฝ่ายฟัง กระเป๋าเงินทั้งสองต้องออนไลน์ ที่เหลือจะทำงานเอง';
+      'อ่านคำจับคู่ห้าคำให้อีกฝ่ายฟัง กระเป๋าเงินทั้งสองต้องออนไลน์';
 
   @override
   String get pairWayWordsInfo =>
@@ -14539,7 +14536,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'เมื่อจับคู่แล้ว ไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก ขั้นต่อไปคือยืนยันด้วยกัน';
+    return 'เมื่อจับคู่แล้ว ไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก ขั้นต่อไปคือยืนยันด้วยกัน';
   }
 
   @override
@@ -14700,11 +14697,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairAnsweredSameInvite => 'ตอบคำเชิญเดียวกัน · ไม่ได้บันทึก';
 
   @override
-  String get sasTitle => 'ตรวจคำ';
+  String get sasTitle => 'เทียบคำตรวจสอบ';
 
   @override
   String sasLead(String name) {
-    return 'กระเป๋าเงินของ $name แสดงสี่คำเดียวกัน เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
+    return 'กระเป๋าเงินของ $name แสดงคำตรวจสอบสี่คำเดียวกัน เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
   }
 
   @override
@@ -14736,7 +14733,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'นับจากนี้ ไฟล์การชำระเงินและใบแจ้งหนี้กับ $name จะถูกปิดผนึก';
+    return 'นับจากนี้ ไฟล์ธุรกรรมและใบแจ้งหนี้กับ $name จะถูกปิดผนึก';
   }
 
   @override
@@ -14756,7 +14753,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sasSkippedBody(String name) {
-    return 'ไฟล์การชำระเงินกับ $name ถูกปิดผนึก ตรวจคำจากหน้าผู้ติดต่อของ $name เมื่อสะดวก ใบแจ้งหนี้จะรอจนกว่าจะตรวจ';
+    return 'ไฟล์ธุรกรรมกับ $name ถูกปิดผนึก ตรวจคำจากหน้าผู้ติดต่อของ $name เมื่อสะดวก ใบแจ้งหนี้จะรอจนกว่าจะตรวจ';
   }
 
   @override
@@ -14823,7 +14820,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactSealInfoMore(String name) {
-    return 'เมื่อปิด ไฟล์การชำระเงินถึง $name จะไม่ปิดผนึก ใครที่ได้ไฟล์ก็อ่านได้ ปิดเฉพาะเมื่อกระเป๋าเงินของ $name เปิดไฟล์ที่ปิดผนึกไม่ได้';
+    return 'เมื่อปิด ไฟล์ธุรกรรมถึง $name จะไม่ปิดผนึก ใครที่ได้ไฟล์ก็อ่านได้ ปิดเฉพาะเมื่อกระเป๋าเงินของ $name เปิดไฟล์ที่ปิดผนึกไม่ได้';
   }
 
   @override
@@ -14856,7 +14853,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'เซิร์ฟเวอร์ของ $name ไม่ตอบสนอง';
+    return 'เซิร์ฟเวอร์ Epicbox ของ $name ไม่ตอบสนอง';
   }
 
   @override
@@ -15067,7 +15064,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get invoicesEmptyAction => 'ผู้ติดต่อที่จับคู่แล้ว';
 
   @override
-  String get reqTitle => 'ตรวจสอบคำขอ';
+  String get reqTitle => 'ตรวจสอบใบแจ้งหนี้';
 
   @override
   String reqRequests(String name) {
@@ -15100,7 +15097,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'ส่งถึงเซิร์ฟเวอร์ของ $name แล้ว';
+    return 'ส่งถึงเซิร์ฟเวอร์ Epicbox ของ $name แล้ว';
   }
 
   @override
@@ -15151,7 +15148,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqUnreachableBody =>
-      'เงินของคุณปลอดภัย จะปลดล็อกหากไม่มีการประกาศ ระบบยังคงลองส่งต่อไป';
+      'เหรียญจะปลดล็อกหากไม่มีการประกาศ ระบบยังคงลองส่งต่อไป';
 
   @override
   String get reqRelayRetrying => 'เซิร์ฟเวอร์ไม่ตอบสนอง · กำลังลองใหม่';
@@ -15195,7 +15192,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไม่ต้องทำอะไร ศูนย์แลกเปลี่ยนจะประกาศ จากนั้นจะมีการยืนยันตามมา';
 
   @override
-  String get reqNewTitle => 'คำขอใหม่';
+  String get reqNewTitle => 'ใบแจ้งหนี้ใหม่';
 
   @override
   String get reqNewLead =>
@@ -15223,11 +15220,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqNewSaveFile => 'บันทึกเป็นไฟล์';
 
   @override
-  String get reqNewSend => 'ส่งคำขอ';
+  String get reqNewSend => 'ส่งใบแจ้งหนี้';
 
   @override
   String sendViaMailbox(String name) {
-    return 'ส่งผ่านกล่องรับของ $name';
+    return 'ส่งผ่านเซิร์ฟเวอร์ Epicbox ของ $name';
   }
 
   @override
@@ -15352,7 +15349,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'เซิร์ฟเวอร์ของ $name ไม่ตอบสนอง กำลังลองใหม่';
+    return 'เซิร์ฟเวอร์ Epicbox ของ $name ไม่ตอบสนอง กำลังลองใหม่';
   }
 
   @override
@@ -15526,7 +15523,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'ยังติดต่อ $name ไม่ได้ เงินของคุณปลอดภัย';
+    return 'ยังติดต่อ $name ไม่ได้ กำลังลองใหม่';
   }
 
   @override
@@ -15610,14 +15607,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'จับคู่ครั้งเดียว ไฟล์การชำระเงินและใบแจ้งหนี้กับผู้ติดต่อนั้นจะถูกปิดผนึก';
+      'จับคู่ครั้งเดียว ไฟล์ธุรกรรมและใบแจ้งหนี้กับผู้ติดต่อนั้นจะถูกปิดผนึก';
 
   @override
   String get helpPairWhatTitle => 'การจับคู่คืออะไร';
 
   @override
   String get helpPairWhatShort =>
-      'จับคู่กับอีกฝ่ายครั้งเดียว หลังจากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
+      'จับคู่กับอีกฝ่ายครั้งเดียว หลังจากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
 
   @override
   String get helpPairWhatP1 =>
@@ -15625,7 +15622,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'หลังจับคู่ ไฟล์การชำระเงินถึงผู้ติดต่อนั้นจะ**ปิดผนึก** มีเพียงกระเป๋าเงินของอีกฝ่ายที่เปิดได้ และไม่สามารถถูกเปลี่ยนหรือปลอมระหว่างทาง การชำระเงินผ่าน Epicbox ระหว่างบุคคลยังทำงานเหมือนเดิม';
+      'หลังจับคู่ ไฟล์ธุรกรรมถึงผู้ติดต่อนั้นจะ**ปิดผนึก** มีเพียงกระเป๋าเงินของอีกฝ่ายที่เปิดได้ และไม่สามารถถูกเปลี่ยนหรือปลอมระหว่างทาง การชำระเงินผ่าน Epicbox ระหว่างบุคคลยังทำงานเหมือนเดิม';
 
   @override
   String get helpPairWhatStep1 =>
@@ -15640,7 +15637,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'การจับคู่ต้องใช้ Epic Cash ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์การชำระเงินปกติและการชำระเงินผ่าน Epicbox';
+      'การจับคู่ต้องใช้ Epic Cash ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์ธุรกรรมปกติและการชำระเงินผ่าน Epicbox';
 
   @override
   String get helpPairWhyTitle => 'ทำไมต้องยืนยัน';
@@ -15655,7 +15652,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhyP2 =>
-      'เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว แล้วแตะ **ตรงกัน** ผู้ติดต่อจะเป็น **ยืนยันแล้ว** ส่วน **ข้ามไปก่อน** จะคงไว้เป็น **จับคู่แล้ว ยังไม่ยืนยัน** ไฟล์การชำระเงินยังปิดผนึก แต่ผู้ติดต่อจะส่งใบแจ้งหนี้ไม่ได้จนกว่าจะตรวจคำ';
+      'เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว แล้วแตะ **ตรงกัน** ผู้ติดต่อจะเป็น **ยืนยันแล้ว** ส่วน **ข้ามไปก่อน** จะคงไว้เป็น **จับคู่แล้ว ยังไม่ยืนยัน** ไฟล์ธุรกรรมยังปิดผนึก แต่ผู้ติดต่อจะส่งใบแจ้งหนี้ไม่ได้จนกว่าจะตรวจคำ';
 
   @override
   String get helpPairWhyP3 =>
@@ -15940,7 +15937,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get expPairingHint =>
-      'จับคู่ครั้งเดียวกับคนที่ชำระเงินกันบ่อย จากนั้นไฟล์การชำระเงินและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก และผู้ติดต่อจะแสดงว่าจับคู่แล้ว เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'จับคู่ครั้งเดียวกับคนที่ชำระเงินกันบ่อย จากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก และผู้ติดต่อจะแสดงว่าจับคู่แล้ว เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
   String get expInvoices => 'ใบแจ้งหนี้';
@@ -16009,7 +16006,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String txStepSentMailbox(String name) {
-    return 'ส่งผ่านกล่องรับของ $name แล้ว';
+    return 'ส่งผ่านเซิร์ฟเวอร์ Epicbox ของ $name แล้ว';
   }
 
   @override
@@ -16019,7 +16016,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String txStepCollecting(String name) {
-    return 'กำลังตรวจกล่องรับของ $name';
+    return 'กำลังตรวจเซิร์ฟเวอร์ Epicbox ของ $name';
   }
 
   @override
@@ -16333,11 +16330,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get reqQrNew => 'คำขอใหม่';
+  String get reqQrNew => 'ใบแจ้งหนี้ใหม่';
 
   @override
   String get reqQrAlreadyPaid =>
-      'คำขอนี้ชำระแล้ว ไม่มีอะไรถูกหักจากโทรศัพท์เครื่องนี้ รายการของเขาจะถูกพักไว้จนกว่าเขาจะยกเลิกในประวัติ หรือหมดอายุหลังจากหนึ่งวัน';
+      'คำขอนี้ชำระแล้ว ไม่มีอะไรถูกหักจากโทรศัพท์เครื่องนี้ รายการของเขาจะถูกล็อกจนกว่าเขาจะยกเลิกในประวัติ หรือหมดอายุหลังจากหนึ่งวัน';
 
   @override
   String get reqFromQrTitle => 'คำขอชำระเงินจาก QR';
@@ -16570,7 +16567,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSlotWaitingBlock => 'รอบล็อก';
 
   @override
-  String get deskSlotRequests => 'คำขอใหม่';
+  String get deskSlotRequests => 'ใบแจ้งหนี้ใหม่';
 
   @override
   String get deskSlotNodeStarting => 'โหนดในเครื่องกำลังเริ่ม';
@@ -16703,7 +16700,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteSendWaiting =>
-      'ยังไม่ได้ส่งเข้าเครือข่าย: การยกเลิกจะคืนเหรียญของคุณ';
+      'ยังไม่ได้โพสต์เข้าเครือข่าย: การยกเลิกจะคืนเหรียญ';
 
   @override
   String get cancelNoteNotPosted =>
@@ -16711,7 +16708,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteDirectFailed =>
-      'ไม่มีอะไรถึงผู้รับ: การยกเลิกจะคืนเหรียญของคุณ';
+      'ไม่มีอะไรถึงผู้รับ: การยกเลิกจะคืนเหรียญ';
 
   @override
   String get cancelNoteRequestPaid =>
@@ -16751,11 +16748,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOwnYourNode => 'โหนดของคุณ';
+  String get deskOwnYourNode => 'โหนดของตัวเอง';
 
   @override
   String deskOwnLabel(String where) {
-    return 'โหนดของคุณ · $where';
+    return 'โหนดของตัวเอง · $where';
   }
 
   @override
@@ -16892,11 +16889,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOwnDlgAdd => 'เพิ่ม';
 
   @override
-  String get deskOwnDownTitle => 'โหนดของคุณไม่ตอบ';
+  String get deskOwnDownTitle => 'โหนดของตัวเองไม่ตอบ';
 
   @override
   String deskOwnDownText(String host) {
-    return 'ระหว่างนี้กระเป๋าใช้ $host และจะกลับมาเมื่อโหนดของคุณตอบสองครั้งติดกัน';
+    return 'ระหว่างนี้กระเป๋าใช้ $host และจะกลับมาเมื่อโหนดนี้ตอบสองครั้งติดกัน';
   }
 
   @override
@@ -16918,25 +16915,23 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSyncTitle =>
-      'ใช้โหนดสาธารณะจนกว่าโหนดของคุณจะซิงค์เสร็จไหม';
+  String get deskOwnSyncTitle => 'ใช้โหนดสาธารณะจนกว่าโหนดนี้จะซิงค์เสร็จไหม';
 
   @override
   String deskOwnSyncText(String host) {
-    return 'กระเป๋าส่งหรือรับผ่านโหนดที่กำลังซิงค์ไม่ได้ $host ใช้แทนได้ และกระเป๋าจะกลับมาเมื่อโหนดของคุณรับธุรกรรมได้';
+    return 'กระเป๋าส่งหรือรับผ่านโหนดที่กำลังซิงค์ไม่ได้ $host ใช้แทนได้ และกระเป๋าจะกลับมาเมื่อโหนดนี้รับธุรกรรมได้';
   }
 
   @override
-  String get deskOwnWaitForMine => 'รอโหนดของฉัน';
+  String get deskOwnWaitForMine => 'รอโหนดนี้';
 
   @override
   String deskOwnSyncUsingTitle(String host) {
-    return 'ใช้ $host จนกว่าโหนดของคุณจะซิงค์เสร็จ';
+    return 'ใช้ $host จนกว่าโหนดนี้จะซิงค์เสร็จ';
   }
 
   @override
-  String get deskOwnSyncUsingText =>
-      'กระเป๋าจะกลับมาเมื่อโหนดของคุณรับธุรกรรมได้';
+  String get deskOwnSyncUsingText => 'กระเป๋าจะกลับมาเมื่อโหนดนี้รับธุรกรรมได้';
 
   @override
   String get deskOwnMine => 'นี่คือโหนดของฉัน';
@@ -16949,7 +16944,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOwnListNote => 'โหนดของคุณเองจะถูกถามโดยตรง';
 
   @override
-  String get deskOwnSlotSyncing => 'โหนดของคุณกำลังซิงค์';
+  String get deskOwnSlotSyncing => 'โหนดของตัวเองกำลังซิงค์';
 
   @override
   String ownNodeLabel(String where) {
@@ -17018,7 +17013,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAboutDownloadPage => 'หน้าดาวน์โหลด';
 
   @override
-  String get deskUpdManual => 'แอปชุดนี้ติดตั้งอัปเดตเองไม่ได้';
+  String get deskUpdManual => 'ชุดนี้ติดตั้งอัปเดตเองไม่ได้';
 
   @override
   String get deskUpdDownloadInstall => 'ดาวน์โหลดและติดตั้ง';
@@ -17054,7 +17049,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get handshakeLink1NoTor =>
-      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ต เหรียญของคุณถูกพักไว้';
+      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ต เหรียญถูกล็อก';
 
   @override
   String get advNetworkHintNoTor =>

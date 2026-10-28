@@ -384,7 +384,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
       ]);
       expect(_steps(tester, TimelineState.current).single, contains('onfirm'));
       expect(find.text('1 EPIC'), findsOneWidget);

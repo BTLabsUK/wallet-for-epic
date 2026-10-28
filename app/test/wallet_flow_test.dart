@@ -858,7 +858,7 @@ void main() {
         expect(find.text('Copy the recovery phrase?'), findsOneWidget);
         expect(
           find.text(
-            'Anyone with these words can take your funds. Store the copy somewhere safe.',
+            'Anyone with these words can take the coins. Store the copy somewhere safe.',
           ),
           findsOneWidget,
         );

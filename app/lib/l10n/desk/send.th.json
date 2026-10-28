@@ -95,7 +95,7 @@
   "deskSendAvailableNone": "ใช้ได้ —",
   "deskSendAvailable": "ใช้ได้ {amount} EPIC",
   "deskSendAmountSem": "จำนวนเป็น EPIC",
-  "deskSendAllButton": "ทั้งหมด",
+  "deskSendAllButton": "สูงสุด",
   "deskSendConfirmingHidden": "ยอดบางส่วนยังกำลังยืนยันและยังส่งไม่ได้",
   "deskSendConfirming": "{amount} EPIC ยังกำลังยืนยันและยังส่งไม่ได้",
   "deskSendMessage": "ข้อความ",

@@ -19,7 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _v = '99.1.0';
-const _manual = "This copy of the app can't install updates by itself.";
+const _manual = 'This copy cannot install updates itself.';
 final _file = WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads}EpicCashDesktop-$_v-x86_64.AppImage'), sha256: 'a' * 64, size: 100);
 
 DeskUpdateState _state(DeskUpdatePhase phase, {bool inApp = true, double? progress, String? problem}) => DeskUpdateState(
@@ -200,7 +200,7 @@ void main() {
     await tester.tap(line());
     await tester.pumpAndSettle();
     expect(ready(), findsNothing);
-    expect(find.descendant(of: line(), matching: find.text("Couldn't download the update")), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text('Could not download the update')), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 
@@ -255,10 +255,10 @@ void main() {
   testWidgets('Settings › About: each step has its button, and it does the step', (tester) async {
     for (final (s, title, label, inApp, checks) in [
       (_state(DeskUpdatePhase.available), 'Update available: $_v', 'Download and install', true, true),
-      (_state(DeskUpdatePhase.available, problem: 'The download stopped.'), "Couldn't download the update", 'Try again', true, true),
+      (_state(DeskUpdatePhase.available, problem: 'The download stopped.'), 'Could not download the update', 'Try again', true, true),
       (_state(DeskUpdatePhase.ready), '$_v is ready', 'Restart to update', true, false),
-      (_state(DeskUpdatePhase.ready, problem: 'The new version could not be put in place.'), "Couldn't install the update", 'Open the download page', true, true),
-      (_state(DeskUpdatePhase.unfinished, inApp: false), "Update didn't finish. Try again.", 'Try again', false, false),
+      (_state(DeskUpdatePhase.ready, problem: 'The new version could not be put in place.'), 'Could not install the update', 'Open the download page', true, true),
+      (_state(DeskUpdatePhase.unfinished, inApp: false), 'Update did not finish. Try again.', 'Try again', false, false),
       (_state(DeskUpdatePhase.available, inApp: false), 'Update available: $_v', 'Open the download page', false, true),
     ]) {
       final why = '${s.phase} ${s.problem} ${s.file != null}';

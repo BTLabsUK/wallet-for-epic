@@ -95,7 +95,7 @@
   "deskSendAvailableNone": "Доступно —",
   "deskSendAvailable": "Доступно {amount} EPIC",
   "deskSendAmountSem": "Сумма в EPIC",
-  "deskSendAllButton": "Всё",
+  "deskSendAllButton": "Макс.",
   "deskSendConfirmingHidden": "Часть баланса ещё подтверждается, её пока нельзя отправить.",
   "deskSendConfirming": "{amount} EPIC ещё подтверждаются, их пока нельзя отправить.",
   "deskSendMessage": "Сообщение",

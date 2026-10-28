@@ -116,7 +116,7 @@
   "@deskOnbCreateStageCreate": {
     "description": "Progress step while the new wallet is made."
   },
-  "deskOnbCreateStageSave": "Saving the account",
+  "deskOnbCreateStageSave": "Saving the wallet",
   "@deskOnbCreateStageSave": {
     "description": "Progress step after the wallet is made: its account is saved."
   },
@@ -141,7 +141,7 @@
   "@deskOnbCreateFailedTitle": {
     "description": "Heading of the failure box on the new-wallet progress page."
   },
-  "deskOnbCreateDiskFull": "The account could not be saved: the disk is full.",
+  "deskOnbCreateDiskFull": "Wallet not saved: the disk is full. Free some space, then try again.",
   "@deskOnbCreateDiskFull": {
     "description": "Failure text on the new-wallet progress page when the disk is full."
   },
@@ -288,7 +288,7 @@
   "@deskOnbRestoreStaysHere": {
     "description": "Default status line under the phrase grid."
   },
-  "deskOnbRestoreChecksumFirm": "This phrase's check number does not match. Compare every word with the paper.",
+  "deskOnbRestoreChecksumFirm": "This phrase’s check number does not match. Compare every word with the paper.",
   "@deskOnbRestoreChecksumFirm": {
     "description": "Status line under the phrase grid: all words are valid but the checksum is wrong."
   },
@@ -378,7 +378,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet's password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it asks for that wallet’s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },
@@ -442,7 +442,7 @@
   "@deskOnbUnlockNotRemembered": {
     "description": "Toast title after unlocking with 'Remember on this computer' ticked when the password could not be stored."
   },
-  "deskOnbUnlockKeyStore": "This computer's key store is unavailable.",
+  "deskOnbUnlockKeyStore": "This computer’s key store is unavailable.",
   "@deskOnbUnlockKeyStore": {
     "description": "Toast text for the previous message."
   },
@@ -811,7 +811,7 @@
       }
     }
   },
-  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet's address sends there.",
+  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet’s address sends there.",
   "@deskOnbImportRelayLead": {
     "description": "Lead of the relay choice; {old} is the old server host.",
     "placeholders": {
@@ -1088,7 +1088,7 @@
   "@deskOnbRestoreFromHint": {
     "description": "Placeholder of the start block field on Restore."
   },
-  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "deskOnbRestoreFromHelp": "Only if the wallet’s first payment came after this block. Leave it empty to check the whole chain.",
   "@deskOnbRestoreFromHelp": {
     "description": "Help line under the start block field on Restore."
   },

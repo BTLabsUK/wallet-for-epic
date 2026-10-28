@@ -7,7 +7,7 @@
   "@deskNoTorSetTxDirectHint": {
     "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on')."
   },
-  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node's setting.",
+  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
   "@deskNoTorAdvNetworkHint": {
     "description": "Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline."
   },

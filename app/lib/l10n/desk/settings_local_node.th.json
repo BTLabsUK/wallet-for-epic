@@ -94,7 +94,7 @@
   "deskSetLndSourceCustom": "โฟลเดอร์อื่น",
   "deskSetLndInUse": "ใช้ข้อมูลบล็อกเชนนี้แล้ว",
   "deskSetLndNotInUse": "ไม่ได้ใช้โฟลเดอร์นี้",
-  "deskSetLndReuseTitle": "พบข้อมูลบล็อกเชนบนคอมพิวเตอร์นี้",
+  "deskSetLndReuseTitle": "พบข้อมูลบล็อกเชน",
   "deskSetLndReuseDesc": "โหนด Epic อื่นทิ้งข้อมูลบล็อกเชนไว้ที่นี่ โหนดในเครื่องอ่านโฟลเดอร์นั้นแทนการดาวน์โหลดบล็อกเชนได้",
   "deskSetLndLooking": "กำลังค้นหา…",
   "deskSetLndUseIt": "ใช้ข้อมูลนี้",

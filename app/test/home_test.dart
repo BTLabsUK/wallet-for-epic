@@ -1466,7 +1466,7 @@ void main() {
           find.textContaining('The network has not taken this payment yet'),
           findsOneWidget,
         );
-        await _tap(tester, find.text('Broadcast again'));
+        await _tap(tester, find.text('Post again'));
         expect(h.session.repostedKeys, contains('s:refused'));
         expect(
           find.textContaining('Broadcast again. It should'),
@@ -1592,7 +1592,7 @@ void main() {
           ),
           null,
         ),
-        'The epicbox server reported a problem. Retrying.',
+        'The Epicbox server reported a problem. Retrying.',
       );
     });
 
@@ -4305,7 +4305,7 @@ void main() {
       await _tab(tester, 'Receive');
       // Epicbox address by default.
       expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
-      expect(find.text('Receive by payment file'), findsNothing);
+      expect(find.text('Receive by transaction file'), findsNothing);
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
@@ -4314,12 +4314,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       for (final tab in ['Wallet', 'Send', 'Receive']) {
         await _tab(tester, tab);
       }
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       // And back.
       await tester.tap(
@@ -4373,14 +4373,14 @@ void main() {
         );
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
-        await _tap(tester, find.text('Make payment file'));
+        await _tap(tester, find.text('Make transaction file'));
         await tester.enterText(find.byType(TextField).last, _Harness._pin);
         await tester.pumpAndSettle();
         ProviderScope.containerOf(tester.element(find.byType(SendView)))
             .read(sendRecipientProvider.notifier)
             .hand(payee);
         await tester.pumpAndSettle();
-        expect(find.text('Waiting for their reply'), findsOneWidget);
+        expect(find.text('Waiting for the response file'), findsOneWidget);
         await _tap(tester, find.widgetWithText(TextButton, 'Done'));
         await _tab(tester, 'Send');
         expect(_toField(tester), payee);
@@ -4416,7 +4416,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Waiting for their wallet'), findsNothing);
         expect(find.text('Their wallet signed'), findsOneWidget);
-        expect(find.text('Sent to the network'), findsOneWidget);
+        expect(find.text('Posted to the network'), findsOneWidget);
         expect(find.textContaining('Confirming 0/'), findsOneWidget);
         // The tracker says it; a notice would say it twice.
         expect(find.textContaining('finished. Waiting for'), findsNothing);

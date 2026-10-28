@@ -14,7 +14,7 @@
   "deskSlotPaymentsMoving": "付款确认中",
   "deskSlotOf": "{done}/{needed}",
   "deskSlotWaitingBlock": "等待区块",
-  "deskSlotRequests": "新请求",
+  "deskSlotRequests": "新账单",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
   "deskSlotOpenAdvanced": "打开高级设置",

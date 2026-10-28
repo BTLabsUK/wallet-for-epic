@@ -27,7 +27,7 @@
   "@deskTxNoteBlock": {
     "description": "Small note under the Date step of a payment found by a scan, when the date comes from the block."
   },
-  "deskTxNoteScanTime": "Time of the scan; the block's time could not be read. The sender is not recorded.",
+  "deskTxNoteScanTime": "Time of the scan; the block’s time could not be read. The sender is not recorded.",
   "@deskTxNoteScanTime": {
     "description": "Small note under the Date step of a payment found by a scan, when the block's time could not be read so the time of the scan is shown."
   },
@@ -51,15 +51,15 @@
   "@deskTxFoundRestoredTip": {
     "description": "Tooltip on a payment found while restoring the wallet."
   },
-  "deskTxFoundRescanLabel": "Found by scan",
+  "deskTxFoundRescanLabel": "Found by recheck",
   "@deskTxFoundRescanLabel": {
     "description": "Name of a payment found by a scan (balance recheck or any scan). Activity table, narrow."
   },
-  "deskTxFoundRescanLine": "Found by a balance recheck",
+  "deskTxFoundRescanLine": "Found by recheck",
   "@deskTxFoundRescanLine": {
     "description": "Small line under the name of a payment found by a balance recheck. Activity table, narrow."
   },
-  "deskTxFoundRescanStep": "Found by a balance recheck",
+  "deskTxFoundRescanStep": "Found by recheck",
   "@deskTxFoundRescanStep": {
     "description": "First step on the transaction detail timeline for a payment found by a balance recheck."
   },
@@ -545,7 +545,7 @@
       }
     }
   },
-  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient's wallet cannot finish it without yours: the locked amount returns to the balance.",
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient’s wallet cannot finish it without yours: the locked amount returns to the balance.",
   "@deskTxCancelOutgoingBody": {
     "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.",
     "placeholders": {
@@ -645,7 +645,7 @@
   "@deskTxThisWallet": {
     "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
   },
-  "deskTxNowUndelivered": "Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndelivered": "Not delivered. The payment did not reach the Epicbox server, so the recipient has not received it. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndelivered": {
     "description": "Payment detail, the line under the status of a send that never reached the Epicbox server (\"epicbox\" here means that server). Send again and Cancel are buttons below it."
   },
@@ -673,19 +673,19 @@
   "@deskTxStatusNotPosted": {
     "description": "Activity row status: a finished send the node refused; it is not on the network until it is broadcast again."
   },
-  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.",
+  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Post it again; it cannot go through twice.",
   "@deskTxNowNotPosted": {
     "description": "Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself."
   },
-  "deskTxBroadcastAgain": "Broadcast again",
+  "deskTxBroadcastAgain": "Post again",
   "@deskTxBroadcastAgain": {
     "description": "Button on the payment detail of a send the node refused: posts it to the node again."
   },
-  "deskTxBroadcastDone": "Sent to the network",
+  "deskTxBroadcastDone": "Posted to the network",
   "@deskTxBroadcastDone": {
     "description": "Toast after Broadcast again worked."
   },
-  "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndeliveredDirect": "Not delivered. The recipient’s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredDirect": {
     "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
@@ -694,7 +694,7 @@
       }
     }
   },
-  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredRelay": {
     "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
     "placeholders": {

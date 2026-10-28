@@ -1,9 +1,9 @@
 {
-  "deskSetDlgChainTitle": "Existing blockchain data found",
+  "deskSetDlgChainTitle": "Chain data found",
   "@deskSetDlgChainTitle": {
     "description": "Title of the dialog offering to reuse blockchain data already on this computer."
   },
-  "deskSetDlgChainDesc": "This computer already has Epic blockchain data that the local node can use.",
+  "deskSetDlgChainDesc": "The local node can use the Epic chain data already on this computer, instead of downloading it.",
   "@deskSetDlgChainDesc": {
     "description": "Existing blockchain data dialog: description under the title."
   },
@@ -31,7 +31,7 @@
   "@deskSetDlgChainInUse": {
     "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
   },
-  "deskSetDlgChainUseIt": "Use it? That saves downloading and syncing the whole blockchain.",
+  "deskSetDlgChainUseIt": "Use it?",
   "@deskSetDlgChainUseIt": {
     "description": "Existing blockchain data dialog: question line."
   },

@@ -294,7 +294,7 @@ void main() {
         ..httpPosted = false
         ..repostFailures = 3;
       final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
-      expect((r as SendFailed).message, 'Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.');
+      expect((r as SendFailed).message, 'Signed by both wallets, but the node refused it. Cancel it in Activity to free the coins.');
       expect(r.inActivity, isTrue);
       expect(session().repostFailures, 2, reason: 'tried once');
       expect(session().repostedKeys, isEmpty);

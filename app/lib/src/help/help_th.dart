@@ -25,7 +25,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
   final secret = phone ? 'PIN' : 'รหัสผ่านกระเป๋าเงิน';
   final nodePlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนด|Settings › Privacy & network › Node]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
   final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › ธุรกรรม › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › เครือข่าย Tor|Settings › Privacy & network › Tor Network]]' : '[[การตั้งค่า › ความเป็นส่วนตัว › Tor|Settings › Privacy › Tor]]';
+  final torPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › เครือข่าย Tor|Settings › Privacy & network › Tor network]]' : '[[การตั้งค่า › ความเป็นส่วนตัว › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[ประวัติ|Activity]] (เปิดรายการ แล้วแตะ ยกเลิกรายการ)'
       : '[[ประวัติ › รายการนั้น › ยกเลิก|Activity › the transaction › Cancel]]';
@@ -426,7 +426,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.h('การรับ', anchor: HelpAnchor.receiving),
         const HelpBlock.p('เมื่อมีรายการเข้ามา กระเป๋าเงินของคุณจะตอบทันที และไม่มีอะไรของคุณถูกล็อก จากนั้นกระเป๋าเงินของผู้ส่งจะทำรายการให้เสร็จและส่งเข้าเครือข่าย ปกติภายในไม่กี่นาที ดังนั้นปุ่มยกเลิกจะไม่แสดงเป็นเวลา 15 นาที และนานกว่านั้นตราบที่ผู้ส่งรายงานว่าส่งแล้ว'),
         const HelpBlock.p('หลังจากนั้น การยกเลิกคือการเก็บกวาดรายการที่ผู้ส่งไม่เคยส่งเข้าเครือข่าย มันไม่แน่นอน: กระเป๋าเงินจะถามเครือข่ายก่อนและปฏิเสธถ้ารายการอยู่ในเครือข่ายแล้ว รายการที่ยกเลิกยังถูกเฝ้าดูต่อ ถ้าผู้ส่งส่งเข้าเครือข่ายทีหลัง รายการจะมาถึงอยู่ดีและแสดงว่าได้รับแล้ว'),
-        const HelpBlock.h('คำขอรับเงิน (ทดลอง)', anchor: HelpAnchor.requests),
+        const HelpBlock.h('ใบแจ้งหนี้ (ทดลอง)', anchor: HelpAnchor.requests),
         const HelpBlock.p('คำขอที่คุณส่งไม่ถือเหรียญใด ๆ จนกว่าจะมีการชำระ ก่อนหน้านั้นถอนได้ทุกเมื่อ: ผู้จ่ายจะชำระไม่ได้อีก และไม่มีอะไรย้าย คำขอที่ไม่มีใครชำระจะหมดอายุหลัง 24 ชั่วโมง คำขอที่แสดงเป็นคิวอาร์โค้ดชำระได้ครั้งเดียว การสแกนครั้งที่สองจะถูกปฏิเสธ จึงไม่มีการจ่ายซ้ำ'),
         if (phone)
           const HelpBlock.p('คำขอที่คุณชำระเป็นอีกทางหนึ่ง: อีกฝ่ายถือรายการที่คุณลงนามไว้และทำให้เสร็จ ปุ่มยกเลิกจะมาเมื่อเวลาของมันหมด ประมาณหนึ่งวันหลังคุณชำระ หรือเร็วกว่านั้นเมื่ออีกฝ่ายถอนคำขอ การยกเลิกจะคืนเหรียญที่นี่ แต่อีกฝ่ายยังอาจส่งรายการเข้าเครือข่ายได้จนกว่าเหรียญเหล่านี้จะถูกใช้อีกครั้ง')

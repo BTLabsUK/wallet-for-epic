@@ -21,7 +21,7 @@
   "deskFinNoticeTitle": "用于以文件方式创建的交易",
   "deskFinNoticeText": "使用接收方发回的回复文件。",
   "deskFinTryAgain": "重试",
-  "deskFinPostedText": "付款已完成并发送到网络。可在“活动”中查看进度。",
+  "deskFinPostedText": "付款已完成并广播到网络。可在“活动”中查看进度。",
   "deskFinAnother": "完成另一个文件",
   "deskFinViewActivity": "在“活动”中查看",
   "deskFinBusy": "正在完成并广播",

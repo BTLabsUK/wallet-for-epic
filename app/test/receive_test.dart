@@ -211,7 +211,7 @@ void main() {
       }
       expect(find.byKey(receiveRequestKey), findsNothing);
       expect(find.byType(MarkedQr), findsOneWidget);
-      expect(find.text('Receive by payment file'), findsNothing);
+      expect(find.text('Receive by transaction file'), findsNothing);
       expect(find.text('How receiving works'), findsOneWidget);
       // The code is covered on open (the QR rule); Show QR uncovers it in the same box, a
       // tap on the code covers it again.
@@ -226,7 +226,7 @@ void main() {
       expect(find.byKey(receiveShowQrKey), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
       await h.byFile(tester);
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.text('How receiving works'), findsOneWidget);
       for (final key in [
         receiveAddressKey,
@@ -268,7 +268,7 @@ void main() {
       expect(find.byType(ReceiveView), findsNothing);
       shown.value = true;
       await tester.pumpAndSettle();
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
     });
 
@@ -690,11 +690,11 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.text('Open file'), findsOneWidget);
       expect(find.text('Paste'), findsOneWidget);
       // The sheet loops its animation, so it never settles.
-      await tester.tap(find.byTooltip('How a payment file works'));
+      await tester.tap(find.byTooltip('How a transaction file works'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       final help = tester.widget<FileExchangeHelp>(

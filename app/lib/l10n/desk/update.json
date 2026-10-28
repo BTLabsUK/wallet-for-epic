@@ -55,7 +55,7 @@
   "@deskUpdRestartHint": {
     "description": "Settings › About, under '{version} is ready': what Restart to update does."
   },
-  "deskUpdFailed": "Couldn't download the update",
+  "deskUpdFailed": "Could not download the update",
   "@deskUpdFailed": {
     "description": "Sidebar notice and Settings › About: the download failed (the reason is in the tooltip or under it)."
   },
@@ -63,7 +63,7 @@
   "@deskUpdTryAgain": {
     "description": "Second line of the notice and button: download the update again; it carries on from what already arrived."
   },
-  "deskUpdInstallFailed": "Couldn't install the update",
+  "deskUpdInstallFailed": "Could not install the update",
   "@deskUpdInstallFailed": {
     "description": "The downloaded update could not be started; the download page is offered instead."
   },
@@ -83,11 +83,11 @@
   "@deskUpdErrInstall": {
     "description": "Why Restart to update failed: the installer could not be started or the app file could not be replaced."
   },
-  "deskUpdUnfinished": "Update didn't finish. Try again.",
+  "deskUpdUnfinished": "Update did not finish. Try again.",
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   },
-  "deskUpdManual": "This copy of the app can't install updates by itself.",
+  "deskUpdManual": "This copy cannot install updates itself.",
   "@deskUpdManual": {
     "description": "Slot tooltip and Settings › About › Updates: this copy (not an installed Windows copy, an AppImage in a folder it cannot write, a build folder, a .deb) cannot install the update itself; its actions open the download page instead."
   },

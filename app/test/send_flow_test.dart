@@ -286,7 +286,7 @@ void main() {
         'Waiting for their wallet',
       ]);
       expect(_steps(tester, TimelineState.todo), [
-        'Sent to the network',
+        'Posted to the network',
         'Confirmed',
       ]);
       await _tap(tester, find.text('Done'));
@@ -334,7 +334,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
       ]);
       expect(
         _steps(tester, TimelineState.current).single,
@@ -347,7 +347,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
         'Confirmed',
       ]);
       expect(_steps(tester, TimelineState.current), isEmpty);

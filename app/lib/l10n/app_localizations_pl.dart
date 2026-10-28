@@ -124,7 +124,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txMiningReward => 'Nagroda za kopanie';
 
   @override
-  String get txRestoredFunds => 'Odzyskane środki';
+  String get txRestoredFunds => 'Znaleziono w łańcuchu';
 
   @override
   String txSpokenLabelled(String label, String row) {
@@ -297,7 +297,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String txSpokenRestoredFunds(String amount) {
-    return 'Odzyskane środki: $amount';
+    return 'Znaleziono w łańcuchu: $amount';
   }
 
   @override
@@ -563,20 +563,20 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Płatność czeka już $days dnia. Serwer epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować środki, a potem wyślij ponownie.',
+          'Płatność czeka już $days dnia. Serwer Epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować monety, a potem wyślij ponownie.',
       many:
-          'Płatność czeka już $days dni. Serwer epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować środki, a potem wyślij ponownie.',
+          'Płatność czeka już $days dni. Serwer Epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować monety, a potem wyślij ponownie.',
       few:
-          'Płatność czeka już $days dni. Serwer epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować środki, a potem wyślij ponownie.',
+          'Płatność czeka już $days dni. Serwer Epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować monety, a potem wyślij ponownie.',
       one:
-          'Płatność czeka już $days dzień. Serwer epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować środki, a potem wyślij ponownie.',
+          'Płatność czeka już $days dzień. Serwer Epicbox usuwa płatności po 7 dniach, więc tej nie da się już dokończyć. Anuluj ją, aby odblokować monety, a potem wyślij ponownie.',
     );
     return '$_temp0';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'Wysłano na serwer epicbox odbiorcy. Płatność zakończy się, gdy portfel odbiorcy połączy się z siecią. Do tego czasu lub do anulowania środki pozostaną zablokowane.';
+      'Wysłano przez Epicbox. Płatność zakończy się, gdy portfel odbiorcy połączy się z siecią. Do tego czasu lub do anulowania kwota pozostaje zablokowana.';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -588,7 +588,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsSenderPosted =>
-      'Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy blockchain ją potwierdzi.';
+      'Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy sieć ją potwierdzi.';
 
   @override
   String get txDetailsPublished =>
@@ -798,8 +798,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsBroadcastAgain => 'Rozgłoś ponownie';
 
   @override
-  String get txDetailsBroadcastAgainDone =>
-      'Rozgłoszono ponownie. Płatność powinna zostać potwierdzona w ciągu kilku minut.';
+  String get txDetailsBroadcastAgainDone => 'Rozgłoszono ponownie.';
 
   @override
   String get txDetailsRefusedBody =>
@@ -973,14 +972,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Znaleziono podczas skanowania łańcucha. Szczegóły, takie jak nadawca i opłata, nie są zapisywane w łańcuchu; zaimportuj dane portfela, aby je przywrócić.';
+      'Znaleziono w łańcuchu. Nadawcy i opłaty nie ma w łańcuchu; zaimportuj dane portfela, aby je dodać.';
 
   @override
   String get txDetailsSourceImported =>
       'Zaimportowano z pliku danych portfela. Ten portfel nie ma własnego zapisu tej płatności, więc jej stan może być nieaktualny.';
 
   @override
-  String get historyTitle => 'Historia';
+  String get historyTitle => 'Aktywność';
 
   @override
   String get historyLoading => 'Wczytywanie płatności';
@@ -1280,7 +1279,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeNoticeRelayProblem =>
-      'Serwer epicbox zgłosił problem. Ponawianie próby.';
+      'Serwer Epicbox zgłosił problem. Ponawianie próby.';
 
   @override
   String get homeNoticePaymentFailed => 'Nie udało się zrealizować płatności.';
@@ -1483,7 +1482,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Portfel nie jest połączony ze swoim serwerem Epicbox i próbuje dalej.';
 
   @override
-  String get homeEpicboxConnecting => 'Łączenie z epicbox…';
+  String get homeEpicboxConnecting => 'Łączenie z Epicbox…';
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1509,13 +1508,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu środki pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
+          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu monety pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
       many:
-          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu środki pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
+          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu monety pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
       few:
-          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu środki pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
+          '$amount czeka na odpowiedź portfeli odbiorców. Do tego czasu monety pozostaną zablokowane. Jeśli któraś odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
       one:
-          '$amount czeka na odpowiedź portfela odbiorcy. Do tego czasu środki pozostaną zablokowane. Jeśli odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
+          '$amount czeka na odpowiedź portfela odbiorcy. Do tego czasu monety pozostaną zablokowane. Jeśli odpowiedź nigdy nie nadejdzie, otwórz płatność i dotknij „Anuluj płatność”.',
     );
     return '$_temp0';
   }
@@ -1677,7 +1676,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return 'Serwis $service wycofał tę fakturę po jej opłaceniu. Jeśli płatność nie zostanie potwierdzona, anuluj ją, aby odblokować środki.';
+    return 'Serwis $service wycofał tę fakturę po jej opłaceniu.';
   }
 
   @override
@@ -1784,7 +1783,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Portfel $payer nie obsługuje próśb o płatność i odesłał twoją, więc została wycofana. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik płatności.';
+    return 'Portfel $payer nie obsługuje próśb o płatność i odesłał twoją, więc została wycofana. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik transakcji.';
   }
 
   @override
@@ -1838,7 +1837,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'Płatności wysłane do ciebie czekają teraz w epicbox i dotrą, gdy portfel znów się połączy.';
+      'Płatności wysłane do ciebie czekają na serwerze Epicbox i dotrą, gdy portfel znów się połączy.';
 
   @override
   String get receiveShareCardHeadline => 'Zapłać mi w Epic Cash';
@@ -1850,11 +1849,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveAddressCopied => 'Skopiowano adres';
 
   @override
-  String get receiveFileTitle => 'Odbierz przez plik płatności';
+  String get receiveFileTitle => 'Odbierz przez plik transakcji';
 
   @override
   String get receiveFileBody =>
-      'Masz od kogoś plik płatności? Otwórz go albo skopiuj jego tekst i wklej tutaj.';
+      'Otwórz plik transakcji albo wklej tutaj jego tekst.';
 
   @override
   String get receiveFileOpen => 'Otwórz plik';
@@ -1995,7 +1994,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get setupCustomRelayLabel =>
-      'Inny serwer epicbox (host lub host:port)';
+      'Inny serwer Epicbox (host lub host:port)';
 
   @override
   String get setupCustomRelayInvalid => 'Wpisz host, np. epicbox.example.com';
@@ -2467,7 +2466,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendUrlUnsupported =>
-      'Płatności na URL portfela nie są obsługiwane. Poproś odbiorcę o jego adres epicbox.';
+      'Płatności na URL portfela nie są obsługiwane. Poproś odbiorcę o jego adres Epicbox.';
 
   @override
   String get scanQrTooltip => 'Zeskanuj kod QR';
@@ -3507,7 +3506,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txStepSenderFinished => 'Nadawca sfinalizował';
 
   @override
-  String get fileHelpTitle => 'Jak działa plik płatności';
+  String get fileHelpTitle => 'Jak działa plik transakcji';
 
   @override
   String get fileHelpYou => 'Ty';
@@ -3516,7 +3515,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get fileHelpFriend => 'Znajomy';
 
   @override
-  String get fileHelpSendStep1 => 'Tworzysz plik płatności.';
+  String get fileHelpSendStep1 => 'Tworzysz plik transakcji.';
 
   @override
   String get fileHelpSendStep2 =>
@@ -3524,15 +3523,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fileHelpSendStep3 =>
-      'Znajomy otwiera go w swoim portfelu i odsyła ci podpisaną odpowiedź.';
+      'Znajomy otwiera go w swoim portfelu i odsyła ci plik odpowiedzi.';
 
   @override
   String get fileHelpSendStep4 =>
-      'Otwierasz odpowiedź i płatność jest w drodze.';
+      'Otwierasz plik odpowiedzi i płatność jest w drodze.';
 
   @override
   String get fileHelpReceiveStep1 =>
-      'Znajomy tworzy dla ciebie plik płatności.';
+      'Znajomy tworzy dla ciebie plik transakcji.';
 
   @override
   String get fileHelpReceiveStep2 =>
@@ -3540,11 +3539,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep3 =>
-      'Otwierasz go w swoim portfelu i odsyłasz podpisaną odpowiedź.';
+      'Otwierasz go w swoim portfelu i odsyłasz plik odpowiedzi.';
 
   @override
   String get fileHelpReceiveStep4 =>
-      'Znajomy otwiera odpowiedź i płatność jest w drodze do ciebie.';
+      'Znajomy otwiera plik odpowiedzi i płatność jest w drodze do ciebie.';
 
   @override
   String fileHelpStepOf(int step, int count) {
@@ -3611,7 +3610,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendRecent => 'Ostatnio';
 
   @override
-  String get sendUseFile => 'Brak adresu? Użyj pliku płatności';
+  String get sendUseFile => 'Brak adresu? Użyj pliku transakcji';
 
   @override
   String sendTo(String who) {
@@ -3629,13 +3628,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendAddNote => 'Dodaj notatkę';
+  String get sendAddNote => 'Dodaj wiadomość';
 
   @override
-  String get sendNoteLabel => 'Notatka';
+  String get sendNoteLabel => 'Wiadomość';
 
   @override
-  String get sendNoteHelper => 'Odbiorca też ją zobaczy.';
+  String get sendNoteHelper => 'Odbiorca ją zobaczy.';
 
   @override
   String get sendNetworkFee => 'Opłata sieciowa';
@@ -3696,7 +3695,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return 'Portfel odbiorcy dokończy ją po otwarciu. Do tego czasu $amount jest wstrzymane.';
+    return 'Portfel odbiorcy podpisze ją po otwarciu. Do tego czasu $amount pozostaje zablokowane.';
   }
 
   @override
@@ -3709,28 +3708,28 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendNoCoins => 'Nie masz jeszcze monet do wysłania.';
 
   @override
-  String get sendFileTitle => 'Płatność plikiem';
+  String get sendFileTitle => 'Bezpośrednio · Przesyłanie pliku';
 
   @override
-  String get sendMakeFile => 'Utwórz plik płatności';
+  String get sendMakeFile => 'Utwórz plik transakcji';
 
   @override
   String get sendFileMade => 'Plik utworzony';
 
   @override
   String sendFileOnHold(String amount) {
-    return '$amount wstrzymane';
+    return '$amount zablokowane';
   }
 
   @override
-  String get sendFileWaitingReply => 'Oczekiwanie na odpowiedź';
+  String get sendFileWaitingReply => 'Oczekiwanie na plik odpowiedzi';
 
   @override
   String get sendFileShareHint =>
-      'Wyślij ten plik odbiorcy. Potem otwórz jego odpowiedź.';
+      'Wyślij ten plik odbiorcy. Potem otwórz jego plik odpowiedzi.';
 
   @override
-  String get sendOpenReply => 'Otwórz odpowiedź';
+  String get sendOpenReply => 'Otwórz plik odpowiedzi';
 
   @override
   String get handshakePayment => 'Płatność';
@@ -3749,7 +3748,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Twój portfel wysyła płatność na serwer Epicbox. Twoje monety są wstrzymane.';
+      'Twój portfel wysyła płatność na serwer Epicbox. Monety zostają zablokowane.';
 
   @override
   String get handshakePay2 =>
@@ -3769,7 +3768,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Serwer przekazuje ją dalej. Druga strona ją akceptuje, a jej portfel dodaje monety i podpisuje.';
 
   @override
-  String get handshakeRelay => 'Serwer';
+  String get handshakeRelay => 'Epicbox';
 
   @override
   String get handshakeFile => 'Przesyłanie pliku';
@@ -3784,24 +3783,24 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakeFile1 =>
-      'Twój portfel zapisuje plik płatności. Przekazujesz go drugiej stronie samodzielnie.';
+      'Twój portfel zapisuje plik transakcji. Przekazujesz go drugiej stronie samodzielnie.';
 
   @override
   String get handshakeFile2 =>
-      'Druga strona go otwiera. Jej portfel dodaje swoją część, podpisuje i zapisuje odpowiedź.';
+      'Druga strona go otwiera. Jej portfel dodaje swoją część, podpisuje i zapisuje plik odpowiedzi.';
 
   @override
   String get handshakeFile3 => 'Druga strona odsyła ci plik odpowiedzi.';
 
   @override
-  String get handshakeFile4 => 'Otwierasz odpowiedź w swoim portfelu.';
+  String get handshakeFile4 => 'Otwierasz plik odpowiedzi w swoim portfelu.';
 
   @override
   String get handshakePrevious => 'Poprzedni krok';
 
   @override
   String get handshakeLink1 =>
-      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet lub Tor. Twoje monety są wstrzymane.';
+      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet lub Tor. Monety zostają zablokowane.';
 
   @override
   String get handshakeLink2 =>
@@ -3846,20 +3845,20 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Serwer Epicbox odbiorcy ($relay) ją odrzucił. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Serwer Epicbox odbiorcy ($relay) ją odrzucił. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Serwer Epicbox odbiorcy ($relay) ją odrzucił. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Serwer Epicbox odbiorcy ($relay) ją odrzucił. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'Serwer Epicbox odbiorcy ($relay) jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
+    return 'Serwer Epicbox odbiorcy ($relay) ją odrzucił. Sprawdź Portfel przed ponownym wysłaniem.';
   }
 
   @override
@@ -3888,7 +3887,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount wstrzymane';
+    return '$amount zablokowane';
   }
 
   @override
@@ -4047,13 +4046,13 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
@@ -4194,7 +4193,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Wpisz PIN, aby utworzyć plik płatności na $amount.';
+    return 'Wpisz PIN, aby utworzyć plik transakcji na $amount.';
   }
 
   @override
@@ -4593,7 +4592,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactsCopied => 'Adres skopiowany.';
 
   @override
-  String get invoicesNewRequest => 'Nowa prośba';
+  String get invoicesNewRequest => 'Nowa faktura';
 
   @override
   String get invoicesSegmentSent => 'Wysłane';
@@ -5171,13 +5170,13 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
@@ -5515,7 +5514,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Dostarczono do skrzynki płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
+    return 'Dostarczono na serwer Epicbox płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
   }
 
   @override
@@ -5595,7 +5594,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerWithdrawnText =>
-      'Płatność może nigdy nie trafić do łańcucha. Anuluj ją, aby odblokować środki.';
+      'Płatność może nigdy nie trafić do łańcucha. Anuluj ją, aby uwolnić monety.';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
@@ -5604,7 +5603,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerPastTtlText =>
-      'Jej czas minął, a sieć jej nie widziała. Anuluj ją, aby odblokować środki.';
+      'Jej czas minął, a sieć jej nie widziała. Anuluj ją, aby uwolnić monety.';
 
   @override
   String get deskInvPayerCancelPayment => 'Anuluj płatność';
@@ -5832,11 +5831,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik.';
 
   @override
-  String get serverSwitchRelayTitle => 'Zmienić serwer epicbox?';
+  String get serverSwitchRelayTitle => 'Zmienić serwer Epicbox?';
 
   @override
   String serverSwitchRelayBody(String relay) {
-    return 'Adres epicbox zmieni się na …@$relay. Nadawcy potrzebują nowego adresu. Płatności wysłane na stary adres zostają na starym serwerze.';
+    return 'Adres Epicbox zmieni się na …@$relay. Nadawcy potrzebują nowego adresu. Płatności wysłane na stary adres zostają na starym serwerze.';
   }
 
   @override
@@ -6258,7 +6257,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrTestNet =>
-      'Portfel sieci testowej. Importować można tylko portfele Mainnet.';
+      'Portfel Floonet: importować można tylko portfele sieci głównej.';
 
   @override
   String get deskErrWalletInApp => 'Ten portfel już jest w aplikacji.';
@@ -7647,7 +7646,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendAmountSem => 'Kwota w EPIC';
 
   @override
-  String get deskSendAllButton => 'Całość';
+  String get deskSendAllButton => 'Maks.';
 
   @override
   String get deskSendConfirmingHidden =>
@@ -9179,14 +9178,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Znaleziona w łańcuchu przy przywracaniu tego portfela. Nadawca nie jest zapisany.';
 
   @override
-  String get deskTxFoundRescanLabel => 'Ze skanowania';
+  String get deskTxFoundRescanLabel => 'Ze sprawdzenia salda';
 
   @override
   String get deskTxFoundRescanLine => 'Znaleziona przy sprawdzaniu salda';
 
   @override
-  String get deskTxFoundRescanStep =>
-      'Znaleziona przy ponownym sprawdzaniu salda';
+  String get deskTxFoundRescanStep => 'Znaleziona przy sprawdzaniu salda';
 
   @override
   String get deskTxFoundRescanTip =>
@@ -9662,7 +9660,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Tworzenie portfela i jego frazy odzyskiwania';
 
   @override
-  String get deskOnbCreateStageSave => 'Zapisywanie konta';
+  String get deskOnbCreateStageSave => 'Zapisywanie portfela';
 
   @override
   String get deskOnbCreateNotCreated => 'Nie utworzono portfela';
@@ -9680,7 +9678,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbCreateDiskFull =>
-      'Nie udało się zapisać konta: dysk jest pełny.';
+      'Nie zapisano portfela: dysk jest pełny. Zwolnij trochę miejsca i spróbuj ponownie.';
 
   @override
   String get deskOnbCreateWait =>
@@ -11502,7 +11500,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'Plik z tego portfela (ta sama fraza odzyskiwania), w sieci $network. Najpierw przywróć portfel z jego frazy.';
+    return 'Plik z tego portfela (ta sama fraza odzyskiwania) w sieci $network. Najpierw przywróć portfel z jego frazy.';
   }
 
   @override
@@ -11632,11 +11630,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupNotNow => 'Nie teraz';
 
   @override
-  String get deskSetDlgChainTitle => 'Znaleziono istniejące dane blockchaina';
+  String get deskSetDlgChainTitle => 'Znaleziono dane łańcucha';
 
   @override
   String get deskSetDlgChainDesc =>
-      'Ten komputer ma już dane blockchaina Epic, których może użyć węzeł lokalny.';
+      'Węzeł lokalny może użyć danych łańcucha Epic, które są już na tym komputerze, zamiast je pobierać.';
 
   @override
   String get deskSetDlgChainFolder => 'Folder';
@@ -11659,8 +11657,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Inny program Epic używa tego folderu. Zamknij go, a potem ponownie wybierz węzeł lokalny, aby użyć tych danych.';
 
   @override
-  String get deskSetDlgChainUseIt =>
-      'Użyć ich? Oszczędza to pobierania i synchronizacji całego blockchaina.';
+  String get deskSetDlgChainUseIt => 'Użyć ich?';
 
   @override
   String get deskSetDlgChainOlderWallet =>
@@ -12259,8 +12256,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetLndNotInUse => 'Folder nie jest używany';
 
   @override
-  String get deskSetLndReuseTitle =>
-      'Znaleziono dane łańcucha na tym komputerze';
+  String get deskSetLndReuseTitle => 'Znaleziono dane łańcucha';
 
   @override
   String get deskSetLndReuseDesc =>
@@ -13028,7 +13024,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetRescanStoppedLine => 'Skanowanie zatrzymane';
 
   @override
-  String get deskSetRescanLog => 'Log skanowania';
+  String get deskSetRescanLog => 'Log sprawdzania salda';
 
   @override
   String get deskSetRescanText =>
@@ -13071,7 +13067,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetRescanNotRead => 'Nie odczytano';
 
   @override
-  String get deskSetRescanFinished => 'Skanowanie zakończone';
+  String get deskSetRescanFinished => 'Sprawdzanie salda zakończone';
 
   @override
   String get deskSetRescanUpToDate => 'Saldo jest aktualne.';
@@ -13613,7 +13609,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsNotDeliveredBody =>
-      'Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
+      'Ta płatność nie dotarła jeszcze do serwera Epicbox, więc odbiorca jej nie dostał. Monety pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
 
   @override
   String get txDetailsSendAgainDone =>
@@ -13662,7 +13658,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxNowUndelivered =>
-      'Nie dostarczono. Płatność nie dotarła do serwera Epicbox, więc odbiorca jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
+      'Nie dostarczono. Płatność nie dotarła do serwera Epicbox, więc odbiorca jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować monety.';
 
   @override
   String get deskTxStatusUndelivered => 'Nie dostarczono';
@@ -13803,7 +13799,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxDetailsTip =>
-      'Tylko dla płatności znalezionych przez skanowanie. W Aktywności, szczegółach i eksportach widoczne jako dodane przez ciebie. Kwoty, daty i potwierdzenia się nie zmieniają.';
+      'Tylko dla płatności znalezionych przy sprawdzaniu salda.';
 
   @override
   String get deskTxDetailsFrom => 'Od';
@@ -14284,7 +14280,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsRescanBodyPlain =>
-      'Portfel ponownie szuka swoich środków, od pierwszego bloku. To może potrwać długo.';
+      'Portfel ponownie szuka swoich środków, od pierwszego bloku.';
 
   @override
   String get slNodeField => 'Adres węzła';
@@ -14379,7 +14375,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'Przełączenie zmieni twój adres; nadawcy potrzebują nowego.';
+      'Twój adres Epicbox się zmieni. Udostępnij nowy.';
 
   @override
   String get slNotAnAddress =>
@@ -14712,7 +14708,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Płatności od nadawców czekają na serwerze, aż Epicbox znów będzie włączony.';
+      'Płatności czekają na serwerze Epicbox, aż Epicbox znów będzie włączony.';
 
   @override
   String get receiveNoMethods => 'Żadna metoda odbioru nie jest włączona';
@@ -15024,7 +15020,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairNotPairedHint =>
-      'Sparuj, aby pieczętować pliki płatności i zezwalać na faktury.';
+      'Sparuj, aby pieczętować pliki transakcji i zezwalać na faktury.';
 
   @override
   String get pairInPersonTitle => 'Parowanie osobiście';
@@ -15167,7 +15163,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactsPairHint =>
-      'Sparuj z innym portfelem, aby zapieczętować pliki płatności i faktury między nimi.';
+      'Sparuj z innym portfelem, aby zapieczętować pliki transakcji i faktury między nimi.';
 
   @override
   String get contactsPairLearn => 'Jak to działa';
@@ -15184,7 +15180,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWaysLead =>
-      'Sparuj raz. Potem pliki płatności i faktury między oboma portfelami są zapieczętowane.';
+      'Sparuj raz. Potem pliki transakcji i faktury między oboma portfelami są zapieczętowane.';
 
   @override
   String get pairWayWords => 'Słowa';
@@ -15194,7 +15190,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWayWordsHint =>
-      'Przeczytaj drugiej osobie pięć słów. Oba portfele muszą być online; reszta dzieje się sama.';
+      'Przeczytaj drugiej osobie pięć słów parowania. Oba portfele muszą być online.';
 
   @override
   String get pairWayWordsInfo =>
@@ -15440,7 +15436,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'Po sparowaniu pliki płatności i faktury między tobą a $name są zapieczętowane. Następnie zweryfikujecie razem.';
+    return 'Po sparowaniu pliki transakcji i faktury między tobą a $name są zapieczętowane. Następnie zweryfikujecie razem.';
   }
 
   @override
@@ -15600,11 +15596,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Odpowiedź na to samo zaproszenie · niezapisana';
 
   @override
-  String get sasTitle => 'Sprawdź słowa';
+  String get sasTitle => 'Porównaj słowa kontrolne';
 
   @override
   String sasLead(String name) {
-    return 'Portfel $name pokazuje te same cztery. Porównajcie je przez telefon lub osobiście.';
+    return 'Portfel $name pokazuje te same cztery słowa kontrolne. Porównajcie je przez telefon lub osobiście.';
   }
 
   @override
@@ -15724,7 +15720,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Po wyłączeniu plik płatności dla $name jest jawny: każdy, kto go dostanie, może go odczytać. Wyłącz tylko wtedy, gdy portfel $name nie otwiera zapieczętowanych plików.';
+    return 'Po wyłączeniu plik transakcji dla $name jest jawny: każdy, kto go dostanie, może go odczytać. Wyłącz tylko wtedy, gdy portfel $name nie otwiera zapieczętowanych plików.';
   }
 
   @override
@@ -15757,7 +15753,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Serwer $name nie odpowiada';
+    return 'Serwer Epicbox $name nie odpowiada';
   }
 
   @override
@@ -15976,7 +15972,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoicesEmptyAction => 'Sparowane kontakty';
 
   @override
-  String get reqTitle => 'Sprawdź prośbę';
+  String get reqTitle => 'Sprawdź fakturę';
 
   @override
   String reqRequests(String name) {
@@ -16009,7 +16005,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Dostarczono na serwer $name';
+    return 'Dostarczono na serwer Epicbox $name';
   }
 
   @override
@@ -16060,7 +16056,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqUnreachableBody =>
-      'Twoje środki są bezpieczne; zostaną odblokowane, jeśli płatność nie zostanie opublikowana. Dostarczanie jest ponawiane.';
+      'Monety zostaną odblokowane, jeśli płatność nie zostanie opublikowana. Dostarczanie jest ponawiane.';
 
   @override
   String get reqRelayRetrying => 'Serwer nie odpowiada · ponawianie';
@@ -16111,7 +16107,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nic nie musisz robić. Giełda publikuje płatność; potwierdzenia przyjdą później.';
 
   @override
-  String get reqNewTitle => 'Nowa prośba';
+  String get reqNewTitle => 'Nowa faktura';
 
   @override
   String get reqNewLead =>
@@ -16139,11 +16135,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqNewSaveFile => 'Zapisz jako plik';
 
   @override
-  String get reqNewSend => 'Wyślij prośbę';
+  String get reqNewSend => 'Wyślij fakturę';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Wyślij przez skrzynkę $name';
+    return 'Wyślij przez serwer Epicbox $name';
   }
 
   @override
@@ -16269,7 +16265,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Serwer $name nie odpowiada. Ponawianie.';
+    return 'Serwer Epicbox $name nie odpowiada. Ponawianie.';
   }
 
   @override
@@ -16451,7 +16447,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeOutboxStuck(String name) {
-    return 'Brak kontaktu z $name. Twoje środki są bezpieczne.';
+    return 'Brak kontaktu z $name. Ponawianie próby.';
   }
 
   @override
@@ -16535,14 +16531,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Sparuj się raz; pliki płatności i faktury z tym kontaktem są zapieczętowane.';
+      'Sparuj się raz; pliki transakcji i faktury z tym kontaktem są zapieczętowane.';
 
   @override
   String get helpPairWhatTitle => 'Czym jest parowanie';
 
   @override
   String get helpPairWhatShort =>
-      'Sparuj się raz z drugą osobą; potem pliki płatności i faktury między dwoma portfelami są zapieczętowane.';
+      'Sparuj się raz z drugą osobą; potem pliki transakcji i faktury między dwoma portfelami są zapieczętowane.';
 
   @override
   String get helpPairWhatP1 =>
@@ -16550,7 +16546,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'Po sparowaniu plik płatności dla tego kontaktu jest **zapieczętowany**: tylko jego portfel może go otworzyć i po drodze nie da się go zmienić ani podrobić. Płatności przez Epicbox między osobami działają jak dotąd.';
+      'Po sparowaniu plik transakcji dla tego kontaktu jest **zapieczętowany**: tylko jego portfel może go otworzyć i po drodze nie da się go zmienić ani podrobić. Płatności przez Epicbox między osobami działają jak dotąd.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -16566,7 +16562,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Parowanie wymaga Epic Cash po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki płatności i płatności Epicbox.';
+      'Parowanie wymaga Epic Cash po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki transakcji i płatności Epicbox.';
 
   @override
   String get helpPairWhyTitle => 'Po co weryfikować';
@@ -16581,7 +16577,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhyP2 =>
-      'Porównajcie je przez telefon lub osobiście, a potem dotknij **Zgadzają się**. Kontakt staje się **Zweryfikowany**. **Pomiń na razie** zostawia go jako **Sparowany, niezweryfikowany**: pliki płatności są nadal zapieczętowane, ale kontakt nie może wysyłać faktur, dopóki słowa nie zostaną sprawdzone.';
+      'Porównajcie je przez telefon lub osobiście, a potem dotknij **Zgadzają się**. Kontakt staje się **Zweryfikowany**. **Pomiń na razie** zostawia go jako **Sparowany, niezweryfikowany**: pliki transakcji są nadal zapieczętowane, ale kontakt nie może wysyłać faktur, dopóki słowa nie zostaną sprawdzone.';
 
   @override
   String get helpPairWhyP3 =>
@@ -16910,7 +16906,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get expPairingHint =>
-      'Jednorazowe sparowanie z kimś, z kim często są płatności: pliki płatności i faktury między dwoma portfelami są wtedy zapieczętowane, a kontakt jest oznaczony jako sparowany. Eksperymentalne: może się jeszcze zmienić.';
+      'Jednorazowe sparowanie z kimś, z kim często są płatności: pliki transakcji i faktury między dwoma portfelami są wtedy zapieczętowane, a kontakt jest oznaczony jako sparowany. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
   String get expInvoices => 'Faktury';
@@ -16981,7 +16977,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String txStepSentMailbox(String name) {
-    return 'Wysłano przez skrzynkę $name';
+    return 'Wysłano przez serwer Epicbox $name';
   }
 
   @override
@@ -16991,7 +16987,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String txStepCollecting(String name) {
-    return 'Sprawdzanie skrzynki $name';
+    return 'Sprawdzanie serwera Epicbox $name';
   }
 
   @override
@@ -17305,11 +17301,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get reqQrNew => 'Nowa prośba';
+  String get reqQrNew => 'Nowa faktura';
 
   @override
   String get reqQrAlreadyPaid =>
-      'Ta prośba jest już opłacona. Z tego telefonu nic nie pobrano: jego płatność pozostaje wstrzymana, dopóki nie zostanie anulowana w Aktywności albo nie wygaśnie po dniu.';
+      'Ta prośba jest już opłacona. Z tego telefonu nic nie pobrano: jego płatność pozostaje zablokowana, dopóki nie zostanie anulowana w Aktywności albo nie wygaśnie po dniu.';
 
   @override
   String get reqFromQrTitle => 'Prośba o płatność z kodu QR';
@@ -17571,7 +17567,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSlotWaitingBlock => 'czeka na blok';
 
   @override
-  String get deskSlotRequests => 'Nowe żądania';
+  String get deskSlotRequests => 'Nowe faktury';
 
   @override
   String get deskSlotNodeStarting => 'Uruchamianie węzła lokalnego';
@@ -17704,7 +17700,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelNoteSendWaiting =>
-      'Jeszcze nie wysłano do sieci: anulowanie uwalnia twoje monety.';
+      'Jeszcze nie opublikowano w sieci: anulowanie uwalnia monety.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17712,7 +17708,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelNoteDirectFailed =>
-      'Nic nie dotarło do odbiorcy: anulowanie uwalnia twoje monety.';
+      'Nic nie dotarło do odbiorcy: anulowanie uwalnia monety.';
 
   @override
   String get cancelNoteRequestPaid =>
@@ -17752,11 +17748,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskOwnYourNode => 'Twój węzeł';
+  String get deskOwnYourNode => 'Własny węzeł';
 
   @override
   String deskOwnLabel(String where) {
-    return 'Twój węzeł · $where';
+    return 'Własny węzeł · $where';
   }
 
   @override
@@ -17899,11 +17895,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOwnDlgAdd => 'Dodaj';
 
   @override
-  String get deskOwnDownTitle => 'Twój węzeł nie odpowiada';
+  String get deskOwnDownTitle => 'Własny węzeł nie odpowiada';
 
   @override
   String deskOwnDownText(String host) {
-    return 'Portfel w międzyczasie używa $host i wraca, gdy twój węzeł odpowie dwa razy z rzędu.';
+    return 'Portfel w międzyczasie używa $host i wraca, gdy ten węzeł odpowie dwa razy z rzędu.';
   }
 
   @override
@@ -17926,24 +17922,24 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOwnSyncTitle =>
-      'Używać publicznego węzła, dopóki twój się nie zsynchronizuje?';
+      'Używać publicznego węzła, dopóki ten węzeł się nie zsynchronizuje?';
 
   @override
   String deskOwnSyncText(String host) {
-    return 'Przez węzeł w trakcie synchronizacji portfel nie wyśle ani nie odbierze płatności. $host może go zastąpić; portfel wróci, gdy twój węzeł zacznie przyjmować transakcje.';
+    return 'Przez węzeł w trakcie synchronizacji portfel nie wyśle ani nie odbierze płatności. $host może go zastąpić; portfel wróci, gdy ten węzeł zacznie przyjmować transakcje.';
   }
 
   @override
-  String get deskOwnWaitForMine => 'Czekaj na mój węzeł';
+  String get deskOwnWaitForMine => 'Czekaj na ten węzeł';
 
   @override
   String deskOwnSyncUsingTitle(String host) {
-    return '$host do synchronizacji twojego węzła';
+    return '$host do synchronizacji tego węzła';
   }
 
   @override
   String get deskOwnSyncUsingText =>
-      'Portfel wróci, gdy twój węzeł zacznie przyjmować transakcje.';
+      'Portfel wróci, gdy ten węzeł zacznie przyjmować transakcje.';
 
   @override
   String get deskOwnMine => 'To mój węzeł';
@@ -17956,7 +17952,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOwnListNote => 'Twoje własne węzły są pytane bezpośrednio.';
 
   @override
-  String get deskOwnSlotSyncing => 'Twój węzeł się synchronizuje';
+  String get deskOwnSlotSyncing => 'Własny węzeł się synchronizuje';
 
   @override
   String ownNodeLabel(String where) {
@@ -18029,8 +18025,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAboutDownloadPage => 'Strona pobierania';
 
   @override
-  String get deskUpdManual =>
-      'Ta kopia aplikacji nie może sama instalować aktualizacji.';
+  String get deskUpdManual => 'Ta kopia nie może sama instalować aktualizacji.';
 
   @override
   String get deskUpdDownloadInstall => 'Pobierz i zainstaluj';
@@ -18066,7 +18061,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakeLink1NoTor =>
-      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet. Twoje monety są wstrzymane.';
+      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet. Monety zostają zablokowane.';
 
   @override
   String get advNetworkHintNoTor =>

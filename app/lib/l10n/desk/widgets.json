@@ -103,15 +103,15 @@
   "@deskKitHeroCaptionFile": {
     "description": "Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters."
   },
-  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -681,7 +681,7 @@
   "@deskKitChipNotOverTor": {
     "description": "Small chip: this method does not go through Tor. Narrow chip."
   },
-  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet's file. A guide, not a guarantee.",
+  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet’s file. A guide, not a guarantee.",
   "@deskKitPasswordNote": {
     "description": "Tooltip behind the info icon under a new-password field: how the 'time to crack' is estimated."
   },

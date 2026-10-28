@@ -35,12 +35,12 @@ void main() {
 
     final rescan = foundTexts(englishStrings, _found(during: FoundDuring.rescan));
     expect(rescan.label, 'Found by scan');
-    expect(rescan.line, 'Found by a balance recheck');
+    expect(rescan.line, 'Found by recheck');
     expect(rescan.tip, 'Found on the chain by a balance recheck. The sender is not recorded.');
     expect(rescan.note, 'Block time. The sender is not recorded.');
 
     final scanTime = foundTexts(englishStrings, _found(during: FoundDuring.rescan, byBlock: false));
-    expect(scanTime.note, "Time of the scan; the block's time could not be read. The sender is not recorded.");
+    expect(scanTime.note, 'Time of the scan; the block’s time could not be read. The sender is not recorded.');
 
     final older = foundTexts(englishStrings, _found());
     expect(older.label, 'Found by scan');
@@ -86,7 +86,7 @@ void main() {
   testWidgets('the detail of a rescan find with the scan time', (tester) async {
     await pump(tester, TxDetail(tx: _found(during: FoundDuring.rescan, byBlock: false)));
     expect(find.text('found on the chain'), findsOneWidget);
-    expect(find.text('Found by a balance recheck'), findsOneWidget);
-    expect(find.text("Time of the scan; the block's time could not be read. The sender is not recorded."), findsOneWidget);
+    expect(find.text('Found by recheck'), findsOneWidget);
+    expect(find.text('Time of the scan; the block’s time could not be read. The sender is not recorded.'), findsOneWidget);
   });
 }

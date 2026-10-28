@@ -125,7 +125,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txMiningReward => 'Награда за майнинг';
 
   @override
-  String get txRestoredFunds => 'Восстановленные средства';
+  String get txRestoredFunds => 'Найдено в блокчейне';
 
   @override
   String txSpokenLabelled(String label, String row) {
@@ -297,7 +297,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String txSpokenRestoredFunds(String amount) {
-    return 'Восстановленные средства: $amount';
+    return 'Найдено в блокчейне: $amount';
   }
 
   @override
@@ -569,12 +569,12 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$days дня',
       one: '$days день',
     );
-    return 'Платёж ждёт уже $_temp0. Сервер epicbox удаляет платежи через 7 дней, поэтому этот платёж уже не завершится. Отмените его, чтобы разблокировать средства, а затем отправьте снова.';
+    return 'Платёж ждёт уже $_temp0. Сервер Epicbox удаляет платежи через 7 дней, поэтому этот платёж уже не завершится. Отмените его, чтобы разблокировать монеты, а затем отправьте снова.';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'Отправлено в epicbox получателя. Платёж завершится, когда кошелёк получателя появится в сети. До этого или до отмены ваши средства остаются заблокированными.';
+      'Отправлено через Epicbox. Платёж завершится, когда кошелёк получателя появится в сети. До этого или до отмены сумма остаётся заблокированной.';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -586,7 +586,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsSenderPosted =>
-      'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда блокчейн его подтвердит.';
+      'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда сеть его подтвердит.';
 
   @override
   String get txDetailsPublished =>
@@ -795,8 +795,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsBroadcastAgain => 'Отправить повторно';
 
   @override
-  String get txDetailsBroadcastAgainDone =>
-      'Отправлено повторно. Подтверждение ожидается в течение нескольких минут.';
+  String get txDetailsBroadcastAgainDone => 'Отправлено повторно.';
 
   @override
   String get txDetailsRefusedBody =>
@@ -971,14 +970,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Найден при сканировании блокчейна. Такие сведения, как отправитель и комиссия, в блокчейне не хранятся; импортируйте данные кошелька, чтобы восстановить их.';
+      'Найдено в блокчейне. Отправителя и комиссии в блокчейне нет; импортируйте данные кошелька, чтобы добавить их.';
 
   @override
   String get txDetailsSourceImported =>
       'Импортирован из файла данных кошелька. У этого кошелька нет собственной записи о нём, поэтому его статус может быть устаревшим.';
 
   @override
-  String get historyTitle => 'История';
+  String get historyTitle => 'Активность';
 
   @override
   String get historyLoading => 'Загрузка платежей';
@@ -1273,7 +1272,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeNoticeRelayProblem =>
-      'Сервер epicbox сообщил о проблеме. Пробуем снова.';
+      'Сервер Epicbox сообщил о проблеме. Пробуем снова.';
 
   @override
   String get homeNoticePaymentFailed => 'Не удалось завершить платёж.';
@@ -1472,7 +1471,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Кошелёк не подключён к своему серверу Epicbox и продолжает попытки.';
 
   @override
-  String get homeEpicboxConnecting => 'Подключение к epicbox…';
+  String get homeEpicboxConnecting => 'Подключение к Epicbox…';
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1498,13 +1497,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$amount ждёт ответа кошельков получателей. До тех пор средства заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
+          '$amount ждёт ответа кошельков получателей. До тех пор монеты заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
       many:
-          '$amount ждёт ответа кошельков получателей. До тех пор средства заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
+          '$amount ждёт ответа кошельков получателей. До тех пор монеты заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
       few:
-          '$amount ждёт ответа кошельков получателей. До тех пор средства заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
+          '$amount ждёт ответа кошельков получателей. До тех пор монеты заблокированы. Если кто-то не ответит, откройте платёж и нажмите «Отменить платёж».',
       one:
-          '$amount ждёт ответа кошелька получателя. До тех пор средства заблокированы. Если ответа не будет, откройте платёж и нажмите «Отменить платёж».',
+          '$amount ждёт ответа кошелька получателя. До тех пор монеты заблокированы. Если ответа не будет, откройте платёж и нажмите «Отменить платёж».',
     );
     return '$_temp0';
   }
@@ -1665,7 +1664,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return 'Сервис $service отозвал этот счёт после оплаты. Если платёж не подтвердится, отмените его, чтобы разблокировать средства.';
+    return 'Сервис $service отозвал этот счёт после оплаты.';
   }
 
   @override
@@ -1772,7 +1771,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
+    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом транзакции.';
   }
 
   @override
@@ -1826,7 +1825,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'Отправленные вам платежи сейчас ждут в epicbox и придут, когда кошелёк снова подключится.';
+      'Отправленные вам платежи ждут на сервере Epicbox и придут, когда кошелёк снова подключится.';
 
   @override
   String get receiveShareCardHeadline => 'Заплатите мне в Epic Cash';
@@ -1838,11 +1837,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveAddressCopied => 'Адрес скопирован';
 
   @override
-  String get receiveFileTitle => 'Получить по платёжному файлу';
+  String get receiveFileTitle => 'Получить по файлу транзакции';
 
   @override
   String get receiveFileBody =>
-      'Получили платёжный файл? Откройте его или скопируйте его текст и вставьте сюда.';
+      'Откройте файл транзакции или вставьте сюда его текст.';
 
   @override
   String get receiveFileOpen => 'Открыть файл';
@@ -1982,7 +1981,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get setupCustomRelayLabel =>
-      'Другой сервер epicbox (хост или host:port)';
+      'Другой сервер Epicbox (хост или host:port)';
 
   @override
   String get setupCustomRelayInvalid =>
@@ -2448,7 +2447,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendUrlUnsupported =>
-      'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.';
+      'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес Epicbox.';
 
   @override
   String get scanQrTooltip => 'Сканировать QR-код';
@@ -3484,7 +3483,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStepSenderFinished => 'Отправитель завершил его';
 
   @override
-  String get fileHelpTitle => 'Как работает платёжный файл';
+  String get fileHelpTitle => 'Как работает файл транзакции';
 
   @override
   String get fileHelpYou => 'Вы';
@@ -3493,7 +3492,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fileHelpFriend => 'Друг';
 
   @override
-  String get fileHelpSendStep1 => 'Вы создаёте платёжный файл.';
+  String get fileHelpSendStep1 => 'Вы создаёте файл транзакции.';
 
   @override
   String get fileHelpSendStep2 =>
@@ -3501,13 +3500,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileHelpSendStep3 =>
-      'Друг открывает его в своём кошельке и присылает вам подписанный ответ.';
+      'Друг открывает его в своём кошельке и присылает вам файл ответа.';
 
   @override
-  String get fileHelpSendStep4 => 'Вы открываете ответ, и платёж уже в пути.';
+  String get fileHelpSendStep4 =>
+      'Вы открываете файл ответа, и платёж уже в пути.';
 
   @override
-  String get fileHelpReceiveStep1 => 'Друг создаёт для вас платёжный файл.';
+  String get fileHelpReceiveStep1 => 'Друг создаёт для вас файл транзакции.';
 
   @override
   String get fileHelpReceiveStep2 =>
@@ -3515,11 +3515,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep3 =>
-      'Вы открываете его в своём кошельке и отправляете подписанный ответ.';
+      'Вы открываете его в своём кошельке и отправляете файл ответа.';
 
   @override
   String get fileHelpReceiveStep4 =>
-      'Друг открывает ответ, и платёж уже в пути к вам.';
+      'Друг открывает файл ответа, и платёж уже в пути к вам.';
 
   @override
   String fileHelpStepOf(int step, int count) {
@@ -3586,7 +3586,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendRecent => 'Недавние';
 
   @override
-  String get sendUseFile => 'Нет адреса? Используйте платёжный файл';
+  String get sendUseFile => 'Нет адреса? Используйте файл транзакции';
 
   @override
   String sendTo(String who) {
@@ -3604,13 +3604,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendAddNote => 'Добавить заметку';
+  String get sendAddNote => 'Добавить сообщение';
 
   @override
-  String get sendNoteLabel => 'Заметка';
+  String get sendNoteLabel => 'Сообщение';
 
   @override
-  String get sendNoteHelper => 'Получатель тоже её увидит.';
+  String get sendNoteHelper => 'Получатель его увидит.';
 
   @override
   String get sendNetworkFee => 'Комиссия сети';
@@ -3670,7 +3670,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return 'Кошелёк получателя завершит платёж, когда откроется. До тех пор $amount заблокировано.';
+    return 'Кошелёк получателя подпишет платёж, когда откроется. До тех пор $amount заблокировано.';
   }
 
   @override
@@ -3683,10 +3683,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNoCoins => 'Пока нет монет для отправки.';
 
   @override
-  String get sendFileTitle => 'Оплата файлом';
+  String get sendFileTitle => 'Напрямую · Передача файла';
 
   @override
-  String get sendMakeFile => 'Создать платёжный файл';
+  String get sendMakeFile => 'Создать файл транзакции';
 
   @override
   String get sendFileMade => 'Файл создан';
@@ -3697,14 +3697,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendFileWaitingReply => 'Ждём ответный файл';
+  String get sendFileWaitingReply => 'Ждём файл ответа';
 
   @override
   String get sendFileShareHint =>
-      'Отправьте им этот файл, затем откройте их ответ.';
+      'Отправьте им этот файл, затем откройте их файл ответа.';
 
   @override
-  String get sendOpenReply => 'Открыть ответ';
+  String get sendOpenReply => 'Открыть файл ответа';
 
   @override
   String get handshakePayment => 'Платёж';
@@ -3723,7 +3723,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Ваш кошелёк отправляет платёж на сервер Epicbox. Ваши монеты блокируются.';
+      'Ваш кошелёк отправляет платёж на сервер Epicbox. Монеты блокируются.';
 
   @override
   String get handshakePay2 =>
@@ -3745,7 +3745,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сервер передаёт его дальше. Они одобряют его, их кошелёк добавляет монеты и подписывает.';
 
   @override
-  String get handshakeRelay => 'Сервер';
+  String get handshakeRelay => 'Epicbox';
 
   @override
   String get handshakeFile => 'Передача файла';
@@ -3760,24 +3760,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get handshakeFile1 =>
-      'Ваш кошелёк сохраняет платёжный файл. Вы сами отправляете его им.';
+      'Ваш кошелёк сохраняет файл транзакции. Вы сами отправляете его им.';
 
   @override
   String get handshakeFile2 =>
-      'Они открывают его. Их кошелёк добавляет свою часть, подписывает и сохраняет ответ.';
+      'Они открывают его. Их кошелёк добавляет свою часть, подписывает и сохраняет файл ответа.';
 
   @override
   String get handshakeFile3 => 'Они отправляют вам файл ответа.';
 
   @override
-  String get handshakeFile4 => 'Вы открываете их ответ в своём кошельке.';
+  String get handshakeFile4 => 'Вы открываете их файл ответа в своём кошельке.';
 
   @override
   String get handshakePrevious => 'Предыдущий шаг';
 
   @override
   String get handshakeLink1 =>
-      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет или Tor. Ваши монеты блокируются.';
+      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет или Tor. Монеты блокируются.';
 
   @override
   String get handshakeLink2 =>
@@ -3822,20 +3822,20 @@ class AppLocalizationsRu extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) отклонил платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
       many:
-          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) отклонил платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       few:
-          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) отклонил платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       one:
-          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) отклонил платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'Сервер Epicbox получателя ($relay) не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
+    return 'Сервер Epicbox получателя ($relay) отклонил платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
   }
 
   @override
@@ -4170,7 +4170,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Введите PIN-код, чтобы создать платёжный файл на $amount.';
+    return 'Введите PIN-код, чтобы создать файл транзакции на $amount.';
   }
 
   @override
@@ -4569,7 +4569,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsCopied => 'Адрес скопирован.';
 
   @override
-  String get invoicesNewRequest => 'Новый запрос';
+  String get invoicesNewRequest => 'Новый счёт';
 
   @override
   String get invoicesSegmentSent => 'Отправленные';
@@ -5492,7 +5492,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Доставлено в почтовый ящик $payer. Ничего не оплачено, пока плательщик не одобрит.';
+    return 'Доставлено на сервер Epicbox $payer. Ничего не оплачено, пока плательщик не одобрит.';
   }
 
   @override
@@ -5572,7 +5572,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerWithdrawnText =>
-      'Платёж может так и не попасть в блокчейн. Отмените его, чтобы разблокировать средства.';
+      'Платёж может так и не попасть в блокчейн. Отмените его, чтобы освободить монеты.';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
@@ -5581,7 +5581,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerPastTtlText =>
-      'Его срок истёк, и сеть его не видела. Отмените его, чтобы разблокировать средства.';
+      'Его срок истёк, и сеть его не видела. Отмените его, чтобы освободить монеты.';
 
   @override
   String get deskInvPayerCancelPayment => 'Отменить платёж';
@@ -5807,11 +5807,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Попросите сопряжённый контакт оплатить или сохраните запрос файлом.';
 
   @override
-  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
+  String get serverSwitchRelayTitle => 'Сменить сервер Epicbox?';
 
   @override
   String serverSwitchRelayBody(String relay) {
-    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
+    return 'Адрес Epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
   }
 
   @override
@@ -6232,7 +6232,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrTestNet =>
-      'Кошелёк тестовой сети. Импортировать можно только кошельки Mainnet.';
+      'Кошелёк Floonet: импортировать можно только кошельки основной сети.';
 
   @override
   String get deskErrWalletInApp => 'Этот кошелёк уже есть в приложении.';
@@ -7615,7 +7615,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendAmountSem => 'Сумма в EPIC';
 
   @override
-  String get deskSendAllButton => 'Всё';
+  String get deskSendAllButton => 'Макс.';
 
   @override
   String get deskSendConfirmingHidden =>
@@ -9150,7 +9150,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Найдено в блокчейне при восстановлении этого кошелька. Отправитель не записан.';
 
   @override
-  String get deskTxFoundRescanLabel => 'Найдено сканированием';
+  String get deskTxFoundRescanLabel => 'Найдено при сверке';
 
   @override
   String get deskTxFoundRescanLine => 'Найдено при сверке баланса';
@@ -9631,7 +9631,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Создание кошелька и его фразы восстановления';
 
   @override
-  String get deskOnbCreateStageSave => 'Сохранение учётной записи';
+  String get deskOnbCreateStageSave => 'Сохранение кошелька';
 
   @override
   String get deskOnbCreateNotCreated => 'Кошелёк не создан';
@@ -9649,7 +9649,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbCreateDiskFull =>
-      'Не удалось сохранить учётную запись: диск заполнен.';
+      'Кошелёк не сохранён: диск заполнен. Освободите место и попробуйте снова.';
 
   @override
   String get deskOnbCreateWait =>
@@ -11605,7 +11605,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetDlgChainDesc =>
-      'На этом компьютере уже есть данные блокчейна Epic, которые может использовать локальный узел.';
+      'Локальный узел может использовать данные блокчейна Epic, которые уже есть на этом компьютере, вместо загрузки.';
 
   @override
   String get deskSetDlgChainFolder => 'Папка';
@@ -11628,8 +11628,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Эту папку использует другая программа Epic. Закройте её и снова выберите локальный узел, чтобы использовать эти данные.';
 
   @override
-  String get deskSetDlgChainUseIt =>
-      'Использовать их? Это избавит от загрузки и синхронизации всего блокчейна.';
+  String get deskSetDlgChainUseIt => 'Использовать их?';
 
   @override
   String get deskSetDlgChainOlderWallet =>
@@ -12227,8 +12226,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetLndNotInUse => 'Папка не используется';
 
   @override
-  String get deskSetLndReuseTitle =>
-      'На этом компьютере найдены данные блокчейна';
+  String get deskSetLndReuseTitle => 'Найдены данные блокчейна';
 
   @override
   String get deskSetLndReuseDesc =>
@@ -12996,7 +12994,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRescanStoppedLine => 'Сканирование остановлено';
 
   @override
-  String get deskSetRescanLog => 'Журнал сканирования';
+  String get deskSetRescanLog => 'Журнал сверки';
 
   @override
   String get deskSetRescanText =>
@@ -13039,7 +13037,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRescanNotRead => 'Не прочитано';
 
   @override
-  String get deskSetRescanFinished => 'Сканирование закончено';
+  String get deskSetRescanFinished => 'Сверка завершена';
 
   @override
   String get deskSetRescanUpToDate => 'Баланс актуален.';
@@ -13578,7 +13576,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsNotDeliveredBody =>
-      'Этот платёж ещё не дошёл до epicbox, поэтому получатель его не получил. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.';
+      'Этот платёж ещё не дошёл до сервера Epicbox, поэтому получатель его не получил. Монеты остаются заблокированными, пока платёж не отправят повторно или не отменят.';
 
   @override
   String get txDetailsSendAgainDone =>
@@ -13627,7 +13625,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxNowUndelivered =>
-      'Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+      'Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить монеты.';
 
   @override
   String get deskTxStatusUndelivered => 'Не доставлено';
@@ -13768,7 +13766,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxDetailsTip =>
-      'Только для платежей, найденных при сканировании. В «Активности», подробностях и экспорте они помечены как добавленные вами. Суммы, даты и подтверждения не меняются.';
+      'Только для платежей, найденных при сверке баланса.';
 
   @override
   String get deskTxDetailsFrom => 'От';
@@ -14249,7 +14247,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRescanBodyPlain =>
-      'Кошелёк заново ищет свои средства, с первого блока. Это может занять много времени.';
+      'Кошелёк заново ищет свои средства, с первого блока.';
 
   @override
   String get slNodeField => 'Адрес узла';
@@ -14344,8 +14342,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slRestored => 'Удалённые серверы восстановлены.';
 
   @override
-  String get slRelayWarning =>
-      'При переключении ваш адрес изменится; отправителям нужен новый.';
+  String get slRelayWarning => 'Ваш адрес Epicbox изменится. Поделитесь новым.';
 
   @override
   String get slNotAnAddress =>
@@ -14678,7 +14675,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Платежи отправителей ждут на сервере, пока Epicbox снова не включён.';
+      'Платежи ждут на сервере Epicbox, пока Epicbox снова не будет включён.';
 
   @override
   String get receiveNoMethods => 'Ни один способ приёма не включён';
@@ -14958,7 +14955,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairLead =>
-      'Выполните сопряжение с собеседником один раз. После этого файлы платежей и счета между двумя кошельками запечатаны: прочитать их могут только эти два кошелька.';
+      'Выполните сопряжение с собеседником один раз. После этого файлы транзакций и счета между двумя кошельками запечатаны: прочитать их могут только эти два кошелька.';
 
   @override
   String get pairInPerson => 'Лично';
@@ -14990,7 +14987,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairNotPairedHint =>
-      'Сопряжение запечатывает файлы платежей и позволяет разрешить счета.';
+      'Сопряжение запечатывает файлы транзакций и позволяет разрешить счета.';
 
   @override
   String get pairInPersonTitle => 'Сопряжение лично';
@@ -15133,7 +15130,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsPairHint =>
-      'Выполните сопряжение с другим кошельком, чтобы запечатать файлы платежей и счета между ними.';
+      'Выполните сопряжение с другим кошельком, чтобы запечатать файлы транзакций и счета между ними.';
 
   @override
   String get contactsPairLearn => 'Как это работает';
@@ -15150,7 +15147,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWaysLead =>
-      'Сопряжение выполняется один раз. После него файлы платежей и счета между двумя кошельками запечатаны.';
+      'Сопряжение выполняется один раз. После него файлы транзакций и счета между двумя кошельками запечатаны.';
 
   @override
   String get pairWayWords => 'Слова';
@@ -15160,7 +15157,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWayWordsHint =>
-      'Зачитайте собеседнику пять слов. Оба кошелька должны быть онлайн; остальное произойдёт само.';
+      'Зачитайте собеседнику пять слов для связывания. Оба кошелька должны быть онлайн.';
 
   @override
   String get pairWayWordsInfo =>
@@ -15406,7 +15403,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'После сопряжения файлы платежей и счета между вами и $name запечатаны. Затем вы вместе проверите.';
+    return 'После сопряжения файлы транзакций и счета между вами и $name запечатаны. Затем вы вместе проверите.';
   }
 
   @override
@@ -15567,11 +15564,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ответ на то же приглашение · не сохранён';
 
   @override
-  String get sasTitle => 'Проверить слова';
+  String get sasTitle => 'Сравните проверочные слова';
 
   @override
   String sasLead(String name) {
-    return 'Кошелёк $name показывает те же четыре. Сравните их по телефону или лично.';
+    return 'Кошелёк $name показывает те же четыре проверочных слова. Сравните их по телефону или лично.';
   }
 
   @override
@@ -15691,7 +15688,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Если выключено, файл платежа для $name открытый: любой, кто получит файл, может его прочитать. Выключайте, только если кошелёк $name не открывает запечатанные файлы.';
+    return 'Если выключено, файл транзакции для $name открытый: любой, кто получит файл, может его прочитать. Выключайте, только если кошелёк $name не открывает запечатанные файлы.';
   }
 
   @override
@@ -15724,7 +15721,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Сервер $name не отвечает';
+    return 'Сервер Epicbox $name не отвечает';
   }
 
   @override
@@ -15942,7 +15939,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoicesEmptyAction => 'Сопряжённые контакты';
 
   @override
-  String get reqTitle => 'Проверить запрос';
+  String get reqTitle => 'Проверить счёт';
 
   @override
   String reqRequests(String name) {
@@ -15975,7 +15972,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'Доставлено на сервер $name';
+    return 'Доставлено на сервер Epicbox $name';
   }
 
   @override
@@ -16026,7 +16023,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqUnreachableBody =>
-      'Ваши средства в безопасности; они разблокируются, если платёж не опубликуют. Доставка повторяется.';
+      'Монеты разблокируются, если платёж не опубликуют. Доставка повторяется.';
 
   @override
   String get reqRelayRetrying => 'Сервер не отвечает · повтор';
@@ -16073,7 +16070,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ничего делать не нужно. Биржа публикует платёж; подтверждения последуют.';
 
   @override
-  String get reqNewTitle => 'Новый запрос';
+  String get reqNewTitle => 'Новый счёт';
 
   @override
   String get reqNewLead =>
@@ -16101,11 +16098,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqNewSaveFile => 'Сохранить файлом';
 
   @override
-  String get reqNewSend => 'Отправить запрос';
+  String get reqNewSend => 'Отправить счёт';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Отправить через почтовый ящик $name';
+    return 'Отправить через сервер Epicbox $name';
   }
 
   @override
@@ -16231,7 +16228,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Сервер $name не отвечает. Повторная попытка.';
+    return 'Сервер Epicbox $name не отвечает. Повторная попытка.';
   }
 
   @override
@@ -16414,7 +16411,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeOutboxStuck(String name) {
-    return '$name пока недоступен. Ваши средства в безопасности.';
+    return '$name пока недоступен. Пробуем снова.';
   }
 
   @override
@@ -16498,14 +16495,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Сопряжение выполняется один раз; файлы платежей и счета с этим контактом запечатаны.';
+      'Сопряжение выполняется один раз; файлы транзакций и счета с этим контактом запечатаны.';
 
   @override
   String get helpPairWhatTitle => 'Что такое сопряжение';
 
   @override
   String get helpPairWhatShort =>
-      'Выполните сопряжение с собеседником один раз; после этого файлы платежей и счета между двумя кошельками запечатаны.';
+      'Выполните сопряжение с собеседником один раз; после этого файлы транзакций и счета между двумя кошельками запечатаны.';
 
   @override
   String get helpPairWhatP1 =>
@@ -16513,7 +16510,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'После сопряжения файл платежа для этого контакта **запечатан**: открыть его может только кошелёк контакта, и в пути его нельзя изменить или подделать. Платежи через Epicbox между людьми работают как прежде.';
+      'После сопряжения файл транзакции для этого контакта **запечатан**: открыть его может только кошелёк контакта, и в пути его нельзя изменить или подделать. Платежи через Epicbox между людьми работают как прежде.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -16528,7 +16525,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Для сопряжения нужен Epic Cash с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы платежей и платежи Epicbox.';
+      'Для сопряжения нужен Epic Cash с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы транзакций и платежи Epicbox.';
 
   @override
   String get helpPairWhyTitle => 'Зачем проверять';
@@ -16543,7 +16540,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhyP2 =>
-      'Сравните их по телефону или лично, затем нажмите **Совпадают**. Контакт становится **Проверено**. **Пропустить пока** оставляет его в состоянии **Сопряжено, не проверено**: файлы платежей всё равно запечатаны, но контакт не может присылать счета, пока слова не проверены.';
+      'Сравните их по телефону или лично, затем нажмите **Совпадают**. Контакт становится **Проверено**. **Пропустить пока** оставляет его в состоянии **Сопряжено, не проверено**: файлы транзакций всё равно запечатаны, но контакт не может присылать счета, пока слова не проверены.';
 
   @override
   String get helpPairWhyP3 =>
@@ -16876,7 +16873,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get expPairingHint =>
-      'Однократное сопряжение с тем, с кем часто бывают платежи: файлы платежей и счета между двумя кошельками запечатаны, а контакт отмечен как сопряжённый. Экспериментально: может ещё измениться.';
+      'Однократное сопряжение с тем, с кем часто бывают платежи: файлы транзакций и счета между двумя кошельками запечатаны, а контакт отмечен как сопряжённый. Экспериментально: может ещё измениться.';
 
   @override
   String get expInvoices => 'Счета';
@@ -16945,7 +16942,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String txStepSentMailbox(String name) {
-    return 'Отправлено через почтовый ящик $name';
+    return 'Отправлено через сервер Epicbox $name';
   }
 
   @override
@@ -16955,7 +16952,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String txStepCollecting(String name) {
-    return 'Проверка почтового ящика $name';
+    return 'Проверка сервера Epicbox $name';
   }
 
   @override
@@ -17270,11 +17267,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get reqQrNew => 'Новый запрос';
+  String get reqQrNew => 'Новый счёт';
 
   @override
   String get reqQrAlreadyPaid =>
-      'Этот запрос уже оплачен. С этого телефона ничего не списано: его платёж остаётся на удержании, пока его не отменят в Активности или он не истечёт через день.';
+      'Этот запрос уже оплачен. С этого телефона ничего не списано: его платёж остаётся заблокированным, пока его не отменят в «Активности» или он не истечёт через день.';
 
   @override
   String get reqFromQrTitle => 'Запрос на оплату из QR-кода';
@@ -17536,7 +17533,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSlotWaitingBlock => 'ждёт блока';
 
   @override
-  String get deskSlotRequests => 'Новые запросы';
+  String get deskSlotRequests => 'Новые счета';
 
   @override
   String get deskSlotNodeStarting => 'Запуск локального узла';
@@ -17669,7 +17666,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancelNoteSendWaiting =>
-      'Ещё не отправлено в сеть: отмена освобождает ваши монеты.';
+      'Ещё не опубликовано в сети: отмена освобождает монеты.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17677,7 +17674,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancelNoteDirectFailed =>
-      'До получателя ничего не дошло: отмена освобождает ваши монеты.';
+      'До получателя ничего не дошло: отмена освобождает монеты.';
 
   @override
   String get cancelNoteRequestPaid =>
@@ -17717,11 +17714,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOwnYourNode => 'Ваш узел';
+  String get deskOwnYourNode => 'Свой узел';
 
   @override
   String deskOwnLabel(String where) {
-    return 'Ваш узел · $where';
+    return 'Свой узел · $where';
   }
 
   @override
@@ -17868,11 +17865,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOwnDlgAdd => 'Добавить';
 
   @override
-  String get deskOwnDownTitle => 'Ваш узел не отвечает';
+  String get deskOwnDownTitle => 'Свой узел не отвечает';
 
   @override
   String deskOwnDownText(String host) {
-    return 'Пока кошелёк использует $host и вернётся, когда ваш узел ответит два раза подряд.';
+    return 'Пока кошелёк использует $host и вернётся, когда этот узел ответит два раза подряд.';
   }
 
   @override
@@ -17895,24 +17892,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOwnSyncTitle =>
-      'Использовать публичный узел, пока ваш синхронизируется?';
+      'Использовать публичный узел, пока этот узел синхронизируется?';
 
   @override
   String deskOwnSyncText(String host) {
-    return 'Через синхронизирующийся узел кошелёк не может отправлять и получать. $host может его заменить; кошелёк вернётся, когда ваш узел начнёт принимать транзакции.';
+    return 'Через синхронизирующийся узел кошелёк не может отправлять и получать. $host может его заменить; кошелёк вернётся, когда этот узел начнёт принимать транзакции.';
   }
 
   @override
-  String get deskOwnWaitForMine => 'Ждать мой узел';
+  String get deskOwnWaitForMine => 'Ждать этот узел';
 
   @override
   String deskOwnSyncUsingTitle(String host) {
-    return '$host до синхронизации вашего узла';
+    return '$host до синхронизации этого узла';
   }
 
   @override
   String get deskOwnSyncUsingText =>
-      'Кошелёк вернётся, когда ваш узел начнёт принимать транзакции.';
+      'Кошелёк вернётся, когда этот узел начнёт принимать транзакции.';
 
   @override
   String get deskOwnMine => 'Это мой узел';
@@ -17925,7 +17922,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOwnListNote => 'Ваши узлы опрашиваются напрямую.';
 
   @override
-  String get deskOwnSlotSyncing => 'Ваш узел синхронизируется';
+  String get deskOwnSlotSyncing => 'Свой узел синхронизируется';
 
   @override
   String ownNodeLabel(String where) {
@@ -17999,7 +17996,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskUpdManual =>
-      'Эта копия приложения не может сама устанавливать обновления.';
+      'Эта копия не может сама устанавливать обновления.';
 
   @override
   String get deskUpdDownloadInstall => 'Скачать и установить';
@@ -18037,7 +18034,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get handshakeLink1NoTor =>
-      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет. Ваши монеты блокируются.';
+      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет. Монеты блокируются.';
 
   @override
   String get advNetworkHintNoTor =>

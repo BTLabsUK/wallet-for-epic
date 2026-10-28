@@ -46,7 +46,7 @@
   "deskErrEnterPassword": "Geben Sie das Passwort ein",
   "deskErrFolderNotFound": "Wallet-Ordner nicht gefunden",
   "deskErrAlreadyHere": "Diese Wallet ist schon vorhanden: {name}",
-  "deskErrTestNet": "Wallet im Testnetzwerk. Nur Mainnet-Wallets lassen sich importieren.",
+  "deskErrTestNet": "Floonet-Wallet: Nur Mainnet-Wallets lassen sich importieren.",
   "deskErrWalletInApp": "Diese Wallet ist bereits in der App.",
   "deskErrWalletNotFoundSearch": "Wallet nicht gefunden. Suchen Sie erneut.",
   "deskErrEnterOldPassword": "Geben Sie das alte Passwort ein",

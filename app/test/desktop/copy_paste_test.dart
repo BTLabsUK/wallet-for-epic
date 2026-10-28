@@ -134,7 +134,7 @@ void phraseCopyOnboarding() {
     await tester.pump(const Duration(milliseconds: 300));
     // The warning comes first; nothing is copied until it is confirmed.
     expect(find.text('Copy the recovery phrase?'), findsOneWidget);
-    expect(find.text('Anyone with these words can take your funds. Store the copy somewhere safe.'), findsOneWidget);
+    expect(find.text('Anyone with these words can take the coins. Store the copy somewhere safe.'), findsOneWidget);
     expect(_clip, isNull);
     await tester.tap(find.descendant(of: find.byType(EDialog), matching: find.text('Cancel')));
     await tester.pump(const Duration(milliseconds: 300));

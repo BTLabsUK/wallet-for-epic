@@ -334,7 +334,7 @@ void main() {
   testWidgets('a pasted phrase with a bad checksum shows the one line', (tester) async {
     await _pump(tester);
     await _type(tester, 0, List.filled(12, 'abandon').join(' '));
-    expect(find.text("This phrase's check number does not match. Compare every word with the paper."), findsOneWidget);
+    expect(find.text('This phrase’s check number does not match. Compare every word with the paper.'), findsOneWidget);
     expect(_continueEnabled(tester), isFalse);
     await _type(tester, 0, _v24.join(' '));
     expect(find.text('All 24 words check out.'), findsOneWidget);

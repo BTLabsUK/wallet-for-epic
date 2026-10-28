@@ -95,7 +95,7 @@
   "deskSendAvailableNone": "Verfügbar —",
   "deskSendAvailable": "Verfügbar {amount} EPIC",
   "deskSendAmountSem": "Betrag in EPIC",
-  "deskSendAllButton": "Alles",
+  "deskSendAllButton": "Max.",
   "deskSendConfirmingHidden": "Ein Teil des Guthabens wird noch bestätigt und kann noch nicht gesendet werden.",
   "deskSendConfirming": "{amount} EPIC werden noch bestätigt und können noch nicht gesendet werden.",
   "deskSendMessage": "Nachricht",

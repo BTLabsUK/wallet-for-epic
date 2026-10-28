@@ -12,7 +12,7 @@
   "deskTxDetailsEdit": "Edytuj",
   "deskTxDetailsTitleAdd": "Dodaj szczegóły",
   "deskTxDetailsTitleEdit": "Edytuj szczegóły",
-  "deskTxDetailsTip": "Tylko dla płatności znalezionych przez skanowanie. W Aktywności, szczegółach i eksportach widoczne jako dodane przez ciebie. Kwoty, daty i potwierdzenia się nie zmieniają.",
+  "deskTxDetailsTip": "Tylko dla płatności znalezionych przy sprawdzaniu salda.",
   "deskTxDetailsFrom": "Od",
   "deskTxDetailsFromTip": "Kto zapłacił, do Twoich zapisów. Niezweryfikowane i nigdy nie używane w potwierdzeniach płatności.",
   "deskTxDetailsFromHint": "Adres nadawcy",

@@ -175,7 +175,7 @@
   "@deskInvIssuerCancelTitle": {
     "description": "Confirm dialog title."
   },
-  "deskInvIssuerCancelBody": "It will not arrive. {payer}'s funds stay locked in their wallet until they cancel on their side.",
+  "deskInvIssuerCancelBody": "It will not arrive. {payer}’s coins stay locked in their wallet until they cancel on their side.",
   "@deskInvIssuerCancelBody": {
     "description": "Confirm dialog text for cancelling a paid request on the receiving side.",
     "placeholders": {
@@ -184,7 +184,7 @@
       }
     }
   },
-  "deskInvIssuerBounced": "{payer}'s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "deskInvIssuerBounced": "{payer}’s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
   "@deskInvIssuerBounced": {
     "description": "Detail text and warning notice of a request the payer's wallet returned.",
     "placeholders": {
@@ -210,7 +210,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}'s mailbox. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered to {payer}’s Epicbox server. Nothing is paid until they approve it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {

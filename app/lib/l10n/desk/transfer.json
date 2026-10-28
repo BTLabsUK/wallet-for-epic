@@ -99,7 +99,7 @@
   "@deskFinTryAgain": {
     "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
   },
-  "deskFinPostedText": "The payment was finalized and sent to the network. Follow it in Activity.",
+  "deskFinPostedText": "The payment was finalized and posted to the network. Follow it in Activity.",
   "@deskFinPostedText": {
     "description": "Text of the result card after finalizing."
   },

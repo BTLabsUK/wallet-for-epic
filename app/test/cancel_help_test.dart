@@ -85,7 +85,7 @@ void main() {
         tester,
         Scaffold(body: Center(child: CancelNote(text: englishStrings.cancelNoteSendWaiting, anchor: HelpAnchor.receiving))),
       );
-      expect(find.text('Not posted yet: cancelling frees your coins.'), findsOneWidget);
+      expect(find.text('Not posted yet: cancelling frees the coins.'), findsOneWidget);
       expect(find.text('More in Help'), findsOneWidget);
       await tester.tap(find.text('More in Help'));
       await tester.pumpAndSettle();

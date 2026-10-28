@@ -1653,7 +1653,7 @@ void main() {
       );
       expect(
         find.text(
-          'Your Epicbox address will change. Share the new one.',
+          'Your Epicbox address changes. Share the new one.',
         ),
         findsOneWidget,
       );

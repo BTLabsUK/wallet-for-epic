@@ -21,7 +21,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final secret = phone ? 'Ihre PIN' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node|Settings › Privacy & network › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
   final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Transaktionen › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor Network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
+  final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
       : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
@@ -422,7 +422,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.h('Empfangen', anchor: HelpAnchor.receiving),
         const HelpBlock.p('Kommt eine Zahlung an, antwortet Ihre Wallet sofort, und nichts von Ihnen ist gesperrt. Von da an schließt die Wallet des Absenders sie ab und sendet sie ins Netzwerk, meist innerhalb von Minuten. Darum bleibt Stornieren 15 Minuten lang aus dem Weg, und länger, solange der Absender meldet, dass er gesendet hat.'),
         const HelpBlock.p('Danach ist Stornieren ein Aufräumen für eine Zahlung, die der Absender nie gesendet hat. Es ist nicht sicher: Die Wallet fragt zuerst das Netzwerk und lehnt ab, wenn die Zahlung schon dort ist. Eine stornierte Zahlung bleibt im Blick. Sendet der Absender sie später doch, kommt sie trotzdem an und erscheint als empfangen.'),
-        const HelpBlock.h('Zahlungsanforderungen (experimentell)', anchor: HelpAnchor.requests),
+        const HelpBlock.h('Rechnungen (experimentell)', anchor: HelpAnchor.requests),
         const HelpBlock.p('Eine Anforderung, die Sie gesendet haben, hält keine Coins, bis sie bezahlt ist. Ziehen Sie sie vorher jederzeit zurück: Der Zahler kann sie dann nicht mehr bezahlen, und nichts bewegt sich. Eine Anforderung, die niemand bezahlt, läuft nach 24 Stunden ab. Eine als QR-Code gezeigte Anforderung kann einmal bezahlt werden; ein zweiter Scan wird abgelehnt, es wird also nichts doppelt bezahlt.'),
         if (phone)
           const HelpBlock.p('Eine Anforderung, die Sie bezahlt haben, ist umgekehrt: Die andere Seite hält Ihre signierte Zahlung und schließt sie ab. Stornieren kommt, wenn ihre Zeit abläuft, etwa einen Tag nach dem Bezahlen, oder früher, wenn die andere Seite sie zurückzieht. Stornieren gibt die Coins hier frei, aber die andere Seite könnte die Zahlung noch senden, bis diese Coins wieder ausgegeben sind.')

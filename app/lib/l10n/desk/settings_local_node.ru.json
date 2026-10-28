@@ -94,7 +94,7 @@
   "deskSetLndSourceCustom": "другая папка",
   "deskSetLndInUse": "Данные блокчейна используются",
   "deskSetLndNotInUse": "Папка не используется",
-  "deskSetLndReuseTitle": "На этом компьютере найдены данные блокчейна",
+  "deskSetLndReuseTitle": "Найдены данные блокчейна",
   "deskSetLndReuseDesc": "Другой узел Epic оставил здесь данные блокчейна. Локальный узел может читать эту папку вместо загрузки блокчейна.",
   "deskSetLndLooking": "Поиск…",
   "deskSetLndUseIt": "Использовать",

@@ -67,7 +67,7 @@
   "@deskSlotWaitingBlock": {
     "description": "After 'Payment on its way' while the payment is posted but in no block yet."
   },
-  "deskSlotRequests": "New requests",
+  "deskSlotRequests": "New invoices",
   "@deskSlotRequests": {
     "description": "Sidebar slot line: invoices that need an answer; the count follows after a dot."
   },

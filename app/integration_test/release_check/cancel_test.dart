@@ -175,8 +175,8 @@ void main() {
 
     // Activity › the send: the Cancel button, the quiet line and its link.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling frees your coins.', timeout: const Duration(seconds: 30));
-    record('the quiet line beside Cancel states the guarantee', hasText('Not posted yet: cancelling frees your coins.'), textMatching('cancelling frees'));
+    await waitText(tester, 'Not posted yet: cancelling frees the coins.', timeout: const Duration(seconds: 30));
+    record('the quiet line beside Cancel states the guarantee', hasText('Not posted yet: cancelling frees the coins.'), textMatching('cancelling frees'));
     record('…with a Help link', find.text('More in Help').evaluate().isNotEmpty, '${find.text('More in Help').evaluate().length} link(s)');
     // The Cancel row ends the detail panel, below the fold at this height: scroll to it.
     await tester.ensureVisible(find.text('More in Help').first);
@@ -196,7 +196,7 @@ void main() {
 
     // Back to the send and cancel it for real.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling frees your coins.', timeout: const Duration(seconds: 30));
+    await waitText(tester, 'Not posted yet: cancelling frees the coins.', timeout: const Duration(seconds: 30));
     await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel').first);
     await settle(tester, ms: 600);
     await tester.tap(find.widgetWithText(EButton, 'Cancel').first);

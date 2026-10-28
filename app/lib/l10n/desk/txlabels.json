@@ -51,7 +51,7 @@
   "@deskTxDetailsTitleEdit": {
     "description": "Title of the dialog when details exist already."
   },
-  "deskTxDetailsTip": "Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.",
+  "deskTxDetailsTip": "Only for payments found by a recheck.",
   "@deskTxDetailsTip": {
     "description": "Description under the details dialog title, and tooltip on the details button: what it is for."
   },
@@ -145,7 +145,7 @@
   "@deskHistConflictBackup": {
     "description": "Choice card in the Details differ dialog: the value in the backup file."
   },
-  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet's history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet's history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet’s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
   "@deskHistConflictLeadOldWallet": {
     "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
     "placeholders": {

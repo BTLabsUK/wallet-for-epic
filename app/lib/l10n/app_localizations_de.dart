@@ -123,7 +123,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txMiningReward => 'Mining-Belohnung';
 
   @override
-  String get txRestoredFunds => 'Wiederhergestelltes Guthaben';
+  String get txRestoredFunds => 'Auf der Chain gefunden';
 
   @override
   String txSpokenLabelled(String label, String row) {
@@ -289,7 +289,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String txSpokenRestoredFunds(String amount) {
-    return 'Wiederhergestelltes Guthaben: $amount';
+    return 'Auf der Chain gefunden: $amount';
   }
 
   @override
@@ -557,15 +557,15 @@ class AppLocalizationsDe extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Wartet seit $days Tagen. Die Epicbox löscht Zahlungen nach 7 Tagen, daher kann diese Zahlung nicht mehr abgeschlossen werden. Stornieren Sie sie, um den Betrag freizugeben, und senden Sie dann erneut.',
-      one: 'Wartet seit 1 Tag. Die Epicbox löscht Zahlungen nach 7 Tagen, daher kann diese Zahlung nicht mehr abgeschlossen werden. Stornieren Sie sie, um den Betrag freizugeben, und senden Sie dann erneut.',
+          'Wartet seit $days Tagen. Der Epicbox-Server löscht Zahlungen nach 7 Tagen, daher kann diese Zahlung nicht mehr abgeschlossen werden. Stornieren Sie sie, um die Coins freizugeben, und senden Sie dann erneut.',
+      one: 'Wartet seit 1 Tag. Der Epicbox-Server löscht Zahlungen nach 7 Tagen, daher kann diese Zahlung nicht mehr abgeschlossen werden. Stornieren Sie sie, um die Coins freizugeben, und senden Sie dann erneut.',
     );
     return '$_temp0';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'An die Epicbox des Empfängers gesendet. Die Zahlung wird abgeschlossen, sobald dessen Wallet online ist. Bis dahin bleibt der Betrag gesperrt, es sei denn, Sie stornieren.';
+      'Über Epicbox gesendet. Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers online ist. Bis dahin oder bis Sie stornieren bleibt der Betrag gesperrt.';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -577,7 +577,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsSenderPosted =>
-      'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
+      'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald das Netzwerk sie bestätigt.';
 
   @override
   String get txDetailsPublished =>
@@ -769,8 +769,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsBroadcastAgain => 'Erneut übertragen';
 
   @override
-  String get txDetailsBroadcastAgainDone =>
-      'Erneut übertragen. Die Zahlung sollte innerhalb weniger Minuten bestätigt werden.';
+  String get txDetailsBroadcastAgainDone => 'Erneut übertragen.';
 
   @override
   String get txDetailsRefusedBody =>
@@ -942,14 +941,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      'Durch Scannen der Blockchain gefunden. Angaben wie Absender und Gebühr werden nicht auf der Blockchain gespeichert. Importieren Sie Wallet-Daten, um sie wiederherzustellen.';
+      'Auf der Chain gefunden. Absender und Gebühr stehen nicht auf der Chain; importieren Sie Wallet-Daten, um sie zu ergänzen.';
 
   @override
   String get txDetailsSourceImported =>
       'Aus einer Wallet-Datendatei importiert. Diese Wallet hat keine eigenen Daten dazu, daher ist der Status möglicherweise veraltet.';
 
   @override
-  String get historyTitle => 'Verlauf';
+  String get historyTitle => 'Aktivität';
 
   @override
   String get historyLoading => 'Zahlungen werden geladen';
@@ -1631,7 +1630,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return '$service hat diese Rechnung zurückgezogen, nachdem Sie sie bezahlt haben. Wenn die Zahlung nicht bestätigt wird, stornieren Sie sie, um Ihr Guthaben freizugeben.';
+    return '$service hat diese Rechnung zurückgezogen, nachdem Sie sie bezahlt haben.';
   }
 
   @override
@@ -1742,7 +1741,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Die Wallet von $payer kann keine Anforderungen bezahlen und hat Ihre zurückgeschickt, daher wurde sie zurückgezogen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.';
+    return 'Die Wallet von $payer kann keine Anforderungen bezahlen und hat Ihre zurückgeschickt, daher wurde sie zurückgezogen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Transaktionsdatei.';
   }
 
   @override
@@ -1796,7 +1795,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'An Sie gesendete Zahlungen warten jetzt auf dem Epicbox-Server und kommen an, sobald die Wallet wieder verbunden ist.';
+      'An Sie gesendete Zahlungen warten auf dem Epicbox-Server und kommen an, sobald die Wallet wieder verbunden ist.';
 
   @override
   String get receiveShareCardHeadline => 'Bezahl mich mit Epic Cash';
@@ -1808,11 +1807,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveAddressCopied => 'Adresse kopiert';
 
   @override
-  String get receiveFileTitle => 'Per Zahlungsdatei empfangen';
+  String get receiveFileTitle => 'Per Transaktionsdatei empfangen';
 
   @override
   String get receiveFileBody =>
-      'Sie haben eine Zahlungsdatei bekommen? Öffnen Sie sie, oder kopieren Sie ihren Text und fügen Sie ihn hier ein.';
+      'Öffnen Sie die Transaktionsdatei oder fügen Sie ihren Text hier ein.';
 
   @override
   String get receiveFileOpen => 'Datei öffnen';
@@ -2423,7 +2422,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendMethodEpicbox => 'Epicbox-Adresse';
 
   @override
-  String get sendMethodFile => 'Zahlungsdatei';
+  String get sendMethodFile => 'Transaktionsdatei';
 
   @override
   String get sendFileHelpTooltip => 'So funktioniert das Bezahlen per Datei';
@@ -3448,7 +3447,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txStepSenderFinished => 'Absender hat abgeschlossen';
 
   @override
-  String get fileHelpTitle => 'So funktioniert eine Zahlungsdatei';
+  String get fileHelpTitle => 'So funktioniert eine Transaktionsdatei';
 
   @override
   String get fileHelpYou => 'Sie';
@@ -3457,7 +3456,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fileHelpFriend => 'Gegenüber';
 
   @override
-  String get fileHelpSendStep1 => 'Sie erstellen eine Zahlungsdatei.';
+  String get fileHelpSendStep1 => 'Sie erstellen eine Transaktionsdatei.';
 
   @override
   String get fileHelpSendStep2 =>
@@ -3465,15 +3464,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fileHelpSendStep3 =>
-      'Ihr Gegenüber öffnet sie in seiner Wallet und schickt Ihnen die signierte Antwort zurück.';
+      'Ihr Gegenüber öffnet sie in seiner Wallet und schickt Ihnen die Antwortdatei zurück.';
 
   @override
   String get fileHelpSendStep4 =>
-      'Sie öffnen die Antwort, und die Zahlung ist unterwegs.';
+      'Sie öffnen die Antwortdatei, und die Zahlung ist unterwegs.';
 
   @override
   String get fileHelpReceiveStep1 =>
-      'Ihr Gegenüber erstellt eine Zahlungsdatei für Sie.';
+      'Ihr Gegenüber erstellt eine Transaktionsdatei für Sie.';
 
   @override
   String get fileHelpReceiveStep2 =>
@@ -3481,11 +3480,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep3 =>
-      'Sie öffnen sie in Ihrer Wallet und schicken die signierte Antwort zurück.';
+      'Sie öffnen sie in Ihrer Wallet und schicken die Antwortdatei zurück.';
 
   @override
   String get fileHelpReceiveStep4 =>
-      'Ihr Gegenüber öffnet die Antwort, und die Zahlung ist auf dem Weg zu Ihnen.';
+      'Ihr Gegenüber öffnet die Antwortdatei, und die Zahlung ist auf dem Weg zu Ihnen.';
 
   @override
   String fileHelpStepOf(int step, int count) {
@@ -3552,7 +3551,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendRecent => 'Zuletzt';
 
   @override
-  String get sendUseFile => 'Keine Adresse? Mit Zahlungsdatei zahlen';
+  String get sendUseFile => 'Keine Adresse? Mit Transaktionsdatei zahlen';
 
   @override
   String sendTo(String who) {
@@ -3570,13 +3569,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get sendAddNote => 'Notiz hinzufügen';
+  String get sendAddNote => 'Nachricht hinzufügen';
 
   @override
-  String get sendNoteLabel => 'Notiz';
+  String get sendNoteLabel => 'Nachricht';
 
   @override
-  String get sendNoteHelper => 'Der Empfänger sieht sie auch.';
+  String get sendNoteHelper => 'Der Empfänger sieht sie.';
 
   @override
   String get sendNetworkFee => 'Netzwerkgebühr';
@@ -3637,7 +3636,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return 'Die Wallet der Gegenseite schließt sie ab, sobald sie geöffnet wird. Bis dahin bleiben $amount zurückgehalten.';
+    return 'Die Wallet der Gegenseite signiert sie, sobald sie geöffnet wird. Bis dahin bleiben $amount gesperrt.';
   }
 
   @override
@@ -3650,28 +3649,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNoCoins => 'Noch keine Coins zum Senden.';
 
   @override
-  String get sendFileTitle => 'Mit Datei zahlen';
+  String get sendFileTitle => 'Direkt · Dateiübertragung';
 
   @override
-  String get sendMakeFile => 'Zahlungsdatei erstellen';
+  String get sendMakeFile => 'Transaktionsdatei erstellen';
 
   @override
   String get sendFileMade => 'Datei erstellt';
 
   @override
   String sendFileOnHold(String amount) {
-    return '$amount zurückgehalten';
+    return '$amount gesperrt';
   }
 
   @override
-  String get sendFileWaitingReply => 'Warten auf die Antwort';
+  String get sendFileWaitingReply => 'Warten auf die Antwortdatei';
 
   @override
   String get sendFileShareHint =>
-      'Senden Sie diese Datei an die Gegenseite. Öffnen Sie dann die Antwort.';
+      'Senden Sie diese Datei an die Gegenseite. Öffnen Sie dann die Antwortdatei.';
 
   @override
-  String get sendOpenReply => 'Antwort öffnen';
+  String get sendOpenReply => 'Antwortdatei öffnen';
 
   @override
   String get handshakePayment => 'Zahlung';
@@ -3690,7 +3689,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Ihre Wallet sendet die Zahlung an den Epicbox-Server. Ihre Coins werden zurückgehalten.';
+      'Ihre Wallet sendet die Zahlung an den Epicbox-Server. Die Coins werden gesperrt.';
 
   @override
   String get handshakePay2 =>
@@ -3712,7 +3711,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Server leitet sie weiter. Die Gegenseite stimmt zu, ihre Wallet fügt die Coins hinzu und signiert.';
 
   @override
-  String get handshakeRelay => 'Server';
+  String get handshakeRelay => 'Epicbox';
 
   @override
   String get handshakeFile => 'Dateiübertragung';
@@ -3726,25 +3725,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakeFile1 =>
-      'Ihre Wallet speichert eine Zahlungsdatei. Sie senden sie selbst an die Gegenseite.';
+      'Ihre Wallet speichert eine Transaktionsdatei. Sie senden sie selbst an die Gegenseite.';
 
   @override
   String get handshakeFile2 =>
-      'Die Gegenseite öffnet sie. Ihre Wallet ergänzt ihren Teil, signiert und speichert eine Antwort.';
+      'Die Gegenseite öffnet sie. Ihre Wallet ergänzt ihren Teil, signiert und speichert eine Antwortdatei.';
 
   @override
   String get handshakeFile3 =>
       'Die Gegenseite schickt Ihnen die Antwortdatei zurück.';
 
   @override
-  String get handshakeFile4 => 'Sie öffnen die Antwort in Ihrer Wallet.';
+  String get handshakeFile4 => 'Sie öffnen die Antwortdatei in Ihrer Wallet.';
 
   @override
   String get handshakePrevious => 'Vorheriger Schritt';
 
   @override
   String get handshakeLink1 =>
-      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet oder Tor. Ihre Coins werden zurückgehalten.';
+      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet oder Tor. Die Coins werden gesperrt.';
 
   @override
   String get handshakeLink2 =>
@@ -3791,16 +3790,16 @@ class AppLocalizationsDe extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie abgelehnt. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens $days Tage.',
       one:
-          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie abgelehnt. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
 
   @override
   String sendRelayRefusedLost(String relay) {
-    return 'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+    return 'Der Epicbox-Server der Gegenseite ($relay) hat sie abgelehnt. Prüfen Sie die Wallet, bevor Sie erneut senden.';
   }
 
   @override
@@ -3829,7 +3828,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount zurückgehalten';
+    return '$amount gesperrt';
   }
 
   @override
@@ -3992,8 +3991,8 @@ class AppLocalizationsDe extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
-      one: 'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
@@ -4134,7 +4133,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Geben Sie die PIN ein, um eine Zahlungsdatei über $amount zu erstellen.';
+    return 'Geben Sie die PIN ein, um eine Transaktionsdatei über $amount zu erstellen.';
   }
 
   @override
@@ -4523,7 +4522,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactsCopied => 'Adresse kopiert.';
 
   @override
-  String get invoicesNewRequest => 'Neue Anforderung';
+  String get invoicesNewRequest => 'Neue Rechnung';
 
   @override
   String get invoicesSegmentSent => 'Gesendet';
@@ -5094,8 +5093,8 @@ class AppLocalizationsDe extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
-      one: 'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt gesperrt, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
@@ -5427,7 +5426,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'An das Postfach von $payer zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.';
+    return 'An den Epicbox-Server von $payer zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.';
   }
 
   @override
@@ -5508,7 +5507,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvPayerWithdrawnText =>
-      'Die Zahlung erreicht die Blockchain vielleicht nie. Stornieren Sie sie, um Ihr Guthaben freizugeben.';
+      'Die Zahlung erreicht die Chain vielleicht nie. Stornieren Sie sie, um die Coins freizugeben.';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
@@ -5517,7 +5516,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvPayerPastTtlText =>
-      'Ihre Frist ist abgelaufen und das Netzwerk hat sie nicht gesehen. Stornieren Sie sie, um Ihr Guthaben freizugeben.';
+      'Ihre Frist ist abgelaufen und das Netzwerk hat sie nicht gesehen. Stornieren Sie sie, um die Coins freizugeben.';
 
   @override
   String get deskInvPayerCancelPayment => 'Zahlung stornieren';
@@ -6169,7 +6168,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskErrTestNet =>
-      'Wallet im Testnetzwerk. Nur Mainnet-Wallets lassen sich importieren.';
+      'Floonet-Wallet: Nur Mainnet-Wallets lassen sich importieren.';
 
   @override
   String get deskErrWalletInApp => 'Diese Wallet ist bereits in der App.';
@@ -7424,7 +7423,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendAmountSem => 'Betrag in EPIC';
 
   @override
-  String get deskSendAllButton => 'Alles';
+  String get deskSendAllButton => 'Max.';
 
   @override
   String get deskSendConfirmingHidden =>
@@ -8902,7 +8901,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bei der Wiederherstellung dieser Wallet in der Blockchain gefunden. Der Absender ist nicht gespeichert.';
 
   @override
-  String get deskTxFoundRescanLabel => 'Per Scan gefunden';
+  String get deskTxFoundRescanLabel => 'Bei Neuprüfung gefunden';
 
   @override
   String get deskTxFoundRescanLine => 'Beim Neuprüfen des Guthabens gefunden';
@@ -9375,7 +9374,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wallet und Wiederherstellungsphrase werden erstellt';
 
   @override
-  String get deskOnbCreateStageSave => 'Konto wird gespeichert';
+  String get deskOnbCreateStageSave => 'Wallet wird gespeichert';
 
   @override
   String get deskOnbCreateNotCreated => 'Wallet nicht erstellt';
@@ -9394,7 +9393,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbCreateDiskFull =>
-      'Das Konto konnte nicht gespeichert werden: Der Datenträger ist voll.';
+      'Wallet nicht gespeichert: Der Datenträger ist voll. Geben Sie Speicherplatz frei und versuchen Sie es erneut.';
 
   @override
   String get deskOnbCreateWait =>
@@ -11175,7 +11174,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase), im $network. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.';
+    return 'Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase) im $network. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.';
   }
 
   @override
@@ -11295,11 +11294,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetBackupNotNow => 'Nicht jetzt';
 
   @override
-  String get deskSetDlgChainTitle => 'Vorhandene Blockchain-Daten gefunden';
+  String get deskSetDlgChainTitle => 'Chain-Daten gefunden';
 
   @override
   String get deskSetDlgChainDesc =>
-      'Auf diesem Computer liegen bereits Epic-Blockchain-Daten, die der lokale Node nutzen kann.';
+      'Der lokale Node kann die Epic-Chain-Daten nutzen, die bereits auf diesem Computer liegen, statt sie herunterzuladen.';
 
   @override
   String get deskSetDlgChainFolder => 'Ordner';
@@ -11322,8 +11321,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein anderes Epic-Programm nutzt diesen Ordner. Schließen Sie es und wählen Sie dann erneut den lokalen Node, um diese Daten zu nutzen.';
 
   @override
-  String get deskSetDlgChainUseIt =>
-      'Nutzen? Das erspart Download und Synchronisierung der ganzen Blockchain.';
+  String get deskSetDlgChainUseIt => 'Nutzen?';
 
   @override
   String get deskSetDlgChainOlderWallet =>
@@ -11919,7 +11917,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetLndNotInUse => 'Der Ordner wird nicht genutzt';
 
   @override
-  String get deskSetLndReuseTitle => 'Chain-Daten auf diesem Computer gefunden';
+  String get deskSetLndReuseTitle => 'Chain-Daten gefunden';
 
   @override
   String get deskSetLndReuseDesc =>
@@ -12687,7 +12685,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetRescanStoppedLine => 'Scan gestoppt';
 
   @override
-  String get deskSetRescanLog => 'Scan-Protokoll';
+  String get deskSetRescanLog => 'Protokoll der Neuprüfung';
 
   @override
   String get deskSetRescanText =>
@@ -12730,7 +12728,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetRescanNotRead => 'Nicht gelesen';
 
   @override
-  String get deskSetRescanFinished => 'Scan beendet';
+  String get deskSetRescanFinished => 'Neuprüfung beendet';
 
   @override
   String get deskSetRescanUpToDate => 'Das Guthaben ist aktuell.';
@@ -13267,7 +13265,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsNotDeliveredBody =>
-      'Diese Zahlung hat die Epicbox noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+      'Diese Zahlung hat den Epicbox-Server noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Die Coins bleiben gesperrt, bis sie erneut gesendet oder storniert wird.';
 
   @override
   String get txDetailsSendAgainDone =>
@@ -13316,7 +13314,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxNowUndelivered =>
-      'Nicht zugestellt. Die Zahlung hat den Epicbox-Server nicht erreicht, der Empfänger hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+      'Nicht zugestellt. Die Zahlung hat den Epicbox-Server nicht erreicht, der Empfänger hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um die Coins freizugeben.';
 
   @override
   String get deskTxStatusUndelivered => 'Nicht zugestellt';
@@ -13457,7 +13455,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxDetailsTip =>
-      'Nur für Zahlungen, die ein Scan gefunden hat. Wird in der Aktivität, in den Details und in Exporten als von Ihnen hinzugefügt angezeigt. Beträge, Daten und Bestätigungen ändern sich nicht.';
+      'Nur für Zahlungen, die eine Neuprüfung gefunden hat.';
 
   @override
   String get deskTxDetailsFrom => 'Von';
@@ -13930,7 +13928,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsRescanBodyPlain =>
-      'Die Wallet sucht ab dem ersten Block erneut nach ihrem Guthaben. Das kann lange dauern.';
+      'Die Wallet sucht ab dem ersten Block erneut nach ihrem Guthaben.';
 
   @override
   String get slNodeField => 'Node-Adresse';
@@ -14023,7 +14021,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'Ein Wechsel ändert Ihre Adresse; Absender brauchen die neue.';
+      'Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.';
 
   @override
   String get slNotAnAddress =>
@@ -14356,7 +14354,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveEpicboxOffText =>
-      'Zahlungen von Absendern warten auf dem Server, bis Epicbox wieder an ist.';
+      'Zahlungen warten auf dem Epicbox-Server, bis Epicbox wieder an ist.';
 
   @override
   String get receiveNoMethods => 'Keine Empfangsmethode ist an';
@@ -14635,7 +14633,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairLead =>
-      'Koppeln Sie Ihre Wallet einmal mit jemandem. Zahlungsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt: Nur diese beiden können sie lesen.';
+      'Koppeln Sie Ihre Wallet einmal mit jemandem. Transaktionsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt: Nur diese beiden können sie lesen.';
 
   @override
   String get pairInPerson => 'Persönlich';
@@ -14666,7 +14664,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairNotPairedHint =>
-      'Koppeln, um Zahlungsdateien zu versiegeln und Rechnungen zu erlauben.';
+      'Koppeln, um Transaktionsdateien zu versiegeln und Rechnungen zu erlauben.';
 
   @override
   String get pairInPersonTitle => 'Persönlich koppeln';
@@ -14810,7 +14808,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsPairHint =>
-      'Koppeln Sie mit einer anderen Wallet, um Zahlungsdateien und Rechnungen zwischen beiden zu versiegeln.';
+      'Koppeln Sie mit einer anderen Wallet, um Transaktionsdateien und Rechnungen zwischen beiden zu versiegeln.';
 
   @override
   String get contactsPairLearn => 'So funktioniert es';
@@ -14827,7 +14825,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairWaysLead =>
-      'Einmal koppeln. Danach sind Zahlungsdateien und Rechnungen zwischen beiden Wallets versiegelt.';
+      'Einmal koppeln. Danach sind Transaktionsdateien und Rechnungen zwischen beiden Wallets versiegelt.';
 
   @override
   String get pairWayWords => 'Wörter';
@@ -14837,7 +14835,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairWayWordsHint =>
-      'Lesen Sie fünf Wörter vor. Beide Wallets müssen online sein; der Rest geschieht von selbst.';
+      'Lesen Sie die fünf Kopplungswörter vor. Beide Wallets müssen online sein.';
 
   @override
   String get pairWayWordsInfo =>
@@ -15086,7 +15084,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'Nach dem Koppeln sind Zahlungsdateien und Rechnungen zwischen Ihnen und $name versiegelt. Als Nächstes verifizieren Sie gemeinsam.';
+    return 'Nach dem Koppeln sind Transaktionsdateien und Rechnungen zwischen Ihnen und $name versiegelt. Als Nächstes verifizieren Sie gemeinsam.';
   }
 
   @override
@@ -15248,11 +15246,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Hat auf dieselbe Einladung geantwortet · nicht gespeichert';
 
   @override
-  String get sasTitle => 'Wörter prüfen';
+  String get sasTitle => 'Prüfwörter vergleichen';
 
   @override
   String sasLead(String name) {
-    return 'Die Wallet von $name zeigt dieselben vier. Vergleichen Sie sie am Telefon oder persönlich.';
+    return 'Die Wallet von $name zeigt dieselben vier Prüfwörter. Vergleichen Sie sie am Telefon oder persönlich.';
   }
 
   @override
@@ -15284,7 +15282,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Zahlungsdateien und Rechnungen mit $name sind ab jetzt versiegelt.';
+    return 'Transaktionsdateien und Rechnungen mit $name sind ab jetzt versiegelt.';
   }
 
   @override
@@ -15304,7 +15302,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sasSkippedBody(String name) {
-    return 'Zahlungsdateien mit $name sind versiegelt. Prüfen Sie die Wörter auf der Kontaktseite von $name, sobald es geht; Rechnungen warten bis dahin.';
+    return 'Transaktionsdateien mit $name sind versiegelt. Prüfen Sie die Wörter auf der Kontaktseite von $name, sobald es geht; Rechnungen warten bis dahin.';
   }
 
   @override
@@ -15372,7 +15370,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String contactSealInfoMore(String name) {
-    return 'Ausgeschaltet ist eine Zahlungsdatei an $name unversiegelt: Wer die Datei bekommt, kann sie lesen. Schalten Sie es nur aus, wenn die Wallet von $name keine versiegelten Dateien öffnen kann.';
+    return 'Ausgeschaltet ist eine Transaktionsdatei an $name unversiegelt: Wer die Datei bekommt, kann sie lesen. Schalten Sie es nur aus, wenn die Wallet von $name keine versiegelten Dateien öffnen kann.';
   }
 
   @override
@@ -15405,7 +15403,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Der Server von $name antwortet nicht';
+    return 'Der Epicbox-Server von $name antwortet nicht';
   }
 
   @override
@@ -15619,7 +15617,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get invoicesEmptyAction => 'Gekoppelte Kontakte';
 
   @override
-  String get reqTitle => 'Anforderung prüfen';
+  String get reqTitle => 'Rechnung prüfen';
 
   @override
   String reqRequests(String name) {
@@ -15652,7 +15650,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String reqTlDelivered(String name) {
-    return 'An den Server von $name zugestellt';
+    return 'An den Epicbox-Server von $name zugestellt';
   }
 
   @override
@@ -15703,7 +15701,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reqUnreachableBody =>
-      'Ihr Geld ist sicher; es wird freigegeben, wenn nicht veröffentlicht wird. Die Zustellung wird weiter versucht.';
+      'Das Geld wird freigegeben, wenn nicht veröffentlicht wird. Die Zustellung wird weiter versucht.';
 
   @override
   String get reqRelayRetrying => 'Server antwortet nicht · neuer Versuch';
@@ -15750,7 +15748,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nichts zu tun. Die Börse veröffentlicht; die Bestätigungen folgen.';
 
   @override
-  String get reqNewTitle => 'Neue Anforderung';
+  String get reqNewTitle => 'Neue Rechnung';
 
   @override
   String get reqNewLead =>
@@ -15779,11 +15777,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reqNewSaveFile => 'Als Datei speichern';
 
   @override
-  String get reqNewSend => 'Anforderung senden';
+  String get reqNewSend => 'Rechnung senden';
 
   @override
   String sendViaMailbox(String name) {
-    return 'Über das Postfach von $name senden';
+    return 'Über den Epicbox-Server von $name senden';
   }
 
   @override
@@ -15909,7 +15907,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Der Server von $name antwortet nicht. Wird erneut versucht.';
+    return 'Der Epicbox-Server von $name antwortet nicht. Wird erneut versucht.';
   }
 
   @override
@@ -16088,7 +16086,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeOutboxStuck(String name) {
-    return '$name ist noch nicht erreichbar. Ihr Geld ist sicher.';
+    return '$name ist noch nicht erreichbar. Wird erneut versucht.';
   }
 
   @override
@@ -16172,14 +16170,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Einmal koppeln; Zahlungsdateien und Rechnungen mit diesem Kontakt sind versiegelt.';
+      'Einmal koppeln; Transaktionsdateien und Rechnungen mit diesem Kontakt sind versiegelt.';
 
   @override
   String get helpPairWhatTitle => 'Was Kopplung ist';
 
   @override
   String get helpPairWhatShort =>
-      'Koppeln Sie einmal mit jemandem; danach sind Zahlungsdateien und Rechnungen zwischen den beiden Wallets versiegelt.';
+      'Koppeln Sie einmal mit jemandem; danach sind Transaktionsdateien und Rechnungen zwischen den beiden Wallets versiegelt.';
 
   @override
   String get helpPairWhatP1 =>
@@ -16187,7 +16185,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'Nach dem Koppeln ist eine Zahlungsdatei an diesen Kontakt **versiegelt**: Nur dessen Wallet kann sie öffnen, und unterwegs kann sie weder verändert noch gefälscht werden. Zahlungen über Epicbox zwischen Personen funktionieren wie bisher.';
+      'Nach dem Koppeln ist eine Transaktionsdatei an diesen Kontakt **versiegelt**: Nur dessen Wallet kann sie öffnen, und unterwegs kann sie weder verändert noch gefälscht werden. Zahlungen über Epicbox zwischen Personen funktionieren wie bisher.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -16203,7 +16201,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Kopplung braucht Epic Cash auf beiden Seiten. Ein nicht gekoppelter Kontakt bekommt weiterhin gewöhnliche Zahlungsdateien und Epicbox-Zahlungen.';
+      'Kopplung braucht Epic Cash auf beiden Seiten. Ein nicht gekoppelter Kontakt bekommt weiterhin gewöhnliche Transaktionsdateien und Epicbox-Zahlungen.';
 
   @override
   String get helpPairWhyTitle => 'Warum verifizieren';
@@ -16218,7 +16216,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhyP2 =>
-      'Vergleichen Sie sie am Telefon oder persönlich und tippen Sie dann **Sie stimmen überein**. Der Kontakt wird **Verifiziert**. **Vorerst überspringen** lässt ihn bei **Gekoppelt, nicht verifiziert**: Zahlungsdateien sind trotzdem versiegelt, aber der Kontakt kann erst Rechnungen senden, wenn die Wörter geprüft sind.';
+      'Vergleichen Sie sie am Telefon oder persönlich und tippen Sie dann **Sie stimmen überein**. Der Kontakt wird **Verifiziert**. **Vorerst überspringen** lässt ihn bei **Gekoppelt, nicht verifiziert**: Transaktionsdateien sind trotzdem versiegelt, aber der Kontakt kann erst Rechnungen senden, wenn die Wörter geprüft sind.';
 
   @override
   String get helpPairWhyP3 =>
@@ -16520,7 +16518,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get expPairingHint =>
-      'Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Zahlungsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.';
+      'Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Transaktionsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.';
 
   @override
   String get expInvoices => 'Rechnungen';
@@ -16592,7 +16590,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String txStepSentMailbox(String name) {
-    return 'Über das Postfach von $name gesendet';
+    return 'Über den Epicbox-Server von $name gesendet';
   }
 
   @override
@@ -16602,7 +16600,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String txStepCollecting(String name) {
-    return 'Postfach von $name wird geprüft';
+    return 'Epicbox-Server von $name wird geprüft';
   }
 
   @override
@@ -16921,11 +16919,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get reqQrNew => 'Neue Anforderung';
+  String get reqQrNew => 'Neue Rechnung';
 
   @override
   String get reqQrAlreadyPaid =>
-      'Diese Anforderung ist bereits bezahlt. Von diesem Smartphone wurde nichts abgebucht: Die Zahlung bleibt dort zurückgehalten, bis sie in der Aktivität storniert wird oder nach einem Tag abläuft.';
+      'Diese Anforderung ist bereits bezahlt. Von diesem Smartphone wurde nichts abgebucht: Die Zahlung bleibt dort gesperrt, bis sie in der Aktivität storniert wird oder nach einem Tag abläuft.';
 
   @override
   String get reqFromQrTitle => 'Zahlungsanforderung aus einem QR-Code';
@@ -17170,7 +17168,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSlotWaitingBlock => 'wartet auf einen Block';
 
   @override
-  String get deskSlotRequests => 'Neue Anfragen';
+  String get deskSlotRequests => 'Neue Rechnungen';
 
   @override
   String get deskSlotNodeStarting => 'Lokaler Node startet';
@@ -17303,7 +17301,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelNoteSendWaiting =>
-      'Noch nicht ins Netzwerk gesendet: Stornieren gibt Ihre Coins frei.';
+      'Noch nicht ins Netzwerk gestellt: Stornieren gibt die Coins frei.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17311,7 +17309,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelNoteDirectFailed =>
-      'Beim Empfänger ist nichts angekommen: Stornieren gibt Ihre Coins frei.';
+      'Beim Empfänger ist nichts angekommen: Stornieren gibt die Coins frei.';
 
   @override
   String get cancelNoteRequestPaid =>
@@ -17351,11 +17349,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskOwnYourNode => 'Ihr Node';
+  String get deskOwnYourNode => 'Eigener Node';
 
   @override
   String deskOwnLabel(String where) {
-    return 'Ihr Node · $where';
+    return 'Eigener Node · $where';
   }
 
   @override
@@ -17495,11 +17493,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOwnDlgAdd => 'Hinzufügen';
 
   @override
-  String get deskOwnDownTitle => 'Ihr Node antwortet nicht';
+  String get deskOwnDownTitle => 'Eigener Node antwortet nicht';
 
   @override
   String deskOwnDownText(String host) {
-    return 'Die Wallet nutzt solange $host und wechselt zurück, sobald Ihr Node zweimal nacheinander antwortet.';
+    return 'Die Wallet nutzt solange $host und wechselt zurück, sobald dieser Node zweimal nacheinander antwortet.';
   }
 
   @override
@@ -17522,24 +17520,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOwnSyncTitle =>
-      'Öffentlichen Node nutzen, bis Ihr Node synchronisiert ist?';
+      'Öffentlichen Node nutzen, bis dieser Node synchronisiert ist?';
 
   @override
   String deskOwnSyncText(String host) {
-    return 'Über einen Node, der synchronisiert, kann die Wallet weder senden noch empfangen. $host kann einspringen; die Wallet wechselt zurück, sobald Ihr Node Transaktionen annimmt.';
+    return 'Über einen Node, der synchronisiert, kann die Wallet weder senden noch empfangen. $host kann einspringen; die Wallet wechselt zurück, sobald dieser Node Transaktionen annimmt.';
   }
 
   @override
-  String get deskOwnWaitForMine => 'Auf meinen Node warten';
+  String get deskOwnWaitForMine => 'Auf diesen Node warten';
 
   @override
   String deskOwnSyncUsingTitle(String host) {
-    return '$host bis zur Synchronisierung Ihres Nodes';
+    return '$host bis zur Synchronisierung dieses Nodes';
   }
 
   @override
   String get deskOwnSyncUsingText =>
-      'Die Wallet wechselt zurück, sobald Ihr Node Transaktionen annimmt.';
+      'Die Wallet wechselt zurück, sobald dieser Node Transaktionen annimmt.';
 
   @override
   String get deskOwnMine => 'Das ist mein Node';
@@ -17552,7 +17550,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOwnListNote => 'Ihre eigenen Nodes werden direkt gefragt.';
 
   @override
-  String get deskOwnSlotSyncing => 'Ihr Node synchronisiert';
+  String get deskOwnSlotSyncing => 'Eigener Node synchronisiert';
 
   @override
   String ownNodeLabel(String where) {
@@ -17624,7 +17622,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskUpdManual =>
-      'Diese Kopie der App kann Updates nicht selbst installieren.';
+      'Diese Kopie kann Updates nicht selbst installieren.';
 
   @override
   String get deskUpdDownloadInstall => 'Herunterladen und installieren';
@@ -17661,7 +17659,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakeLink1NoTor =>
-      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet. Ihre Coins werden zurückgehalten.';
+      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet. Die Coins werden gesperrt.';
 
   @override
   String get advNetworkHintNoTor =>
