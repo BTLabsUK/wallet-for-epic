@@ -686,7 +686,7 @@ class _PairingBlock extends ConsumerWidget {
               key: contactPageCheckKey,
               style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40)),
               onPressed: onCheck,
-              child: Text(l.sasTitle),
+              child: Text(l.noticeCheckWords),
             ),
         ],
       ),
@@ -717,7 +717,7 @@ class _PairingBlock extends ConsumerWidget {
             body: l.contactKeysChangedBody,
             stretchActions: true,
             actions: [
-              FilledButton(onPressed: busy ? null : onCheck, child: Text(l.sasTitle)),
+              FilledButton(onPressed: busy ? null : onCheck, child: Text(l.noticeCheckWords)),
               OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.keepOld), child: Text(l.contactKeepOldKeys)),
               OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.useNew), child: Text(l.contactUseNewKeys)),
             ],

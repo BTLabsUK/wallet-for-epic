@@ -319,7 +319,7 @@ void main() {
       await _enter(tester, 'Epic address', _cliAddress);
       await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       await _enter(tester, 'Amount (EPIC)', '0.3');
-      await _tapText(tester, 'Add a note');
+      await _tapText(tester, 'Add a message');
       await _enter(tester, 'Note', _note);
       await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       final sendButton = find.textContaining(RegExp(r'^Send 0\.3'));
@@ -328,7 +328,7 @@ void main() {
       await _pumpUntil(
         tester,
         find.textContaining(
-          RegExp(r'^(Waiting for their wallet|Sent to the network)'),
+          RegExp(r'^(Waiting for their wallet|Posted to the network)'),
         ),
         timeout: const Duration(minutes: 1),
       );

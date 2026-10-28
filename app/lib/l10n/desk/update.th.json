@@ -15,7 +15,7 @@
   "deskUpdErrStopped": "การดาวน์โหลดหยุดลง",
   "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้",
   "deskUpdUnfinished": "อัปเดตไม่เสร็จ ลองอีกครั้ง",
-  "deskUpdManual": "แอปชุดนี้ติดตั้งอัปเดตเองไม่ได้",
+  "deskUpdManual": "ชุดนี้ติดตั้งอัปเดตเองไม่ได้",
   "deskUpdDownloadInstall": "ดาวน์โหลดและติดตั้ง",
   "deskUpdReadyTitle": "Epic Cash {version} พร้อมแล้ว",
   "deskUpdReadyBody": "รีสตาร์ทตอนนี้เพื่ออัปเดต กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่",

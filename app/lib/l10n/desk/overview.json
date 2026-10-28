@@ -41,7 +41,7 @@
   "@deskOvHide": {
     "description": "Ghost button in the incompatible-node notice: dismiss it. Short."
   },
-  "deskOvCantReachNode": "Can’t reach the node at {url}",
+  "deskOvCantReachNode": "Cannot reach the node at {url}",
   "@deskOvCantReachNode": {
     "description": "Title of a red notice on Overview: the node does not answer.",
     "placeholders": {

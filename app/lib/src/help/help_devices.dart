@@ -27,7 +27,7 @@ List<HelpTopic> _en(bool phone) {
       [
         const HelpBlock.p('The recovery phrase opens the same wallet on any device. The chain gives each device the balance and every confirmed payment, so the money always adds up.'),
         const HelpBlock.p('What the chain does not show is what only the device that made a payment knows: who was paid, the message, and a payment still under way. Without a link, the other device shows such a payment as **Sent from another wallet**, with the amount only, once it is confirmed.'),
-        const HelpBlock.p('Linking adds that. Each device tells the others when it starts a payment and how it ends. The coins it spends are held on the others until the chain shows them spent, so two devices do not pick the same coins, and the payment shows as **Sent from** and the device\'s name, with its details.'),
+        const HelpBlock.p('Linking adds that. Each device tells the others when it starts a payment and how it ends. The coins it spends are held on the others until the chain shows them spent, so two devices do not pick the same coins, and the payment shows as **Sent from** and the device’s name, with its details.'),
         HelpBlock.ol([
           'Open $place on both devices and choose **Link a device**.',
           'One device shows a code; the other scans it or pastes it.',
@@ -54,10 +54,10 @@ List<HelpTopic> _en(bool phone) {
     HelpTopic(
       'safety',
       'Linked devices and a lost device',
-      'Remove stops sync with the device. It does not protect the money: move the funds to a new recovery phrase.',
+      'Remove stops sync with the device. It does not protect the money: move the coins to a new recovery phrase.',
       [
-        HelpBlock.p('If a linked device is lost, sold or given away, open $place, choose it and choose **Remove**. It stops getting this wallet\'s notices, the remaining devices make fresh keys between them, and coins it held are released.'),
-        const HelpBlock.p('**Removing a device does not protect the money.** The device still holds the recovery phrase, and a device with the phrase can always spend. If it may be in someone else\'s hands, make a new wallet with a new recovery phrase and send all the funds to it.'),
+        HelpBlock.p('If a linked device is lost, sold or given away, open $place, choose it and choose **Remove**. It stops getting this wallet’s notices, the remaining devices make fresh keys between them, and coins it held are released.'),
+        const HelpBlock.p('**Removing a device does not protect the money.** The device still holds the recovery phrase, and a device with the phrase can always spend. If it may be in someone else’s hands, make a new wallet with a new recovery phrase and send all the coins to it.'),
         const HelpBlock.p('A device restored from the phrase is not linked: link it again.'),
       ],
       id: HelpId.lostDevice,
@@ -67,11 +67,11 @@ List<HelpTopic> _en(bool phone) {
       'Coins held by another device',
       'A linked device is spending these coins. They come back on their own when its payment ends; Release frees them by hand.',
       [
-        const HelpBlock.p('When a linked device starts a payment, the coins it spends are held on this device: they are left out of sends, Send all and the fee estimates, Outputs shows them as **Held by** that device\'s payment, and Send says how much is held.'),
+        const HelpBlock.p('When a linked device starts a payment, the coins it spends are held on this device: they are left out of sends, Send all and the fee estimates, Outputs shows them as **Held by** that device’s payment, and Send says how much is held.'),
         const HelpBlock.ul([
           'They become the payment **Sent from** that device once the chain shows them spent.',
           'They come back when that device cancels the payment, or it fails or expires.',
-          'With no word from that device they come back on their own: 10 blocks after the payment\'s time ran out, 1,440 blocks (about a day) after it was posted without reaching the chain, after 7 days at the latest, or when the device is removed.',
+          'With no word from that device they come back on their own: 10 blocks after the payment’s time ran out, 1,440 blocks (about a day) after it was posted without reaching the chain, after 7 days at the latest, or when the device is removed.',
         ]),
         HelpBlock.p('**Release** beside the held coins in $place frees them at once, on this device only. If the other device still finishes its payment, a payment made here with the same coins fails; nothing is lost, as the chain takes only one.'),
       ],

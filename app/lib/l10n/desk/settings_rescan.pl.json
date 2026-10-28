@@ -1,7 +1,7 @@
 {
   "deskSetRescanComplete": "Skanowanie zakończone",
   "deskSetRescanStoppedLine": "Skanowanie zatrzymane",
-  "deskSetRescanLog": "Log skanowania",
+  "deskSetRescanLog": "Log sprawdzania salda",
   "deskSetRescanText": "Ponownie czyta łańcuch i odbudowuje saldo ze znalezionych wyjść. Użyj tego, gdy saldo wygląda na błędne, po przywróceniu portfela albo gdy wyjścia zostają zablokowane po nieudanej wysyłce. W tym czasie portfela można dalej używać.",
   "deskSetRescanStartAgain": "Zacznij od nowa",
   "deskSetRescanDeleteUnconfirmed": "Usuń niepotwierdzone",
@@ -13,7 +13,7 @@
   "deskSetRescanNoneFound": "Nie znaleziono niepotwierdzonych transakcji.",
   "deskSetRescanCancelled": "Niepotwierdzone transakcje zostały anulowane, a ich wyjścia odblokowane.",
   "deskSetRescanNotRead": "Nie odczytano",
-  "deskSetRescanFinished": "Skanowanie zakończone",
+  "deskSetRescanFinished": "Sprawdzanie salda zakończone",
   "deskSetRescanUpToDate": "Saldo jest aktualne.",
   "deskSetRescanResumed": "Skanowanie było kontynuowane od miejsca zatrzymania; liczby dotyczą tej części.",
   "deskSetRescanStoppedEarly": "Zatrzymano przed końcem. Saldo odczytano ponownie; zacznij od nowa, aby kontynuować.",

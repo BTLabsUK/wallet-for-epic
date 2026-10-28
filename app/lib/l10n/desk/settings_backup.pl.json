@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "Przywraca",
   "deskSetBackupBringsBackValue": "Szczegóły i notatki płatności, starsze płatności, których brakuje na liście, kontakty, faktury i ustawienia",
   "deskSetBackupNeeds": "Wymaga",
-  "deskSetBackupNeedsValue": "Plik z tego portfela (ta sama fraza odzyskiwania), w sieci {network}. Najpierw przywróć portfel z jego frazy.",
+  "deskSetBackupNeedsValue": "Plik z tego portfela (ta sama fraza odzyskiwania) w sieci {network}. Najpierw przywróć portfel z jego frazy.",
   "deskSetBackupNever": "Nigdy",
   "deskSetBackupNeverValue": "Nie usuwa ani nie zmienia płatności, która tu jest",
   "deskSetBackupChooseFile": "Wybierz plik…",

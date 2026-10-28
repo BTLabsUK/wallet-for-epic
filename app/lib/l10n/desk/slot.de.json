@@ -14,7 +14,7 @@
   "deskSlotPaymentsMoving": "Zahlungen bestätigen",
   "deskSlotOf": "{done} von {needed}",
   "deskSlotWaitingBlock": "wartet auf einen Block",
-  "deskSlotRequests": "Neue Anfragen",
+  "deskSlotRequests": "Neue Rechnungen",
   "deskSlotNodeStarting": "Lokaler Node startet",
   "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
   "deskSlotOpenAdvanced": "Erweiterte Einstellungen öffnen",

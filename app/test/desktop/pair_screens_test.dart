@@ -453,7 +453,7 @@ void main() {
     expect(inRow(find.text(_l.trustKeysChanged)), findsOneWidget);
     expect(inRow(find.textContaining(_l.contactKeysChangedStatus)), findsOneWidget);
     expect(inRow(find.textContaining(_l.invSetRowCheckFirst)), findsNothing, reason: 'not the paired text');
-    await tester.tap(inRow(find.widgetWithText(EButton, _l.sasTitle)));
+    await tester.tap(inRow(find.widgetWithText(EButton, _l.noticeCheckWords)));
     await _real(tester);
     expect(find.text(_l.sasMatch), findsOneWidget);
   });

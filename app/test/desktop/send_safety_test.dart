@@ -80,7 +80,7 @@ void main() {
   });
 
   testWidgets('a payment waiting in Activity offers no second review', (tester) async {
-    wallet.sendReturns = const SendFailed('Not delivered. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true);
+    wallet.sendReturns = const SendFailed('Not delivered. The payment waits in Activity; cancel it there to free the coins.', inActivity: true);
     await review(tester);
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0000 EPIC'));
@@ -105,7 +105,7 @@ void main() {
   });
 
   testWidgets('a plain refusal still offers Review again', (tester) async {
-    wallet.sendReturns = const SendFailed('Not enough funds');
+    wallet.sendReturns = const SendFailed('Not enough EPIC');
     await review(tester);
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0000 EPIC'));
@@ -115,7 +115,7 @@ void main() {
 
   test('the send result stands when the lists cannot reload after it', () async {
     await container.read(deskProvider.notifier).refresh();
-    wallet.sendReturns = const SendFailed('Not enough funds');
+    wallet.sendReturns = const SendFailed('Not enough EPIC');
     wallet.listsFail = true;
     final c = container.read(deskProvider.notifier);
     final r = await c.send(const SendRequest(method: TxMethod.epicbox, amount: 1, to: 'x'));

@@ -392,7 +392,7 @@ void main() {
       expect(_opacity(tester, epicboxStatusKey), 1);
       expect(
         _tip_(tester, epicboxStatusKey),
-        startsWith('Connecting to epicbox…'),
+        startsWith('Connecting to Epicbox…'),
       );
     });
 

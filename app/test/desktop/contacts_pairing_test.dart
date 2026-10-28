@@ -85,7 +85,7 @@ void main() {
     await _open(tester, const ContactsArgs(selectedId: 'c9'));
     expect(find.text(_l.contactKeysChangedTitle('Marta W.')), findsOneWidget);
     expect(find.text(_l.contactKeysChangedBody), findsOneWidget);
-    for (final t in [_l.sasTitle, _l.contactKeepOldKeys, _l.contactUseNewKeys]) {
+    for (final t in [_l.noticeCheckWords, _l.contactKeepOldKeys, _l.contactUseNewKeys]) {
       expect(find.text(t), findsWidgets, reason: t);
     }
     expect(find.text(_l.contactPausedUntilChecked), findsNWidgets(2));

@@ -237,7 +237,7 @@ void main() {
 
     testWidgets('1280: tier 1 facts asked directly, Owner access not set up; Add… opens the dialog with the LAN warning', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.own);
-      expect(find.textContaining('Your node · home network'), findsWidgets);
+      expect(find.textContaining('Own node · home network'), findsWidgets);
       expect(find.text('Mempool'), findsOneWidget);
       expect(find.text('3 waiting'), findsOneWidget);
       expect(find.text('Asked directly every 15 s · tip from status.btlabs.uk'), findsOneWidget);
@@ -287,17 +287,17 @@ void main() {
 
     testWidgets('syncing: the D-7 offer per node, remembered', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownSyncing);
-      expect(find.text('Use a public node until your node is synced?'), findsOneWidget);
-      await tester.tap(find.text('Wait for my node'));
+      expect(find.text('Use a public node until this node is synced?'), findsOneWidget);
+      await tester.tap(find.text('Wait for this node'));
       await tester.pump(const Duration(milliseconds: 300));
       expect(container.read(settingsPrefsProvider).ownFallback[ownDemoUrl], isFalse);
-      expect(find.text('Use a public node until your node is synced?'), findsNothing);
+      expect(find.text('Use a public node until this node is synced?'), findsNothing);
       await end(tester);
     });
 
     testWidgets('down with a public node standing in: Try now and Use for good', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownDown);
-      expect(find.text('Your node is not answering'), findsOneWidget);
+      expect(find.text('Own node not answering'), findsOneWidget);
       expect(find.text('Try now'), findsOneWidget);
       expect(find.text('Use node.btlabs.uk for good'), findsOneWidget);
       await end(tester);

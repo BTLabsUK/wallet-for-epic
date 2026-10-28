@@ -21,7 +21,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final secret = phone ? 'swój PIN' : 'hasło portfela';
   final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł|Settings › Privacy & network › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
   final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Ustawienia › Transakcje › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor Network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
+  final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
@@ -422,7 +422,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.h('Odbieranie', anchor: HelpAnchor.receiving),
         const HelpBlock.p('Gdy płatność przychodzi, twój portfel odpowiada od razu i nic twojego nie jest blokowane. Od tej chwili portfel nadawcy kończy ją i wysyła do sieci, zwykle w ciągu minut, więc anulowanie schodzi z drogi na 15 minut, a dłużej, gdy nadawca zgłasza, że wysłał.'),
         const HelpBlock.p('Potem anulowanie to porządki po płatności, której nadawca nigdy nie wysłał. Nie jest pewne: portfel najpierw pyta sieć i odmawia, gdy płatność już tam jest. Anulowana płatność pozostaje pod obserwacją. Jeśli nadawca wyśle ją później, i tak dotrze i pokaże się jako odebrana.'),
-        const HelpBlock.h('Prośby o płatność (eksperymentalne)', anchor: HelpAnchor.requests),
+        const HelpBlock.h('Faktury (eksperymentalne)', anchor: HelpAnchor.requests),
         const HelpBlock.p('Wysłana prośba nie trzyma żadnych monet, dopóki nie zostanie zapłacona. Do tego czasu możesz ją wycofać w każdej chwili: płacący nie może już jej zapłacić i nic się nie przenosi. Prośba, której nikt nie zapłaci, wygasa po 24 godzinach. Prośbę pokazaną jako kod QR można zapłacić raz; drugi skan jest odrzucany, więc nic nie jest płacone dwa razy.'),
         if (phone)
           const HelpBlock.p('Zapłacona przez ciebie prośba działa odwrotnie: druga strona ma twoją podpisaną płatność i ją kończy. Anulowanie pojawia się, gdy minie jej czas, około dnia po zapłacie, albo wcześniej, gdy druga strona ją wycofa. Anulowanie uwalnia monety tutaj, ale druga strona wciąż może wysłać płatność, dopóki te monety nie zostaną ponownie wydane.')

@@ -138,7 +138,7 @@ void main() {
                           'Waiting for recipient',
                           TimelineState.current,
                         ),
-                        TimelineStep('Sent to the network', TimelineState.todo),
+                        TimelineStep('Posted to the network', TimelineState.todo),
                       ],
                     ),
                     Advanced(feature: AdvancedFeature.technicalDetails, child: Text('technical')),

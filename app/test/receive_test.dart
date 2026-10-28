@@ -211,7 +211,7 @@ void main() {
       }
       expect(find.byKey(receiveRequestKey), findsNothing);
       expect(find.byType(MarkedQr), findsOneWidget);
-      expect(find.text('Receive by payment file'), findsNothing);
+      expect(find.text('Receive by transaction file'), findsNothing);
       expect(find.text('How receiving works'), findsOneWidget);
       // The code is covered on open (the QR rule); Show QR uncovers it in the same box, a
       // tap on the code covers it again.
@@ -226,7 +226,7 @@ void main() {
       expect(find.byKey(receiveShowQrKey), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
       await h.byFile(tester);
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.text('How receiving works'), findsOneWidget);
       for (final key in [
         receiveAddressKey,
@@ -268,7 +268,7 @@ void main() {
       expect(find.byType(ReceiveView), findsNothing);
       shown.value = true;
       await tester.pumpAndSettle();
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
     });
 
@@ -525,12 +525,12 @@ void main() {
 
       await h.listener(tester, ListenerEventKind.disconnected);
       expect(find.text('Epicbox not connected'), findsOneWidget);
-      expect(find.textContaining('wait at epicbox'), findsOneWidget);
+      expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Epicbox connected'), findsOneWidget);
-      expect(find.textContaining('wait at epicbox'), findsNothing);
+      expect(find.textContaining('wait on the Epicbox server'), findsNothing);
 
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
@@ -645,7 +645,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
-      expect(find.textContaining('wait at epicbox'), findsNothing);
+      expect(find.textContaining('wait on the Epicbox server'), findsNothing);
       expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
 
       await _tap(tester, find.text('Switch to epicbox.stackwallet.com'));
@@ -690,11 +690,11 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.text('Open file'), findsOneWidget);
       expect(find.text('Paste'), findsOneWidget);
       // The sheet loops its animation, so it never settles.
-      await tester.tap(find.byTooltip('How a payment file works'));
+      await tester.tap(find.byTooltip('How a transaction file works'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       final help = tester.widget<FileExchangeHelp>(

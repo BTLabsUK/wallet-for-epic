@@ -880,8 +880,8 @@ void main() {
       await _tap(tester, find.text('Send 1 EPIC'));
       expect(
         find.text(
-          'Their wallet was not reached. The amount is on hold until you cancel '
-          'it, or for at most 1 day.',
+          'Their wallet was not reached. The amount stays locked until you cancel '
+          'it, or for up to 1 day.',
         ),
         findsOneWidget,
       );
@@ -1065,7 +1065,7 @@ void main() {
   group('network modes', () {
     const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
-    Finder makeFile() => find.widgetWithText(FilledButton, 'Make payment file');
+    Finder makeFile() => find.widgetWithText(FilledButton, 'Make transaction file');
 
     testWidgets('Standard: Continue works and no reason shows', (tester) async {
       final h = _Harness();
@@ -1111,7 +1111,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
       await _tap(tester, makeFile());
-      expect(find.text('Open their reply'), findsOneWidget);
+      expect(find.text('Open response file'), findsOneWidget);
       expect(find.byKey(offlineNoPeersKey), findsOneWidget);
       expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
     });
@@ -1304,7 +1304,7 @@ void main() {
 
   group('sealed files (SPEC 2.9)', () {
     final l = lookupAppLocalizations(const Locale('en'));
-    Finder makeFile() => find.widgetWithText(FilledButton, 'Make payment file');
+    Finder makeFile() => find.widgetWithText(FilledButton, 'Make transaction file');
 
     /// Bob as a paired, verified contact whose wallet opens sealed files.
     PairingRecord pairBob(_Harness h, {SealMode seal = SealMode.on, Duration quiet = const Duration(days: 1)}) {

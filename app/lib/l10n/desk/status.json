@@ -431,7 +431,7 @@
       }
     }
   },
-  "deskTorNetworkLabel": "Tor Network",
+  "deskTorNetworkLabel": "Tor network",
   "@deskTorNetworkLabel": {
     "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
   },

@@ -136,7 +136,7 @@ void main() {
     final (container, opened) = await pump(tester, (_) async => (200, newer));
     expect(find.text('Update available: $next'), findsOneWidget);
     // No installer or AppImage under test: this copy cannot install it, so the page, and why.
-    expect(find.textContaining("This copy of the app can't install updates by itself."), findsOneWidget);
+    expect(find.textContaining('This copy cannot install updates itself.'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('about-update-act')));
     await tester.pumpAndSettle();
     expect(opened, [page], reason: 'this copy installs nothing itself: the button opens the page');

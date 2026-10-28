@@ -178,7 +178,7 @@ void main() {
     expect(f.hasLinks, isTrue);
     expect(f.copyable, isFalse);
     expect(f.refusal, LegacyRefusal.links);
-    expect(f.refusal!.text, "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.");
+    expect(f.refusal!.text, 'This wallet’s folder has links in it, so it is not imported. Restore it from the recovery phrase.');
     await expectUnchanged(before);
   }, skip: _posixOnly);
 

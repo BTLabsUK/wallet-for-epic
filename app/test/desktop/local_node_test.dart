@@ -247,7 +247,7 @@ void main() {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.stopped));
     await tester.tap(find.text('Reuse existing…'));
     await tester.pumpAndSettle();
-    expect(find.text('Chain data found on this computer'), findsOneWidget);
+    expect(find.text('Chain data found'), findsOneWidget);
     expect(find.text('~/.epic/main/chain_data'), findsOneWidget);
     expect(find.text('~/.epic-gui/node/main/chain_data'), findsOneWidget);
     expect(find.textContaining('In use by another program'), findsOneWidget);

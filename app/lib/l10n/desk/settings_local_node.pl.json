@@ -94,7 +94,7 @@
   "deskSetLndSourceCustom": "inny folder",
   "deskSetLndInUse": "Używane dane łańcucha",
   "deskSetLndNotInUse": "Folder nie jest używany",
-  "deskSetLndReuseTitle": "Znaleziono dane łańcucha na tym komputerze",
+  "deskSetLndReuseTitle": "Znaleziono dane łańcucha",
   "deskSetLndReuseDesc": "Inny węzeł Epic zostawił tu dane łańcucha. Węzeł lokalny może czytać ten folder zamiast pobierać łańcuch.",
   "deskSetLndLooking": "Szukanie…",
   "deskSetLndUseIt": "Użyj ich",

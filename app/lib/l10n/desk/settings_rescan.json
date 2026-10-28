@@ -7,7 +7,7 @@
   "@deskSetRescanStoppedLine": {
     "description": "Settings > Recheck balance: line added to the scan log when the scan was stopped; also the title of the result card."
   },
-  "deskSetRescanLog": "Scan log",
+  "deskSetRescanLog": "Recheck log",
   "@deskSetRescanLog": {
     "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
   },
@@ -60,7 +60,7 @@
   "@deskSetRescanNotRead": {
     "description": "Settings > Recheck balance: shown instead of a balance that could not be read."
   },
-  "deskSetRescanFinished": "Scan finished",
+  "deskSetRescanFinished": "Recheck finished",
   "@deskSetRescanFinished": {
     "description": "Settings > Recheck balance: title of the result card after a complete scan."
   },

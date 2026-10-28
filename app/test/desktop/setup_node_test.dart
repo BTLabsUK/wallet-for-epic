@@ -150,7 +150,7 @@ void main() {
     await tester.tap(find.text('Save settings'));
     await tester.pumpAndSettle();
     // Another node left chain data on the mock's computer: the reuse question first.
-    expect(find.text('Chain data found on this computer'), findsOneWidget);
+    expect(find.text('Chain data found'), findsOneWidget);
     await tester.tap(find.text('Download fresh'));
     await tester.tap(find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 100));
@@ -280,7 +280,7 @@ void main() {
     await tester.tap(find.text('Local node'));
     await tester.pumpAndSettle();
     await toReviewAndSave(tester);
-    expect(find.text('Chain data found on this computer'), findsOneWidget);
+    expect(find.text('Chain data found'), findsOneWidget);
     expect(node.calls.where((c) => c.startsWith('fallback')), isEmpty, reason: 'nothing answered while the question is open');
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();

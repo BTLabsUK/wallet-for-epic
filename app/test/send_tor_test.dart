@@ -384,7 +384,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
       ]);
       expect(_steps(tester, TimelineState.current).single, contains('onfirm'));
       expect(find.text('1 EPIC'), findsOneWidget);
@@ -426,7 +426,7 @@ void main() {
         find.textContaining('Their wallet was not reached over Tor.'),
         findsOneWidget,
       );
-      expect(find.textContaining('on hold until you cancel it'), findsOne);
+      expect(find.textContaining('stays locked until you cancel it'), findsOne);
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
       expect(find.text('Send 1 EPIC'), findsNothing);

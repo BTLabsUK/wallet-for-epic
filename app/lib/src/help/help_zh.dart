@@ -21,7 +21,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final secret = phone ? '你的 PIN 码' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 隐私与网络 › 节点|Settings › Privacy & network › Node]]' : '[[设置 › 节点|Settings › Node]]';
   final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor Network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
+  final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[设置 › 钱包 › 导出钱包数据|Settings › Wallet › Export wallet data]]'
@@ -420,7 +420,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.h('接收', anchor: HelpAnchor.receiving),
         const HelpBlock.p('付款到达时，你的钱包会立即回复，你的任何东西都不会被锁定。此后由付款方的钱包完成并广播，通常只需几分钟，所以 15 分钟内不提供取消；在付款方报告已广播期间也不提供。'),
         const HelpBlock.p('之后，取消只是清理付款方始终没有广播的付款。它不一定成功：钱包会先询问网络，如果付款已在网络中则拒绝。已取消的付款仍会被关注。如果付款方之后广播了，它仍会到达并显示为已收到。'),
-        const HelpBlock.h('收款请求（实验性）', anchor: HelpAnchor.requests),
+        const HelpBlock.h('账单（实验性）', anchor: HelpAnchor.requests),
         const HelpBlock.p('你发出的请求在被支付之前不持有任何币。在此之前可以随时撤回：付款方将无法再支付，也没有币移动。无人支付的请求在 24 小时后过期。以二维码展示的请求只能支付一次；第二次扫描会被拒绝，所以不会重复付款。'),
         if (phone)
           const HelpBlock.p('你支付的请求则相反：对方持有你已签名的付款并由对方完成。取消会在其时限到期时出现，大约在你付款一天后，或在对方提前撤回时更早出现。在这里取消会释放币，但在这些币被再次花出之前，对方仍可能广播这笔付款。')

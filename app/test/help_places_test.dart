@@ -37,7 +37,7 @@ void main() {
     'Security': {l.settingsSectionSecurity},
     'Back up recovery phrase': {l.settingsBackupPhrase},
     'Privacy & network': {l.settingsSectionPrivacyNetwork},
-    'Tor Network': {l.torNetworkLabel},
+    'Tor network': {l.torNetworkLabel},
     'Wallet': {l.settingsSectionWallet},
     'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
     'Export wallet data': {l.settingsExportHistory, l.deskSetBackupExportTitle},
@@ -77,7 +77,7 @@ void main() {
     test('phone: Settings places open the page that holds them', () {
       expect(helpPlaceDestination('Settings › Security'), HelpPhonePlace.security);
       expect(helpPlaceDestination('Settings › Security › Back up recovery phrase'), HelpPhonePlace.security);
-      expect(helpPlaceDestination('Settings › Privacy & network › Tor Network'), HelpPhonePlace.privacyNetwork);
+      expect(helpPlaceDestination('Settings › Privacy & network › Tor network'), HelpPhonePlace.privacyNetwork);
       expect(helpPlaceDestination('Settings › Wallet › Recheck balance'), HelpPhonePlace.wallet);
       expect(helpPlaceDestination('Settings › Display'), HelpPhonePlace.display);
       expect(helpPlaceDestination('Settings › About'), HelpPhonePlace.about);

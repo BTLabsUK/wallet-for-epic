@@ -14,7 +14,7 @@
   "deskSlotPaymentsMoving": "Платежи в пути",
   "deskSlotOf": "{done} из {needed}",
   "deskSlotWaitingBlock": "ждёт блока",
-  "deskSlotRequests": "Новые запросы",
+  "deskSlotRequests": "Новые счета",
   "deskSlotNodeStarting": "Запуск локального узла",
   "deskSlotNodeSyncing": "Синхронизация локального узла",
   "deskSlotOpenAdvanced": "Открыть «Дополнительно»",

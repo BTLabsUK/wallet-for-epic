@@ -3,7 +3,7 @@
   "@deskOvRestoreTitle": {
     "description": "Overview panel title while the core's restore scan from block 0 has not finished."
   },
-  "deskOvRestoreRunning": "Looking for this wallet's funds on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
+  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
   "@deskOvRestoreRunning": {
     "description": "Overview panel text while the restore scan runs; a progress bar follows."
   },
@@ -135,7 +135,7 @@
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
-  "deskOnbForgotNoCheck": "Nothing in this wallet's files can confirm the phrase, so the password stays.",
+  "deskOnbForgotNoCheck": "Nothing in this wallet’s files can confirm the phrase, so the password stays.",
   "@deskOnbForgotNoCheck": {
     "description": "Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed."
   },

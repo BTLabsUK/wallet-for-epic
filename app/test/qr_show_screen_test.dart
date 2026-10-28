@@ -150,7 +150,7 @@ void main() {
       findsNothing,
     );
     expect(find.text('Scan their reply'), findsOneWidget);
-    expect(find.text('Hold the other phone\'s camera to this code.'), findsOneWidget);
+    expect(find.text('Hold the other phone’s camera to this code.'), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
     expect(find.textContaining('Part 2 of 3'), findsOneWidget);
@@ -336,7 +336,7 @@ void main() {
     expect(find.text('Reply QR'), findsOneWidget);
     expect(find.text('To the sender of 1.5 EPIC'), findsOneWidget);
     expect(
-      find.text('Show it to the sender\'s phone. Only their wallet can use it.'),
+      find.text('Show it to the sender’s phone. Only their wallet can use it.'),
       findsOneWidget,
     );
     // The reply gets the same countdown and 40 s.

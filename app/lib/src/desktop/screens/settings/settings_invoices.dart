@@ -89,11 +89,11 @@ class InvoiceSettingsBlock extends ConsumerWidget {
             EInfoHint(l.contactAllowInfoDesktop(name)),
             SizedBox(width: Sp.x3),
             if (changed) ...[
-              EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id, recheck: true)),
+              EButton(label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id, recheck: true)),
               SizedBox(width: Sp.x3),
             ],
             if (r.state == PairingState.paired) ...[
-              EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
+              EButton(label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),
               SizedBox(width: Sp.x3),
             ],
             ESwitch(

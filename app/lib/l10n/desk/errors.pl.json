@@ -46,7 +46,7 @@
   "deskErrEnterPassword": "Wpisz hasło",
   "deskErrFolderNotFound": "Nie znaleziono folderu portfela",
   "deskErrAlreadyHere": "Ten portfel już tu jest: {name}",
-  "deskErrTestNet": "Portfel sieci testowej. Importować można tylko portfele Mainnet.",
+  "deskErrTestNet": "Portfel Floonet: importować można tylko portfele sieci głównej.",
   "deskErrWalletInApp": "Ten portfel już jest w aplikacji.",
   "deskErrWalletNotFoundSearch": "Nie znaleziono portfela. Wyszukaj ponownie.",
   "deskErrEnterOldPassword": "Wpisz stare hasło",

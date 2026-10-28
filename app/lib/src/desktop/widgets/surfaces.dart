@@ -784,7 +784,7 @@ class EInfoHint extends StatefulWidget {
   final String text;
 
   /// With a title the tooltip is a hover card: [icon] and the title on one line, the text at
-  /// a reading width under it (the Tor Network row). The phone's info sheet has the same shape.
+  /// a reading width under it (the Tor network row). The phone's info sheet has the same shape.
   final String? title;
   final IconData? icon;
 

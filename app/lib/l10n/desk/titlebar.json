@@ -65,7 +65,7 @@
   "@deskBarSendRunningTitle": {
     "description": "Dialog title when the window is closed (close button, Alt+F4, Quit) while a payment is being sent."
   },
-  "deskBarSendRunningBody": "Closing now would leave the payment's outcome unknown. The wallet can close by itself once the send has finished.",
+  "deskBarSendRunningBody": "Closing now would leave the payment’s outcome unknown. The wallet can close by itself once the send has finished.",
   "@deskBarSendRunningBody": {
     "description": "Dialog text under 'A send is in progress'. There is deliberately no way to close at once."
   },
@@ -97,7 +97,7 @@
   "@deskBarKeyClose": {
     "description": "Keyboard-shortcuts row: Esc closes the top-most menu or dialog."
   },
-  "deskBarKeySubmit": "Run a form's main action",
+  "deskBarKeySubmit": "Run a form’s main action",
   "@deskBarKeySubmit": {
     "description": "Keyboard-shortcuts row: Ctrl+Enter runs the main button of the form being filled in."
   },

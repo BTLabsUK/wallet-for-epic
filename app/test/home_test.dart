@@ -670,7 +670,7 @@ void main() {
           fakeTx(source: TxSource.restored),
           contactName: 'Bob',
         ),
-        'Restored funds',
+        'Found on the chain',
       );
       // The status never changes the title: pending, completed and cancelled read alike.
       for (final status in TxStatus.values) {
@@ -850,7 +850,7 @@ void main() {
 
       expect(find.text('Pending'), findsWidgets);
       expect(find.text('Yesterday'), findsOneWidget);
-      expect(find.text('Restored funds'), findsOneWidget);
+      expect(find.text('Found on the chain'), findsOneWidget);
       expect(find.text('Cancelled'), findsWidgets);
 
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'rent');
@@ -1410,9 +1410,9 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      expect(find.text('Restored funds'), findsOneWidget);
+      expect(find.text('Found on the chain'), findsOneWidget);
       expect(
-        find.textContaining('Found by scanning the chain'),
+        find.textContaining('Found on the chain. Sender and fee'),
         findsOneWidget,
       );
       expect(
@@ -1466,10 +1466,10 @@ void main() {
           find.textContaining('The network has not taken this payment yet'),
           findsOneWidget,
         );
-        await _tap(tester, find.text('Broadcast again'));
+        await _tap(tester, find.text('Post again'));
         expect(h.session.repostedKeys, contains('s:refused'));
         expect(
-          find.textContaining('Broadcast again. It should'),
+          find.textContaining('Posted again.'),
           findsOneWidget,
         );
       },
@@ -1592,7 +1592,7 @@ void main() {
           ),
           null,
         ),
-        'The epicbox server reported a problem. Retrying.',
+        'The Epicbox server reported a problem. Retrying.',
       );
     });
 
@@ -2318,8 +2318,8 @@ void main() {
           _tip,
           now: _now,
         ),
-        'Waiting for 16 days. The epicbox deletes payments after 7 days, so '
-        'this one can no longer complete. Cancel it to unlock your funds, then '
+        'Waiting for 16 days. The Epicbox server deletes payments after 7 days, so '
+        'this one can no longer complete. Cancel it to free the coins, then '
         'send again.',
       );
       // Younger, or with an expiry (the TTL line covers it), or by file: the usual words.
@@ -2364,7 +2364,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(
-        find.text('2 EPIC stays locked until the recipient\'s wallet answers.'),
+        find.text('2 EPIC stays locked until the recipient’s wallet answers.'),
         findsOneWidget,
       );
       expect(find.textContaining('on its way'), findsNothing);
@@ -2414,7 +2414,7 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
-      final release = find.widgetWithText(OutlinedButton, 'Release funds');
+      final release = find.widgetWithText(OutlinedButton, 'Release coins');
       await _tap(tester, release);
       expect(
         find.text(
@@ -2426,7 +2426,7 @@ void main() {
       await _tap(tester, find.text('Keep waiting'));
       expect(h.session.releasedKeys, isEmpty);
       await _tap(tester, release);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Release funds'));
+      await _tap(tester, find.widgetWithText(FilledButton, 'Release coins'));
       expect(h.session.releasedKeys, ['s:refused']);
       expect(find.text('Funds released'), findsOneWidget);
     });
@@ -2434,7 +2434,7 @@ void main() {
     testWidgets('no release button unless the core allows it', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(find.text('Release funds'), findsNothing);
+      expect(find.text('Release coins'), findsNothing);
     });
   });
 
@@ -2631,7 +2631,7 @@ void main() {
       // Cancelled by the user.
       expect(
         txExplanation(englishStrings, cancelledSend(), _tip),
-        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'Cancelled. Nothing was paid, and the coins are spendable again. If the '
         'recipient already got it, their wallet may still show it as waiting; it '
         'can no longer complete.',
       );
@@ -2717,14 +2717,14 @@ void main() {
       String say(TxEntry tx) => txExplanation(englishStrings, tx, _tip);
       expect(
         say(cancelled(CancelReason.user)),
-        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'Cancelled. Nothing was paid, and the coins are spendable again. If the '
         'recipient already got it, their wallet may still show it as waiting; it '
         'can no longer complete.',
       );
       // The user cancelled on day 2; from day 14 the old rule would blame the limit.
       expect(
         say(cancelled(CancelReason.user, cutoff: _tip - BigInt.one)),
-        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'Cancelled. Nothing was paid, and the coins are spendable again. If the '
         'recipient already got it, their wallet may still show it as waiting; it '
         'can no longer complete.',
       );
@@ -2754,7 +2754,7 @@ void main() {
       expect(
         say(cancelled(CancelReason.failed)),
         'It could not be delivered to the recipient, so the wallet cancelled '
-        'it at once. Nothing was sent, and the funds are spendable again.',
+        'it at once. Nothing was sent, and the coins are spendable again.',
       );
       // No recorded reason: the old rule.
       expect(
@@ -3420,7 +3420,7 @@ void main() {
           expect(_titleText(tester), '12.5 EPIC', reason: tab);
           // 2 EPIC are locked: the line under the figure says so, as Wallet's does.
           final pending = find.byKey(titlePendingKey);
-          expect(tester.widget<Text>(pending).data, '2 on hold', reason: tab);
+          expect(tester.widget<Text>(pending).data, '2 locked', reason: tab);
           expect(
             tester.getRect(pending).top,
             greaterThanOrEqualTo(
@@ -4305,7 +4305,7 @@ void main() {
       await _tab(tester, 'Receive');
       // Epicbox address by default.
       expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
-      expect(find.text('Receive by payment file'), findsNothing);
+      expect(find.text('Receive by transaction file'), findsNothing);
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
@@ -4314,12 +4314,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       for (final tab in ['Wallet', 'Send', 'Receive']) {
         await _tab(tester, tab);
       }
-      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('Receive by transaction file'), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       // And back.
       await tester.tap(
@@ -4373,14 +4373,14 @@ void main() {
         );
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
-        await _tap(tester, find.text('Make payment file'));
+        await _tap(tester, find.text('Make transaction file'));
         await tester.enterText(find.byType(TextField).last, _Harness._pin);
         await tester.pumpAndSettle();
         ProviderScope.containerOf(tester.element(find.byType(SendView)))
             .read(sendRecipientProvider.notifier)
             .hand(payee);
         await tester.pumpAndSettle();
-        expect(find.text('Waiting for their reply'), findsOneWidget);
+        expect(find.text('Waiting for the response file'), findsOneWidget);
         await _tap(tester, find.widgetWithText(TextButton, 'Done'));
         await _tab(tester, 'Send');
         expect(_toField(tester), payee);
@@ -4416,7 +4416,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Waiting for their wallet'), findsNothing);
         expect(find.text('Their wallet signed'), findsOneWidget);
-        expect(find.text('Sent to the network'), findsOneWidget);
+        expect(find.text('Posted to the network'), findsOneWidget);
         expect(find.textContaining('Confirming 0/'), findsOneWidget);
         // The tracker says it; a notice would say it twice.
         expect(find.textContaining('finished. Waiting for'), findsNothing);

@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "Bringt zurück",
   "deskSetBackupBringsBackValue": "Zahlungsdetails und Notizen, ältere Zahlungen, die der Liste fehlen, Kontakte, Rechnungen und Einstellungen",
   "deskSetBackupNeeds": "Benötigt",
-  "deskSetBackupNeedsValue": "Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase), im {network}. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.",
+  "deskSetBackupNeedsValue": "Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase) im {network}. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.",
   "deskSetBackupNever": "Niemals",
   "deskSetBackupNeverValue": "Entfernt oder ändert eine vorhandene Zahlung",
   "deskSetBackupChooseFile": "Datei wählen…",

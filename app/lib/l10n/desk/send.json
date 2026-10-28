@@ -310,7 +310,7 @@
   "@deskSendErrOnion": {
     "description": "Error under the To field on Send when the address looks like a Tor address but is not complete or valid."
   },
-  "deskSendErrOwn": "This is the wallet's own address.",
+  "deskSendErrOwn": "This is the wallet’s own address.",
   "@deskSendErrOwn": {
     "description": "Error under the To field on Send when the recipient is this wallet."
   },
@@ -525,7 +525,7 @@
   "@deskSendAmountSem": {
     "description": "Screen reader label of the amount field."
   },
-  "deskSendAllButton": "All",
+  "deskSendAllButton": "Max",
   "@deskSendAllButton": {
     "description": "Small button in the amount field: send the whole spendable balance. Very short."
   },
@@ -815,7 +815,7 @@
   "@deskSendFeeChangedTitle": {
     "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."
   },
-  "deskSendFeeChangedText": "The wallet's outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
+  "deskSendFeeChangedText": "The wallet’s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
   "@deskSendFeeChangedText": {
     "description": "Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.",
     "placeholders": {

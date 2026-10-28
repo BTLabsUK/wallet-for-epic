@@ -274,7 +274,7 @@ void main() {
     });
 
     for (final (failure, text) in [
-      (core.TorFailure.network, 'Can’t reach the Tor network'),
+      (core.TorFailure.network, 'Cannot reach the Tor network'),
       (core.TorFailure.start, 'Tor did not start'),
       (core.TorFailure.clock, 'The computer’s clock is wrong'),
       (core.TorFailure.missing, 'Tor not included in this build'),
@@ -431,7 +431,7 @@ void main() {
   });
 
   group('send', () {
-    const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+    const waits = 'The payment waits in Activity; cancel it there to free the coins.';
 
     test('an onion under Link goes over Tor', () async {
       await wallet.setTor(true);
@@ -520,7 +520,7 @@ void main() {
       session().sendError = const core.WalletError(kind: core.WalletErrorKind.notEnoughFunds, message: 'short');
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
       expect((r as SendFailed).inActivity, isFalse);
-      expect(r.message, 'Not enough funds');
+      expect(r.message, 'Not enough EPIC');
       expect((await wallet.transactions()).where((t) => !t.incoming), isEmpty);
     });
 

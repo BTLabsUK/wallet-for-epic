@@ -1,4 +1,4 @@
-// The old wallet's history brings another sender or method than details the user typed: the shell
+// The old wallet’s history brings another sender or method than details the user typed: the shell
 // asks with the same "Details differ" dialog as a history backup, every field starts as Mine,
 // Theirs (Old wallet) applies, Cancel postpones, and nothing asks when nothing differs.
 import 'package:epic_wallet/src/desktop/app/shell.dart';
@@ -77,7 +77,7 @@ void main() {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
     expect(find.text('Details differ'), findsOneWidget);
-    expect(find.textContaining("The old wallet's history has other details for 1 payment you described"), findsOneWidget);
+    expect(find.textContaining("The old wallet’s history has other details for 1 payment you described"), findsOneWidget);
     final cards = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
     expect(cards, ['Mine:true', 'Old wallet:false', 'Mine:true', 'Old wallet:false']);
     expect(find.text('File'), findsNothing);

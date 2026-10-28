@@ -1,7 +1,7 @@
 {
   "deskSetRescanComplete": "Сканирование завершено",
   "deskSetRescanStoppedLine": "Сканирование остановлено",
-  "deskSetRescanLog": "Журнал сканирования",
+  "deskSetRescanLog": "Журнал сверки",
   "deskSetRescanText": "Заново читает блокчейн и пересобирает баланс из найденных выходов. Используйте, если баланс выглядит неверным, после восстановления или если выходы остались заблокированными после неудачной отправки. Кошельком можно пользоваться и во время проверки.",
   "deskSetRescanStartAgain": "Запустить снова",
   "deskSetRescanDeleteUnconfirmed": "Удалить неподтверждённые",
@@ -13,7 +13,7 @@
   "deskSetRescanNoneFound": "Неподтверждённых транзакций не найдено.",
   "deskSetRescanCancelled": "Неподтверждённые транзакции отменены, их выходы разблокированы.",
   "deskSetRescanNotRead": "Не прочитано",
-  "deskSetRescanFinished": "Сканирование закончено",
+  "deskSetRescanFinished": "Сверка завершена",
   "deskSetRescanUpToDate": "Баланс актуален.",
   "deskSetRescanResumed": "Сканирование продолжилось с места остановки; числа относятся к этой части.",
   "deskSetRescanStoppedEarly": "Остановлено до конца. Баланс прочитан заново; запустите снова, чтобы продолжить.",

@@ -268,7 +268,7 @@ void main() {
       for (final tab in [l.homeSendButton, l.homeReceiveButton]) {
         await _tab(tester, tab);
         expect(_titleText(tester), startsWith('0'), reason: tab);
-        for (final text in ['10 on hold', '+7.492 coming in']) {
+        for (final text in ['10 locked', '+7.492 coming in']) {
           expect(
             find.descendant(
               of: find.byType(ShellBarTitle),
@@ -307,7 +307,7 @@ void main() {
         // Send and Receive keep the two items: 2 confirming and 16 maturing are coming in;
         // the 0.5 not on chain yet is not counted.
         await _tab(tester, l.homeSendButton);
-        for (final text in ['5 on hold', '+18 coming in']) {
+        for (final text in ['5 locked', '+18 coming in']) {
           expect(
             find.descendant(
               of: find.byType(ShellBarTitle),

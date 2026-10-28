@@ -95,7 +95,7 @@
   "deskSendAvailableNone": "Dostępne —",
   "deskSendAvailable": "Dostępne {amount} EPIC",
   "deskSendAmountSem": "Kwota w EPIC",
-  "deskSendAllButton": "Całość",
+  "deskSendAllButton": "Maks.",
   "deskSendConfirmingHidden": "Część salda wciąż się potwierdza i nie można jej jeszcze wysłać.",
   "deskSendConfirming": "{amount} EPIC wciąż się potwierdza i nie można tego jeszcze wysłać.",
   "deskSendMessage": "Wiadomość",

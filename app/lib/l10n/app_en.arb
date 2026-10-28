@@ -100,7 +100,7 @@
   "@txMiningReward": {
     "description": "A payment created by mining a block (coinbase)."
   },
-  "txRestoredFunds": "Restored funds",
+  "txRestoredFunds": "Found on the chain",
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
@@ -318,7 +318,7 @@
       }
     }
   },
-  "txSpokenRestoredFunds": "Restored funds of {amount}",
+  "txSpokenRestoredFunds": "Found on the chain: {amount}",
   "@txSpokenRestoredFunds": {
     "description": "Screen-reader text of a payment row.",
     "placeholders": {
@@ -498,7 +498,7 @@
   "@errorNodeUnreachable": {
     "description": "The node is the Epic Cash server the wallet reads the chain from."
   },
-  "errorNotEnoughFunds": "Not enough spendable funds for this amount plus the fee.",
+  "errorNotEnoughFunds": "Not enough spendable EPIC for this amount plus the fee.",
   "errorInvalidSlate": "This transaction text is not valid for this step. Check that you pasted all of it.",
   "errorInvalidInput": "Invalid input.",
   "@errorInvalidInput": {
@@ -639,7 +639,7 @@
   "currencyKrw": "South Korean won",
   "currencyPln": "Polish złoty",
   "currencyTry": "Turkish lira",
-  "txDetailsWaitingTooLong": "{days, plural, =1{Waiting for 1 day. The epicbox deletes payments after 7 days, so this one can no longer complete. Cancel it to unlock your funds, then send again.} other{Waiting for {days} days. The epicbox deletes payments after 7 days, so this one can no longer complete. Cancel it to unlock your funds, then send again.}}",
+  "txDetailsWaitingTooLong": "{days, plural, =1{Waiting for 1 day. The Epicbox server deletes payments after 7 days, so this one can no longer complete. Cancel it to free the coins, then send again.} other{Waiting for {days} days. The Epicbox server deletes payments after 7 days, so this one can no longer complete. Cancel it to free the coins, then send again.}}",
   "@txDetailsWaitingTooLong": {
     "description": "Payment details, status explanation of a send that has waited days for an answer. epicbox is the relay service that carries payments (a proper name).",
     "placeholders": {
@@ -648,7 +648,7 @@
       }
     }
   },
-  "txDetailsWaitingEpicbox": "Sent to the recipient's epicbox. It completes when their wallet comes online. Your funds stay locked until then, or until you cancel.",
+  "txDetailsWaitingEpicbox": "Sent through Epicbox. It completes when their wallet comes online. The amount stays locked until then, or until you cancel it.",
   "@txDetailsWaitingEpicbox": {
     "description": "Payment details, status explanation of a send waiting for its recipient. epicbox is the relay service that carries payments (a proper name)."
   },
@@ -656,11 +656,11 @@
   "@txDetailsWaitingRecipient": {
     "description": "Payment details, status explanation of a send passed by file or copy and paste. The transaction file holds the slate, the JSON a payment passes between sender and recipient."
   },
-  "txDetailsWaitingSender": "You accepted this payment. It completes when the sender finishes it and publishes it to the network.",
+  "txDetailsWaitingSender": "You accepted this payment. It completes when the sender finishes it and posts it to the network.",
   "@txDetailsWaitingSender": {
     "description": "Payment details, status explanation of a receive the sender has not finished yet."
   },
-  "txDetailsSenderPosted": "The sender reports it posted this payment. It completes when the blockchain confirms it.",
+  "txDetailsSenderPosted": "The sender reports it posted this payment. It completes when the network confirms it.",
   "@txDetailsSenderPosted": {
     "description": "Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides."
   },
@@ -743,11 +743,11 @@
       }
     }
   },
-  "txDetailsCancelledByUser": "Cancelled. Nothing was paid, and the funds are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.",
+  "txDetailsCancelledByUser": "Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.",
   "@txDetailsCancelledByUser": {
     "description": "Payment details, why a send is cancelled: the user cancelled it. The slate may have reached the recipient, so it never says nothing was sent."
   },
-  "txDetailsCancelledReleased": "The network never took it, so its funds were released. Check the recipient did not receive it before sending again.",
+  "txDetailsCancelledReleased": "The network never took it, so its coins were released. Check the recipient did not receive it before sending again.",
   "@txDetailsCancelledReleased": {
     "description": "Payment details, why a send is cancelled: the user released the funds of a send the network refused."
   },
@@ -755,15 +755,15 @@
   "@txDetailsCancelledNotOnChain": {
     "description": "Payment details, why a send is cancelled: it was finished but never reached the network, and was cancelled."
   },
-  "txDetailsCancelledUnanswered": "The recipient did not answer within 24 hours, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.",
+  "txDetailsCancelledUnanswered": "The recipient did not answer within 24 hours, so the wallet cancelled it. Nothing was paid, and the coins are spendable again.",
   "@txDetailsCancelledUnanswered": {
     "description": "Payment details, why a send is cancelled: the recipient never answered within its 24-hour (1,440-block) limit."
   },
-  "txDetailsCancelledLateAnswer": "The recipient answered after the 24-hour limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.",
+  "txDetailsCancelledLateAnswer": "The recipient answered after the 24-hour limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the coins are spendable again.",
   "@txDetailsCancelledLateAnswer": {
     "description": "Payment details, why a send is cancelled: the answer came too late."
   },
-  "txDetailsCancelledUndelivered": "It could not be delivered to the recipient, so the wallet cancelled it at once. Nothing was sent, and the funds are spendable again.",
+  "txDetailsCancelledUndelivered": "It could not be delivered to the recipient, so the wallet cancelled it at once. Nothing was sent, and the coins are spendable again.",
   "@txDetailsCancelledUndelivered": {
     "description": "Payment details, why a send is cancelled: it never reached the recipient."
   },
@@ -863,21 +863,21 @@
   "@txWaitNotInBlock": {
     "description": "A payment's details, minutes after it should have reached a block: blocks were mined, but the payment is in none of them yet (it may still be reaching the network, or the sender has not posted it)."
   },
-  "txDetailsStuckBody": "The network has not taken this payment yet. Broadcasting it again is safe. The same payment cannot go through twice.",
-  "txDetailsBroadcastAgain": "Broadcast again",
+  "txDetailsStuckBody": "The network has not taken this payment yet. Posting it again is safe: the same payment cannot go through twice.",
+  "txDetailsBroadcastAgain": "Post again",
   "@txDetailsBroadcastAgain": {
     "description": "Button: send the finished payment to the network again."
   },
-  "txDetailsBroadcastAgainDone": "Broadcast again. It should confirm within a few minutes.",
+  "txDetailsBroadcastAgainDone": "Posted again.",
   "@txDetailsBroadcastAgainDone": {
     "description": "Notice after the payment was sent to the network again."
   },
-  "txDetailsRefusedBody": "The network refused this payment and it never reached the chain. You can release the funds it locked.",
-  "txDetailsReleaseFunds": "Release funds",
+  "txDetailsRefusedBody": "The network refused this payment and it never reached the chain. You can release the coins it locked.",
+  "txDetailsReleaseFunds": "Release coins",
   "@txDetailsReleaseFunds": {
     "description": "Button on the details card and in the confirmation dialog: unlock the funds of a send the network refused."
   },
-  "txDetailsReleaseTitle": "Release funds?",
+  "txDetailsReleaseTitle": "Release coins?",
   "@txDetailsReleaseTitle": {
     "description": "Title of the dialog that confirms releasing the funds of a refused send."
   },
@@ -905,7 +905,7 @@
   "@txDetailsCancelReceiveBody": {
     "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
   },
-  "txDetailsCancelSendBody": "The recipient's wallet cannot finish this payment without yours. Cancelling frees your coins.",
+  "txDetailsCancelSendBody": "The recipient’s wallet cannot finish this payment without yours. Cancelling frees your coins.",
   "@txDetailsCancelSendBody": {
     "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature."
   },
@@ -1079,7 +1079,7 @@
   "@txDetailsLocalId": {
     "description": "Label: the payment's number in this wallet's own records."
   },
-  "txDetailsSourceRestored": "Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import wallet data to restore them.",
+  "txDetailsSourceRestored": "Found on the chain. Sender and fee are not on the chain; import wallet data to add them.",
   "@txDetailsSourceRestored": {
     "description": "Note on a payment the wallet found by scanning the blockchain after a restore."
   },
@@ -1087,7 +1087,7 @@
   "@txDetailsSourceImported": {
     "description": "Note on a payment that came from a history backup file."
   },
-  "historyTitle": "History",
+  "historyTitle": "Activity",
   "@historyTitle": {
     "description": "Title of the screen with every payment."
   },
@@ -1497,7 +1497,7 @@
   "@homeNoticeDelayed": {
     "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."
   },
-  "homeNoticeRelayProblem": "The epicbox server reported a problem. Retrying.",
+  "homeNoticeRelayProblem": "The Epicbox server reported a problem. Retrying.",
   "@homeNoticeRelayProblem": {
     "description": "Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment."
   },
@@ -1745,7 +1745,7 @@
   "@homeEpicboxOffline": {
     "description": "Tooltip sentence of the Epicbox status: this wallet is not connected to its Epicbox server (the relay that carries payments, a proper name) and keeps retrying."
   },
-  "homeEpicboxConnecting": "Connecting to epicbox…",
+  "homeEpicboxConnecting": "Connecting to Epicbox…",
   "@homeEpicboxConnecting": {
     "description": "Second sentence of the status line while the app connects to epicbox (the relay service that carries payments, a proper name)."
   },
@@ -1768,7 +1768,7 @@
       }
     }
   },
-  "homePendingBody": "{count, plural, =1{{amount} is waiting for the recipient's wallet to answer. Until then the funds stay locked. If it never answers, open the payment and tap Cancel payment.} other{{amount} is waiting for the recipients' wallets to answer. Until then the funds stay locked. If one never answers, open the payment and tap Cancel payment.}}",
+  "homePendingBody": "{count, plural, =1{{amount} is waiting for the recipient’s wallet to answer. Until then the coins stay locked. If it never answers, open the payment and tap Cancel payment.} other{{amount} is waiting for the recipients’ wallets to answer. Until then the coins stay locked. If one never answers, open the payment and tap Cancel payment.}}",
   "@homePendingBody": {
     "description": "Text of the card about sent payments the recipient has not answered yet. amount is the total of those payments. 'Cancel payment' is the button on a payment's details screen: use the same words as that button.",
     "placeholders": {
@@ -1964,7 +1964,7 @@
       }
     }
   },
-  "invoiceDetailsRepliedHelp": "If {service} has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment's time runs out, about a day after you paid.",
+  "invoiceDetailsRepliedHelp": "If {service} has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment’s time runs out, about a day after you paid.",
   "@invoiceDetailsRepliedHelp": {
     "description": "Paid invoice's details while the service has not posted the payment: Send again delivers the stored reply again, and when Cancel becomes available. The payment's time to live is 1440 blocks, about a day. service is the name the user gave the service.",
     "placeholders": {
@@ -2004,7 +2004,7 @@
       }
     }
   },
-  "invoiceDetailsWithdrawn": "{service} withdrew this invoice after you paid it. If the payment does not confirm, cancel it to unlock your funds.",
+  "invoiceDetailsWithdrawn": "{service} withdrew this invoice after you paid it.",
   "@invoiceDetailsWithdrawn": {
     "description": "Warning in a paid invoice's details when the service withdrew the invoice after payment. The Cancel payment button follows. service is the name the user gave the service.",
     "placeholders": {
@@ -2140,7 +2140,7 @@
   "@issuerNoticeExpired": {
     "description": "Notice when a request the user sent ran out of time unpaid."
   },
-  "issuerNoticeBouncedFrom": "{payer}'s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a payment file.",
+  "issuerNoticeBouncedFrom": "{payer}’s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.",
   "@issuerNoticeBouncedFrom": {
     "description": "Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.",
     "placeholders": {
@@ -2153,7 +2153,7 @@
   "@issuedBounced": {
     "description": "State of a request the user sent: the payer's wallet cannot pay invoices and sent it back."
   },
-  "issuedDetailsBounced": "The payer's wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.",
+  "issuedDetailsBounced": "The payer’s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.",
   "@issuedDetailsBounced": {
     "description": "Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it."
   },
@@ -2218,7 +2218,7 @@
   "@receiveAddressLabel": {
     "description": "Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address."
   },
-  "receiveEpicboxOfflineBody": "Payments sent to you now wait at epicbox and arrive once the wallet connects again.",
+  "receiveEpicboxOfflineBody": "Payments sent to you wait on the Epicbox server and arrive when the wallet reconnects.",
   "@receiveEpicboxOfflineBody": {
     "description": "Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name)."
   },
@@ -2234,11 +2234,11 @@
   "@receiveAddressCopied": {
     "description": "Notice after the wallet's address was copied."
   },
-  "receiveFileTitle": "Receive by payment file",
+  "receiveFileTitle": "Receive by transaction file",
   "@receiveFileTitle": {
     "description": "Heading of the Receive tab's card for a payment that comes as a file (or its text) instead of over epicbox."
   },
-  "receiveFileBody": "Got a payment file from someone? Open it, or copy its text and paste it here.",
+  "receiveFileBody": "Open the transaction file, or paste its text here.",
   "@receiveFileBody": {
     "description": "Line in the payment file card, above the Open file and Paste buttons."
   },
@@ -2379,7 +2379,7 @@
     "description": "The downloaded file's SHA-256 checksum does not match the one announced, so it is not installed."
   },
   "updateDownloadInterrupted": "The download was interrupted.",
-  "updateNoTorDownload": "The update can't be downloaded over Tor yet. Turn Tor off to download it, or get it from the download page.",
+  "updateNoTorDownload": "The update cannot be downloaded over Tor yet. Turn Tor off to download it, or get it from the download page.",
   "@updateNoTorDownload": {
     "description": "The in-app update download failed because its server is not reachable over Tor."
   },
@@ -2411,7 +2411,7 @@
   "@setupNodeUrlLabel": {
     "description": "Field label: the web address of the node, the Epic Cash server the wallet reads the chain from."
   },
-  "setupCustomRelayLabel": "Other epicbox server (host or host:port)",
+  "setupCustomRelayLabel": "Other Epicbox server (host or host:port)",
   "@setupCustomRelayLabel": {
     "description": "Field label for typing an epicbox server that is not in the list. Keep host:port as it is."
   },
@@ -2529,7 +2529,7 @@
   "@restoreWholeChain": {
     "description": "Button that clears the start date."
   },
-  "restoreScanIntro": "Looking for your funds on the blockchain. Keep the app open until this finishes.",
+  "restoreScanIntro": "Looking for this wallet’s coins on the chain. Keep the app open until this finishes.",
   "restoreOpenWallet": "Open wallet",
   "@restoreOpenWallet": {
     "description": "Button after the scan that goes to the wallet's home screen."
@@ -2538,7 +2538,7 @@
   "@restoreUnfinishedTitle": {
     "description": "Heading of the Home card while the core's restore scan from block 0 has not finished; the state's name everywhere."
   },
-  "restoreUnfinishedRunning": "Looking for this wallet's funds from block 0. Receiving and sending open when this ends.",
+  "restoreUnfinishedRunning": "Looking for this wallet’s coins from block 0. Receiving and sending open when this ends.",
   "@restoreUnfinishedRunning": {
     "description": "Home card line while the restore scan runs or starts; the bar and the percent line follow."
   },
@@ -2574,7 +2574,7 @@
   "@restoreFinishOnHome": {
     "description": "Restore done screen, only after a restore from a date or height: why Home shows a running scan."
   },
-  "unlockDatabaseRebuilt": "The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a wallet data file.",
+  "unlockDatabaseRebuilt": "The wallet database was damaged and has been rebuilt from the phrase. A scan brings the coins back; payment details, notes and labels come back only from a wallet data file.",
   "@unlockDatabaseRebuilt": {
     "description": "Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0."
   },
@@ -2633,7 +2633,7 @@
     "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
   },
   "restoreDoneTitle": "Your wallet is restored",
-  "restoreImportExplanation": "The recovery phrase brought back the balance. A wallet data file brings back this wallet's payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
+  "restoreImportExplanation": "The recovery phrase brought back the balance. A wallet data file brings back this wallet’s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
   "@restoreImportExplanation": {
     "description": "Offer to import a history backup on the phone restore screen, once the restore from the phrase is done."
   },
@@ -2725,7 +2725,7 @@
   "@backupCopyTitle": {
     "description": "Title of the confirm dialog before the recovery phrase is copied to the clipboard."
   },
-  "backupCopyBody": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "backupCopyBody": "Anyone with these words can take the coins. Store the copy somewhere safe.",
   "@backupCopyBody": {
     "description": "Text of the confirm dialog before the recovery phrase is copied."
   },
@@ -2853,7 +2853,7 @@
   "@pinResetTitle": {
     "description": "Title of the dialog that deletes the wallet when the PIN is forgotten."
   },
-  "pinResetBody": "The PIN cannot be recovered. You can delete this wallet from the device and restore it from its recovery phrase. Without the phrase, its funds are lost for good.",
+  "pinResetBody": "The PIN cannot be recovered. You can delete this wallet from the device and restore it from its recovery phrase. Without the phrase, its coins are lost for good.",
   "pinResetConfirm": "I have my recovery phrase",
   "@pinResetConfirm": {
     "description": "Checkbox the user must tick before the wallet can be deleted."
@@ -2912,7 +2912,7 @@
   "@sendAmountZero": {
     "description": "Amount field error."
   },
-  "sendUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.",
+  "sendUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their Epicbox address.",
   "@sendUrlUnsupported": {
     "description": "Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name."
   },
@@ -2936,7 +2936,7 @@
   "@sendMethodEpicbox": {
     "description": "Send form, first choice of how to send: to the recipient's epicbox address. Also Receive's first tab, which shows this wallet's epicbox address. epicbox is the relay service that carries payments (a proper name)."
   },
-  "sendMethodFile": "Payment file",
+  "sendMethodFile": "Transaction file",
   "@sendMethodFile": {
     "description": "Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply. Also Receive's second tab, for accepting a payment file."
   },
@@ -2988,7 +2988,7 @@
   "@sendSlateBoxTitle": {
     "description": "Title of a box with the payment's text (the slate, JSON) to copy to the recipient."
   },
-  "sendPasteResponseLabel": "Paste the recipient's response",
+  "sendPasteResponseLabel": "Paste the recipient’s response",
   "@sendPasteResponseLabel": {
     "description": "Label of the field for the text the recipient sent back."
   },
@@ -3075,7 +3075,7 @@
     "description": "Screen reader label of the spinner while a transaction file is being read."
   },
   "slateFileTooLarge": "That file is too large to be a transaction file.",
-  "slatePostedHeadline": "Payment of {amount} sent to the network.",
+  "slatePostedHeadline": "Payment of {amount} posted to the network.",
   "@slatePostedHeadline": {
     "placeholders": {
       "amount": {
@@ -3142,7 +3142,7 @@
       }
     }
   },
-  "slateIncomingResponse": "The recipient's answer to your send of {amount} (fee {fee}).",
+  "slateIncomingResponse": "The recipient’s answer to your send of {amount} (fee {fee}).",
   "@slateIncomingResponse": {
     "description": "A transaction file that answers a payment this wallet started.",
     "placeholders": {
@@ -3198,7 +3198,7 @@
   "@slateNotPostedTitle": {
     "description": "Headline when a finished payment was not accepted by the network yet."
   },
-  "slateNotPostedBody": "The payment is finished but the network has not taken it yet. It will be broadcast again from the payment. Do not send it again.",
+  "slateNotPostedBody": "The payment is finished but the network has not taken it yet. Post it again from the payment; do not send it again.",
   "slateOpenPayment": "Open the payment",
   "@slateOpenPayment": {
     "description": "Button that opens the payment's details screen."
@@ -3207,11 +3207,11 @@
   "@scanQrTitle": {
     "description": "Title of the camera screen that reads a QR code."
   },
-  "scanQrHint": "Point the camera at the recipient's QR code.",
+  "scanQrHint": "Point the camera at the recipient’s QR code.",
   "@scanQrHint": {
     "description": "Shown over the camera picture."
   },
-  "scanQrCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone's settings. You can also paste the address instead.",
+  "scanQrCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also paste the address instead.",
   "scanQrCameraFailed": "The camera could not start. Paste the address instead, or try again.",
   "scanQrTryAgain": "Try again",
   "@scanQrTryAgain": {
@@ -3261,7 +3261,7 @@
   "@qrHiddenBodyPayment": {
     "description": "Body on the covered payment QR card: why it stays hidden."
   },
-  "qrHiddenBodyReply": "Show it to the sender's phone. Only their wallet can use it.",
+  "qrHiddenBodyReply": "Show it to the sender’s phone. Only their wallet can use it.",
   "@qrHiddenBodyReply": {
     "description": "Body on the covered reply QR card: why it stays hidden."
   },
@@ -3316,7 +3316,7 @@
       }
     }
   },
-  "qrHoldHint": "Hold the other phone's camera to this code.",
+  "qrHoldHint": "Hold the other phone’s camera to this code.",
   "@qrHoldHint": {
     "description": "Hint under the QR code: what the other person does."
   },
@@ -3448,7 +3448,7 @@
       }
     }
   },
-  "qrScanCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone's settings. You can also open the file instead.",
+  "qrScanCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also open the file instead.",
   "@qrScanCameraDenied": {
     "description": "Panel on the camera screen when the camera permission is refused."
   },
@@ -3570,7 +3570,7 @@
   "@sendQrMade": {
     "description": "First step of the QR send, done."
   },
-  "sendQrHint": "Show the code to the recipient's phone, then scan their reply.",
+  "sendQrHint": "Show the code to the recipient’s phone, then scan their reply.",
   "@sendQrHint": {
     "description": "Hint on Send once the payment QR is made."
   },
@@ -3948,7 +3948,7 @@
   "@settingsDeleteTitle": {
     "description": "Title of the delete dialog."
   },
-  "settingsDeleteBody": "This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the funds back. Without it, they are lost for good.",
+  "settingsDeleteBody": "This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the coins back. Without it, they are lost for good.",
   "settingsDeleteHavePhrase": "I have written down my recovery phrase",
   "@settingsDeleteHavePhrase": {
     "description": "Checkbox in the delete dialog."
@@ -4273,7 +4273,7 @@
   "@txStepAccepted": {
     "description": "Payment details timeline, a send: the recipient's wallet signed it. Shown once it happened."
   },
-  "txStepPosted": "Sent to the network",
+  "txStepPosted": "Posted to the network",
   "@txStepPosted": {
     "description": "Payment details timeline, a send: the finished payment was posted to the chain."
   },
@@ -4293,7 +4293,7 @@
   "@txStepSenderFinished": {
     "description": "Payment details timeline, an incoming payment: the sender finished it and posted it to the chain."
   },
-  "fileHelpTitle": "How a payment file works",
+  "fileHelpTitle": "How a transaction file works",
   "@fileHelpTitle": {
     "description": "Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back."
   },
@@ -4305,7 +4305,7 @@
   "@fileHelpFriend": {
     "description": "Label under the figure that stands for the other person in the payment file animation."
   },
-  "fileHelpSendStep1": "You make a payment file.",
+  "fileHelpSendStep1": "You make a transaction file.",
   "@fileHelpSendStep1": {
     "description": "Payment file animation, told by the person who pays, step 1 of 4."
   },
@@ -4313,15 +4313,15 @@
   "@fileHelpSendStep2": {
     "description": "Payment file animation, sender's side, step 2 of 4."
   },
-  "fileHelpSendStep3": "Your friend opens it in their wallet and sends you back the signed reply.",
+  "fileHelpSendStep3": "Your friend opens it in their wallet and sends you back the response file.",
   "@fileHelpSendStep3": {
     "description": "Payment file animation, sender's side, step 3 of 4. The reply is a second file."
   },
-  "fileHelpSendStep4": "You open the reply, and the payment is on its way.",
+  "fileHelpSendStep4": "You open the response file, and the payment is on its way.",
   "@fileHelpSendStep4": {
     "description": "Payment file animation, sender's side, step 4 of 4."
   },
-  "fileHelpReceiveStep1": "Your friend makes a payment file for you.",
+  "fileHelpReceiveStep1": "Your friend makes a transaction file for you.",
   "@fileHelpReceiveStep1": {
     "description": "Payment file animation, told by the person who gets paid, step 1 of 4."
   },
@@ -4329,11 +4329,11 @@
   "@fileHelpReceiveStep2": {
     "description": "Payment file animation, receiver's side, step 2 of 4."
   },
-  "fileHelpReceiveStep3": "You open it in your wallet and send back the signed reply.",
+  "fileHelpReceiveStep3": "You open it in your wallet and send back the response file.",
   "@fileHelpReceiveStep3": {
     "description": "Payment file animation, receiver's side, step 3 of 4. The reply is a second file."
   },
-  "fileHelpReceiveStep4": "Your friend opens the reply, and the payment is on its way to you.",
+  "fileHelpReceiveStep4": "Your friend opens the response file, and the payment is on its way to you.",
   "@fileHelpReceiveStep4": {
     "description": "Payment file animation, receiver's side, step 4 of 4."
   },
@@ -4433,7 +4433,7 @@
   "@sendRecent": {
     "description": "Send, step 1: heading of the short list of people the user paid recently."
   },
-  "sendUseFile": "No address? Use a payment file",
+  "sendUseFile": "No address? Use a transaction file",
   "@sendUseFile": {
     "description": "Send, step 1: quiet row that opens paying with a payment file instead of an address."
   },
@@ -4464,15 +4464,15 @@
       }
     }
   },
-  "sendAddNote": "Add a note",
+  "sendAddNote": "Add a message",
   "@sendAddNote": {
     "description": "Send, step 2: folded row that opens the optional note field."
   },
-  "sendNoteLabel": "Note",
+  "sendNoteLabel": "Message",
   "@sendNoteLabel": {
     "description": "Send, step 2: label of the optional note field."
   },
-  "sendNoteHelper": "They see it too.",
+  "sendNoteHelper": "The recipient sees it.",
   "@sendNoteHelper": {
     "description": "Send, step 2: under the note field; the recipient sees the note as well."
   },
@@ -4488,11 +4488,11 @@
   "@sendReady": {
     "description": "Send, review: every check passed."
   },
-  "sendNodeDown": "Can't reach the network right now.",
+  "sendNodeDown": "Cannot reach the network right now.",
   "@sendNodeDown": {
     "description": "Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows."
   },
-  "sendRelayDown": "Their server ({relay}) isn't answering.",
+  "sendRelayDown": "Their Epicbox server ({relay}) is not answering.",
   "@sendRelayDown": {
     "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).",
     "placeholders": {
@@ -4552,7 +4552,7 @@
   "@sendTrackSigned": {
     "description": "Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done."
   },
-  "sendTrackOnNetwork": "Sent to the network",
+  "sendTrackOnNetwork": "Posted to the network",
   "@sendTrackOnNetwork": {
     "description": "Send tracker: the finished payment was handed to the network."
   },
@@ -4560,7 +4560,7 @@
   "@sendTrackConfirmed": {
     "description": "Send tracker, last step: the network confirmed the payment."
   },
-  "sendTrackOffline": "Their wallet finishes it when it opens. {amount} stays on hold until then.",
+  "sendTrackOffline": "Their wallet signs it when it opens. {amount} stays locked until then.",
   "@sendTrackOffline": {
     "description": "Send tracker, while waiting for the recipient's wallet. {amount} is the amount plus fee, like '2.508 EPIC'.",
     "placeholders": {
@@ -4581,11 +4581,11 @@
   "@sendNoCoins": {
     "description": "Send: empty state when the wallet has no coins at all, spendable or on the way."
   },
-  "sendFileTitle": "Pay with a file",
+  "sendFileTitle": "Direct · File Transfer",
   "@sendFileTitle": {
     "description": "Send, file route: heading of the steps that pay with a payment file."
   },
-  "sendMakeFile": "Make payment file",
+  "sendMakeFile": "Make transaction file",
   "@sendMakeFile": {
     "description": "Send, file route: button that makes the payment file for the amount."
   },
@@ -4593,7 +4593,7 @@
   "@sendFileMade": {
     "description": "Send, file route tracker: the payment file exists."
   },
-  "sendFileOnHold": "{amount} on hold",
+  "sendFileOnHold": "{amount} locked",
   "@sendFileOnHold": {
     "description": "Send, file route tracker: detail under 'File made'; the amount is held until the payment finishes.",
     "placeholders": {
@@ -4602,15 +4602,15 @@
       }
     }
   },
-  "sendFileWaitingReply": "Waiting for their reply",
+  "sendFileWaitingReply": "Waiting for the response file",
   "@sendFileWaitingReply": {
     "description": "Send, file route tracker, current step: waiting for the file the other person sends back."
   },
-  "sendFileShareHint": "Send them this file. Then open their reply.",
+  "sendFileShareHint": "Send them this file. Then open their response file.",
   "@sendFileShareHint": {
     "description": "Send, file route: one line above the save and share buttons."
   },
-  "sendOpenReply": "Open their reply",
+  "sendOpenReply": "Open response file",
   "@sendOpenReply": {
     "description": "Send, file route: button that opens the file the other person sent back."
   },
@@ -4634,7 +4634,7 @@
   "@handshakeNetwork": {
     "description": "How it works sheet: label of the Epic network in the diagram."
   },
-  "handshakePay1": "Your wallet sends the payment to the Epicbox server. Your coins go on hold.",
+  "handshakePay1": "Your wallet sends the payment to the Epicbox server. The coins are locked.",
   "@handshakePay1": {
     "description": "How it works, payment, step 1: your wallet sends the payment to the epicbox relay."
   },
@@ -4658,7 +4658,7 @@
   "@handshakeReq2": {
     "description": "How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs."
   },
-  "handshakeRelay": "Server",
+  "handshakeRelay": "Epicbox server",
   "@handshakeRelay": {
     "description": "How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets."
   },
@@ -4674,19 +4674,19 @@
   "@handshakeRelayBack": {
     "description": "How it works, step 4 of the payment and the request: the relay hands it back to your wallet."
   },
-  "handshakeFile1": "Your wallet saves a payment file. You send it to them yourself.",
+  "handshakeFile1": "Your wallet saves a transaction file. You send it to them yourself.",
   "@handshakeFile1": {
     "description": "How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…)."
   },
-  "handshakeFile2": "They open it. Their wallet adds its part, signs and saves a reply.",
+  "handshakeFile2": "They open it. Their wallet adds its part, signs and saves a response file.",
   "@handshakeFile2": {
     "description": "How it works, payment file, step 2."
   },
-  "handshakeFile3": "They send the reply file back to you.",
+  "handshakeFile3": "They send the response file back to you.",
   "@handshakeFile3": {
     "description": "How it works, payment file, step 3."
   },
-  "handshakeFile4": "You open their reply in your wallet.",
+  "handshakeFile4": "You open their response file in your wallet.",
   "@handshakeFile4": {
     "description": "How it works, payment file, step 4: you open the reply file."
   },
@@ -4694,7 +4694,7 @@
   "@handshakePrevious": {
     "description": "How it works sheet: tooltip of the button that shows the step before."
   },
-  "handshakeLink1": "Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.",
+  "handshakeLink1": "Your wallet sends the payment straight to their wallet, over the internet or Tor. The coins are locked.",
   "@handshakeLink1": {
     "description": "How it works sheet: caption of a step of the Link or Direct · QR Payment diagram (QR Payment: R is the receiver's side)."
   },
@@ -4746,7 +4746,7 @@
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
   },
-  "sendRelayRefused": "{days, plural, =1{Their server ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their server ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendRelayRefused": "{days, plural, =1{Their Epicbox server ({relay}) refused it. The amount stays locked until you cancel it, or for up to 1 day.} other{Their Epicbox server ({relay}) refused it. The amount stays locked until you cancel it, or for up to {days} days.}}",
   "@sendRelayRefused": {
     "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.",
     "placeholders": {
@@ -4758,7 +4758,7 @@
       }
     }
   },
-  "sendRelayRefusedLost": "Their server ({relay}) didn't take it. Check Wallet before you send again.",
+  "sendRelayRefusedLost": "Their Epicbox server ({relay}) refused it. Check Wallet before you send again.",
   "@sendRelayRefusedLost": {
     "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.",
     "placeholders": {
@@ -4806,7 +4806,7 @@
       }
     }
   },
-  "balanceLineOnHold": "{amount} on hold",
+  "balanceLineOnHold": "{amount} locked",
   "@balanceLineOnHold": {
     "description": "Under the balance: coins a send holds until it completes (locked outputs), with the amount. Keep it short; it shares one line with balanceLineComingIn.",
     "placeholders": {
@@ -4830,7 +4830,7 @@
   "@demoTestCoinsPill": {
     "description": "Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short."
   },
-  "demoTestCoinsPillTip": "Floonet, Epic's test network. The coins have no value.",
+  "demoTestCoinsPillTip": "Floonet, Epic’s test network. The coins have no value.",
   "@demoTestCoinsPillTip": {
     "description": "Web demo: tooltip and screen-reader text of the Test coins pill. Floonet is a proper name."
   },
@@ -4864,7 +4864,7 @@
   "@demoGuideSend": {
     "description": "Web demo checklist, step 2: send some test coins to someone."
   },
-  "demoGuideSendHint": "Pay a friend's demo, or open this page in a different browser or a private window.",
+  "demoGuideSendHint": "Pay a friend’s demo, or open this page in a different browser or a private window.",
   "@demoGuideSendHint": {
     "description": "Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'."
   },
@@ -4978,7 +4978,7 @@
   "@torFailureNetwork": {
     "description": "Why Tor is not working: no progress connecting (offline, or Tor blocked). The line under the switch already says Tor is blocked in some countries, so this does not repeat it."
   },
-  "torFailureClock": "The phone's clock is wrong. Tor needs the right time.",
+  "torFailureClock": "The phone’s clock is wrong. Tor needs the right time.",
   "@torFailureClock": {
     "description": "Why Tor is not working: the device's clock is off, which Tor refuses."
   },
@@ -4994,7 +4994,7 @@
   "@torFailurePublish": {
     "description": "Why Tor is not working for receiving: the onion address was not published in time."
   },
-  "torFailureKeys": "Tor did not accept the wallet's address key.",
+  "torFailureKeys": "Tor did not accept the wallet’s address key.",
   "@torFailureKeys": {
     "description": "Why Tor is not working for receiving: tor refused the wallet's onion key."
   },
@@ -5022,7 +5022,7 @@
   "@sendTorReaching": {
     "description": "Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise."
   },
-  "sendTorNotReached": "{days, plural, =1{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendTorNotReached": "{days, plural, =1{Their wallet was not reached over Tor. The amount stays locked until you cancel it, or for up to 1 day.} other{Their wallet was not reached over Tor. The amount stays locked until you cancel it, or for up to {days} days.}}",
   "@sendTorNotReached": {
     "description": "Send, review: the recipient's wallet was not reached over Tor; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. Try again and Cancel payment follow.",
     "placeholders": {
@@ -5214,7 +5214,7 @@
       }
     }
   },
-  "sendFilePinReason": "Enter the PIN to make a payment file for {amount}.",
+  "sendFilePinReason": "Enter the PIN to make a transaction file for {amount}.",
   "@sendFilePinReason": {
     "description": "The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.",
     "placeholders": {
@@ -5653,7 +5653,7 @@
   "@outputsColConfirmations": {
     "description": "Output table header: the column with an output's confirmations out of the needed, e.g. 1 / 3. The column is narrow: keep it to one short word."
   },
-  "homePendingShort": "{amount} stays locked until the recipient's wallet answers.",
+  "homePendingShort": "{amount} stays locked until the recipient’s wallet answers.",
   "@homePendingShort": {
     "description": "One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.",
     "placeholders": {
@@ -5696,7 +5696,7 @@
   "@contactsShowCode": {
     "description": "Contact sheet: shows the address as a QR code."
   },
-  "contactsQrLabel": "QR code of {name}'s address",
+  "contactsQrLabel": "QR code of {name}’s address",
   "@contactsQrLabel": {
     "description": "Contact sheet: screen reader label of the QR code.",
     "placeholders": {
@@ -5722,7 +5722,7 @@
   "@contactsCopied": {
     "description": "Notice after the contact's address was copied."
   },
-  "invoicesNewRequest": "New request",
+  "invoicesNewRequest": "New invoice",
   "@invoicesNewRequest": {
     "description": "Invoices: app bar action that opens the request form."
   },
@@ -6285,15 +6285,15 @@
   "@methodArtCaptionFile": {
     "description": "Caption under the File picture, a few words, shown in capitals."
   },
-  "methodArtLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "methodArtLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
   "@methodArtLabelEpicbox": {
     "description": "Screen reader label of the Epicbox picture."
   },
-  "methodArtLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
   "@methodArtLabelHttp": {
     "description": "Screen reader label of the HTTP picture."
   },
-  "methodArtLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "methodArtLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
   "@methodArtLabelTor": {
     "description": "Screen reader label of the Tor picture."
   },
@@ -6449,7 +6449,7 @@
   "@receiveTorCaption": {
     "description": "Receive, Tor tab: caption under the address."
   },
-  "sendHttpNotReached": "{days, plural, =1{Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendHttpNotReached": "{days, plural, =1{Their wallet was not reached. The amount stays locked until you cancel it, or for up to 1 day.} other{Their wallet was not reached. The amount stays locked until you cancel it, or for up to {days} days.}}",
   "@sendHttpNotReached": {
     "description": "Send, review: the recipient's wallet was not reached over HTTP; the payment is kept with its coins on hold until it is cancelled, and cancels itself after {days} days. Try again and Cancel payment follow.",
     "placeholders": {
@@ -6860,7 +6860,7 @@
   "@deskInvIssuerCancelTitle": {
     "description": "Confirm dialog title."
   },
-  "deskInvIssuerCancelBody": "It will not arrive. {payer}'s funds stay locked in their wallet until they cancel on their side.",
+  "deskInvIssuerCancelBody": "It will not arrive. {payer}’s coins stay locked in their wallet until they cancel on their side.",
   "@deskInvIssuerCancelBody": {
     "description": "Confirm dialog text for cancelling a paid request on the receiving side.",
     "placeholders": {
@@ -6869,7 +6869,7 @@
       }
     }
   },
-  "deskInvIssuerBounced": "{payer}'s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "deskInvIssuerBounced": "{payer}’s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
   "@deskInvIssuerBounced": {
     "description": "Detail text and warning notice of a request the payer's wallet returned.",
     "placeholders": {
@@ -6895,7 +6895,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}'s mailbox. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered to {payer}’s Epicbox server. Nothing is paid until they approve it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {
@@ -7012,7 +7012,7 @@
       }
     }
   },
-  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to unlock your funds.",
+  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to free the coins.",
   "@deskInvPayerWithdrawnText": {
     "description": "Notice text: a paid invoice was withdrawn; the user may cancel the payment."
   },
@@ -7025,7 +7025,7 @@
       }
     }
   },
-  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to unlock your funds.",
+  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to free the coins.",
   "@deskInvPayerPastTtlText": {
     "description": "Notice text for a paid invoice past its time and not on chain."
   },
@@ -7120,7 +7120,7 @@
   "@deskInvPayerReceived": {
     "description": "Label (Advanced): when the invoice arrived."
   },
-  "deskInvPayerShort": "Not enough spendable funds",
+  "deskInvPayerShort": "Not enough spendable EPIC",
   "@deskInvPayerShort": {
     "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
   },
@@ -7144,7 +7144,7 @@
   "@deskInvPayerNodeDownTitle": {
     "description": "Reason Approve is disabled: the wallet's node cannot be reached."
   },
-  "deskInvPayerNodeDownText": "The wallet cannot check your funds, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
   "@deskInvPayerNodeDownText": {
     "description": "Text under the node-down reason. The wallet never switches node by itself."
   },
@@ -7240,7 +7240,7 @@
   "@deskInvPayerCancelTitle": {
     "description": "Title of the cancel payment dialog."
   },
-  "deskInvPayerCancelText": "Cancelling unlocks your funds here. The service still holds your signed payment, so it could still complete until these funds are spent again.",
+  "deskInvPayerCancelText": "Cancelling frees the coins here. The service still holds your signed payment, so it could still complete until these coins are spent again.",
   "@deskInvPayerCancelText": {
     "description": "Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete."
   },
@@ -7272,7 +7272,7 @@
   "@deskInvPayerCancelled": {
     "description": "Toast after a payment was cancelled."
   },
-  "deskInvPayerCancelledText": "Your funds are unlocked.",
+  "deskInvPayerCancelledText": "The coins are unlocked.",
   "@deskInvPayerCancelledText": {
     "description": "Toast text after a payment was cancelled."
   },
@@ -7284,15 +7284,15 @@
   "@deskInvPayerSpendToSelf": {
     "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
   },
-  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service's signed copy can no longer complete. Costs a network fee.",
+  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service’s signed copy can no longer complete. Costs a network fee.",
   "@deskInvPayerSpendToSelfHelp": {
     "description": "Help under the Spend them to myself now checkbox."
   },
-  "deskInvPayerSpentText": "Your funds are unlocked and moved within this wallet. The cancel is final.",
+  "deskInvPayerSpentText": "The coins are unlocked and moved within this wallet. The cancel is final.",
   "@deskInvPayerSpentText": {
     "description": "Toast text after a cancel whose coins were spent to the wallet itself."
   },
-  "deskInvPayerSpendFailedText": "Your funds are unlocked, but moving them did not work. The cancel is not final yet.",
+  "deskInvPayerSpendFailedText": "The coins are unlocked, but moving them did not work. The cancel is not final yet.",
   "@deskInvPayerSpendFailedText": {
     "description": "Toast text after a cancel whose spend to the wallet itself failed."
   },
@@ -7329,11 +7329,11 @@
   "@deskInvSetReceiveHint": {
     "description": "Text beside Request a payment on Receive."
   },
-  "serverSwitchRelayTitle": "Switch epicbox server?",
+  "serverSwitchRelayTitle": "Switch Epicbox server?",
   "@serverSwitchRelayTitle": {
     "description": "Title of the confirm before the epicbox server of the open wallet changes."
   },
-  "serverSwitchRelayBody": "The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
+  "serverSwitchRelayBody": "The Epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
   "@serverSwitchRelayBody": {
     "description": "Body of that confirm: the address keeps its key and takes the new server.",
     "placeholders": {
@@ -7426,11 +7426,11 @@
   "@methodSendDirectLine": {
     "description": "Send's strip line for Link."
   },
-  "methodArtLabelDirect": "Link: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelDirect": "Link: the payment goes straight to the recipient’s wallet, which must be open",
   "@methodArtLabelDirect": {
     "description": "Screen reader label of the Link picture."
   },
-  "methodArtSpokenLink": "{method}: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtSpokenLink": "{method}: the payment goes straight to the recipient’s wallet, which must be open",
   "@methodArtSpokenLink": {
     "description": "Screen reader label of the Link family's picture on Send and Receive. {method} is the family's name (\"Link\").",
     "placeholders": {
@@ -7529,7 +7529,7 @@
   "@torSettingsLink": {
     "description": "Text link on Receive's Link tab to Settings › Privacy."
   },
-  "torNetworkLabel": "Tor Network",
+  "torNetworkLabel": "Tor network",
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
@@ -7610,7 +7610,7 @@
   "@pushConfirmRelayBody": {
     "description": "Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification."
   },
-  "pushConfirmRelayAddress": "Your Epicbox address will change. Share the new one.",
+  "pushConfirmRelayAddress": "Your Epicbox address changes. Share the new one.",
   "@pushConfirmRelayAddress": {
     "description": "Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on."
   },
@@ -7683,7 +7683,7 @@
   "@deskErrNodeNotAnswering": {
     "description": "An error message the user reads when the node does not answer."
   },
-  "deskErrNotEnoughFunds": "Not enough funds",
+  "deskErrNotEnoughFunds": "Not enough EPIC",
   "@deskErrNotEnoughFunds": {
     "description": "An error message the user reads when the spendable balance is too small."
   },
@@ -7777,7 +7777,7 @@
   "@deskErrTorMissing": {
     "description": "Why Tor is down: this build has no Tor program. Shown on the Tor status line."
   },
-  "deskErrTorNetwork": "Can’t reach the Tor network",
+  "deskErrTorNetwork": "Cannot reach the Tor network",
   "@deskErrTorNetwork": {
     "description": "Why Tor is down: the Tor network cannot be reached. Shown on the Tor status line."
   },
@@ -7882,7 +7882,7 @@
       }
     }
   },
-  "deskErrTestNet": "Test network wallet. Only mainnet wallets can be imported.",
+  "deskErrTestNet": "Floonet wallet: only mainnet wallets can be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },
@@ -8023,7 +8023,7 @@
   "@deskErrNotEpicboxAddress": {
     "description": "Why a send failed: the address is not an Epicbox address."
   },
-  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrFileNotSaved": {
     "description": "Why a file send failed: the transaction file could not be saved."
   },
@@ -8039,11 +8039,11 @@
   "@deskErrRecipientNoAnswer": {
     "description": "Why a direct send failed: nothing was sent."
   },
-  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrRecipientNoAnswerWaits": {
     "description": "Why a direct send failed: the payment may exist and waits in Activity."
   },
-  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrNotDelivered": {
     "description": "Why an Epicbox send failed: the payment waits in Activity."
   },
@@ -8051,7 +8051,7 @@
   "@deskErrInterruptedLock": {
     "description": "Why a send ended: the wallet was locked during it."
   },
-  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrStoredWaits": {
     "description": "Why a send failed with a reason, when the payment may exist. {detail} is the reason without its final full stop.",
     "placeholders": {
@@ -8060,7 +8060,7 @@
       }
     }
   },
-  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.",
+  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to free the coins.",
   "@deskErrNodeRefused": {
     "description": "Why a direct send failed: both wallets signed but the node refused the transaction."
   },
@@ -8169,7 +8169,7 @@
       }
     }
   },
-  "deskErrHistOtherWallet": "Another wallet's data",
+  "deskErrHistOtherWallet": "Another wallet’s data",
   "@deskErrHistOtherWallet": {
     "description": "Title of the notice when a history backup file was exported from a different wallet."
   },
@@ -8706,7 +8706,7 @@
       }
     }
   },
-  "deskTorNetworkLabel": "Tor Network",
+  "deskTorNetworkLabel": "Tor network",
   "@deskTorNetworkLabel": {
     "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
   },
@@ -9327,7 +9327,7 @@
   "@deskSendErrOnion": {
     "description": "Error under the To field on Send when the address looks like a Tor address but is not complete or valid."
   },
-  "deskSendErrOwn": "This is the wallet's own address.",
+  "deskSendErrOwn": "This is the wallet’s own address.",
   "@deskSendErrOwn": {
     "description": "Error under the To field on Send when the recipient is this wallet."
   },
@@ -9538,7 +9538,7 @@
   "@deskSendAmountSem": {
     "description": "Screen reader label of the amount field."
   },
-  "deskSendAllButton": "All",
+  "deskSendAllButton": "Max",
   "@deskSendAllButton": {
     "description": "Small button in the amount field: send the whole spendable balance. Very short."
   },
@@ -9924,7 +9924,7 @@
   "@deskFinTryAgain": {
     "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
   },
-  "deskFinPostedText": "The payment was finalized and sent to the network. Follow it in Activity.",
+  "deskFinPostedText": "The payment was finalized and posted to the network. Follow it in Activity.",
   "@deskFinPostedText": {
     "description": "Text of the result card after finalizing."
   },
@@ -11147,7 +11147,7 @@
   "@deskOvHide": {
     "description": "Ghost button in the incompatible-node notice: dismiss it. Short."
   },
-  "deskOvCantReachNode": "Can’t reach the node at {url}",
+  "deskOvCantReachNode": "Cannot reach the node at {url}",
   "@deskOvCantReachNode": {
     "description": "Title of a red notice on Overview: the node does not answer.",
     "placeholders": {
@@ -11421,7 +11421,7 @@
   "@deskTxNoteBlock": {
     "description": "Small note under the Date step of a payment found by a scan, when the date comes from the block."
   },
-  "deskTxNoteScanTime": "Time of the scan; the block's time could not be read. The sender is not recorded.",
+  "deskTxNoteScanTime": "Time of the scan; the block’s time could not be read. The sender is not recorded.",
   "@deskTxNoteScanTime": {
     "description": "Small note under the Date step of a payment found by a scan, when the block's time could not be read so the time of the scan is shown."
   },
@@ -11445,15 +11445,15 @@
   "@deskTxFoundRestoredTip": {
     "description": "Tooltip on a payment found while restoring the wallet."
   },
-  "deskTxFoundRescanLabel": "Found by scan",
+  "deskTxFoundRescanLabel": "Found by recheck",
   "@deskTxFoundRescanLabel": {
     "description": "Name of a payment found by a scan (balance recheck or any scan). Activity table, narrow."
   },
-  "deskTxFoundRescanLine": "Found by a balance recheck",
+  "deskTxFoundRescanLine": "Found by recheck",
   "@deskTxFoundRescanLine": {
     "description": "Small line under the name of a payment found by a balance recheck. Activity table, narrow."
   },
-  "deskTxFoundRescanStep": "Found by a balance recheck",
+  "deskTxFoundRescanStep": "Found by recheck",
   "@deskTxFoundRescanStep": {
     "description": "First step on the transaction detail timeline for a payment found by a balance recheck."
   },
@@ -11927,7 +11927,7 @@
       }
     }
   },
-  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient's wallet cannot finish it without yours: the locked amount returns to the balance.",
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient’s wallet cannot finish it without yours: the locked amount returns to the balance.",
   "@deskTxCancelOutgoingBody": {
     "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.",
     "placeholders": {
@@ -12126,7 +12126,7 @@
   "@deskOnbCreateStageCreate": {
     "description": "Progress step while the new wallet is made."
   },
-  "deskOnbCreateStageSave": "Saving the account",
+  "deskOnbCreateStageSave": "Saving the wallet",
   "@deskOnbCreateStageSave": {
     "description": "Progress step after the wallet is made: its account is saved."
   },
@@ -12151,7 +12151,7 @@
   "@deskOnbCreateFailedTitle": {
     "description": "Heading of the failure box on the new-wallet progress page."
   },
-  "deskOnbCreateDiskFull": "The account could not be saved: the disk is full.",
+  "deskOnbCreateDiskFull": "Wallet not saved: the disk is full. Free some space, then try again.",
   "@deskOnbCreateDiskFull": {
     "description": "Failure text on the new-wallet progress page when the disk is full."
   },
@@ -12298,7 +12298,7 @@
   "@deskOnbRestoreStaysHere": {
     "description": "Default status line under the phrase grid."
   },
-  "deskOnbRestoreChecksumFirm": "This phrase's check number does not match. Compare every word with the paper.",
+  "deskOnbRestoreChecksumFirm": "This phrase’s check number does not match. Compare every word with the paper.",
   "@deskOnbRestoreChecksumFirm": {
     "description": "Status line under the phrase grid: all words are valid but the checksum is wrong."
   },
@@ -12388,7 +12388,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet's password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it asks for that wallet’s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },
@@ -12452,7 +12452,7 @@
   "@deskOnbUnlockNotRemembered": {
     "description": "Toast title after unlocking with 'Remember on this computer' ticked when the password could not be stored."
   },
-  "deskOnbUnlockKeyStore": "This computer's key store is unavailable.",
+  "deskOnbUnlockKeyStore": "This computer’s key store is unavailable.",
   "@deskOnbUnlockKeyStore": {
     "description": "Toast text for the previous message."
   },
@@ -13477,15 +13477,15 @@
   "@deskKitHeroCaptionFile": {
     "description": "Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters."
   },
-  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -14055,7 +14055,7 @@
   "@deskKitChipNotOverTor": {
     "description": "Small chip: this method does not go through Tor. Narrow chip."
   },
-  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet's file. A guide, not a guarantee.",
+  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet’s file. A guide, not a guarantee.",
   "@deskKitPasswordNote": {
     "description": "Tooltip behind the info icon under a new-password field: how the 'time to crack' is estimated."
   },
@@ -14497,7 +14497,7 @@
   "@deskSetBackupNeeds": {
     "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
   },
-  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}. Restore the wallet from its phrase first.",
+  "deskSetBackupNeedsValue": "A file from this wallet (same recovery phrase) on {network}. Restore the wallet from its phrase first.",
   "@deskSetBackupNeedsValue": {
     "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
     "placeholders": {
@@ -14634,11 +14634,11 @@
   "@deskSetBackupNotNow": {
     "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
   },
-  "deskSetDlgChainTitle": "Existing blockchain data found",
+  "deskSetDlgChainTitle": "Chain data found",
   "@deskSetDlgChainTitle": {
     "description": "Title of the dialog offering to reuse blockchain data already on this computer."
   },
-  "deskSetDlgChainDesc": "This computer already has Epic blockchain data that the local node can use.",
+  "deskSetDlgChainDesc": "The local node can use the Epic chain data already on this computer, instead of downloading it.",
   "@deskSetDlgChainDesc": {
     "description": "Existing blockchain data dialog: description under the title."
   },
@@ -14666,7 +14666,7 @@
   "@deskSetDlgChainInUse": {
     "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
   },
-  "deskSetDlgChainUseIt": "Use it? That saves downloading and syncing the whole blockchain.",
+  "deskSetDlgChainUseIt": "Use it?",
   "@deskSetDlgChainUseIt": {
     "description": "Existing blockchain data dialog: question line."
   },
@@ -15493,7 +15493,7 @@
   "@deskSetLndNotInUse": {
     "description": "Toast title when pointing the node at a chain data folder failed."
   },
-  "deskSetLndReuseTitle": "Chain data found on this computer",
+  "deskSetLndReuseTitle": "Chain data found",
   "@deskSetLndReuseTitle": {
     "description": "Reuse chain data dialog: title."
   },
@@ -16550,7 +16550,7 @@
   "@deskSetRescanStoppedLine": {
     "description": "Settings > Recheck balance: line added to the scan log when the scan was stopped; also the title of the result card."
   },
-  "deskSetRescanLog": "Scan log",
+  "deskSetRescanLog": "Recheck log",
   "@deskSetRescanLog": {
     "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
   },
@@ -16603,7 +16603,7 @@
   "@deskSetRescanNotRead": {
     "description": "Settings > Recheck balance: shown instead of a balance that could not be read."
   },
-  "deskSetRescanFinished": "Scan finished",
+  "deskSetRescanFinished": "Recheck finished",
   "@deskSetRescanFinished": {
     "description": "Settings > Recheck balance: title of the result card after a complete scan."
   },
@@ -16889,7 +16889,7 @@
   "@deskSetupChangeNodeSem": {
     "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
   },
-  "deskSetupChangeEpicboxSem": "Change epicbox",
+  "deskSetupChangeEpicboxSem": "Change Epicbox",
   "@deskSetupChangeEpicboxSem": {
     "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
   },
@@ -17287,7 +17287,7 @@
   "@deskKeyringMissingTitle": {
     "description": "Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets."
   },
-  "deskKeyringMissingText": "Epic Cash keeps its settings and your wallet's sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.",
+  "deskKeyringMissingText": "Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.",
   "@deskKeyringMissingText": {
     "description": "Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button."
   },
@@ -17295,7 +17295,7 @@
   "@deskKeyringLockedTitle": {
     "description": "Desktop, Linux, first screen: the system keyring exists but is locked."
   },
-  "deskKeyringLockedText": "Epic Cash keeps its settings and your wallet's sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.",
+  "deskKeyringLockedText": "Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.",
   "@deskKeyringLockedText": {
     "description": "Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow."
   },
@@ -17307,7 +17307,7 @@
   "@txStatusNotDelivered": {
     "description": "Status chip of an Epicbox payment no attempt has delivered to the relay."
   },
-  "txDetailsNotDeliveredBody": "This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.",
+  "txDetailsNotDeliveredBody": "This payment did not reach the Epicbox server yet, so the recipient has not received it. The coins stay locked until it is sent again or cancelled.",
   "@txDetailsNotDeliveredBody": {
     "description": "Explanation under the status of a payment that was not delivered."
   },
@@ -17319,11 +17319,11 @@
   "@deskTxThisWallet": {
     "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
   },
-  "deskErrOldLinks": "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.",
+  "deskErrOldLinks": "This wallet’s folder has links in it, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldLinks": {
     "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user restores it from the recovery phrase instead."
   },
-  "deskErrOldIncomplete": "This wallet's folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
+  "deskErrOldIncomplete": "This wallet’s folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldIncomplete": {
     "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user restores it from the recovery phrase instead."
   },
@@ -17385,7 +17385,7 @@
   "@deskErrTxNotFound": {
     "description": "Error when the wallet cannot find the transaction it was asked to send again."
   },
-  "deskTxNowUndelivered": "Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndelivered": "Not delivered. The payment did not reach the Epicbox server, so the recipient has not received it. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndelivered": {
     "description": "Payment detail, the line under the status of a send that never reached the Epicbox server (\"epicbox\" here means that server). Send again and Cancel are buttons below it."
   },
@@ -17413,7 +17413,7 @@
   "@deskSendFeeChangedTitle": {
     "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."
   },
-  "deskSendFeeChangedText": "The wallet's outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
+  "deskSendFeeChangedText": "The wallet’s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
   "@deskSendFeeChangedText": {
     "description": "Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.",
     "placeholders": {
@@ -17452,7 +17452,7 @@
   "@deskSetPhraseCopyTitle": {
     "description": "Confirm dialog title before the recovery phrase is copied to the clipboard."
   },
-  "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "deskSetPhraseCopyText": "Anyone with these words can take the coins. Store the copy somewhere safe.",
   "@deskSetPhraseCopyText": {
     "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   },
@@ -17476,7 +17476,7 @@
   "@txDetailsStalledBody": {
     "description": "Explanation under the status of a stalled invoice payment; Send again is a button below."
   },
-  "txDetailsNotDeliveredDirectBody": "This payment did not reach the recipient's wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.",
+  "txDetailsNotDeliveredDirectBody": "This payment did not reach the recipient’s wallet, so they have not received it. The coins stay locked until it is sent again or cancelled.",
   "@txDetailsNotDeliveredDirectBody": {
     "description": "Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer)."
   },
@@ -17493,19 +17493,19 @@
   "@deskTxStatusNotPosted": {
     "description": "Activity row status: a finished send the node refused; it is not on the network until it is broadcast again."
   },
-  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.",
+  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Post it again; it cannot go through twice.",
   "@deskTxNowNotPosted": {
     "description": "Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself."
   },
-  "deskTxBroadcastAgain": "Broadcast again",
+  "deskTxBroadcastAgain": "Post again",
   "@deskTxBroadcastAgain": {
     "description": "Button on the payment detail of a send the node refused: posts it to the node again."
   },
-  "deskTxBroadcastDone": "Sent to the network",
+  "deskTxBroadcastDone": "Posted to the network",
   "@deskTxBroadcastDone": {
     "description": "Toast after Broadcast again worked."
   },
-  "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndeliveredDirect": "Not delivered. The recipient’s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredDirect": {
     "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
@@ -17527,7 +17527,7 @@
       }
     }
   },
-  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
+  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the coins stay locked. Send again sends it once more without a second approval.",
   "@deskInvPayerStalledText": {
     "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
   },
@@ -17583,7 +17583,7 @@
   "@deskTxDetailsTitleEdit": {
     "description": "Title of the dialog when details exist already."
   },
-  "deskTxDetailsTip": "Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.",
+  "deskTxDetailsTip": "Only for payments found by a recheck.",
   "@deskTxDetailsTip": {
     "description": "Description under the details dialog title, and tooltip on the details button: what it is for."
   },
@@ -17699,7 +17699,7 @@
       }
     }
   },
-  "sendRelayUnknown": "{relay} isn't a server this app knows. Check the address before you send.",
+  "sendRelayUnknown": "{relay} is not a server this app knows. Check the address before you send.",
   "@sendRelayUnknown": {
     "description": "Send, review: the recipient's relay (the part of the address after @) is not one the app knows from its public list or the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
     "placeholders": {
@@ -17717,7 +17717,7 @@
       }
     }
   },
-  "txDetailsNotDeliveredRelayBody": "{relay} did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.",
+  "txDetailsNotDeliveredRelayBody": "{relay} did not answer, so the recipient has not received this payment. The coins stay locked until it is sent again or cancelled.",
   "@txDetailsNotDeliveredRelayBody": {
     "description": "Explanation under the status of a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
     "placeholders": {
@@ -17726,7 +17726,7 @@
       }
     }
   },
-  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrNotDeliveredRelay": {
     "description": "Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.",
     "placeholders": {
@@ -17757,7 +17757,7 @@
       }
     }
   },
-  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.",
+  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredRelay": {
     "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
     "placeholders": {
@@ -17770,7 +17770,7 @@
   "@deskInvNoticeReceiveSuperseded": {
     "description": "Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings."
   },
-  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet's history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet's history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet’s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
   "@deskHistConflictLeadOldWallet": {
     "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
     "placeholders": {
@@ -17848,7 +17848,7 @@
   "@deskUpdRestartHint": {
     "description": "Settings › About, under '{version} is ready': what Restart to update does."
   },
-  "deskUpdFailed": "Couldn't download the update",
+  "deskUpdFailed": "Could not download the update",
   "@deskUpdFailed": {
     "description": "Sidebar notice and Settings › About: the download failed (the reason is in the tooltip or under it)."
   },
@@ -17856,7 +17856,7 @@
   "@deskUpdTryAgain": {
     "description": "Second line of the notice and button: download the update again; it carries on from what already arrived."
   },
-  "deskUpdInstallFailed": "Couldn't install the update",
+  "deskUpdInstallFailed": "Could not install the update",
   "@deskUpdInstallFailed": {
     "description": "The downloaded update could not be started; the download page is offered instead."
   },
@@ -17876,7 +17876,7 @@
   "@deskUpdErrInstall": {
     "description": "Why Restart to update failed: the installer could not be started or the app file could not be replaced."
   },
-  "deskUpdUnfinished": "Update didn't finish. Try again.",
+  "deskUpdUnfinished": "Update did not finish. Try again.",
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   },
@@ -17920,7 +17920,7 @@
   "@advTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "advTechnicalHint": "Shows the technical rows on a payment's details: kernel, slate ID, commitments and block height. In Invoices settings, shows how long an invoice stays payable.",
+  "advTechnicalHint": "Shows the technical rows on a payment’s details: kernel, slate ID, commitments and block height. In Invoices settings, shows how long an invoice stays payable.",
   "@advTechnicalHint": {
     "description": "Info sheet of the Technical details switch."
   },
@@ -17972,11 +17972,11 @@
   "@advModeOfflineLine": {
     "description": "One line under the Offline network mode."
   },
-  "advTorOnlyNote": "Tor only pauses notifications: registering for them would reveal this phone's address.",
+  "advTorOnlyNote": "Tor only pauses notifications: registering for them would reveal this phone’s address.",
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node's own peers are the node's setting.",
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18024,7 +18024,7 @@
   "@deskSetAdvTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core’s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
   "@deskSetAdvTechnicalHint": {
     "description": "Hover card of the Technical details switch on the Advanced page."
   },
@@ -18040,7 +18040,7 @@
   "@deskSetAdvServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."
   },
-  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar's status rows and in the status card.",
+  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar’s status rows and in the status card.",
   "@deskSetAdvServerDetailsHint": {
     "description": "Hover card of the Server details switch."
   },
@@ -18072,7 +18072,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -18096,7 +18096,7 @@
   "@deskSetAdvModeOffline": {
     "description": "Network mode: no network."
   },
-  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node's setting.",
+  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node’s setting.",
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
@@ -18149,7 +18149,7 @@
   "@netBlockWaitingForTor": {
     "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
   },
-  "receiveOfflineLine": "Can't receive this way while Offline mode is on.",
+  "receiveOfflineLine": "Cannot receive this way while Offline mode is on.",
   "@receiveOfflineLine": {
     "description": "Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out."
   },
@@ -18169,7 +18169,7 @@
   "@homeWaitingTorDetail": {
     "description": "Tooltip and screen reader hint of Home's Waiting for Tor status."
   },
-  "settingsRescanBodyPlain": "The wallet looks for its funds again, from the first block. This can take a long time.",
+  "settingsRescanBodyPlain": "The wallet looks for its coins again, from the first block.",
   "@settingsRescanBodyPlain": {
     "description": "Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned."
   },
@@ -18283,7 +18283,7 @@
   "@slRestored": {
     "description": "Foot line after Restore removed servers."
   },
-  "slRelayWarning": "Switching changes your address. Senders need the new one.",
+  "slRelayWarning": "Your Epicbox address changes. Share the new one.",
   "@slRelayWarning": {
     "description": "Warning card under the Epicbox field."
   },
@@ -18366,7 +18366,7 @@
   "@deskOnbRestoreFromHint": {
     "description": "Placeholder of the start block field on Restore."
   },
-  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "deskOnbRestoreFromHelp": "Only if the wallet’s first payment came after this block. Leave it empty to check the whole chain.",
   "@deskOnbRestoreFromHelp": {
     "description": "Help line under the start block field on Restore."
   },
@@ -18402,7 +18402,7 @@
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },
-  "deskNetCantReceive": "Can't receive offline.",
+  "deskNetCantReceive": "Cannot receive offline.",
   "@deskNetCantReceive": {
     "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
   },
@@ -18711,7 +18711,7 @@
       }
     }
   },
-  "receiveEpicboxOffText": "Senders' payments wait on the server until Epicbox is on again.",
+  "receiveEpicboxOffText": "Payments wait on the Epicbox server until Epicbox is on again.",
   "@receiveEpicboxOffText": {
     "description": "Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile."
   },
@@ -19029,7 +19029,7 @@
       }
     }
   },
-  "pairLead": "Pair once with someone. Payment files and invoices between the two wallets are then sealed: only those two can read them.",
+  "pairLead": "Pair once with someone. Transaction files and invoices between the two wallets are then sealed: only those two can read them.",
   "@pairLead": {
     "description": "Lead text on the Pair screen, phone and desktop. The only explanation on the screen."
   },
@@ -19049,7 +19049,7 @@
   "@pairOnlineHint": {
     "description": "Subtitle of Online."
   },
-  "pairOfflineHint": "You’re offline. The invite and the answer travel by hand.",
+  "pairOfflineHint": "Offline. The invite and the answer travel by hand.",
   "@pairOfflineHint": {
     "description": "Subtitle of Online while the wallet is Offline (the invite goes by hand, as with Epicbox off). Also the docked notice on the Pair page and on Pair online."
   },
@@ -19065,7 +19065,7 @@
   "@pairNotPaired": {
     "description": "Contact page: the Pairing block of a contact without a pairing."
   },
-  "pairNotPairedHint": "Pair to seal payment files and allow invoices.",
+  "pairNotPairedHint": "Pair to seal transaction files and allow invoices.",
   "@pairNotPairedHint": {
     "description": "Contact page: under Not paired."
   },
@@ -19187,7 +19187,7 @@
   "@pairCardCopy": {
     "description": "Desktop Pair screen button: copies this wallet's in-person pairing link (its contact card inside, not a word the UI uses), for pairing face to face without a camera."
   },
-  "pairCardHint": "Face to face without a camera: each wallet pastes the other's pairing link above.",
+  "pairCardHint": "Face to face without a camera: each wallet pastes the other’s pairing link above.",
   "@pairCardHint": {
     "description": "Desktop Pair screen hint under the card button."
   },
@@ -19201,7 +19201,7 @@
       }
     }
   },
-  "pairCardBackBody": "Paste this link under Enter link or words in {name}'s wallet. Then verify together.",
+  "pairCardBackBody": "Paste this link under Enter link or words in {name}’s wallet. Then verify together.",
   "@pairCardBackBody": {
     "description": "Dialog text with this wallet's card link to hand back. {name} is the name the other wallet chose.",
     "placeholders": {
@@ -19247,7 +19247,7 @@
   "@pairWhatTheyReceive": {
     "description": "Label above the share text preview."
   },
-  "contactsPairHint": "Pair with another wallet to seal payment files and invoices between the two.",
+  "contactsPairHint": "Pair with another wallet to seal transaction files and invoices between the two.",
   "@contactsPairHint": {
     "description": "Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link"
   },
@@ -19267,7 +19267,7 @@
   "@pairBadgePendingTip": {
     "description": "Tooltip of that badge"
   },
-  "pairWaysLead": "Pair once. Payment files and invoices between the two wallets are then sealed.",
+  "pairWaysLead": "Pair once. Transaction files and invoices between the two wallets are then sealed.",
   "@pairWaysLead": {
     "description": "Pair screen lead (replaces the longer pairLead there)"
   },
@@ -19279,7 +19279,7 @@
   "@pairWayAutomatic": {
     "description": "EBadge (info) beside “Words”"
   },
-  "pairWayWordsHint": "Read five words to them. Both wallets must be online; the rest happens by itself.",
+  "pairWayWordsHint": "Read the five pairing words to them. Both wallets must be online.",
   "@pairWayWordsHint": {
     "description": "Option 1 line (the one line where they choose)"
   },
@@ -19631,7 +19631,7 @@
       }
     }
   },
-  "pairIncomingBody": "Once paired, payment files and invoices between you and {name} are sealed. You verify together next.",
+  "pairIncomingBody": "Once paired, transaction files and invoices between you and {name} are sealed. You verify together next.",
   "@pairIncomingBody": {
     "description": "Incoming sheet body.",
     "placeholders": {
@@ -19681,7 +19681,7 @@
   "@pairSendByHand": {
     "description": "Button on the waiting screen and the relay notice."
   },
-  "pairRelayUnreachableTitle": "Can’t reach the server",
+  "pairRelayUnreachableTitle": "Cannot reach the server",
   "@pairRelayUnreachableTitle": {
     "description": "Notice on the waiting screen (cases file)."
   },
@@ -19689,11 +19689,11 @@
   "@pairRelayUnreachableBody": {
     "description": "Notice body."
   },
-  "pairRelayUnreachableTor": "Can’t reach the server over Tor. Send your answer by hand?",
+  "pairRelayUnreachableTor": "Cannot reach the server over Tor. Send your answer by hand?",
   "@pairRelayUnreachableTor": {
     "description": "The same notice with Epicbox over Tor on."
   },
-  "pairNoRelay": "Can’t reach any connection server. Pair with an invite link instead.",
+  "pairNoRelay": "Cannot reach any connection server. Pair with an invite link instead.",
   "@pairNoRelay": {
     "description": "Pairing words: not one of the built-in relays took the invite or could be searched for it. The user pairs with an invite link instead."
   },
@@ -19885,11 +19885,11 @@
   "@pairAnsweredSameInvite": {
     "description": "Pending row subtitle for the second replier."
   },
-  "sasTitle": "Check the words",
+  "sasTitle": "Compare the check words",
   "@sasTitle": {
     "description": "Screen and dialog title; also the Help topic and the contact-page action."
   },
-  "sasLead": "{name}’s wallet shows the same four. Compare them on a call or in person.",
+  "sasLead": "{name}’s wallet shows the same four check words. Compare them on a call or in person.",
   "@sasLead": {
     "description": "Lead of the check.",
     "placeholders": {
@@ -19923,7 +19923,7 @@
   "@sasMatch": {
     "description": "Primary button."
   },
-  "sasNoMatch": "They don’t match",
+  "sasNoMatch": "They do not match",
   "@sasNoMatch": {
     "description": "Outlined button."
   },
@@ -19945,7 +19945,7 @@
       }
     }
   },
-  "sasMatchedBody": "Payment files and invoices with {name} are sealed from now on.",
+  "sasMatchedBody": "Transaction files and invoices with {name} are sealed from now on.",
   "@sasMatchedBody": {
     "description": "Result body.",
     "placeholders": {
@@ -19955,7 +19955,7 @@
       }
     }
   },
-  "sasNoMatchTitle": "The words don’t match",
+  "sasNoMatchTitle": "The words do not match",
   "@sasNoMatchTitle": {
     "description": "Dialog title."
   },
@@ -19977,7 +19977,7 @@
       }
     }
   },
-  "sasSkippedBody": "Payment files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.",
+  "sasSkippedBody": "Transaction files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.",
   "@sasSkippedBody": {
     "description": "Result body after Skip.",
     "placeholders": {
@@ -20083,7 +20083,7 @@
       }
     }
   },
-  "contactSealInfoMore": "Off, a payment file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.",
+  "contactSealInfoMore": "Off, a transaction file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.",
   "@contactSealInfoMore": {
     "description": "Second paragraph of the Seal payments info sheet.",
     "placeholders": {
@@ -20139,7 +20139,7 @@
       }
     }
   },
-  "contactRelayDownTitle": "{name}’s server isn’t answering",
+  "contactRelayDownTitle": "{name}’s Epicbox server is not answering",
   "@contactRelayDownTitle": {
     "description": "Notice on the contact page (cases file C-05).",
     "placeholders": {
@@ -20460,7 +20460,7 @@
   "@invoicesEmptyAction": {
     "description": "Empty-state button; opens Settings › Wallet › Invoices."
   },
-  "reqTitle": "Review request",
+  "reqTitle": "Review invoice",
   "@reqTitle": {
     "description": "Screen title (replaces Review invoice for requests from paired contacts)."
   },
@@ -20510,7 +20510,7 @@
   "@reqTlPaid": {
     "description": "Timeline step."
   },
-  "reqTlDelivered": "Delivered to {name}’s server",
+  "reqTlDelivered": "Delivered to {name}’s Epicbox server",
   "@reqTlDelivered": {
     "description": "Timeline step.",
     "placeholders": {
@@ -20592,7 +20592,7 @@
   "@reqSendAgain": {
     "description": "Button."
   },
-  "reqUnreachableTitle": "Couldn’t reach {name} yet",
+  "reqUnreachableTitle": "Could not reach {name} yet",
   "@reqUnreachableTitle": {
     "description": "After 24 hours undelivered (cases file).",
     "placeholders": {
@@ -20602,7 +20602,7 @@
       }
     }
   },
-  "reqUnreachableBody": "Your funds are safe; they unlock if it doesn’t post. Delivery keeps retrying.",
+  "reqUnreachableBody": "The coins unlock if it is not posted. Delivery keeps retrying.",
   "@reqUnreachableBody": {
     "description": "Body."
   },
@@ -20620,7 +20620,7 @@
       }
     }
   },
-  "reqWithdrewBody": "Your funds are unlocked. Nothing was paid.",
+  "reqWithdrewBody": "The coins are unlocked. Nothing was paid.",
   "@reqWithdrewBody": {
     "description": "Body when the payment was cancelled."
   },
@@ -20675,7 +20675,7 @@
   "@reqReceivedWaitingBody": {
     "description": "Body."
   },
-  "reqNewTitle": "New request",
+  "reqNewTitle": "New invoice",
   "@reqNewTitle": {
     "description": "Request form title."
   },
@@ -20707,11 +20707,11 @@
   "@reqNewSaveFile": {
     "description": "Secondary button."
   },
-  "reqNewSend": "Send request",
+  "reqNewSend": "Send invoice",
   "@reqNewSend": {
     "description": "Primary button."
   },
-  "sendViaMailbox": "Send through {name}’s mailbox",
+  "sendViaMailbox": "Send through {name}’s Epicbox server",
   "@sendViaMailbox": {
     "description": "Switch on Send for a paired contact over Epicbox.",
     "placeholders": {
@@ -20787,7 +20787,7 @@
   "@sendPlainOptionHint": {
     "description": "Chooser option hint."
   },
-  "sendCantOpenTitle": "{name} can’t open sealed files?",
+  "sendCantOpenTitle": "{name} cannot open sealed files?",
   "@sendCantOpenTitle": {
     "description": "Edge card on a sealed send with no answer.",
     "placeholders": {
@@ -20935,7 +20935,7 @@
       }
     }
   },
-  "noticeRelayDown": "{name}’s server isn’t answering. Retrying.",
+  "noticeRelayDown": "{name}’s Epicbox server is not answering. Retrying.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
     "placeholders": {
@@ -20945,7 +20945,7 @@
       }
     }
   },
-  "noticeWithdrew": "{name} withdrew the request. Your funds are unlocked.",
+  "noticeWithdrew": "{name} withdrew the request. The coins are unlocked.",
   "@noticeWithdrew": {
     "description": "Docked notice when a contact withdrew a paid request.",
     "placeholders": {
@@ -21186,7 +21186,7 @@
   "@reqFileTitle": {
     "description": "Title of the request file screen."
   },
-  "noticeOutboxStuck": "Couldn’t reach {name} yet. Your funds are safe.",
+  "noticeOutboxStuck": "Cannot reach {name} yet. Retrying.",
   "@noticeOutboxStuck": {
     "description": "Docked warning for OutboxStuck.",
     "placeholders": {
@@ -21325,7 +21325,7 @@
   "@helpPairingSection": {
     "description": "Help section title."
   },
-  "helpPairingLede": "Pair once; payment files and invoices with that contact are sealed.",
+  "helpPairingLede": "Pair once; transaction files and invoices with that contact are sealed.",
   "@helpPairingLede": {
     "description": "Help section lede."
   },
@@ -21333,7 +21333,7 @@
   "@helpPairWhatTitle": {
     "description": "Topic 1 title."
   },
-  "helpPairWhatShort": "Pair once with someone; after that, payment files and invoices between the two wallets are sealed.",
+  "helpPairWhatShort": "Pair once with someone; after that, transaction files and invoices between the two wallets are sealed.",
   "@helpPairWhatShort": {
     "description": "Topic 1 lede."
   },
@@ -21341,7 +21341,7 @@
   "@helpPairWhatP1": {
     "description": "Topic 1."
   },
-  "helpPairWhatP2": "After pairing, a payment file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.",
+  "helpPairWhatP2": "After pairing, a transaction file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.",
   "@helpPairWhatP2": {
     "description": "Topic 1."
   },
@@ -21357,7 +21357,7 @@
   "@helpPairWhatStep3": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatP3": "Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary payment files and Epicbox payments.",
+  "helpPairWhatP3": "Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.",
   "@helpPairWhatP3": {
     "description": "Topic 1."
   },
@@ -21373,11 +21373,11 @@
   "@helpPairWhyP1": {
     "description": "Topic 2."
   },
-  "helpPairWhyP2": "Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: payment files are still sealed, but the contact cannot send invoices until the words are checked.",
+  "helpPairWhyP2": "Compare them on a call or in person, then tap **They match**. The contact becomes **Verified**. **Skip for now** leaves it **Paired, not verified**: transaction files are still sealed, but the contact cannot send invoices until the words are checked.",
   "@helpPairWhyP2": {
     "description": "Topic 2."
   },
-  "helpPairWhyP3": "If the words differ, tap **They don’t match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.",
+  "helpPairWhyP3": "If the words differ, tap **They do not match**. The pairing is dropped on this side. Pair again, in person or with a fresh invite.",
   "@helpPairWhyP3": {
     "description": "Topic 2."
   },
@@ -21669,7 +21669,7 @@
   "@expPairing": {
     "description": "Name of the experimental Pairing switch in Settings › Advanced"
   },
-  "expPairingHint": "Pair once with someone you pay often: payment files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.",
+  "expPairingHint": "Pair once with someone you pay often: transaction files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.",
   "@expPairingHint": {
     "description": "Info sheet of the Pairing switch: what it is, that it is experimental"
   },
@@ -21769,7 +21769,7 @@
       }
     }
   },
-  "txStepSentMailbox": "Sent through {name}’s mailbox",
+  "txStepSentMailbox": "Sent through {name}’s Epicbox server",
   "@txStepSentMailbox": {
     "description": "Transaction detail timeline: step 1 of a payment through the contact's mailbox.",
     "placeholders": {
@@ -21789,7 +21789,7 @@
       }
     }
   },
-  "txStepCollecting": "Checking {name}’s mailbox",
+  "txStepCollecting": "Checking {name}’s Epicbox server",
   "@txStepCollecting": {
     "description": "Transaction detail timeline: the detail of step 2 while the answer is awaited.",
     "placeholders": {
@@ -21924,7 +21924,7 @@
       }
     }
   },
-  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet's address sends there.",
+  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet’s address sends there.",
   "@deskOnbImportRelayLead": {
     "description": "Lead of the relay choice; {old} is the old server host.",
     "placeholders": {
@@ -21991,7 +21991,7 @@
   "@deskOvRestoreTitle": {
     "description": "Overview panel title while the core's restore scan from block 0 has not finished."
   },
-  "deskOvRestoreRunning": "Looking for this wallet's funds on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
+  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
   "@deskOvRestoreRunning": {
     "description": "Overview panel text while the restore scan runs; a progress bar follows."
   },
@@ -22115,7 +22115,7 @@
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
-  "deskOnbForgotNoCheck": "Nothing in this wallet's files can confirm the phrase, so the password stays.",
+  "deskOnbForgotNoCheck": "Nothing in this wallet’s files can confirm the phrase, so the password stays.",
   "@deskOnbForgotNoCheck": {
     "description": "Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed."
   },
@@ -22230,11 +22230,11 @@
       }
     }
   },
-  "reqQrNew": "New request",
+  "reqQrNew": "New invoice",
   "@reqQrNew": {
     "description": "Receipt button: start the next request."
   },
-  "reqQrAlreadyPaid": "This request is already paid. Nothing was taken from this phone: its payment stays on hold until they cancel it in Activity, or it runs out after a day.",
+  "reqQrAlreadyPaid": "This request is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.",
   "@reqQrAlreadyPaid": {
     "description": "Merchant scanned a second reply to a request already finished."
   },
@@ -22278,7 +22278,7 @@
   "@reqQrWrongReply": {
     "description": "Merchant scanned a reply to a different request."
   },
-  "backupFileHolds": "This file holds this wallet's payment history, contacts, invoices and settings.",
+  "backupFileHolds": "This file holds this wallet’s payment history, contacts, invoices and settings.",
   "@backupFileHolds": {
     "description": "Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export."
   },
@@ -22290,7 +22290,7 @@
   "@backupFileRestoreOrder": {
     "description": "Export of the history backup, sentence 3: the order of a restore, the phrase first, then this file."
   },
-  "backupImportLead": "Brings back this wallet's payment history, contacts, invoices and settings. Restore the wallet from its recovery phrase first.",
+  "backupImportLead": "Brings back this wallet’s payment history, contacts, invoices and settings. Restore the wallet from its recovery phrase first.",
   "@backupImportLead": {
     "description": "Short lead on the import step of the history backup (both apps): what it brings back; restore from the phrase first."
   },
@@ -22404,7 +22404,7 @@
       }
     }
   },
-  "backupSettingsUseBackup": "Use the file's",
+  "backupSettingsUseBackup": "Use the file’s",
   "@backupSettingsUseBackup": {
     "description": "Button of the settings question: take the settings from the backup. Short."
   },
@@ -22508,7 +22508,7 @@
   "@deskSlotWaitingBlock": {
     "description": "After 'Payment on its way' while the payment is posted but in no block yet."
   },
-  "deskSlotRequests": "New requests",
+  "deskSlotRequests": "New invoices",
   "@deskSlotRequests": {
     "description": "Sidebar slot line: invoices that need an answer; the count follows after a dot."
   },
@@ -22606,7 +22606,7 @@
   "@deskBarSendRunningTitle": {
     "description": "Dialog title when the window is closed (close button, Alt+F4, Quit) while a payment is being sent."
   },
-  "deskBarSendRunningBody": "Closing now would leave the payment's outcome unknown. The wallet can close by itself once the send has finished.",
+  "deskBarSendRunningBody": "Closing now would leave the payment’s outcome unknown. The wallet can close by itself once the send has finished.",
   "@deskBarSendRunningBody": {
     "description": "Dialog text under 'A send is in progress'. There is deliberately no way to close at once."
   },
@@ -22638,7 +22638,7 @@
   "@deskBarKeyClose": {
     "description": "Keyboard-shortcuts row: Esc closes the top-most menu or dialog."
   },
-  "deskBarKeySubmit": "Run a form's main action",
+  "deskBarKeySubmit": "Run a form’s main action",
   "@deskBarKeySubmit": {
     "description": "Keyboard-shortcuts row: Ctrl+Enter runs the main button of the form being filled in."
   },
@@ -22702,7 +22702,7 @@
   "@cancelMoreInHelp": {
     "description": "Link after the quiet line beside every Cancel button: opens Help › Cancelling a payment at the matching heading. Short."
   },
-  "cancelNoteSendWaiting": "Not posted yet: cancelling frees your coins.",
+  "cancelNoteSendWaiting": "Not posted yet: cancelling frees the coins.",
   "@cancelNoteSendWaiting": {
     "description": "Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain."
   },
@@ -22710,7 +22710,7 @@
   "@cancelNoteNotPosted": {
     "description": "Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it."
   },
-  "cancelNoteDirectFailed": "Nothing reached the recipient: cancelling frees your coins.",
+  "cancelNoteDirectFailed": "Nothing reached the recipient: cancelling frees the coins.",
   "@cancelNoteDirectFailed": {
     "description": "Quiet line beside Cancel payment / Cancel and pay with a file on the Send screen after a delivery failed. Certain."
   },
@@ -22775,11 +22775,11 @@
       }
     }
   },
-  "deskOwnYourNode": "Your node",
+  "deskOwnYourNode": "Own node",
   "@deskOwnYourNode": {
     "description": "Name of the user's own node (on this computer, the home network, a VPN or their own server) on the sidebar status row and in its tooltip, where a public node shows its host."
   },
-  "deskOwnLabel": "Your node · {where}",
+  "deskOwnLabel": "Own node · {where}",
   "@deskOwnLabel": {
     "description": "Label of the user's own node on its panel and its row in the node list. {where} is deskOwnClassThisComputer, deskOwnClassHome, deskOwnClassVpn or the host of their own server.",
     "placeholders": {
@@ -22842,7 +22842,7 @@
   "@deskOwnAccess": {
     "description": "Title of the row on the own node's panel for the node's owner secret (.api_secret), which unlocks peers and sync details."
   },
-  "deskOwnAccessHint": "The node's owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer's keyring, never in the settings or the wallet data file.",
+  "deskOwnAccessHint": "The node’s owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer’s keyring, never in the settings or the wallet data file.",
   "@deskOwnAccessHint": {
     "description": "Hint behind the info icon of the Owner access row."
   },
@@ -22871,7 +22871,7 @@
   "@deskOwnAccessTor": {
     "description": "State of the Owner access row for the user's own https server while the Tor switch is on: the secret is never sent over Tor."
   },
-  "deskOwnAccessNote": "Peers and sync details come from the node's owner API. Start, stop and the data folder stay on the node's own computer.",
+  "deskOwnAccessNote": "Peers and sync details come from the node’s owner API. Start, stop and the data folder stay on the node’s own computer.",
   "@deskOwnAccessNote": {
     "description": "Note under the own node's status tiles once owner access is added."
   },
@@ -22904,7 +22904,7 @@
       }
     }
   },
-  "deskOwnDlgWhere": "The secret is the first line of the file .api_secret in the node's data folder (~/.epic/main on the node's computer).",
+  "deskOwnDlgWhere": "The secret is the first line of the file .api_secret in the node’s data folder (~/.epic/main on the node’s computer).",
   "@deskOwnDlgWhere": {
     "description": "Description of the Owner access dialog: where the secret is. Keep .api_secret and ~/.epic/main as they are."
   },
@@ -22933,11 +22933,11 @@
   "@deskOwnDlgPlainTitle": {
     "description": "Warn notice title in the Owner access dialog for a plain-http node on the home network."
   },
-  "deskOwnDlgPlainText": "Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node's computer.",
+  "deskOwnDlgPlainText": "Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node’s computer.",
   "@deskOwnDlgPlainText": {
     "description": "Warn notice text in the Owner access dialog for a plain-http node on the home network."
   },
-  "deskOwnDlgPlainAgain": "Don't show again for this node",
+  "deskOwnDlgPlainAgain": "Do not show again for this node",
   "@deskOwnDlgPlainAgain": {
     "description": "Checkbox under the plain-http warning in the Owner access dialog."
   },
@@ -22953,11 +22953,11 @@
   "@deskOwnDlgAdd": {
     "description": "Primary button of the Owner access dialog: check the secret and keep it."
   },
-  "deskOwnDownTitle": "Your node is not answering",
+  "deskOwnDownTitle": "Own node not answering",
   "@deskOwnDownTitle": {
     "description": "Risk notice title on the own node's panel while a public node stands in for it."
   },
-  "deskOwnDownText": "The wallet uses {host} meanwhile and moves back after your node answers twice in a row.",
+  "deskOwnDownText": "The wallet uses {host} meanwhile and moves back after this node answers twice in a row.",
   "@deskOwnDownText": {
     "description": "Risk notice text on the own node's panel. {host} is the public node standing in.",
     "placeholders": {
@@ -22997,11 +22997,11 @@
       }
     }
   },
-  "deskOwnSyncTitle": "Use a public node until your node is synced?",
+  "deskOwnSyncTitle": "Use a public node until this node is synced?",
   "@deskOwnSyncTitle": {
     "description": "Notice title on the own node's panel while it syncs and nothing was answered yet."
   },
-  "deskOwnSyncText": "The wallet cannot send or receive through a node that is syncing. {host} can stand in; the wallet moves back once your node accepts transactions.",
+  "deskOwnSyncText": "The wallet cannot send or receive through a node that is syncing. {host} can stand in; the wallet moves back once this node accepts transactions.",
   "@deskOwnSyncText": {
     "description": "Notice text on the own node's panel while it syncs. {host} is the public node that would stand in.",
     "placeholders": {
@@ -23010,11 +23010,11 @@
       }
     }
   },
-  "deskOwnWaitForMine": "Wait for my node",
+  "deskOwnWaitForMine": "Wait for this node",
   "@deskOwnWaitForMine": {
     "description": "Button: keep the wallet on the own node while it syncs (no public node)."
   },
-  "deskOwnSyncUsingTitle": "Using {host} until your node is synced",
+  "deskOwnSyncUsingTitle": "Using {host} until this node is synced",
   "@deskOwnSyncUsingTitle": {
     "description": "Info notice title on the own node's panel while a public node stands in for the syncing own node.",
     "placeholders": {
@@ -23023,7 +23023,7 @@
       }
     }
   },
-  "deskOwnSyncUsingText": "The wallet moves back once your node accepts transactions.",
+  "deskOwnSyncUsingText": "The wallet moves back once this node accepts transactions.",
   "@deskOwnSyncUsingText": {
     "description": "Info notice text under deskOwnSyncUsingTitle."
   },
@@ -23039,7 +23039,7 @@
   "@deskOwnListNote": {
     "description": "Second sentence of the node list's foot line."
   },
-  "deskOwnSlotSyncing": "Your node syncing",
+  "deskOwnSlotSyncing": "Own node syncing",
   "@deskOwnSlotSyncing": {
     "description": "Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'."
   },
@@ -23129,7 +23129,7 @@
   "@deskSetAboutDownloadPage": {
     "description": "Settings › About › Updates: row title of the public download page's address, with Open and a copy button."
   },
-  "deskUpdManual": "This copy of the app can't install updates by itself.",
+  "deskUpdManual": "This copy cannot install updates itself.",
   "@deskUpdManual": {
     "description": "Slot tooltip and Settings › About › Updates: this copy (not an installed Windows copy, an AppImage in a folder it cannot write, a build folder, a .deb) cannot install the update itself; its actions open the download page instead."
   },
@@ -23175,7 +23175,7 @@
   "@contactsAddressInvalidAnyNoTor": {
     "description": "contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address."
   },
-  "handshakeLink1NoTor": "Your wallet sends the payment straight to their wallet, over the internet. Your coins go on hold.",
+  "handshakeLink1NoTor": "Your wallet sends the payment straight to their wallet, over the internet. The coins are locked.",
   "@handshakeLink1NoTor": {
     "description": "handshakeLink1 in the build without Tor: the same caption without Tor."
   },
@@ -23187,7 +23187,7 @@
   "@advModeStandardLineNoTor": {
     "description": "One line under the Standard network mode, in the build without Tor."
   },
-  "advOfflineNoteNoTor": "Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node's own peers are the node's setting.",
+  "advOfflineNoteNoTor": "Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.",
   "@advOfflineNoteNoTor": {
     "description": "advOfflineNote in the build without Tor: the same note without Tor."
   },
@@ -23219,7 +23219,7 @@
   "@deskNoTorSetTxDirectHint": {
     "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on')."
   },
-  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node's setting.",
+  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
   "@deskNoTorAdvNetworkHint": {
     "description": "Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline."
   },
@@ -23400,7 +23400,7 @@
   "@connServersInfo2": {
     "description": "Info sheet of Connection servers, paragraph 2: the defaults."
   },
-  "connServersInfo3": "Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet's own Epicbox server.",
+  "connServersInfo3": "Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet’s own Epicbox server.",
   "@connServersInfo3": {
     "description": "Info sheet of Connection servers, paragraph 3: what it does not affect."
   },
@@ -23641,7 +23641,7 @@
       }
     }
   },
-  "devicesRemoveBody": "{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the funds to a wallet with a new recovery phrase.",
+  "devicesRemoveBody": "{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the coins to a wallet with a new recovery phrase.",
   "@devicesRemoveBody": {
     "description": "Body of the confirm before removing a linked device. Must say plainly that removing does not protect the money.",
     "placeholders": {

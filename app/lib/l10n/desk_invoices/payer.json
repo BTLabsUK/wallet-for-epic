@@ -49,7 +49,7 @@
       }
     }
   },
-  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to unlock your funds.",
+  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to free the coins.",
   "@deskInvPayerWithdrawnText": {
     "description": "Notice text: a paid invoice was withdrawn; the user may cancel the payment."
   },
@@ -62,7 +62,7 @@
       }
     }
   },
-  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to unlock your funds.",
+  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to free the coins.",
   "@deskInvPayerPastTtlText": {
     "description": "Notice text for a paid invoice past its time and not on chain."
   },
@@ -157,7 +157,7 @@
   "@deskInvPayerReceived": {
     "description": "Label (Advanced): when the invoice arrived."
   },
-  "deskInvPayerShort": "Not enough spendable funds",
+  "deskInvPayerShort": "Not enough spendable EPIC",
   "@deskInvPayerShort": {
     "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
   },
@@ -181,7 +181,7 @@
   "@deskInvPayerNodeDownTitle": {
     "description": "Reason Approve is disabled: the wallet's node cannot be reached."
   },
-  "deskInvPayerNodeDownText": "The wallet cannot check your funds, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
   "@deskInvPayerNodeDownText": {
     "description": "Text under the node-down reason. The wallet never switches node by itself."
   },
@@ -277,7 +277,7 @@
   "@deskInvPayerCancelTitle": {
     "description": "Title of the cancel payment dialog."
   },
-  "deskInvPayerCancelText": "Cancelling unlocks your funds here. The service still holds your signed payment, so it could still complete until these funds are spent again.",
+  "deskInvPayerCancelText": "Cancelling frees the coins here. The service still holds your signed payment, so it could still complete until these coins are spent again.",
   "@deskInvPayerCancelText": {
     "description": "Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete."
   },
@@ -309,7 +309,7 @@
   "@deskInvPayerCancelled": {
     "description": "Toast after a payment was cancelled."
   },
-  "deskInvPayerCancelledText": "Your funds are unlocked.",
+  "deskInvPayerCancelledText": "The coins are unlocked.",
   "@deskInvPayerCancelledText": {
     "description": "Toast text after a payment was cancelled."
   },
@@ -321,15 +321,15 @@
   "@deskInvPayerSpendToSelf": {
     "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
   },
-  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service's signed copy can no longer complete. Costs a network fee.",
+  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service’s signed copy can no longer complete. Costs a network fee.",
   "@deskInvPayerSpendToSelfHelp": {
     "description": "Help under the Spend them to myself now checkbox."
   },
-  "deskInvPayerSpentText": "Your funds are unlocked and moved within this wallet. The cancel is final.",
+  "deskInvPayerSpentText": "The coins are unlocked and moved within this wallet. The cancel is final.",
   "@deskInvPayerSpentText": {
     "description": "Toast text after a cancel whose coins were spent to the wallet itself."
   },
-  "deskInvPayerSpendFailedText": "Your funds are unlocked, but moving them did not work. The cancel is not final yet.",
+  "deskInvPayerSpendFailedText": "The coins are unlocked, but moving them did not work. The cancel is not final yet.",
   "@deskInvPayerSpendFailedText": {
     "description": "Toast text after a cancel whose spend to the wallet itself failed."
   },
@@ -350,7 +350,7 @@
       }
     }
   },
-  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
+  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the coins stay locked. Send again sends it once more without a second approval.",
   "@deskInvPayerStalledText": {
     "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
   },

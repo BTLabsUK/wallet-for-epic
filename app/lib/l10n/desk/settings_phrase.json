@@ -81,7 +81,7 @@
   "@deskSetPhraseCopyTitle": {
     "description": "Confirm dialog title before the recovery phrase is copied to the clipboard."
   },
-  "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "deskSetPhraseCopyText": "Anyone with these words can take the coins. Store the copy somewhere safe.",
   "@deskSetPhraseCopyText": {
     "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   }

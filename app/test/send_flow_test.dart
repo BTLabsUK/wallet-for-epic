@@ -286,7 +286,7 @@ void main() {
         'Waiting for their wallet',
       ]);
       expect(_steps(tester, TimelineState.todo), [
-        'Sent to the network',
+        'Posted to the network',
         'Confirmed',
       ]);
       await _tap(tester, find.text('Done'));
@@ -334,7 +334,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
       ]);
       expect(
         _steps(tester, TimelineState.current).single,
@@ -347,7 +347,7 @@ void main() {
       expect(_steps(tester, TimelineState.done), [
         'Sent',
         'Their wallet signed',
-        'Sent to the network',
+        'Posted to the network',
         'Confirmed',
       ]);
       expect(_steps(tester, TimelineState.current), isEmpty);
@@ -368,8 +368,8 @@ void main() {
       }
       expect(
         find.text(
-          'Their wallet finishes it when it opens. '
-          '1.008 EPIC stays on hold until then.',
+          'Their wallet signs it when it opens. '
+          '1.008 EPIC stays locked until then.',
         ),
         findsOneWidget,
       );
@@ -413,7 +413,7 @@ void main() {
         find.bySemanticsLabel('Waiting for their wallet, now'),
         findsOneWidget,
       );
-      expect(find.bySemanticsLabel('Sent to the network, later'), findsOne);
+      expect(find.bySemanticsLabel('Posted to the network, later'), findsOne);
       expect(find.bySemanticsLabel('Confirmed, later'), findsOneWidget);
       handle.dispose();
     });
@@ -495,7 +495,7 @@ void main() {
       await _tap(tester, _continue);
       final amount = editable(tester, sendAmountFieldKey);
       expect(identical(amount, again), isFalse);
-      await _tap(tester, find.text('Add a note'));
+      await _tap(tester, find.text('Add a message'));
       expect(find.byKey(sendNoteFieldKey), findsOneWidget);
       expect(
         {

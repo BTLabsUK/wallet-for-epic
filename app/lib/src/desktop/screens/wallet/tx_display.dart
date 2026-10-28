@@ -101,13 +101,15 @@ String? whoTip(AppLocalizations l, Tx t) =>
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.deviceName == null && t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
-/// How it travelled, or null when that is not known (mining rewards, scan finds).
-String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodLabel(l, t.method);
+/// How it travelled, in the short tier of a row's tag, or null when that is not known (mining
+/// rewards, scan finds).
+String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodShortLabel(l, t.method);
 
-/// How a scan find came, in the words of the details dialog; null until the user says.
-String? restoredMethodOf(AppLocalizations l, Tx t) {
+/// How a scan find came, in the words of the details dialog; null until the user says. [short]
+/// for a row's tag.
+String? restoredMethodOf(AppLocalizations l, Tx t, {bool short = false}) {
   if (!t.foundByScan || t.transport == null) return null;
-  return methodLabel(l, t.method);
+  return short ? methodShortLabel(l, t.method) : methodLabel(l, t.method);
 }
 
 IconData iconOf(Tx t) => switch (t.method) {
@@ -415,9 +417,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     final labelEditable = widget.labelEditable && t.deviceName == null;
     final editing = labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
-    final restoredMethod = restoredMethodOf(l, t);
+    final restoredMethod = restoredMethodOf(l, t, short: true);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
-    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodLabel(l, TxMethod.epicbox) : methodOf(l, t)));
+    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;

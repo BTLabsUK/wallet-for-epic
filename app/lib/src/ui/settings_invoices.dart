@@ -225,7 +225,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                   _ => null,
                 },
                 itemBuilder: (context) => [
-                  if (checkWords) PopupMenuItem(value: 'check', child: Text(l.sasTitle)),
+                  if (checkWords) PopupMenuItem(value: 'check', child: Text(l.noticeCheckWords)),
                   if (orphan) ...[
                     if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
                     PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),

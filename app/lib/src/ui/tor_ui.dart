@@ -131,7 +131,7 @@ Color torWordColor(WalletTokens t, TorState state) => switch (state) {
 };
 
 /// Settings › Privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
-/// The row is the label "Tor Network" with the explanation behind its info icon; its line
+/// The row is the label "Tor network" with the explanation behind its info icon; its line
 /// shows only a state that needs saying: "Starting…", or "Not connected" with Retry.
 /// No confirmation and no other change: Tor on routes, nothing the user chose moves.
 class TorSwitchTile extends ConsumerWidget {

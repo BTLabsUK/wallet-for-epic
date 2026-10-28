@@ -398,7 +398,7 @@ void main() {
       await h.pump(tester);
       expect(find.byKey(receiveAddressKey), findsOneWidget);
       expect(
-        find.text("Can't receive this way while Offline mode is on."),
+        find.text('Cannot receive this way while Offline mode is on.'),
         findsOneWidget,
       );
     });
@@ -411,7 +411,7 @@ void main() {
       expect(find.byType(MarkedQr), findsNothing);
       expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
       expect(
-        find.text("Can't receive this way while Offline mode is on."),
+        find.text('Cannot receive this way while Offline mode is on.'),
         findsOneWidget,
       );
       expect(find.text('Senders use the Epicbox address meanwhile.'), findsNothing);
@@ -459,7 +459,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(
-        find.text("Can't receive this way while Offline mode is on."),
+        find.text('Cannot receive this way while Offline mode is on.'),
         findsNothing,
       );
     });

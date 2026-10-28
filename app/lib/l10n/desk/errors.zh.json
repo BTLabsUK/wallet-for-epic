@@ -46,7 +46,7 @@
   "deskErrEnterPassword": "请输入密码",
   "deskErrFolderNotFound": "未找到钱包文件夹",
   "deskErrAlreadyHere": "此钱包已在列表中：{name}",
-  "deskErrTestNet": "测试网络钱包。只能导入主网钱包。",
+  "deskErrTestNet": "Floonet 钱包：只能导入主网钱包。",
   "deskErrWalletInApp": "此钱包已在应用中。",
   "deskErrWalletNotFoundSearch": "未找到钱包。请重新搜索。",
   "deskErrEnterOldPassword": "请输入旧密码",

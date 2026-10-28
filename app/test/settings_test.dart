@@ -1653,7 +1653,7 @@ void main() {
       );
       expect(
         find.text(
-          'Your Epicbox address will change. Share the new one.',
+          'Your Epicbox address changes. Share the new one.',
         ),
         findsOneWidget,
       );
@@ -1861,7 +1861,7 @@ void main() {
       expect(sw.value, isFalse);
       await tester.tap(find.byKey(invoiceSettingsMenuKey(r.id)));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l.sasTitle).last);
+      await tester.tap(find.text(l.noticeCheckWords).last);
       await tester.pumpAndSettle();
       expect(find.text(l.sasMatch), findsOneWidget);
     });
@@ -1877,7 +1877,7 @@ void main() {
       expect(sw.value, isFalse);
       await tester.tap(find.byKey(invoiceSettingsMenuKey(r.id)));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l.sasTitle).last);
+      await tester.tap(find.text(l.noticeCheckWords).last);
       await tester.pumpAndSettle();
       expect(find.text(l.sasMatch), findsOneWidget);
     });
@@ -2115,7 +2115,8 @@ void main() {
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Switch')),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+      // The confirm repeats the sheet's warning line.
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);

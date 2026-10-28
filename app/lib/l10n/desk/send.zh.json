@@ -95,7 +95,7 @@
   "deskSendAvailableNone": "可用 —",
   "deskSendAvailable": "可用 {amount} EPIC",
   "deskSendAmountSem": "金额（EPIC）",
-  "deskSendAllButton": "全部",
+  "deskSendAllButton": "最大",
   "deskSendConfirmingHidden": "部分余额仍在确认中，暂时无法发送。",
   "deskSendConfirming": "{amount} EPIC 仍在确认中，暂时无法发送。",
   "deskSendMessage": "留言",

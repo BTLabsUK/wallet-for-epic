@@ -12,7 +12,7 @@
   "deskTxDetailsEdit": "Ändern",
   "deskTxDetailsTitleAdd": "Details hinzufügen",
   "deskTxDetailsTitleEdit": "Details ändern",
-  "deskTxDetailsTip": "Nur für Zahlungen, die ein Scan gefunden hat. Wird in der Aktivität, in den Details und in Exporten als von Ihnen hinzugefügt angezeigt. Beträge, Daten und Bestätigungen ändern sich nicht.",
+  "deskTxDetailsTip": "Nur für Zahlungen, die eine Neuprüfung gefunden hat.",
   "deskTxDetailsFrom": "Von",
   "deskTxDetailsFromTip": "Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft und nie für Zahlungsnachweise verwendet.",
   "deskTxDetailsFromHint": "Adresse des Absenders",

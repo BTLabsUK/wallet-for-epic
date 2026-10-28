@@ -94,7 +94,7 @@
   "deskSetLndSourceCustom": "ein anderer Ordner",
   "deskSetLndInUse": "Chain-Daten werden genutzt",
   "deskSetLndNotInUse": "Der Ordner wird nicht genutzt",
-  "deskSetLndReuseTitle": "Chain-Daten auf diesem Computer gefunden",
+  "deskSetLndReuseTitle": "Chain-Daten gefunden",
   "deskSetLndReuseDesc": "Ein anderer Epic-Node hat hier Chain-Daten hinterlassen. Der lokale Node kann diesen Ordner lesen, statt die Blockchain herunterzuladen.",
   "deskSetLndLooking": "Wird gesucht…",
   "deskSetLndUseIt": "Nutzen",

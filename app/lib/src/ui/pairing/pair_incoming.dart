@@ -688,8 +688,8 @@ class _PairFinishScreenState extends ConsumerState<PairFinishScreen> {
     );
     // Once it is sent, the words are the main step.
     final check = _shared
-        ? FilledButton(key: finishCheckKey, style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.sasTitle))
-        : OutlinedButton(key: finishCheckKey, style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.sasTitle));
+        ? FilledButton(key: finishCheckKey, style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.noticeCheckWords))
+        : OutlinedButton(key: finishCheckKey, style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)), onPressed: _check, child: Text(l.noticeCheckWords));
     return SlotScaffold(
       appBar: AppBar(title: Text(l.pairWayMessage)),
       body: ScreenBody(

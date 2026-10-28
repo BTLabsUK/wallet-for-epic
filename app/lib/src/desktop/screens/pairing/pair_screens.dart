@@ -648,7 +648,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             if (_sentDone || (record != null && record.state.isPaired)) ...[
               Semantics(header: true, child: Text(l.noticePairingReplied(ref.watch(deskPairingNameProvider(sent.id))), style: ts.h3)),
               SizedBox(height: Sp.x4),
-              Align(alignment: AlignmentDirectional.centerStart, child: EButton.primary(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => deskAfterReply(context, ref, sent.id))),
+              Align(alignment: AlignmentDirectional.centerStart, child: EButton.primary(label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => deskAfterReply(context, ref, sent.id))),
             ] else ...[
               Row(
                 children: [
@@ -1071,9 +1071,9 @@ class _DeskFinishDialogState extends ConsumerState<DeskFinishDialog> {
         // Once it is copied, the words are the main step.
         if (_copied) ...[
           EButton(label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, onPressed: _copy),
-          EButton.primary(key: deskConfirmBackCheckKey, label: l.sasTitle, size: EBtnSize.sm, autofocus: true, onPressed: () => Navigator.pop(context, true)),
+          EButton.primary(key: deskConfirmBackCheckKey, label: l.noticeCheckWords, size: EBtnSize.sm, autofocus: true, onPressed: () => Navigator.pop(context, true)),
         ] else ...[
-          EButton(key: deskConfirmBackCheckKey, label: l.sasTitle, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton(key: deskConfirmBackCheckKey, label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
           EButton.primary(key: deskFinishCopyKey, label: l.pairCopyMessage, icon: EIcons.copy, size: EBtnSize.sm, autofocus: true, onPressed: _copy),
         ],
       ],

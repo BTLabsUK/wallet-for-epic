@@ -94,7 +94,7 @@
   "deskSetLndSourceCustom": "其他文件夹",
   "deskSetLndInUse": "正在使用链数据",
   "deskSetLndNotInUse": "该文件夹未被使用",
-  "deskSetLndReuseTitle": "在这台电脑上找到链数据",
+  "deskSetLndReuseTitle": "找到链数据",
   "deskSetLndReuseDesc": "另一个 Epic 节点在这里留下了链数据。本地节点可以读取那个文件夹，而不用下载区块链。",
   "deskSetLndLooking": "正在查找…",
   "deskSetLndUseIt": "使用它",

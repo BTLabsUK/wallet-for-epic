@@ -331,7 +331,7 @@ void unlockScreenTests() {
     await run(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
     expect(find.text('Not remembered'), findsOneWidget);
-    expect(find.text("This computer's key store is unavailable."), findsOneWidget);
+    expect(find.text('This computer’s key store is unavailable.'), findsOneWidget);
     await done(tester);
   });
 

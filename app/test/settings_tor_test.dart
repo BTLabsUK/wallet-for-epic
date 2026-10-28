@@ -222,7 +222,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(torReceivingSwitchKey),
-        matching: find.text('Tor Network'),
+        matching: find.text('Tor network'),
       ),
       findsOneWidget,
     );
@@ -239,7 +239,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(InfoSheet), findsOneWidget);
     expect(
-      find.descendant(of: find.byType(InfoSheet), matching: find.text('Tor Network')),
+      find.descendant(of: find.byType(InfoSheet), matching: find.text('Tor network')),
       findsOneWidget,
     );
     expect(

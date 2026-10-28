@@ -560,7 +560,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.finalizedSlates, [_replyJson]);
       expect(find.text('Confirming 0/3'), findsOneWidget);
-      expect(find.text('Sent to the network'), findsOneWidget);
+      expect(find.text('Posted to the network'), findsOneWidget);
     });
 
     testWidgets(

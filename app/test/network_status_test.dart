@@ -270,7 +270,7 @@ void main() {
     testWidgets('shown while Tor is off: Off, faint', (tester) async {
       await _pump(tester);
       expect(find.byKey(netStatusTorKey), findsOneWidget);
-      expect(_in(netStatusTorKey, 'Tor Network'), findsOneWidget);
+      expect(_in(netStatusTorKey, 'Tor network'), findsOneWidget);
       // The explanation is the info icon's tooltip, not a line of the row.
       expect(find.descendant(of: find.byKey(netStatusTorKey), matching: find.byType(InfoHint)), findsOneWidget);
       expect(find.textContaining('go through Tor'), findsNothing);

@@ -46,7 +46,7 @@
   "deskErrEnterPassword": "Введите пароль",
   "deskErrFolderNotFound": "Папка кошелька не найдена",
   "deskErrAlreadyHere": "Этот кошелёк уже здесь: {name}",
-  "deskErrTestNet": "Кошелёк тестовой сети. Импортировать можно только кошельки Mainnet.",
+  "deskErrTestNet": "Кошелёк Floonet: импортировать можно только кошельки основной сети.",
   "deskErrWalletInApp": "Этот кошелёк уже есть в приложении.",
   "deskErrWalletNotFoundSearch": "Кошелёк не найден. Поищите снова.",
   "deskErrEnterOldPassword": "Введите старый пароль",

@@ -23,7 +23,7 @@
   "@deskErrNodeNotAnswering": {
     "description": "An error message the user reads when the node does not answer."
   },
-  "deskErrNotEnoughFunds": "Not enough funds",
+  "deskErrNotEnoughFunds": "Not enough EPIC",
   "@deskErrNotEnoughFunds": {
     "description": "An error message the user reads when the spendable balance is too small."
   },
@@ -117,7 +117,7 @@
   "@deskErrTorMissing": {
     "description": "Why Tor is down: this build has no Tor program. Shown on the Tor status line."
   },
-  "deskErrTorNetwork": "Can’t reach the Tor network",
+  "deskErrTorNetwork": "Cannot reach the Tor network",
   "@deskErrTorNetwork": {
     "description": "Why Tor is down: the Tor network cannot be reached. Shown on the Tor status line."
   },
@@ -222,7 +222,7 @@
       }
     }
   },
-  "deskErrTestNet": "Test network wallet. Only mainnet wallets can be imported.",
+  "deskErrTestNet": "Floonet wallet: only mainnet wallets can be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },
@@ -407,7 +407,7 @@
   "@deskErrNotEpicboxAddress": {
     "description": "Why a send failed: the address is not an Epicbox address."
   },
-  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrFileNotSaved": {
     "description": "Why a file send failed: the transaction file could not be saved."
   },
@@ -423,11 +423,11 @@
   "@deskErrRecipientNoAnswer": {
     "description": "Why a direct send failed: nothing was sent."
   },
-  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrRecipientNoAnswerWaits": {
     "description": "Why a direct send failed: the payment may exist and waits in Activity."
   },
-  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrNotDelivered": {
     "description": "Why an Epicbox send failed: the payment waits in Activity."
   },
@@ -435,7 +435,7 @@
   "@deskErrInterruptedLock": {
     "description": "Why a send ended: the wallet was locked during it."
   },
-  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrStoredWaits": {
     "description": "Why a send failed with a reason, when the payment may exist. {detail} is the reason without its final full stop.",
     "placeholders": {
@@ -444,7 +444,7 @@
       }
     }
   },
-  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.",
+  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to free the coins.",
   "@deskErrNodeRefused": {
     "description": "Why a direct send failed: both wallets signed but the node refused the transaction."
   },
@@ -553,7 +553,7 @@
       }
     }
   },
-  "deskErrHistOtherWallet": "Another wallet's data",
+  "deskErrHistOtherWallet": "Another wallet’s data",
   "@deskErrHistOtherWallet": {
     "description": "Title of the notice when a history backup file was exported from a different wallet."
   },
@@ -662,11 +662,11 @@
   "@deskErrSecretProtect": {
     "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
   },
-  "deskErrOldLinks": "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.",
+  "deskErrOldLinks": "This wallet’s folder has links in it, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldLinks": {
     "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user restores it from the recovery phrase instead."
   },
-  "deskErrOldIncomplete": "This wallet's folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
+  "deskErrOldIncomplete": "This wallet’s folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldIncomplete": {
     "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user restores it from the recovery phrase instead."
   },
@@ -686,7 +686,7 @@
   "@deskErrTxNotFound": {
     "description": "Error when the wallet cannot find the transaction it was asked to send again."
   },
-  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.",
+  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to free the coins.",
   "@deskErrNotDeliveredRelay": {
     "description": "Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.",
     "placeholders": {

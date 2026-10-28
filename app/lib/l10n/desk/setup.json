@@ -162,7 +162,7 @@
   "@deskSetupChangeNodeSem": {
     "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
   },
-  "deskSetupChangeEpicboxSem": "Change epicbox",
+  "deskSetupChangeEpicboxSem": "Change Epicbox",
   "@deskSetupChangeEpicboxSem": {
     "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
   },

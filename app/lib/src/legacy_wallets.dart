@@ -31,10 +31,10 @@ const String chainOnlyText = 'Blockchain data, not a wallet.';
 const String noWalletText = 'No wallet in this folder. A wallet folder contains wallet_data/wallet.seed.';
 
 /// The text for a wallet folder with links in it (B15).
-const String linksText = "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.";
+const String linksText = 'This wallet’s folder has links in it, so it is not imported. Restore it from the recovery phrase.';
 
 /// The text for a wallet folder that could not be read to the end.
-const String incompleteText = "This wallet's folder could not be read completely, so it is not imported. Restore it from the recovery phrase.";
+const String incompleteText = 'This wallet’s folder could not be read completely, so it is not imported. Restore it from the recovery phrase.';
 
 /// The text for a wallet.seed LEPIC would refuse.
 const String seedTooLargeText = 'The wallet.seed file is too large to be a wallet seed.';

@@ -516,7 +516,7 @@
   "@deskSetLndNotInUse": {
     "description": "Toast title when pointing the node at a chain data folder failed."
   },
-  "deskSetLndReuseTitle": "Chain data found on this computer",
+  "deskSetLndReuseTitle": "Chain data found",
   "@deskSetLndReuseTitle": {
     "description": "Reuse chain data dialog: title."
   },

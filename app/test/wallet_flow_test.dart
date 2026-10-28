@@ -477,9 +477,10 @@ void main() {
       find.textContaining('epicnet.us', findRichText: true),
       findsWidgets,
     );
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsNothing);
-    await _tap(tester, row);
+    // The sheet warns; the confirm repeats the line.
     expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    await _tap(tester, row);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsNWidgets(2));
     await _tap(tester, find.byKey(serverListCancelKey));
     expect(find.byKey(serverListSwitchKey), findsNothing);
 
@@ -858,7 +859,7 @@ void main() {
         expect(find.text('Copy the recovery phrase?'), findsOneWidget);
         expect(
           find.text(
-            'Anyone with these words can take your funds. Store the copy somewhere safe.',
+            'Anyone with these words can take the coins. Store the copy somewhere safe.',
           ),
           findsOneWidget,
         );
