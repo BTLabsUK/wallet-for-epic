@@ -6,8 +6,8 @@ import 'help_content.dart';
 import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsPl = [
-  (id: 'start', title: 'Pierwsze kroki', lede: 'Odbieranie, wysyłanie i sposób z plikiem.', art: 'help-start'),
-  (id: 'how', title: 'Jak działa Epic Cash', lede: 'Udział obu portfeli; potwierdzenia, prywatność, reszta i opłaty.', art: 'help-how'),
+  (id: 'start', title: 'Pierwsze kroki', lede: 'Odbieranie, wysyłanie i płacenie plikiem.', art: 'help-start'),
+  (id: 'how', title: 'Jak działa Epic Cash', lede: 'Udział obu portfeli. Potwierdzenia, prywatność, reszta i opłaty.', art: 'help-how'),
   (id: 'safety', title: 'Bezpieczeństwo portfela', lede: 'Fraza odzyskiwania to kopia zapasowa i klucz.', art: 'help-safety'),
   (id: 'network', title: 'Węzły i Epicbox', lede: 'Z czym łączy się portfel, oraz Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Gdy coś nie działa', lede: 'Typowe przyczyny i co zrobić.', art: 'help-trouble'),
@@ -40,9 +40,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Otwórz Odbierz, skopiuj adres Epicbox i przekaż go nadawcy. Płatność dotrze sama.',
       [
         const HelpBlock.p('Adres Epicbox to długi kod, który kończy się znakiem **@** i nazwą serwera Epicbox, na przykład **…@epicbox.epiccash.com**. Można go bezpiecznie udostępniać: inni potrzebują go, aby zapłacić, i nikt nie może nim nic zabrać.'),
-        const HelpBlock.ol(['Otwórz [[Odbierz|Receive]].', 'Skopiuj adres (lub pokaż jego kod QR) i wyślij go osobie, która płaci.', 'Płatność sama pojawi się w Aktywności. Nie trzeba nic naciskać.']),
+        const HelpBlock.ol(['Otwórz [[Odbierz|Receive]].', 'Skopiuj adres (lub pokaż jego kod QR) i wyślij go osobie, która płaci.', 'Płatność sama pojawi się w Aktywności.']),
         if (phone)
-          const HelpBlock.p('Odbieranie działa, gdy aplikacja jest otwarta, a węzeł zsynchronizowany. Płatność wysłana przy zamkniętej aplikacji czeka na serwerze Epicbox około tygodnia i dociera po następnym odblokowaniu.')
+          const HelpBlock.p('Odbieranie działa, gdy aplikacja jest otwarta, a węzeł zsynchronizowany. Płatność wysłana przy zamkniętej aplikacji czeka na serwerze Epicbox jak w skrytce pocztowej i dociera po następnym odblokowaniu.')
         else
           const HelpBlock.p('Odbieranie włącza się samo po odblokowaniu, gdy węzeł jest zsynchronizowany. Jeśli portfel jest zamknięty, gdy ktoś płaci, Epicbox przechowuje płatność, a portfel odbiera ją po następnym odblokowaniu.'),
         HelpBlock.p('Nowa płatność najpierw czeka, aż portfel nadawcy ją zakończy, a potem ma stan „Potwierdzanie”. Po osiągnięciu wymaganej liczby potwierdzeń ($confirmations, około $confirmations min) można ją wydać.'),
@@ -129,7 +129,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash używa Mimblewimble. Zamiast zapisywać w łańcuchu bloków adres i kwotę, oba portfele budują każdą transakcję razem, jak w uścisku dłoni:'),
         HelpBlock.ol(['Portfel nadawcy ją rozpoczyna i blokuje wysyłane wyjścia.', 'Portfel odbiorcy dodaje swoją część i podpisuje.', 'Portfel nadawcy też podpisuje, kończy transakcję i wysyła ją do sieci.']),
-        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. ${tor ? '**Link · HTTP** i **Link · Tor** trafiają prosto' : '**Link · HTTP** trafia prosto'} do drugiego portfela, gdy jest otwarty. **Bezpośrednio · Przesyłanie pliku** (plik transakcji) to sposób ręczny.'),
+        HelpBlock.p('Coś musi przenosić wiadomości między portfelami. **Epicbox** przechowuje każdą wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online jednocześnie. ${tor ? '**Link · HTTP** i **Link · Tor** trafiają prosto' : '**Link · HTTP** trafia prosto'} do drugiego portfela, gdy jest otwarty. **Bezpośrednio · Przesyłanie pliku** z plikiem transakcji to sposób ręczny.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -365,7 +365,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'trouble',
       'Rozwiązywanie problemów',
-      'Najczęściej węzeł wciąż się synchronizuje, odbiorca jeszcze nie odpowiedział albo port jest zajęty.',
+      phone
+          ? 'Najczęściej węzeł wciąż się synchronizuje albo odbiorca jeszcze nie odpowiedział.'
+          : 'Najczęściej węzeł wciąż się synchronizuje, odbiorca jeszcze nie odpowiedział albo port jest zajęty.',
       [
         if (phone)
           const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo dotknij wiersza Węzeł na karcie Portfel i wybierz inny węzeł.')

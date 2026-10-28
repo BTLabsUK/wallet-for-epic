@@ -439,7 +439,7 @@ void main() {
       expect(h.session.lastStart, mainnetHeightForDate(dayStart));
       expect(find.text('Your wallet is restored'), findsOneWidget);
       expect(
-        find.textContaining('the file you shared or saved outside'),
+        find.textContaining('import the wallet data file you exported'),
         findsOneWidget,
       );
 
@@ -1008,7 +1008,7 @@ void main() {
       // Share comes first: the copy that matters is the one off this phone.
       // What the file holds, that it is not the recovery phrase, and the order of a restore.
       expect(find.text(backupFileNote(englishStrings)), findsOneWidget);
-      expect(backupFileNote(englishStrings), contains('does not hold the recovery phrase'));
+      expect(backupFileNote(englishStrings), contains('enter the recovery phrase first'));
       expect(
         tester.getTopLeft(find.text('Share')).dy <
             tester.getTopLeft(find.text('Save to device')).dy,
@@ -1023,7 +1023,7 @@ void main() {
       );
 
       await _tapText(tester, 'Export CSV');
-      expect(find.textContaining('not encrypted'), findsWidgets);
+      expect(find.textContaining('Not encrypted'), findsWidgets);
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
       await _tapText(tester, 'Share');
@@ -1087,12 +1087,12 @@ void main() {
     test('one summary says what came back', () {
       expect(
         backupRestoredText(englishStrings, payments: 12, notes: 1, contacts: 4, pairings: 2, invoices: 3, settings: true),
-        'Restored: 12 payments, 1 note, 4 contacts, 2 pairings, 3 invoices and settings.',
+        'Imported: 12 payments, 1 note, 4 contacts, 2 pairings, 3 invoices and settings.',
       );
-      expect(backupRestoredText(englishStrings, contacts: 1), 'Restored: 1 contact.');
+      expect(backupRestoredText(englishStrings, contacts: 1), 'Imported: 1 contact.');
       expect(
         backupRestoredText(englishStrings, payments: 2, alreadyHere: 3),
-        'Restored: 2 payments. 3 records were already here.',
+        'Imported: 2 payments. 3 records were already here.',
       );
       expect(backupRestoredText(englishStrings, alreadyHere: 3), 'The file held nothing new.');
     });
@@ -1517,7 +1517,7 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications use Google’s notification service. No sensitive data is shared.',
+          'Notifications go through Google’s notification service. They carry no amount, sender or address.',
         ),
         findsOneWidget,
       );
@@ -1646,8 +1646,8 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications use the BT Labs Epicbox and Google’s notification service. '
-          'No sensitive data is shared.',
+          'Notifications go through the BT Labs Epicbox server and Google’s notification service. '
+          'They carry no amount, sender or address.',
         ),
         findsOneWidget,
       );
@@ -1926,7 +1926,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(LicencesScreen), findsOneWidget);
-      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
+      expect(find.text('Epic Cash Mobile by BT Labs: Apache 2.0.'), findsOneWidget);
       expect(find.textContaining('wallet-for-epic'), findsNothing);
       expect(find.textContaining('GitHub'), findsNothing);
     });

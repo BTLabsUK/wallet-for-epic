@@ -133,9 +133,26 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  l.backupCopyWarning,
-                  style: TextStyle(color: onError),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.backupConsentTitle,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: onError,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${l.backupConsentWhat} ${l.backupConsentReady}',
+                      style: TextStyle(color: onError),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l.backupCopyWarning,
+                      style: TextStyle(color: onError),
+                    ),
+                  ],
                 ),
               ),
             ],

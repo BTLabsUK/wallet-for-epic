@@ -389,13 +389,13 @@ void main() {
       );
       expect(
         say(QrShowPhase.timedOut),
-        'Hidden. Show again if they did not finish scanning.',
+        'Hidden',
       );
       expect(say(QrShowPhase.away), say(QrShowPhase.timedOut));
     });
 
     test('the receiver follows the received payment to Received', () {
-      expect(say(QrShowPhase.hidden, reply: true), 'Show this to the sender.');
+      expect(say(QrShowPhase.hidden, reply: true), 'Hidden');
       expect(
         say(QrShowPhase.showing, reply: true),
         'Waiting for the sender to scan.',
@@ -407,7 +407,7 @@ void main() {
       );
       expect(
         say(QrShowPhase.timedOut, reply: true, tx: waiting),
-        'Hidden. Show again if they did not finish scanning.',
+        'Hidden',
       );
       final posted = received(
         TxStatus.awaitingConfirmation,
@@ -694,7 +694,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Reply QR'), findsOneWidget);
-      expect(find.text('Show this to the sender.'), findsOneWidget);
+      expect(find.text('Hidden'), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
       expect(find.text('Waiting for the sender to scan.'), findsOneWidget);

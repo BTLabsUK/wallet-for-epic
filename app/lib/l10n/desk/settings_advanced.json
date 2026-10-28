@@ -87,7 +87,7 @@
   "@deskSetAdvModeTorOnly": {
     "description": "Network mode: Tor or nothing."
   },
-  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
   "@deskSetAdvModeTorOnlyText": {
     "description": "Text under the Tor only mode."
   },

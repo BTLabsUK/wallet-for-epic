@@ -6,8 +6,8 @@ import 'help_content.dart';
 import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsZh = [
-  (id: 'start', title: '入门', lede: '接收、发送，以及文件方式。', art: 'help-start'),
-  (id: 'how', title: 'Epic Cash 如何运作', lede: '双方钱包共同参与；确认、隐私、找零和手续费。', art: 'help-how'),
+  (id: 'start', title: '入门', lede: '接收、发送，以及用文件付款。', art: 'help-start'),
+  (id: 'how', title: 'Epic Cash 如何运作', lede: '双方钱包共同参与。确认、隐私、找零和手续费。', art: 'help-how'),
   (id: 'safety', title: '保护钱包安全', lede: '助记词既是备份，也是密钥。', art: 'help-safety'),
   (id: 'network', title: '节点与 Epicbox', lede: '钱包连接到什么，以及 Tor。', art: 'help-network'),
   (id: 'trouble', title: '出现问题时', lede: '常见原因及处理方法。', art: 'help-trouble'),
@@ -38,9 +38,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '打开“接收”，复制 Epicbox 地址并发给付款方。付款会自动到账。',
       [
         const HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@epicbox.epiccash.com**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
-        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中，无需任何操作。']),
+        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中。']),
         if (phone)
-          const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会在 Epicbox 服务器上等待约一周，并在下次解锁时到账。')
+          const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会像放在邮政信箱里一样在 Epicbox 服务器上等待，并在下次解锁时到账。')
         else
           const HelpBlock.p('解锁后，节点同步完成即自动开始接收。如果有人付款时钱包未打开，Epicbox 会保存这笔付款，钱包在下次解锁时取回。'),
         HelpBlock.p('新付款首先要等发送方钱包完成交易，然后显示为确认中。经过 $confirmations 个确认（约 $confirmations 分钟）后即可使用。'),
@@ -127,7 +127,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
         HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并广播到网络。']),
-        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。${tor ? '**链接 · HTTP** 和 **链接 · Tor**' : '**链接 · HTTP**'} 在对方钱包打开时直接送达。**直接 · 文件传输**（交易文件）是手动方式。'),
+        HelpBlock.p('需要有东西在两个钱包之间传递消息。**Epicbox** 在对方钱包离线时保存每条消息，所以双方不必同时在线。${tor ? '**链接 · HTTP** 和 **链接 · Tor**' : '**链接 · HTTP**'} 在对方钱包打开时直接送达。**直接 · 文件传输**，配合交易文件，是手动方式。'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -363,7 +363,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'trouble',
       '故障排除',
-      '大多数问题是节点仍在同步、收款方尚未回复，或端口被占用。',
+      phone
+          ? '大多数问题是节点仍在同步，或收款方尚未回复。'
+          : '大多数问题是节点仍在同步、收款方尚未回复，或端口被占用。',
       [
         if (phone)
           const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或点“钱包”标签页上的节点行，选择另一个节点。')

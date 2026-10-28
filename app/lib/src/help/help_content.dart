@@ -98,8 +98,8 @@ class HelpTopic {
 typedef HelpSection = ({String id, String title, String lede, String art});
 
 const helpSections = <HelpSection>[
-  (id: 'start', title: 'Getting started', lede: 'Receive, send, and the file way.', art: 'help-start'),
-  (id: 'how', title: 'How Epic Cash works', lede: 'Both wallets take part; confirmations, privacy, change and fees.', art: 'help-how'),
+  (id: 'start', title: 'Getting started', lede: 'Receiving, sending and paying with a file.', art: 'help-start'),
+  (id: 'how', title: 'How Epic Cash works', lede: 'Both wallets take part. Confirmations, privacy, change and fees.', art: 'help-how'),
   (id: 'safety', title: 'Keeping the wallet safe', lede: 'The recovery phrase is the backup and the key.', art: 'help-safety'),
   (id: 'network', title: 'Nodes and Epicbox', lede: 'What the wallet connects to, and Tor.', art: 'help-network'),
   (id: 'trouble', title: 'When something goes wrong', lede: 'The usual causes, and what to do.', art: 'help-trouble'),
@@ -212,9 +212,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Open Receive, copy the Epicbox address and give it to the sender. The payment arrives by itself.',
       [
         const HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@epicbox.epiccash.com**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
-        const HelpBlock.ol(['Open [[Receive]].', 'Copy the address (or show its QR code) and send it to the person who pays.', 'The payment shows up in Activity on its own. Nothing to press.']),
+        const HelpBlock.ol(['Open [[Receive]].', 'Copy the address (or show its QR code) and send it to the person who pays.', 'The payment shows up in Activity on its own.']),
         if (phone)
-          const HelpBlock.p('Receiving works while the app is open and the node is synced. A payment sent while the app is closed waits on the Epicbox server for about a week and arrives at the next unlock.')
+          const HelpBlock.p('Receiving works while the app is open and the node is synced. A payment sent while the app is closed waits on the Epicbox server, like a post-office box, and arrives at the next unlock.')
         else
           const HelpBlock.p('Receiving starts by itself after unlock, once the node is synced. If the wallet is closed when someone pays, Epicbox holds the payment, and the wallet collects it at the next unlock.'),
         HelpBlock.p('A new payment first waits for the sender’s wallet to finish it, then shows as confirming. After $confirmations confirmations, about $confirmations minutes, it can be spent.'),
@@ -303,7 +303,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Epic Cash uses Mimblewimble. Instead of writing an address and an amount on the blockchain, the two wallets build each transaction together, like a handshake:'),
         HelpBlock.ol(['The sender’s wallet starts it and locks the outputs being sent.', 'The receiver’s wallet adds its part and signs.', 'The sender’s wallet signs too, finishes the transaction and posts it to the network.']),
-        HelpBlock.p('So something has to carry the messages between the two wallets. **Epicbox** does it: it holds the message while the other wallet is offline, so both need not be online at the same moment. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer** (a transaction file) is the manual way.'),
+        HelpBlock.p('Something has to carry the messages between the two wallets. **Epicbox** holds each message while the other wallet is offline, so both need not be online at once. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer**, with a transaction file, is the manual way.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -541,7 +541,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'trouble',
       'Troubleshooting',
-      'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
+      phone
+          ? 'Most problems are a node still syncing or a recipient who has not answered yet.'
+          : 'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
       [
         if (phone)
           const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or tap the Node row on the Wallet tab and choose another node.')

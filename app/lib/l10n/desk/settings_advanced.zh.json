@@ -21,7 +21,7 @@
   "deskSetAdvModeStandard": "标准",
   "deskSetAdvModeStandardText": "直接连接。可在“隐私”中开启 Tor。",
   "deskSetAdvModeTorOnly": "仅 Tor",
-  "deskSetAdvModeTorOnlyText": "所有连接都经过 Tor。没有 Tor 时，钱包保持离线并会提示。",
+  "deskSetAdvModeTorOnlyText": "所有连接都经过 Tor。没有 Tor 时，钱包保持离线。",
   "deskSetAdvModeOffline": "离线",
   "deskSetAdvModeOfflineText": "只限这台电脑和你的本地网络。你的节点继续运行；它的对等节点是节点本身的设置。",
   "deskSetAdvTorOnlyNote": "“仅 Tor”会关闭 链接 · HTTP 接收：普通地址会暴露这台电脑。",

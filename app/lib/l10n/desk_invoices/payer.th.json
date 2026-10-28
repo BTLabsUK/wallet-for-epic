@@ -5,7 +5,7 @@
   "deskInvPayerView": "ดู",
   "deskInvPayerNoMessage": "ไม่มีข้อความ",
   "deskInvPayerEmptyTitle": "ไม่มีใบแจ้งหนี้รออยู่",
-  "deskInvPayerEmptyText": "เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน คำขอจะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ",
+  "deskInvPayerEmptyText": "เมื่อผู้ติดต่อที่จับคู่และคุณอนุญาตขอให้ชำระเงิน ใบแจ้งหนี้จะแสดงที่นี่ และจะไม่มีการชำระจนกว่าคุณจะอนุมัติ",
   "deskInvPayerNotDeliveredTitle": "การชำระถึง {service} ส่งไม่ถึง",
   "deskInvPayerNotDeliveredText": "รายการลงนามแล้วและเก็บไว้ในอุปกรณ์นี้ เงินยังถูกล็อกอยู่ ลองใหม่จะส่งอีกครั้งโดยไม่ต้องอนุมัติซ้ำ",
   "deskInvPayerWithdrawnTitle": "{service} เรียกคืนใบแจ้งหนี้ที่คุณชำระแล้ว",

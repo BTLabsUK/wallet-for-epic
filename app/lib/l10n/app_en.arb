@@ -216,7 +216,7 @@
   "@histConflictTitle": {
     "description": "Title of the sheet shown when a history backup has other values than the ones the user entered."
   },
-  "histConflictLead": "{n, plural, =1{The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "histConflictLead": "{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}",
   "@histConflictLead": {
     "description": "Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.",
     "placeholders": {
@@ -901,7 +901,7 @@
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
-  "txDetailsCancelReceiveBody": "The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.",
+  "txDetailsCancelReceiveBody": "The sender may already have posted it. The wallet cancels only if the network does not have it; a later post still arrives.",
   "@txDetailsCancelReceiveBody": {
     "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
   },
@@ -1205,7 +1205,7 @@
   "@historyBackupShare": {
     "description": "Choice in a sheet: hand the history file to another app through the share sheet."
   },
-  "historyBackupShareSubtitle": "Keep a copy off this phone, such as email or cloud storage",
+  "historyBackupShareSubtitle": "A copy off this phone, such as email or cloud storage.",
   "@historyBackupShareSubtitle": {
     "description": "Second line of the Share choice."
   },
@@ -1213,7 +1213,7 @@
   "@historyBackupSaveToDevice": {
     "description": "Choice in a sheet: save the history file in a folder on this device."
   },
-  "historyBackupSaveToDeviceSubtitle": "Only useful if you also copy it off this phone.",
+  "historyBackupSaveToDeviceSubtitle": "Copy it off this phone too.",
   "@historyBackupSaveToDeviceSubtitle": {
     "description": "Second line of the Save to device choice."
   },
@@ -1231,15 +1231,11 @@
   "@historyBackupExportTitle": {
     "description": "Title of the sheet that hands over the encrypted payment-history backup file."
   },
-  "historyBackupExportNote": "The file holds everything up to now. Export again after new payments or changes.",
-  "@historyBackupExportNote": {
-    "description": "Text in the export sheet under its title."
-  },
   "historyBackupCsvTitle": "Export CSV",
   "@historyBackupCsvTitle": {
     "description": "Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file."
   },
-  "historyBackupCsvWarning": "The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.",
+  "historyBackupCsvWarning": "Not encrypted: anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.",
   "@historyBackupCsvWarning": {
     "description": "Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there."
   },
@@ -1501,7 +1497,7 @@
   "@homeNoticeRelayProblem": {
     "description": "Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment."
   },
-  "homeNoticePaymentFailed": "A payment could not be completed.",
+  "homeNoticePaymentFailed": "A payment failed. Open Activity to see it.",
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
   },
@@ -1815,7 +1811,7 @@
   "@invoicesChecking": {
     "description": "Screen-reader label of the progress line while the Invoices screen fetches new invoices."
   },
-  "invoicesEmpty": "No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
+  "invoicesEmpty": "No invoices are waiting. When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.",
   "@invoicesEmpty": {
     "description": "Invoices › To pay empty state (replaces today’s invoicesEmpty)."
   },
@@ -2042,7 +2038,7 @@
   "@requestMessageLabel": {
     "description": "Label of the optional message field on the request screen."
   },
-  "requestMessageHelper": "The payer sees this message with your request.",
+  "requestMessageHelper": "The payer sees this message with your invoice.",
   "@requestMessageHelper": {
     "description": "Helper text under the request's message field."
   },
@@ -2078,7 +2074,7 @@
   "@issuedWithdraw": {
     "description": "Button that withdraws a request the user sent, so it can no longer be paid. Asks first."
   },
-  "issuedWithdrawTitle": "Withdraw this request?",
+  "issuedWithdrawTitle": "Withdraw this invoice?",
   "@issuedWithdrawTitle": {
     "description": "Title of the confirm before a request is withdrawn."
   },
@@ -2096,7 +2092,7 @@
   "@issuedWithdrawKeep": {
     "description": "Button in the withdraw confirm that keeps the request open."
   },
-  "issuedDetailsSection": "Payment request",
+  "issuedDetailsSection": "Invoice",
   "@issuedDetailsSection": {
     "description": "Heading of the request block in a transaction's details, for a request the user sent."
   },
@@ -2112,35 +2108,35 @@
   "@issuedDetailsPaid": {
     "description": "Request block, once the payer paid."
   },
-  "issuedDetailsDeclined": "The payer declined this request, so it was withdrawn. Nothing was paid.",
+  "issuedDetailsDeclined": "The payer declined this invoice, so it was withdrawn. Nothing was paid.",
   "@issuedDetailsDeclined": {
     "description": "Request block, after the payer declined."
   },
-  "issuedDetailsWithdrawn": "You withdrew this request. Nothing was paid.",
+  "issuedDetailsWithdrawn": "You withdrew this invoice. Nothing was paid.",
   "@issuedDetailsWithdrawn": {
     "description": "Request block, after the user withdrew it."
   },
-  "issuedDetailsExpired": "This request expired before it was paid. Nothing was paid.",
+  "issuedDetailsExpired": "This invoice expired before it was paid. Nothing was paid.",
   "@issuedDetailsExpired": {
     "description": "Request block, after its time ran out unpaid."
   },
-  "issuerNoticePaid": "A request you sent was paid.",
+  "issuerNoticePaid": "An invoice you sent was paid.",
   "@issuerNoticePaid": {
     "description": "Notice when a payer paid a request the user sent, and the wallet finished the payment."
   },
-  "issuerNoticeDeclined": "A request you sent was declined.",
+  "issuerNoticeDeclined": "An invoice you sent was declined.",
   "@issuerNoticeDeclined": {
     "description": "Notice when a payer declined a request the user sent."
   },
-  "issuerNoticeWithdrawn": "Request withdrawn. It can no longer be paid.",
+  "issuerNoticeWithdrawn": "Invoice withdrawn. It can no longer be paid.",
   "@issuerNoticeWithdrawn": {
     "description": "Notice after the user withdrew a request."
   },
-  "issuerNoticeExpired": "A request you sent expired unpaid.",
+  "issuerNoticeExpired": "An invoice you sent expired unpaid.",
   "@issuerNoticeExpired": {
     "description": "Notice when a request the user sent ran out of time unpaid."
   },
-  "issuerNoticeBouncedFrom": "{payer}’s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.",
+  "issuerNoticeBouncedFrom": "{payer}’s wallet cannot pay invoices and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.",
   "@issuerNoticeBouncedFrom": {
     "description": "Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.",
     "placeholders": {
@@ -2153,7 +2149,7 @@
   "@issuedBounced": {
     "description": "State of a request the user sent: the payer's wallet cannot pay invoices and sent it back."
   },
-  "issuedDetailsBounced": "The payer’s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.",
+  "issuedDetailsBounced": "The payer’s wallet cannot pay invoices, so nothing was paid. Ask them to send the payment to your address or as a transaction file.",
   "@issuedDetailsBounced": {
     "description": "Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it."
   },
@@ -2169,11 +2165,11 @@
   "@txStepPaid": {
     "description": "Timeline step of a payment request: the payer paid it and the wallet published the payment."
   },
-  "txDetailsWaitingPayer": "You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.",
+  "txDetailsWaitingPayer": "You asked for this payment. Nothing has arrived yet: it comes when the payer pays the invoice.",
   "@txDetailsWaitingPayer": {
     "description": "Details of a payment request the user sent that is not paid yet. Nothing has arrived."
   },
-  "txDetailsRequestEnded": "This request ended unpaid. Nothing arrived.",
+  "txDetailsRequestEnded": "This invoice ended unpaid. Nothing arrived.",
   "@txDetailsRequestEnded": {
     "description": "Details of a payment request that ended unpaid: declined, withdrawn, sent back or expired."
   },
@@ -2514,7 +2510,7 @@
       }
     }
   },
-  "restoreDateHint": "Optional. If you are not sure, pick an earlier date. A date after your first payment misses funds. Without a date the whole chain is scanned, which takes longer.",
+  "restoreDateHint": "Optional. If unsure, pick an earlier date: a later one can miss coins.",
   "restoreDateStart": "Scanning starts two days before this date, from block {height}.",
   "@restoreDateStart": {
     "description": "Under the chosen start date: the block number the scan starts from.",
@@ -2633,7 +2629,7 @@
     "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
   },
   "restoreDoneTitle": "Your wallet is restored",
-  "restoreImportExplanation": "The recovery phrase brought back the balance. A wallet data file brings back this wallet’s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.",
+  "restoreImportExplanation": "The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.",
   "@restoreImportExplanation": {
     "description": "Offer to import a history backup on the phone restore screen, once the restore from the phrase is done."
   },
@@ -2683,11 +2679,23 @@
   "@backupPinReason": {
     "description": "Shown in the PIN prompt before the recovery phrase appears."
   },
-  "backupCopyWarning": "A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.",
+  "backupCopyWarning": "Anyone who sees the words, or a photo of them, can take the coins.",
   "@backupCopyWarning": {
     "description": "Warning before the recovery phrase is shown: what a screenshot, photo or other copy of the phrase means."
   },
-  "backupCopyAgree": "I will keep any copy of the phrase private",
+  "backupConsentTitle": "Before you see the phrase",
+  "@backupConsentTitle": {
+    "description": "Heading of the consent card shown before the recovery phrase."
+  },
+  "backupConsentWhat": "The next screen shows the words that restore this wallet.",
+  "@backupConsentWhat": {
+    "description": "Consent card: what happens next."
+  },
+  "backupConsentReady": "Have paper and a pen ready.",
+  "@backupConsentReady": {
+    "description": "Consent card: what to have ready."
+  },
+  "backupCopyAgree": "I will keep the phrase private",
   "@backupCopyAgree": {
     "description": "Checkbox the user ticks before the recovery phrase can be shown."
   },
@@ -2779,7 +2787,7 @@
   "@pinBiometricsQuestion": {
     "description": "Asked after a new PIN, on devices with fingerprint or face recognition."
   },
-  "pinBiometricsPinStillWorks": "You can still use your PIN at any time.",
+  "pinBiometricsPinStillWorks": "The PIN still works.",
   "pinBiometricsEnable": "Use biometrics",
   "@pinBiometricsEnable": {
     "description": "Button answering yes to 'Unlock with fingerprint or face?': turns fingerprint or face unlock on."
@@ -3103,7 +3111,7 @@
       }
     }
   },
-  "slateAcceptedBody": "The {amount} arrive once the sender finishes the payment and it is on the chain.",
+  "slateAcceptedBody": "{amount} arrives once the sender finishes the payment and it is on the chain.",
   "@slateAcceptedBody": {
     "placeholders": {
       "amount": {
@@ -3122,7 +3130,7 @@
       }
     }
   },
-  "slateRepeatedBody": "You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.",
+  "slateRepeatedBody": "You accepted this payment before, so this is the same answer, not a second payment. {amount} arrives once the sender finishes it and it is on the chain.",
   "@slateRepeatedBody": {
     "description": "Body under slateRepeatedHeadline: the payment was accepted before; this is the same answer, not a second payment.",
     "placeholders": {
@@ -3211,7 +3219,7 @@
   "@scanQrHint": {
     "description": "Shown over the camera picture."
   },
-  "scanQrCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also paste the address instead.",
+  "scanQrCameraDenied": "Camera access is off. Allow it in the phone’s settings, or paste the address instead.",
   "scanQrCameraFailed": "The camera could not start. Paste the address instead, or try again.",
   "scanQrTryAgain": "Try again",
   "@scanQrTryAgain": {
@@ -3448,7 +3456,7 @@
       }
     }
   },
-  "qrScanCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also open the file instead.",
+  "qrScanCameraDenied": "Camera access is off. Allow it in the phone’s settings, or open a file instead.",
   "@qrScanCameraDenied": {
     "description": "Panel on the camera screen when the camera permission is refused."
   },
@@ -3532,10 +3540,6 @@
   "@receiveQrBody": {
     "description": "Text of the QR card on Receive."
   },
-  "txQrLine": "Pay or get paid next to each other, with a code on the screen.",
-  "@txQrLine": {
-    "description": "Settings › Transactions: one line under the QR switch."
-  },
   "txQrHint": "QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.",
   "@txQrHint": {
     "description": "Settings › Transactions: the explanation behind the info icon of the QR switch."
@@ -3566,7 +3570,7 @@
       }
     }
   },
-  "sendQrMade": "Payment made",
+  "sendQrMade": "Payment QR ready",
   "@sendQrMade": {
     "description": "First step of the QR send, done."
   },
@@ -3586,11 +3590,11 @@
   "@qrStatusSendShowing": {
     "description": "Status line on the payment QR screen while the code shows."
   },
-  "qrStatusHiddenAgain": "Hidden. Show again if they did not finish scanning.",
+  "qrStatusHiddenAgain": "Hidden",
   "@qrStatusHiddenAgain": {
     "description": "Status line on a QR screen after the code hid itself."
   },
-  "qrStatusReplyHidden": "Show this to the sender.",
+  "qrStatusReplyHidden": "Hidden",
   "@qrStatusReplyHidden": {
     "description": "Status line on the reply QR screen while the code is hidden."
   },
@@ -3895,7 +3899,7 @@
   "@settingsRescanTitle": {
     "description": "Title of the dialog that starts a new search of the blockchain for the wallet's funds."
   },
-  "settingsRescanBody": "The wallet looks for its funds again. An earlier start finds more but takes longer; the whole chain can take a long time.",
+  "settingsRescanBody": "Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.",
   "settingsRescanFromDate": "From a date",
   "@settingsRescanFromDate": {
     "description": "Choice in the rescan dialog: start at the block of a picked day."
@@ -4011,11 +4015,11 @@
   "@settingsLicences": {
     "description": "Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text."
   },
-  "licencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.",
+  "licencesLead": "Open-source software in this wallet, each under its own licence.",
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache 2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -4261,7 +4265,7 @@
   "@settingsUseStatusSite": {
     "description": "Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is."
   },
-  "settingsUseStatusSiteSubtitle": "Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.",
+  "settingsUseStatusSiteSubtitle": "Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.",
   "@settingsUseStatusSiteSubtitle": {
     "description": "Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name."
   },
@@ -4618,7 +4622,7 @@
   "@handshakePayment": {
     "description": "How it works sheet: toggle segment for the flow where you pay someone."
   },
-  "handshakeRequest": "Request",
+  "handshakeRequest": "Invoice",
   "@handshakeRequest": {
     "description": "How it works sheet: toggle segment for the flow where you ask someone for coins (an invoice)."
   },
@@ -4650,7 +4654,7 @@
   "@handshakeConfirm": {
     "description": "How it works, step 4 of both flows."
   },
-  "handshakeReq1": "Your wallet sends the request to the Epicbox server.",
+  "handshakeReq1": "Your wallet sends the invoice to the Epicbox server.",
   "@handshakeReq1": {
     "description": "How it works, request, step 1: you ask them for coins through the relay."
   },
@@ -4864,7 +4868,7 @@
   "@demoGuideSend": {
     "description": "Web demo checklist, step 2: send some test coins to someone."
   },
-  "demoGuideSendHint": "Pay a friend’s demo, or open this page in a different browser or a private window.",
+  "demoGuideSendHint": "Pay a friend’s demo, or open the demo in another browser or a private window.",
   "@demoGuideSendHint": {
     "description": "Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'."
   },
@@ -5018,7 +5022,7 @@
   "@sendTorReady": {
     "description": "Send, review: tor is connected; the payment can go."
   },
-  "sendTorReaching": "Reaching their wallet over Tor… This can take a while. Keep the app open.",
+  "sendTorReaching": "Reaching their wallet over Tor… Keep the app open.",
   "@sendTorReaching": {
     "description": "Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise."
   },
@@ -5269,7 +5273,7 @@
   "@outputsConsolidateNeeds": {
     "description": "Caption under the buttons: why Consolidate is disabled."
   },
-  "outputsWaitLocked": "Wait until the send in progress confirms (about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}).",
+  "outputsWaitLocked": "Wait until the send in progress confirms ({blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}).",
   "@outputsWaitLocked": {
     "description": "Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
@@ -5742,11 +5746,11 @@
       }
     }
   },
-  "invoicesSentEmpty": "No requests sent",
+  "invoicesSentEmpty": "No invoices sent",
   "@invoicesSentEmpty": {
     "description": "Invoices: empty Sent segment, heading."
   },
-  "invoicesSentEmptyCaption": "A request asks someone to pay you an amount.",
+  "invoicesSentEmptyCaption": "An invoice asks someone to pay you an amount.",
   "@invoicesSentEmptyCaption": {
     "description": "Invoices: empty Sent segment, caption."
   },
@@ -5805,7 +5809,7 @@
   "@invoicesCheckEpicbox": {
     "description": "Invoice review: the epicbox check's label."
   },
-  "invoicesNodeOk": "Responding",
+  "invoicesNodeOk": "Synced",
   "@invoicesNodeOk": {
     "description": "Invoice review: the node answered."
   },
@@ -5821,7 +5825,7 @@
   "@invoicesEpicboxDown": {
     "description": "Invoice review: the epicbox listener is not connected."
   },
-  "invoicesRequestSummary": "{payer} is asked to pay {amount}. The request expires in 24 h.",
+  "invoicesRequestSummary": "{payer} is asked to pay {amount}. The invoice expires in 24 h.",
   "@invoicesRequestSummary": {
     "description": "Request form: summary above Send request.",
     "placeholders": {
@@ -6986,7 +6990,7 @@
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
@@ -7325,7 +7329,7 @@
       }
     }
   },
-  "deskInvSetReceiveHint": "Ask a paired contact to pay you, or save the request as a file.",
+  "deskInvSetReceiveHint": "Ask a paired contact to pay you, or save the invoice as a file.",
   "@deskInvSetReceiveHint": {
     "description": "Text beside Request a payment on Receive."
   },
@@ -7460,7 +7464,7 @@
       }
     }
   },
-  "methodReceiveEpicboxShort": "Works with the wallet closed.",
+  "methodReceiveEpicboxShort": "Senders can pay while this wallet is closed.",
   "@methodReceiveEpicboxShort": {
     "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
   },
@@ -7533,7 +7537,7 @@
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
-  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.",
+  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
@@ -7541,11 +7545,11 @@
   "@receiveTabDirect": {
     "description": "Receive tab: receiving straight to this wallet at its onion address."
   },
-  "receiveDirectNeedsTor": "Link · Tor receiving needs Tor.",
+  "receiveDirectNeedsTor": "Link · Tor needs Tor.",
   "@receiveDirectNeedsTor": {
     "description": "Receive's Link tab while Tor is off."
   },
-  "receiveDirectMeanwhile": "Senders use the Epicbox address meanwhile.",
+  "receiveDirectMeanwhile": "Meanwhile, share the Epicbox address.",
   "@receiveDirectMeanwhile": {
     "description": "Caption under 'Link receiving needs Tor.'"
   },
@@ -7606,7 +7610,7 @@
   "@settingsPushPaused": {
     "description": "State line under the Notifications switch while it is on and Tor is on."
   },
-  "pushConfirmRelayBody": "Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.",
+  "pushConfirmRelayBody": "Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.",
   "@pushConfirmRelayBody": {
     "description": "Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification."
   },
@@ -7622,7 +7626,7 @@
   "@pushConfirmTitle": {
     "description": "Title of the confirmation before notifications are turned on."
   },
-  "pushConfirmBody": "Notifications use Google’s notification service. No sensitive data is shared.",
+  "pushConfirmBody": "Notifications go through Google’s notification service. They carry no amount, sender or address.",
   "@pushConfirmBody": {
     "description": "Body of the confirmation before notifications are turned on."
   },
@@ -17960,7 +17964,7 @@
   "@advModeTorOnly": {
     "description": "Network mode: Tor or nothing."
   },
-  "advModeTorOnlyLine": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "advModeTorOnlyLine": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
   "@advModeTorOnlyLine": {
     "description": "One line under the Tor only network mode."
   },
@@ -17968,7 +17972,7 @@
   "@advModeOffline": {
     "description": "Network mode: no network."
   },
-  "advModeOfflineLine": "Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.",
+  "advModeOfflineLine": "Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.",
   "@advModeOfflineLine": {
     "description": "One line under the Offline network mode."
   },
@@ -18088,7 +18092,7 @@
   "@deskSetAdvModeTorOnly": {
     "description": "Network mode: Tor or nothing."
   },
-  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
   "@deskSetAdvModeTorOnlyText": {
     "description": "Text under the Tor only mode."
   },
@@ -18446,25 +18450,9 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "txFamilyLinkLine": "Straight to the other wallet while both are open.",
-  "@txFamilyLinkLine": {
-    "description": "One line under the Link family header on Settings › Transactions (Link · HTTP and Link · Tor)."
-  },
-  "txFamilyDirectLine": "Hand to hand, with no connection between the wallets.",
-  "@txFamilyDirectLine": {
-    "description": "One line under the Direct family header on Settings › Transactions (QR Payment and File Transfer)."
-  },
-  "txLinkHttpLine": "Pay web addresses; get paid from this Wi-Fi network.",
-  "@txLinkHttpLine": {
-    "description": "Second line of the Link › HTTP switch row on Settings › Transactions (phone). Honest: the phone is reachable only from the same Wi-Fi network."
-  },
   "txLinkHttpHint": "Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.",
   "@txLinkHttpHint": {
     "description": "Info sheet behind the Link › HTTP row on Settings › Transactions (phone)."
-  },
-  "txLinkTorLine": "Pay onion addresses; get paid at this phone’s Tor address.",
-  "@txLinkTorLine": {
-    "description": "Second line of the Link › Tor switch row on Settings › Transactions (phone)."
   },
   "txLinkTorHint": "Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.",
   "@txLinkTorHint": {
@@ -18490,10 +18478,6 @@
   "@txDirectHint": {
     "description": "Info sheet text of the Link switch on Settings › Transactions."
   },
-  "txFileLine": "Pay or get paid with a file you pass on yourself.",
-  "@txFileLine": {
-    "description": "One line under the File switch on Settings › Transactions."
-  },
   "txFileHint": "File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.",
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
@@ -18501,10 +18485,6 @@
   "txStartHeader": "Send starts on",
   "@txStartHeader": {
     "description": "Header on Settings › Transactions above the choice of the method Send opens on."
-  },
-  "txStartNote": "You can still pick another method on Send.",
-  "@txStartNote": {
-    "description": "Small line under the choice of the method Send starts on."
   },
   "txDefaultsHeader": "Send defaults",
   "@txDefaultsHeader": {
@@ -18661,10 +18641,6 @@
       }
     }
   },
-  "txEpicboxLine": "Pay or get paid through an Epicbox server. The other wallet can be closed.",
-  "@txEpicboxLine": {
-    "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
-  },
   "txEpicboxOffTitle": "Turn Epicbox off?",
   "@txEpicboxOffTitle": {
     "description": "Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox."
@@ -18779,7 +18755,7 @@
   "@deskSendMethodHeader": {
     "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
   },
-  "sendRequestTitle": "Payment request",
+  "sendRequestTitle": "Invoice",
   "@sendRequestTitle": {
     "description": "Send › amount step: title of the banner shown when a payment code (QR, link or paste) filled the form."
   },
@@ -19291,7 +19267,7 @@
   "@pairWayMessage": {
     "description": "Option 2 title"
   },
-  "pairWayMessageHint": "Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.",
+  "pairWayMessageHint": "Send a link in any chat or email.",
   "@pairWayMessageHint": {
     "description": "Option 2 line"
   },
@@ -19673,7 +19649,7 @@
       }
     }
   },
-  "pairWaitingBody": "Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.",
+  "pairWaitingBody": "Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.",
   "@pairWaitingBody": {
     "description": "Waiting screen body."
   },
@@ -20097,7 +20073,7 @@
   "@contactAllowInvoices": {
     "description": "Switch label."
   },
-  "contactAllowInfoDesktop": "{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.",
+  "contactAllowInfoDesktop": "{name}’s wallet can send you invoices. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.",
   "@contactAllowInfoDesktop": {
     "description": "contactAllowInfo on the desktop, which pays with the wallet password, not a PIN.",
     "placeholders": {
@@ -20107,7 +20083,7 @@
       }
     }
   },
-  "contactAllowInfo": "{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.",
+  "contactAllowInfo": "{name}’s wallet can send you invoices. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.",
   "@contactAllowInfo": {
     "description": "Info sheet / tooltip for Allow invoices.",
     "placeholders": {
@@ -20149,7 +20125,7 @@
       }
     }
   },
-  "contactRelayDownBody": "Retrying. Requests and payments wait until it answers; nothing is lost.",
+  "contactRelayDownBody": "Retrying. Invoices and payments wait until it answers.",
   "@contactRelayDownBody": {
     "description": "Notice body."
   },
@@ -20396,7 +20372,7 @@
   "@invSetTitle": {
     "description": "Screen title."
   },
-  "invSetLead": "A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.",
+  "invSetLead": "A paired contact you allow can send you invoices. Each one waits under Invoices for your PIN.",
   "@invSetLead": {
     "description": "Lead. Desktop says ‘for the wallet password’."
   },
@@ -20420,7 +20396,7 @@
   "@invSetEmpty": {
     "description": "Empty state."
   },
-  "invSetPausedBody": "Requests wait on the server and arrive when it is back on.",
+  "invSetPausedBody": "Invoices wait on the Epicbox server and arrive when it is back on.",
   "@invSetPausedBody": {
     "description": "Docked notice body while Epicbox is off."
   },
@@ -20434,7 +20410,7 @@
       }
     }
   },
-  "invSetDeclinedCount": "{count, plural, =1{1 open request was declined.} other{{count} open requests were declined.}}",
+  "invSetDeclinedCount": "{count, plural, =1{1 open invoice was declined.} other{{count} open invoices were declined.}}",
   "@invSetDeclinedCount": {
     "description": "Notice body when open requests existed.",
     "placeholders": {
@@ -20610,7 +20586,7 @@
   "@reqRelayRetrying": {
     "description": "Timeline detail."
   },
-  "reqWithdrewTitle": "{name} withdrew the request",
+  "reqWithdrewTitle": "{name} withdrew the invoice",
   "@reqWithdrewTitle": {
     "description": "After a signed withdrawn notice.",
     "placeholders": {
@@ -20624,7 +20600,7 @@
   "@reqWithdrewBody": {
     "description": "Body when the payment was cancelled."
   },
-  "reqWithdrewUnpaid": "{name} withdrew this request",
+  "reqWithdrewUnpaid": "{name} withdrew this invoice",
   "@reqWithdrewUnpaid": {
     "description": "For an unpaid request; the row is removed.",
     "placeholders": {
@@ -20634,7 +20610,7 @@
       }
     }
   },
-  "reqTwoSame": "{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}",
+  "reqTwoSame": "{count, plural, =1{{name} sent 1 invoice for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} invoices for {amount} EPIC within 10 minutes. Pay all of them?}}",
   "@reqTwoSame": {
     "description": "Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.",
     "placeholders": {
@@ -20679,7 +20655,7 @@
   "@reqNewTitle": {
     "description": "Request form title."
   },
-  "reqNewLead": "Ask a paired contact to pay you, or save the request as a file for anyone.",
+  "reqNewLead": "Ask a paired contact to pay you, or save the invoice as a file for anyone.",
   "@reqNewLead": {
     "description": "Request form lead (also the Receive hint)."
   },
@@ -20691,15 +20667,15 @@
   "@reqNewTo": {
     "description": "Field label: the paired contact."
   },
-  "reqNewToHintContacts": "Paired contacts whose wallet pays requests.",
+  "reqNewToHintContacts": "Paired contacts whose wallet pays invoices.",
   "@reqNewToHintContacts": {
     "description": "Under To on New request when the wallet cannot save a request as a file: the reqNewToHint without the file part."
   },
-  "reqNoPayersContacts": "No paired contact pays requests yet. Pair and verify with them.",
+  "reqNoPayersContacts": "No paired contact pays invoices yet. Pair and verify with them.",
   "@reqNoPayersContacts": {
     "description": "No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part."
   },
-  "reqNewToHint": "Paired contacts whose wallet pays requests. Anyone else: save the request as a file.",
+  "reqNewToHint": "Paired contacts whose wallet pays invoices. Anyone else: save the invoice as a file.",
   "@reqNewToHint": {
     "description": "Under the To field."
   },
@@ -20945,7 +20921,7 @@
       }
     }
   },
-  "noticeWithdrew": "{name} withdrew the request. The coins are unlocked.",
+  "noticeWithdrew": "{name} withdrew the invoice. The coins are unlocked.",
   "@noticeWithdrew": {
     "description": "Docked notice when a contact withdrew a paid request.",
     "placeholders": {
@@ -21134,7 +21110,7 @@
   "@sendVia": {
     "description": "Label of the method segments on Send for a contact with several addresses."
   },
-  "invSetLeadDesktop": "A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.",
+  "invSetLeadDesktop": "A paired contact you allow can send this wallet invoices. Each one waits under Invoices for the wallet password.",
   "@invSetLeadDesktop": {
     "description": "Desktop Settings › Invoices lead."
   },
@@ -21160,7 +21136,7 @@
       }
     }
   },
-  "reqNoPayers": "No paired contact pays requests yet. Pair and verify with them, or save the request as a file.",
+  "reqNoPayers": "No paired contact pays invoices yet. Pair and verify with them, or save the invoice as a file.",
   "@reqNoPayers": {
     "description": "Request form when no verified contact can pay requests."
   },
@@ -21168,11 +21144,11 @@
   "@reqPickContact": {
     "description": "Placeholder of the To field."
   },
-  "reqFileSaved": "Request saved as a file",
+  "reqFileSaved": "Invoice saved as a file",
   "@reqFileSaved": {
     "description": "Notice after Save as file."
   },
-  "reqSent": "Request sent to {name}",
+  "reqSent": "Invoice sent to {name}",
   "@reqSent": {
     "description": "Notice after Send request.",
     "placeholders": {
@@ -21182,7 +21158,7 @@
       }
     }
   },
-  "reqFileTitle": "Payment request",
+  "reqFileTitle": "Invoice",
   "@reqFileTitle": {
     "description": "Title of the request file screen."
   },
@@ -21196,7 +21172,7 @@
       }
     }
   },
-  "noticeTooMany": "{name} sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.",
+  "noticeTooMany": "{name} sent too many invoices. Extra ones were dropped. Turn its invoices off if this keeps happening.",
   "@noticeTooMany": {
     "description": "Docked warning when a contact went over the request cap.",
     "placeholders": {
@@ -21409,27 +21385,27 @@
   "@helpPairInvTitle": {
     "description": "Topic 4 title."
   },
-  "helpPairInvShortDesktop": "Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.",
+  "helpPairInvShortDesktop": "Only a Verified contact you allow can ask you to pay. Each invoice waits for the wallet password.",
   "@helpPairInvShortDesktop": {
     "description": "helpPairInvShort on the desktop, which pays with the wallet password, not a PIN."
   },
-  "helpPairInvShort": "Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.",
+  "helpPairInvShort": "Only a Verified contact you allow can ask you to pay. Each invoice waits for your PIN.",
   "@helpPairInvShort": {
     "description": "Topic 4 lede."
   },
-  "helpPairInvP1": "A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
+  "helpPairInvP1": "A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
   "@helpPairInvP1": {
     "description": "Topic 4."
   },
-  "helpPairInvP2Desktop": "A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.",
+  "helpPairInvP2Desktop": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.",
   "@helpPairInvP2Desktop": {
     "description": "helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN."
   },
-  "helpPairInvP2": "A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.",
+  "helpPairInvP2": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.",
   "@helpPairInvP2": {
     "description": "Topic 4."
   },
-  "helpPairInvP3": "Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.",
+  "helpPairInvP3": "Turning the switch off is immediate: new invoices from that contact are dropped and open ones are declined.",
   "@helpPairInvP3": {
     "description": "Topic 4."
   },
@@ -21579,7 +21555,7 @@
       }
     }
   },
-  "contactsImportSame": "{count, plural, =1{1 already here} other{{count} already here}}",
+  "contactsImportSame": "{count, plural, =1{1 already saved} other{{count} already saved}}",
   "@contactsImportSame": {
     "description": "Import confirm line: contacts in the file already saved here, nothing to add.",
     "placeholders": {
@@ -21621,7 +21597,7 @@
   "@contactsImportNothing": {
     "description": "Import confirm, when the file adds nothing; the lines under it say what is already here or left out."
   },
-  "contactsImported": "{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}",
+  "contactsImported": "{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already saved} other{{same} already saved}}",
   "@contactsImported": {
     "description": "Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.",
     "placeholders": {
@@ -21853,11 +21829,11 @@
   "@reqFileWaitingCard": {
     "description": "Request details: card on a request saved as a file that waits for its answer."
   },
-  "reqFromFileTitle": "Payment request from a file",
+  "reqFromFileTitle": "Invoice from a file",
   "@reqFromFileTitle": {
     "description": "Review of a payment request opened from a file: the title beside the file tile."
   },
-  "reqFromFileWarn": "Nothing says who made this request. Pay it only if you expected it from someone you know.",
+  "reqFromFileWarn": "Nothing says who made this invoice. Pay it only if you expected it from someone you know.",
   "@reqFromFileWarn": {
     "description": "Review of a payment request opened from a file: the warning card; nothing names who made it."
   },
@@ -21881,15 +21857,15 @@
   "@reqAnswerLead": {
     "description": "After paying a payment request from a file: what to do with the answer file."
   },
-  "reqFileAlreadyPaid": "This request is already paid.",
+  "reqFileAlreadyPaid": "This invoice is already paid.",
   "@reqFileAlreadyPaid": {
     "description": "A payment request file, or its answer, for a request already paid."
   },
-  "reqFileEnded": "This request has ended.",
+  "reqFileEnded": "This invoice has ended.",
   "@reqFileEnded": {
     "description": "A payment request file, or its answer, whose time ran out or that was withdrawn."
   },
-  "slateIncomingRequestAnswer": "The answer to your payment request of {amount}.",
+  "slateIncomingRequestAnswer": "The answer to your invoice of {amount}.",
   "@slateIncomingRequestAnswer": {
     "description": "Transaction file screen: the lead for the payer's answer to a payment request this wallet saved as a file.",
     "placeholders": {
@@ -21899,11 +21875,11 @@
       }
     }
   },
-  "reqAnswerUnknown": "This answers a request this wallet no longer has.",
+  "reqAnswerUnknown": "This answers an invoice this wallet no longer has.",
   "@reqAnswerUnknown": {
     "description": "Transaction file screen: an answer to a payment request this wallet does not have (cancelled or never made here)."
   },
-  "deskInvIssuerAnother": "Another request",
+  "deskInvIssuerAnother": "Another invoice",
   "@deskInvIssuerAnother": {
     "description": "Request form, after a request was saved as a file: starts a new request."
   },
@@ -22132,7 +22108,7 @@
   "@deskOnbForgotRestoreInstead": {
     "description": "Forgot password: button when the phrase cannot be checked; removes the wallet from the list (files kept) and opens Restore with the phrase."
   },
-  "qrShowTitleRequest": "Payment request",
+  "qrShowTitleRequest": "Invoice",
   "@qrShowTitleRequest": {
     "description": "Title of the screen that shows a payment request as a QR."
   },
@@ -22146,7 +22122,7 @@
       }
     }
   },
-  "qrHiddenBodyRequest": "Whoever scans it can pay this request. Show it only to the person paying.",
+  "qrHiddenBodyRequest": "Whoever scans it can pay this invoice. Show it only to the person paying.",
   "@qrHiddenBodyRequest": {
     "description": "Card text while the request QR is hidden."
   },
@@ -22158,7 +22134,7 @@
   "@qrStatusRequestShowing": {
     "description": "Status line, request QR showing."
   },
-  "qrSemanticsRequest": "Payment request QR code, {state}",
+  "qrSemanticsRequest": "Invoice QR code, {state}",
   "@qrSemanticsRequest": {
     "description": "Spoken label of the request QR card.",
     "placeholders": {
@@ -22198,7 +22174,7 @@
   "@reqToQr": {
     "description": "Payer picker row: show the request as a QR to a phone next to you."
   },
-  "reqQrSummary": "Whoever scans the code can pay {amount}. Scan their reply here to finish. The request expires in 24 h.",
+  "reqQrSummary": "Whoever scans the code can pay {amount}. Scan their reply here to finish. The invoice expires in 24 h.",
   "@reqQrSummary": {
     "description": "Summary above the button when the request goes as a QR.",
     "placeholders": {
@@ -22234,11 +22210,11 @@
   "@reqQrNew": {
     "description": "Receipt button: start the next request."
   },
-  "reqQrAlreadyPaid": "This request is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.",
+  "reqQrAlreadyPaid": "This invoice is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.",
   "@reqQrAlreadyPaid": {
     "description": "Merchant scanned a second reply to a request already finished."
   },
-  "reqFromQrTitle": "Payment request from a QR code",
+  "reqFromQrTitle": "Invoice from a QR code",
   "@reqFromQrTitle": {
     "description": "Customer review title for a scanned request."
   },
@@ -22262,11 +22238,11 @@
   "@reqQrAnswerLead": {
     "description": "Customer's page after the reply QR was shown."
   },
-  "reqExpired": "This request has expired. Ask for a new one. Nothing was paid.",
+  "reqExpired": "This invoice has expired. Ask for a new one. Nothing was paid.",
   "@reqExpired": {
     "description": "Customer: the scanned request is past its time."
   },
-  "reqOtherChain": "This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.",
+  "reqOtherChain": "This invoice is for another Epic network, or its time limit does not fit this one. Nothing was paid.",
   "@reqOtherChain": {
     "description": "Customer: the scanned request's time limit does not fit this network."
   },
@@ -22274,17 +22250,13 @@
   "@reqQrOpenNote": {
     "description": "Dim line on the request page: where the request stays and for how long."
   },
-  "reqQrWrongReply": "This reply answers a different request. Scan the reply to this one.",
+  "reqQrWrongReply": "This reply answers a different invoice. Scan the reply to this one.",
   "@reqQrWrongReply": {
     "description": "Merchant scanned a reply to a different request."
   },
-  "backupFileHolds": "This file holds this wallet’s payment history, contacts, invoices and settings.",
+  "backupFileHolds": "Holds this wallet’s payment history, contacts, invoices and settings, up to now.",
   "@backupFileHolds": {
     "description": "Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export."
-  },
-  "backupFileNoPhrase": "It does not hold the recovery phrase and cannot restore the wallet on its own.",
-  "@backupFileNoPhrase": {
-    "description": "Export of the history backup, sentence 2: the file has no recovery phrase and cannot restore the wallet alone."
   },
   "backupFileRestoreOrder": "To restore: enter the recovery phrase first, then import this file.",
   "@backupFileRestoreOrder": {
@@ -22294,7 +22266,7 @@
   "@backupImportLead": {
     "description": "Short lead on the import step of the history backup (both apps): what it brings back; restore from the phrase first."
   },
-  "backupRestoredSummary": "Restored: {items}.",
+  "backupRestoredSummary": "Imported: {items}.",
   "@backupRestoredSummary": {
     "description": "The one summary after a history backup import. {items} is a list such as \"12 payments, 5 notes and settings\", joined with backupListSeparator and backupListLastSeparator from the backupRestored… items.",
     "placeholders": {

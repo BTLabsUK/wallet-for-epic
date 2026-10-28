@@ -44,5 +44,5 @@
   "deskInvIssuerWaitingText": "ส่งถึงเซิร์ฟเวอร์ Epicbox ของ {payer} แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ",
   "deskInvIssuerCopySlate": "คัดลอก Slate ID",
   "deskInvIssuerStepIssued": "ออกแล้ว",
-  "deskInvIssuerAnother": "สร้างคำขออีกรายการ"
+  "deskInvIssuerAnother": "สร้างใบแจ้งหนี้อีกรายการ"
 }

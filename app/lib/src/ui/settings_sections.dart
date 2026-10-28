@@ -733,7 +733,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(Icons.upload_file),
           title: TitleWithHint(
             l.settingsExportHistory,
-            hint: '${l.backupFileHolds} ${l.backupFileNoPhrase} ${l.backupFileRestoreOrder}',
+            hint: '${l.backupFileHolds} ${l.backupFileRestoreOrder}',
             icon: Icons.upload_file,
           ),
           onTap: _busy
@@ -832,7 +832,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     final torOff = ref.watch(phoneTorProvider.select((t) => t.settled && !t.receiving));
-    final t = context.tokens;
     // Send options on shows the defaults; one that is not at its default stays (never hide a
     // choice in use), as Outputs did before they moved here.
     final showDefaults = _txDefaultsShown |=
@@ -887,13 +886,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       await save(payments.withMethod(m, on));
     }
 
+    // The row is the label only; what the method does is behind its info icon.
     Widget methodTile(MethodKind m) {
-      final (line, hint) = switch (m) {
-        MethodKind.epicbox => (l.txEpicboxLine, l.txEpicboxHint),
-        MethodKind.linkHttp => (l.txLinkHttpLine, torBuilt ? l.txLinkHttpHint : l.txLinkHttpHintNoTor),
-        MethodKind.linkTor => (l.txLinkTorLine, l.txLinkTorHint),
-        MethodKind.directQr => (l.txQrLine, l.txQrHint),
-        MethodKind.directFile => (l.txFileLine, l.txFileHint),
+      final hint = switch (m) {
+        MethodKind.epicbox => l.txEpicboxHint,
+        MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint : l.txLinkHttpHintNoTor,
+        MethodKind.linkTor => l.txLinkTorHint,
+        MethodKind.directQr => l.txQrHint,
+        MethodKind.directFile => l.txFileHint,
       };
       return HintSwitchTile(
         key: txMethodKey(m),
@@ -901,7 +901,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         title: MethodIcons.groupName(l, m),
         sheetTitle: MethodIcons.fullName(l, m),
         hint: hint,
-        subtitle: Text(line),
         value: payments.offers(m),
         onChanged: (on) => set(m, on),
       );
@@ -910,12 +909,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     return [
       SettingsHeader(l.txMethodsHeader),
       for (final f in MethodFamily.values) ...[
-        // Epicbox is a family of one: its row stands alone, its line under the switch.
-        if (f != MethodFamily.epicbox)
-          _MethodFamilyHeader(
-            f,
-            line: f == MethodFamily.link ? l.txFamilyLinkLine : l.txFamilyDirectLine,
-          ),
+        // Epicbox is a family of one: its row stands alone.
+        if (f != MethodFamily.epicbox) _MethodFamilyHeader(f),
         for (final m in MethodKind.values)
           if (m.family == f && shown(m)) ...[
             methodTile(m),
@@ -945,13 +940,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   title: Text(startName(m)),
                 ),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            l.txStartNote,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
           ),
         ),
       ],
@@ -1357,10 +1345,9 @@ class SettingsHeader extends StatelessWidget {
 /// A family's subhead inside Payment methods (Settings › Transactions): its glyph and name,
 /// and one line on what the family is, over its methods' switches.
 class _MethodFamilyHeader extends StatelessWidget {
-  const _MethodFamilyHeader(this.family, {required this.line});
+  const _MethodFamilyHeader(this.family);
 
   final MethodFamily family;
-  final String line;
 
   @override
   Widget build(BuildContext context) {
@@ -1388,8 +1375,6 @@ class _MethodFamilyHeader extends StatelessWidget {
                     style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(line, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
               ],
             ),
           ),

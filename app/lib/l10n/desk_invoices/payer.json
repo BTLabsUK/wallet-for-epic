@@ -23,7 +23,7 @@
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },

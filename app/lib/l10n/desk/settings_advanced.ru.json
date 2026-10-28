@@ -21,7 +21,7 @@
   "deskSetAdvModeStandard": "Стандартный",
   "deskSetAdvModeStandardText": "Подключается напрямую. Tor можно включить в разделе «Приватность».",
   "deskSetAdvModeTorOnly": "Только Tor",
-  "deskSetAdvModeTorOnlyText": "Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн и сообщает об этом.",
+  "deskSetAdvModeTorOnlyText": "Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн.",
   "deskSetAdvModeOffline": "Офлайн",
   "deskSetAdvModeOfflineText": "Только этот компьютер и ваша локальная сеть. Ваш узел продолжает работать; его пиры — настройка самого узла.",
   "deskSetAdvTorOnlyNote": "Режим «Только Tor» отключает приём по Ссылка · HTTP: обычный адрес раскрыл бы этот компьютер.",

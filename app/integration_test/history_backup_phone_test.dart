@@ -349,7 +349,7 @@ Future<ImportSeen> answerImport(WidgetTester tester, String prefix, {bool useBac
       continue;
     }
     if (hasText('Wallet data imported')) {
-      summary = textMatching(RegExp(r'^(Restored:|The backup held nothing new)'));
+      summary = textMatching(RegExp(r'^(Imported:|The backup held nothing new)'));
       await shot(tester, '$prefix-summary');
       await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.text('OK')));
       continue;
@@ -690,7 +690,7 @@ void main() {
     // ---- 3. Export through Settings › Wallet › Export wallet data.
     final (f1, sheet) = await exportUi(tester, 'a-01-export-sheet');
     record('the export sheet says what the file holds', sheet.contains('payment history, contacts, invoices and settings'), sheet);
-    record('…not the phrase, cannot restore alone', sheet.contains('does not hold the recovery phrase') && sheet.contains('cannot restore the wallet on its own'));
+    record('…not the phrase, cannot restore alone', sheet.contains('enter the recovery phrase first'));
     record('…phrase first, then this file', sheet.contains('enter the recovery phrase first, then import this file'));
     final p1 = await decodeFile(tester, phrase, f1, Chain.floonet);
     final book = (await tester.runAsync(() => c.read(contactsProvider.future)))!;
@@ -734,7 +734,7 @@ void main() {
     _files.next = f1;
     await tapText(tester, 'Import wallet data');
     final s5 = await answerImport(tester, 'a-04');
-    record('one summary after the import', s5.summary.startsWith('Restored:') && s5.error.isEmpty, '${s5.summary} ${s5.error}');
+    record('one summary after the import', s5.summary.startsWith('Imported:') && s5.error.isEmpty, '${s5.summary} ${s5.error}');
     record('the summary names payments, notes, contacts, pairings, invoices and settings',
         ['payment', 'note', 'contact', 'pairing', 'invoice', 'settings'].every(s5.summary.contains), s5.summary);
     record('no settings question after a fresh restore', !s5.settingsAsked);

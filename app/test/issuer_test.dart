@@ -173,7 +173,7 @@ void main() {
           payerAddress: payer,
         ),
       ]);
-      // A decline is final, so the wallet withdrew the request itself.
+      // A decline is final, so the wallet withdrew the invoice itself.
       expect(s.cancelledTxIds, [b.txId]);
       expectNothingSpent(s);
     });

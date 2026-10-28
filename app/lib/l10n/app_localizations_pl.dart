@@ -210,13 +210,13 @@ class AppLocalizationsPl extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       many:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       few:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       one:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
     );
     return '$_temp0';
   }
@@ -828,7 +828,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją później, i tak dotrze.';
+      'Nadawca mógł już opublikować tę płatność. Portfel anuluje ją tylko, jeśli sieć jej nie ma; późniejsza publikacja i tak dotrze.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1071,14 +1071,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Zachowaj kopię poza telefonem, np. w e-mailu lub w chmurze';
+      'Kopia poza telefonem, np. w e-mailu lub w chmurze.';
 
   @override
   String get historyBackupSaveToDevice => 'Zapisz na urządzeniu';
 
   @override
   String get historyBackupSaveToDeviceSubtitle =>
-      'Ma sens tylko, jeśli skopiujesz plik także poza ten telefon.';
+      'Skopiuj go także poza ten telefon.';
 
   @override
   String historyBackupSaved(String fileName) {
@@ -1089,15 +1089,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get historyBackupExportTitle => 'Eksportuj dane portfela';
 
   @override
-  String get historyBackupExportNote =>
-      'Plik obejmuje wszystko do tej chwili. Po nowych płatnościach lub zmianach wyeksportuj go ponownie.';
-
-  @override
   String get historyBackupCsvTitle => 'Eksportuj CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'Plik CSV nie jest zaszyfrowany. Każdy, kto go zdobędzie, odczyta kwoty, daty, adresy i notatki. Nie da się go z powrotem zaimportować; do tego służy „Eksportuj dane portfela”.';
+      'Bez szyfrowania: każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki. Nie da się go zaimportować; kopię zapasową zrobisz przez „Eksportuj dane portfela”.';
 
   @override
   String get historyBackupCsvConfirm => 'Eksportuj CSV';
@@ -1279,10 +1275,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeNoticeRelayProblem =>
-      'Serwer Epicbox zgłosił problem. Ponawianie próby.';
+      'Serwer epicbox zgłosił problem. Ponawianie próby.';
 
   @override
-  String get homeNoticePaymentFailed => 'Nie udało się zrealizować płatności.';
+  String get homeNoticePaymentFailed =>
+      'Płatność nie powiodła się. Szczegóły w Aktywności.';
 
   @override
   String get homeBackupCardText => 'Zabezpiecz frazę odzyskiwania.';
@@ -1560,7 +1557,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'Żadne prośby nie czekają. Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, prośba pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
+      'Żadne faktury nie czekają. Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, faktura pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
 
   @override
   String get invoicesUnnamedService => 'Serwis bez nazwy';
@@ -1705,7 +1702,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get requestMessageHelper =>
-      'Płacący zobaczy tę wiadomość razem z prośbą.';
+      'Płacący zobaczy tę wiadomość razem z fakturą.';
 
   @override
   String get requestButton => 'Poproś';
@@ -1732,7 +1729,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get issuedWithdraw => 'Wycofaj';
 
   @override
-  String get issuedWithdrawTitle => 'Wycofać tę prośbę?';
+  String get issuedWithdrawTitle => 'Wycofać tę fakturę?';
 
   @override
   String issuedWithdrawBody(String payer) {
@@ -1743,7 +1740,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get issuedWithdrawKeep => 'Zostaw';
 
   @override
-  String get issuedDetailsSection => 'Prośba o płatność';
+  String get issuedDetailsSection => 'Faktura';
 
   @override
   String get issuedDetailsPayer => 'Prośba do';
@@ -1758,32 +1755,33 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get issuedDetailsDeclined =>
-      'Płacący odrzucił tę prośbę, więc została wycofana. Nic nie zapłacono.';
+      'Płacący odrzucił tę fakturę, więc została wycofana. Nic nie zapłacono.';
 
   @override
   String get issuedDetailsWithdrawn =>
-      'Ta prośba została przez ciebie wycofana. Nic nie zapłacono.';
+      'Ta faktura została przez ciebie wycofana. Nic nie zapłacono.';
 
   @override
   String get issuedDetailsExpired =>
-      'Ta prośba wygasła, zanim ją zapłacono. Nic nie zapłacono.';
+      'Ta faktura wygasła, zanim ją zapłacono. Nic nie zapłacono.';
 
   @override
-  String get issuerNoticePaid => 'Jedna z twoich próśb została zapłacona.';
+  String get issuerNoticePaid => 'Jedna z twoich faktur została zapłacona.';
 
   @override
-  String get issuerNoticeDeclined => 'Jedna z twoich próśb została odrzucona.';
+  String get issuerNoticeDeclined => 'Jedna z twoich faktur została odrzucona.';
 
   @override
   String get issuerNoticeWithdrawn =>
-      'Prośba wycofana. Nie można jej już zapłacić.';
+      'Faktura wycofana. Nie można jej już zapłacić.';
 
   @override
-  String get issuerNoticeExpired => 'Jedna z twoich próśb wygasła bez zapłaty.';
+  String get issuerNoticeExpired =>
+      'Jedna z twoich faktur wygasła bez zapłaty.';
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Portfel $payer nie obsługuje próśb o płatność i odesłał twoją, więc została wycofana. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik transakcji.';
+    return 'Portfel $payer nie obsługuje faktur i odesłał twoją, więc została wycofana. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik transakcji.';
   }
 
   @override
@@ -1791,7 +1789,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Portfel płacącego nie obsługuje próśb o płatność i odesłał tę prośbę, więc została wycofana. Nic nie zapłacono. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik płatności.';
+      'Portfel płacącego nie obsługuje faktur, więc nic nie zapłacono. Poproś tę osobę o wysłanie płatności na twój adres lub jako plik transakcji.';
 
   @override
   String get txStatusWaitingPayer => 'Czeka na płacącego';
@@ -1804,11 +1802,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsWaitingPayer =>
-      'Poproszono o tę płatność. Nic jeszcze nie dotarło: płatność przyjdzie, gdy płacący opłaci prośbę.';
+      'Poproszono o tę płatność. Nic jeszcze nie dotarło: płatność przyjdzie, gdy płacący opłaci fakturę.';
 
   @override
   String get txDetailsRequestEnded =>
-      'Ta prośba zakończyła się bez płatności. Nic nie dotarło.';
+      'Ta faktura zakończyła się bez płatności. Nic nie dotarło.';
 
   @override
   String get txDetailsRequestedFrom => 'Prośba do';
@@ -2080,7 +2078,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreDateHint =>
-      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszą datę. Data późniejsza niż pierwsza płatność pominie część środków. Bez daty skanowany jest cały łańcuch, co trwa dłużej.';
+      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszą datę: późniejsza może pominąć część środków.';
 
   @override
   String restoreDateStart(String height) {
@@ -2190,7 +2188,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Fraza odzyskiwania przywróciła saldo. Plik danych portfela przywraca historię płatności, kontakty, faktury i ustawienia tego portfela. Jeśli go wyeksportowano, zaimportuj go teraz: to plik udostępniony lub zapisany poza starym telefonem.';
+      'Fraza odzyskiwania przywróciła saldo. Aby odzyskać historię, kontakty, faktury i ustawienia, zaimportuj wyeksportowany plik danych portfela.';
 
   @override
   String get restoreImportButton => 'Importuj dane portfela';
@@ -2236,10 +2234,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Zrzut ekranu lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.';
+      'Kto zobaczy te słowa lub ich zdjęcie, może zabrać środki.';
 
   @override
-  String get backupCopyAgree => 'Każdą kopię frazy zachowam tylko dla siebie';
+  String get backupConsentTitle => 'Zanim zobaczysz frazę';
+
+  @override
+  String get backupConsentWhat =>
+      'Następny ekran pokazuje słowa, które przywracają ten portfel.';
+
+  @override
+  String get backupConsentReady => 'Przygotuj papier i długopis.';
+
+  @override
+  String get backupCopyAgree => 'Zachowam frazę tylko dla siebie';
 
   @override
   String get backupShowPhrase => 'Pokaż frazę odzyskiwania';
@@ -2322,8 +2330,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Odblokowywać odciskiem palca lub twarzą?';
 
   @override
-  String get pinBiometricsPinStillWorks =>
-      'Kodu PIN możesz nadal używać w każdej chwili.';
+  String get pinBiometricsPinStillWorks => 'Kod PIN nadal działa.';
 
   @override
   String get pinBiometricsEnable => 'Użyj biometrii';
@@ -2683,7 +2690,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scanQrCameraDenied =>
-      'Portfel nie ma dostępu do aparatu. Aby skanować, zezwól tej aplikacji na dostęp do aparatu w ustawieniach telefonu. Możesz też wkleić adres.';
+      'Dostęp do aparatu jest wyłączony. Zezwól na niego w ustawieniach telefonu lub wklej adres.';
 
   @override
   String get scanQrCameraFailed =>
@@ -2854,7 +2861,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get qrScanCameraDenied =>
-      'Portfel nie ma dostępu do aparatu. Aby skanować, zezwól tej aplikacji na dostęp do aparatu w ustawieniach telefonu. Możesz też zamiast tego otworzyć plik.';
+      'Dostęp do aparatu jest wyłączony. Zezwól na niego w ustawieniach telefonu lub otwórz plik.';
 
   @override
   String get qrScanCameraFailed =>
@@ -2924,10 +2931,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zeskanuj płatność z ich ekranu i pokaż swoją odpowiedź, albo poproś o kwotę i pokaż ją jako kod do zeskanowania.';
 
   @override
-  String get txQrLine =>
-      'Płać lub odbieraj płatność obok siebie, z kodem na ekranie.';
-
-  @override
   String get txQrHint =>
       'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
 
@@ -2950,7 +2953,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'Płatność utworzona';
+  String get sendQrMade => 'Kod QR płatności gotowy';
 
   @override
   String get sendQrHint =>
@@ -2968,11 +2971,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czekam, aż odbiorca zeskanuje. Potem zeskanuj jego odpowiedź.';
 
   @override
-  String get qrStatusHiddenAgain =>
-      'Ukryty. Pokaż ponownie, jeśli nie skończyli skanować.';
+  String get qrStatusHiddenAgain => 'Ukryty';
 
   @override
-  String get qrStatusReplyHidden => 'Pokaż to nadawcy.';
+  String get qrStatusReplyHidden => 'Ukryty';
 
   @override
   String get qrStatusReplyShowing => 'Czekam, aż nadawca zeskanuje.';
@@ -3195,7 +3197,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Portfel ponownie wyszuka swoje środki. Wcześniejszy początek znajdzie więcej, ale potrwa dłużej; skanowanie całego łańcucha może zająć dużo czasu.';
+      'Ponownie sprawdza łańcuch pod kątem środków tego portfela. Wcześniejszy początek znajdzie więcej, ale potrwa dłużej.';
 
   @override
   String get settingsRescanFromDate => 'Od daty';
@@ -3289,10 +3291,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesLead =>
-      'Oprogramowanie open source w tym portfelu. Każdy składnik zachowuje własną licencję; pełne teksty są o jedno dotknięcie dalej.';
+      'Oprogramowanie open source w tym portfelu, każde na własnej licencji.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile od BT Labs: Apache-2.0.';
+  String get licencesApp => 'Epic Cash Mobile od BT Labs: Apache 2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3482,7 +3484,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, status.btlabs.uk nie jest pytany, a listy serwerów nie pokazują stanu.';
+      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, aplikacja nigdy nie łączy się ze status.btlabs.uk, a listy serwerów nie pokazują stanu.';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -3735,7 +3737,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakePayment => 'Płatność';
 
   @override
-  String get handshakeRequest => 'Prośba';
+  String get handshakeRequest => 'Faktura';
 
   @override
   String get handshakeYou => 'Ty';
@@ -3761,7 +3763,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeConfirm => 'Sieć ją potwierdza.';
 
   @override
-  String get handshakeReq1 => 'Twój portfel wysyła prośbę na serwer Epicbox.';
+  String get handshakeReq1 => 'Twój portfel wysyła fakturę na serwer Epicbox.';
 
   @override
   String get handshakeReq2 =>
@@ -3923,7 +3925,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Zapłać na demo znajomego albo otwórz tę stronę w innej przeglądarce lub w oknie prywatnym.';
+      'Zapłać na demo znajomego albo otwórz demo w innej przeglądarce lub w oknie prywatnym.';
 
   @override
   String get demoGuideOpenSend => 'Przejdź do Wyślij';
@@ -4038,7 +4040,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendTorReaching =>
-      'Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.';
+      'Łączenie z portfelem odbiorcy przez Tor… Nie zamykaj aplikacji.';
 
   @override
   String sendTorNotReached(int days) {
@@ -4046,13 +4048,13 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
@@ -4243,12 +4245,12 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks bloku',
-      many: '$blocks bloków',
-      few: '$blocks bloków',
-      one: '$blocks bloku',
+      other: '$blocks potwierdzenia',
+      many: '$blocks potwierdzeń',
+      few: '$blocks potwierdzenia',
+      one: '$blocks potwierdzenie',
     );
-    return 'Poczekaj na potwierdzenie trwającej wysyłki (około $_temp0).';
+    return 'Poczekaj na potwierdzenie trwającej wysyłki ($_temp0).';
   }
 
   @override
@@ -4612,11 +4614,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get invoicesSentEmpty => 'Brak wysłanych próśb';
+  String get invoicesSentEmpty => 'Brak wysłanych faktur';
 
   @override
   String get invoicesSentEmptyCaption =>
-      'Prośbą o płatność prosisz kogoś, by zapłacił ci określoną kwotę.';
+      'Fakturą prosisz kogoś, by zapłacił ci określoną kwotę.';
 
   @override
   String get invoicesWaitingPayment => 'Czeka na płatność';
@@ -4655,7 +4657,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoicesCheckEpicbox => 'Epicbox';
 
   @override
-  String get invoicesNodeOk => 'Odpowiada';
+  String get invoicesNodeOk => 'Zsynchronizowany';
 
   @override
   String get invoicesNodeDown => 'Nie odpowiada';
@@ -4668,7 +4670,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String invoicesRequestSummary(String payer, String amount) {
-    return '$payer otrzyma prośbę o zapłatę $amount. Prośba wygasa za 24 h.';
+    return '$payer otrzyma fakturę $amount. Faktura wygasa za 24 h.';
   }
 
   @override
@@ -5576,7 +5578,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, prośba pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
+      'Gdy sparowany kontakt, któremu zezwolisz, poprosi o zapłatę, faktura pojawi się tutaj i nic nie zostanie zapłacone bez twojej zgody.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5828,7 +5830,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvSetReceiveHint =>
-      'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik.';
+      'Poproś sparowany kontakt o zapłatę lub zapisz fakturę jako plik.';
 
   @override
   String get serverSwitchRelayTitle => 'Zmienić serwer Epicbox?';
@@ -5925,7 +5927,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => 'Działa przy zamkniętym portfelu.';
+  String get methodReceiveEpicboxShort =>
+      'Nadawcy mogą płacić, gdy ten portfel jest zamknięty.';
 
   @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
@@ -5981,18 +5984,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Przyjmowanie płatności na adres Tor to przełącznik Link · Tor w Transakcje.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor =>
-      'Odbieranie przez Link · Tor wymaga Tora.';
+  String get receiveDirectNeedsTor => 'Link · Tor wymaga Tora.';
 
   @override
   String get receiveDirectMeanwhile =>
-      'Do tego czasu nadawcy używają adresu Epicbox.';
+      'Do tego czasu udostępnij adres Epicbox.';
 
   @override
   String get receiveHttpTitle => 'Adres Link · HTTP';
@@ -6040,7 +6042,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'Powiadomienia korzystają z Epicbox BT Labs i usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
+      'Powiadomienia przechodzą przez serwer Epicbox BT Labs i usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -6055,7 +6057,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Powiadomienia korzystają z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
+      'Powiadomienia przechodzą przez usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
 
   @override
   String get pushConfirmAction => 'Włącz';
@@ -14095,14 +14097,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
 
   @override
   String get advModeOffline => 'Offline';
 
   @override
   String get advModeOfflineLine =>
-      'Tylko ten telefon i twoja sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
+      'Tylko ten telefon i sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają; reszta czeka.';
 
   @override
   String get advTorOnlyNote =>
@@ -14205,7 +14207,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
 
   @override
   String get deskSetAdvModeOffline => 'Offline';
@@ -14500,24 +14502,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txMethodsHeader => 'Metody płatności';
 
   @override
-  String get txFamilyLinkLine =>
-      'Prosto do drugiego portfela, gdy oba są otwarte.';
-
-  @override
-  String get txFamilyDirectLine =>
-      'Z rąk do rąk, bez połączenia między portfelami.';
-
-  @override
-  String get txLinkHttpLine =>
-      'Płać na adresy internetowe; dostawaj zapłatę z tej sieci Wi-Fi.';
-
-  @override
   String get txLinkHttpHint =>
       'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.';
-
-  @override
-  String get txLinkTorLine =>
-      'Płać na adresy onion; dostawaj zapłatę na adres Tor tego telefonu.';
 
   @override
   String get txLinkTorHint =>
@@ -14543,19 +14529,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Link płaci prosto do drugiego portfela pod adresem internetowym lub onion i pozwala temu telefonowi przyjmować płatności w ten sam sposób. Oba portfele muszą być otwarte. HTTP działa w tej sieci Wi-Fi; Tor wymaga Tora. Dodaje Link do Wyślij i Odbierz.';
 
   @override
-  String get txFileLine =>
-      'Płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
-
-  @override
   String get txFileHint =>
       'Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.';
 
   @override
   String get txStartHeader => 'Wysyłanie zaczyna od';
-
-  @override
-  String get txStartNote =>
-      'Na ekranie Wyślij nadal możesz wybrać inną metodę.';
 
   @override
   String get txDefaultsHeader => 'Zasady wysyłki';
@@ -14664,10 +14642,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get txEpicboxLine =>
-      'Płać lub dostawaj zapłatę przez serwer Epicbox. Drugi portfel może być zamknięty.';
-
-  @override
   String get txEpicboxOffTitle => 'Wyłączyć Epicbox?';
 
   @override
@@ -14765,7 +14739,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendMethodHeader => 'Metoda płatności';
 
   @override
-  String get sendRequestTitle => 'Prośba o płatność';
+  String get sendRequestTitle => 'Faktura';
 
   @override
   String get sendRequestCheck => 'Sprawdź kwotę, potem przejdź dalej.';
@@ -15201,7 +15175,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Serwer Epicbox nie jest potrzebny.';
+      'Wyślij link w dowolnym czacie lub e-mailem.';
 
   @override
   String get pairWayMessageInfo =>
@@ -15462,7 +15436,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a weryfikacja pojawi się po jego zakończeniu.';
+      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz zamknąć ten ekran; weryfikacja pojawi się po zakończeniu parowania.';
 
   @override
   String get pairSendByHand => 'Wyślij ręcznie';
@@ -15728,12 +15702,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactAllowInfoDesktop(String name) {
-    return 'Portfel $name może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i hasło portfela. Nic nie płaci się samo.';
+    return 'Portfel $name może wysyłać ci faktury. Każda czeka w Fakturach na twoją zgodę i hasło portfela. Nic nie płaci się samo.';
   }
 
   @override
   String contactAllowInfo(String name) {
-    return 'Portfel $name może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twoją zgodę i PIN. Nic nie płaci się samo.';
+    return 'Portfel $name może wysyłać ci faktury. Każda czeka w Fakturach na twoją zgodę i PIN. Nic nie płaci się samo.';
   }
 
   @override
@@ -15753,12 +15727,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Serwer Epicbox $name nie odpowiada';
+    return 'Serwer $name nie odpowiada';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Ponawianie. Prośby i płatności czekają, aż odpowie; nic nie przepada.';
+      'Ponawianie. Faktury i płatności czekają, aż odpowie.';
 
   @override
   String get contactPausedEpicboxOff =>
@@ -15920,7 +15894,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetLead =>
-      'Sparowany kontakt, któremu zezwolisz, może wysyłać ci prośby o zapłatę. Każda czeka w Fakturach na twój PIN.';
+      'Sparowany kontakt, któremu zezwolisz, może wysyłać ci faktury. Każda czeka w Fakturach na twój PIN.';
 
   @override
   String get invSetPaired => 'Sparowane kontakty';
@@ -15940,7 +15914,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Prośby czekają na serwerze i dotrą, gdy Epicbox znów będzie włączony.';
+      'Faktury czekają na serwerze i dotrą, gdy Epicbox znów będzie włączony.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15952,10 +15926,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Odrzucono $count otwartej prośby.',
-      many: 'Odrzucono $count otwartych próśb.',
-      few: 'Odrzucono $count otwarte prośby.',
-      one: 'Odrzucono $count otwartą prośbę.',
+      other: 'Odrzucono $count otwartej faktury.',
+      many: 'Odrzucono $count otwartych faktur.',
+      few: 'Odrzucono $count otwarte faktury.',
+      one: 'Odrzucono $count otwartą fakturę.',
     );
     return '$_temp0';
   }
@@ -16063,7 +16037,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name wycofał(a) prośbę';
+    return '$name wycofał(a) fakturę';
   }
 
   @override
@@ -16072,7 +16046,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name wycofał(a) tę prośbę';
+    return '$name wycofał(a) tę fakturę';
   }
 
   @override
@@ -16081,13 +16055,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$name wysłał(a) w ciągu 10 minut $count prośby o $amount EPIC. Zapłacić wszystkie?',
+          '$name wysłał(a) w ciągu 10 minut $count faktury o $amount EPIC. Zapłacić wszystkie?',
       many:
-          '$name wysłał(a) w ciągu 10 minut $count próśb o $amount EPIC. Zapłacić wszystkie?',
+          '$name wysłał(a) w ciągu 10 minut $count faktur o $amount EPIC. Zapłacić wszystkie?',
       few:
-          '$name wysłał(a) w ciągu 10 minut $count prośby o $amount EPIC. Zapłacić wszystkie?',
+          '$name wysłał(a) w ciągu 10 minut $count faktury o $amount EPIC. Zapłacić wszystkie?',
       one:
-          '$name wysłał(a) w ciągu 10 minut $count prośbę o $amount EPIC. Zapłacić?',
+          '$name wysłał(a) w ciągu 10 minut $count fakturę o $amount EPIC. Zapłacić?',
     );
     return '$_temp0';
   }
@@ -16111,7 +16085,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqNewLead =>
-      'Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik dla kogokolwiek.';
+      'Poproś sparowany kontakt o zapłatę lub zapisz fakturę jako plik dla kogokolwiek.';
 
   @override
   String get reqNewLeadContacts => 'Poproś sparowany kontakt o zapłatę.';
@@ -16121,15 +16095,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqNewToHintContacts =>
-      'Sparowane kontakty, których portfel opłaca prośby.';
+      'Sparowane kontakty, których portfel opłaca faktury.';
 
   @override
   String get reqNoPayersContacts =>
-      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i zweryfikuj.';
+      'Żaden sparowany kontakt nie opłaca jeszcze faktur. Sparuj się i zweryfikuj.';
 
   @override
   String get reqNewToHint =>
-      'Sparowane kontakty, których portfel opłaca prośby. Dla innych: zapisz prośbę jako plik.';
+      'Sparowane kontakty, których portfel opłaca faktury. Dla innych: zapisz fakturę jako plik.';
 
   @override
   String get reqNewSaveFile => 'Zapisz jako plik';
@@ -16270,7 +16244,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeWithdrew(String name) {
-    return '$name wycofał(a) prośbę. Twoje środki są odblokowane.';
+    return '$name wycofał(a) fakturę. Twoje środki są odblokowane.';
   }
 
   @override
@@ -16410,7 +16384,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetLeadDesktop =>
-      'Sparowany kontakt, któremu zezwolisz, może wysyłać do tego portfela prośby o zapłatę. Każda czeka w Fakturach na hasło portfela.';
+      'Sparowany kontakt, któremu zezwolisz, może wysyłać do tego portfela faktury. Każda czeka w Fakturach na hasło portfela.';
 
   @override
   String get invSetRowAllowed => 'Zweryfikowany · dozwolone';
@@ -16429,21 +16403,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i zweryfikuj lub zapisz prośbę jako plik.';
+      'Żaden sparowany kontakt nie opłaca jeszcze faktur. Sparuj się i zweryfikuj lub zapisz fakturę jako plik.';
 
   @override
   String get reqPickContact => 'Wybierz kontakt';
 
   @override
-  String get reqFileSaved => 'Prośba zapisana jako plik';
+  String get reqFileSaved => 'Faktura zapisana jako plik';
 
   @override
   String reqSent(String name) {
-    return 'Prośba wysłana do $name';
+    return 'Faktura wysłana do $name';
   }
 
   @override
-  String get reqFileTitle => 'Prośba o płatność';
+  String get reqFileTitle => 'Faktura';
 
   @override
   String noticeOutboxStuck(String name) {
@@ -16452,7 +16426,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name wysyła za dużo próśb. Nadmiarowe zostały odrzucone. Wyłącz faktury od tego kontaktu, jeśli to się powtarza.';
+    return '$name wysyła za dużo faktur. Nadmiarowe zostały odrzucone. Wyłącz faktury od tego kontaktu, jeśli to się powtarza.';
   }
 
   @override
@@ -16611,27 +16585,27 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairInvShortDesktop =>
-      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda prośba czeka na hasło portfela.';
+      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda faktura czeka na hasło portfela.';
 
   @override
   String get helpPairInvShort =>
-      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda prośba czeka na twój PIN.';
+      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda faktura czeka na twój PIN.';
 
   @override
   String get helpPairInvP1 =>
-      'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać prośby o zapłatę, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
+      'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać faktury, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'Prośba pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej hasłem portfela. Prośba nigdy nie dodaje pieniędzy do portfela.';
+      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej hasłem portfela. Faktura nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP2 =>
-      'Prośba pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej PIN-em. Prośba nigdy nie dodaje pieniędzy do portfela.';
+      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej PIN-em. Faktura nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP3 =>
-      'Wyłączenie przełącznika działa od razu: nowe prośby od tego kontaktu przepadają, a otwarte zostają odrzucone.';
+      'Wyłączenie przełącznika działa od razu: nowe faktury od tego kontaktu przepadają, a otwarte zostają odrzucone.';
 
   @override
   String get helpPairInvP4 =>
@@ -16862,10 +16836,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp1 = intl.Intl.pluralLogic(
       same,
       locale: localeName,
-      other: '$same już było',
-      many: '$same już było',
-      few: '$same już były',
-      one: '$same już był',
+      other: '$same już zapisanego',
+      many: '$same już zapisanych',
+      few: '$same już zapisane',
+      one: '$same już zapisany',
     );
     return '$_temp0, $_temp1';
   }
@@ -17026,11 +17000,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czeka na plik odpowiedzi. Otwórz go w Odbierz lub dotykając go.';
 
   @override
-  String get reqFromFileTitle => 'Prośba o płatność z pliku';
+  String get reqFromFileTitle => 'Faktura z pliku';
 
   @override
   String get reqFromFileWarn =>
-      'Nic nie wskazuje, kto utworzył tę prośbę. Zapłać tylko, jeśli spodziewałeś się jej od kogoś, kogo znasz.';
+      'Nic nie wskazuje, kto utworzył tę fakturę. Zapłać tylko, jeśli spodziewałeś się jej od kogoś, kogo znasz.';
 
   @override
   String get reqFileMessageLabel => 'Wiadomość w pliku';
@@ -17049,22 +17023,22 @@ class AppLocalizationsPl extends AppLocalizations {
       'Odeślij ten plik osobie, która prosiła. Ona dokończy płatność i wyśle ją do sieci.';
 
   @override
-  String get reqFileAlreadyPaid => 'Ta prośba jest już opłacona.';
+  String get reqFileAlreadyPaid => 'Ta faktura jest już opłacona.';
 
   @override
-  String get reqFileEnded => 'Ta prośba jest już nieaktualna.';
+  String get reqFileEnded => 'Ta faktura jest już nieaktualna.';
 
   @override
   String slateIncomingRequestAnswer(String amount) {
-    return 'Odpowiedź na twoją prośbę o płatność: $amount.';
+    return 'Odpowiedź na twoją fakturę: $amount.';
   }
 
   @override
   String get reqAnswerUnknown =>
-      'To odpowiedź na prośbę, której ten portfel już nie ma.';
+      'To odpowiedź na fakturę, której ten portfel już nie ma.';
 
   @override
-  String get deskInvIssuerAnother => 'Kolejna prośba';
+  String get deskInvIssuerAnother => 'Kolejna faktura';
 
   @override
   String get deskImpOpenAnother => 'Otwórz kolejny plik';
@@ -17237,7 +17211,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbForgotRestoreInstead => 'Przywróć z frazy';
 
   @override
-  String get qrShowTitleRequest => 'Prośba o płatność';
+  String get qrShowTitleRequest => 'Faktura';
 
   @override
   String qrShowSubRequest(String amount) {
@@ -17246,7 +17220,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get qrHiddenBodyRequest =>
-      'Kto go zeskanuje, może opłacić tę prośbę. Pokaż go tylko osobie, która płaci.';
+      'Kto go zeskanuje, może opłacić tę fakturę. Pokaż go tylko osobie, która płaci.';
 
   @override
   String get qrStatusRequestHidden => 'Pokaż to osobie, która płaci.';
@@ -17257,7 +17231,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String qrSemanticsRequest(String state) {
-    return 'Kod QR prośby o płatność, $state';
+    return 'Kod QR faktury, $state';
   }
 
   @override
@@ -17283,7 +17257,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String reqQrSummary(String amount) {
-    return 'Kto zeskanuje kod, może zapłacić $amount. Zeskanuj tu ich odpowiedź, by dokończyć. Prośba wygasa za 24 h.';
+    return 'Kto zeskanuje kod, może zapłacić $amount. Zeskanuj tu ich odpowiedź, by dokończyć. Faktura wygasa za 24 h.';
   }
 
   @override
@@ -17305,10 +17279,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqQrAlreadyPaid =>
-      'Ta prośba jest już opłacona. Z tego telefonu nic nie pobrano: jego płatność pozostaje zablokowana, dopóki nie zostanie anulowana w Aktywności albo nie wygaśnie po dniu.';
+      'Ta faktura jest już opłacona. Z tego telefonu nic nie pobrano: jego płatność pozostaje zablokowana, dopóki nie zostanie anulowana w Aktywności albo nie wygaśnie po dniu.';
 
   @override
-  String get reqFromQrTitle => 'Prośba o płatność z kodu QR';
+  String get reqFromQrTitle => 'Faktura z kodu QR';
 
   @override
   String get reqFromQrWarn =>
@@ -17329,11 +17303,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqExpired =>
-      'Ta prośba wygasła. Poproś o nową. Nic nie zostało zapłacone.';
+      'Ta faktura wygasła. Poproś o nową. Nic nie zostało zapłacone.';
 
   @override
   String get reqOtherChain =>
-      'Ta prośba należy do innej sieci Epic albo jej termin nie pasuje do tej sieci. Nic nie zostało zapłacone.';
+      'Ta faktura należy do innej sieci Epic albo jej termin nie pasuje do tej sieci. Nic nie zostało zapłacone.';
 
   @override
   String get reqQrOpenNote =>
@@ -17341,15 +17315,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqQrWrongReply =>
-      'Ta odpowiedź dotyczy innej prośby. Zeskanuj odpowiedź na tę.';
+      'Ta odpowiedź dotyczy innej faktury. Zeskanuj odpowiedź na tę.';
 
   @override
   String get backupFileHolds =>
-      'Ten plik zawiera historię płatności, kontakty, faktury i ustawienia tego portfela.';
-
-  @override
-  String get backupFileNoPhrase =>
-      'Nie zawiera frazy odzyskiwania i sam nie przywróci portfela.';
+      'Zawiera historię płatności, kontakty, faktury i ustawienia tego portfela, stan na teraz.';
 
   @override
   String get backupFileRestoreOrder =>
@@ -17361,7 +17331,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String backupRestoredSummary(String items) {
-    return 'Przywrócono: $items.';
+    return 'Zaimportowano: $items.';
   }
 
   @override

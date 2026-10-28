@@ -20,7 +20,7 @@
       }
     }
   },
-  "deskInvSetReceiveHint": "Ask a paired contact to pay you, or save the request as a file.",
+  "deskInvSetReceiveHint": "Ask a paired contact to pay you, or save the invoice as a file.",
   "@deskInvSetReceiveHint": {
     "description": "Text beside Request a payment on Receive."
   }

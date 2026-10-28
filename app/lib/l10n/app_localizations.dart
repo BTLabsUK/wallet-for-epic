@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, =1{The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}'**
   String histConflictLead(int n);
 
   /// Choice card: the value entered on this phone.
@@ -1270,7 +1270,7 @@ abstract class AppLocalizations {
   /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
   ///
   /// In en, this message translates to:
-  /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.'**
+  /// **'The sender may already have posted it. The wallet cancels only if the network does not have it; a later post still arrives.'**
   String get txDetailsCancelReceiveBody;
 
   /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature.
@@ -1714,7 +1714,7 @@ abstract class AppLocalizations {
   /// Second line of the Share choice.
   ///
   /// In en, this message translates to:
-  /// **'Keep a copy off this phone, such as email or cloud storage'**
+  /// **'A copy off this phone, such as email or cloud storage.'**
   String get historyBackupShareSubtitle;
 
   /// Choice in a sheet: save the history file in a folder on this device.
@@ -1726,7 +1726,7 @@ abstract class AppLocalizations {
   /// Second line of the Save to device choice.
   ///
   /// In en, this message translates to:
-  /// **'Only useful if you also copy it off this phone.'**
+  /// **'Copy it off this phone too.'**
   String get historyBackupSaveToDeviceSubtitle;
 
   /// Notice after a history file was saved on the device.
@@ -1741,12 +1741,6 @@ abstract class AppLocalizations {
   /// **'Export wallet data'**
   String get historyBackupExportTitle;
 
-  /// Text in the export sheet under its title.
-  ///
-  /// In en, this message translates to:
-  /// **'The file holds everything up to now. Export again after new payments or changes.'**
-  String get historyBackupExportNote;
-
   /// Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file.
   ///
   /// In en, this message translates to:
@@ -1756,7 +1750,7 @@ abstract class AppLocalizations {
   /// Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there.
   ///
   /// In en, this message translates to:
-  /// **'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.'**
+  /// **'Not encrypted: anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.'**
   String get historyBackupCsvWarning;
 
   /// Button in the CSV warning dialog that goes ahead with the export.
@@ -2050,7 +2044,7 @@ abstract class AppLocalizations {
   /// Notice: something went wrong with one payment.
   ///
   /// In en, this message translates to:
-  /// **'A payment could not be completed.'**
+  /// **'A payment failed. Open Activity to see it.'**
   String get homeNoticePaymentFailed;
 
   /// Card on home until the user writes down the recovery phrase (the 12 or 24 words).
@@ -2404,7 +2398,7 @@ abstract class AppLocalizations {
   /// Invoices › To pay empty state (replaces today’s invoicesEmpty).
   ///
   /// In en, this message translates to:
-  /// **'No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.'**
+  /// **'No invoices are waiting. When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.'**
   String get invoicesEmpty;
 
   /// Name shown for a paired contact whose label was lost. Never the name the invoice gives itself.
@@ -2626,7 +2620,7 @@ abstract class AppLocalizations {
   /// Helper text under the request's message field.
   ///
   /// In en, this message translates to:
-  /// **'The payer sees this message with your request.'**
+  /// **'The payer sees this message with your invoice.'**
   String get requestMessageHelper;
 
   /// Main button of the request screen: sends the request to the payer.
@@ -2680,7 +2674,7 @@ abstract class AppLocalizations {
   /// Title of the confirm before a request is withdrawn.
   ///
   /// In en, this message translates to:
-  /// **'Withdraw this request?'**
+  /// **'Withdraw this invoice?'**
   String get issuedWithdrawTitle;
 
   /// Body of the withdraw confirm. payer is the contact's name or the start of their address.
@@ -2698,7 +2692,7 @@ abstract class AppLocalizations {
   /// Heading of the request block in a transaction's details, for a request the user sent.
   ///
   /// In en, this message translates to:
-  /// **'Payment request'**
+  /// **'Invoice'**
   String get issuedDetailsSection;
 
   /// Label above the payer in the request block of a transaction's details.
@@ -2722,49 +2716,49 @@ abstract class AppLocalizations {
   /// Request block, after the payer declined.
   ///
   /// In en, this message translates to:
-  /// **'The payer declined this request, so it was withdrawn. Nothing was paid.'**
+  /// **'The payer declined this invoice, so it was withdrawn. Nothing was paid.'**
   String get issuedDetailsDeclined;
 
   /// Request block, after the user withdrew it.
   ///
   /// In en, this message translates to:
-  /// **'You withdrew this request. Nothing was paid.'**
+  /// **'You withdrew this invoice. Nothing was paid.'**
   String get issuedDetailsWithdrawn;
 
   /// Request block, after its time ran out unpaid.
   ///
   /// In en, this message translates to:
-  /// **'This request expired before it was paid. Nothing was paid.'**
+  /// **'This invoice expired before it was paid. Nothing was paid.'**
   String get issuedDetailsExpired;
 
   /// Notice when a payer paid a request the user sent, and the wallet finished the payment.
   ///
   /// In en, this message translates to:
-  /// **'A request you sent was paid.'**
+  /// **'An invoice you sent was paid.'**
   String get issuerNoticePaid;
 
   /// Notice when a payer declined a request the user sent.
   ///
   /// In en, this message translates to:
-  /// **'A request you sent was declined.'**
+  /// **'An invoice you sent was declined.'**
   String get issuerNoticeDeclined;
 
   /// Notice after the user withdrew a request.
   ///
   /// In en, this message translates to:
-  /// **'Request withdrawn. It can no longer be paid.'**
+  /// **'Invoice withdrawn. It can no longer be paid.'**
   String get issuerNoticeWithdrawn;
 
   /// Notice when a request the user sent ran out of time unpaid.
   ///
   /// In en, this message translates to:
-  /// **'A request you sent expired unpaid.'**
+  /// **'An invoice you sent expired unpaid.'**
   String get issuerNoticeExpired;
 
   /// Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.
   ///
   /// In en, this message translates to:
-  /// **'{payer}’s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.'**
+  /// **'{payer}’s wallet cannot pay invoices and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.'**
   String issuerNoticeBouncedFrom(String payer);
 
   /// State of a request the user sent: the payer's wallet cannot pay invoices and sent it back.
@@ -2776,7 +2770,7 @@ abstract class AppLocalizations {
   /// Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it.
   ///
   /// In en, this message translates to:
-  /// **'The payer’s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.'**
+  /// **'The payer’s wallet cannot pay invoices, so nothing was paid. Ask them to send the payment to your address or as a transaction file.'**
   String get issuedDetailsBounced;
 
   /// Status of a payment request the user sent: the payer has not paid it yet.
@@ -2800,13 +2794,13 @@ abstract class AppLocalizations {
   /// Details of a payment request the user sent that is not paid yet. Nothing has arrived.
   ///
   /// In en, this message translates to:
-  /// **'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.'**
+  /// **'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the invoice.'**
   String get txDetailsWaitingPayer;
 
   /// Details of a payment request that ended unpaid: declined, withdrawn, sent back or expired.
   ///
   /// In en, this message translates to:
-  /// **'This request ended unpaid. Nothing arrived.'**
+  /// **'This invoice ended unpaid. Nothing arrived.'**
   String get txDetailsRequestEnded;
 
   /// Details label above the address of the person a payment request went to.
@@ -3256,7 +3250,7 @@ abstract class AppLocalizations {
   /// No description provided for @restoreDateHint.
   ///
   /// In en, this message translates to:
-  /// **'Optional. If you are not sure, pick an earlier date. A date after your first payment misses funds. Without a date the whole chain is scanned, which takes longer.'**
+  /// **'Optional. If unsure, pick an earlier date: a later one can miss coins.'**
   String get restoreDateHint;
 
   /// Under the chosen start date: the block number the scan starts from.
@@ -3406,7 +3400,7 @@ abstract class AppLocalizations {
   /// Offer to import a history backup on the phone restore screen, once the restore from the phrase is done.
   ///
   /// In en, this message translates to:
-  /// **'The recovery phrase brought back the balance. A wallet data file brings back this wallet’s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.'**
+  /// **'The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.'**
   String get restoreImportExplanation;
 
   /// No description provided for @restoreImportButton.
@@ -3490,13 +3484,31 @@ abstract class AppLocalizations {
   /// Warning before the recovery phrase is shown: what a screenshot, photo or other copy of the phrase means.
   ///
   /// In en, this message translates to:
-  /// **'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.'**
+  /// **'Anyone who sees the words, or a photo of them, can take the coins.'**
   String get backupCopyWarning;
+
+  /// Heading of the consent card shown before the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you see the phrase'**
+  String get backupConsentTitle;
+
+  /// Consent card: what happens next.
+  ///
+  /// In en, this message translates to:
+  /// **'The next screen shows the words that restore this wallet.'**
+  String get backupConsentWhat;
+
+  /// Consent card: what to have ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Have paper and a pen ready.'**
+  String get backupConsentReady;
 
   /// Checkbox the user ticks before the recovery phrase can be shown.
   ///
   /// In en, this message translates to:
-  /// **'I will keep any copy of the phrase private'**
+  /// **'I will keep the phrase private'**
   String get backupCopyAgree;
 
   /// Button that asks for the PIN and then shows the recovery phrase.
@@ -3610,7 +3622,7 @@ abstract class AppLocalizations {
   /// No description provided for @pinBiometricsPinStillWorks.
   ///
   /// In en, this message translates to:
-  /// **'You can still use your PIN at any time.'**
+  /// **'The PIN still works.'**
   String get pinBiometricsPinStillWorks;
 
   /// Button answering yes to 'Unlock with fingerprint or face?': turns fingerprint or face unlock on.
@@ -3970,7 +3982,7 @@ abstract class AppLocalizations {
   /// No description provided for @slateAcceptedBody.
   ///
   /// In en, this message translates to:
-  /// **'The {amount} arrive once the sender finishes the payment and it is on the chain.'**
+  /// **'{amount} arrives once the sender finishes the payment and it is on the chain.'**
   String slateAcceptedBody(String amount);
 
   /// A transaction file this wallet accepted before was opened again: the same answer file can be given back; nothing new happened.
@@ -3982,7 +3994,7 @@ abstract class AppLocalizations {
   /// Body under slateRepeatedHeadline: the payment was accepted before; this is the same answer, not a second payment.
   ///
   /// In en, this message translates to:
-  /// **'You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.'**
+  /// **'You accepted this payment before, so this is the same answer, not a second payment. {amount} arrives once the sender finishes it and it is on the chain.'**
   String slateRepeatedBody(String amount);
 
   /// A transaction file that pays this wallet.
@@ -4078,7 +4090,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanQrCameraDenied.
   ///
   /// In en, this message translates to:
-  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also paste the address instead.'**
+  /// **'Camera access is off. Allow it in the phone’s settings, or paste the address instead.'**
   String get scanQrCameraDenied;
 
   /// No description provided for @scanQrCameraFailed.
@@ -4336,7 +4348,7 @@ abstract class AppLocalizations {
   /// Panel on the camera screen when the camera permission is refused.
   ///
   /// In en, this message translates to:
-  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also open the file instead.'**
+  /// **'Camera access is off. Allow it in the phone’s settings, or open a file instead.'**
   String get qrScanCameraDenied;
 
   /// Panel on the camera screen when the camera could not start.
@@ -4459,12 +4471,6 @@ abstract class AppLocalizations {
   /// **'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.'**
   String get receiveQrBody;
 
-  /// Settings › Transactions: one line under the QR switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid next to each other, with a code on the screen.'**
-  String get txQrLine;
-
   /// Settings › Transactions: the explanation behind the info icon of the QR switch.
   ///
   /// In en, this message translates to:
@@ -4504,7 +4510,7 @@ abstract class AppLocalizations {
   /// First step of the QR send, done.
   ///
   /// In en, this message translates to:
-  /// **'Payment made'**
+  /// **'Payment QR ready'**
   String get sendQrMade;
 
   /// Hint on Send once the payment QR is made.
@@ -4534,13 +4540,13 @@ abstract class AppLocalizations {
   /// Status line on a QR screen after the code hid itself.
   ///
   /// In en, this message translates to:
-  /// **'Hidden. Show again if they did not finish scanning.'**
+  /// **'Hidden'**
   String get qrStatusHiddenAgain;
 
   /// Status line on the reply QR screen while the code is hidden.
   ///
   /// In en, this message translates to:
-  /// **'Show this to the sender.'**
+  /// **'Hidden'**
   String get qrStatusReplyHidden;
 
   /// Status line on the reply QR screen while the code shows.
@@ -4942,7 +4948,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsRescanBody.
   ///
   /// In en, this message translates to:
-  /// **'The wallet looks for its funds again. An earlier start finds more but takes longer; the whole chain can take a long time.'**
+  /// **'Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.'**
   String get settingsRescanBody;
 
   /// Choice in the rescan dialog: start at the block of a picked day.
@@ -5116,13 +5122,13 @@ abstract class AppLocalizations {
   /// Licences screen: the first paragraph.
   ///
   /// In en, this message translates to:
-  /// **'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.'**
+  /// **'Open-source software in this wallet, each under its own licence.'**
   String get licencesLead;
 
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache 2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -5452,7 +5458,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.'**
+  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.'**
   String get settingsUseStatusSiteSubtitle;
 
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
@@ -5896,7 +5902,7 @@ abstract class AppLocalizations {
   /// How it works sheet: toggle segment for the flow where you ask someone for coins (an invoice).
   ///
   /// In en, this message translates to:
-  /// **'Request'**
+  /// **'Invoice'**
   String get handshakeRequest;
 
   /// How it works sheet: label of the user's wallet in the diagram.
@@ -5944,7 +5950,7 @@ abstract class AppLocalizations {
   /// How it works, request, step 1: you ask them for coins through the relay.
   ///
   /// In en, this message translates to:
-  /// **'Your wallet sends the request to the Epicbox server.'**
+  /// **'Your wallet sends the invoice to the Epicbox server.'**
   String get handshakeReq1;
 
   /// How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs.
@@ -6190,7 +6196,7 @@ abstract class AppLocalizations {
   /// Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'.
   ///
   /// In en, this message translates to:
-  /// **'Pay a friend’s demo, or open this page in a different browser or a private window.'**
+  /// **'Pay a friend’s demo, or open the demo in another browser or a private window.'**
   String get demoGuideSendHint;
 
   /// Web demo checklist, step 2's button: switches to the Send tab.
@@ -6388,7 +6394,7 @@ abstract class AppLocalizations {
   /// Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise.
   ///
   /// In en, this message translates to:
-  /// **'Reaching their wallet over Tor… This can take a while. Keep the app open.'**
+  /// **'Reaching their wallet over Tor… Keep the app open.'**
   String get sendTorReaching;
 
   /// Send, review: the recipient's wallet was not reached over Tor; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. Try again and Cancel payment follow.
@@ -6700,7 +6706,7 @@ abstract class AppLocalizations {
   /// Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Wait until the send in progress confirms (about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}).'**
+  /// **'Wait until the send in progress confirms ({blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}).'**
   String outputsWaitLocked(int blocks);
 
   /// Row: which outputs a send spends.
@@ -7203,13 +7209,13 @@ abstract class AppLocalizations {
   /// Invoices: empty Sent segment, heading.
   ///
   /// In en, this message translates to:
-  /// **'No requests sent'**
+  /// **'No invoices sent'**
   String get invoicesSentEmpty;
 
   /// Invoices: empty Sent segment, caption.
   ///
   /// In en, this message translates to:
-  /// **'A request asks someone to pay you an amount.'**
+  /// **'An invoice asks someone to pay you an amount.'**
   String get invoicesSentEmptyCaption;
 
   /// Invoices, Sent row: a request still waiting, before its time left.
@@ -7275,7 +7281,7 @@ abstract class AppLocalizations {
   /// Invoice review: the node answered.
   ///
   /// In en, this message translates to:
-  /// **'Responding'**
+  /// **'Synced'**
   String get invoicesNodeOk;
 
   /// Invoice review: the node did not answer.
@@ -7299,7 +7305,7 @@ abstract class AppLocalizations {
   /// Request form: summary above Send request.
   ///
   /// In en, this message translates to:
-  /// **'{payer} is asked to pay {amount}. The request expires in 24 h.'**
+  /// **'{payer} is asked to pay {amount}. The invoice expires in 24 h.'**
   String invoicesRequestSummary(String payer, String amount);
 
   /// Status card row title: the node the wallet uses.
@@ -8715,7 +8721,7 @@ abstract class AppLocalizations {
   /// Empty state text of Requests › To pay.
   ///
   /// In en, this message translates to:
-  /// **'When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.'**
+  /// **'When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.'**
   String get deskInvPayerEmptyText;
 
   /// Notice on To pay: an approved invoice payment did not reach the relay. service is the user's label for the service.
@@ -9103,7 +9109,7 @@ abstract class AppLocalizations {
   /// Text beside Request a payment on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Ask a paired contact to pay you, or save the request as a file.'**
+  /// **'Ask a paired contact to pay you, or save the invoice as a file.'**
   String get deskInvSetReceiveHint;
 
   /// Title of the confirm before the epicbox server of the open wallet changes.
@@ -9247,7 +9253,7 @@ abstract class AppLocalizations {
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
   ///
   /// In en, this message translates to:
-  /// **'Works with the wallet closed.'**
+  /// **'Senders can pay while this wallet is closed.'**
   String get methodReceiveEpicboxShort;
 
   /// Receive's Link strip title.
@@ -9349,7 +9355,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9361,13 +9367,13 @@ abstract class AppLocalizations {
   /// Receive's Link tab while Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Link · Tor receiving needs Tor.'**
+  /// **'Link · Tor needs Tor.'**
   String get receiveDirectNeedsTor;
 
   /// Caption under 'Link receiving needs Tor.'
   ///
   /// In en, this message translates to:
-  /// **'Senders use the Epicbox address meanwhile.'**
+  /// **'Meanwhile, share the Epicbox address.'**
   String get receiveDirectMeanwhile;
 
   /// Title of the HTTP address card on the phone’s Receive › Link tab.
@@ -9451,7 +9457,7 @@ abstract class AppLocalizations {
   /// Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification.
   ///
   /// In en, this message translates to:
-  /// **'Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.'**
+  /// **'Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.'**
   String get pushConfirmRelayBody;
 
   /// Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on.
@@ -9475,7 +9481,7 @@ abstract class AppLocalizations {
   /// Body of the confirmation before notifications are turned on.
   ///
   /// In en, this message translates to:
-  /// **'Notifications use Google’s notification service. No sensitive data is shared.'**
+  /// **'Notifications go through Google’s notification service. They carry no amount, sender or address.'**
   String get pushConfirmBody;
 
   /// The confirm button of the notifications dialog.
@@ -21575,7 +21581,7 @@ abstract class AppLocalizations {
   /// One line under the Tor only network mode.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
   String get advModeTorOnlyLine;
 
   /// Network mode: no network.
@@ -21587,7 +21593,7 @@ abstract class AppLocalizations {
   /// One line under the Offline network mode.
   ///
   /// In en, this message translates to:
-  /// **'Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.'**
+  /// **'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.'**
   String get advModeOfflineLine;
 
   /// Note under the network choice while Tor only is selected.
@@ -21767,7 +21773,7 @@ abstract class AppLocalizations {
   /// Text under the Tor only mode.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
   String get deskSetAdvModeTorOnlyText;
 
   /// Network mode: no network.
@@ -22226,35 +22232,11 @@ abstract class AppLocalizations {
   /// **'Payment methods'**
   String get txMethodsHeader;
 
-  /// One line under the Link family header on Settings › Transactions (Link · HTTP and Link · Tor).
-  ///
-  /// In en, this message translates to:
-  /// **'Straight to the other wallet while both are open.'**
-  String get txFamilyLinkLine;
-
-  /// One line under the Direct family header on Settings › Transactions (QR Payment and File Transfer).
-  ///
-  /// In en, this message translates to:
-  /// **'Hand to hand, with no connection between the wallets.'**
-  String get txFamilyDirectLine;
-
-  /// Second line of the Link › HTTP switch row on Settings › Transactions (phone). Honest: the phone is reachable only from the same Wi-Fi network.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay web addresses; get paid from this Wi-Fi network.'**
-  String get txLinkHttpLine;
-
   /// Info sheet behind the Link › HTTP row on Settings › Transactions (phone).
   ///
   /// In en, this message translates to:
   /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
   String get txLinkHttpHint;
-
-  /// Second line of the Link › Tor switch row on Settings › Transactions (phone).
-  ///
-  /// In en, this message translates to:
-  /// **'Pay onion addresses; get paid at this phone’s Tor address.'**
-  String get txLinkTorLine;
 
   /// Info sheet behind the Link › Tor row on Settings › Transactions (phone).
   ///
@@ -22292,12 +22274,6 @@ abstract class AppLocalizations {
   /// **'Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.'**
   String get txDirectHint;
 
-  /// One line under the File switch on Settings › Transactions.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid with a file you pass on yourself.'**
-  String get txFileLine;
-
   /// Info sheet text of the File switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
@@ -22309,12 +22285,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send starts on'**
   String get txStartHeader;
-
-  /// Small line under the choice of the method Send starts on.
-  ///
-  /// In en, this message translates to:
-  /// **'You can still pick another method on Send.'**
-  String get txStartNote;
 
   /// Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options.
   ///
@@ -22466,12 +22436,6 @@ abstract class AppLocalizations {
   /// **'{method} is off in Settings › Transactions.'**
   String netBlockMethodOff(String method);
 
-  /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid through an Epicbox server. The other wallet can be closed.'**
-  String get txEpicboxLine;
-
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
   ///
   /// In en, this message translates to:
@@ -22619,7 +22583,7 @@ abstract class AppLocalizations {
   /// Send › amount step: title of the banner shown when a payment code (QR, link or paste) filled the form.
   ///
   /// In en, this message translates to:
-  /// **'Payment request'**
+  /// **'Invoice'**
   String get sendRequestTitle;
 
   /// Send › amount step: the payment-request banner's text line when nothing in the code was dropped.
@@ -23303,7 +23267,7 @@ abstract class AppLocalizations {
   /// Option 2 line
   ///
   /// In en, this message translates to:
-  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.'**
+  /// **'Send a link in any chat or email.'**
   String get pairWayMessageHint;
 
   /// ⓘ of option 2
@@ -23717,7 +23681,7 @@ abstract class AppLocalizations {
   /// Waiting screen body.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.'**
+  /// **'Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.'**
   String get pairWaitingBody;
 
   /// Button on the waiting screen and the relay notice.
@@ -24137,13 +24101,13 @@ abstract class AppLocalizations {
   /// contactAllowInfo on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.'**
+  /// **'{name}’s wallet can send you invoices. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.'**
   String contactAllowInfoDesktop(String name);
 
   /// Info sheet / tooltip for Allow invoices.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.'**
+  /// **'{name}’s wallet can send you invoices. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.'**
   String contactAllowInfo(String name);
 
   /// Second paragraph.
@@ -24179,7 +24143,7 @@ abstract class AppLocalizations {
   /// Notice body.
   ///
   /// In en, this message translates to:
-  /// **'Retrying. Requests and payments wait until it answers; nothing is lost.'**
+  /// **'Retrying. Invoices and payments wait until it answers.'**
   String get contactRelayDownBody;
 
   /// Readout and docked notice on the contact page and Settings › Invoices.
@@ -24419,7 +24383,7 @@ abstract class AppLocalizations {
   /// Lead. Desktop says ‘for the wallet password’.
   ///
   /// In en, this message translates to:
-  /// **'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.'**
+  /// **'A paired contact you allow can send you invoices. Each one waits under Invoices for your PIN.'**
   String get invSetLead;
 
   /// Section title.
@@ -24455,7 +24419,7 @@ abstract class AppLocalizations {
   /// Docked notice body while Epicbox is off.
   ///
   /// In en, this message translates to:
-  /// **'Requests wait on the server and arrive when it is back on.'**
+  /// **'Invoices wait on the Epicbox server and arrive when it is back on.'**
   String get invSetPausedBody;
 
   /// Notice when the switch goes off.
@@ -24467,7 +24431,7 @@ abstract class AppLocalizations {
   /// Notice body when open requests existed.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 open request was declined.} other{{count} open requests were declined.}}'**
+  /// **'{count, plural, =1{1 open invoice was declined.} other{{count} open invoices were declined.}}'**
   String invSetDeclinedCount(int count);
 
   /// Advanced row (kept).
@@ -24623,7 +24587,7 @@ abstract class AppLocalizations {
   /// After a signed withdrawn notice.
   ///
   /// In en, this message translates to:
-  /// **'{name} withdrew the request'**
+  /// **'{name} withdrew the invoice'**
   String reqWithdrewTitle(String name);
 
   /// Body when the payment was cancelled.
@@ -24635,13 +24599,13 @@ abstract class AppLocalizations {
   /// For an unpaid request; the row is removed.
   ///
   /// In en, this message translates to:
-  /// **'{name} withdrew this request'**
+  /// **'{name} withdrew this invoice'**
   String reqWithdrewUnpaid(String name);
 
   /// Docked notice on Review request when requests for the same amount from one contact arrive within 10 minutes.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{{name} sent 1 request for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} requests for {amount} EPIC within 10 minutes. Pay all of them?}}'**
+  /// **'{count, plural, =1{{name} sent 1 invoice for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} invoices for {amount} EPIC within 10 minutes. Pay all of them?}}'**
   String reqTwoSame(String name, int count, String amount);
 
   /// Payment title for an incoming withdrawal.
@@ -24671,7 +24635,7 @@ abstract class AppLocalizations {
   /// Request form lead (also the Receive hint).
   ///
   /// In en, this message translates to:
-  /// **'Ask a paired contact to pay you, or save the request as a file for anyone.'**
+  /// **'Ask a paired contact to pay you, or save the invoice as a file for anyone.'**
   String get reqNewLead;
 
   /// Request form lead when this wallet cannot save a request as a file (LEPIC asks paired contacts only).
@@ -24689,19 +24653,19 @@ abstract class AppLocalizations {
   /// Under To on New request when the wallet cannot save a request as a file: the reqNewToHint without the file part.
   ///
   /// In en, this message translates to:
-  /// **'Paired contacts whose wallet pays requests.'**
+  /// **'Paired contacts whose wallet pays invoices.'**
   String get reqNewToHintContacts;
 
   /// No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part.
   ///
   /// In en, this message translates to:
-  /// **'No paired contact pays requests yet. Pair and verify with them.'**
+  /// **'No paired contact pays invoices yet. Pair and verify with them.'**
   String get reqNoPayersContacts;
 
   /// Under the To field.
   ///
   /// In en, this message translates to:
-  /// **'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.'**
+  /// **'Paired contacts whose wallet pays invoices. Anyone else: save the invoice as a file.'**
   String get reqNewToHint;
 
   /// Secondary button.
@@ -24905,7 +24869,7 @@ abstract class AppLocalizations {
   /// Docked notice when a contact withdrew a paid request.
   ///
   /// In en, this message translates to:
-  /// **'{name} withdrew the request. The coins are unlocked.'**
+  /// **'{name} withdrew the invoice. The coins are unlocked.'**
   String noticeWithdrew(String name);
 
   /// Dialog on importing a backup whose pairings were used elsewhere (RFC 9.5).
@@ -25121,7 +25085,7 @@ abstract class AppLocalizations {
   /// Desktop Settings › Invoices lead.
   ///
   /// In en, this message translates to:
-  /// **'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.'**
+  /// **'A paired contact you allow can send this wallet invoices. Each one waits under Invoices for the wallet password.'**
   String get invSetLeadDesktop;
 
   /// Desktop Settings › Invoices row subtitle.
@@ -25151,7 +25115,7 @@ abstract class AppLocalizations {
   /// Request form when no verified contact can pay requests.
   ///
   /// In en, this message translates to:
-  /// **'No paired contact pays requests yet. Pair and verify with them, or save the request as a file.'**
+  /// **'No paired contact pays invoices yet. Pair and verify with them, or save the invoice as a file.'**
   String get reqNoPayers;
 
   /// Placeholder of the To field.
@@ -25163,19 +25127,19 @@ abstract class AppLocalizations {
   /// Notice after Save as file.
   ///
   /// In en, this message translates to:
-  /// **'Request saved as a file'**
+  /// **'Invoice saved as a file'**
   String get reqFileSaved;
 
   /// Notice after Send request.
   ///
   /// In en, this message translates to:
-  /// **'Request sent to {name}'**
+  /// **'Invoice sent to {name}'**
   String reqSent(String name);
 
   /// Title of the request file screen.
   ///
   /// In en, this message translates to:
-  /// **'Payment request'**
+  /// **'Invoice'**
   String get reqFileTitle;
 
   /// Docked warning for OutboxStuck.
@@ -25187,7 +25151,7 @@ abstract class AppLocalizations {
   /// Docked warning when a contact went over the request cap.
   ///
   /// In en, this message translates to:
-  /// **'{name} sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.'**
+  /// **'{name} sent too many invoices. Extra ones were dropped. Turn its invoices off if this keeps happening.'**
   String noticeTooMany(String name);
 
   /// Action of a pairing notice that opens its screen.
@@ -25439,37 +25403,37 @@ abstract class AppLocalizations {
   /// helpPairInvShort on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.'**
+  /// **'Only a Verified contact you allow can ask you to pay. Each invoice waits for the wallet password.'**
   String get helpPairInvShortDesktop;
 
   /// Topic 4 lede.
   ///
   /// In en, this message translates to:
-  /// **'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.'**
+  /// **'Only a Verified contact you allow can ask you to pay. Each invoice waits for your PIN.'**
   String get helpPairInvShort;
 
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
+  /// **'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
   String get helpPairInvP1;
 
   /// helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.'**
   String get helpPairInvP2Desktop;
 
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.'**
   String get helpPairInvP2;
 
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.'**
+  /// **'Turning the switch off is immediate: new invoices from that contact are dropped and open ones are declined.'**
   String get helpPairInvP3;
 
   /// Topic 4.
@@ -25637,7 +25601,7 @@ abstract class AppLocalizations {
   /// Import confirm line: contacts in the file already saved here, nothing to add.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 already here} other{{count} already here}}'**
+  /// **'{count, plural, =1{1 already saved} other{{count} already saved}}'**
   String contactsImportSame(int count);
 
   /// Import confirm line: contacts in the file left out because none of their addresses is valid for this wallet.
@@ -25673,7 +25637,7 @@ abstract class AppLocalizations {
   /// Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.
   ///
   /// In en, this message translates to:
-  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}'**
+  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already saved} other{{same} already saved}}'**
   String contactsImported(int added, int same);
 
   /// Success notice after an import when none of the file's contacts was already there.
@@ -25907,13 +25871,13 @@ abstract class AppLocalizations {
   /// Review of a payment request opened from a file: the title beside the file tile.
   ///
   /// In en, this message translates to:
-  /// **'Payment request from a file'**
+  /// **'Invoice from a file'**
   String get reqFromFileTitle;
 
   /// Review of a payment request opened from a file: the warning card; nothing names who made it.
   ///
   /// In en, this message translates to:
-  /// **'Nothing says who made this request. Pay it only if you expected it from someone you know.'**
+  /// **'Nothing says who made this invoice. Pay it only if you expected it from someone you know.'**
   String get reqFromFileWarn;
 
   /// Review of a payment request opened from a file: label of the message the file carries (unchecked text).
@@ -25949,31 +25913,31 @@ abstract class AppLocalizations {
   /// A payment request file, or its answer, for a request already paid.
   ///
   /// In en, this message translates to:
-  /// **'This request is already paid.'**
+  /// **'This invoice is already paid.'**
   String get reqFileAlreadyPaid;
 
   /// A payment request file, or its answer, whose time ran out or that was withdrawn.
   ///
   /// In en, this message translates to:
-  /// **'This request has ended.'**
+  /// **'This invoice has ended.'**
   String get reqFileEnded;
 
   /// Transaction file screen: the lead for the payer's answer to a payment request this wallet saved as a file.
   ///
   /// In en, this message translates to:
-  /// **'The answer to your payment request of {amount}.'**
+  /// **'The answer to your invoice of {amount}.'**
   String slateIncomingRequestAnswer(String amount);
 
   /// Transaction file screen: an answer to a payment request this wallet does not have (cancelled or never made here).
   ///
   /// In en, this message translates to:
-  /// **'This answers a request this wallet no longer has.'**
+  /// **'This answers an invoice this wallet no longer has.'**
   String get reqAnswerUnknown;
 
   /// Request form, after a request was saved as a file: starts a new request.
   ///
   /// In en, this message translates to:
-  /// **'Another request'**
+  /// **'Another invoice'**
   String get deskInvIssuerAnother;
 
   /// Import page, after a request file was paid and its answer saved: start over with another file. Not "sign": paying a request spent money.
@@ -26249,7 +26213,7 @@ abstract class AppLocalizations {
   /// Title of the screen that shows a payment request as a QR.
   ///
   /// In en, this message translates to:
-  /// **'Payment request'**
+  /// **'Invoice'**
   String get qrShowTitleRequest;
 
   /// Line under the amount on the request QR screen.
@@ -26261,7 +26225,7 @@ abstract class AppLocalizations {
   /// Card text while the request QR is hidden.
   ///
   /// In en, this message translates to:
-  /// **'Whoever scans it can pay this request. Show it only to the person paying.'**
+  /// **'Whoever scans it can pay this invoice. Show it only to the person paying.'**
   String get qrHiddenBodyRequest;
 
   /// Status line, request QR hidden.
@@ -26279,7 +26243,7 @@ abstract class AppLocalizations {
   /// Spoken label of the request QR card.
   ///
   /// In en, this message translates to:
-  /// **'Payment request QR code, {state}'**
+  /// **'Invoice QR code, {state}'**
   String qrSemanticsRequest(String state);
 
   /// Line under the amount on the payer's reply QR screen.
@@ -26321,7 +26285,7 @@ abstract class AppLocalizations {
   /// Summary above the button when the request goes as a QR.
   ///
   /// In en, this message translates to:
-  /// **'Whoever scans the code can pay {amount}. Scan their reply here to finish. The request expires in 24 h.'**
+  /// **'Whoever scans the code can pay {amount}. Scan their reply here to finish. The invoice expires in 24 h.'**
   String reqQrSummary(String amount);
 
   /// Button that makes the request and shows it as a QR.
@@ -26357,13 +26321,13 @@ abstract class AppLocalizations {
   /// Merchant scanned a second reply to a request already finished.
   ///
   /// In en, this message translates to:
-  /// **'This request is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.'**
+  /// **'This invoice is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.'**
   String get reqQrAlreadyPaid;
 
   /// Customer review title for a scanned request.
   ///
   /// In en, this message translates to:
-  /// **'Payment request from a QR code'**
+  /// **'Invoice from a QR code'**
   String get reqFromQrTitle;
 
   /// Warn card on a scanned request.
@@ -26399,13 +26363,13 @@ abstract class AppLocalizations {
   /// Customer: the scanned request is past its time.
   ///
   /// In en, this message translates to:
-  /// **'This request has expired. Ask for a new one. Nothing was paid.'**
+  /// **'This invoice has expired. Ask for a new one. Nothing was paid.'**
   String get reqExpired;
 
   /// Customer: the scanned request's time limit does not fit this network.
   ///
   /// In en, this message translates to:
-  /// **'This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.'**
+  /// **'This invoice is for another Epic network, or its time limit does not fit this one. Nothing was paid.'**
   String get reqOtherChain;
 
   /// Dim line on the request page: where the request stays and for how long.
@@ -26417,20 +26381,14 @@ abstract class AppLocalizations {
   /// Merchant scanned a reply to a different request.
   ///
   /// In en, this message translates to:
-  /// **'This reply answers a different request. Scan the reply to this one.'**
+  /// **'This reply answers a different invoice. Scan the reply to this one.'**
   String get reqQrWrongReply;
 
   /// Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export.
   ///
   /// In en, this message translates to:
-  /// **'This file holds this wallet’s payment history, contacts, invoices and settings.'**
+  /// **'Holds this wallet’s payment history, contacts, invoices and settings, up to now.'**
   String get backupFileHolds;
-
-  /// Export of the history backup, sentence 2: the file has no recovery phrase and cannot restore the wallet alone.
-  ///
-  /// In en, this message translates to:
-  /// **'It does not hold the recovery phrase and cannot restore the wallet on its own.'**
-  String get backupFileNoPhrase;
 
   /// Export of the history backup, sentence 3: the order of a restore, the phrase first, then this file.
   ///
@@ -26447,7 +26405,7 @@ abstract class AppLocalizations {
   /// The one summary after a history backup import. {items} is a list such as "12 payments, 5 notes and settings", joined with backupListSeparator and backupListLastSeparator from the backupRestored… items.
   ///
   /// In en, this message translates to:
-  /// **'Restored: {items}.'**
+  /// **'Imported: {items}.'**
   String backupRestoredSummary(String items);
 
   /// Joins the items of a short list in a sentence, all but the last join: ", " in English. Keep the spaces the language needs.

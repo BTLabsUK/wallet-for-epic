@@ -565,7 +565,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           // Pairing is beside the point for a code shown to whoever stands there.
           if (!toQr) ...[
             const SizedBox(height: 6),
-            PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHint) : l.reqNewToHintContacts),
+            PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHintContacts) : l.reqNewToHintContacts),
           ],
           const SizedBox(height: 16),
           TextField(
@@ -741,7 +741,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
       IssuedInvoiceState.waiting => (
         Icons.timer,
         t.dim,
-        '${l.issuedDetailsWaiting} '
+        '${l.issuedDetailsWaiting} · '
             '${invoiceTimeLeft(l, invoice.timeLeftAt(now))}',
       ),
       IssuedInvoiceState.paid => (

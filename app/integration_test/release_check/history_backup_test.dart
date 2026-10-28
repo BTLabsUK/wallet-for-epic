@@ -406,7 +406,7 @@ Future<ImportRun> importUi(WidgetTester tester, String path, {String shotName = 
   await settle(tester, ms: 800);
   final screen = texts().join(' | ');
   // The summary line only (the dialog's description also says "changes nothing").
-  final summary = texts().where((t) => t.startsWith('Restored:') || t == 'Nothing new').join(' ');
+  final summary = texts().where((t) => t.startsWith('Imported:') || t == 'Nothing new').join(' ');
   if (shotName.isNotEmpty) await shot(tester, shotName);
   if (hasText('Done')) {
     await tapText(tester, 'Done', last: true);
@@ -794,7 +794,7 @@ Future<void> restorePhase(WidgetTester tester) async {
   record('restore 1: settings at their defaults', before.theme == const DeskSettings().theme && before.autoLockMinutes == const DeskSettings().autoLockMinutes, 'theme ${before.theme.name}, auto-lock ${before.autoLockMinutes}');
   final r1 = await importUi(tester, hbPath('F1.wfeh'), shotName: 'hb-05-import-summary');
   log('import F1: ${r1.screen}');
-  record('import F1: one summary', r1.summary.startsWith('Restored:'), r1.summary);
+  record('import F1: one summary', r1.summary.startsWith('Imported:'), r1.summary);
   record('import F1: payments, contacts, pairings, invoices and settings named', RegExp(r'payment').hasMatch(r1.summary) && r1.summary.contains('contact') && r1.summary.contains('pairing') && r1.summary.contains('invoice') && r1.summary.contains('settings'), r1.summary);
   record('import F1: no settings question after a restore', r1.settingsAsked == 0, '${r1.settingsAsked} asked');
   record('import F1: pairing question (use on this device)', r1.pairingAsked, '');
@@ -866,7 +866,7 @@ Future<void> restorePhase(WidgetTester tester) async {
   final rows3 = await waitScan(tester, total, tag: ' 3');
   record('restore 3: the same payments again (same commitments)', edited.every((t) => rows3.any((x) => x.key == t.key && x.amount == t.amount && x.height == t.height)), rows3.where((t) => t.restored).map((t) => t.key.substring(0, 10)).join(', '));
   final r4 = await importUi(tester, hbPath('F2.wfeh'), shotName: 'hb-06-import-f2');
-  record('import F2: summary', r4.summary.startsWith('Restored:'), r4.summary);
+  record('import F2: summary', r4.summary.startsWith('Imported:'), r4.summary);
   await io(tester, desk.refresh);
   final back = await io(tester, api.transactions);
   for (final (i, t) in edited.indexed) {
@@ -891,7 +891,7 @@ Future<void> restorePhase(WidgetTester tester) async {
     await tapRowButton(tester, 'Import…', opens: 'Choose file…');
   }
   final r5 = await importUi(tester, hbPath('V1.wfeh'), shotName: 'hb-08-import-v1', fromOffer: true);
-  record('version 1 file imports', r5.summary.startsWith('Restored:') && r5.refused == null, r5.summary);
+  record('version 1 file imports', r5.summary.startsWith('Imported:') && r5.refused == null, r5.summary);
   await io(tester, desk.refresh);
   final v1Txs = await io(tester, api.transactions);
   final v1Contacts = await io(tester, api.contacts);

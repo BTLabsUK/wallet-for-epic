@@ -3,5 +3,5 @@
   "deskInvSetExpiry": "Zahlungsfrist",
   "deskInvSetExpiryHint": "Wie lange eine ausgestellte Rechnung bezahlbar bleibt und wie lange eine empfangene auf Sie wartet. Höchstens 48 Stunden.",
   "deskInvSetHours": "{hours} Stunden",
-  "deskInvSetReceiveHint": "Bitten Sie einen gekoppelten Kontakt um Zahlung oder speichern Sie die Anforderung als Datei."
+  "deskInvSetReceiveHint": "Bitten Sie einen gekoppelten Kontakt um Zahlung oder speichern Sie die Rechnung als Datei."
 }
