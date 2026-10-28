@@ -1027,9 +1027,11 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         ),
     ];
 
-    // As tall as the window below the button allows.
+    // As tall as the window below the button allows; the button is as tall as it lays out (a
+    // chosen set of hosts can wrap), so the list's foot (Reset, Undo) stays in the window.
     final box = context.findRenderObject() as RenderBox?;
-    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - Ctl.sm - Sp.x4 - widget.keepBelow;
+    final anchor = (_link.leaderSize?.height ?? Ctl.sm) + Sp.x1;
+    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - anchor - Sp.x4 - widget.keepBelow;
     final maxHeight = below.clamp(widget.keepBelow > 0 ? 160.u : 260.u, 520.u);
 
     return CompositedTransformFollower(
