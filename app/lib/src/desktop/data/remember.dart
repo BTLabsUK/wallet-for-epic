@@ -184,5 +184,5 @@ class RememberUnavailable implements Exception {
 }
 
 /// Set once the first Unlock screen of this run tried the remembered password: Unlock after a
-/// Lock always asks.
+/// Lock always asks (a wallet chosen in the wallet switch is tried again: `UnlockPick.switched`).
 bool rememberAutoTried = false;
