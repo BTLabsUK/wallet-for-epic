@@ -1637,11 +1637,16 @@ class TxTile extends ConsumerWidget {
               label: tx.label,
             ),
             onTap: open,
+            // A long press labels the payment in place; the pen left the row (UI-064). Screen
+            // readers offer it as the row's long-press action, named Add or Edit label.
+            onLongPress: tx.origin == TxOrigin.linkedDevice ? null : () => edit?.call(),
+            onLongPressHint: tx.origin == TxOrigin.linkedDevice
+                ? null
+                : (tx.label == null ? l.txLabelAdd : l.txLabelEdit),
             excludeSemantics: true,
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: open,
-              // A long press labels the payment in place; the pen left the row (UI-064).
               onLongPress: () => edit?.call(),
             ),
           ),

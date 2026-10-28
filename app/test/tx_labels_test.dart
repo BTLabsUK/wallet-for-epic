@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -139,8 +140,18 @@ class _Harness {
 /// The text field the pen opened, or none.
 Finder _labelField() => find.byType(TextField);
 
-Future<void> _openPen(WidgetTester tester, String tooltip, [int at = 0]) async {
-  await tester.tap(find.byTooltip(tooltip).at(at));
+/// The hint a screen reader says for [node]'s long press (its custom long-press action).
+String? _longPressHint(SemanticsNode node) {
+  for (final id in node.getSemanticsData().customSemanticsActionIds ?? const <int>[]) {
+    final action = CustomSemanticsAction.getAction(id);
+    if (action?.action == ui.SemanticsAction.longPress) return action!.hint;
+  }
+  return null;
+}
+
+/// Opens a row's label field: a long press on the row (the pen left the rows, UI-064).
+Future<void> _openLabel(WidgetTester tester, [String key = 's:plain']) async {
+  await tester.longPress(find.byKey(ValueKey('tx-$key')));
   await tester.pumpAndSettle();
 }
 
@@ -174,7 +185,7 @@ void main() {
       final h = _Harness();
       h.session.labels['s:plain'] = 'Rent';
       await h.pump(tester, const HistoryScreen());
-      // A row has room for the pen only; the words are in the tooltip and in details.
+      // A long press labels a row; the words are in details.
       expect(find.byType(ManualTag), findsOneWidget);
     });
 
@@ -234,47 +245,36 @@ void main() {
   });
 
   group('inline label', () {
-    testWidgets('every row has a pen with its semantics', (tester) async {
+    testWidgets('every row offers labelling as its long-press action, named', (tester) async {
       final h = _Harness();
       h.session.labels['s:plain'] = 'Rent';
       final semantics = tester.ensureSemantics();
       await h.pump(tester, const HistoryScreen());
-      expect(find.bySemanticsLabel('Edit label'), findsOneWidget);
-      expect(find.bySemanticsLabel('Add label'), findsNWidgets(2));
-      final size = tester.getSize(find.byType(LabelPen).first);
-      expect(size.width, greaterThanOrEqualTo(48));
-      expect(size.height, greaterThanOrEqualTo(48));
+      expect(find.byType(LabelPen), findsNothing);
+      final labelled = tester.getSemantics(find.byKey(const ValueKey('tx-s:plain')));
+      expect(labelled.getSemanticsData().hasAction(ui.SemanticsAction.longPress), isTrue);
+      expect(_longPressHint(labelled), 'Edit label');
+      final plain = tester.getSemantics(find.byKey(const ValueKey('tx-s:known')));
+      expect(_longPressHint(plain), 'Add label');
       semantics.dispose();
     });
 
-    testWidgets('the pen can be reached with the keyboard', (tester) async {
+    testWidgets('a screen reader opens the label field with the row\'s long-press action', (tester) async {
       final h = _Harness();
+      final semantics = tester.ensureSemantics();
       await h.pump(tester, const HistoryScreen());
-      var reached = false;
-      for (var i = 0; i < 40 && !reached; i++) {
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        final focus = FocusManager.instance.primaryFocus?.context;
-        reached =
-            focus != null &&
-            find
-                .ancestor(
-                  of: find.byWidget(focus.widget),
-                  matching: find.byType(LabelPen),
-                )
-                .evaluate()
-                .isNotEmpty;
-      }
-      expect(reached, isTrue);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      tester.semantics.longPress(find.semantics.byPredicate(
+        (node) => _longPressHint(node) == 'Add label',
+      ).first);
       await tester.pumpAndSettle();
       expect(_labelField(), findsNWidgets(2)); // search + the label field
+      semantics.dispose();
     });
 
     testWidgets('Done saves, and says so', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Add label');
+      await _openLabel(tester);
       final field = find.widgetWithText(TextField, '');
       expect(find.text('Add label'), findsWidgets);
       await tester.enterText(field.last, '  Rent   September ');
@@ -288,7 +288,7 @@ void main() {
     testWidgets('tapping elsewhere saves', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Add label');
+      await _openLabel(tester);
       await tester.enterText(find.byType(TextField).last, 'Coffee');
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
@@ -298,10 +298,9 @@ void main() {
     testWidgets('opening another pen saves the first', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Add label');
+      await _openLabel(tester);
       await tester.enterText(find.byType(TextField).last, 'First');
-      await tester.tap(find.byTooltip('Add label').first);
-      await tester.pumpAndSettle();
+      await _openLabel(tester, 's:known');
       expect(h.session.labels, {'s:plain': 'First'});
     });
 
@@ -309,7 +308,7 @@ void main() {
       final h = _Harness();
       h.session.labels['s:plain'] = 'Rent';
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Edit label');
+      await _openLabel(tester);
       await tester.enterText(find.byType(TextField).last, 'Something else');
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
@@ -323,7 +322,7 @@ void main() {
       final h = _Harness();
       h.session.labels['s:plain'] = 'Rent';
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Edit label');
+      await _openLabel(tester);
       await tester.enterText(find.byType(TextField).last, '');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -334,7 +333,7 @@ void main() {
     testWidgets('the field stops at 60 characters', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Add label');
+      await _openLabel(tester);
       await tester.enterText(find.byType(TextField).last, 'x' * 90);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -345,7 +344,7 @@ void main() {
       final h = _Harness();
       h.session.labels['s:plain'] = 'Rent';
       await h.pump(tester, const HistoryScreen());
-      await _openPen(tester, 'Edit label');
+      await _openLabel(tester);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect(find.text('Label saved'), findsNothing);
