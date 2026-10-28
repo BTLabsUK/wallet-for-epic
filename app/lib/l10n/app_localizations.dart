@@ -28574,23 +28574,23 @@ abstract class AppLocalizations {
   /// **'Connected'**
   String get deskKitMethodConnected;
 
-  /// Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.
+  /// Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{The word checks out.} other{All {count} words check out.}}'**
-  String restoreWordsAllOk(int count);
+  /// **'Invited {clock}'**
+  String pairInvitedAt(String clock);
 
-  /// Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.
+  /// Pending pairing row: the invite went out yesterday.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 word} other{{count} words}}'**
-  String restoreWordsSoFar(int count);
+  /// **'Invited yesterday'**
+  String get pairInvitedYesterday;
 
-  /// Restore: the line under the word chips when words are not in the recovery word list; count is how many.
+  /// Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}'**
-  String restoreWordsUnknown(int count);
+  /// **'Invited {day}'**
+  String pairInvitedOn(String day);
 }
 
 class _AppLocalizationsDelegate

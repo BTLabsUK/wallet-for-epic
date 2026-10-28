@@ -17834,32 +17834,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitMethodConnected => 'เชื่อมต่อแล้ว';
 
   @override
-  String restoreWordsAllOk(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'ทั้ง $count คำถูกต้อง',
-    );
-    return '$_temp0';
+  String pairInvitedAt(String clock) {
+    return 'เชิญเมื่อ $clock';
   }
 
   @override
-  String restoreWordsSoFar(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count คำ',
-    );
-    return '$_temp0';
-  }
+  String get pairInvitedYesterday => 'เชิญเมื่อวานนี้';
 
   @override
-  String restoreWordsUnknown(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count คำไม่อยู่ในรายการ',
-    );
-    return '$_temp0';
+  String pairInvitedOn(String day) {
+    return 'เชิญเมื่อ $day';
   }
 }

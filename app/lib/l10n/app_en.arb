@@ -24241,30 +24241,27 @@
   "@deskKitMethodConnected": {
     "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
   },
-  "restoreWordsAllOk": "{count, plural, one{The word checks out.} other{All {count} words check out.}}",
-  "@restoreWordsAllOk": {
-    "description": "Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.",
+  "pairInvitedAt": "Invited {clock}",
+  "@pairInvitedAt": {
+    "description": "Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.",
     "placeholders": {
-      "count": {
-        "type": "int"
+      "clock": {
+        "type": "String",
+        "example": "14:05"
       }
     }
   },
-  "restoreWordsSoFar": "{count, plural, one{1 word} other{{count} words}}",
-  "@restoreWordsSoFar": {
-    "description": "Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+  "pairInvitedYesterday": "Invited yesterday",
+  "@pairInvitedYesterday": {
+    "description": "Pending pairing row: the invite went out yesterday."
   },
-  "restoreWordsUnknown": "{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}",
-  "@restoreWordsUnknown": {
-    "description": "Restore: the line under the word chips when words are not in the recovery word list; count is how many.",
+  "pairInvitedOn": "Invited {day}",
+  "@pairInvitedOn": {
+    "description": "Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.",
     "placeholders": {
-      "count": {
-        "type": "int"
+      "day": {
+        "type": "String",
+        "example": "3 Oct 2026"
       }
     }
   }

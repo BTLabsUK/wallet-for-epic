@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDayMonth;
+import '../../../l10n.dart' show AppLocalizations, invitedLine, localClock, localDay, localDayMonth;
 import '../../../models.dart'
     show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, WalletError, WalletErrorKind, pairingError, pairingFailureOf;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
@@ -2014,7 +2014,7 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
         ),
         // The other side may never confirm (They don't match there): the answer can go.
         PairingState.pendingReply => (
-          l.pendingWaitingConfirm,
+          '${l.pendingWaitingConfirm} · ${invitedLine(l, r.createdAt, now)}',
           [
             const ESpinner(),
             EButton(

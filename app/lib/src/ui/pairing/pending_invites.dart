@@ -221,7 +221,7 @@ class _PendingRow extends ConsumerWidget {
         return _Row(
           avatar: avatar,
           title: name,
-          subtitle: Text(l.pendingWaitingConfirm),
+          subtitle: Text('${l.pendingWaitingConfirm} · ${invitedLine(l, r.createdAt, now)}'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

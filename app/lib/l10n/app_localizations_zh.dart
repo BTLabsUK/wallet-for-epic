@@ -17178,32 +17178,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitMethodConnected => '已连接';
 
   @override
-  String restoreWordsAllOk(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '全部 $count 个单词都正确。',
-    );
-    return '$_temp0';
+  String pairInvitedAt(String clock) {
+    return '已邀请 $clock';
   }
 
   @override
-  String restoreWordsSoFar(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个单词',
-    );
-    return '$_temp0';
-  }
+  String get pairInvitedYesterday => '昨天已邀请';
 
   @override
-  String restoreWordsUnknown(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个单词不在词表中。',
-    );
-    return '$_temp0';
+  String pairInvitedOn(String day) {
+    return '已邀请 $day';
   }
 }

@@ -4777,7 +4777,7 @@
   "deskActNoneUnderFilter": "Nichts unter diesem Filter",
   "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
   "deskKitMethodConnected": "Verbunden",
-  "restoreWordsAllOk": "{count, plural, one{Das Wort stimmt.} other{Alle {count} Wörter stimmen.}}",
-  "restoreWordsSoFar": "{count, plural, one{1 Wort} other{{count} Wörter}}",
-  "restoreWordsUnknown": "{count, plural, one{1 Wort steht nicht in der Liste.} other{{count} Wörter stehen nicht in der Liste.}}"
+  "pairInvitedAt": "Eingeladen {clock}",
+  "pairInvitedYesterday": "Gestern eingeladen",
+  "pairInvitedOn": "Eingeladen am {day}"
 }

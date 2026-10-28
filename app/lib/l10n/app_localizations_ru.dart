@@ -18870,41 +18870,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitMethodConnected => 'Подключено';
 
   @override
-  String restoreWordsAllOk(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Все $count слова верные.',
-      many: 'Все $count слов верные.',
-      few: 'Все $count слова верные.',
-      one: '$count слово верное.',
-    );
-    return '$_temp0';
+  String pairInvitedAt(String clock) {
+    return 'Приглашение отправлено в $clock';
   }
 
   @override
-  String restoreWordsSoFar(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count слова',
-      many: '$count слов',
-      few: '$count слова',
-      one: '$count слово',
-    );
-    return '$_temp0';
-  }
+  String get pairInvitedYesterday => 'Приглашение отправлено вчера';
 
   @override
-  String restoreWordsUnknown(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count слова нет в списке.',
-      many: '$count слов нет в списке.',
-      few: '$count слов нет в списке.',
-      one: '$count слова нет в списке.',
-    );
-    return '$_temp0';
+  String pairInvitedOn(String day) {
+    return 'Приглашение отправлено $day';
   }
 }

@@ -160,3 +160,13 @@ String acceptedAgoText(AppLocalizations l, Duration ago) {
   if (hours < 48) return l.txDetailsAcceptedAgoHours(hours);
   return l.txDetailsAcceptedAgoDays((hours / 24).round());
 }
+
+/// When a pairing invite went out, as a fixed fact for its row (never a ticking age): the clock
+/// time today, "yesterday", else the day.
+String invitedLine(AppLocalizations l, DateTime at, DateTime now) {
+  final a = at.toLocal(), n = now.toLocal();
+  final day = DateTime(a.year, a.month, a.day), today = DateTime(n.year, n.month, n.day);
+  if (day == today) return l.pairInvitedAt(localClock(l, a));
+  if (today.difference(day).inDays == 1) return l.pairInvitedYesterday;
+  return l.pairInvitedOn(localDay(l, a));
+}

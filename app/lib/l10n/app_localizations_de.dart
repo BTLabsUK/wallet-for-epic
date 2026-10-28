@@ -18461,35 +18461,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitMethodConnected => 'Verbunden';
 
   @override
-  String restoreWordsAllOk(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Alle $count Wörter stimmen.',
-      one: 'Das Wort stimmt.',
-    );
-    return '$_temp0';
+  String pairInvitedAt(String clock) {
+    return 'Eingeladen $clock';
   }
 
   @override
-  String restoreWordsSoFar(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Wörter',
-      one: '1 Wort',
-    );
-    return '$_temp0';
-  }
+  String get pairInvitedYesterday => 'Gestern eingeladen';
 
   @override
-  String restoreWordsUnknown(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Wörter stehen nicht in der Liste.',
-      one: '1 Wort steht nicht in der Liste.',
-    );
-    return '$_temp0';
+  String pairInvitedOn(String day) {
+    return 'Eingeladen am $day';
   }
 }
