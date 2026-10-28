@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Pins and builds LEPIC for the app. The app depends on package:lepic, the Flutter binding, which
 # lives in its own repository and pins its LEPIC commit. This script clones lepic-flutter
-# (LEPIC_FLUTTER_REPO, default GitHub) into the git-ignored app/third_party/lepic-flutter
-# at the commit in tools/lepic-flutter.rev, and LEPIC (LEPIC_REPO, default GitHub) into
-# app/third_party/lepic at the commit in tools/lepic.rev, which must be
-# the binding's own pin. The binding's tool/lepic.sh then builds the libraries from that LEPIC
+# (LEPIC_FLUTTER_REPO, default https://github.com/BTLabs-EPIC/lepic-flutter.git)
+# into the git-ignored app/third_party/lepic-flutter at the commit in tools/lepic-flutter.rev,
+# and LEPIC (LEPIC_REPO, default https://github.com/BTLabs-EPIC/lepic.git)
+# into app/third_party/lepic at the commit in tools/lepic.rev, which must be the binding's own
+# pin. Set either variable to a URL or a local path to clone from elsewhere. The binding's tool/lepic.sh then builds the libraries from that LEPIC
 # clone, so neither source repository gets a new worktree, branch or build output.
 #
 # Usage:
@@ -21,7 +22,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 . "$root/tools/env.sh"
 source_repo="${LEPIC_REPO:-https://github.com/BTLabs-EPIC/lepic.git}"
-binding_repo="${LEPIC_FLUTTER_REPO:-$HOME/lepic-flutter}"
+binding_repo="${LEPIC_FLUTTER_REPO:-https://github.com/BTLabs-EPIC/lepic-flutter.git}"
 clone="$root/app/third_party/lepic"
 binding="$root/app/third_party/lepic-flutter"
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
