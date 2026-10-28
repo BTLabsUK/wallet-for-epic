@@ -55,8 +55,11 @@ class PlatformSecretStore implements SecretStore {
     // This Mac only, as on iOS. Entries written before under the default level stay readable:
     // flutter_secure_storage_darwin 0.4.3+ reads, finds and deletes across every level and
     // rewrites an entry at this level on its next write (secret_store_test checks the lock).
+    // The login (file) keychain, not the data-protection one: that needs a keychain-access-groups
+    // entitlement, so an app signed without a Team ID gets errSecMissingEntitlement (-34018).
     mOptions: MacOsOptions(
       accessibility: KeychainAccessibility.first_unlock_this_device,
+      usesDataProtectionKeychain: false,
     ),
   );
 

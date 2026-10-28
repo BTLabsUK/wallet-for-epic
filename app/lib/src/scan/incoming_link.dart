@@ -68,8 +68,8 @@ bool linkRateLimited({
   return inWindow >= 3;
 }
 
-/// The payment link another app opened (Android VIEW intent), waiting until the wallet is
-/// unlocked to be routed. One link is held, in memory only; a newer one replaces it.
+/// The payment link another app opened (Android VIEW intent, iOS open URL), waiting until the
+/// wallet is unlocked to be routed. One link is held, in memory only; a newer one replaces it.
 final incomingLinkProvider =
     NotifierProvider<IncomingLinkNotifier, IncomingLink?>(
       IncomingLinkNotifier.new,
@@ -84,7 +84,12 @@ class IncomingLinkNotifier extends Notifier<IncomingLink?> {
 
   @override
   IncomingLink? build() {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
+    // iOS: the same channel from AppDelegate (CFBundleURLTypes epic, epiccash).
+    if (kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS)) {
+      return null;
+    }
     _channel.setMethodCallHandler((call) async {
       if (call.method != 'link') throw MissingPluginException();
       final text = call.arguments;

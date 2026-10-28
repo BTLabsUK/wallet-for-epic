@@ -101,7 +101,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
               linkRow('epiccash.com', 'epiccash.com', websiteUrl),
             ],
           ),
-          if (inAppUpdates) const _Updates(),
+          if (deskUpdatesSupported) const _Updates(),
           // A few sentences, not a catalogue: one line per component with its licence, the
           // bundled tor's source note (its GPL asks for it), and the full texts one click away.
           ESetGroup(

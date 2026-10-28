@@ -15,6 +15,9 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SecureScreen") {
       SecureScreen.register(with: registrar)
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "IncomingLink") {
+      IncomingLink.register(with: registrar)
+    }
   }
 }
 
@@ -77,5 +80,67 @@ final class SecureScreen: NSObject, FlutterPlugin {
   @objc private func uncover() {
     covers.forEach { $0.removeFromSuperview() }
     covers.removeAll()
+  }
+}
+
+/// Payment links (epic:, epiccash:; CFBundleURLTypes in Info.plist) another app opened, handed to
+/// Dart on `epic_wallet/incoming_link` (lib/src/scan/incoming_link.dart) as MainActivity.kt does:
+/// `link` with the text while Dart listens, else held as the one pending link for `takePending`.
+final class IncomingLink: NSObject, FlutterPlugin, FlutterSceneLifeCycleDelegate {
+  private var channel: FlutterMethodChannel?
+  private var pending: String?
+
+  static func register(with registrar: FlutterPluginRegistrar) {
+    let instance = IncomingLink()
+    let channel = FlutterMethodChannel(
+      name: "epic_wallet/incoming_link", binaryMessenger: registrar.messenger())
+    instance.channel = channel
+    registrar.addMethodCallDelegate(instance, channel: channel)
+    registrar.addSceneDelegate(instance)
+  }
+
+  func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard call.method == "takePending" else {
+      result(FlutterMethodNotImplemented)
+      return
+    }
+    result(pending)
+    pending = nil
+  }
+
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions?
+  ) -> Bool {
+    // A cold start from a link: Dart asks with takePending once it listens.
+    for context in connectionOptions?.urlContexts ?? [] where Self.isPaymentLink(context.url) {
+      pending = context.url.absoluteString
+    }
+    return false
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    var handled = false
+    for context in URLContexts where Self.isPaymentLink(context.url) {
+      deliver(context.url.absoluteString)
+      handled = true
+    }
+    return handled
+  }
+
+  private func deliver(_ link: String) {
+    pending = link
+    channel?.invokeMethod("link", arguments: link) { [weak self] reply in
+      // Dart took it unless the call failed or nothing listens yet.
+      if reply is FlutterError || (reply as? NSObject) === FlutterMethodNotImplemented {
+        return
+      }
+      if self?.pending == link { self?.pending = nil }
+    }
+  }
+
+  private static func isPaymentLink(_ url: URL) -> Bool {
+    let scheme = url.scheme?.lowercased()
+    return scheme == "epic" || scheme == "epiccash"
   }
 }

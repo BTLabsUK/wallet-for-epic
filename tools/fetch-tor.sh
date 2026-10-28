@@ -4,8 +4,9 @@
 # and every kept file are checked against the pinned SHA-256; any mismatch fails and writes
 # nothing to <out dir>.
 #
-# Usage: tools/fetch-tor.sh <linux|win> <out dir>
-#   Release builds copy <out dir> to bin/tor-bundle/ next to the app's executable.
+# Usage: tools/fetch-tor.sh <linux|win|mac|macsilicon> <out dir>
+#   Release builds copy <out dir> to bin/tor-bundle/ next to the app's executable (macOS:
+#   Contents/Resources/bin/tor-bundle; tools/build-apple.sh joins mac and macsilicon with lipo).
 #        tools/fetch-tor.sh android <jniLibs dir>
 #   Android: only tor/libTor.so of each ABI is kept, as <jniLibs dir>/<abi>/libtor.so (the folder
 #   app/android/app/build.gradle.kts packs as jniLibs; a PIE executable that Android extracts to
@@ -28,8 +29,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 pins="$root/tools/tor-bundle.json"
 plat="${1:-}"
 out="${2:-}"
-usage="usage: $0 <linux|win|android> <out dir>"
-case "$plat" in linux|win|android|android-arm64-v8a|android-x86_64|android-armeabi-v7a|android-x86) ;; *) echo "$usage" >&2; exit 2 ;; esac
+usage="usage: $0 <linux|win|mac|macsilicon|android> <out dir>"
+case "$plat" in linux|win|mac|macsilicon|android|android-arm64-v8a|android-x86_64|android-armeabi-v7a|android-x86) ;; *) echo "$usage" >&2; exit 2 ;; esac
 [[ -n "$out" ]] || { echo "$usage" >&2; exit 2; }
 
 if [[ "$plat" == android ]]; then
@@ -46,7 +47,8 @@ license="$(jq -r ".platforms[\"$plat\"].license" "$pins")"
 cache="${TOR_CACHE:-$HOME/.cache/epic-gui-tor/$version}"
 mkdir -p "$cache"
 
-hash_of() { sha256sum "$1" | cut -d' ' -f1; }
+# macOS has shasum, not always sha256sum.
+hash_of() { if command -v sha256sum >/dev/null; then sha256sum "$1"; else shasum -a 256 "$1"; fi | cut -d' ' -f1; }
 
 file="$cache/$tarball"
 part="$file.part"

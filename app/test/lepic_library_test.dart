@@ -12,10 +12,10 @@ void main() {
       r'C:\Program Files\Epic Cash\lepic_ffi.dll',
     );
     expect(bundledLepicLibrary(os: 'android', executable: '/system/bin/app_process64'), 'liblepic_ffi.so');
-    expect(bundledLepicLibrary(os: 'ios', executable: '/var/Runner.app/Runner'), 'lepic_ffi.framework/lepic_ffi');
+    expect(bundledLepicLibrary(os: 'ios', executable: '/var/Runner.app/Runner'), '/var/Runner.app/Frameworks/lepic_ffi.framework/lepic_ffi');
     expect(
       bundledLepicLibrary(os: 'macos', executable: '/Applications/Epic.app/Contents/MacOS/Epic'),
-      'lepic_ffi.framework/lepic_ffi',
+      '/Applications/Epic.app/Contents/Frameworks/lepic_ffi.framework/lepic_ffi',
     );
   });
 }

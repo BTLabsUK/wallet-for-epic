@@ -34,13 +34,15 @@ import 'secret_store_api.dart';
 import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS, Linux and
-/// Windows (`tools/lepic.sh build`).
+/// Windows (`tools/lepic.sh build`); macOS gets it from the app's own hook (`hook/build.dart`,
+/// libraries from `tools/build-apple.sh lepic`).
 ///
 /// A release build opens the bundled file by its place in the bundle ([bundledLepicLibrary]),
 /// never through flutter_rust_bridge's search, which tries the directory in
 /// `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` and a path under the working directory
 /// first, so another file there would be loaded in place of the checked one. Debug and test
-/// runs keep that search.
+/// runs keep that search, except on iOS and macOS, whose loader finds the framework only by its
+/// full path in the bundle.
 ///
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
@@ -48,7 +50,7 @@ import 'wallet_service.dart';
 Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
   externalLibrary: libraryPath != null
       ? ExternalLibrary.open(libraryPath)
-      : _releaseBuild
+      : _releaseBuild || Platform.isIOS || Platform.isMacOS
       ? ExternalLibrary.open(bundledLepicLibrary())
       : null,
 );
@@ -57,8 +59,8 @@ const bool _releaseBuild = bool.fromEnvironment('dart.vm.product');
 
 /// Where a Flutter bundle keeps the LEPIC library: by name on Android, which looks only in the
 /// app's own native library folder; `lib/` beside the executable on Linux; beside the
-/// executable on Windows; the `lepic_ffi.framework` the build embeds on iOS and macOS, found
-/// through the app's own `@rpath`.
+/// executable on Windows; the `lepic_ffi.framework` the build embeds on iOS and macOS, by its
+/// full path in the bundle.
 @visibleForTesting
 String bundledLepicLibrary({String? os, String? executable}) {
   final system = os ?? Platform.operatingSystem;
@@ -68,6 +70,10 @@ String bundledLepicLibrary({String? os, String? executable}) {
     'android' => 'liblepic_ffi.so',
     'linux' => '$dir/lib/liblepic_ffi.so',
     'windows' => '$dir\\lepic_ffi.dll',
+    // The framework the build embeds: Frameworks/ at the bundle's top on iOS, beside MacOS/
+    // in Contents on macOS.
+    'ios' => '$dir/Frameworks/lepic_ffi.framework/lepic_ffi',
+    'macos' => '${dir.substring(0, dir.lastIndexOf('/'))}/Frameworks/lepic_ffi.framework/lepic_ffi',
     _ => 'lepic_ffi.framework/lepic_ffi',
   };
 }

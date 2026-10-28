@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,7 +53,8 @@ Future<void> main() async {
       // Unknown: wait until the wallet's own switch is read at unlock rather than risk direct.
       torSavedOn = true;
     }
-    phoneTorAtLaunch(savedOn: torSavedOn);
+    // iOS has no tor: nothing waits for one.
+    phoneTorAtLaunch(savedOn: torSavedOn && defaultTargetPlatform != TargetPlatform.iOS);
     // Before any request too: Offline sends nothing and Tor only nothing direct (network_gate.dart).
     try {
       NetGate.set(await AppSettingsNotifier.savedNetworkMode(store).timeout(const Duration(seconds: 5)));

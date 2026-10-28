@@ -23,6 +23,9 @@ const _unreachableNode = 'http://127.0.0.1:9';
 
 Future<Directory> _tempDir(String name) async {
   final base = await getTemporaryDirectory();
+  // macOS without the sandbox: path_provider names ~/Library/Caches/<bundle id> but does not
+  // create it.
+  await base.create(recursive: true);
   return base.createTemp('wfe-it-$name-');
 }
 
@@ -176,6 +179,11 @@ void main() {
       ),
     );
 
+    // Welcome first: Create a new wallet opens the PIN setup.
+    final create = find.text('Create a new wallet');
+    await _pumpUntil(tester, create);
+    await tester.tap(create);
+    await tester.pump();
     await _pumpUntil(tester, find.widgetWithText(TextField, 'PIN'));
     await _enter(tester, 'PIN', '123456');
     await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
