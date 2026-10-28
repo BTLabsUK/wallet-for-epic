@@ -5545,23 +5545,24 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   }
 }
 
-/// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now.
+/// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the
+/// wallet reopens, or once it closed, it keeps the last one: its calls fail, so a run of the
+/// devices waits for the next one. An engine that answered "no pairings" there would end the
+/// link under way and forget every linked device as removed.
 class _DeskDeviceHost implements DeviceHost {
-  _DeskDeviceHost(this._wallet, this._id, this._online);
+  _DeskDeviceHost(this._wallet, this._id, this._online) : _last = _wallet._sessionOf(_id)!;
 
   final LepicDeskWallet _wallet;
   final String? _id;
   final bool Function() _online;
+  core.WalletSession _last;
 
-  /// The host over the session open now; a closed wallet throws, as a closed session does.
-  SessionDeviceHost get _host {
-    final session = _wallet._sessionOf(_id);
-    if (session == null) throw StateError('wallet closed');
-    return SessionDeviceHost(session, online: _online, minimumConfirmations: _wallet._minConf);
-  }
+  core.WalletSession get _session => _last = _wallet._sessionOf(_id) ?? _last;
+
+  SessionDeviceHost get _host => SessionDeviceHost(_session, online: _online, minimumConfirmations: _wallet._minConf);
 
   @override
-  core.PairingApi get pairing => _wallet._sessionOf(_id)?.pairing ?? const core.NoPairing();
+  core.PairingApi get pairing => _session.pairing;
 
   @override
   bool get online => _online();
