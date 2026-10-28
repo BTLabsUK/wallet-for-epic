@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:epic_wallet/src/devices/device_link_code.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
 import 'package:epic_wallet/src/devices/device_wire.dart';
+import 'package:epic_wallet/src/wallet_service.dart' show fakeAddressSignature;
 import 'package:flutter_test/flutter_test.dart';
 
 final _dev = 'a' * 32;
@@ -91,7 +92,7 @@ void main() {
 
   test('a device link text carries the invite and is not a contact link', () {
     const invite = 'epiccash://pair/1/eyJ0IjoidC0xIn0';
-    final fp = deviceLinkFingerprint('esSameWalletKey');
+    final fp = deviceLinkFingerprint('3045022100aa');
     final text = deviceLinkText(invite, fingerprint: fp);
     expect(text, startsWith(deviceLinkPrefix));
     expect(isDeviceLinkText('Link: $text\n'), isTrue);
@@ -103,16 +104,22 @@ void main() {
 
   test('a device link of an app from before fingerprints still reads, without one', () {
     const invite = 'epiccash://pair/1/eyJ0IjoidC0xIn0';
-    final old = deviceLinkText(invite, fingerprint: deviceLinkFingerprint('es1')).replaceFirst(RegExp(r'/[0-9a-f]{16}$'), '');
+    final old = deviceLinkText(invite, fingerprint: deviceLinkFingerprint('3045')).replaceFirst(RegExp(r'/[0-9a-f]{16}$'), '');
     expect(deviceLinkIn(old), (invite: invite, fingerprint: null));
   });
 
-  test("the link fingerprint is a short tagged hash of the wallet's key, never the key", () {
+  test("the link fingerprint hashes the wallet's signature of the invite, never its key", () {
     const key = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
-    final fp = deviceLinkFingerprint(key);
+    const invite = 'epiccash://pair/1/eyJ0IjoidC0xIn0';
+    final signature = fakeAddressSignature(key, deviceLinkFingerprintMessage(invite));
+    final fp = deviceLinkFingerprint(signature);
     expect(fp, matches(RegExp(r'^[0-9a-f]{16}$')));
-    expect(fp, deviceLinkFingerprint(key));
-    expect(deviceLinkFingerprint('${key}x'), isNot(fp));
+    expect(fp, deviceLinkFingerprint(fakeAddressSignature(key, deviceLinkFingerprintMessage(invite))));
+    // Another wallet, or the same wallet's code for another invite, gives another one.
+    expect(deviceLinkFingerprint(fakeAddressSignature('${key}x', deviceLinkFingerprintMessage(invite))), isNot(fp));
+    expect(deviceLinkFingerprint(fakeAddressSignature(key, deviceLinkFingerprintMessage('${invite}x'))), isNot(fp));
+    // The address alone does not give it.
+    expect(deviceLinkFingerprint(key), isNot(fp));
     final text = deviceLinkText('epiccash://pair/1/eyJ0IjoidC0xIn0', fingerprint: fp);
     expect(text.contains(key), isFalse);
     expect(utf8.decode(base64Url.decode(base64Url.normalize(text.split('/')[4]))).contains(key), isFalse);

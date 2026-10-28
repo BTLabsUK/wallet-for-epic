@@ -501,16 +501,34 @@ class DeviceService {
     _book = book.withDevice(from.copyWith(name: n.body['name'] as String));
   }
 
+  // A linked device is the same wallet's, but what its notices hold is bounded: no more than
+  // [maxOpenHoldsPerDevice] payments at once, never coins the user released from it by hand, and
+  // never a payment larger than the coins it names.
   Future<void> _onSend(LinkedDevice from, Notice n) async {
     final slateId = n.body['slateId'] as String;
     if (book.holds.any((h) => h.deviceId == from.deviceId && h.slateId == slateId)) return;
-    final own = {
+    final value = {
       for (final o in await host.outputs())
-        if (o.status == WalletOutputStatus.unspent || o.status == WalletOutputStatus.locked) o.commitment,
+        if (o.status == WalletOutputStatus.unspent || o.status == WalletOutputStatus.locked) o.commitment: o.value,
     };
-    final hold = holdFromSend(deviceId: from.deviceId, deviceName: from.name, body: n.body, own: own, now: _clock());
+    final hold = holdFromSend(deviceId: from.deviceId, deviceName: from.name, body: n.body, own: value.keys.toSet(), now: _clock());
     if (hold == null) {
       _drop('send notice for coins this wallet does not hold');
+      return;
+    }
+    final mine = [for (final h in book.holds) if (h.deviceId == from.deviceId) h];
+    if (mine.where((h) => h.state.holds).length >= maxOpenHoldsPerDevice) {
+      _drop('send notice past the open holds a device may have');
+      return;
+    }
+    final released = {for (final h in mine) if (h.state == HoldState.byHand) ...h.commitments};
+    if (hold.commitments.any(released.contains)) {
+      _drop('send notice for coins released by hand');
+      return;
+    }
+    final inputs = hold.commitments.fold(BigInt.zero, (sum, c) => sum + (value[c] ?? BigInt.zero));
+    if (hold.amount + (hold.fee ?? BigInt.zero) > inputs) {
+      _drop('send notice for more than its coins hold');
       return;
     }
     _book = book.copyWith(holds: [...book.holds, hold]);
@@ -595,8 +613,19 @@ class DeviceService {
       _drop('pairing invite the link does not expect');
       return;
     }
+    // Only on a server of the link's set, which the user accepted; moving it is `servers`'s.
+    if (!book.servers.contains(server) && !from.pairings.containsKey(server)) {
+      _drop('pairing invite on a server the link does not use');
+      return;
+    }
     try {
       final r = await _api.acceptPrivateInvite(link: n.body['inviteLink'] as String, name: book.deviceName);
+      // The invite's own relay is where the pairing lives: it must be the server it names.
+      if (linkServerOf(r.homeRelay) != server) {
+        await _unpair(r.id);
+        _drop('pairing invite whose relay is not its server');
+        return;
+      }
       final d = book.device(from.deviceId)!;
       _book = book.withDevice(
         d.copyWith(
@@ -1006,7 +1035,8 @@ class DeviceService {
     _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.starting, servers: set));
     try {
       final r = await _api.makePrivateInvite(name: book.deviceName, homeRelay: set.first);
-      final code = deviceLinkText(r.inviteLink!, fingerprint: deviceLinkFingerprint(await host.walletKey()));
+      final invite = r.inviteLink!;
+      final code = deviceLinkText(invite, fingerprint: deviceLinkFingerprint(await host.signProof(deviceLinkFingerprintMessage(invite))));
       _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.waiting, servers: set, pairingId: r.id, code: code, expiresAt: r.expiresAt));
     } on Object catch (e) {
       _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.failed, servers: set, failure: _failureOf(e)));
@@ -1025,7 +1055,8 @@ class DeviceService {
     if (!canLinkMore) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.tooMany));
     _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.starting));
     try {
-      if (code.fingerprint != null && code.fingerprint != deviceLinkFingerprint(await host.walletKey())) {
+      if (code.fingerprint != null &&
+          code.fingerprint != deviceLinkFingerprint(await host.signProof(deviceLinkFingerprintMessage(code.invite)))) {
         logInfo('devices', 'link code of another wallet refused');
         return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.otherWalletCode));
       }

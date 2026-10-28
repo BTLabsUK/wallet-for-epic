@@ -28,6 +28,9 @@ const int holdPostedBlocks = 1440;
 /// The longest coins stay held without the chain or the device deciding: the servers' 7 days.
 const Duration holdMaxAge = Duration(days: 7);
 
+/// The most payments one linked device may hold coins for at once; a notice past it is dropped.
+const int maxOpenHoldsPerDevice = 16;
+
 /// The hold a `send` notice from [deviceId] makes, or null when this wallet holds none of its
 /// [inputs] (then nothing is held). [own] is this wallet's unspent and locked commitments.
 HeldPayment? holdFromSend({

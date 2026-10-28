@@ -1086,8 +1086,9 @@ class LepicDeskWallet implements DeskWalletApi {
     );
     _torSaved = torSwitch;
     // Tor starts with startAutostart, after the first node check and sync: those wait for it
-    // instead of asking the node directly first.
-    if (_settings.torAutostart && await _findTor() != null) await _expectTor(session);
+    // instead of asking the node directly first. In Tor only they wait even when no tor bundle
+    // is found: nothing may go out directly then.
+    if (_settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
     if (entry.walletFingerprint == null) await _keepWalletFingerprint(entry, session);
@@ -1130,8 +1131,9 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       return;
     }
-    // Tor starts below: the first Epicbox connection waits for it, never going directly first.
-    if (_torFeature && _settings.torAutostart && await _findTor() != null) await _expectTor(session);
+    // Tor starts below: the first Epicbox connection waits for it, never going directly first;
+    // in Tor only also when no tor bundle is found, so it waits instead of going directly.
+    if (_torFeature && _settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
     // The Epicbox switch off (Settings › Transactions): no listener, whatever Start with the
     // wallet says.
     if (_settings.epicboxAutostart && _settings.payments.epicbox) {

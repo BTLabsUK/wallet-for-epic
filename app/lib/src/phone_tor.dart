@@ -346,7 +346,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
     final receiving = await ref.read(secretStoreProvider).read(receivingKey(config));
     // Tor only turns the switch on when the wallet opens ([PhoneTor._open]).
     if (receiving != 'true' && !NetGate.torOnly) return;
-    if (await ref.read(torBundleFinderProvider)() == null) return;
+    // In Tor only the wallet waits for a tor even when no bundle is found: it never goes
+    // directly instead.
+    if (!NetGate.torOnly && await ref.read(torBundleFinderProvider)() == null) return;
     await session.expectTor();
   }
 
