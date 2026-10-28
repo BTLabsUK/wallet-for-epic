@@ -75,13 +75,22 @@ Future<void> pumpUntil(WidgetTester tester, bool Function() done,
     {Duration timeout = const Duration(seconds: 90), String what = 'condition'}) async {
   final end = DateTime.now().add(timeout);
   while (!done()) {
-    if (DateTime.now().isAfter(end)) throw TestFailure('timeout waiting for $what; on screen: ${texts().take(40).join(' | ')}');
+    if (DateTime.now().isAfter(end)) throw TestFailure('timeout waiting for $what; on screen: ${shownTexts()}');
     await settle(tester, ms: 250);
   }
 }
 
 Future<void> waitText(WidgetTester tester, Pattern p, {Duration timeout = const Duration(seconds: 90)}) =>
     pumpUntil(tester, () => hasText(p), timeout: timeout, what: 'text $p');
+
+/// What is on screen, for a failure message or a dump: on a screen that shows a recovery
+/// phrase (twelve or more single lower-case words) the words are left out, so no log keeps one.
+String shownTexts([int take = 40]) {
+  final all = texts();
+  final word = RegExp(r'^[a-z]{3,8}$');
+  final phrase = all.where(word.hasMatch).length >= 12;
+  return all.where((t) => !(phrase && word.hasMatch(t))).take(take).map((t) => t.replaceAll('\n', ' ⏎ ')).join(' | ');
+}
 
 List<String> texts() {
   final out = <String>[];
@@ -102,7 +111,7 @@ Finder textF(Pattern p) => find.byWidgetPredicate(skipOffstage: false, (w) {
 
 Future<void> tapText(WidgetTester tester, Pattern p, {bool last = false}) async {
   final f = textF(p);
-  expect(f, findsWidgets, reason: 'no "$p" on screen: ${texts().take(40).join(' | ')}');
+  expect(f, findsWidgets, reason: 'no "$p" on screen: ${shownTexts()}');
   await tester.ensureVisible(last ? f.last : f.first);
   await tester.tap(last ? f.last : f.first, warnIfMissed: false);
   await settle(tester);
@@ -111,7 +120,7 @@ Future<void> tapText(WidgetTester tester, Pattern p, {bool last = false}) async 
 /// Types into the n-th text field on screen.
 Future<void> typeIn(WidgetTester tester, int n, String text) async {
   final f = find.byType(EditableText);
-  expect(f.evaluate().length, greaterThan(n), reason: 'no text field $n: ${texts().take(30).join(' | ')}');
+  expect(f.evaluate().length, greaterThan(n), reason: 'no text field $n: ${shownTexts(30)}');
   await tester.tap(f.at(n), warnIfMissed: false);
   await tester.pump();
   await tester.enterText(f.at(n), text);
@@ -150,6 +159,6 @@ void captureErrors() {
 /// One line of everything visible, for the log (never call it on a screen showing the phrase).
 void dump(String label) =>
     // ignore: avoid_print
-    print('DUMP $label: ${texts().map((t) => t.replaceAll('\n', ' ⏎ ')).join(' | ')}');
+    print('DUMP $label: ${shownTexts(1 << 30)}');
 
 ProviderContainer containerOf(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(DeskApp)));

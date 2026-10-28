@@ -212,6 +212,6 @@ void main() {
   }, timeout: const Timeout(Duration(minutes: 50)));
 }
 
-String screenLine() => texts().take(12).join(' | ');
+String screenLine() => shownTexts(12);
 
 String textMatching(Pattern p) => texts().firstWhere((t) => p is RegExp ? p.hasMatch(t) : t.contains(p as String), orElse: () => '');

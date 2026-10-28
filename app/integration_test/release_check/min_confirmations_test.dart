@@ -56,7 +56,7 @@ void main() {
 
     Finder stepButton(String label) => find.descendant(of: row, matching: find.byWidgetPredicate((w) => w is EIconButton && w.label == label));
     Future<void> step(String label) async {
-      expect(stepButton(label), findsOneWidget, reason: 'no "$label" button: ${texts().take(30).join(' | ')}');
+      expect(stepButton(label), findsOneWidget, reason: 'no "$label" button: ${shownTexts(30)}');
       await tester.tap(stepButton(label), warnIfMissed: false);
       await settle(tester, ms: 1500);
     }

@@ -201,7 +201,7 @@ Future<void> go(WidgetTester tester, DeskRoute r, [Object? arg]) async {
 Future<void> tapRowButton(WidgetTester tester, String label, {String? opens}) async {
   // On screen only and the whole label: pages kept offstage hold other buttons with it.
   final f = find.byWidgetPredicate((w) => w is RichText && w.text.toPlainText().trim() == label, description: 'button $label');
-  expect(f, findsWidgets, reason: 'no "$label" on screen: ${texts().take(40).join(' | ')}');
+  expect(f, findsWidgets, reason: 'no "$label" on screen: ${shownTexts()}');
   log('tap $label: ${f.evaluate().length} on screen');
   final done = Scrollable.ensureVisible(f.evaluate().first, alignment: 0.5);
   for (var i = 0; i < 10; i++) {
