@@ -1,6 +1,5 @@
 package uk.btlabs.epiccash.mobile
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
@@ -42,7 +41,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        createNotificationChannel()
+        removeOldNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         // Lets Dart block screenshots, screen recording and the recent-apps preview
         // (FLAG_SECURE) while a payment QR is on screen, hide only the recent-apps preview while
@@ -164,18 +163,6 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
-        // The google-services Gradle plugin writes google_app_id only when google-services.json
-        // was present at build time. Dart hides the notifications switch without it.
-        MethodChannel(messenger, "epic_wallet/push")
-            .setMethodCallHandler { call, result ->
-                if (call.method == "configured") {
-                    @Suppress("DiscouragedApi")
-                    val id = resources.getIdentifier("google_app_id", "string", packageName)
-                    result.success(id != 0)
-                } else {
-                    result.notImplemented()
-                }
-            }
         // --- tor binary (epic_wallet/tor) ---
         // The Tor Project's tor ships as lib/<abi>/libtor.so and is extracted at install
         // (useLegacyPackaging): the one place Android lets an app execute a file from.
@@ -201,15 +188,13 @@ class MainActivity : FlutterFragmentActivity() {
         super.cleanUpFlutterEngine(flutterEngine)
     }
 
-    /** The channel background pushes land in, named in AndroidManifest.xml. */
-    private fun createNotificationChannel() {
+    /**
+     * Versions up to 26.10.19 made a "Transactions" notification channel for push notifications,
+     * which are gone; removing it takes the leftover entry out of the system's app settings.
+     */
+    private fun removeOldNotificationChannel() {
         if (Build.VERSION.SDK_INT < 26) return
-        val channel = NotificationChannel(
-            "transactions",
-            "Transactions",
-            NotificationManager.IMPORTANCE_HIGH,
-        ).apply { description = "Incoming payments and sends waiting to be finished" }
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        getSystemService(NotificationManager::class.java)?.deleteNotificationChannel("transactions")
     }
 
     override fun onNewIntent(intent: Intent) {

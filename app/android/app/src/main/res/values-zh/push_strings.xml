@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="push_payment_waiting_title">有一笔付款在等待</string>
-    <string name="push_payment_waiting_text">打开钱包即可收取。</string>
-</resources>

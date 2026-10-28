@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="push_payment_waiting_title">Payment waiting</string>
-    <string name="push_payment_waiting_text">Open the wallet to collect it.</string>
-</resources>

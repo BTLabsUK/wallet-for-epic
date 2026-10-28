@@ -1139,9 +1139,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeView => '查看';
 
   @override
-  String get homePushNotice => '你的 Epicbox 中有一笔待接收的付款。应用连接后即可到账。';
-
-  @override
   String get homeNoticeReceived => '有一笔付款正在途中。待发送方完成操作后即可到账。';
 
   @override
@@ -1482,7 +1479,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceDeclineBody(String service) {
-    return '$service 会收到你拒绝的通知。不会支付任何款项。';
+    return '$service 会得知你已拒绝。不会支付任何款项。';
   }
 
   @override
@@ -2844,15 +2841,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice => '价格来自 CoinGecko，它能看到你的 IP 地址。';
-
-  @override
-  String get settingsSectionNotifications => '通知';
-
-  @override
-  String get settingsPushBlocked => '通知已在系统设置中被屏蔽';
-
-  @override
-  String get settingsPushUnavailable => '此版本不支持通知';
 
   @override
   String get settingsSectionSecurity => '安全';
@@ -4398,9 +4386,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverMenuDelete => '删除';
 
   @override
-  String get serverSupportsNotifications => '支持通知';
-
-  @override
   String get netStatusReachable => '可访问';
 
   @override
@@ -5526,7 +5511,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
 
   @override
   String get receiveTabDirect => '链接';
@@ -5568,41 +5553,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netStatusOverTor => '经由 Tor';
-
-  @override
-  String get settingsNotifications => '通知';
-
-  @override
-  String get settingsNotificationsHint =>
-      '实验性功能：可能变化或出错。在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。Tor 开启时关闭，因为注册会暴露手机的地址。';
-
-  @override
-  String get settingsPushPaused => 'Tor 开启时已暂停';
-
-  @override
-  String get pushConfirmRelayBody =>
-      '通知经由 BT Labs 的 Epicbox 服务器和 Google 的通知服务发送。通知不含金额、发送方或地址。';
-
-  @override
-  String get pushConfirmRelayAddress => '你的 Epicbox 地址会改变。请分享新的地址。';
-
-  @override
-  String get pushRelaySwitchFailed => '无法切换服务器。通知保持关闭。';
-
-  @override
-  String get pushConfirmTitle => '开启通知？';
-
-  @override
-  String get pushConfirmBody => '通知经由 Google 的通知服务发送。通知不含金额、发送方或地址。';
-
-  @override
-  String get pushConfirmAction => '开启';
-
-  @override
-  String get pushNoticeOn => '通知已开启';
-
-  @override
-  String get pushNoticeOff => '通知已关闭';
 
   @override
   String get torWayOver => '经由 Tor';
@@ -12761,11 +12711,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeOfflineLine => '只限这部手机和本地网络。二维码付款和文件传输仍可使用；其余等待。';
 
   @override
-  String get advTorOnlyNote => '“仅 Tor”会暂停通知：注册通知会暴露这部手机的地址。';
-
-  @override
   String get advOfflineNote =>
-      '离线会暂停 Epicbox、Tor、状态检查和通知。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
+      '离线会暂停 Epicbox、Tor 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get advReset => '再次全部隐藏';
@@ -13141,7 +13088,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox 通过服务器付款，所以对方的钱包不必打开。关闭后，钱包不连接任何服务器：没有 Epicbox 付款、账单或通知。其他方式仍可使用。';
+      'Epicbox 通过服务器付款，所以对方的钱包不必打开。关闭后，钱包不连接任何服务器：没有 Epicbox 付款或账单。其他方式仍可使用。';
 
   @override
   String get txDirectLine => '向网址和 onion 地址付款；直接从其他钱包收款。';
@@ -13268,12 +13215,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txEpicboxOffAction => '关闭';
-
-  @override
-  String get pushNoticeOffEpicbox => '通知已关闭：通知需要 Epicbox。';
-
-  @override
-  String get settingsPushNeedsEpicbox => '需要 Epicbox';
 
   @override
   String sendContactOnlyEpicbox(String name) {
@@ -16360,15 +16301,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advOfflineNoteNoTor =>
-      '离线会暂停 Epicbox、状态检查和通知。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
+      '离线会暂停 Epicbox 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get txLinkHttpHintNoTor =>
       '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
-
-  @override
-  String get settingsNotificationsHintNoTor =>
-      '实验性功能：可能变化或出错。在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。';
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -16645,7 +16582,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesServers => '服务器';
 
   @override
-  String get devicesServersNote => '你的设备之间的通知会经过每个所选服务器。';
+  String get devicesServersNote => '你的设备之间的消息会经过每个所选服务器。';
 
   @override
   String devicesServersWaiting(String name) {
@@ -16668,7 +16605,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      '暂停期间，本设备既不读取也不发送通知；通知会在服务器上保留最多 7 天。离线也会暂停同步。';
+      '暂停期间，本设备既不读取也不发送消息；消息会在服务器上保留最多 7 天。离线也会暂停同步。';
 
   @override
   String get devicesHeld => '保留的币';
@@ -16708,7 +16645,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name 将不再接收和发送通知，它在这里保留的币会被释放。这不能保护资金：持有助记词的设备始终可以花费它。如果 $name 可能落入他人之手，请把资金转到使用新助记词的钱包。';
+    return '$name 将不再接收和发送消息，它在这里保留的币会被释放。这不能保护资金：持有助记词的设备始终可以花费它。如果 $name 可能落入他人之手，请把资金转到使用新助记词的钱包。';
   }
 
   @override
@@ -16874,15 +16811,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskDevServersDown(int down, int n) {
-    return '$n 个中有 $down 个无响应。通知经由另一个发送。';
+    return '$n 个中有 $down 个无响应。消息经由另一个发送。';
   }
 
   @override
-  String get deskDevServersAllDown => '没有服务器响应。通知会等待，待有服务器恢复后发送。';
+  String get deskDevServersAllDown => '没有服务器响应。消息会等待，待有服务器恢复后发送。';
 
   @override
   String get deskDevServersInfo1 =>
-      '关联设备通过这些服务器互相发送通知。每条通知都会发往所有所选服务器，因此一个服务器故障不会有影响。';
+      '关联设备通过这些服务器互相发送消息。每条消息都会发往所有所选服务器，因此一个服务器故障不会有影响。';
 
   @override
   String get deskDevServersInfo2 =>
@@ -16890,7 +16827,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      '服务器能看到两台设备在何时交换通知，没有 Tor 时还能看到来自哪些地址，但看不到内容。两个服务器意味着两个运营方能看到这些。';
+      '服务器能看到两台设备在何时交换消息，没有 Tor 时还能看到来自哪些地址，但看不到内容。两个服务器意味着两个运营方能看到这些。';
 
   @override
   String get deskDevPausedOffline => '离线开启时已暂停。';
@@ -16997,8 +16934,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '加密通知送到两个服务器。只有设备能读取。',
-      one: '加密通知经服务器送出。只有设备能读取。',
+      other: '加密消息送到两个服务器。只有设备能读取。',
+      one: '加密消息经服务器送出。只有设备能读取。',
     );
     return '$_temp0';
   }
@@ -17011,7 +16948,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncHelpDiagram =>
-      '同步的工作方式：本设备开始一笔付款；加密通知经服务器送到另一台设备，它保留这些币；区块链确认。';
+      '同步的工作方式：本设备开始一笔付款；加密消息经服务器送到另一台设备，它保留这些币；区块链确认。';
 
   @override
   String get syncHelpStatus => '实时状态';

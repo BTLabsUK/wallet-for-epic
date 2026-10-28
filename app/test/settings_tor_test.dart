@@ -1,14 +1,12 @@
 // Settings › Privacy & network: the one Tor switch, bound to the phone's Tor controller, with one line
 // saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
-// and absent where the app has no Tor. Notifications (on Advanced) are not offered while Tor
-// is on.
+// and absent where the app has no Tor.
 
 import 'dart:async';
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -63,7 +61,6 @@ class _Harness {
           updatePlatformProvider.overrideWithValue(null),
           torBundleFinderProvider.overrideWithValue(() async => bundle),
           networkChangesProvider.overrideWithValue(network.stream),
-          pushConfiguredProvider.overrideWith((ref) async => true),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -127,13 +124,6 @@ Future<void> _reach(WidgetTester tester, Finder finder) async {
   );
   await tester.pumpAndSettle();
 }
-
-Switch _pushSwitch(WidgetTester tester) => tester.widget<Switch>(
-  find.descendant(
-    of: find.byKey(settingsPushKey),
-    matching: find.byType(Switch),
-  ),
-);
 
 void main() {
   // Tor's own behaviour: nothing of it is in the build without Tor.
@@ -246,10 +236,7 @@ void main() {
       find.textContaining('Network activity goes through the Tor network.'),
       findsOneWidget,
     );
-    expect(
-      find.textContaining('Notifications are off while Tor is on.'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Notifications'), findsNothing);
     expect(find.textContaining('Not over Tor'), findsNothing);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
@@ -314,46 +301,6 @@ void main() {
     await tester.tap(find.byKey(torRetryKey));
     await tester.pumpAndSettle();
     expect(h.session.torStarts, hasLength(2));
-  });
-
-  testWidgets('notifications are not offered while Tor is on', (tester) async {
-    final h = _Harness();
-    await h.pump(tester, section: SettingsSection.advanced);
-    // On the BT Labs relay, the only one that can push.
-    h.container
-        .read(walletConfigProvider.notifier)
-        .select(
-          const WalletConfig(
-            dataDir: '/fake/wallets/mainnet',
-            chain: Chain.mainnet,
-            nodeUrl: 'https://node.btlabs.uk',
-            epicboxDomain: 'flooepicbox.btlabs.uk',
-            epicboxPort: 443,
-          ),
-        );
-    await tester.pumpAndSettle();
-    await _reach(tester, find.byKey(settingsPushKey));
-    expect(_pushSwitch(tester).onChanged, isNotNull);
-    // Only the Experimental label under the title, no state line.
-    expect(
-      tester
-          .widgetList<Text>(
-            find.descendant(
-              of: find.byKey(settingsPushKey),
-              matching: find.byType(Text),
-            ),
-          )
-          .map((t) => t.data),
-      ['Notifications', 'Experimental'],
-    );
-
-    await h.container.read(phoneTorProvider.notifier).setReceiving(true);
-    await tester.pumpAndSettle();
-    await h.emit(tester, TorEventKind.ready);
-    await _reach(tester, find.byKey(settingsPushKey));
-    expect(_pushSwitch(tester).onChanged, isNull);
-    expect(_pushSwitch(tester).value, isFalse);
-    expect(find.text('Paused while Tor is on'), findsNothing);
   });
 
   testWidgets('opened for privacy, the Tor switch is in view', (tester) async {

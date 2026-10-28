@@ -260,8 +260,7 @@ final phoneTorTimingProvider = Provider<PhoneTorTiming>(
   (ref) => const PhoneTorTiming(),
 );
 
-/// What other parts of the app do around the Tor switch, which this file must not know about
-/// (push notifications unregister over the clearnet, and register again once it is back).
+/// What other parts of the app do around the Tor switch, which this file must not know about.
 class TorSwitchHooks {
   const TorSwitchHooks({this.beforeOn, this.afterOff});
 
@@ -273,7 +272,7 @@ class TorSwitchHooks {
   final Future<void> Function()? afterOff;
 }
 
-/// `main.dart` overrides it with the push notifications' hooks, as with [networkChangesProvider].
+/// None by default; a part that needs them overrides it, as with [networkChangesProvider].
 final torSwitchHooksProvider = Provider<TorSwitchHooks>(
   (ref) => const TorSwitchHooks(),
 );

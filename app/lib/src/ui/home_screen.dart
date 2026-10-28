@@ -12,7 +12,6 @@ import '../net/tor_net.dart';
 import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../providers.dart';
-import '../push.dart';
 import '../restore_scan.dart';
 import '../scan/incoming_link.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
@@ -549,12 +548,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // A push only says a payment is waiting in epicbox. While connected, the listener
-    // collects it and gives the notice, so one payment gets one notice.
-    ref.listen(pushProvider.select((s) => s.last), (_, message) {
-      if (message == null || ref.read(listenerProvider).connected) return;
-      _showNotice(context.l10n.homePushNotice, level: NoticeLevel.info);
-    });
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
     });

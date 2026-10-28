@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="push_payment_waiting_title">Платёж ожидает</string>
-    <string name="push_payment_waiting_text">Откройте кошелёк, чтобы получить его.</string>
-</resources>

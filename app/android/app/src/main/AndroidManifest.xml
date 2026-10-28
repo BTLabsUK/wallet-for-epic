@@ -4,8 +4,6 @@
     <!-- Network lost and regained (NetworkWatch.kt), so tor is refreshed or restarted. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-    <!-- Android 13+: needed to show "incoming transaction" push notifications. -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- In-app updates (AppUpdater.kt). The second lets Android 12+ update without a prompt
          once this app installed the current version. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
@@ -87,27 +85,11 @@
                 <data android:mimeType="application/json"/>
             </intent-filter>
         </activity>
-        <!-- The firebase_messaging plugin's service, replaced by PaymentPushService, which extends
-             it and also shows the push service's "payment waiting" message. -->
-        <service
-            android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"
-            tools:node="remove"/>
-        <service
-            android:name=".PaymentPushService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
         <receiver
             android:name=".InstallResultReceiver"
             android:exported="false"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <!-- Pushes that arrive while the app is in the background go to this channel. -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="transactions"/>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

@@ -242,7 +242,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _busy = true);
     try {
-      // The same clean-up as Settings › Delete: push, backup note, shared files.
+      // The same clean-up as Settings › Delete: backup note, shared files.
       await deleteWalletEverywhere(ref, config);
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(

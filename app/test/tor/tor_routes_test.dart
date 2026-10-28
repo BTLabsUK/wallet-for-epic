@@ -36,8 +36,8 @@ void main() {
       expect(torCovered, isNot(contains(TorRoute.httpDirect)));
     });
 
-    test('push and the clearnet HTTP listener are off while Tor is on', () {
-      for (final route in [TorRoute.push, TorRoute.httpListener]) {
+    test('the clearnet HTTP listener is off while Tor is on', () {
+      for (final route in [TorRoute.httpListener]) {
         expect(torWay(route, TorState.off), TorWay.clearnet);
         for (final s in [TorState.starting, TorState.on, TorState.failed]) {
           expect(torWay(route, s), TorWay.off, reason: '${route.name} ${s.name}');

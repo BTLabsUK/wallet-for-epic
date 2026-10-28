@@ -1205,10 +1205,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoticeView => 'Anzeigen';
 
   @override
-  String get homePushNotice =>
-      'In Ihrer Epicbox wartet eine Zahlung, die eintrifft, sobald die App verbunden ist.';
-
-  @override
   String get homeNoticeReceived =>
       'Eine Zahlung ist unterwegs und wird abgeschlossen, sobald der Absender sie fertigstellt.';
 
@@ -3065,17 +3061,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Kurse stammen von CoinGecko; der Dienst sieht Ihre IP-Adresse.';
 
   @override
-  String get settingsSectionNotifications => 'Benachrichtigungen';
-
-  @override
-  String get settingsPushBlocked =>
-      'Benachrichtigungen sind in den Systemeinstellungen blockiert';
-
-  @override
-  String get settingsPushUnavailable =>
-      'Benachrichtigungen sind in dieser Version nicht verfügbar';
-
-  @override
   String get settingsSectionSecurity => 'Sicherheit';
 
   @override
@@ -4711,9 +4696,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverMenuDelete => 'Löschen';
 
   @override
-  String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
-
-  @override
   String get netStatusReachable => 'Erreichbar';
 
   @override
@@ -5924,7 +5906,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -5969,44 +5951,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netStatusOverTor => 'über Tor';
-
-  @override
-  String get settingsNotifications => 'Benachrichtigungen';
-
-  @override
-  String get settingsNotificationsHint =>
-      'Experimentell: kann sich ändern oder ausfallen. Meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist. Nutzt die Epicbox von BT Labs und den Benachrichtigungsdienst von Google; die Nachricht weckt nur die App und enthält weder Betrag noch Absender noch Adresse. Aus, solange Tor an ist, weil die Anmeldung die Adresse des Telefons verraten würde.';
-
-  @override
-  String get settingsPushPaused => 'Pausiert, solange Tor an ist';
-
-  @override
-  String get pushConfirmRelayBody =>
-      'Benachrichtigungen laufen über den Epicbox-Server von BT Labs und den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.';
-
-  @override
-  String get pushConfirmRelayAddress =>
-      'Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.';
-
-  @override
-  String get pushRelaySwitchFailed =>
-      'Der Server konnte nicht gewechselt werden. Benachrichtigungen bleiben aus.';
-
-  @override
-  String get pushConfirmTitle => 'Benachrichtigungen einschalten?';
-
-  @override
-  String get pushConfirmBody =>
-      'Benachrichtigungen laufen über den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.';
-
-  @override
-  String get pushConfirmAction => 'Einschalten';
-
-  @override
-  String get pushNoticeOn => 'Benachrichtigungen an';
-
-  @override
-  String get pushNoticeOff => 'Benachrichtigungen aus';
 
   @override
   String get torWayOver => 'Über Tor';
@@ -13718,12 +13662,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nur dieses Smartphone und das lokale Netzwerk. QR-Zahlung und Dateiübertragung funktionieren weiter; der Rest wartet.';
 
   @override
-  String get advTorOnlyNote =>
-      'Nur Tor pausiert Benachrichtigungen: Sich dafür anzumelden, würde die Adresse dieses Telefons verraten.';
-
-  @override
   String get advOfflineNote =>
-      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox, Tor und Statusprüfungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';
@@ -14131,7 +14071,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox zahlt über einen Server, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Server, also keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen. Die anderen Methoden funktionieren weiter.';
+      'Epicbox zahlt über einen Server, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.';
 
   @override
   String get txDirectLine =>
@@ -14269,13 +14209,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txEpicboxOffAction => 'Ausschalten';
-
-  @override
-  String get pushNoticeOffEpicbox =>
-      'Benachrichtigungen aus: Sie brauchen Epicbox.';
-
-  @override
-  String get settingsPushNeedsEpicbox => 'Braucht Epicbox';
 
   @override
   String sendContactOnlyEpicbox(String name) {
@@ -17591,15 +17524,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNoteNoTor =>
-      'Offline pausiert Epicbox, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox und Statusprüfungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get txLinkHttpHintNoTor =>
       'Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:3415) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt und aus dem Internet oder über Mobilfunk nicht erreichbar. Fügt Link · HTTP zu Senden und Empfangen hinzu.';
-
-  @override
-  String get settingsNotificationsHintNoTor =>
-      'Experimentell: kann sich ändern oder ausfallen. Meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist. Nutzt die Epicbox von BT Labs und den Benachrichtigungsdienst von Google; die Nachricht weckt nur die App und enthält weder Betrag noch Absender noch Adresse.';
 
   @override
   String get tourPhoneWalletTextNoTor =>

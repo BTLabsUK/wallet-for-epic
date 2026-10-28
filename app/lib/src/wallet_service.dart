@@ -307,15 +307,6 @@ abstract interface class WalletSession {
   /// This wallet's onion, `<56 characters>.onion`, known before tor runs.
   Future<String> onionAddress();
 
-  /// Signs a push registration for [token] with the wallet's Epicbox address key. [action] is
-  /// `register` or `unregister`, [timestamp] unix seconds. LEPIC builds the signed text itself
-  /// (`services/push/PROTOCOL.md`), so this can never sign anything else.
-  Future<PushSignature> pushSignature({
-    required String action,
-    required String token,
-    required int timestamp,
-  });
-
   /// Signs [message] with the wallet's Epicbox address key (DER hex). LEPIC signs a tagged hash
   /// that no relay challenge or push text can ever equal. Every device holding this wallet makes
   /// the same signature, which is how linked devices prove they hold one wallet.
@@ -1679,22 +1670,6 @@ class FakeWalletSession implements WalletSession {
 
   /// Holds [sendTor] until completed, as a send that takes a while over Tor.
   Completer<void>? torSendGate;
-
-  /// Every [pushSignature] call, in order.
-  final List<({String action, String token, int timestamp})> pushSignatures = [];
-
-  @override
-  Future<PushSignature> pushSignature({
-    required String action,
-    required String token,
-    required int timestamp,
-  }) async {
-    pushSignatures.add((action: action, token: token, timestamp: timestamp));
-    return PushSignature(
-      address: address,
-      signature: 'sig:$action:$token:$timestamp',
-    );
-  }
 
   /// A deterministic stand-in for the address key's signature: a hash of the payments key of
   /// [address] and the message, so only a session with the same address makes it.

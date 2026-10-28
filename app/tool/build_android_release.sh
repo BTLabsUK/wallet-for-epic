@@ -2,7 +2,7 @@
 # Builds the Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,
-# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, the Firebase config of the package). The signing key is the release key named by
+# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase). The signing key is the release key named by
 # WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
 # repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
@@ -48,14 +48,6 @@ aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
   || { echo "aapt2/apksigner/zipalign not found in $bt" >&2; exit 1; }
 readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
 [[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
-
-# Releases include Firebase (push notifications, off by default and while Tor is on). The config
-# is git-ignored; BT Labs keeps it in ~/.config/btlabs/fcm/google-services.json.
-services="$app_dir/android/app/google-services.json"
-[[ -f "$services" ]] \
-  || { echo "android/app/google-services.json is missing: copy ~/.config/btlabs/fcm/google-services.json" >&2; exit 1; }
-grep -q "\"package_name\": *\"$want_package\"" "$services" \
-  || { echo "android/app/google-services.json has no client for $want_package" >&2; exit 1; }
 
 # The build without Tor names its APKs epic-cash-mobile-<version>-notor-<abi>.apk.
 tor=1 variant=
@@ -164,9 +156,17 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
     grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=1 || r=0
     check "manifest extractNativeLibs not true" $r
   fi
-  grep -qiE 'google-services|firebase|google_app_id' <<<"$("$aapt2" dump resources "$apk" 2>/dev/null | grep -iE 'google_app_id|firebase_database_url|gcm_defaultSenderId' || true)" \
-    && r=0 || r=1
-  check "Firebase config" $r
+  # No Firebase or other Google push code since 26.10.20, even with a google-services.json
+  # lying in android/app: not in the resources, the manifest or the code.
+  "$aapt2" dump resources "$apk" 2>/dev/null | grep -qiE 'google_app_id|gcm_defaultSenderId|firebase' && r=1 || r=0
+  check "no Firebase config" $r
+  grep -qiE 'firebase|com\.google\.android\.c2dm|POST_NOTIFICATIONS' <<<"$manifest" && r=1 || r=0
+  check "no Firebase or notification entries in the manifest" $r
+  dex="$(mktemp -d)"
+  unzip -q "$apk" 'classes*.dex' -d "$dex"
+  LC_ALL=C grep -aqiE 'com/google/firebase|firebase-messaging' "$dex"/classes*.dex && r=1 || r=0
+  check "no Firebase classes" $r
+  rm -r -- "$dex"
 done
 # The phone download is arm64-v8a only.
 published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"

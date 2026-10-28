@@ -91,10 +91,6 @@ bool torSwitchLocked(NetworkMode mode) => netModeOf(mode) == NetworkMode.torOnly
 /// The Tor switch does nothing: Offline starts no tor.
 bool torSwitchDisabled(NetworkMode mode) => netModeOf(mode) == NetworkMode.offline;
 
-/// Push notifications register with the Epicbox relay over the clearnet: off in Tor only and
-/// Offline, and with the Epicbox switch off ([epicbox]).
-bool pushAllowed(NetworkMode mode, {bool epicbox = true}) => netModeOf(mode) == NetworkMode.standard && epicbox;
-
 /// A network action refused by the mode: [what] is for the log, [mode] says why (Offline, or
 /// Tor only refusing a clearnet connection). [notLocal]: Offline refused a Direct send to an
 /// address that is not local ("Offline: only local addresses."). [epicboxOff]: the Epicbox

@@ -70,8 +70,6 @@ dependencies:
   window_manager: 0.5.2
   # Windows 11's snap layouts flyout on the title bar's maximise button (desk_window.dart).
   snap_layouts: 0.2.0
-  firebase_core: 4.15.0
-  firebase_messaging: 16.7.0
   # The LEPIC core behind --dart-define=WFE_CORE=lepic: the lepic-flutter binding, a clone pinned
   # by tools/lepic-flutter.rev. tools/lepic.sh sync creates it (and the LEPIC clone at
   # tools/lepic.rev, the binding's own pin) and tools/lepic.sh build builds its libraries.

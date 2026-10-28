@@ -11,7 +11,6 @@ import 'l10n.dart';
 import 'node_failover_phone.dart';
 import 'phone_http.dart';
 import 'providers.dart';
-import 'push_controller.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
@@ -67,30 +66,12 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             level: NoticeLevel.info,
           );
     });
-    // Push notifications follow every unlock and the Tor switch (push_controller.dart); what
-    // they tell the user is said here, where the language is known.
-    ref.listenManual(pushControllerProvider, (_, _) {});
     // A wallet rebuilt from its phrase finishes its scan from block 0 by itself, after every
     // unlock (restore_scan.dart); Home shows where it stands.
     ref.listenManual(restoreScanProvider, (_, _) {});
     // Alive for the app's life: the Link · HTTP listener runs while a wallet is open and its
     // switch is on, stops on lock and while Tor is on, and starts again on resume.
     ref.listenManual(phoneHttpProvider, (_, _) {});
-    ref.listenManual(pushNoteProvider, (_, event) {
-      final context = _navigator.currentContext;
-      if (event == null || context == null) return;
-      final l = context.l10n;
-      ref
-          .read(noticeProvider.notifier)
-          .show(
-            switch (event.note) {
-              PushNote.on => l.pushNoticeOn,
-              PushNote.off => l.pushNoticeOff,
-              PushNote.offEpicbox => l.pushNoticeOffEpicbox,
-            },
-            level: NoticeLevel.info,
-          );
-    });
   }
 
   @override

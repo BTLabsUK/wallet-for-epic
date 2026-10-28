@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/pairing_providers.dart';
 import 'package:epic_wallet/src/pairing_text.dart' show pairingSpan;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -28,7 +27,6 @@ import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -54,26 +52,6 @@ class _OpenSession extends SessionNotifier {
 class _NoPrice implements PriceSource {
   @override
   Future<double?> price(String currency) async => null;
-}
-
-class _NoPush implements PushPlatform {
-  @override
-  Future<bool> start() async => false;
-
-  @override
-  Future<bool> configured() async => false;
-
-  @override
-  Future<String?> token() async => null;
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
 }
 
 class _Harness {
@@ -107,7 +85,6 @@ class _Harness {
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
-          pushPlatformProvider.overrideWithValue(_NoPush()),
           slateFilesProvider.overrideWithValue(files),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           if (net != null) pairNetProvider.overrideWithValue(net),
@@ -872,7 +849,6 @@ void main() {
               pairingOnProvider.overrideWithValue(true),
               updatePlatformProvider.overrideWithValue(null),
               priceSourceProvider.overrideWithValue(_NoPrice()),
-              pushPlatformProvider.overrideWithValue(_NoPush()),
               slateFilesProvider.overrideWithValue(h.files),
               sessionProvider.overrideWith(() => _OpenSession(h.session)),
             ],

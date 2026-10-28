@@ -7,7 +7,6 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/demo_guide.dart';
@@ -18,7 +17,6 @@ import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,26 +33,6 @@ int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
 class _NoPrice implements PriceSource {
   @override
   Future<double?> price(String currency) async => null;
-}
-
-class _NoPush implements PushPlatform {
-  @override
-  Future<bool> configured() async => false;
-
-  @override
-  Future<bool> start() async => false;
-
-  @override
-  Future<String?> token() async => null;
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
 }
 
 class _OpenSession extends SessionNotifier {
@@ -156,7 +134,6 @@ class _Harness {
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner()),
-          pushPlatformProvider.overrideWithValue(_NoPush()),
           historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),

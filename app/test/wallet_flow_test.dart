@@ -11,7 +11,6 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
@@ -132,7 +131,6 @@ Future<void> _pumpApp(
         secretStoreProvider.overrideWithValue(device.store),
         biometricStoreProvider.overrideWithValue(device.bio),
         updatePlatformProvider.overrideWithValue(null),
-        pushPlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
         relayProbeProvider.overrideWithValue(FakeRelayProbe()),
         slateFilesProvider.overrideWithValue(device.files),

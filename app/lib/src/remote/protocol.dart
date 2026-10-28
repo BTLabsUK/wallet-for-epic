@@ -178,8 +178,6 @@ const Set<String> localSessionMembers = {
   'importLegacyHistory',
   // Answered by the client: it cancels the scan stream, and the server stops the scan.
   'cancelScan',
-  // Push notifications are the phone's own; refused by the client.
-  'pushSignature',
   // Linked devices are the app's own; refused by the client.
   'signWithAddressKey',
   'verifyAddressSignature',

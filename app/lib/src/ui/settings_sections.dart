@@ -1,8 +1,7 @@
 /// The phone's Settings pages, one per group of the hub (`settings_screen.dart`): Security,
 /// Privacy & network, Wallet, Display and About. Each page is a short list of label-only rows
 /// (an explanation sits behind an info icon, a value or a state on the row's second line), so
-/// a page fits a 360 dp phone without a search. Help & feedback opens Help itself; the
-/// Notifications switch is the last row of Advanced.
+/// a page fits a 360 dp phone without a search. Help & feedback opens Help itself.
 library;
 
 import 'package:flutter/material.dart';
@@ -51,7 +50,6 @@ import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pairing/connection_servers_tile.dart';
 import 'pin.dart';
-import 'push_switch.dart';
 import 'restore_screen.dart'
     show RestoreScreen, ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
@@ -115,8 +113,8 @@ final biometricsProvider =
       return (available: available, enabled: enabled);
     });
 
-/// The groups of the Settings hub that open a page of their own. Help & feedback opens Help
-/// and Notifications is a switch on the hub, so neither is here.
+/// The groups of the Settings hub that open a page of their own. Help & feedback opens Help,
+/// so it is not here.
 enum SettingsSection { security, privacyNetwork, wallet, transactions, display, advanced, about }
 
 /// The group's title, on the hub's row and on its page's app bar.
@@ -1066,7 +1064,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           subtitle: Text(line),
         );
     final note = switch (adv.networkMode) {
-      NetworkMode.torOnly => l.advTorOnlyNote,
       NetworkMode.offline => torBuilt ? l.advOfflineNote : l.advOfflineNoteNoTor,
       _ => null,
     };
@@ -1178,8 +1175,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       const SizedBox(height: 8),
       SettingsHeader(l.advBalanceHeader),
       const ConfirmationsRow(),
-      // Experimental, so last: Pairing and Invoices (off by default), then push, nothing
-      // where the phone cannot push.
+      // Experimental, so last: Pairing and Invoices (off by default).
       const SizedBox(height: 8),
       SettingsHeader(l.advExperimental, key: _experimentalKey),
       experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
@@ -1195,7 +1191,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       // Linked devices stands on its own: it runs the pairing engine for the devices only.
       experimental(AdvancedFeature.linkedDevices, Icons.devices_outlined, l.expLinkedDevices, l.expLinkedDevicesHint),
-      const PushNotificationsTile(),
     ];
   }
 

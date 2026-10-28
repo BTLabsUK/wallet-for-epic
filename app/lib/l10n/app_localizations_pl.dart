@@ -1235,10 +1235,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeNoticeView => 'Pokaż';
 
   @override
-  String get homePushNotice =>
-      'Na serwerze epicbox czeka płatność. Dotrze, gdy aplikacja się połączy.';
-
-  @override
   String get homeNoticeReceived =>
       'Płatność jest w drodze. Zakończy się, gdy nadawca ją sfinalizuje.';
 
@@ -3127,17 +3123,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ceny pochodzą z serwisu CoinGecko, który widzi twój adres IP.';
 
   @override
-  String get settingsSectionNotifications => 'Powiadomienia';
-
-  @override
-  String get settingsPushBlocked =>
-      'Powiadomienia są zablokowane w ustawieniach systemu';
-
-  @override
-  String get settingsPushUnavailable =>
-      'Powiadomienia nie są dostępne w tej wersji aplikacji';
-
-  @override
   String get settingsSectionSecurity => 'Bezpieczeństwo';
 
   @override
@@ -4783,9 +4768,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverMenuDelete => 'Usuń';
 
   @override
-  String get serverSupportsNotifications => 'Obsługuje powiadomienia';
-
-  @override
   String get netStatusReachable => 'Osiągalny';
 
   @override
@@ -6011,7 +5993,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -6056,44 +6038,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netStatusOverTor => 'przez Tor';
-
-  @override
-  String get settingsNotifications => 'Powiadomienia';
-
-  @override
-  String get settingsNotificationsHint =>
-      'Eksperymentalne: może się zmienić lub zawodzić. Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu. Wyłączone, gdy Tor jest włączony, bo rejestracja zdradziłaby adres telefonu.';
-
-  @override
-  String get settingsPushPaused => 'Wstrzymane, gdy Tor jest włączony';
-
-  @override
-  String get pushConfirmRelayBody =>
-      'Powiadomienia przechodzą przez serwer Epicbox BT Labs i usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
-
-  @override
-  String get pushConfirmRelayAddress =>
-      'Twój adres Epicbox się zmieni. Udostępnij nowy.';
-
-  @override
-  String get pushRelaySwitchFailed =>
-      'Nie udało się zmienić serwera. Powiadomienia pozostają wyłączone.';
-
-  @override
-  String get pushConfirmTitle => 'Włączyć powiadomienia?';
-
-  @override
-  String get pushConfirmBody =>
-      'Powiadomienia przechodzą przez usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
-
-  @override
-  String get pushConfirmAction => 'Włącz';
-
-  @override
-  String get pushNoticeOn => 'Powiadomienia włączone';
-
-  @override
-  String get pushNoticeOff => 'Powiadomienia wyłączone';
 
   @override
   String get torWayOver => 'Przez Tor';
@@ -14073,12 +14017,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Tylko ten telefon i sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają; reszta czeka.';
 
   @override
-  String get advTorOnlyNote =>
-      'Tylko Tor wstrzymuje powiadomienia: zapisanie się na nie ujawniłoby adres tego telefonu.';
-
-  @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor i sprawdzanie stanu. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14483,7 +14423,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox płaci przez serwer, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym serwerem, więc bez płatności Epicbox, faktur i powiadomień. Pozostałe metody nadal działają.';
+      'Epicbox płaci przez serwer, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym serwerem, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.';
 
   @override
   String get txDirectLine =>
@@ -14627,13 +14567,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEpicboxOffAction => 'Wyłącz';
-
-  @override
-  String get pushNoticeOffEpicbox =>
-      'Powiadomienia wyłączone: potrzebują Epicbox.';
-
-  @override
-  String get settingsPushNeedsEpicbox => 'Wymaga Epicbox';
 
   @override
   String sendContactOnlyEpicbox(String name) {
@@ -17998,15 +17931,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNoteNoTor =>
-      'Offline wstrzymuje Epicbox, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox i sprawdzanie stanu. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get txLinkHttpHintNoTor =>
       'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany i nie jest osiągalny z internetu ani przez dane komórkowe. Dodaje Link · HTTP do Wyślij i Odbierz.';
-
-  @override
-  String get settingsNotificationsHintNoTor =>
-      'Eksperymentalne: może się zmienić lub zawodzić. Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu.';
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -18317,7 +18246,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'Powiadomienia między twoimi urządzeniami idą przez każdy wybrany serwer.';
+      'Komunikaty między twoimi urządzeniami idą przez każdy wybrany serwer.';
 
   @override
   String devicesServersWaiting(String name) {
@@ -18340,7 +18269,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła powiadomień; czekają na serwerach do 7 dni. Offline też wstrzymuje.';
+      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła komunikatów; czekają na serwerach do 7 dni. Offline też wstrzymuje.';
 
   @override
   String get devicesHeld => 'Wstrzymane monety';
@@ -18380,7 +18309,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name przestaje odbierać i wysyłać powiadomienia, a monety wstrzymane przez nie tutaj zostają zwolnione. To nie chroni pieniędzy: urządzenie z frazą odzyskiwania zawsze może je wydać. Jeśli $name może być w cudzych rękach, przenieś środki do portfela z nową frazą odzyskiwania.';
+    return '$name przestaje odbierać i wysyłać komunikaty, a monety wstrzymane przez nie tutaj zostają zwolnione. To nie chroni pieniędzy: urządzenie z frazą odzyskiwania zawsze może je wydać. Jeśli $name może być w cudzych rękach, przenieś środki do portfela z nową frazą odzyskiwania.';
   }
 
   @override
@@ -18561,16 +18490,16 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskDevServersDown(int down, int n) {
-    return '$down z $n nie odpowiada. Powiadomienia idą przez drugi.';
+    return '$down z $n nie odpowiada. Komunikaty idą przez drugi.';
   }
 
   @override
   String get deskDevServersAllDown =>
-      'Żaden serwer nie odpowiada. Powiadomienia czekają i idą dalej, gdy któryś wróci.';
+      'Żaden serwer nie odpowiada. Komunikaty czekają i idą dalej, gdy któryś wróci.';
 
   @override
   String get deskDevServersInfo1 =>
-      'Połączone urządzenia wysyłają sobie powiadomienia przez te serwery. Każde powiadomienie trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
+      'Połączone urządzenia wysyłają sobie komunikaty przez te serwery. Każdy komunikat trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
 
   @override
   String get deskDevServersInfo2 =>
@@ -18578,7 +18507,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'Serwery widzą, że dwa urządzenia wymieniają powiadomienia i kiedy, a bez Tora także z jakich adresów; nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
+      'Serwery widzą, że dwa urządzenia wymieniają komunikaty i kiedy, a bez Tora także z jakich adresów; nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
 
   @override
   String get deskDevPausedOffline => 'Wstrzymano, gdy Offline jest włączone.';
@@ -18688,10 +18617,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
-      many: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
-      few: 'Zaszyfrowane powiadomienie idzie do obu serwerów. Odczytać je mogą tylko urządzenia.',
-      one: 'Zaszyfrowane powiadomienie idzie przez serwer. Odczytać je mogą tylko urządzenia.',
+      other: 'Zaszyfrowany komunikat idzie do obu serwerów. Odczytać go mogą tylko urządzenia.',
+      many: 'Zaszyfrowany komunikat idzie do obu serwerów. Odczytać go mogą tylko urządzenia.',
+      few: 'Zaszyfrowany komunikat idzie do obu serwerów. Odczytać go mogą tylko urządzenia.',
+      one: 'Zaszyfrowany komunikat idzie przez serwer. Odczytać go mogą tylko urządzenia.',
     );
     return '$_temp0';
   }
@@ -18706,7 +18635,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get syncHelpDiagram =>
-      'Jak działa synchronizacja: to urządzenie zaczyna płatność; zaszyfrowane powiadomienie idzie przez serwer do drugiego urządzenia, które wstrzymuje te monety; łańcuch potwierdza.';
+      'Jak działa synchronizacja: to urządzenie zaczyna płatność; zaszyfrowany komunikat idzie przez serwer do drugiego urządzenia, które wstrzymuje te monety; łańcuch potwierdza.';
 
   @override
   String get syncHelpStatus => 'Stan na żywo';

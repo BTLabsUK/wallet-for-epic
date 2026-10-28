@@ -59,10 +59,9 @@ android {
     }
 
     defaultConfig {
-        // Epic Cash Mobile, registered in Firebase (project wallet-for-epic) under this id; the
-        // namespace and the Kotlin package are the same. Its own app beside the builds before it,
-        // which carried the developer's old ids: installing it never replaces them, and its data
-        // starts empty (app/README.md, "App ids and data folders").
+        // Epic Cash Mobile; the namespace and the Kotlin package are the same. Its own app beside
+        // the builds before it, which carried the developer's old ids: installing it never
+        // replaces them, and its data starts empty (app/README.md, "App ids and data folders").
         applicationId = "uk.btlabs.epiccash.mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -128,21 +127,4 @@ kotlin {
 
 flutter {
     source = "../.."
-}
-
-// Firebase Cloud Messaging needs google-services.json, which stays out of git. A checkout
-// without it still builds; pushes are then off, and lib/src/push.dart fails quietly.
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
-}
-
-dependencies {
-    // PaymentPushService extends the firebase_messaging plugin's service, whose parent class is
-    // in the Firebase SDK; plugins keep their dependencies to themselves, so the app names it
-    // too, at the version the plugins use (firebase_core's FirebaseSDKVersion).
-    val firebaseSdk = rootProject.findProject(":firebase_core")?.properties?.get("FirebaseSDKVersion")
-    if (firebaseSdk != null) {
-        implementation(platform("com.google.firebase:firebase-bom:$firebaseSdk"))
-        implementation("com.google.firebase:firebase-messaging")
-    }
 }

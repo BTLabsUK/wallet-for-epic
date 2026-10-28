@@ -12,7 +12,6 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/launch_screen.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -31,7 +30,6 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart' show PinRejected;
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,26 +37,6 @@ import 'package:flutter_test/flutter_test.dart';
 const String _pin = '123456';
 
 final AppLocalizations l = englishStrings;
-
-class _Push implements PushPlatform {
-  @override
-  Future<bool> configured() async => true;
-
-  @override
-  Future<bool> start() async => true;
-
-  @override
-  Future<String?> token() async => 'token';
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
-}
 
 class _NoRelays implements RelayDirectory {
   @override
@@ -219,7 +197,6 @@ class _Harness {
           historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           clockProvider.overrideWithValue(() => now),
-          pushPlatformProvider.overrideWithValue(_Push()),
           qrScannerProvider.overrideWithValue(FakeQrScanner()),
           sharedFilesCleanupProvider.overrideWithValue(() async {}),
         ],
@@ -800,8 +777,6 @@ void main() {
         await h.pump(tester, height: 4000);
         await h.unlock(tester);
         await h.open(tester, const SettingsScreen());
-        // The hub has no Notifications row any more (it is on Advanced, and the demo has none).
-        expect(find.byKey(settingsPushKey), findsNothing);
         // What the demo hides, page by page. Send feedback lives in Help.
         final pages = {
           SettingsSection.security: [

@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push_controller.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -79,9 +78,6 @@ void main() {
     expect(container.read(phoneTorProvider).phase, PhoneTorPhase.unavailable);
     expect(container.read(epicboxOverTorProvider), isFalse);
     expect(container.read(epicboxWaitingForTorProvider), isFalse);
-    final hooks = container.read(pushTorHooksProvider);
-    expect(hooks.beforeOn, isNull);
-    expect(hooks.afterOff, isNull);
   }, skip: _skip);
 
   test('no in-app update check', () async {
