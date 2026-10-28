@@ -124,6 +124,8 @@ class _Wallet implements lepic.EpicWallet {
       const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
   @override
+  Future<bool> restoreScanRequired() async => false;
+  @override
   bool get isDisposed => false;
   @override
   void lock() {}

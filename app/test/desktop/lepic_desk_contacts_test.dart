@@ -23,6 +23,8 @@ lepic.WalletError _lepicError(lepic.WalletErrorKind kind) => lepic.WalletError(k
 /// LEPIC's wallet in memory: a summary and no pairings. Fails any other call.
 class _Wallet implements lepic.EpicWallet {
   @override
+  Future<bool> restoreScanRequired() async => false;
+  @override
   bool get isDisposed => false;
   @override
   void lock() {}
