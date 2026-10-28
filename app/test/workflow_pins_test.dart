@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('workflow actions are pinned by commit', () {
     final dir = Directory('../.github/workflows');
+    // The public tree has no hosted workflows (builds and tests run on our own machines).
+    if (!dir.existsSync()) return markTestSkipped('no workflows in this tree');
     final files = dir.listSync().whereType<File>().where((f) => f.path.endsWith('.yml') || f.path.endsWith('.yaml'));
     expect(files, isNotEmpty);
     final uses = RegExp(r'^\s*(?:-\s*)?uses:\s*([^\s#]+)', multiLine: true);
