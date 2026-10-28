@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskQuitProvider;
 import 'package:epic_wallet/src/desktop/desk_l10n.dart' show deskStrings;
-import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider;
+import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider, updateManifestFallbackUrl, updateManifestPrimaryUrl;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -265,12 +265,16 @@ Future<void> main(List<String> a) async {
       void Function()? onFetch,
       DeskUpdateMarks? marks,
       int status = 200,
+      Map<String, int>? statusAt,
+      List<Uri>? asked,
     }) {
       final fake = applier ?? _FakeApplier();
       final c = ProviderContainer(overrides: [
-        deskManifestFetchProvider.overrideWithValue((_) async {
+        deskManifestFetchProvider.overrideWithValue((url) async {
           onFetch?.call();
-          if (status != 200) return (status, '');
+          asked?.add(url);
+          final code = statusAt?[url.toString()] ?? status;
+          if (code != 200) return (code, '');
           return (200, await signedUpdate(testUpdatePayload(desktop: desktop ?? _desktop())));
         }),
         deskUpdateClockProvider.overrideWithValue(() => now),
@@ -285,6 +289,25 @@ Future<void> main(List<String> a) async {
       addTearDown(c.dispose);
       return c;
     }
+
+    test('the download server first; GitHub Pages only when it has no manifest or does not answer', () async {
+      for (final primary in [404, 503]) {
+        final asked = <Uri>[];
+        final c = make(statusAt: {updateManifestPrimaryUrl: primary}, asked: asked);
+        await c.read(deskUpdateProvider.notifier).check();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: '$primary');
+        expect(asked.map((u) => '$u'), [updateManifestPrimaryUrl, updateManifestFallbackUrl], reason: '$primary');
+      }
+      final asked = <Uri>[];
+      final c = make(asked: asked);
+      await c.read(deskUpdateProvider.notifier).check();
+      expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
+      expect(asked.map((u) => '$u'), [updateManifestPrimaryUrl], reason: 'a copy that verifies ends the search');
+      // Neither answers: the last failure stands.
+      final none = make(status: 503);
+      await none.read(deskUpdateProvider.notifier).check();
+      expect(none.read(deskUpdateProvider).phase, DeskUpdatePhase.failed);
+    });
 
     test('offers the release file, downloads and checks it, then Restart to update applies it', () async {
       final applier = _FakeApplier();

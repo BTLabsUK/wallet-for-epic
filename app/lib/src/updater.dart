@@ -32,12 +32,25 @@ import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
 import 'tor_build.dart';
 
-/// Where releases publish the signed `update.json`. Override with
-/// `--dart-define=WFE_UPDATE_URL=...`; an override must still be signed with the bundled keys.
+/// Where releases publish the signed `update.json`: BT Labs' own download server, beside the
+/// release files. Override with `--dart-define=WFE_UPDATE_URL=...`; an override must still be
+/// signed with the bundled keys, and has no fallback.
 const String updateManifestUrl = String.fromEnvironment(
   'WFE_UPDATE_URL',
-  defaultValue: 'https://btlabs-epic.github.io/update.json',
+  defaultValue: updateManifestPrimaryUrl,
 );
+
+/// The release lead publishes the same signed `update.json` to both: the download server
+/// first, GitHub Pages second (GitHub once hid the whole site, 2026-10-28, and no app saw an
+/// update). Every copy is read against the same keys and anti-rollback state; the first that
+/// answers and verifies is used.
+const String updateManifestPrimaryUrl = 'https://examples.btlabs.uk/epic-cash-wallets/update.json';
+const String updateManifestFallbackUrl = 'https://btlabs-epic.github.io/update.json';
+
+/// The copies after [url] to try when it does not answer or verify: GitHub Pages behind the
+/// download server; none for any other address (an override, a test server).
+List<Uri> updateManifestFallbacks(Uri url) =>
+    url.toString() == updateManifestPrimaryUrl ? [Uri.parse(updateManifestFallbackUrl)] : const [];
 
 /// The installed app, as Android reports it.
 class InstalledApp {
@@ -470,6 +483,11 @@ final updateManifestUrlProvider = Provider<Uri>(
   (ref) => Uri.parse(updateManifestUrl),
 );
 
+/// The copies tried after [updateManifestUrlProvider] ([updateManifestFallbacks]).
+final updateManifestFallbacksProvider = Provider<List<Uri>>(
+  (ref) => updateManifestFallbacks(ref.watch(updateManifestUrlProvider)),
+);
+
 /// The keys `update.json` must be signed with; tests use the test keyring.
 final updateKeyringProvider = Provider<Keyring>((ref) => btlabsKeyring);
 
@@ -676,7 +694,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (state.phase == UpdatePhase.checking) state = next;
     }
 
-    final url = ref.read(updateManifestUrlProvider);
+    final urls = [ref.read(updateManifestUrlProvider), ...ref.read(updateManifestFallbacksProvider)];
     try {
       await _readState();
       await _readDismissed();
@@ -701,42 +719,53 @@ class UpdateNotifier extends Notifier<UpdateState> {
         );
       }
 
-      // A plain GET: no User-Agent, no cookies, nothing about this wallet.
-      final HttpReply response;
-      try {
-        response = await httpGet(
-          url,
-          timeout: const Duration(seconds: 30),
-          maxBytes: btlabsMaxEnvelopeBytes,
+      // Each copy in turn ([updateManifestFallbacks]); the first that answers and verifies
+      // is read. When none does, the last copy's outcome stands: no information, or the error.
+      UpdateManifestRead? read;
+      Object? failure;
+      for (final url in urls) {
+        failure = null;
+        // A plain GET: no User-Agent, no cookies, nothing about this wallet.
+        final HttpReply response;
+        try {
+          response = await httpGet(
+            url,
+            timeout: const Duration(seconds: 30),
+            maxBytes: btlabsMaxEnvelopeBytes,
+          );
+        } on NetTooLarge {
+          logInfo('update', 'update.json not used: ${RejectReason.tooLarge.code} ($url)');
+          continue;
+        } catch (error) {
+          logInfo('update', 'update.json not reached at $url: $error');
+          failure = error;
+          continue;
+        }
+        if (response.status == HttpStatus.notFound) continue;
+        if (response.status != HttpStatus.ok) {
+          final code = response.status;
+          failure = UpdateError((l) => l.updateServerHttpStatus(code));
+          continue;
+        }
+        final candidate = await readUpdateManifest(
+          response.body,
+          app,
+          keyring: ref.read(updateKeyringProvider),
+          now: ref.read(updateClockProvider)(),
+          state: _manifestState,
         );
-      } on NetTooLarge {
-        logInfo(
-          'update',
-          'update.json not used: ${RejectReason.tooLarge.code}',
-        );
+        if (!ref.mounted) return;
+        if (candidate.rejected case final reason?) {
+          // Never shown as an error: the user cannot act on it (FORMAT.md §5).
+          logInfo('update', 'update.json not used: ${reason.code} ($url)');
+          continue;
+        }
+        read = candidate;
+        break;
+      }
+      if (read == null) {
+        if (failure != null) throw failure;
         if (ref.mounted) noInformation();
-        return;
-      }
-      if (response.status == HttpStatus.notFound) {
-        if (ref.mounted) noInformation();
-        return;
-      }
-      if (response.status != HttpStatus.ok) {
-        final code = response.status;
-        throw UpdateError((l) => l.updateServerHttpStatus(code));
-      }
-      final read = await readUpdateManifest(
-        response.body,
-        app,
-        keyring: ref.read(updateKeyringProvider),
-        now: ref.read(updateClockProvider)(),
-        state: _manifestState,
-      );
-      if (!ref.mounted) return;
-      if (read.rejected case final reason?) {
-        // Never shown as an error: the user cannot act on it (FORMAT.md §5).
-        logInfo('update', 'update.json not used: ${reason.code}');
-        noInformation();
         return;
       }
       await _keepState(read.state);

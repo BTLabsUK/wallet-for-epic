@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show ManifestState;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
-import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider, updateStateKey;
+import 'package:epic_wallet/src/updater.dart' show updateManifestPrimaryUrl, updateKeyringProvider, updateStateKey;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -127,8 +127,9 @@ void main() {
 
   testWidgets('no manifest published: no update and no error; Check now asks again', (tester) async {
     var calls = 0;
-    await pump(tester, (_) async {
-      calls++;
+    await pump(tester, (url) async {
+      // Each check asks the download server, then GitHub Pages: count the checks.
+      if ('$url' == updateManifestPrimaryUrl) calls++;
       return (404, 'Not Found');
     });
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);

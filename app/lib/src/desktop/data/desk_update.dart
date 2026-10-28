@@ -30,7 +30,7 @@ import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
 import '../../tor_build.dart' show inAppUpdates;
-import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
+import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestFallbacks, updateManifestUrl, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
 import 'state.dart' show deskProvider, deskQuitProvider;
@@ -316,16 +316,31 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     if (next.phase == DeskUpdatePhase.latest) unawaited(_dropDownloads());
   }
 
-  /// The manifest, fetched and verified: what it offers this copy.
+  /// The manifest, fetched and verified: what it offers this copy. Each copy in turn
+  /// ([updateManifestFallbacks]): the first that does not fail is used, else the last failure.
   Future<DeskUpdateState> _fetchAndRead() async {
-    final url = Uri.parse(updateManifestUrl);
+    final primary = Uri.parse(updateManifestUrl);
+    late DeskUpdateState result;
+    for (final url in [primary, ...updateManifestFallbacks(primary)]) {
+      _noInformation = false;
+      result = await _fetchAndReadOne(url);
+      // Failed, not published there or not verifying: the next copy is asked.
+      if (result.phase != DeskUpdatePhase.failed && !_noInformation) return result;
+    }
+    return result;
+  }
+
+  /// Set by [_read] when the copy it read told nothing (not there, or did not verify).
+  bool _noInformation = false;
+
+  Future<DeskUpdateState> _fetchAndReadOne(Uri url) async {
     try {
       final (status, body) = await ref.read(deskManifestFetchProvider)(url);
       return await _read(status, body);
     } on TimeoutException {
       return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout);
     } on Object catch (e) {
-      logInfo('update', 'desktop check failed: ${e.runtimeType}');
+      logInfo('update', 'desktop check failed at $url: ${e.runtimeType}');
       return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdUnreachable);
     }
   }
@@ -468,7 +483,10 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   Future<DeskUpdateState> _read(int status, String body) async {
     // No manifest published: nothing newer is known, which is no error.
-    if (status == 404) return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
+    if (status == 404) {
+      _noInformation = true;
+      return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
+    }
     if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
     if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(status));
     await _readState();
@@ -516,6 +534,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// offered. The reason goes to the log only (FORMAT.md §5).
   DeskUpdateState _notVerified(RejectReason reason) {
     logInfo('update', 'desktop: update.json not used: ${reason.code}');
+    _noInformation = true;
     return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 

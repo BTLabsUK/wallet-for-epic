@@ -570,6 +570,12 @@ void main() {
           response.close();
           return;
         }
+        // A copy of the manifest that is not there (the download server without update.json).
+        if (request.uri.path.startsWith('/gone/')) {
+          response.statusCode = HttpStatus.notFound;
+          response.close();
+          return;
+        }
         switch (reply) {
           case 'newer':
             response.write(manifests[2002]);
@@ -732,6 +738,30 @@ void main() {
         expect(apk.sha256, sha256.convert(apkBytes).toString());
       },
     );
+
+    test('a copy with no manifest: the next copy is read, against the same keys', () async {
+      final c = ProviderContainer(
+        overrides: [
+          updatePlatformProvider.overrideWithValue(platform),
+          updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
+          updateManifestUrlProvider.overrideWithValue(Uri.parse('http://127.0.0.1:${server.port}/gone/update.json')),
+          updateManifestFallbacksProvider.overrideWithValue([Uri.parse('http://127.0.0.1:${server.port}/update.json')]),
+          updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+          updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
+          updateApkUrlProvider.overrideWithValue((url) => url),
+        ],
+      );
+      addTearDown(c.dispose);
+      await c.read(updateProvider.notifier).check();
+      expect(c.read(updateProvider).phase, UpdatePhase.available);
+      expect(requests, 2);
+    });
+
+    test('the download server first, then GitHub Pages; an override has no fallback', () {
+      expect(updateManifestFallbacks(Uri.parse(updateManifestPrimaryUrl)).map((u) => '$u'), [updateManifestFallbackUrl]);
+      expect(updateManifestFallbacks(Uri.parse('https://example.org/update.json')), isEmpty);
+      expect(updateManifestUrl, updateManifestPrimaryUrl);
+    });
 
     test('a manifest past the expiry offers nothing', () async {
       container.updateOverrides([
