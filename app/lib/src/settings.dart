@@ -131,7 +131,6 @@ class AppSettings {
     this.showFiat = true,
     this.hideBalances = false,
     this.autoLockMinutes = autoLockDefault,
-    this.pushNotifications = false,
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
     this.historyReminderFirstSeenAt = const {},
@@ -193,10 +192,6 @@ class AppSettings {
   /// Lock this long after the app goes to the background; 0 locks at once, null never.
   final int? autoLockMinutes;
 
-  /// Firebase payment notifications. Off until the user turns them on, because starting them
-  /// contacts Google and asks for notification permission.
-  final bool pushNotifications;
-
   /// When a history backup was last exported, per network: [Chain.name] to Unix seconds.
   /// (Added by uihome for the history backup reminder.)
   final Map<String, int> historyExportedAt;
@@ -231,7 +226,6 @@ class AppSettings {
     bool? showFiat,
     bool? hideBalances,
     int? Function()? autoLockMinutes,
-    bool? pushNotifications,
     Map<String, int>? historyExportedAt,
     Map<String, int>? historyReminderDismissedAt,
     Map<String, int>? historyReminderFirstSeenAt,
@@ -255,7 +249,6 @@ class AppSettings {
     autoLockMinutes: autoLockMinutes != null
         ? autoLockMinutes()
         : this.autoLockMinutes,
-    pushNotifications: pushNotifications ?? this.pushNotifications,
     historyExportedAt: historyExportedAt ?? this.historyExportedAt,
     historyReminderDismissedAt:
         historyReminderDismissedAt ?? this.historyReminderDismissedAt,
@@ -306,7 +299,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _showFiatKey = 'app.show_fiat';
   static const String _hideKey = 'app.hide_balances';
   static const String _autoLockKey = 'app.auto_lock';
-  static const String _pushKey = 'app.push';
   static const String _languageKey = 'app.language';
   static const String _helpLanguageKey = 'app.helpLanguage';
   static const String _advancedKey = 'app.advanced';
@@ -338,7 +330,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final showFiat = await store.read(_showFiatKey);
     final hide = await store.read(_hideKey);
     final autoLock = await store.read(_autoLockKey);
-    final push = await store.read(_pushKey);
     final language = await store.read(_languageKey);
     final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
@@ -392,9 +383,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         _never => null,
         final m => int.tryParse(m) == null ? defaults.autoLockMinutes : autoLockChoice(int.parse(m)),
       },
-      pushNotifications: push == null
-          ? defaults.pushNotifications
-          : push == 'true',
       historyExportedAt: exported,
       historyReminderDismissedAt: dismissed,
       historyReminderFirstSeenAt: firstSeen,
@@ -614,9 +602,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     }
     state = AsyncData((await _current()).copyWith(helpLanguage: () => code));
   }
-
-  Future<void> setPushNotifications(bool on) async =>
-      _put(_pushKey, '$on', (await _current()).copyWith(pushNotifications: on));
 
   /// Records a successful history backup export on [chain] at [when], with what it held.
   Future<void> setHistoryExported(

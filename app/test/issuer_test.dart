@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
@@ -16,7 +15,6 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -456,26 +454,6 @@ class _NoPrice implements PriceSource {
   Future<double?> price(String currency) async => null;
 }
 
-class _NoPush implements PushPlatform {
-  @override
-  Future<bool> start() async => false;
-
-  @override
-  Future<bool> configured() async => false;
-
-  @override
-  Future<String?> token() async => null;
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
-}
-
 /// The whole app over the fake, with a mainnet wallet behind PIN 123456.
 class _AppHarness {
   _AppHarness() {
@@ -514,7 +492,6 @@ class _AppHarness {
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
           priceSourceProvider.overrideWithValue(_NoPrice()),
-          pushPlatformProvider.overrideWithValue(_NoPush()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
         ],
         child: const WalletApp(),

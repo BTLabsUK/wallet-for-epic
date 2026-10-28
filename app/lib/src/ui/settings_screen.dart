@@ -24,7 +24,6 @@ import 'settings_sections.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
-export 'push_switch.dart' show settingsPushKey, pushStateLine;
 export 'settings_sections.dart';
 
 /// Opens Settings at Privacy & network, where the Tor switch is: the page over the hub, so

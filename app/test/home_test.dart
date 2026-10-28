@@ -7,7 +7,6 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
@@ -32,7 +31,6 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/watch_mode.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter/services.dart';
@@ -262,33 +260,6 @@ class _SlowRefreshSession extends FakeWalletSession {
   }
 }
 
-/// Pushes on demand, as FCM delivers them in the foreground.
-class _FakePush implements PushPlatform {
-  final foregroundMessages = StreamController<RemoteMessage>.broadcast();
-  int starts = 0;
-
-  @override
-  Future<bool> start() async {
-    starts++;
-    return true;
-  }
-
-  @override
-  Future<bool> configured() async => true;
-
-  @override
-  Future<String?> token() async => 'token';
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => foregroundMessages.stream;
-}
-
 final Uri _apkUrl = Uri.parse('https://example.org/app.apk');
 
 /// Update phases set by the test; Install and Try again only count.
@@ -348,7 +319,6 @@ class _Harness {
   final FakeWalletSession session;
   final _FakePrice prices;
   final FakeQrScanner scanner;
-  final push = _FakePush();
   final files = FakeHistoryFiles()..canShare = false;
   final store = MemorySecretStore();
   late final service = FakeWalletService(session: session);
@@ -358,14 +328,6 @@ class _Harness {
         dataDir: '/fake/wallets/${chain.name}',
         nodeUrl: 'https://node',
       );
-
-  /// Turns payment notifications on, as the app does when the setting is on.
-  Future<void> startPush(WidgetTester tester) async {
-    await ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
-        .read(pushProvider.notifier)
-        .start();
-    await tester.pumpAndSettle();
-  }
 
   Future<void> pump(
     WidgetTester tester, [
@@ -392,7 +354,6 @@ class _Harness {
           updateProvider.overrideWith(_FakeUpdates.new),
           priceSourceProvider.overrideWithValue(prices),
           qrScannerProvider.overrideWithValue(scanner),
-          pushPlatformProvider.overrideWithValue(push),
           historyFilesProvider.overrideWithValue(files),
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),
@@ -2298,59 +2259,6 @@ void main() {
   });
 
   group('polish', () {
-    const push = RemoteMessage(
-      notification: RemoteNotification(title: 'Transaction waiting on relay'),
-    );
-    const connected = ListenerEvent(
-      kind: ListenerEventKind.connected,
-      message: 'a',
-    );
-
-    testWidgets('a push while connected gives no notice of its own', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await h.startPush(tester);
-      h.session.listenerEvents.add(connected);
-      await tester.pumpAndSettle();
-      h.push.foregroundMessages.add(push);
-      // The listener collects the same payment and gives the one notice.
-      h.session.listenerEvents.add(
-        ListenerEvent(
-          kind: ListenerEventKind.received,
-          slateId: 'from-alice',
-          message: 'raw',
-          amount: _epic(5),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text(englishStrings.homePushNotice), findsNothing);
-      expect(find.text('Transaction waiting on relay'), findsNothing);
-      expect(find.byKey(noticeKey), findsOneWidget);
-      expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
-    });
-
-    testWidgets('home does not start payment notifications by itself', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      expect(h.push.starts, 0);
-    });
-
-    testWidgets('a push while offline says the payment is waiting', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await h.startPush(tester);
-      h.push.foregroundMessages.add(push);
-      await tester.pumpAndSettle();
-      expect(find.text(englishStrings.homePushNotice), findsOneWidget);
-      expect(find.text('Transaction waiting on relay'), findsNothing);
-    });
-
     testWidgets('the chip row fades where more chips lie beyond the edge', (
       tester,
     ) async {

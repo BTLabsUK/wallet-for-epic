@@ -83,10 +83,14 @@ const NetworkPreset mainnetPreset = NetworkPreset(
   epicboxPort: 443,
 );
 
+/// BT Labs' Epicbox server: one host for both chains, floonet's own relay and a built-in
+/// mainnet relay.
+const String btlabsRelayHost = 'flooepicbox.btlabs.uk';
+
 const NetworkPreset floonetPreset = NetworkPreset(
   chain: Chain.floonet,
   nodeUrl: 'https://floo-node.btlabs.uk',
-  epicboxDomain: 'flooepicbox.btlabs.uk',
+  epicboxDomain: btlabsRelayHost,
   epicboxPort: 443,
 );
 

@@ -12,7 +12,6 @@ import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/scan/incoming_link.dart';
 import 'package:epic_wallet/src/scan/scan_router.dart' show maxUriAddressLength;
 import 'package:epic_wallet/src/scan/scan_text.dart' show directHostBesideOf;
@@ -35,7 +34,6 @@ import 'package:epic_wallet/src/ui/settings_sections.dart' show SettingsSectionS
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,26 +90,6 @@ class _OtherChainService extends FakeWalletService {
 class _NoPrice implements PriceSource {
   @override
   Future<double?> price(String currency) async => null;
-}
-
-class _NoPush implements PushPlatform {
-  @override
-  Future<bool> start() async => true;
-
-  @override
-  Future<bool> configured() async => true;
-
-  @override
-  Future<String?> token() async => 'token';
-
-  @override
-  Future<void> deleteToken() async {}
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
 }
 
 class _NoUpdates extends UpdateNotifier {
@@ -214,7 +192,6 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(scanner),
           qrCameraFactoryProvider.overrideWithValue(() => camera),
-          pushPlatformProvider.overrideWithValue(_NoPush()),
           historyFilesProvider.overrideWithValue(
             FakeHistoryFiles()..canShare = false,
           ),

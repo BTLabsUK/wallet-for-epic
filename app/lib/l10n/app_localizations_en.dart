@@ -1194,10 +1194,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNoticeView => 'View';
 
   @override
-  String get homePushNotice =>
-      'A payment is waiting in your epicbox. It arrives once the app is connected.';
-
-  @override
   String get homeNoticeReceived =>
       'A payment is on the way. It completes when the sender finishes.';
 
@@ -3022,17 +3018,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Prices come from CoinGecko, which sees your IP address.';
 
   @override
-  String get settingsSectionNotifications => 'Notifications';
-
-  @override
-  String get settingsPushBlocked =>
-      'Notifications are blocked in system settings';
-
-  @override
-  String get settingsPushUnavailable =>
-      'Notifications are not available in this build';
-
-  @override
   String get settingsSectionSecurity => 'Security';
 
   @override
@@ -4648,9 +4633,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverMenuDelete => 'Delete';
 
   @override
-  String get serverSupportsNotifications => 'Supports notifications';
-
-  @override
   String get netStatusReachable => 'Reachable';
 
   @override
@@ -5848,7 +5830,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.';
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -5892,44 +5874,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netStatusOverTor => 'over Tor';
-
-  @override
-  String get settingsNotifications => 'Notifications';
-
-  @override
-  String get settingsNotificationsHint =>
-      'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
-
-  @override
-  String get settingsPushPaused => 'Paused while Tor is on';
-
-  @override
-  String get pushConfirmRelayBody =>
-      'Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.';
-
-  @override
-  String get pushConfirmRelayAddress =>
-      'Your Epicbox address changes. Share the new one.';
-
-  @override
-  String get pushRelaySwitchFailed =>
-      'The server could not be switched. Notifications stay off.';
-
-  @override
-  String get pushConfirmTitle => 'Turn on notifications?';
-
-  @override
-  String get pushConfirmBody =>
-      'Notifications go through Google’s notification service. They carry no amount, sender or address.';
-
-  @override
-  String get pushConfirmAction => 'Turn on';
-
-  @override
-  String get pushNoticeOn => 'Notifications on';
-
-  @override
-  String get pushNoticeOff => 'Notifications off';
 
   @override
   String get torWayOver => 'Over Tor';
@@ -13570,12 +13514,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.';
 
   @override
-  String get advTorOnlyNote =>
-      'Tor only pauses notifications: registering for them would reveal this phone’s address.';
-
-  @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
+      'Offline pauses Epicbox, Tor and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
 
   @override
   String get advReset => 'Hide everything again';
@@ -13972,7 +13912,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments, invoices or notifications. The other methods still work.';
+      'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments or invoices. The other methods still work.';
 
   @override
   String get txDirectLine =>
@@ -14109,12 +14049,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEpicboxOffAction => 'Turn off';
-
-  @override
-  String get pushNoticeOffEpicbox => 'Notifications off: they need Epicbox.';
-
-  @override
-  String get settingsPushNeedsEpicbox => 'Needs Epicbox';
 
   @override
   String sendContactOnlyEpicbox(String name) {
@@ -17389,15 +17323,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advOfflineNoteNoTor =>
-      'Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
+      'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
 
   @override
   String get txLinkHttpHintNoTor =>
       'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
-
-  @override
-  String get settingsNotificationsHintNoTor =>
-      'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address.';
 
   @override
   String get tourPhoneWalletTextNoTor =>

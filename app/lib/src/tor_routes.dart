@@ -43,9 +43,6 @@ enum TorRoute {
 
   /// The clearnet HTTP listener (desktop Direct receiving without Tor).
   httpListener,
-
-  /// Push notifications (phone).
-  push,
 }
 
 /// How a [TorRoute] goes right now.
@@ -76,7 +73,7 @@ enum TorWay {
 const Set<TorRoute> torCovered = {TorRoute.epicbox, TorRoute.node, TorRoute.appHttp};
 
 /// Off while Tor is on: they would show this computer's address.
-const Set<TorRoute> torStops = {TorRoute.httpListener, TorRoute.push};
+const Set<TorRoute> torStops = {TorRoute.httpListener};
 
 /// A node on this computer (local or built-in) never goes over Tor: there is nothing to hide.
 const bool torSkipsLocalNode = true;

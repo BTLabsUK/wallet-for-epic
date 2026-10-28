@@ -13,7 +13,6 @@ import 'models.dart' show Chain;
 import 'network.dart';
 import 'providers.dart';
 import 'public_servers.dart';
-import 'push_registration.dart' show PushRegistration;
 import 'server_list.dart';
 
 export 'server_list.dart';
@@ -33,13 +32,13 @@ List<PublicNode> builtInNodesFor(NetworkPreset preset) => preset.chain == Chain.
     ? builtInNodes
     : [PublicNode(url: preset.nodeUrl, operator: preset.chain == Chain.floonet ? 'BT Labs' : '')];
 
-/// The built-in relays of a network: the public mainnet list and the push relay, else the
-/// network's own relay (on floonet that is the push relay).
+/// The built-in relays of a network: the public mainnet list and BT Labs' relay, else the
+/// network's own relay (on floonet that is BT Labs' relay).
 List<PublicRelay> builtInRelaysFor(NetworkPreset preset) => preset.chain == Chain.mainnet
     ? [
         ...builtInRelays,
         const PublicRelay(
-          relay: EpicboxRelay(host: PushRegistration.relayHost),
+          relay: EpicboxRelay(host: btlabsRelayHost),
           operator: 'BT Labs',
         ),
       ]

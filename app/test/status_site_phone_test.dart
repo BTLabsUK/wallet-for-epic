@@ -5,7 +5,6 @@ import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/public_servers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -53,7 +52,6 @@ void main() {
             secretStoreProvider.overrideWithValue(store),
             biometricStoreProvider.overrideWithValue(MemoryBiometricStore(available: false)),
             updatePlatformProvider.overrideWithValue(null),
-            pushPlatformProvider.overrideWithValue(null),
             relayDirectoryProvider.overrideWithValue(directory),
             slateFilesProvider.overrideWithValue(FakeSlateFiles()),
             priceSourceProvider.overrideWithValue(const _NoPrice()),

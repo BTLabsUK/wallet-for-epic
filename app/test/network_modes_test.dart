@@ -122,9 +122,6 @@ void main() {
       expect(torSwitchLocked(NetworkMode.torOnly), isTrue);
       expect(torSwitchLocked(NetworkMode.standard), isFalse);
       expect(torSwitchDisabled(NetworkMode.offline), isTrue);
-      expect(pushAllowed(NetworkMode.standard), isTrue);
-      expect(pushAllowed(NetworkMode.torOnly), isFalse);
-      expect(pushAllowed(NetworkMode.offline), isFalse);
     });
   });
 
@@ -137,7 +134,6 @@ void main() {
       }
       for (final t in TorState.values) {
         expect(torWayIn(TorRoute.httpDirect, t, NetworkMode.torOnly), TorWay.off);
-        expect(torWayIn(TorRoute.push, t, NetworkMode.torOnly), TorWay.off);
         expect(torWayIn(TorRoute.httpListener, t, NetworkMode.torOnly), TorWay.off);
       }
       // A switch not on yet (being forced on): covered routes wait, never go direct.
@@ -212,8 +208,6 @@ void main() {
       }
       expect(netBlockFor(NetworkMode.torOnly, TorState.on, epicbox: false), NetBlock.epicboxOff);
       expect(netBlockFor(NetworkMode.torOnly, TorState.starting, epicbox: false), NetBlock.waitingForTor);
-      expect(pushAllowed(NetworkMode.standard, epicbox: false), isFalse);
-      expect(pushAllowed(NetworkMode.standard), isTrue);
       NetGate.setEpicbox(true);
       expect(NetGate.epicboxOff, isFalse);
       expect(() => NetGate.checkEpicbox('send over Epicbox'), returnsNormally);

@@ -7,7 +7,6 @@ import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/feedback.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -84,7 +83,6 @@ class _Harness {
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
           priceSourceProvider.overrideWithValue(_NoPrice()),
-          pushPlatformProvider.overrideWithValue(null),
           clockProvider.overrideWithValue(() => DateTime(2026, 10, 1, 9, 5)),
           feedbackOutletProvider.overrideWithValue(outlet),
           feedbackLogProvider.overrideWithValue(log),

@@ -1,14 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
-import 'package:epic_wallet/src/push_controller.dart' show pushRelaySettle;
-import 'package:epic_wallet/src/push_registration.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -40,13 +36,11 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,36 +49,6 @@ import 'support/experimental.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';
-
-class _FakePush implements PushPlatform {
-  int starts = 0;
-  int deleted = 0;
-  bool permitted = true;
-  bool configuredBuild = true;
-  Object? failure;
-
-  @override
-  Future<bool> configured() async => configuredBuild;
-
-  @override
-  Future<bool> start() async {
-    starts++;
-    if (failure case final error?) throw error;
-    return permitted;
-  }
-
-  @override
-  Future<String?> token() async => 'token';
-
-  @override
-  Future<void> deleteToken() async => deleted++;
-
-  @override
-  Stream<String> get tokenRefresh => const Stream.empty();
-
-  @override
-  Stream<RemoteMessage> get foreground => const Stream.empty();
-}
 
 class _NoRelays implements RelayDirectory {
   @override
@@ -194,8 +158,6 @@ class _Harness {
   final bio = MemoryBiometricStore(available: false);
   final files = FakeHistoryFiles();
   final session = _ScanSession();
-  final push = _FakePush();
-  final posts = <({Uri url, String body, Duration timeout})>[];
   final FakeQrScanner scanner;
 
   /// A bundled tor on this device, so the Tor switch is offered.
@@ -228,11 +190,6 @@ class _Harness {
           historyFilesProvider.overrideWithValue(files),
           priceSourceProvider.overrideWithValue(_FixedPrice()),
           clockProvider.overrideWithValue(() => now),
-          pushPlatformProvider.overrideWithValue(push),
-          pushPostProvider.overrideWithValue((url, body, timeout) async {
-            posts.add((url: url, body: body, timeout: timeout));
-            return 204;
-          }),
           qrScannerProvider.overrideWithValue(scanner),
           sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
           if (tor)
@@ -1430,317 +1387,6 @@ void main() {
       expect(h.service.deletedWallets, isEmpty);
       await h.session.controller!.close();
       await tester.pumpAndSettle();
-    });
-  });
-
-  group('notifications', () {
-    const relay = 'esPushKey@flooepicbox.btlabs.uk';
-
-    Finder row() => find.byKey(settingsPushKey);
-
-    Switch pushSwitch(WidgetTester tester) => tester.widget<Switch>(
-      find.descendant(of: row(), matching: find.byType(Switch)),
-    );
-
-    /// Unlocks, then moves the wallet to the BT Labs relay, the only one that can push.
-    Future<void> unlockOnRelay(_Harness h, WidgetTester tester) async {
-      await h.unlock(tester);
-      final config = h.container.read(walletConfigProvider)!;
-      h.container
-          .read(walletConfigProvider.notifier)
-          .select(
-            WalletConfig(
-              dataDir: config.dataDir,
-              chain: config.chain,
-              nodeUrl: config.nodeUrl,
-              nodeApiSecret: config.nodeApiSecret,
-              epicboxDomain: 'flooepicbox.btlabs.uk',
-              epicboxPort: 443,
-              walletId: config.walletId,
-            ),
-          );
-      // Push follows a relay switch once it settles.
-      await tester.pump(pushRelaySettle);
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> tapRow(WidgetTester tester) async {
-      await _reveal(tester, row());
-      await tester.tap(row());
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> turnOn(WidgetTester tester) async {
-      await tapRow(tester);
-      await tester.tap(find.text(englishStrings.pushConfirmAction));
-      await tester.pumpAndSettle();
-    }
-
-    testWidgets('are off by default; turning on asks first and Cancel keeps them off', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.address = relay;
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      expect(h.push.starts, 0);
-      await h.openSettings(tester, SettingsSection.advanced);
-      // The label alone, with its explanation behind the info icon, and no state line.
-      await _reveal(tester, row());
-      expect(
-        find.descendant(of: row(), matching: find.text('Notifications')),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: row(),
-          matching: find.byWidgetPredicate(
-            (w) => w is InfoHint && w.title == 'Notifications',
-          ),
-        ),
-        findsOneWidget,
-      );
-      // Marked Experimental, and no state line.
-      expect(
-        find.descendant(of: row(), matching: find.text('Experimental')),
-        findsOneWidget,
-      );
-      expect(
-        tester
-            .widgetList<Text>(
-              find.descendant(of: row(), matching: find.byType(Text)),
-            )
-            .map((t) => t.data),
-        ['Notifications', 'Experimental'],
-      );
-
-      await tapRow(tester);
-      expect(find.text('Turn on notifications?'), findsOneWidget);
-      expect(
-        find.text(
-          'Notifications go through Google’s notification service. They carry no amount, sender or address.',
-        ),
-        findsOneWidget,
-      );
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(h.push.starts, 0);
-      expect(h.store.values['app.push'], isNot('true'));
-      expect(h.posts, isEmpty);
-      expect(pushSwitch(tester).value, isFalse);
-    });
-
-    testWidgets('Turn on registers; turning off unregisters, drops the token and says so', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.address = relay;
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      await turnOn(tester);
-      expect(h.push.starts, 1);
-      expect(h.store.values['app.push'], 'true');
-      expect(pushSwitch(tester).value, isTrue);
-      expect(h.posts, hasLength(1));
-      expect(h.posts.single.url.toString(),
-          'https://flooepicbox.btlabs.uk/push/v1/register');
-      final body = jsonDecode(h.posts.single.body) as Map<String, dynamic>;
-      expect(body['address'], relay);
-      expect(body['token'], 'token');
-      final stamp = h.now.millisecondsSinceEpoch ~/ 1000;
-      expect(body['timestamp'], stamp);
-      expect(body['signature'], 'sig:register:token:$stamp');
-      expect(h.session.pushSignatures.single.action, 'register');
-
-      await tapRow(tester);
-      expect(h.store.values['app.push'], 'false');
-      expect(h.posts, hasLength(2));
-      expect(h.posts.last.url.path, '/push/v1/unregister');
-      expect(h.push.deleted, 1);
-      expect(
-        find.descendant(
-          of: find.byKey(noticeKey),
-          matching: find.text('Notifications off'),
-        ),
-        findsOneWidget,
-      );
-      expect(pushSwitch(tester).value, isFalse);
-    });
-
-    testWidgets('turn back off and say so when the system blocks them', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.push.permitted = false;
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
-      await turnOn(tester);
-      expect(h.push.starts, 1);
-      expect(h.store.values['app.push'], 'false');
-      expect(find.text(englishStrings.settingsPushBlocked), findsOneWidget);
-      expect(pushSwitch(tester).value, isFalse);
-      expect(h.posts, isEmpty);
-
-      // Allowed now: turning them on asks again and the warning goes.
-      h.push.permitted = true;
-      await turnOn(tester);
-      expect(h.push.starts, 2);
-      expect(h.store.values['app.push'], 'true');
-      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
-    });
-
-    testWidgets('turn back off and say so when Firebase fails to start', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.push.failure = Exception('no Firebase options');
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      await turnOn(tester);
-      expect(h.push.starts, 1);
-      expect(h.store.values['app.push'], 'false');
-      expect(find.text(englishStrings.settingsPushUnavailable), findsOneWidget);
-      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
-    });
-
-    testWidgets('turn off at unlock when Firebase fails to start', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.push.failure = Exception('no Firebase options');
-      h.store.values['app.push'] = 'true';
-      await h.pump(tester);
-      expect(h.push.starts, 0, reason: 'nothing before the wallet opens');
-      await unlockOnRelay(h, tester);
-      expect(h.push.starts, 1);
-      expect(h.store.values['app.push'], 'false');
-    });
-
-    testWidgets('are not offered in a build without Firebase configuration', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.push.configuredBuild = false;
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      expect(row(), findsNothing);
-      expect(find.text('Notifications'), findsNothing);
-      expect(h.push.starts, 0);
-    });
-
-    testWidgets('on another relay: one confirm says so, then the relay moves live and it registers', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await h.unlock(tester);
-      final before = h.container.read(walletConfigProvider)!;
-      expect(before.epicboxDomain, isNot('flooepicbox.btlabs.uk'));
-      final session = h.container.read(sessionProvider);
-      await h.openSettings(tester, SettingsSection.advanced);
-      await tapRow(tester);
-      expect(find.text('Turn on notifications?'), findsOneWidget);
-      expect(
-        find.text(
-          'Notifications go through the BT Labs Epicbox server and Google’s notification service. '
-          'They carry no amount, sender or address.',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.text(
-          'Your Epicbox address changes. Share the new one.',
-        ),
-        findsOneWidget,
-      );
-      expect(h.posts, isEmpty, reason: 'nothing before the confirm');
-      await tester.tap(find.text(englishStrings.pushConfirmAction));
-      await tester.pumpAndSettle();
-      final after = h.container.read(walletConfigProvider)!;
-      expect(after.epicboxDomain, 'flooepicbox.btlabs.uk');
-      expect(after.nodeUrl, before.nodeUrl, reason: 'only the relay moves');
-      expect(
-        h.container.read(sessionProvider),
-        same(session),
-        reason: 'live: no lock, no reopen',
-      );
-      expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
-      expect(
-        (jsonDecode(h.posts.single.body) as Map)['address'],
-        endsWith('@flooepicbox.btlabs.uk'),
-      );
-      expect(h.store.values['app.push'], 'true');
-      // Off again: the relay stays.
-      await tapRow(tester);
-      expect(
-        h.container.read(walletConfigProvider)!.epicboxDomain,
-        'flooepicbox.btlabs.uk',
-      );
-      expect(h.store.values['app.push'], 'false');
-    });
-
-    testWidgets('on another relay, Cancel moves nothing', (tester) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await h.unlock(tester);
-      final before = h.container.read(walletConfigProvider)!.epicboxDomain;
-      await h.openSettings(tester, SettingsSection.advanced);
-      await tapRow(tester);
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(h.container.read(walletConfigProvider)!.epicboxDomain, before);
-      expect(h.posts, isEmpty);
-      expect(h.push.starts, 0);
-    });
-
-    testWidgets('start and register after each unlock when saved on', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.address = relay;
-      h.store.values['app.push'] = 'true';
-      await h.pump(tester);
-      expect(h.push.starts, 0);
-      await unlockOnRelay(h, tester);
-      expect(h.push.starts, 1);
-      expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
-    });
-
-    testWidgets('no notifications reminder after unlock (removed in 26.10.17)', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await tester.pump(const Duration(seconds: 90));
-      await tester.pumpAndSettle();
-      expect(find.byKey(noticeKey), findsNothing);
-    });
-
-    testWidgets('no reminder once it was shown', (tester) async {
-      final h = _Harness();
-      h.store.values['app.push_hint_shown'] = 'true';
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await tester.pump(const Duration(seconds: 90));
-      await tester.pumpAndSettle();
-      expect(find.byKey(noticeKey), findsNothing);
-    });
-
-    testWidgets('no reminder when they are on', (tester) async {
-      final h = _Harness();
-      h.store.values['app.push'] = 'true';
-      await h.pump(tester);
-      await unlockOnRelay(h, tester);
-      await tester.pump(const Duration(seconds: 90));
-      await tester.pumpAndSettle();
-      expect(find.byKey(noticeKey), findsNothing);
-      expect(h.store.values['app.push_hint_shown'], isNull);
     });
   });
 

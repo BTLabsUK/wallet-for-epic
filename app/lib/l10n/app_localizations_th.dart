@@ -1181,10 +1181,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeNoticeView => 'ดู';
 
   @override
-  String get homePushNotice =>
-      'มีรายการรออยู่ใน Epicbox จะเข้าเมื่อแอปเชื่อมต่อแล้ว';
-
-  @override
   String get homeNoticeReceived =>
       'มีรายการกำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
 
@@ -2968,15 +2964,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ราคามาจาก CoinGecko ซึ่งจะเห็นที่อยู่ IP ของคุณ';
 
   @override
-  String get settingsSectionNotifications => 'การแจ้งเตือน';
-
-  @override
-  String get settingsPushBlocked => 'การแจ้งเตือนถูกบล็อกในการตั้งค่าระบบ';
-
-  @override
-  String get settingsPushUnavailable => 'เวอร์ชันนี้ไม่รองรับการแจ้งเตือน';
-
-  @override
   String get settingsSectionSecurity => 'ความปลอดภัย';
 
   @override
@@ -4568,9 +4555,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverMenuDelete => 'ลบ';
 
   @override
-  String get serverSupportsNotifications => 'รองรับการแจ้งเตือน';
-
-  @override
   String get netStatusReachable => 'เข้าถึงได้';
 
   @override
@@ -5744,7 +5728,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่อินเทอร์เน็ตของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน การแจ้งเตือนจะปิดขณะเปิด Tor หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
+      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่อินเทอร์เน็ตของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
 
   @override
   String get receiveTabDirect => 'ลิงก์';
@@ -5788,44 +5772,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netStatusOverTor => 'ผ่าน Tor';
-
-  @override
-  String get settingsNotifications => 'การแจ้งเตือน';
-
-  @override
-  String get settingsNotificationsHint =>
-      'ฟีเจอร์ทดลอง: อาจเปลี่ยนแปลงหรือทำงานผิดพลาด แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
-
-  @override
-  String get settingsPushPaused => 'หยุดชั่วคราวขณะเปิด Tor';
-
-  @override
-  String get pushConfirmRelayBody =>
-      'การแจ้งเตือนส่งผ่านเซิร์ฟเวอร์ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google โดยไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
-
-  @override
-  String get pushConfirmRelayAddress =>
-      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
-
-  @override
-  String get pushRelaySwitchFailed =>
-      'เปลี่ยนเซิร์ฟเวอร์ไม่ได้ การแจ้งเตือนยังปิดอยู่';
-
-  @override
-  String get pushConfirmTitle => 'เปิดการแจ้งเตือนไหม?';
-
-  @override
-  String get pushConfirmBody =>
-      'การแจ้งเตือนส่งผ่านบริการแจ้งเตือนของ Google โดยไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
-
-  @override
-  String get pushConfirmAction => 'เปิด';
-
-  @override
-  String get pushNoticeOn => 'เปิดการแจ้งเตือนแล้ว';
-
-  @override
-  String get pushNoticeOff => 'ปิดการแจ้งเตือนแล้ว';
 
   @override
   String get torWayOver => 'ผ่าน Tor';
@@ -13226,12 +13172,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ ส่วนอย่างอื่นรอ';
 
   @override
-  String get advTorOnlyNote =>
-      'Tor เท่านั้นจะหยุดการแจ้งเตือน เพราะการลงทะเบียนรับแจ้งเตือนจะเปิดเผยที่อยู่ของโทรศัพท์เครื่องนี้';
-
-  @override
   String get advOfflineNote =>
-      'ออฟไลน์จะหยุด Epicbox, Tor, การตรวจสถานะ และการแจ้งเตือน ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
+      'ออฟไลน์จะหยุด Epicbox, Tor และการตรวจสถานะ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get advReset => 'ซ่อนทั้งหมดอีกครั้ง';
@@ -13625,7 +13567,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txEpicboxHint =>
-      'Epicbox จ่ายผ่านเซิร์ฟเวอร์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ใด ไม่มีการจ่ายผ่าน Epicbox ใบแจ้งหนี้ หรือการแจ้งเตือน วิธีอื่นยังใช้ได้';
+      'Epicbox จ่ายผ่านเซิร์ฟเวอร์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ใด ไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ วิธีอื่นยังใช้ได้';
 
   @override
   String get txDirectLine =>
@@ -13760,13 +13702,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txEpicboxOffAction => 'ปิด';
-
-  @override
-  String get pushNoticeOffEpicbox =>
-      'ปิดการแจ้งเตือนแล้ว การแจ้งเตือนต้องใช้ Epicbox';
-
-  @override
-  String get settingsPushNeedsEpicbox => 'ต้องใช้ Epicbox';
 
   @override
   String sendContactOnlyEpicbox(String name) {
@@ -16991,15 +16926,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advOfflineNoteNoTor =>
-      'ออฟไลน์จะหยุด Epicbox, การตรวจสถานะ และการแจ้งเตือน ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
+      'ออฟไลน์จะหยุด Epicbox และการตรวจสถานะ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get txLinkHttpHintNoTor =>
       'ลิงก์ · HTTP จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่เว็บ (http://host:3415) และให้โทรศัพท์เครื่องนี้มีที่อยู่ที่กระเป๋าเงินในเครือข่าย Wi-Fi เดียวกันจ่ายมาได้ ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ไม่เข้ารหัสระหว่างทาง และเข้าถึงจากอินเทอร์เน็ตหรือผ่านเน็ตมือถือไม่ได้ เพิ่ม ลิงก์ · HTTP ใน ส่ง และ รับ';
-
-  @override
-  String get settingsNotificationsHintNoTor =>
-      'ฟีเจอร์ทดลอง: อาจเปลี่ยนแปลงหรือทำงานผิดพลาด แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17288,7 +17219,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'การแจ้งเตือนระหว่างอุปกรณ์ของคุณจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
+      'ข้อความระหว่างอุปกรณ์ของคุณจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
 
   @override
   String devicesServersWaiting(String name) {
@@ -17311,7 +17242,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'ระหว่างหยุดชั่วคราว อุปกรณ์นี้จะไม่อ่านและไม่ส่งการแจ้งเตือน การแจ้งเตือนจะรอบนเซิร์ฟเวอร์ได้นานถึง 7 วัน ออฟไลน์ก็หยุดเช่นกัน';
+      'ระหว่างหยุดชั่วคราว อุปกรณ์นี้จะไม่อ่านและไม่ส่งข้อความ ข้อความจะรอบนเซิร์ฟเวอร์ได้นานถึง 7 วัน ออฟไลน์ก็หยุดเช่นกัน';
 
   @override
   String get devicesHeld => 'เหรียญที่ถูกพักไว้';
@@ -17351,7 +17282,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name จะไม่รับและไม่ส่งการแจ้งเตือนอีก และเหรียญที่มันพักไว้ที่นี่จะถูกปล่อย การนำออกไม่ได้ปกป้องเงิน อุปกรณ์ที่มีวลีกู้คืนใช้จ่ายได้เสมอ ถ้า $name อาจอยู่ในมือคนอื่น ให้ย้ายเงินไปยังกระเป๋าเงินที่มีวลีกู้คืนใหม่';
+    return '$name จะไม่รับและไม่ส่งข้อความอีก และเหรียญที่มันพักไว้ที่นี่จะถูกปล่อย การนำออกไม่ได้ปกป้องเงิน อุปกรณ์ที่มีวลีกู้คืนใช้จ่ายได้เสมอ ถ้า $name อาจอยู่ในมือคนอื่น ให้ย้ายเงินไปยังกระเป๋าเงินที่มีวลีกู้คืนใหม่';
   }
 
   @override
@@ -17524,16 +17455,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskDevServersDown(int down, int n) {
-    return '$down จาก $n ไม่ตอบสนอง การแจ้งเตือนจะส่งผ่านเซิร์ฟเวอร์อีกตัว';
+    return '$down จาก $n ไม่ตอบสนอง ข้อความจะส่งผ่านเซิร์ฟเวอร์อีกตัว';
   }
 
   @override
   String get deskDevServersAllDown =>
-      'ไม่มีเซิร์ฟเวอร์ตอบสนอง การแจ้งเตือนจะรอและส่งเมื่อมีเซิร์ฟเวอร์กลับมา';
+      'ไม่มีเซิร์ฟเวอร์ตอบสนอง ข้อความจะรอและส่งเมื่อมีเซิร์ฟเวอร์กลับมา';
 
   @override
   String get deskDevServersInfo1 =>
-      'อุปกรณ์ที่เชื่อมโยงส่งการแจ้งเตือนถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกการแจ้งเตือนส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
+      'อุปกรณ์ที่เชื่อมโยงส่งข้อความถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกข้อความส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
 
   @override
   String get deskDevServersInfo2 =>
@@ -17541,7 +17472,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'เซิร์ฟเวอร์เห็นว่าอุปกรณ์สองเครื่องแลกเปลี่ยนการแจ้งเตือนและเมื่อใด และหากไม่ใช้ Tor ก็เห็นว่ามาจากที่อยู่ใด แต่ไม่เห็นเนื้อหา เซิร์ฟเวอร์สองตัวหมายความว่าผู้ให้บริการสองรายเห็นสิ่งนี้';
+      'เซิร์ฟเวอร์เห็นว่าอุปกรณ์สองเครื่องแลกเปลี่ยนข้อความและเมื่อใด และหากไม่ใช้ Tor ก็เห็นว่ามาจากที่อยู่ใด แต่ไม่เห็นเนื้อหา เซิร์ฟเวอร์สองตัวหมายความว่าผู้ให้บริการสองรายเห็นสิ่งนี้';
 
   @override
   String get deskDevPausedOffline => 'หยุดชั่วคราวขณะที่ออฟไลน์เปิดอยู่';
@@ -17650,8 +17581,8 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'การแจ้งเตือนที่เข้ารหัสส่งไปยังเซิร์ฟเวอร์ทั้งสอง มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
-      one: 'การแจ้งเตือนที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
+      other: 'ข้อความที่เข้ารหัสส่งไปยังเซิร์ฟเวอร์ทั้งสอง มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
+      one: 'ข้อความที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ มีเพียงอุปกรณ์เท่านั้นที่อ่านได้',
     );
     return '$_temp0';
   }
@@ -17665,7 +17596,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get syncHelpDiagram =>
-      'การซิงค์ทำงานอย่างไร: อุปกรณ์นี้เริ่มรายการ การแจ้งเตือนที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ไปยังอุปกรณ์อีกเครื่องซึ่งพักเหรียญเหล่านั้นไว้ แล้วบล็อกเชนยืนยัน';
+      'การซิงค์ทำงานอย่างไร: อุปกรณ์นี้เริ่มรายการ ข้อความที่เข้ารหัสส่งผ่านเซิร์ฟเวอร์ไปยังอุปกรณ์อีกเครื่องซึ่งพักเหรียญเหล่านั้นไว้ แล้วบล็อกเชนยืนยัน';
 
   @override
   String get syncHelpStatus => 'สถานะปัจจุบัน';

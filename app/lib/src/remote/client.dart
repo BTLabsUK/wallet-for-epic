@@ -781,24 +781,11 @@ class RemoteWalletSession implements WalletSession {
   @override
   Future<HttpListenerInfo?> httpListenerStatus() async => null;
 
-  // The push registration is signed on the phone that holds the key.
-  static const WalletError _noPush = WalletError(
-    kind: WalletErrorKind.other,
-    message: 'Push notifications are not offered remotely',
-  );
-
   // Tor runs a process and reaches other computers from the server: not offered here.
   static const WalletError _noTor = WalletError(
     kind: WalletErrorKind.other,
     message: 'Tor is not offered remotely',
   );
-
-  @override
-  Future<PushSignature> pushSignature({
-    required String action,
-    required String token,
-    required int timestamp,
-  }) async => throw _noPush;
 
   static const WalletError _noDeviceLink = WalletError(
     kind: WalletErrorKind.other,

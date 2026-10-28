@@ -23,7 +23,6 @@ import '../network.dart';
 import '../node_failover_phone.dart';
 import '../providers.dart';
 import '../public_servers.dart';
-import '../push_registration.dart' show PushRegistration;
 import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
 import '../server_list_store.dart';
@@ -1016,7 +1015,6 @@ class _ServerRow extends StatelessWidget {
             color: t.warn,
           );
     final latency = n?.latencyMs ?? e.relay?.latencyMs;
-    final push = kind == ServerKind.relay && e.host == PushRegistration.relayHost;
     final facts = [
       if (current) l.serverCurrent,
       if (tip != null) tip.text,
@@ -1037,7 +1035,6 @@ class _ServerRow extends StatelessWidget {
         if (current) l.serverCurrent,
         if (isDefault) l.serverDefault,
         if (addedByYou) l.slAddedByYou,
-        if (push) l.serverSupportsNotifications,
         healthWord,
         if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
         ?tip?.words,
@@ -1102,14 +1099,6 @@ class _ServerRow extends StatelessWidget {
                                   ] else if (addedByYou) ...[
                                     const SizedBox(width: 8),
                                     EBadge(l.slAddedByYou),
-                                  ],
-                                  if (push) ...[
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      Icons.notifications_outlined,
-                                      size: 16,
-                                      color: down ? t.faint : t.dim,
-                                    ),
                                   ],
                                 ],
                               ),

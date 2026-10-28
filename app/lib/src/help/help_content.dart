@@ -270,7 +270,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
         HelpBlock.ul([
-          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments, invoices or notifications, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.',
+          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.',
           '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
           '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
         ]),
@@ -460,7 +460,6 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           const HelpBlock.ul([
             'Nothing the wallet uses changes: the same node, the same Epicbox server, the same address.',
             'A Link send to an onion address goes through Tor. Send marks each send with how it goes.',
-            'Push notifications are off while Tor is on.',
             'Slower than Epicbox without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',
             'With Tor only in Advanced the switch stays on and cannot be turned off.',
@@ -499,8 +498,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.ul([
           tor ? '**Standard**: connects directly. Tor is the switch under $torPlace.' : '**Standard**: connects directly.',
           if (tor)
-            '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
-          '**Offline**: no Epicbox, no Link beyond local addresses, ${phone ? 'no notifications, ' : (tor ? 'no Tor, ' : '')}no status checks. The balance and history stay as last seen. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} still work: they use the node in use to read the chain and post, a public one too, and the screen says so. For the most privacy, use a node on ${phone ? 'the local network' : 'this computer or the local network'}: then the balance refreshes${phone ? '' : ', Link · HTTP receives over the local network with HTTP receiving set to **From the internet**,'} and Recheck balance runs as well.',
+            '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action.${phone ? '' : ' HTTP receiving is off, because a plain address would reveal this computer.'}',
+          '**Offline**: no Epicbox, no Link beyond local addresses, ${!phone && tor ? 'no Tor, ' : ''}no status checks. The balance and history stay as last seen. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} still work: they use the node in use to read the chain and post, a public one too, and the screen says so. For the most privacy, use a node on ${phone ? 'the local network' : 'this computer or the local network'}: then the balance refreshes${phone ? '' : ', Link · HTTP receives over the local network with HTTP receiving set to **From the internet**,'} and Recheck balance runs as well.',
         ]),
         const HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:3413**. Names are not looked up.'),
         if (!phone) const HelpBlock.p('The built-in node’s own peers are the node’s setting, not the mode’s.'),
@@ -532,7 +531,6 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
         const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but give less protection against chain reorganisations.'),
         const HelpBlock.p('**Experimental** holds **Pairing** and **Invoices**, both off to begin with. Pairing adds Pair and paired contacts; Invoices adds requests and invoices between paired contacts and needs Pairing. Off, they are hidden and nothing is checked for them; pairings already made stay saved and come back when the switch is on again.'),
-        if (phone) HelpBlock.p('**Notifications** (experimental) is the last switch on the page. It tells you when a payment or an invoice arrives while the app is closed${tor ? ', and it is off while Tor is on' : ''}.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
       ],
       id: HelpId.advanced,

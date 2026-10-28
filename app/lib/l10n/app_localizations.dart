@@ -1993,12 +1993,6 @@ abstract class AppLocalizations {
   /// **'View'**
   String get homeNoticeView;
 
-  /// Notice when a push message says a payment is waiting. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'A payment is waiting in your epicbox. It arrives once the app is connected.'**
-  String get homePushNotice;
-
   /// Notice: the wallet accepted an incoming payment; the sender still has to finish it.
   ///
   /// In en, this message translates to:
@@ -4822,24 +4816,6 @@ abstract class AppLocalizations {
   /// Section heading in settings.
   ///
   /// In en, this message translates to:
-  /// **'Notifications'**
-  String get settingsSectionNotifications;
-
-  /// Under the payment notifications switch, in red, after the phone denied notification permission. No full stop, like the original.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications are blocked in system settings'**
-  String get settingsPushBlocked;
-
-  /// Under the payment notifications switch, in red, after the notification service failed to start. No full stop, like the original.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications are not available in this build'**
-  String get settingsPushUnavailable;
-
-  /// Section heading in settings.
-  ///
-  /// In en, this message translates to:
   /// **'Security'**
   String get settingsSectionSecurity;
 
@@ -7488,12 +7464,6 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get serverMenuDelete;
 
-  /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Supports notifications'**
-  String get serverSupportsNotifications;
-
   /// Link receive status icon state word: the wallet's Tor address is published and reachable.
   ///
   /// In en, this message translates to:
@@ -9409,7 +9379,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9489,72 +9459,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'over Tor'**
   String get netStatusOverTor;
-
-  /// The Notifications switch in Settings: the label only, its explanation is the info tooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get settingsNotifications;
-
-  /// Info sheet behind the Notifications switch: what a notification tells, what the message carries, why Tor turns it off. BT Labs is a name.
-  ///
-  /// In en, this message translates to:
-  /// **'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
-  String get settingsNotificationsHint;
-
-  /// State line under the Notifications switch while it is on and Tor is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Paused while Tor is on'**
-  String get settingsPushPaused;
-
-  /// Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.'**
-  String get pushConfirmRelayBody;
-
-  /// Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on.
-  ///
-  /// In en, this message translates to:
-  /// **'Your Epicbox address changes. Share the new one.'**
-  String get pushConfirmRelayAddress;
-
-  /// Notice when moving to the BT Labs relay for notifications was refused.
-  ///
-  /// In en, this message translates to:
-  /// **'The server could not be switched. Notifications stay off.'**
-  String get pushRelaySwitchFailed;
-
-  /// Title of the confirmation before notifications are turned on.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on notifications?'**
-  String get pushConfirmTitle;
-
-  /// Body of the confirmation before notifications are turned on.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications go through Google’s notification service. They carry no amount, sender or address.'**
-  String get pushConfirmBody;
-
-  /// The confirm button of the notifications dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on'**
-  String get pushConfirmAction;
-
-  /// Quiet notice once notifications work again after Tor was turned off.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications on'**
-  String get pushNoticeOn;
-
-  /// Notice after the user turned notifications off.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications off'**
-  String get pushNoticeOff;
 
   /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
   ///
@@ -21554,16 +21458,10 @@ abstract class AppLocalizations {
   /// **'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.'**
   String get advModeOfflineLine;
 
-  /// Note under the network choice while Tor only is selected.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor only pauses notifications: registering for them would reveal this phone’s address.'**
-  String get advTorOnlyNote;
-
   /// Note under the network choice while Offline is selected.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Tor, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
+  /// **'Offline pauses Epicbox, Tor and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
   String get advOfflineNote;
 
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
@@ -22217,7 +22115,7 @@ abstract class AppLocalizations {
   /// Info sheet text of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments, invoices or notifications. The other methods still work.'**
+  /// **'Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments or invoices. The other methods still work.'**
   String get txEpicboxHint;
 
   /// One line under the Link switch on Settings › Transactions.
@@ -22411,18 +22309,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn off'**
   String get txEpicboxOffAction;
-
-  /// One notice when turning Epicbox off also turns push notifications off (they stay off when Epicbox is turned on again).
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications off: they need Epicbox.'**
-  String get pushNoticeOffEpicbox;
-
-  /// State line of the disabled Notifications switch while Epicbox is off in Settings › Transactions. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Needs Epicbox'**
-  String get settingsPushNeedsEpicbox;
 
   /// Send, under the Epicbox-off reason, when the recipient is a saved contact: the contact can be paid only over Epicbox. {name} is the contact's name.
   ///
@@ -27389,7 +27275,7 @@ abstract class AppLocalizations {
   /// advOfflineNote in the build without Tor: the same note without Tor.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, status checks and notifications. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
+  /// **'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
   String get advOfflineNoteNoTor;
 
   /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
@@ -27397,12 +27283,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
   String get txLinkHttpHintNoTor;
-
-  /// settingsNotificationsHint in the build without Tor: the same text without its Tor sentence. BT Labs is a name.
-  ///
-  /// In en, this message translates to:
-  /// **'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address.'**
-  String get settingsNotificationsHintNoTor;
 
   /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
   ///

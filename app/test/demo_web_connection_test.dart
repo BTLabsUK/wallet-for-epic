@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/demo_web_connection.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/remote/channel.dart';
 import 'package:epic_wallet/src/remote/client.dart';
@@ -118,7 +117,6 @@ class _Harness {
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
           priceSourceProvider.overrideWithValue(_NoPrice()),
-          pushPlatformProvider.overrideWithValue(null),
           qrScannerProvider.overrideWithValue(FakeQrScanner()),
           sharedFilesCleanupProvider.overrideWithValue(() async {}),
         ],
