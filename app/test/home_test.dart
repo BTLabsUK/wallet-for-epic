@@ -1029,7 +1029,7 @@ void main() {
       });
     }
 
-    // Bob Stone's phone sent over HTTP and went from Confirming to completed with no 1/3 or
+    // Bob's phone sent over HTTP and went from Confirming to completed with no 1/3 or
     // 2/3 between: home refreshed once a minute and Epic's blocks come in bursts. A new block
     // now refreshes within [tipCheckInterval], each confirmation on screen.
     testWidgets('a send counts each new block within seconds, not at the minute', (
