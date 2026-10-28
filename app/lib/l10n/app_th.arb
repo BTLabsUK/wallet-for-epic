@@ -4786,5 +4786,6 @@
   "contactsImportAddsAddress": "{name} ได้ที่อยู่ {method}: {address}",
   "netStatusTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม",
   "netStatusTurnOnHintPrivacy": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย",
-  "deskBarTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม"
+  "deskBarTurnOnHint": "ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม",
+  "deskErrMacKeychain": "macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด Epic Cash Desktop แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านเข้าสู่ระบบ Mac แล้วเลือก \"อนุญาตเสมอ\""
 }

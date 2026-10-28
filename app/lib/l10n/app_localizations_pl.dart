@@ -18923,4 +18923,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'Wyłączone. Włącz w Ustawienia › Transakcje.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij Epic Cash Desktop i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”.';
 }

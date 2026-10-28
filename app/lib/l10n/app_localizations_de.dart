@@ -18495,4 +18495,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskBarTurnOnHint =>
       'Aus. Einschalten unter Einstellungen › Transaktionen.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.';
 }

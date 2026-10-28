@@ -4786,5 +4786,6 @@
   "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}",
   "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
   "netStatusTurnOnHintPrivacy": "Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.",
-  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen."
+  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
+  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“."
 }

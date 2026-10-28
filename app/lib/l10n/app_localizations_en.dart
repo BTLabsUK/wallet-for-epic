@@ -18281,4 +18281,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'Off. Turn on in Settings › Transactions.';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.';
 }

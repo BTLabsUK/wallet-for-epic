@@ -28633,6 +28633,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off. Turn on in Settings › Transactions.'**
   String get deskBarTurnOnHint;
+
+  /// Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names.
+  ///
+  /// In en, this message translates to:
+  /// **'macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.'**
+  String get deskErrMacKeychain;
 }
 
 class _AppLocalizationsDelegate

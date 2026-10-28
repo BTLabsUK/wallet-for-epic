@@ -17208,4 +17208,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 Epic Cash Desktop 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。';
 }

@@ -17865,4 +17865,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด Epic Cash Desktop แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านเข้าสู่ระบบ Mac แล้วเลือก \"อนุญาตเสมอ\"';
 }

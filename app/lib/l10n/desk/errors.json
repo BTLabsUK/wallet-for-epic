@@ -707,5 +707,9 @@
   "deskErrInputsSpentElsewhere": "The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.",
   "@deskErrInputsSpentElsewhere": {
     "description": "Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
+  },
+  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.",
+  "@deskErrMacKeychain": {
+    "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names."
   }
 }

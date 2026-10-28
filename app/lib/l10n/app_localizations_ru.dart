@@ -18904,4 +18904,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskBarTurnOnHint =>
       'Выключено. Включите в «Настройки › Транзакции».';
+
+  @override
+  String get deskErrMacKeychain =>
+      'macOS не разрешила приложению прочитать его сохранённые данные в связке ключей. Закройте Epic Cash Desktop и откройте снова; когда macOS спросит, введите пароль входа в Mac и выберите «Всегда разрешать».';
 }
