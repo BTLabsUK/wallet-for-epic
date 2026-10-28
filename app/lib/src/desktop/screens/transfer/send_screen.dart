@@ -315,7 +315,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _result = SendDone(_demoTx(TxMethod.epicbox, args.recipient));
       case SendStep.fileReady:
         _method = TxMethod.file;
-        _result = SendFileReady(_demoTx(TxMethod.file, null), 'send_${args.amount ?? '12.5'}_epic_9f3a7c21.slate');
+        _result = SendFileReady(_demoTx(TxMethod.file, null), 'f0e1d2c3.tx');
       case SendStep.failed:
         _failure = (l) => l.deskSendNoAnswer;
         _submitted = true;
@@ -1171,8 +1171,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         children: [
           Text(l.deskSendTotal, style: ts.bodyDim),
           SizedBox(width: Sp.x3),
-          Flexible(
-            child: total > 0 ? EMoney(total, size: Fs.lg, weight: FontWeight.w600) : Text('—', style: ts.mono(size: Fs.md, color: c.faint)), // l10n-ok: no amount yet
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: total > 0 ? FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: EMoney(total, size: Fs.lg, weight: FontWeight.w600)) : Text('—', style: ts.mono(size: Fs.md, color: c.faint)), // l10n-ok: no amount yet
+          ),
           ),
           SizedBox(width: Sp.x4),
           EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, onPressed: s.onReview),
