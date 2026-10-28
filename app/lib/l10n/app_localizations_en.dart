@@ -3662,7 +3662,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The server passes it on. They approve it, and their wallet adds the coins and signs.';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'Epicbox server';
 
   @override
   String get handshakeFile => 'File Transfer';

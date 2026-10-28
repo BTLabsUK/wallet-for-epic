@@ -3711,7 +3711,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Server leitet sie weiter. Die Gegenseite stimmt zu, ihre Wallet fügt die Coins hinzu und signiert.';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'Epicbox-Server';
 
   @override
   String get handshakeFile => 'Dateiübertragung';

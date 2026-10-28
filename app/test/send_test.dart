@@ -341,10 +341,10 @@ Future<void> _toAmount(WidgetTester tester, [String? to]) async {
 
 /// Unfolds the note on the amount step and writes [text] in it.
 Future<void> _note(WidgetTester tester, String text) async {
-  if (find.widgetWithText(TextField, 'Note').evaluate().isEmpty) {
-    await _tap(tester, find.text('Add a note'));
+  if (find.widgetWithText(TextField, 'Message').evaluate().isEmpty) {
+    await _tap(tester, find.text('Add a message'));
   }
-  await _enter(tester, 'Note', text);
+  await _enter(tester, 'Message', text);
 }
 
 /// The recipient and the amount, then Continue to the review.
@@ -748,7 +748,7 @@ void main() {
         await _tap(tester, find.text('Edit'));
         expect(h.session.epicboxSends, isEmpty);
         expect(find.text('2 of 3'), findsOneWidget);
-        expect(_fieldText(tester, 'Note'), 'Lunch');
+        expect(_fieldText(tester, 'Message'), 'Lunch');
 
         await _tap(tester, _continue);
         await _tap(tester, find.text('Send 1.5 EPIC'));
@@ -763,8 +763,8 @@ void main() {
         expect(find.text('Confirmed'), findsOneWidget);
         expect(
           find.text(
-            'Their wallet finishes it when it opens. '
-            '1.508 EPIC stays on hold until then.',
+            'Their wallet signs it when it opens. '
+            '1.508 EPIC stays locked until then.',
           ),
           findsOneWidget,
         );
@@ -870,7 +870,7 @@ void main() {
         );
         await _tap(tester, find.text('Send 2 EPIC'));
         expect(
-          find.textContaining("didn't take it."),
+          find.textContaining("refused it."),
           findsOneWidget,
         );
         expect(find.text('Send anyway'), findsNothing);
@@ -909,9 +909,9 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toAmount(tester);
       // Folded until asked for.
-      expect(find.widgetWithText(TextField, 'Note'), findsNothing);
-      await _tap(tester, find.text('Add a note'));
-      const label = 'Note';
+      expect(find.widgetWithText(TextField, 'Message'), findsNothing);
+      await _tap(tester, find.text('Add a message'));
+      const label = 'Message';
       expect(find.text('The recipient sees it.'), findsOneWidget);
       expect(find.text('0/256'), findsOneWidget);
       await _enter(tester, label, 'Zażółć');
@@ -1368,7 +1368,7 @@ void main() {
       await tester.ensureVisible(make);
       await tester.tap(make);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Enter the PIN to make a payment file'), findsOneWidget);
+      expect(find.textContaining('Enter the PIN to make a transaction file'), findsOneWidget);
       await tester.tap(find.text(englishStrings.commonCancel));
       await tester.pumpAndSettle();
       expect(h.session.sentAmounts, isEmpty);
@@ -1450,7 +1450,7 @@ void main() {
       await _tap(tester, find.text('Finish payment'));
       expect(h.session.finalizedSlates, [h.session.responseSlate.json]);
       expect(
-        find.text('Payment of 1.5 EPIC sent to the network.'),
+        find.text('Payment of 1.5 EPIC posted to the network.'),
         findsOneWidget,
       );
       // Back on Send, the tracker has moved on.
@@ -1503,7 +1503,7 @@ void main() {
         expect(find.textContaining(message), findsOneWidget, reason: text);
         expect(h.session.finalizedSlates, isEmpty, reason: text);
       }
-      expect(find.text('Waiting for the response file'), findsOneWidget);
+      expect(find.text('Waiting for the response file', skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('by file: paste the response instead', (tester) async {
@@ -1998,14 +1998,14 @@ void main() {
         expect(find.text('3 of 3'), findsOneWidget);
 
         await _tap(tester, find.text('Edit'));
-        await _tap(tester, find.text('Add a note'));
-        expect(editable('Note').focusNode.hasFocus, isTrue);
+        await _tap(tester, find.text('Add a message'));
+        expect(editable('Message').focusNode.hasFocus, isTrue);
         await tester.tap(find.widgetWithText(TextField, 'Amount (EPIC)'));
         await tester.pump();
         await tester.testTextInput.receiveAction(TextInputAction.next);
         await tester.pumpAndSettle();
-        expect(editable('Note').focusNode.hasFocus, isTrue);
-        expect(editable('Note').textInputAction, TextInputAction.done);
+        expect(editable('Message').focusNode.hasFocus, isTrue);
+        expect(editable('Message').textInputAction, TextInputAction.done);
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
         expect(find.text('3 of 3'), findsOneWidget);

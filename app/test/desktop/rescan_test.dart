@@ -148,7 +148,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Start'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(find.text('Scan finished'), findsOneWidget);
+    expect(find.text('Recheck finished'), findsOneWidget);
     expect(find.text('Balance before'), findsOneWidget);
     expect(find.text('Balance after'), findsOneWidget);
     expect(find.text('Outputs found'), findsOneWidget);
@@ -164,10 +164,10 @@ void main() {
     await run(tester, const Duration(milliseconds: 40));
     expect(find.textContaining('Checking…'), findsOneWidget);
     expect(find.text('Scanning the chain. The wallet stays usable; the balance updates when the scan ends.'), findsOneWidget);
-    expect(find.text('Scan log'), findsOneWidget);
+    expect(find.text('Recheck log'), findsOneWidget);
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(find.text('Scan finished'), findsOneWidget);
+    expect(find.text('Recheck finished'), findsOneWidget);
     expect(find.text('The balance is up to date.'), findsOneWidget);
     expect(find.text('Deleted'), findsNothing);
   });
@@ -210,7 +210,7 @@ void main() {
     expect(find.text('Scan failed'), findsOneWidget);
     expect(find.text('The node did not answer.'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
-    expect(find.text('Scan finished'), findsNothing);
+    expect(find.text('Recheck finished'), findsNothing);
   });
 
   group('LepicDeskWallet', () {

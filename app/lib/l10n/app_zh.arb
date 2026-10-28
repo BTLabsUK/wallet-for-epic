@@ -972,7 +972,7 @@
   "handshakeConfirm": "网络确认它。",
   "handshakeReq1": "你的钱包把收款请求发到 Epicbox 服务器。",
   "handshakeReq2": "服务器把它转给对方。对方批准后，其钱包加入币并签名。",
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "Epicbox 服务器",
   "handshakeFile": "文件传输",
   "handshakeBack": "对方钱包把它发回 Epicbox 服务器。",
   "handshakeRelayBack": "服务器把它转回你的钱包。",

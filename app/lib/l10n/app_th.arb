@@ -972,7 +972,7 @@
   "handshakeConfirm": "เครือข่ายยืนยันรายการ",
   "handshakeReq1": "กระเป๋าของคุณส่งคำขอไปยังเซิร์ฟเวอร์ Epicbox",
   "handshakeReq2": "เซิร์ฟเวอร์ส่งต่อไป อีกฝ่ายอนุมัติ แล้วกระเป๋าของอีกฝ่ายเพิ่มเหรียญและลงนาม",
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "เซิร์ฟเวอร์ Epicbox",
   "handshakeFile": "โอนไฟล์",
   "handshakeBack": "กระเป๋าของอีกฝ่ายส่งกลับไปยังเซิร์ฟเวอร์ Epicbox",
   "handshakeRelayBack": "เซิร์ฟเวอร์ส่งกลับมายังกระเป๋าของคุณ",

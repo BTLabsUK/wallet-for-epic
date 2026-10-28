@@ -5956,7 +5956,7 @@ abstract class AppLocalizations {
   /// How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox'**
+  /// **'Epicbox server'**
   String get handshakeRelay;
 
   /// How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short.

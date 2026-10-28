@@ -3459,7 +3459,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeReq2 => '服务器把它转给对方。对方批准后，其钱包加入币并签名。';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'Epicbox 服务器';
 
   @override
   String get handshakeFile => '文件传输';

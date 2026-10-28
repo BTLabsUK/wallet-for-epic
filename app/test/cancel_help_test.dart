@@ -45,7 +45,7 @@ void main() {
         expect(topic.section, 'trouble');
         expect(topic.title, 'Cancelling a payment');
         expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Sending', 'Receiving', 'Requests (experimental)']);
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Sending', 'Receiving', 'Invoices (experimental)']);
         // Every other block has no anchor; a heading is never a list.
         for (final b in topic.body) {
           expect(b.anchor.isNotEmpty, b.kind == HelpBlockKind.h, reason: b.text);

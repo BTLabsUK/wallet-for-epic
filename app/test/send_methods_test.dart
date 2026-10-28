@@ -880,8 +880,8 @@ void main() {
       await _tap(tester, find.text('Send 1 EPIC'));
       expect(
         find.text(
-          'Their wallet was not reached. The amount is on hold until you cancel '
-          'it, or for at most 1 day.',
+          'Their wallet was not reached. The amount stays locked until you cancel '
+          'it, or for up to 1 day.',
         ),
         findsOneWidget,
       );

@@ -972,7 +972,7 @@
   "handshakeConfirm": "Сеть его подтверждает.",
   "handshakeReq1": "Ваш кошелёк отправляет запрос на сервер Epicbox.",
   "handshakeReq2": "Сервер передаёт его дальше. Они одобряют его, их кошелёк добавляет монеты и подписывает.",
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "Сервер Epicbox",
   "handshakeFile": "Передача файла",
   "handshakeBack": "Их кошелёк отправляет его обратно на сервер Epicbox.",
   "handshakeRelayBack": "Сервер передаёт его обратно вашему кошельку.",

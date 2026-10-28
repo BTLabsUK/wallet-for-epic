@@ -3745,7 +3745,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сервер передаёт его дальше. Они одобряют его, их кошелёк добавляет монеты и подписывает.';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'Сервер Epicbox';
 
   @override
   String get handshakeFile => 'Передача файла';

@@ -4658,7 +4658,7 @@
   "@handshakeReq2": {
     "description": "How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs."
   },
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "Epicbox server",
   "@handshakeRelay": {
     "description": "How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets."
   },

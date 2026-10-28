@@ -1191,7 +1191,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             tone: ETone.warn,
             actionsBelow: true,
             actions: [
-              EButton.primary(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
+              EButton.primary(label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
               EButton(label: l.contactKeepOldKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.keepOld)))),
               EButton(label: l.contactUseNewKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.useNew)))),
             ],
@@ -1229,7 +1229,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 title: verified ? l.trustVerified : l.trustPaired,
                 text: verified && p.verifiedAt != null ? l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)) : null,
                 control: EButton(
-                  label: verified ? l.contactCheckAgain : l.sasTitle,
+                  label: verified ? l.contactCheckAgain : l.noticeCheckWords,
                   size: EBtnSize.sm,
                   onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: verified),
                 ),

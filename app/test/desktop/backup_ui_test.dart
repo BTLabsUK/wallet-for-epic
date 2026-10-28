@@ -164,7 +164,7 @@ void main() {
     await _pump(tester, _opener(showImportHistoryDialog));
     await _open(tester);
     expect(
-      find.text('A file from this wallet (the same recovery phrase), on Mainnet. Restore the wallet from its phrase first.'),
+      find.text('A file from this wallet (same recovery phrase) on mainnet. Restore the wallet from its phrase first.'),
       findsOneWidget,
     );
     await tester.tap(find.widgetWithText(EButton, 'Choose file…'));

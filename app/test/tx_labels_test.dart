@@ -159,7 +159,7 @@ void main() {
       // The contact's name.
       expect(find.text('Knut'), findsOneWidget);
       // A payment with no counterparty keeps today's word.
-      expect(find.text('Restored funds'), findsOneWidget);
+      expect(find.text('Found on the chain'), findsOneWidget);
     });
 
     testWidgets('a short address when nobody is named', (tester) async {

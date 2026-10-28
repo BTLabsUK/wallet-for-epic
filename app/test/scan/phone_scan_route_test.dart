@@ -412,10 +412,10 @@ void main() {
         'epic:$_e?amount=1&message=${Uri.encodeComponent(note)}',
       );
       expect(_onAmount(), isTrue);
-      expect(find.text('Add a note'), findsOneWidget);
+      expect(find.text('Add a message'), findsOneWidget);
       expect(_noteTile(note), findsNothing);
       expect(_inPayee(note), findsOneWidget);
-      await _tap(tester, find.text('Add a note'));
+      await _tap(tester, find.text('Add a message'));
       expect(_field(tester, sendNoteFieldKey), isEmpty);
     });
   });
@@ -462,7 +462,7 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), isEmpty);
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       expect(find.byKey(payeeClaimsKey), findsNothing);
-      expect(find.text('Add a note'), findsOneWidget);
+      expect(find.text('Add a message'), findsOneWidget);
     });
 
     testWidgets('an edited amount stays when the address changes', (

@@ -256,7 +256,7 @@ void main() {
 
   group('send failures and reposts', () {
     const to = 'https://wallet.example.org';
-    const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+    const waits = 'The payment waits in Activity; cancel it there to free the coins.';
 
     test('an error after the send was stored leaves it in Activity, whatever its kind', () async {
       session()

@@ -972,7 +972,7 @@
   "handshakeConfirm": "Sieć ją potwierdza.",
   "handshakeReq1": "Twój portfel wysyła prośbę na serwer Epicbox.",
   "handshakeReq2": "Serwer przekazuje ją dalej. Druga strona ją akceptuje, a jej portfel dodaje monety i podpisuje.",
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "Serwer Epicbox",
   "handshakeFile": "Przesyłanie pliku",
   "handshakeBack": "Portfel drugiej strony odsyła ją na serwer Epicbox.",
   "handshakeRelayBack": "Serwer przekazuje ją z powrotem do twojego portfela.",

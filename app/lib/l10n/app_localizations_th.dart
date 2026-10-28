@@ -3598,7 +3598,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เซิร์ฟเวอร์ส่งต่อไป อีกฝ่ายอนุมัติ แล้วกระเป๋าของอีกฝ่ายเพิ่มเหรียญและลงนาม';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'เซิร์ฟเวอร์ Epicbox';
 
   @override
   String get handshakeFile => 'โอนไฟล์';

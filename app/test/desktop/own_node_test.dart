@@ -237,7 +237,7 @@ void main() {
 
     testWidgets('1280: tier 1 facts asked directly, Owner access not set up; Add… opens the dialog with the LAN warning', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.own);
-      expect(find.textContaining('Your node · home network'), findsWidgets);
+      expect(find.textContaining('Own node · home network'), findsWidgets);
       expect(find.text('Mempool'), findsOneWidget);
       expect(find.text('3 waiting'), findsOneWidget);
       expect(find.text('Asked directly every 15 s · tip from status.btlabs.uk'), findsOneWidget);

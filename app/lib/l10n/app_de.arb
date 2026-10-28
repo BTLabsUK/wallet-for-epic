@@ -972,7 +972,7 @@
   "handshakeConfirm": "Das Netzwerk bestätigt sie.",
   "handshakeReq1": "Ihre Wallet sendet die Anforderung an den Epicbox-Server.",
   "handshakeReq2": "Der Server leitet sie weiter. Die Gegenseite stimmt zu, ihre Wallet fügt die Coins hinzu und signiert.",
-  "handshakeRelay": "Epicbox",
+  "handshakeRelay": "Epicbox-Server",
   "handshakeFile": "Dateiübertragung",
   "handshakeBack": "Die Wallet der Gegenseite schickt sie an den Epicbox-Server zurück.",
   "handshakeRelayBack": "Der Server gibt sie an Ihre Wallet zurück.",

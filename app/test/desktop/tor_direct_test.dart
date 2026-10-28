@@ -431,7 +431,7 @@ void main() {
   });
 
   group('send', () {
-    const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+    const waits = 'The payment waits in Activity; cancel it there to free the coins.';
 
     test('an onion under Link goes over Tor', () async {
       await wallet.setTor(true);

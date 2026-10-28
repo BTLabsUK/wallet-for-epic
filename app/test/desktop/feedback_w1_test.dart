@@ -107,7 +107,7 @@ void main() {
         created: DateTime(2026),
         foundByScan: true,
       );
-      expect(whoOf(englishStrings, t), 'Found by scan');
+      expect(whoOf(englishStrings, t), 'Found by recheck');
       expect(whoTip(englishStrings, t), 'Found on the chain by a scan. The sender is not recorded.');
       expect(whoTip(englishStrings, t), isNot(contains('scan found')));
     });

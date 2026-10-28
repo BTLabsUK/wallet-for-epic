@@ -3768,7 +3768,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Serwer przekazuje ją dalej. Druga strona ją akceptuje, a jej portfel dodaje monety i podpisuje.';
 
   @override
-  String get handshakeRelay => 'Epicbox';
+  String get handshakeRelay => 'Serwer Epicbox';
 
   @override
   String get handshakeFile => 'Przesyłanie pliku';

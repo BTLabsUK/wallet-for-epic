@@ -325,7 +325,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(_confirm(), findsOneWidget);
       expect(find.text('Switch to epicbox.epicnet.us?'), findsOneWidget);
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+      expect(
+        find.descendant(of: _confirm(), matching: find.text('Your Epicbox address changes. Share the new one.')),
+        findsOneWidget,
+      );
       expect(find.byKey(serverListCancelKey), findsOneWidget);
       expect(_confirmSwitch(), findsOneWidget);
       expect(env.live, isEmpty);

@@ -300,8 +300,8 @@ Future<void> _review(WidgetTester tester, String to, {String? note}) async {
   await _recipient(tester, to);
   await _enter(tester, 'Amount (EPIC)', '1.5');
   if (note != null) {
-    await _tap(tester, find.text('Add a note'));
-    await _enter(tester, 'Note', note);
+    await _tap(tester, find.text('Add a message'));
+    await _enter(tester, 'Message', note);
   }
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
 }
@@ -516,8 +516,8 @@ void main() {
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
       expect(find.text('Make transaction file'), findsOneWidget);
       // A file carries the note as an address payment does.
-      await _tap(tester, find.text('Add a note'));
-      expect(find.widgetWithText(TextField, 'Note'), findsOneWidget);
+      await _tap(tester, find.text('Add a message'));
+      expect(find.widgetWithText(TextField, 'Message'), findsOneWidget);
 
       // The help loops its animation, so it never settles while open. Reaching the note scrolled
       // the step's header under the app bar: scroll back to the top first.
@@ -550,7 +550,7 @@ void main() {
       expect(h.service.tipCalls, 0);
       // The tracker: made, waiting for the reply, then the network.
       expect(find.text('File made'), findsOneWidget);
-      expect(find.text('1.5 EPIC on hold'), findsOneWidget);
+      expect(find.text('1.5 EPIC locked'), findsOneWidget);
       expect(find.text('Waiting for the response file'), findsOneWidget);
       expect(find.text('Posted to the network'), findsOneWidget);
       expect(find.text('Open response file'), findsOneWidget);
@@ -578,8 +578,8 @@ void main() {
       await h.pump(tester);
       await _tap(tester, find.text('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Add a note'));
-      await _enter(tester, 'Note', ' For rent ');
+      await _tap(tester, find.text('Add a message'));
+      await _enter(tester, 'Message', ' For rent ');
       await _tap(tester, find.text('Make transaction file'));
       expect(h.session.sentMessages, ['For rent']);
       expect(h.session.notes, {'s:${h.session.sendSlate.slateId}': 'For rent'});
@@ -765,7 +765,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _bob, note: 'For rent');
-        expect(find.text("Their server (epicbox.epiccash.com) isn't answering."), findsOneWidget);
+        expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
         expect(_sendButton, findsNothing);
         expect(_enabled(tester, _fileButton), isTrue);
         // Sending is still possible.
@@ -784,7 +784,7 @@ void main() {
         );
         expect(
           tester
-              .widget<TextField>(find.widgetWithText(TextField, 'Note'))
+              .widget<TextField>(find.widgetWithText(TextField, 'Message'))
               .controller!
               .text,
           'For rent',
@@ -824,8 +824,8 @@ void main() {
         expect(find.textContaining('relay sent nothing'), findsNothing);
         expect(
           find.text(
-            "Their server (epicbox.epiccash.com) didn't take it. The amount is on hold until you cancel "
-            'it, or for at most 1 day.',
+            'Their Epicbox server (epicbox.epiccash.com) refused it. The amount stays locked until you cancel '
+            'it, or for up to 1 day.',
           ),
           findsOneWidget,
         );
@@ -851,7 +851,7 @@ void main() {
         );
         expect(
           tester
-              .widget<TextField>(find.widgetWithText(TextField, 'Note'))
+              .widget<TextField>(find.widgetWithText(TextField, 'Message'))
               .controller!
               .text,
           'For rent',
@@ -906,7 +906,7 @@ void main() {
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
       // Balance and payments as before: nothing is held, so a file cannot pay twice.
-      expect(find.text("Their server (epicbox.epiccash.com) isn't answering."), findsOneWidget);
+      expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
       expect(find.text('Cancel and pay with a file'), findsNothing);
       expect(find.text('Send anyway'), findsNothing);
       expect(_sendButton, findsNothing);
@@ -939,7 +939,7 @@ void main() {
         await _tap(tester, _sendButton);
         expect(
           find.text(
-            "Their server (epicbox.epiccash.com) didn't take it. Check Wallet before you send again.",
+            "Their Epicbox server (epicbox.epiccash.com) refused it. Check Wallet before you send again.",
           ),
           findsOneWidget,
         );
@@ -1106,7 +1106,7 @@ void main() {
         find.descendant(
           of: find.byKey(sendUnknownRelayKey),
           matching: find.text(
-            "relay.example.org isn't a server this app knows. Check the address before you send.",
+            "relay.example.org is not a server this app knows. Check the address before you send.",
           ),
         ),
         findsOneWidget,
@@ -1142,7 +1142,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _carol);
-        expect(find.text("Their server (relay.example.org) isn't answering."), findsOneWidget);
+        expect(find.text("Their Epicbox server (relay.example.org) is not answering."), findsOneWidget);
         expect(_enabled(tester, _fileButton), isTrue);
         expect(_sendButton, findsNothing);
         await _tap(tester, _fileButton);
@@ -1183,7 +1183,7 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       expect(probe.probed, [_bobRelay]);
-      expect(find.text("Their server (epicbox.epiccash.com) isn't answering."), findsOneWidget);
+      expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
     });
   });
 

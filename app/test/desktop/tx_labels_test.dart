@@ -88,7 +88,7 @@ void main() {
 
     test('a scan find is "Restored" until a sender is typed, then that address', () {
       final l = englishStrings;
-      expect(titleOf(l, _plain(restored: true)), 'Found by scan');
+      expect(titleOf(l, _plain(restored: true)), 'Found by recheck');
       expect(titleOf(l, _plain(restored: true, address: _addr)), startsWith('esZr8m'));
       expect(titleOf(l, _plain(restored: true, label: 'Pool')), 'Pool');
     });

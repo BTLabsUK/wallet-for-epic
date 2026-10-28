@@ -525,12 +525,12 @@ void main() {
 
       await h.listener(tester, ListenerEventKind.disconnected);
       expect(find.text('Epicbox not connected'), findsOneWidget);
-      expect(find.textContaining('wait at epicbox'), findsOneWidget);
+      expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Epicbox connected'), findsOneWidget);
-      expect(find.textContaining('wait at epicbox'), findsNothing);
+      expect(find.textContaining('wait on the Epicbox server'), findsNothing);
 
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
@@ -645,7 +645,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
-      expect(find.textContaining('wait at epicbox'), findsNothing);
+      expect(find.textContaining('wait on the Epicbox server'), findsNothing);
       expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
 
       await _tap(tester, find.text('Switch to epicbox.stackwallet.com'));
