@@ -210,13 +210,13 @@ class AppLocalizationsPl extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       many:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       few:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
       one:
-          'Plik ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+          'Plik ma inne szczegóły dla płatności: $n. Twoje zostają, chyba że wybierzesz te z pliku.',
     );
     return '$_temp0';
   }
@@ -828,7 +828,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją później, i tak dotrze.';
+      'Nadawca mógł już opublikować tę płatność. Portfel anuluje ją tylko, jeśli sieć jej nie ma; późniejsza publikacja i tak dotrze.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1071,14 +1071,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Zachowaj kopię poza telefonem, np. w e-mailu lub w chmurze';
+      'Kopia poza telefonem, np. w e-mailu lub w chmurze.';
 
   @override
   String get historyBackupSaveToDevice => 'Zapisz na urządzeniu';
 
   @override
   String get historyBackupSaveToDeviceSubtitle =>
-      'Ma sens tylko, jeśli skopiujesz plik także poza ten telefon.';
+      'Skopiuj go także poza ten telefon.';
 
   @override
   String historyBackupSaved(String fileName) {
@@ -1089,15 +1089,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get historyBackupExportTitle => 'Eksportuj dane portfela';
 
   @override
-  String get historyBackupExportNote =>
-      'Plik obejmuje wszystko do tej chwili. Po nowych płatnościach lub zmianach wyeksportuj go ponownie.';
-
-  @override
   String get historyBackupCsvTitle => 'Eksportuj CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'Plik CSV nie jest zaszyfrowany. Każdy, kto go zdobędzie, odczyta kwoty, daty, adresy i notatki. Nie da się go z powrotem zaimportować; do tego służy „Eksportuj dane portfela”.';
+      'Bez szyfrowania: każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki. Nie da się go zaimportować; kopię zapasową zrobisz przez „Eksportuj dane portfela”.';
 
   @override
   String get historyBackupCsvConfirm => 'Eksportuj CSV';
@@ -1279,10 +1275,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeNoticeRelayProblem =>
-      'Serwer Epicbox zgłosił problem. Ponawianie próby.';
+      'Serwer epicbox zgłosił problem. Ponawianie próby.';
 
   @override
-  String get homeNoticePaymentFailed => 'Nie udało się zrealizować płatności.';
+  String get homeNoticePaymentFailed =>
+      'Płatność nie powiodła się. Szczegóły w Aktywności.';
 
   @override
   String get homeBackupCardText => 'Zabezpiecz frazę odzyskiwania.';
@@ -1791,7 +1788,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Portfel płacącego nie obsługuje próśb o płatność i odesłał tę prośbę, więc została wycofana. Nic nie zapłacono. Poproś tę osobę, by zamiast tego wysłała ci płatność na twój adres lub jako plik płatności.';
+      'Portfel płacącego nie obsługuje próśb o płatność, więc nic nie zapłacono. Poproś tę osobę o wysłanie płatności na twój adres lub jako plik transakcji.';
 
   @override
   String get txStatusWaitingPayer => 'Czeka na płacącego';
@@ -2080,7 +2077,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreDateHint =>
-      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszą datę. Data późniejsza niż pierwsza płatność pominie część środków. Bez daty skanowany jest cały łańcuch, co trwa dłużej.';
+      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszą datę: późniejsza może pominąć część środków.';
 
   @override
   String restoreDateStart(String height) {
@@ -2190,7 +2187,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Fraza odzyskiwania przywróciła saldo. Plik danych portfela przywraca historię płatności, kontakty, faktury i ustawienia tego portfela. Jeśli go wyeksportowano, zaimportuj go teraz: to plik udostępniony lub zapisany poza starym telefonem.';
+      'Fraza odzyskiwania przywróciła saldo. Aby odzyskać historię, kontakty, faktury i ustawienia, zaimportuj wyeksportowany plik danych portfela.';
 
   @override
   String get restoreImportButton => 'Importuj dane portfela';
@@ -2236,10 +2233,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Zrzut ekranu lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.';
+      'Kto zobaczy te słowa lub ich zdjęcie, może zabrać środki.';
 
   @override
-  String get backupCopyAgree => 'Każdą kopię frazy zachowam tylko dla siebie';
+  String get backupConsentTitle => 'Zanim zobaczysz frazę';
+
+  @override
+  String get backupConsentWhat =>
+      'Następny ekran pokazuje słowa, które przywracają ten portfel.';
+
+  @override
+  String get backupConsentReady => 'Przygotuj papier i długopis.';
+
+  @override
+  String get backupCopyAgree => 'Zachowam frazę tylko dla siebie';
 
   @override
   String get backupShowPhrase => 'Pokaż frazę odzyskiwania';
@@ -2322,8 +2329,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Odblokowywać odciskiem palca lub twarzą?';
 
   @override
-  String get pinBiometricsPinStillWorks =>
-      'Kodu PIN możesz nadal używać w każdej chwili.';
+  String get pinBiometricsPinStillWorks => 'Kod PIN nadal działa.';
 
   @override
   String get pinBiometricsEnable => 'Użyj biometrii';
@@ -2683,7 +2689,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scanQrCameraDenied =>
-      'Portfel nie ma dostępu do aparatu. Aby skanować, zezwól tej aplikacji na dostęp do aparatu w ustawieniach telefonu. Możesz też wkleić adres.';
+      'Dostęp do aparatu jest wyłączony. Zezwól na niego w ustawieniach telefonu lub wklej adres.';
 
   @override
   String get scanQrCameraFailed =>
@@ -2854,7 +2860,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get qrScanCameraDenied =>
-      'Portfel nie ma dostępu do aparatu. Aby skanować, zezwól tej aplikacji na dostęp do aparatu w ustawieniach telefonu. Możesz też zamiast tego otworzyć plik.';
+      'Dostęp do aparatu jest wyłączony. Zezwól na niego w ustawieniach telefonu lub otwórz plik.';
 
   @override
   String get qrScanCameraFailed =>
@@ -2950,7 +2956,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'Płatność utworzona';
+  String get sendQrMade => 'Kod QR płatności gotowy';
 
   @override
   String get sendQrHint =>
@@ -2968,11 +2974,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czekam, aż odbiorca zeskanuje. Potem zeskanuj jego odpowiedź.';
 
   @override
-  String get qrStatusHiddenAgain =>
-      'Ukryty. Pokaż ponownie, jeśli nie skończyli skanować.';
+  String get qrStatusHiddenAgain => 'Ukryty';
 
   @override
-  String get qrStatusReplyHidden => 'Pokaż to nadawcy.';
+  String get qrStatusReplyHidden => 'Ukryty';
 
   @override
   String get qrStatusReplyShowing => 'Czekam, aż nadawca zeskanuje.';
@@ -3195,7 +3200,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Portfel ponownie wyszuka swoje środki. Wcześniejszy początek znajdzie więcej, ale potrwa dłużej; skanowanie całego łańcucha może zająć dużo czasu.';
+      'Ponownie sprawdza łańcuch pod kątem środków tego portfela. Wcześniejszy początek znajdzie więcej, ale potrwa dłużej.';
 
   @override
   String get settingsRescanFromDate => 'Od daty';
@@ -3289,10 +3294,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesLead =>
-      'Oprogramowanie open source w tym portfelu. Każdy składnik zachowuje własną licencję; pełne teksty są o jedno dotknięcie dalej.';
+      'Oprogramowanie open source w tym portfelu, każde na własnej licencji.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile od BT Labs: Apache-2.0.';
+  String get licencesApp => 'Epic Cash Mobile od BT Labs: Apache 2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3482,7 +3487,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, status.btlabs.uk nie jest pytany, a listy serwerów nie pokazują stanu.';
+      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, aplikacja nigdy nie łączy się ze status.btlabs.uk, a listy serwerów nie pokazują stanu.';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -3923,7 +3928,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Zapłać na demo znajomego albo otwórz tę stronę w innej przeglądarce lub w oknie prywatnym.';
+      'Zapłać na demo znajomego albo otwórz demo w innej przeglądarce lub w oknie prywatnym.';
 
   @override
   String get demoGuideOpenSend => 'Przejdź do Wyślij';
@@ -4038,7 +4043,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendTorReaching =>
-      'Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.';
+      'Łączenie z portfelem odbiorcy przez Tor… Nie zamykaj aplikacji.';
 
   @override
   String sendTorNotReached(int days) {
@@ -4046,13 +4051,13 @@ class AppLocalizationsPl extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota pozostaje zablokowana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
@@ -4243,12 +4248,12 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks bloku',
-      many: '$blocks bloków',
-      few: '$blocks bloków',
-      one: '$blocks bloku',
+      other: '$blocks potwierdzenia',
+      many: '$blocks potwierdzeń',
+      few: '$blocks potwierdzenia',
+      one: '$blocks potwierdzenie',
     );
-    return 'Poczekaj na potwierdzenie trwającej wysyłki (około $_temp0).';
+    return 'Poczekaj na potwierdzenie trwającej wysyłki ($_temp0).';
   }
 
   @override
@@ -4655,7 +4660,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoicesCheckEpicbox => 'Epicbox';
 
   @override
-  String get invoicesNodeOk => 'Odpowiada';
+  String get invoicesNodeOk => 'Zsynchronizowany';
 
   @override
   String get invoicesNodeDown => 'Nie odpowiada';
@@ -5925,7 +5930,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => 'Działa przy zamkniętym portfelu.';
+  String get methodReceiveEpicboxShort =>
+      'Nadawcy mogą płacić, gdy ten portfel jest zamknięty.';
 
   @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
@@ -5987,12 +5993,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor =>
-      'Odbieranie przez Link · Tor wymaga Tora.';
+  String get receiveDirectNeedsTor => 'Link · Tor wymaga Tora.';
 
   @override
   String get receiveDirectMeanwhile =>
-      'Do tego czasu nadawcy używają adresu Epicbox.';
+      'Do tego czasu udostępnij adres Epicbox.';
 
   @override
   String get receiveHttpTitle => 'Adres Link · HTTP';
@@ -14095,14 +14100,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
 
   @override
   String get advModeOffline => 'Offline';
 
   @override
   String get advModeOfflineLine =>
-      'Tylko ten telefon i twoja sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
+      'Tylko ten telefon i sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają; reszta czeka.';
 
   @override
   String get advTorOnlyNote =>
@@ -14205,7 +14210,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
 
   @override
   String get deskSetAdvModeOffline => 'Offline';
@@ -15201,7 +15206,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Wyślij link w dowolnym czacie: Telegram, WhatsApp, SMS, e-mail. Serwer Epicbox nie jest potrzebny.';
+      'Wyślij link w dowolnym czacie lub e-mailem.';
 
   @override
   String get pairWayMessageInfo =>
@@ -15462,7 +15467,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz to zamknąć; parowanie trwa w tle, a weryfikacja pojawi się po jego zakończeniu.';
+      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz zamknąć ten ekran; weryfikacja pojawi się po zakończeniu parowania.';
 
   @override
   String get pairSendByHand => 'Wyślij ręcznie';
@@ -15753,12 +15758,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Serwer Epicbox $name nie odpowiada';
+    return 'Serwer $name nie odpowiada';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Ponawianie. Prośby i płatności czekają, aż odpowie; nic nie przepada.';
+      'Ponawianie. Prośby i płatności czekają, aż odpowie.';
 
   @override
   String get contactPausedEpicboxOff =>
@@ -16862,10 +16867,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp1 = intl.Intl.pluralLogic(
       same,
       locale: localeName,
-      other: '$same już było',
-      many: '$same już było',
-      few: '$same już były',
-      one: '$same już był',
+      other: '$same już zapisanego',
+      many: '$same już zapisanych',
+      few: '$same już zapisane',
+      one: '$same już zapisany',
     );
     return '$_temp0, $_temp1';
   }
@@ -17345,11 +17350,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backupFileHolds =>
-      'Ten plik zawiera historię płatności, kontakty, faktury i ustawienia tego portfela.';
-
-  @override
-  String get backupFileNoPhrase =>
-      'Nie zawiera frazy odzyskiwania i sam nie przywróci portfela.';
+      'Zawiera historię płatności, kontakty, faktury i ustawienia tego portfela, stan na teraz.';
 
   @override
   String get backupFileRestoreOrder =>
@@ -17361,7 +17362,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String backupRestoredSummary(String items) {
-    return 'Przywrócono: $items.';
+    return 'Zaimportowano: $items.';
   }
 
   @override

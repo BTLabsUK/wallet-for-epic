@@ -2048,7 +2048,7 @@ void main() {
       await _tap(tester, find.byKey(txDetailsCancelReceiveKey));
       expect(find.text('Cancel payment?'), findsOneWidget);
       expect(find.textContaining('may already have posted'), findsOneWidget);
-      expect(find.textContaining('posts it later, it still arrives'), findsOneWidget);
+      expect(find.textContaining('a later post still arrives'), findsOneWidget);
       await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(h.session.cancelledTxIds, [7]);
     });
@@ -2671,7 +2671,7 @@ void main() {
             ),
             cancelledSend(cutoff: _tip),
           ),
-          'A payment could not be completed.',
+          'A payment failed. Open Activity to see it.',
         );
       },
     );
@@ -2792,7 +2792,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('A payment could not be completed.'), findsNothing);
+      expect(find.text('A payment failed. Open Activity to see it.'), findsNothing);
       // Let the notice go, then the core retries the same payment: nothing new.
       await tester.pump(noticeDuration(NoticeLevel.warning, action: true));
       await tester.pumpAndSettle();

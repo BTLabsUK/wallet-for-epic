@@ -21,7 +21,7 @@
   "deskSetAdvModeStandard": "มาตรฐาน",
   "deskSetAdvModeStandardText": "เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว",
   "deskSetAdvModeTorOnly": "Tor เท่านั้น",
-  "deskSetAdvModeTorOnlyText": "ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกให้ทราบ",
+  "deskSetAdvModeTorOnlyText": "ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์",
   "deskSetAdvModeOffline": "ออฟไลน์",
   "deskSetAdvModeOfflineText": "เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โหนดของคุณทำงานต่อไป เพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง",
   "deskSetAdvTorOnlyNote": "Tor เท่านั้นจะปิดการรับผ่าน ลิงก์ · HTTP เพราะที่อยู่ธรรมดาจะเปิดเผยคอมพิวเตอร์เครื่องนี้",

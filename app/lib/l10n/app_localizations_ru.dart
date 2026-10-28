@@ -210,13 +210,13 @@ class AppLocalizationsRu extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       many:
-          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       few:
-          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       one:
-          'В файле другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
     );
     return '$_temp0';
   }
@@ -825,7 +825,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Отправитель, возможно, уже опубликовал платёж. Кошелёк сначала спрашивает узел и отменяет только платёж, которого нет в сети. Если отправитель опубликует его позже, он всё равно поступит.';
+      'Отправитель, возможно, уже опубликовал платёж. Кошелёк отменяет его, только если сети он неизвестен; более поздняя публикация всё равно поступит.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1069,14 +1069,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Сохраните копию вне телефона, например в почте или облаке';
+      'Копия вне телефона, например в почте или облаке.';
 
   @override
   String get historyBackupSaveToDevice => 'Сохранить на устройстве';
 
   @override
   String get historyBackupSaveToDeviceSubtitle =>
-      'Имеет смысл, только если вы также скопируете файл с телефона.';
+      'Скопируйте его также вне телефона.';
 
   @override
   String historyBackupSaved(String fileName) {
@@ -1087,15 +1087,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyBackupExportTitle => 'Экспорт данных кошелька';
 
   @override
-  String get historyBackupExportNote =>
-      'Файл содержит всё на текущий момент. После новых платежей или изменений экспортируйте его снова.';
-
-  @override
   String get historyBackupCsvTitle => 'Экспорт в CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'Файл CSV не зашифрован. Любой, кто его получит, увидит ваши суммы, даты, адреса и заметки. Импортировать его обратно нельзя; для этого используйте «Экспорт данных кошелька».';
+      'Не зашифрован: любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для резервной копии используйте «Экспорт данных кошелька».';
 
   @override
   String get historyBackupCsvConfirm => 'Экспортировать CSV';
@@ -1272,10 +1268,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeNoticeRelayProblem =>
-      'Сервер Epicbox сообщил о проблеме. Пробуем снова.';
+      'Сервер epicbox сообщил о проблеме. Пробуем снова.';
 
   @override
-  String get homeNoticePaymentFailed => 'Не удалось завершить платёж.';
+  String get homeNoticePaymentFailed =>
+      'Платёж не удался. Подробности в разделе «Активность».';
 
   @override
   String get homeBackupCardText => 'Сохраните фразу восстановления.';
@@ -1779,7 +1776,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
+      'Кошелёк плательщика не умеет оплачивать запросы, поэтому ничего не оплачено. Попросите отправить платёж на ваш адрес или как файл транзакции.';
 
   @override
   String get txStatusWaitingPayer => 'Ждёт плательщика';
@@ -2068,7 +2065,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreDateHint =>
-      'Необязательно. Если не уверены, выберите более раннюю дату. Если дата позже вашего первого платежа, часть средств не найдётся. Без даты сканируется весь блокчейн, это дольше.';
+      'Необязательно. Если не уверены, выберите более раннюю дату: при более поздней часть средств может не найтись.';
 
   @override
   String restoreDateStart(String height) {
@@ -2177,7 +2174,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'Фраза восстановления вернула баланс. Файл данных кошелька возвращает историю платежей, контакты, счета и настройки этого кошелька. Если вы его экспортировали, импортируйте сейчас: это файл, который вы отправили или сохранили вне старого телефона.';
+      'Фраза восстановления вернула баланс. Чтобы вернуть историю, контакты, счета и настройки, импортируйте экспортированный файл данных кошелька.';
 
   @override
   String get restoreImportButton => 'Импорт данных кошелька';
@@ -2223,10 +2220,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Снимок или фото фразы — это полная копия вашего кошелька: любой, кто его увидит, сможет забрать ваши средства, а приложения для фото могут загрузить его в облако. Бумага надёжнее всего.';
+      'Любой, кто увидит слова или их фото, сможет забрать средства.';
 
   @override
-  String get backupCopyAgree => 'Я буду хранить любую копию фразы в тайне';
+  String get backupConsentTitle => 'Прежде чем увидеть фразу';
+
+  @override
+  String get backupConsentWhat =>
+      'На следующем экране показаны слова, которые восстанавливают этот кошелёк.';
+
+  @override
+  String get backupConsentReady => 'Приготовьте бумагу и ручку.';
+
+  @override
+  String get backupCopyAgree => 'Я буду хранить фразу в тайне';
 
   @override
   String get backupShowPhrase => 'Показать фразу восстановления';
@@ -2311,8 +2318,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Разблокировать отпечатком пальца или лицом?';
 
   @override
-  String get pinBiometricsPinStillWorks =>
-      'PIN-код по-прежнему можно использовать в любой момент.';
+  String get pinBiometricsPinStillWorks => 'PIN-код по-прежнему работает.';
 
   @override
   String get pinBiometricsEnable => 'Использовать биометрию';
@@ -2660,7 +2666,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get scanQrCameraDenied =>
-      'У кошелька нет доступа к камере. Чтобы сканировать, разрешите этому приложению доступ к камере в настройках телефона. Можно также вставить адрес вручную.';
+      'Доступ к камере выключен. Разрешите его в настройках телефона или вставьте адрес.';
 
   @override
   String get scanQrCameraFailed =>
@@ -2829,7 +2835,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get qrScanCameraDenied =>
-      'У кошелька нет доступа к камере. Чтобы сканировать, разрешите этому приложению доступ к камере в настройках телефона. Можно также открыть файл.';
+      'Доступ к камере выключен. Разрешите его в настройках телефона или откройте файл.';
 
   @override
   String get qrScanCameraFailed =>
@@ -2925,7 +2931,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'Платёж создан';
+  String get sendQrMade => 'QR платежа готов';
 
   @override
   String get sendQrHint =>
@@ -2943,11 +2949,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ждём, пока получатель отсканирует. Затем отсканируйте его ответ.';
 
   @override
-  String get qrStatusHiddenAgain =>
-      'Скрыт. Покажите снова, если они не успели отсканировать.';
+  String get qrStatusHiddenAgain => 'Скрыт';
 
   @override
-  String get qrStatusReplyHidden => 'Покажите это отправителю.';
+  String get qrStatusReplyHidden => 'Скрыт';
 
   @override
   String get qrStatusReplyShowing => 'Ждём, пока отправитель отсканирует.';
@@ -3169,7 +3174,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Кошелёк заново ищет свои средства. Чем раньше начало, тем больше найдётся, но тем дольше это займёт; сканирование всего блокчейна может занять много времени.';
+      'Заново проверяет блокчейн на наличие средств этого кошелька. Чем раньше начало, тем больше найдётся, но тем дольше это займёт.';
 
   @override
   String get settingsRescanFromDate => 'С даты';
@@ -3263,10 +3268,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesLead =>
-      'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном касании.';
+      'Открытое ПО в этом кошельке, каждое под своей лицензией.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
+  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache 2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3459,7 +3464,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Читает со status.btlabs.uk, монитора BT Labs, какие узлы и серверы Epicbox в сети, их высоту блока и время ответа, и показывает это в списках серверов и на карточке состояния. Если выключено, status.btlabs.uk не опрашивается, а списки серверов не показывают состояние.';
+      'Читает со status.btlabs.uk, монитора BT Labs, какие узлы и серверы Epicbox в сети, их высоту блока и время ответа, и показывает это в списках серверов и на карточке состояния. Если выключено, приложение никогда не обращается к status.btlabs.uk, а списки серверов не показывают состояние.';
 
   @override
   String get txStepStarted => 'Платёж начат';
@@ -3901,7 +3906,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Заплатите в демо друга или откройте эту страницу в другом браузере или приватном окне.';
+      'Заплатите в демо друга или откройте демо в другом браузере или приватном окне.';
 
   @override
   String get demoGuideOpenSend => 'К отправке';
@@ -4015,7 +4020,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendTorReaching =>
-      'Связываемся с кошельком получателя через Tor… Это может занять время. Не закрывайте приложение.';
+      'Связываемся с кошельком получателя через Tor… Не закрывайте приложение.';
 
   @override
   String sendTorNotReached(int days) {
@@ -4220,12 +4225,12 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks блока',
-      many: '$blocks блоков',
-      few: '$blocks блоков',
-      one: '$blocks блока',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
-    return 'Дождитесь подтверждения текущей отправки (около $_temp0).';
+    return 'Дождитесь подтверждения текущей отправки ($_temp0).';
   }
 
   @override
@@ -4632,7 +4637,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoicesCheckEpicbox => 'Epicbox';
 
   @override
-  String get invoicesNodeOk => 'Отвечает';
+  String get invoicesNodeOk => 'Синхронизирован';
 
   @override
   String get invoicesNodeDown => 'Не отвечает';
@@ -5901,7 +5906,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
+  String get methodReceiveEpicboxShort =>
+      'Отправители могут платить, пока кошелёк закрыт.';
 
   @override
   String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
@@ -5962,12 +5968,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabDirect => 'Ссылка';
 
   @override
-  String get receiveDirectNeedsTor =>
-      'Для приёма через Ссылка · Tor нужен Tor.';
+  String get receiveDirectNeedsTor => 'Ссылка · Tor требует Tor.';
 
   @override
-  String get receiveDirectMeanwhile =>
-      'Пока отправители используют адрес Epicbox.';
+  String get receiveDirectMeanwhile => 'Пока поделитесь адресом Epicbox.';
 
   @override
   String get receiveHttpTitle => 'Адрес Ссылка · HTTP';
@@ -14063,14 +14067,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн и сообщает об этом.';
+      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн.';
 
   @override
   String get advModeOffline => 'Офлайн';
 
   @override
   String get advModeOfflineLine =>
-      'Только этот телефон и ваша локальная сеть. «Оплата по QR» и «Передача файла» по-прежнему работают через используемый узел; всё остальное ждёт, пока вы не переключитесь обратно.';
+      'Только этот телефон и локальная сеть. «Оплата по QR» и «Передача файла» по-прежнему работают; остальное ждёт.';
 
   @override
   String get advTorOnlyNote =>
@@ -14173,7 +14177,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн и сообщает об этом.';
+      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн.';
 
   @override
   String get deskSetAdvModeOffline => 'Офлайн';
@@ -15168,7 +15172,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Отправьте ссылку в любом чате: Telegram, WhatsApp, SMS, почта. Сервер Epicbox не нужен.';
+      'Отправьте ссылку в любом чате или по почте.';
 
   @override
   String get pairWayMessageInfo =>
@@ -15429,7 +15433,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Другой кошелёк ответит, когда его откроют. Это можно закрыть; сопряжение продолжится в фоне, а проверка появится, когда оно завершится.';
+      'Другой кошелёк ответит, когда его откроют. Этот экран можно закрыть; проверка появится, когда сопряжение завершится.';
 
   @override
   String get pairSendByHand => 'Отправить вручную';
@@ -15721,12 +15725,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactRelayDownTitle(String name) {
-    return 'Сервер Epicbox $name не отвечает';
+    return 'Сервер $name не отвечает';
   }
 
   @override
   String get contactRelayDownBody =>
-      'Повторная попытка. Запросы и платежи ждут, пока он ответит; ничего не теряется.';
+      'Повторная попытка. Запросы и платежи ждут, пока он ответит.';
 
   @override
   String get contactPausedEpicboxOff => 'Приостановлено, пока Epicbox выключен';
@@ -16829,10 +16833,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp1 = intl.Intl.pluralLogic(
       same,
       locale: localeName,
-      other: '$same уже были',
-      many: '$same уже были',
-      few: '$same уже были',
-      one: '$same уже был',
+      other: '$same уже сохранены',
+      many: '$same уже сохранены',
+      few: '$same уже сохранены',
+      one: '$same уже сохранён',
     );
     return '$_temp0, $_temp1';
   }
@@ -17311,11 +17315,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupFileHolds =>
-      'Этот файл содержит историю платежей, контакты, счета и настройки этого кошелька.';
-
-  @override
-  String get backupFileNoPhrase =>
-      'Он не содержит фразу восстановления и сам по себе не восстановит кошелёк.';
+      'Содержит историю платежей, контакты, счета и настройки этого кошелька на текущий момент.';
 
   @override
   String get backupFileRestoreOrder =>
@@ -17327,7 +17327,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String backupRestoredSummary(String items) {
-    return 'Восстановлено: $items.';
+    return 'Импортировано: $items.';
   }
 
   @override

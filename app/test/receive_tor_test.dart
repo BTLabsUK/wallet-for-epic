@@ -297,7 +297,7 @@ void main() {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, linkTor: true));
       await h.pump(tester);
       expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
-      expect(find.text('Senders use the Epicbox address meanwhile.'), findsNothing);
+      expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
     });
 
     testWidgets('no Link tab where the app has no Tor', (tester) async {
@@ -409,12 +409,12 @@ void main() {
       await h.torTab(tester);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       expect(find.byType(MarkedQr), findsNothing);
-      expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       expect(
         find.text('Cannot receive this way while Offline mode is on.'),
         findsOneWidget,
       );
-      expect(find.text('Senders use the Epicbox address meanwhile.'), findsNothing);
+      expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
       expect(find.byKey(receiveTurnOnTorKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
     });
@@ -472,9 +472,9 @@ void main() {
       final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
-      expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       expect(
-        find.text('Senders use the Epicbox address meanwhile.'),
+        find.text('Meanwhile, share the Epicbox address.'),
         findsOneWidget,
       );
       expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);

@@ -170,8 +170,8 @@ void main() {
       // The phone's words: never spendable, so nothing "leaves your balance" (LNX2-1).
       expect(find.textContaining('leaves your balance'), findsNothing);
       expect(find.textContaining('may already have posted'), findsOneWidget);
-      expect(find.textContaining('asks the node first'), findsOneWidget);
-      expect(find.textContaining('posts it later, it still arrives'), findsOneWidget);
+      expect(find.textContaining('cancels only if the network'), findsOneWidget);
+      expect(find.textContaining('a later post still arrives'), findsOneWidget);
       expect(find.textContaining('week'), findsNothing);
       expect(find.textContaining('locked amount'), findsNothing);
       await tester.tap(find.text('Keep'));

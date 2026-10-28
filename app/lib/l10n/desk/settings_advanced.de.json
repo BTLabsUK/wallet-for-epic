@@ -21,7 +21,7 @@
   "deskSetAdvModeStandard": "Standard",
   "deskSetAdvModeStandardText": "Verbindet direkt. Tor lässt sich unter Datenschutz einschalten.",
   "deskSetAdvModeTorOnly": "Nur Tor",
-  "deskSetAdvModeTorOnlyText": "Jede Verbindung läuft über Tor. Ohne Tor bleibt die Wallet offline und sagt es.",
+  "deskSetAdvModeTorOnlyText": "Jede Verbindung läuft über Tor. Ohne Tor bleibt die Wallet offline.",
   "deskSetAdvModeOffline": "Offline",
   "deskSetAdvModeOfflineText": "Nur dieser Computer und Ihr lokales Netzwerk. Ihr Node läuft weiter; seine Peers sind eine Einstellung des Nodes.",
   "deskSetAdvTorOnlyNote": "Nur Tor schaltet den Link · HTTP-Empfang aus: Eine einfache Adresse würde diesen Computer verraten.",

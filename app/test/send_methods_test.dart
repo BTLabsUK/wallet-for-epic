@@ -1229,7 +1229,7 @@ void main() {
         payments: _directOn,
       );
       expect(find.text('Share it to get paid.'), findsOneWidget);
-      expect(find.text('Works with the wallet closed.'), findsOneWidget);
+      expect(find.text('Senders can pay while this wallet is closed.'), findsOneWidget);
       // The caption under the address went for room.
       expect(
         find.text(
@@ -1254,9 +1254,9 @@ void main() {
       await _tap(tester, find.text('Link'));
       expect(find.text('Straight to this wallet.'), findsOneWidget);
       expect(find.text('Works while the app is open.'), findsOneWidget);
-      expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       expect(
-        find.text('Senders use the Epicbox address meanwhile.'),
+        find.text('Meanwhile, share the Epicbox address.'),
         findsOneWidget,
       );
       expect(find.byKey(receiveTorAddressKey), findsNothing);
@@ -1287,7 +1287,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600);
       await h.torOn(tester);
-      expect(find.text('Works with the wallet closed. Over Tor.'), findsOneWidget);
+      expect(find.text('Senders can pay while this wallet is closed. Over Tor.'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('receiving help opens the Receive topic', (

@@ -243,7 +243,7 @@ void main() {
     final h = _Harness();
     h.camera.problem = QrCameraProblem.denied;
     await h.pump(tester);
-    expect(find.textContaining('The wallet may not use the camera'), findsOneWidget);
+    expect(find.textContaining('Camera access is off'), findsOneWidget);
     expect(find.text('Open settings'), findsOneWidget);
     expect(find.text('Open a file instead'), findsOneWidget);
     expect(find.text('Back'), findsOneWidget);

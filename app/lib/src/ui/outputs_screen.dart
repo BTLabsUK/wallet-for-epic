@@ -87,7 +87,11 @@ String? _rowNote(
           now,
         );
   final received = tx != null && tx.kind != TxKind.sent && when != null
-      ? l.outputsNoteReceived(when)
+      ? l.outputsNoteReceived(
+          when == l.dateToday || when == l.dateYesterday
+              ? when.toLowerCase()
+              : when,
+        )
       : null;
   return switch (outputWord(o)) {
     OutputLabel.confirming || OutputLabel.spendable => received,

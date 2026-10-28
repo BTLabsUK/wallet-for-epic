@@ -492,7 +492,7 @@ void main() {
         expect(find.text('Dinner on Friday'), findsOneWidget);
         expect(
           find.text(
-            '${_l.issuedDetailsWaiting} ${_l.invoiceTimeLeftHours(24, 0)}',
+            '${_l.issuedDetailsWaiting} · ${_l.invoiceTimeLeftHours(24, 0)}',
           ),
           findsOneWidget,
         );
@@ -610,7 +610,7 @@ void main() {
       await tester.pump(const Duration(seconds: 30));
       expect(
         find.text(
-          '${_l.issuedDetailsWaiting} ${_l.invoiceTimeLeftMinutes(30)}',
+          '${_l.issuedDetailsWaiting} · ${_l.invoiceTimeLeftMinutes(30)}',
         ),
         findsOneWidget,
       );

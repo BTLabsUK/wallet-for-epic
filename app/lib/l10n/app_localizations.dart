@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, =1{The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}'**
   String histConflictLead(int n);
 
   /// Choice card: the value entered on this phone.
@@ -1270,7 +1270,7 @@ abstract class AppLocalizations {
   /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
   ///
   /// In en, this message translates to:
-  /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.'**
+  /// **'The sender may already have posted it. The wallet cancels only if the network does not have it; a later post still arrives.'**
   String get txDetailsCancelReceiveBody;
 
   /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature.
@@ -1714,7 +1714,7 @@ abstract class AppLocalizations {
   /// Second line of the Share choice.
   ///
   /// In en, this message translates to:
-  /// **'Keep a copy off this phone, such as email or cloud storage'**
+  /// **'A copy off this phone, such as email or cloud storage.'**
   String get historyBackupShareSubtitle;
 
   /// Choice in a sheet: save the history file in a folder on this device.
@@ -1726,7 +1726,7 @@ abstract class AppLocalizations {
   /// Second line of the Save to device choice.
   ///
   /// In en, this message translates to:
-  /// **'Only useful if you also copy it off this phone.'**
+  /// **'Copy it off this phone too.'**
   String get historyBackupSaveToDeviceSubtitle;
 
   /// Notice after a history file was saved on the device.
@@ -1741,12 +1741,6 @@ abstract class AppLocalizations {
   /// **'Export wallet data'**
   String get historyBackupExportTitle;
 
-  /// Text in the export sheet under its title.
-  ///
-  /// In en, this message translates to:
-  /// **'The file holds everything up to now. Export again after new payments or changes.'**
-  String get historyBackupExportNote;
-
   /// Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file.
   ///
   /// In en, this message translates to:
@@ -1756,7 +1750,7 @@ abstract class AppLocalizations {
   /// Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there.
   ///
   /// In en, this message translates to:
-  /// **'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.'**
+  /// **'Not encrypted: anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.'**
   String get historyBackupCsvWarning;
 
   /// Button in the CSV warning dialog that goes ahead with the export.
@@ -2050,7 +2044,7 @@ abstract class AppLocalizations {
   /// Notice: something went wrong with one payment.
   ///
   /// In en, this message translates to:
-  /// **'A payment could not be completed.'**
+  /// **'A payment failed. Open Activity to see it.'**
   String get homeNoticePaymentFailed;
 
   /// Card on home until the user writes down the recovery phrase (the 12 or 24 words).
@@ -2776,7 +2770,7 @@ abstract class AppLocalizations {
   /// Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it.
   ///
   /// In en, this message translates to:
-  /// **'The payer’s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.'**
+  /// **'The payer’s wallet cannot pay requests, so nothing was paid. Ask them to send the payment to your address or as a transaction file.'**
   String get issuedDetailsBounced;
 
   /// Status of a payment request the user sent: the payer has not paid it yet.
@@ -3256,7 +3250,7 @@ abstract class AppLocalizations {
   /// No description provided for @restoreDateHint.
   ///
   /// In en, this message translates to:
-  /// **'Optional. If you are not sure, pick an earlier date. A date after your first payment misses funds. Without a date the whole chain is scanned, which takes longer.'**
+  /// **'Optional. If unsure, pick an earlier date: a later one can miss coins.'**
   String get restoreDateHint;
 
   /// Under the chosen start date: the block number the scan starts from.
@@ -3406,7 +3400,7 @@ abstract class AppLocalizations {
   /// Offer to import a history backup on the phone restore screen, once the restore from the phrase is done.
   ///
   /// In en, this message translates to:
-  /// **'The recovery phrase brought back the balance. A wallet data file brings back this wallet’s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.'**
+  /// **'The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.'**
   String get restoreImportExplanation;
 
   /// No description provided for @restoreImportButton.
@@ -3490,13 +3484,31 @@ abstract class AppLocalizations {
   /// Warning before the recovery phrase is shown: what a screenshot, photo or other copy of the phrase means.
   ///
   /// In en, this message translates to:
-  /// **'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.'**
+  /// **'Anyone who sees the words, or a photo of them, can take the coins.'**
   String get backupCopyWarning;
+
+  /// Heading of the consent card shown before the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you see the phrase'**
+  String get backupConsentTitle;
+
+  /// Consent card: what happens next.
+  ///
+  /// In en, this message translates to:
+  /// **'The next screen shows the words that restore this wallet.'**
+  String get backupConsentWhat;
+
+  /// Consent card: what to have ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Have paper and a pen ready.'**
+  String get backupConsentReady;
 
   /// Checkbox the user ticks before the recovery phrase can be shown.
   ///
   /// In en, this message translates to:
-  /// **'I will keep any copy of the phrase private'**
+  /// **'I will keep the phrase private'**
   String get backupCopyAgree;
 
   /// Button that asks for the PIN and then shows the recovery phrase.
@@ -3610,7 +3622,7 @@ abstract class AppLocalizations {
   /// No description provided for @pinBiometricsPinStillWorks.
   ///
   /// In en, this message translates to:
-  /// **'You can still use your PIN at any time.'**
+  /// **'The PIN still works.'**
   String get pinBiometricsPinStillWorks;
 
   /// Button answering yes to 'Unlock with fingerprint or face?': turns fingerprint or face unlock on.
@@ -3970,7 +3982,7 @@ abstract class AppLocalizations {
   /// No description provided for @slateAcceptedBody.
   ///
   /// In en, this message translates to:
-  /// **'The {amount} arrive once the sender finishes the payment and it is on the chain.'**
+  /// **'{amount} arrives once the sender finishes the payment and it is on the chain.'**
   String slateAcceptedBody(String amount);
 
   /// A transaction file this wallet accepted before was opened again: the same answer file can be given back; nothing new happened.
@@ -3982,7 +3994,7 @@ abstract class AppLocalizations {
   /// Body under slateRepeatedHeadline: the payment was accepted before; this is the same answer, not a second payment.
   ///
   /// In en, this message translates to:
-  /// **'You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.'**
+  /// **'You accepted this payment before, so this is the same answer, not a second payment. {amount} arrives once the sender finishes it and it is on the chain.'**
   String slateRepeatedBody(String amount);
 
   /// A transaction file that pays this wallet.
@@ -4078,7 +4090,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanQrCameraDenied.
   ///
   /// In en, this message translates to:
-  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also paste the address instead.'**
+  /// **'Camera access is off. Allow it in the phone’s settings, or paste the address instead.'**
   String get scanQrCameraDenied;
 
   /// No description provided for @scanQrCameraFailed.
@@ -4336,7 +4348,7 @@ abstract class AppLocalizations {
   /// Panel on the camera screen when the camera permission is refused.
   ///
   /// In en, this message translates to:
-  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also open the file instead.'**
+  /// **'Camera access is off. Allow it in the phone’s settings, or open a file instead.'**
   String get qrScanCameraDenied;
 
   /// Panel on the camera screen when the camera could not start.
@@ -4504,7 +4516,7 @@ abstract class AppLocalizations {
   /// First step of the QR send, done.
   ///
   /// In en, this message translates to:
-  /// **'Payment made'**
+  /// **'Payment QR ready'**
   String get sendQrMade;
 
   /// Hint on Send once the payment QR is made.
@@ -4534,13 +4546,13 @@ abstract class AppLocalizations {
   /// Status line on a QR screen after the code hid itself.
   ///
   /// In en, this message translates to:
-  /// **'Hidden. Show again if they did not finish scanning.'**
+  /// **'Hidden'**
   String get qrStatusHiddenAgain;
 
   /// Status line on the reply QR screen while the code is hidden.
   ///
   /// In en, this message translates to:
-  /// **'Show this to the sender.'**
+  /// **'Hidden'**
   String get qrStatusReplyHidden;
 
   /// Status line on the reply QR screen while the code shows.
@@ -4942,7 +4954,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsRescanBody.
   ///
   /// In en, this message translates to:
-  /// **'The wallet looks for its funds again. An earlier start finds more but takes longer; the whole chain can take a long time.'**
+  /// **'Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.'**
   String get settingsRescanBody;
 
   /// Choice in the rescan dialog: start at the block of a picked day.
@@ -5116,13 +5128,13 @@ abstract class AppLocalizations {
   /// Licences screen: the first paragraph.
   ///
   /// In en, this message translates to:
-  /// **'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.'**
+  /// **'Open-source software in this wallet, each under its own licence.'**
   String get licencesLead;
 
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache 2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -5452,7 +5464,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.'**
+  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.'**
   String get settingsUseStatusSiteSubtitle;
 
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
@@ -6190,7 +6202,7 @@ abstract class AppLocalizations {
   /// Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'.
   ///
   /// In en, this message translates to:
-  /// **'Pay a friend’s demo, or open this page in a different browser or a private window.'**
+  /// **'Pay a friend’s demo, or open the demo in another browser or a private window.'**
   String get demoGuideSendHint;
 
   /// Web demo checklist, step 2's button: switches to the Send tab.
@@ -6388,7 +6400,7 @@ abstract class AppLocalizations {
   /// Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise.
   ///
   /// In en, this message translates to:
-  /// **'Reaching their wallet over Tor… This can take a while. Keep the app open.'**
+  /// **'Reaching their wallet over Tor… Keep the app open.'**
   String get sendTorReaching;
 
   /// Send, review: the recipient's wallet was not reached over Tor; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. Try again and Cancel payment follow.
@@ -6700,7 +6712,7 @@ abstract class AppLocalizations {
   /// Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Wait until the send in progress confirms (about {blocks, plural, one{{blocks} block} other{{blocks} blocks}}).'**
+  /// **'Wait until the send in progress confirms ({blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}).'**
   String outputsWaitLocked(int blocks);
 
   /// Row: which outputs a send spends.
@@ -7275,7 +7287,7 @@ abstract class AppLocalizations {
   /// Invoice review: the node answered.
   ///
   /// In en, this message translates to:
-  /// **'Responding'**
+  /// **'Synced'**
   String get invoicesNodeOk;
 
   /// Invoice review: the node did not answer.
@@ -9247,7 +9259,7 @@ abstract class AppLocalizations {
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
   ///
   /// In en, this message translates to:
-  /// **'Works with the wallet closed.'**
+  /// **'Senders can pay while this wallet is closed.'**
   String get methodReceiveEpicboxShort;
 
   /// Receive's Link strip title.
@@ -9361,13 +9373,13 @@ abstract class AppLocalizations {
   /// Receive's Link tab while Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Link · Tor receiving needs Tor.'**
+  /// **'Link · Tor needs Tor.'**
   String get receiveDirectNeedsTor;
 
   /// Caption under 'Link receiving needs Tor.'
   ///
   /// In en, this message translates to:
-  /// **'Senders use the Epicbox address meanwhile.'**
+  /// **'Meanwhile, share the Epicbox address.'**
   String get receiveDirectMeanwhile;
 
   /// Title of the HTTP address card on the phone’s Receive › Link tab.
@@ -21575,7 +21587,7 @@ abstract class AppLocalizations {
   /// One line under the Tor only network mode.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
   String get advModeTorOnlyLine;
 
   /// Network mode: no network.
@@ -21587,7 +21599,7 @@ abstract class AppLocalizations {
   /// One line under the Offline network mode.
   ///
   /// In en, this message translates to:
-  /// **'Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.'**
+  /// **'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.'**
   String get advModeOfflineLine;
 
   /// Note under the network choice while Tor only is selected.
@@ -21767,7 +21779,7 @@ abstract class AppLocalizations {
   /// Text under the Tor only mode.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
   String get deskSetAdvModeTorOnlyText;
 
   /// Network mode: no network.
@@ -23303,7 +23315,7 @@ abstract class AppLocalizations {
   /// Option 2 line
   ///
   /// In en, this message translates to:
-  /// **'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.'**
+  /// **'Send a link in any chat or email.'**
   String get pairWayMessageHint;
 
   /// ⓘ of option 2
@@ -23717,7 +23729,7 @@ abstract class AppLocalizations {
   /// Waiting screen body.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.'**
+  /// **'Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.'**
   String get pairWaitingBody;
 
   /// Button on the waiting screen and the relay notice.
@@ -24179,7 +24191,7 @@ abstract class AppLocalizations {
   /// Notice body.
   ///
   /// In en, this message translates to:
-  /// **'Retrying. Requests and payments wait until it answers; nothing is lost.'**
+  /// **'Retrying. Requests and payments wait until it answers.'**
   String get contactRelayDownBody;
 
   /// Readout and docked notice on the contact page and Settings › Invoices.
@@ -25637,7 +25649,7 @@ abstract class AppLocalizations {
   /// Import confirm line: contacts in the file already saved here, nothing to add.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 already here} other{{count} already here}}'**
+  /// **'{count, plural, =1{1 already saved} other{{count} already saved}}'**
   String contactsImportSame(int count);
 
   /// Import confirm line: contacts in the file left out because none of their addresses is valid for this wallet.
@@ -25673,7 +25685,7 @@ abstract class AppLocalizations {
   /// Success notice after an import: contacts added (including saved ones that gained an address or note) and contacts already there.
   ///
   /// In en, this message translates to:
-  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}'**
+  /// **'{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already saved} other{{same} already saved}}'**
   String contactsImported(int added, int same);
 
   /// Success notice after an import when none of the file's contacts was already there.
@@ -26423,14 +26435,8 @@ abstract class AppLocalizations {
   /// Export of the history backup, sentence 1 (both apps): what the file holds. Shown where the user decides to export.
   ///
   /// In en, this message translates to:
-  /// **'This file holds this wallet’s payment history, contacts, invoices and settings.'**
+  /// **'Holds this wallet’s payment history, contacts, invoices and settings, up to now.'**
   String get backupFileHolds;
-
-  /// Export of the history backup, sentence 2: the file has no recovery phrase and cannot restore the wallet alone.
-  ///
-  /// In en, this message translates to:
-  /// **'It does not hold the recovery phrase and cannot restore the wallet on its own.'**
-  String get backupFileNoPhrase;
 
   /// Export of the history backup, sentence 3: the order of a restore, the phrase first, then this file.
   ///
@@ -26447,7 +26453,7 @@ abstract class AppLocalizations {
   /// The one summary after a history backup import. {items} is a list such as "12 payments, 5 notes and settings", joined with backupListSeparator and backupListLastSeparator from the backupRestored… items.
   ///
   /// In en, this message translates to:
-  /// **'Restored: {items}.'**
+  /// **'Imported: {items}.'**
   String backupRestoredSummary(String items);
 
   /// Joins the items of a short list in a sentence, all but the last join: ", " in English. Keep the spaces the language needs.

@@ -769,7 +769,7 @@ void main() {
         final show = find.widgetWithText(FilledButton, 'Show recovery phrase');
         expect(tester.widget<FilledButton>(show).onPressed, isNull);
         await tester.tap(
-          find.text('I will keep any copy of the phrase private'),
+          find.text('I will keep the phrase private'),
         );
         await tester.pump();
         await tester.tap(show);
@@ -803,7 +803,7 @@ void main() {
         await tester.tap(find.text('Back up'));
         await _pumpFrames(tester);
         await tester.tap(
-          find.text('I will keep any copy of the phrase private'),
+          find.text('I will keep the phrase private'),
         );
         await tester.pump();
         await tester.tap(find.widgetWithText(FilledButton, 'Show recovery phrase'));

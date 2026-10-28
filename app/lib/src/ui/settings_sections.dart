@@ -733,7 +733,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(Icons.upload_file),
           title: TitleWithHint(
             l.settingsExportHistory,
-            hint: '${l.backupFileHolds} ${l.backupFileNoPhrase} ${l.backupFileRestoreOrder}',
+            hint: '${l.backupFileHolds} ${l.backupFileRestoreOrder}',
             icon: Icons.upload_file,
           ),
           onTap: _busy

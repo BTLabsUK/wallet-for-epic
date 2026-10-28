@@ -376,7 +376,7 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 1.3;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await h.pump(tester, const OutputsScreen(), width: 360);
-    final note = find.textContaining(_l.dateYesterday);
+    final note = find.textContaining(_l.dateYesterday.toLowerCase());
     expect(note, findsOneWidget);
     final paragraph = tester.renderObject<RenderParagraph>(note);
     expect(paragraph.didExceedMaxLines, isFalse);

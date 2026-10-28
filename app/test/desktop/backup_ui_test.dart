@@ -171,7 +171,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Imported'), findsOneWidget);
     // One summary of what came back.
-    expect(find.textContaining('Restored: '), findsOneWidget);
+    expect(find.textContaining('Imported: '), findsOneWidget);
     expect(find.textContaining('records were already here'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Done'));
     await tester.pumpAndSettle();

@@ -21,7 +21,7 @@
   "deskSetAdvModeStandard": "Standardowy",
   "deskSetAdvModeStandardText": "Łączy się bezpośrednio. Tora można włączyć w Prywatności.",
   "deskSetAdvModeTorOnly": "Tylko Tor",
-  "deskSetAdvModeTorOnlyText": "Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.",
+  "deskSetAdvModeTorOnlyText": "Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.",
   "deskSetAdvModeOffline": "Offline",
   "deskSetAdvModeOfflineText": "Tylko ten komputer i twoja sieć lokalna. Twój węzeł działa dalej; jego peery to ustawienie samego węzła.",
   "deskSetAdvTorOnlyNote": "Tylko Tor wyłącza odbieranie przez Link · HTTP: zwykły adres ujawniłby ten komputer.",

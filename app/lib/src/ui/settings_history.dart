@@ -227,10 +227,10 @@ Future<bool> handOverFile(
   return done;
 }
 
-/// What a history backup holds, told where the user exports it: not the recovery phrase,
-/// and a restore takes the phrase first, then this file.
+/// What a history backup holds, told where the user exports it, and that a restore takes
+/// the recovery phrase first, then this file.
 String backupFileNote(AppLocalizations l) =>
-    '${l.backupFileHolds} ${l.backupFileNoPhrase} ${l.backupFileRestoreOrder}\n${l.historyBackupExportNote}';
+    '${l.backupFileHolds} ${l.backupFileRestoreOrder}';
 
 /// "Use the settings from this backup?" for [n] settings the user changed here that the file
 /// has otherwise. True takes the backup's.

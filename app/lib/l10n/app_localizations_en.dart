@@ -206,8 +206,8 @@ class AppLocalizationsEn extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'The file has other details for $n payments you described. Yours are kept unless you choose otherwise.',
-      one: 'The file has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
+          'The file has different details for $n payments. Yours are kept unless you pick the file’s.',
+      one: 'The file has different details for 1 payment. Yours are kept unless you pick the file’s.',
     );
     return '$_temp0';
   }
@@ -792,7 +792,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it later, it still arrives.';
+      'The sender may already have posted it. The wallet cancels only if the network does not have it; a later post still arrives.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1033,14 +1033,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Keep a copy off this phone, such as email or cloud storage';
+      'A copy off this phone, such as email or cloud storage.';
 
   @override
   String get historyBackupSaveToDevice => 'Save to device';
 
   @override
-  String get historyBackupSaveToDeviceSubtitle =>
-      'Only useful if you also copy it off this phone.';
+  String get historyBackupSaveToDeviceSubtitle => 'Copy it off this phone too.';
 
   @override
   String historyBackupSaved(String fileName) {
@@ -1051,15 +1050,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyBackupExportTitle => 'Export wallet data';
 
   @override
-  String get historyBackupExportNote =>
-      'The file holds everything up to now. Export again after new payments or changes.';
-
-  @override
   String get historyBackupCsvTitle => 'Export CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export wallet data for that.';
+      'Not encrypted: anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.';
 
   @override
   String get historyBackupCsvConfirm => 'Export CSV';
@@ -1240,7 +1235,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Epicbox server reported a problem. Retrying.';
 
   @override
-  String get homeNoticePaymentFailed => 'A payment could not be completed.';
+  String get homeNoticePaymentFailed =>
+      'A payment failed. Open Activity to see it.';
 
   @override
   String get homeBackupCardText => 'Back up your recovery phrase.';
@@ -1729,7 +1725,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'The payer’s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.';
+      'The payer’s wallet cannot pay requests, so nothing was paid. Ask them to send the payment to your address or as a transaction file.';
 
   @override
   String get txStatusWaitingPayer => 'Waiting for payer';
@@ -2015,7 +2011,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreDateHint =>
-      'Optional. If you are not sure, pick an earlier date. A date after your first payment misses funds. Without a date the whole chain is scanned, which takes longer.';
+      'Optional. If unsure, pick an earlier date: a later one can miss coins.';
 
   @override
   String restoreDateStart(String height) {
@@ -2120,7 +2116,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      'The recovery phrase brought back the balance. A wallet data file brings back this wallet’s payment history, contacts, invoices and settings. If you exported one, import it now: it is the file you shared or saved outside your old phone.';
+      'The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.';
 
   @override
   String get restoreImportButton => 'Import wallet data';
@@ -2165,10 +2161,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
+      'Anyone who sees the words, or a photo of them, can take the coins.';
 
   @override
-  String get backupCopyAgree => 'I will keep any copy of the phrase private';
+  String get backupConsentTitle => 'Before you see the phrase';
+
+  @override
+  String get backupConsentWhat =>
+      'The next screen shows the words that restore this wallet.';
+
+  @override
+  String get backupConsentReady => 'Have paper and a pen ready.';
+
+  @override
+  String get backupCopyAgree => 'I will keep the phrase private';
 
   @override
   String get backupShowPhrase => 'Show recovery phrase';
@@ -2243,8 +2249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinBiometricsQuestion => 'Unlock with fingerprint or face?';
 
   @override
-  String get pinBiometricsPinStillWorks =>
-      'You can still use your PIN at any time.';
+  String get pinBiometricsPinStillWorks => 'The PIN still works.';
 
   @override
   String get pinBiometricsEnable => 'Use biometrics';
@@ -2509,7 +2514,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String slateAcceptedBody(String amount) {
-    return 'The $amount arrive once the sender finishes the payment and it is on the chain.';
+    return '$amount arrives once the sender finishes the payment and it is on the chain.';
   }
 
   @override
@@ -2519,7 +2524,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String slateRepeatedBody(String amount) {
-    return 'You accepted this payment before, so this is the same answer, not a second payment. The $amount arrive once the sender finishes it and it is on the chain.';
+    return 'You accepted this payment before, so this is the same answer, not a second payment. $amount arrives once the sender finishes it and it is on the chain.';
   }
 
   @override
@@ -2580,7 +2585,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanQrCameraDenied =>
-      'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also paste the address instead.';
+      'Camera access is off. Allow it in the phone’s settings, or paste the address instead.';
 
   @override
   String get scanQrCameraFailed =>
@@ -2747,7 +2752,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrScanCameraDenied =>
-      'The wallet may not use the camera. To scan, allow camera access for this app in your phone’s settings. You can also open the file instead.';
+      'Camera access is off. Allow it in the phone’s settings, or open a file instead.';
 
   @override
   String get qrScanCameraFailed =>
@@ -2844,7 +2849,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'Payment made';
+  String get sendQrMade => 'Payment QR ready';
 
   @override
   String get sendQrHint =>
@@ -2861,11 +2866,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Waiting for the recipient to scan. Then scan their reply.';
 
   @override
-  String get qrStatusHiddenAgain =>
-      'Hidden. Show again if they did not finish scanning.';
+  String get qrStatusHiddenAgain => 'Hidden';
 
   @override
-  String get qrStatusReplyHidden => 'Show this to the sender.';
+  String get qrStatusReplyHidden => 'Hidden';
 
   @override
   String get qrStatusReplyShowing => 'Waiting for the sender to scan.';
@@ -3087,7 +3091,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'The wallet looks for its funds again. An earlier start finds more but takes longer; the whole chain can take a long time.';
+      'Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.';
 
   @override
   String get settingsRescanFromDate => 'From a date';
@@ -3182,10 +3186,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get licencesLead =>
-      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.';
+      'Open-source software in this wallet, each under its own licence.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile by BT Labs: Apache-2.0.';
+  String get licencesApp => 'Epic Cash Mobile by BT Labs: Apache 2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3375,7 +3379,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.';
+      'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.';
 
   @override
   String get txStepStarted => 'Payment started';
@@ -3812,7 +3816,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Pay a friend’s demo, or open this page in a different browser or a private window.';
+      'Pay a friend’s demo, or open the demo in another browser or a private window.';
 
   @override
   String get demoGuideOpenSend => 'Go to Send';
@@ -3927,7 +3931,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendTorReaching =>
-      'Reaching their wallet over Tor… This can take a while. Keep the app open.';
+      'Reaching their wallet over Tor… Keep the app open.';
 
   @override
   String sendTorNotReached(int days) {
@@ -4124,10 +4128,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks blocks',
-      one: '$blocks block',
+      other: '$blocks confirmations',
+      one: '$blocks confirmation',
     );
-    return 'Wait until the send in progress confirms (about $_temp0).';
+    return 'Wait until the send in progress confirms ($_temp0).';
   }
 
   @override
@@ -4520,7 +4524,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoicesCheckEpicbox => 'Epicbox';
 
   @override
-  String get invoicesNodeOk => 'Responding';
+  String get invoicesNodeOk => 'Synced';
 
   @override
   String get invoicesNodeDown => 'Not responding';
@@ -5762,7 +5766,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => 'Works with the wallet closed.';
+  String get methodReceiveEpicboxShort =>
+      'Senders can pay while this wallet is closed.';
 
   @override
   String get methodReceiveDirectTitle => 'Straight to this wallet.';
@@ -5823,11 +5828,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Link · Tor receiving needs Tor.';
+  String get receiveDirectNeedsTor => 'Link · Tor needs Tor.';
 
   @override
-  String get receiveDirectMeanwhile =>
-      'Senders use the Epicbox address meanwhile.';
+  String get receiveDirectMeanwhile => 'Meanwhile, share the Epicbox address.';
 
   @override
   String get receiveHttpTitle => 'Link · HTTP address';
@@ -13594,14 +13598,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'Every connection goes through Tor. Without Tor, the wallet stays offline.';
 
   @override
   String get advModeOffline => 'Offline';
 
   @override
   String get advModeOfflineLine =>
-      'Only this phone and your local network. QR Payment and File Transfer still work over the node in use; everything else waits until you switch back.';
+      'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.';
 
   @override
   String get advTorOnlyNote =>
@@ -13704,7 +13708,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'Every connection goes through Tor. Without Tor, the wallet stays offline.';
 
   @override
   String get deskSetAdvModeOffline => 'Offline';
@@ -14669,8 +14673,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairWayMessage => 'Invite by message';
 
   @override
-  String get pairWayMessageHint =>
-      'Send a link in any chat: Telegram, WhatsApp, SMS, email. No Epicbox server needed.';
+  String get pairWayMessageHint => 'Send a link in any chat or email.';
 
   @override
   String get pairWayMessageInfo =>
@@ -14930,7 +14933,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens next. You can close this; pairing continues in the background and the verification appears when it is done.';
+      'Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.';
 
   @override
   String get pairSendByHand => 'Send by hand';
@@ -15224,7 +15227,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers; nothing is lost.';
+      'Retrying. Requests and payments wait until it answers.';
 
   @override
   String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
@@ -16235,8 +16238,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count already here',
-      one: '1 already here',
+      other: '$count already saved',
+      one: '1 already saved',
     );
     return '$_temp0';
   }
@@ -16283,8 +16286,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp1 = intl.Intl.pluralLogic(
       same,
       locale: localeName,
-      other: '$same already there',
-      one: '1 already there',
+      other: '$same already saved',
+      one: '1 already saved',
     );
     return '$_temp0, $_temp1';
   }
@@ -16760,11 +16763,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupFileHolds =>
-      'This file holds this wallet’s payment history, contacts, invoices and settings.';
-
-  @override
-  String get backupFileNoPhrase =>
-      'It does not hold the recovery phrase and cannot restore the wallet on its own.';
+      'Holds this wallet’s payment history, contacts, invoices and settings, up to now.';
 
   @override
   String get backupFileRestoreOrder =>
@@ -16776,7 +16775,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupRestoredSummary(String items) {
-    return 'Restored: $items.';
+    return 'Imported: $items.';
   }
 
   @override
