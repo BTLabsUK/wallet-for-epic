@@ -3338,7 +3338,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'อ่านจาก status.btlabs.uk ระบบติดตามของ BT Labs ว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์ ความสูงบล็อกและเวลาตอบสนอง แล้วแสดงในรายการเซิร์ฟเวอร์และการ์ดสถานะ เมื่อปิด แอปจะไม่ติดต่อ status.btlabs.uk เลย และรายการเซิร์ฟเวอร์จะไม่แสดงสถานะ';
+      'แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ ดาวน์โหลดเพียงรายการสาธารณะ ไม่มีการส่งข้อมูลใดจากกระเป๋าเงิน';
 
   @override
   String get txStepStarted => 'เริ่มรายการแล้ว';
@@ -11904,7 +11904,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetPrivUseStatusHint =>
-      'สถานะเครือข่ายและข้อมูลจาก status.btlabs.uk';
+      'แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ ดาวน์โหลดเพียงรายการสาธารณะ ไม่มีการส่งข้อมูลใดจากกระเป๋าเงิน';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {

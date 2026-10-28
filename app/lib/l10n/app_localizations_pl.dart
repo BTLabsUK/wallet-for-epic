@@ -3501,7 +3501,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, aplikacja nigdy nie łączy się ze status.btlabs.uk, a listy serwerów nie pokazują stanu.';
+      'Pokazuje, które węzły i serwery Epicbox są online. Pobiera tylko publiczną listę; z portfela nic nie jest wysyłane.';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -12707,7 +12707,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetPrivUseStatusHint =>
-      'Stan sieci i informacje dostarczane przez status.btlabs.uk';
+      'Pokazuje, które węzły i serwery Epicbox są online. Pobiera tylko publiczną listę; z portfela nic nie jest wysyłane.';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {

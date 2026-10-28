@@ -5494,7 +5494,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.'**
+  /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
   String get settingsUseStatusSiteSubtitle;
 
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
@@ -19337,7 +19337,7 @@ abstract class AppLocalizations {
   /// Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays.
   ///
   /// In en, this message translates to:
-  /// **'Network status and information provided by status.btlabs.uk'**
+  /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
   String get deskSetPrivUseStatusHint;
 
   /// Toast title when turning a receiving method on failed. {method} is a method name such as Epicbox, HTTP or Tor.

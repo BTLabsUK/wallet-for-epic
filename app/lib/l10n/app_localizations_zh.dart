@@ -3207,7 +3207,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      '从 BT Labs 的监测站 status.btlabs.uk 读取哪些节点和 Epicbox 服务器在线、它们的区块高度和响应时间，并显示在服务器列表和状态卡上。关闭后，应用不会访问 status.btlabs.uk，服务器列表也不显示状态。';
+      '显示哪些节点和 Epicbox 服务器在线。只下载一份公开列表；不会发送钱包中的任何内容。';
 
   @override
   String get txStepStarted => '付款已发起';
@@ -11495,7 +11495,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPrivUseStatus => '使用 status.btlabs.uk';
 
   @override
-  String get deskSetPrivUseStatusHint => '网络状态和信息由 status.btlabs.uk 提供';
+  String get deskSetPrivUseStatusHint =>
+      '显示哪些节点和 Epicbox 服务器在线。只下载一份公开列表；不会发送钱包中的任何内容。';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {

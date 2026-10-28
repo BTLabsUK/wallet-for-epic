@@ -4307,7 +4307,7 @@
   "@settingsUseStatusSite": {
     "description": "Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is."
   },
-  "settingsUseStatusSiteSubtitle": "Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. When off, the app never contacts status.btlabs.uk and the server lists show no status.",
+  "settingsUseStatusSiteSubtitle": "Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.",
   "@settingsUseStatusSiteSubtitle": {
     "description": "Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name."
   },
@@ -16123,7 +16123,7 @@
   "@deskSetPrivUseStatus": {
     "description": "Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays."
   },
-  "deskSetPrivUseStatusHint": "Network status and information provided by status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.",
   "@deskSetPrivUseStatusHint": {
     "description": "Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays."
   },

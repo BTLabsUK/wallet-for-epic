@@ -3444,7 +3444,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Liest von status.btlabs.uk, dem Monitor von BT Labs, welche Nodes und Epicbox-Server online sind, ihre Blockhöhe und ihre Antwortzeit, und zeigt sie in den Serverlisten und auf der Statuskarte. Wenn aus, kontaktiert die App status.btlabs.uk nie, und die Serverlisten zeigen keinen Status.';
+      'Zeigt, welche Nodes und Epicbox-Server online sind. Lädt nur eine öffentliche Liste herunter; aus der Wallet wird nichts gesendet.';
 
   @override
   String get txStepStarted => 'Zahlung gestartet';
@@ -12360,7 +12360,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetPrivUseStatusHint =>
-      'Netzwerkstatus und Informationen von status.btlabs.uk';
+      'Zeigt, welche Nodes und Epicbox-Server online sind. Lädt nur eine öffentliche Liste herunter; aus der Wallet wird nichts gesendet.';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {

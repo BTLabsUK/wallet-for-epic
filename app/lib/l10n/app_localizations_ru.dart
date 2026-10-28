@@ -3482,7 +3482,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Читает со status.btlabs.uk, монитора BT Labs, какие узлы и серверы Epicbox в сети, их высоту блока и время ответа, и показывает это в списках серверов и на карточке состояния. Если выключено, приложение никогда не обращается к status.btlabs.uk, а списки серверов не показывают состояние.';
+      'Показывает, какие узлы и серверы Epicbox в сети. Загружает только публичный список; из кошелька ничего не отправляется.';
 
   @override
   String get txStepStarted => 'Платёж начат';
@@ -12679,7 +12679,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetPrivUseStatusHint =>
-      'Состояние сети и информация предоставляются status.btlabs.uk';
+      'Показывает, какие узлы и серверы Epicbox в сети. Загружает только публичный список; из кошелька ничего не отправляется.';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {

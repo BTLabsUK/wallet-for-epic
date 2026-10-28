@@ -78,7 +78,7 @@
   "@deskSetPrivUseStatus": {
     "description": "Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays."
   },
-  "deskSetPrivUseStatusHint": "Network status and information provided by status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.",
   "@deskSetPrivUseStatusHint": {
     "description": "Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays."
   }
