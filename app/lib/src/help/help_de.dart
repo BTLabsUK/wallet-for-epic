@@ -6,8 +6,8 @@ import 'help_content.dart';
 import 'help_devices.dart';
 
 const List<HelpSection> helpSectionsDe = [
-  (id: 'start', title: 'Erste Schritte', lede: 'Empfangen, senden und der Weg per Datei.', art: 'help-start'),
-  (id: 'how', title: 'So funktioniert Epic Cash', lede: 'Beide Wallets wirken mit; Bestätigungen, Privatsphäre, Wechselgeld und Gebühren.', art: 'help-how'),
+  (id: 'start', title: 'Erste Schritte', lede: 'Empfangen, senden und per Datei bezahlen.', art: 'help-start'),
+  (id: 'how', title: 'So funktioniert Epic Cash', lede: 'Beide Wallets wirken mit. Bestätigungen, Privatsphäre, Wechselgeld und Gebühren.', art: 'help-how'),
   (id: 'safety', title: 'Die Wallet schützen', lede: 'Die Wiederherstellungsphrase ist Sicherung und Schlüssel zugleich.', art: 'help-safety'),
   (id: 'network', title: 'Nodes und Epicbox', lede: 'Womit sich die Wallet verbindet, und Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Wenn etwas nicht klappt', lede: 'Die üblichen Ursachen und was zu tun ist.', art: 'help-trouble'),
@@ -40,9 +40,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Öffnen Sie Empfangen, kopieren Sie die Epicbox-Adresse und geben Sie sie dem Absender. Die Zahlung kommt von selbst an.',
       [
         const HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@epicbox.epiccash.com**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
-        const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität. Sie müssen nichts tun.']),
+        const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität.']),
         if (phone)
-          const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchronisiert ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet etwa eine Woche auf dem Epicbox-Server und kommt beim nächsten Entsperren an.')
+          const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchronisiert ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet auf dem Epicbox-Server, wie in einem Postfach, und kommt beim nächsten Entsperren an.')
         else
           const HelpBlock.p('Der Empfang startet nach dem Entsperren von selbst, sobald der Node synchronisiert ist. Ist die Wallet beim Bezahlen geschlossen, hält Epicbox die Zahlung bereit, und die Wallet holt sie beim nächsten Entsperren ab.'),
         HelpBlock.p('Eine neue Zahlung wartet zuerst darauf, dass die Wallet des Absenders sie abschließt, und wird dann als „Wird bestätigt“ angezeigt. Ab der $confirmations. Bestätigung (nach etwa $confirmations Min.) ist sie verfügbar.'),
@@ -129,7 +129,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash nutzt Mimblewimble. Statt eine Adresse und einen Betrag in die Blockchain zu schreiben, bauen die beiden Wallets jede Transaktion gemeinsam, wie bei einem Handschlag:'),
         HelpBlock.ol(['Die Wallet des Absenders beginnt und sperrt die Outputs, die gesendet werden.', 'Die Wallet des Empfängers fügt ihren Teil hinzu und signiert.', 'Die Wallet des Absenders signiert ebenfalls, schließt die Transaktion ab und sendet sie ins Netzwerk.']),
-        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. ${tor ? '**Link · HTTP** und **Link · Tor** gehen direkt' : '**Link · HTTP** geht direkt'} zur anderen Wallet, solange sie geöffnet ist. **Direkt · Dateiübertragung** (eine Transaktionsdatei) ist der manuelle Weg.'),
+        HelpBlock.p('Etwas muss die Nachrichten zwischen den beiden Wallets übermitteln. **Epicbox** hält jede Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. ${tor ? '**Link · HTTP** und **Link · Tor** gehen direkt' : '**Link · HTTP** geht direkt'} zur anderen Wallet, solange sie geöffnet ist. **Direkt · Dateiübertragung** mit einer Transaktionsdatei ist der manuelle Weg.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -365,7 +365,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'trouble',
       'Fehlerbehebung',
-      'Meist ist ein Node noch nicht synchronisiert, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
+      phone
+          ? 'Meist ist ein Node noch nicht synchronisiert oder ein Empfänger hat noch nicht geantwortet.'
+          : 'Meist ist ein Node noch nicht synchronisiert, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
       [
         if (phone)
           const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf die Node-Zeile und wählen Sie einen anderen Node.')
