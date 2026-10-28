@@ -267,7 +267,8 @@
     "placeholders": {
       "count": {
         "type": "int",
-        "example": "100"
+        "example": "100",
+        "format": "decimalPattern"
       }
     }
   },
@@ -275,7 +276,7 @@
   "@deskTxNowWaitingSender": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
   },
-  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.",
+  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted; it completes when confirmed.",
   "@deskTxNowSenderPosted": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   },
@@ -311,7 +312,8 @@
     "placeholders": {
       "confirmations": {
         "type": "int",
-        "example": "12"
+        "example": "12",
+        "format": "decimalPattern"
       }
     }
   },

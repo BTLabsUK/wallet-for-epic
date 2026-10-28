@@ -177,7 +177,7 @@ void main() {
     expect(find.text('Receive when offline'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await wait(tester, 300);
-    expect(find.text('Check settings'), findsOneWidget);
+    expect(find.text('Review settings'), findsOneWidget);
     expect(find.text(node), findsOneWidget);
     expect(wallet.calls, isEmpty, reason: 'nothing happens before Save');
     await tester.tap(find.text('Save settings'));
@@ -193,7 +193,7 @@ void main() {
     await wait(tester, 4000);
     await tester.tap(find.text('Reveal phrase'));
     await tester.pump();
-    await tester.tap(find.textContaining('Written down'));
+    await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
     await tester.tap(find.text('Continue'));
     await wait(tester, 800);
@@ -313,7 +313,7 @@ void main() {
     await wait(tester, 4000);
     await tester.tap(find.text('Reveal phrase'));
     await tester.pump();
-    await tester.tap(find.textContaining('Written down'));
+    await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
     await tester.tap(find.text('Continue'));
     await wait(tester, 800);

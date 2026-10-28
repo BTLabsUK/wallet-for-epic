@@ -37,7 +37,7 @@
   "deskInvIssuerCancel": "Anuluj płatność",
   "deskInvIssuerCancelTitle": "Anulować tę płatność?",
   "deskInvIssuerCancelBody": "Nie dotrze. Środki płacącego ({payer}) pozostaną zablokowane w jego portfelu, dopóki tam jej nie anuluje.",
-  "deskInvIssuerBounced": "Portfel płacącego ({payer}) odesłał fakturę: nie może płacić faktur. Poproś zamiast tego o przesłanie płatności.",
+  "deskInvIssuerBounced": "Portfel płacącego ({payer}) nie może płacić faktur; poproś o przesłanie płatności.",
   "deskInvIssuerSendFile": "Użyj pliku",
   "deskInvIssuerLate": "Po zakończeniu tej faktury dotarła płatność. Została odrzucona; nic się nie zmieniło.",
   "deskInvIssuerPaidText": "Zapłacono ({payer}). Twój portfel sfinalizował płatność i opublikował ją.",

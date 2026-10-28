@@ -171,7 +171,7 @@
   "@deskSetBackupFile": {
     "description": "Export dialog: label of the row with the file name. Narrow label column."
   },
-  "deskSetBackupFileNote": "The file holds everything up to now. Export again after new payments or changes.",
+  "deskSetBackupFileNote": "The file holds everything up to now.",
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
@@ -183,7 +183,7 @@
   "@deskSetBackupSaved": {
     "description": "Export dialogs: title of the success block once the file is saved."
   },
-  "deskSetBackupKeepCopy": "Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.",
+  "deskSetBackupKeepCopy": "Keep a copy off this computer: a USB stick, another drive or cloud storage.",
   "@deskSetBackupKeepCopy": {
     "description": "Export history dialog: advice shown after saving."
   },
@@ -258,19 +258,11 @@
       }
     }
   },
-  "deskSetBackupNever": "Never",
-  "@deskSetBackupNever": {
-    "description": "Import dialog: label of the row saying what the import never does. Narrow label column."
-  },
-  "deskSetBackupNeverValue": "Removes or changes a payment that is here",
-  "@deskSetBackupNeverValue": {
-    "description": "Import dialog: what the import never does (continues the label \"Never\")."
-  },
   "deskSetBackupChooseFile": "Choose file…",
   "@deskSetBackupChooseFile": {
     "description": "Import dialog: button that opens the system Open dialog."
   },
-  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.",
+  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings; existing records stay.",
   "@deskSetBackupImportDesc": {
     "description": "Import history dialog: description under the title."
   },

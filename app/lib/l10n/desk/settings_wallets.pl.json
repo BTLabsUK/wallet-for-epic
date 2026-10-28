@@ -10,8 +10,8 @@
   "deskSetWalletsAdd": "Dodaj portfel",
   "deskSetWalletsCreate": "Utwórz portfel",
   "deskSetWalletsCreateText": "Nowy portfel z nową frazą odzyskiwania.",
-  "deskSetWalletsImport": "Importuj",
-  "deskSetWalletsImportText": "Ze starszego Epic Wallet lub z folderu.",
-  "deskSetWalletsRestore": "Przywróć",
-  "deskSetWalletsRestoreText": "Z frazy odzyskiwania."
+  "deskSetWalletsImport": "Importuj portfele",
+  "deskSetWalletsImportText": "Ze starszego Epic Wallet lub z folderu",
+  "deskSetWalletsRestore": "Przywróć z frazy",
+  "deskSetWalletsRestoreText": "Z frazy odzyskiwania"
 }

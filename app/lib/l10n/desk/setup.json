@@ -66,7 +66,7 @@
   "@deskSetupAgain": {
     "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
   },
-  "deskSetupPrefsLead": "App language. It can be changed later.",
+  "deskSetupPrefsLead": "App language",
   "@deskSetupPrefsLead": {
     "description": "Lead under the title of the setup's Preferences step, which has the language picker."
   },
@@ -90,7 +90,7 @@
   "@deskSetupEpicboxTitle": {
     "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
   },
-  "deskSetupReviewTitle": "Check settings",
+  "deskSetupReviewTitle": "Review settings",
   "@deskSetupReviewTitle": {
     "description": "Title of the setup's last step: a summary of the choices."
   },
@@ -105,10 +105,6 @@
   "deskSetupBackToWallet": "Back to wallet",
   "@deskSetupBackToWallet": {
     "description": "Button in the setup's side panel when setup was opened again from Settings: leave it without changes."
-  },
-  "deskSetupLaterNote": "Everything here can be changed later in Settings.",
-  "@deskSetupLaterNote": {
-    "description": "Small note at the foot of the setup's side panel on the first run."
   },
   "deskSetupSave": "Save settings",
   "@deskSetupSave": {
@@ -138,7 +134,7 @@
   "@deskSetupRemoteNodeText": {
     "description": "Text on the Remote node choice card."
   },
-  "deskSetupLocalNodeText": "Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.",
+  "deskSetupLocalNodeText": "Runs on this computer: private, but needs disk space and a first sync.",
   "@deskSetupLocalNodeText": {
     "description": "Text on the Local node choice card of the setup's node step."
   },
@@ -146,7 +142,7 @@
   "@deskSetupEpicboxText": {
     "description": "First paragraph of the setup's Epicbox step."
   },
-  "deskSetupEpicboxPrivacy": "It does not hide the IP address from the Epicbox server. Use a VPN if that matters.",
+  "deskSetupEpicboxPrivacy": "The Epicbox server sees this computer’s IP address.",
   "@deskSetupEpicboxPrivacy": {
     "description": "Second paragraph of the setup's Epicbox step: a privacy note."
   },
@@ -204,7 +200,7 @@
   "@deskSetupDataFolder": {
     "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
   },
-  "deskSetupSaveStartsFallback": "Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses {node} until then.",
+  "deskSetupSaveStartsFallback": "Save starts the node; {node} stands in until it is synced.",
   "@deskSetupSaveStartsFallback": {
     "description": "Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.",
     "placeholders": {
@@ -230,7 +226,7 @@
   "@deskSetupSaveFailedTitle": {
     "description": "Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave)."
   },
-  "deskSetupSaveFailedText": "{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.",
+  "deskSetupSaveFailedText": "{reason}. Save again, or skip to keep the settings saved so far.",
   "@deskSetupSaveFailedText": {
     "description": "Text of the red notice on the setup's last step after Save failed on a first run. {reason} is the error text, a short sentence without a final period (e.g. 'The wallet is locked'). 'Settings' is the app's Settings page.",
     "placeholders": {

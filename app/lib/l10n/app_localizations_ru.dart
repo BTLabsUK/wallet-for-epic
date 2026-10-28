@@ -4467,12 +4467,12 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks блока',
-      many: '$blocks блоков',
-      few: '$blocks блока',
-      one: '$blocks блок',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
-    return 'Тратит $spent ($amount) и создаёт один выход на $result. Обычная сетевая транзакция на этот кошелёк, подтверждается через $_temp0, как любая отправка; всё доступное блокируется до этого момента. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+    return 'Тратит $spent ($amount) и создаёт один выход на $result. Всё доступное заблокировано на $_temp0.';
   }
 
   @override
@@ -5259,7 +5259,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvCheckFailedBody =>
-      'Списки показывают то, что пришло раньше. Ничего не потеряно; кошелёк повторяет попытку каждые 2 минуты.';
+      'Списки показывают то, что пришло раньше; кошелёк повторит попытку.';
 
   @override
   String get deskInvReqWaiting => 'Ждёт плательщика';
@@ -5475,7 +5475,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerBounced(String payer) {
-    return 'Кошелёк $payer вернул счёт: он не может оплачивать счета. Попросите вместо этого прислать платёж.';
+    return 'Кошелёк $payer не может оплачивать счета; попросите $payer прислать платёж.';
   }
 
   @override
@@ -5554,7 +5554,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, счёт появится здесь, и ничего не будет оплачено без вашего одобрения.';
+      'Здесь появляются счета от разрешённых сопряжённых контактов; без одобрения ничего не оплачивается.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5563,7 +5563,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredText =>
-      'Он подписан и хранится на этом устройстве; средства заблокированы. «Повторить» отправит его снова без повторного одобрения.';
+      'Он подписан и хранится на этом компьютере; EPIC остаются заблокированными. «Повторить» отправит его снова без повторного одобрения.';
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
@@ -5765,7 +5765,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvPayerDeclined => 'Счёт отклонён. Ничего не оплачено.';
 
   @override
-  String get deskInvPayerSpendToSelf => 'Отправить их себе сейчас';
+  String get deskInvPayerSpendToSelf =>
+      'Отправить их обратно на этот кошелёк сейчас';
 
   @override
   String get deskInvPayerSpendToSelfHelp =>
@@ -6462,7 +6463,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Подключение к Tor… $percent %';
+    return 'Подключение к Tor… $percent%';
   }
 
   @override
@@ -6536,7 +6537,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskDataUpdStatus(int status) {
-    return 'Сервер обновлений ответил: $status.';
+    return 'Ошибка сервера обновлений ($status).';
   }
 
   @override
@@ -6780,22 +6781,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskNodeLineSyncing => 'Синхронизация';
 
   @override
-  String get deskNodeNoEstimate => 'без оценки; до часа';
-
-  @override
-  String get deskNodeEstimating => 'оценка…';
-
-  @override
-  String deskNodeAboutHours(int hours) {
-    return 'осталось около $hours ч';
-  }
-
-  @override
-  String deskNodeAboutMinutes(int minutes) {
-    return 'осталось около $minutes мин';
-  }
-
-  @override
   String deskNodeDurationHm(int hours, int minutes) {
     return '$hours ч $minutes мин';
   }
@@ -6823,10 +6808,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTorNotConnected => 'Нет подключения';
-
-  @override
-  String get deskTorRoutes =>
-      'Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor';
 
   @override
   String get deskTorCoverage =>
@@ -6873,13 +6854,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskRecvTorStarting => 'Tor запускается.';
 
   @override
-  String deskRecvTorDownText(String routes) {
-    return '$routes: ничего не придёт, пока Tor не подключится или пока его не выключат.';
-  }
+  String get deskRecvTorDownText =>
+      'Все соединения ждут Tor. Повторите попытку или выключите Tor.';
 
   @override
   String get deskRecvTorStartingText =>
-      'Адреса станут доступны, когда он подключится. Тем временем ничего не идёт в обход Tor.';
+      'Адреса станут доступны, когда Tor подключится.';
 
   @override
   String get deskRecvTurnTorOff => 'Выключить Tor';
@@ -6942,7 +6922,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvEpicboxIntro =>
-      'Поделитесь им, чтобы получить оплату. Работает и при закрытом кошельке: сервер Epicbox хранит платежи, пока кошелёк не вернётся.';
+      'Поделитесь им, чтобы получить оплату; сервер Epicbox хранит платежи, пока кошелёк закрыт.';
 
   @override
   String get deskRecvCheckSix =>
@@ -6965,7 +6945,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Напрямую из другого кошелька, пока этот открыт. Только на этом компьютере, если в настройках не указано иное.';
+      'Напрямую из другого кошелька, пока этот открыт.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -6996,7 +6976,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvSignText =>
-      'Отправитель передал файл транзакции. Кошелёк подписывает его и сохраняет ответ для отправителя.';
+      'Подпишите файл транзакции отправителя и сохраните файл ответа.';
 
   @override
   String get deskRecvOpen => 'Открыть';
@@ -7006,7 +6986,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvFinalizeText =>
-      'На отправку файлом пришёл ответ. Завершение отправляет платёж в сеть.';
+      'Завершите по файлу ответа получателя, чтобы отправить платёж в сеть.';
 
   @override
   String deskRecvSwitchLabel(String title) {
@@ -7493,7 +7473,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendFileReadyText =>
-      'Передайте этот файл получателю. Кошелёк ждёт файл ответа; когда он вернётся, завершите транзакцию.';
+      'Передайте этот файл получателю, затем завершите по его файлу ответа.';
 
   @override
   String get deskSendFinalize => 'Завершить';
@@ -7506,7 +7486,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Отправка станет возможна, когда узел синхронизируется. Готово $percent%; форму можно заполнить уже сейчас.';
+    return 'Отправка возобновится, когда узел синхронизируется ($percent%).';
   }
 
   @override
@@ -7527,15 +7507,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendTorStarting => 'Tor запускается';
 
   @override
-  String get deskSendTorStartingText =>
-      'Отправка ждёт, пока он подключится. Тем временем ничего не идёт в обход Tor.';
+  String get deskSendTorStartingText => 'Отправка ждёт Tor.';
 
   @override
   String get deskSendEpicboxOff => 'Epicbox не подключён';
 
   @override
   String get deskSendEpicboxOffText =>
-      'Отправка через Epicbox заработает, когда будет включён приём через Epicbox. А пока используйте «Напрямую · Передача файла».';
+      'Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «Напрямую · Передача файла».';
 
   @override
   String get deskSendEpicboxTurnOn => 'Включить приём через Epicbox';
@@ -7593,8 +7572,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendTurnOnTor => 'Включить Tor';
 
   @override
-  String get deskSendHttpClearnet =>
-      'Ссылка · HTTP идёт через обычный интернет, не через Tor.';
+  String get deskSendHttpClearnet => 'Ссылка · HTTP идёт напрямую, без Tor.';
 
   @override
   String get deskSendClear => 'Очистить';
@@ -7642,8 +7620,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пропускает транзакцию через несколько случайных узлов, прежде чем она разойдётся по сети, и сеть не может узнать, откуда она пришла.';
 
   @override
-  String get deskSendHintSent =>
-      'Отправлено. Чтобы отправить снова, введите новую сумму и получателя.';
+  String get deskSendHintSent => 'Отправлено.';
 
   @override
   String get deskSendHintQueued =>
@@ -7708,7 +7685,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'Адрес http(s) или .onion; .onion идёт через Tor. Кошелёк получателя должен быть открыт.';
+      'Адрес http(s) или .onion; кошелёк получателя должен быть открыт.';
 
   @override
   String get deskSendFileLine1 => 'Соединение не нужно.';
@@ -7921,7 +7898,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskFinTitle => 'Завершить по файлу ответа';
 
   @override
-  String get deskFinNoticeTitle => 'Для транзакции, созданной файлом';
+  String get deskFinNoticeTitle => 'Для платежей файлом';
 
   @override
   String get deskFinNoticeText =>
@@ -7958,7 +7935,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskImpWrongTypeText =>
-      'Этот файл не является файлом транзакции. Выберите файл .slate или .tx, который передал отправитель.';
+      'Это не файл транзакции. Выберите файл .tx, который передал отправитель.';
 
   @override
   String get deskImpUnreadable => 'Файл не читается';
@@ -8108,7 +8085,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskActEmptyText =>
-      'Здесь появится каждый отправленный и полученный платёж, сначала новые: с кем он и на каком он этапе.';
+      'Отправленные и полученные платежи, сначала новые.';
 
   @override
   String get deskActStageWaiting => 'Ожидание';
@@ -8215,19 +8192,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAdd => 'Добавить контакт';
 
   @override
-  String get deskConIdle =>
-      'Выберите контакт, чтобы увидеть подробности, отправить ему платёж, изменить или удалить его.';
+  String get deskConIdle => 'Выберите контакт.';
 
   @override
   String get deskConEmptyTitle => 'Контактов пока нет';
 
   @override
   String get deskConEmptyText =>
-      'Сохраните людей и магазины, которым часто платите. На странице «Отправить» выберите имя, а не вставляйте адрес.';
+      'Сохраните людей и магазины, которым часто платите, и выбирайте их по имени на странице «Отправить».';
 
   @override
   String get deskConEmptyLocal =>
-      'Контакты хранятся на этом компьютере. Они не входят во фразу восстановления.';
+      'Контакты хранятся на этом компьютере; экспортируйте их, чтобы сохранить копию.';
 
   @override
   String get deskConSendToAddress => 'Отправить на адрес';
@@ -8323,7 +8299,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConDeleteBody =>
-      'Адрес и заметка контакта будут удалены из этого кошелька. Прошлые транзакции останутся в «Активности». Это нельзя отменить.';
+      'Удаляет контакт; прошлые платежи остаются в «Активности». Это нельзя отменить.';
 
   @override
   String get deskConKeep => 'Оставить';
@@ -8352,7 +8328,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutIntro =>
-      'Выходы — это части, из которых состоит баланс. Отправка тратит выходы целиком, платит получателю и возвращает остаток новым выходом; потраченные выходы заблокированы, пока отправка не подтвердится.';
+      'Выходы — это части, из которых состоит баланс. Отправка тратит выходы целиком и возвращает сдачу новым выходом.';
 
   @override
   String deskOutCount(int count) {
@@ -8474,8 +8450,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOutNoneTitle => 'Выходов пока нет';
 
   @override
-  String get deskOutNoneText =>
-      'Первый полученный платёж создаст выход. Разделению и объединению нужно, с чем работать.';
+  String get deskOutNoneText => 'Первый полученный платёж создаст выход.';
 
   @override
   String get deskOutFilterAll => 'Все';
@@ -8667,12 +8642,12 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: 'через $blocks блока',
-      many: 'через $blocks блоков',
-      few: 'через $blocks блока',
-      one: 'через $blocks блок',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
-    return 'Тратит $spent и создаёт $made. Обычная сетевая транзакция на этот кошелёк, подтверждается $_temp0, как любая отправка; до этого всё доступное заблокировано.';
+    return 'Тратит $spent и создаёт $made. Всё доступное заблокировано на $_temp0.';
   }
 
   @override
@@ -8680,12 +8655,12 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: 'через $blocks блока',
-      many: 'через $blocks блоков',
-      few: 'через $blocks блока',
-      one: 'через $blocks блок',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
-    return 'Тратит $spent и создаёт $made. Обычная сетевая транзакция на этот кошелёк, подтверждается $_temp0, как любая отправка; до этого всё доступное заблокировано. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+    return 'Тратит $spent и создаёт $made. Всё доступное заблокировано на $_temp0.';
   }
 
   @override
@@ -8766,46 +8741,46 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks блока)',
-      many: '($blocks блоков)',
-      few: '($blocks блока)',
-      one: '($blocks блок)',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
     String _temp1 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks блока)',
-      many: '($blocks блоков)',
-      few: '($blocks блока)',
-      one: '($blocks блок)',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
     String _temp2 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks блока)',
-      many: '($blocks блоков)',
-      few: '($blocks блока)',
-      one: '($blocks блок)',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
     String _temp3 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks блока)',
-      many: '($blocks блоков)',
-      few: '($blocks блока)',
-      one: '($blocks блок)',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
     String _temp4 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Теперь в кошельке $count выхода примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения $_temp0. В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+          '$count выхода примерно по $amount EPIC, подтверждаются. Заблокировано на $_temp0.',
       many:
-          'Теперь в кошельке $count выходов примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения $_temp1. В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+          '$count выходов примерно по $amount EPIC, подтверждаются. Заблокировано на $_temp1.',
       few:
-          'Теперь в кошельке $count выхода примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения $_temp2. В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+          '$count выхода примерно по $amount EPIC, подтверждаются. Заблокировано на $_temp2.',
       one:
-          'Теперь в кошельке $count выход примерно по $amount EPIC, он подтверждается. Всё заблокировано до подтверждения $_temp3. В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+          '$count выход примерно по $amount EPIC, подтверждается. Заблокировано на $_temp3.',
     );
     return '$_temp4';
   }
@@ -8815,16 +8790,16 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks блока)',
-      many: '($blocks блоков)',
-      few: '($blocks блока)',
-      one: '($blocks блок)',
+      other: '$blocks подтверждения',
+      many: '$blocks подтверждений',
+      few: '$blocks подтверждения',
+      one: '$blocks подтверждение',
     );
-    return 'Один выход на $amount EPIC, подтверждается. Всё заблокировано до подтверждения $_temp0. В «Активности» две записи: отправка и получение, обе на этот кошелёк.';
+    return 'Один выход на $amount EPIC, подтверждается. Заблокировано на $_temp0.';
   }
 
   @override
-  String get deskOutNotPostedTitle => 'Не отправлено в сеть.';
+  String get deskOutNotPostedTitle => 'Не отправлено в сеть';
 
   @override
   String get deskOutNotPostedSplit =>
@@ -8870,10 +8845,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOutConsDialogTitle => 'Объединение выходов';
 
   @override
-  String get deskOutPostingDesc => 'Отправка в сеть.';
+  String get deskOutPostingDesc => 'Отправка в сеть';
 
   @override
-  String get deskOutDoneDesc => 'Готово.';
+  String get deskOutDoneDesc => 'Готово';
 
   @override
   String get deskOutSplitDesc =>
@@ -8884,7 +8859,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOutNothingText(String what) {
-    return 'Нечего объединять: у кошелька $what. Объединение сливает несколько выходов в один.';
+    return 'Нечего объединять: у кошелька $what.';
   }
 
   @override
@@ -8907,8 +8882,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Теперь используется node.epiccash.com вместо node.epiccash.com:3413.';
 
   @override
-  String get deskOvNodeIncompatTitle =>
-      'Версия этого узла несовместима с этим кошельком';
+  String get deskOvNodeIncompatTitle => 'Несовместимая версия узла';
 
   @override
   String deskOvNodeUrl(String url) {
@@ -8989,9 +8963,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskOvSyncText(String block) {
-    return 'Загружаются блоки. Баланс показан на момент блока $block. Отправка станет доступна, когда узел догонит сеть.';
-  }
+  String get deskOvSyncText =>
+      'Загружаются блоки. Отправка возобновится, когда узел синхронизируется.';
 
   @override
   String get deskOvSyncProgress => 'Ход синхронизации узла';
@@ -9012,7 +8985,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvSendWaits =>
-      'Отправка станет доступна, когда узел синхронизируется.';
+      'Отправка возобновится, когда узел синхронизируется.';
 
   @override
   String get deskOvAvailable => 'Доступно';
@@ -9062,13 +9035,13 @@ class AppLocalizationsRu extends AppLocalizations {
       blocks,
       locale: localeName,
       other:
-          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блока станут доступны.',
+          'Полученные EPIC сначала подтверждаются, а после $blocks подтверждения становятся доступны.',
       many:
-          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блоков станут доступны.',
+          'Полученные EPIC сначала подтверждаются, а после $blocks подтверждений становятся доступны.',
       few:
-          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блоков станут доступны.',
+          'Полученные EPIC сначала подтверждаются, а после $blocks подтверждений становятся доступны.',
       one:
-          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блока станут доступны.',
+          'Полученные EPIC сначала подтверждаются, а после $blocks подтверждения становятся доступны.',
     );
     return '$_temp0';
   }
@@ -9092,10 +9065,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count отправки файлом открыты',
-      many: '$count отправок файлом открыты',
-      few: '$count отправки файлом открыты',
-      one: '$count отправка файлом открыта',
+      other: '$count платежа файлом ждут завершения',
+      many: '$count платежей файлом ждут завершения',
+      few: '$count платежа файлом ждут завершения',
+      one: '$count платёж файлом ждёт завершения',
     );
     return '$_temp0';
   }
@@ -9268,17 +9241,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxNowImmature(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждения.',
+          'Подтверждено, но награду за майнинг можно потратить только после $countString подтверждения.',
       many:
-          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждений.',
+          'Подтверждено, но награду за майнинг можно потратить только после $countString подтверждений.',
       few:
-          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждений.',
+          'Подтверждено, но награду за майнинг можно потратить только после $countString подтверждений.',
       one:
-          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждения.',
+          'Подтверждено, но награду за майнинг можно потратить только после $countString подтверждения.',
     );
     return '$_temp0';
   }
@@ -9313,13 +9290,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxNowConfirmed(int confirmations) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Подтверждено, $confirmations подтверждения.',
-      many: 'Подтверждено, $confirmations подтверждений.',
-      few: 'Подтверждено, $confirmations подтверждения.',
-      one: 'Подтверждено, $confirmations подтверждение.',
+      other: 'Подтверждено, $confirmationsString подтверждения.',
+      many: 'Подтверждено, $confirmationsString подтверждений.',
+      few: 'Подтверждено, $confirmationsString подтверждения.',
+      one: 'Подтверждено, $confirmationsString подтверждение.',
     );
     return '$_temp0';
   }
@@ -9557,7 +9540,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbWelcomeRestore => 'Восстановить по фразе';
 
   @override
-  String get deskOnbWelcomeRestoreSub => 'По словам фразы восстановления';
+  String get deskOnbWelcomeRestoreSub => 'По фразе восстановления';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -9626,8 +9609,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbStepPhrase => 'Фраза восстановления';
 
   @override
-  String get deskOnbCreateStageCreate =>
-      'Создание кошелька и его фразы восстановления';
+  String get deskOnbCreateStageCreate => 'Создание фразы восстановления';
 
   @override
   String get deskOnbCreateStageSave => 'Сохранение кошелька';
@@ -9642,9 +9624,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbCreateTestLead(String network) {
     return 'Кошелёк в $network, тестовой сети.';
   }
-
-  @override
-  String get deskOnbCreateFailedTitle => 'Не удалось создать кошелёк';
 
   @override
   String get deskOnbCreateDiskFull =>
@@ -9665,7 +9644,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbCreateLead =>
-      'Пароль открывает этот кошелёк на этом компьютере. Он не поможет вернуть монеты — это делает фраза на следующем шаге.';
+      'Пароль открывает этот кошелёк на этом компьютере; вернуть монеты можно только по фразе восстановления.';
 
   @override
   String get deskOnbCreateTestNote =>
@@ -9673,7 +9652,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'Эти слова — единственный способ вернуть монеты, если компьютер сломается. Запишите их на бумаге по порядку.';
+      'Запишите эти слова на бумаге по порядку: только по ним можно вернуть монеты.';
 
   @override
   String get deskOnbCreateRevealFirst => 'Сначала откройте фразу';
@@ -9718,7 +9697,7 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$count слова',
       one: '$count слово',
     );
-    return 'Записано: все $_temp0 на бумаге';
+    return 'У меня записаны все $_temp0';
   }
 
   @override
@@ -9731,11 +9710,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbRestoreRestoring => 'Восстановление кошелька';
 
   @override
-  String get deskOnbRestoreFailedTitle => 'Не удалось восстановить кошелёк';
-
-  @override
   String get deskOnbRestorePermission =>
-      'Не удалось записать файлы кошелька: нет доступа к ~/.config/Epic Cash Desktop.';
+      'Файлы кошелька не записаны: нет прав на ~/.config/Epic Cash Desktop. Разрешите запись в эту папку и повторите попытку.';
 
   @override
   String get deskOnbRestoreWait =>
@@ -9745,9 +9721,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbRestoreSide => 'Восстановить кошелёк';
 
   @override
-  String deskOnbRestorePasswordLead(int count) {
-    return 'Фраза из $count слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере.';
-  }
+  String get deskOnbRestorePasswordLead =>
+      'Задайте пароль, который открывает этот кошелёк на этом компьютере.';
 
   @override
   String get deskOnbRestoreNothingToPaste =>
@@ -9798,7 +9773,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbRestoreWordsLead =>
-      'Введите слова по порядку или вставьте всю фразу в любое поле. Переносы строк, запятые и нумерация не учитываются.';
+      'Введите слова по порядку или вставьте всю фразу в любое поле.';
 
   @override
   String get deskOnbRestoreClear => 'Очистить';
@@ -9850,7 +9825,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbKillNote =>
-      'Закрытие остановит то, что они делали, например синхронизацию узла или приём платежей. После разблокировки это приложение запустит их снова.';
+      'Закрытие остановит, например, синхронизацию узла или приём; это приложение запустит их снова после разблокировки.';
 
   @override
   String get deskOnbKillClosing => 'Закрытие…';
@@ -9870,7 +9845,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      '«Открыть его» запросит пароль этого кошелька. «Новый пароль» заменит его по этой фразе. «Отмена» оставит фразу в полях.';
+      'Откройте его с его паролем или задайте новый пароль по этой фразе.';
 
   @override
   String get deskOnbSameOpen => 'Открыть его';
@@ -9889,7 +9864,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbUnlockPortInUse =>
-      'Служба кошелька не запустилась: порт 3415 занят другой программой.';
+      'Порт 3415 занят другой программой. Закройте её и повторите попытку.';
 
   @override
   String get deskOnbUnlockStageCheck => 'Проверка файлов кошелька';
@@ -9936,23 +9911,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbUnlockFailed => 'Не удалось разблокировать';
 
   @override
-  String get deskOnbUnlockFailedLead => 'Кошелёк не открылся. Причина ниже.';
-
-  @override
-  String get deskOnbUnlockFailedBox => 'Кошелёк не открылся';
-
-  @override
   String deskOnbUnlockUnlocking(String name) {
     return 'Разблокировка: $name';
   }
 
   @override
-  String get deskOnbUnlockStepsLead =>
-      'Каждый шаг появляется по мере выполнения.';
-
-  @override
   String get deskOnbUnlockNote =>
-      'Затем откроется обзор, а остальное завершится в фоне: подключение к узлу, обновление баланса, включение приёма.';
+      'Затем узел, баланс и приём завершают загрузку в фоне.';
 
   @override
   String get deskOnbUnlockTitle => 'Разблокировка кошелька';
@@ -9990,7 +9955,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbNodeFreeHere(String size) {
-    return 'Свободно здесь: $size';
+    return 'свободно: $size';
   }
 
   @override
@@ -10008,7 +9973,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbNodeSeparateText =>
-      'Кошелёк запускает узел Epic и останавливает его вместе с приложением.';
+      'Запускается и останавливается вместе с приложением.';
 
   @override
   String get deskOnbNodeFirewall => 'Windows один раз спросит,';
@@ -10019,15 +9984,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbNodeGrowing(String free) {
-    return 'и объём медленно растёт. $free.';
+    return 'объём медленно растёт · $free';
   }
 
   @override
-  String get deskOnbNodeHours => 'Несколько часов на синхронизацию';
+  String get deskOnbNodeHours => 'Первая синхронизация';
 
   @override
   String get deskOnbNodeHoursText =>
-      'в первый раз, от 2 до 6 при обычном подключении. Кошелёк показывает ход и тем временем может пользоваться публичным узлом.';
+      'показывает ход; тем временем работает публичный узел.';
 
   @override
   String get deskOnbNodeDownload => 'Около 4 ГБ загрузки';
@@ -10066,7 +10031,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbNodeExistingText =>
-      'Узел Epic GUI или CLI. Кошелёк подключается к нему и ничего не запускает.';
+      'Подключается к уже запущенному здесь узлу Epic GUI или CLI.';
 
   @override
   String get deskOnbNodeAddress => 'Адрес узла на этом компьютере';
@@ -10079,11 +10044,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbNodeBundledText =>
-      'Загружает и синхронизирует блокчейн в собственную папку кошелька. До нажатия «Сохранить» на последнем шаге ничего не загружается.';
+      'После «Сохранить» загружает блокчейн в папку кошелька.';
 
   @override
   String deskOnbNodeFallback(String host) {
-    return 'Использовать $host, пока локальный узел не синхронизирован. Потом локальный узел сам займёт его место.';
+    return 'Использовать $host, пока локальный узел не синхронизирован';
   }
 
   @override
@@ -10167,7 +10132,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbImportFindingLead =>
-      'Ищем в папках старых версий Epic Wallet и программы epic. Ничего не меняется.';
+      'Поиск в папках старых версий Epic Wallet и программы epic; старые папки только читаются.';
 
   @override
   String deskOnbImportFoundTitle(int count) {
@@ -10200,7 +10165,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отмеченные кошельки будут добавлены в приложение. История восстанавливается сканированием.';
 
   @override
-  String get deskOnbImportCheckTitle => 'Проверка использования';
+  String get deskOnbImportCheckTitle => 'Проверка кошельков';
 
   @override
   String get deskOnbImportCheckLead =>
@@ -10259,7 +10224,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbImportOlder => 'Старый Epic Wallet';
 
   @override
-  String get deskOnbImportOlderSub => 'Учётные записи и папки';
+  String get deskOnbImportOlderSub => 'Кошельки и папки';
 
   @override
   String get deskOnbImportEpicProgram => 'Программа epic';
@@ -10324,7 +10289,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbImportOldHelp(String name) {
-    return 'Пароль кошелька $name в старом приложении.';
+    return 'Пароль кошелька $name в старом приложении';
   }
 
   @override
@@ -10472,7 +10437,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskAppRestartNow => 'Перезапустить';
 
   @override
-  String get deskAppFirstScanTitle => 'Первое сканирование кошелька';
+  String get deskAppFirstScanTitle => 'Первое сканирование';
 
   @override
   String get deskAppFirstScanBody =>
@@ -10612,7 +10577,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourHelpText =>
-      'Темы по разделам и «Сообщить о проблеме». Подробнее о каждой странице — здесь, а тур можно показать снова.';
+      'Темы справки, «Сообщить о проблеме» и «Показать тур снова».';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -10884,7 +10849,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitLimitedNetwork =>
-      'status.btlabs.uk недоступен. Эти сведения получены от самого узла: не с чем сравнить последний блок, нет данных о доступности и числе пиров.';
+      'status.btlabs.uk недоступен; сведения получены только от узла.';
 
   @override
   String get deskKitFactHeight => 'Высота';
@@ -11029,11 +10994,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitMethodWaitingTor => 'Ждёт Tor';
-
-  @override
-  String deskKitMethodTorNotConnected(String host) {
-    return '$host. Tor не подключён.';
-  }
 
   @override
   String get deskKitMethodOn => 'Вкл.';
@@ -11410,8 +11370,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupFile => 'Файл';
 
   @override
-  String get deskSetBackupFileNote =>
-      'Файл содержит всё на текущий момент. После новых платежей или изменений экспортируйте его снова.';
+  String get deskSetBackupFileNote => 'Файл содержит всё на текущий момент.';
 
   @override
   String get deskSetBackupExportDesc =>
@@ -11422,7 +11381,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupKeepCopy =>
-      'Храните копию и вне этого компьютера: на флешке, другом диске или в облаке. После новых платежей экспортируйте снова.';
+      'Храните копию вне этого компьютера: на флешке, другом диске или в облаке.';
 
   @override
   String get deskSetBackupOpenFolder => 'Открыть папку';
@@ -11474,18 +11433,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetBackupNever => 'Никогда не';
-
-  @override
-  String get deskSetBackupNeverValue =>
-      'удаляет и не меняет платёж, который уже здесь';
-
-  @override
   String get deskSetBackupChooseFile => 'Выбрать файл…';
 
   @override
   String get deskSetBackupImportDesc =>
-      'Возвращает историю платежей, контакты, счета и настройки этого кошелька. Ничего не удаляется, и тот же файл дважды ничего не меняет.';
+      'Возвращает историю платежей, контакты, счета и настройки этого кошелька; существующие записи остаются.';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'Сохранить платежи в CSV';
@@ -11619,8 +11571,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetDlgChainUpdatedValue => '3 дня назад';
 
   @override
-  String get deskSetDlgChainOthers =>
-      'Найдены и другие копии (1). Эта обновлялась последней.';
+  String get deskSetDlgChainOthers => 'Найдена ещё 1 копия; эта самая новая.';
 
   @override
   String get deskSetDlgChainInUse =>
@@ -11647,7 +11598,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetDlgPwDesc =>
-      'Теперь этот кошелёк будет открываться новым паролем. Запомненный пароль будет забыт.';
+      'Теперь этот кошелёк открывается новым паролем; «Запомнить на этом компьютере» выключается.';
 
   @override
   String get deskSetDlgPwCurrent => 'Текущий пароль';
@@ -11680,9 +11631,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetDlgRemoveDesc => 'Ничего не изменится без подтверждения.';
-
-  @override
   String get deskSetDlgRemoveWhat => 'Что убрать';
 
   @override
@@ -11690,7 +11638,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetDlgRemoveFromListHint(String folder) {
-    return 'Файлы останутся в $folder. На странице «Все кошельки» его можно добавить обратно.';
+    return 'Файлы останутся в $folder; «Добавить кошелёк» вернёт его.';
   }
 
   @override
@@ -11904,7 +11852,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetLnodeWhileSyncingText(String host) {
-    return 'Использовать $host, пока локальный узел не синхронизирован. Потом локальный узел сам займёт его место.';
+    return 'Использовать $host, пока локальный узел не синхронизирован';
   }
 
   @override
@@ -11999,14 +11947,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLnodeNoProgressText =>
-      'Обычно помогает перезапуск; если нет, причина будет в журнале.';
+      'Перезапустите или проверьте журнал узла.';
 
   @override
   String get deskSetLnodePortInUse => 'Порт 3413 занят другой программой.';
 
   @override
   String get deskSetLnodePortInUseText =>
-      'Закройте её (другой узел Epic?) или выберите уже запущенный там узел в строке «Сервер узла».';
+      'Закройте другую программу или выберите этот узел в строке «Сервер узла».';
 
   @override
   String get deskSetLnodeDiskLow => 'На этом томе свободно меньше 2 ГБ.';
@@ -12150,7 +12098,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetLndAskDesc(String host) {
-    return 'Синхронизация занимает часы. Тем временем кошелёк может читать блокчейн и отправлять через $host, публичный узел. Когда локальный узел синхронизируется, он сам займёт его место.';
+    return '$host, публичный узел, может заменить локальный, пока тот не синхронизируется.';
   }
 
   @override
@@ -12188,7 +12136,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetLndDeleteDesc(String size, String path) {
-    return 'Удаляет $size из $path. Узел остановится, и при следующем запуске весь блокчейн загрузится заново (часы). Ключи и история кошелька не затрагиваются.';
+    return 'Удаляет $size из $path; при следующем запуске блокчейн загрузится заново. Ключи и история остаются.';
   }
 
   @override
@@ -12473,7 +12421,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetPeersNote(int min, int max, int def) {
-    return '«Впервые» — когда это приложение впервые увидело пир подключённым за этот сеанс; узел не сообщает, когда началось соединение. Блокировка и разблокировка идут через owner API узла. Enter сохраняет максимум (от $min до $max, по умолчанию $def).';
+    return 'Макс. входящих и исходящих: от $min до $max (по умолчанию $def).';
   }
 
   @override
@@ -12550,7 +12498,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetNodeListNote =>
-      'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут. Задержка измерена с этого компьютера.';
+      'Состояние по данным status.btlabs.uk; задержка измерена с этого компьютера.';
 
   @override
   String get deskSetNodeStartTitle => 'Запустить локальный узел?';
@@ -12711,8 +12659,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPrivStarting => 'Запуск…';
 
   @override
-  String deskSetPrivStartingDetail(int progress, String waiting) {
-    return '$progress %. $waiting ждут, пока Tor подключится.';
+  String deskSetPrivStartingDetail(int progress) {
+    return '$progress%. Все соединения ждут Tor.';
   }
 
   @override
@@ -12725,19 +12673,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetPrivConnected => 'Подключено.';
+  String get deskSetPrivConnected => 'Подключено';
 
   @override
   String get deskSetPrivNotConnected => 'Нет подключения';
 
   @override
-  String deskSetPrivStoppedDetail(String waiting) {
-    return 'Tor остановился. $waiting ждут повторной попытки или выключения Tor.';
-  }
+  String get deskSetPrivStoppedDetail =>
+      'Tor остановился. Повторите попытку или выключите Tor.';
 
   @override
-  String deskSetPrivProblemDetail(String problem, String waiting) {
-    return '$problem. $waiting ждут повторной попытки или выключения Tor.';
+  String deskSetPrivProblemDetail(String problem) {
+    return '$problem. Повторите попытку или выключите Tor.';
   }
 
   @override
@@ -12805,8 +12752,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Переключение сервера Epicbox…';
 
   @override
-  String get deskSetRecvListNote =>
-      'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
+  String get deskSetRecvListNote => 'Состояние по данным status.btlabs.uk.';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12845,7 +12791,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetHttpPublicNote(String port) {
-    return 'Отвечает на всех интерфейсах. Роутер должен перенаправлять TCP $port на этот компьютер. Отправители из интернета используют http://<public IP>:$port.';
+    return 'Отвечает на всех интерфейсах; роутер должен перенаправлять TCP $port на этот компьютер.';
   }
 
   @override
@@ -12872,7 +12818,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetHttpStep1Text(String port) {
-    return 'Кошелёк отвечает на 0.0.0.0, порт $port. Тогда другие устройства и интернет смогут отправлять платежи на этот кошелёк. Брандмауэр может спросить разрешение.';
+    return 'Кошелёк отвечает на 0.0.0.0, порт $port, и другие устройства могут отправлять на него платежи.';
   }
 
   @override
@@ -12948,7 +12894,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetReportDesc =>
-      'Отчёт шифруется, чтобы прочитать его мог только разработчик. До нажатия «Отправить» ничего не отправляется. «Сохранить в файл» сохраняет тот же очищенный отчёт, но без шифрования.';
+      'Зашифрован, чтобы прочитать его мог только разработчик. «Сохранить в файл» сохраняет незашифрованную копию.';
 
   @override
   String get deskSetReportWhat => 'Что произошло';
@@ -12997,7 +12943,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'Заново читает блокчейн и пересобирает баланс из найденных выходов. Используйте, если баланс выглядит неверным, после восстановления или если выходы остались заблокированными после неудачной отправки. Кошельком можно пользоваться и во время проверки.';
+      'Заново читает блокчейн и пересобирает баланс. Используйте, если баланс выглядит неверным или выходы остаются заблокированными.';
 
   @override
   String get deskSetRescanStartAgain => 'Запустить снова';
@@ -13115,16 +13061,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Новый кошелёк с новой фразой восстановления.';
 
   @override
-  String get deskSetWalletsImport => 'Импорт';
+  String get deskSetWalletsImport => 'Импорт кошельков';
 
   @override
-  String get deskSetWalletsImportText => 'Из старого Epic Wallet или из папки.';
+  String get deskSetWalletsImportText => 'Из старого Epic Wallet или из папки';
 
   @override
-  String get deskSetWalletsRestore => 'Восстановление';
+  String get deskSetWalletsRestore => 'Восстановить по фразе';
 
   @override
-  String get deskSetWalletsRestoreText => 'По фразе восстановления.';
+  String get deskSetWalletsRestoreText => 'По фразе восстановления';
 
   @override
   String get deskSetupConfirmPassword => 'Повторите пароль';
@@ -13172,7 +13118,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Повторная настройка. Ничего не изменится до нажатия «Сохранить настройки» на последнем шаге.';
 
   @override
-  String get deskSetupPrefsLead => 'Язык приложения. Его можно изменить позже.';
+  String get deskSetupPrefsLead => 'Язык приложения';
 
   @override
   String get deskSetupNodeTitle => 'Выберите узел';
@@ -13192,7 +13138,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetupEpicboxTitle => 'Приём, пока кошелёк закрыт';
 
   @override
-  String get deskSetupReviewTitle => 'Проверьте настройки';
+  String get deskSetupReviewTitle => 'Проверка настроек';
 
   @override
   String get deskSetupReviewLead => 'Исправьте то, что не так, и сохраните.';
@@ -13202,9 +13148,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupBackToWallet => 'Назад к кошельку';
-
-  @override
-  String get deskSetupLaterNote => 'Всё это можно изменить позже в настройках.';
 
   @override
   String get deskSetupSave => 'Сохранить настройки';
@@ -13229,7 +13172,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupLocalNodeText =>
-      'Запускает узел Epic на этом компьютере. Оператору ничего не передаётся. Нужны место на диске и часы на синхронизацию.';
+      'Работает на этом компьютере: приватно, но нужны место на диске и первая синхронизация.';
 
   @override
   String get deskSetupEpicboxText =>
@@ -13237,7 +13180,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxPrivacy =>
-      'Он не скрывает IP-адрес от сервера Epicbox. Если это важно, используйте VPN.';
+      'Сервер Epicbox видит IP-адрес этого компьютера.';
 
   @override
   String get deskSetupEpicboxServer => 'Сервер Epicbox';
@@ -13279,7 +13222,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetupSaveStartsFallback(String node) {
-    return 'Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется и до её конца будет использовать $node.';
+    return 'Сохранение запустит узел; пока он не синхронизирован, его заменяет $node.';
   }
 
   @override
@@ -13294,7 +13237,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAboutLicencesLead =>
-      'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном клике.';
+      'Открытое ПО в этом кошельке, каждое под своей лицензией.';
 
   @override
   String get deskSetAboutLicenceApp =>
@@ -13421,10 +13364,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Найдено тем: $count',
-      many: 'Найдено тем: $count',
-      few: 'Найдено тем: $count',
-      one: 'Найдено тем: $count',
+      other: 'Найдено $count темы',
+      many: 'Найдено $count тем',
+      few: 'Найдено $count темы',
+      one: 'Найдена $count тема',
     );
     return '$_temp0';
   }
@@ -13434,7 +13377,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetHelpReportText =>
-      'Опишите, что пошло не так. Можно приложить журнал приложения: он очищается от секретных данных и шифруется для разработчика. «Сохранить в файл» сохранит копию, чтобы отправить её вручную.';
+      'Опишите, что пошло не так; можно приложить очищенный журнал приложения, зашифрованный для разработчика.';
 
   @override
   String get deskSetHelpShowLess => 'Свернуть';
@@ -14003,7 +13946,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advIntro =>
-      'Сначала всё выключено. Каждый переключатель добавляет ещё одну часть кошелька в то место, которому она принадлежит.';
+      'Каждый переключатель показывает ещё одну часть кошелька там, где ей место.';
 
   @override
   String get advShowsHeader => 'Показывает больше';
@@ -14099,7 +14042,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvIntro =>
-      'Сначала всё выключено. Каждый переключатель добавляет ещё одну часть кошелька в то место, которому она принадлежит.';
+      'Каждый переключатель показывает ещё одну часть кошелька там, где ей место.';
 
   @override
   String get deskSetAdvShows => 'Показывает больше';
@@ -14179,7 +14122,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Только этот компьютер и ваша локальная сеть. Ваш узел продолжает работать; его пиры — настройка самого узла.';
+      'Только этот компьютер и локальная сеть; локальный узел сохраняет своих пиров.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -14433,7 +14376,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Приём начнётся, когда Tor подключится. Передача файла по-прежнему работает.';
 
   @override
-  String get deskNetCantReceive => 'Офлайн получать нельзя.';
+  String get deskNetCantReceive => 'Приём приостановлен';
 
   @override
   String get deskRailOffline => 'Офлайн';
@@ -14499,7 +14442,7 @@ class AppLocalizationsRu extends AppLocalizations {
       '«Передача файла» создаёт файл транзакции, который вы передаёте другому человеку любым способом (сообщением, письмом, кабелем), а он передаёт вам ответный. Связь между кошельками не нужна. Добавляет «Передачу файла» в «Отправить» и «Получить».';
 
   @override
-  String get txStartHeader => 'Отправка начинается с';
+  String get txStartHeader => 'Способ по умолчанию';
 
   @override
   String get txDefaultsHeader => 'Настройки отправки';
@@ -14696,7 +14639,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetTxSend => 'Отправка';
 
   @override
-  String get deskSetTxStart => 'Отправка начинается с';
+  String get deskSetTxStart => 'Способ по умолчанию';
 
   @override
   String get deskSetTxStartHint =>
@@ -14840,7 +14783,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetupSaveFailedText(String reason) {
-    return '$reason. Без сохранения кошелёк использует настройки, сохранённые до сих пор. Их можно изменить позже в настройках.';
+    return '$reason. Сохраните ещё раз или пропустите, чтобы оставить уже сохранённые настройки.';
   }
 
   @override
@@ -14912,7 +14855,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'Подписано и возвращено. По словам отправителя, отправлено в сеть; платёж будет выполнен, когда блокчейн его подтвердит.';
+      'Подписано и возвращено. По словам отправителя, отправлено в сеть; платёж завершится после подтверждения.';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -15737,7 +15680,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Это может значить, что теперь у этого человека другой кошелёк или что кто-то другой использует это имя. Проверьте контакт снова.';
 
   @override
-  String get contactKeysChangedStatus => 'запечатывание и счета приостановлены';
+  String get contactKeysChangedStatus => 'Запечатывание и счета приостановлены';
 
   @override
   String get contactKeysChangedPaused => 'Запечатывание и счета приостановлены';
@@ -15799,8 +15742,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get addrDesktopRule =>
-      'Один адрес на тип. Третье поле появляется, только пока какой-то тип свободен.';
+  String get addrDesktopRule => 'Один адрес на тип.';
 
   @override
   String get pendingTitle => 'Ожидающие приглашения';
@@ -15835,9 +15777,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pendingInviteAgain => 'Пригласить снова';
 
   @override
-  String pendingWaitingConfirm(String time) {
-    return 'Ждёт подтверждения · $time';
-  }
+  String get pendingWaitingConfirm => 'Ждёт подтверждения';
 
   @override
   String get pendingPairedCheck => 'Сопряжено · проверьте';
@@ -16670,7 +16610,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelWhileReported =>
-      'Отмена не предлагается, пока отправитель сообщает, что опубликовал платёж.';
+      'Отмена недоступна, пока отправитель сообщает, что опубликовал платёж.';
 
   @override
   String get txDetailsCancelRefusedOnNetwork =>
@@ -16729,10 +16669,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count сохранённого контакта получат адрес или заметку',
-      many: '$count сохранённых контактов получат адрес или заметку',
-      few: '$count сохранённых контакта получат адрес или заметку',
-      one: '$count сохранённый контакт получит адрес или заметку',
+      other: '$count контакта обновлены',
+      many: '$count контактов обновлены',
+      few: '$count контакта обновлены',
+      one: '$count контакт обновлён',
     );
     return '$_temp0';
   }
@@ -16781,7 +16721,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get contactsImportKeeps => 'Сохранённые контакты не меняются.';
+  String get contactsImportKeeps => 'Существующие данные сохраняются.';
 
   @override
   String get contactsImportDo => 'Импортировать';
@@ -16856,8 +16796,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Запрос платежа у сопряжённого контакта и одобрение счетов от сопряжённых контактов. Нужно сопряжение. Экспериментально: может ещё измениться.';
 
   @override
-  String get expNeedsPairing =>
-      'Счетам нужно сопряжение: включение счетов включает сопряжение, выключение сопряжения выключает счета.';
+  String get expNeedsPairing => 'Счетам нужно сопряжение.';
 
   @override
   String get expPairingOffTitle => 'Сопряжение — экспериментальная функция';
@@ -17017,7 +16956,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbImportRelayLead(String old) {
-    return 'Старое приложение принимало через $old. Все, кто сохранил адрес этого кошелька, отправляют туда.';
+    return 'Старое приложение принимало через $old.';
   }
 
   @override
@@ -17027,7 +16966,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayKeepHint =>
-      'Адрес не меняется. Сервер добавляется в список Epicbox и используется для этого кошелька.';
+      'Адрес тот же; сервер добавляется в список Epicbox.';
 
   @override
   String deskOnbImportRelayApp(String current) {
@@ -17036,7 +16975,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayAppHint =>
-      'Адрес изменится. Тем, у кого старый адрес, нужен новый; платежи на старый адрес не придут.';
+      'Новый адрес: платежи на старый не придут.';
 
   @override
   String get deskOnbImportUnlockOld => 'Разблокировка старым паролем.';
@@ -17141,7 +17080,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupSkipKeeps =>
-      'Пропуск оставляет настройки узла и Epicbox как есть.';
+      'Пропуск оставляет текущие настройки узла и Epicbox.';
 
   @override
   String deskSetupMarkNotCleared(String reason) {
@@ -17446,7 +17385,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskEpicboxBlockedText(String host) {
-    return 'Эта сеть блокирует $host. Причиной может быть сетевой фильтр. Попробуйте другой сервер Epicbox или частный DNS-сервер.';
+    return 'Эта сеть блокирует $host. Выберите другой сервер Epicbox или используйте частный DNS.';
   }
 
   @override
@@ -17639,7 +17578,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancelNoteNotPosted =>
-      'Ещё не в сети: отмена освобождает ваши монеты. Кошелёк сначала проверяет сеть.';
+      'Ещё не в сети: отмена освободит монеты после проверки сети.';
 
   @override
   String get cancelNoteDirectFailed =>
@@ -17773,7 +17712,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOwnAccessNote =>
-      'Пиры и детали синхронизации берутся из API владельца узла. Запуск, остановка и папка данных остаются на компьютере узла.';
+      'Пиры и детали синхронизации берутся из API владельца узла.';
 
   @override
   String get deskOwnAdd => 'Добавить…';
@@ -17856,7 +17795,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOwnUseForGood(String host) {
-    return 'Использовать $host всегда';
+    return 'Оставить $host';
   }
 
   @override
@@ -17865,7 +17804,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOwnSyncText(String host) {
-    return 'Через синхронизирующийся узел кошелёк не может отправлять и получать. $host может его заменить; кошелёк вернётся, когда этот узел начнёт принимать транзакции.';
+    return '$host может заменить его, пока этот узел не синхронизируется.';
   }
 
   @override
@@ -17886,9 +17825,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOwnMineHint =>
       'Опрашивает сам узел вместо status.btlabs.uk и предлагает доступ владельца. Для узла, который вы держите сами.';
-
-  @override
-  String get deskOwnListNote => 'Ваши узлы опрашиваются напрямую.';
 
   @override
   String get deskOwnSlotSyncing => 'Свой узел синхронизируется';
@@ -17971,13 +17907,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskUpdDownloadInstall => 'Скачать и установить';
 
   @override
-  String deskUpdReadyTitle(String version) {
-    return 'Epic Cash $version готов';
-  }
+  String get deskUpdReadyTitle => 'Перезапустите для обновления';
 
   @override
   String get deskUpdReadyBody =>
-      'Перезапустите сейчас, чтобы обновить. Кошелёк заблокируется, а приложение откроется снова.';
+      'Кошелёк заблокируется, а приложение откроется снова.';
 
   @override
   String get deskUpdRestartNow => 'Перезапустить';
@@ -18775,4 +18709,51 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Подтверждения не изменены';
+
+  @override
+  String get deskSetPeersFirstSeenHint =>
+      'Когда это приложение впервые увидело пир подключённым за этот сеанс.';
+
+  @override
+  String deskAppFirstScanProgress(int percent) {
+    return 'Сканирование блокчейна · $percent%';
+  }
+
+  @override
+  String deskAppFirstScanFound(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Найдено $countString выхода',
+      many: 'Найдено $countString выходов',
+      few: 'Найдено $countString выхода',
+      one: 'Найден $countString выход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskAppFirstScanShowLog => 'Показать журнал';
+
+  @override
+  String get deskAppFirstScanHideLog => 'Скрыть журнал';
+
+  @override
+  String deskNodeDurationDh(int days, int hours) {
+    return '$days д $hours ч';
+  }
+
+  @override
+  String deskNodeDurationH(int hours) {
+    return '$hours ч';
+  }
+
+  @override
+  String deskInvPayerAgoHoursOnly(int hours) {
+    return '$hours ч';
+  }
 }

@@ -63,10 +63,6 @@
   "deskNodeLineCompacting": "正在压缩链数据",
   "deskNodeLineStopping": "正在停止…",
   "deskNodeLineSyncing": "正在同步",
-  "deskNodeNoEstimate": "无法估算；最多一小时",
-  "deskNodeEstimating": "正在估算…",
-  "deskNodeAboutHours": "约剩 {hours} 小时",
-  "deskNodeAboutMinutes": "约剩 {minutes} 分钟",
   "deskNodeDurationHm": "{hours} 小时 {minutes} 分钟",
   "deskNodeDurationM": "{minutes} 分钟",
   "deskTorNetworkLabel": "Tor 网络",
@@ -75,11 +71,12 @@
   "deskTorStarting": "正在启动…",
   "deskTorOn": "开启",
   "deskTorNotConnected": "未连接",
-  "deskTorRoutes": "Epicbox、节点、状态、价格、更新、支持和 Tor 地址",
   "deskTorCoverage": "经由 Tor：Epicbox、节点、状态、价格、更新、支持和 Tor 地址。",
   "deskTorNodeOver": "经由 Tor",
   "deskTorNodeNotEncrypted": "Tor 出口之后未加密",
   "deskTorNodeWaits": "等 Tor 连接后再连接。",
   "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
-  "deskNodeFailoverInsteadOf": "代替 {host}"
+  "deskNodeFailoverInsteadOf": "代替 {host}",
+  "deskNodeDurationDh": "{days} 天 {hours} 小时",
+  "deskNodeDurationH": "{hours} 小时"
 }

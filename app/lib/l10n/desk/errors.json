@@ -544,7 +544,7 @@
   "@deskTorLinePublishing": {
     "description": "Tor line while the onion address is being published."
   },
-  "deskTorLineConnecting": "Connecting to Tor… {percent} %",
+  "deskTorLineConnecting": "Connecting to Tor… {percent}%",
   "@deskTorLineConnecting": {
     "description": "Tor line while Tor connects. {percent} is a number from 0 to 100.",
     "placeholders": {
@@ -645,7 +645,7 @@
   "@deskDataUpdUnreachable": {
     "description": "Update check failed: the server could not be reached."
   },
-  "deskDataUpdStatus": "The update server answered {status}.",
+  "deskDataUpdStatus": "Update server error ({status}).",
   "@deskDataUpdStatus": {
     "description": "Update check failed: the server answered with an HTTP error code.",
     "placeholders": {

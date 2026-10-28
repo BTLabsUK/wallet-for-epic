@@ -53,7 +53,7 @@
   "@deskSetReportTitle": {
     "description": "Report a problem dialog: title."
   },
-  "deskSetReportDesc": "The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.",
+  "deskSetReportDesc": "Encrypted so only the developer can read it. Save to file keeps an unencrypted copy.",
   "@deskSetReportDesc": {
     "description": "Report a problem dialog: description under the title. \"Send\" and \"Save to file\" are button names."
   },

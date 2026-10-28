@@ -148,7 +148,7 @@ void main() {
     testWidgets('while the sender reports it posted: no Cancel, the line says so', (tester) async {
       await _pump(tester, waiting(ago: const Duration(minutes: 40), senderPosted: true), _Desk());
       expect(_cancelButton, findsNothing);
-      expect(find.text('Cancel is not offered while the sender reports it posted.'), findsOneWidget);
+      expect(find.text('Cancel is unavailable while the sender reports it posted.'), findsOneWidget);
       expect(find.byKey(const ValueKey('tx-sender-posted')), findsOneWidget);
       await _end(tester);
     });

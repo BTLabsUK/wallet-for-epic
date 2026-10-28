@@ -362,7 +362,7 @@
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
   },
-  "deskSendFileReadyText": "Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.",
+  "deskSendFileReadyText": "Give this file to the recipient, then finalize with their response file.",
   "@deskSendFileReadyText": {
     "description": "Result card text on Send after a file send created the transaction file."
   },
@@ -378,7 +378,7 @@
   "@deskSendNodeNotSynced": {
     "description": "Title of the warning notice on Send while the node has not synced."
   },
-  "deskSendNodeSyncingPct": "Sending is possible once the node has synced. {percent}% done; the form can be filled in meanwhile.",
+  "deskSendNodeSyncingPct": "Sending resumes when the node is synced ({percent}%).",
   "@deskSendNodeSyncingPct": {
     "description": "Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.",
     "placeholders": {
@@ -407,7 +407,7 @@
   "@deskSendTorStarting": {
     "description": "Title of the notice on Send while Tor connects."
   },
-  "deskSendTorStartingText": "Sending waits until it is connected. Nothing goes over the clearnet meanwhile.",
+  "deskSendTorStartingText": "Sending waits for Tor.",
   "@deskSendTorStartingText": {
     "description": "Text of the notice on Send while Tor connects."
   },
@@ -415,7 +415,7 @@
   "@deskSendEpicboxOff": {
     "description": "Title of the warning notice on Send when Epicbox receiving is off."
   },
-  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.",
+  "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
   },
@@ -495,7 +495,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Link · HTTP goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link · HTTP goes directly, without Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -563,7 +563,7 @@
   "@deskSendDandelionText": {
     "description": "Description of the Dandelion++ switch on Send."
   },
-  "deskSendHintSent": "Sent. Enter a new amount and recipient to send again.",
+  "deskSendHintSent": "Sent.",
   "@deskSendHintSent": {
     "description": "Line under the Review send button after a send went out."
   },
@@ -643,7 +643,7 @@
   "@deskSendDirectLine1": {
     "description": "Bold first line under the method selector for the Link method."
   },
-  "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
+  "deskSendDirectLine2": "An http(s) or .onion address; their wallet must be open.",
   "@deskSendDirectLine2": {
     "description": "Second line under the method selector for the Link method."
   },

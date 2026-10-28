@@ -47,7 +47,7 @@
   "@deskSetLnodeWhileSyncing": {
     "description": "Local node panel: row title for using another node while the local node syncs."
   },
-  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced",
   "@deskSetLnodeWhileSyncingText": {
     "description": "Local node panel: text of the While syncing row. {host} is a node address.",
     "placeholders": {
@@ -184,7 +184,7 @@
   "@deskSetLnodeNoProgress": {
     "description": "Local node panel: notice title when the sync stalled."
   },
-  "deskSetLnodeNoProgressText": "Restarting usually helps; if not, the log says why.",
+  "deskSetLnodeNoProgressText": "Restart, or check the node log.",
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
@@ -192,7 +192,7 @@
   "@deskSetLnodePortInUse": {
     "description": "Local node panel: notice title when the node cannot open its port."
   },
-  "deskSetLnodePortInUseText": "Close it (another Epic node?) or pick the node already running there under Node server.",
+  "deskSetLnodePortInUseText": "Close the other program, or choose that node under Node server.",
   "@deskSetLnodePortInUseText": {
     "description": "Local node panel: notice text when the port is in use. \"Node server\" is a row title in Settings > Node."
   },
@@ -398,7 +398,7 @@
       }
     }
   },
-  "deskSetLndAskDesc": "Syncing takes hours. Meanwhile the wallet can read the chain and send through {host}, a public node. The local node takes over by itself once it is synced.",
+  "deskSetLndAskDesc": "{host}, a public node, can stand in until the local node is synced.",
   "@deskSetLndAskDesc": {
     "description": "Fallback question dialog: description. {host} is a public node address.",
     "placeholders": {
@@ -453,7 +453,7 @@
   "@deskSetLndDeleteTitle": {
     "description": "Delete chain data dialog: danger button label."
   },
-  "deskSetLndDeleteDesc": "Removes {size} from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "deskSetLndDeleteDesc": "Removes {size} from {path}; the chain downloads again on the next start. Keys and history stay.",
   "@deskSetLndDeleteDesc": {
     "description": "Delete chain data dialog: description. {size} is a size like \"4.2 GB\"; {path} a folder path.",
     "placeholders": {
@@ -785,7 +785,11 @@
   "deskSetPeersRefreshed": "Refreshed every {seconds} s",
   "@deskSetPeersRefreshed": {
     "description": "Peers tab: note beside the summary. {seconds}: 10 for the built-in node, 15 for an own node.",
-    "placeholders": {"seconds": {"type": "int"}}
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "deskSetPeersBanned": "Banned",
   "@deskSetPeersBanned": {
@@ -850,7 +854,7 @@
       }
     }
   },
-  "deskSetPeersNote": "First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ({min} to {max}, {def} by default).",
+  "deskSetPeersNote": "Max incoming and outgoing: {min} to {max} (default {def}).",
   "@deskSetPeersNote": {
     "description": "Peers tab: explanatory note at the bottom. \"Enter\" is the keyboard key. {min}, {max} and {def} are numbers.",
     "placeholders": {
@@ -868,5 +872,9 @@
   "deskSetLndDeleteQuestion": "Delete chain data?",
   "@deskSetLndDeleteQuestion": {
     "description": "Delete chain data dialog: title."
+  },
+  "deskSetPeersFirstSeenHint": "When this app first saw the peer connected, this session.",
+  "@deskSetPeersFirstSeenHint": {
+    "description": "Peers tab: info hint on the First seen column."
   }
 }

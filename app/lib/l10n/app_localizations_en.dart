@@ -2137,7 +2137,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunCreate => 'Create a new wallet';
 
   @override
-  String get firstRunRestore => 'Restore from a phrase';
+  String get firstRunRestore => 'Restore from phrase';
 
   @override
   String get settingsRestoreReplaces =>
@@ -4363,10 +4363,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '$blocks blocks',
-      one: '$blocks block',
+      other: '$blocks confirmations',
+      one: '$blocks confirmation',
     );
-    return 'Spends $spent ($amount) and makes one output of $result. A normal network transaction to this wallet, confirmed after $_temp0 like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+    return 'Spends $spent ($amount) and makes one output of $result. Everything spendable is locked for $_temp0.';
   }
 
   @override
@@ -5124,7 +5124,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvCheckFailedBody =>
-      'The lists show what arrived before. Nothing was lost; the wallet tries again every 2 minutes.';
+      'The lists show what arrived before; the wallet retries.';
 
   @override
   String get deskInvReqWaiting => 'Waiting for payer';
@@ -5338,7 +5338,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskInvIssuerBounced(String payer) {
-    return '$payer’s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.';
+    return '$payer’s wallet cannot pay invoices; ask $payer to send a payment instead.';
   }
 
   @override
@@ -5418,7 +5418,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.';
+      'Invoices from allowed paired contacts appear here; nothing is paid without approval.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5427,7 +5427,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredText =>
-      'It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.';
+      'It is signed and kept on this computer; the EPIC stays locked. Retry sends it again without a second approval.';
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
@@ -5628,7 +5628,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvPayerDeclined => 'Invoice declined. Nothing was paid.';
 
   @override
-  String get deskInvPayerSpendToSelf => 'Spend them to myself now';
+  String get deskInvPayerSpendToSelf => 'Send them back to this wallet now';
 
   @override
   String get deskInvPayerSpendToSelfHelp =>
@@ -6309,7 +6309,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Connecting to Tor… $percent %';
+    return 'Connecting to Tor… $percent%';
   }
 
   @override
@@ -6383,7 +6383,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskDataUpdStatus(int status) {
-    return 'The update server answered $status.';
+    return 'Update server error ($status).';
   }
 
   @override
@@ -6625,22 +6625,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskNodeLineSyncing => 'Syncing';
 
   @override
-  String get deskNodeNoEstimate => 'no estimate; up to an hour';
-
-  @override
-  String get deskNodeEstimating => 'estimating…';
-
-  @override
-  String deskNodeAboutHours(int hours) {
-    return 'about $hours h left';
-  }
-
-  @override
-  String deskNodeAboutMinutes(int minutes) {
-    return 'about $minutes min left';
-  }
-
-  @override
   String deskNodeDurationHm(int hours, int minutes) {
     return '$hours h $minutes min';
   }
@@ -6668,10 +6652,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTorNotConnected => 'Not connected';
-
-  @override
-  String get deskTorRoutes =>
-      'Epicbox, the node, status, price, updates, support and Tor addresses';
 
   @override
   String get deskTorCoverage =>
@@ -6718,13 +6698,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskRecvTorStarting => 'Tor is starting.';
 
   @override
-  String deskRecvTorDownText(String routes) {
-    return 'Nothing arrives over $routes until it is, or until Tor is turned off.';
-  }
+  String get deskRecvTorDownText =>
+      'Every connection waits for Tor. Retry, or turn Tor off.';
 
   @override
   String get deskRecvTorStartingText =>
-      'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.';
+      'Addresses become reachable when Tor connects.';
 
   @override
   String get deskRecvTurnTorOff => 'Turn Tor off';
@@ -6787,7 +6766,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvEpicboxIntro =>
-      'Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.';
+      'Share it to get paid; the Epicbox server holds payments while the wallet is closed.';
 
   @override
   String get deskRecvCheckSix =>
@@ -6810,7 +6789,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.';
+      'Straight from another wallet while this one is open.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -6841,7 +6820,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvSignText =>
-      'A sender gave a transaction file. The wallet signs it and saves a response for them.';
+      'Sign the sender’s transaction file and save the response file.';
 
   @override
   String get deskRecvOpen => 'Open';
@@ -6851,7 +6830,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvFinalizeText =>
-      'A file send got a response back. Finalizing posts the payment.';
+      'Finalize the recipient’s response file to post the payment.';
 
   @override
   String deskRecvSwitchLabel(String title) {
@@ -7206,7 +7185,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendFileReadyText =>
-      'Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.';
+      'Give this file to the recipient, then finalize with their response file.';
 
   @override
   String get deskSendFinalize => 'Finalize';
@@ -7219,7 +7198,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Sending is possible once the node has synced. $percent% done; the form can be filled in meanwhile.';
+    return 'Sending resumes when the node is synced ($percent%).';
   }
 
   @override
@@ -7240,15 +7219,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendTorStarting => 'Tor is starting';
 
   @override
-  String get deskSendTorStartingText =>
-      'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.';
+  String get deskSendTorStartingText => 'Sending waits for Tor.';
 
   @override
   String get deskSendEpicboxOff => 'Epicbox not connected';
 
   @override
   String get deskSendEpicboxOffText =>
-      'Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.';
+      'Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.';
 
   @override
   String get deskSendEpicboxTurnOn => 'Turn on Epicbox receiving';
@@ -7307,8 +7285,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendTurnOnTor => 'Turn on Tor';
 
   @override
-  String get deskSendHttpClearnet =>
-      'Link · HTTP goes over the clearnet, not Tor.';
+  String get deskSendHttpClearnet => 'Link · HTTP goes directly, without Tor.';
 
   @override
   String get deskSendClear => 'Clear';
@@ -7356,8 +7333,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.';
 
   @override
-  String get deskSendHintSent =>
-      'Sent. Enter a new amount and recipient to send again.';
+  String get deskSendHintSent => 'Sent.';
 
   @override
   String get deskSendHintQueued =>
@@ -7420,7 +7396,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.';
+      'An http(s) or .onion address; their wallet must be open.';
 
   @override
   String get deskSendFileLine1 => 'No connection needed.';
@@ -7625,7 +7601,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFinTitle => 'Finalize a response file';
 
   @override
-  String get deskFinNoticeTitle => 'For a transaction created as a file';
+  String get deskFinNoticeTitle => 'For file payments';
 
   @override
   String get deskFinNoticeText =>
@@ -7662,7 +7638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskImpWrongTypeText =>
-      'The file is not a transaction file. Choose the .slate or .tx file the sender gave.';
+      'Not a transaction file. Choose the .tx file the sender gave.';
 
   @override
   String get deskImpUnreadable => 'File not readable';
@@ -7763,7 +7739,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActLoading => 'Loading transactions';
 
   @override
-  String get deskActWaitingNode => 'Waiting for the node to be synced.';
+  String get deskActWaitingNode => 'Waiting for the node to sync.';
 
   @override
   String get deskActFilterAll => 'All';
@@ -7811,8 +7787,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActEmptyTitle => 'No transactions yet';
 
   @override
-  String get deskActEmptyText =>
-      'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.';
+  String get deskActEmptyText => 'Payments sent and received, newest first.';
 
   @override
   String get deskActStageWaiting => 'Waiting';
@@ -7913,19 +7888,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConAdd => 'Add contact';
 
   @override
-  String get deskConIdle =>
-      'Choose a contact to see their details, send to them, edit or delete them.';
+  String get deskConIdle => 'Choose a contact.';
 
   @override
   String get deskConEmptyTitle => 'No contacts yet';
 
   @override
   String get deskConEmptyText =>
-      'Save the people and shops paid often. On Send, pick a name instead of pasting an address.';
+      'Save the people and shops paid often, then pick them by name on Send.';
 
   @override
   String get deskConEmptyLocal =>
-      'Contacts stay on this computer. They are not part of the recovery phrase.';
+      'Contacts stay on this computer; export them to keep a copy.';
 
   @override
   String get deskConSendToAddress => 'Send to address';
@@ -8021,7 +7995,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConDeleteBody =>
-      'The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.';
+      'Removes the contact; past payments stay in Activity. This cannot be undone.';
 
   @override
   String get deskConKeep => 'Keep contact';
@@ -8050,7 +8024,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOutIntro =>
-      'Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.';
+      'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the change as a new one.';
 
   @override
   String deskOutCount(int count) {
@@ -8160,8 +8134,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOutNoneTitle => 'No outputs yet';
 
   @override
-  String get deskOutNoneText =>
-      'The first payment received makes one. Split and Consolidate need something to work with.';
+  String get deskOutNoneText => 'The first payment received makes one.';
 
   @override
   String get deskOutFilterAll => 'All';
@@ -8347,10 +8320,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: 'after $blocks blocks',
-      one: 'after 1 block',
+      other: '$blocks confirmations',
+      one: '1 confirmation',
     );
-    return 'Spends $spent and makes $made each. A normal network transaction to this wallet, confirmed $_temp0 like any send; everything spendable is locked until then.';
+    return 'Spends $spent and makes $made each. Everything spendable is locked for $_temp0.';
   }
 
   @override
@@ -8358,10 +8331,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: 'after $blocks blocks',
-      one: 'after 1 block',
+      other: '$blocks confirmations',
+      one: '1 confirmation',
     );
-    return 'Spends $spent and makes $made. A normal network transaction to this wallet, confirmed $_temp0 like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+    return 'Spends $spent and makes $made. Everything spendable is locked for $_temp0.';
   }
 
   @override
@@ -8440,22 +8413,22 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks blocks)',
-      one: '(1 block)',
+      other: '$blocks confirmations',
+      one: '1 confirmation',
     );
     String _temp1 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks blocks)',
-      one: '(1 block)',
+      other: '$blocks confirmations',
+      one: '1 confirmation',
     );
     String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'The wallet now has $count outputs of about $amount EPIC, confirming. Everything is locked until they confirm $_temp0. Activity shows two entries: a send and a receive, both to this wallet.',
+          '$count outputs of about $amount EPIC, confirming. Locked for $_temp0.',
       one:
-          'The wallet now has $count output of about $amount EPIC, confirming. Everything is locked until they confirm $_temp1. Activity shows two entries: a send and a receive, both to this wallet.',
+          '$count output of about $amount EPIC, confirming. Locked for $_temp1.',
     );
     return '$_temp2';
   }
@@ -8465,14 +8438,14 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other: '($blocks blocks)',
-      one: '(1 block)',
+      other: '$blocks confirmations',
+      one: '1 confirmation',
     );
-    return 'One output of $amount EPIC, confirming. Everything is locked until it confirms $_temp0. Activity shows two entries: a send and a receive, both to this wallet.';
+    return 'One output of $amount EPIC, confirming. Locked for $_temp0.';
   }
 
   @override
-  String get deskOutNotPostedTitle => 'Not posted.';
+  String get deskOutNotPostedTitle => 'Not posted';
 
   @override
   String get deskOutNotPostedSplit =>
@@ -8518,10 +8491,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOutConsDialogTitle => 'Consolidate outputs';
 
   @override
-  String get deskOutPostingDesc => 'Posting.';
+  String get deskOutPostingDesc => 'Posting';
 
   @override
-  String get deskOutDoneDesc => 'Done.';
+  String get deskOutDoneDesc => 'Done';
 
   @override
   String get deskOutSplitDesc =>
@@ -8532,7 +8505,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOutNothingText(String what) {
-    return 'Nothing to consolidate: the wallet has $what. Consolidate merges several outputs into one.';
+    return 'Nothing to consolidate: the wallet has $what.';
   }
 
   @override
@@ -8555,8 +8528,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Now using node.epiccash.com instead of node.epiccash.com:3413.';
 
   @override
-  String get deskOvNodeIncompatTitle =>
-      'This node’s version is not compatible with this wallet';
+  String get deskOvNodeIncompatTitle => 'Node version not compatible';
 
   @override
   String deskOvNodeUrl(String url) {
@@ -8637,9 +8609,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String deskOvSyncText(String block) {
-    return 'Downloading blocks. Balances are what the wallet knew at block $block. Sending opens when the node has caught up.';
-  }
+  String get deskOvSyncText =>
+      'Downloading blocks. Sending resumes when the node is synced.';
 
   @override
   String get deskOvSyncProgress => 'Node sync progress';
@@ -8659,7 +8630,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOvReceive => 'Receive';
 
   @override
-  String get deskOvSendWaits => 'Sending opens when the node is synced.';
+  String get deskOvSendWaits => 'Sending resumes when the node is synced.';
 
   @override
   String get deskOvAvailable => 'Available to spend';
@@ -8709,9 +8680,9 @@ class AppLocalizationsEn extends AppLocalizations {
       blocks,
       locale: localeName,
       other:
-          'Received EPIC shows here first as confirming, then as spendable after $blocks blocks.',
+          'Received EPIC shows as confirming, then spendable after $blocks confirmations.',
       one:
-          'Received EPIC shows here first as confirming, then as spendable after $blocks block.',
+          'Received EPIC shows as confirming, then spendable after $blocks confirmation.',
     );
     return '$_temp0';
   }
@@ -8735,8 +8706,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count file sends open',
-      one: '$count file send open',
+      other: '$count file payments to finalize',
+      one: '$count file payment to finalize',
     );
     return '$_temp0';
   }
@@ -8907,13 +8878,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxNowImmature(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          'Confirmed, but a mining reward is spendable only after $count confirmations.',
+          'Confirmed, but a mining reward is spendable only after $countString confirmations.',
       one:
-          'Confirmed, but a mining reward is spendable only after $count confirmation.',
+          'Confirmed, but a mining reward is spendable only after $countString confirmation.',
     );
     return '$_temp0';
   }
@@ -8946,11 +8921,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxNowConfirmed(int confirmations) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Confirmed, $confirmations confirmations.',
-      one: 'Confirmed, $confirmations confirmation.',
+      other: 'Confirmed, $confirmationsString confirmations.',
+      one: 'Confirmed, $confirmationsString confirmation.',
     );
     return '$_temp0';
   }
@@ -9183,10 +9164,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbWelcomeImportSub => 'From an older Epic Wallet or a folder';
 
   @override
-  String get deskOnbWelcomeRestore => 'Restore from a phrase';
+  String get deskOnbWelcomeRestore => 'Restore from phrase';
 
   @override
-  String get deskOnbWelcomeRestoreSub => 'From the recovery words';
+  String get deskOnbWelcomeRestoreSub => 'From the recovery phrase';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -9255,8 +9236,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbStepPhrase => 'Recovery phrase';
 
   @override
-  String get deskOnbCreateStageCreate =>
-      'Creating the wallet and its recovery phrase';
+  String get deskOnbCreateStageCreate => 'Making the recovery phrase';
 
   @override
   String get deskOnbCreateStageSave => 'Saving the wallet';
@@ -9271,9 +9251,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbCreateTestLead(String network) {
     return 'A wallet on $network, a test network.';
   }
-
-  @override
-  String get deskOnbCreateFailedTitle => 'The wallet could not be created';
 
   @override
   String get deskOnbCreateDiskFull =>
@@ -9294,7 +9271,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbCreateLead =>
-      'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.';
+      'The password unlocks this wallet on this computer; only the recovery phrase restores the coins.';
 
   @override
   String get deskOnbCreateTestNote =>
@@ -9302,7 +9279,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.';
+      'Write these words on paper, in order: they are the only way to restore the coins.';
 
   @override
   String get deskOnbCreateRevealFirst => 'Reveal the phrase first';
@@ -9345,7 +9322,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count words',
       one: '$count word',
     );
-    return 'Written down: all $_temp0 on paper';
+    return 'I have written down all $_temp0';
   }
 
   @override
@@ -9358,11 +9335,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbRestoreRestoring => 'Restoring the wallet';
 
   @override
-  String get deskOnbRestoreFailedTitle => 'The wallet could not be restored';
-
-  @override
   String get deskOnbRestorePermission =>
-      'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
+      'Wallet files not written: no permission for ~/.config/Epic Cash Desktop. Allow writing to that folder, then try again.';
 
   @override
   String get deskOnbRestoreWait =>
@@ -9372,9 +9346,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbRestoreSide => 'Restore wallet';
 
   @override
-  String deskOnbRestorePasswordLead(int count) {
-    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer.';
-  }
+  String get deskOnbRestorePasswordLead =>
+      'Set the password that unlocks this wallet on this computer.';
 
   @override
   String get deskOnbRestoreNothingToPaste =>
@@ -9419,7 +9392,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbRestoreWordsLead =>
-      'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.';
+      'Type the words in order, or paste the whole phrase into any box.';
 
   @override
   String get deskOnbRestoreClear => 'Clear';
@@ -9467,7 +9440,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbKillNote =>
-      'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.';
+      'Closing them stops a node sync or receiving; this app starts them again after unlock.';
 
   @override
   String get deskOnbKillClosing => 'Closing…';
@@ -9487,7 +9460,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbSameNote =>
-      'Open it asks for that wallet’s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.';
+      'Open it with its password, or set a new password with this phrase.';
 
   @override
   String get deskOnbSameOpen => 'Open it';
@@ -9506,7 +9479,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbUnlockPortInUse =>
-      'The wallet service did not start: port 3415 is in use by another program.';
+      'Port 3415 is in use by another program. Close it, then try again.';
 
   @override
   String get deskOnbUnlockStageCheck => 'Checking wallet files';
@@ -9553,23 +9526,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbUnlockFailed => 'Unlock failed';
 
   @override
-  String get deskOnbUnlockFailedLead =>
-      'The wallet did not open. The reason is below.';
-
-  @override
-  String get deskOnbUnlockFailedBox => 'The wallet did not open';
-
-  @override
   String deskOnbUnlockUnlocking(String name) {
     return 'Unlocking $name';
   }
 
   @override
-  String get deskOnbUnlockStepsLead => 'Each step shows as it finishes.';
-
-  @override
   String get deskOnbUnlockNote =>
-      'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.';
+      'Then the node, balances and receiving finish in the background.';
 
   @override
   String get deskOnbUnlockTitle => 'Unlock wallet';
@@ -9607,25 +9570,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbNodeFreeHere(String size) {
-    return '$size free here';
+    return '$size free';
   }
 
   @override
   String deskOnbNodeDiskAbout(String size) {
-    return 'About $size of disk now';
+    return 'About $size now,';
   }
 
   @override
   String deskOnbNodeDisk(String size) {
-    return '$size of disk now';
+    return '$size now,';
   }
 
   @override
   String get deskOnbNodeSeparate => 'A separate program.';
 
   @override
-  String get deskOnbNodeSeparateText =>
-      'The wallet starts the Epic node and stops it with the app.';
+  String get deskOnbNodeSeparateText => 'Starts and stops with the app.';
 
   @override
   String get deskOnbNodeFirewall => 'Windows asks once';
@@ -9636,15 +9598,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbNodeGrowing(String free) {
-    return 'growing slowly. $free.';
+    return 'growing slowly · $free';
   }
 
   @override
-  String get deskOnbNodeHours => 'Hours to sync';
+  String get deskOnbNodeHours => 'First sync';
 
   @override
   String get deskOnbNodeHoursText =>
-      'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.';
+      'shows its progress; a public node stands in meanwhile.';
 
   @override
   String get deskOnbNodeDownload => 'About 4 GB downloaded';
@@ -9683,7 +9645,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbNodeExistingText =>
-      'The Epic GUI or CLI node. The wallet connects to it and starts nothing.';
+      'Connects to the Epic GUI or CLI node already running here.';
 
   @override
   String get deskOnbNodeAddress => 'Address of the node on this computer';
@@ -9696,11 +9658,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbNodeBundledText =>
-      'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.';
+      'Downloads the chain into the wallet’s folder after Save.';
 
   @override
   String deskOnbNodeFallback(String host) {
-    return 'Use $host until the local node is synced. The local node takes over by itself.';
+    return 'Use $host until the local node is synced';
   }
 
   @override
@@ -9776,7 +9738,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbImportFindingLead =>
-      'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.';
+      'Searching the folders of older Epic Wallet versions and the epic program; old folders are only read.';
 
   @override
   String deskOnbImportFoundTitle(int count) {
@@ -9807,7 +9769,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ticked wallets are added to the app. History is rebuilt by a scan.';
 
   @override
-  String get deskOnbImportCheckTitle => 'Checking for use';
+  String get deskOnbImportCheckTitle => 'Checking wallets';
 
   @override
   String get deskOnbImportCheckLead =>
@@ -9865,7 +9827,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbImportOlder => 'Older Epic Wallet';
 
   @override
-  String get deskOnbImportOlderSub => 'Accounts and folders';
+  String get deskOnbImportOlderSub => 'Wallets and folders';
 
   @override
   String get deskOnbImportEpicProgram => 'The epic program';
@@ -9930,7 +9892,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbImportOldHelp(String name) {
-    return 'The password of $name in the older app.';
+    return '$name’s password in the older app';
   }
 
   @override
@@ -10076,7 +10038,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskAppRestartNow => 'Restart now';
 
   @override
-  String get deskAppFirstScanTitle => 'Wallet first scan';
+  String get deskAppFirstScanTitle => 'First scan';
 
   @override
   String get deskAppFirstScanBody =>
@@ -10215,7 +10177,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTourHelpText =>
-      'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.';
+      'Help topics, Report a problem and Show the tour again.';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -10471,7 +10433,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitLimitedNetwork =>
-      'status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.';
+      'status.btlabs.uk is not reachable; the facts come from the node only.';
 
   @override
   String get deskKitFactHeight => 'Height';
@@ -10614,11 +10576,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitMethodWaitingTor => 'Waiting for Tor';
-
-  @override
-  String deskKitMethodTorNotConnected(String host) {
-    return '$host. Tor is not connected.';
-  }
 
   @override
   String get deskKitMethodOn => 'On';
@@ -10990,8 +10947,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupFile => 'File';
 
   @override
-  String get deskSetBackupFileNote =>
-      'The file holds everything up to now. Export again after new payments or changes.';
+  String get deskSetBackupFileNote => 'The file holds everything up to now.';
 
   @override
   String get deskSetBackupExportDesc =>
@@ -11002,7 +10958,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupKeepCopy =>
-      'Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.';
+      'Keep a copy off this computer: a USB stick, another drive or cloud storage.';
 
   @override
   String get deskSetBackupOpenFolder => 'Open folder';
@@ -11054,18 +11010,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetBackupNever => 'Never';
-
-  @override
-  String get deskSetBackupNeverValue =>
-      'Removes or changes a payment that is here';
-
-  @override
   String get deskSetBackupChooseFile => 'Choose file…';
 
   @override
   String get deskSetBackupImportDesc =>
-      'Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.';
+      'Brings back this wallet’s payment history, contacts, invoices and settings; existing records stay.';
 
   @override
   String get deskSetBackupSaveCsvDialogTitle => 'Save payments as CSV';
@@ -11189,7 +11138,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetDlgChainOthers =>
-      'Other copies were found too (1). This one was updated most recently.';
+      '1 other copy found; this one is the newest.';
 
   @override
   String get deskSetDlgChainInUse =>
@@ -11216,7 +11165,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetDlgPwDesc =>
-      'The new password unlocks this wallet from now on. A remembered password is forgotten.';
+      'The new password unlocks this wallet from now on; Remember on this computer is turned off.';
 
   @override
   String get deskSetDlgPwCurrent => 'Current password';
@@ -11249,9 +11198,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetDlgRemoveDesc => 'Nothing changes until confirmed.';
-
-  @override
   String get deskSetDlgRemoveWhat => 'What to remove';
 
   @override
@@ -11259,7 +11205,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetDlgRemoveFromListHint(String folder) {
-    return 'Files stay in $folder. All wallets can add it back.';
+    return 'Files stay in $folder; Add a wallet brings it back.';
   }
 
   @override
@@ -11467,7 +11413,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetLnodeWhileSyncingText(String host) {
-    return 'Use $host until the local node is synced. The local node takes over by itself.';
+    return 'Use $host until the local node is synced';
   }
 
   @override
@@ -11561,15 +11507,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLnodeNoProgress => 'The node makes no progress.';
 
   @override
-  String get deskSetLnodeNoProgressText =>
-      'Restarting usually helps; if not, the log says why.';
+  String get deskSetLnodeNoProgressText => 'Restart, or check the node log.';
 
   @override
   String get deskSetLnodePortInUse => 'Port 3413 is used by another program.';
 
   @override
   String get deskSetLnodePortInUseText =>
-      'Close it (another Epic node?) or pick the node already running there under Node server.';
+      'Close the other program, or choose that node under Node server.';
 
   @override
   String get deskSetLnodeDiskLow => 'Less than 2 GB free on this volume.';
@@ -11710,7 +11655,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetLndAskDesc(String host) {
-    return 'Syncing takes hours. Meanwhile the wallet can read the chain and send through $host, a public node. The local node takes over by itself once it is synced.';
+    return '$host, a public node, can stand in until the local node is synced.';
   }
 
   @override
@@ -11748,7 +11693,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetLndDeleteDesc(String size, String path) {
-    return 'Removes $size from $path. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.';
+    return 'Removes $size from $path; the chain downloads again on the next start. Keys and history stay.';
   }
 
   @override
@@ -12027,7 +11972,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetPeersNote(int min, int max, int def) {
-    return 'First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ($min to $max, $def by default).';
+    return 'Max incoming and outgoing: $min to $max (default $def).';
   }
 
   @override
@@ -12105,7 +12050,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetNodeListNote =>
-      'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.';
+      'Status from status.btlabs.uk; latency measured from this computer.';
 
   @override
   String get deskSetNodeStartTitle => 'Start the local node?';
@@ -12264,8 +12209,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPrivStarting => 'Starting…';
 
   @override
-  String deskSetPrivStartingDetail(int progress, String waiting) {
-    return '$progress %. $waiting wait until Tor is up.';
+  String deskSetPrivStartingDetail(int progress) {
+    return '$progress%. Every connection waits for Tor.';
   }
 
   @override
@@ -12278,19 +12223,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetPrivConnected => 'Connected.';
+  String get deskSetPrivConnected => 'Connected';
 
   @override
   String get deskSetPrivNotConnected => 'Not connected';
 
   @override
-  String deskSetPrivStoppedDetail(String waiting) {
-    return 'Tor stopped. $waiting wait for Retry or Tor off.';
-  }
+  String get deskSetPrivStoppedDetail => 'Tor stopped. Retry, or turn Tor off.';
 
   @override
-  String deskSetPrivProblemDetail(String problem, String waiting) {
-    return '$problem. $waiting wait for Retry or Tor off.';
+  String deskSetPrivProblemDetail(String problem) {
+    return '$problem. Retry, or turn Tor off.';
   }
 
   @override
@@ -12358,8 +12301,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Switching the Epicbox server…';
 
   @override
-  String get deskSetRecvListNote =>
-      'State from status.btlabs.uk, checked every few minutes.';
+  String get deskSetRecvListNote => 'Status from status.btlabs.uk.';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12398,7 +12340,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetHttpPublicNote(String port) {
-    return 'Answers on all interfaces. The router must forward TCP $port to this computer. Senders on the internet use http://<public IP>:$port.';
+    return 'Answers on all interfaces; the router must forward TCP $port to this computer.';
   }
 
   @override
@@ -12425,7 +12367,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetHttpStep1Text(String port) {
-    return 'The wallet answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.';
+    return 'The wallet answers on 0.0.0.0, port $port, so other devices can send to it.';
   }
 
   @override
@@ -12500,7 +12442,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetReportDesc =>
-      'The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.';
+      'Encrypted so only the developer can read it. Save to file keeps an unencrypted copy.';
 
   @override
   String get deskSetReportWhat => 'What happened';
@@ -12549,7 +12491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'Reads the chain again and rebuilds the balance from the outputs found. Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. The wallet stays usable meanwhile.';
+      'Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.';
 
   @override
   String get deskSetRescanStartAgain => 'Start again';
@@ -12570,7 +12512,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Checking… $percent %';
+    return 'Checking… $percent%';
   }
 
   @override
@@ -12666,17 +12608,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'A new wallet with a new recovery phrase.';
 
   @override
-  String get deskSetWalletsImport => 'Import';
+  String get deskSetWalletsImport => 'Import wallets';
 
   @override
   String get deskSetWalletsImportText =>
-      'From an older Epic Wallet or a folder.';
+      'From an older Epic Wallet or a folder';
 
   @override
-  String get deskSetWalletsRestore => 'Restore';
+  String get deskSetWalletsRestore => 'Restore from phrase';
 
   @override
-  String get deskSetWalletsRestoreText => 'From a recovery phrase.';
+  String get deskSetWalletsRestoreText => 'From the recovery phrase';
 
   @override
   String get deskSetupConfirmPassword => 'Confirm password';
@@ -12724,7 +12666,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Running setup again. Nothing changes until Save on the last step.';
 
   @override
-  String get deskSetupPrefsLead => 'App language. It can be changed later.';
+  String get deskSetupPrefsLead => 'App language';
 
   @override
   String get deskSetupNodeTitle => 'Choose a node';
@@ -12744,7 +12686,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetupEpicboxTitle => 'Receive when offline';
 
   @override
-  String get deskSetupReviewTitle => 'Check settings';
+  String get deskSetupReviewTitle => 'Review settings';
 
   @override
   String get deskSetupReviewLead =>
@@ -12755,10 +12697,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupBackToWallet => 'Back to wallet';
-
-  @override
-  String get deskSetupLaterNote =>
-      'Everything here can be changed later in Settings.';
 
   @override
   String get deskSetupSave => 'Save settings';
@@ -12783,7 +12721,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupLocalNodeText =>
-      'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.';
+      'Runs on this computer: private, but needs disk space and a first sync.';
 
   @override
   String get deskSetupEpicboxText =>
@@ -12791,7 +12729,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxPrivacy =>
-      'It does not hide the IP address from the Epicbox server. Use a VPN if that matters.';
+      'The Epicbox server sees this computer’s IP address.';
 
   @override
   String get deskSetupEpicboxServer => 'Epicbox server';
@@ -12833,7 +12771,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetupSaveStartsFallback(String node) {
-    return 'Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses $node until then.';
+    return 'Save starts the node; $node stands in until it is synced.';
   }
 
   @override
@@ -12848,7 +12786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAboutLicencesLead =>
-      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
+      'Open-source software in this wallet, each under its own licence.';
 
   @override
   String get deskSetAboutLicenceApp =>
@@ -12975,8 +12913,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Topics found: $count',
-      one: 'Topics found: $count',
+      other: '$count topics found',
+      one: '$count topic found',
     );
     return '$_temp0';
   }
@@ -12986,7 +12924,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetHelpReportText =>
-      'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.';
+      'Describe what went wrong; the cleaned app log can go with it, encrypted to the developer.';
 
   @override
   String get deskSetHelpShowLess => 'Show less';
@@ -13484,7 +13422,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'Downloading $percent %';
+    return 'Downloading $percent%';
   }
 
   @override
@@ -13535,7 +13473,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'Each switch shows one more part of the wallet, where it belongs.';
 
   @override
   String get advShowsHeader => 'Shows more';
@@ -13631,7 +13569,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'Each switch shows one more part of the wallet, where it belongs.';
 
   @override
   String get deskSetAdvShows => 'Shows more';
@@ -13711,7 +13649,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Only this computer and your local network. Your node keeps running; its own peers are the node’s setting.';
+      'Only this computer and the local network; a local node keeps its own peers.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -13956,7 +13894,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Receiving starts when Tor is connected. File Transfer still works.';
 
   @override
-  String get deskNetCantReceive => 'Cannot receive offline.';
+  String get deskNetCantReceive => 'Receiving paused';
 
   @override
   String get deskRailOffline => 'Offline';
@@ -14021,7 +13959,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.';
 
   @override
-  String get txStartHeader => 'Send starts on';
+  String get txStartHeader => 'Default method';
 
   @override
   String get txDefaultsHeader => 'Send defaults';
@@ -14209,7 +14147,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetTxSend => 'Send';
 
   @override
-  String get deskSetTxStart => 'Send starts on';
+  String get deskSetTxStart => 'Default method';
 
   @override
   String get deskSetTxStartHint =>
@@ -14354,7 +14292,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetupSaveFailedText(String reason) {
-    return '$reason. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.';
+    return '$reason. Save again, or skip to keep the settings saved so far.';
   }
 
   @override
@@ -14418,7 +14356,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.';
+      'Signed and returned. The sender reports it posted; it completes when confirmed.';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -15234,7 +15172,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.';
 
   @override
-  String get contactKeysChangedStatus => 'sealing and invoices paused';
+  String get contactKeysChangedStatus => 'Sealing and invoices paused';
 
   @override
   String get contactKeysChangedPaused => 'Sealing and invoices paused';
@@ -15296,8 +15234,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get addrDesktopRule =>
-      'One address per type. The third field appears only while a type is free.';
+  String get addrDesktopRule => 'One address per type.';
 
   @override
   String get pendingTitle => 'Pending invites';
@@ -15330,9 +15267,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pendingInviteAgain => 'Invite again';
 
   @override
-  String pendingWaitingConfirm(String time) {
-    return 'Waiting for their confirmation · $time';
-  }
+  String get pendingWaitingConfirm => 'Waiting for their confirmation';
 
   @override
   String get pendingPairedCheck => 'Paired · verify';
@@ -16142,7 +16077,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelWhileReported =>
-      'Cancel is not offered while the sender reports it posted.';
+      'Cancel is unavailable while the sender reports it posted.';
 
   @override
   String get txDetailsCancelRefusedOnNetwork =>
@@ -16197,8 +16132,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count contacts here get an address or note',
-      one: '1 contact here gets an address or note',
+      other: '$count contacts updated',
+      one: '1 contact updated',
     );
     return '$_temp0';
   }
@@ -16237,7 +16172,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get contactsImportKeeps => 'Nothing you saved is changed.';
+  String get contactsImportKeeps => 'Existing details are kept.';
 
   @override
   String get contactsImportDo => 'Import';
@@ -16306,8 +16241,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.';
 
   @override
-  String get expNeedsPairing =>
-      'Invoices need Pairing: Invoices on turns Pairing on, Pairing off turns Invoices off.';
+  String get expNeedsPairing => 'Invoices need Pairing.';
 
   @override
   String get expPairingOffTitle => 'Pairing is experimental';
@@ -16467,7 +16401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbImportRelayLead(String old) {
-    return 'The older app received through $old. Anyone who saved this wallet’s address sends there.';
+    return 'The older app received through $old.';
   }
 
   @override
@@ -16477,7 +16411,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayKeepHint =>
-      'The address stays the same. The server is added to the Epicbox list and used for this wallet.';
+      'Same address; the server joins the Epicbox list.';
 
   @override
   String deskOnbImportRelayApp(String current) {
@@ -16486,7 +16420,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbImportRelayAppHint =>
-      'The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.';
+      'New address: payments to the old one do not arrive.';
 
   @override
   String get deskOnbImportUnlockOld => 'Unlock with the old password.';
@@ -16591,7 +16525,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupSkipKeeps =>
-      'Skip keeps the node and Epicbox settings as they are.';
+      'Skip keeps the current node and Epicbox settings.';
 
   @override
   String deskSetupMarkNotCleared(String reason) {
@@ -16877,7 +16811,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskEpicboxBlockedText(String host) {
-    return 'This network blocks $host. A network filter may be the cause. Try another Epicbox server or a private DNS.';
+    return 'This network blocks $host. Choose another Epicbox server or use a private DNS.';
   }
 
   @override
@@ -17070,7 +17004,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelNoteNotPosted =>
-      'Not on the network yet: cancelling frees your coins. The wallet checks the network first.';
+      'Not on the network yet: Cancel frees the coins after a network check.';
 
   @override
   String get cancelNoteDirectFailed =>
@@ -17196,7 +17130,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOwnAccessNote =>
-      'Peers and sync details come from the node’s owner API. Start, stop and the data folder stay on the node’s own computer.';
+      'Peers and sync details come from the node’s owner API.';
 
   @override
   String get deskOwnAdd => 'Add…';
@@ -17280,7 +17214,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOwnUseForGood(String host) {
-    return 'Use $host for good';
+    return 'Keep $host';
   }
 
   @override
@@ -17288,7 +17222,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOwnSyncText(String host) {
-    return 'The wallet cannot send or receive through a node that is syncing. $host can stand in; the wallet moves back once this node accepts transactions.';
+    return '$host can stand in until this node is synced.';
   }
 
   @override
@@ -17309,9 +17243,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOwnMineHint =>
       'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.';
-
-  @override
-  String get deskOwnListNote => 'Your own nodes are asked directly.';
 
   @override
   String get deskOwnSlotSyncing => 'Own node syncing';
@@ -17391,13 +17322,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskUpdDownloadInstall => 'Download and install';
 
   @override
-  String deskUpdReadyTitle(String version) {
-    return 'Epic Cash $version is ready';
-  }
+  String get deskUpdReadyTitle => 'Restart to update';
 
   @override
-  String get deskUpdReadyBody =>
-      'Restart now to update. The wallet locks and the app opens again.';
+  String get deskUpdReadyBody => 'The wallet locks and the app opens again.';
 
   @override
   String get deskUpdRestartNow => 'Restart now';
@@ -18171,4 +18099,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Confirmations not changed';
+
+  @override
+  String get deskSetPeersFirstSeenHint =>
+      'When this app first saw the peer connected, this session.';
+
+  @override
+  String deskAppFirstScanProgress(int percent) {
+    return 'Scanning the chain · $percent%';
+  }
+
+  @override
+  String deskAppFirstScanFound(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString outputs found',
+      one: '$countString output found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskAppFirstScanShowLog => 'Show log';
+
+  @override
+  String get deskAppFirstScanHideLog => 'Hide log';
+
+  @override
+  String deskNodeDurationDh(int days, int hours) {
+    return '$days d $hours h';
+  }
+
+  @override
+  String deskNodeDurationH(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String deskInvPayerAgoHoursOnly(int hours) {
+    return '$hours h';
+  }
 }

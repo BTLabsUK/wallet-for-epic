@@ -232,7 +232,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           onBack: () {},
           child: ProgressView(
             title: _failure != null ? l.deskErrPasswordNotChanged : l.deskOnbForgotTitle,
-            failureTitle: l.deskErrPasswordNotChanged,
             stages: [if (_locking) Stage('lock', l.deskOnbCreateLocking), Stage('reset', l.deskOnbForgotTitle)],
             current: 'reset',
             failed: 'reset',

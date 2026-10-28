@@ -421,7 +421,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('**发送看起来卡住了。** 通常是对方钱包离线。等一等，或在 $cancelPlace 取消后重新发送；已取消的付款之后不会再成交。'),
         const HelpBlock.h('接收', anchor: HelpAnchor.receiving),
         const HelpBlock.p('付款到达时，你的钱包会立即回复，你的任何东西都不会被锁定。此后由付款方的钱包完成并广播，通常只需几分钟，所以 15 分钟内不提供取消；在付款方报告已广播期间也不提供。'),
-        const HelpBlock.p('之后，取消只是清理付款方始终没有广播的付款。它不一定成功：钱包会先询问网络，如果付款已在网络中则拒绝。已取消的付款仍会被关注。如果付款方之后广播了，它仍会到达并显示为已收到。'),
+        const HelpBlock.p('之后，取消会清除付款方始终没有广播的付款。它不一定成功：钱包会先询问网络，如果付款已在网络中则拒绝。已取消的付款仍会被关注。如果付款方之后广播了，它仍会到达并显示为已收到。'),
         const HelpBlock.h('账单（实验性）', anchor: HelpAnchor.requests),
         const HelpBlock.p('你发出的请求在被支付之前不持有任何币。在此之前可以随时撤回：付款方将无法再支付，也没有币移动。无人支付的请求在 24 小时后过期。以二维码展示的请求只能支付一次；第二次扫描会被拒绝，所以不会重复付款。'),
         if (phone)

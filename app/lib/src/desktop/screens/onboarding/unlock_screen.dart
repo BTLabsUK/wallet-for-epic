@@ -320,8 +320,6 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (_failure != null) {
       return ProgressView(
         title: l.deskOnbUnlockFailed,
-        lead: l.deskOnbUnlockFailedLead,
-        failureTitle: l.deskOnbUnlockFailedBox,
         stages: _stages(l),
         failed: _failedStage,
         failure: _failure,
@@ -332,7 +330,6 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (_stage != null) {
       return ProgressView(
         title: l.deskOnbUnlockUnlocking(name),
-        lead: l.deskOnbUnlockStepsLead,
         stages: _stages(l),
         current: _stage!,
         note: l.deskOnbUnlockNote,

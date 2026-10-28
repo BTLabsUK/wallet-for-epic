@@ -159,8 +159,8 @@ void main() {
     expect(fake.downloads, 1);
     expect(opened, isEmpty);
     expect(ready(), findsOneWidget);
-    expect(find.text('Epic Cash $_v is ready'), findsOneWidget);
-    expect(find.text('Restart now to update. The wallet locks and the app opens again.'), findsOneWidget);
+    expect(find.text('Restart to update'), findsOneWidget);
+    expect(find.text('The wallet locks and the app opens again.'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Later'));
     await tester.pumpAndSettle();
     expect(ready(), findsNothing);
@@ -285,7 +285,7 @@ void main() {
 
   testWidgets('Settings › About while it downloads: the percent, and the button waits', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.downloading, progress: 0.42), home: about);
-    expect(find.text('Downloading 42 %'), findsOneWidget);
+    expect(find.text('Downloading 42%'), findsOneWidget);
     final b = tester.widget<EButton>(act());
     expect(b.busy, isTrue);
     expect(b.onPressed, isNull);

@@ -10,8 +10,8 @@
   "deskSetWalletsAdd": "添加钱包",
   "deskSetWalletsCreate": "创建钱包",
   "deskSetWalletsCreateText": "带有新助记词的新钱包。",
-  "deskSetWalletsImport": "导入",
-  "deskSetWalletsImportText": "从旧版 Epic Wallet 或文件夹导入。",
-  "deskSetWalletsRestore": "恢复",
-  "deskSetWalletsRestoreText": "用助记词恢复。"
+  "deskSetWalletsImport": "导入钱包",
+  "deskSetWalletsImportText": "从旧版 Epic Wallet 或文件夹导入",
+  "deskSetWalletsRestore": "用助记词恢复",
+  "deskSetWalletsRestoreText": "使用助记词"
 }

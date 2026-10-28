@@ -423,7 +423,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('**Płatność wygląda na zablokowaną.** Zwykle drugi portfel jest offline. Poczekaj albo anuluj ją w $cancelPlace i wyślij ponownie; anulowana płatność nie przejdzie później.'),
         const HelpBlock.h('Odbieranie', anchor: HelpAnchor.receiving),
         const HelpBlock.p('Gdy płatność przychodzi, twój portfel odpowiada od razu i nic twojego nie jest blokowane. Od tej chwili portfel nadawcy kończy ją i wysyła do sieci, zwykle w ciągu minut, więc anulowanie schodzi z drogi na 15 minut, a dłużej, gdy nadawca zgłasza, że wysłał.'),
-        const HelpBlock.p('Potem anulowanie to porządki po płatności, której nadawca nigdy nie wysłał. Nie jest pewne: portfel najpierw pyta sieć i odmawia, gdy płatność już tam jest. Anulowana płatność pozostaje pod obserwacją. Jeśli nadawca wyśle ją później, i tak dotrze i pokaże się jako odebrana.'),
+        const HelpBlock.p('Potem anulowanie usuwa płatność, której nadawca nigdy nie wysłał. Nie jest pewne: portfel najpierw pyta sieć i odmawia, gdy płatność już tam jest. Anulowana płatność pozostaje pod obserwacją. Jeśli nadawca wyśle ją później, i tak dotrze i pokaże się jako odebrana.'),
         const HelpBlock.h('Faktury (eksperymentalne)', anchor: HelpAnchor.requests),
         const HelpBlock.p('Wysłana prośba nie trzyma żadnych monet, dopóki nie zostanie zapłacona. Do tego czasu możesz ją wycofać w każdej chwili: płacący nie może już jej zapłacić i nic się nie przenosi. Prośba, której nikt nie zapłaci, wygasa po 24 godzinach. Prośbę pokazaną jako kod QR można zapłacić raz; drugi skan jest odrzucany, więc nic nie jest płacone dwa razy.'),
         if (phone)

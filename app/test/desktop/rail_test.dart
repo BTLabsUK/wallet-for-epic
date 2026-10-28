@@ -224,9 +224,9 @@ void main() {
         ),
         'Syncing',
         EState.warn,
-        '12 %',
+        '12%',
       ),
-      'local syncing, no fallback': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.warn, '12 %'),
+      'local syncing, no fallback': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.warn, '12%'),
       'local synced': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)), 'Synced', EState.ok, null),
       'local stalled': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, stalled: true)), 'Stalled', EState.risk, 'stalled'),
       'local failed': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse)), 'Failed', EState.risk, 'failed'),
@@ -248,7 +248,7 @@ void main() {
       expect(fixtures['remote no answer']!.$1.lines, ['node.epiccash.com · since 14:02', 'The node is not answering.']);
       expect(fixtures['local syncing, fallback']!.$1.host, 'epiccash.com');
       expect(fixtures['local syncing, fallback']!.$1.lines, [
-        'Local node · 12 % · about 3 h left',
+        'Local node · 12%',
         'Headers · 1,480,200 of 3,764,975 · 14 peers',
         'Using node.epiccash.com until it is synced.',
       ]);

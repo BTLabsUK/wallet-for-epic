@@ -17,8 +17,8 @@
   "deskUpdUnfinished": "更新未完成。请重试。",
   "deskUpdManual": "此副本无法自行安装更新。",
   "deskUpdDownloadInstall": "下载并安装",
-  "deskUpdReadyTitle": "Epic Cash {version} 已就绪",
-  "deskUpdReadyBody": "立即重启以完成更新。钱包会锁定，应用会重新打开。",
+  "deskUpdReadyTitle": "重启以更新",
+  "deskUpdReadyBody": "钱包会锁定，应用会重新打开。",
   "deskUpdRestartNow": "立即重启",
   "deskUpdLater": "稍后"
 }

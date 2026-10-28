@@ -58,7 +58,7 @@ void main() {
     await tester.tap(find.text('Keep epicbox.example.org'));
     await _wait(tester);
     expect(api.relayChoices, isEmpty);
-    expect(find.textContaining('payments sent to the old address do not arrive'), findsOneWidget);
+    expect(find.textContaining('payments to the old one do not arrive'), findsOneWidget);
     await tester.tap(find.text('Use epicbox.epiccash.com'));
     await _wait(tester);
     expect(api.relayChoices.single, endsWith(':false'));

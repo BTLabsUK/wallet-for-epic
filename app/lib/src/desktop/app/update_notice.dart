@@ -111,7 +111,7 @@ Future<void> showUpdateReadyDialog(ProviderContainer container, BuildContext? fa
       final l = context.l10n;
       return EDialog(
         key: const ValueKey('update-ready'),
-        title: l.deskUpdReadyTitle(u.version ?? ''),
+        title: l.deskUpdReadyTitle,
         description: l.deskUpdReadyBody,
         icon: EIcons.restart,
         tone: ETone.gold,

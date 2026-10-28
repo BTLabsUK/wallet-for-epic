@@ -384,32 +384,6 @@
   "@deskNodeLineSyncing": {
     "description": "Local node stage line when the stage is unknown."
   },
-  "deskNodeNoEstimate": "no estimate; up to an hour",
-  "@deskNodeNoEstimate": {
-    "description": "Time left for the local node's checks, which cannot be estimated. Lowercase."
-  },
-  "deskNodeEstimating": "estimating…",
-  "@deskNodeEstimating": {
-    "description": "Time left for the local node's sync while the estimate is not ready yet. Lowercase."
-  },
-  "deskNodeAboutHours": "about {hours} h left",
-  "@deskNodeAboutHours": {
-    "description": "Time left for the local node's sync, in hours. Lowercase.",
-    "placeholders": {
-      "hours": {
-        "type": "int"
-      }
-    }
-  },
-  "deskNodeAboutMinutes": "about {minutes} min left",
-  "@deskNodeAboutMinutes": {
-    "description": "Time left for the local node's sync, in minutes. Lowercase.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
   "deskNodeDurationHm": "{hours} h {minutes} min",
   "@deskNodeDurationHm": {
     "description": "A length of time in hours and minutes, e.g. how long the node has been running.",
@@ -455,10 +429,6 @@
   "@deskTorNotConnected": {
     "description": "Tor state word: Tor stopped or could not connect. Short."
   },
-  "deskTorRoutes": "Epicbox, the node, status, price, updates, support and Tor addresses",
-  "@deskTorRoutes": {
-    "description": "The connections that wait for Tor, as a phrase that starts a sentence: Epicbox, the node, the app's status/price/update/support requests and Tor addresses. It is followed by a verb in the sentences that use it (\"… wait until Tor is up.\")."
-  },
   "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
   "@deskTorCoverage": {
     "description": "One sentence listing what goes over Tor while the switch is on."
@@ -492,6 +462,27 @@
       "host": {
         "type": "String",
         "example": "epic.node.example"
+      }
+    }
+  },
+  "deskNodeDurationDh": "{days} d {hours} h",
+  "@deskNodeDurationDh": {
+    "description": "A duration of a day or more, e.g. how long the node has run: \"5 d 7 h\".",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationH": "{hours} h",
+  "@deskNodeDurationH": {
+    "description": "A duration in whole hours, e.g. \"5 h\".",
+    "placeholders": {
+      "hours": {
+        "type": "int"
       }
     }
   }

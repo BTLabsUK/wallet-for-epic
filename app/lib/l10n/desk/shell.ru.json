@@ -30,7 +30,7 @@
   "deskAppNodeSyncedBody": "У локального узла есть весь блокчейн, им уже можно пользоваться. Чтобы переключиться на него, приложение перезапустится.",
   "deskAppNotNow": "Не сейчас",
   "deskAppRestartNow": "Перезапустить",
-  "deskAppFirstScanTitle": "Первое сканирование кошелька",
+  "deskAppFirstScanTitle": "Первое сканирование",
   "deskAppFirstScanBody": "Кошелёк ищет в блокчейне свои выходы. Им можно пользоваться; баланс обновится, когда сканирование закончится.",
   "deskAppScanOutput": "Ход сканирования",
   "deskAppWaitingOutput": "Ждём первых строк…",
@@ -70,12 +70,16 @@
   "deskTourNodeTitle": "Настройки › Узел",
   "deskTourNodeText": "Из какого узла кошелёк читает цепочку. Остальные страницы настроек перечислены слева.",
   "deskTourHelpTitle": "Справка",
-  "deskTourHelpText": "Темы по разделам и «Сообщить о проблеме». Подробнее о каждой странице — здесь, а тур можно показать снова.",
+  "deskTourHelpText": "Темы справки, «Сообщить о проблеме» и «Показать тур снова».",
   "deskTourCounter": "{current} из {total}",
   "deskTourSemantics": "Тур по кошельку",
   "deskTourSkip": "Пропустить тур",
   "deskTourBack": "Назад",
   "deskTourNext": "Далее",
   "deskTourAdvancedTitle": "Дополнительно",
-  "deskTourAdvancedText": "Режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно."
+  "deskTourAdvancedText": "Режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно.",
+  "deskAppFirstScanProgress": "Сканирование блокчейна · {percent}%",
+  "deskAppFirstScanFound": "{count, plural, one{Найден {count} выход} few{Найдено {count} выхода} many{Найдено {count} выходов} other{Найдено {count} выхода}}",
+  "deskAppFirstScanShowLog": "Показать журнал",
+  "deskAppFirstScanHideLog": "Скрыть журнал"
 }

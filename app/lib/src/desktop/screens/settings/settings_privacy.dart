@@ -164,20 +164,22 @@ class _TorGroupState extends ConsumerState<TorGroup> {
   }
 }
 
+/// [problem] without its own full stop: the string adds one.
+String _noStop(String problem) => problem.endsWith('.') || problem.endsWith('。') ? problem.substring(0, problem.length - 1) : problem;
+
 /// The Tor state line of Settings › Privacy and the status card's hover card.
 MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status, {bool included = true}) {
   if (!included) return MethodLine(l.deskSetPrivNotInBuild, EState.off);
-  final waiting = torWaitingText(l);
   return switch (tor) {
     TorState.off => MethodLine(l.deskSetFrameOff, EState.off),
-    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.warn, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0, waiting)),
+    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.warn, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
     TorState.on when status?.tor == ServiceHealth.slow =>
       MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
     TorState.on => MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: l.deskSetPrivConnected),
     TorState.failed => MethodLine(
       l.deskSetPrivNotConnected,
       EState.risk,
-      detail: status?.torProblem == null ? l.deskSetPrivStoppedDetail(waiting) : l.deskSetPrivProblemDetail(status!.torProblem!, waiting),
+      detail: status?.torProblem == null ? l.deskSetPrivStoppedDetail : l.deskSetPrivProblemDetail(_noStop(status!.torProblem!)),
     ),
   };
 }

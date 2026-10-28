@@ -2651,7 +2651,7 @@
   "@firstRunCreate": {
     "description": "Primary button on the first screen: make a new wallet (then choose a PIN)."
   },
-  "firstRunRestore": "Restore from a phrase",
+  "firstRunRestore": "Restore from phrase",
   "@firstRunRestore": {
     "description": "Button on the first screen, and row in Settings › Wallet, that opens the restore from a recovery phrase instead of making a new wallet."
   },
@@ -5587,7 +5587,7 @@
   "@outputsConsolidateTitle": {
     "description": "Sheet title."
   },
-  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after {blocks, plural, one{{blocks} block} other{{blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. Everything spendable is locked for {blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}.",
   "@outputsConsolidateText": {
     "description": "Consolidate sheet paragraph. {spent} is a count such as \"3 outputs\". {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
@@ -6575,7 +6575,7 @@
   "@deskInvCheckFailedTitle": {
     "description": "Notice title when checking for invoices failed."
   },
-  "deskInvCheckFailedBody": "The lists show what arrived before. Nothing was lost; the wallet tries again every 2 minutes.",
+  "deskInvCheckFailedBody": "The lists show what arrived before; the wallet retries.",
   "@deskInvCheckFailedBody": {
     "description": "Notice text when checking for invoices failed."
   },
@@ -6873,7 +6873,7 @@
       }
     }
   },
-  "deskInvIssuerBounced": "{payer}’s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "deskInvIssuerBounced": "{payer}’s wallet cannot pay invoices; ask {payer} to send a payment instead.",
   "@deskInvIssuerBounced": {
     "description": "Detail text and warning notice of a request the payer's wallet returned.",
     "placeholders": {
@@ -6990,7 +6990,7 @@
   "@deskInvPayerEmptyTitle": {
     "description": "Empty state title of Requests › To pay."
   },
-  "deskInvPayerEmptyText": "When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.",
+  "deskInvPayerEmptyText": "Invoices from allowed paired contacts appear here; nothing is paid without approval.",
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
@@ -7003,7 +7003,7 @@
       }
     }
   },
-  "deskInvPayerNotDeliveredText": "It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.",
+  "deskInvPayerNotDeliveredText": "It is signed and kept on this computer; the EPIC stays locked. Retry sends it again without a second approval.",
   "@deskInvPayerNotDeliveredText": {
     "description": "Notice text for a payment that was not delivered."
   },
@@ -7284,7 +7284,7 @@
   "@deskInvPayerDeclined": {
     "description": "Toast after the user declined an invoice; it leaves To pay at once."
   },
-  "deskInvPayerSpendToSelf": "Spend them to myself now",
+  "deskInvPayerSpendToSelf": "Send them back to this wallet now",
   "@deskInvPayerSpendToSelf": {
     "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
   },
@@ -8164,7 +8164,7 @@
   "@deskTorLinePublishing": {
     "description": "Tor line while the onion address is being published."
   },
-  "deskTorLineConnecting": "Connecting to Tor… {percent} %",
+  "deskTorLineConnecting": "Connecting to Tor… {percent}%",
   "@deskTorLineConnecting": {
     "description": "Tor line while Tor connects. {percent} is a number from 0 to 100.",
     "placeholders": {
@@ -8265,7 +8265,7 @@
   "@deskDataUpdUnreachable": {
     "description": "Update check failed: the server could not be reached."
   },
-  "deskDataUpdStatus": "The update server answered {status}.",
+  "deskDataUpdStatus": "Update server error ({status}).",
   "@deskDataUpdStatus": {
     "description": "Update check failed: the server answered with an HTTP error code.",
     "placeholders": {
@@ -8663,32 +8663,6 @@
   "@deskNodeLineSyncing": {
     "description": "Local node stage line when the stage is unknown."
   },
-  "deskNodeNoEstimate": "no estimate; up to an hour",
-  "@deskNodeNoEstimate": {
-    "description": "Time left for the local node's checks, which cannot be estimated. Lowercase."
-  },
-  "deskNodeEstimating": "estimating…",
-  "@deskNodeEstimating": {
-    "description": "Time left for the local node's sync while the estimate is not ready yet. Lowercase."
-  },
-  "deskNodeAboutHours": "about {hours} h left",
-  "@deskNodeAboutHours": {
-    "description": "Time left for the local node's sync, in hours. Lowercase.",
-    "placeholders": {
-      "hours": {
-        "type": "int"
-      }
-    }
-  },
-  "deskNodeAboutMinutes": "about {minutes} min left",
-  "@deskNodeAboutMinutes": {
-    "description": "Time left for the local node's sync, in minutes. Lowercase.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
   "deskNodeDurationHm": "{hours} h {minutes} min",
   "@deskNodeDurationHm": {
     "description": "A length of time in hours and minutes, e.g. how long the node has been running.",
@@ -8733,10 +8707,6 @@
   "deskTorNotConnected": "Not connected",
   "@deskTorNotConnected": {
     "description": "Tor state word: Tor stopped or could not connect. Short."
-  },
-  "deskTorRoutes": "Epicbox, the node, status, price, updates, support and Tor addresses",
-  "@deskTorRoutes": {
-    "description": "The connections that wait for Tor, as a phrase that starts a sentence: Epicbox, the node, the app's status/price/update/support requests and Tor addresses. It is followed by a verb in the sentences that use it (\"… wait until Tor is up.\")."
   },
   "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
   "@deskTorCoverage": {
@@ -8802,16 +8772,11 @@
   "@deskRecvTorStarting": {
     "description": "Title of the notice on Receive while Tor connects."
   },
-  "deskRecvTorDownText": "Nothing arrives over {routes} until it is, or until Tor is turned off.",
+  "deskRecvTorDownText": "Every connection waits for Tor. Retry, or turn Tor off.",
   "@deskRecvTorDownText": {
-    "description": "Text of the notice on Receive when Tor failed. {routes} is a list of the connections that wait for Tor, such as \"Epicbox, the node, status, price, updates, support and Tor addresses\". \"it\" is Tor.",
-    "placeholders": {
-      "routes": {
-        "type": "String"
-      }
-    }
+    "description": "Text of the notice on Receive when Tor failed."
   },
-  "deskRecvTorStartingText": "Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.",
+  "deskRecvTorStartingText": "Addresses become reachable when Tor connects.",
   "@deskRecvTorStartingText": {
     "description": "Text of the notice on Receive while Tor connects. \"it\" is Tor."
   },
@@ -8929,7 +8894,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.",
+  "deskRecvEpicboxIntro": "Share it to get paid; the Epicbox server holds payments while the wallet is closed.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },
@@ -8958,7 +8923,7 @@
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
-  "deskRecvHttpIntro": "Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.",
+  "deskRecvHttpIntro": "Straight from another wallet while this one is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
@@ -8994,7 +8959,7 @@
   "@deskRecvSignTitle": {
     "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
   },
-  "deskRecvSignText": "A sender gave a transaction file. The wallet signs it and saves a response for them.",
+  "deskRecvSignText": "Sign the sender’s transaction file and save the response file.",
   "@deskRecvSignText": {
     "description": "Row text under Sign a transaction file."
   },
@@ -9006,7 +8971,7 @@
   "@deskRecvFinalizeTitle": {
     "description": "Row title in the transaction files panel: opens the page that finalizes a response file."
   },
-  "deskRecvFinalizeText": "A file send got a response back. Finalizing posts the payment.",
+  "deskRecvFinalizeText": "Finalize the recipient’s response file to post the payment.",
   "@deskRecvFinalizeText": {
     "description": "Row text under Finalize a response file."
   },
@@ -9383,7 +9348,7 @@
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
   },
-  "deskSendFileReadyText": "Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.",
+  "deskSendFileReadyText": "Give this file to the recipient, then finalize with their response file.",
   "@deskSendFileReadyText": {
     "description": "Result card text on Send after a file send created the transaction file."
   },
@@ -9399,7 +9364,7 @@
   "@deskSendNodeNotSynced": {
     "description": "Title of the warning notice on Send while the node has not synced."
   },
-  "deskSendNodeSyncingPct": "Sending is possible once the node has synced. {percent}% done; the form can be filled in meanwhile.",
+  "deskSendNodeSyncingPct": "Sending resumes when the node is synced ({percent}%).",
   "@deskSendNodeSyncingPct": {
     "description": "Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.",
     "placeholders": {
@@ -9428,7 +9393,7 @@
   "@deskSendTorStarting": {
     "description": "Title of the notice on Send while Tor connects."
   },
-  "deskSendTorStartingText": "Sending waits until it is connected. Nothing goes over the clearnet meanwhile.",
+  "deskSendTorStartingText": "Sending waits for Tor.",
   "@deskSendTorStartingText": {
     "description": "Text of the notice on Send while Tor connects."
   },
@@ -9436,7 +9401,7 @@
   "@deskSendEpicboxOff": {
     "description": "Title of the warning notice on Send when Epicbox receiving is off."
   },
-  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.",
+  "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
   },
@@ -9512,7 +9477,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Link · HTTP goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link · HTTP goes directly, without Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -9580,7 +9545,7 @@
   "@deskSendDandelionText": {
     "description": "Description of the Dandelion++ switch on Send."
   },
-  "deskSendHintSent": "Sent. Enter a new amount and recipient to send again.",
+  "deskSendHintSent": "Sent.",
   "@deskSendHintSent": {
     "description": "Line under the Review send button after a send went out."
   },
@@ -9660,7 +9625,7 @@
   "@deskSendDirectLine1": {
     "description": "Bold first line under the method selector for the Link method."
   },
-  "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
+  "deskSendDirectLine2": "An http(s) or .onion address; their wallet must be open.",
   "@deskSendDirectLine2": {
     "description": "Second line under the method selector for the Link method."
   },
@@ -9916,7 +9881,7 @@
   "@deskFinTitle": {
     "description": "Page title of Finalize."
   },
-  "deskFinNoticeTitle": "For a transaction created as a file",
+  "deskFinNoticeTitle": "For file payments",
   "@deskFinNoticeTitle": {
     "description": "Title of the info notice at the top of the Finalize page."
   },
@@ -9960,7 +9925,7 @@
   "@deskImpWrongType": {
     "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
   },
-  "deskImpWrongTypeText": "The file is not a transaction file. Choose the .slate or .tx file the sender gave.",
+  "deskImpWrongTypeText": "Not a transaction file. Choose the .tx file the sender gave.",
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
@@ -10089,7 +10054,7 @@
   "@deskActLoading": {
     "description": "Line with a spinner on Activity while the transactions are being read."
   },
-  "deskActWaitingNode": "Waiting for the node to be synced.",
+  "deskActWaitingNode": "Waiting for the node to sync.",
   "@deskActWaitingNode": {
     "description": "Line with a spinner on Activity while the node has not finished syncing, so there is no list yet."
   },
@@ -10159,7 +10124,7 @@
   "@deskActEmptyTitle": {
     "description": "Title of the empty state on Activity when the wallet has no transactions."
   },
-  "deskActEmptyText": "Every payment sent or received is listed here, newest first, with who it was with and how far along it is.",
+  "deskActEmptyText": "Payments sent and received, newest first.",
   "@deskActEmptyText": {
     "description": "Text of the empty state on Activity when the wallet has no transactions."
   },
@@ -10277,7 +10242,7 @@
   "@deskConAdd": {
     "description": "Button on Contacts that opens the form for a new contact. Short."
   },
-  "deskConIdle": "Choose a contact to see their details, send to them, edit or delete them.",
+  "deskConIdle": "Choose a contact.",
   "@deskConIdle": {
     "description": "Text in the empty detail panel beside the contact list."
   },
@@ -10285,11 +10250,11 @@
   "@deskConEmptyTitle": {
     "description": "Title of the empty state of Contacts."
   },
-  "deskConEmptyText": "Save the people and shops paid often. On Send, pick a name instead of pasting an address.",
+  "deskConEmptyText": "Save the people and shops paid often, then pick them by name on Send.",
   "@deskConEmptyText": {
     "description": "Text of the empty state of Contacts."
   },
-  "deskConEmptyLocal": "Contacts stay on this computer. They are not part of the recovery phrase.",
+  "deskConEmptyLocal": "Contacts stay on this computer; export them to keep a copy.",
   "@deskConEmptyLocal": {
     "description": "Small text of the empty state of Contacts."
   },
@@ -10425,7 +10390,7 @@
       }
     }
   },
-  "deskConDeleteBody": "The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.",
+  "deskConDeleteBody": "Removes the contact; past payments stay in Activity. This cannot be undone.",
   "@deskConDeleteBody": {
     "description": "Body of the dialog that asks before deleting a contact."
   },
@@ -10461,7 +10426,7 @@
   "@deskOutLockedNote": {
     "description": "Small note under the balance tiles on Outputs, shown while some outputs are locked."
   },
-  "deskOutIntro": "Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.",
+  "deskOutIntro": "Outputs are the pieces the balance is made of. A send spends whole outputs and returns the change as a new one.",
   "@deskOutIntro": {
     "description": "Intro paragraph on the Outputs page."
   },
@@ -10585,7 +10550,7 @@
   "@deskOutNoneTitle": {
     "description": "Title of the empty state on Outputs when the wallet has no outputs."
   },
-  "deskOutNoneText": "The first payment received makes one. Split and Consolidate need something to work with.",
+  "deskOutNoneText": "The first payment received makes one.",
   "@deskOutNoneText": {
     "description": "Text of the empty state on Outputs when the wallet has no outputs."
   },
@@ -10847,7 +10812,7 @@
       }
     }
   },
-  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then.",
+  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. Everything spendable is locked for {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.",
   "@deskOutSplitDialogText": {
     "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -10865,7 +10830,7 @@
       }
     }
   },
-  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed {blocks, plural, one{after 1 block} other{after {blocks} blocks}} like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "deskOutConsDialogText": "Spends {spent} and makes {made}. Everything spendable is locked for {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.",
   "@deskOutConsDialogText": {
     "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -10981,7 +10946,7 @@
   "@deskOutConsPosted": {
     "description": "Title of the green notice in the Consolidate dialog when it worked."
   },
-  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.}}",
+  "deskOutSplitDoneText": "{count, plural, one{{count} output of about {amount} EPIC, confirming. Locked for {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.} other{{count} outputs of about {amount} EPIC, confirming. Locked for {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.}}",
   "@deskOutSplitDoneText": {
     "description": "Text of the green notice in the Split dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -10999,7 +10964,7 @@
       }
     }
   },
-  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Activity shows two entries: a send and a receive, both to this wallet.",
+  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Locked for {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.",
   "@deskOutConsDoneText": {
     "description": "Text of the green notice in the Consolidate dialog when it worked. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -11013,7 +10978,7 @@
       }
     }
   },
-  "deskOutNotPostedTitle": "Not posted.",
+  "deskOutNotPostedTitle": "Not posted",
   "@deskOutNotPostedTitle": {
     "description": "Title of the red notice when the node did not take the transaction."
   },
@@ -11075,11 +11040,11 @@
   "@deskOutConsDialogTitle": {
     "description": "Title of the Consolidate dialog."
   },
-  "deskOutPostingDesc": "Posting.",
+  "deskOutPostingDesc": "Posting",
   "@deskOutPostingDesc": {
     "description": "Description in the dialog header while posting."
   },
-  "deskOutDoneDesc": "Done.",
+  "deskOutDoneDesc": "Done",
   "@deskOutDoneDesc": {
     "description": "Description in the dialog header when it worked."
   },
@@ -11091,7 +11056,7 @@
   "@deskOutConsDesc": {
     "description": "Description in the Consolidate dialog header."
   },
-  "deskOutNothingText": "Nothing to consolidate: the wallet has {what}. Consolidate merges several outputs into one.",
+  "deskOutNothingText": "Nothing to consolidate: the wallet has {what}.",
   "@deskOutNothingText": {
     "description": "Text of the dialog shown when there is nothing to consolidate (the wallet has one spendable output, or the core says fewer than two); the placeholder is shown in bold.",
     "placeholders": {
@@ -11125,7 +11090,7 @@
   "@deskOvNodeAddrText": {
     "description": "Text of the notice about the corrected node address. The addresses stay as written."
   },
-  "deskOvNodeIncompatTitle": "This node’s version is not compatible with this wallet",
+  "deskOvNodeIncompatTitle": "Node version not compatible",
   "@deskOvNodeIncompatTitle": {
     "description": "Title of a red notice on Overview: the node runs a version the wallet cannot use."
   },
@@ -11249,15 +11214,9 @@
       }
     }
   },
-  "deskOvSyncText": "Downloading blocks. Balances are what the wallet knew at block {block}. Sending opens when the node has caught up.",
+  "deskOvSyncText": "Downloading blocks. Sending resumes when the node is synced.",
   "@deskOvSyncText": {
-    "description": "Text of the node-syncing notice.",
-    "placeholders": {
-      "block": {
-        "type": "String",
-        "example": "2,903,118"
-      }
-    }
+    "description": "Text of the node-syncing notice."
   },
   "deskOvSyncProgress": "Node sync progress",
   "@deskOvSyncProgress": {
@@ -11285,7 +11244,7 @@
   "@deskOvReceive": {
     "description": "Button on Overview: opens Receive. Short."
   },
-  "deskOvSendWaits": "Sending opens when the node is synced.",
+  "deskOvSendWaits": "Sending resumes when the node is synced.",
   "@deskOvSendWaits": {
     "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
   },
@@ -11347,7 +11306,7 @@
   "@deskOvEmptyTitle": {
     "description": "Title of the empty state of Recent activity."
   },
-  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows here first as confirming, then as spendable after {blocks} block.} other{Received EPIC shows here first as confirming, then as spendable after {blocks} blocks.}}",
+  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows as confirming, then spendable after {blocks} confirmation.} other{Received EPIC shows as confirming, then spendable after {blocks} confirmations.}}",
   "@deskOvEmptyText": {
     "description": "Text of the empty state of Recent activity; blocks is the number of confirmations needed.",
     "placeholders": {
@@ -11379,7 +11338,7 @@
       }
     }
   },
-  "deskOvPendingFiles": "{count, plural, one{{count} file send open} other{{count} file sends open}}",
+  "deskOvPendingFiles": "{count, plural, one{{count} file payment to finalize} other{{count} file payments to finalize}}",
   "@deskOvPendingFiles": {
     "description": "Title of a notice on Overview: file payments waiting for the recipient's response file.",
     "placeholders": {
@@ -11661,7 +11620,8 @@
     "placeholders": {
       "count": {
         "type": "int",
-        "example": "100"
+        "example": "100",
+        "format": "decimalPattern"
       }
     }
   },
@@ -11701,7 +11661,8 @@
     "placeholders": {
       "confirmations": {
         "type": "int",
-        "example": "12"
+        "example": "12",
+        "format": "decimalPattern"
       }
     }
   },
@@ -12037,11 +11998,11 @@
   "@deskOnbWelcomeImportSub": {
     "description": "One-line description under 'Import wallets'."
   },
-  "deskOnbWelcomeRestore": "Restore from a phrase",
+  "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."
   },
-  "deskOnbWelcomeRestoreSub": "From the recovery words",
+  "deskOnbWelcomeRestoreSub": "From the recovery phrase",
   "@deskOnbWelcomeRestoreSub": {
     "description": "One-line description under 'Restore from a phrase'."
   },
@@ -12126,7 +12087,7 @@
   "@deskOnbStepPhrase": {
     "description": "Name of a step in the left rail of the new-wallet and restore pages, and the title of the page that shows the recovery words. Short."
   },
-  "deskOnbCreateStageCreate": "Creating the wallet and its recovery phrase",
+  "deskOnbCreateStageCreate": "Making the recovery phrase",
   "@deskOnbCreateStageCreate": {
     "description": "Progress step while the new wallet is made."
   },
@@ -12151,10 +12112,6 @@
       }
     }
   },
-  "deskOnbCreateFailedTitle": "The wallet could not be created",
-  "@deskOnbCreateFailedTitle": {
-    "description": "Heading of the failure box on the new-wallet progress page."
-  },
   "deskOnbCreateDiskFull": "Wallet not saved: the disk is full. Free some space, then try again.",
   "@deskOnbCreateDiskFull": {
     "description": "Failure text on the new-wallet progress page when the disk is full."
@@ -12175,7 +12132,7 @@
   "@deskOnbCreateTitle": {
     "description": "Title of the password page of the new-wallet flow and label of its primary button."
   },
-  "deskOnbCreateLead": "The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.",
+  "deskOnbCreateLead": "The password unlocks this wallet on this computer; only the recovery phrase restores the coins.",
   "@deskOnbCreateLead": {
     "description": "Text under the title of the password page of the new-wallet flow."
   },
@@ -12183,7 +12140,7 @@
   "@deskOnbCreateTestNote": {
     "description": "Note on the password page when a test network is selected; the network's name is shown beside it."
   },
-  "deskOnbCreatePhraseLead": "These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.",
+  "deskOnbCreatePhraseLead": "Write these words on paper, in order: they are the only way to restore the coins.",
   "@deskOnbCreatePhraseLead": {
     "description": "Text under the title of the recovery phrase page."
   },
@@ -12227,7 +12184,7 @@
   "@deskOnbCreateQrLabel": {
     "description": "Screen-reader label of the recovery phrase QR code image."
   },
-  "deskOnbCreateWritten": "Written down: all {count, plural, one{{count} word} other{{count} words}} on paper",
+  "deskOnbCreateWritten": "I have written down all {count, plural, one{{count} word} other{{count} words}}",
   "@deskOnbCreateWritten": {
     "description": "Checkbox label the user ticks after writing the recovery phrase down. {count} is the number of words (12 or 24).",
     "placeholders": {
@@ -12248,11 +12205,7 @@
   "@deskOnbRestoreRestoring": {
     "description": "Title of the restore progress page and its progress step."
   },
-  "deskOnbRestoreFailedTitle": "The wallet could not be restored",
-  "@deskOnbRestoreFailedTitle": {
-    "description": "Heading of the failure box on the restore progress page."
-  },
-  "deskOnbRestorePermission": "The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.",
+  "deskOnbRestorePermission": "Wallet files not written: no permission for ~/.config/Epic Cash Desktop. Allow writing to that folder, then try again.",
   "@deskOnbRestorePermission": {
     "description": "Sample failure text on the restore progress page (permission denied). The folder path stays as written."
   },
@@ -12264,14 +12217,9 @@
   "@deskOnbRestoreSide": {
     "description": "Title above the step rail on the left of the restore pages and label of the primary button of the password step."
   },
-  "deskOnbRestorePasswordLead": "The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer.",
+  "deskOnbRestorePasswordLead": "Set the password that unlocks this wallet on this computer.",
   "@deskOnbRestorePasswordLead": {
-    "description": "Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Text under the title of the password step of the restore flow."
   },
   "deskOnbRestoreNothingToPaste": "Nothing to paste: the clipboard holds no words.",
   "@deskOnbRestoreNothingToPaste": {
@@ -12315,7 +12263,7 @@
       }
     }
   },
-  "deskOnbRestoreWordsLead": "Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.",
+  "deskOnbRestoreWordsLead": "Type the words in order, or paste the whole phrase into any box.",
   "@deskOnbRestoreWordsLead": {
     "description": "Text under the title of the recovery phrase step of the restore flow."
   },
@@ -12368,7 +12316,7 @@
   "@deskOnbKillRoleNode": {
     "description": "Small grey note beside a process in the list: it is a node. Lowercase."
   },
-  "deskOnbKillNote": "Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.",
+  "deskOnbKillNote": "Closing them stops a node sync or receiving; this app starts them again after unlock.",
   "@deskOnbKillNote": {
     "description": "Note under the process list."
   },
@@ -12392,7 +12340,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet’s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it with its password, or set a new password with this phrase.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },
@@ -12412,7 +12360,7 @@
   "@deskOnbUnlockWrong": {
     "description": "Error under the password field after a wrong password."
   },
-  "deskOnbUnlockPortInUse": "The wallet service did not start: port 3415 is in use by another program.",
+  "deskOnbUnlockPortInUse": "Port 3415 is in use by another program. Close it, then try again.",
   "@deskOnbUnlockPortInUse": {
     "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number 3415."
   },
@@ -12468,14 +12416,6 @@
   "@deskOnbUnlockFailed": {
     "description": "Title of the unlock progress page after a failure."
   },
-  "deskOnbUnlockFailedLead": "The wallet did not open. The reason is below.",
-  "@deskOnbUnlockFailedLead": {
-    "description": "Line under the title of a failed unlock."
-  },
-  "deskOnbUnlockFailedBox": "The wallet did not open",
-  "@deskOnbUnlockFailedBox": {
-    "description": "Heading of the failure box of a failed unlock."
-  },
   "deskOnbUnlockUnlocking": "Unlocking {name}",
   "@deskOnbUnlockUnlocking": {
     "description": "Title of the unlock progress page. {name} is the wallet's name.",
@@ -12485,11 +12425,7 @@
       }
     }
   },
-  "deskOnbUnlockStepsLead": "Each step shows as it finishes.",
-  "@deskOnbUnlockStepsLead": {
-    "description": "Line under the title of the unlock progress page."
-  },
-  "deskOnbUnlockNote": "Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.",
+  "deskOnbUnlockNote": "Then the node, balances and receiving finish in the background.",
   "@deskOnbUnlockNote": {
     "description": "Note under the unlock progress list."
   },
@@ -12543,7 +12479,7 @@
   "@deskOnbNodeFreeUnknown": {
     "description": "End of the 'growing slowly' line on the local node step when the free disk space is not known. Lowercase."
   },
-  "deskOnbNodeFreeHere": "{size} free here",
+  "deskOnbNodeFreeHere": "{size} free",
   "@deskOnbNodeFreeHere": {
     "description": "End of the 'growing slowly' line on the local node step. {size} is e.g. '120 GB'.",
     "placeholders": {
@@ -12552,7 +12488,7 @@
       }
     }
   },
-  "deskOnbNodeDiskAbout": "About {size} of disk now",
+  "deskOnbNodeDiskAbout": "About {size} now,",
   "@deskOnbNodeDiskAbout": {
     "description": "Bold start of a line on the local node step: the chain takes about this much disk space now. {size} is e.g. '5 GB'.",
     "placeholders": {
@@ -12561,7 +12497,7 @@
       }
     }
   },
-  "deskOnbNodeDisk": "{size} of disk now",
+  "deskOnbNodeDisk": "{size} now,",
   "@deskOnbNodeDisk": {
     "description": "Bold start of a line on the local node step: the chain takes this much disk space now (measured).",
     "placeholders": {
@@ -12574,7 +12510,7 @@
   "@deskOnbNodeSeparate": {
     "description": "Bold start of the first fact of the local node step, read together with the next message."
   },
-  "deskOnbNodeSeparateText": "The wallet starts the Epic node and stops it with the app.",
+  "deskOnbNodeSeparateText": "Starts and stops with the app.",
   "@deskOnbNodeSeparateText": {
     "description": "Rest of the first fact of the local node step."
   },
@@ -12586,7 +12522,7 @@
   "@deskOnbNodeFirewallText": {
     "description": "Rest of the Windows firewall fact. Continues the previous sentence start, in lowercase."
   },
-  "deskOnbNodeGrowing": "growing slowly. {free}.",
+  "deskOnbNodeGrowing": "growing slowly · {free}",
   "@deskOnbNodeGrowing": {
     "description": "Rest of the disk-space fact, continues 'About 5 GB of disk now'. {free} is the free-space phrase, e.g. '120 GB free here'.",
     "placeholders": {
@@ -12595,11 +12531,11 @@
       }
     }
   },
-  "deskOnbNodeHours": "Hours to sync",
+  "deskOnbNodeHours": "First sync",
   "@deskOnbNodeHours": {
     "description": "Bold start of a fact on the local node step, read together with the next message."
   },
-  "deskOnbNodeHoursText": "the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.",
+  "deskOnbNodeHoursText": "shows its progress; a public node stands in meanwhile.",
   "@deskOnbNodeHoursText": {
     "description": "Rest of the 'Hours to sync' fact. Continues the bold start in lowercase."
   },
@@ -12657,7 +12593,7 @@
   "@deskOnbNodeExisting": {
     "description": "Title of a choice card on the local node step."
   },
-  "deskOnbNodeExistingText": "The Epic GUI or CLI node. The wallet connects to it and starts nothing.",
+  "deskOnbNodeExistingText": "Connects to the Epic GUI or CLI node already running here.",
   "@deskOnbNodeExistingText": {
     "description": "Description of that choice card."
   },
@@ -12673,11 +12609,11 @@
   "@deskOnbNodeBundled": {
     "description": "Title of a choice card on the local node step."
   },
-  "deskOnbNodeBundledText": "Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.",
+  "deskOnbNodeBundledText": "Downloads the chain into the wallet’s folder after Save.",
   "@deskOnbNodeBundledText": {
     "description": "Description of that choice card. 'Save' is the button of the last setup step."
   },
-  "deskOnbNodeFallback": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "deskOnbNodeFallback": "Use {host} until the local node is synced",
   "@deskOnbNodeFallback": {
     "description": "Checkbox label under the bundled node choice. {host} is a public node's host name.",
     "placeholders": {
@@ -12759,7 +12695,7 @@
   "@deskOnbImportFindingTitle": {
     "description": "Title of the first step of the import wizard."
   },
-  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.",
+  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program; old folders are only read.",
   "@deskOnbImportFindingLead": {
     "description": "Line under the title of the first step of the import wizard."
   },
@@ -12792,7 +12728,7 @@
   "@deskOnbImportChooseLead": {
     "description": "Line under the 'Choose wallets' title."
   },
-  "deskOnbImportCheckTitle": "Checking for use",
+  "deskOnbImportCheckTitle": "Checking wallets",
   "@deskOnbImportCheckTitle": {
     "description": "Title of the check step of the import wizard."
   },
@@ -12876,7 +12812,7 @@
   "@deskOnbImportOlder": {
     "description": "Name of a place being searched on the first step of the import wizard."
   },
-  "deskOnbImportOlderSub": "Accounts and folders",
+  "deskOnbImportOlderSub": "Wallets and folders",
   "@deskOnbImportOlderSub": {
     "description": "Small text under 'Older Epic Wallet' on the first step."
   },
@@ -12967,7 +12903,7 @@
   "@deskOnbImportOldPassword": {
     "description": "Label of the old-password field of the import step."
   },
-  "deskOnbImportOldHelp": "The password of {name} in the older app.",
+  "deskOnbImportOldHelp": "{name}’s password in the older app",
   "@deskOnbImportOldHelp": {
     "description": "Help text under the old-password field. {name} is the wallet's name.",
     "placeholders": {
@@ -13165,7 +13101,7 @@
   "@deskAppRestartNow": {
     "description": "Button of the local-node-synced dialog: restart the app and switch to the local node. Short."
   },
-  "deskAppFirstScanTitle": "Wallet first scan",
+  "deskAppFirstScanTitle": "First scan",
   "@deskAppFirstScanTitle": {
     "description": "Title of the dialog that shows the first scan of a new wallet."
   },
@@ -13345,7 +13281,7 @@
   "@deskTourHelpTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourHelpText": "Topics by section and Report a problem. More on every page is here, and this tour can be shown again.",
+  "deskTourHelpText": "Help topics, Report a problem and Show the tour again.",
   "@deskTourHelpText": {
     "description": "Text of the Help step, the last step of the first-run tour."
   },
@@ -13679,7 +13615,7 @@
       }
     }
   },
-  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.",
+  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable; the facts come from the node only.",
   "@deskKitLimitedNetwork": {
     "description": "Line on the node card when the status website cannot be reached and only the node itself answered."
   },
@@ -13908,15 +13844,6 @@
   "deskKitMethodWaitingTor": "Waiting for Tor",
   "@deskKitMethodWaitingTor": {
     "description": "Bold status word of the Epicbox line (Receive, Settings › Receiving): waits until Tor is connected."
-  },
-  "deskKitMethodTorNotConnected": "{host}. Tor is not connected.",
-  "@deskKitMethodTorNotConnected": {
-    "description": "Detail of the Epicbox status line when Epicbox must go through Tor but Tor is not connected. {host} is the Epicbox server.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
   },
   "deskKitMethodOn": "On",
   "@deskKitMethodOn": {
@@ -14423,7 +14350,7 @@
   "@deskSetBackupFile": {
     "description": "Export dialog: label of the row with the file name. Narrow label column."
   },
-  "deskSetBackupFileNote": "The file holds everything up to now. Export again after new payments or changes.",
+  "deskSetBackupFileNote": "The file holds everything up to now.",
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
@@ -14435,7 +14362,7 @@
   "@deskSetBackupSaved": {
     "description": "Export dialogs: title of the success block once the file is saved."
   },
-  "deskSetBackupKeepCopy": "Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.",
+  "deskSetBackupKeepCopy": "Keep a copy off this computer: a USB stick, another drive or cloud storage.",
   "@deskSetBackupKeepCopy": {
     "description": "Export history dialog: advice shown after saving."
   },
@@ -14510,19 +14437,11 @@
       }
     }
   },
-  "deskSetBackupNever": "Never",
-  "@deskSetBackupNever": {
-    "description": "Import dialog: label of the row saying what the import never does. Narrow label column."
-  },
-  "deskSetBackupNeverValue": "Removes or changes a payment that is here",
-  "@deskSetBackupNeverValue": {
-    "description": "Import dialog: what the import never does (continues the label \"Never\")."
-  },
   "deskSetBackupChooseFile": "Choose file…",
   "@deskSetBackupChooseFile": {
     "description": "Import dialog: button that opens the system Open dialog."
   },
-  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings. Nothing is removed, and the same file twice changes nothing.",
+  "deskSetBackupImportDesc": "Brings back this wallet’s payment history, contacts, invoices and settings; existing records stay.",
   "@deskSetBackupImportDesc": {
     "description": "Import history dialog: description under the title."
   },
@@ -14662,7 +14581,7 @@
   "@deskSetDlgChainUpdatedValue": {
     "description": "Existing blockchain data dialog: sample value of Last updated."
   },
-  "deskSetDlgChainOthers": "Other copies were found too (1). This one was updated most recently.",
+  "deskSetDlgChainOthers": "1 other copy found; this one is the newest.",
   "@deskSetDlgChainOthers": {
     "description": "Existing blockchain data dialog: note that another copy exists."
   },
@@ -14694,7 +14613,7 @@
   "@deskSetDlgPwTitle": {
     "description": "Change password dialog: title and primary button."
   },
-  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on. A remembered password is forgotten.",
+  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on; Remember on this computer is turned off.",
   "@deskSetDlgPwDesc": {
     "description": "Change password dialog: description under the title."
   },
@@ -14745,10 +14664,6 @@
       }
     }
   },
-  "deskSetDlgRemoveDesc": "Nothing changes until confirmed.",
-  "@deskSetDlgRemoveDesc": {
-    "description": "Remove wallet dialog: description under the title."
-  },
   "deskSetDlgRemoveWhat": "What to remove",
   "@deskSetDlgRemoveWhat": {
     "description": "Remove wallet dialog: screen reader label of the two choices."
@@ -14757,7 +14672,7 @@
   "@deskSetDlgRemoveFromList": {
     "description": "Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer."
   },
-  "deskSetDlgRemoveFromListHint": "Files stay in {folder}. All wallets can add it back.",
+  "deskSetDlgRemoveFromListHint": "Files stay in {folder}; Add a wallet brings it back.",
   "@deskSetDlgRemoveFromListHint": {
     "description": "Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. \"All wallets\" is the Settings page.",
     "placeholders": {
@@ -15028,7 +14943,7 @@
   "@deskSetLnodeWhileSyncing": {
     "description": "Local node panel: row title for using another node while the local node syncs."
   },
-  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced",
   "@deskSetLnodeWhileSyncingText": {
     "description": "Local node panel: text of the While syncing row. {host} is a node address.",
     "placeholders": {
@@ -15165,7 +15080,7 @@
   "@deskSetLnodeNoProgress": {
     "description": "Local node panel: notice title when the sync stalled."
   },
-  "deskSetLnodeNoProgressText": "Restarting usually helps; if not, the log says why.",
+  "deskSetLnodeNoProgressText": "Restart, or check the node log.",
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
@@ -15173,7 +15088,7 @@
   "@deskSetLnodePortInUse": {
     "description": "Local node panel: notice title when the node cannot open its port."
   },
-  "deskSetLnodePortInUseText": "Close it (another Epic node?) or pick the node already running there under Node server.",
+  "deskSetLnodePortInUseText": "Close the other program, or choose that node under Node server.",
   "@deskSetLnodePortInUseText": {
     "description": "Local node panel: notice text when the port is in use. \"Node server\" is a row title in Settings > Node."
   },
@@ -15379,7 +15294,7 @@
       }
     }
   },
-  "deskSetLndAskDesc": "Syncing takes hours. Meanwhile the wallet can read the chain and send through {host}, a public node. The local node takes over by itself once it is synced.",
+  "deskSetLndAskDesc": "{host}, a public node, can stand in until the local node is synced.",
   "@deskSetLndAskDesc": {
     "description": "Fallback question dialog: description. {host} is a public node address.",
     "placeholders": {
@@ -15434,7 +15349,7 @@
   "@deskSetLndDeleteTitle": {
     "description": "Delete chain data dialog: danger button label."
   },
-  "deskSetLndDeleteDesc": "Removes {size} from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "deskSetLndDeleteDesc": "Removes {size} from {path}; the chain downloads again on the next start. Keys and history stay.",
   "@deskSetLndDeleteDesc": {
     "description": "Delete chain data dialog: description. {size} is a size like \"4.2 GB\"; {path} a folder path.",
     "placeholders": {
@@ -15835,7 +15750,7 @@
       }
     }
   },
-  "deskSetPeersNote": "First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ({min} to {max}, {def} by default).",
+  "deskSetPeersNote": "Max incoming and outgoing: {min} to {max} (default {def}).",
   "@deskSetPeersNote": {
     "description": "Peers tab: explanatory note at the bottom. \"Enter\" is the keyboard key. {min}, {max} and {def} are numbers.",
     "placeholders": {
@@ -15958,7 +15873,7 @@
   "@deskSetNodePortNote": {
     "description": "Settings > Node: error under the node picker when the typed node does not answer."
   },
-  "deskSetNodeListNote": "State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.",
+  "deskSetNodeListNote": "Status from status.btlabs.uk; latency measured from this computer.",
   "@deskSetNodeListNote": {
     "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
   },
@@ -16157,15 +16072,12 @@
   "@deskSetPrivStarting": {
     "description": "Settings > Privacy: Tor state word while it starts."
   },
-  "deskSetPrivStartingDetail": "{progress} %. {waiting} wait until Tor is up.",
+  "deskSetPrivStartingDetail": "{progress}%. Every connection waits for Tor.",
   "@deskSetPrivStartingDetail": {
-    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100. {waiting} is a list of what waits, e.g. \"Sending, Epicbox and HTTP\", supplied by the app.",
+    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100.",
     "placeholders": {
       "progress": {
         "type": "int"
-      },
-      "waiting": {
-        "type": "String"
       }
     }
   },
@@ -16182,7 +16094,7 @@
       }
     }
   },
-  "deskSetPrivConnected": "Connected.",
+  "deskSetPrivConnected": "Connected",
   "@deskSetPrivConnected": {
     "description": "Settings > Privacy: detail of the Tor state when everything works."
   },
@@ -16190,23 +16102,15 @@
   "@deskSetPrivNotConnected": {
     "description": "Settings > Privacy: Tor state word when Tor could not connect."
   },
-  "deskSetPrivStoppedDetail": "Tor stopped. {waiting} wait for Retry or Tor off.",
+  "deskSetPrivStoppedDetail": "Tor stopped. Retry, or turn Tor off.",
   "@deskSetPrivStoppedDetail": {
-    "description": "Settings > Privacy: detail of the Tor state when Tor stopped. {waiting} is a list of what waits, supplied by the app.",
-    "placeholders": {
-      "waiting": {
-        "type": "String"
-      }
-    }
+    "description": "Settings > Privacy: detail of the Tor state when Tor stopped."
   },
-  "deskSetPrivProblemDetail": "{problem}. {waiting} wait for Retry or Tor off.",
+  "deskSetPrivProblemDetail": "{problem}. Retry, or turn Tor off.",
   "@deskSetPrivProblemDetail": {
-    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop; {waiting} is a list of what waits.",
+    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop.",
     "placeholders": {
       "problem": {
-        "type": "String"
-      },
-      "waiting": {
         "type": "String"
       }
     }
@@ -16304,7 +16208,7 @@
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."
   },
-  "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
+  "deskSetRecvListNote": "Status from status.btlabs.uk.",
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
@@ -16352,7 +16256,7 @@
   "@deskSetHttpGuideHelp": {
     "description": "Tooltip and screen reader label of the help button that opens the internet guide."
   },
-  "deskSetHttpPublicNote": "Answers on all interfaces. The router must forward TCP {port} to this computer. Senders on the internet use http://<public IP>:{port}.",
+  "deskSetHttpPublicNote": "Answers on all interfaces; the router must forward TCP {port} to this computer.",
   "@deskSetHttpPublicNote": {
     "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
     "placeholders": {
@@ -16389,7 +16293,7 @@
   "@deskSetHttpStep1": {
     "description": "Internet guide dialog: step 1 title."
   },
-  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.",
+  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}, so other devices can send to it.",
   "@deskSetHttpStep1Text": {
     "description": "Internet guide dialog: step 1 text. 0.0.0.0 is an address and stays.",
     "placeholders": {
@@ -16498,7 +16402,7 @@
   "@deskSetReportTitle": {
     "description": "Report a problem dialog: title."
   },
-  "deskSetReportDesc": "The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.",
+  "deskSetReportDesc": "Encrypted so only the developer can read it. Save to file keeps an unencrypted copy.",
   "@deskSetReportDesc": {
     "description": "Report a problem dialog: description under the title. \"Send\" and \"Save to file\" are button names."
   },
@@ -16558,7 +16462,7 @@
   "@deskSetRescanLog": {
     "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
   },
-  "deskSetRescanText": "Reads the chain again and rebuilds the balance from the outputs found. Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. The wallet stays usable meanwhile.",
+  "deskSetRescanText": "Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.",
   "@deskSetRescanText": {
     "description": "Settings > Recheck balance: text of the first row."
   },
@@ -16582,7 +16486,7 @@
   "@deskSetRescanStopping": {
     "description": "Settings > Recheck balance: progress line after Stop was pressed."
   },
-  "deskSetRescanChecking": "Checking… {percent} %",
+  "deskSetRescanChecking": "Checking… {percent}%",
   "@deskSetRescanChecking": {
     "description": "Settings > Recheck balance: progress line with the percentage done.",
     "placeholders": {
@@ -16714,19 +16618,19 @@
   "@deskSetWalletsCreateText": {
     "description": "Settings > All wallets: text of the Create a wallet card."
   },
-  "deskSetWalletsImport": "Import",
+  "deskSetWalletsImport": "Import wallets",
   "@deskSetWalletsImport": {
     "description": "Settings > All wallets: card title for importing wallets from an older app or a folder."
   },
-  "deskSetWalletsImportText": "From an older Epic Wallet or a folder.",
+  "deskSetWalletsImportText": "From an older Epic Wallet or a folder",
   "@deskSetWalletsImportText": {
     "description": "Settings > All wallets: text of the Import card."
   },
-  "deskSetWalletsRestore": "Restore",
+  "deskSetWalletsRestore": "Restore from phrase",
   "@deskSetWalletsRestore": {
     "description": "Settings > All wallets: card title for restoring a wallet from its recovery phrase."
   },
-  "deskSetWalletsRestoreText": "From a recovery phrase.",
+  "deskSetWalletsRestoreText": "From the recovery phrase",
   "@deskSetWalletsRestoreText": {
     "description": "Settings > All wallets: text of the Restore card."
   },
@@ -16797,7 +16701,7 @@
   "@deskSetupAgain": {
     "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
   },
-  "deskSetupPrefsLead": "App language. It can be changed later.",
+  "deskSetupPrefsLead": "App language",
   "@deskSetupPrefsLead": {
     "description": "Lead under the title of the setup's Preferences step, which has the language picker."
   },
@@ -16821,7 +16725,7 @@
   "@deskSetupEpicboxTitle": {
     "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
   },
-  "deskSetupReviewTitle": "Check settings",
+  "deskSetupReviewTitle": "Review settings",
   "@deskSetupReviewTitle": {
     "description": "Title of the setup's last step: a summary of the choices."
   },
@@ -16836,10 +16740,6 @@
   "deskSetupBackToWallet": "Back to wallet",
   "@deskSetupBackToWallet": {
     "description": "Button in the setup's side panel when setup was opened again from Settings: leave it without changes."
-  },
-  "deskSetupLaterNote": "Everything here can be changed later in Settings.",
-  "@deskSetupLaterNote": {
-    "description": "Small note at the foot of the setup's side panel on the first run."
   },
   "deskSetupSave": "Save settings",
   "@deskSetupSave": {
@@ -16869,7 +16769,7 @@
   "@deskSetupRemoteNodeText": {
     "description": "Text on the Remote node choice card."
   },
-  "deskSetupLocalNodeText": "Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.",
+  "deskSetupLocalNodeText": "Runs on this computer: private, but needs disk space and a first sync.",
   "@deskSetupLocalNodeText": {
     "description": "Text on the Local node choice card of the setup's node step."
   },
@@ -16877,7 +16777,7 @@
   "@deskSetupEpicboxText": {
     "description": "First paragraph of the setup's Epicbox step."
   },
-  "deskSetupEpicboxPrivacy": "It does not hide the IP address from the Epicbox server. Use a VPN if that matters.",
+  "deskSetupEpicboxPrivacy": "The Epicbox server sees this computer’s IP address.",
   "@deskSetupEpicboxPrivacy": {
     "description": "Second paragraph of the setup's Epicbox step: a privacy note."
   },
@@ -16935,7 +16835,7 @@
   "@deskSetupDataFolder": {
     "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
   },
-  "deskSetupSaveStartsFallback": "Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses {node} until then.",
+  "deskSetupSaveStartsFallback": "Save starts the node; {node} stands in until it is synced.",
   "@deskSetupSaveStartsFallback": {
     "description": "Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.",
     "placeholders": {
@@ -16957,7 +16857,7 @@
   "@deskSetupOff": {
     "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
   },
-  "deskSetAboutLicencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.",
+  "deskSetAboutLicencesLead": "Open-source software in this wallet, each under its own licence.",
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
@@ -17144,7 +17044,7 @@
       }
     }
   },
-  "deskSetHelpFound": "{count, plural, one{Topics found: {count}} other{Topics found: {count}}}",
+  "deskSetHelpFound": "{count, plural, one{{count} topic found} other{{count} topics found}}",
   "@deskSetHelpFound": {
     "description": "Help search: how many topics match, read out by screen readers too, e.g. 'Topics found: 3'.",
     "placeholders": {
@@ -17157,7 +17057,7 @@
   "@deskSetHelpNoMatch": {
     "description": "Title of the empty state of the Help search."
   },
-  "deskSetHelpReportText": "Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.",
+  "deskSetHelpReportText": "Describe what went wrong; the cleaned app log can go with it, encrypted to the developer.",
   "@deskSetHelpReportText": {
     "description": "Help page, the Report a problem card: what the report does. 'Save to file' is a button in the report dialog."
   },
@@ -17824,7 +17724,7 @@
   "@deskUpdOpensPage": {
     "description": "Tooltip of the update notice when the app cannot install the update itself: a click opens the download page in the browser."
   },
-  "deskUpdDownloading": "Downloading {percent} %",
+  "deskUpdDownloading": "Downloading {percent}%",
   "@deskUpdDownloading": {
     "description": "Sidebar notice and Settings › About while the update downloads. {percent} is a whole number from 0 to 100.",
     "placeholders": {
@@ -17896,7 +17796,7 @@
   "@advStateOff": {
     "description": "State line of the Advanced hub row when nothing is switched on."
   },
-  "advIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "advIntro": "Each switch shows one more part of the wallet, where it belongs.",
   "@advIntro": {
     "description": "First line of the Advanced page."
   },
@@ -18008,7 +17908,7 @@
   "@deskSetFrameAdvanced": {
     "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
   },
-  "deskSetAdvIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "deskSetAdvIntro": "Each switch shows one more part of the wallet, where it belongs.",
   "@deskSetAdvIntro": {
     "description": "First line of Settings › Advanced."
   },
@@ -18100,7 +18000,7 @@
   "@deskSetAdvModeOffline": {
     "description": "Network mode: no network."
   },
-  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node’s setting.",
+  "deskSetAdvModeOfflineText": "Only this computer and the local network; a local node keeps its own peers.",
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
@@ -18406,7 +18306,7 @@
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },
-  "deskNetCantReceive": "Cannot receive offline.",
+  "deskNetCantReceive": "Receiving paused",
   "@deskNetCantReceive": {
     "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
   },
@@ -18482,7 +18382,7 @@
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
   },
-  "txStartHeader": "Send starts on",
+  "txStartHeader": "Default method",
   "@txStartHeader": {
     "description": "Header on Settings › Transactions above the choice of the method Send opens on."
   },
@@ -18743,7 +18643,7 @@
   "@deskSetTxSend": {
     "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
   },
-  "deskSetTxStart": "Send starts on",
+  "deskSetTxStart": "Default method",
   "@deskSetTxStart": {
     "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
   },
@@ -18921,7 +18821,7 @@
   "@deskSetupSaveFailedTitle": {
     "description": "Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave)."
   },
-  "deskSetupSaveFailedText": "{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.",
+  "deskSetupSaveFailedText": "{reason}. Save again, or skip to keep the settings saved so far.",
   "@deskSetupSaveFailedText": {
     "description": "Text of the red notice on the setup's last step after Save failed on a first run. {reason} is the error text, a short sentence without a final period (e.g. 'The wallet is locked'). 'Settings' is the app's Settings page.",
     "placeholders": {
@@ -18983,7 +18883,7 @@
   "@deskTxStatusSenderPosted": {
     "description": "Status of an incoming Epicbox payment whose sender reports that it posted the transaction. The sender's word only: never say received or paid before the blockchain confirms it. Narrow status column."
   },
-  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted this payment; it completes when the blockchain confirms it.",
+  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted; it completes when confirmed.",
   "@deskTxNowSenderPosted": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   },
@@ -20183,7 +20083,7 @@
   "@contactKeysChangedBody": {
     "description": "Notice body under the keys-changed title (binding text from the review; the app cannot know the contact's pronoun, so English says they/their). Languages without a safe pronoun use none."
   },
-  "contactKeysChangedStatus": "sealing and invoices paused",
+  "contactKeysChangedStatus": "Sealing and invoices paused",
   "@contactKeysChangedStatus": {
     "description": "Status row readout in the keys-changed state."
   },
@@ -20293,7 +20193,7 @@
       }
     }
   },
-  "addrDesktopRule": "One address per type. The third field appears only while a type is free.",
+  "addrDesktopRule": "One address per type.",
   "@addrDesktopRule": {
     "description": "Desktop small print."
   },
@@ -20338,15 +20238,9 @@
   "@pendingInviteAgain": {
     "description": "Row button."
   },
-  "pendingWaitingConfirm": "Waiting for their confirmation · {time}",
+  "pendingWaitingConfirm": "Waiting for their confirmation",
   "@pendingWaitingConfirm": {
-    "description": "Row subtitle for an incoming pairing awaiting the confirm.",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "example": "9:32"
-      }
-    }
+    "description": "Row subtitle for an incoming pairing awaiting the confirm."
   },
   "pendingPairedCheck": "Paired · verify",
   "@pendingPairedCheck": {
@@ -21489,7 +21383,7 @@
   "@txDetailsCancelOffered": {
     "description": "After txDetailsAcceptedAgo*, under an incoming payment's Cancel button once the hold is over: what Cancel is for. LEPIC asks the node first and refuses a payment it holds."
   },
-  "txDetailsCancelWhileReported": "Cancel is not offered while the sender reports it posted.",
+  "txDetailsCancelWhileReported": "Cancel is unavailable while the sender reports it posted.",
   "@txDetailsCancelWhileReported": {
     "description": "In place of the Cancel button while the sender reports it posted (txStatusSenderPosted, under an hour old)."
   },
@@ -21545,7 +21439,7 @@
       }
     }
   },
-  "contactsImportMerged": "{count, plural, =1{1 contact here gets an address or note} other{{count} contacts here get an address or note}}",
+  "contactsImportMerged": "{count, plural, =1{1 contact updated} other{{count} contacts updated}}",
   "@contactsImportMerged": {
     "description": "Import confirm line: contacts already saved here that gain an address or a note they lacked.",
     "placeholders": {
@@ -21585,7 +21479,7 @@
       }
     }
   },
-  "contactsImportKeeps": "Nothing you saved is changed.",
+  "contactsImportKeeps": "Existing details are kept.",
   "@contactsImportKeeps": {
     "description": "Small print on the import confirm: the import never changes a saved contact's name, address or note."
   },
@@ -21657,7 +21551,7 @@
   "@expInvoicesHint": {
     "description": "Info sheet of the Invoices switch: what it is, that it needs Pairing and is experimental"
   },
-  "expNeedsPairing": "Invoices need Pairing: Invoices on turns Pairing on, Pairing off turns Invoices off.",
+  "expNeedsPairing": "Invoices need Pairing.",
   "@expNeedsPairing": {
     "description": "One line under the experimental switches: the rule between them"
   },
@@ -21900,7 +21794,7 @@
       }
     }
   },
-  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet’s address sends there.",
+  "deskOnbImportRelayLead": "The older app received through {old}.",
   "@deskOnbImportRelayLead": {
     "description": "Lead of the relay choice; {old} is the old server host.",
     "placeholders": {
@@ -21918,7 +21812,7 @@
       }
     }
   },
-  "deskOnbImportRelayKeepHint": "The address stays the same. The server is added to the Epicbox list and used for this wallet.",
+  "deskOnbImportRelayKeepHint": "Same address; the server joins the Epicbox list.",
   "@deskOnbImportRelayKeepHint": {
     "description": "Hint under Keep."
   },
@@ -21931,7 +21825,7 @@
       }
     }
   },
-  "deskOnbImportRelayAppHint": "The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.",
+  "deskOnbImportRelayAppHint": "New address: payments to the old one do not arrive.",
   "@deskOnbImportRelayAppHint": {
     "description": "Hint under Use the app's server."
   },
@@ -22062,7 +21956,7 @@
   "@deskOnbSameNewPassword": {
     "description": "Third button of the \"already here\" dialog; replaces that wallet's password with this phrase."
   },
-  "deskSetupSkipKeeps": "Skip keeps the node and Epicbox settings as they are.",
+  "deskSetupSkipKeeps": "Skip keeps the current node and Epicbox settings.",
   "@deskSetupSkipKeeps": {
     "description": "Helper line next to Skip; deskSetupLaterNote follows it."
   },
@@ -22392,7 +22286,7 @@
   "@deskEpicboxBlockedWord": {
     "description": "The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence."
   },
-  "deskEpicboxBlockedText": "This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.",
+  "deskEpicboxBlockedText": "This network blocks {host}. Choose another Epicbox server or use a private DNS.",
   "@deskEpicboxBlockedText": {
     "description": "Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.",
     "placeholders": {
@@ -22678,7 +22572,7 @@
   "@cancelNoteSendWaiting": {
     "description": "Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain."
   },
-  "cancelNoteNotPosted": "Not on the network yet: cancelling frees your coins. The wallet checks the network first.",
+  "cancelNoteNotPosted": "Not on the network yet: Cancel frees the coins after a network check.",
   "@cancelNoteNotPosted": {
     "description": "Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it."
   },
@@ -22843,7 +22737,7 @@
   "@deskOwnAccessTor": {
     "description": "State of the Owner access row for the user's own https server while the Tor switch is on: the secret is never sent over Tor."
   },
-  "deskOwnAccessNote": "Peers and sync details come from the node’s owner API. Start, stop and the data folder stay on the node’s own computer.",
+  "deskOwnAccessNote": "Peers and sync details come from the node’s owner API.",
   "@deskOwnAccessNote": {
     "description": "Note under the own node's status tiles once owner access is added."
   },
@@ -22960,7 +22854,7 @@
   "@deskOwnTryNow": {
     "description": "Button on the not-answering notice: ask the own node again now and move back when it answers."
   },
-  "deskOwnUseForGood": "Use {host} for good",
+  "deskOwnUseForGood": "Keep {host}",
   "@deskOwnUseForGood": {
     "description": "Button on the not-answering notice: make the standing-in public node the chosen one. {host} is its host.",
     "placeholders": {
@@ -22973,7 +22867,7 @@
   "@deskOwnSyncTitle": {
     "description": "Notice title on the own node's panel while it syncs and nothing was answered yet."
   },
-  "deskOwnSyncText": "The wallet cannot send or receive through a node that is syncing. {host} can stand in; the wallet moves back once this node accepts transactions.",
+  "deskOwnSyncText": "{host} can stand in until this node is synced.",
   "@deskOwnSyncText": {
     "description": "Notice text on the own node's panel while it syncs. {host} is the public node that would stand in.",
     "placeholders": {
@@ -23006,10 +22900,6 @@
   "deskOwnMineHint": "Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.",
   "@deskOwnMineHint": {
     "description": "Hint behind the info icon of the 'This is my node' row."
-  },
-  "deskOwnListNote": "Your own nodes are asked directly.",
-  "@deskOwnListNote": {
-    "description": "Second sentence of the node list's foot line."
   },
   "deskOwnSlotSyncing": "Own node syncing",
   "@deskOwnSlotSyncing": {
@@ -23109,17 +22999,11 @@
   "@deskUpdDownloadInstall": {
     "description": "Settings › About › Updates, button: download the newer version in the app; after it is checked, a restart installs it."
   },
-  "deskUpdReadyTitle": "Epic Cash {version} is ready",
+  "deskUpdReadyTitle": "Restart to update",
   "@deskUpdReadyTitle": {
-    "description": "Dialog title when the update the user started downloading is downloaded and checked. 'Epic Cash' is the brand, not translated.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "26.10.19"
-      }
-    }
+    "description": "Dialog title when the update the user started downloading is downloaded and checked; the sidebar slot names the version."
   },
-  "deskUpdReadyBody": "Restart now to update. The wallet locks and the app opens again.",
+  "deskUpdReadyBody": "The wallet locks and the app opens again.",
   "@deskUpdReadyBody": {
     "description": "Dialog text under 'Epic Cash {version} is ready': Restart now locks the wallet, closes the app, installs the update and opens the app again."
   },
@@ -24154,5 +24038,66 @@
   "deskSetAdvConfirmationsNotSaved": "Confirmations not changed",
   "@deskSetAdvConfirmationsNotSaved": {
     "description": "Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count."
+  },
+  "deskSetPeersFirstSeenHint": "When this app first saw the peer connected, this session.",
+  "@deskSetPeersFirstSeenHint": {
+    "description": "Peers tab: info hint on the First seen column."
+  },
+  "deskAppFirstScanProgress": "Scanning the chain · {percent}%",
+  "@deskAppFirstScanProgress": {
+    "description": "First-scan dialog: the progress line. {percent} is 0–100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskAppFirstScanFound": "{count, plural, one{{count} output found} other{{count} outputs found}}",
+  "@deskAppFirstScanFound": {
+    "description": "First-scan dialog: how many of the wallet's outputs the scan has found so far.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "deskAppFirstScanShowLog": "Show log",
+  "@deskAppFirstScanShowLog": {
+    "description": "First-scan dialog: button that shows the scan's raw output lines."
+  },
+  "deskAppFirstScanHideLog": "Hide log",
+  "@deskAppFirstScanHideLog": {
+    "description": "First-scan dialog: button that hides the raw output lines again."
+  },
+  "deskNodeDurationDh": "{days} d {hours} h",
+  "@deskNodeDurationDh": {
+    "description": "A duration of a day or more, e.g. how long the node has run: \"5 d 7 h\".",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationH": "{hours} h",
+  "@deskNodeDurationH": {
+    "description": "A duration in whole hours, e.g. \"5 h\".",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerAgoHoursOnly": "{hours} h",
+  "@deskInvPayerAgoHoursOnly": {
+    "description": "Duration in whole hours for the same-bill warning, e.g. \"5 h\".",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
   }
 }

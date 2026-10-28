@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "Skanowanie zakończone",
   "deskSetRescanStoppedLine": "Skanowanie zatrzymane",
   "deskSetRescanLog": "Log sprawdzania salda",
-  "deskSetRescanText": "Ponownie czyta łańcuch i odbudowuje saldo ze znalezionych wyjść. Użyj tego, gdy saldo wygląda na błędne, po przywróceniu portfela albo gdy wyjścia zostają zablokowane po nieudanej wysyłce. W tym czasie portfela można dalej używać.",
+  "deskSetRescanText": "Ponownie czyta łańcuch i odbudowuje saldo. Użyj tego, gdy saldo wygląda na błędne albo wyjścia zostają zablokowane.",
   "deskSetRescanStartAgain": "Zacznij od nowa",
   "deskSetRescanDeleteUnconfirmed": "Usuń niepotwierdzone",
   "deskSetRescanDeleteHint": "Anuluje też niepotwierdzone transakcje i odblokowuje ich wyjścia. Płatność, która jest już w drodze, może się wtedy nie udać.",

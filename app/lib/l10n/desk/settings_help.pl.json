@@ -1,8 +1,8 @@
 {
   "deskSetHelpNoMatchText": "Żaden temat nie pasuje do „{query}”. Spróbuj innego słowa.",
-  "deskSetHelpFound": "{count, plural, one{Znalezione tematy: {count}} few{Znalezione tematy: {count}} many{Znalezione tematy: {count}} other{Znalezione tematy: {count}}}",
+  "deskSetHelpFound": "{count, plural, one{Znaleziono {count} temat} few{Znaleziono {count} tematy} many{Znaleziono {count} tematów} other{Znaleziono {count} tematu}}",
   "deskSetHelpNoMatch": "Brak pasujących tematów",
-  "deskSetHelpReportText": "Opisz, co poszło nie tak. Możesz dołączyć log aplikacji, oczyszczony z sekretów i zaszyfrowany dla twórcy aplikacji. Zapisz do pliku zachowuje kopię do wysłania samodzielnie.",
+  "deskSetHelpReportText": "Opisz, co poszło nie tak; możesz dołączyć oczyszczony log aplikacji, zaszyfrowany dla twórcy aplikacji.",
   "deskSetHelpShowLess": "Zwiń",
   "deskSetHelpReadMore": "Czytaj dalej",
   "deskSetHelpEb1": "Portfel nadawcy przekazuje płatność do Epicbox i blokuje wyjścia.",

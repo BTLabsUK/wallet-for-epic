@@ -10,8 +10,8 @@
   "deskSetWalletsAdd": "Добавить кошелёк",
   "deskSetWalletsCreate": "Создать кошелёк",
   "deskSetWalletsCreateText": "Новый кошелёк с новой фразой восстановления.",
-  "deskSetWalletsImport": "Импорт",
-  "deskSetWalletsImportText": "Из старого Epic Wallet или из папки.",
-  "deskSetWalletsRestore": "Восстановление",
-  "deskSetWalletsRestoreText": "По фразе восстановления."
+  "deskSetWalletsImport": "Импорт кошельков",
+  "deskSetWalletsImportText": "Из старого Epic Wallet или из папки",
+  "deskSetWalletsRestore": "Восстановить по фразе",
+  "deskSetWalletsRestoreText": "По фразе восстановления"
 }

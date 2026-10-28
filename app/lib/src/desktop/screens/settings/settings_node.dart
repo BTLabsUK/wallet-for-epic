@@ -69,7 +69,7 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 };
 
 /// The picker's footer under the node list.
-String nodeListNoteText(AppLocalizations l) => '${l.deskSetNodeListNote} ${l.deskOwnListNote}';
+String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {

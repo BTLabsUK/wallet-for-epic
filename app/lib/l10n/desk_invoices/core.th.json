@@ -8,7 +8,7 @@
   "deskInvChecking": "กำลังตรวจสอบ",
   "deskInvCheckedAt": "ตรวจเมื่อ {time}",
   "deskInvCheckFailedTitle": "เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง",
-  "deskInvCheckFailedBody": "รายการแสดงสิ่งที่ได้รับก่อนหน้านี้ ไม่มีข้อมูลสูญหาย กระเป๋าจะลองใหม่ทุก 2 นาที",
+  "deskInvCheckFailedBody": "รายการแสดงสิ่งที่ได้รับก่อนหน้านี้ กระเป๋าจะลองใหม่เอง",
   "deskInvReqWaiting": "รอผู้ชำระ",
   "deskInvReqPaid": "ชำระแล้ว กำลังทำรายการให้เสร็จ",
   "deskInvReqPosted": "ส่งเข้าเครือข่ายแล้ว",

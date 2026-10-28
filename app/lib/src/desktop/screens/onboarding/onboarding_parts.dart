@@ -510,7 +510,6 @@ class ProgressView extends StatelessWidget {
     this.current = '',
     this.failed = '',
     this.failure,
-    this.failureTitle,
     this.wait,
     this.note,
     this.onBack,
@@ -527,7 +526,6 @@ class ProgressView extends StatelessWidget {
   final String? failure;
 
   /// The notice's heading; [title] when null.
-  final String? failureTitle;
   final String? wait;
   final String? note;
   final VoidCallback? onBack;
@@ -581,7 +579,7 @@ class ProgressView extends StatelessWidget {
             ),
             SizedBox(height: Sp.x5),
             if (failure != null) ...[
-              ENotice(title: failureTitle ?? title, text: failure, tone: ETone.risk, icon: EIcons.alert),
+              ENotice(title: failure, tone: ETone.risk, icon: EIcons.alert),
               SizedBox(height: Sp.x5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

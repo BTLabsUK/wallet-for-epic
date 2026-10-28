@@ -42,7 +42,7 @@ String digits(AppLocalizations l, int n) => localInt(l, n);
 String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
 /// "12 %" of an overall progress 0–1 (floored: never 100 % before Synced).
-String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)} %';
+String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)}%';
 
 /// [i]'s latency as shown, or null: while Tor is on ([torOn]) a figure this computer measured
 /// directly is never shown, only one over Tor or the monitor's.
@@ -167,14 +167,13 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
       );
     case LocalNodePhase.syncing:
       final pct = p?.overall == null ? null : percent(p!.overall!);
-      final left = p == null ? null : timeLeft(l, p.stage, s.eta);
       return NodeView(
         word: l.deskNodeSyncing,
         state: EState.warn,
         host: host,
         marker: pct,
         lines: [
-          [name, ?pct, ?left].join(' · '),
+          [name, ?pct].join(' · '),
           [if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)].join(' · '),
           fallback != null ? l.deskNodeUsingUntilSynced(fallback) : l.deskNodeNothingUntilSynced,
         ].where((line) => line.isNotEmpty).toList(),
@@ -273,24 +272,12 @@ String stageLine(AppLocalizations l, SyncProgress p) {
   };
 }
 
-/// "about 3 h left", "about 12 min left", "estimating…", or the fixed text of the checks.
-String? timeLeft(AppLocalizations l, SyncStage stage, Duration? eta) {
-  switch (stage) {
-    case SyncStage.chainStateKernels || SyncStage.chainStateRangeProofs || SyncStage.chainStateProcessing:
-      return l.deskNodeNoEstimate;
-    case SyncStage.headers || SyncStage.chainStateDownload || SyncStage.blocks:
-      if (eta == null) return l.deskNodeEstimating;
-      final min = (eta.inSeconds / 60).ceil();
-      return min > 90 ? l.deskNodeAboutHours((min / 60).round()) : l.deskNodeAboutMinutes(min < 1 ? 1 : min);
-    default:
-      return null;
-  }
-}
-
-/// "9 h 40 min", "2 min".
+/// "5 d 7 h", "9 h 40 min", "9 h", "2 min".
 String duration(AppLocalizations l, Duration d) {
-  final h = d.inHours, m = d.inMinutes % 60;
-  return h > 0 ? l.deskNodeDurationHm(h, m) : l.deskNodeDurationM(d.inMinutes);
+  final days = d.inDays, h = d.inHours, m = d.inMinutes % 60;
+  if (days > 0) return l.deskNodeDurationDh(days, h % 24);
+  if (h > 0) return m == 0 ? l.deskNodeDurationH(h) : l.deskNodeDurationHm(h, m);
+  return l.deskNodeDurationM(d.inMinutes);
 }
 
 /// "5.2 GB", "820 MB".

@@ -10,7 +10,7 @@
   "deskSetReportArrivedRef": "报告已送达。编号为 {id}。",
   "deskSetReportDescribe": "请描述发生了什么。",
   "deskSetReportTitle": "报告问题",
-  "deskSetReportDesc": "报告经过加密，只有开发者能读取。点击“发送”之前不会发送任何内容。“保存到文件”会保存同一份已清理的报告，但不加密。",
+  "deskSetReportDesc": "已加密，只有开发者能读取。“保存到文件”会保留一份未加密的副本。",
   "deskSetReportWhat": "发生了什么",
   "deskSetReportWhatHint": "你做了什么，期望发生什么，实际发生了什么",
   "deskSetReportContact": "联系方式",

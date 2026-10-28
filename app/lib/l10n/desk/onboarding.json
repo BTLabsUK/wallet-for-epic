@@ -23,11 +23,11 @@
   "@deskOnbWelcomeImportSub": {
     "description": "One-line description under 'Import wallets'."
   },
-  "deskOnbWelcomeRestore": "Restore from a phrase",
+  "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."
   },
-  "deskOnbWelcomeRestoreSub": "From the recovery words",
+  "deskOnbWelcomeRestoreSub": "From the recovery phrase",
   "@deskOnbWelcomeRestoreSub": {
     "description": "One-line description under 'Restore from a phrase'."
   },
@@ -112,7 +112,7 @@
   "@deskOnbStepPhrase": {
     "description": "Name of a step in the left rail of the new-wallet and restore pages, and the title of the page that shows the recovery words. Short."
   },
-  "deskOnbCreateStageCreate": "Creating the wallet and its recovery phrase",
+  "deskOnbCreateStageCreate": "Making the recovery phrase",
   "@deskOnbCreateStageCreate": {
     "description": "Progress step while the new wallet is made."
   },
@@ -137,10 +137,6 @@
       }
     }
   },
-  "deskOnbCreateFailedTitle": "The wallet could not be created",
-  "@deskOnbCreateFailedTitle": {
-    "description": "Heading of the failure box on the new-wallet progress page."
-  },
   "deskOnbCreateDiskFull": "Wallet not saved: the disk is full. Free some space, then try again.",
   "@deskOnbCreateDiskFull": {
     "description": "Failure text on the new-wallet progress page when the disk is full."
@@ -161,7 +157,7 @@
   "@deskOnbCreateTitle": {
     "description": "Title of the password page of the new-wallet flow and label of its primary button."
   },
-  "deskOnbCreateLead": "The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.",
+  "deskOnbCreateLead": "The password unlocks this wallet on this computer; only the recovery phrase restores the coins.",
   "@deskOnbCreateLead": {
     "description": "Text under the title of the password page of the new-wallet flow."
   },
@@ -169,7 +165,7 @@
   "@deskOnbCreateTestNote": {
     "description": "Note on the password page when a test network is selected; the network's name is shown beside it."
   },
-  "deskOnbCreatePhraseLead": "These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.",
+  "deskOnbCreatePhraseLead": "Write these words on paper, in order: they are the only way to restore the coins.",
   "@deskOnbCreatePhraseLead": {
     "description": "Text under the title of the recovery phrase page."
   },
@@ -213,7 +209,7 @@
   "@deskOnbCreateQrLabel": {
     "description": "Screen-reader label of the recovery phrase QR code image."
   },
-  "deskOnbCreateWritten": "Written down: all {count, plural, one{{count} word} other{{count} words}} on paper",
+  "deskOnbCreateWritten": "I have written down all {count, plural, one{{count} word} other{{count} words}}",
   "@deskOnbCreateWritten": {
     "description": "Checkbox label the user ticks after writing the recovery phrase down. {count} is the number of words (12 or 24).",
     "placeholders": {
@@ -234,11 +230,7 @@
   "@deskOnbRestoreRestoring": {
     "description": "Title of the restore progress page and its progress step."
   },
-  "deskOnbRestoreFailedTitle": "The wallet could not be restored",
-  "@deskOnbRestoreFailedTitle": {
-    "description": "Heading of the failure box on the restore progress page."
-  },
-  "deskOnbRestorePermission": "The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.",
+  "deskOnbRestorePermission": "Wallet files not written: no permission for ~/.config/Epic Cash Desktop. Allow writing to that folder, then try again.",
   "@deskOnbRestorePermission": {
     "description": "Sample failure text on the restore progress page (permission denied). The folder path stays as written."
   },
@@ -250,14 +242,9 @@
   "@deskOnbRestoreSide": {
     "description": "Title above the step rail on the left of the restore pages and label of the primary button of the password step."
   },
-  "deskOnbRestorePasswordLead": "The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer.",
+  "deskOnbRestorePasswordLead": "Set the password that unlocks this wallet on this computer.",
   "@deskOnbRestorePasswordLead": {
-    "description": "Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Text under the title of the password step of the restore flow."
   },
   "deskOnbRestoreNothingToPaste": "Nothing to paste: the clipboard holds no words.",
   "@deskOnbRestoreNothingToPaste": {
@@ -301,7 +288,7 @@
       }
     }
   },
-  "deskOnbRestoreWordsLead": "Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.",
+  "deskOnbRestoreWordsLead": "Type the words in order, or paste the whole phrase into any box.",
   "@deskOnbRestoreWordsLead": {
     "description": "Text under the title of the recovery phrase step of the restore flow."
   },
@@ -354,7 +341,7 @@
   "@deskOnbKillRoleNode": {
     "description": "Small grey note beside a process in the list: it is a node. Lowercase."
   },
-  "deskOnbKillNote": "Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.",
+  "deskOnbKillNote": "Closing them stops a node sync or receiving; this app starts them again after unlock.",
   "@deskOnbKillNote": {
     "description": "Note under the process list."
   },
@@ -378,7 +365,7 @@
   "@deskOnbSameWallet": {
     "description": "Screen-reader name of the box that shows the existing wallet's name and folder."
   },
-  "deskOnbSameNote": "Open it asks for that wallet’s password. Set a new password replaces it using this phrase. Cancel keeps the phrase on the grid.",
+  "deskOnbSameNote": "Open it with its password, or set a new password with this phrase.",
   "@deskOnbSameNote": {
     "description": "Note in that dialog. 'Open it' and 'Cancel' are the two buttons below."
   },
@@ -398,7 +385,7 @@
   "@deskOnbUnlockWrong": {
     "description": "Error under the password field after a wrong password."
   },
-  "deskOnbUnlockPortInUse": "The wallet service did not start: port 3415 is in use by another program.",
+  "deskOnbUnlockPortInUse": "Port 3415 is in use by another program. Close it, then try again.",
   "@deskOnbUnlockPortInUse": {
     "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number 3415."
   },
@@ -454,14 +441,6 @@
   "@deskOnbUnlockFailed": {
     "description": "Title of the unlock progress page after a failure."
   },
-  "deskOnbUnlockFailedLead": "The wallet did not open. The reason is below.",
-  "@deskOnbUnlockFailedLead": {
-    "description": "Line under the title of a failed unlock."
-  },
-  "deskOnbUnlockFailedBox": "The wallet did not open",
-  "@deskOnbUnlockFailedBox": {
-    "description": "Heading of the failure box of a failed unlock."
-  },
   "deskOnbUnlockUnlocking": "Unlocking {name}",
   "@deskOnbUnlockUnlocking": {
     "description": "Title of the unlock progress page. {name} is the wallet's name.",
@@ -471,11 +450,7 @@
       }
     }
   },
-  "deskOnbUnlockStepsLead": "Each step shows as it finishes.",
-  "@deskOnbUnlockStepsLead": {
-    "description": "Line under the title of the unlock progress page."
-  },
-  "deskOnbUnlockNote": "Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.",
+  "deskOnbUnlockNote": "Then the node, balances and receiving finish in the background.",
   "@deskOnbUnlockNote": {
     "description": "Note under the unlock progress list."
   },
@@ -529,7 +504,7 @@
   "@deskOnbNodeFreeUnknown": {
     "description": "End of the 'growing slowly' line on the local node step when the free disk space is not known. Lowercase."
   },
-  "deskOnbNodeFreeHere": "{size} free here",
+  "deskOnbNodeFreeHere": "{size} free",
   "@deskOnbNodeFreeHere": {
     "description": "End of the 'growing slowly' line on the local node step. {size} is e.g. '120 GB'.",
     "placeholders": {
@@ -538,7 +513,7 @@
       }
     }
   },
-  "deskOnbNodeDiskAbout": "About {size} of disk now",
+  "deskOnbNodeDiskAbout": "About {size} now,",
   "@deskOnbNodeDiskAbout": {
     "description": "Bold start of a line on the local node step: the chain takes about this much disk space now. {size} is e.g. '5 GB'.",
     "placeholders": {
@@ -547,7 +522,7 @@
       }
     }
   },
-  "deskOnbNodeDisk": "{size} of disk now",
+  "deskOnbNodeDisk": "{size} now,",
   "@deskOnbNodeDisk": {
     "description": "Bold start of a line on the local node step: the chain takes this much disk space now (measured).",
     "placeholders": {
@@ -560,7 +535,7 @@
   "@deskOnbNodeSeparate": {
     "description": "Bold start of the first fact of the local node step, read together with the next message."
   },
-  "deskOnbNodeSeparateText": "The wallet starts the Epic node and stops it with the app.",
+  "deskOnbNodeSeparateText": "Starts and stops with the app.",
   "@deskOnbNodeSeparateText": {
     "description": "Rest of the first fact of the local node step."
   },
@@ -572,7 +547,7 @@
   "@deskOnbNodeFirewallText": {
     "description": "Rest of the Windows firewall fact. Continues the previous sentence start, in lowercase."
   },
-  "deskOnbNodeGrowing": "growing slowly. {free}.",
+  "deskOnbNodeGrowing": "growing slowly · {free}",
   "@deskOnbNodeGrowing": {
     "description": "Rest of the disk-space fact, continues 'About 5 GB of disk now'. {free} is the free-space phrase, e.g. '120 GB free here'.",
     "placeholders": {
@@ -581,11 +556,11 @@
       }
     }
   },
-  "deskOnbNodeHours": "Hours to sync",
+  "deskOnbNodeHours": "First sync",
   "@deskOnbNodeHours": {
     "description": "Bold start of a fact on the local node step, read together with the next message."
   },
-  "deskOnbNodeHoursText": "the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.",
+  "deskOnbNodeHoursText": "shows its progress; a public node stands in meanwhile.",
   "@deskOnbNodeHoursText": {
     "description": "Rest of the 'Hours to sync' fact. Continues the bold start in lowercase."
   },
@@ -643,7 +618,7 @@
   "@deskOnbNodeExisting": {
     "description": "Title of a choice card on the local node step."
   },
-  "deskOnbNodeExistingText": "The Epic GUI or CLI node. The wallet connects to it and starts nothing.",
+  "deskOnbNodeExistingText": "Connects to the Epic GUI or CLI node already running here.",
   "@deskOnbNodeExistingText": {
     "description": "Description of that choice card."
   },
@@ -659,11 +634,11 @@
   "@deskOnbNodeBundled": {
     "description": "Title of a choice card on the local node step."
   },
-  "deskOnbNodeBundledText": "Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.",
+  "deskOnbNodeBundledText": "Downloads the chain into the wallet’s folder after Save.",
   "@deskOnbNodeBundledText": {
     "description": "Description of that choice card. 'Save' is the button of the last setup step."
   },
-  "deskOnbNodeFallback": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "deskOnbNodeFallback": "Use {host} until the local node is synced",
   "@deskOnbNodeFallback": {
     "description": "Checkbox label under the bundled node choice. {host} is a public node's host name.",
     "placeholders": {
@@ -745,7 +720,7 @@
   "@deskOnbImportFindingTitle": {
     "description": "Title of the first step of the import wizard."
   },
-  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.",
+  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program; old folders are only read.",
   "@deskOnbImportFindingLead": {
     "description": "Line under the title of the first step of the import wizard."
   },
@@ -778,7 +753,7 @@
   "@deskOnbImportChooseLead": {
     "description": "Line under the 'Choose wallets' title."
   },
-  "deskOnbImportCheckTitle": "Checking for use",
+  "deskOnbImportCheckTitle": "Checking wallets",
   "@deskOnbImportCheckTitle": {
     "description": "Title of the check step of the import wizard."
   },
@@ -811,7 +786,7 @@
       }
     }
   },
-  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet’s address sends there.",
+  "deskOnbImportRelayLead": "The older app received through {old}.",
   "@deskOnbImportRelayLead": {
     "description": "Lead of the relay choice; {old} is the old server host.",
     "placeholders": {
@@ -829,7 +804,7 @@
       }
     }
   },
-  "deskOnbImportRelayKeepHint": "The address stays the same. The server is added to the Epicbox list and used for this wallet.",
+  "deskOnbImportRelayKeepHint": "Same address; the server joins the Epicbox list.",
   "@deskOnbImportRelayKeepHint": {
     "description": "Hint under Keep."
   },
@@ -842,7 +817,7 @@
       }
     }
   },
-  "deskOnbImportRelayAppHint": "The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.",
+  "deskOnbImportRelayAppHint": "New address: payments to the old one do not arrive.",
   "@deskOnbImportRelayAppHint": {
     "description": "Hint under Use the app's server."
   },
@@ -922,7 +897,7 @@
   "@deskOnbImportOlder": {
     "description": "Name of a place being searched on the first step of the import wizard."
   },
-  "deskOnbImportOlderSub": "Accounts and folders",
+  "deskOnbImportOlderSub": "Wallets and folders",
   "@deskOnbImportOlderSub": {
     "description": "Small text under 'Older Epic Wallet' on the first step."
   },
@@ -1013,7 +988,7 @@
   "@deskOnbImportOldPassword": {
     "description": "Label of the old-password field of the import step."
   },
-  "deskOnbImportOldHelp": "The password of {name} in the older app.",
+  "deskOnbImportOldHelp": "{name}’s password in the older app",
   "@deskOnbImportOldHelp": {
     "description": "Help text under the old-password field. {name} is the wallet's name.",
     "placeholders": {

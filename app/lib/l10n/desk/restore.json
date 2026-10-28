@@ -106,7 +106,7 @@
   "@deskSetupSkip": {
     "description": "Footer button on every Setup step; leaves Setup without saving."
   },
-  "deskSetupSkipKeeps": "Skip keeps the node and Epicbox settings as they are.",
+  "deskSetupSkipKeeps": "Skip keeps the current node and Epicbox settings.",
   "@deskSetupSkipKeeps": {
     "description": "Helper line next to Skip; deskSetupLaterNote follows it."
   },

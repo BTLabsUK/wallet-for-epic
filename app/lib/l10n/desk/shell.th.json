@@ -30,7 +30,7 @@
   "deskAppNodeSyncedBody": "โหนดในเครื่องมีบล็อกเชนครบแล้วและใช้ได้ทันที แอปจะเริ่มใหม่เพื่อสลับไปใช้",
   "deskAppNotNow": "ไว้ทีหลัง",
   "deskAppRestartNow": "เริ่มใหม่ตอนนี้",
-  "deskAppFirstScanTitle": "การสแกนครั้งแรกของกระเป๋าเงิน",
+  "deskAppFirstScanTitle": "การสแกนครั้งแรก",
   "deskAppFirstScanBody": "กระเป๋าเงินกำลังค้นหาเอาต์พุตของตัวเองบนบล็อกเชน ระหว่างนี้ยังใช้ได้ ยอดคงเหลือจะอัปเดตเมื่อสแกนเสร็จ",
   "deskAppScanOutput": "ผลการสแกน",
   "deskAppWaitingOutput": "รอผลแรก…",
@@ -70,12 +70,16 @@
   "deskTourNodeTitle": "การตั้งค่า › โหนด",
   "deskTourNodeText": "โหนดที่กระเป๋าเงินใช้อ่านเชน หน้าการตั้งค่าอื่นๆ อยู่ทางซ้าย",
   "deskTourHelpTitle": "ช่วยเหลือ",
-  "deskTourHelpText": "หัวข้อแยกตามหมวดและรายงานปัญหา คำอธิบายเพิ่มเติมของทุกหน้าอยู่ที่นี่ และแสดงทัวร์นี้ซ้ำได้",
+  "deskTourHelpText": "หัวข้อช่วยเหลือ รายงานปัญหา และแสดงทัวร์อีกครั้ง",
   "deskTourCounter": "{current} จาก {total}",
   "deskTourSemantics": "ทัวร์กระเป๋าเงิน",
   "deskTourSkip": "ข้ามทัวร์",
   "deskTourBack": "ย้อนกลับ",
   "deskTourNext": "ถัดไป",
   "deskTourAdvancedTitle": "ขั้นสูง",
-  "deskTourAdvancedText": "โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ"
+  "deskTourAdvancedText": "โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ",
+  "deskAppFirstScanProgress": "กำลังสแกนบล็อกเชน · {percent}%",
+  "deskAppFirstScanFound": "{count, plural, other{พบ {count} เอาต์พุต}}",
+  "deskAppFirstScanShowLog": "แสดงบันทึก",
+  "deskAppFirstScanHideLog": "ซ่อนบันทึก"
 }

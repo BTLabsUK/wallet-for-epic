@@ -26,7 +26,7 @@
   "deskActColTime": "Uhrzeit",
   "deskActColAmount": "Betrag",
   "deskActEmptyTitle": "Noch keine Transaktionen",
-  "deskActEmptyText": "Jede gesendete oder empfangene Zahlung steht hier, die neueste zuerst, mit Gegenseite und Stand.",
+  "deskActEmptyText": "Gesendete und empfangene Zahlungen, die neueste zuerst.",
   "deskActStageWaiting": "Wartet",
   "deskActStageWaitingText": "Beide Wallets signieren sie. Über Epicbox geschieht das automatisch.",
   "deskActStageConfirming": "Wird bestätigt",

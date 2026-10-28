@@ -45,7 +45,7 @@
   "deskTxNowBackup": "Zaimportowana; łańcucha nie sprawdzano.",
   "deskTxNowImmature": "{count, plural, one{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniu.} few{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} many{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} other{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzenia.}}",
   "deskTxNowWaitingSender": "Podpisana i odesłana. Czeka na finalizację przez nadawcę.",
-  "deskTxNowSenderPosted": "Podpisana i odesłana. Według nadawcy opublikowana w sieci; zakończy się, gdy blockchain ją potwierdzi.",
+  "deskTxNowSenderPosted": "Podpisana i odesłana. Według nadawcy opublikowana; zakończy się po potwierdzeniu.",
   "deskTxNowWaitingResponseFile": "Czeka na plik odpowiedzi. Sfinalizuj, gdy dotrze.",
   "deskTxNowWaitingRecipient": "Czeka na podpis odbiorcy. Nic nie opuści portfela przed finalizacją.",
   "deskTxNowPosted": "Opublikowana w sieci, czeka na blok.",

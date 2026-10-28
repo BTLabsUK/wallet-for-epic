@@ -310,7 +310,6 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       canPop: !_busy,
       child: EDialog(
         title: l.deskSetDlgRemoveTitle(w.name),
-        description: l.deskSetDlgRemoveDesc,
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,

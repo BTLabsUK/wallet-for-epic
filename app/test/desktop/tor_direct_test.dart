@@ -257,11 +257,11 @@ void main() {
     setUp(() => wallet.setTor(true));
 
     test('progress, connected, publishing, ready', () async {
-      expect(torStatusLine(englishStrings, await wallet.status()), 'Connecting to Tor… 0 %');
+      expect(torStatusLine(englishStrings, await wallet.status()), 'Connecting to Tor… 0%');
       await tor(const core.TorEvent(kind: core.TorEventKind.starting, progress: 45));
       var st = await wallet.status();
       expect((st.tor, st.torProgress, st.torCanSend), (ServiceHealth.checking, 45, false));
-      expect(torStatusLine(englishStrings, st), 'Connecting to Tor… 45 %');
+      expect(torStatusLine(englishStrings, st), 'Connecting to Tor… 45%');
       await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
       st = await wallet.status();
       expect(st.torCanSend, isTrue);

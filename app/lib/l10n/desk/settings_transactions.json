@@ -23,7 +23,7 @@
   "@deskSetTxSend": {
     "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
   },
-  "deskSetTxStart": "Send starts on",
+  "deskSetTxStart": "Default method",
   "@deskSetTxStart": {
     "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
   },

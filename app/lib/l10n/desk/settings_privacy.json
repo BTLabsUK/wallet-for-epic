@@ -27,15 +27,12 @@
   "@deskSetPrivStarting": {
     "description": "Settings > Privacy: Tor state word while it starts."
   },
-  "deskSetPrivStartingDetail": "{progress} %. {waiting} wait until Tor is up.",
+  "deskSetPrivStartingDetail": "{progress}%. Every connection waits for Tor.",
   "@deskSetPrivStartingDetail": {
-    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100. {waiting} is a list of what waits, e.g. \"Sending, Epicbox and HTTP\", supplied by the app.",
+    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100.",
     "placeholders": {
       "progress": {
         "type": "int"
-      },
-      "waiting": {
-        "type": "String"
       }
     }
   },
@@ -52,7 +49,7 @@
       }
     }
   },
-  "deskSetPrivConnected": "Connected.",
+  "deskSetPrivConnected": "Connected",
   "@deskSetPrivConnected": {
     "description": "Settings > Privacy: detail of the Tor state when everything works."
   },
@@ -60,23 +57,15 @@
   "@deskSetPrivNotConnected": {
     "description": "Settings > Privacy: Tor state word when Tor could not connect."
   },
-  "deskSetPrivStoppedDetail": "Tor stopped. {waiting} wait for Retry or Tor off.",
+  "deskSetPrivStoppedDetail": "Tor stopped. Retry, or turn Tor off.",
   "@deskSetPrivStoppedDetail": {
-    "description": "Settings > Privacy: detail of the Tor state when Tor stopped. {waiting} is a list of what waits, supplied by the app.",
-    "placeholders": {
-      "waiting": {
-        "type": "String"
-      }
-    }
+    "description": "Settings > Privacy: detail of the Tor state when Tor stopped."
   },
-  "deskSetPrivProblemDetail": "{problem}. {waiting} wait for Retry or Tor off.",
+  "deskSetPrivProblemDetail": "{problem}. Retry, or turn Tor off.",
   "@deskSetPrivProblemDetail": {
-    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop; {waiting} is a list of what waits.",
+    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop.",
     "placeholders": {
       "problem": {
-        "type": "String"
-      },
-      "waiting": {
         "type": "String"
       }
     }

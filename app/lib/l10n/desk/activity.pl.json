@@ -26,7 +26,7 @@
   "deskActColTime": "Godzina",
   "deskActColAmount": "Kwota",
   "deskActEmptyTitle": "Brak transakcji",
-  "deskActEmptyText": "Tutaj widać każdą wysłaną i odebraną płatność, od najnowszej: z kim była i na jakim jest etapie.",
+  "deskActEmptyText": "Wysłane i odebrane płatności, od najnowszej.",
   "deskActStageWaiting": "Oczekiwanie",
   "deskActStageWaitingText": "Oba portfele ją podpisują. Przez Epicbox dzieje się to automatycznie.",
   "deskActStageConfirming": "Potwierdzanie",

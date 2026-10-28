@@ -599,7 +599,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again; a cancelled payment cannot go through later.'),
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
         const HelpBlock.p('When a payment arrives, your wallet answers at once, and nothing of yours is locked. From then on the sender’s wallet finishes and posts it, usually within minutes, so Cancel stays out of the way for 15 minutes, and longer while the sender reports it posted.'),
-        const HelpBlock.p('After that, Cancel is a tidy-up for a payment the sender never posted. It is not certain: the wallet asks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
+        const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet asks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
         const HelpBlock.h('Invoices (experimental)', anchor: HelpAnchor.requests),
         const HelpBlock.p('A request you sent holds no coins until it is paid. Withdraw it any time before then: the payer can no longer pay it, and nothing moves. A request nobody pays expires after 24 hours. A request shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
         if (phone)
@@ -619,8 +619,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           HelpBlock.p('**Deleting a wallet folder without its recovery phrase loses the EPIC in it.** Check the words first, or make sure the wallet is empty and no longer needed.'),
           HelpBlock.ol([
             'Open the data folder: the **Open folder** button next to [[Settings › This wallet › App files]], or **.epic_cash_desktop** in your home folder (on Windows **C:\\Users\\<name>\\.epic_cash_desktop**).',
-            'Open **wallets**. Each added wallet has a folder of its own, named by a long id; the first wallet’s folder is named **mainnet**.',
-            'To tell them apart, open an id folder, then its **mainnet** folder, and read **WALLET.txt**: it gives the wallet’s name.',
+            'Open **wallets**. Each added wallet has its own folder, named by a long ID; the first wallet’s folder is **mainnet**.',
+            'To tell them apart, open an ID folder, then its **mainnet** folder, and read **WALLET.txt**: it gives the wallet’s name.',
             'Make sure you have that wallet’s recovery phrase written down, or that it holds no EPIC you want to keep.',
             'Close Epic Cash Desktop.',
             'Delete that one id folder. Leave **mainnet**, **wallets.json** and everything else as it is.',

@@ -184,7 +184,7 @@
       }
     }
   },
-  "deskInvIssuerBounced": "{payer}’s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "deskInvIssuerBounced": "{payer}’s wallet cannot pay invoices; ask {payer} to send a payment instead.",
   "@deskInvIssuerBounced": {
     "description": "Detail text and warning notice of a request the payer's wallet returned.",
     "placeholders": {

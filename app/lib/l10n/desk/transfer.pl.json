@@ -18,7 +18,7 @@
   "deskFinPickTitle": "Plik odpowiedzi",
   "deskFinPosted": "Transakcja opublikowana",
   "deskFinTitle": "Sfinalizuj plik odpowiedzi",
-  "deskFinNoticeTitle": "Dla transakcji utworzonej jako plik",
+  "deskFinNoticeTitle": "Dla płatności plikiem",
   "deskFinNoticeText": "Użyj pliku odpowiedzi odesłanego przez odbiorcę.",
   "deskFinTryAgain": "Spróbuj ponownie",
   "deskFinPostedText": "Płatność została sfinalizowana i wysłana do sieci. Śledź ją w Aktywności.",
@@ -29,7 +29,7 @@
   "deskFinChooseText": "Portfel dokończy transakcję i opublikuje ją w sieci.",
   "deskFinChooseFile": "Wybierz plik",
   "deskImpWrongType": "To nie plik transakcji",
-  "deskImpWrongTypeText": "Ten plik nie jest plikiem transakcji. Wybierz plik .slate lub .tx od nadawcy.",
+  "deskImpWrongTypeText": "To nie jest plik transakcji. Wybierz plik .tx od nadawcy.",
   "deskImpWrongTypePasted": "Wklejony tekst nie jest transakcją. Wklej cały tekst od nadawcy albo wybierz jego plik.",
   "deskImpUnreadable": "Nie można odczytać pliku",
   "deskImpUnreadableText": "Nie udało się odczytać pliku. Może być uszkodzony albo wciąż kopiowany.",
@@ -51,6 +51,6 @@
   "deskImpChooseText": "Portfel go podpisze i zapisze odpowiedź dla nadawcy.",
   "deskImpOpenAnother": "Otwórz kolejny plik",
   "deskEpicboxBlockedWord": "Zablokowany",
-  "deskEpicboxBlockedText": "Ta sieć blokuje {host}. Przyczyną może być filtr sieciowy. Spróbuj innego serwera Epicbox lub prywatnego DNS.",
+  "deskEpicboxBlockedText": "Ta sieć blokuje {host}. Wybierz inny serwer Epicbox lub użyj prywatnego DNS.",
   "deskEpicboxBlockedSwitch": "Przełącz na {host}"
 }

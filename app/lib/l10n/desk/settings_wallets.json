@@ -58,19 +58,19 @@
   "@deskSetWalletsCreateText": {
     "description": "Settings > All wallets: text of the Create a wallet card."
   },
-  "deskSetWalletsImport": "Import",
+  "deskSetWalletsImport": "Import wallets",
   "@deskSetWalletsImport": {
     "description": "Settings > All wallets: card title for importing wallets from an older app or a folder."
   },
-  "deskSetWalletsImportText": "From an older Epic Wallet or a folder.",
+  "deskSetWalletsImportText": "From an older Epic Wallet or a folder",
   "@deskSetWalletsImportText": {
     "description": "Settings > All wallets: text of the Import card."
   },
-  "deskSetWalletsRestore": "Restore",
+  "deskSetWalletsRestore": "Restore from phrase",
   "@deskSetWalletsRestore": {
     "description": "Settings > All wallets: card title for restoring a wallet from its recovery phrase."
   },
-  "deskSetWalletsRestoreText": "From a recovery phrase.",
+  "deskSetWalletsRestoreText": "From the recovery phrase",
   "@deskSetWalletsRestoreText": {
     "description": "Settings > All wallets: text of the Restore card."
   }

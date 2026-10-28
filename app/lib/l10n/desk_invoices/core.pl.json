@@ -8,7 +8,7 @@
   "deskInvChecking": "Sprawdzanie",
   "deskInvCheckedAt": "Sprawdzono o {time}",
   "deskInvCheckFailedTitle": "Serwer Epicbox nie odpowiada",
-  "deskInvCheckFailedBody": "Listy pokazują to, co dotarło wcześniej. Nic nie zginęło; portfel ponawia próbę co 2 minuty.",
+  "deskInvCheckFailedBody": "Listy pokazują to, co dotarło wcześniej; portfel ponowi próbę.",
   "deskInvReqWaiting": "Czeka na płacącego",
   "deskInvReqPaid": "Zapłacono, finalizowanie",
   "deskInvReqPosted": "Opublikowano",

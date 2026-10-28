@@ -18,7 +18,7 @@
   "deskFinPickTitle": "ไฟล์ตอบกลับ",
   "deskFinPosted": "ส่งธุรกรรมเข้าเครือข่ายแล้ว",
   "deskFinTitle": "ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ",
-  "deskFinNoticeTitle": "สำหรับธุรกรรมที่สร้างเป็นไฟล์",
+  "deskFinNoticeTitle": "สำหรับการชำระด้วยไฟล์",
   "deskFinNoticeText": "ใช้ไฟล์ตอบกลับที่ผู้รับส่งคืนมา",
   "deskFinTryAgain": "ลองอีกครั้ง",
   "deskFinPostedText": "ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว ติดตามได้ในประวัติ",
@@ -29,7 +29,7 @@
   "deskFinChooseText": "กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย",
   "deskFinChooseFile": "เลือกไฟล์",
   "deskImpWrongType": "ไม่ใช่ไฟล์ธุรกรรม",
-  "deskImpWrongTypeText": "ไฟล์นี้ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .slate หรือ .tx ที่ผู้ส่งให้มา",
+  "deskImpWrongTypeText": "ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .tx ที่ผู้ส่งให้มา",
   "deskImpWrongTypePasted": "ข้อความที่วางไม่ใช่ธุรกรรม วางข้อความทั้งหมดที่ผู้ส่งให้มา หรือเลือกไฟล์ของผู้ส่ง",
   "deskImpUnreadable": "อ่านไฟล์ไม่ได้",
   "deskImpUnreadableText": "อ่านไฟล์ไม่ได้ ไฟล์อาจเสียหายหรือยังคัดลอกไม่เสร็จ",
@@ -51,6 +51,6 @@
   "deskImpChooseText": "กระเป๋าเงินจะลงนามและบันทึกไฟล์ตอบกลับให้ผู้ส่ง",
   "deskImpOpenAnother": "เปิดไฟล์อื่น",
   "deskEpicboxBlockedWord": "ถูกบล็อก",
-  "deskEpicboxBlockedText": "เครือข่ายนี้บล็อก {host} อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว",
+  "deskEpicboxBlockedText": "เครือข่ายนี้บล็อก {host} เลือกเซิร์ฟเวอร์ Epicbox อื่นหรือใช้ DNS ส่วนตัว",
   "deskEpicboxBlockedSwitch": "สลับไปที่ {host}"
 }

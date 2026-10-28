@@ -165,7 +165,7 @@ void main() {
       await show(tester);
       expect(find.textContaining('Blocked', findRichText: true), findsOneWidget);
       expect(
-        find.textContaining('This network blocks epicbox.epiccash.com. A network filter may be the cause.', findRichText: true),
+        find.textContaining('This network blocks epicbox.epiccash.com. Choose another Epicbox server', findRichText: true),
         findsOneWidget,
       );
       expect(find.widgetWithText(EButton, 'Switch to epicbox.stackwallet.com'), findsOneWidget);

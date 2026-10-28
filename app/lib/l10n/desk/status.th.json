@@ -63,10 +63,6 @@
   "deskNodeLineCompacting": "กำลังบีบอัดข้อมูลบล็อกเชน",
   "deskNodeLineStopping": "กำลังหยุด…",
   "deskNodeLineSyncing": "กำลังซิงก์",
-  "deskNodeNoEstimate": "ประเมินไม่ได้ อาจถึงหนึ่งชั่วโมง",
-  "deskNodeEstimating": "กำลังประเมิน…",
-  "deskNodeAboutHours": "เหลือประมาณ {hours} ชั่วโมง",
-  "deskNodeAboutMinutes": "เหลือประมาณ {minutes} นาที",
   "deskNodeDurationHm": "{hours} ชั่วโมง {minutes} นาที",
   "deskNodeDurationM": "{minutes} นาที",
   "deskTorNetworkLabel": "เครือข่าย Tor",
@@ -75,11 +71,12 @@
   "deskTorStarting": "กำลังเริ่ม…",
   "deskTorOn": "เปิด",
   "deskTorNotConnected": "ไม่ได้เชื่อมต่อ",
-  "deskTorRoutes": "Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor",
   "deskTorCoverage": "ผ่าน Tor: Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor",
   "deskTorNodeOver": "ผ่าน Tor",
   "deskTorNodeNotEncrypted": "ไม่เข้ารหัสหลังออกจาก Tor",
   "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ",
   "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
-  "deskNodeFailoverInsteadOf": "แทน {host}"
+  "deskNodeFailoverInsteadOf": "แทน {host}",
+  "deskNodeDurationDh": "{days} วัน {hours} ชั่วโมง",
+  "deskNodeDurationH": "{hours} ชั่วโมง"
 }

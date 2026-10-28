@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "Scan abgeschlossen",
   "deskSetRescanStoppedLine": "Scan gestoppt",
   "deskSetRescanLog": "Protokoll der Neuprüfung",
-  "deskSetRescanText": "Liest die Blockchain erneut und baut das Guthaben aus den gefundenen Outputs neu auf. Nutzen Sie das, wenn das Guthaben falsch aussieht, nach einer Wiederherstellung oder wenn Outputs nach einer fehlgeschlagenen Zahlung gesperrt bleiben. Die Wallet bleibt währenddessen nutzbar.",
+  "deskSetRescanText": "Liest die Blockchain erneut und baut das Guthaben neu auf. Nutzen Sie das, wenn das Guthaben falsch aussieht oder Outputs gesperrt bleiben.",
   "deskSetRescanStartAgain": "Erneut starten",
   "deskSetRescanDeleteUnconfirmed": "Unbestätigte löschen",
   "deskSetRescanDeleteHint": "Storniert auch unbestätigte Transaktionen und gibt ihre Outputs frei. Eine Zahlung, die schon unterwegs ist, kann dann fehlschlagen.",

@@ -1,8 +1,8 @@
 {
   "deskSetHelpNoMatchText": "没有与“{query}”匹配的主题。换个词试试。",
-  "deskSetHelpFound": "{count, plural, other{找到的主题：{count}}}",
+  "deskSetHelpFound": "{count, plural, other{找到 {count} 个主题}}",
   "deskSetHelpNoMatch": "没有匹配的主题",
-  "deskSetHelpReportText": "描述出了什么问题。可以附上应用日志，日志会清除机密信息并加密发送给开发者。“保存到文件”会保留一份副本，供你手动发送。",
+  "deskSetHelpReportText": "描述出了什么问题；可附上已清理的应用日志，加密后发送给开发者。",
   "deskSetHelpShowLess": "收起",
   "deskSetHelpReadMore": "展开阅读",
   "deskSetHelpEb1": "发送方钱包把付款交给 Epicbox，并锁定相应的输出。",

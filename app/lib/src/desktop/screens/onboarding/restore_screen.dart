@@ -218,7 +218,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           onBack: () {},
           child: ProgressView(
           title: _failure != null || _permissionDenied ? l.deskOnbRestoreNotRestored : l.deskOnbRestoreRestoring,
-          failureTitle: l.deskOnbRestoreFailedTitle,
           stages: [
             Stage('restore', l.deskOnbRestoreRestoring),
             if (_locking) Stage('lock', l.deskOnbCreateLocking),
@@ -244,7 +243,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
           title: _name ?? defaultWalletName(ref),
           heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
-          lead: l.deskOnbRestorePasswordLead(_entry.length),
+          lead: l.deskOnbRestorePasswordLead,
           actions: [
             backButton(() => setState(() => _step = RestoreStep.words)),
             EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null),

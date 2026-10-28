@@ -10,8 +10,8 @@
   "deskSetWalletsAdd": "เพิ่มกระเป๋าเงิน",
   "deskSetWalletsCreate": "สร้างกระเป๋าเงิน",
   "deskSetWalletsCreateText": "กระเป๋าเงินใหม่พร้อมวลีกู้คืนใหม่",
-  "deskSetWalletsImport": "นำเข้า",
+  "deskSetWalletsImport": "นำเข้ากระเป๋าเงิน",
   "deskSetWalletsImportText": "จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์",
-  "deskSetWalletsRestore": "กู้คืน",
+  "deskSetWalletsRestore": "กู้คืนจากวลีกู้คืน",
   "deskSetWalletsRestoreText": "จากวลีกู้คืน"
 }

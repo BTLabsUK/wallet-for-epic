@@ -174,8 +174,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(wallet.splits, [4]);
       expect(find.text('Split posted'), findsOneWidget);
-      expect(find.textContaining('The wallet now has 4 outputs of about'), findsOneWidget);
-      await tester.tap(find.text('Done'));
+      expect(find.textContaining('4 outputs of about'), findsOneWidget);
+      await tester.tap(find.text('Done').last);
       await tester.pumpAndSettle();
       expect(find.text('Split outputs'), findsNothing);
     });
@@ -185,7 +185,7 @@ void main() {
       await open(tester, (c) => showSplitDialog(c));
       await tester.tap(find.text('Split into 4'));
       await tester.pumpAndSettle();
-      expect(find.text('Not posted.'), findsOneWidget);
+      expect(find.text('Not posted'), findsOneWidget);
       await tester.tap(find.text('Post again'));
       await tester.pumpAndSettle();
       expect(wallet.reposts, [77]);

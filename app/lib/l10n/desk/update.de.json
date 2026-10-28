@@ -17,8 +17,8 @@
   "deskUpdUnfinished": "Update nicht abgeschlossen. Erneut versuchen.",
   "deskUpdManual": "Diese Kopie kann Updates nicht selbst installieren.",
   "deskUpdDownloadInstall": "Herunterladen und installieren",
-  "deskUpdReadyTitle": "Epic Cash {version} ist bereit",
-  "deskUpdReadyBody": "Jetzt neu starten, um zu aktualisieren. Die Wallet wird gesperrt und die App öffnet sich wieder.",
+  "deskUpdReadyTitle": "Neu starten zum Aktualisieren",
+  "deskUpdReadyBody": "Die Wallet wird gesperrt und die App öffnet sich wieder.",
   "deskUpdRestartNow": "Jetzt neu starten",
   "deskUpdLater": "Später"
 }

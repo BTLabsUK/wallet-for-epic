@@ -1,8 +1,8 @@
 {
   "deskSetHelpNoMatchText": "Kein Thema passt zu „{query}“. Versuchen Sie ein anderes Wort.",
-  "deskSetHelpFound": "{count, plural, one{Gefundene Themen: {count}} other{Gefundene Themen: {count}}}",
+  "deskSetHelpFound": "{count, plural, one{{count} Thema gefunden} other{{count} Themen gefunden}}",
   "deskSetHelpNoMatch": "Kein passendes Thema",
-  "deskSetHelpReportText": "Beschreiben Sie, was schiefging. Das App-Protokoll kann mitgehen, von Geheimnissen bereinigt und für den Entwickler verschlüsselt. „In Datei speichern“ legt eine Kopie ab, die Sie selbst senden können.",
+  "deskSetHelpReportText": "Beschreiben Sie, was schiefging; das bereinigte App-Protokoll kann mitgehen, für den Entwickler verschlüsselt.",
   "deskSetHelpShowLess": "Weniger anzeigen",
   "deskSetHelpReadMore": "Mehr lesen",
   "deskSetHelpEb1": "Die sendende Wallet übergibt die Zahlung an Epicbox und sperrt die Outputs.",

@@ -2,7 +2,7 @@
   "deskSetHelpNoMatchText": "ไม่มีหัวข้อที่ตรงกับ “{query}” ลองคำอื่น",
   "deskSetHelpFound": "{count, plural, other{พบ {count} หัวข้อ}}",
   "deskSetHelpNoMatch": "ไม่มีหัวข้อที่ตรงกัน",
-  "deskSetHelpReportText": "อธิบายสิ่งที่ผิดพลาด แนบบันทึกของแอปไปด้วยได้ โดยลบข้อมูลลับออกและเข้ารหัสให้นักพัฒนา บันทึกเป็นไฟล์ เก็บสำเนาไว้ส่งเอง",
+  "deskSetHelpReportText": "อธิบายสิ่งที่ผิดพลาด แนบบันทึกของแอปที่ลบข้อมูลลับแล้วไปด้วยได้ โดยเข้ารหัสให้นักพัฒนา",
   "deskSetHelpShowLess": "ย่อ",
   "deskSetHelpReadMore": "อ่านต่อ",
   "deskSetHelpEb1": "กระเป๋าเงินผู้ส่งส่งรายการให้ Epicbox และล็อกเอาต์พุต",

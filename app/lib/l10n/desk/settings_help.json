@@ -9,7 +9,7 @@
       }
     }
   },
-  "deskSetHelpFound": "{count, plural, one{Topics found: {count}} other{Topics found: {count}}}",
+  "deskSetHelpFound": "{count, plural, one{{count} topic found} other{{count} topics found}}",
   "@deskSetHelpFound": {
     "description": "Help search: how many topics match, read out by screen readers too, e.g. 'Topics found: 3'.",
     "placeholders": {
@@ -22,7 +22,7 @@
   "@deskSetHelpNoMatch": {
     "description": "Title of the empty state of the Help search."
   },
-  "deskSetHelpReportText": "Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.",
+  "deskSetHelpReportText": "Describe what went wrong; the cleaned app log can go with it, encrypted to the developer.",
   "@deskSetHelpReportText": {
     "description": "Help page, the Report a problem card: what the report does. 'Save to file' is a button in the report dialog."
   },
