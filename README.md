@@ -71,8 +71,9 @@ flutter run -d linux -t lib/main_desktop.dart
 ```
 
 The `tools/lepic.rev` and `tools/lepic-flutter.rev` files pin LEPIC and the binding. By default
-`tools/lepic.sh sync` clones both from GitHub; set `LEPIC_REPO` and `LEPIC_FLUTTER_REPO` to a
-local checkout or another URL to use them instead. The release AppImage is built in an Ubuntu 22.04
+`tools/lepic.sh sync` clones both from GitHub (or from `~/lepic` and `~/lepic-flutter`, when
+those checkouts hold the pinned commits); set `LEPIC_REPO` and `LEPIC_FLUTTER_REPO` to a local
+checkout or another URL to use them instead. The release AppImage is built in an Ubuntu 22.04
 container: `scripts/build-linux.sh` (needs Docker or Podman).
 
 ### Android

@@ -27,3 +27,12 @@ _wfe_path_prepend "$FLUTTER_ROOT/bin"
 _wfe_path_prepend "$JAVA_HOME/bin"
 unset -f _wfe_path_prepend
 export PATH
+
+# The repository to take a pinned commit from: $1 when it is set (a URL or a path), else the
+# checkout $2 when it has the commit $4, else the GitHub repository $3. Checkouts of LEPIC and
+# lepic-flutter next to this one are used as they are; a fresh clone takes the GitHub ones.
+wfe_repo() {
+  if [ -n "$1" ]; then echo "$1"
+  elif git -C "$2" cat-file -e "$4^{commit}" 2>/dev/null; then echo "$2"
+  else echo "$3"; fi
+}

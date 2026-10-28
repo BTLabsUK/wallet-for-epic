@@ -14,7 +14,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 pubspec="$root/app/pubspec.yaml"
 dart_file="$root/app/lib/src/app_version.dart"
-lepic_repo="${LEPIC_REPO:-https://github.com/BTLabs-EPIC/lepic.git}"
+lepic_repo="${LEPIC_REPO:-$HOME/lepic}"   # read only; a missing checkout falls back to app/third_party/lepic
 
 die() { echo "version.sh: $*" >&2; exit 1; }
 
