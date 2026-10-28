@@ -78,7 +78,7 @@ void main() {
       expect(helpPlaceDestination('Settings › Security'), HelpPhonePlace.security);
       expect(helpPlaceDestination('Settings › Security › Back up recovery phrase'), HelpPhonePlace.security);
       expect(helpPlaceDestination('Settings › Privacy & network › Tor network'), HelpPhonePlace.privacyNetwork);
-      expect(helpPlaceDestination('Settings › Wallet › Recheck balance'), HelpPhonePlace.wallet);
+      expect(helpPlaceDestination('Settings › This wallet › Recheck balance'), HelpPhonePlace.wallet);
       expect(helpPlaceDestination('Settings › Appearance'), HelpPhonePlace.display);
       expect(helpPlaceDestination('Settings › About'), HelpPhonePlace.about);
       expect(helpPlaceDestination('Settings'), HelpPhonePlace.settings);

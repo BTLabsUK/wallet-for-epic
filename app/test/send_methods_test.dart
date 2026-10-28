@@ -1254,7 +1254,7 @@ void main() {
       await _tap(tester, find.text('Link'));
       expect(find.text('Straight to this wallet.'), findsOneWidget);
       expect(find.text('Works while the app is open.'), findsOneWidget);
-      expect(find.text('Link · Tor receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       expect(
         find.text('Meanwhile, share the Epicbox address.'),
         findsOneWidget,

@@ -201,8 +201,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
-      ? '**Restore from a phrase** (on the first screen, or under [[Settings › This wallet]])'
-      : '**Restore from a phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
+      ? '**Restore from phrase** (on the first screen, or under [[Settings › This wallet]])'
+      : '**Restore from phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
   final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Recovery phrase]]';
   return <HelpTopic>[
