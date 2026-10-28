@@ -46,7 +46,7 @@ Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox, bool notPo
   amount: 250000000,
   fee: 7000000,
   created: DateTime(2026, 10, 20),
-  counterparty: method == TxMethod.http ? 'http://10.90.15.122:3415/v2/foreign' : 'esAlice@epicbox.example',
+  counterparty: method == TxMethod.http ? 'http://100.64.21.31:3415/v2/foreign' : 'esAlice@epicbox.example',
   cancellable: true,
   undelivered: undelivered,
 );
@@ -191,7 +191,7 @@ void main() {
           kind: core.TxKind.sent,
           status: core.TxStatus.awaitingRecipient,
           transport: 'http',
-          counterparty: 'http://10.90.15.122:3415/v2/foreign',
+          counterparty: 'http://100.64.21.31:3415/v2/foreign',
           undelivered: true,
         ),
       ],
@@ -225,7 +225,7 @@ void main() {
           kind: core.TxKind.sent,
           status: core.TxStatus.awaitingRecipient,
           transport: 'http',
-          counterparty: 'http://10.90.15.122:3415/v2/foreign',
+          counterparty: 'http://100.64.21.31:3415/v2/foreign',
           undelivered: true,
         ),
         core.fakeTx(
@@ -254,7 +254,7 @@ void main() {
     expect(session.httpSends.single, (
       amount: null,
       txId: 6,
-      url: 'http://10.90.15.122:3415/v2/foreign',
+      url: 'http://100.64.21.31:3415/v2/foreign',
       allowPlainHttp: true,
     ));
     // Tor is off until it starts: the onion send says so and goes nowhere else.
