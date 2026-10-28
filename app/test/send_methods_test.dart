@@ -965,11 +965,11 @@ void main() {
         await _enter(tester, 'To', _onion);
         expect(_method(tester), TransferMethod.direct);
         expect(find.byKey(sendTorNoticeKey), findsOneWidget);
-        expect(find.text('Needs Tor.'), findsOneWidget);
+        expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
         // Continue goes on to the amount, where Review waits for Tor.
         await _tap(tester, _continue);
         await _enter(tester, 'Amount (EPIC)', '1');
-        expect(find.text('Needs Tor.'), findsOneWidget);
+        expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
         expect(
           tester.widget<FilledButton>(_continue).onPressed,
           isNull,
@@ -992,7 +992,7 @@ void main() {
               .onPressed,
           isNull,
         );
-        expect(find.text('Needs Tor.'), findsNothing);
+        expect(find.text('Link · Tor needs Tor.'), findsNothing);
         await h.emit(tester, TorEventKind.ready);
         expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
         await _tap(tester, _continue);
@@ -1082,12 +1082,12 @@ void main() {
       await h.pump(tester, advanced: offline);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
       // File asks the node in use, a public one too: it runs, with the note (a warning).
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
-      expect(find.text('Offline mode is on in Advanced.'), findsNothing);
+      expect(find.text('Offline is on in Advanced.'), findsNothing);
       expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.text('Uses the node'), findsOneWidget);
       await _tap(tester, find.byKey(offlineNodeNoteKey));
@@ -1121,7 +1121,7 @@ void main() {
       await h.pump(tester, advanced: offline, payments: _directOn);
       await _enter(tester, 'To', _onion);
       expect(find.byKey(sendTurnOnTorKey), findsNothing);
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
     });
 
     testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {

@@ -17,7 +17,7 @@
   "deskTxDetailsFromTip": "Kto zapłacił, do Twoich zapisów. Niezweryfikowane i nigdy nie używane w potwierdzeniach płatności.",
   "deskTxDetailsFromHint": "Adres nadawcy",
   "deskTxDetailsFromBad": "Użyj adresu Epicbox, http(s) lub .onion.",
-  "deskTxDetailsNote": "Notatka",
+  "deskTxDetailsNote": "Prywatna notatka",
   "deskTxDetailsAdded": "Dodano szczegóły",
   "deskTxDetailsSaved": "Zapisano szczegóły",
   "deskTxDetailsRemoved": "Usunięto szczegóły",

@@ -742,7 +742,7 @@ void main() {
       expect(isPending(tx), isFalse);
       expect(
         txStatusLabel(englishStrings, tx, _tip),
-        'Imported, status unknown',
+        'Imported',
       );
       expect(matchesFilter(tx, HistoryFilter.pending), isFalse);
       expect(matchesFilter(tx, HistoryFilter.sent), isTrue);
@@ -951,7 +951,7 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
 
-      await _tap(tester, find.byTooltip('Hide balances'));
+      await _tap(tester, find.byTooltip('Hide amounts'));
       expect(_figure(tester), hiddenAmount);
       expect(find.text('≈ 6.25 USD'), findsNothing);
       expect(find.text('+5 EPIC'), findsNothing);
@@ -1258,10 +1258,10 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
-      expect(find.text('Message from the sender'), findsOneWidget);
+      expect(find.text('Message'), findsOneWidget);
       expect(find.text('September rent'), findsOneWidget);
-      expect(find.text('Your message'), findsNothing);
-      expect(find.text('Private note, only on this device'), findsOneWidget);
+      expect(find.text('Message'), findsNothing);
+      expect(find.text('Private note'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
     });
 
@@ -1286,18 +1286,18 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(find.text('Your message'), findsOneWidget);
+      expect(find.text('Message'), findsOneWidget);
       expect(find.text('for the pizza'), findsOneWidget);
       expect(find.text('Message from the recipient'), findsOneWidget);
       expect(find.text('thanks!'), findsOneWidget);
-      expect(find.text('Message from the sender'), findsNothing);
+      expect(find.text('Message'), findsNothing);
     });
 
     testWidgets('a payment without messages shows none', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
-      expect(find.text('Message from the sender'), findsNothing);
-      expect(find.text('Your message'), findsNothing);
+      expect(find.text('Message'), findsNothing);
+      expect(find.text('Message'), findsNothing);
     });
 
     testWidgets('cancels a waiting send after confirmation', (tester) async {
@@ -1988,7 +1988,7 @@ void main() {
     ) async {
       final h = _Harness(transactions: const []);
       await h.pump(tester);
-      expect(find.text('No payments yet.'), findsOneWidget);
+      expect(find.text('No payments yet'), findsOneWidget);
       expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);
       expect(find.text('Show my address'), findsNothing);
@@ -2046,7 +2046,7 @@ void main() {
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:in'));
       await _tap(tester, find.byKey(txDetailsCancelReceiveKey));
-      expect(find.text('Cancel payment?'), findsOneWidget);
+      expect(find.text('Cancel this payment?'), findsOneWidget);
       expect(find.textContaining('may already have posted'), findsOneWidget);
       expect(find.textContaining('a later post still arrives'), findsOneWidget);
       await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
@@ -2095,7 +2095,7 @@ void main() {
       await h.pump(tester);
       expect(find.text('A payment is waiting for the recipient'), findsNothing);
       expect(
-        find.textContaining('Imported, status unknown'),
+        find.textContaining('Imported'),
         findsOneWidget,
       );
     });
@@ -3453,7 +3453,7 @@ void main() {
         expect(_titleText(tester), '12.5 EPIC');
         // Hidden: the title hides the figure too.
         await _tab(tester, 'Wallet');
-        await _tap(tester, find.byTooltip('Hide balances'));
+        await _tap(tester, find.byTooltip('Hide amounts'));
         await _tab(tester, 'Send');
         expect(_titleText(tester), '$hiddenAmount EPIC');
       },
@@ -3562,7 +3562,7 @@ void main() {
         jetBrainsMono,
       );
       expect(fiat.top, greaterThanOrEqualTo(figure.bottom));
-      final eye = tester.getRect(find.byTooltip('Hide balances'));
+      final eye = tester.getRect(find.byTooltip('Hide amounts'));
       expect(eye.left, greaterThanOrEqualTo(fiat.right));
       expect(eye.center.dy, closeTo(fiat.center.dy, 1));
       // The locked 2 EPIC is a tile under that row, not a line.
@@ -3693,7 +3693,7 @@ void main() {
       // Hidden amounts hide these too.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);
-      await _tap(tester, find.byTooltip('Hide balances'));
+      await _tap(tester, find.byTooltip('Hide amounts'));
       expect(_inTile(BalanceKind.confirming, hiddenAmount), findsOneWidget);
       expect(_inTile(BalanceKind.confirming, '2'), findsNothing);
       handle.dispose();
@@ -3750,7 +3750,7 @@ void main() {
           states['landing'] = height();
           await tester.pumpAndSettle();
           await state('long figure', _balances(spendable: 20999999.99999999));
-          await _tap(tester, find.byTooltip('Hide balances'));
+          await _tap(tester, find.byTooltip('Hide amounts'));
           states['hidden'] = height();
           await _tap(tester, find.byTooltip('Show balances'));
           h.session.transactionsValue = [];
@@ -3820,7 +3820,7 @@ void main() {
             final node = tester.getRect(find.byKey(nodeStatusKey));
             final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
             final fiat = tester.getRect(find.byKey(fiatValueKey));
-            final eye = tester.getRect(find.byTooltip('Hide balances'));
+            final eye = tester.getRect(find.byTooltip('Hide amounts'));
             expect(node.size, const Size(48, 48));
             expect(epicbox.left, node.right);
             expect(fiat.left, greaterThanOrEqualTo(epicbox.right));

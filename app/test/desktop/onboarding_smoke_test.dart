@@ -100,7 +100,7 @@ void flows() {
     await _wait(tester, 500);
     expect(find.text('12 of 12 words'), findsOneWidget);
     expect(find.text('All 12 words check out.'), findsOneWidget);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.text('Name'), findsNothing);
@@ -113,7 +113,7 @@ void flows() {
     final words = [...List.filled(11, 'abandon'), 'about'].join(' ');
     await tester.enterText(_field(0), words);
     await _wait(tester, 500);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Wallet 1'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));

@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
+import '../network_gate.dart' show NetBlock;
 import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
@@ -18,8 +19,10 @@ import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart';
 import 'server_picker.dart';
 import 'info_hint.dart';
+import 'net_block.dart' show watchNetBlock;
 import 'settings_screen.dart';
 import 'status.dart';
+import 'status_icons.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
@@ -103,17 +106,23 @@ class NetworkStatusCard extends ConsumerWidget {
             port: config.epicboxPort,
           ).label
         : choice?.relay.label ?? '';
-    final node = nodeNetFace(
-      context,
-      status.node,
-      behind: nodeBehind(ref, status.node, preset),
-    );
-    final epicbox = epicboxNetFace(context, status.epicbox);
+    // In Offline both services are paused by choice: neutral, never red or blue (UI-027).
+    final paused = watchNetBlock(context, ref) == NetBlock.offline;
+    final pausedFace = (level: SignalLevel.none, color: t.dim, word: l.netStatusPausedOffline);
+    final node = paused
+        ? pausedFace
+        : nodeNetFace(
+            context,
+            status.node,
+            behind: nodeBehind(ref, status.node, preset),
+          );
+    final epicbox = paused ? pausedFace : epicboxNetFace(context, status.epicbox);
     final nodeWords = nodeStatusWords(context, status.node, config);
     final epicboxWords = epicboxStatusWords(context, status.epicbox, config);
     final rows = <Widget>[
       _StatusRow(
         key: netStatusNodeKey,
+        glyph: EpicGlyphs.node,
         title: l.netStatusNode,
         host: chain != null && chain != Chain.mainnet && nodeHost.isNotEmpty
             ? l.netStatusTestHost(chainName(l, chain), nodeHost)
@@ -130,6 +139,7 @@ class NetworkStatusCard extends ConsumerWidget {
       ),
       _StatusRow(
         key: netStatusEpicboxKey,
+        glyph: EpicGlyphs.epicbox,
         title: l.netStatusEpicbox,
         host: relay,
         face: epicbox,
@@ -141,6 +151,7 @@ class NetworkStatusCard extends ConsumerWidget {
       if (showTor && torRowShown(tor))
         _StatusRow(
           key: netStatusTorKey,
+          glyph: torIcon,
           title: l.torNetworkLabel,
           hint: l.torNetworkHint,
           detail: l.torNetworkHint,
@@ -183,6 +194,7 @@ class _StatusRow extends StatelessWidget {
     required this.host,
     required this.face,
     required this.onTap,
+    required this.glyph,
     this.spoken,
     this.detail,
     this.pulse = false,
@@ -204,6 +216,9 @@ class _StatusRow extends StatelessWidget {
   final String host;
   final NetFace face;
   final bool pulse;
+
+  /// The service's glyph, drawn with the state dot (one icon per meaning, UI-008).
+  final IconData glyph;
 
   /// How the connection goes under the Tor switch: over Tor, or waiting for it, is a line of
   /// its own under the state word ([torWayWords]) and read out after it; nothing otherwise.
@@ -245,10 +260,23 @@ class _StatusRow extends StatelessWidget {
               padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 8),
               child: Row(
                 children: [
-                  SignalBars(
-                    level: face.level,
-                    color: face.color,
-                    pulse: pulse,
+                  Pulse(
+                    active: pulse,
+                    child: SizedBox.square(
+                      dimension: statusGlyph,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(glyph, size: statusGlyph, color: face.level == SignalLevel.none ? t.dim.withValues(alpha: 0.4) : t.dim),
+                          if (face.level != SignalLevel.none)
+                            Positioned(
+                              right: -3,
+                              bottom: -3,
+                              child: StateDot(dot: netFaceDot(t, face), size: statusDotSize, ring: t.surface),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   // The service over its host, as the desktop's sidebar rows: a long host

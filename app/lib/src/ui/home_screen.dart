@@ -829,7 +829,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ? const TestCoinsButton()
                             : demo
                             ? null
-                            : TextButton(
+                            : FilledButton.tonal(
                                 onPressed: () => _goTab(ShellTab.receive),
                                 child: Text(l.homeReceiveButton),
                               ),
@@ -1157,8 +1157,9 @@ class _PendingSendsCard extends ConsumerWidget {
     final count = waiting.length;
     return Padding(
       padding: const EdgeInsets.only(top: homeCardGap),
+      // In progress, not a warning: the blue edge (UI-029).
       child: EdgeCard(
-        edge: context.tokens.warn,
+        edge: context.tokens.info,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

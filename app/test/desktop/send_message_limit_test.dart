@@ -49,7 +49,7 @@ void main() {
     await pump(tester, SendArgs(recipient: anna, amount: '25', message: '😀' * 92));
     expect(find.text('368 / 256 bytes'), findsOneWidget);
     expect(find.text('The message is longer than 256 bytes. Shorten it.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Review send'));
+    await tester.tap(find.widgetWithText(EButton, 'Review'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsNothing);
   });

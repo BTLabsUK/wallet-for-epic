@@ -17,7 +17,7 @@
   "deskTxDetailsFromTip": "Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft und nie für Zahlungsnachweise verwendet.",
   "deskTxDetailsFromHint": "Adresse des Absenders",
   "deskTxDetailsFromBad": "Verwenden Sie eine Epicbox-, http(s)- oder .onion-Adresse.",
-  "deskTxDetailsNote": "Notiz",
+  "deskTxDetailsNote": "Private Notiz",
   "deskTxDetailsAdded": "Details hinzugefügt",
   "deskTxDetailsSaved": "Details gespeichert",
   "deskTxDetailsRemoved": "Details entfernt",

@@ -47,7 +47,7 @@ void main() {
     expect(b.total, b.spendable + b.awaitingConfirmation + b.locked, reason: 'no double count, nothing missing');
   });
 
-  testWidgets('Overview: Awaiting finalization leaves the change out, Locked and Total keep the 0.1; Send is plain', (tester) async {
+  testWidgets('Overview: Waiting for sender leaves the change out, Locked and Total keep the 0.1; Send is plain', (tester) async {
     final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet())]);
     addTearDown(container.dispose);
     tester.view.physicalSize = const Size(1400, 1000);
@@ -68,7 +68,7 @@ void main() {
       return tester.widget<FitMoney>(find.descendant(of: column, matching: find.byType(FitMoney))).nano;
     }
 
-    expect(cell('Awaiting finalization'), 0);
+    expect(cell('Waiting for sender'), 0);
     expect(cell('Locked in sends'), 10000000);
     expect(cell('Total'), 10000000);
     final send = tester.widget<EButton>(find.widgetWithText(EButton, 'Send'));

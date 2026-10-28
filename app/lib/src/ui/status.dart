@@ -201,7 +201,7 @@ _Face _epicboxFace(
       EpicGlyphs.epicbox,
       l.statusEpicboxOnline,
       t.ok,
-      l.receiveEpicboxConnected,
+      config == null ? l.statusEpicboxOnline : l.receiveEpicboxConnected(relayLabel(config)),
     ),
     EpicboxState.connecting => (
       EpicGlyphs.epicbox,
@@ -322,9 +322,9 @@ const double statusDotSize = 10;
 
 /// The compact form's tap target width (its height is [statusTarget]), glyph and dot: the
 /// small row in Send's and Receive's app bar.
-const double statusCompactWidth = 26;
-const double statusCompactGlyph = 15;
-const double statusCompactDot = 8;
+const double statusCompactWidth = 30;
+const double statusCompactGlyph = 18;
+const double statusCompactDot = 9;
 
 /// One status as its glyph on a [statusTarget] square, in the dim colour, with the state's
 /// [dot] at its bottom right (ringed in the page colour so it stands off the glyph). A tap
@@ -388,23 +388,21 @@ class StatusIcon extends StatelessWidget {
                 active: pulse,
                 child: SizedBox.square(
                   dimension: glyph,
+                  // A second cue beside the dot's colour (UI-006): off = the glyph faded
+                  // with a slash and no dot; in progress = a ring; a problem = "!" in the
+                  // dot; ok = the solid dot.
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Icon(icon, size: glyph, color: t.dim),
-                      Positioned(
-                        right: -3,
-                        bottom: -3,
-                        child: Container(
-                          width: dotSize,
-                          height: dotSize,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: dot.color(t),
-                            border: Border.all(color: ring, width: 1.5),
-                          ),
+                      Icon(icon, size: glyph, color: dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.dim),
+                      if (dot == StatusDot.off)
+                        Positioned.fill(child: CustomPaint(painter: _SlashPainter(t.dim, ring)))
+                      else
+                        Positioned(
+                          right: -3,
+                          bottom: -3,
+                          child: StateDot(dot: dot, size: dotSize, ring: ring),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -415,6 +413,60 @@ class StatusIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The state dot at a status glyph's corner, [size] across with the page-colour [ring]: solid
+/// green for ok, a blue ring for work in progress, red with "!" for a problem. Off is drawn
+/// by [StatusIcon] as the faded glyph with a slash instead.
+class StateDot extends StatelessWidget {
+  const StateDot({super.key, required this.dot, required this.size, required this.ring});
+
+  final StatusDot dot;
+  final double size;
+  final Color ring;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = dot.color(t);
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: dot == StatusDot.busy ? ring : color,
+        border: Border.all(color: dot == StatusDot.busy ? color : ring, width: dot == StatusDot.busy ? 2 : 1.5),
+      ),
+      child: dot == StatusDot.bad
+          ? Text(
+              '!',
+              textScaler: TextScaler.noScaling,
+              style: TextStyle(color: ring, fontSize: size * 0.72, fontWeight: FontWeight.w800, height: 1),
+            )
+          : null,
+    );
+  }
+}
+
+/// A diagonal slash over a status glyph that is off, haloed in the page colour so it reads
+/// over the glyph's strokes.
+class _SlashPainter extends CustomPainter {
+  const _SlashPainter(this.color, this.halo);
+
+  final Color color;
+  final Color halo;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final a = Offset(size.width * 0.9, size.height * 0.05);
+    final b = Offset(size.width * 0.1, size.height * 0.95);
+    canvas.drawLine(a, b, Paint()..color = halo..strokeWidth = 4..strokeCap = StrokeCap.round);
+    canvas.drawLine(a, b, Paint()..color = color..strokeWidth = 1.6..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(_SlashPainter old) => old.color != color || old.halo != halo;
 }
 
 /// The node's glyph, label word and tooltip for the status icons ([StatusIcon]): the state's
@@ -534,6 +586,15 @@ class _BarsPainter extends CustomPainter {
 /// A service's state on the status card and in the pickers: its bars, their colour and the
 /// word that always goes with them.
 typedef NetFace = ({SignalLevel level, Color color, String word});
+
+/// The state dot for a [NetFace] (the faces use the tokens' colours, so the dot follows the
+/// same meaning): off when nothing is lit, green ok, blue in progress, red a problem.
+StatusDot netFaceDot(WalletTokens t, NetFace face) {
+  if (face.level == SignalLevel.none) return StatusDot.off;
+  if (face.color == t.ok) return StatusDot.ok;
+  if (face.color == t.info) return StatusDot.busy;
+  return StatusDot.bad;
+}
 
 /// From this many blocks behind the network's tip a node that answers reads "Behind N".
 const int behindAfter = 3;

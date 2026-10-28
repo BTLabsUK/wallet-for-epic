@@ -79,7 +79,7 @@
   "@deskTxFoundScanTip": {
     "description": "Tooltip on a payment found by a scan of unknown kind."
   },
-  "deskTxBackupTip": "Added from a wallet data file.",
+  "deskTxBackupTip": "Imported from a wallet data file.",
   "@deskTxBackupTip": {
     "description": "Tooltip on a payment that was added from a history backup file."
   },
@@ -91,7 +91,7 @@
   "@deskTxStatusImmature": {
     "description": "Status of a mining reward not yet spendable. Activity table status column, narrow; one word."
   },
-  "deskTxStatusWaitingSender": "Waiting for sender to finalize",
+  "deskTxStatusWaitingSender": "Waiting for sender",
   "@deskTxStatusWaitingSender": {
     "description": "Status of an incoming payment that waits for the sender to finalize it. Narrow status column."
   },
@@ -103,7 +103,7 @@
   "@deskTxStatusWaitingResponseFile": {
     "description": "Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column."
   },
-  "deskTxStatusWaitingRecipient": "Waiting for recipient to sign",
+  "deskTxStatusWaitingRecipient": "Waiting for recipient",
   "@deskTxStatusWaitingRecipient": {
     "description": "Status of an outgoing payment that waits for the recipient to sign. Narrow status column."
   },
@@ -257,7 +257,7 @@
   "@deskTxHiddenAmount": {
     "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
   },
-  "deskTxNowBackup": "Imported; the chain was not asked.",
+  "deskTxNowBackup": "Imported from a wallet data file. Status not checked on the chain.",
   "@deskTxNowBackup": {
     "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
   },
@@ -272,7 +272,7 @@
       }
     }
   },
-  "deskTxNowWaitingSender": "Signed and returned. Waiting for the sender to finalize.",
+  "deskTxNowWaitingSender": "Waiting for the sender to post it.",
   "@deskTxNowWaitingSender": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
   },
@@ -341,7 +341,7 @@
   "@deskTxHeadFoundOnChain": {
     "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
   },
-  "deskTxHeadBackup": "added from a wallet data file",
+  "deskTxHeadBackup": "imported from a wallet data file",
   "@deskTxHeadBackup": {
     "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
   },
@@ -409,7 +409,7 @@
   "@deskTxFactMessage": {
     "description": "Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column."
   },
-  "deskTxSignedByRecipient": "Signed by the recipient",
+  "deskTxSignedByRecipient": "Recipient signed",
   "@deskTxSignedByRecipient": {
     "description": "Payment proof line on the transaction detail, and a step of the timeline."
   },
@@ -469,7 +469,7 @@
   "@deskTxStepMined": {
     "description": "Timeline step of a mining reward."
   },
-  "deskTxStepSpendable": "Spendable",
+  "deskTxStepSpendable": "Completed",
   "@deskTxStepSpendable": {
     "description": "Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations."
   },
@@ -483,11 +483,11 @@
       }
     }
   },
-  "deskTxStepReceivedSlate": "Received slate",
+  "deskTxStepReceivedSlate": "Payment arrived",
   "@deskTxStepReceivedSlate": {
     "description": "Timeline step of an incoming payment: the sender's first message arrived."
   },
-  "deskTxStepCreated": "Created and signed",
+  "deskTxStepCreated": "Payment started",
   "@deskTxStepCreated": {
     "description": "Timeline step of an outgoing payment."
   },
@@ -499,7 +499,7 @@
   "@deskTxStepWaitingFile": {
     "description": "Small line under a timeline step of an outgoing file payment."
   },
-  "deskTxStepWaitingRecipient": "Waiting for the recipient",
+  "deskTxStepWaitingRecipient": "Waiting for recipient",
   "@deskTxStepWaitingRecipient": {
     "description": "Small line under a timeline step of an outgoing payment."
   },
@@ -529,7 +529,7 @@
   "@deskTxCancelIncomingTitle": {
     "description": "Title of the dialog that asks before cancelling an incoming payment."
   },
-  "deskTxCancelOutgoingTitle": "Cancel this send?",
+  "deskTxCancelOutgoingTitle": "Cancel this payment?",
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
   },
@@ -583,7 +583,7 @@
   "@deskTxCancelIncomingAction": {
     "description": "Danger button in the cancel dialog for an incoming payment. Short."
   },
-  "deskTxCancelOutgoingAction": "Cancel send",
+  "deskTxCancelOutgoingAction": "Cancel payment",
   "@deskTxCancelOutgoingAction": {
     "description": "Danger button in the cancel dialog for an outgoing payment. Short."
   },

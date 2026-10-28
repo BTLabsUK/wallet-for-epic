@@ -79,7 +79,7 @@
   "@deskFinPickTitle": {
     "description": "Title of the system file dialog that picks the recipient's response file."
   },
-  "deskFinPosted": "Transaction posted",
+  "deskFinPosted": "Payment posted",
   "@deskFinPosted": {
     "description": "Toast and result title after the response file was finalized and posted."
   },

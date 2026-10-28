@@ -1,7 +1,7 @@
 {
   "deskSlotNow": "当前",
   "deskSlotHelp": "帮助",
-  "deskSlotOffline": "离线模式",
+  "deskSlotOffline": "离线",
   "deskSlotOfflineDetail": "不收发任何内容",
   "deskSlotScanning": "正在扫描区块链",
   "deskSlotScanWaits": "扫描正在等待网络",

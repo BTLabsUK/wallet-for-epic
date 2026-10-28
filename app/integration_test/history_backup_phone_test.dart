@@ -305,7 +305,7 @@ Future<void> openWalletSettings(WidgetTester tester) async {
 /// Settings › Wallet › Delete this wallet: the checkbox, "delete", the PIN. Ends on Welcome.
 Future<void> deleteWalletUi(WidgetTester tester) async {
   await openWalletSettings(tester);
-  await tapText(tester, 'Delete this wallet');
+  await tapText(tester, 'Delete wallet');
   await tapText(tester, 'I have written down my recovery phrase');
   await typeInto(tester, find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)), 'delete');
   await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(FilledButton, 'Delete wallet')));

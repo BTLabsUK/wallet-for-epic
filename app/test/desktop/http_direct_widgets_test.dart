@@ -55,7 +55,7 @@ void main() {
 
   Future<void> sendTo(WidgetTester tester, String to) async {
     await show(tester, SendScreen(arg: SendArgs(method: TxMethod.http, recipient: to, amount: '1')));
-    await tester.tap(find.text('Review send'));
+    await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
   }
 

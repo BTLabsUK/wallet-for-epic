@@ -413,7 +413,14 @@ String shownEpic(
 String shortAddress(String address, {String? ownServer}) {
   final text = address.trim();
   final lower = text.toLowerCase();
-  if (lower.startsWith('http://') || lower.startsWith('https://')) return text;
+  // A link: its host and port without the scheme, the ends kept, so two links that differ
+  // only at the end still tell apart ("pay.ex…m:3415"); the full link stays on the details.
+  if (lower.startsWith('http://') || lower.startsWith('https://')) {
+    final rest = text.substring(text.indexOf('://') + 3).replaceAll(RegExp(r'/+$'), '');
+    return rest.length <= 14
+        ? rest
+        : '${rest.substring(0, 6)}…${rest.substring(rest.length - 6)}';
+  }
   // An onion: the ends of its 56 characters, then `.onion`, which says what it is.
   if (lower.endsWith('.onion')) {
     final name = text.substring(0, text.length - '.onion'.length);
@@ -737,9 +744,10 @@ String txStatusLabel(
   return switch (phase) {
     TxPhase.completed => (Icons.check_circle_outline, t.ok),
     TxPhase.confirming => (Icons.timelapse, t.info),
+    // Waiting for the other side is work under way, so the in-progress blue (UI-012).
     TxPhase.waitingRecipient ||
     TxPhase.waitingSender ||
-    TxPhase.waitingPayer => (Icons.hourglass_empty, t.dim),
+    TxPhase.waitingPayer => (Icons.hourglass_empty, t.info),
     TxPhase.cancelled ||
     TxPhase.fromBackup => (Icons.radio_button_unchecked, t.dim),
   };
@@ -879,17 +887,15 @@ List<TimelineStep>? txTimeline(
     final reported = now != null && senderReportsPosted(tx, now: now);
     steps = [
       (l.txStepArrived, l.txStepArrived, l.txStepArrived),
-      (
-        l.txStepSenderFinished,
-        reported ? l.txStatusSenderPosted : l.txStatusWaitingSender,
-        l.txStepSenderFinished,
-      ),
+      (l.txStepSenderFinished, l.txStatusWaitingSender, l.txStepSenderFinished),
+      // The sender's wallet posts it; this wallet only hears so from the sender.
+      (l.txStepPosted, reported ? l.txStatusSenderPosted : l.txStepPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
     at = switch (phase) {
-      TxPhase.waitingSender => 1,
-      TxPhase.confirming => 2,
+      TxPhase.waitingSender => reported ? 2 : 1,
+      TxPhase.confirming => 3,
       TxPhase.completed => steps.length,
       _ => null,
     };
@@ -1806,18 +1812,21 @@ class ErrorText extends StatelessWidget {
   }
 }
 
-/// A primary button that shows a spinner and ignores taps while [busy].
+/// A primary button that shows a spinner beside its words and ignores taps while [busy];
+/// [busyLabel] replaces the words then ("Sending…"), so the state stays readable (UI-034).
 class BusyButton extends StatelessWidget {
   const BusyButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.busy = false,
+    this.busyLabel,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool busy;
+  final String? busyLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -1825,12 +1834,45 @@ class BusyButton extends StatelessWidget {
       onPressed: busy ? null : onPressed,
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
       child: busy
-          ? const SizedBox.square(
-              dimension: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 10),
+                Text(busyLabel ?? label),
+              ],
             )
           : Text(label),
     );
+  }
+}
+
+/// The one destructive look (UI-015): an outlined button in the risk colour, for the action
+/// that cancels, removes or deletes, on screens and as a dialog's confirm. The safe choice
+/// beside it is a neutral [OutlinedButton].
+class DangerButton extends StatelessWidget {
+  const DangerButton({super.key, required this.onPressed, required this.child}) : icon = null, label = null;
+
+  const DangerButton.icon({super.key, required this.onPressed, required Widget this.icon, required Widget this.label}) : child = null;
+
+  final VoidCallback? onPressed;
+  final Widget? child;
+  final Widget? icon;
+  final Widget? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = OutlinedButton.styleFrom(
+      foregroundColor: t.risk,
+      side: BorderSide(color: t.risk),
+      minimumSize: const Size(48, 44),
+    );
+    if (icon != null) return OutlinedButton.icon(style: style, icon: icon, label: label!, onPressed: onPressed);
+    return OutlinedButton(style: style, onPressed: onPressed, child: child!);
   }
 }
 

@@ -385,12 +385,13 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               ],
               selected: {_flow},
               showSelectedIcon: false,
-              // The chosen flow is filled with the accent, so it cannot pass for a shade.
+              // The chosen flow is a neutral fill with the text colour: gold is the brand
+              // and the primary action, never a selection (UI-011).
               style: SegmentedButton.styleFrom(
                 backgroundColor: t.surface,
                 foregroundColor: t.dim,
-                selectedBackgroundColor: t.accent,
-                selectedForegroundColor: t.accentInk,
+                selectedBackgroundColor: t.selected,
+                selectedForegroundColor: t.text,
                 side: BorderSide(color: t.lineStrong),
                 textStyle: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,

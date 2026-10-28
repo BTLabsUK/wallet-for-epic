@@ -97,7 +97,7 @@ void main() {
     await tester.pump();
     tester.semantics.tap(find.semantics.byLabel('Cancel'));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Cancel this send?'), findsOneWidget);
+    expect(find.text('Cancel this payment?'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Keep'));
     await tester.pump(const Duration(seconds: 3));

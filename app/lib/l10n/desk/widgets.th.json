@@ -123,5 +123,6 @@
   "deskKitQrShowOf": "แสดง QR Code ของ{title}",
   "deskKitQrShow": "แสดง QR",
   "deskKitQrHide": "ซ่อน QR",
-  "deskKitQrHideCode": "ซ่อน QR Code"
+  "deskKitQrHideCode": "ซ่อน QR",
+  "deskKitMethodConnected": "เชื่อมต่อแล้ว"
 }

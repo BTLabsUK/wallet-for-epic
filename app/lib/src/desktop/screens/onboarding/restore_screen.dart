@@ -345,7 +345,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
         // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
         EButton.primary(
-          label: complete ? l.deskOnbRestoreUseWords(length) : l.commonContinue,
+          label: l.commonContinue,
           busy: _checking,
           onPressed: complete && !_checking ? _toAccount : null,
         ),

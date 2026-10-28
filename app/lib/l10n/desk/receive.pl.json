@@ -26,13 +26,13 @@
   "deskRecvAddressUnreadable": "Nie udało się odczytać adresu. Za chwilę otwórz Odbierz ponownie.",
   "deskRecvEpicboxAddress": "Adres Epicbox",
   "deskRecvCopyEpicbox": "Kopiuj adres Epicbox",
-  "deskRecvEpicboxIntro": "Udostępnij go, aby dostać płatność; serwer Epicbox przechowuje płatności, gdy portfel jest zamknięty.",
+  "deskRecvEpicboxIntro": "Udostępnij go, aby dostać płatność. Nadawcy mogą płacić, gdy ten portfel jest zamknięty.",
   "deskRecvCheckSix": "Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.",
   "deskRecvHttpAddress": "Adres Link · HTTP",
   "deskRecvCopyHttp": "Kopiuj adres Link · HTTP",
   "deskRecvHttpPublic": "Publiczny adres twojego routera. Nadawcy z internetu mogą go używać, gdy router przekierowuje port {port}.",
   "deskRecvHttpLocal": "Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Transakcje.",
-  "deskRecvHttpIntro": "Prosto z innego portfela, gdy ten jest otwarty.",
+  "deskRecvHttpIntro": "Dla portfeli na tym komputerze, gdy ten portfel jest otwarty.",
   "deskRecvHttpTorHint": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.",
   "deskRecvDirectTor": "Adres Link · Tor",
   "deskRecvTorIntro": "Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.",
@@ -46,6 +46,7 @@
   "deskRecvFinalizeTitle": "Sfinalizuj plik odpowiedzi",
   "deskRecvFinalizeText": "Sfinalizuj plik odpowiedzi od odbiorcy, aby opublikować płatność.",
   "deskRecvSwitchLabel": "{title}, odbieranie",
-  "deskRecvTorOffTitle": "Odbieranie przez Link · Tor wymaga Tora.",
-  "deskRecvTorOffText": "Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Prywatność; kieruje połączenia portfela przez Tor."
+  "deskRecvTorOffTitle": "Link · Tor wymaga Tora.",
+  "deskRecvTorOffText": "Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Prywatność; kieruje połączenia portfela przez Tor.",
+  "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty."
 }

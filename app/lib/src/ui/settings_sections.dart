@@ -555,6 +555,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                 ),
           onTap: _showPhrase,
         ),
+      ListTile(
+        leading: const Icon(Icons.lock_clock),
+        title: Text(l.settingsAutoLock),
+        subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
+        onTap: () => _pickAutoLock(s),
+      ),
       // The demo wallet opens with the demo PIN, filled in; another would lock the visitor
       // out.
       if (!demo)
@@ -570,12 +576,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           value: biometrics!.enabled,
           onChanged: _setBiometrics,
         ),
-      ListTile(
-        leading: const Icon(Icons.lock_clock),
-        title: Text(l.settingsAutoLock),
-        subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
-        onTap: () => _pickAutoLock(s),
-      ),
       const Divider(height: 24),
       ListTile(
         leading: const Icon(Icons.lock),
@@ -1078,7 +1078,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ),
         ),
       ),
-      SettingsHeader(l.advShowsHeader),
+      SettingsHeader(
+        l.advShowsHeader,
+        // As on the desktop: the way back sits in the section's header (GP-038).
+        trailing: adv.shownFeatures.isEmpty
+            ? null
+            : TextButton(
+                key: const ValueKey('adv-reset'),
+                onPressed: () => _settings.setAdvanced(adv.withoutShown()),
+                child: Text(l.advReset),
+              ),
+      ),
       feature(AdvancedFeature.outputs, Icons.grain, l.advOutputs, l.advOutputsHint),
       feature(
         AdvancedFeature.technicalDetails,
@@ -1148,7 +1158,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: Text(
             note,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn),
+            // Body text, not a warning (UI-028).
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
           ),
         ),
       // On by default: the one switch here that keeps the simple app working.
@@ -1182,14 +1193,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // Linked devices stands on its own: it runs the pairing engine for the devices only.
       experimental(AdvancedFeature.linkedDevices, Icons.devices_outlined, l.expLinkedDevices, l.expLinkedDevicesHint),
       const PushNotificationsTile(),
-      const Divider(height: 24),
-      ListTile(
-        key: const ValueKey('adv-reset'),
-        leading: const Icon(Icons.visibility_off_outlined),
-        title: Text(l.advReset),
-        enabled: adv.shownFeatures.isNotEmpty,
-        onTap: adv.shownFeatures.isEmpty ? null : () => _settings.setAdvanced(adv.withoutShown()),
-      ),
     ];
   }
 
@@ -1320,23 +1323,35 @@ Widget? withTorWay(Widget? subtitle, TorWay way) {
 const Key settingsLinkedDevicesKey = ValueKey('settings-linked-devices');
 
 class SettingsHeader extends StatelessWidget {
-  const SettingsHeader(this.title, {super.key});
+  const SettingsHeader(this.title, {super.key, this.trailing});
 
   final String title;
+
+  /// A small action at the header's end (the desktop's "Hide everything again").
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Neutral, as the desktop's section headers: gold is for the brand and the primary
+    // action only (UI-030).
+    final text = Semantics(
+      header: true,
+      child: Text(
+        title,
+        style: theme.textTheme.titleSmall?.copyWith(color: context.tokens.dim),
+      ),
+    );
+    if (trailing == null) {
+      return Padding(padding: const EdgeInsets.fromLTRB(16, 24, 16, 4), child: text);
+    }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 8, 0),
+      child: Row(
+        children: [
+          Expanded(child: text),
+          trailing!,
+        ],
       ),
     );
   }

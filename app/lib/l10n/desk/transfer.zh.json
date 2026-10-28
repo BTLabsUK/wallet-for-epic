@@ -16,7 +16,7 @@
   "deskFinNotPosted": "未广播",
   "deskFinNotPostedText": "交易已完成，但节点没有接受。请检查节点，然后重试。",
   "deskFinPickTitle": "回复文件",
-  "deskFinPosted": "交易已广播",
+  "deskFinPosted": "付款已广播",
   "deskFinTitle": "完成回复文件",
   "deskFinNoticeTitle": "用于文件付款",
   "deskFinNoticeText": "使用接收方发回的回复文件。",

@@ -525,8 +525,9 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       contentTextStyle: TextStyle(color: t.bg),
       actionTextColor: t.bg,
     ),
+    // Progress is work in progress: the blue, never the gold (UI-062).
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: t.accent,
+      color: t.info,
       linearTrackColor: t.line,
       circularTrackColor: t.line,
     ),

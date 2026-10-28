@@ -265,7 +265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStatusCancelled => 'Cancelled';
 
   @override
-  String get txStatusFromBackup => 'Imported, status unknown';
+  String get txStatusFromBackup => 'Imported';
 
   @override
   String get txIconCancelled => 'Cancelled';
@@ -500,7 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSetting => 'Language';
 
   @override
-  String get languageSystem => 'System default';
+  String get languageSystem => 'System';
 
   @override
   String get currencyUsd => 'US dollar';
@@ -558,7 +558,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'Sent through Epicbox. It completes when their wallet comes online. The amount stays locked until then, or until you cancel it.';
+      'Sent through Epicbox. Completes when their wallet comes online; the amount stays locked until then or until cancelled.';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -788,7 +788,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsCancelPayment => 'Cancel payment';
 
   @override
-  String get txDetailsCancelTitle => 'Cancel payment?';
+  String get txDetailsCancelTitle => 'Cancel this payment?';
 
   @override
   String get txDetailsCancelReceiveBody =>
@@ -835,16 +835,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsNoteLabel => 'Note';
 
   @override
-  String get txDetailsPrivateNoteLabel => 'Private note, only on this device';
+  String get txDetailsPrivateNoteLabel => 'Private note';
 
   @override
-  String get txDetailsMessageFromSender => 'Message from the sender';
+  String get txDetailsMessageFromSender => 'Message';
 
   @override
   String get txDetailsMessageFromRecipient => 'Message from the recipient';
 
   @override
-  String get txDetailsYourMessage => 'Your message';
+  String get txDetailsYourMessage => 'Message';
 
   @override
   String get txDetailsNoNote =>
@@ -938,7 +938,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsSourceImported =>
-      'Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.';
+      'Imported from a wallet data file. Status not checked on the chain.';
 
   @override
   String get historyTitle => 'Activity';
@@ -1252,9 +1252,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.',
-      one: '1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.',
+      other: '$count payments are not in your exported wallet data.',
+      one: '1 payment is not in your exported wallet data.',
     );
     return '$_temp0';
   }
@@ -1265,8 +1264,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.',
-      one: '1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.',
+          '$count payments are new or changed since the last wallet data export.',
+      one: '1 payment is new or changed since the last wallet data export.',
     );
     return '$_temp0';
   }
@@ -1301,7 +1300,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeShowBalances => 'Show balances';
 
   @override
-  String get homeHideBalances => 'Hide balances';
+  String get homeHideBalances => 'Hide amounts';
 
   @override
   String get homeBalanceConfirming => 'Confirming';
@@ -1472,7 +1471,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeNoPayments => 'No payments yet.';
+  String get homeNoPayments => 'No payments yet';
 
   @override
   String get invoicesTitle => 'Invoices';
@@ -1761,7 +1760,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get receiveEpicboxConnected => 'Epicbox connected';
+  String receiveEpicboxConnected(String server) {
+    return 'Connected · $server';
+  }
 
   @override
   String get receiveQrLabel => 'QR code of your address';
@@ -1771,7 +1772,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'Payments sent to you wait on the Epicbox server and arrive when the wallet reconnects.';
+      'Payments wait on the Epicbox server and arrive when the wallet connects again.';
 
   @override
   String get receiveShareCardHeadline => 'Pay me in Epic Cash';
@@ -2037,7 +2038,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreUnfinishedOffline =>
-      'The scan goes on when Offline mode is off.';
+      'The scan goes on when Offline is off.';
 
   @override
   String get restoreUnfinishedFailed =>
@@ -2972,7 +2973,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionNetwork => 'Servers';
 
   @override
-  String get settingsSectionDisplay => 'Display';
+  String get settingsSectionDisplay => 'Appearance';
 
   @override
   String get settingsCurrency => 'Currency';
@@ -2986,13 +2987,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShowPrices => 'Show prices';
 
   @override
-  String get settingsHideBalances => 'Hide balances';
+  String get settingsHideBalances => 'Hide amounts';
 
   @override
   String get settingsTheme => 'Theme';
 
   @override
-  String get settingsThemeSystem => 'Same as the device';
+  String get settingsThemeSystem => 'System';
 
   @override
   String get settingsThemeLight => 'Light';
@@ -3062,7 +3063,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsImportHistory => 'Import wallet data';
 
   @override
-  String get settingsSectionWallet => 'Wallet';
+  String get settingsSectionWallet => 'This wallet';
 
   @override
   String get settingsContacts => 'Contacts';
@@ -3115,7 +3116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRescanButton => 'Recheck';
 
   @override
-  String get settingsDeleteWallet => 'Delete this wallet';
+  String get settingsDeleteWallet => 'Delete wallet';
 
   @override
   String get settingsDeleteDuringScan =>
@@ -3168,7 +3169,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHelp => 'Help';
 
   @override
-  String get settingsSendFeedback => 'Send feedback';
+  String get settingsSendFeedback => 'Report a problem';
 
   @override
   String get settingsSendFeedbackHint =>
@@ -3260,43 +3261,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpDonateCopied => 'Address copied';
 
   @override
-  String get helpSendFeedback => 'Send feedback';
+  String get helpSendFeedback => 'Report a problem';
 
   @override
-  String get feedbackTitle => 'Send feedback';
+  String get feedbackTitle => 'Report a problem';
 
   @override
   String get feedbackIntro =>
       'Describe what went wrong or what could be better.';
 
   @override
-  String get feedbackMessageLabel => 'Your message';
+  String get feedbackMessageLabel => 'What happened';
 
   @override
   String get feedbackMessageMissing => 'Write a few words about what happened.';
 
   @override
-  String get feedbackEmailLabel => 'Email for a reply (optional)';
+  String get feedbackEmailLabel => 'Contact (optional)';
 
   @override
   String get feedbackEmailInvalid =>
       'This does not look like an email address.';
 
   @override
-  String get feedbackAttachLogs => 'Attach diagnostic logs';
+  String get feedbackAttachLogs => 'Attach logs';
 
   @override
   String get feedbackAttachLogsHint =>
       'Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.';
 
   @override
-  String get feedbackPreviewButton => 'Preview what is sent';
+  String get feedbackPreviewButton => 'What is sent';
 
   @override
   String get feedbackSend => 'Send';
 
   @override
-  String get feedbackShareOrSaveInstead => 'Share or save instead';
+  String get feedbackShareOrSaveInstead => 'Share or save';
 
   @override
   String get feedbackFileExplanation =>
@@ -3354,7 +3355,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Privacy & network';
 
   @override
-  String get settingsSectionHelpFeedback => 'Help & feedback';
+  String get settingsSectionHelpFeedback => 'Help';
 
   @override
   String get settingsStateBackUp => 'Back up your recovery phrase';
@@ -3381,7 +3382,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStepStarted => 'Payment started';
 
   @override
-  String get txStepAccepted => 'Recipient accepted';
+  String get txStepAccepted => 'Recipient signed';
 
   @override
   String get txStepPosted => 'Posted to the network';
@@ -3396,7 +3397,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStepArrived => 'Payment arrived';
 
   @override
-  String get txStepSenderFinished => 'Sender finished it';
+  String get txStepSenderFinished => 'Signed and returned';
 
   @override
   String get fileHelpTitle => 'How a transaction file works';
@@ -3965,7 +3966,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeTileLocked => 'Locked in sends';
 
   @override
-  String get homeTileMaturing => 'Rewards maturing';
+  String get homeTileMaturing => 'Immature';
 
   @override
   String get homeTileTotal => 'Total';
@@ -3984,7 +3985,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tourPhoneSkip => 'Skip';
+  String get tourPhoneSkip => 'Skip tour';
 
   @override
   String get tourPhoneBack => 'Back';
@@ -5790,7 +5791,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get torNotOverTor => 'Not over Tor';
 
   @override
-  String get torNeeds => 'Needs Tor.';
+  String get torNeeds => 'Link · Tor needs Tor.';
 
   @override
   String get torTurnOn => 'Turn on Tor';
@@ -6766,7 +6767,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvEpicboxIntro =>
-      'Share it to get paid; the Epicbox server holds payments while the wallet is closed.';
+      'Share it to get paid. Senders can pay while this wallet is closed.';
 
   @override
   String get deskRecvCheckSix =>
@@ -6789,7 +6790,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Straight from another wallet while this one is open.';
+      'For wallets on this computer, while this wallet is open.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -7191,7 +7192,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendFinalize => 'Finalize';
 
   @override
-  String get deskSendNewSend => 'New send';
+  String get deskSendNewSend => 'Send another';
 
   @override
   String get deskSendNodeNotSynced => 'Node not synced';
@@ -7239,7 +7240,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Handed to Epicbox. Completes when the recipient answers.';
 
   @override
-  String get deskSendViewTx => 'View transaction';
+  String get deskSendViewTx => 'View payment';
 
   @override
   String get deskSendFailedTitle => 'Send failed';
@@ -7272,7 +7273,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendContacts => 'Contacts';
 
   @override
-  String get deskSendNeedsTor => 'Needs Tor';
+  String get deskSendNeedsTor => 'Link · Tor needs Tor';
 
   @override
   String get deskSendNeedsTorText =>
@@ -7370,7 +7371,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendReviewTorOff => 'Tor not connected';
 
   @override
-  String get deskSendReview => 'Review send';
+  String get deskSendReview => 'Review';
 
   @override
   String get deskSendSummary => 'Summary';
@@ -7595,7 +7596,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFinPickTitle => 'Response file';
 
   @override
-  String get deskFinPosted => 'Transaction posted';
+  String get deskFinPosted => 'Payment posted';
 
   @override
   String get deskFinTitle => 'Finalize a response file';
@@ -7706,13 +7707,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActNotUpdated => 'Not updated';
 
   @override
-  String get deskActSearchHint => 'Address or slate id';
+  String get deskActSearchHint => 'Note, contact, address or amount';
 
   @override
   String get deskActSearchHintEmpty => 'Nothing to search yet';
 
   @override
-  String get deskActSearchLabel => 'Search transactions';
+  String get deskActSearchLabel => 'Search payments';
 
   @override
   String get deskActClearSearch => 'Clear search';
@@ -7730,13 +7731,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActTitle => 'Activity';
 
   @override
-  String get deskActDetailReceived => 'Received transaction';
+  String get deskActDetailReceived => 'Received payment';
 
   @override
-  String get deskActDetailSent => 'Sent transaction';
+  String get deskActDetailSent => 'Sent payment';
 
   @override
-  String get deskActLoading => 'Loading transactions';
+  String get deskActLoading => 'Loading payments';
 
   @override
   String get deskActWaitingNode => 'Waiting for the node to sync.';
@@ -7751,11 +7752,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActFilterSent => 'Sent';
 
   @override
-  String get deskActNoMatchTitle => 'No transactions match';
-
-  @override
-  String get deskActNoMatchText =>
-      'Try another address or slate id, or clear the filter.';
+  String deskActNoMatchTitle(String query) {
+    return 'Nothing matches \"$query\".';
+  }
 
   @override
   String deskActPageOf(int page, int pages) {
@@ -7784,7 +7783,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActColAmount => 'Amount';
 
   @override
-  String get deskActEmptyTitle => 'No transactions yet';
+  String get deskActEmptyTitle => 'No payments yet';
 
   @override
   String get deskActEmptyText => 'Payments sent and received, newest first.';
@@ -7906,7 +7905,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskConLastTx(String when) {
-    return 'Last transaction: $when';
+    return 'Last payment: $when';
   }
 
   @override
@@ -7933,19 +7932,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => 'Note';
+  String get deskConNote => 'Note (optional)';
 
   @override
   String deskConTxWith(String name) {
-    return 'Transactions with $name';
+    return 'Payments with $name';
   }
 
   @override
-  String get deskConAllTx => 'All transactions';
+  String get deskConAllTx => 'All payments';
 
   @override
   String get deskConTxNone =>
-      'No transactions with this contact yet. Payments sent to them from Send appear here.';
+      'No payments with this contact yet. Payments sent to them from Send appear here.';
 
   @override
   String get deskConTxReceived => 'Received';
@@ -8657,7 +8656,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOvBreakImmature => 'Immature';
 
   @override
-  String get deskOvBreakAwaiting => 'Awaiting finalization';
+  String get deskOvBreakAwaiting => 'Waiting for sender';
 
   @override
   String get deskOvBreakLocked => 'Locked in sends';
@@ -8669,10 +8668,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOvHiddenAmount => 'Hidden amount';
 
   @override
-  String get deskOvLoading => 'Loading transactions';
+  String get deskOvLoading => 'Loading payments';
 
   @override
-  String get deskOvEmptyTitle => 'No transactions yet';
+  String get deskOvEmptyTitle => 'No payments yet';
 
   @override
   String deskOvEmptyText(int blocks) {
@@ -8784,7 +8783,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Found on the chain by a scan. The sender is not recorded.';
 
   @override
-  String get deskTxBackupTip => 'Added from a wallet data file.';
+  String get deskTxBackupTip => 'Imported from a wallet data file.';
 
   @override
   String get deskTxFromBackup => 'Imported';
@@ -8793,13 +8792,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxStatusImmature => 'Immature';
 
   @override
-  String get deskTxStatusWaitingSender => 'Waiting for sender to finalize';
+  String get deskTxStatusWaitingSender => 'Waiting for sender';
 
   @override
   String get deskTxStatusWaitingResponseFile => 'Waiting for the response file';
 
   @override
-  String get deskTxStatusWaitingRecipient => 'Waiting for recipient to sign';
+  String get deskTxStatusWaitingRecipient => 'Waiting for recipient';
 
   @override
   String get deskTxStatusWaitingBlock => 'Waiting for a block';
@@ -8874,7 +8873,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxHiddenAmount => 'hidden amount';
 
   @override
-  String get deskTxNowBackup => 'Imported; the chain was not asked.';
+  String get deskTxNowBackup =>
+      'Imported from a wallet data file. Status not checked on the chain.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -8894,8 +8894,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskTxNowWaitingSender =>
-      'Signed and returned. Waiting for the sender to finalize.';
+  String get deskTxNowWaitingSender => 'Waiting for the sender to post it.';
 
   @override
   String get deskTxNowWaitingResponseFile =>
@@ -8955,7 +8954,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'found on the chain';
 
   @override
-  String get deskTxHeadBackup => 'added from a wallet data file';
+  String get deskTxHeadBackup => 'imported from a wallet data file';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -9001,7 +9000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxFactMessage => 'Message';
 
   @override
-  String get deskTxSignedByRecipient => 'Signed by the recipient';
+  String get deskTxSignedByRecipient => 'Recipient signed';
 
   @override
   String get deskTxProofView => 'View';
@@ -9043,7 +9042,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxStepMined => 'Mined in a block';
 
   @override
-  String get deskTxStepSpendable => 'Spendable';
+  String get deskTxStepSpendable => 'Completed';
 
   @override
   String deskTxStepBlocksToGo(int count) {
@@ -9057,10 +9056,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskTxStepReceivedSlate => 'Received slate';
+  String get deskTxStepReceivedSlate => 'Payment arrived';
 
   @override
-  String get deskTxStepCreated => 'Created and signed';
+  String get deskTxStepCreated => 'Payment started';
 
   @override
   String get deskTxStepSignedReturned => 'Signed and returned';
@@ -9069,7 +9068,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxStepWaitingFile => 'Waiting for the response file';
 
   @override
-  String get deskTxStepWaitingRecipient => 'Waiting for the recipient';
+  String get deskTxStepWaitingRecipient => 'Waiting for recipient';
 
   @override
   String get deskTxStepPosted => 'Posted to the network';
@@ -9086,7 +9085,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxCancelIncomingTitle => 'Cancel this payment?';
 
   @override
-  String get deskTxCancelOutgoingTitle => 'Cancel this send?';
+  String get deskTxCancelOutgoingTitle => 'Cancel this payment?';
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
@@ -9105,7 +9104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxCancelIncomingAction => 'Cancel payment';
 
   @override
-  String get deskTxCancelOutgoingAction => 'Cancel send';
+  String get deskTxCancelOutgoingAction => 'Cancel payment';
 
   @override
   String deskTxProofIncoming(String amount) {
@@ -9298,7 +9297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbCreateHide => 'Hide';
 
   @override
-  String get deskOnbCreateShowQr => 'Show QR code';
+  String get deskOnbCreateShowQr => 'Show QR';
 
   @override
   String get deskOnbCreateHideQr => 'Hide QR code';
@@ -10713,7 +10712,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitQrHide => 'Hide QR';
 
   @override
-  String get deskKitQrHideCode => 'Hide QR code';
+  String get deskKitQrHideCode => 'Hide QR';
 
   @override
   String get deskSetAcctNotForgotten => 'Not forgotten';
@@ -10747,7 +10746,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The words that restore this wallet. Keep them private.';
 
   @override
-  String get deskSetAcctShowPhrase => 'Show phrase…';
+  String get deskSetAcctShowPhrase => 'Show recovery phrase…';
 
   @override
   String get deskSetAcctRescanHint =>
@@ -12150,7 +12149,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPhrasePanel => 'Enter the password to show the words';
 
   @override
-  String get deskSetPhraseShowWords => 'Show words';
+  String get deskSetPhraseShowWords => 'Show recovery phrase';
 
   @override
   String deskSetPhraseWordsLabel(int count) {
@@ -12164,13 +12163,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseHideQr => 'Hide QR code';
+  String get deskSetPhraseHideQr => 'Hide QR';
 
   @override
-  String get deskSetPhraseShowQr => 'Show QR code';
+  String get deskSetPhraseShowQr => 'Show QR';
 
   @override
-  String get deskSetPhraseHideWords => 'Hide words';
+  String get deskSetPhraseHideWords => 'Hide recovery phrase';
 
   @override
   String deskSetPhraseHidesIn(int seconds) {
@@ -13264,7 +13263,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use an Epicbox, http(s) or .onion address.';
 
   @override
-  String get deskTxDetailsNote => 'Note';
+  String get deskTxDetailsNote => 'Private note';
 
   @override
   String get deskTxDetailsAdded => 'Details added';
@@ -13553,7 +13552,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advReset => 'Hide everything again';
 
   @override
-  String get advHomeOffline => 'Offline mode';
+  String get advHomeOffline => 'Offline';
 
   @override
   String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
@@ -13677,7 +13676,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskShellOffline => 'Offline mode';
+  String get deskShellOffline => 'Offline';
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
@@ -13687,7 +13686,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.';
 
   @override
-  String get netBlockOffline => 'Offline mode is on in Advanced.';
+  String get netBlockOffline => 'Offline is on in Advanced.';
 
   @override
   String get netBlockTorOnly => 'Tor only is on in Advanced.';
@@ -13697,7 +13696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveOfflineLine =>
-      'Cannot receive this way while Offline mode is on.';
+      'Cannot receive this way while Offline is on.';
 
   @override
   String get txDetailsMore => 'More';
@@ -13707,7 +13706,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeOfflineDetail =>
-      'Offline mode is on in Advanced. The balance is the last one seen.';
+      'Offline is on in Advanced. The balance is the last one seen.';
 
   @override
   String get homeWaitingTorDetail =>
@@ -13870,7 +13869,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
 
   @override
-  String get deskNetOfflineReason => 'Offline mode is on in Advanced.';
+  String get deskNetOfflineReason => 'Offline is on in Advanced.';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -13887,7 +13886,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNetRecvOfflineText =>
-      'Your address stays the same. Nothing can arrive until Offline mode is off.';
+      'Your address stays the same. Nothing can arrive while Offline is on.';
 
   @override
   String get deskNetRecvWaitTorText =>
@@ -13919,7 +13918,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHubMethods => 'Methods';
 
   @override
-  String get settingsHubDefault => 'Default';
+  String get settingsHubDefault => 'Default method';
 
   @override
   String get settingsHubSendDefaults => 'Send defaults';
@@ -14281,7 +14280,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetTxLastMethod => 'Keep at least one payment method on.';
 
   @override
-  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+  String get deskRecvTorOffTitle => 'Link · Tor needs Tor.';
 
   @override
   String get deskRecvTorOffText =>
@@ -16826,7 +16825,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSlotHelp => 'Help';
 
   @override
-  String get deskSlotOffline => 'Offline mode';
+  String get deskSlotOffline => 'Offline';
 
   @override
   String get deskSlotOfflineDetail => 'nothing is sent or received';
@@ -17381,7 +17380,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneAdvancedTextNoTor =>
-      'Offline mode, outputs and technical details live here. Switch on what you need.';
+      'Offline, outputs and technical details live here. Switch on what you need.';
 
   @override
   String get deskNoTorSendDirectLine2 =>
@@ -17510,7 +17509,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Paused while Epicbox is off. Invite by message and In person still work.';
 
   @override
-  String get connServersOffline => 'Paused in Offline mode.';
+  String get connServersOffline => 'Paused while Offline is on.';
 
   @override
   String connServersNonDefault(String host) {
@@ -17681,7 +17680,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'While paused, this device neither reads nor sends notices; they wait on the servers for as long as each server keeps them. Offline mode pauses it too.';
+      'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline pauses it too.';
 
   @override
   String get devicesHeld => 'Held coins';
@@ -17918,7 +17917,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.';
 
   @override
-  String get deskDevPausedOffline => 'Paused in Offline mode.';
+  String get deskDevPausedOffline => 'Paused while Offline is on.';
 
   @override
   String get deskDevPausedEpicboxOff => 'Paused while Epicbox is off.';
@@ -18171,4 +18170,82 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sasNotFromCamera =>
       'Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.';
+
+  @override
+  String get slSwitchFirst => 'Switch first';
+
+  @override
+  String get netStatusPausedOffline => 'Paused · Offline';
+
+  @override
+  String get contactPaymentsNone => 'No payments with this contact yet.';
+
+  @override
+  String contactPaymentsWith(String name) {
+    return 'Transactions with $name';
+  }
+
+  @override
+  String get contactPaymentsAll => 'All transactions';
+
+  @override
+  String receiveEpicboxNotConnected(String server) {
+    return 'Not connected · $server';
+  }
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $count words check out.',
+      one: 'The word checks out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words',
+      one: '1 word',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words are not in the list.',
+      one: '1 word is not in the list.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pairInvitedAt(String clock) {
+    return 'Invited $clock';
+  }
+
+  @override
+  String get pairInvitedYesterday => 'Invited yesterday';
+
+  @override
+  String pairInvitedOn(String day) {
+    return 'Invited $day';
+  }
+
+  @override
+  String get deskActNoneUnderFilter => 'Nothing under this filter';
+
+  @override
+  String get deskRecvHttpIntroInternet =>
+      'For wallets on the internet, while this wallet is open.';
+
+  @override
+  String get deskKitMethodConnected => 'Connected';
 }

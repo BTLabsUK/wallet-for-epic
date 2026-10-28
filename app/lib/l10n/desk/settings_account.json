@@ -39,7 +39,7 @@
   "@deskSetAcctPhraseHint": {
     "description": "Settings > This wallet: hint under the Recovery phrase row."
   },
-  "deskSetAcctShowPhrase": "Show phrase…",
+  "deskSetAcctShowPhrase": "Show recovery phrase…",
   "@deskSetAcctShowPhrase": {
     "description": "Settings > This wallet: button that opens the recovery phrase page."
   },

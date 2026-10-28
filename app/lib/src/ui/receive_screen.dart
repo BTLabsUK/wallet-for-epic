@@ -616,6 +616,26 @@ const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 /// The full address in a full-width card that copies on a tap anywhere on it, with the copy
 /// icon and, where the device shares, Share stacked on its right. [label] names the kind of
 /// address above it: the same card for the epicbox and the Tor address.
+/// [address] for the Receive card (UI-009): an Epicbox address breaks only before its "@",
+/// so the server name is never split, and the key's first and last six characters (the ones
+/// read out) are in [mark]; the server part is [dim]. Other addresses come back as they are.
+TextSpan addressSpans(String address, {required TextStyle base, required Color mark, required Color dim}) {
+  final at = address.indexOf('@');
+  if (at < 14) return TextSpan(text: address, style: base);
+  final key = address.substring(0, at);
+  final server = address.substring(at);
+  final marked = base.copyWith(color: mark, fontWeight: FontWeight.w600);
+  return TextSpan(
+    style: base,
+    children: [
+      TextSpan(text: key.substring(0, 6), style: marked),
+      TextSpan(text: key.substring(6, key.length - 6)),
+      TextSpan(text: key.substring(key.length - 6), style: marked),
+      TextSpan(text: '\n$server', style: base.copyWith(color: dim)),
+    ],
+  );
+}
+
 class _AddressRow extends ConsumerStatefulWidget {
   const _AddressRow({
     required this.address,
@@ -712,12 +732,14 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
                               ),
                               const SizedBox(height: 4),
                               // Selectable for a long press; a tap copies, like the card.
-                              SelectableText(
-                                address,
-                                onTap: _copy,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontFamily: t.monoFamily,
+                              SelectableText.rich(
+                                addressSpans(
+                                  address,
+                                  base: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily) ?? const TextStyle(),
+                                  mark: t.accentText,
+                                  dim: t.dim,
                                 ),
+                                onTap: _copy,
                               ),
                             ],
                           ),
@@ -881,12 +903,6 @@ class _DirectNeedsTor extends ConsumerWidget {
             label: Text(l.torTurnOn),
             onPressed: () =>
                 ref.read(phoneTorProvider.notifier).setReceiving(true),
-          ),
-          TextButton(
-            key: torSettingsLinkKey,
-            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-            onPressed: () => openPrivacySettings(context),
-            child: Text(l.torSettingsLink),
           ),
         ] else
           const SizedBox(height: 8),

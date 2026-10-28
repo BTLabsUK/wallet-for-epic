@@ -16,7 +16,7 @@
   "deskFinNotPosted": "Nicht im Netzwerk",
   "deskFinNotPostedText": "Die Transaktion wurde abgeschlossen, aber der Node hat sie nicht angenommen. Prüfen Sie den Node und versuchen Sie es erneut.",
   "deskFinPickTitle": "Antwortdatei",
-  "deskFinPosted": "Transaktion gesendet",
+  "deskFinPosted": "Zahlung an das Netzwerk gesendet",
   "deskFinTitle": "Antwortdatei abschließen",
   "deskFinNoticeTitle": "Für Zahlungen per Datei",
   "deskFinNoticeText": "Verwenden Sie die Antwortdatei, die der Empfänger zurückgeschickt hat.",

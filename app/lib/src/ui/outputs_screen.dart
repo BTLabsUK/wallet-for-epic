@@ -300,11 +300,10 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 value: OutputsFilter.confirming,
                 label: _fit(l.outputsFilterConfirming(nConfirming)),
               ),
-              if (nLocked > 0 || _filter == OutputsFilter.locked)
-                ButtonSegment(
-                  value: OutputsFilter.locked,
-                  label: _fit(l.outputsFilterLocked(nLocked)),
-                ),
+              ButtonSegment(
+                value: OutputsFilter.locked,
+                label: _fit(l.outputsFilterLocked(nLocked)),
+              ),
             ],
             selected: {if (_filter != OutputsFilter.immature) _filter},
             onSelectionChanged: (s) => setState(

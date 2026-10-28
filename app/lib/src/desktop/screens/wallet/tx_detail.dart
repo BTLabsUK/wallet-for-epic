@@ -504,7 +504,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             children: [
               if (cancelable)
                 EButton(
-                  label: _cancelling ? l.deskTxCancelling : l.commonCancel,
+                  label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
                   icon: EIcons.cancel,
                   // A receive's Cancel is a tidy-up for a payment the sender never posted, so
                   // it stays quiet; a send's unlocks funds.

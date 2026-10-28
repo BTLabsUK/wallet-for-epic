@@ -17,7 +17,7 @@
   "deskTxDetailsFromTip": "Кто заплатил, для ваших записей. Не проверяется и не используется в подтверждениях платежа.",
   "deskTxDetailsFromHint": "Адрес отправителя",
   "deskTxDetailsFromBad": "Укажите адрес Epicbox, http(s) или .onion.",
-  "deskTxDetailsNote": "Заметка",
+  "deskTxDetailsNote": "Личная заметка",
   "deskTxDetailsAdded": "Подробности добавлены",
   "deskTxDetailsSaved": "Подробности сохранены",
   "deskTxDetailsRemoved": "Подробности удалены",

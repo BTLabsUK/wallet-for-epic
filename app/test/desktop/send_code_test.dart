@@ -142,7 +142,7 @@ void main() {
   Finder selectable(String s) => find.byWidgetPredicate((w) => w is SelectableText && (w.data ?? w.textSpan?.toPlainText()) == s);
 
   Future<void> review(WidgetTester tester) async {
-    await tester.tap(find.text('Review send'));
+    await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsOneWidget);
   }
@@ -324,7 +324,7 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(seconds: 3));
-    expect(find.text('Transaction posted'), findsWidgets);
+    expect(find.text('Payment posted'), findsWidgets);
   });
 
   testWidgets('the import screen signs pasted text at once, as a chosen file (LNX-3)', (tester) async {

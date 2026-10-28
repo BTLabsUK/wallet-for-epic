@@ -288,7 +288,7 @@
   "@txStatusCancelled": {
     "description": "Status chip of a cancelled payment."
   },
-  "txStatusFromBackup": "Imported, status unknown",
+  "txStatusFromBackup": "Imported",
   "@txStatusFromBackup": {
     "description": "Status chip of a pending payment imported from a history backup, which this wallet cannot follow up."
   },
@@ -621,7 +621,7 @@
   "@languageSetting": {
     "description": "Settings row that picks the app's language."
   },
-  "languageSystem": "System default",
+  "languageSystem": "System",
   "@languageSystem": {
     "description": "Language choice that follows the phone's language."
   },
@@ -648,7 +648,7 @@
       }
     }
   },
-  "txDetailsWaitingEpicbox": "Sent through Epicbox. It completes when their wallet comes online. The amount stays locked until then, or until you cancel it.",
+  "txDetailsWaitingEpicbox": "Sent through Epicbox. Completes when their wallet comes online; the amount stays locked until then or until cancelled.",
   "@txDetailsWaitingEpicbox": {
     "description": "Payment details, status explanation of a send waiting for its recipient. epicbox is the relay service that carries payments (a proper name)."
   },
@@ -897,7 +897,7 @@
   "@txDetailsCancelPayment": {
     "description": "Button on the details card and in the confirmation dialog that cancels a pending payment. Other screens tell the user to tap it by this name."
   },
-  "txDetailsCancelTitle": "Cancel payment?",
+  "txDetailsCancelTitle": "Cancel this payment?",
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
@@ -957,11 +957,11 @@
   "@txDetailsNoteLabel": {
     "description": "Label of the field that edits the payment's note. The note is the user's own text about the payment."
   },
-  "txDetailsPrivateNoteLabel": "Private note, only on this device",
+  "txDetailsPrivateNoteLabel": "Private note",
   "@txDetailsPrivateNoteLabel": {
     "description": "Label of the details row with the user's own note on the payment. It is never sent to the other party, unlike the message."
   },
-  "txDetailsMessageFromSender": "Message from the sender",
+  "txDetailsMessageFromSender": "Message",
   "@txDetailsMessageFromSender": {
     "description": "Label of the message the person who sent the money wrote into the payment. Shown in payment details and on a transaction file before accepting it."
   },
@@ -969,7 +969,7 @@
   "@txDetailsMessageFromRecipient": {
     "description": "Label of the message the person who received the money wrote into their answer to the payment."
   },
-  "txDetailsYourMessage": "Your message",
+  "txDetailsYourMessage": "Message",
   "@txDetailsYourMessage": {
     "description": "Label of the message this wallet's user wrote into the payment, which the other party sees."
   },
@@ -1083,7 +1083,7 @@
   "@txDetailsSourceRestored": {
     "description": "Note on a payment the wallet found by scanning the blockchain after a restore."
   },
-  "txDetailsSourceImported": "Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.",
+  "txDetailsSourceImported": "Imported from a wallet data file. Status not checked on the chain.",
   "@txDetailsSourceImported": {
     "description": "Note on a payment that came from a history backup file."
   },
@@ -1513,7 +1513,7 @@
   "@homeBackupCardDismiss": {
     "description": "Tooltip of the close button that hides the recovery phrase card for good."
   },
-  "homeHistoryNotBackedUp": "{count, plural, =1{1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.}}",
+  "homeHistoryNotBackedUp": "{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}",
   "@homeHistoryNotBackedUp": {
     "description": "Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.",
     "placeholders": {
@@ -1522,7 +1522,7 @@
       }
     }
   },
-  "homeHistoryChangedSinceBackup": "{count, plural, =1{1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.}}",
+  "homeHistoryChangedSinceBackup": "{count, plural, one{1 payment is new or changed since the last wallet data export.} other{{count} payments are new or changed since the last wallet data export.}}",
   "@homeHistoryChangedSinceBackup": {
     "description": "Card on home when payments changed after the last history backup (a file with the payment list, notes and contacts).",
     "placeholders": {
@@ -1577,7 +1577,7 @@
   "@homeShowBalances": {
     "description": "Tooltip of the eye button while amounts are hidden."
   },
-  "homeHideBalances": "Hide balances",
+  "homeHideBalances": "Hide amounts",
   "@homeHideBalances": {
     "description": "Tooltip of the eye button that hides all amounts."
   },
@@ -1790,7 +1790,7 @@
       }
     }
   },
-  "homeNoPayments": "No payments yet.",
+  "homeNoPayments": "No payments yet",
   "@homeNoPayments": {
     "description": "Shown on home in place of the payment list in a new wallet."
   },
@@ -2202,9 +2202,15 @@
       }
     }
   },
-  "receiveEpicboxConnected": "Epicbox connected",
+  "receiveEpicboxConnected": "Connected · {server}",
   "@receiveEpicboxConnected": {
-    "description": "Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name)."
+    "description": "Receive and the status sheet: the Epicbox line when the server answers; server is its host name.",
+    "placeholders": {
+      "server": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
   },
   "receiveQrLabel": "QR code of your address",
   "@receiveQrLabel": {
@@ -2214,7 +2220,7 @@
   "@receiveAddressLabel": {
     "description": "Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address."
   },
-  "receiveEpicboxOfflineBody": "Payments sent to you wait on the Epicbox server and arrive when the wallet reconnects.",
+  "receiveEpicboxOfflineBody": "Payments wait on the Epicbox server and arrive when the wallet connects again.",
   "@receiveEpicboxOfflineBody": {
     "description": "Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name)."
   },
@@ -2538,7 +2544,7 @@
   "@restoreUnfinishedRunning": {
     "description": "Home card line while the restore scan runs or starts; the bar and the percent line follow."
   },
-  "restoreUnfinishedOffline": "The scan goes on when Offline mode is off.",
+  "restoreUnfinishedOffline": "The scan goes on when Offline is off.",
   "@restoreUnfinishedOffline": {
     "description": "Home card line while Offline mode (Advanced) stops the restore scan from running."
   },
@@ -3745,7 +3751,7 @@
   "@settingsSectionNetwork": {
     "description": "Settings section header above the Node and Epicbox row."
   },
-  "settingsSectionDisplay": "Display",
+  "settingsSectionDisplay": "Appearance",
   "@settingsSectionDisplay": {
     "description": "Section heading in settings."
   },
@@ -3771,7 +3777,7 @@
   "@settingsShowPrices": {
     "description": "Settings switch that turns fiat prices of EPIC on and off."
   },
-  "settingsHideBalances": "Hide balances",
+  "settingsHideBalances": "Hide amounts",
   "@settingsHideBalances": {
     "description": "Settings switch that shows amounts as dots."
   },
@@ -3779,7 +3785,7 @@
   "@settingsTheme": {
     "description": "Settings row, and the title of its dialog, that picks light or dark colours."
   },
-  "settingsThemeSystem": "Same as the device",
+  "settingsThemeSystem": "System",
   "@settingsThemeSystem": {
     "description": "Theme choice that follows the phone's light or dark setting."
   },
@@ -3867,7 +3873,7 @@
   "@settingsImportHistory": {
     "description": "Settings row: open a history backup file. The help page refers to it by this name."
   },
-  "settingsSectionWallet": "Wallet",
+  "settingsSectionWallet": "This wallet",
   "@settingsSectionWallet": {
     "description": "Section heading in settings."
   },
@@ -3932,7 +3938,7 @@
   "@settingsRescanButton": {
     "description": "Button that starts the rescan."
   },
-  "settingsDeleteWallet": "Delete this wallet",
+  "settingsDeleteWallet": "Delete wallet",
   "@settingsDeleteWallet": {
     "description": "Settings row, in red."
   },
@@ -3999,7 +4005,7 @@
   "@settingsHelp": {
     "description": "Settings row that opens the help page."
   },
-  "settingsSendFeedback": "Send feedback",
+  "settingsSendFeedback": "Report a problem",
   "@settingsSendFeedback": {
     "description": "Settings row that opens the feedback form."
   },
@@ -4108,11 +4114,11 @@
   "@helpDonateCopied": {
     "description": "Notice after the donation address was copied."
   },
-  "helpSendFeedback": "Send feedback",
+  "helpSendFeedback": "Report a problem",
   "@helpSendFeedback": {
     "description": "Button at the end of the help page that opens the feedback form."
   },
-  "feedbackTitle": "Send feedback",
+  "feedbackTitle": "Report a problem",
   "@feedbackTitle": {
     "description": "Title of the feedback form."
   },
@@ -4120,7 +4126,7 @@
   "@feedbackIntro": {
     "description": "First line of the feedback form."
   },
-  "feedbackMessageLabel": "Your message",
+  "feedbackMessageLabel": "What happened",
   "@feedbackMessageLabel": {
     "description": "Label of the message field."
   },
@@ -4128,7 +4134,7 @@
   "@feedbackMessageMissing": {
     "description": "Error under an empty message field."
   },
-  "feedbackEmailLabel": "Email for a reply (optional)",
+  "feedbackEmailLabel": "Contact (optional)",
   "@feedbackEmailLabel": {
     "description": "Label of the email field."
   },
@@ -4136,7 +4142,7 @@
   "@feedbackEmailInvalid": {
     "description": "Error under the email field."
   },
-  "feedbackAttachLogs": "Attach diagnostic logs",
+  "feedbackAttachLogs": "Attach logs",
   "@feedbackAttachLogs": {
     "description": "Switch: add the app's log to the report."
   },
@@ -4144,7 +4150,7 @@
   "@feedbackAttachLogsHint": {
     "description": "Under the Attach diagnostic logs switch."
   },
-  "feedbackPreviewButton": "Preview what is sent",
+  "feedbackPreviewButton": "What is sent",
   "@feedbackPreviewButton": {
     "description": "Button that shows the report's full text. The report itself stays in English."
   },
@@ -4152,7 +4158,7 @@
   "@feedbackSend": {
     "description": "Button that sends the report to the feedback server."
   },
-  "feedbackShareOrSaveInstead": "Share or save instead",
+  "feedbackShareOrSaveInstead": "Share or save",
   "@feedbackShareOrSaveInstead": {
     "description": "Button under Send: hand the report over as a file instead."
   },
@@ -4231,7 +4237,7 @@
   "@settingsSectionPrivacyNetwork": {
     "description": "Settings group on the phone's Settings hub: the Tor switch, the status site and the node and Epicbox servers."
   },
-  "settingsSectionHelpFeedback": "Help & feedback",
+  "settingsSectionHelpFeedback": "Help",
   "@settingsSectionHelpFeedback": {
     "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
   },
@@ -4273,7 +4279,7 @@
   "@txStepStarted": {
     "description": "Payment details timeline, first step of a send: we created it and set the funds aside."
   },
-  "txStepAccepted": "Recipient accepted",
+  "txStepAccepted": "Recipient signed",
   "@txStepAccepted": {
     "description": "Payment details timeline, a send: the recipient's wallet signed it. Shown once it happened."
   },
@@ -4293,7 +4299,7 @@
   "@txStepArrived": {
     "description": "Payment details timeline, first step of an incoming payment: our wallet signed it and sent it back."
   },
-  "txStepSenderFinished": "Sender finished it",
+  "txStepSenderFinished": "Signed and returned",
   "@txStepSenderFinished": {
     "description": "Payment details timeline, an incoming payment: the sender finished it and posted it to the chain."
   },
@@ -5068,7 +5074,7 @@
   "@homeTileLocked": {
     "description": "Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words."
   },
-  "homeTileMaturing": "Rewards maturing",
+  "homeTileMaturing": "Immature",
   "@homeTileMaturing": {
     "description": "Balance tile label: mining rewards not spendable yet. 1 to 3 words."
   },
@@ -5104,7 +5110,7 @@
       }
     }
   },
-  "tourPhoneSkip": "Skip",
+  "tourPhoneSkip": "Skip tour",
   "@tourPhoneSkip": {
     "description": "Button on the tour card: ends the tour."
   },
@@ -7501,7 +7507,7 @@
   "@torNotOverTor": {
     "description": "Tag on Send and Review: this connection stays on the clearnet although Tor is on."
   },
-  "torNeeds": "Needs Tor.",
+  "torNeeds": "Link · Tor needs Tor.",
   "@torNeeds": {
     "description": "Notice under Send's To: an onion address needs Tor, which is off."
   },
@@ -8894,7 +8900,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid; the Epicbox server holds payments while the wallet is closed.",
+  "deskRecvEpicboxIntro": "Share it to get paid. Senders can pay while this wallet is closed.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },
@@ -8923,7 +8929,7 @@
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
-  "deskRecvHttpIntro": "Straight from another wallet while this one is open.",
+  "deskRecvHttpIntro": "For wallets on this computer, while this wallet is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
@@ -9356,7 +9362,7 @@
   "@deskSendFinalize": {
     "description": "Button on the file-ready card on Send: opens the Finalize page."
   },
-  "deskSendNewSend": "New send",
+  "deskSendNewSend": "Send another",
   "@deskSendNewSend": {
     "description": "Button on the file-ready card on Send: starts over."
   },
@@ -9417,7 +9423,7 @@
   "@deskSendDoneViaEpicbox": {
     "description": "Text of the Sent notice after an Epicbox send."
   },
-  "deskSendViewTx": "View transaction",
+  "deskSendViewTx": "View payment",
   "@deskSendViewTx": {
     "description": "Button in the Sent notice: opens the payment in Activity."
   },
@@ -9461,7 +9467,7 @@
   "@deskSendContacts": {
     "description": "Small button in the recipient field on Send: opens the contact picker."
   },
-  "deskSendNeedsTor": "Needs Tor",
+  "deskSendNeedsTor": "Link · Tor needs Tor",
   "@deskSendNeedsTor": {
     "description": "Title of the warning under the recipient field when an onion address is entered and Tor is off."
   },
@@ -9593,7 +9599,7 @@
   "@deskSendReviewTorOff": {
     "description": "Label of the disabled primary button on Send when Tor failed."
   },
-  "deskSendReview": "Review send",
+  "deskSendReview": "Review",
   "@deskSendReview": {
     "description": "Label of the primary button on Send: opens the review dialog."
   },
@@ -9873,7 +9879,7 @@
   "@deskFinPickTitle": {
     "description": "Title of the system file dialog that picks the recipient's response file."
   },
-  "deskFinPosted": "Transaction posted",
+  "deskFinPosted": "Payment posted",
   "@deskFinPosted": {
     "description": "Toast and result title after the response file was finalized and posted."
   },
@@ -10010,7 +10016,7 @@
   "@deskActNotUpdated": {
     "description": "Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text."
   },
-  "deskActSearchHint": "Address or slate id",
+  "deskActSearchHint": "Note, contact, address or amount",
   "@deskActSearchHint": {
     "description": "Placeholder of the search field on Activity. Narrow field."
   },
@@ -10018,7 +10024,7 @@
   "@deskActSearchHintEmpty": {
     "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
   },
-  "deskActSearchLabel": "Search transactions",
+  "deskActSearchLabel": "Search payments",
   "@deskActSearchLabel": {
     "description": "Screen reader label of the search field on Activity."
   },
@@ -10042,15 +10048,15 @@
   "@deskActTitle": {
     "description": "Title of the Activity page: the list of all transactions."
   },
-  "deskActDetailReceived": "Received transaction",
+  "deskActDetailReceived": "Received payment",
   "@deskActDetailReceived": {
     "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
   },
-  "deskActDetailSent": "Sent transaction",
+  "deskActDetailSent": "Sent payment",
   "@deskActDetailSent": {
     "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
   },
-  "deskActLoading": "Loading transactions",
+  "deskActLoading": "Loading payments",
   "@deskActLoading": {
     "description": "Line with a spinner on Activity while the transactions are being read."
   },
@@ -10070,13 +10076,15 @@
   "@deskActFilterSent": {
     "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
   },
-  "deskActNoMatchTitle": "No transactions match",
+  "deskActNoMatchTitle": "Nothing matches \"{query}\".",
   "@deskActNoMatchTitle": {
-    "description": "Title of the empty state on Activity when the search and filter show nothing."
-  },
-  "deskActNoMatchText": "Try another address or slate id, or clear the filter.",
-  "@deskActNoMatchText": {
-    "description": "Text of the empty state on Activity when the search and filter show nothing."
+    "description": "Activity: title of the empty state when the search or filter matches nothing; query is the typed text.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "alice"
+      }
+    }
   },
   "deskActPageOf": "Page {page} of {pages}",
   "@deskActPageOf": {
@@ -10120,7 +10128,7 @@
   "@deskActColAmount": {
     "description": "Column header of the Activity table. Narrow header, right aligned."
   },
-  "deskActEmptyTitle": "No transactions yet",
+  "deskActEmptyTitle": "No payments yet",
   "@deskActEmptyTitle": {
     "description": "Title of the empty state on Activity when the wallet has no transactions."
   },
@@ -10262,7 +10270,7 @@
   "@deskConSendToAddress": {
     "description": "Ghost button in the empty state of Contacts: opens Send without a contact."
   },
-  "deskConLastTx": "Last transaction: {when}",
+  "deskConLastTx": "Last payment: {when}",
   "@deskConLastTx": {
     "description": "Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.",
     "placeholders": {
@@ -10306,11 +10314,11 @@
       }
     }
   },
-  "deskConNote": "Note",
+  "deskConNote": "Note (optional)",
   "@deskConNote": {
     "description": "Label above the note in a contact's detail; also the label of the note field in the form."
   },
-  "deskConTxWith": "Transactions with {name}",
+  "deskConTxWith": "Payments with {name}",
   "@deskConTxWith": {
     "description": "Heading above the list of payments with this contact.",
     "placeholders": {
@@ -10320,11 +10328,11 @@
       }
     }
   },
-  "deskConAllTx": "All transactions",
+  "deskConAllTx": "All payments",
   "@deskConAllTx": {
     "description": "Link next to the heading: opens Activity."
   },
-  "deskConTxNone": "No transactions with this contact yet. Payments sent to them from Send appear here.",
+  "deskConTxNone": "No payments with this contact yet. Payments sent to them from Send appear here.",
   "@deskConTxNone": {
     "description": "Text under the heading when there are no payments with this contact."
   },
@@ -11282,7 +11290,7 @@
   "@deskOvBreakImmature": {
     "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
   },
-  "deskOvBreakAwaiting": "Awaiting finalization",
+  "deskOvBreakAwaiting": "Waiting for sender",
   "@deskOvBreakAwaiting": {
     "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
   },
@@ -11298,11 +11306,11 @@
   "@deskOvHiddenAmount": {
     "description": "Screen reader label of the balance when amounts are hidden."
   },
-  "deskOvLoading": "Loading transactions",
+  "deskOvLoading": "Loading payments",
   "@deskOvLoading": {
     "description": "Line with a spinner in the Recent activity panel while the transactions load."
   },
-  "deskOvEmptyTitle": "No transactions yet",
+  "deskOvEmptyTitle": "No payments yet",
   "@deskOvEmptyTitle": {
     "description": "Title of the empty state of Recent activity."
   },
@@ -11436,7 +11444,7 @@
   "@deskTxFoundScanTip": {
     "description": "Tooltip on a payment found by a scan of unknown kind."
   },
-  "deskTxBackupTip": "Added from a wallet data file.",
+  "deskTxBackupTip": "Imported from a wallet data file.",
   "@deskTxBackupTip": {
     "description": "Tooltip on a payment that was added from a history backup file."
   },
@@ -11448,7 +11456,7 @@
   "@deskTxStatusImmature": {
     "description": "Status of a mining reward not yet spendable. Activity table status column, narrow; one word."
   },
-  "deskTxStatusWaitingSender": "Waiting for sender to finalize",
+  "deskTxStatusWaitingSender": "Waiting for sender",
   "@deskTxStatusWaitingSender": {
     "description": "Status of an incoming payment that waits for the sender to finalize it. Narrow status column."
   },
@@ -11456,7 +11464,7 @@
   "@deskTxStatusWaitingResponseFile": {
     "description": "Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column."
   },
-  "deskTxStatusWaitingRecipient": "Waiting for recipient to sign",
+  "deskTxStatusWaitingRecipient": "Waiting for recipient",
   "@deskTxStatusWaitingRecipient": {
     "description": "Status of an outgoing payment that waits for the recipient to sign. Narrow status column."
   },
@@ -11610,7 +11618,7 @@
   "@deskTxHiddenAmount": {
     "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
   },
-  "deskTxNowBackup": "Imported; the chain was not asked.",
+  "deskTxNowBackup": "Imported from a wallet data file. Status not checked on the chain.",
   "@deskTxNowBackup": {
     "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
   },
@@ -11625,7 +11633,7 @@
       }
     }
   },
-  "deskTxNowWaitingSender": "Signed and returned. Waiting for the sender to finalize.",
+  "deskTxNowWaitingSender": "Waiting for the sender to post it.",
   "@deskTxNowWaitingSender": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
   },
@@ -11690,7 +11698,7 @@
   "@deskTxHeadFoundOnChain": {
     "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
   },
-  "deskTxHeadBackup": "added from a wallet data file",
+  "deskTxHeadBackup": "imported from a wallet data file",
   "@deskTxHeadBackup": {
     "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
   },
@@ -11758,7 +11766,7 @@
   "@deskTxFactMessage": {
     "description": "Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column."
   },
-  "deskTxSignedByRecipient": "Signed by the recipient",
+  "deskTxSignedByRecipient": "Recipient signed",
   "@deskTxSignedByRecipient": {
     "description": "Payment proof line on the transaction detail, and a step of the timeline."
   },
@@ -11814,7 +11822,7 @@
   "@deskTxStepMined": {
     "description": "Timeline step of a mining reward."
   },
-  "deskTxStepSpendable": "Spendable",
+  "deskTxStepSpendable": "Completed",
   "@deskTxStepSpendable": {
     "description": "Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations."
   },
@@ -11828,11 +11836,11 @@
       }
     }
   },
-  "deskTxStepReceivedSlate": "Received slate",
+  "deskTxStepReceivedSlate": "Payment arrived",
   "@deskTxStepReceivedSlate": {
     "description": "Timeline step of an incoming payment: the sender's first message arrived."
   },
-  "deskTxStepCreated": "Created and signed",
+  "deskTxStepCreated": "Payment started",
   "@deskTxStepCreated": {
     "description": "Timeline step of an outgoing payment."
   },
@@ -11844,7 +11852,7 @@
   "@deskTxStepWaitingFile": {
     "description": "Small line under a timeline step of an outgoing file payment."
   },
-  "deskTxStepWaitingRecipient": "Waiting for the recipient",
+  "deskTxStepWaitingRecipient": "Waiting for recipient",
   "@deskTxStepWaitingRecipient": {
     "description": "Small line under a timeline step of an outgoing payment."
   },
@@ -11874,7 +11882,7 @@
   "@deskTxCancelIncomingTitle": {
     "description": "Title of the dialog that asks before cancelling an incoming payment."
   },
-  "deskTxCancelOutgoingTitle": "Cancel this send?",
+  "deskTxCancelOutgoingTitle": "Cancel this payment?",
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
   },
@@ -11914,7 +11922,7 @@
   "@deskTxCancelIncomingAction": {
     "description": "Danger button in the cancel dialog for an incoming payment. Short."
   },
-  "deskTxCancelOutgoingAction": "Cancel send",
+  "deskTxCancelOutgoingAction": "Cancel payment",
   "@deskTxCancelOutgoingAction": {
     "description": "Danger button in the cancel dialog for an outgoing payment. Short."
   },
@@ -12164,7 +12172,7 @@
   "@deskOnbCreateHide": {
     "description": "Button that hides the revealed recovery words again. One short word."
   },
-  "deskOnbCreateShowQr": "Show QR code",
+  "deskOnbCreateShowQr": "Show QR",
   "@deskOnbCreateShowQr": {
     "description": "Button that shows the recovery phrase as a QR code."
   },
@@ -14040,7 +14048,7 @@
   "@deskKitQrHide": {
     "description": "Button and tooltip: hide the QR code again. Short."
   },
-  "deskKitQrHideCode": "Hide QR code",
+  "deskKitQrHideCode": "Hide QR",
   "@deskKitQrHideCode": {
     "description": "Screen-reader label of the button that hides the QR code."
   },
@@ -14084,7 +14092,7 @@
   "@deskSetAcctPhraseHint": {
     "description": "Settings > This wallet: hint under the Recovery phrase row."
   },
-  "deskSetAcctShowPhrase": "Show phrase…",
+  "deskSetAcctShowPhrase": "Show recovery phrase…",
   "@deskSetAcctShowPhrase": {
     "description": "Settings > This wallet: button that opens the recovery phrase page."
   },
@@ -15998,7 +16006,7 @@
   "@deskSetPhrasePanel": {
     "description": "Settings > Recovery phrase: title of the panel with the hidden words and the password field."
   },
-  "deskSetPhraseShowWords": "Show words",
+  "deskSetPhraseShowWords": "Show recovery phrase",
   "@deskSetPhraseShowWords": {
     "description": "Settings > Recovery phrase: button that reveals the words."
   },
@@ -16011,15 +16019,15 @@
       }
     }
   },
-  "deskSetPhraseHideQr": "Hide QR code",
+  "deskSetPhraseHideQr": "Hide QR",
   "@deskSetPhraseHideQr": {
     "description": "Settings > Recovery phrase: button that hides the QR code."
   },
-  "deskSetPhraseShowQr": "Show QR code",
+  "deskSetPhraseShowQr": "Show QR",
   "@deskSetPhraseShowQr": {
     "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
   },
-  "deskSetPhraseHideWords": "Hide words",
+  "deskSetPhraseHideWords": "Hide recovery phrase",
   "@deskSetPhraseHideWords": {
     "description": "Settings > Recovery phrase: button that hides the words."
   },
@@ -17507,7 +17515,7 @@
   "@deskTxDetailsFromBad": {
     "description": "Shown under the From field when the text is not an address the wallet knows."
   },
-  "deskTxDetailsNote": "Note",
+  "deskTxDetailsNote": "Private note",
   "@deskTxDetailsNote": {
     "description": "Field name in the details dialog and the details list: the private note."
   },
@@ -17888,7 +17896,7 @@
   "@advReset": {
     "description": "Row at the end of the Advanced page: turns every visibility switch off. The network mode stays."
   },
-  "advHomeOffline": "Offline mode",
+  "advHomeOffline": "Offline",
   "@advHomeOffline": {
     "description": "Home status line while the Offline network mode is on."
   },
@@ -18029,7 +18037,7 @@
       }
     }
   },
-  "deskShellOffline": "Offline mode",
+  "deskShellOffline": "Offline",
   "@deskShellOffline": {
     "description": "Sidebar status row while the Offline network mode is on."
   },
@@ -18041,7 +18049,7 @@
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
   },
-  "netBlockOffline": "Offline mode is on in Advanced.",
+  "netBlockOffline": "Offline is on in Advanced.",
   "@netBlockOffline": {
     "description": "Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page."
   },
@@ -18053,7 +18061,7 @@
   "@netBlockWaitingForTor": {
     "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
   },
-  "receiveOfflineLine": "Cannot receive this way while Offline mode is on.",
+  "receiveOfflineLine": "Cannot receive this way while Offline is on.",
   "@receiveOfflineLine": {
     "description": "Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out."
   },
@@ -18065,7 +18073,7 @@
   "@restoreStartFromLink": {
     "description": "Small link on Restore that opens the choice of where to start scanning the chain."
   },
-  "homeOfflineDetail": "Offline mode is on in Advanced. The balance is the last one seen.",
+  "homeOfflineDetail": "Offline is on in Advanced. The balance is the last one seen.",
   "@homeOfflineDetail": {
     "description": "Tooltip and screen reader hint of Home's Offline status."
   },
@@ -18278,7 +18286,7 @@
   "@deskOnbRestoreFromInvalid": {
     "description": "Error under the start block field on Restore when the text is not a number."
   },
-  "deskNetOfflineReason": "Offline mode is on in Advanced.",
+  "deskNetOfflineReason": "Offline is on in Advanced.",
   "@deskNetOfflineReason": {
     "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
   },
@@ -18298,7 +18306,7 @@
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
-  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
+  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive while Offline is on.",
   "@deskNetRecvOfflineText": {
     "description": "Text of the notice on Receive while Offline mode is on."
   },
@@ -18338,7 +18346,7 @@
   "@settingsHubMethods": {
     "description": "Settings hub, state line of the Transactions row: the payment methods."
   },
-  "settingsHubDefault": "Default",
+  "settingsHubDefault": "Default method",
   "@settingsHubDefault": {
     "description": "Settings hub, state line of the Transactions row: the method Send starts on."
   },
@@ -18809,7 +18817,7 @@
   "@deskSetTxLastMethod": {
     "description": "Toast when the last payment method that is on is switched off on Settings › Transactions: the switch stays on."
   },
-  "deskRecvTorOffTitle": "Link · Tor receiving needs Tor.",
+  "deskRecvTorOffTitle": "Link · Tor needs Tor.",
   "@deskRecvTorOffTitle": {
     "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
   },
@@ -22314,7 +22322,7 @@
   "@deskSlotHelp": {
     "description": "Small link at the bottom of the sidebar: opens Settings › Help."
   },
-  "deskSlotOffline": "Offline mode",
+  "deskSlotOffline": "Offline",
   "@deskSlotOffline": {
     "description": "Sidebar slot line: Offline mode is on (Settings › Advanced). Short."
   },
@@ -23063,7 +23071,7 @@
   "@tourPhonePrivacyTextNoTor": {
     "description": "tourPhonePrivacyText in the build without Tor: no Tor switch."
   },
-  "tourPhoneAdvancedTextNoTor": "Offline mode, outputs and technical details live here. Switch on what you need.",
+  "tourPhoneAdvancedTextNoTor": "Offline, outputs and technical details live here. Switch on what you need.",
   "@tourPhoneAdvancedTextNoTor": {
     "description": "tourPhoneAdvancedText in the build without Tor: Offline mode instead of Tor-only mode."
   },
@@ -23235,7 +23243,7 @@
   "@connServersEpicboxOff": {
     "description": "State line of Connection servers while Epicbox is off."
   },
-  "connServersOffline": "Paused in Offline mode.",
+  "connServersOffline": "Paused while Offline is on.",
   "@connServersOffline": {
     "description": "State line of Connection servers in Offline mode."
   },
@@ -23438,7 +23446,7 @@
   "@devicesPause": {
     "description": "Switch on the Linked devices page: stop reading and sending notices for now."
   },
-  "devicesPauseHint": "While paused, this device neither reads nor sends notices; they wait on the servers for as long as each server keeps them. Offline mode pauses it too.",
+  "devicesPauseHint": "While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline pauses it too.",
   "@devicesPauseHint": {
     "description": "Info text of the Pause sync switch."
   },
@@ -23773,7 +23781,7 @@
   "@deskDevServersInfo3": {
     "description": "Info card of the Servers row, paragraph 3."
   },
-  "deskDevPausedOffline": "Paused in Offline mode.",
+  "deskDevPausedOffline": "Paused while Offline is on.",
   "@deskDevPausedOffline": {
     "description": "Under the Pause sync switch while the app is in Offline mode."
   },
@@ -24133,5 +24141,104 @@
   "sasNotFromCamera": "Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.",
   "@sasNotFromCamera": {
     "description": "Words check of an in-person pairing whose other code was pasted or came from the clipboard, not read by the camera: \"They match\" is not offered (a code passed by message can be swapped on the way, and four words cannot catch that unless the other wallet scanned this one from its screen). Skip keeps the pairing unchecked."
+  },
+  "slSwitchFirst": "Switch first",
+  "@slSwitchFirst": {
+    "description": "Server list: tooltip of the disabled Remove on the server in use."
+  },
+  "netStatusPausedOffline": "Paused · Offline",
+  "@netStatusPausedOffline": {
+    "description": "Settings › Privacy & network: the state word of the Node and Epicbox rows while Offline is on in Advanced (both paused by choice)."
+  },
+  "contactPaymentsNone": "No payments with this contact yet.",
+  "@contactPaymentsNone": {
+    "description": "Contact page: shown under the payments heading while there are none with this contact."
+  },
+  "contactPaymentsWith": "Transactions with {name}",
+  "contactPaymentsAll": "All transactions",
+  "receiveEpicboxNotConnected": "Not connected · {server}",
+  "@contactPaymentsWith": {
+    "description": "Contact page: heading of the payments with this contact; name is the contact’s.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "@contactPaymentsAll": {
+    "description": "Contact page: the button under the newest payments that opens Activity searched by the contact’s name."
+  },
+  "@receiveEpicboxNotConnected": {
+    "description": "Receive: the Epicbox line while the server does not answer; server is its host name.",
+    "placeholders": {
+      "server": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "restoreWordsAllOk": "{count, plural, one{The word checks out.} other{All {count} words check out.}}",
+  "@restoreWordsAllOk": {
+    "description": "Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreWordsSoFar": "{count, plural, one{1 word} other{{count} words}}",
+  "@restoreWordsSoFar": {
+    "description": "Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreWordsUnknown": "{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}",
+  "@restoreWordsUnknown": {
+    "description": "Restore: the line under the word chips when words are not in the recovery word list; count is how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pairInvitedAt": "Invited {clock}",
+  "@pairInvitedAt": {
+    "description": "Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.",
+    "placeholders": {
+      "clock": {
+        "type": "String",
+        "example": "14:05"
+      }
+    }
+  },
+  "pairInvitedYesterday": "Invited yesterday",
+  "@pairInvitedYesterday": {
+    "description": "Pending pairing row: the invite went out yesterday."
+  },
+  "pairInvitedOn": "Invited {day}",
+  "@pairInvitedOn": {
+    "description": "Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "3 Oct 2026"
+      }
+    }
+  },
+  "deskActNoneUnderFilter": "Nothing under this filter",
+  "@deskActNoneUnderFilter": {
+    "description": "Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search."
+  },
+  "deskRecvHttpIntroInternet": "For wallets on the internet, while this wallet is open.",
+  "@deskRecvHttpIntroInternet": {
+    "description": "Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet)."
+  },
+  "deskKitMethodConnected": "Connected",
+  "@deskKitMethodConnected": {
+    "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
   }
 }

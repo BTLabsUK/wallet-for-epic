@@ -125,7 +125,7 @@ void main() {
     wallet.hold = Completer<void>();
     await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Review send'));
+    await tester.tap(find.widgetWithText(EButton, 'Review'));
     await tester.pump();
     wallet.hold!.complete();
     wallet.hold = null;

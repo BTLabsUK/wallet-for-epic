@@ -148,21 +148,24 @@ List<HistorySection> groupHistory(
 
 /// Every transaction, searchable and filtered, grouped by day.
 class HistoryScreen extends ConsumerStatefulWidget {
-  const HistoryScreen({super.key, this.filter = HistoryFilter.all});
+  const HistoryScreen({super.key, this.filter = HistoryFilter.all, this.query});
 
   /// The filter selected when the screen opens.
   final HistoryFilter filter;
+
+  /// The search text the screen opens with (a contact's name from its page).
+  final String? query;
 
   @override
   ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
-  final _search = TextEditingController();
+  late final _search = TextEditingController(text: widget.query ?? '');
   late HistoryFilter _filter = widget.filter;
 
   /// The search text the list uses: [_search] after typing pauses for [searchDebounce].
-  String _query = '';
+  late String _query = widget.query ?? '';
   Timer? _debounce;
 
   /// The last list built, and what it was built from. Frames that change none of that (a
@@ -304,6 +307,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 : Icons.search_off,
           ),
           message: empty,
+          // The way out of a search that matches nothing, as on the desktop (UI-049).
+          action: _query.trim().isEmpty
+              ? null
+              : TextButton(onPressed: _clearSearch, child: Text(l.historyClearSearch)),
         ),
     ];
 

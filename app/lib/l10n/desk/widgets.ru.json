@@ -123,5 +123,6 @@
   "deskKitQrShowOf": "Показать QR-код: {title}",
   "deskKitQrShow": "Показать QR",
   "deskKitQrHide": "Скрыть QR",
-  "deskKitQrHideCode": "Скрыть QR-код"
+  "deskKitQrHideCode": "Скрыть QR",
+  "deskKitMethodConnected": "Подключено"
 }

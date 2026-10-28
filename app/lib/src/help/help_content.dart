@@ -229,7 +229,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', 'Press **Review send**, check, then **Send … EPIC**.']),
         const HelpBlock.p('Now the recipient’s wallet has to answer (see "Why does a transaction need both sides?"). Over Epicbox they do not have to be online right now: the payment waits until their wallet opens. Meanwhile the outputs it uses are locked, so they cannot be spent twice.'),
         HelpBlock.p('When their answer comes back, the wallet finishes the transaction and posts it to the network by itself. It is final after $confirmations confirmations.'),
-        HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for the recipient". Ask them to open their wallet. If the answer never comes, cancel the send in $cancelPlace to unlock the outputs. A send nobody answers cancels by itself after about a day.'),
+        HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for recipient". Ask them to open their wallet. If the answer never comes, cancel the send in $cancelPlace to unlock the outputs. A send nobody answers cancels by itself after about a day.'),
         if (phone)
           HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Link address (${tor ? 'http or .onion' : 'http'}) needs the recipient’s wallet open and reachable at that moment.')
         else
@@ -277,8 +277,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ],
       id: HelpId.methods,
     ),
-    if (phone)
-      HelpTopic(
+    HelpTopic(
         'start',
         'What an address looks like',
         tor
@@ -431,7 +430,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.ul(['**Public node** (the default): one of the public nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer. It first downloads the whole blockchain, which takes a while and needs disk space, and then it is yours. While it syncs, the wallet uses a public node.']),
         if (phone)
-          HelpBlock.p('Change it by tapping the Node row on the Wallet tab, or under $nodePlace: the nodes are listed with their state. Tap one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; **Behind** or **Not responding** means pick another.')
+          HelpBlock.p('Change it by tapping the node icon on the Wallet tab, or under $nodePlace: the nodes are listed with their state. Tap one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; **Behind** or **Not responding** means pick another.')
         else
           HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one.'),
       ],
@@ -445,7 +444,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('Both wallets take part in every transaction, so their messages need a meeting point. An Epicbox server is that meeting point: it holds a payment sent to this wallet until the wallet comes online, and carries the wallet’s answer back. The messages are encrypted, and Epicbox cannot spend the coins.'),
         const HelpBlock.p('The Epicbox address is the wallet’s public key, then **@** and the name of its Epicbox server.'),
         if (phone)
-          HelpBlock.p('The server is set by tapping the Epicbox row on the Wallet tab, or under $epicboxPlace: the servers are listed with their state. Tap one and confirm, or type an address to filter the list or add a server. Choosing another server changes the part after @, so give the new address to the people who pay. Other Epic Cash wallets use Epicbox too; two wallets can use different servers.')
+          HelpBlock.p('The server is set by tapping the Epicbox icon on the Wallet tab, or under $epicboxPlace: the servers are listed with their state. Tap one and confirm, or type an address to filter the list or add a server. Choosing another server changes the part after @, so give the new address to the people who pay. Other Epic Cash wallets use Epicbox too; two wallets can use different servers.')
         else
           HelpBlock.p('The server is set under $epicboxPlace: the servers are listed with their state. Click one and confirm, or type an address to filter the list or add a server. Choosing another server changes the part after @, so give the new address to the people who pay. Other Epic Cash wallets use Epicbox too; two wallets can use different servers.'),
       ],
@@ -527,7 +526,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             '**Recheck from a height**: lets Recheck balance start from a block height or a date instead of the first block. Restore always offers the choice.'
           else
             '**Recheck from a height**: lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone.',
-          if (!phone) '**Built-in node**: lets this computer run its own node: the This computer option under Node, and Start node on Overview.',
+          if (!phone) '**Built-in node**: lets this computer run its own node: Local node under Settings › Node.',
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
@@ -546,16 +545,16 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           : 'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
       [
         if (phone)
-          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or tap the Node row on the Wallet tab and choose another node.')
+          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or tap the node icon on the Wallet tab and choose another node.')
         else
           const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under [[Settings › Node]].'),
         if (phone)
-          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox row on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
+          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
         else
           const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under [[Settings › Transactions]]. Meanwhile Direct · File Transfer works.'),
-        const HelpBlock.p('**A send says "Waiting for the recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the send in Activity to unlock the outputs.'),
+        const HelpBlock.p('**A send says "Waiting for recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the send in Activity to unlock the outputs.'),
         if (phone)
-          const HelpBlock.p('**A payment has not arrived.** Check on the Wallet tab that the node is synced and Epicbox is online. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then a few minutes for the confirmations.')
+          const HelpBlock.p('**A payment has not arrived.** Check the status icons on the Wallet tab: the node synced, Epicbox connected. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then a few minutes for the confirmations.')
         else
           const HelpBlock.p('**A payment has not arrived.** Check on Receive that receiving is on and the node is synced. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then a few minutes for the confirmations.'),
         if (phone && tor)

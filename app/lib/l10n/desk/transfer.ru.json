@@ -16,7 +16,7 @@
   "deskFinNotPosted": "Не отправлено в сеть",
   "deskFinNotPostedText": "Транзакция завершена, но узел её не принял. Проверьте узел и повторите попытку.",
   "deskFinPickTitle": "Файл ответа",
-  "deskFinPosted": "Транзакция отправлена в сеть",
+  "deskFinPosted": "Платёж отправлен в сеть",
   "deskFinTitle": "Завершить по файлу ответа",
   "deskFinNoticeTitle": "Для платежей файлом",
   "deskFinNoticeText": "Используйте файл ответа, который прислал получатель.",

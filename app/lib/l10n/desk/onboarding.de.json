@@ -44,7 +44,7 @@
   "deskOnbCreateReveal": "Phrase aufdecken",
   "deskOnbCreateCheckScreen": "Achten Sie darauf, dass niemand den Bildschirm sieht.",
   "deskOnbCreateHide": "Verbergen",
-  "deskOnbCreateShowQr": "QR-Code anzeigen",
+  "deskOnbCreateShowQr": "QR zeigen",
   "deskOnbCreateHideQr": "QR-Code ausblenden",
   "deskOnbCreateQrWarn": "Wer diesen Code scannt, kann die Coins nehmen",
   "deskOnbCreateQrWarnText": "Scannen Sie ihn nur in eine andere Wallet, der Sie vertrauen.",

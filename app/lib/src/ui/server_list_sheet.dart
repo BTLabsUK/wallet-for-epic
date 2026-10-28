@@ -741,7 +741,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     // Add shows as soon as nothing matches, whatever is typed (a tap says when it is no
     // address), and for an address no row has even while some rows match its text.
     final listedTyped = typed != null && all.any((e) => _same(e.value, typed));
-    final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding);
+    // Text that is not an address gets the error line alone, never an Add for it (UI-031).
+    final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding) && _fieldError != l.slNotAnAddress;
     final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
     if (_node) ref.watch(nodeFailoverProvider);
     final current = _current(choice);
@@ -1137,13 +1138,14 @@ class _ServerRow extends StatelessWidget {
                               )
                             : null,
                       ),
+                    // The server in use cannot go: switch first (UI-044).
                     IconButton(
                       key: serverListRemoveKey(e.value),
-                      tooltip: l.slRemove,
+                      tooltip: current ? l.slSwitchFirst : l.slRemove,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                       icon: Icon(Icons.delete_outline, color: t.dim),
-                      onPressed: onRemove,
+                      onPressed: current ? null : onRemove,
                     ),
                   ],
                 ),

@@ -367,31 +367,33 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           ),
           const SizedBox(height: 8),
           if (_error != null) ErrorText(_error!),
-          if (url != null) ...[
-            NetBlockNote(block),
-            BusyButton(
-              label: l.feedbackSend,
-              busy: _busy,
-              onPressed: block == NetBlock.none ? () => _send(url) : null,
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              onPressed: _busy ? null : _handOver,
-              child: Text(l.feedbackShareOrSaveInstead),
-            ),
-          ] else ...[
-            Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: 12),
-            BusyButton(
-              label: l.feedbackShareOrSave,
-              busy: _busy,
-              onPressed: _handOver,
-            ),
-          ],
+          if (url != null) NetBlockNote(block) else Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
         ],
+        // The main action at the foot of the screen, as on every form (UI-016).
+        bottom: url != null
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BusyButton(
+                    label: l.feedbackSend,
+                    busy: _busy,
+                    onPressed: block == NetBlock.none ? () => _send(url) : null,
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    onPressed: _busy ? null : _handOver,
+                    child: Text(l.feedbackShareOrSaveInstead),
+                  ),
+                ],
+              )
+            : BusyButton(
+                label: l.feedbackShareOrSave,
+                busy: _busy,
+                onPressed: _handOver,
+              ),
       ),
     );
   }

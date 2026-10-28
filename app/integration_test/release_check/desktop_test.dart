@@ -101,7 +101,7 @@ void main() {
     await settle(tester, ms: 1000);
     await shot(tester, '07-send-filled');
     dump('send filled');
-    await tapText(tester, 'Review send');
+    await tapText(tester, 'Review');
     await settle(tester, ms: 2500);
     dump('send review');
     await shot(tester, '08-send-review-empty-wallet');

@@ -103,8 +103,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.methods,
     ),
-    if (phone)
-      HelpTopic(
+    HelpTopic(
         'start',
         '地址是什么样的',
         tor ? 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址，或以 .onion 结尾。' : 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址。',
@@ -255,7 +254,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**公共节点**（默认）：由他人运行的公共节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出。', '**本地节点**：在这台电脑上运行。它首先要下载整条区块链，需要一些时间和磁盘空间，之后就完全归你所有。同步期间，钱包使用公共节点。']),
         if (phone)
-          HelpBlock.p('点“钱包”标签页上的节点行，或在$nodePlace中更换：节点会连同状态一起列出。点一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；显示 **落后** 或 **无响应** 时，请换一个。')
+          HelpBlock.p('点“钱包”标签页上的节点图标，或在$nodePlace中更换：节点会连同状态一起列出。点一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；显示 **落后** 或 **无响应** 时，请换一个。')
         else
           HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。'),
       ],
@@ -269,7 +268,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('每笔交易都有双方钱包参与，因此它们的消息需要一个汇合点。Epicbox 服务器就是这个汇合点：它保存发给此钱包的付款，直到钱包上线，并把钱包的回复送回去。消息是加密的，Epicbox 无法花费这些币。'),
         const HelpBlock.p('Epicbox 地址是钱包的公钥，后接 **@** 和其 Epicbox 服务器的名称。'),
         if (phone)
-          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：服务器会连同状态一起列出。点一个并确认，也可以输入地址来筛选列表或添加服务器。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
+          HelpBlock.p('点“钱包”标签页上的 Epicbox 图标，或在$epicboxPlace中设置服务器：服务器会连同状态一起列出。点一个并确认，也可以输入地址来筛选列表或添加服务器。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
         else
           HelpBlock.p('在$epicboxPlace中设置服务器：服务器会连同状态一起列出。点击一个并确认，也可以输入地址来筛选列表或添加服务器。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
       ],
@@ -349,7 +348,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '**从某个高度重新核对**：让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。恢复钱包时始终可以选择。'
           else
             '**从某个高度重新核对**：让“重新核对余额”同时丢弃未确认的交易。恢复钱包时会向所有人提供起始区块。',
-          if (!phone) '**内置节点**：让这台电脑运行自己的节点：“节点”下的“这台电脑”选项，以及概览中的“启动节点”。',
+          if (!phone) '**内置节点**：让这台电脑运行自己的节点：“设置 › 节点”下的“本地节点”。',
           if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
         ]),
         HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。离线模式下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}${tor ? '；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点' : ''}。'),
@@ -368,16 +367,16 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           : '大多数问题是节点仍在同步、收款方尚未回复，或端口被占用。',
       [
         if (phone)
-          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或点“钱包”标签页上的节点行，选择另一个节点。')
+          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或点“钱包”标签页上的节点图标，选择另一个节点。')
         else
           const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或在[[设置 › 节点|Settings › Node]]中选择另一个节点。'),
         if (phone)
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用 直接 · 文件传输。')
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 图标，选择另一个服务器。在此期间可以使用 直接 · 文件传输。')
         else
           const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 交易|Settings › Transactions]]中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
         if (phone)
-          const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
+          const HelpBlock.p('**付款没有到账。** 查看“钱包”标签页上的状态图标：节点已同步、Epicbox 已连接。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
         else
           const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。'),
         if (phone && tor)

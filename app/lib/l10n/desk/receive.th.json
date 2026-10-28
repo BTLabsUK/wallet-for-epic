@@ -26,13 +26,13 @@
   "deskRecvAddressUnreadable": "อ่านที่อยู่ไม่ได้ เปิดหน้า รับ อีกครั้งในอีกสักครู่",
   "deskRecvEpicboxAddress": "ที่อยู่ Epicbox",
   "deskRecvCopyEpicbox": "คัดลอกที่อยู่ Epicbox",
-  "deskRecvEpicboxIntro": "แชร์เพื่อรับเงิน เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้ขณะที่กระเป๋าเงินปิดอยู่",
+  "deskRecvEpicboxIntro": "แชร์ที่อยู่เพื่อรับเงิน ผู้ส่งจ่ายได้แม้กระเป๋านี้ปิดอยู่",
   "deskRecvCheckSix": "เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย",
   "deskRecvHttpAddress": "ที่อยู่ ลิงก์ · HTTP",
   "deskRecvCopyHttp": "คัดลอกที่อยู่ ลิงก์ · HTTP",
   "deskRecvHttpPublic": "ที่อยู่สาธารณะของเราเตอร์ ผู้ส่งบนอินเทอร์เน็ตใช้ได้เมื่อเราเตอร์ forward พอร์ต {port} แล้ว",
   "deskRecvHttpLocal": "โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม",
-  "deskRecvHttpIntro": "ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่",
+  "deskRecvHttpIntro": "สำหรับกระเป๋าเงินบนคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskRecvHttpTorHint": "เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน",
   "deskRecvDirectTor": "ที่อยู่ ลิงก์ · Tor",
   "deskRecvTorIntro": "ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว",
@@ -46,6 +46,7 @@
   "deskRecvFinalizeTitle": "ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ",
   "deskRecvFinalizeText": "ใช้ไฟล์ตอบกลับของผู้รับทำรายการให้เสร็จเพื่อส่งเข้าเครือข่าย",
   "deskRecvSwitchLabel": "{title}, การรับเงิน",
-  "deskRecvTorOffTitle": "การรับผ่าน ลิงก์ · Tor ต้องใช้ Tor",
-  "deskRecvTorOffText": "ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor"
+  "deskRecvTorOffTitle": "Link · Tor ต้องใช้ Tor",
+  "deskRecvTorOffText": "ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor",
+  "deskRecvHttpIntroInternet": "สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่"
 }

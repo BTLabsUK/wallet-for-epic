@@ -163,8 +163,8 @@ void main() {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
     expect(chip('Not over Tor'), findsOneWidget);
     expect(find.text('Link · HTTP goes directly, without Tor.'), findsOneWidget);
-    expect(review(tester).label, 'Review send');
-    await tester.tap(find.text('Review send'));
+    expect(review(tester).label, 'Review');
+    await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
     expect(find.text('Link · HTTP (their wallet must be open)'), findsOneWidget);
     await enterReviewPassword(tester);
@@ -183,7 +183,7 @@ void main() {
 
   testWidgets('an onion with Tor off: "Needs Tor" and Turn on Tor; the form is kept', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'), tor: false);
-    expect(find.text('Needs Tor'), findsOneWidget);
+    expect(find.text('Link · Tor needs Tor'), findsOneWidget);
     expect(chip('Not over Tor'), findsOneWidget);
     expect(review(tester).onPressed, isNull);
     expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
@@ -191,7 +191,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.torCalls, [true]);
     expect(find.text(_onion), findsOneWidget, reason: 'the form is kept');
-    expect(find.text('Needs Tor'), findsNothing);
+    expect(find.text('Link · Tor needs Tor'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);

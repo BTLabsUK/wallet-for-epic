@@ -192,7 +192,7 @@ void main() {
       await _reach(tester, find.byKey(torReceivingSwitchKey));
       expect(torSwitch(tester).value, isFalse);
       expect(torSwitch(tester).onChanged, isNull);
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
       await tester.tap(find.byKey(torReceivingSwitchKey));
       await tester.pumpAndSettle();
       expect(h.session.torStarts, isEmpty);

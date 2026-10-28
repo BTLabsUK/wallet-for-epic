@@ -245,13 +245,13 @@ void main() {
     );
     expect(whoOf(englishStrings, t), 'Received');
     expect(statusOf(englishStrings, t).$1, 'Imported');
-    expect(whoTip(englishStrings, t), 'Added from a wallet data file.');
+    expect(whoTip(englishStrings, t), 'Imported from a wallet data file.');
     await _pump(tester, TxRow(tx: t, onTap: () {}));
     expect(find.text('Received'), findsOneWidget);
     expect(find.textContaining('Imported', findRichText: true), findsWidgets);
     await _pump(tester, TxDetail(tx: t));
-    expect(find.text('added from a wallet data file'), findsOneWidget);
-    expect(find.text('Imported; the chain was not asked.'), findsOneWidget);
+    expect(find.text('imported from a wallet data file'), findsOneWidget);
+    expect(find.text('Imported from a wallet data file. Status not checked on the chain.'), findsOneWidget);
     expect(find.text('Progress'), findsNothing);
     expect(find.widgetWithText(EButton, 'Cancel'), findsNothing);
   });

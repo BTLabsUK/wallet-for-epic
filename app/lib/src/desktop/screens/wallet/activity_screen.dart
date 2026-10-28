@@ -269,8 +269,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       shown.isEmpty
           ? EEmpty(
               icon: EIcons.search,
-              title: l.deskActNoMatchTitle,
-              text: l.deskActNoMatchText,
+              title: _query.text.trim().isEmpty ? l.deskActNoneUnderFilter : l.deskActNoMatchTitle(_query.text.trim()),
               actions: [
                 EButton.ghost(
                   label: l.deskActClearSearch,

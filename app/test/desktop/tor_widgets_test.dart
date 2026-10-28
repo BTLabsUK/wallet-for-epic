@@ -85,12 +85,12 @@ void main() {
       });
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
       // Under Link, an onion needs Tor.
-      expect(find.text('Needs Tor'), findsOneWidget);
-      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review send')).onPressed, isNull);
+      expect(find.text('Link · Tor needs Tor'), findsOneWidget);
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review')).onPressed, isNull);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
       await tester.pumpAndSettle();
-      expect(find.text('Needs Tor'), findsNothing);
-      await tester.tap(find.text('Review send'));
+      expect(find.text('Link · Tor needs Tor'), findsNothing);
+      await tester.tap(find.text('Review'));
       await tester.pumpAndSettle();
       expect(find.text('Link · Tor (their wallet must be open)'), findsOneWidget);
       await enterReviewPassword(tester);

@@ -102,16 +102,18 @@ class _ConflictSheetState extends State<_ConflictSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  onPressed: () => Navigator.pop(context, _choices),
-                  child: Text(l.histConflictImport),
-                ),
-                const SizedBox(height: 8),
                 Row(
                   children: [
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(l.commonCancel),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
@@ -123,17 +125,15 @@ class _ConflictSheetState extends State<_ConflictSheet> {
                         child: Text(l.histConflictKeepAll),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(l.commonCancel),
-                      ),
-                    ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  onPressed: () => Navigator.pop(context, _choices),
+                  child: Text(l.histConflictImport),
                 ),
               ],
             ),

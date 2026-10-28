@@ -477,7 +477,7 @@ void main() {
       expect(app().locale, isNull);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.display);
-      expect(find.text('System default'), findsOneWidget);
+      expect(find.text('System'), findsOneWidget);
       await _tapText(tester, 'Language');
       for (final language in appLanguages) {
         expect(find.text(language.name), findsOneWidget);
@@ -590,9 +590,9 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Delete this wallet'));
+      await _reveal(tester, find.text('Delete wallet'));
       final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
-      expect((tiles.last.title as Text).data, 'Delete this wallet');
+      expect((tiles.last.title as Text).data, 'Delete wallet');
     });
 
     testWidgets('Privacy & network opens at once with the Tor switch under '
@@ -956,7 +956,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete this wallet');
+      await _tapText(tester, 'Delete wallet');
 
       FilledButton deleteButton() =>
           tester.widget(find.widgetWithText(FilledButton, 'Delete wallet'));
@@ -975,7 +975,7 @@ void main() {
       await _tapText(tester, 'Cancel');
       expect(h.service.deletedWallets, isEmpty);
 
-      await _tapText(tester, 'Delete this wallet');
+      await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
       await tester.tap(find.text('Delete wallet'));
@@ -1127,7 +1127,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
       await _reveal(tester, find.text('Recheck balance'));
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
       await _tapText(tester, 'Recheck balance');
       expect(find.byType(AlertDialog), findsNothing);
       expect(h.session.scanCalls, 0);
@@ -1216,7 +1216,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete this wallet');
+      await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
       await tester.tap(find.text('Delete wallet'));
@@ -1246,7 +1246,7 @@ void main() {
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
         expect(find.text('Restore from phrase'), findsOneWidget);
-        expect(find.text('Delete this wallet'), findsOneWidget);
+        expect(find.text('Delete wallet'), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
         await _tapText(tester, 'Restore from phrase');
@@ -1255,7 +1255,7 @@ void main() {
         await tester.tap(find.byType(BackButton));
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsNothing);
-        expect(find.text('Delete this wallet'), findsOneWidget);
+        expect(find.text('Delete wallet'), findsOneWidget);
         expect(h.container.read(sessionProvider), isNotNull);
 
         // A phrase that does not check out never reaches the warning.
@@ -1336,7 +1336,7 @@ void main() {
       }
 
       await h.openSettingsNow(tester, SettingsSection.wallet);
-      final delete = find.text('Delete this wallet');
+      final delete = find.text('Delete wallet');
       await tester.ensureVisible(delete);
       await frames();
       await tester.tap(delete);
@@ -1369,7 +1369,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(h.container.read(scanProvider).running, isTrue);
-      await tester.tap(find.text('Delete this wallet'));
+      await tester.tap(find.text('Delete wallet'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -1386,7 +1386,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete this wallet');
+      await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
       await _enter(tester, 'Type "delete" to confirm', 'delete');
       await tester.tap(find.text('Delete wallet'));
@@ -1411,7 +1411,7 @@ void main() {
       unawaited(h.container.read(scanProvider.notifier).run());
       await tester.pump();
       await h.openSettingsNow(tester, SettingsSection.wallet);
-      final tile = find.text('Delete this wallet');
+      final tile = find.text('Delete wallet');
       await tester.scrollUntilVisible(
         tile,
         300,
@@ -2077,7 +2077,7 @@ void main() {
         'Import wallet data',
         'Contacts',
         'Recheck balance',
-        'Delete this wallet',
+        'Delete wallet',
       ]);
       // The Node and Epicbox rows show their server as a state line, so only the plain words
       // are checked on the Privacy & network page.

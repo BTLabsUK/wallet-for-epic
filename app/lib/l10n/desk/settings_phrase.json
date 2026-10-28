@@ -31,7 +31,7 @@
   "@deskSetPhrasePanel": {
     "description": "Settings > Recovery phrase: title of the panel with the hidden words and the password field."
   },
-  "deskSetPhraseShowWords": "Show words",
+  "deskSetPhraseShowWords": "Show recovery phrase",
   "@deskSetPhraseShowWords": {
     "description": "Settings > Recovery phrase: button that reveals the words."
   },
@@ -44,15 +44,15 @@
       }
     }
   },
-  "deskSetPhraseHideQr": "Hide QR code",
+  "deskSetPhraseHideQr": "Hide QR",
   "@deskSetPhraseHideQr": {
     "description": "Settings > Recovery phrase: button that hides the QR code."
   },
-  "deskSetPhraseShowQr": "Show QR code",
+  "deskSetPhraseShowQr": "Show QR",
   "@deskSetPhraseShowQr": {
     "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
   },
-  "deskSetPhraseHideWords": "Hide words",
+  "deskSetPhraseHideWords": "Hide recovery phrase",
   "@deskSetPhraseHideWords": {
     "description": "Settings > Recovery phrase: button that hides the words."
   },

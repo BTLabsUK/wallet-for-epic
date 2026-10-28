@@ -155,6 +155,37 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),
           ],
         ),
+        bottomNavigationBar: _answer == null && choosing
+            ? SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FilledButton.icon(
+                        key: firstRunCreateKey,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        icon: const Icon(Icons.add),
+                        label: Text(l.firstRunCreate),
+                        onPressed: () => setState(() => _creating = true),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        key: firstRunRestoreKey,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        icon: const Icon(Icons.restore),
+                        label: Text(l.firstRunRestore),
+                        onPressed: () => _leave(const RestoreScreen()),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : null,
         body: CenteredBody(
           children: [
             // The demo has no PIN to choose and no network to name: it only sets itself up.
@@ -166,29 +197,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             const SizedBox(height: 28),
             if (_answer == null && pinless)
               const Center(child: CircularProgressIndicator())
-            else if (_answer == null && choosing) ...[
+            else if (_answer == null && choosing)
               // Two plain choices and no text field, so no keyboard can cover either. A new
-              // wallet is the primary one; Restore stands beside it at the same size.
-              FilledButton.icon(
-                key: firstRunCreateKey,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                icon: const Icon(Icons.add),
-                label: Text(l.firstRunCreate),
-                onPressed: () => setState(() => _creating = true),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                key: firstRunRestoreKey,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                icon: const Icon(Icons.restore),
-                label: Text(l.firstRunRestore),
-                onPressed: () => _leave(const RestoreScreen()),
-              ),
-            ] else if (_answer == null) ...[
+              // wallet is the primary one; Restore stands beside it at the same size. They
+              // sit at the foot of the screen, as every primary action (UI-016).
+              const SizedBox.shrink()
+            else if (_answer == null) ...[
               if (demo)
                 DemoPinFill(onDone: () => _finish(demoPin, false))
               else

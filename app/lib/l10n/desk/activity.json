@@ -3,7 +3,7 @@
   "@deskActNotUpdated": {
     "description": "Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text."
   },
-  "deskActSearchHint": "Address or slate id",
+  "deskActSearchHint": "Note, contact, address or amount",
   "@deskActSearchHint": {
     "description": "Placeholder of the search field on Activity. Narrow field."
   },
@@ -11,7 +11,7 @@
   "@deskActSearchHintEmpty": {
     "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
   },
-  "deskActSearchLabel": "Search transactions",
+  "deskActSearchLabel": "Search payments",
   "@deskActSearchLabel": {
     "description": "Screen reader label of the search field on Activity."
   },
@@ -35,15 +35,15 @@
   "@deskActTitle": {
     "description": "Title of the Activity page: the list of all transactions."
   },
-  "deskActDetailReceived": "Received transaction",
+  "deskActDetailReceived": "Received payment",
   "@deskActDetailReceived": {
     "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
   },
-  "deskActDetailSent": "Sent transaction",
+  "deskActDetailSent": "Sent payment",
   "@deskActDetailSent": {
     "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
   },
-  "deskActLoading": "Loading transactions",
+  "deskActLoading": "Loading payments",
   "@deskActLoading": {
     "description": "Line with a spinner on Activity while the transactions are being read."
   },
@@ -63,13 +63,15 @@
   "@deskActFilterSent": {
     "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
   },
-  "deskActNoMatchTitle": "No transactions match",
+  "deskActNoMatchTitle": "Nothing matches \"{query}\".",
   "@deskActNoMatchTitle": {
-    "description": "Title of the empty state on Activity when the search and filter show nothing."
-  },
-  "deskActNoMatchText": "Try another address or slate id, or clear the filter.",
-  "@deskActNoMatchText": {
-    "description": "Text of the empty state on Activity when the search and filter show nothing."
+    "description": "Activity: title of the empty state when the search or filter matches nothing; query is the typed text.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "alice"
+      }
+    }
   },
   "deskActPageOf": "Page {page} of {pages}",
   "@deskActPageOf": {
@@ -113,7 +115,7 @@
   "@deskActColAmount": {
     "description": "Column header of the Activity table. Narrow header, right aligned."
   },
-  "deskActEmptyTitle": "No transactions yet",
+  "deskActEmptyTitle": "No payments yet",
   "@deskActEmptyTitle": {
     "description": "Title of the empty state on Activity when the wallet has no transactions."
   },
@@ -168,5 +170,9 @@
         "example": "Anna"
       }
     }
+  },
+  "deskActNoneUnderFilter": "Nothing under this filter",
+  "@deskActNoneUnderFilter": {
+    "description": "Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search."
   }
 }

@@ -547,7 +547,7 @@ abstract class AppLocalizations {
   /// Status chip of a pending payment imported from a history backup, which this wallet cannot follow up.
   ///
   /// In en, this message translates to:
-  /// **'Imported, status unknown'**
+  /// **'Imported'**
   String get txStatusFromBackup;
 
   /// Screen-reader label of a cancelled payment's icon.
@@ -901,7 +901,7 @@ abstract class AppLocalizations {
   /// Language choice that follows the phone's language.
   ///
   /// In en, this message translates to:
-  /// **'System default'**
+  /// **'System'**
   String get languageSystem;
 
   /// No description provided for @currencyUsd.
@@ -997,7 +997,7 @@ abstract class AppLocalizations {
   /// Payment details, status explanation of a send waiting for its recipient. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
-  /// **'Sent through Epicbox. It completes when their wallet comes online. The amount stays locked until then, or until you cancel it.'**
+  /// **'Sent through Epicbox. Completes when their wallet comes online; the amount stays locked until then or until cancelled.'**
   String get txDetailsWaitingEpicbox;
 
   /// Payment details, status explanation of a send passed by file or copy and paste. The transaction file holds the slate, the JSON a payment passes between sender and recipient.
@@ -1264,7 +1264,7 @@ abstract class AppLocalizations {
   /// Title of the dialog that confirms cancelling a pending payment.
   ///
   /// In en, this message translates to:
-  /// **'Cancel payment?'**
+  /// **'Cancel this payment?'**
   String get txDetailsCancelTitle;
 
   /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
@@ -1354,13 +1354,13 @@ abstract class AppLocalizations {
   /// Label of the details row with the user's own note on the payment. It is never sent to the other party, unlike the message.
   ///
   /// In en, this message translates to:
-  /// **'Private note, only on this device'**
+  /// **'Private note'**
   String get txDetailsPrivateNoteLabel;
 
   /// Label of the message the person who sent the money wrote into the payment. Shown in payment details and on a transaction file before accepting it.
   ///
   /// In en, this message translates to:
-  /// **'Message from the sender'**
+  /// **'Message'**
   String get txDetailsMessageFromSender;
 
   /// Label of the message the person who received the money wrote into their answer to the payment.
@@ -1372,7 +1372,7 @@ abstract class AppLocalizations {
   /// Label of the message this wallet's user wrote into the payment, which the other party sees.
   ///
   /// In en, this message translates to:
-  /// **'Your message'**
+  /// **'Message'**
   String get txDetailsYourMessage;
 
   /// No description provided for @txDetailsNoNote.
@@ -1540,7 +1540,7 @@ abstract class AppLocalizations {
   /// Note on a payment that came from a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Imported from a wallet data file. This wallet has no record of its own for it, so its status may be out of date.'**
+  /// **'Imported from a wallet data file. Status not checked on the chain.'**
   String get txDetailsSourceImported;
 
   /// Title of the screen with every payment.
@@ -2068,13 +2068,13 @@ abstract class AppLocalizations {
   /// Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 payment is not in your exported wallet data. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in your exported wallet data. A restore from your recovery phrase brings back only your balance.}}'**
+  /// **'{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}'**
   String homeHistoryNotBackedUp(int count);
 
   /// Card on home when payments changed after the last history backup (a file with the payment list, notes and contacts).
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 payment is new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last wallet data export. A restore from your recovery phrase brings back only your balance.}}'**
+  /// **'{count, plural, one{1 payment is new or changed since the last wallet data export.} other{{count} payments are new or changed since the last wallet data export.}}'**
   String homeHistoryChangedSinceBackup(int count);
 
   /// Button that hides the history backup card for a week.
@@ -2134,7 +2134,7 @@ abstract class AppLocalizations {
   /// Tooltip of the eye button that hides all amounts.
   ///
   /// In en, this message translates to:
-  /// **'Hide balances'**
+  /// **'Hide amounts'**
   String get homeHideBalances;
 
   /// Row of the balance breakdown: payments on the chain still collecting confirmations.
@@ -2374,7 +2374,7 @@ abstract class AppLocalizations {
   /// Shown on home in place of the payment list in a new wallet.
   ///
   /// In en, this message translates to:
-  /// **'No payments yet.'**
+  /// **'No payments yet'**
   String get homeNoPayments;
 
   /// Title of the Invoices screen: invoices that services the user trusts sent, waiting for the user's answer. Also the word for an invoice elsewhere.
@@ -2827,11 +2827,11 @@ abstract class AppLocalizations {
   /// **'Requesting {amount} from {who}'**
   String txSpokenRequestingFrom(String amount, String who);
 
-  /// Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name).
+  /// Receive and the status sheet: the Epicbox line when the server answers; server is its host name.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox connected'**
-  String get receiveEpicboxConnected;
+  /// **'Connected · {server}'**
+  String receiveEpicboxConnected(String server);
 
   /// Screen-reader label of the QR code image.
   ///
@@ -2848,7 +2848,7 @@ abstract class AppLocalizations {
   /// Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
-  /// **'Payments sent to you wait on the Epicbox server and arrive when the wallet reconnects.'**
+  /// **'Payments wait on the Epicbox server and arrive when the wallet connects again.'**
   String get receiveEpicboxOfflineBody;
 
   /// One line at the top of the picture Share sends, above the QR code and the address. Epic Cash is the coin's name.
@@ -3292,7 +3292,7 @@ abstract class AppLocalizations {
   /// Home card line while Offline mode (Advanced) stops the restore scan from running.
   ///
   /// In en, this message translates to:
-  /// **'The scan goes on when Offline mode is off.'**
+  /// **'The scan goes on when Offline is off.'**
   String get restoreUnfinishedOffline;
 
   /// Home card line after the restore scan failed; the described error and a Try again button (launchTryAgain) follow.
@@ -4732,7 +4732,7 @@ abstract class AppLocalizations {
   /// Section heading in settings.
   ///
   /// In en, this message translates to:
-  /// **'Display'**
+  /// **'Appearance'**
   String get settingsSectionDisplay;
 
   /// Settings row, and the title of its dialog, that picks the currency prices are shown in.
@@ -4756,7 +4756,7 @@ abstract class AppLocalizations {
   /// Settings switch that shows amounts as dots.
   ///
   /// In en, this message translates to:
-  /// **'Hide balances'**
+  /// **'Hide amounts'**
   String get settingsHideBalances;
 
   /// Settings row, and the title of its dialog, that picks light or dark colours.
@@ -4768,7 +4768,7 @@ abstract class AppLocalizations {
   /// Theme choice that follows the phone's light or dark setting.
   ///
   /// In en, this message translates to:
-  /// **'Same as the device'**
+  /// **'System'**
   String get settingsThemeSystem;
 
   /// Theme choice.
@@ -4900,7 +4900,7 @@ abstract class AppLocalizations {
   /// Section heading in settings.
   ///
   /// In en, this message translates to:
-  /// **'Wallet'**
+  /// **'This wallet'**
   String get settingsSectionWallet;
 
   /// Settings row that opens the address book.
@@ -5002,7 +5002,7 @@ abstract class AppLocalizations {
   /// Settings row, in red.
   ///
   /// In en, this message translates to:
-  /// **'Delete this wallet'**
+  /// **'Delete wallet'**
   String get settingsDeleteWallet;
 
   /// Notice when delete is tapped while a search of the blockchain runs.
@@ -5098,7 +5098,7 @@ abstract class AppLocalizations {
   /// Settings row that opens the feedback form.
   ///
   /// In en, this message translates to:
-  /// **'Send feedback'**
+  /// **'Report a problem'**
   String get settingsSendFeedback;
 
   /// Info sheet behind Send feedback: where it goes, what logs carry.
@@ -5254,13 +5254,13 @@ abstract class AppLocalizations {
   /// Button at the end of the help page that opens the feedback form.
   ///
   /// In en, this message translates to:
-  /// **'Send feedback'**
+  /// **'Report a problem'**
   String get helpSendFeedback;
 
   /// Title of the feedback form.
   ///
   /// In en, this message translates to:
-  /// **'Send feedback'**
+  /// **'Report a problem'**
   String get feedbackTitle;
 
   /// First line of the feedback form.
@@ -5272,7 +5272,7 @@ abstract class AppLocalizations {
   /// Label of the message field.
   ///
   /// In en, this message translates to:
-  /// **'Your message'**
+  /// **'What happened'**
   String get feedbackMessageLabel;
 
   /// Error under an empty message field.
@@ -5284,7 +5284,7 @@ abstract class AppLocalizations {
   /// Label of the email field.
   ///
   /// In en, this message translates to:
-  /// **'Email for a reply (optional)'**
+  /// **'Contact (optional)'**
   String get feedbackEmailLabel;
 
   /// Error under the email field.
@@ -5296,7 +5296,7 @@ abstract class AppLocalizations {
   /// Switch: add the app's log to the report.
   ///
   /// In en, this message translates to:
-  /// **'Attach diagnostic logs'**
+  /// **'Attach logs'**
   String get feedbackAttachLogs;
 
   /// Under the Attach diagnostic logs switch.
@@ -5308,7 +5308,7 @@ abstract class AppLocalizations {
   /// Button that shows the report's full text. The report itself stays in English.
   ///
   /// In en, this message translates to:
-  /// **'Preview what is sent'**
+  /// **'What is sent'**
   String get feedbackPreviewButton;
 
   /// Button that sends the report to the feedback server.
@@ -5320,7 +5320,7 @@ abstract class AppLocalizations {
   /// Button under Send: hand the report over as a file instead.
   ///
   /// In en, this message translates to:
-  /// **'Share or save instead'**
+  /// **'Share or save'**
   String get feedbackShareOrSaveInstead;
 
   /// Shown above the Share or save button in builds without a feedback server.
@@ -5422,7 +5422,7 @@ abstract class AppLocalizations {
   /// Settings group on the phone's Settings hub: opens Help, which starts with Send feedback.
   ///
   /// In en, this message translates to:
-  /// **'Help & feedback'**
+  /// **'Help'**
   String get settingsSectionHelpFeedback;
 
   /// State line under the Security group while the recovery phrase has not been backed up.
@@ -5470,7 +5470,7 @@ abstract class AppLocalizations {
   /// Payment details timeline, a send: the recipient's wallet signed it. Shown once it happened.
   ///
   /// In en, this message translates to:
-  /// **'Recipient accepted'**
+  /// **'Recipient signed'**
   String get txStepAccepted;
 
   /// Payment details timeline, a send: the finished payment was posted to the chain.
@@ -5500,7 +5500,7 @@ abstract class AppLocalizations {
   /// Payment details timeline, an incoming payment: the sender finished it and posted it to the chain.
   ///
   /// In en, this message translates to:
-  /// **'Sender finished it'**
+  /// **'Signed and returned'**
   String get txStepSenderFinished;
 
   /// Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back.
@@ -6448,7 +6448,7 @@ abstract class AppLocalizations {
   /// Balance tile label: mining rewards not spendable yet. 1 to 3 words.
   ///
   /// In en, this message translates to:
-  /// **'Rewards maturing'**
+  /// **'Immature'**
   String get homeTileMaturing;
 
   /// Balance tile label: the whole balance, spendable and pending together.
@@ -6478,7 +6478,7 @@ abstract class AppLocalizations {
   /// Button on the tour card: ends the tour.
   ///
   /// In en, this message translates to:
-  /// **'Skip'**
+  /// **'Skip tour'**
   String get tourPhoneSkip;
 
   /// Button on the tour card: the previous step.
@@ -9301,7 +9301,7 @@ abstract class AppLocalizations {
   /// Notice under Send's To: an onion address needs Tor, which is off.
   ///
   /// In en, this message translates to:
-  /// **'Needs Tor.'**
+  /// **'Link · Tor needs Tor.'**
   String get torNeeds;
 
   /// Button that turns the Tor switch on.
@@ -10903,7 +10903,7 @@ abstract class AppLocalizations {
   /// Intro text of the Epicbox panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Share it to get paid; the Epicbox server holds payments while the wallet is closed.'**
+  /// **'Share it to get paid. Senders can pay while this wallet is closed.'**
   String get deskRecvEpicboxIntro;
 
   /// Caption under the Epicbox address on Receive.
@@ -10939,7 +10939,7 @@ abstract class AppLocalizations {
   /// Intro text of the HTTP panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Straight from another wallet while this one is open.'**
+  /// **'For wallets on this computer, while this wallet is open.'**
   String get deskRecvHttpIntro;
 
   /// Caption at the bottom of the HTTP panel on Receive.
@@ -11388,7 +11388,7 @@ abstract class AppLocalizations {
   /// Button on the file-ready card on Send: starts over.
   ///
   /// In en, this message translates to:
-  /// **'New send'**
+  /// **'Send another'**
   String get deskSendNewSend;
 
   /// Title of the warning notice on Send while the node has not synced.
@@ -11472,7 +11472,7 @@ abstract class AppLocalizations {
   /// Button in the Sent notice: opens the payment in Activity.
   ///
   /// In en, this message translates to:
-  /// **'View transaction'**
+  /// **'View payment'**
   String get deskSendViewTx;
 
   /// Title of the error notice on Send after a send failed; the reason is the text.
@@ -11538,7 +11538,7 @@ abstract class AppLocalizations {
   /// Title of the warning under the recipient field when an onion address is entered and Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Needs Tor'**
+  /// **'Link · Tor needs Tor'**
   String get deskSendNeedsTor;
 
   /// Text of that warning.
@@ -11718,7 +11718,7 @@ abstract class AppLocalizations {
   /// Label of the primary button on Send: opens the review dialog.
   ///
   /// In en, this message translates to:
-  /// **'Review send'**
+  /// **'Review'**
   String get deskSendReview;
 
   /// Title of the summary panel on Send.
@@ -12096,7 +12096,7 @@ abstract class AppLocalizations {
   /// Toast and result title after the response file was finalized and posted.
   ///
   /// In en, this message translates to:
-  /// **'Transaction posted'**
+  /// **'Payment posted'**
   String get deskFinPosted;
 
   /// Page title of Finalize.
@@ -12294,7 +12294,7 @@ abstract class AppLocalizations {
   /// Placeholder of the search field on Activity. Narrow field.
   ///
   /// In en, this message translates to:
-  /// **'Address or slate id'**
+  /// **'Note, contact, address or amount'**
   String get deskActSearchHint;
 
   /// Placeholder of the search field on Activity when there are no transactions yet. Narrow field.
@@ -12306,7 +12306,7 @@ abstract class AppLocalizations {
   /// Screen reader label of the search field on Activity.
   ///
   /// In en, this message translates to:
-  /// **'Search transactions'**
+  /// **'Search payments'**
   String get deskActSearchLabel;
 
   /// Tooltip of the button that empties the search field; also the button of the 'no match' state.
@@ -12342,19 +12342,19 @@ abstract class AppLocalizations {
   /// Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page.
   ///
   /// In en, this message translates to:
-  /// **'Received transaction'**
+  /// **'Received payment'**
   String get deskActDetailReceived;
 
   /// Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page.
   ///
   /// In en, this message translates to:
-  /// **'Sent transaction'**
+  /// **'Sent payment'**
   String get deskActDetailSent;
 
   /// Line with a spinner on Activity while the transactions are being read.
   ///
   /// In en, this message translates to:
-  /// **'Loading transactions'**
+  /// **'Loading payments'**
   String get deskActLoading;
 
   /// Line with a spinner on Activity while the node has not finished syncing, so there is no list yet.
@@ -12381,17 +12381,11 @@ abstract class AppLocalizations {
   /// **'Sent'**
   String get deskActFilterSent;
 
-  /// Title of the empty state on Activity when the search and filter show nothing.
+  /// Activity: title of the empty state when the search or filter matches nothing; query is the typed text.
   ///
   /// In en, this message translates to:
-  /// **'No transactions match'**
-  String get deskActNoMatchTitle;
-
-  /// Text of the empty state on Activity when the search and filter show nothing.
-  ///
-  /// In en, this message translates to:
-  /// **'Try another address or slate id, or clear the filter.'**
-  String get deskActNoMatchText;
+  /// **'Nothing matches \"{query}\".'**
+  String deskActNoMatchTitle(String query);
 
   /// Pager caption under the Activity list: the current page of all pages.
   ///
@@ -12444,7 +12438,7 @@ abstract class AppLocalizations {
   /// Title of the empty state on Activity when the wallet has no transactions.
   ///
   /// In en, this message translates to:
-  /// **'No transactions yet'**
+  /// **'No payments yet'**
   String get deskActEmptyTitle;
 
   /// Text of the empty state on Activity when the wallet has no transactions.
@@ -12630,7 +12624,7 @@ abstract class AppLocalizations {
   /// Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.
   ///
   /// In en, this message translates to:
-  /// **'Last transaction: {when}'**
+  /// **'Last payment: {when}'**
   String deskConLastTx(String when);
 
   /// Primary button in a contact's detail: send to this contact. Short.
@@ -12678,25 +12672,25 @@ abstract class AppLocalizations {
   /// Label above the note in a contact's detail; also the label of the note field in the form.
   ///
   /// In en, this message translates to:
-  /// **'Note'**
+  /// **'Note (optional)'**
   String get deskConNote;
 
   /// Heading above the list of payments with this contact.
   ///
   /// In en, this message translates to:
-  /// **'Transactions with {name}'**
+  /// **'Payments with {name}'**
   String deskConTxWith(String name);
 
   /// Link next to the heading: opens Activity.
   ///
   /// In en, this message translates to:
-  /// **'All transactions'**
+  /// **'All payments'**
   String get deskConAllTx;
 
   /// Text under the heading when there are no payments with this contact.
   ///
   /// In en, this message translates to:
-  /// **'No transactions with this contact yet. Payments sent to them from Send appear here.'**
+  /// **'No payments with this contact yet. Payments sent to them from Send appear here.'**
   String get deskConTxNone;
 
   /// Title of a compact row in a contact's payments: an incoming payment. One word.
@@ -13764,7 +13758,7 @@ abstract class AppLocalizations {
   /// Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines.
   ///
   /// In en, this message translates to:
-  /// **'Awaiting finalization'**
+  /// **'Waiting for sender'**
   String get deskOvBreakAwaiting;
 
   /// Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines.
@@ -13788,13 +13782,13 @@ abstract class AppLocalizations {
   /// Line with a spinner in the Recent activity panel while the transactions load.
   ///
   /// In en, this message translates to:
-  /// **'Loading transactions'**
+  /// **'Loading payments'**
   String get deskOvLoading;
 
   /// Title of the empty state of Recent activity.
   ///
   /// In en, this message translates to:
-  /// **'No transactions yet'**
+  /// **'No payments yet'**
   String get deskOvEmptyTitle;
 
   /// Text of the empty state of Recent activity; blocks is the number of confirmations needed.
@@ -13968,7 +13962,7 @@ abstract class AppLocalizations {
   /// Tooltip on a payment that was added from a history backup file.
   ///
   /// In en, this message translates to:
-  /// **'Added from a wallet data file.'**
+  /// **'Imported from a wallet data file.'**
   String get deskTxBackupTip;
 
   /// Status and small line of a payment that came from a history backup. Activity table, narrow.
@@ -13986,7 +13980,7 @@ abstract class AppLocalizations {
   /// Status of an incoming payment that waits for the sender to finalize it. Narrow status column.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for sender to finalize'**
+  /// **'Waiting for sender'**
   String get deskTxStatusWaitingSender;
 
   /// Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column.
@@ -13998,7 +13992,7 @@ abstract class AppLocalizations {
   /// Status of an outgoing payment that waits for the recipient to sign. Narrow status column.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for recipient to sign'**
+  /// **'Waiting for recipient'**
   String get deskTxStatusWaitingRecipient;
 
   /// Status of a payment that was sent to the network and waits to be put in a block. Narrow status column.
@@ -14100,7 +14094,7 @@ abstract class AppLocalizations {
   /// Status line at the top of the transaction detail for a payment that came from a history backup.
   ///
   /// In en, this message translates to:
-  /// **'Imported; the chain was not asked.'**
+  /// **'Imported from a wallet data file. Status not checked on the chain.'**
   String get deskTxNowBackup;
 
   /// Status line at the top of the transaction detail for a mining reward that is not yet spendable.
@@ -14112,7 +14106,7 @@ abstract class AppLocalizations {
   /// Status line on the transaction detail: an incoming payment this wallet signed and sent back.
   ///
   /// In en, this message translates to:
-  /// **'Signed and returned. Waiting for the sender to finalize.'**
+  /// **'Waiting for the sender to post it.'**
   String get deskTxNowWaitingSender;
 
   /// Status line on the transaction detail: an outgoing file payment waiting for the recipient's response file.
@@ -14184,7 +14178,7 @@ abstract class AppLocalizations {
   /// Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case.
   ///
   /// In en, this message translates to:
-  /// **'added from a wallet data file'**
+  /// **'imported from a wallet data file'**
   String get deskTxHeadBackup;
 
   /// Small line under the big amount on the transaction detail for an incoming payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.
@@ -14268,7 +14262,7 @@ abstract class AppLocalizations {
   /// Payment proof line on the transaction detail, and a step of the timeline.
   ///
   /// In en, this message translates to:
-  /// **'Signed by the recipient'**
+  /// **'Recipient signed'**
   String get deskTxSignedByRecipient;
 
   /// Button on the transaction detail that opens the payment proof. Short.
@@ -14352,7 +14346,7 @@ abstract class AppLocalizations {
   /// Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations.
   ///
   /// In en, this message translates to:
-  /// **'Spendable'**
+  /// **'Completed'**
   String get deskTxStepSpendable;
 
   /// Small line under the Spendable step of a mining reward.
@@ -14364,13 +14358,13 @@ abstract class AppLocalizations {
   /// Timeline step of an incoming payment: the sender's first message arrived.
   ///
   /// In en, this message translates to:
-  /// **'Received slate'**
+  /// **'Payment arrived'**
   String get deskTxStepReceivedSlate;
 
   /// Timeline step of an outgoing payment.
   ///
   /// In en, this message translates to:
-  /// **'Created and signed'**
+  /// **'Payment started'**
   String get deskTxStepCreated;
 
   /// Timeline step of an incoming payment: this wallet signed and sent it back.
@@ -14388,7 +14382,7 @@ abstract class AppLocalizations {
   /// Small line under a timeline step of an outgoing payment.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for the recipient'**
+  /// **'Waiting for recipient'**
   String get deskTxStepWaitingRecipient;
 
   /// Timeline step: the payment was sent to the network.
@@ -14418,7 +14412,7 @@ abstract class AppLocalizations {
   /// Title of the dialog that asks before cancelling an outgoing payment.
   ///
   /// In en, this message translates to:
-  /// **'Cancel this send?'**
+  /// **'Cancel this payment?'**
   String get deskTxCancelOutgoingTitle;
 
   /// Body of the dialog that asks before cancelling an incoming payment.
@@ -14448,7 +14442,7 @@ abstract class AppLocalizations {
   /// Danger button in the cancel dialog for an outgoing payment. Short.
   ///
   /// In en, this message translates to:
-  /// **'Cancel send'**
+  /// **'Cancel payment'**
   String get deskTxCancelOutgoingAction;
 
   /// Description in the payment proof dialog for an incoming payment.
@@ -14790,7 +14784,7 @@ abstract class AppLocalizations {
   /// Button that shows the recovery phrase as a QR code.
   ///
   /// In en, this message translates to:
-  /// **'Show QR code'**
+  /// **'Show QR'**
   String get deskOnbCreateShowQr;
 
   /// Button that hides the recovery phrase QR code.
@@ -16938,7 +16932,7 @@ abstract class AppLocalizations {
   /// Screen-reader label of the button that hides the QR code.
   ///
   /// In en, this message translates to:
-  /// **'Hide QR code'**
+  /// **'Hide QR'**
   String get deskKitQrHideCode;
 
   /// Toast title when forgetting the remembered password failed.
@@ -17004,7 +16998,7 @@ abstract class AppLocalizations {
   /// Settings > This wallet: button that opens the recovery phrase page.
   ///
   /// In en, this message translates to:
-  /// **'Show phrase…'**
+  /// **'Show recovery phrase…'**
   String get deskSetAcctShowPhrase;
 
   /// Settings > This wallet: hint under the Recheck balance row.
@@ -19223,7 +19217,7 @@ abstract class AppLocalizations {
   /// Settings > Recovery phrase: button that reveals the words.
   ///
   /// In en, this message translates to:
-  /// **'Show words'**
+  /// **'Show recovery phrase'**
   String get deskSetPhraseShowWords;
 
   /// Screen reader label of the revealed recovery phrase grid.
@@ -19235,19 +19229,19 @@ abstract class AppLocalizations {
   /// Settings > Recovery phrase: button that hides the QR code.
   ///
   /// In en, this message translates to:
-  /// **'Hide QR code'**
+  /// **'Hide QR'**
   String get deskSetPhraseHideQr;
 
   /// Settings > Recovery phrase: button that shows the phrase as a QR code.
   ///
   /// In en, this message translates to:
-  /// **'Show QR code'**
+  /// **'Show QR'**
   String get deskSetPhraseShowQr;
 
   /// Settings > Recovery phrase: button that hides the words.
   ///
   /// In en, this message translates to:
-  /// **'Hide words'**
+  /// **'Hide recovery phrase'**
   String get deskSetPhraseHideWords;
 
   /// Settings > Recovery phrase: countdown until the words hide themselves. {seconds} is a number of seconds.
@@ -21089,7 +21083,7 @@ abstract class AppLocalizations {
   /// Field name in the details dialog and the details list: the private note.
   ///
   /// In en, this message translates to:
-  /// **'Note'**
+  /// **'Private note'**
   String get deskTxDetailsNote;
 
   /// Toast title after details were added to a payment.
@@ -21527,7 +21521,7 @@ abstract class AppLocalizations {
   /// Home status line while the Offline network mode is on.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode'**
+  /// **'Offline'**
   String get advHomeOffline;
 
   /// Home status line while Tor only is on and Tor is not connected yet.
@@ -21731,7 +21725,7 @@ abstract class AppLocalizations {
   /// Sidebar status row while the Offline network mode is on.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode'**
+  /// **'Offline'**
   String get deskShellOffline;
 
   /// Sidebar status row while Tor only is on and Tor is not connected yet.
@@ -21749,7 +21743,7 @@ abstract class AppLocalizations {
   /// Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode is on in Advanced.'**
+  /// **'Offline is on in Advanced.'**
   String get netBlockOffline;
 
   /// Line under the Tor switch while the Tor only network mode locks it on.
@@ -21767,7 +21761,7 @@ abstract class AppLocalizations {
   /// Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out.
   ///
   /// In en, this message translates to:
-  /// **'Cannot receive this way while Offline mode is on.'**
+  /// **'Cannot receive this way while Offline is on.'**
   String get receiveOfflineLine;
 
   /// Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced.
@@ -21785,7 +21779,7 @@ abstract class AppLocalizations {
   /// Tooltip and screen reader hint of Home's Offline status.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode is on in Advanced. The balance is the last one seen.'**
+  /// **'Offline is on in Advanced. The balance is the last one seen.'**
   String get homeOfflineDetail;
 
   /// Tooltip and screen reader hint of Home's Waiting for Tor status.
@@ -22037,7 +22031,7 @@ abstract class AppLocalizations {
   /// Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode is on in Advanced.'**
+  /// **'Offline is on in Advanced.'**
   String get deskNetOfflineReason;
 
   /// Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line.
@@ -22067,7 +22061,7 @@ abstract class AppLocalizations {
   /// Text of the notice on Receive while Offline mode is on.
   ///
   /// In en, this message translates to:
-  /// **'Your address stays the same. Nothing can arrive until Offline mode is off.'**
+  /// **'Your address stays the same. Nothing can arrive while Offline is on.'**
   String get deskNetRecvOfflineText;
 
   /// Text of the notice on Receive in Tor only mode while Tor is not connected yet.
@@ -22127,7 +22121,7 @@ abstract class AppLocalizations {
   /// Settings hub, state line of the Transactions row: the method Send starts on.
   ///
   /// In en, this message translates to:
-  /// **'Default'**
+  /// **'Default method'**
   String get settingsHubDefault;
 
   /// Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on.
@@ -22715,7 +22709,7 @@ abstract class AppLocalizations {
   /// Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs.
   ///
   /// In en, this message translates to:
-  /// **'Link · Tor receiving needs Tor.'**
+  /// **'Link · Tor needs Tor.'**
   String get deskRecvTorOffTitle;
 
   /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy).
@@ -26453,7 +26447,7 @@ abstract class AppLocalizations {
   /// Sidebar slot line: Offline mode is on (Settings › Advanced). Short.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode'**
+  /// **'Offline'**
   String get deskSlotOffline;
 
   /// After 'Offline mode' on the same short line: what it means.
@@ -27371,7 +27365,7 @@ abstract class AppLocalizations {
   /// tourPhoneAdvancedText in the build without Tor: Offline mode instead of Tor-only mode.
   ///
   /// In en, this message translates to:
-  /// **'Offline mode, outputs and technical details live here. Switch on what you need.'**
+  /// **'Offline, outputs and technical details live here. Switch on what you need.'**
   String get tourPhoneAdvancedTextNoTor;
 
   /// Under Send › Link, the line under the method in the build without Tor (no onion addresses).
@@ -27545,7 +27539,7 @@ abstract class AppLocalizations {
   /// State line of Connection servers in Offline mode.
   ///
   /// In en, this message translates to:
-  /// **'Paused in Offline mode.'**
+  /// **'Paused while Offline is on.'**
   String get connServersOffline;
 
   /// State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.
@@ -27767,7 +27761,7 @@ abstract class AppLocalizations {
   /// Info text of the Pause sync switch.
   ///
   /// In en, this message translates to:
-  /// **'While paused, this device neither reads nor sends notices; they wait on the servers for as long as each server keeps them. Offline mode pauses it too.'**
+  /// **'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline pauses it too.'**
   String get devicesPauseHint;
 
   /// Linked devices page: the heading over coins another device is spending.
@@ -28133,7 +28127,7 @@ abstract class AppLocalizations {
   /// Under the Pause sync switch while the app is in Offline mode.
   ///
   /// In en, this message translates to:
-  /// **'Paused in Offline mode.'**
+  /// **'Paused while Offline is on.'**
   String get deskDevPausedOffline;
 
   /// Under the Pause sync switch while Epicbox is switched off.
@@ -28489,6 +28483,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Their code came by message, not from your camera. Unless their wallet scanned your code from this screen, these words cannot prove who sent it, so They match is not offered: keep the pairing without checking, or pair with an invite.'**
   String get sasNotFromCamera;
+
+  /// Server list: tooltip of the disabled Remove on the server in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch first'**
+  String get slSwitchFirst;
+
+  /// Settings › Privacy & network: the state word of the Node and Epicbox rows while Offline is on in Advanced (both paused by choice).
+  ///
+  /// In en, this message translates to:
+  /// **'Paused · Offline'**
+  String get netStatusPausedOffline;
+
+  /// Contact page: shown under the payments heading while there are none with this contact.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments with this contact yet.'**
+  String get contactPaymentsNone;
+
+  /// Contact page: heading of the payments with this contact; name is the contact’s.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions with {name}'**
+  String contactPaymentsWith(String name);
+
+  /// Contact page: the button under the newest payments that opens Activity searched by the contact’s name.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions'**
+  String get contactPaymentsAll;
+
+  /// Receive: the Epicbox line while the server does not answer; server is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected · {server}'**
+  String receiveEpicboxNotConnected(String server);
+
+  /// Restore: the line under the word chips when 12 or 24 known words are typed; count is 12 or 24.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The word checks out.} other{All {count} words check out.}}'**
+  String restoreWordsAllOk(int count);
+
+  /// Restore: the line under the word chips while the phrase is still being typed; count is how many words so far.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 word} other{{count} words}}'**
+  String restoreWordsSoFar(int count);
+
+  /// Restore: the line under the word chips when words are not in the recovery word list; count is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}'**
+  String restoreWordsUnknown(int count);
+
+  /// Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited {clock}'**
+  String pairInvitedAt(String clock);
+
+  /// Pending pairing row: the invite went out yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited yesterday'**
+  String get pairInvitedYesterday;
+
+  /// Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited {day}'**
+  String pairInvitedOn(String day);
+
+  /// Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing under this filter'**
+  String get deskActNoneUnderFilter;
+
+  /// Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet).
+  ///
+  /// In en, this message translates to:
+  /// **'For wallets on the internet, while this wallet is open.'**
+  String get deskRecvHttpIntroInternet;
+
+  /// State word of the Epicbox method line on Receive and in Settings when the server answers: "Connected · host".
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get deskKitMethodConnected;
 }
 
 class _AppLocalizationsDelegate

@@ -17,7 +17,7 @@
   "deskTxDetailsFromTip": "付款人，仅供你记录。未验证，也不会用于付款证明。",
   "deskTxDetailsFromHint": "发送方地址",
   "deskTxDetailsFromBad": "请使用 Epicbox、http(s) 或 .onion 地址。",
-  "deskTxDetailsNote": "备注",
+  "deskTxDetailsNote": "私人备注",
   "deskTxDetailsAdded": "已添加详情",
   "deskTxDetailsSaved": "已保存详情",
   "deskTxDetailsRemoved": "已删除详情",

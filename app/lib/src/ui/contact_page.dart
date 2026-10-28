@@ -16,6 +16,7 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
@@ -63,12 +64,56 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return GlyphTile(
-      size: size,
+    // A neutral circle, as the desktop's rows: the gold brackets are brand art (UI-054).
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: t.surfaceHi, border: Border.all(color: t.line)),
       child: Text(
         contactInitials(name),
-        style: TextStyle(fontFamily: t.headFamily, fontSize: size * 0.35, fontWeight: FontWeight.w600, color: t.accentText),
+        style: TextStyle(fontFamily: t.headFamily, fontSize: size * 0.35, fontWeight: FontWeight.w600, color: t.text),
       ),
+    );
+  }
+}
+
+/// The payments with [contact] (GP-043): the newest five rows whose other side is one of
+/// its addresses, then the way to all of them in Activity, searched by its name. Says so
+/// when there are none yet.
+class _Payments extends ConsumerWidget {
+  const _Payments({required this.contact});
+
+  final Contact contact;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final all = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+    final mine = [for (final tx in all) if (contactFor([contact], tx.counterparty) != null) tx];
+    if (mine.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(l.contactPaymentsNone, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final tx in mine.take(5)) TxTile(tx: tx),
+        if (mine.length > 5)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(builder: (_) => HistoryScreen(query: contact.name)),
+              ),
+              child: Text(l.contactPaymentsAll),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -291,6 +336,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             PairSection(l.contactsNoteHeading),
             Text(note, style: Theme.of(context).textTheme.bodyMedium),
           ],
+          PairSection(l.contactPaymentsWith(contact.name)),
+          _Payments(contact: contact),
         ],
       ),
     );

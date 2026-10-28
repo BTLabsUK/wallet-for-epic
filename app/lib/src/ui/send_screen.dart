@@ -2365,39 +2365,58 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final t = context.tokens;
+    final counterStyle = theme.textTheme.bodySmall?.copyWith(color: t.dim);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          if (onBack != null)
-            IconButton(
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-              icon: const Icon(Icons.arrow_back),
-              onPressed: _busy || _estimating ? null : onBack,
-            ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                start: onBack == null ? 0 : 4,
+      child: LayoutBuilder(
+        builder: (context, box) {
+          // At a large text size or on a narrow phone the step counter goes under the
+          // title, so the title still breaks by word, never by letter (UI-002).
+          final scale = MediaQuery.textScalerOf(context).scale(1);
+          final stacked = step != null && (scale >= 1.5 || box.maxWidth < 340);
+          final heading = Semantics(
+            header: true,
+            child: Text(title, style: theme.textTheme.titleLarge),
+          );
+          return Row(
+            crossAxisAlignment: stacked ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+            children: [
+              if (onBack != null)
+                IconButton(
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _busy || _estimating ? null : onBack,
+                ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(
+                    start: onBack == null ? 0 : 4,
+                  ),
+                  child: stacked
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            heading,
+                            Text(l.sendStepOf(step, 3), style: counterStyle),
+                          ],
+                        )
+                      : heading,
+                ),
               ),
-              child: Semantics(
-                header: true,
-                child: Text(title, style: theme.textTheme.titleLarge),
-              ),
-            ),
-          ),
-          if (step != null)
-            Text(
-              l.sendStepOf(step, 3),
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          ?extra,
-          IconButton(
-            tooltip: l.sendHowItWorks,
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => showHandshakeSheet(context, flow: _howFlow),
-          ),
-        ],
+              if (step != null && !stacked)
+                Text(l.sendStepOf(step, 3), style: counterStyle),
+              // One help icon per header (UI-052): a step with its own help shows that.
+              if (extra != null)
+                extra
+              else
+                IconButton(
+                  tooltip: l.sendHowItWorks,
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () => showHandshakeSheet(context, flow: _howFlow),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -3315,6 +3334,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ] else ...[
           BusyButton(
             label: _queues() ? l.sendQueue : l.sendReviewSendButton(amount),
+            busyLabel: l.sendSending,
             busy: _busy,
             onPressed: canSend ? _send : null,
           ),
@@ -3520,8 +3540,9 @@ class _SendViewState extends ConsumerState<SendView> {
         context,
         _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
+        // The QR way is finished from the header; the file way has its own help (UI-061).
         extra: _viaQr
-            ? null
+            ? TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone))
             : IconButton(
                 tooltip: l.sendFileHelpTooltip,
                 icon: const Icon(Icons.help_outline),
@@ -3612,6 +3633,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
         const SizedBox(height: 12),
+        // Second to the primary at the foot (Scan their reply); Done is in the header (UI-061).
         OutlinedButton.icon(
           key: sendShowQrKey,
           style: OutlinedButton.styleFrom(
@@ -3620,12 +3642,6 @@ class _SendViewState extends ConsumerState<SendView> {
           icon: const Icon(Icons.qr_code_2),
           label: Text(l.qrShow),
           onPressed: _busy ? null : () => _showQr(slate),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: _done,
-          child: Text(l.commonDone),
         ),
       ];
     }
@@ -4423,10 +4439,10 @@ class _ReadyLine extends ConsumerWidget {
         null,
       ),
       _ when checks.listener == CheckOutcome.failed && !queued => (
-        Icon(Icons.sync, size: 18, color: t.dim),
+        Icon(Icons.sync_problem, size: 18, color: t.warn),
         l.sendListenerDown,
         t.dim,
-        null,
+        () => ref.read(listenerProvider.notifier).restart(),
       ),
       _ => (Icon(Icons.check, size: 18, color: t.ok), l.sendReady, t.dim, null),
     };

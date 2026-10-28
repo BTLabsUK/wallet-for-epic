@@ -2112,7 +2112,7 @@ void main() {
           file: SlateFile(name: 'from-alice.tx', json: incoming),
         ),
       );
-      expect(find.text('Message from the sender'), findsOneWidget);
+      expect(find.text('Message'), findsOneWidget);
       expect(find.text('hi Bob'), findsOneWidget);
       expect(h.session.receivedSlates, isEmpty);
     });
@@ -2161,7 +2161,7 @@ void main() {
         ),
       );
       expect(find.text('Someone is sending you 3 EPIC.'), findsOneWidget);
-      expect(find.text('Message from the sender'), findsNothing);
+      expect(find.text('Message'), findsNothing);
     });
 
     testWidgets('a file accepted before says so and hands out the same answer', (

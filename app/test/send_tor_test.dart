@@ -344,7 +344,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Needs Tor.'), findsOneWidget);
+      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       await _tap(tester, find.byKey(sendTurnOnTorKey));
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.phase, PhoneTorPhase.starting);

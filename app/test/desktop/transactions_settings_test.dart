@@ -134,12 +134,12 @@ void main() {
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
-      expect(find.textContaining('Offline mode'), findsWidgets);
+      expect(find.textContaining('Offline'), findsWidgets);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
       expect(find.text('Turn on Tor'), findsNothing);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Offline mode is on in Advanced.')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Offline is on in Advanced.')), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
     }, skip: !torBuilt);
 
@@ -344,7 +344,7 @@ void main() {
       expect(find.byKey(const ValueKey('out-defaults-moved')), findsNothing, reason: 'Send options is off');
     });
 
-    testWidgets('Outputs holds one line to Transactions with Send options on', (tester) async {
+    testWidgets('Outputs holds one line to Payments with Send options on', (tester) async {
       await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs, AdvancedFeature.sendOptions}));
       await tester.ensureVisible(find.byKey(const ValueKey('out-defaults-moved')));
       expect(find.byKey(const ValueKey('out-defaults-moved')), findsOneWidget);

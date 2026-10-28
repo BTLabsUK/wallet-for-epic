@@ -76,7 +76,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Review send'));
+      await tester.tap(find.text('Review'));
       await tester.pumpAndSettle();
       await enterReviewPassword(tester);
       await tester.tap(find.textContaining(RegExp(r'^Send \d')));

@@ -126,15 +126,37 @@ List<BalanceTileData> balanceTiles(
     value: summary.total,
   );
   if (pending.isNotEmpty) return [...pending, total];
+  // A new wallet shows Total alone (GP-009); a settled one says so beside it.
+  if (empty) return [total];
   return [
     total,
     (
       kind: BalanceKind.calm,
       icon: Icons.check,
-      label: empty ? l.balanceLineNothingYet : l.balanceLineAllConfirmed,
+      label: l.balanceLineAllConfirmed,
       value: null,
     ),
   ];
+}
+
+/// How many decimals every balance tile shows (UI-013): the same for all, five when any
+/// amount needs five or more (the rest is cut, never rounded), else four; so the figures
+/// line up and compare, on the phone as on the desktop.
+int tileDecimals(Iterable<BigInt> values) {
+  var most = 0;
+  for (final v in values) {
+    final text = displayEpic(v);
+    final dot = text.indexOf('.');
+    final n = dot < 0 ? 0 : text.length - dot - 1;
+    if (n > most) most = n;
+  }
+  return most >= 5 ? 5 : 4;
+}
+
+/// [atomic] cut to [decimals] decimals and shown with exactly that many, grouped.
+String tileAmount(BigInt atomic, int decimals) {
+  final cut = BigInt.from(10).pow(epicDecimals - decimals);
+  return formatEpic(atomic - atomic.remainder(cut), minDecimals: decimals, grouped: true);
 }
 
 /// The key of the balance tiles row, for tests.
@@ -186,13 +208,14 @@ class BalanceTiles extends ConsumerWidget {
       height,
       24 + scaler.scale(12) * 1.4 + 4 + scaler.scale(15) * 1.2,
     );
+    final decimals = tileDecimals([for (final x in tiles) if (x.value case final v?) v]);
     Widget tile(BalanceTileData tile) {
       final value = tile.value;
       final text = value == null
           ? null
           : hidden
           ? hiddenAmount
-          : localDigits(l, displayEpic(value));
+          : localDigits(l, tileAmount(value, decimals));
       return _BalanceTile(
         key: balanceTileKey(tile.kind),
         icon: tile.icon,

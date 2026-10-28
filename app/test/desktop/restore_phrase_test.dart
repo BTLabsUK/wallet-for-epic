@@ -205,11 +205,11 @@ void main() {
     }
     expect(_continueEnabled(tester), isTrue, reason: 'the 12 typed words pass the checksum');
     expect(find.text('12 of 12 words'), findsOneWidget);
-    expect(_continue(tester).label, 'Use 12 words');
+    expect(_continue(tester).label, 'Continue');
     await _key(tester, LogicalKeyboardKey.enter);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'a typed phrase under 24 words goes on with the button only');
     expect(_focusedOn(tester, 12), isTrue);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.textContaining('Set the password that unlocks this wallet'), findsOneWidget);
@@ -307,7 +307,7 @@ void main() {
     expect(find.text('24 of 24 words'), findsOneWidget);
     expect(find.text('All 24 words check out.'), findsOneWidget);
     expect(_continueEnabled(tester), isTrue);
-    await tester.tap(find.text('Use 24 words'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and confirmation; the wallet name is the title, edited from its pen');

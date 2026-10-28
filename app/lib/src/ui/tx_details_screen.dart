@@ -523,12 +523,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 : HelpAnchor.sending,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
+          // One destructive look (UI-015): the cancelling choice in red, the safe one neutral.
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context, false),
               child: Text(l.txDetailsCancelKeep),
             ),
-            FilledButton(
+            DangerButton(
               onPressed: () => Navigator.pop(context, true),
               child: Text(l.txDetailsCancelPayment),
             ),
@@ -811,18 +812,12 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       alignment: Alignment.centerRight,
                       // A send's Cancel is the way out of waiting; a receive's is a tidy-up
                       // for a payment the sender never posted, so a quieter button.
-                      child: outgoing
-                          ? OutlinedButton.icon(
-                              icon: const Icon(Icons.cancel_outlined),
-                              label: Text(l.txDetailsCancelPayment),
-                              onPressed: _busy ? null : () => _cancel(tx),
-                            )
-                          : TextButton.icon(
-                              key: txDetailsCancelReceiveKey,
-                              icon: const Icon(Icons.cancel_outlined),
-                              label: Text(l.txDetailsCancelPayment),
-                              onPressed: _busy ? null : () => _cancel(tx),
-                            ),
+                      child: DangerButton.icon(
+                          key: outgoing ? null : txDetailsCancelReceiveKey,
+                          icon: const Icon(Icons.cancel_outlined),
+                          label: Text(l.txDetailsCancelPayment),
+                          onPressed: _busy ? null : () => _cancel(tx),
+                        ),
                     ),
                     const SizedBox(height: 4),
                     // What this Cancel does, with the way to the Help topic (CancelNote).

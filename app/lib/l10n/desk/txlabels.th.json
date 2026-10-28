@@ -17,7 +17,7 @@
   "deskTxDetailsFromTip": "ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ และไม่ใช้ในหลักฐานการชำระเงิน",
   "deskTxDetailsFromHint": "ที่อยู่ของผู้ส่ง",
   "deskTxDetailsFromBad": "ใช้ที่อยู่ Epicbox, http(s) หรือ .onion",
-  "deskTxDetailsNote": "บันทึก",
+  "deskTxDetailsNote": "บันทึกส่วนตัว",
   "deskTxDetailsAdded": "เพิ่มรายละเอียดแล้ว",
   "deskTxDetailsSaved": "บันทึกรายละเอียดแล้ว",
   "deskTxDetailsRemoved": "ลบรายละเอียดแล้ว",

@@ -82,7 +82,7 @@ void main() {
     await tapText(tester, 'Restore from a phrase');
     await typeIn(tester, 0, phrase);
     await settle(tester, ms: 1500);
-    await tapText(tester, 'Use 24 words', last: true);
+    await tapText(tester, 'Continue', last: true);
     await settle(tester);
     await typeIn(tester, 0, password);
     await typeIn(tester, 1, password);
@@ -182,7 +182,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
     await settle(tester, ms: 1200);
     await shot(tester, 'd09-cancel-dialog');
-    await tapText(tester, 'Cancel send', last: true);
+    await tapText(tester, 'Cancel payment', last: true);
     await waitText(tester, RegExp(r'^Cancelled\.?$'), timeout: const Duration(seconds: 60));
     await settle(tester, ms: 6000);
     final after = (await io(tester, api.transactions)).where((t) => t.id == tx.id).firstOrNull;

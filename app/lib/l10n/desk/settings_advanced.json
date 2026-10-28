@@ -124,7 +124,7 @@
       }
     }
   },
-  "deskShellOffline": "Offline mode",
+  "deskShellOffline": "Offline",
   "@deskShellOffline": {
     "description": "Sidebar status row while the Offline network mode is on."
   },
@@ -132,7 +132,7 @@
   "@deskShellTorOnlyWaiting": {
     "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
   },
-  "deskNetOfflineReason": "Offline mode is on in Advanced.",
+  "deskNetOfflineReason": "Offline is on in Advanced.",
   "@deskNetOfflineReason": {
     "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
   },
@@ -160,7 +160,7 @@
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
-  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
+  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive while Offline is on.",
   "@deskNetRecvOfflineText": {
     "description": "Text of the notice on Receive while Offline mode is on."
   },

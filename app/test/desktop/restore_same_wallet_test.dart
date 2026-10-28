@@ -69,7 +69,7 @@ void main() {
     final before = (await tester.runAsync(api.wallets))!.length;
     await _paste(tester, MockDeskWallet.samePhrase);
     expect(find.text('All 24 words check out.'), findsOneWidget);
-    await tester.tap(find.text('Use 24 words'));
+    await tester.tap(find.text('Continue'));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsOneWidget);
     expect(find.text('Main wallet'), findsOneWidget);
@@ -87,7 +87,7 @@ void main() {
   testWidgets('Cancel keeps the phrase on the grid', (tester) async {
     final container = await _pump(tester);
     await _paste(tester, MockDeskWallet.samePhrase);
-    await tester.tap(find.text('Use 24 words'));
+    await tester.tap(find.text('Continue'));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
@@ -102,7 +102,7 @@ void main() {
   testWidgets('a phrase that is not here goes on to the password step', (tester) async {
     await _pump(tester);
     await _paste(tester, _v12);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsNothing);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
@@ -113,7 +113,7 @@ void main() {
     final api = _Backstop();
     final container = await _pump(tester, api: api);
     await _paste(tester, _v12);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await _wait(tester);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     await tester.enterText(find.byType(EditableText).at(0), 'password-1234');

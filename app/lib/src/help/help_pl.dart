@@ -105,8 +105,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.methods,
     ),
-    if (phone)
-      HelpTopic(
+    HelpTopic(
         'start',
         'Jak wygląda adres',
         tor ? 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy lub kończy się na .onion.' : 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy.',
@@ -257,7 +256,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**Węzeł publiczny** (domyślnie): jeden z publicznych węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta.', '**Węzeł lokalny**: działa na tym komputerze. Najpierw pobiera cały łańcuch bloków, co trwa i wymaga miejsca na dysku, a potem jest twój. Gdy się synchronizuje, portfel używa węzła publicznego.']),
         if (phone)
-          HelpBlock.p('Zmienisz go, dotykając wiersza Węzeł na karcie Portfel lub w $nodePlace: węzły są wymienione wraz ze stanem. Dotknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; **Opóźniony** lub **Nie odpowiada** oznacza, że trzeba wybrać inny.')
+          HelpBlock.p('Zmienisz go, dotykając ikony węzła na karcie Portfel lub w $nodePlace: węzły są wymienione wraz ze stanem. Dotknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; **Opóźniony** lub **Nie odpowiada** oznacza, że trzeba wybrać inny.')
         else
           HelpBlock.p('Zmienisz go w $nodePlace: węzły są wymienione wraz ze stanem. Kliknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; gdy węzeł zostaje w tyle, portfel proponuje inny.'),
       ],
@@ -271,7 +270,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Oba portfele biorą udział w każdej transakcji, więc ich wiadomości potrzebują miejsca spotkań. Serwer Epicbox jest takim miejscem: przechowuje płatność wysłaną do tego portfela, aż portfel będzie online, i przekazuje odpowiedź portfela. Wiadomości są szyfrowane, a Epicbox nie może wydać monet.'),
         const HelpBlock.p('Adres Epicbox to klucz publiczny portfela, potem **@** i nazwa jego serwera Epicbox.'),
         if (phone)
-          HelpBlock.p('Serwer ustawisz, dotykając wiersza Epicbox na karcie Portfel lub w $epicboxPlace: serwery są wymienione wraz ze stanem. Dotknij jednego i potwierdź albo wpisz adres, aby przefiltrować listę lub dodać serwer. Wybór innego serwera zmienia część po @, więc przekaż nowy adres osobom, które płacą. Inne portfele Epic Cash też używają Epicbox; dwa portfele mogą używać różnych serwerów.')
+          HelpBlock.p('Serwer ustawisz, dotykając ikony Epicbox na karcie Portfel lub w $epicboxPlace: serwery są wymienione wraz ze stanem. Dotknij jednego i potwierdź albo wpisz adres, aby przefiltrować listę lub dodać serwer. Wybór innego serwera zmienia część po @, więc przekaż nowy adres osobom, które płacą. Inne portfele Epic Cash też używają Epicbox; dwa portfele mogą używać różnych serwerów.')
         else
           HelpBlock.p('Serwer ustawisz w $epicboxPlace: serwery są wymienione wraz ze stanem. Kliknij jednego i potwierdź albo wpisz adres, aby przefiltrować listę lub dodać serwer. Wybór innego serwera zmienia część po @, więc przekaż nowy adres osobom, które płacą. Inne portfele Epic Cash też używają Epicbox; dwa portfele mogą używać różnych serwerów.'),
       ],
@@ -351,7 +350,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             '**Sprawdź od wysokości**: pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Przywracanie zawsze daje taki wybór.'
           else
             '**Sprawdź od wysokości**: pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego.',
-          if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle i Uruchom węzeł na Przeglądzie.',
+          if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: Lokalny węzeł w Ustawienia › Węzeł.',
           if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
         ]),
         HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybie offline${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
@@ -370,16 +369,16 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           : 'Najczęściej węzeł wciąż się synchronizuje, odbiorca jeszcze nie odpowiedział albo port jest zajęty.',
       [
         if (phone)
-          const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo dotknij wiersza Węzeł na karcie Portfel i wybierz inny węzeł.')
+          const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo dotknij ikony węzła na karcie Portfel i wybierz inny węzeł.')
         else
           const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo wybierz inny węzeł w [[Ustawienia › Węzeł|Settings › Node]].'),
         if (phone)
-          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo dotknij wiersza Epicbox na karcie Portfel i wybierz inny serwer. W tym czasie działa Bezpośrednio · Przesyłanie pliku.')
+          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo dotknij ikony Epicbox na karcie Portfel i wybierz inny serwer. W tym czasie działa Bezpośrednio · Przesyłanie pliku.')
         else
           const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w [[Ustawienia › Transakcje|Settings › Transactions]]. W tym czasie działa Bezpośrednio · Przesyłanie pliku.'),
         const HelpBlock.p('**Płatność ma stan „Czeka na odbiorcę”.** Portfel odbiorcy jeszcze nie odpowiedział. Poproś odbiorcę, by go otworzył. Jeśli nigdy tego nie zrobi, anuluj płatność w Aktywności, aby odblokować wyjścia.'),
         if (phone)
-          const HelpBlock.p('**Płatność nie dotarła.** Sprawdź na karcie Portfel, czy węzeł jest zsynchronizowany, a Epicbox online. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
+          const HelpBlock.p('**Płatność nie dotarła.** Sprawdź ikony stanu na karcie Portfel: węzeł zsynchronizowany, Epicbox połączony. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
         else
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź w Odbierz, czy odbieranie jest włączone, a węzeł zsynchronizowany. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.'),
         if (phone && tor)

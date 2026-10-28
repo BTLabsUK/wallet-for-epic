@@ -189,7 +189,7 @@
   "@deskOnbCreateHide": {
     "description": "Button that hides the revealed recovery words again. One short word."
   },
-  "deskOnbCreateShowQr": "Show QR code",
+  "deskOnbCreateShowQr": "Show QR",
   "@deskOnbCreateShowQr": {
     "description": "Button that shows the recovery phrase as a QR code."
   },

@@ -81,6 +81,6 @@ void main() {
 
   testWidgets('Offline and Epicbox off pause the line', (tester) async {
     await _open(tester, advanced: const AdvancedPrefs(networkMode: NetworkMode.offline).withExperimental(AdvancedFeature.pairing, true));
-    expect(find.text('Paused in Offline mode.'), findsOneWidget);
+    expect(find.text('Paused while Offline is on.'), findsOneWidget);
   });
 }

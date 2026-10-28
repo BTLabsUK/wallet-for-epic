@@ -156,7 +156,7 @@ void main() {
     'a send that is not undelivered (the one being sent now) has no Send again',
     (tester) async {
       await _pump(tester, _tx(), _Desk());
-      expect(statusOf(englishStrings, _tx()).$1, 'Waiting for recipient to sign');
+      expect(statusOf(englishStrings, _tx()).$1, 'Waiting for recipient');
       expect(find.widgetWithText(EButton, 'Send again'), findsNothing);
       expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
     },

@@ -7,7 +7,7 @@
   "@deskSlotHelp": {
     "description": "Small link at the bottom of the sidebar: opens Settings › Help."
   },
-  "deskSlotOffline": "Offline mode",
+  "deskSlotOffline": "Offline",
   "@deskSlotOffline": {
     "description": "Sidebar slot line: Offline mode is on (Settings › Advanced). Short."
   },

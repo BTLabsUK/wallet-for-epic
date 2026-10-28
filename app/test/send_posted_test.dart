@@ -274,7 +274,7 @@ void main() {
     test('a waiting incoming payment waits for its sender; a paid request stays posted', () {
       final tx = deskTx(_waiting(reportedAgo: null), tip: 1000, minConf: 10, fallbackId: -1);
       expect(tx.state, TxState.waitingRecipient);
-      expect(statusOf(_l, tx).$1, 'Waiting for sender to finalize');
+      expect(statusOf(_l, tx).$1, 'Waiting for sender');
       final request = deskTx(
         fakeTx(slateId: 'r', kind: core.TxKind.received, status: core.TxStatus.awaitingConfirmation, flow: core.TxFlow.invoice),
         tip: 1000,

@@ -35,7 +35,7 @@
   "@deskDevServersInfo3": {
     "description": "Info card of the Servers row, paragraph 3."
   },
-  "deskDevPausedOffline": "Paused in Offline mode.",
+  "deskDevPausedOffline": "Paused while Offline is on.",
   "@deskDevPausedOffline": {
     "description": "Under the Pause sync switch while the app is in Offline mode."
   },

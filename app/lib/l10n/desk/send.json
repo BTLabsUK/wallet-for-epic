@@ -370,7 +370,7 @@
   "@deskSendFinalize": {
     "description": "Button on the file-ready card on Send: opens the Finalize page."
   },
-  "deskSendNewSend": "New send",
+  "deskSendNewSend": "Send another",
   "@deskSendNewSend": {
     "description": "Button on the file-ready card on Send: starts over."
   },
@@ -431,7 +431,7 @@
   "@deskSendDoneViaEpicbox": {
     "description": "Text of the Sent notice after an Epicbox send."
   },
-  "deskSendViewTx": "View transaction",
+  "deskSendViewTx": "View payment",
   "@deskSendViewTx": {
     "description": "Button in the Sent notice: opens the payment in Activity."
   },
@@ -479,7 +479,7 @@
   "@deskSendContacts": {
     "description": "Small button in the recipient field on Send: opens the contact picker."
   },
-  "deskSendNeedsTor": "Needs Tor",
+  "deskSendNeedsTor": "Link · Tor needs Tor",
   "@deskSendNeedsTor": {
     "description": "Title of the warning under the recipient field when an onion address is entered and Tor is off."
   },
@@ -611,7 +611,7 @@
   "@deskSendReviewTorOff": {
     "description": "Label of the disabled primary button on Send when Tor failed."
   },
-  "deskSendReview": "Review send",
+  "deskSendReview": "Review",
   "@deskSendReview": {
     "description": "Label of the primary button on Send: opens the review dialog."
   },

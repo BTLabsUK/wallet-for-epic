@@ -592,7 +592,7 @@ void main() {
       // No pulse: nothing animates, so the tree settles.
       await tester.pumpAndSettle();
       expect(_label(tester, netModeStatusKey), 'Offline');
-      expect(_hint(tester, netModeStatusKey), contains('Offline mode is on in Advanced.'));
+      expect(_hint(tester, netModeStatusKey), contains('Offline is on in Advanced.'));
     });
 
     testWidgets('Tor only without Tor: Waiting for Tor in the in-progress colour', (
@@ -676,7 +676,7 @@ void main() {
         final area = tester.getRect(find.byKey(walletBalanceKey));
         final direct = tester.getRect(find.byKey(directIconKey));
         final fiat = tester.getRect(find.byKey(fiatValueKey));
-        final eye = tester.getRect(find.byTooltip('Hide balances'));
+        final eye = tester.getRect(find.byTooltip('Hide amounts'));
         // Icons at the start, then the fiat value, then the eye at the end, on one line.
         expect(fiat.left, greaterThanOrEqualTo(direct.right));
         expect(eye.left, greaterThanOrEqualTo(fiat.right - 0.5));

@@ -118,7 +118,7 @@ class _Harness {
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(settingsHelpKey));
     await tap(tester, find.byKey(helpFeedbackKey));
-    expect(find.text('Attach diagnostic logs'), findsOneWidget);
+    expect(find.text('Attach logs'), findsOneWidget);
   }
 }
 
@@ -281,8 +281,8 @@ void main() {
       // Without a feedback server there is no Send, only share or save.
       expect(find.widgetWithText(FilledButton, 'Send'), findsNothing);
 
-      await enter(tester, 'Your message', 'My phrase $_phrase does not work');
-      await tap(tester, find.text('Preview what is sent'));
+      await enter(tester, 'Message', 'My phrase $_phrase does not work');
+      await tap(tester, find.text('What is sent'));
       final preview = previewText(tester);
       expect(preview, contains('[recovery phrase removed] does not work'));
       expect(preview, contains('network: Mainnet'));
@@ -305,7 +305,7 @@ void main() {
       // The shared file is the previewed text, line for line.
       expect(shared.report.trimRight(), preview.trimRight());
       expect(find.text('Thank you for your feedback.'), findsOneWidget);
-      expect(find.text('Attach diagnostic logs'), findsNothing);
+      expect(find.text('Attach logs'), findsNothing);
     });
 
     testWidgets(
@@ -322,16 +322,16 @@ void main() {
         );
         expect(h.outlet.shared, isEmpty);
 
-        await enter(tester, 'Your message', 'The balance looks wrong');
-        await enter(tester, 'Email for a reply (optional)', 'nope');
+        await enter(tester, 'Message', 'The balance looks wrong');
+        await enter(tester, 'Contact (optional)', 'nope');
         await tap(tester, find.text('Share or save'));
         expect(
           find.text('This does not look like an email address.'),
           findsOneWidget,
         );
 
-        await enter(tester, 'Email for a reply (optional)', 'me@example.com');
-        await tap(tester, find.text('Attach diagnostic logs'));
+        await enter(tester, 'Contact (optional)', 'me@example.com');
+        await tap(tester, find.text('Attach logs'));
         await tap(tester, find.text('Share or save'));
         await tap(tester, find.text('Save to device'));
         final saved = h.outlet.saved.single.report;
@@ -351,7 +351,7 @@ void main() {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'Your message', 'Please add dark mode');
+      await enter(tester, 'Message', 'Please add dark mode');
 
       h.outlet.postError = FeedbackSendError(
         (l) => l.feedbackServerAnswered(503),
@@ -375,8 +375,8 @@ void main() {
       h.store.values['app.advanced_prefs'] = '|offline';
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'Your message', 'Please add dark mode');
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      await enter(tester, 'Message', 'Please add dark mode');
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
       final send = find.widgetWithText(FilledButton, 'Send');
       await tester.ensureVisible(send);
       expect(tester.widget<FilledButton>(send).onPressed, isNull);
@@ -384,7 +384,7 @@ void main() {
       expect(
         tester
             .widget<OutlinedButton>(
-              find.widgetWithText(OutlinedButton, 'Share or save instead'),
+              find.widgetWithText(OutlinedButton, 'Share or save'),
             )
             .onPressed,
         isNotNull,
@@ -404,7 +404,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, find.widgetWithText(OutlinedButton, 'Send feedback'));
+      await tap(tester, find.widgetWithText(OutlinedButton, 'Report a problem'));
       expect(find.byType(FeedbackScreen), findsOneWidget);
     });
   });
@@ -481,9 +481,9 @@ void previewLargeLog() {
       }
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'Your message', 'The preview with a big log');
+      await enter(tester, 'Message', 'The preview with a big log');
       // No wall-clock bound: under a loaded machine it says nothing about the screen.
-      await tap(tester, find.text('Preview what is sent'));
+      await tap(tester, find.text('What is sent'));
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget, reason: 'the preview opened');
       expect(find.textContaining('The preview with a big log'), findsOneWidget);
       expect(find.textContaining('== app/wfe.log =='), findsOneWidget);
@@ -511,8 +511,8 @@ void previewLargeLog() {
       h.log = _ThrowingLog();
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'Your message', 'hello');
-      await tap(tester, find.text('Preview what is sent'));
+      await enter(tester, 'Message', 'hello');
+      await tap(tester, find.text('What is sent'));
       // The log tail failure is caught and written into the report, so the preview opens.
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget);
       expect(find.textContaining('The log could not be read'), findsOneWidget);

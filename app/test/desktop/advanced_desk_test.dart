@@ -115,7 +115,7 @@ void main() {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _offline);
       expect(torSwitch(tester).onChanged, isNull);
       expect(torSwitch(tester).value, isFalse);
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
     }, skip: !torBuilt);
   });
 
@@ -153,7 +153,7 @@ void main() {
     testWidgets('Offline: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
+      expect(find.text('Offline is on in Advanced.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
       expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
@@ -167,7 +167,7 @@ void main() {
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
-    testWidgets('Overview: what a sender reports posted leaves Awaiting finalization for its own line (LNX-13)', (tester) async {
+    testWidgets('Overview: what a sender reports posted leaves Waiting for sender for its own line (LNX-13)', (tester) async {
       await _open(tester, DeskRoute.overview);
       expect(find.text('Sender reports posted'), findsNothing);
       expect(find.textContaining('12.5'), findsWidgets, reason: 'the mock awaits 12.5 EPIC finalization');
@@ -185,7 +185,7 @@ void main() {
       expect(find.text('Waiting for the node to sync.'), findsNothing);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       // The banner and the summary's line.
-      expect(find.text('Offline mode is on in Advanced.'), findsNWidgets(2));
+      expect(find.text('Offline is on in Advanced.'), findsNWidgets(2));
     });
 
     testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
@@ -239,7 +239,7 @@ void main() {
     testWidgets('Offline: the address stays, a line says it can’t receive, the Files panel runs and says the node is used', (tester) async {
       await _open(tester, DeskRoute.receive, advanced: _offline);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
-      expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
+      expect(find.text('Offline is on in Advanced.'), findsWidgets);
       expect(find.text('Epicbox address'), findsWidgets);
       expect(find.textContaining('Cannot receive offline'), findsWidgets);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);

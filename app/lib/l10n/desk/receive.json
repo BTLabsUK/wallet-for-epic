@@ -169,7 +169,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid; the Epicbox server holds payments while the wallet is closed.",
+  "deskRecvEpicboxIntro": "Share it to get paid. Senders can pay while this wallet is closed.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },
@@ -198,7 +198,7 @@
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
-  "deskRecvHttpIntro": "Straight from another wallet while this one is open.",
+  "deskRecvHttpIntro": "For wallets on this computer, while this wallet is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
@@ -260,12 +260,16 @@
       }
     }
   },
-  "deskRecvTorOffTitle": "Link · Tor receiving needs Tor.",
+  "deskRecvTorOffTitle": "Link · Tor needs Tor.",
   "@deskRecvTorOffTitle": {
     "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
   },
   "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffText": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
+  },
+  "deskRecvHttpIntroInternet": "For wallets on the internet, while this wallet is open.",
+  "@deskRecvHttpIntroInternet": {
+    "description": "Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet)."
   }
 }

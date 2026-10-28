@@ -289,7 +289,7 @@ Future<void> restoreA(WidgetTester tester, String phrase, String password, {Stri
   await typeIn(tester, 0, phrase);
   await settle(tester, ms: 1500);
   record('restore$tag: 24 words accepted', hasText('All 24 words check out.'), '');
-  await tapText(tester, 'Use 24 words', last: true);
+  await tapText(tester, 'Continue', last: true);
   await settle(tester);
   // Wallet name (optional) comes first; the name is left for the import to bring back.
   final first = hasText('Wallet name (optional)') ? 1 : 0;

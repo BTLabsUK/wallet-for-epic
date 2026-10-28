@@ -95,7 +95,7 @@
   "@deskConSendToAddress": {
     "description": "Ghost button in the empty state of Contacts: opens Send without a contact."
   },
-  "deskConLastTx": "Last transaction: {when}",
+  "deskConLastTx": "Last payment: {when}",
   "@deskConLastTx": {
     "description": "Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.",
     "placeholders": {
@@ -139,11 +139,11 @@
       }
     }
   },
-  "deskConNote": "Note",
+  "deskConNote": "Note (optional)",
   "@deskConNote": {
     "description": "Label above the note in a contact's detail; also the label of the note field in the form."
   },
-  "deskConTxWith": "Transactions with {name}",
+  "deskConTxWith": "Payments with {name}",
   "@deskConTxWith": {
     "description": "Heading above the list of payments with this contact.",
     "placeholders": {
@@ -153,11 +153,11 @@
       }
     }
   },
-  "deskConAllTx": "All transactions",
+  "deskConAllTx": "All payments",
   "@deskConAllTx": {
     "description": "Link next to the heading: opens Activity."
   },
-  "deskConTxNone": "No transactions with this contact yet. Payments sent to them from Send appear here.",
+  "deskConTxNone": "No payments with this contact yet. Payments sent to them from Send appear here.",
   "@deskConTxNone": {
     "description": "Text under the heading when there are no payments with this contact."
   },

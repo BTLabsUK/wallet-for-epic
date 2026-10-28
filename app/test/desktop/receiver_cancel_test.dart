@@ -187,11 +187,11 @@ void main() {
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 60));
       }
-      expect(find.text('Cancel this send?'), findsOneWidget);
+      expect(find.text('Cancel this payment?'), findsOneWidget);
       expect(find.textContaining('cannot finish it without yours: the locked amount returns to the balance'), findsOneWidget);
       // One beside the Cancel button, one in the dialog.
       expect(find.text('More in Help'), findsNWidgets(2));
-      expect(find.text('Cancel send'), findsOneWidget);
+      expect(find.text('Cancel payment'), findsOneWidget);
     });
   });
 

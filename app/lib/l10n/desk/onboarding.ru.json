@@ -44,7 +44,7 @@
   "deskOnbCreateReveal": "Показать фразу",
   "deskOnbCreateCheckScreen": "Убедитесь, что никто не видит экран.",
   "deskOnbCreateHide": "Скрыть",
-  "deskOnbCreateShowQr": "Показать QR-код",
+  "deskOnbCreateShowQr": "Показать QR",
   "deskOnbCreateHideQr": "Скрыть QR-код",
   "deskOnbCreateQrWarn": "Любой, кто отсканирует этот код, может забрать монеты",
   "deskOnbCreateQrWarnText": "Сканируйте его только в другой кошелёк, которому доверяете.",

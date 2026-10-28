@@ -136,7 +136,7 @@ Future<void> _tell(BuildContext context, String title, String message) =>
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.commonOk),
+            child: Text(context.l10n.commonDone),
           ),
         ],
       ),

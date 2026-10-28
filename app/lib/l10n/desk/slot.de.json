@@ -1,7 +1,7 @@
 {
   "deskSlotNow": "Aktuell",
   "deskSlotHelp": "Hilfe",
-  "deskSlotOffline": "Offline-Modus",
+  "deskSlotOffline": "Offline",
   "deskSlotOfflineDetail": "nichts wird gesendet oder empfangen",
   "deskSlotScanning": "Chain wird durchsucht",
   "deskSlotScanWaits": "Durchsuchen wartet auf das Netzwerk",

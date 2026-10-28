@@ -186,7 +186,7 @@ void main() {
     // The dialog: the same guarantee, the same link.
     await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
     await settle(tester, ms: 1200);
-    record('the cancel dialog says the recipient cannot finish it', hasText('Cancel this send?') && hasText('cannot finish it without yours'), textMatching('cannot finish'));
+    record('the cancel dialog says the recipient cannot finish it', hasText('Cancel this payment?') && hasText('cannot finish it without yours'), textMatching('cannot finish'));
     await shot(tester, 'cancel-02-dialog');
     // The dialog's link: closes the dialog, opens Help at Sending.
     await tester.tap(find.text('More in Help').last);
@@ -201,7 +201,7 @@ void main() {
     await settle(tester, ms: 600);
     await tester.tap(find.widgetWithText(EButton, 'Cancel').first);
     await settle(tester, ms: 1200);
-    await tapText(tester, 'Cancel send', last: true);
+    await tapText(tester, 'Cancel payment', last: true);
     await waitText(tester, RegExp(r'^Cancelled\.?$'), timeout: const Duration(seconds: 60));
     await settle(tester, ms: 3000);
     final after = (await io(tester, api.transactions)).where((t) => t.id == sentTx.id).firstOrNull;

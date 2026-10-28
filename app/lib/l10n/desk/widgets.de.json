@@ -123,5 +123,6 @@
   "deskKitQrShowOf": "QR-Code anzeigen: {title}",
   "deskKitQrShow": "QR zeigen",
   "deskKitQrHide": "QR ausblenden",
-  "deskKitQrHideCode": "QR-Code ausblenden"
+  "deskKitQrHideCode": "QR ausblenden",
+  "deskKitMethodConnected": "Verbunden"
 }

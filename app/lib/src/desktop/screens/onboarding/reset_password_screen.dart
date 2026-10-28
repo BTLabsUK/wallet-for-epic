@@ -292,7 +292,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: e.filled == 0 ? null : e.clear),
         EButton.primary(
           key: const ValueKey('reset-password-words'),
-          label: complete ? l.deskOnbRestoreUseWords(e.length) : l.commonContinue,
+          label: l.commonContinue,
           busy: _checking,
           onPressed: complete && !_checking ? _toPassword : null,
         ),

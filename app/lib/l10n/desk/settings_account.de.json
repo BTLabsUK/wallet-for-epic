@@ -9,7 +9,7 @@
   "deskSetAcctLabelHint": "Wird nur in dieser App angezeigt.",
   "deskSetAcctSaveLabel": "Name speichern",
   "deskSetAcctPhraseHint": "Die Wörter, mit denen sich diese Wallet wiederherstellen lässt. Halten Sie sie geheim.",
-  "deskSetAcctShowPhrase": "Phrase anzeigen…",
+  "deskSetAcctShowPhrase": "Wiederherstellungsphrase anzeigen…",
   "deskSetAcctRescanHint": "Liest die Blockchain erneut, wenn das Guthaben falsch aussieht.",
   "deskSetAcctRecheck": "Neu prüfen…",
   "deskSetAcctFiles": "Dateien",

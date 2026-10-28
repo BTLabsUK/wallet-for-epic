@@ -726,8 +726,12 @@
   "@deskKitQrHide": {
     "description": "Button and tooltip: hide the QR code again. Short."
   },
-  "deskKitQrHideCode": "Hide QR code",
+  "deskKitQrHideCode": "Hide QR",
   "@deskKitQrHideCode": {
     "description": "Screen-reader label of the button that hides the QR code."
+  },
+  "deskKitMethodConnected": "Connected",
+  "@deskKitMethodConnected": {
+    "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
   }
 }

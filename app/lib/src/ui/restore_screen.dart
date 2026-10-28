@@ -328,9 +328,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _RestoreStep.scan => _scanView(context),
       _RestoreStep.importOffer => _importOffer(),
     };
-    // The phrase form is long and keeps Continue at the foot; the later steps are short and
-    // sit in the middle.
+    // The phrase form is long and keeps Continue at the foot; the import offer keeps its
+    // two choices there too (UI-016); the scan sits in the middle.
     final form = _step == _RestoreStep.phrase;
+    final offer = _step == _RestoreStep.importOffer;
     return SlotScaffold(
       centered: !form,
       glow: _step == _RestoreStep.importOffer ? heroGlow : null,
@@ -354,6 +355,28 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               bottom: BusyButton(
                 label: l.commonContinue,
                 onPressed: _checkPhrase,
+              ),
+              children: steps,
+            )
+          : offer
+          ? ScreenBody(
+              bottom: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BusyButton(
+                    label: l.restoreImportButton,
+                    onPressed: () async {
+                      final imported = await importHistoryBackup(context, ref);
+                      if (imported && mounted) _openWallet();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                    onPressed: _openWallet,
+                    child: Text(l.restoreImportNotNow),
+                  ),
+                ],
               ),
               children: steps,
             )
@@ -477,21 +500,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         const SizedBox(height: 8),
         Text(l.restoreFinishOnHome, textAlign: TextAlign.center),
       ],
-      const SizedBox(height: 24),
-      BusyButton(
-        label: l.restoreImportButton,
-        onPressed: () async {
-          final imported = await importHistoryBackup(context, ref);
-          if (imported && mounted) _openWallet();
-        },
-      ),
-      const SizedBox(height: 8),
-      OutlinedButton(
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _openWallet,
-        child: Text(l.restoreImportNotNow),
-      ),
-      const SizedBox(height: 8),
+      const SizedBox(height: 16),
       Text(l.restoreImportLater, textAlign: TextAlign.center),
       // The quiet offer: this wallet may live on another device too (hidden while Linked
       // devices is off).

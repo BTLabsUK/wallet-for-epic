@@ -309,7 +309,7 @@ void main() {
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.offline);
-    expect(find.text('Cannot receive this way while Offline mode is on.'), findsOneWidget);
+    expect(find.text('Cannot receive this way while Offline is on.'), findsOneWidget);
     NetGate.set(NetworkMode.standard);
   });
 }

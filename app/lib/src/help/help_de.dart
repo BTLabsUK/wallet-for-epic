@@ -57,7 +57,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', 'Drücken Sie **Zahlung prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**.']),
         const HelpBlock.p('Jetzt muss die Wallet des Empfängers antworten (siehe „Warum braucht eine Transaktion beide Seiten?“). Über Epicbox muss der Empfänger nicht gerade online sein: Die Zahlung wartet, bis seine Wallet geöffnet wird. Bis dahin sind die verwendeten Outputs gesperrt, damit sie nicht doppelt ausgegeben werden.'),
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Transaktion ab und sendet sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
-        HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf den Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
+        HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
         if (phone)
           HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (${tor ? 'http oder .onion' : 'http'}) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
@@ -257,7 +257,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer. Er lädt zuerst die ganze Blockchain herunter, was eine Weile dauert und Speicherplatz braucht, und gehört dann Ihnen. Während er synchronisiert, nutzt die Wallet einen öffentlichen Node.']),
         if (phone)
-          HelpBlock.p('Ändern Sie ihn mit einem Tipp auf die Node-Zeile im Tab Wallet oder unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Tippen Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; **zurück** oder **Antwortet nicht** heißt: einen anderen wählen.')
+          HelpBlock.p('Ändern Sie ihn mit einem Tipp auf das Node-Symbol im Tab Wallet oder unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Tippen Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; **zurück** oder **Antwortet nicht** heißt: einen anderen wählen.')
         else
           HelpBlock.p('Ändern Sie ihn unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an.'),
       ],
@@ -271,7 +271,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Beide Wallets wirken an jeder Transaktion mit, daher brauchen ihre Nachrichten einen Treffpunkt. Ein Epicbox-Server ist dieser Treffpunkt: Er hält eine an diese Wallet gesendete Zahlung bereit, bis die Wallet online kommt, und bringt die Antwort der Wallet zurück. Die Nachrichten sind verschlüsselt, und Epicbox kann die Münzen nicht ausgeben.'),
         const HelpBlock.p('Die Epicbox-Adresse ist der öffentliche Schlüssel der Wallet, dann **@** und der Name ihres Epicbox-Servers.'),
         if (phone)
-          HelpBlock.p('Den Server legen Sie mit einem Tipp auf die Epicbox-Zeile im Tab Wallet fest oder unter $epicboxPlace: Die Server sind mit ihrem Zustand aufgelistet. Tippen Sie auf einen und bestätigen Sie, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Server hinzuzufügen. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.')
+          HelpBlock.p('Den Server legen Sie mit einem Tipp auf das Epicbox-Symbol im Tab Wallet fest oder unter $epicboxPlace: Die Server sind mit ihrem Zustand aufgelistet. Tippen Sie auf einen und bestätigen Sie, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Server hinzuzufügen. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.')
         else
           HelpBlock.p('Den Server legen Sie unter $epicboxPlace fest: Die Server sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen und bestätigen Sie, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Server hinzuzufügen. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.'),
       ],
@@ -351,7 +351,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ bei einer Blockhöhe oder einem Datum beginnen statt beim ersten Block. Beim Wiederherstellen steht die Wahl immer offen.'
           else
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl.',
-          if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node und Node starten auf der Übersicht.',
+          if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: Lokaler Node unter Einstellungen › Node.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
         HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
@@ -370,16 +370,16 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           : 'Meist ist ein Node noch nicht synchronisiert, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
       [
         if (phone)
-          const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf die Node-Zeile und wählen Sie einen anderen Node.')
+          const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf das Node-Symbol und wählen Sie einen anderen Node.')
         else
           const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder wählen Sie unter [[Einstellungen › Node|Settings › Node]] einen anderen Node.'),
         if (phone)
-          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf die Epicbox-Zeile und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.')
+          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf das Epicbox-Symbol und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.')
         else
           const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter [[Einstellungen › Transaktionen|Settings › Transactions]] einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.'),
-        const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf den Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
+        const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
         if (phone)
-          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie im Tab Wallet, ob der Node synchronisiert und Epicbox online ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
+          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie die Statussymbole im Tab Wallet: Node synchronisiert, Epicbox verbunden. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
         else
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
         if (phone && tor)

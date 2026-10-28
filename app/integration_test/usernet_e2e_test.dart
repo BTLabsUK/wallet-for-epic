@@ -386,7 +386,7 @@ void main() {
       expect(phrase.split(' '), hasLength(24));
 
       // Delete the wallet: confirm, type the word, enter the PIN.
-      await _tapText(tester, 'Delete this wallet');
+      await _tapText(tester, 'Delete wallet');
       await _tapText(tester, 'I have written down my recovery phrase');
       await _enter(tester, 'Type "delete" to confirm', 'delete');
       await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));

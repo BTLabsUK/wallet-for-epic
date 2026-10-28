@@ -71,7 +71,7 @@
   "@deskTxDetailsFromBad": {
     "description": "Shown under the From field when the text is not an address the wallet knows."
   },
-  "deskTxDetailsNote": "Note",
+  "deskTxDetailsNote": "Private note",
   "@deskTxDetailsNote": {
     "description": "Field name in the details dialog and the details list: the private note."
   },

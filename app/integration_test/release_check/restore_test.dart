@@ -34,7 +34,7 @@ void main() {
     await settle(tester, ms: 1500);
     record('restore: 24 words accepted', hasText('All 24 words check out.'), texts().where((t) => t.contains('check out')).join());
     await shot(tester, '21-restore-words-checked');
-    await tapText(tester, 'Use 24 words', last: true);
+    await tapText(tester, 'Continue', last: true);
     await settle(tester);
     await typeIn(tester, 0, password);
     await typeIn(tester, 1, password);

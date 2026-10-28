@@ -194,7 +194,7 @@ void main() {
     await _pump(tester, SendScreen(arg: SendArgs(recipient: own, amount: '1')), api: api);
     expect(find.text('Balance after'), findsOneWidget);
     expect(find.text('Left to spend'), findsNothing);
-    await tester.tap(find.text('Review send'));
+    await tester.tap(find.text('Review'));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('This is the wallet’s own address.'), findsOneWidget);
     expect(find.text('Send 1.0000 EPIC'), findsNothing, reason: 'no review dialog');
@@ -213,7 +213,7 @@ void main() {
       final api = _Wallet();
       expect((await api.epicboxAddress()).split('@').first, ownKey);
       await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
-      await tester.tap(find.text('Review send'));
+      await tester.tap(find.text('Review'));
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.text('This is the wallet’s own address.'), refused ? findsOneWidget : findsNothing);
       // The review dialog that opens for another address starts a timer of its own.

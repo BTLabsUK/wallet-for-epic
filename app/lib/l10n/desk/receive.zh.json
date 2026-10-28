@@ -26,13 +26,13 @@
   "deskRecvAddressUnreadable": "无法读取地址。请稍后重新打开“接收”。",
   "deskRecvEpicboxAddress": "Epicbox 地址",
   "deskRecvCopyEpicbox": "复制 Epicbox 地址",
-  "deskRecvEpicboxIntro": "分享此地址即可收款；钱包关闭时，Epicbox 服务器会暂存付款。",
+  "deskRecvEpicboxIntro": "分享它即可收款。 此钱包关闭时，发送方也可付款。",
   "deskRecvCheckSix": "念给别人核对时，请检查前六位和后六位字符。",
   "deskRecvHttpAddress": "链接 · HTTP 地址",
   "deskRecvCopyHttp": "复制 链接 · HTTP 地址",
   "deskRecvHttpPublic": "你的路由器的公网地址。路由器转发端口 {port} 后，互联网上的发送方即可使用。",
   "deskRecvHttpLocal": "本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。",
-  "deskRecvHttpIntro": "本钱包打开时，直接从另一个钱包接收。",
+  "deskRecvHttpIntro": "供此电脑上的钱包使用，仅在此钱包打开时。",
   "deskRecvHttpTorHint": "如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。",
   "deskRecvDirectTor": "链接 · Tor 地址",
   "deskRecvTorIntro": "本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。",
@@ -46,6 +46,7 @@
   "deskRecvFinalizeTitle": "完成回复文件",
   "deskRecvFinalizeText": "用接收方的回复文件完成交易并广播付款。",
   "deskRecvSwitchLabel": "{title}，接收",
-  "deskRecvTorOffTitle": "链接 · Tor 收款需要 Tor。",
-  "deskRecvTorOffText": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。"
+  "deskRecvTorOffTitle": "Link · Tor 需要 Tor。",
+  "deskRecvTorOffText": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。",
+  "deskRecvHttpIntroInternet": "供互联网上的钱包使用，仅在此钱包打开时。"
 }

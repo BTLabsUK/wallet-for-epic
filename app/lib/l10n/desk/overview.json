@@ -207,7 +207,7 @@
   "@deskOvBreakImmature": {
     "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
   },
-  "deskOvBreakAwaiting": "Awaiting finalization",
+  "deskOvBreakAwaiting": "Waiting for sender",
   "@deskOvBreakAwaiting": {
     "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
   },
@@ -223,11 +223,11 @@
   "@deskOvHiddenAmount": {
     "description": "Screen reader label of the balance when amounts are hidden."
   },
-  "deskOvLoading": "Loading transactions",
+  "deskOvLoading": "Loading payments",
   "@deskOvLoading": {
     "description": "Line with a spinner in the Recent activity panel while the transactions load."
   },
-  "deskOvEmptyTitle": "No transactions yet",
+  "deskOvEmptyTitle": "No payments yet",
   "@deskOvEmptyTitle": {
     "description": "Title of the empty state of Recent activity."
   },

@@ -207,7 +207,7 @@ class TimelineStep {
   final String? detail;
 }
 
-/// A payment's progress as square-marked steps joined by a rail.
+/// A payment's progress as round-marked steps joined by a rail.
 class StatusTimeline extends StatelessWidget {
   const StatusTimeline({super.key, required this.steps});
 
@@ -287,11 +287,12 @@ class _Mark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // Round, as the send tracker's nodes: squares read as checkboxes (UI-036).
     return Container(
-      width: 24,
-      height: 24,
+      width: 20,
+      height: 20,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
+        shape: BoxShape.circle,
         color: t.bg,
         border: Border.all(
           width: currentMarkStroke,

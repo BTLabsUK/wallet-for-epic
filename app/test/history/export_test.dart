@@ -97,7 +97,7 @@ void main() {
       expect(words(with_(kind: TxKind.received), 21), 'Waiting for sender');
       expect(
         words(with_(kind: TxKind.received, id: null), 21),
-        'Imported, status unknown',
+        'Imported',
       );
       expect(
         words(with_(status: TxStatus.cancelled, id: null), 21),

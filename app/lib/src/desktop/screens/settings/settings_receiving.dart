@@ -348,7 +348,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// others by their short name (a segment is a tight place).
   String _startName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.linkHttp || MethodKind.linkTor => MethodIcons.familyName(l, MethodFamily.link),
-    _ => MethodIcons.shortName(l, m),
+    _ => MethodIcons.fullName(l, m),
   };
 
   /// Payment methods: one switch per method, grouped by family. Epicbox is its own family, so

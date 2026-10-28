@@ -212,7 +212,7 @@ void main() {
     await pumpApp(tester, DeskRoute.restore);
     await tester.enterText(field(0), [...List.filled(11, 'abandon'), 'about'].join(' '));
     await wait(tester, 500);
-    await tester.tap(find.text('Use 12 words'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');

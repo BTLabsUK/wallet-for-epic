@@ -276,7 +276,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStatusCancelled => 'Отменён';
 
   @override
-  String get txStatusFromBackup => 'Импортирован, статус неизвестен';
+  String get txStatusFromBackup => 'Импортирован';
 
   @override
   String get txIconCancelled => 'Отменён';
@@ -515,7 +515,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get languageSetting => 'Язык';
 
   @override
-  String get languageSystem => 'Как в системе';
+  String get languageSystem => 'Системный';
 
   @override
   String get currencyUsd => 'Доллар США';
@@ -574,7 +574,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsWaitingEpicbox =>
-      'Отправлено через Epicbox. Платёж завершится, когда кошелёк получателя появится в сети. До этого или до отмены сумма остаётся заблокированной.';
+      'Отправлено через Epicbox. Завершится, когда кошелёк получателя выйдет в сеть; до этого или до отмены сумма остаётся заблокированной.';
 
   @override
   String get txDetailsWaitingRecipient =>
@@ -821,7 +821,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsCancelPayment => 'Отменить платёж';
 
   @override
-  String get txDetailsCancelTitle => 'Отменить платёж?';
+  String get txDetailsCancelTitle => 'Отменить этот платёж?';
 
   @override
   String get txDetailsCancelReceiveBody =>
@@ -868,17 +868,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsNoteLabel => 'Заметка';
 
   @override
-  String get txDetailsPrivateNoteLabel =>
-      'Личная заметка, только на этом устройстве';
+  String get txDetailsPrivateNoteLabel => 'Личная заметка';
 
   @override
-  String get txDetailsMessageFromSender => 'Сообщение отправителя';
+  String get txDetailsMessageFromSender => 'Сообщение';
 
   @override
   String get txDetailsMessageFromRecipient => 'Сообщение получателя';
 
   @override
-  String get txDetailsYourMessage => 'Ваше сообщение';
+  String get txDetailsYourMessage => 'Сообщение';
 
   @override
   String get txDetailsNoNote =>
@@ -974,7 +973,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsSourceImported =>
-      'Импортирован из файла данных кошелька. У этого кошелька нет собственной записи о нём, поэтому его статус может быть устаревшим.';
+      'Импортировано из файла данных кошелька. Статус в цепочке не проверялся.';
 
   @override
   String get historyTitle => 'Активность';
@@ -1288,12 +1287,12 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count платежа не входят в экспортированные данные кошелька',
-      many: '$count платежей не входят в экспортированные данные кошелька',
-      few: '$count платежа не входят в экспортированные данные кошелька',
-      one: '$count платёж не входит в экспортированные данные кошелька',
+      other: '$count платежа не входят в экспортированные данные кошелька.',
+      many: '$count платежей не входят в экспортированные данные кошелька.',
+      few: '$count платежа не входят в экспортированные данные кошелька.',
+      one: '$count платёж не входит в экспортированные данные кошелька.',
     );
-    return '$_temp0. Фраза восстановления вернёт только баланс.';
+    return '$_temp0';
   }
 
   @override
@@ -1302,15 +1301,15 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count платежа добавлены или изменены после последнего экспорта данных кошелька',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька.',
       many:
-          '$count платежей добавлены или изменены после последнего экспорта данных кошелька',
+          '$count платежей добавлены или изменены после последнего экспорта данных кошелька.',
       few:
-          '$count платежа добавлены или изменены после последнего экспорта данных кошелька',
+          '$count платежа добавлены или изменены после последнего экспорта данных кошелька.',
       one:
-          '$count платёж добавлен или изменён после последнего экспорта данных кошелька',
+          '$count платёж добавлен или изменён после последнего экспорта данных кошелька.',
     );
-    return '$_temp0. Фраза восстановления вернёт только баланс.';
+    return '$_temp0';
   }
 
   @override
@@ -1343,7 +1342,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeShowBalances => 'Показать баланс';
 
   @override
-  String get homeHideBalances => 'Скрыть баланс';
+  String get homeHideBalances => 'Скрыть суммы';
 
   @override
   String get homeBalanceConfirming => 'Подтверждается';
@@ -1522,7 +1521,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get homeNoPayments => 'Платежей пока нет.';
+  String get homeNoPayments => 'Платежей пока нет';
 
   @override
   String get invoicesTitle => 'Счета';
@@ -1812,7 +1811,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get receiveEpicboxConnected => 'Epicbox подключён';
+  String receiveEpicboxConnected(String server) {
+    return 'Подключено · $server';
+  }
 
   @override
   String get receiveQrLabel => 'QR-код вашего адреса';
@@ -1822,7 +1823,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveEpicboxOfflineBody =>
-      'Отправленные вам платежи ждут на сервере Epicbox и придут, когда кошелёк снова подключится.';
+      'Платежи ждут на сервере Epicbox и поступят, когда кошелёк снова подключится.';
 
   @override
   String get receiveShareCardHeadline => 'Заплатите мне в Epic Cash';
@@ -2091,7 +2092,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreUnfinishedOffline =>
-      'Сканирование продолжится, когда офлайн-режим будет выключен.';
+      'Сканирование продолжится, когда «Офлайн» будет выключен.';
 
   @override
   String get restoreUnfinishedFailed =>
@@ -3055,7 +3056,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionNetwork => 'Серверы';
 
   @override
-  String get settingsSectionDisplay => 'Отображение';
+  String get settingsSectionDisplay => 'Внешний вид';
 
   @override
   String get settingsCurrency => 'Валюта';
@@ -3069,13 +3070,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsShowPrices => 'Показывать цены';
 
   @override
-  String get settingsHideBalances => 'Скрывать баланс';
+  String get settingsHideBalances => 'Скрыть суммы';
 
   @override
   String get settingsTheme => 'Тема';
 
   @override
-  String get settingsThemeSystem => 'Как на устройстве';
+  String get settingsThemeSystem => 'Системная';
 
   @override
   String get settingsThemeLight => 'Светлая';
@@ -3145,7 +3146,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsImportHistory => 'Импорт данных кошелька';
 
   @override
-  String get settingsSectionWallet => 'Кошелёк';
+  String get settingsSectionWallet => 'Этот кошелёк';
 
   @override
   String get settingsContacts => 'Контакты';
@@ -3197,7 +3198,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRescanButton => 'Сверить';
 
   @override
-  String get settingsDeleteWallet => 'Удалить этот кошелёк';
+  String get settingsDeleteWallet => 'Удалить кошелёк';
 
   @override
   String get settingsDeleteDuringScan =>
@@ -3250,7 +3251,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsHelp => 'Справка';
 
   @override
-  String get settingsSendFeedback => 'Отправить отзыв';
+  String get settingsSendFeedback => 'Сообщить о проблеме';
 
   @override
   String get settingsSendFeedbackHint =>
@@ -3344,44 +3345,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get helpDonateCopied => 'Адрес скопирован';
 
   @override
-  String get helpSendFeedback => 'Отправить отзыв';
+  String get helpSendFeedback => 'Сообщить о проблеме';
 
   @override
-  String get feedbackTitle => 'Отправить отзыв';
+  String get feedbackTitle => 'Сообщить о проблеме';
 
   @override
   String get feedbackIntro =>
       'Расскажите, что пошло не так или что можно улучшить.';
 
   @override
-  String get feedbackMessageLabel => 'Ваше сообщение';
+  String get feedbackMessageLabel => 'Что произошло';
 
   @override
   String get feedbackMessageMissing =>
       'Напишите пару слов о том, что произошло.';
 
   @override
-  String get feedbackEmailLabel => 'Эл. почта для ответа (необязательно)';
+  String get feedbackEmailLabel => 'Контакт (необязательно)';
 
   @override
   String get feedbackEmailInvalid =>
       'Это не похоже на адрес электронной почты.';
 
   @override
-  String get feedbackAttachLogs => 'Приложить журналы диагностики';
+  String get feedbackAttachLogs => 'Приложить журналы';
 
   @override
   String get feedbackAttachLogsHint =>
       'Журналы помогают найти проблему. Фраза восстановления, PIN-код и другие секретные данные удаляются заранее.';
 
   @override
-  String get feedbackPreviewButton => 'Посмотреть, что будет отправлено';
+  String get feedbackPreviewButton => 'Что отправляется';
 
   @override
   String get feedbackSend => 'Отправить';
 
   @override
-  String get feedbackShareOrSaveInstead => 'Поделиться или сохранить файл';
+  String get feedbackShareOrSaveInstead => 'Поделиться или сохранить';
 
   @override
   String get feedbackFileExplanation =>
@@ -3439,7 +3440,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
 
   @override
-  String get settingsSectionHelpFeedback => 'Справка и отзывы';
+  String get settingsSectionHelpFeedback => 'Справка';
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
@@ -3466,7 +3467,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStepStarted => 'Платёж начат';
 
   @override
-  String get txStepAccepted => 'Получатель принял';
+  String get txStepAccepted => 'Получатель подписал';
 
   @override
   String get txStepPosted => 'Отправлен в сеть';
@@ -3481,7 +3482,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txStepArrived => 'Платёж получен';
 
   @override
-  String get txStepSenderFinished => 'Отправитель завершил его';
+  String get txStepSenderFinished => 'Подписано и возвращено';
 
   @override
   String get fileHelpTitle => 'Как работает файл транзакции';
@@ -4058,7 +4059,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeTileLocked => 'Заблокировано в отправках';
 
   @override
-  String get homeTileMaturing => 'Награды созревают';
+  String get homeTileMaturing => 'Не созрели';
 
   @override
   String get homeTileTotal => 'Всего';
@@ -4077,7 +4078,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get tourPhoneSkip => 'Пропустить';
+  String get tourPhoneSkip => 'Пропустить тур';
 
   @override
   String get tourPhoneBack => 'Назад';
@@ -5930,7 +5931,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get torNotOverTor => 'Не через Tor';
 
   @override
-  String get torNeeds => 'Нужен Tor.';
+  String get torNeeds => 'Link · Tor требует Tor.';
 
   @override
   String get torTurnOn => 'Включить Tor';
@@ -6922,7 +6923,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvEpicboxIntro =>
-      'Поделитесь им, чтобы получить оплату; сервер Epicbox хранит платежи, пока кошелёк закрыт.';
+      'Поделитесь им, чтобы получить оплату. Отправители могут платить, пока кошелёк закрыт.';
 
   @override
   String get deskRecvCheckSix =>
@@ -6945,7 +6946,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Напрямую из другого кошелька, пока этот открыт.';
+      'Для кошельков на этом компьютере, пока этот кошелёк открыт.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -7479,7 +7480,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendFinalize => 'Завершить';
 
   @override
-  String get deskSendNewSend => 'Новая отправка';
+  String get deskSendNewSend => 'Отправить ещё';
 
   @override
   String get deskSendNodeNotSynced => 'Узел не синхронизирован';
@@ -7527,7 +7528,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Передано в Epicbox. Завершится, когда получатель ответит.';
 
   @override
-  String get deskSendViewTx => 'Открыть транзакцию';
+  String get deskSendViewTx => 'Открыть платёж';
 
   @override
   String get deskSendFailedTitle => 'Отправка не удалась';
@@ -7560,7 +7561,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendContacts => 'Контакты';
 
   @override
-  String get deskSendNeedsTor => 'Нужен Tor';
+  String get deskSendNeedsTor => 'Link · Tor требует Tor';
 
   @override
   String get deskSendNeedsTorText => 'Адрес .onion доступен только через Tor.';
@@ -7659,7 +7660,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendReviewTorOff => 'Tor не подключён';
 
   @override
-  String get deskSendReview => 'Проверить отправку';
+  String get deskSendReview => 'Проверка';
 
   @override
   String get deskSendSummary => 'Итог';
@@ -7892,7 +7893,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskFinPickTitle => 'Файл ответа';
 
   @override
-  String get deskFinPosted => 'Транзакция отправлена в сеть';
+  String get deskFinPosted => 'Платёж отправлен в сеть';
 
   @override
   String get deskFinTitle => 'Завершить по файлу ответа';
@@ -8003,13 +8004,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActNotUpdated => 'Не обновлено';
 
   @override
-  String get deskActSearchHint => 'Адрес или слейт';
+  String get deskActSearchHint => 'Заметка, контакт, адрес или сумма';
 
   @override
   String get deskActSearchHintEmpty => 'Пока искать нечего';
 
   @override
-  String get deskActSearchLabel => 'Поиск транзакций';
+  String get deskActSearchLabel => 'Поиск платежей';
 
   @override
   String get deskActClearSearch => 'Очистить поиск';
@@ -8027,13 +8028,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActTitle => 'Активность';
 
   @override
-  String get deskActDetailReceived => 'Полученная транзакция';
+  String get deskActDetailReceived => 'Полученный платёж';
 
   @override
-  String get deskActDetailSent => 'Отправленная транзакция';
+  String get deskActDetailSent => 'Отправленный платёж';
 
   @override
-  String get deskActLoading => 'Загрузка транзакций';
+  String get deskActLoading => 'Загрузка платежей';
 
   @override
   String get deskActWaitingNode => 'Ждём синхронизации узла.';
@@ -8048,11 +8049,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActFilterSent => 'Отправленные';
 
   @override
-  String get deskActNoMatchTitle => 'Транзакции не найдены';
-
-  @override
-  String get deskActNoMatchText =>
-      'Попробуйте другой адрес или ID слейта либо сбросьте фильтр.';
+  String deskActNoMatchTitle(String query) {
+    return 'По запросу «$query» ничего не найдено.';
+  }
 
   @override
   String deskActPageOf(int page, int pages) {
@@ -8081,7 +8080,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActColAmount => 'Сумма';
 
   @override
-  String get deskActEmptyTitle => 'Транзакций пока нет';
+  String get deskActEmptyTitle => 'Платежей пока нет';
 
   @override
   String get deskActEmptyText =>
@@ -8210,7 +8209,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskConLastTx(String when) {
-    return 'Последняя транзакция: $when';
+    return 'Последний платёж: $when';
   }
 
   @override
@@ -8237,19 +8236,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskConNote => 'Заметка';
+  String get deskConNote => 'Заметка (необязательно)';
 
   @override
   String deskConTxWith(String name) {
-    return 'Транзакции с контактом «$name»';
+    return 'Платежи с контактом «$name»';
   }
 
   @override
-  String get deskConAllTx => 'Все транзакции';
+  String get deskConAllTx => 'Все платежи';
 
   @override
   String get deskConTxNone =>
-      'Транзакций с этим контактом пока нет. Здесь появятся платежи, отправленные ему со страницы «Отправить».';
+      'Платежей с этим контактом пока нет. Платежи ему со страницы «Отправить» появятся здесь.';
 
   @override
   String get deskConTxReceived => 'Получено';
@@ -9012,7 +9011,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOvBreakImmature => 'Не созрело';
 
   @override
-  String get deskOvBreakAwaiting => 'Ждёт завершения';
+  String get deskOvBreakAwaiting => 'Ждёт отправителя';
 
   @override
   String get deskOvBreakLocked => 'Заблокировано в отправках';
@@ -9024,10 +9023,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOvHiddenAmount => 'Сумма скрыта';
 
   @override
-  String get deskOvLoading => 'Загрузка транзакций';
+  String get deskOvLoading => 'Загрузка платежей';
 
   @override
-  String get deskOvEmptyTitle => 'Транзакций пока нет';
+  String get deskOvEmptyTitle => 'Платежей пока нет';
 
   @override
   String deskOvEmptyText(int blocks) {
@@ -9145,7 +9144,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Найдено в блокчейне сканированием. Отправитель не записан.';
 
   @override
-  String get deskTxBackupTip => 'Добавлено из файла данных кошелька.';
+  String get deskTxBackupTip => 'Импортировано из файла данных кошелька.';
 
   @override
   String get deskTxFromBackup => 'Импортирован';
@@ -9154,13 +9153,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxStatusImmature => 'Не созрело';
 
   @override
-  String get deskTxStatusWaitingSender => 'Ждёт завершения отправителем';
+  String get deskTxStatusWaitingSender => 'Ждёт отправителя';
 
   @override
   String get deskTxStatusWaitingResponseFile => 'Ждёт файл ответа';
 
   @override
-  String get deskTxStatusWaitingRecipient => 'Ждёт подписи получателя';
+  String get deskTxStatusWaitingRecipient => 'Ждёт получателя';
 
   @override
   String get deskTxStatusWaitingBlock => 'Ждёт блок';
@@ -9237,7 +9236,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxHiddenAmount => 'сумма скрыта';
 
   @override
-  String get deskTxNowBackup => 'Импортирован; блокчейн не запрашивался.';
+  String get deskTxNowBackup =>
+      'Импортировано из файла данных кошелька. Статус в цепочке не проверялся.';
 
   @override
   String deskTxNowImmature(int count) {
@@ -9262,7 +9262,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxNowWaitingSender =>
-      'Подписано и возвращено. Ждём, пока отправитель завершит.';
+      'Ждёт, пока отправитель отправит её в сеть.';
 
   @override
   String get deskTxNowWaitingResponseFile =>
@@ -9326,7 +9326,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxHeadFoundOnChain => 'найдено в блокчейне';
 
   @override
-  String get deskTxHeadBackup => 'добавлено из файла данных кошелька';
+  String get deskTxHeadBackup => 'импортирован из файла данных кошелька';
 
   @override
   String deskTxHeadFrom(String who) {
@@ -9372,7 +9372,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxFactMessage => 'Сообщение';
 
   @override
-  String get deskTxSignedByRecipient => 'Подписано получателем';
+  String get deskTxSignedByRecipient => 'Получатель подписал';
 
   @override
   String get deskTxProofView => 'Открыть';
@@ -9414,7 +9414,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxStepMined => 'Добыто в блоке';
 
   @override
-  String get deskTxStepSpendable => 'Доступно';
+  String get deskTxStepSpendable => 'Завершён';
 
   @override
   String deskTxStepBlocksToGo(int count) {
@@ -9430,10 +9430,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskTxStepReceivedSlate => 'Получен слейт';
+  String get deskTxStepReceivedSlate => 'Платёж получен';
 
   @override
-  String get deskTxStepCreated => 'Создано и подписано';
+  String get deskTxStepCreated => 'Платёж начат';
 
   @override
   String get deskTxStepSignedReturned => 'Подписано и возвращено';
@@ -9442,7 +9442,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxStepWaitingFile => 'Ждём файл ответа';
 
   @override
-  String get deskTxStepWaitingRecipient => 'Ждём получателя';
+  String get deskTxStepWaitingRecipient => 'Ждёт получателя';
 
   @override
   String get deskTxStepPosted => 'Отправлено в сеть';
@@ -9459,7 +9459,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxCancelIncomingTitle => 'Отменить этот платёж?';
 
   @override
-  String get deskTxCancelOutgoingTitle => 'Отменить эту отправку?';
+  String get deskTxCancelOutgoingTitle => 'Отменить этот платёж?';
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
@@ -9478,7 +9478,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxCancelIncomingAction => 'Отменить платёж';
 
   @override
-  String get deskTxCancelOutgoingAction => 'Отменить отправку';
+  String get deskTxCancelOutgoingAction => 'Отменить платёж';
 
   @override
   String deskTxProofIncoming(String amount) {
@@ -9671,7 +9671,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbCreateHide => 'Скрыть';
 
   @override
-  String get deskOnbCreateShowQr => 'Показать QR-код';
+  String get deskOnbCreateShowQr => 'Показать QR';
 
   @override
   String get deskOnbCreateHideQr => 'Скрыть QR-код';
@@ -11130,7 +11130,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitQrHide => 'Скрыть QR';
 
   @override
-  String get deskKitQrHideCode => 'Скрыть QR-код';
+  String get deskKitQrHideCode => 'Скрыть QR';
 
   @override
   String get deskSetAcctNotForgotten => 'Не забыт';
@@ -11165,7 +11165,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Слова, которые восстанавливают этот кошелёк. Никому их не показывайте.';
 
   @override
-  String get deskSetAcctShowPhrase => 'Показать фразу…';
+  String get deskSetAcctShowPhrase => 'Показать фразу восстановления…';
 
   @override
   String get deskSetAcctRescanHint =>
@@ -12598,7 +12598,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPhrasePanel => 'Введите пароль, чтобы показать слова';
 
   @override
-  String get deskSetPhraseShowWords => 'Показать слова';
+  String get deskSetPhraseShowWords => 'Показать фразу восстановления';
 
   @override
   String deskSetPhraseWordsLabel(int count) {
@@ -12614,13 +12614,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseHideQr => 'Скрыть QR-код';
+  String get deskSetPhraseHideQr => 'Скрыть QR';
 
   @override
-  String get deskSetPhraseShowQr => 'Показать QR-код';
+  String get deskSetPhraseShowQr => 'Показать QR';
 
   @override
-  String get deskSetPhraseHideWords => 'Скрыть слова';
+  String get deskSetPhraseHideWords => 'Скрыть фразу восстановления';
 
   @override
   String deskSetPhraseHidesIn(int seconds) {
@@ -13237,7 +13237,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAboutLicencesLead =>
-      'Открытое ПО в этом кошельке, каждое под своей лицензией.';
+      'Открытое программное обеспечение в этом кошельке, каждое под своей лицензией.';
 
   @override
   String get deskSetAboutLicenceApp =>
@@ -13725,7 +13725,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Укажите адрес Epicbox, http(s) или .onion.';
 
   @override
-  String get deskTxDetailsNote => 'Заметка';
+  String get deskTxDetailsNote => 'Личная заметка';
 
   @override
   String get deskTxDetailsAdded => 'Подробности добавлены';
@@ -14026,7 +14026,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advReset => 'Скрыть всё снова';
 
   @override
-  String get advHomeOffline => 'Офлайн-режим';
+  String get advHomeOffline => 'Офлайн';
 
   @override
   String get advHomeTorOnlyWaiting => 'Только Tor · ждёт Tor';
@@ -14152,7 +14152,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskShellOffline => 'Офлайн-режим';
+  String get deskShellOffline => 'Офлайн';
 
   @override
   String get deskShellTorOnlyWaiting => 'Только Tor · ждёт Tor';
@@ -14162,7 +14162,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
 
   @override
-  String get netBlockOffline => 'Офлайн-режим включён в «Дополнительно».';
+  String get netBlockOffline => '«Офлайн» включён в «Дополнительно».';
 
   @override
   String get netBlockTorOnly => 'Режим «Только Tor» включён в «Дополнительно».';
@@ -14171,7 +14171,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netBlockWaitingForTor => 'Ждёт Tor.';
 
   @override
-  String get receiveOfflineLine => 'В офлайн-режиме так получать нельзя.';
+  String get receiveOfflineLine =>
+      'Пока включён «Офлайн», так получать нельзя.';
 
   @override
   String get txDetailsMore => 'Ещё';
@@ -14181,7 +14182,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeOfflineDetail =>
-      'Офлайн-режим включён в «Дополнительно». Баланс — последний из виденных.';
+      '«Офлайн» включён в «Дополнительно». Баланс — последний из виденных.';
 
   @override
   String get homeWaitingTorDetail =>
@@ -14351,7 +14352,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Введите только цифры или оставьте пустым.';
 
   @override
-  String get deskNetOfflineReason => 'Офлайн-режим включён в «Дополнительно».';
+  String get deskNetOfflineReason => '«Офлайн» включён в «Дополнительно».';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -14369,7 +14370,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNetRecvOfflineText =>
-      'Ваш адрес не меняется. Ничего не придёт, пока включён офлайн-режим.';
+      'Ваш адрес не меняется. Ничего не придёт, пока включён «Офлайн».';
 
   @override
   String get deskNetRecvWaitTorText =>
@@ -14401,7 +14402,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsHubMethods => 'Способы';
 
   @override
-  String get settingsHubDefault => 'По умолчанию';
+  String get settingsHubDefault => 'Способ по умолчанию';
 
   @override
   String get settingsHubSendDefaults => 'Настройки отправки';
@@ -14772,7 +14773,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Хотя бы один способ оплаты должен остаться включённым.';
 
   @override
-  String get deskRecvTorOffTitle => 'Для приёма через Ссылка · Tor нужен Tor.';
+  String get deskRecvTorOffTitle => 'Link · Tor требует Tor.';
 
   @override
   String get deskRecvTorOffText =>
@@ -15742,7 +15743,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get addrDesktopRule => 'Один адрес на тип.';
+  String get addrDesktopRule => 'По одному адресу каждого типа.';
 
   @override
   String get pendingTitle => 'Ожидающие приглашения';
@@ -17400,7 +17401,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSlotHelp => 'Справка';
 
   @override
-  String get deskSlotOffline => 'Режим офлайн';
+  String get deskSlotOffline => 'Офлайн';
 
   @override
   String get deskSlotOfflineDetail => 'ничего не отправляется и не принимается';
@@ -17968,7 +17969,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneAdvancedTextNoTor =>
-      'Режим «Офлайн», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
+      '«Офлайн», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
 
   @override
   String get deskNoTorSendDirectLine2 =>
@@ -18101,7 +18102,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Приостановлено, пока Epicbox выключен. «Через сообщение» и «Лично» по-прежнему работают.';
 
   @override
-  String get connServersOffline => 'Приостановлено в режиме офлайн.';
+  String get connServersOffline => 'Приостановлено, пока включён «Офлайн».';
 
   @override
   String connServersNonDefault(String host) {
@@ -18282,7 +18283,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'На паузе это устройство не читает и не отправляет уведомления; они ждут на серверах, пока каждый сервер их хранит. Автономный режим тоже ставит на паузу.';
+      'На паузе это устройство не читает и не отправляет уведомления; они ждут на серверах до 7 дней. «Офлайн» тоже ставит на паузу.';
 
   @override
   String get devicesHeld => 'Удержанные монеты';
@@ -18522,7 +18523,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Серверы видят, что два устройства обмениваются уведомлениями и когда, а без Tor и с каких адресов; но никогда не их содержимое. Два сервера — это два оператора, которые это видят.';
 
   @override
-  String get deskDevPausedOffline => 'Приостановлено в режиме «Офлайн».';
+  String get deskDevPausedOffline => 'Приостановлено, пока включён «Офлайн».';
 
   @override
   String get deskDevPausedEpicboxOff =>
@@ -18783,4 +18784,88 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get sasNotFromCamera =>
       'Их код пришёл сообщением, а не с вашей камеры. Если их кошелёк не сканировал ваш код с этого экрана, эти слова не доказывают, кто его отправил, поэтому подтверждения здесь нет: оставьте связь без проверки или свяжитесь через приглашение.';
+
+  @override
+  String get slSwitchFirst => 'Сначала переключитесь';
+
+  @override
+  String get netStatusPausedOffline => 'Приостановлено · Офлайн';
+
+  @override
+  String get contactPaymentsNone => 'Платежей с этим контактом пока нет.';
+
+  @override
+  String contactPaymentsWith(String name) {
+    return 'Транзакции с контактом «$name»';
+  }
+
+  @override
+  String get contactPaymentsAll => 'Все транзакции';
+
+  @override
+  String receiveEpicboxNotConnected(String server) {
+    return 'Нет подключения · $server';
+  }
+
+  @override
+  String restoreWordsAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Все $count слова верные.',
+      many: 'Все $count слов верные.',
+      few: 'Все $count слова верные.',
+      one: '$count слово верное.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count слова',
+      many: '$count слов',
+      few: '$count слова',
+      one: '$count слово',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreWordsUnknown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count слова нет в списке.',
+      many: '$count слов нет в списке.',
+      few: '$count слов нет в списке.',
+      one: '$count слова нет в списке.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pairInvitedAt(String clock) {
+    return 'Приглашение отправлено в $clock';
+  }
+
+  @override
+  String get pairInvitedYesterday => 'Приглашение отправлено вчера';
+
+  @override
+  String pairInvitedOn(String day) {
+    return 'Приглашение отправлено $day';
+  }
+
+  @override
+  String get deskActNoneUnderFilter => 'Под этим фильтром ничего нет';
+
+  @override
+  String get deskRecvHttpIntroInternet =>
+      'Для кошельков в интернете, пока этот кошелёк открыт.';
+
+  @override
+  String get deskKitMethodConnected => 'Подключено';
 }
