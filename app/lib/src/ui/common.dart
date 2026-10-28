@@ -393,6 +393,23 @@ String epicExact(AppLocalizations l, BigInt atomic) =>
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
 
+/// The exact amount behind a headline figure, for its tooltip: a tap on the phone, a hover
+/// with a mouse. None while amounts are hidden.
+Widget exactAmountTip(
+  BuildContext context,
+  BigInt atomic, {
+  required bool hidden,
+  required Widget child,
+}) {
+  if (hidden) return child;
+  final l = context.l10n;
+  return Tooltip(
+    message: l.balanceExactTip(epicExact(l, atomic)),
+    triggerMode: TooltipTriggerMode.tap,
+    child: child,
+  );
+}
+
 /// [epicText], or [epicExact] with [exact], or [hiddenAmount] when [hidden].
 String shownEpic(
   AppLocalizations l,

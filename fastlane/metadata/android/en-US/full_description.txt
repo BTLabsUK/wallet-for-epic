@@ -1,0 +1,32 @@
+<p>Epic Cash Mobile is a self-custody wallet for Epic Cash (EPIC). The keys and the coins stay on the phone, locked with a PIN or the phone's fingerprint or face unlock. The recovery phrase is the backup.</p>
+<p>The wallet core is LEPIC, a Rust library; the app is built with Flutter. Both are open source under the Apache License 2.0.</p>
+
+<p><b>Payment methods</b></p>
+<ul>
+<li>Epicbox: the recipient can be offline; an Epicbox server holds the payment until their wallet collects it.</li>
+<li>Link · HTTP: a payment to a web address that the recipient's wallet answers.</li>
+<li>Link · Tor: a payment to a .onion address, through the Tor network. The phone can have a Tor address of its own to be paid at.</li>
+<li>Direct · QR Payment: two phones side by side pay with an animated QR code, with no connection between them.</li>
+<li>Direct · File Transfer: a transaction file is passed on by any means, and its response file comes back the same way.</li>
+</ul>
+<p>Each method is a switch in Settings. Epicbox is on by default.</p>
+
+<p><b>Features</b></p>
+<ul>
+<li>Balance with pending, locked and maturing amounts shown apart.</li>
+<li>Activity list with search and filters, payment details, private notes and labels kept on the phone.</li>
+<li>Contacts, each with one or more addresses.</li>
+<li>Recheck balance: scans the chain again for the wallet's coins.</li>
+<li>Export and import of the history and settings, and a CSV export.</li>
+<li>Choice of node, a self-hosted one included, and of Epicbox server.</li>
+<li>Tor switch: the Epicbox connection and Tor sends go through Tor. Off by default.</li>
+<li>Network modes, including Offline.</li>
+<li>Experimental, off by default: pairing, invoices, linked devices.</li>
+<li>Help in the app. Languages: English, German, Polish, Russian, Chinese and Thai.</li>
+</ul>
+
+<p><b>Network</b></p>
+<p>The wallet talks to an Epic Cash node (default node.btlabs.uk; the list also has nodes run by EpicNet, Epic Cash, Cypher Stack and Iniaku pool) and, for Epicbox payments, to an Epicbox server (default epicbox.epiccash.com). Both can be changed in Settings. The fiat value of the balance comes from CoinGecko, with a copy kept by BT Labs as a fallback; it can be turned off.</p>
+
+<p><b>This build</b></p>
+<p>The F-Droid build has no Google services and no push notifications. Updates come from F-Droid; the app has no updater of its own. Tor is built from source, and QR codes are read with a free-software scanner.</p>

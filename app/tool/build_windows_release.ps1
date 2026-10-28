@@ -1,5 +1,7 @@
 # Builds the Windows installer, epic-cash-desktop-<version>[-notor]-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
+# -Dist msstore builds the Microsoft Store package instead, epic-cash-desktop-<version>-msstore-x64.msix
+# (https://docs.btlabs.uk/developers/build/variants/): no in-app updater, no Inno Setup, an unsigned MSIX that the Store signs.
 #
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
 # Inno Setup 6 (ISCC.exe; installed per user by `innosetup-6.x.exe /VERYSILENT /CURRENTUSER`).
@@ -43,10 +45,20 @@ param(
     # The code-signing certificate's SHA-1 thumbprint in CurrentUser\My or LocalMachine\My.
     [string]$SignThumbprint = $env:WFE_SIGN_THUMBPRINT,
     [string]$SignTool,
-    [string]$TimestampUrl = 'http://timestamp.digicert.com'
+    [string]$TimestampUrl = 'http://timestamp.digicert.com',
+    # Where the build is distributed (https://docs.btlabs.uk/developers/build/variants/): web (our page: the installer) or
+    # msstore (the Microsoft Store: an MSIX package, https://docs.btlabs.uk/developers/build/variants/).
+    [ValidateSet('web', 'msstore')][string]$Dist = 'web',
+    # The MSIX identity, as Partner Center shows it under Product management > Product identity.
+    # The defaults are placeholders: the Store refuses a package whose identity is not the one it
+    # gave the app. A test build signed with a test certificate names that certificate's subject.
+    [string]$MsixName = 'BTLabs.EpicCashDesktop',
+    [string]$MsixPublisher = 'CN=00000000-0000-0000-0000-000000000000',
+    [string]$MsixPublisherDisplayName = 'BT Labs'
 )
 $ErrorActionPreference = 'Stop'
 if ($NoTor -and $TorBundle) { throw '-NoTor builds without Tor: leave out -TorBundle' }
+if ($Dist -eq 'msstore' -and $NoTor) { throw '-Dist msstore is the build with Tor (https://docs.btlabs.uk/developers/build/variants/)' }
 
 # Signs $File with the certificate -SignThumbprint names, or says the build is unsigned.
 function Sign-File([string]$File) {
@@ -76,7 +88,13 @@ $env:Path = @($Flutter, "$env:USERPROFILE\.cargo\bin", $env:Path) -join ';'
 foreach ($tool in 'flutter', 'rustup', 'cargo', 'cmake', 'git') {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool not found on PATH" }
 }
-if (-not (Test-Path $Iscc)) { throw "ISCC.exe not found at $Iscc (install Inno Setup 6)" }
+if ($Dist -eq 'msstore') {
+    # MakeAppx and MakePri from the newest Windows SDK.
+    $kit = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1
+    if (-not $kit) { throw 'makeappx.exe not found: install the Windows SDK' }
+    $kit = Split-Path $kit.FullName
+} elseif (-not (Test-Path $Iscc)) { throw "ISCC.exe not found at $Iscc (install Inno Setup 6)" }
 
 function Step($m) { Write-Output "`n== $m" }
 
@@ -155,7 +173,7 @@ if (-not $BuildTag) {
     foreach ($t in @(git -C $Source tag --points-at HEAD)) { if ($t -match '^v[\d.]+-(r\d+)$') { $BuildTag = $Matches[1] } }
 }
 Write-Output "build id: $BuildId $BuildTag"
-flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId --dart-define=WFE_BUILD_TAG=$BuildTag --dart-define=WFE_TOR=$torDefine
+flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId --dart-define=WFE_BUILD_TAG=$BuildTag --dart-define=WFE_TOR=$torDefine --dart-define=WFE_DIST=$Dist
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 $rel = Join-Path $app 'build\windows\x64\runner\Release'
 # A failed configure leaves only the exe here (install prefix pointed elsewhere): refuse that.
@@ -207,6 +225,44 @@ if ($TorBundle) {
 # --- signature on the app, then the installer that carries it
 Step 'Authenticode'
 Sign-File "$rel\epic_wallet.exe"
+
+# --- the Microsoft Store package: the Release folder as it is, with the manifest and the logos
+if ($Dist -eq 'msstore') {
+    Step 'MSIX'
+    $msixSrc = Join-Path $app 'windows\msix'
+    $stage = Join-Path $app 'build\msix'
+    $layout = Join-Path $stage 'layout'
+    if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+    New-Item -ItemType Directory -Force $layout, "$stage\pri" | Out-Null
+    robocopy $rel $layout /E /XF *.lib *.exp *.pdb *.ilk /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { throw "copying $rel failed" }
+    Copy-Item (Join-Path $app 'assets\fonts\OFL-Montserrat.txt') "$layout\LICENSE.Montserrat.txt"
+    Copy-Item -Recurse "$msixSrc\Assets" "$layout\Assets"
+    Copy-Item -Recurse "$msixSrc\Assets" "$stage\pri\Assets"
+    $manifest = (Get-Content "$msixSrc\AppxManifest.xml" -Raw).
+        Replace('$IdentityName$', [Security.SecurityElement]::Escape($MsixName)).
+        Replace('$Publisher$', [Security.SecurityElement]::Escape($MsixPublisher)).
+        Replace('$PublisherDisplayName$', [Security.SecurityElement]::Escape($MsixPublisherDisplayName)).
+        Replace('$Version$', $fileVersion)
+    if ($manifest -match '\$[A-Za-z]+\$') { throw "AppxManifest.xml still has a field to fill: $($Matches[0])" }
+    [IO.File]::WriteAllText("$layout\AppxManifest.xml", $manifest, (New-Object Text.UTF8Encoding $false))
+    Copy-Item "$layout\AppxManifest.xml" "$stage\pri\AppxManifest.xml"
+    # resources.pri indexes only the logos (their scale and targetsize variants), not the app's files.
+    & "$kit\makepri.exe" createconfig /cf "$stage\priconfig.xml" /dq en-US /pv 10.0.0 /o | Out-Null
+    if ($LASTEXITCODE) { throw 'makepri createconfig failed' }
+    & "$kit\makepri.exe" new /pr "$stage\pri" /cf "$stage\priconfig.xml" /mn "$stage\pri\AppxManifest.xml" /of "$layout\resources.pri" /o | Out-Null
+    if ($LASTEXITCODE) { throw 'makepri new failed' }
+    foreach ($f in 'epic_wallet.exe', 'lepic_ffi.dll', 'bin\epic.exe', 'bin\tor-bundle\tor.exe', 'resources.pri') {
+        if (-not (Test-Path "$layout\$f")) { throw "the package would miss $f (pass -NodeBin and -TorBundle)" }
+    }
+    $msix = Join-Path $OutDir "epic-cash-desktop-$name-msstore-x64.msix"
+    & "$kit\makeappx.exe" pack /d $layout /p $msix /o /h SHA256
+    if ($LASTEXITCODE) { throw 'makeappx pack failed' }
+    $hash = (Get-FileHash $msix -Algorithm SHA256).Hash.ToLower()
+    "$hash  $(Split-Path $msix -Leaf)" | Set-Content -Encoding ascii "$msix.sha256"
+    Write-Output "Wrote $msix ($((Get-Item $msix).Length) bytes) sha256 $hash; identity $MsixName, $MsixPublisher; version $fileVersion; unsigned"
+    return
+}
 
 # --- installer
 Step 'Inno Setup'

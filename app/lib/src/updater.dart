@@ -469,8 +469,10 @@ class UpdateState {
   final String Function(AppLocalizations l)? text;
 }
 
+/// Null where the app cannot update itself: off Android, and in the builds without in-app
+/// updates ([inAppUpdates]), whose native side has no installer.
 final updatePlatformProvider = Provider<UpdatePlatform?>((ref) {
-  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
+  if (!inAppUpdates || kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
   return AndroidUpdatePlatform();
 });
 

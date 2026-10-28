@@ -13,6 +13,7 @@ import '../app_info.dart';
 import '../app_log.dart';
 import '../app_version.dart';
 import '../demo.dart';
+import '../dist_build.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -1247,7 +1248,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         leading: const Icon(Icons.info_outline),
         title: Text(l.settingsVersion),
         subtitle: Text(
-          version.hasValue ? version.value ?? l.commonUnknown : '…',
+          [
+            version.hasValue ? version.value ?? l.commonUnknown : '…',
+            // A store build: the store updates it, the app has no updater.
+            if (distStore != null) l.settingsUpdatesFrom(distStore!),
+          ].join('\n'),
         ),
       ),
       if (updates)

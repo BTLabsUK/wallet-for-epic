@@ -1309,6 +1309,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBalanceHiddenLabel => 'Balance hidden';
 
   @override
+  String balanceExactTip(String amount) {
+    return 'Exact amount: $amount';
+  }
+
+  @override
   String get homeShowBalances => 'Show balances';
 
   @override
@@ -3165,6 +3170,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Check for updates';
+
+  @override
+  String settingsUpdatesFrom(String store) {
+    return 'Updates come from $store.';
+  }
 
   @override
   String get settingsHelp => 'Help';

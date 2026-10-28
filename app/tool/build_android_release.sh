@@ -16,6 +16,17 @@
 # -notor in the APK names, and the checks turned round: no libtor.so, no Tor code in
 # liblepic_ffi.so, no Tor licence. Both pack the libraries compressed, extracted at install.
 #
+# WFE_DIST=play|fdroid builds a store build (https://docs.btlabs.uk/developers/build/variants/); unset or web is the build from
+# our own page, as before. Neither store build has the in-app updater or the install permission.
+#   play    an Android App Bundle for Google Play, epic-cash-mobile-<version>[-notor]-play.aab
+#           (arm64-v8a, signed with the same key as the APK).
+#   fdroid  epic-cash-mobile-<version>[-notor]-fdroid-arm64-v8a.apk, the APK for IzzyOnDroid and
+#           the one F-Droid's own build must reproduce: the free QR scanner instead of ML Kit, so
+#           the checkout must be prepared first (tools/dist-prep.sh fdroid, in a build copy), with
+#           pubspec.lock enforced as prepared and tor built from source
+#           (tools/build-tor-android.sh) instead of the Tor Project's binary.
+# tools/dist-check.sh checks each output against its distribution.
+#
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
 # updater refuses a verified manifest whose packageName differs from the installed app's
 # (lib/src/updater.dart), so this build never offers another app's builds.
@@ -49,32 +60,73 @@ aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
 readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
 [[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
 
-# The build without Tor names its APKs epic-cash-mobile-<version>-notor-<abi>.apk.
+dist="${WFE_DIST:-web}"
+case "$dist" in web|play|fdroid) ;; *) echo "WFE_DIST=$dist: use web, play or fdroid" >&2; exit 2 ;; esac
+if [[ $dist == fdroid ]] && grep -q '^  mobile_scanner:' "$app_dir/pubspec.yaml"; then
+  echo "WFE_DIST=fdroid needs a prepared checkout: tools/dist-prep.sh fdroid, in a build copy" >&2
+  exit 1
+fi
+
+# The build without Tor names its files epic-cash-mobile-<version>-notor-<abi>.apk; a store
+# build adds -play or -fdroid.
 tor=1 variant=
 if [[ "${WFE_TOR:-1}" == 0 ]]; then tor=0 variant=-notor; fi
+[[ $dist == web ]] || variant="$variant-$dist"
+
+emulator=()
+[[ "${WFE_EMULATOR_X86_64:-}" == 1 ]] && emulator=(x86_64)
 
 cd "$app_dir"
-flutter pub get
-if [[ $tor == 1 ]]; then
-  "$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
+if [[ $dist == fdroid ]]; then
+  flutter pub get --enforce-lockfile
+else
+  flutter pub get
+fi
+tor_libs="$app_dir/android/app/src/main/tor-jniLibs"
+if [[ $tor == 1 && $dist == fdroid ]]; then
+  # Built from source, for the ABIs this build packs; never a Tor Project binary left there by
+  # an earlier build.
+  for a in arm64-v8a x86_64 armeabi-v7a x86; do rm -f -- "$tor_libs/$a/libtor.so"; done
+  abis_tor=arm64-v8a
+  [[ ${#emulator[@]} -gt 0 ]] && abis_tor="arm64-v8a x86_64"
+  TOR_ANDROID_ABIS="$abis_tor" "$app_dir/../tools/build-tor-android.sh" "$tor_libs"
+elif [[ $tor == 1 ]]; then
+  "$app_dir/../tools/fetch-tor.sh" android "$tor_libs"
 fi
 "$app_dir/../tools/lepic.sh" sync
+# The F-Droid build must come out the same on F-Droid's build server: without this, LEPIC's
+# library names every crate's source path under this host's cargo home (panic locations).
+# The recipe sets the same (https://docs.btlabs.uk/developers/build/variants/).
+if [[ $dist == fdroid ]]; then
+  export RUSTFLAGS="--remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
+fi
 # The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0.
 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
-rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
+rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/epic-cash-mobile-$version-*.aab "$out_dir/SHA256SUMS" \
+  "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
 
-emulator=()
-[[ "${WFE_EMULATOR_X86_64:-}" == 1 ]] && emulator=(x86_64)
-platforms=android-arm64
-[[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
-flutter build apk --release --target-platform "$platforms" --split-per-abi \
-  --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag" \
-  --dart-define=WFE_TOR="$([[ $tor == 1 ]] && echo true || echo false)"
-cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version$variant-arm64-v8a.apk"
-(cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
+defines=(
+  --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag"
+  --dart-define=WFE_TOR="$([[ $tor == 1 ]] && echo true || echo false)" --dart-define=WFE_DIST="$dist"
+)
+if [[ $dist == play ]]; then
+  # Google Play takes a bundle; the emulator's x86_64 APK is a build of its own.
+  flutter build appbundle --release --target-platform android-arm64 "${defines[@]}"
+  cp "$app_dir/build/app/outputs/bundle/release/app-release.aab" "$out_dir/epic-cash-mobile-$version$variant.aab"
+  (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.aab >SHA256SUMS)
+  if [[ ${#emulator[@]} -gt 0 ]]; then
+    flutter build apk --release --target-platform android-x64 --split-per-abi "${defines[@]}"
+  fi
+else
+  platforms=android-arm64
+  [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
+  flutter build apk --release --target-platform "$platforms" --split-per-abi "${defines[@]}"
+  cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version$variant-arm64-v8a.apk"
+  (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
+fi
 if [[ ${#emulator[@]} -gt 0 ]]; then
   mkdir -p "$out_dir/emulator"
   cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version$variant-x86_64.apk"
@@ -164,11 +216,36 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   LC_ALL=C grep -aqiE 'com/google/firebase/(messaging|iid|installations|FirebaseApp)|firebase-messaging' "$dex"/classes*.dex && r=1 || r=0
   check "no Firebase classes" $r
   rm -r -- "$dex"
+  # What the distribution must and must not carry: the updater, proprietary code (fdroid).
+  "$app_dir/../tools/dist-check.sh" "$dist" "$apk" && r=0 || r=1; check "tools/dist-check.sh $dist" $r
 done
-# The phone download is arm64-v8a only.
-published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
-[[ "$published" == "epic-cash-mobile-$version$variant-arm64-v8a.apk" ]] && r=0 || r=1
-check "only the arm64-v8a APK is published ($published)" $r
+if [[ $dist == play ]]; then
+  # The bundle: signed with the release key (Play App Signing is given the same key), arm64-v8a
+  # only, and the distribution's rules.
+  aab="$out_dir/epic-cash-mobile-$version$variant.aab"
+  basename "$aab"
+  cert="$(keytool -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')"
+  [[ "$cert" == "$want_cert" ]] && r=0 || r=1; check "signed by $want_cert" $r
+  files="$(unzip -Z1 "$aab")"
+  grep -q '^base/lib/arm64-v8a/liblepic_ffi.so$' <<<"$files" && r=0 || r=1; check "base/lib/arm64-v8a/liblepic_ffi.so" $r
+  if [[ $tor == 1 ]]; then
+    grep -q '^base/lib/arm64-v8a/libtor.so$' <<<"$files" && r=0 || r=1; check "base/lib/arm64-v8a/libtor.so" $r
+  else
+    grep -qiE '^base/lib/.*tor[^/]*\.so$' <<<"$files" && r=1 || r=0; check "no tor library in base/lib/" $r
+  fi
+  grep -E '^base/lib/' <<<"$files" | grep -qvE '^base/lib/arm64-v8a/' && r=1 || r=0; check "arm64-v8a libraries only" $r
+  unzip -p "$aab" base/manifest/AndroidManifest.xml | LC_ALL=C grep -aqF "$want_package" && r=0 || r=1
+  check "package $want_package" $r
+  "$app_dir/../tools/dist-check.sh" play "$aab" && r=0 || r=1; check "tools/dist-check.sh play" $r
+  published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.aab epic-cash-mobile-$version-*.apk 2>/dev/null | tr '\n' ' ')"
+  [[ "$published" == "epic-cash-mobile-$version$variant.aab " ]] && r=0 || r=1
+  check "only the bundle is published ($published)" $r
+else
+  # The phone download is arm64-v8a only.
+  published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
+  [[ "$published" == "epic-cash-mobile-$version$variant-arm64-v8a.apk" ]] && r=0 || r=1
+  check "only the arm64-v8a APK is published ($published)" $r
+fi
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"
 [[ $fail == 0 ]] || { echo "verification FAILED" >&2; exit 1; }
 echo "Release $version ($build_id) built and verified in $out_dir"

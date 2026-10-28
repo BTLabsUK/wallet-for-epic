@@ -1358,6 +1358,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeBalanceHiddenLabel => 'Saldo ukryte';
 
   @override
+  String balanceExactTip(String amount) {
+    return 'Dokładna kwota: $amount';
+  }
+
+  @override
   String get homeShowBalances => 'Pokaż salda';
 
   @override
@@ -3270,6 +3275,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Sprawdź aktualizacje';
+
+  @override
+  String settingsUpdatesFrom(String store) {
+    return 'Aktualizacje dostarcza $store.';
+  }
 
   @override
   String get settingsHelp => 'Pomoc';

@@ -218,6 +218,48 @@ void main() {
     expect(ownChangeOffChain([tx(TxKind.received, 3, transport: 'self')]), _epic(3));
   });
 
+  group('the headline figure shows two decimals, the exact amount a tap away', () {
+    testWidgets('Wallet and the Send title cut to two decimals; a tap tells the rest', (
+      tester,
+    ) async {
+      final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
+      await _pump(tester, session, width: 360);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '1,234.56');
+      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsNothing);
+      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsOneWidget);
+      // The screen reader hears the exact amount without the tap.
+      final handle = tester.ensureSemantics();
+      expect(
+        find.bySemanticsLabel(RegExp(r'1,234\.56781234 EPIC')),
+        findsWidgets,
+      );
+      handle.dispose();
+
+      await _tab(tester, l.homeSendButton);
+      expect(_titleText(tester), startsWith('1,234.56'));
+      await tester.tap(find.byKey(titleFigureKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsOneWidget);
+    });
+
+    testWidgets('hidden balances show dots and tell nothing on a tap', (tester) async {
+      final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
+      final container = await _pump(tester, session, width: 360);
+      await container.read(appSettingsProvider.notifier).setHideBalances(true);
+      await tester.pumpAndSettle();
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, hiddenAmount);
+      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.textContaining('1,234.56781234'), findsNothing);
+      expect(
+        find.ancestor(of: find.byKey(balanceFigureKey), matching: find.byType(Tooltip)),
+        findsNothing,
+      );
+    });
+  });
+
   group('coins on hold beside a spendable 0', () {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,
@@ -227,7 +269,7 @@ void main() {
         summary: _summary(locked: 10, confirming: 7.492),
       );
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.00');
       // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
       for (final (kind, text) in [
         (BalanceKind.locked, '10.0000'),

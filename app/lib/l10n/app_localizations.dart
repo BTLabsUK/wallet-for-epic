@@ -2149,6 +2149,12 @@ abstract class AppLocalizations {
   /// **'Balance hidden'**
   String get homeBalanceHiddenLabel;
 
+  /// Tooltip on the big balance figure (phone: tap; desktop: hover): the amount with every decimal, as the figure itself shows only two. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact amount: {amount}'**
+  String balanceExactTip(String amount);
+
   /// Tooltip of the eye button while amounts are hidden.
   ///
   /// In en, this message translates to:
@@ -5094,6 +5100,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check for updates'**
   String get settingsCheckUpdates;
+
+  /// Settings › About, under the version, in a store build (F-Droid, Google Play) that has no in-app updater: where updates come from. {store} is the store's name, never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates come from {store}.'**
+  String settingsUpdatesFrom(String store);
 
   /// Settings row that opens the help page.
   ///

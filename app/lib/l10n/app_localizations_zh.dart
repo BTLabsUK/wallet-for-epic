@@ -1245,6 +1245,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBalanceHiddenLabel => '余额已隐藏';
 
   @override
+  String balanceExactTip(String amount) {
+    return '精确金额：$amount';
+  }
+
+  @override
   String get homeShowBalances => '显示余额';
 
   @override
@@ -2985,6 +2990,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => '检查更新';
+
+  @override
+  String settingsUpdatesFrom(String store) {
+    return '更新由 $store 提供。';
+  }
 
   @override
   String get settingsHelp => '帮助';

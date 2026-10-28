@@ -1294,6 +1294,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeBalanceHiddenLabel => 'ซ่อนยอดคงเหลืออยู่';
 
   @override
+  String balanceExactTip(String amount) {
+    return 'จำนวนที่แน่นอน: $amount';
+  }
+
+  @override
   String get homeShowBalances => 'แสดงยอดเงิน';
 
   @override
@@ -3109,6 +3114,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'ตรวจหาอัปเดต';
+
+  @override
+  String settingsUpdatesFrom(String store) {
+    return 'การอัปเดตมาจาก $store';
+  }
 
   @override
   String get settingsHelp => 'ช่วยเหลือ';

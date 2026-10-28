@@ -1589,6 +1589,16 @@
   "@homeBalanceHiddenLabel": {
     "description": "Screen-reader label of the balance while amounts are hidden."
   },
+  "balanceExactTip": "Exact amount: {amount}",
+  "@balanceExactTip": {
+    "description": "Tooltip on the big balance figure (phone: tap; desktop: hover): the amount with every decimal, as the figure itself shows only two. Short.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.56781234 EPIC"
+      }
+    }
+  },
   "homeShowBalances": "Show balances",
   "@homeShowBalances": {
     "description": "Tooltip of the eye button while amounts are hidden."
@@ -4004,6 +4014,16 @@
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {
     "description": "Settings row."
+  },
+  "settingsUpdatesFrom": "Updates come from {store}.",
+  "@settingsUpdatesFrom": {
+    "description": "Settings › About, under the version, in a store build (F-Droid, Google Play) that has no in-app updater: where updates come from. {store} is the store's name, never translated.",
+    "placeholders": {
+      "store": {
+        "type": "String",
+        "example": "F-Droid"
+      }
+    }
   },
   "settingsHelp": "Help",
   "@settingsHelp": {

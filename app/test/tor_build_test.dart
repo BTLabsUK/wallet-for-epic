@@ -4,6 +4,7 @@
 //   flutter test --dart-define=WFE_TOR=false test/tor_build_test.dart
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/features.dart';
+import 'package:epic_wallet/src/dist_build.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('the desktop flag and in-app updates follow the switch', () {
     expect(DeskFeatures.tor, torBuilt);
-    expect(inAppUpdates, torBuilt);
+    expect(inAppUpdates, torBuilt && distUpdates);
   });
 
   test('Link · Tor stays on only with Tor in, however it was stored', () {

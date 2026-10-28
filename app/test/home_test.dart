@@ -853,7 +853,7 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
 
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '12.50');
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connecting');
@@ -920,7 +920,7 @@ void main() {
       expect(h.store.values['app.hide_balances'], 'true');
 
       await _tap(tester, find.byTooltip('Show balances'));
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '12.50');
     });
 
     testWidgets('no fiat line when prices are off or unknown', (tester) async {
@@ -960,12 +960,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '20');
+      expect(_figure(tester), '20.00');
 
       h.session.summaryValue = _summary(spendable: _epic(30));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      expect(_figure(tester), '30');
+      expect(_figure(tester), '30.00');
     });
 
     // A tester's phone stayed on Confirming x/3 after a direct send and after an Epicbox
@@ -1927,7 +1927,7 @@ void main() {
       // Syncing shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '12.50');
       expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
       // The line along the app bar's foot is drawn as far as the sync has come, and no
       // other progress shows.
@@ -1938,7 +1938,7 @@ void main() {
 
       session.gate.complete();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '20');
+      expect(_figure(tester), '20.00');
       expect(find.textContaining('Syncing'), findsNothing);
       expect(_syncLine(tester), isNull);
       expect(session.refreshCalls, 1);
@@ -1956,7 +1956,7 @@ void main() {
       await h.pump(tester);
       session.gate.complete();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '12.50');
       expect(find.byType(ErrorText), findsOneWidget);
       expect(find.textContaining('Syncing'), findsNothing);
     });
@@ -2254,7 +2254,7 @@ void main() {
       final h = _Harness();
       h.session.summaryValue = _summary(spendable: _epic(1234.5678));
       await h.pump(tester);
-      expect(_figure(tester), '1,234.5678');
+      expect(_figure(tester), '1,234.56');
     });
   });
 
@@ -3396,7 +3396,7 @@ void main() {
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0), reason: tab);
-          expect(_titleText(tester), '12.5 EPIC', reason: tab);
+          expect(_titleText(tester), '12.50 EPIC', reason: tab);
           // 2 EPIC are locked: the line under the figure says so, as Wallet's does.
           final pending = find.byKey(titlePendingKey);
           expect(tester.widget<Text>(pending).data, '2 locked', reason: tab);
@@ -3429,7 +3429,7 @@ void main() {
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
         expect(find.byKey(titlePendingKey), findsNothing);
-        expect(_titleText(tester), '12.5 EPIC');
+        expect(_titleText(tester), '12.50 EPIC');
         // Hidden: the title hides the figure too.
         await _tab(tester, 'Wallet');
         await _tap(tester, find.byTooltip('Hide amounts'));
@@ -3499,7 +3499,7 @@ void main() {
       expect(style.fontFamily, montserrat);
       expect(style.fontWeight, FontWeight.w600);
       expect(style.fontFeatures, contains(const FontFeature.tabularFigures()));
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '12.50');
       // EPIC small and gold at the figure's top right.
       final unitText = tester.widget<Text>(find.byKey(balanceUnitKey));
       final tokens = protocolLight;
@@ -4513,7 +4513,7 @@ void main() {
               await _reload(tester);
               final shown = mode == 'hidden'
                   ? hiddenAmount
-                  : displayEpic(amount);
+                  : headlineEpic(amount);
               for (final tab in ['Wallet', 'Send', 'Receive']) {
                 await _tab(tester, tab);
                 final why = '${formatEpic(amount)} on $tab';

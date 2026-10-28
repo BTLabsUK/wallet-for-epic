@@ -1351,6 +1351,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeBalanceHiddenLabel => 'Баланс скрыт';
 
   @override
+  String balanceExactTip(String amount) {
+    return 'Точная сумма: $amount';
+  }
+
+  @override
   String get homeShowBalances => 'Показать баланс';
 
   @override
@@ -3248,6 +3253,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Проверить обновления';
+
+  @override
+  String settingsUpdatesFrom(String store) {
+    return 'Обновления устанавливает $store.';
+  }
 
   @override
   String get settingsHelp => 'Справка';
