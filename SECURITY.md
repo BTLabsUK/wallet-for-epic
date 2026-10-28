@@ -16,8 +16,8 @@ PIN or wallet data, make the app accept or show a wrong payment, or crash it fro
 (QR codes and payment links, slate files, backups, node and relay responses), and the update and
 install paths (signed update manifests, downloaded installers).
 
-The wallet engine is [LEPIC](https://gitlab.com/btlabs/lepic) and the Flutter binding is
-[lepic-flutter](https://gitlab.com/btlabs/lepic-flutter); report engine issues there the same
+The wallet engine is [LEPIC](https://gitlab.com/bt-labs-group/lepic) and the Flutter binding is
+[lepic-flutter](https://gitlab.com/bt-labs-group/lepic-flutter); report engine issues there the same
 way. Issues in the Epic Cash node, the reference wallet or the Epicbox relay belong to those
 projects: report them to them privately and tell us only what we need to protect our users.
 
