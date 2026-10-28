@@ -2905,10 +2905,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отсканируйте платёж с их экрана и покажите свой ответ, или запросите сумму и покажите её кодом для сканирования.';
 
   @override
-  String get txQrLine =>
-      'Платите или получайте платёж рядом друг с другом, по коду на экране.';
-
-  @override
   String get txQrHint =>
       'Оплата по QR показывает платёж как анимированный код, который другой телефон сканирует камерой, а ответ принимает так же. Работает только между телефонами рядом, не требует связи между двумя кошельками, а код сам скрывается через 40 секунд. Добавляет «Оплата по QR» в «Отправить» и «Получить».';
 
@@ -5962,7 +5958,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor. Получать платежи на адрес Tor позволяет переключатель Ссылка · Tor в «Транзакциях».';
+      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor. Чтобы получать платежи на адрес Tor, включите «Ссылка · Tor» в Настройки › Транзакции.';
 
   @override
   String get receiveTabDirect => 'Ссылка';
@@ -6019,7 +6015,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'Уведомления используют Epicbox BT Labs и сервис уведомлений Google. Конфиденциальные данные не передаются.';
+      'Уведомления идут через сервер Epicbox BT Labs и сервис уведомлений Google. В них нет суммы, отправителя и адреса.';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -14472,22 +14468,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txMethodsHeader => 'Способы оплаты';
 
   @override
-  String get txFamilyLinkLine => 'Прямо в другой кошелёк, пока оба открыты.';
-
-  @override
-  String get txFamilyDirectLine => 'Из рук в руки, без связи между кошельками.';
-
-  @override
-  String get txLinkHttpLine =>
-      'Платите на веб-адреса; получайте платежи из этой сети Wi-Fi.';
-
-  @override
   String get txLinkHttpHint =>
       'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
-
-  @override
-  String get txLinkTorLine =>
-      'Платите на адреса onion; получайте платежи на адрес Tor этого телефона.';
 
   @override
   String get txLinkTorHint =>
@@ -14514,19 +14496,11 @@ class AppLocalizationsRu extends AppLocalizations {
       '«Ссылка» платит прямо в другой кошелёк по веб-адресу или адресу onion и позволяет этому телефону получать платежи так же. Оба кошелька должны быть открыты. HTTP работает в этой сети Wi-Fi; Tor требует Tor. Добавляет «Ссылку» в «Отправить» и «Получить».';
 
   @override
-  String get txFileLine =>
-      'Платите или получайте платежи файлом, который вы передаёте сами.';
-
-  @override
   String get txFileHint =>
       '«Передача файла» создаёт файл транзакции, который вы передаёте другому человеку любым способом (сообщением, письмом, кабелем), а он передаёт вам ответный. Связь между кошельками не нужна. Добавляет «Передачу файла» в «Отправить» и «Получить».';
 
   @override
   String get txStartHeader => 'Отправка начинается с';
-
-  @override
-  String get txStartNote =>
-      'В «Отправить» можно по-прежнему выбрать другой способ.';
 
   @override
   String get txDefaultsHeader => 'Настройки отправки';
@@ -14633,10 +14607,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return 'Способ «$method» выключен в Настройки › Транзакции.';
   }
-
-  @override
-  String get txEpicboxLine =>
-      'Платите или получайте платежи через сервер Epicbox. Другой кошелёк может быть закрыт.';
 
   @override
   String get txEpicboxOffTitle => 'Выключить Epicbox?';

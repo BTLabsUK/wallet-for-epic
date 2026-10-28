@@ -2654,9 +2654,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveQrBody => '扫描对方屏幕上的付款并显示你的回复，或者请求一个金额，显示成二维码让对方扫描。';
 
   @override
-  String get txQrLine => '面对面付款或收款，用屏幕上的二维码。';
-
-  @override
   String get txQrHint =>
       '二维码付款会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码付款。';
 
@@ -5500,7 +5497,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。通过 Tor 地址收款由“交易”中的 链接 · Tor 开关控制。';
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
 
   @override
   String get receiveTabDirect => '链接';
@@ -5555,7 +5552,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      '通知使用 BT Labs 的 Epicbox 和 Google 的通知服务。不会共享任何敏感数据。';
+      '通知经由 BT Labs 的 Epicbox 服务器和 Google 的通知服务发送。通知不含金额、发送方或地址。';
 
   @override
   String get pushConfirmRelayAddress => '你的 Epicbox 地址会改变。请分享新的地址。';
@@ -13169,20 +13166,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
-  String get txFamilyLinkLine => '直接发送到对方钱包，前提是双方都已打开。';
-
-  @override
-  String get txFamilyDirectLine => '当面传递，两个钱包之间无需连接。';
-
-  @override
-  String get txLinkHttpLine => '向网址付款；从这个 Wi-Fi 网络收款。';
-
-  @override
   String get txLinkHttpHint =>
       '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。';
-
-  @override
-  String get txLinkTorLine => '向 onion 地址付款；通过这部手机的 Tor 地址收款。';
 
   @override
   String get txLinkTorHint =>
@@ -13206,17 +13191,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '“链接”通过网址或 onion 地址直接向对方钱包付款，这部手机也能以同样方式收款。双方钱包都必须打开。HTTP 在这个 Wi-Fi 网络中可用；Tor 需要 Tor。会在“发送”和“接收”中加入“链接”。';
 
   @override
-  String get txFileLine => '用你自己传递的文件付款或收款。';
-
-  @override
   String get txFileHint =>
       '“文件传输”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件传输”。';
 
   @override
   String get txStartHeader => '发送默认方式';
-
-  @override
-  String get txStartNote => '在“发送”中仍可选择其他方式。';
 
   @override
   String get txDefaultsHeader => '发送默认设置';
@@ -13313,9 +13292,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return '$method 已在设置 › 交易中关闭。';
   }
-
-  @override
-  String get txEpicboxLine => '通过 Epicbox 服务器付款或收款。对方的钱包可以处于关闭状态。';
 
   @override
   String get txEpicboxOffTitle => '关闭 Epicbox？';

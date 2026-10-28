@@ -2773,9 +2773,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'สแกนรายการจากหน้าจอของเขาแล้วแสดงคำตอบของคุณ หรือขอจำนวนเงินแล้วแสดงเป็นโค้ดให้เขาสแกน';
 
   @override
-  String get txQrLine => 'จ่ายหรือรับเงินเมื่ออยู่ข้างกัน ด้วยโค้ดบนหน้าจอ';
-
-  @override
   String get txQrHint =>
       'ชำระด้วย QR แสดงรายการเป็นโค้ดเคลื่อนไหวที่โทรศัพท์อีกเครื่องสแกนด้วยกล้อง และรับคำตอบด้วยวิธีเดียวกัน ใช้ได้เฉพาะโทรศัพท์ที่อยู่ข้างกัน ไม่ต้องมีการเชื่อมต่อระหว่างกระเป๋าทั้งสอง และโค้ดจะซ่อนเองหลัง 40 วินาที เพิ่ม ชำระด้วย QR ในส่งและรับ';
 
@@ -5718,7 +5715,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่อินเทอร์เน็ตของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน การแจ้งเตือนจะปิดขณะเปิด Tor การรับเงินที่ที่อยู่ Tor ควบคุมด้วยสวิตช์ ลิงก์ · Tor ใน ธุรกรรม';
+      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่อินเทอร์เน็ตของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน การแจ้งเตือนจะปิดขณะเปิด Tor หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
 
   @override
   String get receiveTabDirect => 'ลิงก์';
@@ -5775,7 +5772,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'การแจ้งเตือนใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ไม่มีการแชร์ข้อมูลที่ละเอียดอ่อน';
+      'การแจ้งเตือนส่งผ่านเซิร์ฟเวอร์ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google โดยไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -13644,24 +13641,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txMethodsHeader => 'วิธีชำระเงิน';
 
   @override
-  String get txFamilyLinkLine =>
-      'ส่งตรงถึงกระเป๋าเงินอีกฝั่งขณะที่เปิดอยู่ทั้งสองฝั่ง';
-
-  @override
-  String get txFamilyDirectLine =>
-      'ส่งต่อกันเอง ไม่ต้องเชื่อมต่อระหว่างกระเป๋าเงิน';
-
-  @override
-  String get txLinkHttpLine =>
-      'จ่ายไปที่อยู่เว็บ รับเงินจากเครือข่าย Wi-Fi นี้';
-
-  @override
   String get txLinkHttpHint =>
       'ลิงก์ · HTTP จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่เว็บ (http://host:3415) และให้โทรศัพท์เครื่องนี้มีที่อยู่ที่กระเป๋าเงินในเครือข่าย Wi-Fi เดียวกันจ่ายมาได้ ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ไม่เข้ารหัสระหว่างทาง เข้าถึงจากอินเทอร์เน็ตหรือผ่านเน็ตมือถือไม่ได้ และจะปิดขณะเปิด Tor เพิ่ม ลิงก์ · HTTP ใน ส่ง และ รับ';
-
-  @override
-  String get txLinkTorLine =>
-      'จ่ายไปที่อยู่ onion รับเงินที่ที่อยู่ Tor ของโทรศัพท์เครื่องนี้';
 
   @override
   String get txLinkTorHint =>
@@ -13687,17 +13668,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'ลิงก์จ่ายตรงถึงกระเป๋าเงินอีกฝั่งที่ที่อยู่เว็บหรือ onion และให้โทรศัพท์เครื่องนี้รับเงินแบบเดียวกันได้ ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง HTTP ใช้ได้ในเครือข่าย Wi-Fi นี้ Tor ต้องใช้ Tor เพิ่มลิงก์ใน ส่ง และ รับ';
 
   @override
-  String get txFileLine => 'จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
-
-  @override
   String get txFileHint =>
       'โอนไฟล์สร้างไฟล์ธุรกรรมที่คุณส่งให้อีกฝ่ายด้วยวิธีใดก็ได้ (ข้อความ อีเมล สายเคเบิล) แล้วเขาส่งกลับมาหนึ่งไฟล์ ไม่ต้องมีการเชื่อมต่อระหว่างสองกระเป๋าเงิน เพิ่มโอนไฟล์ใน ส่ง และ รับ';
 
   @override
   String get txStartHeader => 'การส่งเริ่มด้วย';
-
-  @override
-  String get txStartNote => 'ใน ส่ง ยังเลือกวิธีอื่นได้';
 
   @override
   String get txDefaultsHeader => 'ค่าเริ่มต้นการส่ง';
@@ -13800,10 +13775,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return '$method ปิดอยู่ใน ตั้งค่า › ธุรกรรม';
   }
-
-  @override
-  String get txEpicboxLine =>
-      'จ่ายหรือรับเงินผ่านเซิร์ฟเวอร์ Epicbox กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
 
   @override
   String get txEpicboxOffTitle => 'ปิด Epicbox หรือไม่';

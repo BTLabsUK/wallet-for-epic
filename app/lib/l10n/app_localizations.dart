@@ -4471,12 +4471,6 @@ abstract class AppLocalizations {
   /// **'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.'**
   String get receiveQrBody;
 
-  /// Settings › Transactions: one line under the QR switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid next to each other, with a code on the screen.'**
-  String get txQrLine;
-
   /// Settings › Transactions: the explanation behind the info icon of the QR switch.
   ///
   /// In en, this message translates to:
@@ -9361,7 +9355,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9463,7 +9457,7 @@ abstract class AppLocalizations {
   /// Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification.
   ///
   /// In en, this message translates to:
-  /// **'Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.'**
+  /// **'Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.'**
   String get pushConfirmRelayBody;
 
   /// Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on.
@@ -22238,35 +22232,11 @@ abstract class AppLocalizations {
   /// **'Payment methods'**
   String get txMethodsHeader;
 
-  /// One line under the Link family header on Settings › Transactions (Link · HTTP and Link · Tor).
-  ///
-  /// In en, this message translates to:
-  /// **'Straight to the other wallet while both are open.'**
-  String get txFamilyLinkLine;
-
-  /// One line under the Direct family header on Settings › Transactions (QR Payment and File Transfer).
-  ///
-  /// In en, this message translates to:
-  /// **'Hand to hand, with no connection between the wallets.'**
-  String get txFamilyDirectLine;
-
-  /// Second line of the Link › HTTP switch row on Settings › Transactions (phone). Honest: the phone is reachable only from the same Wi-Fi network.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay web addresses; get paid from this Wi-Fi network.'**
-  String get txLinkHttpLine;
-
   /// Info sheet behind the Link › HTTP row on Settings › Transactions (phone).
   ///
   /// In en, this message translates to:
   /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
   String get txLinkHttpHint;
-
-  /// Second line of the Link › Tor switch row on Settings › Transactions (phone).
-  ///
-  /// In en, this message translates to:
-  /// **'Pay onion addresses; get paid at this phone’s Tor address.'**
-  String get txLinkTorLine;
 
   /// Info sheet behind the Link › Tor row on Settings › Transactions (phone).
   ///
@@ -22304,12 +22274,6 @@ abstract class AppLocalizations {
   /// **'Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.'**
   String get txDirectHint;
 
-  /// One line under the File switch on Settings › Transactions.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid with a file you pass on yourself.'**
-  String get txFileLine;
-
   /// Info sheet text of the File switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
@@ -22321,12 +22285,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send starts on'**
   String get txStartHeader;
-
-  /// Small line under the choice of the method Send starts on.
-  ///
-  /// In en, this message translates to:
-  /// **'You can still pick another method on Send.'**
-  String get txStartNote;
 
   /// Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options.
   ///
@@ -22477,12 +22435,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{method} is off in Settings › Transactions.'**
   String netBlockMethodOff(String method);
-
-  /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay or get paid through an Epicbox server. The other wallet can be closed.'**
-  String get txEpicboxLine;
 
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
   ///

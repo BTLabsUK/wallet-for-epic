@@ -2930,10 +2930,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zeskanuj płatność z ich ekranu i pokaż swoją odpowiedź, albo poproś o kwotę i pokaż ją jako kod do zeskanowania.';
 
   @override
-  String get txQrLine =>
-      'Płać lub odbieraj płatność obok siebie, z kodem na ekranie.';
-
-  @override
   String get txQrHint =>
       'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
 
@@ -5987,7 +5983,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Przyjmowanie płatności na adres Tor to przełącznik Link · Tor w Transakcje.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -6045,7 +6041,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'Powiadomienia korzystają z Epicbox BT Labs i usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
+      'Powiadomienia przechodzą przez serwer Epicbox BT Labs i usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -14505,24 +14501,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txMethodsHeader => 'Metody płatności';
 
   @override
-  String get txFamilyLinkLine =>
-      'Prosto do drugiego portfela, gdy oba są otwarte.';
-
-  @override
-  String get txFamilyDirectLine =>
-      'Z rąk do rąk, bez połączenia między portfelami.';
-
-  @override
-  String get txLinkHttpLine =>
-      'Płać na adresy internetowe; dostawaj zapłatę z tej sieci Wi-Fi.';
-
-  @override
   String get txLinkHttpHint =>
       'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.';
-
-  @override
-  String get txLinkTorLine =>
-      'Płać na adresy onion; dostawaj zapłatę na adres Tor tego telefonu.';
 
   @override
   String get txLinkTorHint =>
@@ -14548,19 +14528,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Link płaci prosto do drugiego portfela pod adresem internetowym lub onion i pozwala temu telefonowi przyjmować płatności w ten sam sposób. Oba portfele muszą być otwarte. HTTP działa w tej sieci Wi-Fi; Tor wymaga Tora. Dodaje Link do Wyślij i Odbierz.';
 
   @override
-  String get txFileLine =>
-      'Płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
-
-  @override
   String get txFileHint =>
       'Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.';
 
   @override
   String get txStartHeader => 'Wysyłanie zaczyna od';
-
-  @override
-  String get txStartNote =>
-      'Na ekranie Wyślij nadal możesz wybrać inną metodę.';
 
   @override
   String get txDefaultsHeader => 'Zasady wysyłki';
@@ -14667,10 +14639,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return 'Metoda $method jest wyłączona w Ustawienia › Transakcje.';
   }
-
-  @override
-  String get txEpicboxLine =>
-      'Płać lub dostawaj zapłatę przez serwer Epicbox. Drugi portfel może być zamknięty.';
 
   @override
   String get txEpicboxOffTitle => 'Wyłączyć Epicbox?';

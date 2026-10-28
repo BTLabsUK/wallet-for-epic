@@ -2865,10 +2865,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Scannen Sie eine Zahlung von deren Bildschirm und zeigen Sie Ihre Antwort, oder fordern Sie einen Betrag an und zeigen Sie ihn als Code zum Scannen.';
 
   @override
-  String get txQrLine =>
-      'Direkt nebeneinander zahlen oder bezahlt werden, mit einem Code auf dem Bildschirm.';
-
-  @override
   String get txQrHint =>
       'QR-Zahlung zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR-Zahlung zu Senden und Empfangen hinzu.';
 
@@ -5898,7 +5894,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Unter einer Tor-Adresse bezahlt zu werden, steuert der Schalter Link · Tor unter Transaktionen.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -5956,7 +5952,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'Benachrichtigungen nutzen die Epicbox von BT Labs und den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+      'Benachrichtigungen laufen über den Epicbox-Server von BT Labs und den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -14154,24 +14150,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txMethodsHeader => 'Zahlungsmethoden';
 
   @override
-  String get txFamilyLinkLine =>
-      'Direkt zur anderen Wallet, solange beide geöffnet sind.';
-
-  @override
-  String get txFamilyDirectLine =>
-      'Von Hand zu Hand, ohne Verbindung zwischen den Wallets.';
-
-  @override
-  String get txLinkHttpLine =>
-      'An Web-Adressen zahlen; aus diesem WLAN bezahlt werden.';
-
-  @override
   String get txLinkHttpHint =>
       'Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:3415) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt, aus dem Internet oder über Mobilfunk nicht erreichbar und aus, solange Tor an ist. Fügt Link · HTTP zu Senden und Empfangen hinzu.';
-
-  @override
-  String get txLinkTorLine =>
-      'An Onion-Adressen zahlen; unter der Tor-Adresse dieses Telefons bezahlt werden.';
 
   @override
   String get txLinkTorHint =>
@@ -14198,19 +14178,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Link zahlt direkt an die andere Wallet unter einer Web- oder Onion-Adresse und lässt dieses Telefon auf demselben Weg bezahlt werden. Beide Wallets müssen geöffnet sein. HTTP funktioniert in diesem WLAN; Tor braucht Tor. Fügt Link zu Senden und Empfangen hinzu.';
 
   @override
-  String get txFileLine =>
-      'Mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.';
-
-  @override
   String get txFileHint =>
       'Die Dateiübertragung erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Nachricht, Mail, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt die Dateiübertragung zu Senden und Empfangen hinzu.';
 
   @override
   String get txStartHeader => 'Senden beginnt mit';
-
-  @override
-  String get txStartNote =>
-      'Auf Senden können Sie trotzdem eine andere Methode wählen.';
 
   @override
   String get txDefaultsHeader => 'Zahlungsvorgaben';
@@ -14315,10 +14287,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return '$method ist in Einstellungen › Transaktionen ausgeschaltet.';
   }
-
-  @override
-  String get txEpicboxLine =>
-      'Zahlen oder bezahlt werden über einen Epicbox-Server. Die andere Wallet kann geschlossen sein.';
 
   @override
   String get txEpicboxOffTitle => 'Epicbox ausschalten?';

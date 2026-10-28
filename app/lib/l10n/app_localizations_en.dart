@@ -2823,10 +2823,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.';
 
   @override
-  String get txQrLine =>
-      'Pay or get paid next to each other, with a code on the screen.';
-
-  @override
   String get txQrHint =>
       'QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.';
 
@@ -5822,7 +5818,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.';
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -5879,7 +5875,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushConfirmRelayBody =>
-      'Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.';
+      'Notifications go through the BT Labs Epicbox server and Google’s notification service. They carry no amount, sender or address.';
 
   @override
   String get pushConfirmRelayAddress =>
@@ -13994,24 +13990,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMethodsHeader => 'Payment methods';
 
   @override
-  String get txFamilyLinkLine =>
-      'Straight to the other wallet while both are open.';
-
-  @override
-  String get txFamilyDirectLine =>
-      'Hand to hand, with no connection between the wallets.';
-
-  @override
-  String get txLinkHttpLine =>
-      'Pay web addresses; get paid from this Wi-Fi network.';
-
-  @override
   String get txLinkHttpHint =>
       'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
-
-  @override
-  String get txLinkTorLine =>
-      'Pay onion addresses; get paid at this phone’s Tor address.';
 
   @override
   String get txLinkTorHint =>
@@ -14037,17 +14017,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.';
 
   @override
-  String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
-
-  @override
   String get txFileHint =>
       'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.';
 
   @override
   String get txStartHeader => 'Send starts on';
-
-  @override
-  String get txStartNote => 'You can still pick another method on Send.';
 
   @override
   String get txDefaultsHeader => 'Send defaults';
@@ -14151,10 +14125,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String netBlockMethodOff(String method) {
     return '$method is off in Settings › Transactions.';
   }
-
-  @override
-  String get txEpicboxLine =>
-      'Pay or get paid through an Epicbox server. The other wallet can be closed.';
 
   @override
   String get txEpicboxOffTitle => 'Turn Epicbox off?';

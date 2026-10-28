@@ -153,26 +153,21 @@ void main() {
       'tx-family-direct',
       'tx-file',
     ]);
-    // A family head: its name and its line.
+    // A family head: its name only.
     expect(find.descendant(of: _row('tx-family-link'), matching: find.text(_l.methodDirect)), findsOneWidget);
-    expect(find.descendant(of: _row('tx-family-link'), matching: find.text(_l.txFamilyLinkLine)), findsOneWidget);
     expect(find.descendant(of: _row('tx-family-direct'), matching: find.text(_l.methodDirectFamily)), findsOneWidget);
-    expect(find.descendant(of: _row('tx-family-direct'), matching: find.text(_l.txFamilyDirectLine)), findsOneWidget);
     // Under its family a method goes by its own name: Epicbox, HTTP, Tor, File Transfer.
     expect(_titleOf(tester, 'tx-epicbox'), 'Epicbox');
     expect(_titleOf(tester, 'tx-http'), 'HTTP');
     expect(_titleOf(tester, 'tx-tor'), 'Tor');
     expect(_titleOf(tester, 'tx-file'), 'File Transfer');
-    // Epicbox: a switch, on, with its line.
-    expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxLine)), findsOneWidget);
+    // Epicbox: a switch, on; the row is the label only (R5), the explanation behind its info icon.
+    expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxHint)), findsNothing);
     expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
     // Link is off by default, File Transfer on.
     expect(tester.widget<Switch>(_switchOf('tx-http')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
-    expect(find.text(_l.txLinkHttpLine), findsOneWidget);
-    expect(find.text(_l.txLinkTorLine), findsOneWidget);
-    expect(find.text(_l.txFileLine), findsOneWidget);
     // Off, Link · Tor says nothing about Tor.
     expect(find.byKey(txTorNeededKey), findsNothing);
   }, skip: !torBuilt);
@@ -459,7 +454,6 @@ void main() {
       ]);
       expect(_titleOf(tester, 'tx-qr'), 'QR Payment');
       expect(tester.widget<Switch>(_switchOf('tx-qr')).value, isTrue);
-      expect(find.text(_l.txQrLine), findsOneWidget);
       expect(_row('tx-file'), findsNothing);
       expect(_row('tx-start-qr'), findsOneWidget);
       expect(_row('tx-start-file'), findsNothing);

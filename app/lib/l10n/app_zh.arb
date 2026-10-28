@@ -725,7 +725,6 @@
   "methodReceiveQrLine": "接受付款，再用同样的方式显示你的回复。",
   "receiveQrTitle": "就在对方手机旁边？",
   "receiveQrBody": "扫描对方屏幕上的付款并显示你的回复，或者请求一个金额，显示成二维码让对方扫描。",
-  "txQrLine": "面对面付款或收款，用屏幕上的二维码。",
   "txQrHint": "二维码付款会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码付款。",
   "advTransactionFiles": "文件传输",
   "advTransactionFilesHint": "在设置 › 交易中加入“文件传输”：用你自己传递的文件付款或收款。",
@@ -1528,7 +1527,7 @@
   "torWordNotConnected": "未连接",
   "torSettingsLink": "Tor 设置",
   "torNetworkLabel": "Tor 网络",
-  "torNetworkHint": "网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。通过 Tor 地址收款由“交易”中的 链接 · Tor 开关控制。",
+  "torNetworkHint": "网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。",
   "receiveTabDirect": "链接",
   "receiveDirectNeedsTor": "链接 · Tor 需要 Tor。",
   "receiveDirectMeanwhile": "在此期间，请分享 Epicbox 地址。",
@@ -1536,7 +1535,7 @@
   "settingsNotifications": "通知",
   "settingsNotificationsHint": "实验性功能：可能变化或出错。在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。Tor 开启时关闭，因为注册会暴露手机的地址。",
   "settingsPushPaused": "Tor 开启时已暂停",
-  "pushConfirmRelayBody": "通知使用 BT Labs 的 Epicbox 和 Google 的通知服务。不会共享任何敏感数据。",
+  "pushConfirmRelayBody": "通知经由 BT Labs 的 Epicbox 服务器和 Google 的通知服务发送。通知不含金额、发送方或地址。",
   "pushConfirmRelayAddress": "你的 Epicbox 地址会改变。请分享新的地址。",
   "pushRelaySwitchFailed": "无法切换服务器。通知保持关闭。",
   "pushConfirmTitle": "开启通知？",
@@ -3694,10 +3693,6 @@
   "@txDirectHint": {
     "description": "Info sheet text of the Direct switch on Settings › Transactions."
   },
-  "txFileLine": "用你自己传递的文件付款或收款。",
-  "@txFileLine": {
-    "description": "One line under the File switch on Settings › Transactions."
-  },
   "txFileHint": "“文件传输”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件传输”。",
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
@@ -3705,10 +3700,6 @@
   "txStartHeader": "发送默认方式",
   "@txStartHeader": {
     "description": "Header on Settings › Transactions above the choice of the method Send opens on."
-  },
-  "txStartNote": "在“发送”中仍可选择其他方式。",
-  "@txStartNote": {
-    "description": "Small line under the choice of the method Send starts on."
   },
   "txDefaultsHeader": "发送默认设置",
   "@txDefaultsHeader": {
@@ -3740,7 +3731,6 @@
   "netOfflineNodeHint": "使用节点读取链并广播。为了最大限度的隐私，请使用本地节点。",
   "netOfflineNodeLine": "使用节点",
   "netBlockEpicboxOff": "Epicbox 已在 设置 › 交易 中关闭。",
-  "txEpicboxLine": "通过 Epicbox 服务器付款或收款。对方的钱包可以处于关闭状态。",
   "txEpicboxOffTitle": "关闭 Epicbox？",
   "txEpicboxOffPending": "{count, plural, other{{count} 笔付款正在等待通过 Epicbox 的回复。Epicbox 再次开启后它们才会到达。}}",
   "txEpicboxOffAction": "关闭",
@@ -3812,10 +3802,6 @@
   "methodShortFile": "直接 · 文件",
   "methodGroupHttp": "HTTP",
   "methodGroupTor": "Tor",
-  "txFamilyLinkLine": "直接发送到对方钱包，前提是双方都已打开。",
-  "txFamilyDirectLine": "当面传递，两个钱包之间无需连接。",
-  "txLinkHttpLine": "向网址付款；从这个 Wi-Fi 网络收款。",
-  "txLinkTorLine": "向 onion 地址付款；通过这部手机的 Tor 地址收款。",
   "txLinkHttpHint": "链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。",
   "txLinkTorHint": "链接 · Tor 通过 onion 地址直接向对方钱包付款，并为这部手机提供一个可收款的 Tor 地址。双方钱包都必须打开。需要 Tor：“隐私与网络”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”和“接收”中加入 链接 · Tor。",
   "txLinkTorNeedsTor": "需要 Tor。请在“隐私与网络”中开启。",

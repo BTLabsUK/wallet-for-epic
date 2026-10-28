@@ -725,7 +725,6 @@
   "methodReceiveQrLine": "Przyjmij płatność, potem pokaż swoją odpowiedź w ten sam sposób.",
   "receiveQrTitle": "Stoisz obok drugiego telefonu?",
   "receiveQrBody": "Zeskanuj płatność z ich ekranu i pokaż swoją odpowiedź, albo poproś o kwotę i pokaż ją jako kod do zeskanowania.",
-  "txQrLine": "Płać lub odbieraj płatność obok siebie, z kodem na ekranie.",
   "txQrHint": "Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.",
   "advTransactionFiles": "Przesyłanie pliku",
   "advTransactionFilesHint": "Dodaje Przesyłanie pliku w Ustawienia › Transakcje: płać lub dostawaj zapłatę plikiem, który przekazujesz sam.",
@@ -1528,7 +1527,7 @@
   "torWordNotConnected": "Brak połączenia",
   "torSettingsLink": "Ustawienia Tor",
   "torNetworkLabel": "Sieć Tor",
-  "torNetworkHint": "Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Przyjmowanie płatności na adres Tor to przełącznik Link · Tor w Transakcje.",
+  "torNetworkHint": "Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.",
   "receiveTabDirect": "Link",
   "receiveDirectNeedsTor": "Link · Tor wymaga Tora.",
   "receiveDirectMeanwhile": "Do tego czasu udostępnij adres Epicbox.",
@@ -1536,7 +1535,7 @@
   "settingsNotifications": "Powiadomienia",
   "settingsNotificationsHint": "Eksperymentalne: może się zmienić lub zawodzić. Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu. Wyłączone, gdy Tor jest włączony, bo rejestracja zdradziłaby adres telefonu.",
   "settingsPushPaused": "Wstrzymane, gdy Tor jest włączony",
-  "pushConfirmRelayBody": "Powiadomienia korzystają z Epicbox BT Labs i usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.",
+  "pushConfirmRelayBody": "Powiadomienia przechodzą przez serwer Epicbox BT Labs i usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.",
   "pushConfirmRelayAddress": "Twój adres Epicbox się zmieni. Udostępnij nowy.",
   "pushRelaySwitchFailed": "Nie udało się zmienić serwera. Powiadomienia pozostają wyłączone.",
   "pushConfirmTitle": "Włączyć powiadomienia?",
@@ -3694,10 +3693,6 @@
   "@txDirectHint": {
     "description": "Info sheet text of the Direct switch on Settings › Transactions."
   },
-  "txFileLine": "Płać lub dostawaj zapłatę plikiem, który przekazujesz sam.",
-  "@txFileLine": {
-    "description": "One line under the File switch on Settings › Transactions."
-  },
   "txFileHint": "Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.",
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
@@ -3705,10 +3700,6 @@
   "txStartHeader": "Wysyłanie zaczyna od",
   "@txStartHeader": {
     "description": "Header on Settings › Transactions above the choice of the method Send opens on."
-  },
-  "txStartNote": "Na ekranie Wyślij nadal możesz wybrać inną metodę.",
-  "@txStartNote": {
-    "description": "Small line under the choice of the method Send starts on."
   },
   "txDefaultsHeader": "Zasady wysyłki",
   "@txDefaultsHeader": {
@@ -3740,7 +3731,6 @@
   "netOfflineNodeHint": "Używa węzła do odczytu łańcucha i wysłania. Dla największej prywatności użyj lokalnego węzła.",
   "netOfflineNodeLine": "Używa węzła",
   "netBlockEpicboxOff": "Epicbox jest wyłączony w Ustawienia › Transakcje.",
-  "txEpicboxLine": "Płać lub dostawaj zapłatę przez serwer Epicbox. Drugi portfel może być zamknięty.",
   "txEpicboxOffTitle": "Wyłączyć Epicbox?",
   "txEpicboxOffPending": "{count, plural, one{Jedna płatność czeka na odpowiedź przez Epicbox. Dotrze, gdy Epicbox znów będzie włączony.} few{{count} płatności czekają na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.} many{{count} płatności czeka na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.} other{{count} płatności czeka na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.}}",
   "txEpicboxOffAction": "Wyłącz",
@@ -3812,10 +3802,6 @@
   "methodShortFile": "Bezpośrednio · Plik",
   "methodGroupHttp": "HTTP",
   "methodGroupTor": "Tor",
-  "txFamilyLinkLine": "Prosto do drugiego portfela, gdy oba są otwarte.",
-  "txFamilyDirectLine": "Z rąk do rąk, bez połączenia między portfelami.",
-  "txLinkHttpLine": "Płać na adresy internetowe; dostawaj zapłatę z tej sieci Wi-Fi.",
-  "txLinkTorLine": "Płać na adresy onion; dostawaj zapłatę na adres Tor tego telefonu.",
   "txLinkHttpHint": "Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.",
   "txLinkTorHint": "Link · Tor płaci prosto do portfela pod adresem onion i daje temu telefonowi adres Tor, na który można mu płacić. Oba portfele muszą być otwarte. Wymaga Tora: przełącznik Tor w Prywatność i sieć kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij i Odbierz.",
   "txLinkTorNeedsTor": "Wymaga Tora. Włącz go w Prywatność i sieć.",

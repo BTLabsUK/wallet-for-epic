@@ -725,7 +725,6 @@
   "methodReceiveQrLine": "Nehmen Sie die Zahlung an und zeigen Sie dann Ihre Antwort auf dieselbe Weise.",
   "receiveQrTitle": "Neben dem anderen Smartphone?",
   "receiveQrBody": "Scannen Sie eine Zahlung von deren Bildschirm und zeigen Sie Ihre Antwort, oder fordern Sie einen Betrag an und zeigen Sie ihn als Code zum Scannen.",
-  "txQrLine": "Direkt nebeneinander zahlen oder bezahlt werden, mit einem Code auf dem Bildschirm.",
   "txQrHint": "QR-Zahlung zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR-Zahlung zu Senden und Empfangen hinzu.",
   "advTransactionFiles": "Dateiübertragung",
   "advTransactionFilesHint": "Fügt unter Einstellungen › Transaktionen die Dateiübertragung hinzu: mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.",
@@ -1528,7 +1527,7 @@
   "torWordNotConnected": "Nicht verbunden",
   "torSettingsLink": "Tor-Einstellungen",
   "torNetworkLabel": "Tor-Netzwerk",
-  "torNetworkHint": "Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Unter einer Tor-Adresse bezahlt zu werden, steuert der Schalter Link · Tor unter Transaktionen.",
+  "torNetworkHint": "Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.",
   "receiveTabDirect": "Link",
   "receiveDirectNeedsTor": "Link · Tor braucht Tor.",
   "receiveDirectMeanwhile": "Teilen Sie bis dahin die Epicbox-Adresse.",
@@ -1536,7 +1535,7 @@
   "settingsNotifications": "Benachrichtigungen",
   "settingsNotificationsHint": "Experimentell: kann sich ändern oder ausfallen. Meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist. Nutzt die Epicbox von BT Labs und den Benachrichtigungsdienst von Google; die Nachricht weckt nur die App und enthält weder Betrag noch Absender noch Adresse. Aus, solange Tor an ist, weil die Anmeldung die Adresse des Telefons verraten würde.",
   "settingsPushPaused": "Pausiert, solange Tor an ist",
-  "pushConfirmRelayBody": "Benachrichtigungen nutzen die Epicbox von BT Labs und den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.",
+  "pushConfirmRelayBody": "Benachrichtigungen laufen über den Epicbox-Server von BT Labs und den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.",
   "pushConfirmRelayAddress": "Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.",
   "pushRelaySwitchFailed": "Der Server konnte nicht gewechselt werden. Benachrichtigungen bleiben aus.",
   "pushConfirmTitle": "Benachrichtigungen einschalten?",
@@ -3694,10 +3693,6 @@
   "@txDirectHint": {
     "description": "Info sheet text of the Direct switch on Settings › Transactions."
   },
-  "txFileLine": "Mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.",
-  "@txFileLine": {
-    "description": "One line under the File switch on Settings › Transactions."
-  },
   "txFileHint": "Die Dateiübertragung erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Nachricht, Mail, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt die Dateiübertragung zu Senden und Empfangen hinzu.",
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
@@ -3705,10 +3700,6 @@
   "txStartHeader": "Senden beginnt mit",
   "@txStartHeader": {
     "description": "Header on Settings › Transactions above the choice of the method Send opens on."
-  },
-  "txStartNote": "Auf Senden können Sie trotzdem eine andere Methode wählen.",
-  "@txStartNote": {
-    "description": "Small line under the choice of the method Send starts on."
   },
   "txDefaultsHeader": "Zahlungsvorgaben",
   "@txDefaultsHeader": {
@@ -3740,7 +3731,6 @@
   "netOfflineNodeHint": "Nutzt den Node, um die Chain zu lesen und zu senden. Für die größte Privatsphäre einen lokalen Node verwenden.",
   "netOfflineNodeLine": "Nutzt den Node",
   "netBlockEpicboxOff": "Epicbox ist unter Einstellungen › Transaktionen aus.",
-  "txEpicboxLine": "Zahlen oder bezahlt werden über einen Epicbox-Server. Die andere Wallet kann geschlossen sein.",
   "txEpicboxOffTitle": "Epicbox ausschalten?",
   "txEpicboxOffPending": "{count, plural, one{Eine Zahlung wartet auf ihre Antwort über Epicbox. Sie kommt an, sobald Epicbox wieder an ist.} other{{count} Zahlungen warten auf ihre Antworten über Epicbox. Sie kommen an, sobald Epicbox wieder an ist.}}",
   "txEpicboxOffAction": "Ausschalten",
@@ -3812,10 +3802,6 @@
   "methodShortFile": "Direkt · Datei",
   "methodGroupHttp": "HTTP",
   "methodGroupTor": "Tor",
-  "txFamilyLinkLine": "Direkt zur anderen Wallet, solange beide geöffnet sind.",
-  "txFamilyDirectLine": "Von Hand zu Hand, ohne Verbindung zwischen den Wallets.",
-  "txLinkHttpLine": "An Web-Adressen zahlen; aus diesem WLAN bezahlt werden.",
-  "txLinkTorLine": "An Onion-Adressen zahlen; unter der Tor-Adresse dieses Telefons bezahlt werden.",
   "txLinkHttpHint": "Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:3415) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt, aus dem Internet oder über Mobilfunk nicht erreichbar und aus, solange Tor an ist. Fügt Link · HTTP zu Senden und Empfangen hinzu.",
   "txLinkTorHint": "Link · Tor zahlt direkt an eine Wallet unter einer Onion-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Beide Wallets müssen geöffnet sein. Braucht Tor: Der Tor-Schalter unter Datenschutz & Netzwerk leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und Empfangen hinzu.",
   "txLinkTorNeedsTor": "Braucht Tor. Schalten Sie es unter Datenschutz & Netzwerk ein.",
