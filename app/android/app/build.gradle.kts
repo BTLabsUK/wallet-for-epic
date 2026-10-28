@@ -57,6 +57,10 @@ if (dist !in setOf("web", "play", "fdroid")) {
     throw GradleException("WFE_DIST=$dist: use web, play or fdroid on Android (https://docs.btlabs.uk/developers/build/variants/).")
 }
 val distUpdates = dist == "web"
+// F-Droid builds the release APK unsigned and signs it itself: WFE_ANDROID_UNSIGNED=1 (the recipe
+// sets it) leaves the fdroid release unsigned and skips the release key check. Every other build
+// is still signed with the release key or stops.
+val unsignedRelease = dist == "fdroid" && System.getenv("WFE_ANDROID_UNSIGNED") == "1"
 // The F-Droid build reads QR codes with a free scanner: Google ML Kit (mobile_scanner) must be
 // gone from pubspec.yaml before Gradle runs.
 if (dist == "fdroid" && rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names only
@@ -125,7 +129,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            if (!unsignedRelease) signingConfig = signingConfigs.getByName("release")
         }
     }
 }
@@ -140,7 +144,7 @@ androidComponents {
 }
 
 val checkReleaseSigning by tasks.registering {
-    val problem = releaseSigningProblem
+    val problem = if (unsignedRelease) null else releaseSigningProblem
     doLast {
         if (problem != null) {
             throw GradleException(
