@@ -9481,7 +9481,7 @@ abstract class AppLocalizations {
   /// Body of the confirmation before notifications are turned on.
   ///
   /// In en, this message translates to:
-  /// **'Notifications use Google’s notification service. No sensitive data is shared.'**
+  /// **'Notifications go through Google’s notification service. They carry no amount, sender or address.'**
   String get pushConfirmBody;
 
   /// The confirm button of the notifications dialog.

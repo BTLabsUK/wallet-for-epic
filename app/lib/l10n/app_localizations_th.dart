@@ -5787,7 +5787,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'การแจ้งเตือนใช้บริการแจ้งเตือนของ Google ไม่มีการแชร์ข้อมูลที่ละเอียดอ่อน';
+      'การแจ้งเตือนส่งผ่านบริการแจ้งเตือนของ Google โดยไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่';
 
   @override
   String get pushConfirmAction => 'เปิด';

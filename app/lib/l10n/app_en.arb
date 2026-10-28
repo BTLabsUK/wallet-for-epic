@@ -7626,7 +7626,7 @@
   "@pushConfirmTitle": {
     "description": "Title of the confirmation before notifications are turned on."
   },
-  "pushConfirmBody": "Notifications use Google’s notification service. No sensitive data is shared.",
+  "pushConfirmBody": "Notifications go through Google’s notification service. They carry no amount, sender or address.",
   "@pushConfirmBody": {
     "description": "Body of the confirmation before notifications are turned on."
   },

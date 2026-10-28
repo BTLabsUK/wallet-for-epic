@@ -1517,7 +1517,7 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications use Google’s notification service. No sensitive data is shared.',
+          'Notifications go through Google’s notification service. They carry no amount, sender or address.',
         ),
         findsOneWidget,
       );
@@ -1646,8 +1646,8 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications use the BT Labs Epicbox and Google’s notification service. '
-          'No sensitive data is shared.',
+          'Notifications go through the BT Labs Epicbox server and Google’s notification service. '
+          'They carry no amount, sender or address.',
         ),
         findsOneWidget,
       );

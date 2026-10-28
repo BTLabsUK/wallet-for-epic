@@ -1539,7 +1539,7 @@
   "pushConfirmRelayAddress": "Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.",
   "pushRelaySwitchFailed": "Der Server konnte nicht gewechselt werden. Benachrichtigungen bleiben aus.",
   "pushConfirmTitle": "Benachrichtigungen einschalten?",
-  "pushConfirmBody": "Benachrichtigungen nutzen den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.",
+  "pushConfirmBody": "Benachrichtigungen laufen über den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.",
   "pushConfirmAction": "Einschalten",
   "pushNoticeOn": "Benachrichtigungen an",
   "pushNoticeOff": "Benachrichtigungen aus",

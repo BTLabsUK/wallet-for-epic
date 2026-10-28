@@ -6030,7 +6030,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Уведомления используют сервис уведомлений Google. Конфиденциальные данные не передаются.';
+      'Уведомления идут через сервис уведомлений Google. В них нет суммы, отправителя и адреса.';
 
   @override
   String get pushConfirmAction => 'Включить';

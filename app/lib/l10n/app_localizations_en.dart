@@ -5890,7 +5890,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Notifications use Google’s notification service. No sensitive data is shared.';
+      'Notifications go through Google’s notification service. They carry no amount, sender or address.';
 
   @override
   String get pushConfirmAction => 'Turn on';

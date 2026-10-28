@@ -1539,7 +1539,7 @@
   "pushConfirmRelayAddress": "Twój adres Epicbox się zmieni. Udostępnij nowy.",
   "pushRelaySwitchFailed": "Nie udało się zmienić serwera. Powiadomienia pozostają wyłączone.",
   "pushConfirmTitle": "Włączyć powiadomienia?",
-  "pushConfirmBody": "Powiadomienia korzystają z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.",
+  "pushConfirmBody": "Powiadomienia przechodzą przez usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.",
   "pushConfirmAction": "Włącz",
   "pushNoticeOn": "Powiadomienia włączone",
   "pushNoticeOff": "Powiadomienia wyłączone",

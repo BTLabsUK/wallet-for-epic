@@ -6056,7 +6056,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Powiadomienia korzystają z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
+      'Powiadomienia przechodzą przez usługę powiadomień Google. Nie zawierają kwoty, nadawcy ani adresu.';
 
   @override
   String get pushConfirmAction => 'Włącz';

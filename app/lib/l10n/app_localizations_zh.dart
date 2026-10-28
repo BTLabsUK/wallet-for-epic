@@ -5564,7 +5564,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pushConfirmTitle => '开启通知？';
 
   @override
-  String get pushConfirmBody => '通知使用 Google 的通知服务。不会共享任何敏感数据。';
+  String get pushConfirmBody => '通知经由 Google 的通知服务发送。通知不含金额、发送方或地址。';
 
   @override
   String get pushConfirmAction => '开启';

@@ -5967,7 +5967,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Benachrichtigungen nutzen den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+      'Benachrichtigungen laufen über den Benachrichtigungsdienst von Google. Sie enthalten keinen Betrag, keinen Absender und keine Adresse.';
 
   @override
   String get pushConfirmAction => 'Einschalten';
