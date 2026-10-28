@@ -1,6 +1,7 @@
 /// The app's clipboard for the pairing offer ([ClipboardProbe]): on Android the clip's stamp
-/// comes from MainActivity's `epic_wallet/clipboard` channel, so a clip is read once; the
-/// desktop reads silently; the web reads nothing (the browser would ask every time).
+/// comes from MainActivity's `epic_wallet/clipboard` channel, so a clip is read once (Android
+/// 12+ shows a toast for every read of another app's clip); the desktop has no stamp and reads
+/// only when Pair or Contacts opens; the web reads nothing (the browser would ask every time).
 library;
 
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
@@ -15,9 +16,6 @@ class PlatformClipboardProbe implements ClipboardProbe {
   static const _channel = MethodChannel('epic_wallet/clipboard');
 
   static bool get _android => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-
-  @override
-  bool get silent => !_android;
 
   @override
   Future<ClipStamp?> stamp() async {

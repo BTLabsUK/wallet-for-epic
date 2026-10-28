@@ -1377,11 +1377,12 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     }
   }
 
-  /// The clipboard on the window coming back, while the finish link is awaited.
+  /// The clipboard on the window coming back, while the finish link is awaited: this dialog is
+  /// the Pair screen's, so it reads as the screen does.
   Future<void> _look() async {
     if (!_copied || _done || _found != null) return;
     final found = await ref.read(pairingClipReaderProvider).look(
-      trigger: PairingClipTrigger.resume,
+      trigger: PairingClipTrigger.screen,
       allowed: ref.read(deskPairsProvider),
       pending: const PairingClipPending(waitsFinish: true),
       seen: ref.read(deskPairingClipSeenProvider),

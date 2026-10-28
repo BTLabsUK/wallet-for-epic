@@ -60,9 +60,6 @@ class _Counting implements ClipboardProbe {
   final _real = const PlatformClipboardProbe();
 
   @override
-  bool get silent => _real.silent;
-
-  @override
   Future<ClipStamp?> stamp() => _real.stamp();
 
   @override

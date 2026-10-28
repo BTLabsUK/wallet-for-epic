@@ -27,10 +27,6 @@ class ClipStamp {
 
 /// The clipboard of one app.
 abstract interface class ClipboardProbe {
-  /// Reading shows the user nothing (desktop). On Android 12+ every read of another app's clip
-  /// shows a toast, so a read is made only for a clip not looked at before.
-  bool get silent;
-
   /// The clip's stamp, or null when there is no clipboard to read (web, tests).
   Future<ClipStamp?> stamp();
 
@@ -116,7 +112,8 @@ class PairingClipReader {
 
   /// The link to offer now, or null. [allowed] is false while Pairing is off, the wallet is
   /// locked or not open, or a dialog or sheet is up: nothing is read then. A clip without a
-  /// stamp is read on a [PairingClipTrigger.screen] only, unless reading is [ClipboardProbe.silent].
+  /// stamp (the desktop, Android 7) is read on a [PairingClipTrigger.screen] only: reading on
+  /// every resume would read whatever another app put there, a password for example.
   Future<({PairingLinkKind kind, String link})?> look({
     required PairingClipTrigger trigger,
     required bool allowed,
@@ -133,7 +130,7 @@ class PairingClipReader {
     if (stamp == null || !stamp.hasText) return null;
     final time = stamp.time;
     if (time == null) {
-      if (!probe.silent && trigger == PairingClipTrigger.resume) return null;
+      if (trigger == PairingClipTrigger.resume) return null;
     } else {
       if (time == _lastTime) return null;
       _lastTime = time;

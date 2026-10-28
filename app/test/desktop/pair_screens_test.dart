@@ -77,14 +77,11 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, Clipb
   await _real(tester);
 }
 
-/// A desktop clipboard holding [text]: silent, no stamp.
+/// A desktop clipboard holding [text]: no stamp.
 class _DeskClip implements ClipboardProbe {
   _DeskClip(this.text);
 
   final String text;
-
-  @override
-  bool get silent => true;
 
   @override
   Future<ClipStamp?> stamp() async => const ClipStamp(hasText: true);
@@ -93,11 +90,11 @@ class _DeskClip implements ClipboardProbe {
   Future<String?> read() async => text;
 }
 
-/// The Pair page's look at the clipboard, as on the window coming back.
+/// The Pair page's look at the clipboard, as on the window coming back to Contacts.
 Future<void> _lookNow(WidgetTester tester) async {
   final element = tester.element(find.byType(DeskPairScreen));
   final ref = (element as StatefulElement).state as ConsumerState;
-  await deskLookForPairingLink(element, ref.ref, PairingClipTrigger.resume);
+  await deskLookForPairingLink(element, ref.ref, PairingClipTrigger.screen);
 }
 
 Future<void> _seenAs(WidgetTester tester, String name) async {

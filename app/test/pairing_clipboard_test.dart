@@ -8,11 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// A clipboard whose clip and stamp the test sets, counting reads.
 class _Clip implements ClipboardProbe {
-  _Clip({this.silent = false});
-
-  @override
-  final bool silent;
-
   String? text;
   int? time;
   bool stamps = true;
@@ -149,15 +144,17 @@ void main() {
       expect((await reader.look(trigger: PairingClipTrigger.screen, allowed: true, pending: _none, seen: const PairingClipSeen()))?.kind, PairingLinkKind.invite);
     });
 
-    test('the desktop reads silently on resume too; the once-set keeps it to one offer', () async {
-      final clip = _Clip(silent: true)
+    test('the desktop (no stamp) never reads on resume; the once-set keeps a screen read to one offer', () async {
+      final clip = _Clip()
         ..put(_invite, 1)
         ..stamps = false;
       final reader = PairingClipReader(clip);
-      final found = await reader.look(trigger: PairingClipTrigger.resume, allowed: true, pending: _none, seen: const PairingClipSeen());
+      expect(await reader.look(trigger: PairingClipTrigger.resume, allowed: true, pending: _none, seen: const PairingClipSeen()), isNull);
+      expect(clip.reads, 0);
+      final found = await reader.look(trigger: PairingClipTrigger.screen, allowed: true, pending: _none, seen: const PairingClipSeen());
       expect(found?.kind, PairingLinkKind.invite);
       final seen = const PairingClipSeen().add(found!.link);
-      expect(await reader.look(trigger: PairingClipTrigger.resume, allowed: true, pending: _none, seen: seen), isNull);
+      expect(await reader.look(trigger: PairingClipTrigger.screen, allowed: true, pending: _none, seen: seen), isNull);
     });
   });
 }

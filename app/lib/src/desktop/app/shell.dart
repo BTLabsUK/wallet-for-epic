@@ -100,13 +100,16 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _maybeTour();
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
-    // A pairing link copied in a chat is offered when the window comes back to the front.
+    // A pairing link copied in a chat is offered when the window comes back to the front while
+    // Contacts (Pair lives there) is open; anywhere else the clipboard is not read, as it may
+    // hold what another app put there.
     _focus = AppLifecycleListener(
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
         Timer(const Duration(milliseconds: 300), () {
-          if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.resume).ignore();
+          if (!mounted || ref.read(deskNavProvider).route.section != DeskSection.contacts) return;
+          deskLookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
         });
       },
     );
