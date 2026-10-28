@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The details a user may add to a payment a scan found: who paid, how it came, a note.
 library;
 

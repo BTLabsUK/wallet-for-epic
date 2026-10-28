@@ -1,4 +1,5 @@
-/// "Remember on this computer" (F6, D-9): a wallet's password kept so the app opens it at start
+// SPDX-License-Identifier: Apache-2.0
+/// "Remember on this computer": a wallet's password kept so the app opens it at start
 /// without asking.
 ///
 /// The password is never written as it is. It is sealed with AES-256-GCM under a random key

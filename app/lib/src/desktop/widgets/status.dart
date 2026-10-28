@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
 import '../desk_l10n.dart';
@@ -170,7 +171,7 @@ class EMethodIcon extends StatelessWidget {
   }
 }
 
-/// One receiving method's state line (spec 1.1): [word] bold in the state colour, then
+/// One receiving method's state line: [word] bold in the state colour, then
 /// [detail]. [retry]: the line offers Try again (HTTP) or Retry (Tor).
 @immutable
 class MethodLine {
@@ -376,7 +377,7 @@ class EStatusGlyph extends StatelessWidget {
     final box = px + 9.u;
     // The outline says whether the service is on (green) or off (faint); the dot, only on
     // an enabled one, says how its connection goes: green connected, blue (pulsing) in
-    // progress, red down, amber a warning (bot #123). The label says the state in words.
+    // progress, red down, amber a warning. The label says the state in words.
     final outline = off ? c.faint : c.ok;
     return Semantics(
       label: label,
@@ -414,7 +415,7 @@ class EStatusGlyph extends StatelessWidget {
 /// [child] fading between 45 % and full opacity for a few beats once [active] begins, then
 /// still at full opacity: the blue ring keeps saying "in progress". A pulse that never ends
 /// redraws the window 60 times a second for as long as Epicbox or Tor keeps retrying, which on
-/// software OpenGL filled every core (#126). Still with reduced motion.
+/// software OpenGL filled every core. Still with reduced motion.
 class _MaybePulse extends StatefulWidget {
   const _MaybePulse({super.key, required this.active, required this.child});
 

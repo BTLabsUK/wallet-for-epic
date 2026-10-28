@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Localisation helpers: the `context.l10n` shortcut, the languages offered in settings, and
 /// number and date text in the reader's conventions.
 ///

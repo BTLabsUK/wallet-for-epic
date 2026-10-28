@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Release builds are signed with the release key only (android/app/build.gradle.kts). The
 // behaviour itself is checked by tool/android_signing_check.sh, which runs Gradle; this keeps the
 // gate from passing a build file that falls back to the debug key.

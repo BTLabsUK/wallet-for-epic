@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ import '../../../send_preflight.dart' show relayProbeProvider;
 import 'local_node_step.dart';
 import 'onboarding_parts.dart';
 
-/// The steps (D-14): preferences (only with languages), node, the local node's own step when
+/// The steps: preferences (only with languages), node, the local node's own step when
 /// Local was chosen (same rail position), Epicbox, review.
 enum SetupStep { prefs, node, local, epicbox, review }
 
@@ -44,7 +45,7 @@ class SetupDemo {
   final bool saveFailed;
 }
 
-/// The first run of a wallet just made or restored (spec §21: password, phrase, Node, Epicbox,
+/// The first run of a wallet just made or restored (password, phrase, Node, Epicbox,
 /// Review, Unlock): setup starts on the node step with no way back to the phrase, and Save goes
 /// to Unlock with [added]. [second] marks one more wallet on a computer that has one: the node
 /// is app-wide, so it starts as the current one.
@@ -190,7 +191,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     super.dispose();
   }
 
-  /// Save: the only place that starts the bundled node (O2); the reuse question comes first
+  /// Save: the only place that starts the bundled node; the reuse question comes first
   /// when another node left chain data here.
   Future<void> _save() async {
     final local = _local ? _localChoice : null;
@@ -209,7 +210,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       }
     }
     if (bundled && local != null) {
-      // D-7 answered here, once the node is going to run: the question of Settings › Node
+      // the fallback question answered here, once the node is going to run: the question of Settings › Node
       // never shows for this wallet.
       await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(local.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
       fallbackAskedThisSession = true;
@@ -241,7 +242,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final first = _first;
     if (first?.added.id case final id?) {
       // The choices are stored: a mark that cannot be cleared is said, not a failed Save that
-      // a retry would repeat (node switch and all) (R11).
+      // a retry would repeat (node switch and all).
       if (!await _clearMark(id)) return;
     }
     if (!mounted) return;
@@ -358,7 +359,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               )
             : (_first != null ? Text(l.deskSetupSkipKeeps, style: ts.caption) : null),
         actions: [
-          // A first run can be left from the start: the defaults stay, Settings changes them (R11).
+          // A first run can be left from the start: the defaults stay, Settings changes them.
           if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
           if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),

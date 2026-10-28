@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Uploads the Play App Bundle of the version in pubspec.yaml to a Google Play testing track
 # (https://docs.btlabs.uk/developers/build/variants/, "Google Play"). Production stays a click in Play Console.
 #   tools/play-upload.sh <aab> [--track internal] [--notes-file <file>] [--validate]
 # The release name is "<version> (<versionCode>)" from tools/version.sh; the notes default to
-# docs/play-notes/<version>.txt (en-GB) when it exists. The service account key is
+# play-notes/<version>.txt under docs (en-GB) when it exists. The service account key is
 # WFE_PLAY_KEY (default ~/.config/btlabs/play/service-account.json, never in a repository).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"

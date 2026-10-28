@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: pairing (RFC 0002) through the app's LEPIC adapter on the real library, with LEPIC's
 // mock chain and mock relay: an invite answered and its words checked, in person by cards,
 // a request to a verified contact paid and finalized, a payment through a contact's mailbox,
@@ -140,7 +141,7 @@ void main() {
     expect(await anna.pairing.pairings(), isEmpty);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
-  test('a wallet opening its own invite is refused before the answer, also after a restart (PAIR-AND-2)', () async {
+  test('a wallet opening its own invite is refused before the answer, also after a restart', () async {
     final (anna, w) = await wallet();
     final (carl, _) = await wallet();
     final invite = await anna.pairing.makeInvite(name: 'Anna', expiry: const Duration(days: 1));
@@ -270,7 +271,7 @@ void main() {
     final received = (await ben.transactions(refresh: false)).firstWhere((t) => t.slateId == tx.slateId);
     expect(received.pairingId, ids.bSide);
     // Ben opened Anna's sealed payment: the pairing says when it last heard from her, the
-    // pairing a contact uses is picked by it (PAIR-AND-20).
+    // pairing a contact uses is picked by it.
     final heard = (await ben.pairing.pairing(ids.bSide))!;
     expect(heard.lastSealedIn!.isAfter(heard.createdAt), isTrue);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
@@ -303,7 +304,7 @@ void main() {
     expect([for (final w in back.sas) w.name], [for (final w in (await anna.pairing.pairing(ids.aSide))!.sas) w.name]);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
-  test('a re-pair after a restore folds into the old pairing: one per contact, requests reach it (PAIR-LNX-15)', () async {
+  test('a re-pair after a restore folds into the old pairing: one per contact, requests reach it', () async {
     final (fred, _) = await wallet();
     final (sara, saraW) = await wallet();
     final first = await pair(fred, sara);

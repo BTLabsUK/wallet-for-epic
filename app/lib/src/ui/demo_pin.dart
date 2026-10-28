@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's PIN, filled in for the visitor: six dots that fill one after another, then
 /// [DemoPinFill.onDone]. First run, unlock and the PIN prompt show it in demo mode only.
 library;

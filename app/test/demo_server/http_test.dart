@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The demo API over real HTTP on a loopback port: create, status, end, the cap and the rate.
 
 import 'dart:convert';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -63,7 +64,7 @@ const Duration landingSweepDuration = Duration(milliseconds: 1200);
 /// The size Wallet's figure starts at, and the least it shrinks to.
 const double figureSize = 60, figureMinSize = 34;
 
-/// The size the figure never scales under: its unit goes first (UI-002).
+/// The size the figure never scales under: its unit goes first.
 const double figureFloorSize = 14;
 
 /// How far the header is open, from the shell's page position: 1 on Wallet, 0 on Send and
@@ -386,7 +387,7 @@ class _Figure extends StatelessWidget {
           }
           var size = best(unit: true);
           // Past the least size the figure scales down with its unit; before that scaling
-          // would take it under a readable 14, the unit goes instead (UI-002), and the
+          // would take it under a readable 14, the unit goes instead, and the
           // semantics still say EPIC.
           final atMin = _textWidth(text, figure(figureMinSize), TextScaler.noScaling, direction) + unitWidth;
           final showUnit = fits(figureMinSize) || figureMinSize * constraints.maxWidth / atMin >= figureFloorSize;

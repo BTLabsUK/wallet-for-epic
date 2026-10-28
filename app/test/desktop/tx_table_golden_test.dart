@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;
@@ -48,7 +49,7 @@ final _txs = [
   _tx(5, TxDirection.received, 88000000, scan: true),
 ];
 
-// F17: the four origins of a scan find.
+// The four origins of a scan find.
 final _found = [
   _tx(1, TxDirection.received, _nano, scan: true, during: FoundDuring.restore),
   _tx(2, TxDirection.received, 238243300, scan: true, during: FoundDuring.rescan),

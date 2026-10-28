@@ -1,4 +1,5 @@
-// The copy sweep (W4 spec 11, P2): no user-facing string in the desktop UI says "listener",
+// SPDX-License-Identifier: Apache-2.0
+// The copy sweep: no user-facing string in the desktop UI says "listener",
 // "the relay", "Epic address" (it is the Epicbox address), or "Advanced" next to Tor. "Link"
 // is a method name again since the one Tor switch (Epicbox / Link / File). Reads every .dart file under lib/src/desktop; comments and log
 // lines (internal tags) do not count. No allow-list.

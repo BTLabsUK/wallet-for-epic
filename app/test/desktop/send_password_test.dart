@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every send asks the wallet's password at Review, whether the wallet was opened with a typed
 // password or with the one remembered on this computer; there is no amount below which it does
 // not ask.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's Node and Epicbox lists (server_list_panel.dart, server_lists.dart): the field
 // at the top starts empty and filters; a Node row switches at once, an Epicbox row asks in a
 // dialog; Add shows when nothing matches, says plainly
@@ -292,7 +293,7 @@ void main() {
 
   testWidgets('the row in use has no live bin: In use. Switch first.', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
-    // UI-044: the bin is shown disabled and says why.
+    // The bin is shown disabled and says why.
     final bin = tester.widget<EIconButton>(find.byKey(const ValueKey('server-row-remove-$_btlabs')));
     expect(bin.onPressed, isNull);
     expect(bin.label, 'In use. Switch first.');

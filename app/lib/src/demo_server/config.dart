@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings of the demo server, from flags and `WFE_DEMO_*` environment variables.
 library;
 
@@ -11,7 +12,7 @@ class ConfigError implements Exception {
   String toString() => 'ConfigError: $message';
 }
 
-/// The defaults are the plan's server limits.
+/// The defaults are the demo server's limits.
 class DemoServerConfig {
   const DemoServerConfig({
     required this.dataRoot,

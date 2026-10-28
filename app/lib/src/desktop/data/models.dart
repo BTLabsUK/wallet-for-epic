@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop UI's view of a wallet. Plain immutable types; the UI reads only these and the
 /// [DeskWalletApi] in `api.dart`. The mock (`mock_wallet.dart`) fills them with canned data; a
 /// LEPIC adapter will map `WalletService` and `models.dart` onto them later.
@@ -133,7 +134,7 @@ const int coinbaseMaturity = 1440;
 
 enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
 
-/// The word the Outputs page shows for an output, one place (design spec §2.2, §5.5).
+/// The word the Outputs page shows for an output, one place.
 enum OutputWord { spendable, confirming, finalizing, unpaidInvoice, immature, mining, locked, spent }
 
 /// One coin of the balance (an output and its commitment).
@@ -213,7 +214,7 @@ class Output {
     txId: txId,
   );
 
-  /// Design spec §2.2, the one place: unconfirmed and awaiting finalization is finalizing; a
+  /// The one place: unconfirmed and awaiting finalization is finalizing; a
   /// reward without a category, mining; any other unconfirmed output, like one on chain under
   /// the confirmations needed, is confirming.
   OutputWord get word => switch (status) {
@@ -247,7 +248,7 @@ class SelfSend {
   final int outputCount;
 }
 
-/// The Outputs page's choices for one wallet (F13, D-5): the strategy sends use unless Send
+/// The Outputs page's choices for one wallet: the strategy sends use unless Send
 /// overrides it, and whether SmartOutputs splits the change.
 @immutable
 class OutputPrefs {
@@ -353,7 +354,7 @@ class Tx {
   final String? counterparty;
   final String? contactName;
 
-  /// A split or consolidation: both sides are this wallet (F13).
+  /// A split or consolidation: both sides are this wallet.
   final bool toSelf;
 
   /// How it came, as the core names it (`epicbox`, `http`, `tor`, `file`); null when not known,
@@ -405,7 +406,7 @@ class Tx {
   /// False when [created] is the time of the scan: the block's time could not be read.
   final bool datedByBlock;
 
-  /// A payment only an imported history backup knows (F34): the chain was not asked about it.
+  /// A payment only an imported history backup knows: the chain was not asked about it.
   final bool fromBackup;
 
   /// The core allows cancelling this payment. An incoming one is cancelled only while the node has
@@ -815,7 +816,7 @@ class ServiceStatus {
   /// it, or an idle computer would stop a restore at every lock and never finish it.
   final bool scanning;
 
-  /// The scan a restore or a rebuilt database still owes (D3): null once the core says the scan
+  /// The scan a restore or a rebuilt database still owes: null once the core says the scan
   /// from block 0 finished. Receiving and sending wait for it.
   final RestoreScan? restoreScan;
   final DateTime? lastUpdate;
@@ -872,7 +873,7 @@ String torStatusLine(AppLocalizations l, ServiceStatus s) {
 const int minPasswordLength = 8;
 
 /// Whether [password] is long enough for a new wallet: counted in characters (runes), as the
-/// core counts them, so four emoji are four characters, not eight (R26).
+/// core counts them, so four emoji are four characters, not eight.
 bool passwordLongEnough(String password) => password.runes.length >= minPasswordLength;
 
 /// One step of a rescan: the core's message and, when it gives one, the percentage.
@@ -904,14 +905,14 @@ class ScanCounts {
   final bool resumed;
 }
 
-/// The history backup record of the open wallet (F34), for the Backup rows, the export dialog
-/// and the Overview reminder (F33).
+/// The history backup record of the open wallet, for the Backup rows, the export dialog
+/// and the Overview reminder.
 @immutable
 class HistoryBackupState {
   const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet', this.importOffer = false});
 
-  /// A wallet restored from its phrase that has not answered "Import a history backup?" yet
-  /// (R13): Overview offers the import, or Not now.
+  /// A wallet restored from its phrase that has not answered "Import a history backup?" yet:
+  /// Overview offers the import, or Not now.
   final bool importOffer;
 
   /// The last export saved; null: never.
@@ -920,7 +921,7 @@ class HistoryBackupState {
   /// Payments a backup would keep that the last export does not have.
   final int unbacked;
 
-  /// The count the Overview reminder names; null while it stays hidden (the F33 rule).
+  /// The count the Overview reminder names; null while it stays hidden (the backup reminder rule).
   final int? reminder;
 
   /// What an export holds now.
@@ -1077,7 +1078,7 @@ class DeskError implements Exception {
   /// damaged one), so nothing changed; a restore from the phrase is the way out.
   final bool resetUnverifiable;
 
-  /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
+  /// A restore whose phrase belongs to this listed wallet: nothing was made. The restore
   /// flow offers to open it instead.
   final WalletEntry? sameWallet;
 

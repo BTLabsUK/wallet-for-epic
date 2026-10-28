@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Transaction labels on the phone: the title rule, the pen and its inline field, the details
 // of a restored payment, and the "Details differ" sheet of a history import.
 
@@ -149,7 +150,7 @@ String? _longPressHint(SemanticsNode node) {
   return null;
 }
 
-/// Opens a row's label field: a long press on the row (the pen left the rows, UI-064).
+/// Opens a row's label field: a long press on the row (the pen left the rows).
 Future<void> _openLabel(WidgetTester tester, [String key = 's:plain']) async {
   await tester.longPress(find.byKey(ValueKey('tx-$key')));
   await tester.pumpAndSettle();

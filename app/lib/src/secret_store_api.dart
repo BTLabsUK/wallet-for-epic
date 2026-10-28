@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Key-value storage for secrets, as the wallet core sees it, and an in-memory store for tests
 /// and the demo server. Nothing here imports Flutter; the platform stores are in
 /// `secret_store.dart`.

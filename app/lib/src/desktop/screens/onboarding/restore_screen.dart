@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -137,7 +138,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   bool _clipboardEmpty = false;
 
-  /// Use N words: the phrase of a wallet already in the list opens that wallet instead (O1);
+  /// Use N words: the phrase of a wallet already in the list opens that wallet instead;
   /// any other goes on to the password step. A list that cannot be read goes on too: restore
   /// checks again before it makes anything.
   Future<void> _toAccount() async {
@@ -160,7 +161,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   /// "This wallet is already here": Open it goes to Unlock with [wallet] selected (the open
   /// wallet, if any, is locked first); a new password goes to Forgot password with the phrase
-  /// typed here (R4); Cancel leaves the phrase on the grid.
+  /// typed here; Cancel leaves the phrase on the grid.
   Future<void> _offerExisting(WalletEntry wallet) async {
     setState(() => _step = RestoreStep.words);
     final choice = await showSameWalletDialog(context, wallet);

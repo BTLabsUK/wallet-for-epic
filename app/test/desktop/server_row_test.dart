@@ -1,4 +1,5 @@
-// The picker row (spec §18): the columns at 640 u, no operator under 420 u, no version under
+// SPDX-License-Identifier: Apache-2.0
+// The picker row: the columns at 640 u, no operator under 420 u, no version under
 // 480 u, a long host never pushes the latency past the edge; the neutral order of a shuffled list; one
 // ServerRow class serves nodes and relays; no node row carries a default tag.
 import 'dart:io';

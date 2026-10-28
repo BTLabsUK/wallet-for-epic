@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Node failover on the desktop (Settings › Advanced, on by default): after 30 s of the wallet's
 // node reading down, the open wallet moves to the next working node of the list for this
 // session (useNodeForSession, never useNode); the chosen node stays saved.

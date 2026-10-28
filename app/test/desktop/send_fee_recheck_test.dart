@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // linux-10: the review's fee is the fee the send pays. The core chooses the inputs again when
 // it sends, so an output that finished confirming after the estimate changed the fee booked
 // (0.0110 booked against 0.0120 reviewed). Send estimates once more and, when the fee moved,

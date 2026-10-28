@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's Node and Epicbox sheets: one list per kind, a field at the top that starts empty,
 // filters and adds, a Node row that switches at once, an Epicbox row that asks first, a bin on
 // every row with Undo, "Restore removed servers", the directory's servers
@@ -687,7 +688,7 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
       final before = _saved(env.store, ServerKind.node);
-      // The row in use has no live Remove: the button is disabled and says why (UI-044).
+      // The row in use has no live Remove: the button is disabled and says why.
       final remove = tester.widget<IconButton>(find.byKey(serverListRemoveKey(_btlabs)));
       expect(remove.onPressed, isNull);
       expect(remove.tooltip, 'Switch first');

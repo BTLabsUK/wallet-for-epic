@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The web demo's checklist on the Wallet tab: get test coins, then send some to someone.
 
 import 'dart:async';

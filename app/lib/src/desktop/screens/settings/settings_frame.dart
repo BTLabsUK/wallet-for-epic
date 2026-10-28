@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +59,7 @@ class SettingsFrame extends ConsumerWidget {
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), devices: ref.watch(deskLinkedDevicesOnProvider));
-    // A big window centres the capped column instead of leaving it at the left (UI-063).
+    // A big window centres the capped column instead of leaving it at the left.
     final content = Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),
@@ -67,7 +68,7 @@ class SettingsFrame extends ConsumerWidget {
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
       // Wide: the section list stays in view while the page scrolls (a Help topic far down
-      // keeps Help selected beside it, UI-032).
+      // keeps Help selected beside it).
       scroll: !wide,
       child: wide
           ? Row(
@@ -123,7 +124,7 @@ String healthWord(AppLocalizations l, ServiceHealth h) => switch (h) {
   ServiceHealth.checking => l.deskSetFrameChecking,
 };
 
-/// The node's state word (6.1.6 nodeBadge; O2: a synced node says Synced, never Online).
+/// The node's state word (a synced node says Synced, never Online).
 String nodeWord(AppLocalizations l, ServiceHealth h) => switch (h) {
   ServiceHealth.ok => l.deskSetFrameNodeSynced,
   ServiceHealth.slow => l.deskSetFrameNodeSyncing,

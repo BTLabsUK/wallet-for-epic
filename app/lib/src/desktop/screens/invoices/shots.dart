@@ -1,4 +1,5 @@
-/// Screenshot tour entries of the invoice screens: every state of docs/invoices/flow.md, dark
+// SPDX-License-Identifier: Apache-2.0
+/// Screenshot tour entries of the invoice screens: every state of the invoice flow, dark
 /// by default (`flutter test tool/desktop_tour_test.dart --plain-name inv-`). Ids start with
 /// `inv-` and sort by part: pay (the payer), req (the issuer), set (Settings, Contacts,
 /// Receive), act (Activity, Overview), core (the Invoices page's frame and the edge states).

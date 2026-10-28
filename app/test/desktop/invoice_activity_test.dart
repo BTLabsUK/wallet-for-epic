@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Invoices in Activity on the mock (R-1 S-2, S-3): a row reads "Unpaid" only while the
 // invoice waits for its payer; the details of a waiting one say Unpaid by the big amount; a
 // Open in Invoices opens every invoice transaction on its tab, selected.

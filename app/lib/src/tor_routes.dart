@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one Tor switch: which connections go over Tor while it is on, which wait for it, and
 /// which stay on the clearnet. Every screen and the wallet adapters ask [torWay] (or
 /// [torWayIn] with the network mode of Settings › Advanced); nothing decides a route on its
@@ -67,7 +68,7 @@ enum TorWay {
   off,
 }
 
-/// The routes the switch carries through Tor: Epicbox and the node in LEPIC (E-10, E-12), the
+/// The routes the switch carries through Tor: Epicbox and the node in LEPIC, the
 /// app's own requests through tor's SOCKS port with names resolved by tor ([TorNet]). A node
 /// on this computer stays direct ([torSkipsLocalNode]).
 const Set<TorRoute> torCovered = {TorRoute.epicbox, TorRoute.node, TorRoute.appHttp};

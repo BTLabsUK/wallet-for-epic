@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Shared set-up for the demo server tests: a server on a loopback port over a temp data root,
 // and a small HTTP client that keeps the demo cookie.
 

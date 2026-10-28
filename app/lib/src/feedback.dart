@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Feedback reports: what the user wrote, a few facts about the app, and optionally the
 /// newest part of the log, cleaned of secrets and addresses (`support_clean.dart`). The preview
 /// shows exactly what is shared, saved or sent.

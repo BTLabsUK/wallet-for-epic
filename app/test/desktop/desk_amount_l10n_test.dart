@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop amount fields read amounts in the window's language: "1.000" in German, where the app
 // shows a thousand so, is refused as unclear instead of sending 1 EPIC; "1,5" is 1.5.
 import 'package:epic_wallet/l10n/app_localizations.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's own window: no system title bar, so the title bar (title_bar.dart) moves, sizes and
 /// closes it through this. The OS keeps what it can: Windows the frame, shadow, rounding and
 /// snapping; Linux has no frame at all once the title is hidden, so the app draws a border and

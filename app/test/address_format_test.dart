@@ -1,4 +1,5 @@
-// The list form of an address (spec 7.1): first six and last six of the checked part, the
+// SPDX-License-Identifier: Apache-2.0
+// The list form of an address: first six and last six of the checked part, the
 // kind kept; compact drops the kind part. Plus the rail's host line.
 
 import 'package:epic_wallet/src/address_format.dart';

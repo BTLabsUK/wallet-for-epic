@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every WalletService and WalletSession member through a loopback channel, against
 // FakeWalletService: arguments arrive, results return, errors keep their kind.
 
@@ -451,7 +452,7 @@ void main() {
       final merged = await s.consolidateOutputs(minimumConfirmations: ten);
       expect(merged.inputCount, 2);
       expect(session.consolidations, 1);
-      // A cancelled payment's coins, spent to the wallet itself by name (D-2).
+      // A cancelled payment's coins, spent to the wallet itself by name.
       session.outputsValue = [out('c5', 200000000)];
       await s.spendOutputsToSelf(commitments: ['c5'], minimumConfirmations: ten);
       expect(session.spentToSelf, [
@@ -765,7 +766,7 @@ void main() {
       final events = <PairingEvent>[];
       final sub = s.pairing.events().listen(events.add);
       await settle();
-      final invite = await s.pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Anna');
+      final invite = await s.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
       expect(invite.state, PairingState.pendingInvite);
       expect(invite.inviteLink, isNotNull);
       session.pairing.answerInvite(invite.id, name: 'Anna');
@@ -800,17 +801,17 @@ void main() {
       final anna = session.pairing.seedPaired(name: 'Anna', paymentsAddress: serviceAddress, contactId: 'c1');
       await crossed(p.strays);
       await crossed(() => p.removeStray('none'));
-      final invite = await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      final invite = await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
       await crossed(() => p.cancelInvite(invite.id));
       await crossed(() => p.openReply('epiccash://pair-reply/1/x'));
       await crossed(() => p.confirmLink(anna.id));
       final preview = await p.openInvite(session.pairing.inviteLinkFrom(name: 'Tom'));
       expect(preview.name, 'Tom');
       await crossed(() => p.openWords(const ['a', 'b', 'c', 'd', 'e']));
-      final answered = await p.acceptInvite(token: preview.token, name: 'the owner');
+      final answered = await p.acceptInvite(token: preview.token, name: 'Alex');
       await crossed(() => p.replyLink(answered.id));
       await crossed(() => p.openConfirm('epiccash://pair-confirm/1/x'));
-      final card = await p.showCard(name: 'the owner');
+      final card = await p.showCard(name: 'Alex');
       await crossed(() => p.scanCard(cardId: card.id, text: session.pairing.cardLinkFrom('Ola')));
       expect(await p.collect(), 0);
       expect((await p.attach(anna.id, 'c2')).contactId, 'c2');

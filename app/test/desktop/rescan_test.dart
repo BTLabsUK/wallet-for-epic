@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Recheck balance: Stop, Delete unconfirmed and the result, on the mock wallet; and
 // LepicDeskWallet's rescan over FakeWalletSession (the flag passed, Stop calling cancelScan).
 import 'dart:async';
@@ -106,7 +107,7 @@ void main() {
     }
   }
 
-  testWidgets('R20: the phone\u2019s start choices: a date (picked first), a typed height, or the whole chain (0)', (tester) async {
+  testWidgets('the phone\u2019s start choices: a date (picked first), a typed height, or the whole chain (0)', (tester) async {
     final api = _Starts();
     await pump(tester, api, false);
     expect(find.text('Where to start'), findsOneWidget);
@@ -137,7 +138,7 @@ void main() {
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
     await pump(tester);
     expect(find.textContaining('Reads the chain again and rebuilds the balance'), findsOneWidget);
-    // F18: one name (Recheck balance), and the row does not repeat the group's title.
+    // One name (Recheck balance), and the row does not repeat the group's title.
     expect(find.text('Recheck balance'), findsNWidgets(2)); // the section chip and the group head
     expect(find.textContaining('Rescan'), findsNothing);
     expect(find.textContaining('coins'), findsNothing);
@@ -375,7 +376,7 @@ void main() {
       return raw == null ? const {} : jsonDecode(raw) as Map<String, dynamic>;
     }
 
-    test('the core\'s restore flag makes the scan due without the app\'s note (R6: closed mid-restore)', () async {
+    test('the core\'s restore flag makes the scan due without the app\'s note (closed mid-restore)', () async {
       await wallet.createWallet(name: 'Main', password: _password);
       expect(await pending(), isFalse);
       session.restoreScanPending = true;
@@ -396,7 +397,7 @@ void main() {
       expect((await wallet.status()).restoreScan, isNull, reason: 'the core says the scan finished');
     });
 
-    test('a restore from a height scans from it once, then from block 0 by itself while the flag stays (R1, D2)', () async {
+    test('a restore from a height scans from it once, then from block 0 by itself while the flag stays', () async {
       await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
       session.restoreScanPending = true;
       expect(await wallet.unlock(_password), isTrue);
@@ -441,7 +442,7 @@ void main() {
       expect(waits?.offline, isFalse);
     });
 
-    test('a finished Recheck forgets the restore\'s start height (R21); the scan from block 0 the core still owes follows', () async {
+    test('a finished Recheck forgets the restore\'s start height; the scan from block 0 the core still owes follows', () async {
       await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
       // Locked out of the due scan: Recheck runs first.
       final due = StreamController<core.ScanProgress>.broadcast();

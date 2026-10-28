@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Privacy & network's Node and Epicbox rows and their picker sheets say what the Tor
 // switch does to the node and Epicbox: nothing with Tor off, "Over Tor", or "Waiting for Tor" while Tor starts or is
 // not connected.

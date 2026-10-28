@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The warning before the first import: Welcome's Import wallets card shows it, Continue
 // waits for the acknowledgement, Cancel goes nowhere, and once acknowledged it is saved with
 // the app's settings and never shows again.

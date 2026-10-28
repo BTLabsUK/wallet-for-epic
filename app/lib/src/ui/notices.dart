@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's one way to tell the user something happened: a card docked under the app bar
 /// ([NoticeDock], in every `SlotScaffold`) that moves the content down instead of covering it.
 /// `app/README.md` "Notifications" has the standard.

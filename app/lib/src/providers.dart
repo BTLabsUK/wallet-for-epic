@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -403,7 +404,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     }
     if (summary == null) throw StateError('Refresh ended without balances');
     summary = await _withHeld(session, summary);
-    // A refresh reads the linked devices' notices too (D-11), and sweeps their holds against
+    // A refresh reads the linked devices' notices too, and sweeps their holds against
     // the chain just read.
     unawaited(ref.read(deviceServiceProvider)?.sync(DeviceSyncTrigger.refresh));
     final transactions = await session.transactions(refresh: false);
@@ -1339,7 +1340,7 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
   }
 
   /// Reads the wallet's waiting invoices again without a drain: one that arrived another way
-  /// (a paired contact's mailbox) or a drain's own event (PAIR-AND-3).
+  /// (a paired contact's mailbox) or a drain's own event.
   Future<void> reload() async {
     final session = _invoiceSession(ref);
     if (session == null || !state.hasValue) return;

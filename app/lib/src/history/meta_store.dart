@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's own history archive: `<data_dir>/wfe_meta.json`, in the format
 /// `app/rust/src/core/meta.rs` writes, so a file of the old core opens here and the other way.
 ///

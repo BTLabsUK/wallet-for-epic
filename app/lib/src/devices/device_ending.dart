@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The words for a linked device's payment that ended without spending its coins
 /// ([DeviceEnding]): the row's status and one short line for its details. Shared by the phone
 /// and the desktop; the codes a failed payment carries are worded here, in the app's language.

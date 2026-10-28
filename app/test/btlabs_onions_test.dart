@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The onion mapping: the built-in copy until a verified btlabs.json lists onions; entries are
 // parsed leniently (a bad one is skipped, never a reason to reject the file).
 import 'package:epic_wallet/src/btlabs_onions.dart';

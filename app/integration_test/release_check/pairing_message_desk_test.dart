@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop side of the Pairing UX live check (26.10.18) with a phone
 // (integration_test/pairing_message_phone_test.dart; tool/pairing_message_check.sh drives both):
 // the phone's invite taken from the clipboard offer, the reply copied, the finish link offered

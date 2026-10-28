@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The Overview header and the controls that did nothing in 0.1.0: Refresh asks the wallet to
 // sync with the node (spinner until done, the error shown), the eye hides every amount, Show
 // the tour again (Help) opens the tour on Overview, Ctrl+L locks.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -286,7 +287,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (value == builtinNode) {
       if (!p.builtin) {
         // The same content as the first run's Local node step (§21): nothing starts before
-        // the primary action; the fallback checkbox answers D-7 for good.
+        // the primary action; the fallback checkbox answers the fallback question for good.
         final choice = await showLocalNodeSetupDialog(context);
         if (choice == null || !mounted) return;
         if (choice.how == LocalNodeHow.existing) return _useRemote(choice.existingUrl);

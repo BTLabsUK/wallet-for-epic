@@ -1,4 +1,5 @@
-// F17: a payment a scan found reads "Restored" or "Found by recheck" by which scan found it; the
+// SPDX-License-Identifier: Apache-2.0
+// A payment a scan found reads "Restored" or "Found by recheck" by which scan found it; the
 // time is called the block's only when it is; an older entry makes no claim about the scan.
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';

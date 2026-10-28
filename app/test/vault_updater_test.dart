@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -60,7 +61,7 @@ void main() {
       );
       final created = await vault.create(config, pin: '123456');
       expect(created.biometrics, isFalse);
-      // "Not now": the biometric store is never opened, so no system prompt shows (AND-5).
+      // "Not now": the biometric store is never opened, so no system prompt shows.
       expect(bio.prompts, 0);
       expect(bio.deletes, 0);
       expect(service.createdPin, '123456');

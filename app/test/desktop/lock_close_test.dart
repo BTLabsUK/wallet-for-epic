@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Closing the app after a lock (LNX-4): the wallet's dispose never waits on its streams. The
 // live test needs the Linux library and the network, and is skipped without them:
 //

@@ -1,5 +1,6 @@
-/// A contact as a page (SPEC 2.4): the header with the trust badge, Send and Show code, then
-/// the contact's addresses (one per kind, SPEC 2.5) and, where the wallet pairs, its Pairing
+// SPDX-License-Identifier: Apache-2.0
+/// A contact as a page: the header with the trust badge, Send and Show code, then
+/// the contact's addresses (one per kind) and, where the wallet pairs, its Pairing
 /// block: the trust state, Seal payments, Allow invoices, the relay it delivers through, the
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
@@ -64,7 +65,7 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    // A neutral circle, as the desktop's rows: the gold brackets are brand art (UI-054).
+    // A neutral circle, as the desktop's rows: the gold brackets are brand art.
     return Container(
       width: size,
       height: size,
@@ -172,7 +173,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       if (paired && ref.read(pairNetProvider) == PairNet.epicboxOff) {
         final l = context.l10n;
         // Persistent, so it pushes the page down instead of covering its header; it goes with
-        // the page (PAIR-AND-10).
+        // the page.
         _notices.show('${l.contactPausedEpicboxOff}. ${l.contactPausedEpicboxOffBody}', level: NoticeLevel.info, persistent: true, tag: _pausedTag);
       }
     });

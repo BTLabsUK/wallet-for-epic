@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local (built-in) node as the app shows it: one phase, the sync progress, the network
 /// height it is measured against, and the node's folder and disk. Pure: [deriveLocalNodeState]
 /// maps a [BuiltInNodeState] plus what else is known onto it.
@@ -175,7 +176,7 @@ class LocalNodeState {
       'failure: $failure, reason: $reason, stalled: $stalled, restartNeeded: $restartNeeded)';
 }
 
-/// The app's view of the node. The rules (O2: never "Online" at height 0):
+/// The app's view of the node. The rules (never "Online" at height 0):
 ///
 /// | node state        | condition                                                  | phase    |
 /// |-------------------|------------------------------------------------------------|----------|

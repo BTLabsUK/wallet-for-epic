@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The crack-time estimate under a new wallet password: zxcvbnm (a Dart port of zxcvbn-ts) with
 // the word lists in assets/passwords. Pure Dart; computed on the device only. The password and
 // its estimate are never logged, stored or sent.

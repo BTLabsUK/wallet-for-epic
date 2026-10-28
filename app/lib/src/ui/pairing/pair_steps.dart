@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The step strip of Invite by message (Pairing UX plan 3): Invite, Reply, Finish link,
 /// Words, so both sides see where they are. Each step is a bar with its name under it; where a
 /// name does not fit its bar at full size (Russian at 360 dp), the bars carry one line under

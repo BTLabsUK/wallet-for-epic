@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The one naming rule for a payment method on the desktop: Epicbox, Link · HTTP, Link · Tor
 // or Direct · File Transfer, in each language, in Activity, the details, the kind tag of an address and the receiving
 // rail. HTTP and Tor are Link's transport and never a method on their own.

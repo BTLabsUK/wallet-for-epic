@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;

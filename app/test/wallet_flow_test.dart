@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:epic_wallet/src/errors.dart';
@@ -596,7 +597,7 @@ void main() {
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
-    testWidgets('a biometric prompt that never answers leaves the PIN usable (AND-8)', (
+    testWidgets('a biometric prompt that never answers leaves the PIN usable', (
       tester,
     ) async {
       final service = _existing();
@@ -676,7 +677,7 @@ void main() {
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
-        // One precision across the tiles (UI-013).
+        // One precision across the tiles.
         (BalanceKind.confirming, 'Confirming', '1.0000'),
         (BalanceKind.locked, 'Locked in sends', '2.0000'),
         (BalanceKind.total, 'Total', '16.0000'),
@@ -1112,7 +1113,7 @@ void main() {
     });
   });
 
-  // R1–R3, R8, R9, R36: one "restore not finished" state driven by the core's flag.
+  // One "restore not finished" state driven by the core's flag.
   group('restore not finished', () {
     ProviderContainer containerOf(WidgetTester tester) =>
         ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));

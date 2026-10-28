@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The app's version has one source, pubspec.yaml (https://docs.btlabs.uk/developers/releases/); tools/version.sh check
 // covers the build scripts, this covers the Dart side.
 import 'dart:io';

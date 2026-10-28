@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Everything a desktop screen needs: tokens, icons, components, models and state.
 library;
 

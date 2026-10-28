@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Serves any [WalletService] over an [RpcChannel]: the server side of the wallet protocol.
 library;
 

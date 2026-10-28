@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet a `WFE_WEB_FAKE=true` web build shows: [FakeWalletService] with the desktop
 /// Overview's numbers and payments, outputs, contacts, two invoices to pay and two requests
 /// sent, so every phone screen can be previewed in a browser with no server. Nothing here talks
@@ -427,7 +428,7 @@ FakeWalletSession _previewSession() {
         label: 'BT Labs',
         contactId: 'c2',
         expiresAt: now.add(const Duration(hours: 22)),
-        inviteLink: fakePairingLink('pair', {'t': 'pairing-btlabs', 'n': 'the owner', 'e': now.add(const Duration(hours: 22)).millisecondsSinceEpoch}),
+        inviteLink: fakePairingLink('pair', {'t': 'pairing-btlabs', 'n': 'Alex', 'e': now.add(const Duration(hours: 22)).millisecondsSinceEpoch}),
       ),
     )
     ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: anna, verifiedAt: now.subtract(const Duration(days: 4)))

@@ -1,4 +1,5 @@
-/// Review invoice: one invoice to pay or decline (docs/invoices/flow.md §4.3). The only way
+// SPDX-License-Identifier: Apache-2.0
+/// Review invoice: one invoice to pay or decline. The only way
 /// to [DeskInvoices.pay]. Owned by the payer part.
 library;
 
@@ -110,7 +111,7 @@ class _Review extends ConsumerWidget {
           FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: PayAmount(i.amount, size: Fs.h1)),
           SizedBox(height: Sp.x4),
           EFacts([
-            // No estimate (too little to spend): unknown, never a fee of 0 (PAIR-LNX-5).
+            // No estimate (too little to spend): unknown, never a fee of 0.
             (l.deskInvPayerFee, i.feeKnown ? EMoney(i.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
             (l.deskInvPayerTotal, i.feeKnown ? PayAmount(i.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
             if (spendable != null && open && (i.feeKnown || short))
@@ -206,7 +207,7 @@ class _Review extends ConsumerWidget {
             ],
           ),
         ),
-        // What the contact says it is for, as the phone shows it (PAIR-LNX-10). Untrusted text.
+        // What the contact says it is for, as the phone shows it. Untrusted text.
         if (cleanInvoiceText(i.reference) case final reference when reference.isNotEmpty)
           (l.reqReference, Text(reference, style: ts.body, maxLines: 2, overflow: TextOverflow.ellipsis)),
         (l.deskInvPayerExpires, open ? InvCountdown(expiresAt: i.expiresAt, now: book.now, style: ts.body) : Text(invWhen(context, i.expiresAt))),
@@ -356,7 +357,7 @@ class RequestFileReview extends ConsumerWidget {
           FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: PayAmount(f.amount, size: Fs.h1)),
           SizedBox(height: Sp.x4),
           EFacts([
-            // No estimate (too little to spend): unknown, never a fee of 0 (PAIR-LNX-5).
+            // No estimate (too little to spend): unknown, never a fee of 0.
             (l.deskInvPayerFee, f.feeKnown ? EMoney(f.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
             (l.deskInvPayerTotal, f.feeKnown ? PayAmount(f.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
             if (spendable != null && open && (f.feeKnown || short))

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The one Tor switch on the desktop (Settings › Privacy): its state everywhere it shows, the
 // clearnet HTTP listener off while it is on, and Epicbox waiting for it, never going around it.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;

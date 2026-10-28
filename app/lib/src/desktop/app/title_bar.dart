@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The window's own title bar (the system's is hidden, desk_window.dart), 40 u tall above every
 /// screen. Its left part is as wide as the sidebar and holds the brand, which opens the app
 /// menu (Lock, Switch wallet, Keyboard shortcuts, About, Quit). Then the wallet switcher, the
@@ -890,7 +891,7 @@ class _StatusCluster extends ConsumerWidget {
     return ServiceRows(
       builder: (context, items) {
         final ts = context.ts;
-        // Every service, enabled or not (bot #123): a faint glyph without a dot is off; its
+        // Every service, enabled or not: a faint glyph without a dot is off; its
         // row in the list opens the switch.
         final shown = items;
         final summary = '${l.deskBarStatus}: ${[for (final i in items) '${i.name} ${i.word}'].join(', ')}';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -240,7 +241,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // A send can be cancelled while it waits for the recipient, or when the node refused its
     // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
     // finalized and posted in one step) it has gone out and shows as sent, never cancellable.
-    // Invoice-flow transactions take their actions from the Invoice block (flow.md §4.4).
+    // Invoice-flow transactions take their actions from the Invoice block.
     // An incoming payment this wallet signed: for receiveCancelHold after, and while its sender
     // reports it posted, Cancel stays away and the status box says why (incomingCancelAt).
     final waitingIncoming = t.incoming && t.state == TxState.waitingRecipient && !t.fromBackup && !t.isInvoice && t.cancellable;
@@ -266,7 +267,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
     // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
-    // contact's own steps (SPEC 2.8).
+    // contact's own steps.
     final paid = !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
     final paidTo = paid?.pairingId;
     final slate = t.incoming && !t.isInvoice && t.slateId.isNotEmpty ? ref.watch(deskPairingSlateProvider(t.slateId)).value : null;
@@ -305,7 +306,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     weight: FontWeight.w500,
                     color: t.state == TxState.cancelled ? c.txCancelled : (txAsked(t) ? c.text : (t.incoming ? c.txReceived : c.txSent)),
                   ),
-                  // Not money yet: the row's caption, by the big amount too (P-1).
+                  // Not money yet: the row's caption, by the big amount too.
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
                   if (t.otherWallet || t.deviceName != null)
@@ -379,7 +380,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
         // silent.
         if (mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
-        // A withdrawal from a paired exchange, not yet posted by it (SPEC 2.8).
+        // A withdrawal from a paired exchange, not yet posted by it.
         if (withdrawal != null && !onChain) ...[
           SizedBox(height: Sp.x3),
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
@@ -459,7 +460,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               ),
             )
           // A QR code or file exchange carries no address: the row says so rather than
-          // leaving the payment with no other side (bot #122).
+          // leaving the payment with no other side.
           else if (noAddressShown(t))
             (t.incoming ? l.txDetailsReceivedFrom : l.txDetailsSentTo, Text(l.txDetailsNoAddress, key: const ValueKey('tx-fact-no-address'))),
           if (!t.otherWallet)
@@ -624,7 +625,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   bool _typed(Tx t) => t.manualFields.any((f) => f != ManualField.label);
 
   /// [value] with a pen after it when the user typed [field]; the one "Added by you" line sits
-  /// under the details (UI-065).
+  /// under the details.
   Widget _withTag(Tx t, ManualField field, Widget value) => t.manualFields.contains(field)
       ? Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,7 +640,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         )
       : value;
 
-  /// A request a paired contact sent, paid (SPEC 2.8): Paid, Delivered to its relay, Posted
+  /// A request a paired contact sent, paid: Paid, Delivered to its relay, Posted
   /// by it, the confirmations.
   List<_Step> _paidSteps(AppLocalizations l, Tx t, PayState state, String name) {
     final delivered = state != PayState.notDelivered;
@@ -784,7 +785,7 @@ class _TimelineStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    // The phone tracker's stepper (UI-036): round nodes, a green check done, a blue ring now,
+    // The phone tracker's stepper: round nodes, a green check done, a blue ring now,
     // a grey ring to come.
     final mark = Container(
       width: 20.u,

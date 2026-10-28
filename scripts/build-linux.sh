@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Reproducible Linux release build: LEPIC release + `flutter build linux --release` + AppImage, all
 # inside an Ubuntu 22.04 container (scripts/linux/Dockerfile). Linux builds are never made on the
 # host: its newer glibc would stop the app starting on older distros.

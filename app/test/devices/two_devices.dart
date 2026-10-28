@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Two devices of one wallet over the fake pairing engine's shared private net, for the linked
 // devices tests.
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Send to a contact that has only a pairing, on the desktop (DESIGN 1.3): the picker lists it
 // with "Through Zoe's pairing", Send shows the pairing card and the mailbox readout, the review
 // names the contact through the pairing and no address, and the send goes through the mailbox.

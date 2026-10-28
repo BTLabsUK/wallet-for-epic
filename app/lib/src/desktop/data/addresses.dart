@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// One rule for Send, Contacts, the contact picker, contact import and the QR scan: what kind
 /// of address a typed or pasted text is, and its canonical form.
 library;

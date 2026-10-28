@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Screenshot tour entries of the linked devices (see app/shots.dart): Settings › Linked devices
 /// with no device, with a phone linked and one of its payments held, the link flow (code, paste,
 /// pictures, done, failed), the other device's payments in Activity, Outputs and Send, and the

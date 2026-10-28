@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A send that ends badly never leaves the review spinning, and never invites a second payment
 // while the first may be waiting.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

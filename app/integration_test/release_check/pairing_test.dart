@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, pairing (RFC 0002): the real desktop wallet answers an invite that a
 // second LEPIC wallet in this process makes on the default Epicbox relay, both see the same
 // four words, the user says they match, and both sides are verified. Then the other wallet

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// File operations on the built-in node's chain data folder: move it elsewhere, copy another
 /// node's chain data in, check a folder to run on in place, delete it. Starting and stopping the
 /// node is the caller's: every operation that changes files takes `nodeStopped` and refuses while

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
 import '../desk_l10n.dart';
@@ -219,7 +220,7 @@ class EGlyphTile extends StatelessWidget {
   /// An icon instead of the mark.
   final IconData? icon;
 
-  /// A failure: the icon in red on a neutral frame, no gold and no glow (UI-022).
+  /// A failure: the icon in red on a neutral frame, no gold and no glow.
   final bool risk;
 
   @override

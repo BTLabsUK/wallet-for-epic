@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's log file: one rotating file, `<application support>/logs/wfe.log`, fed by the
 /// calls in `log.dart` ([logInfo], [logWarn], [logError]) and by LEPIC's `LepicRuntime.logs()`
 /// stream (`logLepicEntry` in `lepic_wallet_service.dart`). Every line goes through [redact] at

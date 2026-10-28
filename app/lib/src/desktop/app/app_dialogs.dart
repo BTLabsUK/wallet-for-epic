@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// App-level dialogs the wallet raises by itself: the built-in node finished syncing, and the
 /// first scan of a new wallet with its output.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Payment history backup: the encrypted `.wfeh` export, the CSV export and the import.
 ///
 /// Files leave the app like transaction files do, through the shared helpers in

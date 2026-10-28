@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Whether a WebSocket server answers: the handshake to a URL, then the socket closes at once.
 /// Send uses it to check a recipient's relay that the status monitor does not list.
 ///

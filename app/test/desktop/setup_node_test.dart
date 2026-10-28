@@ -1,6 +1,7 @@
-// The first run's node step (spec §21, §22): the combo preselects the first healthy node in
+// SPDX-License-Identifier: Apache-2.0
+// The first run's node step: the combo preselects the first healthy node in
 // the neutral order (never a hard-coded host); Local goes to its own step; the existing node
-// needs a successful check; nothing starts the node before Save; Save sets the D-7 answer.
+// needs a successful check; nothing starts the node before Save; Save sets the fallback answer.
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/local_node_step.dart';
@@ -128,7 +129,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('the bundled node: Review names the type, the fallback and the folder; Save is the only start and answers D-7', (tester) async {
+  testWidgets('the bundled node: Review names the type, the fallback and the folder; Save is the only start and answers the fallback question', (tester) async {
     await show(tester, SetupStep.node);
     await tester.tap(find.text('Local node'));
     await tester.pumpAndSettle();
@@ -275,7 +276,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('the D-7 answer is stored only after the reuse question is answered', (tester) async {
+  testWidgets('the fallback answer is stored only after the reuse question is answered', (tester) async {
     await show(tester, SetupStep.node);
     await tester.tap(find.text('Local node'));
     await tester.pumpAndSettle();

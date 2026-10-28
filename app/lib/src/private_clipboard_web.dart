@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `private_clipboard_io.dart` on the web: nothing to do.
 library;
 

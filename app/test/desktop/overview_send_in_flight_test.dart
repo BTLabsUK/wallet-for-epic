@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 // A send in flight on Overview: 0.1 in one output, 0.01 sent with a 0.008 fee, not in a block
 // yet. The core locks the 0.1 and counts the 0.082 change as awaiting finalization, outside
 // Total: the change is the wallet's own, never money awaiting someone (tester, 26.10.17).
-// Send and Receive look alike (#14).
+// Send and Receive look alike.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';

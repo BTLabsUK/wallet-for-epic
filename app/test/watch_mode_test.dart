@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Watch mode (watch_mode.dart): which payments make the app ask the node for its tip every few
 // seconds, for how long, and how the asks back off while the node does not answer.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live check of the warning before the first import, on the real desktop wallet in a fresh
 // HOME: Welcome › Import wallets shows it; Cancel leaves no wallet and no flag; Continue needs
 // the acknowledgement, opens the wizard and saves the flag with the app's settings; a second

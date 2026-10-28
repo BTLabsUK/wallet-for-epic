@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The outputs list follows the open wallet: another wallet or a moved balance reads it again,
 // so SmartOutputs on Send never counts a list from before (review of fb/w5, item 3).
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

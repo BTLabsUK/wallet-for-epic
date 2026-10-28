@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// How paying by file works, told as a short looping animation in a bottom sheet: two people,
 /// "You" and "Friend", and a payment file that travels between them in four steps.
 ///

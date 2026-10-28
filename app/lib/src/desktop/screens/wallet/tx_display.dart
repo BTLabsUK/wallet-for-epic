@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -38,11 +39,11 @@ String whoOf(AppLocalizations l, Tx t) {
 
 /// Whether [t]'s details say that no address came with it: a payment with someone else that
 /// has no address (a QR code or file exchange); not a mining reward, a payment to itself, a
-/// scan find, a backup row or another device's or wallet's (bot #122).
+/// scan find, a backup row or another device's or wallet's.
 bool noAddressShown(Tx t) =>
     t.counterparty == null && !t.coinbase && !t.otherWallet && !t.toSelf && !t.foundByScan && !t.fromBackup && t.deviceName == null;
 
-/// The words for a payment a scan found with no record (F17), by which scan found it. An
+/// The words for a payment a scan found with no record, by which scan found it. An
 /// entry stored before the core recorded the scan makes no claim about it.
 typedef FoundTexts = ({String label, String line, String step, String note, String tip});
 
@@ -335,7 +336,7 @@ class TxAmount extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    // A request not paid yet is not money: neutral, no sign, "Requested" (flow.md §3.3).
+    // A request not paid yet is not money: neutral, no sign, "Requested".
     final asked = txAsked(tx);
     final color = off ? c.txCancelled : (asked ? c.text : (tx.incoming ? c.txReceived : c.txSent));
     final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? context.l10n.deskTxFee(formatEpicL(context.l10n, tx.fee)) : null);
@@ -549,7 +550,7 @@ class _TxRowState extends ConsumerState<TxRow> {
           SizedBox(width: Sp.x4),
           Expanded(
             flex: 10,
-            // The state, always; a file send's Finalize shows on hover or selection (UI-040),
+            // The state, always; a file send's Finalize shows on hover or selection,
             // and in the detail pane.
             child: ExcludeSemantics(
               child: Row(
@@ -607,7 +608,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       button: true,
       selected: widget.selected,
       onTap: widget.onTap,
-      // A request is never read out as money received (flow.md §5, fake invoice dressed as income);
+      // A request is never read out as money received;
       // it reads Unpaid only while it is, then its state word says what became of it. The pen
       // keeps its own node.
       label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpicL(l, t.amount)} EPIC', word),
@@ -622,7 +623,7 @@ class _TxRowState extends ConsumerState<TxRow> {
             constraints: BoxConstraints(minHeight: 60.u),
             padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
             // Never null: a Container adds its ColoredBox only for a colour, so a null here would
-            // rebuild the row's whole subtree on hover and drop a label being typed (#107).
+            // rebuild the row's whole subtree on hover and drop a label being typed.
             color: widget.selected ? c.s3 : (_hover ? c.hover : Colors.transparent),
             child: row,
           ),

@@ -1,4 +1,5 @@
-// W-06: the web demo's connection states in the UI: the warning while the socket is down,
+// SPDX-License-Identifier: Apache-2.0
+// The web demo's connection states in the UI: the warning while the socket is down,
 // the success notice once it is back, the unlock screen when the server dropped the open
 // wallet, and no retrying once the demo is over.
 

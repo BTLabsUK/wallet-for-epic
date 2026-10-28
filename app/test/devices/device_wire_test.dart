@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The linked devices' envelope: size before parsing, the envelope's fields, newer versions and
 // unknown types kept for their order, the body checks per type.
 import 'dart:convert';

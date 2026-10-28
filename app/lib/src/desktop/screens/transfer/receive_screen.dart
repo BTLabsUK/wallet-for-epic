@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ enum RxTor { off, on, connecting, failed }
 
 enum RxQr { none, epicbox, http }
 
-/// Argument of the Receive route, for the tour (spec 4.3): which method is on, starting or
+/// Argument of the Receive route, for the tour: which method is on, starting or
 /// failed, and which QR code is revealed. The page sets the methods on or off as asked and
 /// shows the starting and failed states over the real status.
 class ReceiveArgs {
@@ -359,7 +360,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // The word only while something receives; with every method off it would claim it (UI-057).
+          // The word only while something receives; with every method off it would claim it.
           if (lines.values.any((m) => m != null && m.state != EState.off)) ExcludeSemantics(child: Text(l.deskRecvReceiving, style: ts.small.copyWith(color: c.dim))),
           for (final m in methods) ...[
             SizedBox(width: Sp.x2),
@@ -439,7 +440,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         SizedBox(height: Sp.x4),
         if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
         if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
-        // Invoices (docs/invoices/flow.md §1): ask someone to pay; the invoice address never shows here.
+        // Invoices: ask someone to pay; the invoice address never shows here.
         if (ref.watch(deskInvoicesShownProvider) && ref.watch(deskPairsProvider)) ...[
           SizedBox(height: Sp.x5),
           Wrap(
@@ -647,7 +648,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   }
 }
 
-/// One receiving method (spec 4.2): the title row with its switch, then the state line alone
+/// One receiving method: the title row with its switch, then the state line alone
 /// ([small]) or the whole [body] when [grown]; the change runs through [ExpandFade].
 class _MethodPanel extends StatelessWidget {
   const _MethodPanel({

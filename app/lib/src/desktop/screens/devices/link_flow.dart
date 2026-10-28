@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Link a device (desktop): this computer shows a code the other device scans (the phone) or
 /// pastes (another computer, which has no camera), or pastes a code from the other device. Both
 /// devices then show the same four pictures and each user confirms; the link is made only after

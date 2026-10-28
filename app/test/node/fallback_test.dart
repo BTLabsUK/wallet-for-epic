@@ -1,4 +1,5 @@
-// D-7: the one confirmed public node while the local node syncs; never a rotation.
+// SPDX-License-Identifier: Apache-2.0
+// The one confirmed public node while the local node syncs; never a rotation.
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/node/fallback.dart';
 import 'package:epic_wallet/src/node/local_node_state.dart';
@@ -42,7 +43,7 @@ void main() {
       expect(d.active, isTrue);
       expect(d.nodeUrl, defaultFallbackNodeUrl);
     }
-    // "running" at height 0 is still syncing (O2): the fallback stays.
+    // "running" at height 0 is still syncing: the fallback stays.
     expect(decideFallback(_local(NodeStatusKind.running, ready: false, height: 0), yes).active, isTrue);
   });
 

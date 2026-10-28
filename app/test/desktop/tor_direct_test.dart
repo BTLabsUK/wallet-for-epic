@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Tor on the desktop: LepicDeskWallet over FakeWalletSession, which records each startTor,
 // stopTor and sendTor call (one session for every open, so the counts run on). The password is a throwaway test value; no tor runs.
 import 'dart:async';

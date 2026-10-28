@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Issuer actions other screens call (Requests › Sent, Activity's Invoice block): withdraw a
 /// waiting request, repost a finalized one, cancel one that was never posted.
 library;
@@ -33,7 +34,7 @@ Future<bool> _ask(BuildContext context, {required String title, required String 
   return ok ?? false;
 }
 
-/// Asks, then withdraws a waiting request (flow.md §3.4).
+/// Asks, then withdraws a waiting request.
 Future<void> showWithdrawRequest(BuildContext context, WidgetRef ref, IssuedRequest request) async {
   final l = context.l10n;
   final yes = await _ask(
@@ -66,7 +67,7 @@ Future<void> repostRequestPayment(BuildContext context, WidgetRef ref, IssuedReq
   }
 }
 
-/// Asks, then cancels a paid request that was never posted (flow.md draft 2 §3.3, Advanced):
+/// Asks, then cancels a paid request that was never posted:
 /// the payment will not arrive.
 Future<void> showCancelRequestPayment(BuildContext context, WidgetRef ref, IssuedRequest request) async {
   final l = context.l10n;

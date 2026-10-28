@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Verifier and parser for the BT Labs signed public file (`btlabs.json`).
 ///
 /// Implements FORMAT.md v1: a DSSE envelope, Ed25519 over the DSSE

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The parsers of a node's replies, with the captured fixtures and hand-made variants.
 import 'dart:convert';
 import 'dart:io';

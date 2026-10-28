@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:convert';
 import 'dart:io';
 
@@ -61,7 +62,7 @@ void main() {
     expect(c.label, 'Wallet 1', reason: 'the lowest free number');
   });
 
-  test('the phrase fingerprint is kept, found and survives a reload; a malformed one is ignored (O1)', () async {
+  test('the phrase fingerprint is kept, found and survives a reload; a malformed one is ignored', () async {
     final fp = 'ab' * 32;
     final a = await registry.add(chain: Chain.mainnet);
     final b = await registry.add(chain: Chain.mainnet);

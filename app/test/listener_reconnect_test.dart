@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A listener that dropped is restarted at once when the app comes back to the foreground or
 // the network returns, instead of waiting out LEPIC's reconnect backoff (up to 60 s, on a
 // clock that stops while the phone sleeps). The listener's own state stays raw: a drop is

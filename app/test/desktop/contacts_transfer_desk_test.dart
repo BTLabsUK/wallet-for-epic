@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop Contacts header: More › Export contacts saves the book and toasts the count; Import
 // contacts shows what it does, then adds and merges without touching what is saved (the star
 // stays).

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Shows a payment file, or the reply to one, as an animated QR code for a phone next to this
 /// one. The code stays hidden until the user shows it, then counts 3, 2, 1, shows for
 /// [qrShowSeconds] with a time line, and hides again; it also hides the moment the app leaves

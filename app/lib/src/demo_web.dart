@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's [DemoApi] against the demo server (`app/README.md` "Web demo"): the visitor's
 /// demo over same-origin `/api/demo` with its cookie, test coins straight from the floonet
 /// faucet, and the end the server pushes over the wallet socket.

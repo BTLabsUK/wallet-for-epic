@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds the split-per-ABI release APKs and writes the signed update.json, the manifest the
 # in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). The APKs go
 # to the GitHub release; update.json goes to BT Labs' Pages repo, BTLabs-EPIC/btlabs-epic.github.io,
@@ -150,6 +151,6 @@ esac
 python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
 echo "1. Publish app-arm64-v8a-release.apk at $base_url (the GitHub release)."
 echo "2. Then publish $manifest as update.json in BTLabs-EPIC/btlabs-epic.github.io"
-echo "   (btlabs-public docs/hosting.md, \"Publishing a release manifest\")."
+echo "   (the hosting notes, \"Publishing a release manifest\")."
 echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
 echo "   blacktyger/wallet-for-epic (https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json)."

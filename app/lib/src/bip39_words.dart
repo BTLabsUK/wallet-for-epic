@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The BIP-39 English wordlist, 2048 words, copied from epic's keychain
 // (`keychain/src/wordlists/en.txt`), which is the list recovery phrases use. `redact.dart` uses
 // it to spot a phrase in text; the Rust side reads the same list from epic_keychain.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Settings › Transactions: which payment methods Send and Receive offer, and the one Send
 /// starts on. One model for the phone (`AppSettings.payments`) and the desktop
 /// (`DeskSettings.payments`), so the page reads the same on both.
@@ -123,7 +124,7 @@ class PaymentPrefs {
   /// Link on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
   /// 26.10.13 held it). A value from the one Link switch (`direct`, before 26.10.16) turns on
   /// both Link methods: that switch sent to web and onion addresses alike (HTTP sending stays,
-  /// as the owner asked), and showed the HTTP card and the Tor address.
+  /// as asked), and showed the HTTP card and the Tor address.
   static PaymentPrefs decode(String? raw, {bool legacyDirect = false, bool phone = false}) {
     if (raw == null || raw.isEmpty) {
       return _legacyLink(phone ? phoneDefaults : defaults, legacyDirect, phone: phone);

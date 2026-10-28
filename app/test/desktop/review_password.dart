@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Review › Send asks the wallet's password on every send; the send tests fill it in.
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Settings › Advanced › Experimental: Pairing and Invoices, off by default, and the rule
 // between them; stored with the other Advanced features.
 import 'package:epic_wallet/src/advanced.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's "restore not finished" state (restore_scan.dart): the core's flag read on every
 // unlock and after every scan; while it is set and the network allows, the scan with no start
 // height (= from block 0) starts by itself, one at a time, and a failure waits instead of

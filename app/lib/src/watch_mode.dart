@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Watch mode: while a payment of the open wallet is in a state a block can move, the app asks
 /// the node for its tip more often than its normal pace, and refreshes as soon as a new block
 /// is in. The sender and the receiver then both see a payment move within moments of the same

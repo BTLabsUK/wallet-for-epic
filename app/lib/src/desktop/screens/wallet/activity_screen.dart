@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -162,7 +163,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
 
-    // The list and the detail are one unit (docs/plans/w7-layout.md R1, R2): same top, same
+    // The list and the detail are one unit: same top, same
     // bottom, header bands of one height; each scrolls inside itself when the window is short.
     final list = TourTarget(id: 'activity-list', child: _txList(all));
     return EPage(

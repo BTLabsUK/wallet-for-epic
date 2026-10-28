@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Pairing (LEPIC RFC 0002, sections 7 to 11): the calls the screens make, on the open
 /// wallet's [WalletSession.pairing]. The types are the app's own, in `models.dart`; LEPIC's
 /// adapter maps its binding onto them (U-24), the fakes play both sides for tests, the
@@ -458,7 +459,7 @@ String? pairingLinkIn(String text) {
 
 /// After an in-person pairing [fresh]: removes the older in-person pairings with the same
 /// name that were never checked and sit in no contact, the leftovers of an abandoned scan or
-/// a card shown again, so Pending invites lists one row per person (PAIR-AND-7). A verified
+/// a card shown again, so Pending invites lists one row per person. A verified
 /// or saved pairing is never touched. Best effort: a failure leaves the old row.
 Future<void> dropOlderInPersonPairings(PairingApi api, PairingRecord fresh) async {
   final name = (fresh.name ?? '').trim();

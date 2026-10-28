@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds Epic Cash Desktop for macOS and Epic Cash Mobile for the iOS Simulator on a Mac, from a
 # clean checkout of this repository: LEPIC for the four Apple targets, an ad-hoc-signed .app and
 # .dmg, a Simulator .app, and the smoke run. No Apple account is needed for any of it. Prototype
-# (branch proto/apple); notes and what is still open in docs/apple-port-notes.md.
+# (branch proto/apple).
 #
 # Usage: tools/build-apple.sh [step...]          default: doctor sources lepic macos dmg ios-sim
 #   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)

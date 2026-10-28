@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone seeds the BT Labs contact once per wallet into the shared address book.
 import 'dart:io';
 

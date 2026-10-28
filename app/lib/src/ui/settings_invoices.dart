@@ -1,4 +1,5 @@
-/// Settings › Wallet › Invoices (SPEC 2.7): who may ask this wallet to pay. Since RFC 0002
+// SPDX-License-Identifier: Apache-2.0
+/// Settings › Wallet › Invoices: who may ask this wallet to pay. Since RFC 0002
 /// that is a paired, verified contact with Allow invoices on; the screen lists the paired
 /// contacts with their switch and offers Pair with a shop or exchange. Time to pay stays a
 /// readout under Advanced. Nothing here pays: each request waits on the Invoices screen.
@@ -165,7 +166,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     final name = contact?.name ?? r.shownName;
     final verified = r.state == PairingState.verified;
     final orphan = contact == null;
-    // A contact of the name it chose comes first: a re-pair's key check starts there (PAIR-LNX-7).
+    // A contact of the name it chose comes first: a re-pair's key check starts there.
     final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final suggested = orphan
         ? sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired))

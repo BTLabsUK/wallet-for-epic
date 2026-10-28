@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Pins and builds LEPIC for the app. The app depends on package:lepic, the Flutter binding, which
 # lives in its own repository and pins its LEPIC commit. This script clones lepic-flutter
 # into the git-ignored app/third_party/lepic-flutter at the commit in tools/lepic-flutter.rev,

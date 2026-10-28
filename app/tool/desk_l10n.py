@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Merges the desktop strings into the app's ARB files, then runs gen-l10n.
 
 The desktop's strings live in fragments, one per part of the UI, so several people can add

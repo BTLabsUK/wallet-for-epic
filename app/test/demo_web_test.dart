@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The web DemoApi against a fake HTTP side: the demo server's answers, the faucet's, and the
 // end pushed over the wallet socket.
 

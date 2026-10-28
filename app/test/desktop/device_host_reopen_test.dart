@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The desktop's host for linked devices through a reopen of the wallet (a node change, node
 // failover): while the new session opens it never hands the devices an engine that answers
 // "no pairings", which ended a link under way and forgot every linked device as removed

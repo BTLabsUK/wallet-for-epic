@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // NodeApiClient over a fake transport: auth, error mapping, failovers, validation, body cap.
 import 'dart:async';
 import 'dart:convert';
@@ -221,7 +222,7 @@ void main() {
       expect(f.calls, isEmpty);
     });
 
-    test('plain http only to this computer, the home network or a VPN, through the relay (#113)', () async {
+    test('plain http only to this computer, the home network or a VPN, through the relay', () async {
       final f = _Fake((_) => _r(_fix('get_tip')));
       final relayed = <String>[];
       final before = relayUrl;

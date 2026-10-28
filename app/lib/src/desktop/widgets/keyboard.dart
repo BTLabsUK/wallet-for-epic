@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The keyboard rules of the desktop app, one set for every screen.
 ///
 /// **Tab** visits a form's fields in visual order (text fields, selects, switches, checkboxes,

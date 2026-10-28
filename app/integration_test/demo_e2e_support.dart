@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // What integration_test/demo_e2e_test.dart needs to stand in for a browser: an HTTP side for
 // ServerDemoApi that keeps the demo cookie, and the wallet socket with that cookie.
 

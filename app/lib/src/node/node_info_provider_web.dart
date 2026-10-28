@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web build's node info: it has no node clients, so an own node reads as not known.
 library;
 

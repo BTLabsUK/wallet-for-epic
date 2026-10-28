@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # The app's version (https://docs.btlabs.uk/developers/releases/). pubspec.yaml's `version:` is the one source of truth:
 # calendar versioning YY.MM.patch (a test build adds -rcN), and a build number derived from it,
 #   YY*1000000 + MM*10000 + patch*100 + rebuild   (26.10.0 -> 26100000, 26.10.1 -> 26100100),

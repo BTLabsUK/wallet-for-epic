@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's own data folder, settled before anything asks for it. Off the web,
 /// `data_folder_io.dart`; in the browser there is no folder and nothing to do.
 library;

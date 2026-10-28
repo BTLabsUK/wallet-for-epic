@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's checklist on the Wallet tab (design review F-03, mockup C): get test coins,
 /// then send some to someone. The steps tick from the wallet's own history, so a reload, or a
 /// visitor coming back to a demo that already paid, finds them ticked. Nothing here shows

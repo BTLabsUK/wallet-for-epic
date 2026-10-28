@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The local node as one object for the app: start, stop, restart and settings of the built-in
 /// node, with its state derived for display ([LocalNodeState]): sync progress and ETA, the
 /// network height, uptime, chain data size and free disk, and the node's log.

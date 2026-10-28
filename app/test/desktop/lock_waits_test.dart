@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Locking never ends a payment mid-way: the lock waits for a send or split under way (LEPIC
 // 5eb9c6e ends running calls at lock, maybe after storing their effect).
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

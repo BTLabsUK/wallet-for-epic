@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Riverpod state for the desktop UI: the API seam and one snapshot of the open wallet.
 library;
 
@@ -190,7 +191,7 @@ class DeskController extends Notifier<DeskState> {
   /// Unlock or Welcome after.
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
     final open = state.account != null && state.account?.id == id;
-    // The password is checked before anything locks: a typo stays in the Delete dialog (R5).
+    // The password is checked before anything locks: a typo stays in the Delete dialog.
     if (open && mode == WalletRemoval.delete) {
       if (password == null || password.isEmpty) throw DeskError.l10n((l) => l.deskErrEnterPassword);
       if (!await api.checkPassword(password)) throw DeskError.l10n((l) => l.deskErrWrongPassword, wrongPassword: true);

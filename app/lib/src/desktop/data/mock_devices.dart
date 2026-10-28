@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The other device of the prototype's linked devices: a phone that holds the mock wallet,
 /// played over the fake pairing engine the mock wallet and the phone share. The screenshot tour
 /// and the desktop tests link it to the computer, make it pay, and read the computer's side.

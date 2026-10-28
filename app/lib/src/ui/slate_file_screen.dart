@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'dart:convert';
@@ -293,7 +294,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
   }
 
-  /// "This arrived unsealed": a plain file from a paired contact that seals (SPEC 2.9).
+  /// "This arrived unsealed": a plain file from a paired contact that seals.
   void _tellUnsealed(PairingRecord from) {
     if (_toldUnsealed || !mounted) return;
     _toldUnsealed = true;
@@ -495,7 +496,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         ),
       ];
     } else if (_sealFailure case final failure?) {
-      // A sealed file that did not open here (RFC 3.4, SPEC 2.9).
+      // A sealed file that did not open here.
       body = [
         PairEdgeNotice(
           tone: failure == PairingFailure.newerVersion ? BadgeTone.info : BadgeTone.risk,

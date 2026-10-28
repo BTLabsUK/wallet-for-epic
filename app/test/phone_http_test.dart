@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Link · HTTP receiving on the phone: the listener runs while a wallet is open and its switch
 // is on, on every interface at port 3415, and never while Tor is on; it stops when the switch
 // goes off and on lock. The card on Receive › Link shows the LAN address with Copy and a QR

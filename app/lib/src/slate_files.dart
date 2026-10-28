@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Transaction files, the way epic-wallet's CLI exchanges them: the sender writes a slate file
 /// (`send -m file`), the recipient answers with `<same name>.response` (`receive -i`), and the
 /// sender finalizes that (`finalize -i`). The contents are slate JSON.
@@ -54,7 +55,7 @@ String responseFileName(String slateId) =>
 
 /// The answer to a payment read from the file [loaded] (its name, without folders):
 /// `<loaded>.response`, so the sender sees at once which answer is for which file (a pool's
-/// `Abc-123.tx` gets `Abc-123.tx.response`, #108). A file with this app's own name for the
+/// `Abc-123.tx` gets `Abc-123.tx.response`). A file with this app's own name for the
 /// slate (`ab12cd34.tx`, also `ab12cd34-2.tx`), pasted text and a scan keep
 /// [responseFileName].
 String replyFileName(String slateId, {String? loaded}) {

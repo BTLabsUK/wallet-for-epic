@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Full stack on a device against the local usernet: the real UI, the real core, the local epicbox
 // relay and a stock epic-wallet CLI on the other side. Run it with
 // `integration_test/usernet_e2e.sh`, which prepares the host side and passes

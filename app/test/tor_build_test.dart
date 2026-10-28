@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The build-time Tor switch (lib/src/tor_build.dart): what a stored Tor choice reads as, with
 // Tor in (the default) and in the build without Tor. Run both ways:
 //   flutter test test/tor_build_test.dart

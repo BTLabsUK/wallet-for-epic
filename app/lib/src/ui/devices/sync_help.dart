@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Help › How linked devices work: the picture of one sync as a short looping animation (this
 /// device starts a payment, an encrypted notice goes over the server or servers, the other
 /// device holds those coins, the blockchain confirms) and the live status panel under the

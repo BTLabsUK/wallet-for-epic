@@ -1,4 +1,5 @@
-// A contact's Pairing block on the desktop (SPEC 2.4): Verified with its switches, Allow
+// SPDX-License-Identifier: Apache-2.0
+// A contact's Pairing block on the desktop: Verified with its switches, Allow
 // invoices off for a contact not verified, keys changed, Not paired with Pair, and deleting a
 // paired contact removes this wallet's pairing too.
 import 'package:flutter/material.dart';
@@ -170,7 +171,7 @@ void main() {
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c6'), isFalse);
   });
 
-  testWidgets('keys back: the contact page docks the notice until OK (PAIR-LNX-15)', (tester) async {
+  testWidgets('keys back: the contact page docks the notice until OK', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c1'));
     expect(find.text(_l.contactKeysBack('Anna Kowalska')), findsNothing);
     (_pairing as FakePairing).restoreKeys(mockAnnaPairing);

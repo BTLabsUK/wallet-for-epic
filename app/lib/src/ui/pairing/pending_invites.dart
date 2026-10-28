@@ -1,4 +1,5 @@
-/// Contacts › Pending invites (SPEC 2.6): every pairing in flight. Invites this wallet made and
+// SPDX-License-Identifier: Apache-2.0
+/// Contacts › Pending invites: every pairing in flight. Invites this wallet made and
 /// nobody answered (how and until when; expired ones with Invite again), answers waiting for
 /// their confirm, pairings whose words are still to be checked, and second answers to a used
 /// invite, which are not stored and can be removed.
@@ -153,7 +154,7 @@ class _PendingRow extends ConsumerWidget {
     final r = record;
     final now = ref.watch(pairingClockProvider)();
     final String name = r.label ?? (r.state == PairingState.pendingInvite ? l.pairUnnamedInvite : ref.watch(pairingNameProvider(r.id)));
-    // An invite nobody named yet shows how it went out, not a bare mark (PAIR-LNX-8).
+    // An invite nobody named yet shows how it went out, not a bare mark.
     final unnamed = r.label == null && (r.name ?? '').trim().isEmpty;
     final Widget avatar = unnamed
         ? GlyphTile(size: 48, child: Icon(r.way == PairingWay.words ? Icons.abc : Icons.link, color: t.accentText))
@@ -225,7 +226,7 @@ class _PendingRow extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // An answer the relay did not take, while this run still has its link (PAIR-AND-11).
+              // An answer the relay did not take, while this run still has its link.
               if (r.relayDown)
                 IconButton(
                   key: pendingByHandKey,
@@ -256,7 +257,7 @@ class _PendingRow extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))),
                 child: Text(l.contactCheckAgain),
               ),
-              // An abandoned scan need not be checked to go (PAIR-AND-7).
+              // An abandoned scan need not be checked to go.
               PopupMenuButton<String>(
                 key: pendingRowMenuKey(r.id),
                 tooltip: l.contactMore,
@@ -268,7 +269,7 @@ class _PendingRow extends ConsumerWidget {
                   }
                 },
                 itemBuilder: (context) => [
-                  // The inviter's confirm, again, while the other side waits for it (PAIR-AND-10).
+                  // The inviter's confirm, again, while the other side waits for it.
                   if (r.inviter) PopupMenuItem(value: 'byhand', child: Text(l.pairSendByHand)),
                   PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
                 ],

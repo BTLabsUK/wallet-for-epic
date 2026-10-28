@@ -1,4 +1,5 @@
-// The labelled network settings button on first run and unlock (D-08).
+// SPDX-License-Identifier: Apache-2.0
+// The labelled network settings button on first run and unlock.
 //
 // The owner, 2026-10-05: the icon alone was impossible to spot, and on first run it hid behind
 // Advanced options, so a new install could not reach floonet. The label gives way to the

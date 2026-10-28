@@ -1,4 +1,5 @@
-/// Owner access to the user's own node (own-node spec §3–§4): the node's `.api_secret`, kept per
+// SPDX-License-Identifier: Apache-2.0
+/// Owner access to the user's own node: the node's `.api_secret`, kept per
 /// node URL in the app's secret store (the keyring), unlocks its owner API: the sync stage,
 /// the connected peers and Ban / Unban. Nothing else of the owner API is offered.
 ///

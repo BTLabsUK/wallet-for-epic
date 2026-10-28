@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A [WalletService] whose PIN and password calls wait for a [WorkGate] slot.
 ///
 /// LEPIC runs Argon2id at 64 MiB for each of them, so the server caps how many run at once

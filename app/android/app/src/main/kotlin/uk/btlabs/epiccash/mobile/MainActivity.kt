@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package uk.btlabs.epiccash.mobile
 
 import android.app.NotificationManager

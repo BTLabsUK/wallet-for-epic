@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // An update in the sidebar's slot (app/now_slot.dart) and in Settings › About › Updates
 // (app/update_notice.dart): nothing without an update; Update available is a line by itself →
 // Downloading 42 % → "Epic Cash … is ready" (Restart now / Later) → … is ready · Restart now; a failed

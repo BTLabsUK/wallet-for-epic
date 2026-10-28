@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The relay the phone offers instead of one this network blocks ([ListenerState.blocked]),
 /// and the one-tap switch to it (Receive, the Epicbox server list).
 library;

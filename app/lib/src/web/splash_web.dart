@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// `splash.dart` in the browser, with `dart:js_interop` only.
 library;
 

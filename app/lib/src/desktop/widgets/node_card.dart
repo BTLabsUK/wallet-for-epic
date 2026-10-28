@@ -1,4 +1,5 @@
-/// The node card of Settings › Node (spec §17): the remote node's word and host, its facts
+// SPDX-License-Identifier: Apache-2.0
+/// The node card of Settings › Node: the remote node's word and host, its facts
 /// (height, version, latency, uptime, peers, operator; four facts and a "Limited info" tag
 /// when only the node itself answered), the down notice with a Switch action, then the
 /// network and source lines. No spinner: a value still being fetched prints "–", and every

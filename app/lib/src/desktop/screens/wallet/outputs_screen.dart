@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,7 +72,7 @@ OutputCounts outputCounts(List<Output> all) {
   return (spendable: s, confirming: c, immature: i, locked: l, total: t);
 }
 
-/// Outputs (F13): the balance by part, every output with its status and transaction, then
+/// Outputs: the balance by part, every output with its status and transaction, then
 /// Advanced: what outputs are, Split and Consolidate, and a line to the defaults Send uses
 /// (Settings › Transactions). Tiles, table, management, as on the phone.
 class OutputsScreen extends ConsumerStatefulWidget {
@@ -559,7 +560,7 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-/// Where the defaults for sends went (D-5): Settings › Transactions holds the strategy and
+/// Where the defaults for sends went: Settings › Transactions holds the strategy and
 /// Split change. One line, shown while Advanced › Send options is on, so nothing is kept twice.
 class _DefaultsMoved extends ConsumerWidget {
   const _DefaultsMoved();

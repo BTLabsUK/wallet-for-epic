@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The wallet protocol's members and its own errors. `app/README.md` ("Web demo", the
 /// protocol) describes the frames.
 library;

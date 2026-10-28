@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Checks every translation against the English template, so a missing key, a dropped
 // placeholder or a plural without the forms its language needs fails here rather than on a
 // phone. gen-l10n itself only reports missing keys, and only as a warning.

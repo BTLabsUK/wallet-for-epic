@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Invoices from paired contacts the user allows (I-03, RFC 0002 11): home's entry with its badge, the list, and the
 /// notices for what the drains find. Paying is the review screen's, behind the PIN gate;
 /// nothing here pays. The list also holds the requests this wallet sent (I-06), and home's
@@ -150,7 +151,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     final invoice = ref.read(pendingInvoicesProvider).value?.where((i) => i.slateId == event.slateId).firstOrNull;
     switch (event.kind) {
       // An open Invoices or Review screen shows it at once, not on its next visit: a new one
-      // listed, an ended one gone and its Approve off (PAIR-AND-3, PAIR-AND-13).
+      // listed, an ended one gone and its Approve off.
       case InvoiceEventKind.received || InvoiceEventKind.withdrawn || InvoiceEventKind.expired || InvoiceEventKind.declined:
         ref.read(pendingInvoicesProvider.notifier).reload().ignore();
       default:
@@ -172,7 +173,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
             : await session.paidInvoice(slateId: event.slateId);
         if (!mounted) return;
         if (paid == null) {
-          // The sender by name, a person as much as a service (PAIR-AND-13).
+          // The sender by name, a person as much as a service.
           view(
             invoice == null
                 ? l.invoiceNoticeWithdrawn
@@ -336,7 +337,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
             anchor: HelpAnchor.requests,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
-          // One destructive look (UI-015), as on the payment's details.
+          // One destructive look, as on the payment's details.
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context, false),

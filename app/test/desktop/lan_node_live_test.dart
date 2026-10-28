@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Live: a node on the local network (a 192.168.x address, plain http as the app writes it)
 // checked through the real LEPIC core, as Settings › Node does (it goes through the loopback
 // relay, lan_node_relay.dart). Needs a node answering on

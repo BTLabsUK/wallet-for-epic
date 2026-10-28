@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
@@ -197,7 +198,7 @@ class _EButtonState extends State<EButton> {
   }
 }
 
-/// The trailing control of a Settings row (rule R4): [Ctl.rowW] wide, or [Ctl.rowWide] with
+/// The trailing control of a Settings row: [Ctl.rowW] wide, or [Ctl.rowWide] with
 /// [wide] (segmented choices, server pickers), so every row control of a card has one of two
 /// widths and the same right edge. The child fills it: an [EButton] of [EBtnSize.sm] (its icon
 /// and label centred in the width), an [ESelect] or [EInput] with `size: EBtnSize.sm`, an

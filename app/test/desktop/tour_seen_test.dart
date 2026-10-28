@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Build 6: the tour opens by itself once, not on every start (its seen flag is saved with the
 // app's settings), and the compact rail shows the version with the build.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';

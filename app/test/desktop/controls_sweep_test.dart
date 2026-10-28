@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every control of every desktop screen in the shots catalogue (screens/*/shots.dart) does
 // something real: each enabled button, icon button, link, switch, checkbox, segment, select,
 // nav item, choice card and row is pressed on a fresh app over the mock wallet, and the press
@@ -34,7 +35,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// (scope: the route's name, `shell`, or the shot id for a dialog shot), each with its reason.
 final Map<RegExp, String> _allowed = {
   RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Transactions|settingsPrivacy\|Privacy|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Recheck balance|settingsAdvanced\|Advanced|settingsAbout\|About|settingsHelp\|Help)$'):
-      'The place already shown: going there again adds nothing to the history (F16).',
+      'The place already shown: going there again adds nothing to the history.',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
   RegExp(r'^settingsAbout\|Check now$'): 'Asks the update server again; in tests it answers as before, so the line stays.',

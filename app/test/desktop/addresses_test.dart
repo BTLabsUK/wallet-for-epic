@@ -1,4 +1,5 @@
-// parseAddress (spec 7, F9): every input row of the review's table behaves as LEPIC does.
+// SPDX-License-Identifier: Apache-2.0
+// parseAddress: every input row of the review's table behaves as LEPIC does.
 
 import 'package:epic_wallet/src/desktop/data/addresses.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';

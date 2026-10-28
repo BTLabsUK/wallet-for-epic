@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/screens/settings/report_problem.dart';

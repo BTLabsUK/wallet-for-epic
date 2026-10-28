@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Canned answers for the desktop design run: a funded mainnet wallet with a varied history,
 /// contacts, nodes and relays. Delays are short but real, so busy states show. The password
 /// is anything but "wrong"; "wrong" fails the unlock.
@@ -42,7 +43,7 @@ const String mockEpicboxKey = _epicboxKey;
 
 const _epicboxKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
 
-/// The prototype's pairings, by id: who is paired and how (SPEC 2.4's states).
+/// The prototype's pairings, by id: who is paired and how (the states of a pairing).
 const mockAnnaPairing = 'p-anna';
 const mockNorthwindPairing = 'p-northwind';
 const mockCoffeePairing = 'p-coffee';
@@ -107,7 +108,7 @@ class MockDeskWallet implements DeskWalletApi {
     Contact(id: 'c7', name: 'Ola Wiśniewska', note: 'Stock wallet', address: _olaAddr),
     Contact(id: 'c8', name: 'Northwind Exchange', address: _northwindAddr),
     Contact(id: 'c9', name: 'Marta W.', address: 'esQka2Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com'),
-    // Seeded into every new wallet (spec 9).
+    // Seeded into every new wallet.
     Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
   ];
 
@@ -1277,7 +1278,7 @@ class MockDeskWallet implements DeskWalletApi {
   static const senderPostedDemoId = 140;
 
   /// For the tour: Anna's Epicbox payment, answered here, whose sender reports it posted
-  /// (LEPIC W-31). Only its own shots add it, so the other shots keep their rows.
+  ///. Only its own shots add it, so the other shots keep their rows.
   void addSenderPostedDemo() {
     if (_txs.any((t) => t.id == senderPostedDemoId)) return;
     _txs.insert(

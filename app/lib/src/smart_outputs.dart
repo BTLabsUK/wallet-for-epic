@@ -1,4 +1,5 @@
-/// SmartOutputs (F12): when a send would leave the wallet with too few spendable outputs, its
+// SPDX-License-Identifier: Apache-2.0
+/// SmartOutputs: when a send would leave the wallet with too few spendable outputs, its
 /// change comes back in several outputs, so the next send need not wait for this one to
 /// confirm. Pure: the rule, and the plan that asks for the estimate with the split.
 library;
@@ -36,7 +37,7 @@ class SmartOutputsRule {
   /// many (the outputs the send leaves plus the change outputs).
   final int targetOutputs;
 
-  /// Never an output below this (0.5 EPIC, the design spec §3.1).
+  /// Never an output below this (0.5 EPIC).
   final int minPerOutput;
 
   static const SmartOutputsRule standard = SmartOutputsRule();
@@ -113,7 +114,7 @@ SmartOutputsDecision smartOutputs({
   return SmartOutputsDecision(n, SmartOutputsReason.split, outputsLeft: outputsLeft);
 }
 
-/// [smartOutputs]' count alone, in the design spec's terms (§3.1): [spendableOutputsLeft]
+/// [smartOutputs]' count alone, in the Outputs terms: [spendableOutputsLeft]
 /// spendable outputs the send does not spend, [changeNano] its change with one change output.
 int smartChangeOutputs({
   required int spendableOutputsLeft,
@@ -207,7 +208,7 @@ Future<SmartSendPlan> planSend({
   return unsplit();
 }
 
-/// The word an output shows under (Outputs page, design spec §2.2): one place for the desktop's
+/// The word an output shows under (Outputs page): one place for the desktop's
 /// and the phone's rows.
 enum OutputLabel {
   spendable,

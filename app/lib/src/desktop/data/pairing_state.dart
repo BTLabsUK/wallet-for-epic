@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's pairing state (RFC 0002): the open wallet's [PairingApi] through
 /// [DeskWalletApi.pairing], its records, its events, and the name others see. The types are
 /// the core's, shared with the phone.
@@ -120,7 +121,7 @@ final deskPairedProvider = Provider<List<PairingRecord>>((ref) => [
 ]);
 
 /// Pairings in no contact (never saved, or deleted from the shared book): Contacts lists them
-/// by the name they chose (PAIR-AND-8).
+/// by the name they chose.
 final deskOrphanPairingsProvider = Provider<List<PairingRecord>>((ref) {
   final ids = {for (final c in ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]) c.id};
   return [
@@ -138,7 +139,7 @@ final deskPendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [
 final deskPairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(deskPairingApiProvider).events());
 
 /// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
-/// docks "keys are back" until it is closed (SPEC 2.4). The shell keeps it listening.
+/// docks "keys are back" until it is closed. The shell keeps it listening.
 final deskKeysBackProvider = NotifierProvider<DeskKeysBack, Set<String>>(DeskKeysBack.new);
 
 class DeskKeysBack extends Notifier<Set<String>> {

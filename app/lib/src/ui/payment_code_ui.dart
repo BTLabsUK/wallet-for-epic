@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// What Send shows for a payment code (an `epic:` QR, link or paste): the request banner, the
 /// payee's unverified name and note, and the origin pill on the review. The name and note are
 /// the payee's claims: plain text in a quoted block, never a contact's or a title's style.

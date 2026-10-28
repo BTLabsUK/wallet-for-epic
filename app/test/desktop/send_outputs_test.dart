@@ -1,4 +1,5 @@
-// Send with the outputs lines wired in (design spec §4.7): the summary rows, Advanced's
+// SPDX-License-Identifier: Apache-2.0
+// Send with the outputs lines wired in: the summary rows, Advanced's
 // strategy re-estimating with the new options, Send all turning the radios off, and the
 // review dialog's Locks line.
 import 'dart:async';

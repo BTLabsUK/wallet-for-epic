@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Report gwuouzfy (26.10.16 r2): a network whose DNS filter sends epicbox.epiccash.com to a
 // proxy that refuses every TLS handshake ("received fatal alert: CloseNotify"). The status
 // flipped between Connecting and Not connected for ever, as LEPIC's retries and the self-heal

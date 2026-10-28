@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Help on linked devices, for the phone and the desktop, in the app's six languages: how linked
 /// devices work (with the sync picture and the live status panel, `HelpTopic.devices`), a lost
 /// device, coins held by another device. Each language's topic list

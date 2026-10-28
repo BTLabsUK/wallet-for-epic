@@ -1,4 +1,5 @@
-/// An invite from someone else (SPEC 2.2): "Pair with Anna?", the answer and the wait for the
+// SPDX-License-Identifier: Apache-2.0
+/// An invite from someone else: "Pair with Anna?", the answer and the wait for the
 /// inviter's confirm, the answer by hand when no relay answers, and one outcome screen per
 /// case of the cases file. [openPairingLink] is the entry for any pairing link: a scan, a
 /// paste, a tapped `epiccash://pair/…`.
@@ -58,7 +59,7 @@ Future<void> openPairingLink(
 }) async {
   final kind = pairingLinkKind(pasted);
   if (kind == null) return;
-  // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
+  // A shared message holds the link among words: the calls take the link alone.
   final text = pairingLinkIn(pasted)!;
   final api = ref.read(pairingApiProvider);
   final nav = Navigator.of(context);
@@ -92,7 +93,7 @@ Future<void> openPairingLink(
         if (context.mounted) await showIncomingInvite(context, ref, preview, contact: contact, replace: replace);
       case PairingLinkKind.reply:
         // Their reply came in the chat: the finish link goes back the same way before the
-        // words, which their wallet shows only once it has it (PAIR-AND-10).
+        // words, which their wallet shows only once it has it.
         final record = await pairingCall(ref, (a) => a.openReply(text));
         if (already(record) || stepOnTop(record.id)) return;
         await show(PairFinishScreen(pairingId: record.id));
@@ -208,7 +209,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final seenAs = ref.watch(pairingSeenAsProvider);
     if (seenAs.hasValue && (seenAs.value ?? '').trim().isEmpty) _askName = true;
     final needsName = _askName || _nameError != null;
-    // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android (PAIR-AND-17).
+    // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android.
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
     return SingleChildScrollView(

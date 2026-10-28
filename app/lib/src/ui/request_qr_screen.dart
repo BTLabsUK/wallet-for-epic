@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A payment request shown as a QR code to a phone next to this one (Direct · QR Payment): the
 /// payer scans it, approves it and shows the answer back; scanning that answer finishes the
 /// request and posts it. No pairing, no Epicbox: only this wallet's node posts.

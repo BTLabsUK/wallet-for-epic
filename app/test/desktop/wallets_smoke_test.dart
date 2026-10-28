@@ -1,4 +1,5 @@
-// Several wallets on the desktop (D9): Unlock's Wallet select and the Remove wallet dialog's two
+// SPDX-License-Identifier: Apache-2.0
+// Several wallets on the desktop: Unlock's Wallet select and the Remove wallet dialog's two
 // modes, on the mock with its calls recorded.
 import 'dart:async';
 
@@ -85,7 +86,7 @@ void main() {
     expect(find.text('Main wallet'), findsOneWidget);
     await tester.tap(find.text('Main wallet'));
     await tester.pump(const Duration(milliseconds: 500));
-    // Each option names its whole folder on hover; the list cuts it (#104).
+    // Each option names its whole folder on hover; the list cuts it.
     // The mock's Savings lives in the app's own folder, under its id.
     expect(
       find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${demoOtherWallet.id}/mainnet'),
@@ -117,7 +118,7 @@ void main() {
     await _end(tester);
   });
 
-  testWidgets('remove dialog for a wallet that is not open: the delete line and "Unlock this wallet" (F15)', (tester) async {
+  testWidgets('remove dialog for a wallet that is not open: the delete line and "Unlock this wallet"', (tester) async {
     final api = _FailingRemove();
     await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
     final container = ProviderScope.containerOf(tester.element(find.text('open')));

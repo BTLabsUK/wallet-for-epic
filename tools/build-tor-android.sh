@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Builds tor for Android from source, as a drop-in for the Tor Project's prebuilt libTor.so that
 # tools/fetch-tor.sh android puts in place (F-Droid accepts no prebuilt binaries). The output has
 # the same layout: <jniLibs dir>/<abi>/libtor.so, a PIE executable linked statically against

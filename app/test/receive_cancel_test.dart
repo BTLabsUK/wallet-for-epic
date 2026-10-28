@@ -1,4 +1,5 @@
-// Cancel of an incoming payment (the owner, 2026-10-25): once this wallet signed and returned its
+// SPDX-License-Identifier: Apache-2.0
+// Cancel of an incoming payment (2026-10-25): once this wallet signed and returned its
 // half, the sender can finalize and post at any time, so Cancel stays out of the way for
 // receiveCancelHold (15 minutes) and while the sender reports it posted; a line says when it
 // comes. After the hold it is a quiet button for a payment the sender never posted: LEPIC asks
@@ -214,7 +215,7 @@ void main() {
       final h = _Harness(_waiting(ago: const Duration(minutes: 40)));
       await h.pump(tester);
       expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget);
-      // One destructive look on both sides (UI-015): the same red Cancel as a send's.
+      // One destructive look on both sides: the same red Cancel as a send's.
       expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(
         find.text('${_l.txDetailsAcceptedAgoMinutes(40)} ${_l.txDetailsCancelOffered}'),

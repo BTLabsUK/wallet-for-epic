@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The secret store on Windows: the file `flutter_secure_storage.dat` that
 /// flutter_secure_storage_windows 4.2.2 writes (one DPAPI-encrypted JSON object of every key, in
 /// the app support folder), read in the same format and written crash-safe.

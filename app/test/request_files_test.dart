@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Payment requests by file, both ways (DESIGN §3), against the fakes: the issuer's "Save as a
 // file for anyone", the payer's Review of a request file behind the PIN and its answer file,
 // and the issuer finishing the answer. The file is untrusted: nothing is paid without the PIN,

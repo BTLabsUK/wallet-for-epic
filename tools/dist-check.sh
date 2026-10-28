@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Checks a built APK or App Bundle against what its distribution must and must not contain
 # (https://docs.btlabs.uk/developers/build/variants/). app/tool/build_android_release.sh runs it on every build; it also runs
 # by hand on any APK or AAB, for example one F-Droid built.

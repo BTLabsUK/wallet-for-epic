@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The camera screen that reads an animated payment QR: the receiver's scan of the payment and
 /// the sender's scan of the reply. Returns what it read through [QrScanResult]; the caller
 /// opens it like pasted text.

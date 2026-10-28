@@ -1,4 +1,5 @@
-/// Contacts every new wallet starts with (F31, D-10): the bundled list, and BT Labs' signed
+// SPDX-License-Identifier: Apache-2.0
+/// Contacts every new wallet starts with: the bundled list, and BT Labs' signed
 /// `btlabs.json` that may update its address later. Pure Dart, shared by the phone and the
 /// desktop; the seeding rule (insert once, never re-add a deleted one, leave an edited one
 /// alone) lives with each app's contacts store.

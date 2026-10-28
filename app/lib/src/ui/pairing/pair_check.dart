@@ -1,4 +1,5 @@
-/// Check the words (SPEC 2.3, RFC 7.5): the four words both wallets show, then They match
+// SPDX-License-Identifier: Apache-2.0
+/// Check the words: the four words both wallets show, then They match
 /// (Verified), They don't match (the pairing goes on this side) or Skip for now (Paired, not
 /// verified). The results offer to save the contact; the app never decides on its own which
 /// address-book entry a pairing belongs to.
@@ -36,7 +37,7 @@ const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
 /// words again": Later instead of Skip for now. [inPerson]: the camera saw the other phone.
-/// Asks before removing the pairing with [name] (SPEC 2.4): Keep, or Remove in risk. Undoing it
+/// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
 /// means pairing again.
 Future<bool> confirmRemovePairing(BuildContext context, String name) async {
   final l = context.l10n;
@@ -343,7 +344,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final saved = record.contactId != null && contacts.any((c) => c.id == record.contactId);
     // A contact of the name it chose (a restore or re-pair): one tap attaches it, and the key
-    // check finds whether its keys are back (PAIR-LNX-7).
+    // check finds whether its keys are back.
     final pairings = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final suggested = saved
         ? null
@@ -399,7 +400,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
           ),
           const SizedBox(height: 12),
-          // The result's badge is the big one (SPEC): the same badge, scaled up.
+          // The result's badge is the big one: the same badge, scaled up.
           Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
           // Where it goes first: at 360 dp the choices show without scrolling.
           if (!saved) ...[

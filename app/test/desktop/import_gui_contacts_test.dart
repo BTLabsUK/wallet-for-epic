@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // End to end: an old Epic GUI's profile (the fixtures of test/fixtures/legacy_gui, IndexedDB
 // files real Chromium wrote) imported through LepicDeskWallet into the address book every
 // wallet shares (`<support>/contacts.json`), then read back by a fresh instance. The wallet

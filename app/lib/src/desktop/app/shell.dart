@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import '../../app_info.dart';
 import 'dart:async';
 
@@ -191,7 +192,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final c = context.dc;
     final at = widget.at;
     final width = MediaQuery.sizeOf(context).width;
-    // What the wallet learned of invoices by itself (flow.md §3.3, §4.5), as a toast.
+    // What the wallet learned of invoices by itself, as a toast.
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
       if (n != null && mounted) _invoiceToast(context, n);
@@ -205,7 +206,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       final n = e == null ? null : pairingNoticeOf(context.l10n, e);
       if (n == null || !mounted || pairingEventOnScreen(e!)) return;
       final id = e.pairingId;
-      // An answer to an invite, on any screen: the toast opens the words check (PAIR-LNX-16).
+      // An answer to an invite, on any screen: the toast opens the words check.
       final check = (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && id != null
           ? (label: context.l10n.noticeCheckWords, run: () => unawaited(showDeskCheckWords(context, ref, id)))
           : null;
@@ -282,7 +283,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 }
 
 /// A notice about an invoice, in the app's language. A paid one is the only good news; none
-/// says money came in for an invoice this wallet pays (P-1).
+/// says money came in for an invoice this wallet pays.
 void _invoiceToast(BuildContext context, InvoiceNotice n) {
   final l = context.l10n;
   final (text, tone) = switch (n.kind) {

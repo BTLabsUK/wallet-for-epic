@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Every interface member is served: a member added to WalletService or WalletSession fails
 // here until the protocol's member lists name it. The client then fails to compile until it
 // implements the member, and the dispatcher's exhaustive switch until it serves it.

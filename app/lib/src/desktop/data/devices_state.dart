@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop's linked devices: the open wallet's [DeviceService] (shared with the phone,
 /// `devices/`), its lifecycle and the places that read it. Linked devices is an Experimental
 /// switch, on unless the user turned it off; off, there is no service and nothing of it shows.
@@ -111,7 +112,7 @@ final deskHeldProvider = Provider<List<({String device, int value})>>((ref) {
   return [for (final e in byDevice.entries) (device: e.key, value: e.value)];
 });
 
-/// The servers a first link proposes (D-3): this wallet's Epicbox server, then on mainnet one
+/// The servers a first link proposes: this wallet's Epicbox server, then on mainnet one
 /// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
 /// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
 /// 443.

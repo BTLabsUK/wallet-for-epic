@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The node and Epicbox statuses the phone shows, settled: a status that leaves online for
 /// offline, or for syncing, shows only once it has lasted [statusSettle]. Short drops that
 /// mend, and short refreshes, show nothing; a way back to online or connecting shows at once.

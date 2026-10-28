@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // PeerService over a fake node: merge with the store, first seen, order, banned list, history.
 import 'dart:convert';
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Desktop release check, part 1: first run, create, lock, sync, receive, settings, hidden features.
 // Real LEPIC, real node and Epicbox relay (see tool/release_check.sh). Never prints the phrase or
 // the password. The phrase is written to RC_PHRASE_FILE (a throwaway dir) for restore_test.dart.
@@ -90,7 +91,7 @@ void main() {
     // EAddress draws it as SelectableText.rich (the first and last six marked).
     final rich = find.byType(SelectableText).evaluate().map((e) => (e.widget as SelectableText).textSpan?.toPlainText() ?? '').join(' ');
     record('Receive shows the Epicbox address', hasText('Epicbox address') && rich.contains(id.substring(0, 6)) && rich.contains(id.substring(id.length - 6)), '');
-    record('Epicbox address is <id>@<relay> on the D-13 default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
+    record('Epicbox address is <id>@<relay> on the default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
     await shot(tester, '06-receive');
 
     // ---- Send on an empty wallet, up to the review step.

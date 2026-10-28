@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Repository gate: a branch passes it before review, and main passes it after every merge.
 # Usage: tools/check.sh   (from anywhere inside a checkout or worktree)
 set -euo pipefail

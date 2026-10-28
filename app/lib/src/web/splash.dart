@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web page's splash (`web/index.html`, `#splash`): removed once Flutter has drawn its first
 /// frame. Nothing to do on other platforms.
 library;

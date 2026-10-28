@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// A [PairingApi] that plays both sides of a pairing in memory, for widget tests, the
 /// screenshot tour, the web preview and the desktop prototype. Nothing is sealed: links and
 /// sealed files are readable JSON that only this fake opens.

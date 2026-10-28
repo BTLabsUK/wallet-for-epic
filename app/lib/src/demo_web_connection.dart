@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web demo's connection to its wallet server, as the UI shows it: a warning while the
 /// socket is down, a success notice once it is back, and the unlock screen when the server
 /// dropped the open wallet. Nothing here runs unless the wallet is a [RemoteWalletService].

@@ -1,4 +1,5 @@
-// The providers bind without starting anything (O2): reading them never starts a node.
+// SPDX-License-Identifier: Apache-2.0
+// The providers bind without starting anything: reading them never starts a node.
 import 'dart:io';
 
 import 'package:epic_wallet/src/builtin_node.dart' show stopAllBuiltInNodes;

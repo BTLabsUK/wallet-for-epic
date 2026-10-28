@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Where a scanned, pasted or linked text goes on the phone, after the scan router
 /// ([classifyScan]) said what it is: Send prefilled, the QR Payment reader, the File flow, or
 /// a sheet saying why not. Nothing here pays: the review and the PIN stay the only way.

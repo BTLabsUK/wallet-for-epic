@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Display and security preferences. Not secret, but kept in the same [SecretStore] as the
 /// network choice so the app needs no preferences dependency.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Test helper: signed btlabs.json files for the seed-contact tests, made with the test keys.
 import 'dart:convert';
 import 'dart:io';

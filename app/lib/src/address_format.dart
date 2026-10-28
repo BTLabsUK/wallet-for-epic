@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// How an address is shown in a list: the first six and last six characters of the part people
 /// check when reading an address out, the kind kept. Pure Dart, shared by the phone and the
 /// desktop. The full address stays in tooltips, detail views and what Copy copies.

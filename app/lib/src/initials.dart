@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The letters on an avatar, for wallets and contacts on the phone and the desktop. Pure Dart.
 library;
 

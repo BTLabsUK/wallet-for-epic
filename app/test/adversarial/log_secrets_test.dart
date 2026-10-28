@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // What reaches the log file on disk: a recovery phrase, a PIN or a secret in any shape a line
 // could carry it (a JSON object, a URL, a typo'd word, pretty-printed data) must come out
 // scrubbed. The phrase alone spends every coin.

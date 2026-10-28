@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,7 +60,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   final Map<String, ImportedWallet> _done = {};
   final Set<String> _skipped = {};
 
-  /// R12: the wallets that keep the older app's Epicbox server (all of them at first).
+  /// The wallets that keep the older app's Epicbox server (all of them at first).
   final Map<String, bool> _keepRelay = {};
 
   final _old = TextEditingController();
@@ -163,7 +164,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     await Future.wait([for (final f in chosen) _checkOne(f.id)]);
     if (!mounted || _step != ImportStep.check) return;
     // Nothing in use: straight on to Import; on Windows, which cannot tell, Check stays to
-    // ask for the older app to be closed first (R28).
+    // ask for the older app to be closed first.
     if (_closeFirst) return;
     if (!_chosen.any((f) => _use[f.id] == _Use.inUse)) setState(() => _step = ImportStep.import);
   }
@@ -229,7 +230,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     _error = null;
   }
 
-  /// R12: Keep or Use for [id]'s Epicbox server; the list follows ([DeskWalletApi.keepOldRelay]).
+  /// Keep or Use for [id]'s Epicbox server; the list follows ([DeskWalletApi.keepOldRelay]).
   Future<void> _chooseRelay(String id, bool keep) async {
     if ((_keepRelay[id] ?? true) == keep) return;
     setState(() => _keepRelay[id] = keep);
@@ -846,7 +847,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 // ---------------------------------------------------------------- relay choice
 
 extension on _ImportWalletsScreenState {
-  /// R12: Keep the older app's Epicbox server (the address stays) or use the app's (it changes).
+  /// Keep the older app's Epicbox server (the address stays) or use the app's (it changes).
   Widget _relayChoice(BuildContext context, ImportedWallet r) {
     final ts = context.ts;
     final l = context.l10n;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The phone's contact star (per wallet, as the desktop's) and the Contacts list's Export and
 // Import contacts, against FakeWalletSession.
 

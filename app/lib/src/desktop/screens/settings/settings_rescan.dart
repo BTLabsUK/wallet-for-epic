@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ enum RescanDemo { running }
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
 
-/// Where Recheck starts with Advanced › Recheck from a height (R20), as on the phone: a date's
+/// Where Recheck starts with Advanced › Recheck from a height, as on the phone: a date's
 /// block (mainnet), a typed height, or block 0. Without the switch it starts a little before
 /// the last scan's end.
 enum _From { date, height, wholeChain }
@@ -205,7 +206,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     // Offline without a local node, or Tor only without Tor: nothing to recheck against.
     final block = ref.watch(deskNodeBlockProvider);
     final reason = netBlockReason(l, block);
-    // The scan a restore owes runs: its progress here, and no second scan (R24).
+    // The scan a restore owes runs: its progress here, and no second scan.
     final restore = ref.watch(deskProvider.select((s) => s.status?.restoreScan));
     final restoreRuns = !_running && restore?.state == RestoreScanState.running;
     final choice = advancedHas(ref, AdvancedFeature.recheckFromHeight);

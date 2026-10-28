@@ -1,4 +1,5 @@
-// The phone's Contacts screen and contact page (spec §3, pairing SPEC 2.5), against
+// SPDX-License-Identifier: Apache-2.0
+// The phone's Contacts screen and contact page, against
 // FakeWalletSession.
 
 import 'package:epic_wallet/src/l10n.dart';
@@ -152,7 +153,7 @@ void main() {
       expect(find.byTooltip(_l.contactsAdd), findsOneWidget);
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
-      // Not paired: the method badge after the name (SPEC 2.1).
+      // Not paired: the method badge after the name.
       expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
       expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
       expect(find.text('Epicbox'), findsNWidgets(2));

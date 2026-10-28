@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Copy and paste on the desktop: every copy control sets the clipboard and says "Copied",
 // Receive has one copy control for its address, and text fields paste with Ctrl+V and from the
 // right-click menu (password fields: paste only).
@@ -75,7 +76,7 @@ void main() {
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
     await _pump(tester, const ECopyButton(text: 'x', label: 'Copy id', withLabel: true));
     await tester.tap(find.text('Copy id'));
-    // One retry after 150 ms (O7), then the refusal shows.
+    // One retry after 150 ms, then the refusal shows.
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Not copied'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 1600));

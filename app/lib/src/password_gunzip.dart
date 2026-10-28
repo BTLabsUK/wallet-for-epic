@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Gunzip for the password word lists: dart:io off the web, unsupported in the browser (the
 /// estimate then runs without the lists).
 library;

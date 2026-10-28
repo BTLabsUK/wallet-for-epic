@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Paying in person by QR: a payment file as an animated code (LEPIC's `ur:epic-slate`
 /// transport, behind [WalletService.encodeQrSlate] and [WalletService.decodeQrSlate]), the
 /// frames the show screen draws, and the reader the scan screen feeds.
@@ -18,7 +19,7 @@ const int qrFramesPerSecond = 6;
 /// Milliseconds a frame stays.
 const int qrFrameMs = 1000 ~/ qrFramesPerSecond;
 
-/// Seconds the code stays visible once shown (spec §10 C).
+/// Seconds the code stays visible once shown.
 const int qrShowSeconds = 40;
 
 /// The numerals before the code appears: 3, 2, 1.
@@ -30,11 +31,11 @@ const int qrLowSeconds = 10;
 /// Seconds without a new part, while reading, before the scanner says to hold steady.
 const int qrHoldSteadySeconds = 4;
 
-/// Whether a reply code skips the hidden › 3 · 2 · 1 steps (spec §10 B). The built answer is no:
+/// Whether a reply code skips the hidden › 3 · 2 · 1 steps. The built answer is no:
 /// the payment and its reply behave alike.
 const bool qrReplySkipsCountdown = false;
 
-/// Whether the reply code screen opens itself after Accept (spec §10 A). The built answer is no:
+/// Whether the reply code screen opens itself after Accept. The built answer is no:
 /// the accepted screen has "Show reply as QR".
 const bool qrReplyOpensItself = false;
 

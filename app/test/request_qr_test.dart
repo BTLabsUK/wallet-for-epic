@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // A payment request shown as a QR (Direct · QR Payment), against the fakes: whoever asks makes
 // it from Receive (Invoices on), shows it, scans the payer's answer and gets a
 // receipt; the payer scans it with no switch on, approves behind the PIN and shows the answer

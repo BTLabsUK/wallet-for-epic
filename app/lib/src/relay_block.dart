@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// An Epicbox relay this network blocks (report gwuouzfy, 2026-10-25): a filter on the way
 /// (a provider's DNS filter, a router's blocklist) sends the relay's name to its own server,
 /// which ends every TLS handshake with an alert, "received fatal alert: CloseNotify" from one,

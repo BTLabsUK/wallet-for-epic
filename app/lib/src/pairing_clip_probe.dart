@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The app's clipboard for the pairing offer ([ClipboardProbe]): on Android the clip's stamp
 /// comes from MainActivity's `epic_wallet/clipboard` channel, so a clip is read once (Android
 /// 12+ shows a toast for every read of another app's clip); the desktop has no stamp and reads

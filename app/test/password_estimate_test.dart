@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/password_estimate.dart';
 import 'package:epic_wallet/src/password_lists.dart';
 import 'package:flutter_test/flutter_test.dart';

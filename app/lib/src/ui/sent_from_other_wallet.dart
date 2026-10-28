@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The end of the details of a payment another wallet on this recovery phrase made ("Sent from
 /// another wallet", "Received by another wallet"): the quiet offer to link this device with the
 /// other wallet.

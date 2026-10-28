@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The screenshot tour's catalogue (`tool/desktop_tour_test.dart`): every screen, state and
 /// dialog of the desktop UI with the id of its Electron reference shot.
 library;

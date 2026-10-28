@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The address checks the scan router runs, from the wallet service: LEPIC's own checks, the
 /// ones Send runs.
 library;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // History files and the archive calls of one wallet. Ported from the tests in
 // app/rust/src/core/export.rs and the history calls of core/session.rs. Sealing is LEPIC's and
 // runs in integration_test/history_test.dart.

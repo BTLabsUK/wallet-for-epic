@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import '../l10n.dart';
 import '../recipient.dart';
 import 'method_icons.dart';

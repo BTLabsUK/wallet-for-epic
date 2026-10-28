@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The log calls, without Flutter or `dart:io`: levels, the [LogSink] interface, the memory
 /// sink, the process-wide [AppLog] with redaction at the call, and [logInfo], [logWarn] and
 /// [logError]. The wallet core (`lepic_wallet_service.dart`) logs through this file alone, so it

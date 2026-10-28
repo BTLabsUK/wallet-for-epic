@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// Proves the wallet core runs without Flutter, as the demo server runs it.
 ///
 /// From `app/`, with Flutter's `dart`, after `tools/lepic.sh build linux`:

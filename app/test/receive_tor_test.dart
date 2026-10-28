@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 // Receive's Link tab: receiving straight to this wallet at its onion address, over Tor
-// (F8). With the Tor switch off it says Link · Tor receiving needs Tor, with Turn on Tor; with Tor
+//. With the Tor switch off it says Link · Tor receiving needs Tor, with Turn on Tor; with Tor
 // on, the onion address in the same card as the epicbox address, a QR code of it dimmed until
 // reachable, and Tor's state in the same words as everywhere (Starting…, On, Not connected
 // with the reason and Retry). The switch itself lives in Settings › Privacy. Where the app
@@ -219,7 +220,7 @@ void main() {
     ) async {
       final plain = _Harness();
       await plain.pump(tester);
-      // The Link tab stays whatever Settings says (UI-051); off, it offers Turn on.
+      // The Link tab stays whatever Settings says; off, it offers Turn on.
       expect(
         [
           for (final s in tester
@@ -409,7 +410,7 @@ void main() {
       );
     });
 
-    testWidgets('Link with Tor off: no onion to hand out, the needs-Tor and offline lines, no Turn on Tor (AND-2)', (tester) async {
+    testWidgets('Link with Tor off: no onion to hand out, the needs-Tor and offline lines, no Turn on Tor', (tester) async {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
@@ -455,7 +456,7 @@ void main() {
     testWidgets('every method off: the Link tab alone, offering to turn its methods on', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, directFile: false, directQr: false));
       await h.pump(tester);
-      // One tab is no choice: the strip is gone, the Link page shows the switches (UI-051).
+      // One tab is no choice: the strip is gone, the Link page shows the switches.
       expect(find.byKey(receiveTabsKey), findsNothing);
       expect(find.byKey(receiveAddressKey), findsNothing);
       expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
@@ -491,7 +492,7 @@ void main() {
       expect(find.byType(Switch), findsNothing);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       expect(find.byType(MarkedQr), findsNothing);
-      // None of the words the owner struck out.
+      // None of the words that were struck out.
       for (final word in ['Listener', 'listener', 'Advanced', 'Epic address']) {
         expect(find.textContaining(word), findsNothing);
       }

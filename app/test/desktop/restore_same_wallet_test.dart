@@ -1,4 +1,5 @@
-// O1: restoring a phrase that is already in the app opens that wallet instead of making a
+// SPDX-License-Identifier: Apache-2.0
+// Restoring a phrase that is already in the app opens that wallet instead of making a
 // duplicate. "Use N words" looks the phrase up first; restore itself refuses as a backstop.
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

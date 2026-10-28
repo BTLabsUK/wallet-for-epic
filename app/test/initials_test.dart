@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Avatar letters on the phone and the desktop: letters and digits only (LNX-5).
 import 'package:epic_wallet/src/desktop/widgets/data.dart' show EAvatar;
 import 'package:epic_wallet/src/initials.dart';

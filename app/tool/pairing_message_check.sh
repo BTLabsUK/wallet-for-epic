@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Live check of the Pairing UX (26.10.18) between the phone app on an Android emulator and the
 # desktop app under xvfb: pairing by message both ways, Not now, Paste, and in person; the
 # Android 12+ clipboard toast once per clip; no link text in logcat. Real LEPIC on both sides.

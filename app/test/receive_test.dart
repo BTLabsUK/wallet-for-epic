@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -20,7 +21,7 @@ import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 /// A full-length address, as long as a real one.
-/// The address on the Receive card: a rich text whose server sits on its own line (UI-009).
+/// The address on the Receive card: a rich text whose server sits on its own line.
 final Finder _addressText = find.byWidgetPredicate(
   (w) => w is SelectableText && w.textSpan?.toPlainText().replaceAll('\n', '') == _address,
 );
@@ -194,7 +195,7 @@ void main() {
             // The whole name: a long one wraps in two lines on the tab (PH-1).
             (s.value, s.tooltip),
         ],
-        // Link stays whatever Settings says (UI-051).
+        // Link stays whatever Settings says.
         [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.direct, 'Link'), (ReceiveTab.file, 'Direct · File')],
       );
       // The icon above the label, on every tab.

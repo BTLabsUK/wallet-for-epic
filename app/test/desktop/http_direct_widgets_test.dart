@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Link HTTP on the mock wallet: Send › Link asks before plain HTTP leaves this computer, and
 // Settings › Receiving turns the HTTP listener on and makes it reachable only from the guide.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

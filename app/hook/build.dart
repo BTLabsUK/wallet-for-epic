@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Bundles the lepic-ffi library into macOS builds. package:lepic's own hook bundles it for
 // Android, iOS, Linux and Windows but not macOS, so the app adds it here until the binding does.
 // Flutter makes `liblepic_ffi.dylib` into `lepic_ffi.framework/lepic_ffi` in Contents/Frameworks

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// HTTP From the internet: whether the internet reaches the public address, with Check. On
 /// Receive and in Settings › Transactions, while the listener runs From the internet.
 library;

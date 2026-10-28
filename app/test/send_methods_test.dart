@@ -1,6 +1,7 @@
-// Send's four methods (spec 7): a selector with Epicbox, HTTP, Tor and File, a strip with a
+// SPDX-License-Identifier: Apache-2.0
+// Send's four methods: a selector with Epicbox, HTTP, Tor and File, a strip with a
 // picture and one plain line, the shape of the method's address under To. The method follows
-// the address (desktop spec 8.4): a paste, a pick or a whole address of another kind moves it,
+// the address: a paste, a pick or a whole address of another kind moves it,
 // typing never does half way, and nothing moves it back. HTTP sends straight to their wallet:
 // delivered, it waits only for a block and cannot be cancelled; not reached, the amount is on
 // hold with Try again and Cancel payment. Each review states its cancel rule. Receive shows
@@ -397,7 +398,7 @@ const _directOn = PaymentPrefs(linkHttp: true, linkTor: true);
 
 void main() {
   group('selector and strip', () {
-    testWidgets('Link is listed from the start, its switches on or not (#16)', (
+    testWidgets('Link is listed from the start, its switches on or not', (
       tester,
     ) async {
       final h = _Harness();
@@ -589,7 +590,7 @@ void main() {
       expect(find.text('Link address'), findsNothing);
     });
 
-    testWidgets('a method switched off while Send is open: the idle form moves to the start method (AND-4)', (tester) async {
+    testWidgets('a method switched off while Send is open: the idle form moves to the start method', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
       expect(_method(tester), TransferMethod.epicbox);
@@ -600,7 +601,7 @@ void main() {
       expect(find.text('Epicbox is off in Settings › Transactions.'), findsNothing);
     });
 
-    testWidgets('an Epicbox address in To keeps Epicbox when it goes off, with the note (AND-4)', (tester) async {
+    testWidgets('an Epicbox address in To keeps Epicbox when it goes off, with the note', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
       await _enter(tester, 'To', _bob);
@@ -794,7 +795,7 @@ void main() {
           await tester.pumpWidget(const SizedBox());
           final h = _Harness();
           await h.pump(tester);
-          // Link is off, and listed all the same (#16).
+          // Link is off, and listed all the same.
           expect(_segment('Link'), findsOneWidget);
           clip = address;
           await _tap(tester, find.text('Paste'));
@@ -1302,7 +1303,7 @@ void main() {
     });
   });
 
-  group('sealed files (SPEC 2.9)', () {
+  group('sealed files', () {
     final l = lookupAppLocalizations(const Locale('en'));
     Finder makeFile() => find.widgetWithText(FilledButton, 'Make transaction file');
 

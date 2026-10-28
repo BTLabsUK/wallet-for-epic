@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Where BT Labs' public hosts can be reached over Tor. The list comes from the signed
 // btlabs.json (`infrastructure.onions`); a copy is built in so a wallet with Tor on can reach
 // them before its first fetch. This file only holds the mapping: nothing here opens a connection.

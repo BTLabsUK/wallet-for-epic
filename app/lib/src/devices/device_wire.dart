@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The one envelope linked devices send each other, as the payload bytes of a private pairing
 /// (UTF-8 JSON): `{"v":1,"type":…,"id":…,"seq":…,"dev":…,"ts":…,"body":{…}}`.
 ///

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The desktop UI's saved state: settings, the settings screens' choices, own nodes and the
 /// wallet's name. Not secret, but kept in the app's [SecretStore], as the phone keeps its
 /// preferences (`settings.dart`), so the app needs no preferences dependency.

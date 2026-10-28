@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/widgets.dart';
 
 import '../screens/invoices/issue_invoice_screen.dart';

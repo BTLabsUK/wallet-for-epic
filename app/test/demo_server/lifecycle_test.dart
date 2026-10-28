@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // The demo store, the start-up purge, the sweeper, the limits and the settings.
 
 import 'dart:convert';

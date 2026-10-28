@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The phone's one owner of the Link · HTTP listener for the open wallet: wallets on the same
 /// Wi-Fi network pay this one at `http://<this phone's LAN address>:3415`. It runs only while a
 /// wallet is open, Link · HTTP is on (Settings › Transactions), the network mode allows it,

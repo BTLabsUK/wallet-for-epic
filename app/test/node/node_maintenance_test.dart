@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // NodeMaintenance: stop, the file work, the setting, start again; and what it refuses.
 import 'dart:async';
 import 'dart:io';

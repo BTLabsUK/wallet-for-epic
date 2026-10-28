@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The web app's [SecretStore]: the browser's `localStorage` for this origin.
 ///
 /// The browser has no keystore. On the web the wallet lives on the demo server, and the only

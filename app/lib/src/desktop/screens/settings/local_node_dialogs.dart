@@ -1,4 +1,5 @@
-/// The local node's dialogs (spec §19): the one-time fallback question (D-7), Delete chain
+// SPDX-License-Identifier: Apache-2.0
+/// The local node's dialogs: the one-time fallback question, Delete chain
 /// data with a typed confirm, Reuse existing chain data, the node log, Change folder.
 library;
 
@@ -17,7 +18,7 @@ import 'settings_node.dart' show serverRows, nodeListNoteText;
 /// The local node's fallback was asked this session (the dialog shows once).
 bool fallbackAskedThisSession = false;
 
-/// The D-7 question: once, when the bundled node first syncs and nothing was answered yet.
+/// The fallback question: once, when the bundled node first syncs and nothing was answered yet.
 /// [host] is the fallback's host. True = use it, false = wait, null = dismissed (asked again
 /// later; the switch under While syncing answers it for good).
 Future<bool?> showFallbackAskDialog(BuildContext context, {required String host}) => showEDialog<bool>(
@@ -37,7 +38,7 @@ Future<bool?> showFallbackAskDialog(BuildContext context, {required String host}
   },
 );
 
-/// Shows the D-7 question when the decision asks for it, once per session, and saves the
+/// Shows the fallback question when the decision asks for it, once per session, and saves the
 /// answer. Call from a widget that watches [deskFallbackDecisionProvider].
 Future<void> maybeAskFallback(BuildContext context, WidgetRef ref) async {
   final d = ref.read(deskFallbackDecisionProvider);
@@ -63,7 +64,7 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
         title: l.deskSetLndPickTitle,
         description: l.deskSetLndPickDesc,
         icon: EIcons.node,
-        // Room for the host before the fixed operator, tip and latency columns (UI-043).
+        // Room for the host before the fixed operator, tip and latency columns.
         width: 680.u,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

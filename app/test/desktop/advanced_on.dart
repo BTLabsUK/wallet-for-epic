@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Tests of a part that Advanced hides by default (Outputs, Send options...) switch it on first,
 // the way a user does in Settings › Advanced; Link is Settings › Transactions' switch.
 import 'package:epic_wallet/src/advanced.dart';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The words for a payment code that the phone and the desktop share: where it came from,
 /// what was dropped from it, and the host of a Direct address.
 library;

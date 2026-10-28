@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
 import '../../../app_info.dart';
@@ -71,7 +72,7 @@ class AccountForm extends StatelessWidget {
           ],
         ),
       ),
-      // The reserved error line above is part of the gap: no second full gap (UI-037).
+      // The reserved error line above is part of the gap: no second full gap.
       SizedBox(height: Sp.x2),
       EField(
         label: l.deskSetupConfirmPassword,

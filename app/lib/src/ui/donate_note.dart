@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The donation note at the end of the phone's Help: a heading, one line, and a button that
 /// copies BT Labs' donation address (the same one the contacts book starts with).
 library;

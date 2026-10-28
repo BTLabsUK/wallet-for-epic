@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 /// The clickable prototype's control panel (mock wallet only): plays the other side of every
-/// invoice, the network, the chain and the clock, so each state of docs/invoices/flow.md can be
+/// invoice, the network, the chain and the clock, so each state of the invoice flow can be
 /// reached by hand. Not product UI: its words stay English and it never ships with LEPIC.
 library;
 
