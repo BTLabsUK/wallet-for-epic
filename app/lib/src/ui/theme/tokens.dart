@@ -493,15 +493,16 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       style: SegmentedButton.styleFrom(
         backgroundColor: t.field,
         foregroundColor: t.dim,
-        selectedBackgroundColor: t.surfaceHi,
-        selectedForegroundColor: t.accentText,
+        // A selection is neutral: gold is the brand and the primary action only (UI-011).
+        selectedBackgroundColor: t.selected,
+        selectedForegroundColor: t.text,
         side: BorderSide(color: t.line),
         shape: shape,
       ),
     ),
     chipTheme: ChipThemeData(
       side: BorderSide(color: t.lineStrong),
-      selectedColor: t.accentSoft,
+      selectedColor: t.selected,
       shape: shape,
     ),
     bottomSheetTheme: BottomSheetThemeData(
