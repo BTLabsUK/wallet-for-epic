@@ -72,8 +72,15 @@ void main() {
     expect(_container.read(deskPairingRelaysProvider), ['epicbox.epiccash.com', 'epicbox.stackwallet.com']);
     expect(find.text('2 servers · Changed'), findsOneWidget);
 
-    // The reset sits under the list: into view before the tap.
-    await tester.ensureVisible(find.byKey(const ValueKey('server-list-reset')));
+    // The reset sits at the foot of the list, inside the window: scrolled to before the tap.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('server-list-reset')),
+      80,
+      scrollable: find.ancestor(of: _row('epicbox.epiccash.com'), matching: find.byType(Scrollable)).first,
+    );
+    await _settle(tester);
+    final reset = tester.getRect(find.byKey(const ValueKey('server-list-reset')));
+    expect(reset.bottom, lessThanOrEqualTo(tester.view.physicalSize.height), reason: 'the list keeps its foot in the window');
     await tester.tap(find.byKey(const ValueKey('server-list-reset')));
     await _settle(tester);
     expect(_container.read(deskPairingRelaysProvider), isNull);

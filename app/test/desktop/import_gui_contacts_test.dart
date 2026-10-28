@@ -74,6 +74,7 @@ void main() {
       nodePoll: const Duration(hours: 1),
       legacyRoots: () => LegacyRoots(home: home, appData: '$home/.config'),
       listProcesses: () async => const [],
+      pickDirectory: () async => '$home/.epic-gui',
     );
     return (w, store);
   }
@@ -101,8 +102,12 @@ void main() {
     await tmp.delete(recursive: true);
   });
 
+  /// A GUI 6.1 folder is not searched: it is picked by hand (its root lists wallets/<id>).
   Future<ImportedWallet> importAt(String folder) async {
-    final old = (await wallet.findOldWallets()).firstWhere((w) => w.folder == folder);
+    final found = await wallet.findOldWallets();
+    final old = folder.startsWith('$home/.epic-gui/')
+        ? (await wallet.pickFolder())!.wallets.firstWhere((w) => w.folder == folder)
+        : found.firstWhere((w) => w.folder == folder);
     return wallet.importOldWallet(old.id, oldPassword: _old);
   }
 
@@ -184,7 +189,8 @@ void main() {
 /// seed file in the same folder; returns its proof.
 Future<ImportedWallet?> importGuiContactsAgain(LepicDeskWallet wallet, String home) async {
   await File('$home/.epic-gui/wallets/w1/wallet_data/wallet.seed').writeAsString('{"fixture":"w1-again"}');
-  final old = (await wallet.findOldWallets()).firstWhere((w) => w.folder == '$home/.epic-gui/wallets/w1');
+  await wallet.findOldWallets();
+  final old = (await wallet.pickFolder())!.wallets.firstWhere((w) => w.folder == '$home/.epic-gui/wallets/w1');
   final r = await wallet.importOldWallet(old.id, oldPassword: _old);
   expect([for (final p in r.proof) if (p.text.contains('contact')) p.text], ['3 contacts already saved']);
   return r;

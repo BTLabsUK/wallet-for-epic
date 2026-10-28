@@ -130,13 +130,14 @@ void main() {
     testWidgets('Tor only without Tor: Node and Epicbox read Waiting for Tor', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _torOnly);
       // The status rows are in the title bar's status list.
+      // Waiting for Tor is in progress: its dots pulse, so the menu gets a fixed time to open.
       await tester.tap(find.byKey(const ValueKey('bar-status')));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byKey(const ValueKey('status-row-epicbox')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Waiting for Tor')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Waiting for Tor')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byKey(const ValueKey('overview-offline')), findsNothing);
     }, skip: !torBuilt);
 

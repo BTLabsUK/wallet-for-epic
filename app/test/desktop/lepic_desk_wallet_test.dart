@@ -338,19 +338,40 @@ void main() {
         expect(await wallet.walletWithPhrase(['abandon', 'h4rbor']), isNull);
       });
 
-      test('a wallet listed before fingerprints were kept is not matched: the known gap', () async {
+      test('a wallet listed before phrase fingerprints were kept is matched by the core\'s wallet fingerprint', () async {
         await wallet.createWallet(name: 'Main', password: _password);
         await wallet.dispose();
-        // As the list of a build before this fix: the entry without the field.
+        // As the list of a build before phrase fingerprints: the entry without the field.
         final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
         final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
         for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
           expect(w.remove('phraseFingerprint'), fp);
+          expect(w['walletFingerprint'], isNotNull);
         }
         await file.writeAsString(jsonEncode(json));
         wallet = make(two);
         expect((await listed()).single.phraseFingerprint, isNull);
-        expect(await wallet.walletWithPhrase(words), isNull, reason: 'no fingerprint, no address helper in the core: not caught');
+        expect((await wallet.walletWithPhrase(words))?.name, 'Main', reason: 'the wallet fingerprint catches it');
+        await expectLater(
+          wallet.restoreWallet(password: _password, phrase: words),
+          throwsA(isA<DeskError>().having((e) => e.sameWallet?.name, 'sameWallet', 'Main')),
+        );
+        expect(two.creates, 1, reason: 'no duplicate is made');
+      });
+
+      test('a wallet listed with neither fingerprint is not matched: the known gap', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        await wallet.dispose();
+        final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
+          expect(w.remove('phraseFingerprint'), fp);
+          w.remove('walletFingerprint');
+        }
+        await file.writeAsString(jsonEncode(json));
+        wallet = make(two);
+        expect((await listed()).single.phraseFingerprint, isNull);
+        expect(await wallet.walletWithPhrase(words), isNull, reason: 'no fingerprint of either kind: not caught');
         await wallet.restoreWallet(name: 'Again', password: _password, phrase: words);
         expect(two.creates, 2, reason: 'the duplicate is made, as before the fix');
         expect((await listed()).last.phraseFingerprint, fp, reason: 'the restored copy carries one from now on');

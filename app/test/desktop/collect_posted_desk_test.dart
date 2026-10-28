@@ -26,6 +26,8 @@ class _Wallet implements lepic.EpicWallet {
   lepic.TxStatus status = lepic.TxStatus.sent;
 
   @override
+  Future<bool> restoreScanRequired() async => false;
+  @override
   bool get isDisposed => false;
   @override
   void lock() {}

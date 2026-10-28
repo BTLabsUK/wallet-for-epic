@@ -40,7 +40,8 @@ void main() {
       'When something goes wrong',
       'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 26 : 25));
+    expect(topics, hasLength(DeskFeatures.tor ? 27 : 26));
+    expect(topics.map((t) => t.title), contains('What an address looks like'));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);

@@ -517,10 +517,12 @@ void main() {
   });
 
   group('Receive and the sidebar follow the switches', () {
-    testWidgets('Link · HTTP off: no HTTP card and no HTTP row', (tester) async {
+    testWidgets('Link · HTTP off: no HTTP card; the HTTP row stays, reading Off (bot #123)', (tester) async {
       await _open(tester, DeskRoute.receive);
       expect(find.text('Link · HTTP address'), findsNothing);
-      expect(await _railHttp(tester), findsNothing);
+      final row = await _railHttp(tester);
+      expect(row, findsOneWidget);
+      expect(find.descendant(of: row, matching: find.text('Off')), findsOneWidget);
     });
 
     testWidgets('Link · HTTP on: the HTTP card (no switch of its own) and the HTTP row', (tester) async {
