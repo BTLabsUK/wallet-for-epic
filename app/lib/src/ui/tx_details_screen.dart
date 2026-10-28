@@ -257,6 +257,11 @@ const Key txDetailsCancelReceiveKey = ValueKey('tx-details-cancel-receive');
 const Key txDetailsCancelHoldKey = ValueKey('tx-details-cancel-hold');
 const Key txDetailsCancelNoteKey = ValueKey('tx-details-cancel-note');
 
+/// The details' Message rows (the other side's, this wallet's) and the Private note row.
+const Key txTheirMessageKey = ValueKey('tx-their-message');
+const Key txOwnMessageKey = ValueKey('tx-own-message');
+const Key txPrivateNoteKey = ValueKey('tx-private-note');
+
 /// Everything known about one transaction, with its note, contact and cancel.
 class TxDetailsScreen extends ConsumerStatefulWidget {
   const TxDetailsScreen({super.key, required this.txKey});
@@ -957,16 +962,24 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           else if (tx.origin == TxOrigin.otherWallet && outgoing)
             // The other wallet paid it; this wallet only saw the coins leave.
             _DetailRow(label: l.txDetailsFee, value: l.txDetailsNotKnown),
+          // Message is Send's word for the text in the payment; the line under it says which way
+          // it went, so the private note below never reads as the same thing.
           if (theirMessage != null)
             _DetailRow(
-              label: outgoing
-                  ? l.txDetailsMessageFromRecipient
-                  : l.txDetailsMessageFromSender,
+              key: txTheirMessageKey,
+              label: l.txDetailsMessageFromSender,
               value: theirMessage,
+              hint: messageHint(l, incoming: !outgoing, bySender: !outgoing),
             ),
           if (ownMessage != null)
-            _DetailRow(label: l.txDetailsYourMessage, value: ownMessage),
+            _DetailRow(
+              key: txOwnMessageKey,
+              label: l.txDetailsYourMessage,
+              value: ownMessage,
+              hint: messageHint(l, incoming: !outgoing, bySender: outgoing),
+            ),
           ListTile(
+            key: txPrivateNoteKey,
             contentPadding: EdgeInsets.zero,
             title: _TitleWithTag(
               l.txDetailsPrivateNoteLabel,
@@ -974,7 +987,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   ? ManualTag(editedAtUnix: tx.manualEditedAtUnix)
                   : null,
             ),
-            subtitle: Text(note ?? l.txDetailsNoNote),
+            subtitle: note == null
+                ? Text(l.txDetailsNoNote)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(note),
+                      Text(
+                        l.txDetailsNoteHelper,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
             trailing: IconButton(
               tooltip: note == null ? l.txDetailsAddNote : l.txDetailsEditNote,
               icon: Icon(note == null ? Icons.note_add_outlined : Icons.edit),
@@ -1154,14 +1178,19 @@ class _SourceNote extends StatelessWidget {
 /// row.
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
+    super.key,
     required this.label,
     required this.value,
     this.copy,
     this.tag,
+    this.hint,
   });
 
   final String label;
   final String value;
+
+  /// A small line under [value]: where it came from or went.
+  final String? hint;
 
   /// "Added by you", after the title, for a value the user typed.
   final Widget? tag;
@@ -1178,7 +1207,16 @@ class _DetailRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: _TitleWithTag(label, tag: tag),
-      subtitle: copy == null ? SelectableText(value) : Text(value),
+      subtitle: switch ((copy == null ? SelectableText(value) : Text(value), hint)) {
+        (final shown, null) => shown,
+        (final shown, final hint?) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            shown,
+            Text(hint, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      },
       onTap: doCopy,
       trailing: copy == null
           ? null

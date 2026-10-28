@@ -5385,6 +5385,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     contactName: e.transport == 'self' ? null : contactName,
     toSelf: e.transport == 'self',
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
+    messageBySender: core.messageBy(e.messages, core.SlateRole.sender) != null || core.messageBy(e.messages, core.SlateRole.receiver) == null,
     height: height,
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,

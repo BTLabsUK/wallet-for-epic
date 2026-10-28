@@ -797,7 +797,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsFee => '手续费';
 
   @override
-  String get txDetailsNoteLabel => '备注';
+  String get txDetailsNoteLabel => '私人备注';
 
   @override
   String get txDetailsPrivateNoteLabel => '私人备注';
@@ -812,6 +812,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsYourMessage => '留言';
 
   @override
+  String get txDetailsMessageHintToRecipient => '已发送给收款人';
+
+  @override
+  String get txDetailsMessageHintFromSender => '来自付款人';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => '来自收款人';
+
+  @override
+  String get txDetailsMessageHintToSender => '已发送给付款人';
+
+  @override
   String get txDetailsNoNote => '暂无备注。添加备注，记下这笔付款的用途。';
 
   @override
@@ -821,7 +833,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsEditNote => '编辑备注';
 
   @override
-  String get txDetailsNoteDialogTitle => '备注';
+  String get txDetailsNoteDialogTitle => '私人备注';
 
   @override
   String get txDetailsNoteHelper => '仅保存在此设备和你导出的钱包数据中。';
@@ -3035,6 +3047,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLinkCopied => '链接已复制';
 
   @override
+  String get settingsAddressCopied => '地址已复制';
+
+  @override
+  String get settingsCopyAddress => '复制地址';
+
+  @override
   String get settingsPinTitle => '修改 PIN 码';
 
   @override
@@ -3339,7 +3357,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNoteHelper => '收款人能看到。';
 
   @override
-  String get sendReviewMessageKept => '收款人能看到。它也会和这笔付款一起保存在你的历史记录中。';
+  String get sendReviewMessageKept => '收款人能看到。副本也会作为你的私人备注保存，你可以编辑它。';
 
   @override
   String get sendNetworkFee => '网络手续费';

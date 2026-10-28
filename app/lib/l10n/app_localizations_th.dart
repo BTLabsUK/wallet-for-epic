@@ -823,7 +823,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsFee => 'ค่าธรรมเนียม';
 
   @override
-  String get txDetailsNoteLabel => 'บันทึก';
+  String get txDetailsNoteLabel => 'บันทึกส่วนตัว';
 
   @override
   String get txDetailsPrivateNoteLabel => 'บันทึกส่วนตัว';
@@ -838,6 +838,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsYourMessage => 'ข้อความ';
 
   @override
+  String get txDetailsMessageHintToRecipient => 'ส่งถึงผู้รับแล้ว';
+
+  @override
+  String get txDetailsMessageHintFromSender => 'จากผู้ส่ง';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => 'จากผู้รับ';
+
+  @override
+  String get txDetailsMessageHintToSender => 'ส่งถึงผู้ส่งแล้ว';
+
+  @override
   String get txDetailsNoNote =>
       'ไม่มีบันทึก เพิ่มไว้เพื่อจำว่ารายการนี้เป็นค่าอะไร';
 
@@ -848,7 +860,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsEditNote => 'แก้ไขบันทึก';
 
   @override
-  String get txDetailsNoteDialogTitle => 'บันทึก';
+  String get txDetailsNoteDialogTitle => 'บันทึกส่วนตัว';
 
   @override
   String get txDetailsNoteHelper =>
@@ -3163,6 +3175,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsLinkCopied => 'คัดลอกลิงก์แล้ว';
 
   @override
+  String get settingsAddressCopied => 'คัดลอกที่อยู่แล้ว';
+
+  @override
+  String get settingsCopyAddress => 'คัดลอกที่อยู่';
+
+  @override
   String get settingsPinTitle => 'เปลี่ยน PIN';
 
   @override
@@ -3476,7 +3494,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'ผู้รับเห็นข้อความนี้ และจะเก็บไว้กับการชำระเงินนี้ในประวัติของคุณด้วย';
+      'ผู้รับเห็นข้อความนี้ และจะเก็บสำเนาไว้เป็นบันทึกส่วนตัวของคุณซึ่งแก้ไขได้';
 
   @override
   String get sendNetworkFee => 'ค่าธรรมเนียม';
@@ -13858,7 +13876,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ชื่อและบันทึกถูกเขียนลงในโค้ดโดยผู้สร้างโค้ด ไม่มีใครตรวจสอบ ให้ตรวจสอบที่อยู่และจำนวน ไม่ใช่ชื่อ';
 
   @override
-  String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นบันทึกนี้ด้วย';
+  String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นข้อความนี้ด้วย';
 
   @override
   String get sendOriginQr => 'จาก QR Code';

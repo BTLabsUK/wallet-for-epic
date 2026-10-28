@@ -1924,7 +1924,49 @@ void main() {
       expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
       await _reveal(tester, find.text('support@btlabs.uk'));
       expect(find.text('Contact'), findsOneWidget);
-      await _reveal(tester, find.byKey(settingsLicencesKey));
+      // An email address, not a link: the notice says so.
+      final copied = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.ensureVisible(find.text('support@btlabs.uk'));
+      await tester.pump();
+      await tester.tap(find.text('support@btlabs.uk'));
+      await tester.pump();
+      expect(copied, [
+        {'text': 'support@btlabs.uk'},
+      ]);
+      final notices = ProviderScope.containerOf(
+        tester.element(find.text('support@btlabs.uk')),
+      );
+      expect(notices.read(noticeProvider)?.text, 'Address copied');
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Icon && w.semanticLabel == 'Copy address',
+        ),
+        findsOneWidget,
+      );
+      // Back up to Licences, above the contact row.
+      await tester.scrollUntilVisible(
+        find.byKey(settingsLicencesKey),
+        -200,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView).last,
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       await tester.tap(find.byKey(settingsLicencesKey));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));

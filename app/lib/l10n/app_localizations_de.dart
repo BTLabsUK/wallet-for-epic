@@ -843,7 +843,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsFee => 'Gebühr';
 
   @override
-  String get txDetailsNoteLabel => 'Notiz';
+  String get txDetailsNoteLabel => 'Private Notiz';
 
   @override
   String get txDetailsPrivateNoteLabel => 'Private Notiz';
@@ -858,6 +858,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsYourMessage => 'Nachricht';
 
   @override
+  String get txDetailsMessageHintToRecipient => 'An den Empfänger gesendet';
+
+  @override
+  String get txDetailsMessageHintFromSender => 'Vom Absender';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => 'Vom Empfänger';
+
+  @override
+  String get txDetailsMessageHintToSender => 'An den Absender gesendet';
+
+  @override
   String get txDetailsNoNote =>
       'Keine Notiz. Fügen Sie eine hinzu, um sich zu merken, wofür diese Zahlung war.';
 
@@ -868,7 +880,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsEditNote => 'Notiz bearbeiten';
 
   @override
-  String get txDetailsNoteDialogTitle => 'Notiz';
+  String get txDetailsNoteDialogTitle => 'Private Notiz';
 
   @override
   String get txDetailsNoteHelper =>
@@ -3266,6 +3278,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLinkCopied => 'Link kopiert';
 
   @override
+  String get settingsAddressCopied => 'Adresse kopiert';
+
+  @override
+  String get settingsCopyAddress => 'Adresse kopieren';
+
+  @override
   String get settingsPinTitle => 'PIN ändern';
 
   @override
@@ -3587,7 +3605,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'Der Empfänger sieht sie. Sie bleibt auch bei dieser Zahlung in Ihrem Verlauf gespeichert.';
+      'Der Empfänger sieht sie. Eine Kopie bleibt auch als Ihre private Notiz gespeichert, die Sie bearbeiten können.';
 
   @override
   String get sendNetworkFee => 'Netzwerkgebühr';

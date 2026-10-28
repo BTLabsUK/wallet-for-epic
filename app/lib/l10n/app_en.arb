@@ -957,7 +957,7 @@
   "@txDetailsFee": {
     "description": "Label of a details row: the network fee of a send."
   },
-  "txDetailsNoteLabel": "Note",
+  "txDetailsNoteLabel": "Private note",
   "@txDetailsNoteLabel": {
     "description": "Label of the field that edits the payment's note. The note is the user's own text about the payment."
   },
@@ -977,6 +977,22 @@
   "@txDetailsYourMessage": {
     "description": "Label of the message this wallet's user wrote into the payment, which the other party sees."
   },
+  "txDetailsMessageHintToRecipient": "Sent to the recipient",
+  "@txDetailsMessageHintToRecipient": {
+    "description": "Small line under a payment's Message in its details: this wallet wrote it and the recipient sees it."
+  },
+  "txDetailsMessageHintFromSender": "From the sender",
+  "@txDetailsMessageHintFromSender": {
+    "description": "Small line under a payment's Message in its details: the sender wrote it."
+  },
+  "txDetailsMessageHintFromRecipient": "From the recipient",
+  "@txDetailsMessageHintFromRecipient": {
+    "description": "Small line under a payment's Message in its details: the recipient wrote it into their answer."
+  },
+  "txDetailsMessageHintToSender": "Sent to the sender",
+  "@txDetailsMessageHintToSender": {
+    "description": "Small line under a payment's Message in its details: this wallet, the recipient, wrote it (an invoice) and the sender sees it."
+  },
   "txDetailsNoNote": "No note. Add one to remember what this was for.",
   "txDetailsAddNote": "Add note",
   "@txDetailsAddNote": {
@@ -986,7 +1002,7 @@
   "@txDetailsEditNote": {
     "description": "Tooltip of the button that changes the payment's note."
   },
-  "txDetailsNoteDialogTitle": "Note",
+  "txDetailsNoteDialogTitle": "Private note",
   "@txDetailsNoteDialogTitle": {
     "description": "Title of the dialog that edits the payment's note."
   },
@@ -4065,6 +4081,14 @@
   "@settingsLinkCopied": {
     "description": "Notice after a web link was copied."
   },
+  "settingsAddressCopied": "Address copied",
+  "@settingsAddressCopied": {
+    "description": "Notice after the contact email address was copied (About and Help › Contact)."
+  },
+  "settingsCopyAddress": "Copy address",
+  "@settingsCopyAddress": {
+    "description": "Screen-reader label of the copy icon on the contact email row."
+  },
   "settingsPinTitle": "Change PIN",
   "@settingsPinTitle": {
     "description": "Title of the screen that sets a new 6-digit PIN."
@@ -4494,7 +4518,7 @@
   "@sendNoteHelper": {
     "description": "Send, step 2: under the note field; the recipient sees the note as well."
   },
-  "sendReviewMessageKept": "They see it. It is also kept with this payment in your history.",
+  "sendReviewMessageKept": "The recipient sees it. A copy is also kept as your private note, which you can edit.",
   "@sendReviewMessageKept": {
     "description": "Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note)."
   },
