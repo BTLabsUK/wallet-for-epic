@@ -541,6 +541,8 @@ class Tx {
     proofSender: proofSender,
     proofSignature: proofSignature,
     coinbase: coinbase,
+    otherWallet: otherWallet,
+    unverified: unverified,
     foundByScan: foundByScan,
     foundDuring: foundDuring,
     datedByBlock: datedByBlock,
@@ -563,6 +565,9 @@ class Tx {
     pairingId: pairingId,
     blockWait: blockWait,
     credited: credited,
+    deviceName: deviceName,
+    deviceEnding: deviceEnding,
+    deviceWhy: deviceWhy,
   );
 
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
