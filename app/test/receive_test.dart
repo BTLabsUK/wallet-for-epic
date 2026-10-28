@@ -529,20 +529,12 @@ void main() {
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
-<<<<<<< HEAD
-      expect(find.text('Epicbox not connected'), findsOneWidget);
-=======
       expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
->>>>>>> df4b9c30 (UX audit Batches 4+5, phone and wording, second pass: Help places follow the renamed sections, Receive line state-first with the server, first-run choices in the screen's foot, tests follow the new words)
       expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-<<<<<<< HEAD
-      expect(find.text('Epicbox connected'), findsOneWidget);
-=======
       expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
->>>>>>> df4b9c30 (UX audit Batches 4+5, phone and wording, second pass: Help places follow the renamed sections, Receive line state-first with the server, first-run choices in the screen's foot, tests follow the new words)
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
 
       // A stopped listener receives nothing either.
