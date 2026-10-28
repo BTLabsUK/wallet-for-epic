@@ -83,6 +83,20 @@ void main() {
       expect((await a.pairing.privatePairings()).single.state, PairingState.verified);
     });
 
+    test("a service let go never writes: the wallet's next service keeps the link it saved", () async {
+      await linkBoth(a, b);
+      final key = a.service.store.key;
+      final saved = await a.store.read(key);
+      final next = DeviceService(host: SessionDeviceHost(a.session), store: a.service.store, defaultName: 'Desktop', clock: clock.call);
+      await next.load();
+      expect(next.book.devices.single.name, 'Phone');
+      // The old one goes while a run of it is still under way: what it would save stays out.
+      a.service.dispose();
+      await a.service.renameDevice(b.service.book.deviceId, 'stale');
+      expect(await a.store.read(key), saved);
+      next.dispose();
+    });
+
     test('nothing is linked until both devices checked the pictures', () async {
       await showAndScan(a, b);
       expect(a.service.link!.phase, LinkPhase.checking);

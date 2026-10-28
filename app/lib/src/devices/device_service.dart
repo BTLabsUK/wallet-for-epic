@@ -310,7 +310,9 @@ class DeviceService {
     _book = next;
     host.heldOutputs = next.heldCommitments;
     final json = jsonEncode(next.toJson());
-    if (json == _saved) return;
+    // A service that was let go never writes: the wallet's next service owns the book now, and
+    // a run still under way here would put an older book over it.
+    if (json == _saved || _disposed) return;
     _saved = json;
     await store.save(next);
     _changed();
