@@ -4778,7 +4778,6 @@
   "deskRecvHttpIntroInternet": "สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskKitMethodConnected": "เชื่อมต่อแล้ว",
   "deskOvSendWaitsNode": "การส่งจะกลับมาเมื่อโหนดตอบสนอง",
-  "deskSlRemoveInUse": "สลับไปใช้เซิร์ฟเวอร์อื่นก่อน",
   "deskSetRescanRecheck": "ตรวจใหม่",
   "deskSetRescanRecheckAgain": "ตรวจอีกครั้ง",
   "deskSetRescanFromDate": "ตั้งแต่วันที่",

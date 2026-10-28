@@ -4778,7 +4778,6 @@
   "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
   "deskKitMethodConnected": "Verbunden",
   "deskOvSendWaitsNode": "Senden ist wieder möglich, sobald der Node antwortet.",
-  "deskSlRemoveInUse": "Zuerst zu einem anderen Server wechseln.",
   "deskSetRescanRecheck": "Neu prüfen",
   "deskSetRescanRecheckAgain": "Noch einmal prüfen",
   "deskSetRescanFromDate": "Ab einem Datum",

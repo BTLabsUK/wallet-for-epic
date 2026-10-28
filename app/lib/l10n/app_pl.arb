@@ -4778,7 +4778,6 @@
   "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
   "deskKitMethodConnected": "Połączono",
   "deskOvSendWaitsNode": "Wysyłanie będzie możliwe, gdy węzeł odpowie.",
-  "deskSlRemoveInUse": "Najpierw przełącz na inny serwer.",
   "deskSetRescanRecheck": "Sprawdź",
   "deskSetRescanRecheckAgain": "Sprawdź ponownie",
   "deskSetRescanFromDate": "Od daty",
