@@ -140,7 +140,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         if (!didPop) setState(() => _creating = false);
       },
       child: SlotScaffold(
-        centered: true,
+        centered: !(_answer == null && choosing),
         glow: heroGlow,
         // The title is the hero's heading; the bar only holds the network action, and on the
         // PIN step the way back to the choice.

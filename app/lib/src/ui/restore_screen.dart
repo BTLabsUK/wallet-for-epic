@@ -333,7 +333,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final form = _step == _RestoreStep.phrase;
     final offer = _step == _RestoreStep.importOffer;
     return SlotScaffold(
-      centered: !form,
+      centered: !form && !offer,
       glow: _step == _RestoreStep.importOffer ? heroGlow : null,
       appBar: AppBar(
         title: Text(l.restoreTitle),
