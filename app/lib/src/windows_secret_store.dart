@@ -34,9 +34,9 @@ import 'secret_store_api.dart';
 /// The plugin's file name (flutter_secure_storage_windows `encryptedJsonFileName`).
 const String secretFileName = 'flutter_secure_storage.dat';
 
-/// Encrypts and decrypts the file's bytes. On Windows, DPAPI for the current user with no
-/// entropy and no flags, as the plugin calls it. [unprotect] throws when the bytes are not a
-/// valid blob (truncated, altered, another user's).
+/// Encrypts and decrypts the file's bytes. On Windows, DPAPI for the current user with the app's
+/// entropy, reading the plugin's blobs (no entropy) too (`windows_dpapi.dart`). [unprotect]
+/// throws when the bytes are not a valid blob (truncated, altered, another user's).
 abstract interface class SecretCipher {
   Uint8List protect(Uint8List plain);
 

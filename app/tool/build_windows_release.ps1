@@ -12,7 +12,13 @@
 # Steps: LEPIC and lepic-flutter at the pins -> lepic_ffi.dll with a static CRT (RUSTFLAGS
 # crt-static), built from LEPIC into lepic-flutter\native ->
 # flutter build windows --release (version from pubspec.yaml) -> checks (VersionInfo, storage
-# prefix) -> VC runtime DLLs next to epic_wallet.exe -> Inno Setup -> .exe and .exe.sha256 in -OutDir.
+# prefix) -> VC runtime DLLs next to epic_wallet.exe -> Authenticode signature on epic_wallet.exe
+# -> Inno Setup -> signature on the installer -> .exe and .exe.sha256 in -OutDir.
+#
+# Signing: the code-signing certificate stays in the signing machine's certificate store, never in
+# the repository. -SignThumbprint (or WFE_SIGN_THUMBPRINT) names it by its SHA-1 thumbprint;
+# signtool.exe from the Windows SDK signs with SHA-256 and an RFC 3161 timestamp. Without one
+# the build goes on unsigned and says so, and SmartScreen warns on a first install.
 param(
     [string]$Source = (Join-Path $PSScriptRoot '..\..'),
     [Parameter(Mandatory)][string]$Lepic,
@@ -33,10 +39,32 @@ param(
     [string]$BuildId,
     # A rebuild of the same version (WFE_BUILD_TAG, e.g. r2); default: from the tag v<version>-rN
     # on -Source's HEAD.
-    [string]$BuildTag
+    [string]$BuildTag,
+    # The code-signing certificate's SHA-1 thumbprint in CurrentUser\My or LocalMachine\My.
+    [string]$SignThumbprint = $env:WFE_SIGN_THUMBPRINT,
+    [string]$SignTool,
+    [string]$TimestampUrl = 'http://timestamp.digicert.com'
 )
 $ErrorActionPreference = 'Stop'
 if ($NoTor -and $TorBundle) { throw '-NoTor builds without Tor: leave out -TorBundle' }
+
+# Signs $File with the certificate -SignThumbprint names, or says the build is unsigned.
+function Sign-File([string]$File) {
+    if (-not $SignThumbprint) {
+        Write-Warning "not signed: $(Split-Path $File -Leaf) (no -SignThumbprint / WFE_SIGN_THUMBPRINT)"
+        return
+    }
+    $tool = $SignTool
+    if (-not $tool) {
+        $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+            Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+    }
+    if (-not $tool) { throw 'signtool.exe not found: install the Windows SDK or pass -SignTool' }
+    & $tool sign /sha1 $SignThumbprint /fd SHA256 /tr $TimestampUrl /td SHA256 $File
+    if ($LASTEXITCODE) { throw "signtool could not sign $File" }
+    & $tool verify /pa $File
+    if ($LASTEXITCODE) { throw "the signature of $File does not verify" }
+}
 $variant = if ($NoTor) { '-notor' } else { '' }
 $torDefine = if ($NoTor) { 'false' } else { 'true' }
 $Source = (Resolve-Path $Source).Path
@@ -176,6 +204,10 @@ if ($TorBundle) {
     else { Write-Output 'no -TorBundle: Tor shows as not included in this build' }
 }
 
+# --- signature on the app, then the installer that carries it
+Step 'Authenticode'
+Sign-File "$rel\epic_wallet.exe"
+
 # --- installer
 Step 'Inno Setup'
 $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
@@ -185,6 +217,7 @@ $setup = Join-Path $OutDir "epic-cash-desktop-$name$variant-windows-x64-setup.ex
 # Inno Setup pads the string FileVersion with spaces (and a NUL): compare the trimmed text.
 $setupVersion = ((Get-Item $setup).VersionInfo.FileVersion -replace '[\s\x00]', '')
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
+Sign-File $setup
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLower()
 "$hash  $(Split-Path $setup -Leaf)" | Set-Content -Encoding ascii "$setup.sha256"
 Write-Output "Wrote $setup ($((Get-Item $setup).Length) bytes) sha256 $hash"
