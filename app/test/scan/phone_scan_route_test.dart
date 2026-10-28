@@ -325,7 +325,7 @@ void main() {
       expect(find.byType(SendView), findsOneWidget);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Payment request'), findsOneWidget);
+      expect(_inBanner('Invoice'), findsOneWidget);
       expect(_inBanner('Check the amount, then continue.'), findsOneWidget);
       expect(find.text('Requested by the code'), findsOneWidget);
       // The note travels in the payment: its tile is folded and shows it.
@@ -738,7 +738,7 @@ void main() {
       await paste(tester, h, _lunch);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Payment request'), findsOneWidget);
+      expect(_inBanner('Invoice'), findsOneWidget);
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
       await _continue(tester);
       expect(_origin('Pasted'), findsOneWidget);
@@ -780,7 +780,7 @@ void main() {
       expect(_tab(tester), ShellTab.send);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Payment request'), findsOneWidget);
+      expect(_inBanner('Invoice'), findsOneWidget);
       await _continue(tester);
       expect(_origin('From a link'), findsOneWidget);
     });

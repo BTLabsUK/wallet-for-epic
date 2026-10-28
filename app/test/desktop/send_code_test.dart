@@ -154,7 +154,7 @@ void main() {
     expect(text(tester, 'Amount'), '1.5');
     expect(text(tester, 'Message'), 'Lunch with Anna');
     expect(banner(), findsOneWidget);
-    expect(find.text('Payment request'), findsOneWidget);
+    expect(find.text('Invoice'), findsOneWidget);
     expect(find.text('Check the amount, then continue.'), findsOneWidget);
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, 'Lunch with Anna');
     expect(find.text('Note from the payee (not verified)'), findsOneWidget);
@@ -208,7 +208,7 @@ void main() {
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-label'))).data, 'Bakery');
     await tester.tap(find.byKey(const ValueKey('send-code-dismiss')));
     await tester.pumpAndSettle();
-    expect(find.text('Payment request'), findsNothing);
+    expect(find.text('Invoice'), findsNothing);
     expect(find.byKey(const ValueKey('send-code-label')), findsOneWidget);
 
     // A different address: the code goes, and the amount it put in with it.

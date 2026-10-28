@@ -1546,7 +1546,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'Запросов нет. Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, запрос появится здесь, и ничего не будет оплачено без вашего одобрения.';
+      'Счетов нет. Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, счёт появится здесь, и ничего не будет оплачено без вашего одобрения.';
 
   @override
   String get invoicesUnnamedService => 'Сервис без названия';
@@ -1689,7 +1689,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get requestMessageHelper =>
-      'Плательщик увидит это сообщение вместе с запросом.';
+      'Плательщик увидит это сообщение вместе с счётом.';
 
   @override
   String get requestButton => 'Запросить';
@@ -1716,7 +1716,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get issuedWithdraw => 'Отозвать';
 
   @override
-  String get issuedWithdrawTitle => 'Отозвать этот запрос?';
+  String get issuedWithdrawTitle => 'Отозвать этот счёт?';
 
   @override
   String issuedWithdrawBody(String payer) {
@@ -1727,7 +1727,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get issuedWithdrawKeep => 'Оставить';
 
   @override
-  String get issuedDetailsSection => 'Запрос платежа';
+  String get issuedDetailsSection => 'Счёт';
 
   @override
   String get issuedDetailsPayer => 'Запрошено у';
@@ -1742,33 +1742,33 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsDeclined =>
-      'Плательщик отклонил этот запрос, поэтому он отозван. Ничего не оплачено.';
+      'Плательщик отклонил этот счёт, поэтому он отозван. Ничего не оплачено.';
 
   @override
   String get issuedDetailsWithdrawn =>
-      'Вы отозвали этот запрос. Ничего не оплачено.';
+      'Вы отозвали этот счёт. Ничего не оплачено.';
 
   @override
   String get issuedDetailsExpired =>
-      'Срок этого запроса истёк до оплаты. Ничего не оплачено.';
+      'Срок этого счёта истёк до оплаты. Ничего не оплачено.';
 
   @override
-  String get issuerNoticePaid => 'Один из ваших запросов оплачен.';
+  String get issuerNoticePaid => 'Один из ваших счетов оплачен.';
 
   @override
-  String get issuerNoticeDeclined => 'Один из ваших запросов отклонён.';
+  String get issuerNoticeDeclined => 'Один из ваших счетов отклонён.';
 
   @override
   String get issuerNoticeWithdrawn =>
-      'Запрос отозван. Его больше нельзя оплатить.';
+      'Счёт отозван. Его больше нельзя оплатить.';
 
   @override
   String get issuerNoticeExpired =>
-      'Срок одного из ваших запросов истёк без оплаты.';
+      'Срок одного из ваших счетов истёк без оплаты.';
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом транзакции.';
+    return 'Кошелёк $payer не умеет оплачивать счета и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом транзакции.';
   }
 
   @override
@@ -1776,7 +1776,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Кошелёк плательщика не умеет оплачивать запросы, поэтому ничего не оплачено. Попросите отправить платёж на ваш адрес или как файл транзакции.';
+      'Кошелёк плательщика не умеет оплачивать счета, поэтому ничего не оплачено. Попросите отправить платёж на ваш адрес или как файл транзакции.';
 
   @override
   String get txStatusWaitingPayer => 'Ждёт плательщика';
@@ -1789,11 +1789,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsWaitingPayer =>
-      'Вы запросили этот платёж. Пока ничего не поступило: платёж придёт, когда плательщик оплатит запрос.';
+      'Вы запросили этот платёж. Пока ничего не поступило: платёж придёт, когда плательщик оплатит счёт.';
 
   @override
   String get txDetailsRequestEnded =>
-      'Этот запрос завершён без оплаты. Ничего не поступило.';
+      'Этот счёт завершён без оплаты. Ничего не поступило.';
 
   @override
   String get txDetailsRequestedFrom => 'Запрошено у';
@@ -3711,7 +3711,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakePayment => 'Платёж';
 
   @override
-  String get handshakeRequest => 'Запрос';
+  String get handshakeRequest => 'Счёт';
 
   @override
   String get handshakeYou => 'Вы';
@@ -3738,8 +3738,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakeConfirm => 'Сеть его подтверждает.';
 
   @override
-  String get handshakeReq1 =>
-      'Ваш кошелёк отправляет запрос на сервер Epicbox.';
+  String get handshakeReq1 => 'Ваш кошелёк отправляет счёт на сервер Epicbox.';
 
   @override
   String get handshakeReq2 =>
@@ -4590,11 +4589,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get invoicesSentEmpty => 'Запросов не отправлено';
+  String get invoicesSentEmpty => 'Счетов не отправлено';
 
   @override
   String get invoicesSentEmptyCaption =>
-      'Запрос просит кого-то заплатить вам сумму.';
+      'Счёт просит кого-то заплатить вам сумму.';
 
   @override
   String get invoicesWaitingPayment => 'Ожидает оплаты';
@@ -4646,7 +4645,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String invoicesRequestSummary(String payer, String amount) {
-    return '$payer получит запрос на оплату $amount. Запрос истекает через 24 ч.';
+    return '$payer получит счёт на оплату $amount. Счёт истекает через 24 ч.';
   }
 
   @override
@@ -5555,7 +5554,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, запрос появится здесь, и ничего не будет оплачено без вашего одобрения.';
+      'Когда сопряжённый контакт, которому вы разрешили, попросит об оплате, счёт появится здесь, и ничего не будет оплачено без вашего одобрения.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5805,7 +5804,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvSetReceiveHint =>
-      'Попросите сопряжённый контакт оплатить или сохраните запрос файлом.';
+      'Попросите сопряжённый контакт оплатить или сохраните счёт файлом.';
 
   @override
   String get serverSwitchRelayTitle => 'Сменить сервер Epicbox?';
@@ -14707,7 +14706,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendMethodHeader => 'Способ оплаты';
 
   @override
-  String get sendRequestTitle => 'Запрос на оплату';
+  String get sendRequestTitle => 'Счёт на оплату';
 
   @override
   String get sendRequestCheck => 'Проверьте сумму, затем продолжите.';
@@ -15670,12 +15669,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactAllowInfoDesktop(String name) {
-    return 'Кошелёк $name может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего одобрения и пароля кошелька. Само по себе ничего не оплачивается.';
+    return 'Кошелёк $name может присылать вам счета на оплату. Каждый ждёт в «Счетах» вашего одобрения и пароля кошелька. Само по себе ничего не оплачивается.';
   }
 
   @override
   String contactAllowInfo(String name) {
-    return 'Кошелёк $name может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего одобрения и PIN. Само по себе ничего не оплачивается.';
+    return 'Кошелёк $name может присылать вам счета на оплату. Каждый ждёт в «Счетах» вашего одобрения и PIN. Само по себе ничего не оплачивается.';
   }
 
   @override
@@ -15700,7 +15699,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactRelayDownBody =>
-      'Повторная попытка. Запросы и платежи ждут, пока он ответит.';
+      'Повторная попытка. Счета и платежи ждут, пока он ответит.';
 
   @override
   String get contactPausedEpicboxOff => 'Приостановлено, пока Epicbox выключен';
@@ -15861,7 +15860,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invSetLead =>
-      'Сопряжённый контакт, которому вы разрешите, может присылать вам запросы на оплату. Каждый ждёт в «Счетах» вашего PIN.';
+      'Сопряжённый контакт, которому вы разрешите, может присылать вам счета на оплату. Каждый ждёт в «Счетах» вашего PIN.';
 
   @override
   String get invSetPaired => 'Сопряжённые контакты';
@@ -15881,7 +15880,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Запросы ждут на сервере и придут, когда Epicbox снова включится.';
+      'Счета ждут на сервере и придут, когда Epicbox снова включится.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15893,10 +15892,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Отклонено $count открытого запроса.',
-      many: 'Отклонено $count открытых запросов.',
-      few: 'Отклонено $count открытых запроса.',
-      one: 'Отклонён $count открытый запрос.',
+      other: 'Отклонено $count открытого счёта.',
+      many: 'Отклонено $count открытых счетов.',
+      few: 'Отклонено $count открытых счёта.',
+      one: 'Отклонён $count открытый счёт.',
     );
     return '$_temp0';
   }
@@ -16004,7 +16003,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name: запрос отозван';
+    return '$name: счёт отозван';
   }
 
   @override
@@ -16013,7 +16012,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name: этот запрос отозван';
+    return '$name: этот счёт отозван';
   }
 
   @override
@@ -16021,10 +16020,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$name: $count запроса на $amount EPIC за 10 минут. Оплатить все?',
-      many: '$name: $count запросов на $amount EPIC за 10 минут. Оплатить все?',
-      few: '$name: $count запроса на $amount EPIC за 10 минут. Оплатить все?',
-      one: '$name: $count запрос на $amount EPIC за 10 минут. Оплатить?',
+      other: '$name: $count счёта на $amount EPIC за 10 минут. Оплатить все?',
+      many: '$name: $count счетов на $amount EPIC за 10 минут. Оплатить все?',
+      few: '$name: $count счёта на $amount EPIC за 10 минут. Оплатить все?',
+      one: '$name: $count счёт на $amount EPIC за 10 минут. Оплатить?',
     );
     return '$_temp0';
   }
@@ -16048,7 +16047,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqNewLead =>
-      'Попросите сопряжённый контакт оплатить или сохраните запрос файлом для кого угодно.';
+      'Попросите сопряжённый контакт оплатить или сохраните счёт файлом для кого угодно.';
 
   @override
   String get reqNewLeadContacts => 'Попросите сопряжённый контакт оплатить.';
@@ -16058,15 +16057,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqNewToHintContacts =>
-      'Сопряжённые контакты, чей кошелёк оплачивает запросы.';
+      'Сопряжённые контакты, чей кошелёк оплачивает счета.';
 
   @override
   String get reqNoPayersContacts =>
-      'Пока ни один сопряжённый контакт не оплачивает запросы. Выполните сопряжение и проверьте.';
+      'Пока ни один сопряжённый контакт не оплачивает счета. Выполните сопряжение и проверьте.';
 
   @override
   String get reqNewToHint =>
-      'Сопряжённые контакты, чей кошелёк оплачивает запросы. Для остальных: сохраните запрос файлом.';
+      'Сопряжённые контакты, чей кошелёк оплачивает счета. Для остальных: сохраните счёт файлом.';
 
   @override
   String get reqNewSaveFile => 'Сохранить файлом';
@@ -16207,7 +16206,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeWithdrew(String name) {
-    return '$name: запрос отозван. Ваши средства разблокированы.';
+    return '$name: счёт отозван. Ваши средства разблокированы.';
   }
 
   @override
@@ -16348,7 +16347,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invSetLeadDesktop =>
-      'Сопряжённый контакт, которому вы разрешите, может присылать этому кошельку запросы на оплату. Каждый ждёт в «Счетах» пароля кошелька.';
+      'Сопряжённый контакт, которому вы разрешите, может присылать этому кошельку счета на оплату. Каждый ждёт в «Счетах» пароля кошелька.';
 
   @override
   String get invSetRowAllowed => 'Проверено · разрешено';
@@ -16367,21 +16366,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'Пока ни один сопряжённый контакт не оплачивает запросы. Выполните сопряжение и проверьте или сохраните запрос файлом.';
+      'Пока ни один сопряжённый контакт не оплачивает счета. Выполните сопряжение и проверьте или сохраните счёт файлом.';
 
   @override
   String get reqPickContact => 'Выберите контакт';
 
   @override
-  String get reqFileSaved => 'Запрос сохранён файлом';
+  String get reqFileSaved => 'Счёт сохранён файлом';
 
   @override
   String reqSent(String name) {
-    return 'Запрос отправлен: $name';
+    return 'Счёт отправлен: $name';
   }
 
   @override
-  String get reqFileTitle => 'Запрос на оплату';
+  String get reqFileTitle => 'Счёт на оплату';
 
   @override
   String noticeOutboxStuck(String name) {
@@ -16390,7 +16389,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name: слишком много запросов. Лишние отброшены. Выключите счета этого контакта, если это повторяется.';
+    return '$name: слишком много счетов. Лишние отброшены. Выключите счета этого контакта, если это повторяется.';
   }
 
   @override
@@ -16548,27 +16547,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairInvShortDesktop =>
-      'Просить вас об оплате может только проверенный контакт, которому вы разрешили. Каждый запрос ждёт пароля кошелька.';
+      'Просить вас об оплате может только проверенный контакт, которому вы разрешили. Каждый счёт ждёт пароля кошелька.';
 
   @override
   String get helpPairInvShort =>
-      'Просить вас об оплате может только проверенный контакт, которому вы разрешили. Каждый запрос ждёт вашего PIN.';
+      'Просить вас об оплате может только проверенный контакт, которому вы разрешили. Каждый счёт ждёт вашего PIN.';
 
   @override
   String get helpPairInvP1 =>
-      'Магазин, биржа или человек, с которым вы выполнили сопряжение, может присылать запросы на оплату, если вы разрешите: **Разрешить счета** на странице контакта или в [[Настройки › Счета|Settings › Invoices]]. Переключатель работает только для проверенного контакта.';
+      'Магазин, биржа или человек, с которым вы выполнили сопряжение, может присылать счета на оплату, если вы разрешите: **Разрешить счета** на странице контакта или в [[Настройки › Счета|Settings › Invoices]]. Переключатель работает только для проверенного контакта.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'Запрос появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите запрос паролем кошелька. Запрос никогда не добавляет деньги в кошелёк.';
+      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт паролем кошелька. Счёт никогда не добавляет деньги в кошелёк.';
 
   @override
   String get helpPairInvP2 =>
-      'Запрос появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите запрос своим PIN. Запрос никогда не добавляет деньги в кошелёк.';
+      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт своим PIN. Счёт никогда не добавляет деньги в кошелёк.';
 
   @override
   String get helpPairInvP3 =>
-      'Выключение действует сразу: новые запросы от этого контакта отбрасываются, а открытые отклоняются.';
+      'Выключение действует сразу: новые счета от этого контакта отбрасываются, а открытые отклоняются.';
 
   @override
   String get helpPairInvP4 =>
@@ -16965,11 +16964,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ожидает файл ответа. Откройте его в разделе «Получить» или нажав на него.';
 
   @override
-  String get reqFromFileTitle => 'Запрос на оплату из файла';
+  String get reqFromFileTitle => 'Счёт на оплату из файла';
 
   @override
   String get reqFromFileWarn =>
-      'Ничто не говорит, кто создал этот запрос. Оплачивайте, только если ждали его от знакомого человека.';
+      'Ничто не говорит, кто создал этот счёт. Оплачивайте, только если ждали его от знакомого человека.';
 
   @override
   String get reqFileMessageLabel => 'Сообщение в файле';
@@ -16988,22 +16987,22 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправьте этот файл обратно тому, кто запросил. Он завершит платёж и отправит его в сеть.';
 
   @override
-  String get reqFileAlreadyPaid => 'Этот запрос уже оплачен.';
+  String get reqFileAlreadyPaid => 'Этот счёт уже оплачен.';
 
   @override
-  String get reqFileEnded => 'Этот запрос больше не действует.';
+  String get reqFileEnded => 'Этот счёт больше не действует.';
 
   @override
   String slateIncomingRequestAnswer(String amount) {
-    return 'Ответ на ваш запрос на оплату: $amount.';
+    return 'Ответ на ваш счёт на оплату: $amount.';
   }
 
   @override
   String get reqAnswerUnknown =>
-      'Это ответ на запрос, которого в этом кошельке больше нет.';
+      'Это ответ на счёт, которого в этом кошельке больше нет.';
 
   @override
-  String get deskInvIssuerAnother => 'Ещё один запрос';
+  String get deskInvIssuerAnother => 'Ещё один счёт';
 
   @override
   String get deskImpOpenAnother => 'Открыть другой файл';
@@ -17176,7 +17175,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbForgotRestoreInstead => 'Восстановить по фразе';
 
   @override
-  String get qrShowTitleRequest => 'Запрос на оплату';
+  String get qrShowTitleRequest => 'Счёт на оплату';
 
   @override
   String qrShowSubRequest(String amount) {
@@ -17185,7 +17184,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get qrHiddenBodyRequest =>
-      'Тот, кто его отсканирует, сможет оплатить этот запрос. Показывайте его только тому, кто платит.';
+      'Тот, кто его отсканирует, сможет оплатить этот счёт. Показывайте его только тому, кто платит.';
 
   @override
   String get qrStatusRequestHidden => 'Покажите это тому, кто платит.';
@@ -17196,7 +17195,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String qrSemanticsRequest(String state) {
-    return 'QR-код запроса на оплату, $state';
+    return 'QR-код счёта на оплату, $state';
   }
 
   @override
@@ -17223,7 +17222,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String reqQrSummary(String amount) {
-    return 'Тот, кто отсканирует код, сможет оплатить $amount. Отсканируйте здесь их ответ, чтобы завершить. Запрос истекает через 24 ч.';
+    return 'Тот, кто отсканирует код, сможет оплатить $amount. Отсканируйте здесь их ответ, чтобы завершить. Счёт истекает через 24 ч.';
   }
 
   @override
@@ -17245,10 +17244,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqQrAlreadyPaid =>
-      'Этот запрос уже оплачен. С этого телефона ничего не списано: его платёж остаётся заблокированным, пока его не отменят в «Активности» или он не истечёт через день.';
+      'Этот счёт уже оплачен. С этого телефона ничего не списано: его платёж остаётся заблокированным, пока его не отменят в «Активности» или он не истечёт через день.';
 
   @override
-  String get reqFromQrTitle => 'Запрос на оплату из QR-кода';
+  String get reqFromQrTitle => 'Счёт на оплату из QR-кода';
 
   @override
   String get reqFromQrWarn =>
@@ -17269,11 +17268,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqExpired =>
-      'Этот запрос истёк. Попросите новый. Ничего не оплачено.';
+      'Этот счёт истёк. Попросите новый. Ничего не оплачено.';
 
   @override
   String get reqOtherChain =>
-      'Этот запрос принадлежит другой сети Epic, или его срок не подходит этой сети. Ничего не оплачено.';
+      'Этот счёт принадлежит другой сети Epic, или его срок не подходит этой сети. Ничего не оплачено.';
 
   @override
   String get reqQrOpenNote =>
@@ -17281,7 +17280,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqQrWrongReply =>
-      'Этот ответ относится к другому запросу. Отсканируйте ответ на этот.';
+      'Этот ответ относится к другому счёту. Отсканируйте ответ на этот.';
 
   @override
   String get backupFileHolds =>

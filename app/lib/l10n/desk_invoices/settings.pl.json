@@ -3,5 +3,5 @@
   "deskInvSetExpiry": "Czas na zapłatę",
   "deskInvSetExpiryHint": "Jak długo wystawiona faktura pozostaje do zapłaty i jak długo otrzymana na ciebie czeka. Najwyżej 48 godzin.",
   "deskInvSetHours": "{hours} godz.",
-  "deskInvSetReceiveHint": "Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik."
+  "deskInvSetReceiveHint": "Poproś sparowany kontakt o zapłatę lub zapisz fakturę jako plik."
 }

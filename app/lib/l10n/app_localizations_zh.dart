@@ -1416,7 +1416,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoicesChecking => '正在检查账单';
 
   @override
-  String get invoicesEmpty => '没有等待中的请求。你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。';
+  String get invoicesEmpty => '没有等待中的账单。你允许的已配对联系人请求付款时，账单会显示在这里，在你批准之前不会付款。';
 
   @override
   String get invoicesUnnamedService => '未命名的服务';
@@ -1553,7 +1553,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get requestMessageLabel => '给付款方的留言（可选）';
 
   @override
-  String get requestMessageHelper => '付款方会随请求看到这条留言。';
+  String get requestMessageHelper => '付款方会随账单看到这条留言。';
 
   @override
   String get requestButton => '请求';
@@ -1580,7 +1580,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuedWithdraw => '撤回';
 
   @override
-  String get issuedWithdrawTitle => '撤回这个请求？';
+  String get issuedWithdrawTitle => '撤回这个账单？';
 
   @override
   String issuedWithdrawBody(String payer) {
@@ -1591,7 +1591,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuedWithdrawKeep => '保留';
 
   @override
-  String get issuedDetailsSection => '收款请求';
+  String get issuedDetailsSection => '账单';
 
   @override
   String get issuedDetailsPayer => '请求对象';
@@ -1603,29 +1603,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuedDetailsPaid => '已支付。你的钱包已完成这笔付款；网络确认后即完成。';
 
   @override
-  String get issuedDetailsDeclined => '付款方拒绝了这个请求，因此已撤回。没有支付任何款项。';
+  String get issuedDetailsDeclined => '付款方拒绝了这个账单，因此已撤回。没有支付任何款项。';
 
   @override
-  String get issuedDetailsWithdrawn => '你撤回了这个请求。没有支付任何款项。';
+  String get issuedDetailsWithdrawn => '你撤回了这个账单。没有支付任何款项。';
 
   @override
-  String get issuedDetailsExpired => '这个请求在支付前已过期。没有支付任何款项。';
+  String get issuedDetailsExpired => '这个账单在支付前已过期。没有支付任何款项。';
 
   @override
-  String get issuerNoticePaid => '你发出的一个请求已支付。';
+  String get issuerNoticePaid => '你发出的一个账单已支付。';
 
   @override
-  String get issuerNoticeDeclined => '你发出的一个请求被拒绝了。';
+  String get issuerNoticeDeclined => '你发出的一个账单被拒绝了。';
 
   @override
-  String get issuerNoticeWithdrawn => '请求已撤回，无法再支付。';
+  String get issuerNoticeWithdrawn => '账单已撤回，无法再支付。';
 
   @override
-  String get issuerNoticeExpired => '你发出的一个请求未支付就过期了。';
+  String get issuerNoticeExpired => '你发出的一个账单未支付就过期了。';
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return '$payer 的钱包无法支付请求，已将你的请求退回，因此已撤回。请让对方改为直接向你的地址付款，或使用交易文件。';
+    return '$payer 的钱包无法账单，已将你的账单退回，因此已撤回。请让对方改为直接向你的地址付款，或使用交易文件。';
   }
 
   @override
@@ -1633,7 +1633,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      '付款方的钱包无法支付请求，因此没有付款。请让对方把款项付到你的地址，或以交易文件发送。';
+      '付款方的钱包无法账单，因此没有付款。请让对方把款项付到你的地址，或以交易文件发送。';
 
   @override
   String get txStatusWaitingPayer => '等待付款方';
@@ -1645,10 +1645,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStepPaid => '已支付';
 
   @override
-  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款方支付请求后款项才会到达。';
+  String get txDetailsWaitingPayer => '你账单了这笔付款。目前还没有到账：付款方账单后款项才会到达。';
 
   @override
-  String get txDetailsRequestEnded => '这个请求未付款即已结束。没有任何款项到账。';
+  String get txDetailsRequestEnded => '这个账单未付款即已结束。没有任何款项到账。';
 
   @override
   String get txDetailsRequestedFrom => '请求对象';
@@ -3427,7 +3427,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakePayment => '付款';
 
   @override
-  String get handshakeRequest => '收款请求';
+  String get handshakeRequest => '账单';
 
   @override
   String get handshakeYou => '你';
@@ -3451,7 +3451,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeConfirm => '网络确认它。';
 
   @override
-  String get handshakeReq1 => '你的钱包把收款请求发到 Epicbox 服务器。';
+  String get handshakeReq1 => '你的钱包把账单发到 Epicbox 服务器。';
 
   @override
   String get handshakeReq2 => '服务器把它转给对方。对方批准后，其钱包加入币并签名。';
@@ -4230,10 +4230,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoicesSentEmpty => '没有已发送的请求';
+  String get invoicesSentEmpty => '没有已发送的账单';
 
   @override
-  String get invoicesSentEmptyCaption => '请求是请某人向你支付一笔金额。';
+  String get invoicesSentEmptyCaption => '账单是请某人向你支付一笔金额。';
 
   @override
   String get invoicesWaitingPayment => '等待付款';
@@ -4285,7 +4285,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoicesRequestSummary(String payer, String amount) {
-    return '将请求 $payer 支付 $amount。请求在 24 小时后到期。';
+    return '将账单 $payer 支付 $amount。账单在 24 小时后到期。';
   }
 
   @override
@@ -5125,7 +5125,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerEmptyTitle => '没有等待中的账单';
 
   @override
-  String get deskInvPayerEmptyText => '你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。';
+  String get deskInvPayerEmptyText => '你允许的已配对联系人请求付款时，账单会显示在这里，在你批准之前不会付款。';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5350,7 +5350,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskInvSetReceiveHint => '请已配对的联系人付款，或将请求保存为文件。';
+  String get deskInvSetReceiveHint => '请已配对的联系人付款，或将账单保存为文件。';
 
   @override
   String get serverSwitchRelayTitle => '更换 Epicbox 服务器？';
@@ -13380,7 +13380,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendMethodHeader => '付款方式';
 
   @override
-  String get sendRequestTitle => '付款请求';
+  String get sendRequestTitle => '账单';
 
   @override
   String get sendRequestCheck => '请检查金额，然后继续。';
@@ -14270,12 +14270,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactAllowInfoDesktop(String name) {
-    return '$name 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和钱包密码。不会自动付款。';
+    return '$name 的钱包可以向你发送账单。每个账单都在“账单”中等待你的批准和钱包密码。不会自动付款。';
   }
 
   @override
   String contactAllowInfo(String name) {
-    return '$name 的钱包可以向你发送付款请求。每个请求都在“账单”中等待你的批准和 PIN。不会自动付款。';
+    return '$name 的钱包可以向你发送账单。每个账单都在“账单”中等待你的批准和 PIN。不会自动付款。';
   }
 
   @override
@@ -14298,7 +14298,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get contactRelayDownBody => '正在重试。请求和付款会等待其响应。';
+  String get contactRelayDownBody => '正在重试。账单和付款会等待其响应。';
 
   @override
   String get contactPausedEpicboxOff => 'Epicbox 关闭期间已暂停';
@@ -14452,7 +14452,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invSetTitle => '账单';
 
   @override
-  String get invSetLead => '你允许的已配对联系人可以向你发送付款请求。每个请求都在“账单”中等待你的 PIN。';
+  String get invSetLead => '你允许的已配对联系人可以向你发送账单。每个账单都在“账单”中等待你的 PIN。';
 
   @override
   String get invSetPaired => '已配对联系人';
@@ -14470,7 +14470,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invSetEmpty => '还没有已配对的联系人。与商店、交易所或个人配对，验证，然后在这里允许其账单。';
 
   @override
-  String get invSetPausedBody => '请求在服务器上等待，Epicbox 重新开启后送达。';
+  String get invSetPausedBody => '账单在服务器上等待，Epicbox 重新开启后送达。';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -14482,7 +14482,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '已拒绝 $count 个未处理的请求。',
+      other: '已拒绝 $count 个未处理的账单。',
     );
     return '$_temp0';
   }
@@ -14586,7 +14586,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name 撤回了请求';
+    return '$name 撤回了账单';
   }
 
   @override
@@ -14594,7 +14594,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name 撤回了此请求';
+    return '$name 撤回了此账单';
   }
 
   @override
@@ -14602,7 +14602,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$name 在 10 分钟内发送了 $count 个 $amount EPIC 的请求。全部付款？',
+      other: '$name 在 10 分钟内发送了 $count 个 $amount EPIC 的账单。全部付款？',
     );
     return '$_temp0';
   }
@@ -14624,7 +14624,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewTitle => '新建账单';
 
   @override
-  String get reqNewLead => '请已配对的联系人付款，或将请求保存为文件发给任何人。';
+  String get reqNewLead => '请已配对的联系人付款，或将账单保存为文件发给任何人。';
 
   @override
   String get reqNewLeadContacts => '请已配对的联系人付款。';
@@ -14633,13 +14633,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewTo => '收款对象';
 
   @override
-  String get reqNewToHintContacts => '钱包可支付请求的已配对联系人。';
+  String get reqNewToHintContacts => '钱包可账单的已配对联系人。';
 
   @override
-  String get reqNoPayersContacts => '还没有可支付请求的已配对联系人。请配对并验证。';
+  String get reqNoPayersContacts => '还没有可账单的已配对联系人。请配对并验证。';
 
   @override
-  String get reqNewToHint => '钱包可支付请求的已配对联系人。其他人：将请求保存为文件。';
+  String get reqNewToHint => '钱包可账单的已配对联系人。其他人：将账单保存为文件。';
 
   @override
   String get reqNewSaveFile => '保存为文件';
@@ -14777,7 +14777,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeWithdrew(String name) {
-    return '$name 撤回了请求。你的资金已解锁。';
+    return '$name 撤回了账单。你的资金已解锁。';
   }
 
   @override
@@ -14906,7 +14906,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendVia => '发送方式';
 
   @override
-  String get invSetLeadDesktop => '你允许的已配对联系人可以向此钱包发送付款请求。每个请求都在“账单”中等待钱包密码。';
+  String get invSetLeadDesktop => '你允许的已配对联系人可以向此钱包发送账单。每个账单都在“账单”中等待钱包密码。';
 
   @override
   String get invSetRowAllowed => '已验证 · 已允许';
@@ -14923,21 +14923,21 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get reqNoPayers => '还没有可支付请求的已配对联系人。请配对并验证，或将请求保存为文件。';
+  String get reqNoPayers => '还没有可账单的已配对联系人。请配对并验证，或将账单保存为文件。';
 
   @override
   String get reqPickContact => '选择联系人';
 
   @override
-  String get reqFileSaved => '请求已保存为文件';
+  String get reqFileSaved => '账单已保存为文件';
 
   @override
   String reqSent(String name) {
-    return '请求已发送给 $name';
+    return '账单已发送给 $name';
   }
 
   @override
-  String get reqFileTitle => '付款请求';
+  String get reqFileTitle => '账单';
 
   @override
   String noticeOutboxStuck(String name) {
@@ -14946,7 +14946,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name 发送的请求过多。多余的已被丢弃。如果持续发生，请关闭其账单。';
+    return '$name 发送的账单过多。多余的已被丢弃。如果持续发生，请关闭其账单。';
   }
 
   @override
@@ -15092,25 +15092,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairInvTitle => '来自已配对联系人的账单';
 
   @override
-  String get helpPairInvShortDesktop => '只有你允许的已验证联系人才能请求你付款。每个请求都会等待钱包密码。';
+  String get helpPairInvShortDesktop => '只有你允许的已验证联系人才能账单你付款。每个账单都会等待钱包密码。';
 
   @override
-  String get helpPairInvShort => '只有你允许的已验证联系人才能请求你付款。每个请求都会等待你的 PIN。';
+  String get helpPairInvShort => '只有你允许的已验证联系人才能账单你付款。每个账单都会等待你的 PIN。';
 
   @override
   String get helpPairInvP1 =>
-      '与你配对的商店、交易所或个人在你允许后可以发送付款请求：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
+      '与你配对的商店、交易所或个人在你允许后可以发送账单：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
 
   @override
   String get helpPairInvP2Desktop =>
-      '请求会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。请求绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP2 =>
-      '请求会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。请求绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
-  String get helpPairInvP3 => '关闭开关立即生效：该联系人的新请求会被丢弃，未处理的请求会被拒绝。';
+  String get helpPairInvP3 => '关闭开关立即生效：该联系人的新账单会被丢弃，未处理的账单会被拒绝。';
 
   @override
   String get helpPairInvP4 =>
@@ -15445,10 +15445,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqFileWaitingCard => '正在等待回复文件。可从“收款”打开，或直接点按该文件。';
 
   @override
-  String get reqFromFileTitle => '来自文件的付款请求';
+  String get reqFromFileTitle => '来自文件的账单';
 
   @override
-  String get reqFromFileWarn => '无法得知此请求是谁发出的。只有在你预期收到来自熟人的请求时才付款。';
+  String get reqFromFileWarn => '无法得知此账单是谁发出的。只有在你预期收到来自熟人的账单时才付款。';
 
   @override
   String get reqFileMessageLabel => '文件中的留言';
@@ -15466,21 +15466,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqAnswerLead => '把此文件发回给请求方。对方会完成付款并广播。';
 
   @override
-  String get reqFileAlreadyPaid => '此请求已付款。';
+  String get reqFileAlreadyPaid => '此账单已付款。';
 
   @override
-  String get reqFileEnded => '此请求已结束。';
+  String get reqFileEnded => '此账单已结束。';
 
   @override
   String slateIncomingRequestAnswer(String amount) {
-    return '对你 $amount 付款请求的回复。';
+    return '对你 $amount 账单的回复。';
   }
 
   @override
-  String get reqAnswerUnknown => '这是对本钱包已不存在的请求的回复。';
+  String get reqAnswerUnknown => '这是对本钱包已不存在的账单的回复。';
 
   @override
-  String get deskInvIssuerAnother => '再发一个请求';
+  String get deskInvIssuerAnother => '再发一个账单';
 
   @override
   String get deskImpOpenAnother => '打开另一个文件';
@@ -15641,7 +15641,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbForgotRestoreInstead => '用助记词恢复';
 
   @override
-  String get qrShowTitleRequest => '付款请求';
+  String get qrShowTitleRequest => '账单';
 
   @override
   String qrShowSubRequest(String amount) {
@@ -15649,7 +15649,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get qrHiddenBodyRequest => '谁扫到，谁就能支付这个请求。只给付款的人看。';
+  String get qrHiddenBodyRequest => '谁扫到，谁就能支付这个账单。只给付款的人看。';
 
   @override
   String get qrStatusRequestHidden => '把它给付款的人看。';
@@ -15659,7 +15659,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String qrSemanticsRequest(String state) {
-    return '付款请求二维码，$state';
+    return '账单二维码，$state';
   }
 
   @override
@@ -15684,7 +15684,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String reqQrSummary(String amount) {
-    return '谁扫到二维码，谁就能支付 $amount。在这里扫描对方的回复即可完成。请求在 24 小时后过期。';
+    return '谁扫到二维码，谁就能支付 $amount。在这里扫描对方的回复即可完成。账单在 24 小时后过期。';
   }
 
   @override
@@ -15706,10 +15706,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reqQrAlreadyPaid =>
-      '此请求已付款。这部手机没有被扣款：它的付款会保持锁定，直到对方在“活动”中取消，或一天后过期。';
+      '此账单已付款。这部手机没有被扣款：它的付款会保持锁定，直到对方在“活动”中取消，或一天后过期。';
 
   @override
-  String get reqFromQrTitle => '来自二维码的付款请求';
+  String get reqFromQrTitle => '来自二维码的账单';
 
   @override
   String get reqFromQrWarn =>
@@ -15728,16 +15728,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqQrAnswerLead => '请求方扫描回复后广播付款。在此之前，它会在交易记录中显示为“等待接收方”。';
 
   @override
-  String get reqExpired => '此请求已过期。请对方重新发起。未付款。';
+  String get reqExpired => '此账单已过期。请对方重新发起。未付款。';
 
   @override
-  String get reqOtherChain => '此请求属于另一个 Epic 网络，或者它的时限与本网络不符。未付款。';
+  String get reqOtherChain => '此账单属于另一个 Epic 网络，或者它的时限与本网络不符。未付款。';
 
   @override
   String get reqQrOpenNote => '在 账单 › 已发送 中保留 24 小时，之后过期。';
 
   @override
-  String get reqQrWrongReply => '此回复属于另一个请求。请扫描针对这个请求的回复。';
+  String get reqQrWrongReply => '此回复属于另一个账单。请扫描针对这个账单的回复。';
 
   @override
   String get backupFileHolds => '包含此钱包截至目前的交易记录、联系人、账单和设置。';

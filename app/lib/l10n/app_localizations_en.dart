@@ -1494,7 +1494,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invoicesEmpty =>
-      'No requests are waiting. When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.';
+      'No invoices are waiting. When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.';
 
   @override
   String get invoicesUnnamedService => 'Unnamed service';
@@ -1639,7 +1639,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestMessageHelper =>
-      'The payer sees this message with your request.';
+      'The payer sees this message with your invoice.';
 
   @override
   String get requestButton => 'Request';
@@ -1666,7 +1666,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get issuedWithdraw => 'Withdraw';
 
   @override
-  String get issuedWithdrawTitle => 'Withdraw this request?';
+  String get issuedWithdrawTitle => 'Withdraw this invoice?';
 
   @override
   String issuedWithdrawBody(String payer) {
@@ -1677,7 +1677,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get issuedWithdrawKeep => 'Keep it';
 
   @override
-  String get issuedDetailsSection => 'Payment request';
+  String get issuedDetailsSection => 'Invoice';
 
   @override
   String get issuedDetailsPayer => 'Requested from';
@@ -1692,32 +1692,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issuedDetailsDeclined =>
-      'The payer declined this request, so it was withdrawn. Nothing was paid.';
+      'The payer declined this invoice, so it was withdrawn. Nothing was paid.';
 
   @override
   String get issuedDetailsWithdrawn =>
-      'You withdrew this request. Nothing was paid.';
+      'You withdrew this invoice. Nothing was paid.';
 
   @override
   String get issuedDetailsExpired =>
-      'This request expired before it was paid. Nothing was paid.';
+      'This invoice expired before it was paid. Nothing was paid.';
 
   @override
-  String get issuerNoticePaid => 'A request you sent was paid.';
+  String get issuerNoticePaid => 'An invoice you sent was paid.';
 
   @override
-  String get issuerNoticeDeclined => 'A request you sent was declined.';
+  String get issuerNoticeDeclined => 'An invoice you sent was declined.';
 
   @override
   String get issuerNoticeWithdrawn =>
-      'Request withdrawn. It can no longer be paid.';
+      'Invoice withdrawn. It can no longer be paid.';
 
   @override
-  String get issuerNoticeExpired => 'A request you sent expired unpaid.';
+  String get issuerNoticeExpired => 'An invoice you sent expired unpaid.';
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return '$payer’s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.';
+    return '$payer’s wallet cannot pay invoices and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a transaction file.';
   }
 
   @override
@@ -1725,7 +1725,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'The payer’s wallet cannot pay requests, so nothing was paid. Ask them to send the payment to your address or as a transaction file.';
+      'The payer’s wallet cannot pay invoices, so nothing was paid. Ask them to send the payment to your address or as a transaction file.';
 
   @override
   String get txStatusWaitingPayer => 'Waiting for payer';
@@ -1738,11 +1738,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsWaitingPayer =>
-      'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.';
+      'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the invoice.';
 
   @override
   String get txDetailsRequestEnded =>
-      'This request ended unpaid. Nothing arrived.';
+      'This invoice ended unpaid. Nothing arrived.';
 
   @override
   String get txDetailsRequestedFrom => 'Requested from';
@@ -3627,7 +3627,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakePayment => 'Payment';
 
   @override
-  String get handshakeRequest => 'Request';
+  String get handshakeRequest => 'Invoice';
 
   @override
   String get handshakeYou => 'You';
@@ -3655,7 +3655,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handshakeReq1 =>
-      'Your wallet sends the request to the Epicbox server.';
+      'Your wallet sends the invoice to the Epicbox server.';
 
   @override
   String get handshakeReq2 =>
@@ -4477,11 +4477,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get invoicesSentEmpty => 'No requests sent';
+  String get invoicesSentEmpty => 'No invoices sent';
 
   @override
   String get invoicesSentEmptyCaption =>
-      'A request asks someone to pay you an amount.';
+      'An invoice asks someone to pay you an amount.';
 
   @override
   String get invoicesWaitingPayment => 'Waiting for payment';
@@ -4533,7 +4533,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String invoicesRequestSummary(String payer, String amount) {
-    return '$payer is asked to pay $amount. The request expires in 24 h.';
+    return '$payer is asked to pay $amount. The invoice expires in 24 h.';
   }
 
   @override
@@ -5418,7 +5418,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerEmptyText =>
-      'When a paired contact you allow asks you to pay, the request appears here and nothing is paid until you approve it.';
+      'When a paired contact you allow asks you to pay, the invoice appears here and nothing is paid until you approve it.';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
@@ -5667,7 +5667,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvSetReceiveHint =>
-      'Ask a paired contact to pay you, or save the request as a file.';
+      'Ask a paired contact to pay you, or save the invoice as a file.';
 
   @override
   String get serverSwitchRelayTitle => 'Switch Epicbox server?';
@@ -14219,7 +14219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendMethodHeader => 'Payment method';
 
   @override
-  String get sendRequestTitle => 'Payment request';
+  String get sendRequestTitle => 'Invoice';
 
   @override
   String get sendRequestCheck => 'Check the amount, then continue.';
@@ -15167,12 +15167,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactAllowInfoDesktop(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.';
+    return '$name’s wallet can send you invoices. Each one waits under Invoices for your approval and the wallet password. Nothing is paid on its own.';
   }
 
   @override
   String contactAllowInfo(String name) {
-    return '$name’s wallet can send you requests to pay. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
+    return '$name’s wallet can send you invoices. Each one waits under Invoices for your approval and PIN. Nothing is paid on its own.';
   }
 
   @override
@@ -15197,7 +15197,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactRelayDownBody =>
-      'Retrying. Requests and payments wait until it answers.';
+      'Retrying. Invoices and payments wait until it answers.';
 
   @override
   String get contactPausedEpicboxOff => 'Paused while Epicbox is off';
@@ -15355,7 +15355,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetLead =>
-      'A paired contact you allow can send you requests to pay. Each one waits under Invoices for your PIN.';
+      'A paired contact you allow can send you invoices. Each one waits under Invoices for your PIN.';
 
   @override
   String get invSetPaired => 'Paired contacts';
@@ -15375,7 +15375,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetPausedBody =>
-      'Requests wait on the server and arrive when it is back on.';
+      'Invoices wait on the Epicbox server and arrive when it is back on.';
 
   @override
   String invSetSwitchedOff(String name) {
@@ -15387,8 +15387,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count open requests were declined.',
-      one: '1 open request was declined.',
+      other: '$count open invoices were declined.',
+      one: '1 open invoice was declined.',
     );
     return '$_temp0';
   }
@@ -15496,7 +15496,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reqWithdrewTitle(String name) {
-    return '$name withdrew the request';
+    return '$name withdrew the invoice';
   }
 
   @override
@@ -15504,7 +15504,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reqWithdrewUnpaid(String name) {
-    return '$name withdrew this request';
+    return '$name withdrew this invoice';
   }
 
   @override
@@ -15513,8 +15513,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$name sent $count requests for $amount EPIC within 10 minutes. Pay all of them?',
-      one: '$name sent 1 request for $amount EPIC within 10 minutes. Pay it?',
+          '$name sent $count invoices for $amount EPIC within 10 minutes. Pay all of them?',
+      one: '$name sent 1 invoice for $amount EPIC within 10 minutes. Pay it?',
     );
     return '$_temp0';
   }
@@ -15538,7 +15538,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqNewLead =>
-      'Ask a paired contact to pay you, or save the request as a file for anyone.';
+      'Ask a paired contact to pay you, or save the invoice as a file for anyone.';
 
   @override
   String get reqNewLeadContacts => 'Ask a paired contact to pay you.';
@@ -15548,15 +15548,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqNewToHintContacts =>
-      'Paired contacts whose wallet pays requests.';
+      'Paired contacts whose wallet pays invoices.';
 
   @override
   String get reqNoPayersContacts =>
-      'No paired contact pays requests yet. Pair and verify with them.';
+      'No paired contact pays invoices yet. Pair and verify with them.';
 
   @override
   String get reqNewToHint =>
-      'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
+      'Paired contacts whose wallet pays invoices. Anyone else: save the invoice as a file.';
 
   @override
   String get reqNewSaveFile => 'Save as file';
@@ -15697,7 +15697,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticeWithdrew(String name) {
-    return '$name withdrew the request. The coins are unlocked.';
+    return '$name withdrew the invoice. The coins are unlocked.';
   }
 
   @override
@@ -15832,7 +15832,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetLeadDesktop =>
-      'A paired contact you allow can send this wallet requests to pay. Each one waits under Invoices for the wallet password.';
+      'A paired contact you allow can send this wallet invoices. Each one waits under Invoices for the wallet password.';
 
   @override
   String get invSetRowAllowed => 'Verified · allowed';
@@ -15850,21 +15850,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqNoPayers =>
-      'No paired contact pays requests yet. Pair and verify with them, or save the request as a file.';
+      'No paired contact pays invoices yet. Pair and verify with them, or save the invoice as a file.';
 
   @override
   String get reqPickContact => 'Choose a contact';
 
   @override
-  String get reqFileSaved => 'Request saved as a file';
+  String get reqFileSaved => 'Invoice saved as a file';
 
   @override
   String reqSent(String name) {
-    return 'Request sent to $name';
+    return 'Invoice sent to $name';
   }
 
   @override
-  String get reqFileTitle => 'Payment request';
+  String get reqFileTitle => 'Invoice';
 
   @override
   String noticeOutboxStuck(String name) {
@@ -15873,7 +15873,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name sent too many requests. Extra ones were dropped. Turn its invoices off if this keeps happening.';
+    return '$name sent too many invoices. Extra ones were dropped. Turn its invoices off if this keeps happening.';
   }
 
   @override
@@ -16030,27 +16030,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairInvShortDesktop =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.';
+      'Only a Verified contact you allow can ask you to pay. Each invoice waits for the wallet password.';
 
   @override
   String get helpPairInvShort =>
-      'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
+      'Only a Verified contact you allow can ask you to pay. Each invoice waits for your PIN.';
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.';
+      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.';
 
   @override
   String get helpPairInvP2 =>
-      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.';
+      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.';
 
   @override
   String get helpPairInvP3 =>
-      'Turning the switch off is immediate: new requests from that contact are dropped and open ones are declined.';
+      'Turning the switch off is immediate: new invoices from that contact are dropped and open ones are declined.';
 
   @override
   String get helpPairInvP4 =>
@@ -16414,11 +16414,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Waiting for the answer file. Open it from Receive or by tapping it.';
 
   @override
-  String get reqFromFileTitle => 'Payment request from a file';
+  String get reqFromFileTitle => 'Invoice from a file';
 
   @override
   String get reqFromFileWarn =>
-      'Nothing says who made this request. Pay it only if you expected it from someone you know.';
+      'Nothing says who made this invoice. Pay it only if you expected it from someone you know.';
 
   @override
   String get reqFileMessageLabel => 'Message in the file';
@@ -16437,22 +16437,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send this file back to whoever asked. They finish the payment and post it.';
 
   @override
-  String get reqFileAlreadyPaid => 'This request is already paid.';
+  String get reqFileAlreadyPaid => 'This invoice is already paid.';
 
   @override
-  String get reqFileEnded => 'This request has ended.';
+  String get reqFileEnded => 'This invoice has ended.';
 
   @override
   String slateIncomingRequestAnswer(String amount) {
-    return 'The answer to your payment request of $amount.';
+    return 'The answer to your invoice of $amount.';
   }
 
   @override
   String get reqAnswerUnknown =>
-      'This answers a request this wallet no longer has.';
+      'This answers an invoice this wallet no longer has.';
 
   @override
-  String get deskInvIssuerAnother => 'Another request';
+  String get deskInvIssuerAnother => 'Another invoice';
 
   @override
   String get deskImpOpenAnother => 'Open another file';
@@ -16625,7 +16625,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbForgotRestoreInstead => 'Restore from the phrase';
 
   @override
-  String get qrShowTitleRequest => 'Payment request';
+  String get qrShowTitleRequest => 'Invoice';
 
   @override
   String qrShowSubRequest(String amount) {
@@ -16634,7 +16634,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrHiddenBodyRequest =>
-      'Whoever scans it can pay this request. Show it only to the person paying.';
+      'Whoever scans it can pay this invoice. Show it only to the person paying.';
 
   @override
   String get qrStatusRequestHidden => 'Show this to the person paying.';
@@ -16645,7 +16645,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String qrSemanticsRequest(String state) {
-    return 'Payment request QR code, $state';
+    return 'Invoice QR code, $state';
   }
 
   @override
@@ -16671,7 +16671,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reqQrSummary(String amount) {
-    return 'Whoever scans the code can pay $amount. Scan their reply here to finish. The request expires in 24 h.';
+    return 'Whoever scans the code can pay $amount. Scan their reply here to finish. The invoice expires in 24 h.';
   }
 
   @override
@@ -16693,10 +16693,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqQrAlreadyPaid =>
-      'This request is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.';
+      'This invoice is already paid. Nothing was taken from this phone: its payment stays locked until they cancel it in Activity, or it runs out after a day.';
 
   @override
-  String get reqFromQrTitle => 'Payment request from a QR code';
+  String get reqFromQrTitle => 'Invoice from a QR code';
 
   @override
   String get reqFromQrWarn =>
@@ -16717,11 +16717,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqExpired =>
-      'This request has expired. Ask for a new one. Nothing was paid.';
+      'This invoice has expired. Ask for a new one. Nothing was paid.';
 
   @override
   String get reqOtherChain =>
-      'This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.';
+      'This invoice is for another Epic network, or its time limit does not fit this one. Nothing was paid.';
 
   @override
   String get reqQrOpenNote =>
@@ -16729,7 +16729,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqQrWrongReply =>
-      'This reply answers a different request. Scan the reply to this one.';
+      'This reply answers a different invoice. Scan the reply to this one.';
 
   @override
   String get backupFileHolds =>

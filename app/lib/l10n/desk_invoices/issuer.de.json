@@ -44,5 +44,5 @@
   "deskInvIssuerWaitingText": "An den Epicbox-Server von {payer} zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.",
   "deskInvIssuerCopySlate": "Slate-ID kopieren",
   "deskInvIssuerStepIssued": "Ausgestellt",
-  "deskInvIssuerAnother": "Weitere Anforderung"
+  "deskInvIssuerAnother": "Weitere Rechnung"
 }

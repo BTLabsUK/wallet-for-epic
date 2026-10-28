@@ -5,7 +5,7 @@
   "deskInvPayerView": "Ansehen",
   "deskInvPayerNoMessage": "Keine Nachricht",
   "deskInvPayerEmptyTitle": "Keine Rechnungen warten",
-  "deskInvPayerEmptyText": "Wenn Sie ein gekoppelter, erlaubter Kontakt um Zahlung bittet, erscheint die Anforderung hier, und nichts wird bezahlt, bis Sie zustimmen.",
+  "deskInvPayerEmptyText": "Wenn Sie ein gekoppelter, erlaubter Kontakt um Zahlung bittet, erscheint die Rechnung hier, und nichts wird bezahlt, bis Sie zustimmen.",
   "deskInvPayerNotDeliveredTitle": "Ihre Zahlung an {service} wurde nicht zugestellt",
   "deskInvPayerNotDeliveredText": "Sie ist signiert und auf diesem Gerät gespeichert; das Guthaben bleibt gesperrt. „Erneut senden“ schickt sie ohne zweite Zustimmung noch einmal.",
   "deskInvPayerWithdrawnTitle": "{service} hat eine bezahlte Rechnung zurückgezogen",

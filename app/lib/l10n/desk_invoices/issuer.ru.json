@@ -44,5 +44,5 @@
   "deskInvIssuerWaitingText": "Доставлено на сервер Epicbox {payer}. Ничего не оплачено, пока плательщик не одобрит.",
   "deskInvIssuerCopySlate": "Копировать ID слейта",
   "deskInvIssuerStepIssued": "Выставлен",
-  "deskInvIssuerAnother": "Ещё один запрос"
+  "deskInvIssuerAnother": "Ещё один счёт"
 }

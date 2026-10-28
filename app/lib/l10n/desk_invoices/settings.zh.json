@@ -3,5 +3,5 @@
   "deskInvSetExpiry": "付款期限",
   "deskInvSetExpiryHint": "你开具的账单可支付多久，以及收到的账单等待你多久。最长 48 小时。",
   "deskInvSetHours": "{hours} 小时",
-  "deskInvSetReceiveHint": "请已配对的联系人付款，或将请求保存为文件。"
+  "deskInvSetReceiveHint": "请已配对的联系人付款，或将账单保存为文件。"
 }

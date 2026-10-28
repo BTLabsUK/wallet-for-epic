@@ -5,7 +5,7 @@
   "deskInvPayerView": "查看",
   "deskInvPayerNoMessage": "无留言",
   "deskInvPayerEmptyTitle": "没有等待中的账单",
-  "deskInvPayerEmptyText": "你允许的已配对联系人请求付款时，请求会显示在这里，在你批准之前不会付款。",
+  "deskInvPayerEmptyText": "你允许的已配对联系人请求付款时，账单会显示在这里，在你批准之前不会付款。",
   "deskInvPayerNotDeliveredTitle": "你给 {service} 的付款未送达",
   "deskInvPayerNotDeliveredText": "付款已签名并保存在此设备上；资金保持锁定。重试会再次发送，无需再次批准。",
   "deskInvPayerWithdrawnTitle": "{service} 撤回了一张你已支付的账单",
