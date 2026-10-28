@@ -103,6 +103,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
             _ => l.deskTxNowUndelivered,
           },
+          // The sender's word: the wallet clears it by itself (sender_cancel.dart).
+          TxState.waitingRecipient when t.incoming && t.senderCancelled => l.txDetailsSenderCancelledWaiting,
           // Past its watch window and still in no block: why, in one calm line.
           TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.noNewBlock => l.txWaitNoNewBlock,
           TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.notInBlock => l.txWaitNotInBlock,
@@ -120,6 +122,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           // The wallet keeps looking for a cancelled receive, so a late post still arrives.
           TxState.cancelled when t.deviceEnding != null =>
             deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
+          TxState.cancelled when t.incoming && !t.isInvoice && t.senderCancelled => l.txDetailsSenderCancelled,
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
           TxState.cancelled => l.deskTxNowCancelled,
         };
@@ -246,7 +249,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // reports it posted, Cancel stays away and the status box says why (incomingCancelAt).
     final waitingIncoming = t.incoming && t.state == TxState.waitingRecipient && !t.fromBackup && !t.isInvoice && t.cancellable;
     final hold = waitingIncoming
-        ? incomingCancelAt(signedAt: t.startedAt ?? t.created, now: ref.watch(deskClockProvider)(), senderReportsPosted: t.senderPosted)
+        ? incomingCancelAt(
+            signedAt: t.startedAt ?? t.created,
+            now: ref.watch(deskClockProvider)(),
+            senderReportsPosted: t.senderPosted,
+            senderCancelled: t.senderCancelled,
+          )
         : null;
     _tickWhile(hold != null && !hold.offered && !hold.senderReportsPosted);
     final cancelable = !t.fromBackup &&
@@ -362,12 +370,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // The words on the badge, the meaning under it.
-                    if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
+                    if (t.incoming && t.senderCancelled && t.state == TxState.waitingRecipient) ...[
+                      EBadge(l.txStatusSenderCancelled, key: const ValueKey('tx-sender-cancelled'), tone: ETone.neutral),
+                      SizedBox(height: Sp.x1),
+                    ] else if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ],
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
-                    if (hold != null) ...[
+                    // Its sender cancelled it: Cancel is there at once, with no line to weigh.
+                    if (hold != null && !hold.senderCancelled) ...[
                       SizedBox(height: Sp.x1),
                       DeskCancelNote(key: const ValueKey('tx-cancel-hold'), text: _holdLine(l, hold), anchor: HelpAnchor.receiving),
                     ],
@@ -388,7 +400,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (t.state != TxState.cancelled && !t.senderCancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _SubBar(
           l.deskTxSubDetails,
           [
@@ -561,7 +573,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   icon: EIcons.cancel,
                   // A receive's Cancel is a tidy-up for a payment the sender never posted, so
                   // it stays quiet; a send's unlocks funds.
-                  kind: t.incoming ? EBtnKind.ghost : EBtnKind.danger,
+                  kind: t.incoming && !t.senderCancelled ? EBtnKind.ghost : EBtnKind.danger,
                   size: EBtnSize.sm,
                   busy: _cancelling,
                   onPressed: _cancel,

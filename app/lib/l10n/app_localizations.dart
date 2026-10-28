@@ -1117,6 +1117,24 @@ abstract class AppLocalizations {
   /// **'Cancelled. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelledIncoming;
 
+  /// Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled by the sender'**
+  String get txStatusSenderCancelled;
+
+  /// Payment details, explanation of an incoming payment whose sender reported cancelling it while this wallet still holds it: the wallet removes it after asking the node that it was never posted.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender cancelled this payment. The wallet clears it here after checking the network.'**
+  String get txDetailsSenderCancelledWaiting;
+
+  /// Payment details, explanation of an incoming payment the sender cancelled and this wallet then cleared. 'Posted' means published to the network; a late post still arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender cancelled this payment. If it was posted before that, it still arrives.'**
+  String get txDetailsSenderCancelled;
+
   /// Payment details, status explanation of an unfinished payment imported from a history backup file.
   ///
   /// In en, this message translates to:

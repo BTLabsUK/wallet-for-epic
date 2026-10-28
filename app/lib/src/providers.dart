@@ -19,6 +19,7 @@ import 'net/node_peers.dart';
 import 'network_gate.dart';
 import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
+import 'sender_cancel.dart';
 import 'stall_retry.dart';
 import 'watch_mode.dart' show BlockWatch;
 import 'vault.dart';
@@ -321,6 +322,13 @@ final stallRetryProvider = Provider<StallRetry>((ref) {
   return StallRetry();
 });
 
+/// The automatic release of incoming payments their senders cancelled ([SenderCancelRelease])
+/// for the open wallet, kept across reloads.
+final senderCancelReleaseProvider = Provider<SenderCancelRelease>((ref) {
+  ref.watch(sessionProvider);
+  return SenderCancelRelease();
+});
+
 class HomeNotifier extends AsyncNotifier<HomeData> {
   bool _enriching = false;
 
@@ -412,6 +420,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
     unawaited(_retryStalled(session, transactions));
+    unawaited(_releaseSenderCancelled(session, transactions));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -455,6 +464,30 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     } catch (error) {
       logWarn('home', 'automatic retry failed: ${error.runtimeType}');
     }
+  }
+
+  /// Releases the incoming payments their senders cancelled (sender_cancel.dart), then reads
+  /// the list again when any was. A failed release is tried again at the next refresh.
+  Future<void> _releaseSenderCancelled(
+    WalletSession session,
+    List<TxEntry> transactions,
+  ) async {
+    try {
+      final released = await ref.read(senderCancelReleaseProvider).run(session, transactions);
+      if (released && ref.mounted) await relist();
+    } catch (error) {
+      logWarn('home', 'release of a cancelled payment failed: ${error.runtimeType}');
+    }
+  }
+
+  /// A payment's sender reports it cancelled ([paymentCancelledProvider]): the row says so at
+  /// once, and the payment is released if it still waits.
+  Future<void> senderCancelled() async {
+    await relist();
+    final shown = state.value;
+    final session = shown?.session;
+    if (!ref.mounted || shown == null || session == null) return;
+    await _releaseSenderCancelled(session, shown.transactions);
   }
 
   /// The refresh after a local first load. A failure keeps the local figures and shows the
@@ -1204,6 +1237,38 @@ class PaymentPostedNotifier extends Notifier<InvoiceEvent?> {
       _owed = null;
       ref.invalidate(homeProvider);
     });
+  }
+}
+
+/// The latest report from the sender of a payment this wallet answered that it cancelled it
+/// (LEPIC's `paymentCancelled`). Each report shows on its row at once and releases the payment
+/// if it still waits ([HomeNotifier.senderCancelled]); one the network has already stays.
+final paymentCancelledProvider =
+    NotifierProvider<PaymentCancelledNotifier, InvoiceEvent?>(
+      PaymentCancelledNotifier.new,
+    );
+
+class PaymentCancelledNotifier extends Notifier<InvoiceEvent?> {
+  @override
+  InvoiceEvent? build() {
+    final session = ref.watch(sessionProvider);
+    if (session == null) return null;
+    final events = session
+        .invoiceEvents()
+        .where((e) => e.kind == InvoiceEventKind.paymentCancelled)
+        .listen((e) => unawaited(_onCancelled(e)), onError: (_) {});
+    ref.onDispose(events.cancel);
+    return null;
+  }
+
+  Future<void> _onCancelled(InvoiceEvent event) async {
+    logInfo('home', 'sender reports a payment cancelled');
+    try {
+      await ref.read(homeProvider.notifier).senderCancelled();
+    } catch (error) {
+      logInfo('home', 'list not read: ${error.runtimeType}');
+    }
+    if (ref.mounted) state = event;
   }
 }
 

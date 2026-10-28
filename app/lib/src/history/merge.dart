@@ -129,6 +129,7 @@ class MergedTx {
       cancelReason = e.cancelReason,
       flow = e.flow,
       senderReportedPostedAtUnix = e.senderReportedPostedAtUnix,
+      senderReportedCancelledAtUnix = e.senderReportedCancelledAtUnix,
       pairingId = e.pairingId,
       origin = e.origin,
       spentCommits = e.spentCommits,
@@ -176,6 +177,7 @@ class MergedTx {
 
   /// From the live row: LEPIC's, never stored or exported.
   int? senderReportedPostedAtUnix;
+  int? senderReportedCancelledAtUnix;
 
   /// From the live row, never stored or exported: whose spend it is, and the inputs LEPIC saw
   /// spent.
@@ -231,6 +233,7 @@ class MergedTx {
     cancelReason: cancelReason,
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
     pairingId: pairingId,
     origin: origin,
     spentCommits: spentCommits,

@@ -155,6 +155,8 @@ String txExplanation(
     TxPhase.waitingRecipient when mailbox || _isEpicboxAddress(tx.counterparty) =>
       l.txDetailsWaitingEpicbox,
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
+    // The sender's word: the wallet clears it by itself (sender_cancel.dart).
+    TxPhase.waitingSender when senderCancelled(tx) => l.txDetailsSenderCancelledWaiting,
     // Past its watch window and still in no block: why, in one calm line.
     TxPhase.waitingSender || TxPhase.confirming when height == null && wait == BlockWait.noNewBlock =>
       l.txWaitNoNewBlock,
@@ -195,6 +197,7 @@ String txExplanation(
     TxPhase.cancelled when outgoing && _expired(tx, tip) =>
       l.txDetailsCancelledUnanswered,
     TxPhase.cancelled when tx.isRequest => l.txDetailsRequestEnded,
+    TxPhase.cancelled when senderCancelled(tx) => l.txDetailsSenderCancelled,
     TxPhase.cancelled =>
       outgoing ? l.txDetailsCancelledByUser : l.txDetailsCancelledIncoming,
     TxPhase.fromBackup => l.txDetailsFromBackup,
@@ -842,18 +845,21 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                           onPressed: _busy ? null : () => _cancel(tx),
                         ),
                     ),
-                    const SizedBox(height: 4),
-                    // What this Cancel does, with the way to the Help topic (CancelNote).
-                    CancelNote(
-                      key: txDetailsCancelNoteKey,
-                      text: outgoing
-                          ? (paidInvoice != null ? l.cancelNoteRequestPaid : l.cancelNoteSendWaiting)
-                          : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
-                      anchor: outgoing
-                          ? (paidInvoice != null ? HelpAnchor.requests : HelpAnchor.sending)
-                          : HelpAnchor.receiving,
-                      alignment: WrapAlignment.end,
-                    ),
+                    // Its sender cancelled it: nothing to weigh, the status says it all.
+                    if (!incoming.senderCancelled) ...[
+                      const SizedBox(height: 4),
+                      // What this Cancel does, with the way to the Help topic (CancelNote).
+                      CancelNote(
+                        key: txDetailsCancelNoteKey,
+                        text: outgoing
+                            ? (paidInvoice != null ? l.cancelNoteRequestPaid : l.cancelNoteSendWaiting)
+                            : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
+                        anchor: outgoing
+                            ? (paidInvoice != null ? HelpAnchor.requests : HelpAnchor.sending)
+                            : HelpAnchor.receiving,
+                        alignment: WrapAlignment.end,
+                      ),
+                    ],
                   ],
                   // Inside the hold, or while the sender reports it posted: no button, the
                   // line says when Cancel comes (receiveCancelHold).

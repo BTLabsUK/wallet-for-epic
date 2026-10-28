@@ -690,6 +690,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Storniert. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 
   @override
+  String get txStatusSenderCancelled => 'Vom Absender storniert';
+
+  @override
+  String get txDetailsSenderCancelledWaiting =>
+      'Der Absender hat diese Zahlung storniert. Die Wallet entfernt sie hier, nachdem sie das Netzwerk geprüft hat.';
+
+  @override
+  String get txDetailsSenderCancelled =>
+      'Der Absender hat diese Zahlung storniert. Wurde sie vorher doch veröffentlicht, trifft sie trotzdem ein.';
+
+  @override
   String get txDetailsFromBackup =>
       'Diese Zahlung wurde aus einer Wallet-Datendatei importiert und war beim Export dieser Datei noch nicht abgeschlossen. Diese Wallet hat keine eigenen Daten dazu und kann daher nicht feststellen, ob sie abgeschlossen wurde. Es ist nichts gesperrt.';
 

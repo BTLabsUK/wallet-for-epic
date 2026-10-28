@@ -232,6 +232,24 @@ void main() {
       expect(find.text(_l.txStatusSenderPosted), findsWidgets);
     });
 
+    testWidgets('its sender cancelled it: Cancel at once, no hold and no accepted-ago line', (tester) async {
+      final h = _Harness(
+        copyTx(
+          _waiting(ago: const Duration(minutes: 5), reportedAgo: const Duration(minutes: 3)),
+          senderReportedCancelledAtUnix: _at(_now),
+        ),
+      );
+      // The automatic release fails (no node), so the payment still waits here.
+      h.session.cancelError = const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'down');
+      await h.pump(tester);
+      expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
+      expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
+      expect(find.byKey(txDetailsCancelNoteKey), findsNothing);
+      expect(find.textContaining('Accepted'), findsNothing);
+      expect(find.text(_l.txStatusSenderCancelled), findsWidgets);
+      expect(find.text(_l.txDetailsSenderCancelledWaiting), findsOneWidget);
+    });
+
     testWidgets('the dialog warns, Keep cancels nothing, Cancel payment cancels through LEPIC', (tester) async {
       final h = _Harness(_waiting(ago: const Duration(minutes: 40)));
       await h.pump(tester);

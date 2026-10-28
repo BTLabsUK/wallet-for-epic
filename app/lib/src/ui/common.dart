@@ -735,6 +735,8 @@ String txStatusLabel(
   TxPhase.waitingRecipient when pairedWith != null && paused => l.contactPausedEpicboxOff,
   TxPhase.waitingRecipient when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
+  // The sender's word: the wallet clears it by itself (sender_cancel.dart).
+  TxPhase.waitingSender when senderCancelled(tx) => l.txStatusSenderCancelled,
   // The sender's word, not the chain's: never Received before a block.
   TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
     l.txStatusSenderPosted,
@@ -753,6 +755,7 @@ String txStatusLabel(
   // Another linked device's payment whose coins this device released: it may still send it.
   TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice =>
     deviceEndingLabel(l, tx.deviceEnding ?? DeviceEnding.releasedHere, tx.deviceName ?? ''),
+  TxPhase.cancelled when senderCancelled(tx) => l.txStatusSenderCancelled,
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };
@@ -914,6 +917,8 @@ List<TimelineStep>? txTimeline(
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
     at = switch (phase) {
+      // Its sender cancelled it: no step comes next.
+      TxPhase.waitingSender when senderCancelled(tx) => null,
       TxPhase.waitingSender => reported ? 2 : 1,
       TxPhase.confirming => 3,
       TxPhase.completed => steps.length,
@@ -1043,6 +1048,8 @@ class TxStatusChip extends ConsumerWidget {
     final target = confirmationsTargetOf(ref);
     final now = ref.watch(clockProvider)();
     final tone = switch (txPhase(tx, tip, target: target)) {
+      // Its sender cancelled it: over, as a cancelled payment, though not cleared yet.
+      TxPhase.waitingSender when senderCancelled(tx) => BadgeTone.neutral,
       TxPhase.waitingSender when senderReportsPosted(tx, now: now) => BadgeTone.info,
       // Waiting for the other side is work under way, not a warning.
       TxPhase.waitingRecipient ||

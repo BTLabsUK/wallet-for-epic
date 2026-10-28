@@ -710,6 +710,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отменено. Если отправитель опубликует платёж позже, он всё равно поступит.';
 
   @override
+  String get txStatusSenderCancelled => 'Отменён отправителем';
+
+  @override
+  String get txDetailsSenderCancelledWaiting =>
+      'Отправитель отменил этот платёж. Кошелёк уберёт его здесь после проверки сети.';
+
+  @override
+  String get txDetailsSenderCancelled =>
+      'Отправитель отменил этот платёж. Если он был опубликован раньше, он всё равно поступит.';
+
+  @override
   String get txDetailsFromBackup =>
       'Этот платёж импортирован из файла данных кошелька и не был завершён на момент экспорта этого файла. У этого кошелька нет собственной записи о нём, поэтому неизвестно, завершился ли он. Ничего не заблокировано.';
 

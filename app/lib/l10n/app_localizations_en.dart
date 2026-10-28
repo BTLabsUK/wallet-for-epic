@@ -683,6 +683,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cancelled. If the sender posts it later, it still arrives.';
 
   @override
+  String get txStatusSenderCancelled => 'Cancelled by the sender';
+
+  @override
+  String get txDetailsSenderCancelledWaiting =>
+      'The sender cancelled this payment. The wallet clears it here after checking the network.';
+
+  @override
+  String get txDetailsSenderCancelled =>
+      'The sender cancelled this payment. If it was posted before that, it still arrives.';
+
+  @override
   String get txDetailsFromBackup =>
       'This payment was imported from a wallet data file and was not finished when that file was exported. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.';
 
