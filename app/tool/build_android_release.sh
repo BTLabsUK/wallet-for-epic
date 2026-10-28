@@ -160,11 +160,13 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   # lying in android/app: not in the resources, the manifest or the code.
   "$aapt2" dump resources "$apk" 2>/dev/null | grep -qiE 'google_app_id|gcm_defaultSenderId|firebase' && r=1 || r=0
   check "no Firebase config" $r
-  grep -qiE 'firebase|com\.google\.android\.c2dm|POST_NOTIFICATIONS' <<<"$manifest" && r=1 || r=0
+  # ML Kit (the QR scanner) registers its parts through com.google.firebase.components: that
+  # is ML Kit's plumbing, not Firebase's app, messaging or a push service, so it does not count.
+  grep -iE 'firebase|com\.google\.android\.c2dm|POST_NOTIFICATIONS' <<<"$manifest" | grep -qviE 'com\.google\.firebase\.components' && r=1 || r=0
   check "no Firebase or notification entries in the manifest" $r
   dex="$(mktemp -d)"
   unzip -q "$apk" 'classes*.dex' -d "$dex"
-  LC_ALL=C grep -aqiE 'com/google/firebase|firebase-messaging' "$dex"/classes*.dex && r=1 || r=0
+  LC_ALL=C grep -aqiE 'com/google/firebase/(messaging|iid|installations|FirebaseApp)|firebase-messaging' "$dex"/classes*.dex && r=1 || r=0
   check "no Firebase classes" $r
   rm -r -- "$dex"
 done
