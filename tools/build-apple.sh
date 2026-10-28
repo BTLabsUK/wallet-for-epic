@@ -401,7 +401,9 @@ smoke() {
   fi
   # Tor from the release .app: on its own, then started through LEPIC in the app's code.
   local tor="$bundle/Contents/Resources/bin/tor-bundle/tor"
-  if [ -x "$tor" ]; then
+  if [ -x "$tor" ] && [ "${WFE_TOR:-1}" = 0 ]; then
+    result FAIL smoke-tor "tor in the build without Tor"; status=1
+  elif [ -x "$tor" ]; then
     tor_check "$bundle" || status=1
     if (cd "$app" && flutter test integration_test/tor_apple_test.dart -d macos \
         --dart-define=WFE_TEST_TOR="$tor") > "$out/smoke-tor-app.log" 2>&1; then
@@ -410,7 +412,9 @@ smoke() {
       result FAIL smoke-tor-app "see smoke-tor-app.log"; status=1
     fi
   else
-    result FAIL smoke-tor "no tor in the .app"; status=1
+    # The build without Tor must have none; any other build must.
+    if [ "${WFE_TOR:-1}" = 0 ]; then result PASS smoke-tor "no tor in the .app (build without Tor)"
+    else result FAIL smoke-tor "no tor in the .app"; status=1; fi
   fi
   return "$status"
 }
