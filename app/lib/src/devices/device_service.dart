@@ -25,6 +25,7 @@ import 'dart:math';
 import '../log.dart';
 import '../models.dart';
 import '../pairing_api.dart';
+import '../scan/scan_router.dart' show cleanUntrustedText;
 import '../wallet_service.dart' show WalletSession;
 import 'device_link_code.dart';
 import 'device_locks.dart';
@@ -493,13 +494,17 @@ class DeviceService {
 
   // A hello again from a linked device changes nothing but its name.
   Future<void> _onHello(LinkedDevice from, Notice n) async {
-    final name = n.body['name'] as String;
+    final name = _shownName(n.body['name'], from.name);
     if (name != from.name) _book = book.withDevice(from.copyWith(name: name));
   }
 
   Future<void> _onRename(LinkedDevice from, Notice n) async {
-    _book = book.withDevice(from.copyWith(name: n.body['name'] as String));
+    _book = book.withDevice(from.copyWith(name: _shownName(n.body['name'], from.name)));
   }
+
+  /// A device's name as the user reads it: plain text, no direction marks or invisible
+  /// characters ([cleanUntrustedText]); [fallback] when nothing is left.
+  static String _shownName(Object? name, String fallback) => cleanUntrustedText(name as String) ?? fallback;
 
   // A linked device is the same wallet's, but what its notices hold is bounded: no more than
   // [maxOpenHoldsPerDevice] payments at once, never coins the user released from it by hand, and
@@ -1203,7 +1208,7 @@ class DeviceService {
     if (before != null) await _forget(theirId, keepHolds: true);
     final device = LinkedDevice(
       deviceId: theirId,
-      name: hello.body['name'] as String,
+      name: _shownName(hello.body['name'], before?.name ?? '?'),
       pairings: {server: id},
       linkedAt: _clock(),
       lastSeen: _clock(),

@@ -218,8 +218,10 @@ final RegExp _pairingInText = RegExp(
 ScannedCode _classify(String raw, AddressCheck check) {
   final whole = raw.trim();
   if (_isSlateText(whole)) return SlateText(whole);
-  final shared = _pairingInText.firstMatch(whole);
-  if (shared != null && !whole.toLowerCase().startsWith('epiccash://')) {
+  // A text that starts with our scheme is read by it: a payment code's note never makes it a
+  // pairing link.
+  final shared = _scheme.hasMatch(whole) ? null : _pairingInText.firstMatch(whole);
+  if (shared != null) {
     final kind = switch (shared.group(1)!.toLowerCase()) {
       'pair' => PairingKind.invite,
       'pair-reply' => PairingKind.reply,

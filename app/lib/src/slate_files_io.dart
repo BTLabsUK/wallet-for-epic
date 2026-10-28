@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'slate_files.dart' show plainFileName;
+
 /// Lets the user choose where to save [bytes] as [name]: the system save dialog, which on
 /// Android is the Storage Access Framework (Downloads, Drive, a USB stick). Returns false if the
 /// user cancelled. Also used for history backups.
@@ -43,7 +45,7 @@ Future<bool> shareBytes({
   final tmp = tempDir ?? await getTemporaryDirectory();
   final dir = Directory('${tmp.path}${Platform.pathSeparator}$_sharedDir');
   await dir.create(recursive: true);
-  final file = File('${dir.path}${Platform.pathSeparator}$name');
+  final file = File('${dir.path}${Platform.pathSeparator}${plainFileName(name) ?? 'file'}');
   await file.writeAsBytes(bytes, flush: true);
   try {
     final result = await (share ?? SharePlus.instance.share)(

@@ -16,6 +16,7 @@
 /// - Release by hand: always, this device only.
 library;
 
+import '../scan/scan_router.dart' show cleanUntrustedText;
 import 'device_model.dart';
 
 /// Blocks past a payment's cutoff height before its coins are freed here.
@@ -40,10 +41,11 @@ HeldPayment? holdFromSend({
   required Set<String> own,
   required DateTime now,
 }) {
-  final inputs = [
+  // Each coin once: a coin named twice must not count twice against the amount.
+  final inputs = {
     for (final c in body['inputs'] as List)
       if (own.contains(c)) c as String,
-  ];
+  }.toList();
   if (inputs.isEmpty) return null;
   final created = body['createdAt'] as int?;
   return HeldPayment(
@@ -55,13 +57,16 @@ HeldPayment? holdFromSend({
     fee: body['fee'] == null ? null : BigInt.parse(body['fee'] as String),
     lockedAt: now,
     txId: body['txId'] as int?,
-    counterparty: body['counterparty'] as String?,
+    // Shown in history as they are: plain text only, as for any text from outside.
+    counterparty: _plain(body['counterparty']),
     method: body['method'] as String?,
-    message: body['message'] as String?,
+    message: _plain(body['message']),
     cutoffHeight: body['cutoffHeight'] as int?,
     createdAt: created == null ? null : DateTime.fromMillisecondsSinceEpoch(created * 1000),
   );
 }
+
+String? _plain(Object? text) => text == null ? null : cleanUntrustedText(text as String);
 
 /// Whether the chain shows any of [h]'s coins spent.
 bool holdSpent(HeldPayment h, Set<String> spent) => h.commitments.any(spent.contains);

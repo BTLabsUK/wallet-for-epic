@@ -63,7 +63,12 @@ enum SelectionRefusal { keepOne, limit, localAddress, onionWithoutTor }
 /// loopback, private or link-local. Other wallets cannot meet there.
 bool isLocalRelay(String value) {
   final host = EpicboxRelay.parse(value)?.host ?? value;
-  return host == 'localhost' || isLocalIp(host);
+  if (host == 'localhost' || host.endsWith('.localhost') || isLocalIp(host)) return true;
+  // A number the system resolver reads as an address (`127.1`, `2130706433`, `0x7f000001`,
+  // octal parts) or 0.0.0.0/8, which reaches this device: no server name is all numbers.
+  final numeric = RegExp(r'^(0x[0-9a-f]+|[0-9]+)(\.(0x[0-9a-f]+|[0-9]+)){0,3}$').hasMatch(host);
+  final dottedQuad = RegExp(r'^[1-9][0-9]{0,2}(\.(0|[1-9][0-9]{0,2})){3}$').hasMatch(host);
+  return numeric && !dottedQuad;
 }
 
 /// Whether the relay [value] is an onion address.

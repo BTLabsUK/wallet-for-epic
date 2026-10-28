@@ -59,8 +59,17 @@ String responseFileName(String slateId) =>
 /// [responseFileName].
 String replyFileName(String slateId, {String? loaded}) {
   final own = RegExp('^${RegExp.escape(shortSlateId(slateId))}(-[0-9]+)?\\.tx\$');
-  if (loaded == null || loaded.trim().isEmpty || own.hasMatch(loaded)) return responseFileName(slateId);
-  return '$loaded.response';
+  final name = loaded == null ? null : plainFileName(loaded);
+  if (name == null || own.hasMatch(name)) return responseFileName(slateId);
+  return '$name.response';
+}
+
+/// [name] as one file name in a folder, or null when nothing is left: the part after the last
+/// `/` or `\`, without controls and `:` (a drive or a Windows stream), never `.` or `..`. A
+/// name another app gives a file never writes outside the folder it is saved in.
+String? plainFileName(String name) {
+  final last = name.split(RegExp(r'[\\/]')).last.replaceAll(RegExp(r'[\u0000-\u001f\u007f:]'), '').trim();
+  return last.isEmpty || last == '.' || last == '..' ? null : last;
 }
 
 /// [name] if [taken] says it is free, else `-2`, `-3`, ... before the suffix
