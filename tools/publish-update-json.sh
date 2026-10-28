@@ -16,7 +16,7 @@
 #   UPDATE_GITLAB     GitLab project of the copy (default epic-cash-bt/btlabs-epic.github.io)
 #   GITLAB_TOKEN_FILE its write token (default ~/.config/btlabs/gitlab-token; never printed)
 # The GitLab copy is the Pages repository's main, cleaned the same way every time (commit
-# addresses to the noreply address by tools/publish/mailmap, AI trailers dropped), so each run
+# addresses to the noreply address by tools/publish/mailmap, co-author and generated-with trailers dropped), so each run
 # reproduces the published commits and pushes the new one as a fast-forward. Needs git-filter-repo.
 set -euo pipefail
 file="${1:?usage: $0 <signed update.json>}"
