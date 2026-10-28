@@ -411,7 +411,10 @@ class EStatusGlyph extends StatelessWidget {
   }
 }
 
-/// [child] fading between 45 % and full opacity while [active]; still with reduced motion.
+/// [child] fading between 45 % and full opacity for a few beats once [active] begins, then
+/// still at full opacity: the blue ring keeps saying "in progress". A pulse that never ends
+/// redraws the window 60 times a second for as long as Epicbox or Tor keeps retrying, which on
+/// software OpenGL filled every core (#126). Still with reduced motion.
 class _MaybePulse extends StatefulWidget {
   const _MaybePulse({super.key, required this.active, required this.child});
 
@@ -422,8 +425,15 @@ class _MaybePulse extends StatefulWidget {
   State<_MaybePulse> createState() => _MaybePulseState();
 }
 
+/// Half-breaths a pulse plays: five end at full opacity, about 8 s.
+@visibleForTesting
+const int statusPulseBeats = 5;
+
 class _MaybePulseState extends State<_MaybePulse> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600), value: 1);
+
+  /// The beats ran for this active stretch (a new state gives a new pulse: the glyph keys it).
+  bool _played = false;
 
   @override
   void dispose() {
@@ -438,7 +448,12 @@ class _MaybePulseState extends State<_MaybePulse> with SingleTickerProviderState
       _c.stop();
       return widget.child;
     }
-    if (!_c.isAnimating) _c.repeat(reverse: true);
+    if (!_played) {
+      _played = true;
+      _c
+        ..value = 0
+        ..repeat(reverse: true, count: statusPulseBeats);
+    }
     return FadeTransition(opacity: Tween(begin: 0.45, end: 1.0).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)), child: widget.child);
   }
 }
