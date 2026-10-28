@@ -106,7 +106,21 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
         // The open wallet locks itself after the idle time (Settings › Account › Security).
         : DeskAutoLock(child: DeskShell(at: at));
     return DeskNavKeys(
-      child: AnimatedSwitcher(duration: Dur.base, child: KeyedSubtree(key: ValueKey(at.route.bare), child: child)),
+      child: AnimatedSwitcher(
+        duration: Dur.base,
+        // The page fading out gives up the focus at once: still holding it, it would keep the
+        // incoming page's autofocus (Unlock's password after a Lock or a wallet switch) from
+        // taking it, and leave nothing focused when it goes.
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: AnimatedBuilder(
+            animation: animation,
+            builder: (_, child) => ExcludeFocus(excluding: !animation.status.isForwardOrCompleted, child: child!),
+            child: child,
+          ),
+        ),
+        child: KeyedSubtree(key: ValueKey(at.route.bare), child: child),
+      ),
     );
   }
 }

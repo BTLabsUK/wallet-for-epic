@@ -838,7 +838,7 @@ class _WalletChip extends ConsumerWidget {
                 ? EBadge(networkName(w.network), tone: ETone.warn)
                 : null,
             // The open one only closes the menu.
-            onPressed: w.id == current ? () {} : locking ? null : () => lockWallet(ref, then: UnlockPick(w.id)),
+            onPressed: w.id == current ? () {} : locking ? null : () => lockWallet(ref, then: UnlockPick(w.id, switched: true)),
           ),
         _menuDivider(c),
         if (DeskFeatures.multiWallet) _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
