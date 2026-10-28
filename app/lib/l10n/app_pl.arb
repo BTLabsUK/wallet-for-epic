@@ -4776,8 +4776,5 @@
   "pairInvitedOn": "Zaproszenie wysłano {day}",
   "deskActNoneUnderFilter": "Nic pod tym filtrem",
   "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
-  "deskKitMethodConnected": "Połączono",
-  "pairInvitedAt": "Zaproszenie wysłano {clock}",
-  "pairInvitedYesterday": "Zaproszenie wysłano wczoraj",
-  "pairInvitedOn": "Zaproszenie wysłano {day}"
+  "deskKitMethodConnected": "Połączono"
 }

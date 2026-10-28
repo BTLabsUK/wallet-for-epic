@@ -4776,8 +4776,5 @@
   "pairInvitedOn": "Eingeladen am {day}",
   "deskActNoneUnderFilter": "Nichts unter diesem Filter",
   "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
-  "deskKitMethodConnected": "Verbunden",
-  "pairInvitedAt": "Eingeladen {clock}",
-  "pairInvitedYesterday": "Gestern eingeladen",
-  "pairInvitedOn": "Eingeladen am {day}"
+  "deskKitMethodConnected": "Verbunden"
 }

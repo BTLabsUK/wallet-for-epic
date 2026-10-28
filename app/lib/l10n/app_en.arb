@@ -24240,29 +24240,5 @@
   "deskKitMethodConnected": "Connected",
   "@deskKitMethodConnected": {
     "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
-  },
-  "pairInvitedAt": "Invited {clock}",
-  "@pairInvitedAt": {
-    "description": "Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.",
-    "placeholders": {
-      "clock": {
-        "type": "String",
-        "example": "14:05"
-      }
-    }
-  },
-  "pairInvitedYesterday": "Invited yesterday",
-  "@pairInvitedYesterday": {
-    "description": "Pending pairing row: the invite went out yesterday."
-  },
-  "pairInvitedOn": "Invited {day}",
-  "@pairInvitedOn": {
-    "description": "Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.",
-    "placeholders": {
-      "day": {
-        "type": "String",
-        "example": "3 Oct 2026"
-      }
-    }
   }
 }

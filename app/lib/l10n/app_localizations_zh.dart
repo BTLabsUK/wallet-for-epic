@@ -17176,17 +17176,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => '已连接';
-
-  @override
-  String pairInvitedAt(String clock) {
-    return '已邀请 $clock';
-  }
-
-  @override
-  String get pairInvitedYesterday => '昨天已邀请';
-
-  @override
-  String pairInvitedOn(String day) {
-    return '已邀请 $day';
-  }
 }

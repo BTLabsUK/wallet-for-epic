@@ -18459,17 +18459,4 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Verbunden';
-
-  @override
-  String pairInvitedAt(String clock) {
-    return 'Eingeladen $clock';
-  }
-
-  @override
-  String get pairInvitedYesterday => 'Gestern eingeladen';
-
-  @override
-  String pairInvitedOn(String day) {
-    return 'Eingeladen am $day';
-  }
 }

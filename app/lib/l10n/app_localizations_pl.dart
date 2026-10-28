@@ -18888,17 +18888,4 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Połączono';
-
-  @override
-  String pairInvitedAt(String clock) {
-    return 'Zaproszenie wysłano $clock';
-  }
-
-  @override
-  String get pairInvitedYesterday => 'Zaproszenie wysłano wczoraj';
-
-  @override
-  String pairInvitedOn(String day) {
-    return 'Zaproszenie wysłano $day';
-  }
 }

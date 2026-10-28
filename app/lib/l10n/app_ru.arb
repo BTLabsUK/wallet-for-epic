@@ -4776,8 +4776,5 @@
   "pairInvitedOn": "Приглашение отправлено {day}",
   "deskActNoneUnderFilter": "Под этим фильтром ничего нет",
   "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт.",
-  "deskKitMethodConnected": "Подключено",
-  "pairInvitedAt": "Приглашение отправлено в {clock}",
-  "pairInvitedYesterday": "Приглашение отправлено вчера",
-  "pairInvitedOn": "Приглашение отправлено {day}"
+  "deskKitMethodConnected": "Подключено"
 }

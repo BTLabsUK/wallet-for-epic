@@ -17832,17 +17832,4 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'เชื่อมต่อแล้ว';
-
-  @override
-  String pairInvitedAt(String clock) {
-    return 'เชิญเมื่อ $clock';
-  }
-
-  @override
-  String get pairInvitedYesterday => 'เชิญเมื่อวานนี้';
-
-  @override
-  String pairInvitedOn(String day) {
-    return 'เชิญเมื่อ $day';
-  }
 }

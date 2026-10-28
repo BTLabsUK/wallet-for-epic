@@ -28573,24 +28573,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connected'**
   String get deskKitMethodConnected;
-
-  /// Pending pairing row: when the invite went out, today; clock is the local time, e.g. 14:05.
-  ///
-  /// In en, this message translates to:
-  /// **'Invited {clock}'**
-  String pairInvitedAt(String clock);
-
-  /// Pending pairing row: the invite went out yesterday.
-  ///
-  /// In en, this message translates to:
-  /// **'Invited yesterday'**
-  String get pairInvitedYesterday;
-
-  /// Pending pairing row: the invite went out on an earlier day; day is the local date, e.g. 3 Oct 2026.
-  ///
-  /// In en, this message translates to:
-  /// **'Invited {day}'**
-  String pairInvitedOn(String day);
 }
 
 class _AppLocalizationsDelegate

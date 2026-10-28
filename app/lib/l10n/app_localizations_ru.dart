@@ -18868,17 +18868,4 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitMethodConnected => 'Подключено';
-
-  @override
-  String pairInvitedAt(String clock) {
-    return 'Приглашение отправлено в $clock';
-  }
-
-  @override
-  String get pairInvitedYesterday => 'Приглашение отправлено вчера';
-
-  @override
-  String pairInvitedOn(String day) {
-    return 'Приглашение отправлено $day';
-  }
 }
