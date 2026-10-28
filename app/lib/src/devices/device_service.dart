@@ -620,12 +620,6 @@ class DeviceService {
     }
     try {
       final r = await _api.acceptPrivateInvite(link: n.body['inviteLink'] as String, name: book.deviceName);
-      // The invite's own relay is where the pairing lives: it must be the server it names.
-      if (linkServerOf(r.homeRelay) != server) {
-        await _unpair(r.id);
-        _drop('pairing invite whose relay is not its server');
-        return;
-      }
       final d = book.device(from.deviceId)!;
       _book = book.withDevice(
         d.copyWith(
@@ -878,12 +872,23 @@ class DeviceService {
         for (final e in d.pairings.entries)
           if (records[e.value] != null && !records[e.value]!.removedByPeer) e.key: e.value,
       };
+      // A further pairing must live on the server its invite named: the core names the relay
+      // once the pairing is made, so an invite that pointed elsewhere is dropped then.
+      final elsewhere = [
+        for (final p in d.pending)
+          if (records[p.pairingId] case final r? when r.state.isPaired && linkServerOf(r.homeRelay) != p.server) p,
+      ];
+      for (final p in elsewhere) {
+        _drop('further pairing on another relay than its server');
+        await _unpair(p.pairingId);
+      }
       // The answerer of a further pairing sends its pictures once it is paired.
       final ok = <({String server, List<SasWord> sas})>[];
       final pending = <PendingPairing>[
         for (final p in d.pending)
-          if (records[p.pairingId] case final r? when !r.removedByPeer)
-            if (!p.inviter && r.state.isPaired && !p.okSent) ...[p.sent(), ?_noteOk(ok, p.server, r.sas)] else p,
+          if (!elsewhere.contains(p))
+            if (records[p.pairingId] case final r? when !r.removedByPeer)
+              if (!p.inviter && r.state.isPaired && !p.okSent) ...[p.sent(), ?_noteOk(ok, p.server, r.sas)] else p,
       ];
       if (pairings.isEmpty && pending.isEmpty) {
         // Every pairing with it is gone: the other device removed this one.
@@ -913,13 +918,14 @@ class DeviceService {
   }
 
   /// Forgets [deviceId] here: its holds end (spent where the chain says so), its pairings go.
-  Future<void> _forget(String deviceId) async {
+  /// Forgets [deviceId]: its pairings go and, unless [keepHolds], the coins it held are freed.
+  Future<void> _forget(String deviceId, {bool keepHolds = false}) async {
     final d = book.device(deviceId);
     if (d == null) return;
     for (final id in d.pairingIds) {
       await _unpair(id);
     }
-    final holds = unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
+    final holds = keepHolds ? book.holds : unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
     _book = book.withoutDevice(deviceId).copyWith(holds: holds, outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o]);
   }
 
@@ -1191,9 +1197,10 @@ class DeviceService {
     final server = linkServerOf(r?.homeRelay) ?? flow.servers.first;
     final theirServers = [for (final s in hello.body['servers'] as List) s as String];
     final servers = flow.role == LinkRole.shows ? flow.servers : theirServers;
-    // Linked again: the old pairings of that device go.
+    // Linked again: the old pairings of that device go. The coins it held stay held: a hello
+    // that names a linked device's id must not free the payments that device is making.
     final before = book.device(theirId);
-    if (before != null) await _forget(theirId);
+    if (before != null) await _forget(theirId, keepHolds: true);
     final device = LinkedDevice(
       deviceId: theirId,
       name: hello.body['name'] as String,

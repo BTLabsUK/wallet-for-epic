@@ -26,6 +26,7 @@ import 'dart:async';
 
 import 'advanced.dart';
 import 'payment_prefs.dart';
+import 'net/tor_switch.dart';
 import 'tor_routes.dart';
 
 export 'net/local_address.dart' show isLocalAddressUrl;
@@ -99,6 +100,14 @@ bool pushAllowed(NetworkMode mode, {bool epicbox = true}) => netModeOf(mode) == 
 /// address that is not local ("Offline: only local addresses."). [epicboxOff]: the Epicbox
 /// switch refused an Epicbox action (the mode is then whatever it is); [methodOff] names the
 /// method whose switch refused it (Epicbox included).
+/// Whether Tor only waits for its tor now: nothing may reach a relay before tor carries it.
+bool get torOnlyWaiting => NetGate.torOnly && !TorSwitch.carried;
+
+/// Throws [NetBlocked] (Tor only) for [what] while [torOnlyWaiting].
+void checkTorReady(String what) {
+  if (torOnlyWaiting) throw NetBlocked(NetworkMode.torOnly, what);
+}
+
 class NetBlocked implements Exception {
   const NetBlocked(this.mode, this.what, {this.notLocal = false, this.epicboxOff = false, this.methodOff});
 

@@ -47,7 +47,8 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
   final config = ref.watch(walletConfigProvider.select((c) => c == null ? null : (chain: c.chain, walletId: c.walletId)));
   if (session == null || config == null) return null;
   final service = DeviceService(
-    host: SessionDeviceHost(session, online: () => !NetGate.epicboxOff && NetGate.linkedDevices),
+    // In Tor only the channel waits for tor, so nothing reaches a link server directly.
+    host: SessionDeviceHost(session, online: () => !NetGate.epicboxOff && NetGate.linkedDevices && !torOnlyWaiting),
     store: DeviceStore(ref.watch(secretStoreProvider), chain: config.chain, walletId: config.walletId),
     defaultName: phoneDeviceName(),
   );

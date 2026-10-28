@@ -45,7 +45,8 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network, s.session)));
   if (account == null) return null;
   final api = ref.read(deskApiProvider);
-  final host = api.deviceHost(online: () => !NetGate.epicboxOff && NetGate.linkedDevices);
+  // In Tor only the channel waits for tor, so nothing reaches a link server directly.
+  final host = api.deviceHost(online: () => !NetGate.epicboxOff && NetGate.linkedDevices && !torOnlyWaiting);
   if (host == null) return null;
   final service = DeviceService(
     host: host,

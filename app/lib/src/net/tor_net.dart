@@ -52,12 +52,14 @@ abstract final class TorNet {
 
   static void useDirect() {
     _mode = TorNetMode.direct;
+    TorSwitch.carried = false;
     _proxy = null;
     _release();
   }
 
   static void useTor(SocksProxy proxy) {
     _mode = TorNetMode.tor;
+    TorSwitch.carried = true;
     _proxy = proxy;
     _release();
   }
@@ -83,6 +85,7 @@ abstract final class TorNet {
 
   static void waitForTor() {
     _mode = TorNetMode.waiting;
+    TorSwitch.carried = false;
     _proxy = null;
   }
 

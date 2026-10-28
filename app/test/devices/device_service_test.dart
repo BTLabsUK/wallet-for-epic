@@ -17,7 +17,8 @@ import 'two_devices.dart';
 const _s1 = 'epicbox.epiccash.com';
 const _s2 = 'epicbox.stackwallet.com';
 
-/// [side]'s own send [slate] of 3 EPIC spending coin 2 (as LEPIC lists it), [cancelled] or not.
+/// [side]'s own send [slate] spending coin 2 (3 EPIC, fee included, as LEPIC lists it),
+/// [cancelled] or not.
 void _send(Side side, String slate, {int tx = 7, int coinNo = 2, bool cancelled = false, CancelReason reason = CancelReason.user, int? cutoff}) {
   side.session.transactionsValue = [
     fakeTx(
@@ -25,7 +26,7 @@ void _send(Side side, String slate, {int tx = 7, int coinNo = 2, bool cancelled 
       slateId: slate,
       kind: cancelled ? TxKind.sentCancelled : TxKind.sent,
       status: cancelled ? TxStatus.cancelled : TxStatus.awaitingRecipient,
-      amountDebited: BigInt.from(300000000 + 800000),
+      amountDebited: BigInt.from(300000000),
       fee: BigInt.from(800000),
       counterparty: 'esBob@epicbox.epiccash.com',
       cancelReason: cancelled ? reason : null,

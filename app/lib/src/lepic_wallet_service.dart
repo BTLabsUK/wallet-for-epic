@@ -2897,7 +2897,9 @@ class _LepicPairing implements PairingApi {
     String? label,
     String? contactId,
   }) => _call(() async {
-    // Words meet on the Connection servers (null: LEPIC's built-in list).
+    // Words meet on the Connection servers (null: LEPIC's built-in list). In Tor only they
+    // wait for tor: the words go to the meeting relays.
+    if (words) checkTorReady('pairing words');
     final invite = await _w.pairingInvite(
       name: name.trim(),
       kind: lepic.ContactKind.person,
@@ -2975,6 +2977,7 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingInvitePreview> openWords(List<String> words) => _call(() async {
+    checkTorReady('pairing words');
     final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode(), meetingRelays: _meetingRelays);
     await _refuseOwn(found.link, found.preview);
     return _preview(found.link, found.preview);
