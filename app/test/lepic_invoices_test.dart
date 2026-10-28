@@ -185,6 +185,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
         origin: lepic.TxOrigin.wallet,
         outputCommits: const [],
         spentCommits: const [],
+        unverified: false,
       ),
     );
     outbox.add(

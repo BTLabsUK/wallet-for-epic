@@ -130,6 +130,7 @@ void main() {
       origin: lepic.TxOrigin.wallet,
       outputCommits: const [],
       spentCommits: const [],
+      unverified: false,
       senderReportedPostedAtMs: reportedAtMs,
     );
 

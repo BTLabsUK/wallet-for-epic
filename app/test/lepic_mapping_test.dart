@@ -47,6 +47,7 @@ class _SendingWallet extends _NoNativeWallet {
     origin: lepic.TxOrigin.wallet,
     outputCommits: const [],
     spentCommits: const [],
+    unverified: false,
   );
 
   @override
@@ -265,6 +266,7 @@ void main() {
       origin: lepic.TxOrigin.wallet,
       outputCommits: const [],
       spentCommits: const [],
+      unverified: false,
     );
     expect(lepicTxEntry(send()).undelivered, isTrue);
     // The first attempt of a send still running is undelivered for LEPIC too.
@@ -665,6 +667,7 @@ void main() {
       found: found,
       outputCommits: outputCommits,
       spentCommits: const [],
+      unverified: false,
     );
 
     test('a send waiting for its answer can be cancelled', () {
