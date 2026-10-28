@@ -334,8 +334,9 @@ class _SupportBar extends StatelessWidget {
                 SizedBox(height: 2.u),
                 Text(context.l10n.deskSetHelpReportText, style: ts.small),
                 SizedBox(height: 2.u),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                // Wraps in a narrow window: the label and the address, the address selectable.
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text('${context.l10n.contactLabel}: ', style: ts.small),
                     SelectableText(supportEmail, style: ts.small),
