@@ -24114,7 +24114,7 @@
     "placeholders": {
       "host": {
         "type": "String",
-        "example": "10.90.15.122:3413"
+        "example": "100.64.21.31:3413"
       }
     }
   },

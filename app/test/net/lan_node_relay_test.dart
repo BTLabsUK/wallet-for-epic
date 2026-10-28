@@ -65,7 +65,7 @@ void main() {
     'http://mynode.local:3413',
     // CGNAT / Tailscale tailnet, 100.64.0.0/10.
     'http://100.64.3.9:3413',
-    'http://100.101.164.51:4413',
+    'http://100.64.20.30:4413',
     'http://100.127.255.254:3413',
   ];
   const direct = ['http://127.0.0.1:3413', 'http://127.0.0.2:3413', 'http://localhost:3413', 'http://[::1]:3413'];
@@ -130,10 +130,10 @@ void main() {
     resetLanNodeAgreements();
     final other = File('${home.path}/other.json')..writeAsStringSync('{"plainHttp":[]}');
     lanNodesFile = () async => other;
-    const tail = 'http://10.90.15.122:3413';
+    const tail = 'http://100.64.21.31:3413';
     expect(needsPlainHttpConsent(tail), isTrue);
     expect(needsPlainHttpConsent('http://10.0.0.5:3413'), isFalse);
-    expect(needsPlainHttpConsent('https://10.90.15.122:3413'), isFalse);
+    expect(needsPlainHttpConsent('https://100.64.21.31:3413'), isFalse);
     expect(await lanNodeUrl(tail), tail, reason: 'LEPIC refuses it as before');
     await allowPlainHttpNode(tail);
     expect(Uri.parse(await lanNodeUrl(tail)).host, '127.0.0.1');
@@ -149,7 +149,7 @@ void main() {
     expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
     // A later run: only what was agreed.
     resetLanNodeAgreements();
-    expect(await lanNodeUrl('http://100.101.164.51:4413'), 'http://100.101.164.51:4413');
+    expect(await lanNodeUrl('http://100.64.20.30:4413'), 'http://100.64.20.30:4413');
     expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
   });
 
