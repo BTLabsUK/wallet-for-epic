@@ -262,5 +262,7 @@
   "deskOwnSlotSyncing": "Own node syncing",
   "@deskOwnSlotSyncing": {
     "description": "Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'."
-  }
+  },
+  "deskOwnAccessOnPlain": "Added · goes to the node unencrypted (plain http), readable on that network",
+  "@deskOwnAccessOnPlain": {"description": "Text of the Owner access row when the secret is added and the node is reached over plain http on the home network or a tailnet: the secret travels unencrypted on each owner call. Starts with deskOwnAccessOn's word."}
 }

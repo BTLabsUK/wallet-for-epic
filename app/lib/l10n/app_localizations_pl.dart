@@ -18021,11 +18021,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errorInputsSpentElsewhere =>
-      'Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.';
+      'Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.';
 
   @override
   String get deskErrInputsSpentElsewhere =>
-      'Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania.';
+      'Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.';
 
   @override
   String get slAddedByYou => 'Dodane przez ciebie';
@@ -18164,7 +18164,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Inny portfel z Twoją frazą odzyskiwania wydał te monety. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
+      'Węzeł pokazuje te monety jako wydane, a ten portfel ich nie wydał: najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
 
   @override
   String get txDetailsNotKnown => 'Nieznane';
@@ -18308,7 +18308,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła powiadomień; czekają na serwerach do 7 dni. Tryb offline też wstrzymuje.';
+      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła powiadomień; czekają na serwerach tak długo, jak każdy serwer je przechowuje. Tryb offline też wstrzymuje.';
 
   @override
   String get devicesHeld => 'Wstrzymane monety';
@@ -18546,7 +18546,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'Serwery widzą, że dwa urządzenia wymieniają powiadomienia i kiedy, ale nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
+      'Serwery widzą, że dwa urządzenia wymieniają powiadomienia i kiedy, a bez Tora także z jakich adresów; nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
 
   @override
   String get deskDevPausedOffline => 'Wstrzymane w trybie offline.';
@@ -18782,4 +18782,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskInvPayerAgoHoursOnly(int hours) {
     return '$hours godz.';
   }
+
+  @override
+  String get slPlainHttpTitle => 'Używać tego węzła bez szyfrowania?';
+
+  @override
+  String slPlainHttpBody(String host) {
+    return '$host należy do współdzielonej puli adresów: twojego tailnetu (Tailscale) albo sieci twojego dostawcy internetu. Portfel łączy się z tym węzłem przez nieszyfrowane http, więc każdy w tej sieci może odczytać, o co portfel go pyta. Dodaj go tylko wtedy, gdy ten adres to twój tailnet.';
+  }
+
+  @override
+  String get slPlainHttpUse => 'Użyj tego węzła';
+
+  @override
+  String get slRefusedLocal =>
+      'Nie wybrano: inne portfele nie dotrą do serwera pod adresem lokalnym lub prywatnym.';
+
+  @override
+  String get slRefusedOnion =>
+      'Nie wybrano: serwer onion działa tylko z włączonym Torem.';
+
+  @override
+  String get deskOwnAccessOnPlain =>
+      'Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci';
 }

@@ -17612,11 +17612,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorInputsSpentElsewhere =>
-      'Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.';
+      'Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan.';
 
   @override
   String get deskErrInputsSpentElsewhere =>
-      'Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben.';
+      'Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan.';
 
   @override
   String get slAddedByYou => 'Von Ihnen hinzugefügt';
@@ -17751,7 +17751,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins ausgegeben. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.';
+      'Der Node zeigt diese Coins als ausgegeben, und diese Wallet hat sie nicht ausgegeben: Wahrscheinlich war es eine andere Wallet mit Ihrer Wiederherstellungsphrase. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.';
 
   @override
   String get txDetailsNotKnown => 'Nicht bekannt';
@@ -17885,7 +17885,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'Während der Pause liest und sendet dieses Gerät keine Meldungen; sie warten bis zu 7 Tage auf den Servern. Der Offline-Modus pausiert ebenfalls.';
+      'Während der Pause liest und sendet dieses Gerät keine Meldungen; sie warten auf den Servern, solange jeder Server sie aufbewahrt. Der Offline-Modus pausiert ebenfalls.';
 
   @override
   String get devicesHeld => 'Zurückgehaltene Münzen';
@@ -18124,7 +18124,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'Die Server sehen, dass zwei Geräte Meldungen austauschen und wann, nie den Inhalt. Bei zwei Servern sehen zwei Betreiber das.';
+      'Die Server sehen, dass zwei Geräte Meldungen austauschen und wann, und ohne Tor auch von welchen Adressen; nie den Inhalt. Bei zwei Servern sehen zwei Betreiber das.';
 
   @override
   String get deskDevPausedOffline => 'Pausiert im Offline-Modus.';
@@ -18354,4 +18354,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskInvPayerAgoHoursOnly(int hours) {
     return '$hours Std.';
   }
+
+  @override
+  String get slPlainHttpTitle => 'Diesen Node ohne Verschlüsselung nutzen?';
+
+  @override
+  String slPlainHttpBody(String host) {
+    return '$host liegt in einem gemeinsam genutzten Adressbereich: Ihr eigenes Tailnet (Tailscale) oder das Netz Ihres Internetanbieters. Die Wallet spricht mit diesem Node über unverschlüsseltes http, daher kann jeder in diesem Netz mitlesen, was die Wallet ihn fragt. Fügen Sie ihn nur hinzu, wenn die Adresse Ihr Tailnet ist.';
+  }
+
+  @override
+  String get slPlainHttpUse => 'Node nutzen';
+
+  @override
+  String get slRefusedLocal =>
+      'Nicht gewählt: Andere Wallets erreichen keinen Server an einer lokalen oder privaten Adresse.';
+
+  @override
+  String get slRefusedOnion =>
+      'Nicht gewählt: Ein Onion-Server funktioniert nur mit eingeschaltetem Tor.';
+
+  @override
+  String get deskOwnAccessOnPlain =>
+      'Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar';
 }

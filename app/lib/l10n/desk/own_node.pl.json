@@ -49,5 +49,6 @@
   "deskOwnSyncUsingText": "Portfel wróci, gdy ten węzeł zacznie przyjmować transakcje.",
   "deskOwnMine": "To mój węzeł",
   "deskOwnMineHint": "Pyta sam węzeł zamiast status.btlabs.uk i oferuje dostęp właściciela. Dla węzła, który prowadzisz sam.",
-  "deskOwnSlotSyncing": "Własny węzeł się synchronizuje"
+  "deskOwnSlotSyncing": "Własny węzeł się synchronizuje",
+  "deskOwnAccessOnPlain": "Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci"
 }

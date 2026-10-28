@@ -17408,11 +17408,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorInputsSpentElsewhere =>
-      'These coins were just spent by another wallet using your recovery phrase.';
+      'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.';
 
   @override
   String get deskErrInputsSpentElsewhere =>
-      'These coins were just spent by another wallet using your recovery phrase.';
+      'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.';
 
   @override
   String get slAddedByYou => 'Added by you';
@@ -17547,7 +17547,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.';
+      'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.';
 
   @override
   String get txDetailsNotKnown => 'Not known';
@@ -17681,7 +17681,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline mode pauses it too.';
+      'While paused, this device neither reads nor sends notices; they wait on the servers for as long as each server keeps them. Offline mode pauses it too.';
 
   @override
   String get devicesHeld => 'Held coins';
@@ -17915,7 +17915,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.';
+      'The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.';
 
   @override
   String get deskDevPausedOffline => 'Paused in Offline mode.';
@@ -18144,4 +18144,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskInvPayerAgoHoursOnly(int hours) {
     return '$hours h';
   }
+
+  @override
+  String get slPlainHttpTitle => 'Use this node without encryption?';
+
+  @override
+  String slPlainHttpBody(String host) {
+    return '$host is in a shared address range: your own tailnet (Tailscale), or your internet provider’s network. The wallet talks to this node over plain http, so anyone on that network can read what the wallet asks it. Add it only if the address is your tailnet.';
+  }
+
+  @override
+  String get slPlainHttpUse => 'Use this node';
+
+  @override
+  String get slRefusedLocal =>
+      'Not chosen: other wallets cannot reach a server at a local or private address.';
+
+  @override
+  String get slRefusedOnion =>
+      'Not chosen: an onion server works only with Tor on.';
+
+  @override
+  String get deskOwnAccessOnPlain =>
+      'Added · goes to the node unencrypted (plain http), readable on that network';
 }

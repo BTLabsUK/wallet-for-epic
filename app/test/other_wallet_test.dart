@@ -106,7 +106,7 @@ void main() {
   testWidgets('a sent row\'s details: what it is, no recipient, no known fee, the offer spot at the end', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:1'));
     expect(find.text('Sent from another wallet'), findsWidgets);
-    expect(find.text('Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.'), findsOneWidget);
+    expect(find.text('The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.'), findsOneWidget);
     expect(find.text('Sent to'), findsNothing);
     expect(find.text('Fee'), findsOneWidget);
     expect(find.text('Not known'), findsOneWidget);
@@ -132,7 +132,7 @@ void main() {
     expect(say(received), startsWith('Received by another wallet'));
     expect(
       describeError(l, const WalletError(kind: WalletErrorKind.inputsSpentElsewhere, message: 'spent')),
-      'These coins were just spent by another wallet using your recovery phrase.',
+      'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.',
     );
   });
 }

@@ -582,8 +582,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('A row called **Sent from another wallet** or **Received by another wallet** is a payment of another wallet that uses the same recovery phrase. The chain shows these coins spent or received, so this wallet lists it.'),
         HelpBlock.p('The amount is what left this wallet after the change that came back, or what arrived. The other side and the fee are not known here.'),
-        HelpBlock.p('**If you use no other wallet with this phrase**, someone else has the recovery phrase. Move the EPIC to a new wallet with a new phrase.'),
-        HelpBlock.p('**A send that fails with "These coins were just spent by another wallet using your recovery phrase."** was released. The wallet refreshes; send again once the balance is right.'),
+        HelpBlock.p('**If you use no other wallet with this phrase**, ask another node first: switch to another node and use Recheck balance. A node that leaves coins out of its answers can make them look spent. If they still show spent, someone else may have the recovery phrase: move the EPIC to a new wallet with a new phrase.'),
+        HelpBlock.p('**A send that fails with "The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did."** was released. The wallet refreshes; send again once the balance is right.'),
       ],
       id: HelpId.otherWallet,
     ),

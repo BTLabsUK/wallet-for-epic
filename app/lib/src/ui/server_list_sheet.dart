@@ -28,6 +28,8 @@ import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
 import '../server_list_store.dart';
 import '../server_switch.dart';
+import '../net/tor_switch.dart' show TorSwitch;
+import '../net/lan_node_relay.dart' if (dart.library.js_interop) '../net/lan_node_relay_web.dart' show allowPlainHttpNode, needsPlainHttpConsent;
 import '../net/local_address.dart' show isLocalNodeUrl, NodeClass, nodeClassOf;
 import '../node/node_info_types.dart' show NodeInfo, NodeHead;
 import '../node/node_info_provider.dart' if (dart.library.js_interop) '../node/node_info_provider_web.dart' show nodeInfoProvider;
@@ -347,6 +349,26 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     _add(choice);
   }
 
+  /// A plain-http node at a shared (CGNAT) address may be the user's tailnet or the provider's
+  /// network, which cannot be told apart: a dialog asks before it is used.
+  Future<bool> _plainHttpAgreed(String value) async {
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.slPlainHttpTitle),
+          content: Text(l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.slPlainHttpUse)),
+          ],
+        );
+      },
+    );
+    return sure == true;
+  }
+
   /// Add: a typed text that is no address is answered under the field; an address is tested
   /// (the node gives its tip, the relay answers a handshake), then added and selected, so the
   /// Switch strip offers it. A failed test adds nothing.
@@ -358,6 +380,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       return;
     }
     FocusManager.instance.primaryFocus?.unfocus();
+    if (_node && needsPlainHttpConsent(value)) {
+      if (!await _plainHttpAgreed(value) || !mounted) return;
+      await allowPlainHttpNode(value);
+      if (!mounted) return;
+    }
     setState(() {
       _adding = true;
       _fieldError = null;
@@ -459,13 +486,19 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final l = context.l10n;
     final sel = _sel!;
     final before = _chosen!;
-    final r = toggleSelection(widget.kind, before, value, sel.limit);
+    final r = toggleSelection(widget.kind, before, value, sel.limit, torOn: TorSwitch.on);
     switch (r.refusal) {
       case SelectionRefusal.keepOne:
         _say(l.slKeepOne, note: true);
         return;
       case SelectionRefusal.limit:
         _say(l.slLimit(sel.limit), note: true);
+        return;
+      case SelectionRefusal.localAddress:
+        _say(l.slRefusedLocal, note: true);
+        return;
+      case SelectionRefusal.onionWithoutTor:
+        _say(l.slRefusedOnion, note: true);
         return;
       case null:
         break;

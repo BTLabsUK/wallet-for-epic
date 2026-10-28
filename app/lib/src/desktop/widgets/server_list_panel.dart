@@ -27,6 +27,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../legacy/gui_rules.dart' show isPrivateHost;
+import '../../net/tor_switch.dart' show TorSwitch;
+import '../../net/lan_node_relay.dart' show allowPlainHttpNode, needsPlainHttpConsent;
 import '../../net/local_address.dart' show isLocalNodeUrl;
 import '../../node/node_info.dart' show compareVersions;
 import '../../relay_directory.dart' show NodeHealthState;
@@ -465,6 +467,34 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     });
   }
 
+  /// A plain-http node at a shared (CGNAT) address may be the user's tailnet or the provider's
+  /// network, which cannot be told apart: a dialog asks before it is used.
+  Future<bool> _plainHttpAgreed(String value) async {
+    final l = context.l10n;
+    final sure = await showEDialog<bool>(
+      context,
+      builder: (context) => EDialog(
+        title: l.slPlainHttpTitle,
+        description: l.slPlainHttpBody(panelHost(widget.kind, value)),
+        icon: EIcons.lockOpen,
+        actions: [
+          EButton(
+            key: const ValueKey('server-list-plain-cancel'),
+            label: l.commonCancel,
+            autofocus: true,
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          EButton.primary(
+            key: const ValueKey('server-list-plain-use'),
+            label: l.slPlainHttpUse,
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+    return sure == true;
+  }
+
   /// An Epicbox pick: the address changes, so a dialog asks first.
   Future<void> _confirmSwitch(String value) async {
     final l = context.l10n;
@@ -514,6 +544,11 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       return;
     }
     if (_all.any((s) => _same(s.value, value))) return _pick(value);
+    if (_node && needsPlainHttpConsent(value)) {
+      if (!await _plainHttpAgreed(value) || !mounted) return;
+      await allowPlainHttpNode(value);
+      if (!mounted) return;
+    }
     setState(() {
       _adding = value;
       _fieldError = null;
@@ -617,13 +652,19 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final l = context.l10n;
     final sel = _sel!;
     final before = _chosen!;
-    final r = toggleSelection(widget.kind, before, value, sel.limit);
+    final r = toggleSelection(widget.kind, before, value, sel.limit, torOn: TorSwitch.on);
     switch (r.refusal) {
       case SelectionRefusal.keepOne:
         _say(l.slKeepOne);
         return;
       case SelectionRefusal.limit:
         _say(l.slLimit(sel.limit));
+        return;
+      case SelectionRefusal.localAddress:
+        _say(l.slRefusedLocal);
+        return;
+      case SelectionRefusal.onionWithoutTor:
+        _say(l.slRefusedOnion);
         return;
       case null:
         break;

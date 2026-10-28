@@ -49,5 +49,6 @@
   "deskOwnSyncUsingText": "Die Wallet wechselt zurück, sobald dieser Node Transaktionen annimmt.",
   "deskOwnMine": "Das ist mein Node",
   "deskOwnMineHint": "Fragt den Node selbst statt status.btlabs.uk und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.",
-  "deskOwnSlotSyncing": "Eigener Node synchronisiert"
+  "deskOwnSlotSyncing": "Eigener Node synchronisiert",
+  "deskOwnAccessOnPlain": "Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar"
 }

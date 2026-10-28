@@ -31,7 +31,7 @@
   "@deskDevServersInfo2": {
     "description": "Info card of the Servers row, paragraph 2."
   },
-  "deskDevServersInfo3": "The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.",
+  "deskDevServersInfo3": "The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.",
   "@deskDevServersInfo3": {
     "description": "Info card of the Servers row, paragraph 3."
   },

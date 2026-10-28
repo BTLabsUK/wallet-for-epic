@@ -49,5 +49,6 @@
   "deskOwnSyncUsingText": "此节点开始接受交易后，钱包会切换回来。",
   "deskOwnMine": "这是我的节点",
   "deskOwnMineHint": "直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。",
-  "deskOwnSlotSyncing": "自有节点正在同步"
+  "deskOwnSlotSyncing": "自有节点正在同步",
+  "deskOwnAccessOnPlain": "已添加 · 以未加密方式（http）发送到节点，该网络上可被读取"
 }

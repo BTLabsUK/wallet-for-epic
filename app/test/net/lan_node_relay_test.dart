@@ -2,7 +2,9 @@
 // responding"; Bob Stone: 10.0.1.16:3413 and Alice-node.lan:3413 "no answer"). LEPIC refuses plain
 // http to anything but loopback, so the app hands such a node to LEPIC through a loopback relay
 // (a .local/.lan name looked up once, every address local); loopback goes directly; https,
-// public addresses, onions and other names go as they are.
+// public addresses, onions and other names go as they are. A CGNAT (tailnet) address is relayed
+// only once the user agreed for that node, and the relay answers only requests that carry its
+// token.
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,7 +34,17 @@ Future<InternetAddress?> _ownAddress(bool Function(String) take) async {
 }
 
 void main() {
-  tearDown(closeLanNodeRelays);
+  late Directory home;
+  setUp(() {
+    home = Directory.systemTemp.createTempSync('wfe_lan_');
+    lanNodesFile = () async => File('${home.path}/lan_nodes.json');
+    resetLanNodeAgreements();
+  });
+  tearDown(() async {
+    await closeLanNodeRelays();
+    resetLanNodeAgreements();
+    home.deleteSync(recursive: true);
+  });
 
   // What LEPIC is given for each kind of address: relayed (http://127.0.0.1:<relay port>), direct
   // (LEPIC takes it as it is: loopback), unchanged (https, public, onion, other names: LEPIC
@@ -73,8 +85,11 @@ void main() {
   ];
   final lookups = <String>[];
 
-  setUp(() {
+  setUp(() async {
     lookups.clear();
+    for (final url in relayed.where(needsPlainHttpConsent)) {
+      await allowPlainHttpNode(url);
+    }
     lanNodeLookup = (host) async {
       lookups.add(host);
       return switch (host.toLowerCase()) {
@@ -108,6 +123,55 @@ void main() {
       expect((await LepicWalletService.lepicConfigOf(_config(url))).nodeUrl, url, reason: url);
     }
     expect(lookups, ['public.lan', 'gone.local']);
+  });
+
+  test('a tailnet (CGNAT) node goes through the relay only once agreed for', () async {
+    resetLanNodeAgreements();
+    final other = File('${home.path}/other.json')..writeAsStringSync('{"plainHttp":[]}');
+    lanNodesFile = () async => other;
+    const tail = 'http://10.90.15.122:3413';
+    expect(needsPlainHttpConsent(tail), isTrue);
+    expect(needsPlainHttpConsent('http://10.0.0.5:3413'), isFalse);
+    expect(needsPlainHttpConsent('https://10.90.15.122:3413'), isFalse);
+    expect(await lanNodeUrl(tail), tail, reason: 'LEPIC refuses it as before');
+    await allowPlainHttpNode(tail);
+    expect(Uri.parse(await lanNodeUrl(tail)).host, '127.0.0.1');
+    // Kept: a new run reads the agreement back.
+    resetLanNodeAgreements();
+    expect(await plainHttpNodeAllowed(tail), isTrue);
+  });
+
+  test('on the first run with agreements the tailnet nodes in use count as agreed', () async {
+    resetLanNodeAgreements();
+    lanNodesFile = () async => File('${home.path}/first.json');
+    expect(Uri.parse(await lanNodeUrl('http://100.64.3.9:3413')).host, '127.0.0.1');
+    expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
+    // A later run: only what was agreed.
+    resetLanNodeAgreements();
+    expect(await lanNodeUrl('http://100.101.164.51:4413'), 'http://100.101.164.51:4413');
+    expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
+  });
+
+  test('the relay answers only requests that carry its token', () async {
+    final node = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    node.listen((r) async {
+      r.response.write('path ${r.uri.path}');
+      await r.response.close();
+    });
+    addTearDown(() => node.close(force: true));
+    // Loopback goes directly, so reach the relay through a local name that resolves to it.
+    lanNodeLookup = (host) async => ['127.0.0.1'];
+    final via = await lanNodeUrl('http://box.lan:${node.port}');
+    final relayed = Uri.parse(via);
+    expect(relayed.pathSegments.single, hasLength(22), reason: '128 random bits');
+    final client = HttpClient();
+    addTearDown(client.close);
+    final ok = await (await client.getUrl(Uri.parse('$via/v2/foreign'))).close();
+    expect(await utf8.decoder.bind(ok).join(), 'path /v2/foreign');
+    final guessed = relayed.replace(path: '/v2/foreign');
+    final refused = await (await client.getUrl(guessed)).close();
+    expect(refused.statusCode, HttpStatus.forbidden);
+    await refused.drain<void>();
   });
 
   test('a .lan name is looked up once and the relay goes to the address found', () async {

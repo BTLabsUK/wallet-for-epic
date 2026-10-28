@@ -350,6 +350,8 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
         ? l.deskOwnAccessRefused(off!.since == null ? '–' : hhmm(off.since!))
         : tor
         ? l.deskOwnAccessTor
+        : ownerSecretPlainOnLan(widget.url)
+        ? l.deskOwnAccessOnPlain
         : l.deskOwnAccessOn;
     return ESetRow(
         title: l.deskOwnAccess,

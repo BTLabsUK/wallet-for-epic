@@ -140,5 +140,5 @@
   "deskErrTxNotFound": "Transaktion nicht gefunden",
   "deskErrNotDeliveredRelay": "Nicht zugestellt: {relay} hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.",
   "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet.",
-  "deskErrInputsSpentElsewhere": "Diese Coins wurden gerade von einer anderen Wallet mit Ihrer Wiederherstellungsphrase ausgegeben."
+  "deskErrInputsSpentElsewhere": "Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan."
 }

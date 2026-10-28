@@ -47,7 +47,8 @@ List<String>? decodeConnectionServers(String? raw) {
     final keys = <String>{};
     for (final e in d) {
       final v = e is String ? typedRelayLabel(e) : null;
-      if (v != null && keys.add(serverKeyOf(ServerKind.relay, v)) && out.length < connectionServersLimit) out.add(v);
+      // A local address chosen before it was refused: other wallets never met there.
+      if (v != null && !isLocalRelay(v) && keys.add(serverKeyOf(ServerKind.relay, v)) && out.length < connectionServersLimit) out.add(v);
     }
     return out.isEmpty ? null : out;
   } on FormatException {

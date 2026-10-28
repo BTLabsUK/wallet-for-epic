@@ -17995,11 +17995,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorInputsSpentElsewhere =>
-      'Эти монеты только что потратил другой кошелёк с вашей фразой восстановления.';
+      'Узел показывает эти монеты уже потраченными, а этот кошелёк их не тратил. Скорее всего, это сделал другой кошелёк с вашей фразой восстановления.';
 
   @override
   String get deskErrInputsSpentElsewhere =>
-      'Эти монеты только что потратил другой кошелёк с вашей фразой восстановления.';
+      'Узел показывает эти монеты уже потраченными, а этот кошелёк их не тратил. Скорее всего, это сделал другой кошелёк с вашей фразой восстановления.';
 
   @override
   String get slAddedByYou => 'Добавлено вами';
@@ -18138,7 +18138,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Эти монеты потратил другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
+      'Узел показывает эти монеты потраченными, а этот кошелёк их не тратил: скорее всего, это сделал другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
 
   @override
   String get txDetailsNotKnown => 'Неизвестно';
@@ -18282,7 +18282,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'На паузе это устройство не читает и не отправляет уведомления; они ждут на серверах до 7 дней. Автономный режим тоже ставит на паузу.';
+      'На паузе это устройство не читает и не отправляет уведомления; они ждут на серверах, пока каждый сервер их хранит. Автономный режим тоже ставит на паузу.';
 
   @override
   String get devicesHeld => 'Удержанные монеты';
@@ -18519,7 +18519,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      'Серверы видят, что два устройства обмениваются уведомлениями и когда, но не их содержимое. Два сервера — это два оператора, которые это видят.';
+      'Серверы видят, что два устройства обмениваются уведомлениями и когда, а без Tor и с каких адресов; но никогда не их содержимое. Два сервера — это два оператора, которые это видят.';
 
   @override
   String get deskDevPausedOffline => 'Приостановлено в режиме «Офлайн».';
@@ -18756,4 +18756,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskInvPayerAgoHoursOnly(int hours) {
     return '$hours ч';
   }
+
+  @override
+  String get slPlainHttpTitle => 'Использовать этот узел без шифрования?';
+
+  @override
+  String slPlainHttpBody(String host) {
+    return '$host относится к общему диапазону адресов: это ваш tailnet (Tailscale) или сеть вашего интернет-провайдера. Кошелёк обращается к этому узлу по незашифрованному http, поэтому любой в этой сети может прочитать, что кошелёк у него запрашивает. Добавляйте его, только если этот адрес — ваш tailnet.';
+  }
+
+  @override
+  String get slPlainHttpUse => 'Использовать узел';
+
+  @override
+  String get slRefusedLocal =>
+      'Не выбран: другие кошельки не могут достучаться до сервера с локальным или частным адресом.';
+
+  @override
+  String get slRefusedOnion =>
+      'Не выбран: onion-сервер работает только при включённом Tor.';
+
+  @override
+  String get deskOwnAccessOnPlain =>
+      'Добавлен · передаётся узлу без шифрования (http), виден в этой сети';
 }

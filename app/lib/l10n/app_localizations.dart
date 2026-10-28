@@ -27413,13 +27413,13 @@ abstract class AppLocalizations {
   /// Error for the core's InputsSpentElsewhere: posting a send failed because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
   ///
   /// In en, this message translates to:
-  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  /// **'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.'**
   String get errorInputsSpentElsewhere;
 
   /// Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows.
   ///
   /// In en, this message translates to:
-  /// **'These coins were just spent by another wallet using your recovery phrase.'**
+  /// **'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.'**
   String get deskErrInputsSpentElsewhere;
 
   /// Badge on a server row the user typed in, beside Default; also on the Epicbox servers page.
@@ -27599,7 +27599,7 @@ abstract class AppLocalizations {
   /// Details of a row sent from another wallet: what it is and what is not known about it.
   ///
   /// In en, this message translates to:
-  /// **'Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.'**
+  /// **'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.'**
   String get txDetailsOtherWallet;
 
   /// Value of a details row (the fee) that this wallet cannot know.
@@ -27767,7 +27767,7 @@ abstract class AppLocalizations {
   /// Info text of the Pause sync switch.
   ///
   /// In en, this message translates to:
-  /// **'While paused, this device neither reads nor sends notices; they wait on the servers up to 7 days. Offline mode pauses it too.'**
+  /// **'While paused, this device neither reads nor sends notices; they wait on the servers for as long as each server keeps them. Offline mode pauses it too.'**
   String get devicesPauseHint;
 
   /// Linked devices page: the heading over coins another device is spending.
@@ -28127,7 +28127,7 @@ abstract class AppLocalizations {
   /// Info card of the Servers row, paragraph 3.
   ///
   /// In en, this message translates to:
-  /// **'The servers see that two devices exchange updates and when, never what is in them. Two servers mean two operators see that.'**
+  /// **'The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.'**
   String get deskDevServersInfo3;
 
   /// Under the Pause sync switch while the app is in Offline mode.
@@ -28447,6 +28447,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{hours} h'**
   String deskInvPayerAgoHoursOnly(int hours);
+
+  /// Title of the dialog shown when the user adds a plain-http node at a 100.64.0.0/10 address (a Tailscale tailnet or a provider's carrier-grade NAT), before the node is tested.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this node without encryption?'**
+  String get slPlainHttpTitle;
+
+  /// Body of that dialog. {host} is the node's address. Plain http and Tailscale stay as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is in a shared address range: your own tailnet (Tailscale), or your internet provider’s network. The wallet talks to this node over plain http, so anyone on that network can read what the wallet asks it. Add it only if the address is your tailnet.'**
+  String slPlainHttpBody(String host);
+
+  /// Button of that dialog that adds the node anyway; Cancel adds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this node'**
+  String get slPlainHttpUse;
+
+  /// Foot line of the Epicbox list in selection mode (Connection servers) when the user ticks a server written as a local, private or link-local IP address: other wallets cannot reach it, so it is not chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen: other wallets cannot reach a server at a local or private address.'**
+  String get slRefusedLocal;
+
+  /// Foot line of the Epicbox list in selection mode (Connection servers) when the user ticks a .onion server while Tor is off: it is not chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen: an onion server works only with Tor on.'**
+  String get slRefusedOnion;
+
+  /// Text of the Owner access row when the secret is added and the node is reached over plain http on the home network or a tailnet: the secret travels unencrypted on each owner call. Starts with deskOwnAccessOn's word.
+  ///
+  /// In en, this message translates to:
+  /// **'Added · goes to the node unencrypted (plain http), readable on that network'**
+  String get deskOwnAccessOnPlain;
 }
 
 class _AppLocalizationsDelegate

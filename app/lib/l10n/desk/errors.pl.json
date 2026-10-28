@@ -140,5 +140,5 @@
   "deskErrTxNotFound": "Nie znaleziono transakcji",
   "deskErrNotDeliveredRelay": "Nie dostarczono: {relay} nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.",
   "deskErrRelayNoAnswer": "{relay} nie odpowiedział.",
-  "deskErrInputsSpentElsewhere": "Te monety zostały przed chwilą wydane przez inny portfel z użyciem Twojej frazy odzyskiwania."
+  "deskErrInputsSpentElsewhere": "Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania."
 }

@@ -16374,10 +16374,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNoTorTourAdvancedText => '输出和技术详情都在这里。需要什么就开启什么。';
 
   @override
-  String get errorInputsSpentElsewhere => '这些币刚刚被另一个使用您助记词的钱包花掉了。';
+  String get errorInputsSpentElsewhere =>
+      '节点显示这些币已被花掉，而本钱包没有花它们。很可能是另一个使用你助记词的钱包花掉的。';
 
   @override
-  String get deskErrInputsSpentElsewhere => '这些币刚刚被另一个使用您助记词的钱包花掉了。';
+  String get deskErrInputsSpentElsewhere =>
+      '节点显示这些币已被花掉，而本钱包没有花它们。很可能是另一个使用你助记词的钱包花掉的。';
 
   @override
   String get slAddedByYou => '由你添加';
@@ -16505,7 +16507,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      '这些币由另一个使用您助记词的钱包花掉。本钱包只显示离开的金额，不显示收款方和手续费。';
+      '节点显示这些币已被花掉，而本钱包没有花它们：很可能是另一个使用你助记词的钱包花掉的。本钱包只显示离开的金额，不显示收款方和手续费。';
 
   @override
   String get txDetailsNotKnown => '未知';
@@ -16632,7 +16634,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      '暂停期间，本设备既不读取也不发送通知；通知会在服务器上保留最多 7 天。离线模式也会暂停同步。';
+      '暂停期间，本设备既不读取也不发送通知；通知会在服务器上保留，保留多久由各服务器决定。离线模式也会暂停同步。';
 
   @override
   String get devicesHeld => '保留的币';
@@ -16854,7 +16856,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskDevServersInfo3 =>
-      '服务器能看到两台设备在何时交换通知，但看不到内容。两个服务器意味着两个运营方能看到这些。';
+      '服务器能看到两台设备在何时交换通知，没有 Tor 时还能看到来自哪些地址，但看不到内容。两个服务器意味着两个运营方能看到这些。';
 
   @override
   String get deskDevPausedOffline => '离线模式下已暂停。';
@@ -17075,4 +17077,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskInvPayerAgoHoursOnly(int hours) {
     return '$hours 小时';
   }
+
+  @override
+  String get slPlainHttpTitle => '要在不加密的情况下使用此节点吗？';
+
+  @override
+  String slPlainHttpBody(String host) {
+    return '$host 属于共享地址段：可能是你自己的 tailnet（Tailscale），也可能是你的网络服务商的网络。钱包通过未加密的 http 与此节点通信，因此该网络上的任何人都能看到钱包向它查询的内容。只有当此地址是你的 tailnet 时才添加。';
+  }
+
+  @override
+  String get slPlainHttpUse => '使用此节点';
+
+  @override
+  String get slRefusedLocal => '未选择：其他钱包无法连接本地或私有地址上的服务器。';
+
+  @override
+  String get slRefusedOnion => '未选择：onion 服务器只有在开启 Tor 时才能使用。';
+
+  @override
+  String get deskOwnAccessOnPlain => '已添加 · 以未加密方式（http）发送到节点，该网络上可被读取';
 }

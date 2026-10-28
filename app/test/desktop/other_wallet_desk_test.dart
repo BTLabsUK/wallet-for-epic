@@ -38,7 +38,7 @@ void main() {
 
   testWidgets('the details of a send: what it is, the fee not known, no method, the offer spot', (tester) async {
     await _open(tester, arg: 107);
-    expect(find.text('Another wallet using your recovery phrase spent these coins. This wallet shows the amount that left, not who received it or the fee.'), findsOneWidget);
+    expect(find.text('The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.'), findsOneWidget);
     expect(find.text('Not known'), findsOneWidget);
     expect(find.text('Method'), findsNothing);
     expect(find.byType(DeskSentFromOtherWalletOffer), findsOneWidget);

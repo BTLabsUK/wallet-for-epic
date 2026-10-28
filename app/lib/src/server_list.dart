@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show immutable, listEquals, setEquals;
 
+import 'net/local_address.dart' show isLocalIp;
 import 'network.dart' show EpicboxRelay;
 import 'public_servers.dart' show nodeKey;
 import 'relay_directory.dart' show ServerIcon;
@@ -54,16 +55,38 @@ class RelaySelection {
   final String note;
 }
 
-/// Why a tick was refused.
-enum SelectionRefusal { keepOne, limit }
+/// Why a tick was refused: the last one stays, the set is full, a server other wallets cannot
+/// reach (an IP address on this device's network), an onion while Tor is off.
+enum SelectionRefusal { keepOne, limit, localAddress, onionWithoutTor }
+
+/// Whether the relay [value] is written as an address only this device's network reaches:
+/// loopback, private or link-local. Other wallets cannot meet there.
+bool isLocalRelay(String value) {
+  final host = EpicboxRelay.parse(value)?.host ?? value;
+  return host == 'localhost' || isLocalIp(host);
+}
+
+/// Whether the relay [value] is an onion address.
+bool isOnionRelay(String value) => (EpicboxRelay.parse(value)?.host ?? value).endsWith('.onion');
 
 /// What a tick on [value] does to [chosen] in a selection with [limit]: the new set, or why not.
-({List<String>? next, SelectionRefusal? refusal}) toggleSelection(ServerKind kind, List<String> chosen, String value, int limit) {
+/// [torOn] decides whether an onion relay may be added.
+({List<String>? next, SelectionRefusal? refusal}) toggleSelection(
+  ServerKind kind,
+  List<String> chosen,
+  String value,
+  int limit, {
+  bool torOn = false,
+}) {
   final k = serverKeyOf(kind, value);
   final at = chosen.indexWhere((c) => serverKeyOf(kind, c) == k);
   if (at >= 0) {
     if (chosen.length <= 1) return (next: null, refusal: SelectionRefusal.keepOne);
     return (next: [...chosen]..removeAt(at), refusal: null);
+  }
+  if (kind == ServerKind.relay && isLocalRelay(value)) return (next: null, refusal: SelectionRefusal.localAddress);
+  if (kind == ServerKind.relay && !torOn && isOnionRelay(value)) {
+    return (next: null, refusal: SelectionRefusal.onionWithoutTor);
   }
   if (chosen.length >= limit) return (next: null, refusal: SelectionRefusal.limit);
   return (next: [...chosen, value], refusal: null);
