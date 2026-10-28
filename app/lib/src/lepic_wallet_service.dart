@@ -33,17 +33,44 @@ import 'redact.dart';
 import 'secret_store_api.dart';
 import 'wallet_service.dart';
 
-/// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
-/// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).
+/// Loads the LEPIC library, which the package's build hook bundles on Android, iOS, Linux and
+/// Windows (`tools/lepic.sh build`).
+///
+/// A release build opens the bundled file by its place in the bundle ([bundledLepicLibrary]),
+/// never through flutter_rust_bridge's search, which tries the directory in
+/// `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` and a path under the working directory
+/// first, so another file there would be loaded in place of the checked one. Debug and test
+/// runs keep that search.
 ///
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
 /// `third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
 Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
-  externalLibrary: libraryPath == null
-      ? null
-      : ExternalLibrary.open(libraryPath),
+  externalLibrary: libraryPath != null
+      ? ExternalLibrary.open(libraryPath)
+      : _releaseBuild
+      ? ExternalLibrary.open(bundledLepicLibrary())
+      : null,
 );
+
+const bool _releaseBuild = bool.fromEnvironment('dart.vm.product');
+
+/// Where a Flutter bundle keeps the LEPIC library: by name on Android, which looks only in the
+/// app's own native library folder; `lib/` beside the executable on Linux; beside the
+/// executable on Windows; the `lepic_ffi.framework` the build embeds on iOS and macOS, found
+/// through the app's own `@rpath`.
+@visibleForTesting
+String bundledLepicLibrary({String? os, String? executable}) {
+  final system = os ?? Platform.operatingSystem;
+  final exe = executable ?? Platform.resolvedExecutable;
+  final dir = exe.substring(0, max(exe.lastIndexOf('/'), exe.lastIndexOf(r'\')));
+  return switch (system) {
+    'android' => 'liblepic_ffi.so',
+    'linux' => '$dir/lib/liblepic_ffi.so',
+    'windows' => '$dir\\lepic_ffi.dll',
+    _ => 'lepic_ffi.framework/lepic_ffi',
+  };
+}
 
 /// LEPIC info lines that come on a timer and say nothing new (the refresh every minute was
 /// a third of a support log): logged as debug, so only Detailed logging keeps them.
@@ -1270,11 +1297,22 @@ class LepicWalletSession implements WalletSession {
     excludeOutputs: heldOutputs.isEmpty ? const [] : [...heldOutputs],
   );
 
-  // Every call that chooses coins goes through [_optionsFor] or [estimateMax], which pass
-  // [heldOutputs] to LEPIC; a non-empty set turns LEPIC's default, null, into the standard
-  // options with the exclusion.
+  // Every call that chooses coins passes [heldOutputs] to LEPIC: sends through [_optionsFor] or
+  // [estimateMax], invoice payments and request files through [_heldOnly]; a non-empty set turns
+  // LEPIC's default, null, into the standard options with the exclusion. Split and Consolidate
+  // take no exclusion in LEPIC, so they wait while any coin is held ([_noneHeld]).
   @override
   Set<String> heldOutputs = const {};
+
+  /// LEPIC's default options, or the standard ones without the [heldOutputs].
+  lepic.SendOptions? get _heldOnly =>
+      heldOutputs.isEmpty ? null : lepicSendOptions(const SendOptions(), exclude: heldOutputs);
+
+  /// Split and Consolidate spend every spendable coin: refused while another device holds some.
+  void _noneHeld(String what) {
+    if (heldOutputs.isEmpty) return;
+    throw WalletError(kind: WalletErrorKind.walletBusy, message: '$what waits: coins are held by a linked device');
+  }
 
   /// The caller's [options] when given. Else send-all when [amount] is still the wallet's
   /// maximum, checked again now: a max remembered from before the balance changed must not
@@ -1352,49 +1390,53 @@ class LepicWalletSession implements WalletSession {
   Future<FeeEstimate> estimateSplit({
     required int outputs,
     required BigInt minimumConfirmations,
-  }) => _nodeGuard('split estimate', 
-    () async => lepicFeeEstimate(
+  }) => _nodeGuard('split estimate', () async {
+    _noneHeld('split');
+    return lepicFeeEstimate(
       await _wallet.estimateSplit(
         outputs: outputs,
         minimumConfirmations: minimumConfirmations,
       ),
-    ),
-  );
+    );
+  });
 
   @override
   Future<SelfSentTx> splitOutputs({
     required int outputs,
     required BigInt minimumConfirmations,
-  }) => _nodeGuard('split', 
-    () async => lepicSelfSentTx(
+  }) => _nodeGuard('split', () async {
+    _noneHeld('split');
+    return lepicSelfSentTx(
       await _wallet.splitOutputs(
         outputs: outputs,
         minimumConfirmations: minimumConfirmations,
       ),
-    ),
-  );
+    );
+  });
 
   @override
   Future<FeeEstimate> estimateConsolidate({
     required BigInt minimumConfirmations,
-  }) => _nodeGuard('consolidate estimate', 
-    () async => lepicFeeEstimate(
+  }) => _nodeGuard('consolidate estimate', () async {
+    _noneHeld('consolidate');
+    return lepicFeeEstimate(
       await _wallet.estimateConsolidate(
         minimumConfirmations: minimumConfirmations,
       ),
-    ),
-  );
+    );
+  });
 
   @override
   Future<SelfSentTx> consolidateOutputs({
     required BigInt minimumConfirmations,
-  }) => _nodeGuard('consolidate', 
-    () async => lepicSelfSentTx(
+  }) => _nodeGuard('consolidate', () async {
+    _noneHeld('consolidate');
+    return lepicSelfSentTx(
       await _wallet.consolidateOutputs(
         minimumConfirmations: minimumConfirmations,
       ),
-    ),
-  );
+    );
+  });
 
   @override
   Future<void> setServers({required WalletConfig config}) => _guard(() async {
@@ -1425,14 +1467,15 @@ class LepicWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
-  }) => _nodeGuard('spend to self', 
-    () async => lepicSelfSentTx(
+  }) => _nodeGuard('spend to self', () async {
+    if (commitments.any(heldOutputs.contains)) _noneHeld('spend to self');
+    return lepicSelfSentTx(
       await _wallet.spendOutputsToSelf(
         commitments: commitments,
         minimumConfirmations: minimumConfirmations,
       ),
-    ),
-  );
+    );
+  });
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
@@ -2133,6 +2176,7 @@ class LepicWalletSession implements WalletSession {
           slateJson: slateJson,
           amount: amount,
           minimumConfirmations: await _balanceConfirmations(),
+          options: _heldOnly,
         );
         logInfo('invoices', 'request file paid');
         return PaidRequestFile(txId: paid.txId, slateId: paid.slateId, amount: paid.amount, fee: paid.fee, json: paid.json);
@@ -2217,6 +2261,7 @@ class LepicWalletSession implements WalletSession {
       slateId: slateId,
       amount: amount,
       minimumConfirmations: await _balanceConfirmations(),
+      options: _heldOnly,
       relayMode: lepicRelayMode(),
     );
     _deliverOutbox();
@@ -3177,7 +3222,12 @@ class _LepicPairing implements PairingApi {
   @override
   Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount}) => _s._nodeGuard('pay sealed request', () async {
     final a = await _call(
-      () async => _w.sealedPay(text: text.trim(), amount: amount, minimumConfirmations: await _s._balanceConfirmations()),
+      () async => _w.sealedPay(
+        text: text.trim(),
+        amount: amount,
+        minimumConfirmations: await _s._balanceConfirmations(),
+        options: _s._heldOnly,
+      ),
     );
     logInfo('invoices', 'sealed request paid');
     return PaidSealedRequest(
