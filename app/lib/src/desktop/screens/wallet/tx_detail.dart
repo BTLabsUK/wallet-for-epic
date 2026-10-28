@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
 import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
-import '../../../l10n.dart' show acceptedAgoText;
+import '../../../l10n.dart' show acceptedAgoText, messageHint;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../../watch_mode.dart' show BlockWait;
 import '../../data/clock.dart';
@@ -469,8 +469,26 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           // The other wallet paid the fee: this wallet only saw the coins leave.
           if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
           else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
-          if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
-          if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
+          // The same word as Send's field and its review; the line under it says which way it went.
+          if (t.message != null)
+            (
+              l.deskTxFactMessage,
+              Column(
+                key: const ValueKey('tx-message'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Text(t.message!), Text(messageHint(l, incoming: t.incoming, bySender: t.messageBySender), style: ts.small)],
+              ),
+            ),
+          // Never sent: only this device and its exported data hold it.
+          if (t.note != null && t.note!.trim().isNotEmpty)
+            (
+              l.deskTxDetailsNote,
+              Column(
+                key: const ValueKey('tx-private-note'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [_withTag(t, ManualField.note, Text(t.note!)), Text(l.txDetailsNoteHelper, style: ts.small)],
+              ),
+            ),
         ]),
         if (_typed(t)) ...[SizedBox(height: Sp.x2), ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label))],
         // A payment another linked device made: where its details come from, and why its coins

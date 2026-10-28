@@ -282,6 +282,7 @@ class Tx {
     this.counterparty,
     this.contactName,
     this.message,
+    this.messageBySender = true,
     this.height,
     this.kernel,
     this.hasProof = false,
@@ -372,6 +373,9 @@ class Tx {
   /// When the user last changed [manualFields]; null when none is set or the time is not known.
   final DateTime? manualEditedAt;
   final String? message;
+
+  /// Whether the sender wrote [message]; false for the receiver's (an invoice issuer's).
+  final bool messageBySender;
   final int? height;
   final String? kernel;
   final bool hasProof;
@@ -481,6 +485,7 @@ class Tx {
       counterparty: cp,
       contactName: identical(contactName, _keepName) ? this.contactName : contactName as String?,
       message: message,
+      messageBySender: messageBySender,
       height: height,
       kernel: kernel,
       hasProof: hasProof,
@@ -535,6 +540,7 @@ class Tx {
     counterparty: counterparty,
     contactName: contactName,
     message: message,
+    messageBySender: messageBySender,
     height: height,
     kernel: kernel,
     hasProof: hasProof,

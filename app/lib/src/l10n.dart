@@ -170,3 +170,14 @@ String invitedLine(AppLocalizations l, DateTime at, DateTime now) {
   if (today.difference(day).inDays == 1) return l.pairInvitedYesterday;
   return l.pairInvitedOn(localDay(l, a));
 }
+
+/// The line under a payment's Message: which way the text went. The sender's message on an
+/// incoming payment is "From the sender"; this wallet's own is "Sent to the recipient" (or to
+/// the sender, for the receiver's message on an invoice).
+String messageHint(AppLocalizations l, {required bool incoming, required bool bySender}) =>
+    switch ((incoming, bySender)) {
+      (false, true) => l.txDetailsMessageHintToRecipient,
+      (true, true) => l.txDetailsMessageHintFromSender,
+      (false, false) => l.txDetailsMessageHintFromRecipient,
+      (true, false) => l.txDetailsMessageHintToSender,
+    };

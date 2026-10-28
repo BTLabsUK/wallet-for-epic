@@ -832,7 +832,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsFee => 'Fee';
 
   @override
-  String get txDetailsNoteLabel => 'Note';
+  String get txDetailsNoteLabel => 'Private note';
 
   @override
   String get txDetailsPrivateNoteLabel => 'Private note';
@@ -847,6 +847,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsYourMessage => 'Message';
 
   @override
+  String get txDetailsMessageHintToRecipient => 'Sent to the recipient';
+
+  @override
+  String get txDetailsMessageHintFromSender => 'From the sender';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => 'From the recipient';
+
+  @override
+  String get txDetailsMessageHintToSender => 'Sent to the sender';
+
+  @override
   String get txDetailsNoNote =>
       'No note. Add one to remember what this was for.';
 
@@ -857,7 +869,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsEditNote => 'Edit note';
 
   @override
-  String get txDetailsNoteDialogTitle => 'Note';
+  String get txDetailsNoteDialogTitle => 'Private note';
 
   @override
   String get txDetailsNoteHelper =>
@@ -3217,6 +3229,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLinkCopied => 'Link copied';
 
   @override
+  String get settingsAddressCopied => 'Address copied';
+
+  @override
+  String get settingsCopyAddress => 'Copy address';
+
+  @override
   String get settingsPinTitle => 'Change PIN';
 
   @override
@@ -3535,7 +3553,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'They see it. It is also kept with this payment in your history.';
+      'The recipient sees it. A copy is also kept as your private note, which you can edit.';
 
   @override
   String get sendNetworkFee => 'Network fee';

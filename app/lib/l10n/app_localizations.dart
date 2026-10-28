@@ -1348,7 +1348,7 @@ abstract class AppLocalizations {
   /// Label of the field that edits the payment's note. The note is the user's own text about the payment.
   ///
   /// In en, this message translates to:
-  /// **'Note'**
+  /// **'Private note'**
   String get txDetailsNoteLabel;
 
   /// Label of the details row with the user's own note on the payment. It is never sent to the other party, unlike the message.
@@ -1375,6 +1375,30 @@ abstract class AppLocalizations {
   /// **'Message'**
   String get txDetailsYourMessage;
 
+  /// Small line under a payment's Message in its details: this wallet wrote it and the recipient sees it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the recipient'**
+  String get txDetailsMessageHintToRecipient;
+
+  /// Small line under a payment's Message in its details: the sender wrote it.
+  ///
+  /// In en, this message translates to:
+  /// **'From the sender'**
+  String get txDetailsMessageHintFromSender;
+
+  /// Small line under a payment's Message in its details: the recipient wrote it into their answer.
+  ///
+  /// In en, this message translates to:
+  /// **'From the recipient'**
+  String get txDetailsMessageHintFromRecipient;
+
+  /// Small line under a payment's Message in its details: this wallet, the recipient, wrote it (an invoice) and the sender sees it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the sender'**
+  String get txDetailsMessageHintToSender;
+
   /// No description provided for @txDetailsNoNote.
   ///
   /// In en, this message translates to:
@@ -1396,7 +1420,7 @@ abstract class AppLocalizations {
   /// Title of the dialog that edits the payment's note.
   ///
   /// In en, this message translates to:
-  /// **'Note'**
+  /// **'Private note'**
   String get txDetailsNoteDialogTitle;
 
   /// Helper text under the note field: where the note is stored.
@@ -5179,6 +5203,18 @@ abstract class AppLocalizations {
   /// **'Link copied'**
   String get settingsLinkCopied;
 
+  /// Notice after the contact email address was copied (About and Help › Contact).
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get settingsAddressCopied;
+
+  /// Screen-reader label of the copy icon on the contact email row.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get settingsCopyAddress;
+
   /// Title of the screen that sets a new 6-digit PIN.
   ///
   /// In en, this message translates to:
@@ -5740,7 +5776,7 @@ abstract class AppLocalizations {
   /// Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note).
   ///
   /// In en, this message translates to:
-  /// **'They see it. It is also kept with this payment in your history.'**
+  /// **'The recipient sees it. A copy is also kept as your private note, which you can edit.'**
   String get sendReviewMessageKept;
 
   /// Send, review: label of the row with the network fee.

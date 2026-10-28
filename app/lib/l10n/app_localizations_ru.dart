@@ -865,7 +865,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsFee => 'Комиссия';
 
   @override
-  String get txDetailsNoteLabel => 'Заметка';
+  String get txDetailsNoteLabel => 'Личная заметка';
 
   @override
   String get txDetailsPrivateNoteLabel => 'Личная заметка';
@@ -880,6 +880,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsYourMessage => 'Сообщение';
 
   @override
+  String get txDetailsMessageHintToRecipient => 'Отправлено получателю';
+
+  @override
+  String get txDetailsMessageHintFromSender => 'От отправителя';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => 'От получателя';
+
+  @override
+  String get txDetailsMessageHintToSender => 'Отправлено отправителю';
+
+  @override
   String get txDetailsNoNote =>
       'Заметки нет. Добавьте её, чтобы помнить, за что этот платёж.';
 
@@ -890,7 +902,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsEditNote => 'Изменить заметку';
 
   @override
-  String get txDetailsNoteDialogTitle => 'Заметка';
+  String get txDetailsNoteDialogTitle => 'Личная заметка';
 
   @override
   String get txDetailsNoteHelper =>
@@ -3299,6 +3311,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLinkCopied => 'Ссылка скопирована';
 
   @override
+  String get settingsAddressCopied => 'Адрес скопирован';
+
+  @override
+  String get settingsCopyAddress => 'Копировать адрес';
+
+  @override
   String get settingsPinTitle => 'Изменить PIN-код';
 
   @override
@@ -3619,7 +3637,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'Получатель его увидит. Оно также сохранится у этого платежа в вашей истории.';
+      'Получатель его увидит. Копия также сохранится как ваша личная заметка, её можно изменить.';
 
   @override
   String get sendNetworkFee => 'Комиссия сети';
@@ -14699,7 +14717,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Имя и заметку записывает в код тот, кто его создал. Их никто не проверяет. Проверяйте адрес и сумму, а не имя.';
 
   @override
-  String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже её увидит.';
+  String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже его увидит.';
 
   @override
   String get sendOriginQr => 'Из QR-кода';

@@ -669,7 +669,7 @@ void main() {
         );
         expect(
           find.text(
-            'They see it. It is also kept with this payment in your history.',
+            'The recipient sees it. A copy is also kept as your private note, which you can edit.',
           ),
           findsOneWidget,
         );
@@ -704,8 +704,24 @@ void main() {
       await _review(tester, _bob);
       expect(find.byKey(sendReviewMessageKey), findsNothing);
       expect(find.text('Message'), findsNothing);
-      expect(find.textContaining('kept with this payment'), findsNothing);
+      expect(find.textContaining('A copy is also kept'), findsNothing);
     });
+
+    test(
+      'Send, its review and the details name the message alike in every language',
+      () {
+        for (final locale in AppLocalizations.supportedLocales) {
+          final l = lookupAppLocalizations(locale);
+          final word = l.sendNoteLabel;
+          expect(l.txDetailsYourMessage, word, reason: '$locale');
+          expect(l.txDetailsMessageFromSender, word, reason: '$locale');
+          // The copy Send keeps is the private note, never the message's name.
+          expect(l.txDetailsPrivateNoteLabel, isNot(word), reason: '$locale');
+          expect(l.txDetailsNoteLabel, l.txDetailsPrivateNoteLabel, reason: '$locale');
+          expect(l.txDetailsNoteDialogTitle, l.txDetailsPrivateNoteLabel, reason: '$locale');
+        }
+      },
+    );
 
     testWidgets(
       'an Epicbox send signs the message in and keeps it as the note',

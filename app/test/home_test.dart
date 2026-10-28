@@ -1261,9 +1261,77 @@ void main() {
       // One label for the message, whoever wrote it (GP-011).
       expect(find.text('Message'), findsOneWidget);
       expect(find.text('September rent'), findsOneWidget);
+      expect(find.text('From the sender'), findsOneWidget);
       expect(find.text('Private note'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
     });
+
+    testWidgets(
+      'a sent message reads Message as on Send; the same text kept apart is the private note',
+      (tester) async {
+        final h = _Harness(
+          transactions: [
+            fakeTx(
+              id: 5,
+              slateId: 'rent-bob',
+              kind: TxKind.sent,
+              status: TxStatus.confirmed,
+              blockHeight: _tip - BigInt.from(700),
+              amountDebited: _epic(3),
+              fee: _epic(0.008),
+              counterparty: _bob,
+              // Send keeps the typed message as the private note too.
+              note: 'For rent',
+              messages: const [
+                SlateMessage(role: SlateRole.sender, text: 'For rent'),
+              ],
+            ),
+          ],
+        );
+        await h.pump(tester, const TxDetailsScreen(txKey: 's:rent-bob'));
+        final message = find.byKey(txOwnMessageKey);
+        expect(
+          find.descendant(of: message, matching: find.text('Message')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: message, matching: find.text('For rent')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: message,
+            matching: find.text('Sent to the recipient'),
+          ),
+          findsOneWidget,
+        );
+        final note = find.byKey(txPrivateNoteKey);
+        expect(
+          find.descendant(of: note, matching: find.text('Private note')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: note,
+            matching: find.text(
+              'Only on this device and in your exported wallet data.',
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Your message'), findsNothing);
+        expect(find.text('Note'), findsNothing);
+        // The private note stays editable, under its own name.
+        await _tap(tester, find.byTooltip('Edit note'));
+        expect(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.text('Private note'),
+          ),
+          findsWidgets,
+        );
+      },
+    );
 
     testWidgets('a finished send shows both parties\' messages', (
       tester,
@@ -1286,10 +1354,12 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(find.text('Message'), findsOneWidget);
+      // One label for both; the line under each says which way it went.
+      expect(find.text('Message'), findsNWidgets(2));
       expect(find.text('for the pizza'), findsOneWidget);
-      expect(find.text('Message from the recipient'), findsOneWidget);
+      expect(find.text('Sent to the recipient'), findsOneWidget);
       expect(find.text('thanks!'), findsOneWidget);
+      expect(find.text('From the recipient'), findsOneWidget);
     });
 
     testWidgets('a payment without messages shows none', (tester) async {

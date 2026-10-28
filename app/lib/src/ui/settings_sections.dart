@@ -1282,7 +1282,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // A proper name, the same in every language.
       const LinkTile(title: 'Epic Cash', url: epicCashUrl),
       if (projectRepoPublic) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
-      LinkTile(title: l.contactLabel, url: supportEmail),
+      LinkTile(title: l.contactLabel, url: supportEmail, email: true),
     ];
   }
 }
@@ -1487,20 +1487,23 @@ void openFlutterLicences(BuildContext context, String? version) {
 
 /// A web link. The app has no browser launcher, so tapping copies the address.
 class LinkTile extends StatelessWidget {
-  const LinkTile({super.key, required this.title, required this.url});
+  const LinkTile({super.key, required this.title, required this.url, this.email = false});
 
   final String title;
   final String url;
+
+  /// [url] is an email address: a mail icon, and the notice says the address was copied.
+  final bool email;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     return ListTile(
-      leading: const Icon(Icons.link),
+      leading: Icon(email ? Icons.mail_outline : Icons.link),
       title: Text(title),
       subtitle: Text(url),
-      trailing: Icon(Icons.copy, semanticLabel: l.settingsCopyLink),
-      onTap: () => copyText(context, url, l.settingsLinkCopied),
+      trailing: Icon(Icons.copy, semanticLabel: email ? l.settingsCopyAddress : l.settingsCopyLink),
+      onTap: () => copyText(context, url, email ? l.settingsAddressCopied : l.settingsLinkCopied),
     );
   }
 }

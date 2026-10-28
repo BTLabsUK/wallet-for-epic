@@ -2,6 +2,8 @@
 // tell whether it would go with the payment. The review dialog lists it as typed, none when
 // empty, and Send hands it to the wallet, where the transaction keeps it.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
+import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -122,4 +124,57 @@ void main() {
       expect(txs!.where((t) => t.message == 'For rent'), hasLength(1));
     },
   );
+
+  test('Send, its review and the details name the message alike in every language', () {
+    for (final locale in AppLocalizations.supportedLocales) {
+      final l = lookupAppLocalizations(locale);
+      expect(l.deskSendFactMessage, l.deskSendMessage, reason: '$locale');
+      expect(l.deskTxFactMessage, l.deskSendMessage, reason: '$locale');
+      expect(l.deskTxDetailsNote, isNot(l.deskSendMessage), reason: '$locale');
+    }
+  });
+
+  testWidgets('the review and the details: one Message; the note is the private one', (tester) async {
+    await pump(tester, const SendArgs(recipient: anna, amount: '25', message: 'For rent', step: SendStep.review));
+    expect(find.descendant(of: dialog, matching: find.text('Message')), findsOneWidget);
+
+    Tx tx({required bool incoming, bool bySender = true}) => Tx(
+      id: 7,
+      slateId: 'rent',
+      direction: incoming ? TxDirection.received : TxDirection.sent,
+      state: TxState.confirmed,
+      method: TxMethod.epicbox,
+      amount: 25 * nanoPerEpic,
+      fee: 0,
+      created: DateTime(2026, 10, 28, 9),
+      confirmations: 900,
+      counterparty: anna,
+      message: 'For rent',
+      messageBySender: bySender,
+      note: 'Flat, March',
+    );
+    Future<void> details(Tx t) async {
+      await tester.pumpWidget(ProviderScope(
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: SingleChildScrollView(child: TxDetail(tx: t)))),
+      ));
+      await tester.pump();
+    }
+
+    await details(tx(incoming: false));
+    final message = find.byKey(const ValueKey('tx-message'));
+    expect(find.text('Message'), findsOneWidget);
+    expect(find.descendant(of: message, matching: find.text('For rent')), findsOneWidget);
+    expect(find.descendant(of: message, matching: find.text('Sent to the recipient')), findsOneWidget);
+    final note = find.byKey(const ValueKey('tx-private-note'));
+    expect(find.text('Private note'), findsOneWidget);
+    expect(find.descendant(of: note, matching: find.text('Flat, March')), findsOneWidget);
+    expect(find.descendant(of: note, matching: find.text('Only on this device and in your exported wallet data.')), findsOneWidget);
+    expect(find.text('Your message'), findsNothing);
+
+    await details(tx(incoming: true));
+    expect(find.text('From the sender'), findsOneWidget);
+    // An invoice: the receiver wrote it.
+    await details(tx(incoming: false, bySender: false));
+    expect(find.text('From the recipient'), findsOneWidget);
+  });
 }

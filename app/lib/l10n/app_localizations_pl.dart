@@ -868,7 +868,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsFee => 'Opłata';
 
   @override
-  String get txDetailsNoteLabel => 'Notatka';
+  String get txDetailsNoteLabel => 'Prywatna notatka';
 
   @override
   String get txDetailsPrivateNoteLabel => 'Prywatna notatka';
@@ -883,6 +883,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsYourMessage => 'Wiadomość';
 
   @override
+  String get txDetailsMessageHintToRecipient => 'Wysłana do odbiorcy';
+
+  @override
+  String get txDetailsMessageHintFromSender => 'Od nadawcy';
+
+  @override
+  String get txDetailsMessageHintFromRecipient => 'Od odbiorcy';
+
+  @override
+  String get txDetailsMessageHintToSender => 'Wysłana do nadawcy';
+
+  @override
   String get txDetailsNoNote =>
       'Brak notatki. Dodaj ją, aby pamiętać, czego dotyczyła płatność.';
 
@@ -893,7 +905,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsEditNote => 'Edytuj notatkę';
 
   @override
-  String get txDetailsNoteDialogTitle => 'Notatka';
+  String get txDetailsNoteDialogTitle => 'Prywatna notatka';
 
   @override
   String get txDetailsNoteHelper =>
@@ -3322,6 +3334,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsLinkCopied => 'Skopiowano link';
 
   @override
+  String get settingsAddressCopied => 'Skopiowano adres';
+
+  @override
+  String get settingsCopyAddress => 'Kopiuj adres';
+
+  @override
   String get settingsPinTitle => 'Zmień PIN';
 
   @override
@@ -3640,7 +3658,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'Odbiorca ją zobaczy. Zostaje też przy tej płatności w Twojej historii.';
+      'Odbiorca ją zobaczy. Jej kopia zostaje też jako Twoja prywatna notatka, którą możesz edytować.';
 
   @override
   String get sendNetworkFee => 'Opłata sieciowa';
