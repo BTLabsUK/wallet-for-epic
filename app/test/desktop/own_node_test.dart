@@ -260,7 +260,8 @@ void main() {
 
     testWidgets('1280 with access: Status and Peers as tabs', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownAccess);
-      expect(find.text('Added'), findsOneWidget);
+      // A home-network node over plain http: the row says the secret goes unencrypted.
+      expect(find.text('Added · goes to the node unencrypted (plain http), readable on that network'), findsOneWidget);
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Peers'), findsWidgets);
       expect(find.text('Address'), findsNothing, reason: 'the peers table is behind its tab');

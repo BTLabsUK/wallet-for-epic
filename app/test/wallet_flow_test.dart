@@ -839,7 +839,9 @@ void main() {
         try {
           final phrase = await openPhrase(tester);
           expect(find.text('1. ${phrase.split(' ').first}'), findsOneWidget);
-          expect(calls, isEmpty);
+          // Only the app switcher's preview is hidden; screenshots stay allowed.
+          expect(calls.where((c) => c.method == 'setSecure'), isEmpty);
+          expect(calls.where((c) => c.method == 'hidePreview').map((c) => c.arguments), [true]);
         } finally {
           debugDefaultTargetPlatformOverride = null;
         }

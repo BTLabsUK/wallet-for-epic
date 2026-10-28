@@ -10,6 +10,9 @@ import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
+/// Whether this runs on an Android device (not a widget test, whose target platform says Android).
+bool get onAndroidDevice => Platform.isAndroid;
+
 /// Copies [text] as described above; false when that was not possible, so the caller copies
 /// plainly.
 bool copyPrivateText(String text) {

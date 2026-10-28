@@ -10,7 +10,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'secure_screen.dart' show copySensitiveText;
-import 'windows_clipboard_io.dart' if (dart.library.js_interop) 'windows_clipboard_web.dart';
+import 'private_clipboard_io.dart' if (dart.library.js_interop) 'private_clipboard_web.dart';
 
 /// How long a copied recovery phrase stays on the clipboard (the help says 60 seconds).
 const Duration phraseClipboardLifetime = Duration(seconds: 60);
@@ -22,7 +22,7 @@ String? _copied;
 /// screen that copied.
 Future<bool> copyPhraseToClipboard(String phrase) async {
   try {
-    if (!await copySensitiveText(phrase) && !copyPrivateText(phrase)) {
+    if (!(onAndroidDevice && await copySensitiveText(phrase)) && !copyPrivateText(phrase)) {
       await Clipboard.setData(ClipboardData(text: phrase));
     }
   } on Object {
