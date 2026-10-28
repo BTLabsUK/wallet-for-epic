@@ -294,8 +294,8 @@ Future<void> main(List<String> a) async {
       return c;
     }
 
-    // The two sources (updateManifestSources): GitHub Pages, then BT Labs' own server.
-    final github = updateManifestSources[0], ours = updateManifestSources[1];
+    // The three sources (updateManifestSources): BT Labs' own server, the GitLab copy, GitHub Pages.
+    final ours = updateManifestSources[0], gitlab = updateManifestSources[1], github = updateManifestSources[2];
     Future<String> Function() offering(String version, int serial) =>
         () => signedUpdate(testUpdatePayload(serial: serial, desktop: _desktop(version: version)));
     // A manifest whose payload was changed after signing: the signature no longer matches.
@@ -307,18 +307,24 @@ Future<void> main(List<String> a) async {
       return jsonEncode(envelope);
     };
 
-    test('GitHub Pages down or without the file: our server\'s manifest is used', () async {
+    test('our server down or without the file: another source\'s manifest is used', () async {
       for (final down in [404, 503]) {
         final asked = <Uri>[];
-        final c = make(statusAt: {github: down}, asked: asked);
+        final c = make(statusAt: {ours: down, github: 404}, asked: asked);
         await c.read(deskUpdateProvider.notifier).check();
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: '$down');
-        expect(asked.map((u) => '$u'), unorderedEquals([github, ours]));
+        expect(asked.map((u) => '$u'), unorderedEquals([ours, gitlab, github]));
       }
     });
 
-    test('our server down: GitHub Pages\' manifest is used; both down: the check failed', () async {
-      final c = make(statusAt: {ours: 503});
+    test('GitLab private (a sign-in page) and GitHub Pages hidden: our server\'s manifest is used', () async {
+      final c = make(statusAt: {github: 404}, bodyAt: {gitlab: () async => '<!DOCTYPE html><html>Sign in</html>'});
+      await c.read(deskUpdateProvider.notifier).check();
+      expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
+    });
+
+    test('only GitHub Pages answers: its manifest is used; every source down: the check failed', () async {
+      final c = make(statusAt: {ours: 503, gitlab: 503});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
       final none = make(status: 503);
@@ -326,23 +332,29 @@ Future<void> main(List<String> a) async {
       expect(none.read(deskUpdateProvider).phase, DeskUpdatePhase.failed);
     });
 
-    test('both answer: the manifest with the higher serial is used, whichever source has it', () async {
-      for (final (newerAt, older) in [(ours, github), (github, ours)]) {
-        final c = make(bodyAt: {newerAt: offering('99.3.0', 1790000300), older: offering('99.2.0', 1790000200)});
+    test('several answer: the manifest with the higher serial is used, whichever source has it', () async {
+      for (final newerAt in [ours, gitlab, github]) {
+        final c = make(bodyAt: {
+          for (final u in [ours, gitlab, github])
+            u: u == newerAt ? offering('99.3.0', 1790000300) : offering('99.2.0', 1790000200),
+        });
         await c.read(deskUpdateProvider.notifier).check();
         expect(c.read(deskUpdateProvider).version, '99.3.0', reason: 'newer at $newerAt');
       }
     });
 
-    test('a tampered manifest is refused from either source, even with the higher serial', () async {
-      for (final (bad, good) in [(github, ours), (ours, github)]) {
-        final c = make(bodyAt: {bad: tampered('99.9.0', 1790000900), good: offering('99.2.0', 1790000200)});
+    test('a tampered manifest is refused from any source, even with the higher serial', () async {
+      for (final bad in [ours, gitlab, github]) {
+        final c = make(bodyAt: {
+          for (final u in [ours, gitlab, github])
+            u: u == bad ? tampered('99.9.0', 1790000900) : offering('99.2.0', 1790000200),
+        });
         await c.read(deskUpdateProvider.notifier).check();
         expect(c.read(deskUpdateProvider).version, '99.2.0', reason: 'tampered at $bad');
       }
-      final both = make(bodyAt: {github: tampered('99.9.0', 1790000900), ours: tampered('99.9.0', 1790000900)});
-      await both.read(deskUpdateProvider.notifier).check();
-      expect(both.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
+      final all = make(bodyAt: {for (final u in [ours, gitlab, github]) u: tampered('99.9.0', 1790000900)});
+      await all.read(deskUpdateProvider.notifier).check();
+      expect(all.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
     });
 
     test('offers the release file, downloads and checks it, then Restart to update applies it', () async {

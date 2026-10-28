@@ -584,8 +584,9 @@ void main() {
           response.close();
           return;
         }
-        // Two sources of the manifest: /gone/ has none, /down/ fails, /old/ has the lower
-        // serial, /bad/ one whose payload was changed after signing.
+        // Sources of the manifest: /gone/ has none, /down/ fails, /old/ has the lower serial,
+        // /bad/ one whose payload was changed after signing, /signin/ answers a sign-in page
+        // (a private GitLab project).
         switch (request.uri.path.split('/')[1]) {
           case 'gone':
             response.statusCode = HttpStatus.notFound;
@@ -601,6 +602,11 @@ void main() {
             return;
           case 'bad':
             response.write(manifests[0]);
+            response.close();
+            return;
+          case 'signin':
+            response.headers.contentType = ContentType.html;
+            response.write('<!DOCTYPE html><html><body>Sign in</body></html>');
             response.close();
             return;
         }
@@ -767,15 +773,16 @@ void main() {
       },
     );
 
-    // Two sources on the local server, in the order of updateManifestSources.
-    ProviderContainer sources(String first, String second) {
+    // Three sources on the local server, in the order of updateManifestSources: BT Labs' own
+    // server, the GitLab copy, GitHub Pages.
+    ProviderContainer sources(String first, String second, [String third = 'gone']) {
       final c = ProviderContainer(
         overrides: [
           updatePlatformProvider.overrideWithValue(platform),
           secretStoreProvider.overrideWithValue(MemorySecretStore()),
           updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
           updateManifestUrlsProvider.overrideWithValue([
-            for (final p in [first, second]) Uri.parse('http://127.0.0.1:${server.port}/$p/update.json'),
+            for (final p in [first, second, third]) Uri.parse('http://127.0.0.1:${server.port}/$p/update.json'),
           ]),
           updateKeyringProvider.overrideWithValue(testUpdateKeyring),
           updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
@@ -786,52 +793,56 @@ void main() {
       return c;
     }
 
-    test('GitHub Pages down or without the file: the other source is used', () async {
-      for (final down in ['gone', 'down']) {
-        final c = sources(down, 'new');
-        await c.read(updateProvider.notifier).check();
-        expect(c.read(updateProvider).phase, UpdatePhase.available, reason: down);
+    test('one source down, without the file or private: another source is used', () async {
+      // 'signin' is a private GitLab project: a 200 page that is not a manifest.
+      for (final down in ['gone', 'down', 'signin']) {
+        for (final (a, b, c3) in [(down, 'new', 'gone'), ('new', down, 'gone'), (down, down, 'new')]) {
+          final c = sources(a, b, c3);
+          await c.read(updateProvider.notifier).check();
+          expect(c.read(updateProvider).phase, UpdatePhase.available, reason: '$a, $b, $c3');
+        }
       }
     });
 
-    test('our server down: GitHub Pages is used; both down: the check failed', () async {
-      final c = sources('new', 'down');
-      await c.read(updateProvider.notifier).check();
-      expect(c.read(updateProvider).phase, UpdatePhase.available);
-      final none = sources('down', 'down');
+    test('every source down: the check failed; down or without the file: nothing newer known', () async {
+      final none = sources('down', 'down', 'down');
       await none.read(updateProvider.notifier).check();
       expect(none.read(updateProvider).phase, UpdatePhase.failed);
+      final quiet = sources('down', 'signin', 'gone');
+      await quiet.read(updateProvider.notifier).check();
+      expect(quiet.read(updateProvider).phase, UpdatePhase.upToDate);
     });
 
-    test('both answer: the manifest with the higher serial is used, whichever source has it', () async {
+    test('several answer: the manifest with the higher serial is used, whichever source has it', () async {
       // /old/ offers 1.0.1 at a lower serial than /new/'s 1.0.1 (serial 1790000100): the
       // stored state is /new/'s either way.
-      for (final (first, second) in [('old', 'new'), ('new', 'old')]) {
-        final c = sources(first, second);
+      for (final (a, b, c3) in [('old', 'new', 'old'), ('new', 'old', 'old'), ('old', 'old', 'new')]) {
+        final c = sources(a, b, c3);
         await c.read(updateProvider.notifier).check();
         expect(c.read(updateProvider).phase, UpdatePhase.available);
         final stored = await c.read(secretStoreProvider).read(updateStateKey);
-        expect(stored, contains('1790000100'), reason: '$first, $second');
+        expect(stored, contains('1790000100'), reason: '$a, $b, $c3');
       }
     });
 
-    test('a tampered manifest is refused from either source, even with the higher serial', () async {
-      for (final (first, second) in [('bad', 'new'), ('new', 'bad')]) {
-        final c = sources(first, second);
+    test('a tampered manifest is refused from any source, even with the higher serial', () async {
+      for (final (a, b, c3) in [('bad', 'new', 'gone'), ('new', 'bad', 'gone'), ('gone', 'new', 'bad')]) {
+        final c = sources(a, b, c3);
         await c.read(updateProvider.notifier).check();
-        expect(c.read(updateProvider).phase, UpdatePhase.available, reason: '$first, $second');
+        expect(c.read(updateProvider).phase, UpdatePhase.available, reason: '$a, $b, $c3');
         final stored = await c.read(secretStoreProvider).read(updateStateKey);
         expect(stored, isNot(contains('1790000900')));
       }
-      final both = sources('bad', 'bad');
-      await both.read(updateProvider.notifier).check();
-      expect(both.read(updateProvider).phase, UpdatePhase.upToDate);
+      final all = sources('bad', 'bad', 'bad');
+      await all.read(updateProvider.notifier).check();
+      expect(all.read(updateProvider).phase, UpdatePhase.upToDate);
     });
 
-    test('the sources live in one list: GitHub Pages, then BT Labs\' own server', () {
+    test('the sources live in one list: BT Labs\' own server, the GitLab copy, GitHub Pages', () {
       expect(updateManifestSources, [
-        'https://btlabs-epic.github.io/update.json',
         'https://examples.btlabs.uk/epic-cash-wallets/update.json',
+        'https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update.json',
+        'https://btlabs-epic.github.io/update.json',
       ]);
       expect(updateManifestUrls.map((u) => '$u'), updateManifestSources);
     });

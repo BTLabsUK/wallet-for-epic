@@ -1,0 +1,3 @@
+- A payment its sender cancelled reads Cancelled by the sender and is released by itself.
+- Linked devices: a link no longer fails while the other wallet reconnects; a cancel reaches the other device within seconds.
+- Send: a Clear button on a filled-in recipient.

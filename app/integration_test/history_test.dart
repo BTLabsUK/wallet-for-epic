@@ -121,7 +121,9 @@ void main() {
     final imported = await _lepicWallet();
     try {
       final report = await imported.importHistory(data: file);
-      expect((report.added, report.contactsAdded), (5, 3));
+      // The old core's contacts carry made-up addresses (bob@relay.example), which an import
+      // refuses by the contact form's checks: the payments come in, the contacts do not.
+      expect((report.added, report.contactsAdded), (5, 0));
       expect(await _rows(imported), rows);
     } finally {
       imported.dispose();
@@ -133,9 +135,13 @@ void main() {
   testWidgets('history: contacts and an export that only the same seed opens', (
     tester,
   ) async {
+    // A real Epicbox address, as an import checks each contact's address like the contact form.
+    final other = await _lepic.create(config: await _config(), password: _password);
+    final bobAddress = await other.epicboxAddress();
+    other.dispose();
     final a = await _lepicWallet();
     final saved = await a.saveContact(
-      contact: Contact(id: '', name: 'Bob', address: 'bob@relay.example'),
+      contact: Contact(id: '', name: 'Bob', address: bobAddress),
     );
     expect(saved.id, isNotEmpty);
     final file = await a.exportHistory();
