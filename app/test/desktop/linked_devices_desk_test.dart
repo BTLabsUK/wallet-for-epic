@@ -127,7 +127,7 @@ void main() {
     await end(tester);
   });
 
-  // a tester, 2026-10-28: the computer showed the code, the phone listed it, the computer never
+  // A tester, 2026-10-28: the computer showed the code, the phone listed it, the computer never
   // listed the phone. A reopen of the wallet (node failover, a node or server change) while
   // the link was under way made a new devices service: the dialog finished the link on the old
   // one, the list showed the new one, and the new one saved its empty book over the link.

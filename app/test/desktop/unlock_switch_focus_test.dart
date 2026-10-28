@@ -1,4 +1,4 @@
-// a tester (26.10.20): a wallet remembered on this computer opens from the wallet switch without
+// A tester (26.10.20): a wallet remembered on this computer opens from the wallet switch without
 // the password, as at start; one not remembered still asks. And the Unlock page's password
 // field has the focus and a showing caret when it opens, with no click.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
