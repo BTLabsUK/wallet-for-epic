@@ -168,69 +168,89 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 ),
               )
             : _answer == null && choosing
-            ? ScreenBody(
-                // The two choices at the foot of the screen, above a keyboard (UI-016); the
-                // hero keeps the room above them.
-                bottom: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FilledButton.icon(
-                        key: firstRunCreateKey,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
-                        icon: const Icon(Icons.add),
-                        label: Text(l.firstRunCreate),
-                        onPressed: () => setState(() => _creating = true),
+            // The hero centred in the room above the two choices, which sit at the foot of
+            // the screen, above a keyboard (UI-016).
+            ? SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: SingleChildScrollView(
+                                child: BrandHero(
+                                  title: '${l.firstRunTitle}$network',
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FilledButton.icon(
+                                key: firstRunCreateKey,
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
+                                ),
+                                icon: const Icon(Icons.add),
+                                label: Text(l.firstRunCreate),
+                                onPressed: () =>
+                                    setState(() => _creating = true),
+                              ),
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                key: firstRunRestoreKey,
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
+                                ),
+                                icon: const Icon(Icons.restore),
+                                label: Text(l.firstRunRestore),
+                                onPressed: () => _leave(const RestoreScreen()),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        key: firstRunRestoreKey,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
-                        icon: const Icon(Icons.restore),
-                        label: Text(l.firstRunRestore),
-                        onPressed: () => _leave(const RestoreScreen()),
-                      ),
-                    ],
+                    ),
+                  ),
                 ),
-                children: [
-                  const SizedBox(height: 24),
-                  BrandHero(title: '${l.firstRunTitle}$network'),
-                ],
               )
             : CenteredBody(
-          children: [
-            // The demo has no PIN to choose and no network to name: it only sets itself up.
-            BrandHero(
-              title: demo || pinless
-                  ? l.demoPinSetUpTitle
-                  : '${l.firstRunTitle}$network',
-            ),
-            const SizedBox(height: 28),
-            if (_answer == null && pinless)
-              const Center(child: CircularProgressIndicator())
-            else if (_answer == null && choosing)
-              // Two plain choices and no text field, so no keyboard can cover either. A new
-              // wallet is the primary one; Restore stands beside it at the same size. They
-              // sit at the foot of the screen, as every primary action (UI-016).
-              const SizedBox.shrink()
-            else if (_answer == null) ...[
-              if (demo)
-                DemoPinFill(onDone: () => _finish(demoPin, false))
-              else
-                PinSetupView(onDone: _finish),
-            ] else if (waiting) ...[
-              const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 16),
-              Text(l.firstRunSecuring, textAlign: TextAlign.center),
-            ] else ...[
-              ErrorText(_error!),
-              BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
-            ],
-          ],
-        ),
+                children: [
+                  // The demo has no PIN to choose and no network to name: it only sets itself up.
+                  BrandHero(
+                    title: demo || pinless
+                        ? l.demoPinSetUpTitle
+                        : '${l.firstRunTitle}$network',
+                  ),
+                  const SizedBox(height: 28),
+                  if (_answer == null && pinless)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_answer == null && choosing)
+                    // Two plain choices and no text field, so no keyboard can cover either. A new
+                    // wallet is the primary one; Restore stands beside it at the same size. They
+                    // sit at the foot of the screen, as every primary action (UI-016).
+                    const SizedBox.shrink()
+                  else if (_answer == null) ...[
+                    if (demo)
+                      DemoPinFill(onDone: () => _finish(demoPin, false))
+                    else
+                      PinSetupView(onDone: _finish),
+                  ] else if (waiting) ...[
+                    const Center(child: CircularProgressIndicator()),
+                    const SizedBox(height: 16),
+                    Text(l.firstRunSecuring, textAlign: TextAlign.center),
+                  ] else ...[
+                    ErrorText(_error!),
+                    BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
+                  ],
+                ],
+              ),
       ),
     );
   }
