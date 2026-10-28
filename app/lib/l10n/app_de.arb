@@ -198,6 +198,7 @@
   "txDetailsDate": "Datum",
   "txDetailsCreated": "Erstellt",
   "txDetailsSentTo": "Gesendet an",
+  "txDetailsNoAddress": "Unbekannt: Diese Zahlung kam ohne Adresse (QR-Code oder Datei). Fügen Sie eine Bezeichnung hinzu, um sie wiederzuerkennen.",
   "txDetailsReceivedFrom": "Empfangen von",
   "txDetailsCopyAddress": "Adresse kopieren",
   "txDetailsAddressCopied": "Adresse kopiert",

@@ -847,6 +847,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsSentTo => 'Получатель';
 
   @override
+  String get txDetailsNoAddress =>
+      'Неизвестно: этот платёж пришёл без адреса (QR-код или файл). Добавьте метку, чтобы его узнать.';
+
+  @override
   String get txDetailsReceivedFrom => 'Отправитель';
 
   @override

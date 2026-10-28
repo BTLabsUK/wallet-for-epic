@@ -457,7 +457,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   ],
                 ),
               ),
-            ),
+            )
+          // A QR code or file exchange carries no address: the row says so rather than
+          // leaving the payment with no other side (bot #122).
+          else if (noAddressShown(t))
+            (t.incoming ? l.txDetailsReceivedFrom : l.txDetailsSentTo, Text(l.txDetailsNoAddress, key: const ValueKey('tx-fact-no-address'))),
           if (!t.otherWallet)
             (
               l.deskTxFactMethod,

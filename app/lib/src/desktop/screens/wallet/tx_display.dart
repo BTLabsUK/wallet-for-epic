@@ -36,6 +36,12 @@ String whoOf(AppLocalizations l, Tx t) {
   return shortAddress(cp, compact: t.isInvoice);
 }
 
+/// Whether [t]'s details say that no address came with it: a payment with someone else that
+/// has no address (a QR code or file exchange); not a mining reward, a payment to itself, a
+/// scan find, a backup row or another device's or wallet's (bot #122).
+bool noAddressShown(Tx t) =>
+    t.counterparty == null && !t.coinbase && !t.otherWallet && !t.toSelf && !t.foundByScan && !t.fromBackup && t.deviceName == null;
+
 /// The words for a payment a scan found with no record (F17), by which scan found it. An
 /// entry stored before the core recorded the scan makes no claim about it.
 typedef FoundTexts = ({String label, String line, String step, String note, String tip});

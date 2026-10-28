@@ -1309,6 +1309,12 @@ abstract class AppLocalizations {
   /// **'Sent to'**
   String get txDetailsSentTo;
 
+  /// Value of the Sent to / Received from row of a payment that carried no address (a QR code or file exchange): who it was is not known; a label helps.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known: this payment came without an address (QR code or file). Add a label to recognise it.'**
+  String get txDetailsNoAddress;
+
   /// Label of the row with the sender's address.
   ///
   /// In en, this message translates to:

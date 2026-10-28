@@ -242,6 +242,17 @@ String? ttlLine(AppLocalizations l, TxEntry tx, BigInt? tip) {
 const Key txDetailsMoreKey = ValueKey('tx-details-more');
 
 /// The receive's Cancel, once its hold is over, and the line that stands in for it before.
+/// Whether [tx]'s details say that no address came with it: a payment of this wallet with
+/// someone else that has no address, contact or pairing (a QR code or file exchange); not a
+/// mining reward, a payment to itself, a restored row or another device's or wallet's.
+bool txNoAddressShown(TxEntry tx) =>
+    tx.counterparty == null &&
+    tx.pairingId == null &&
+    tx.origin == TxOrigin.thisWallet &&
+    tx.kind != TxKind.coinbase &&
+    tx.transport != 'self' &&
+    tx.source == TxSource.wallet;
+
 const Key txDetailsCancelReceiveKey = ValueKey('tx-details-cancel-receive');
 const Key txDetailsCancelHoldKey = ValueKey('tx-details-cancel-hold');
 const Key txDetailsCancelNoteKey = ValueKey('tx-details-cancel-note');
@@ -930,7 +941,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
               value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}',
             ),
-          ],
+          ]
+          // A QR code or file exchange carries no address: the row says so rather than
+          // leaving the payment with no other side (bot #122).
+          else if (txNoAddressShown(tx))
+            _DetailRow(
+              label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
+              value: l.txDetailsNoAddress,
+            ),
           if (fee != null && outgoing)
             _DetailRow(
               label: l.txDetailsFee,

@@ -198,6 +198,7 @@
   "txDetailsDate": "วันที่",
   "txDetailsCreated": "สร้างเมื่อ",
   "txDetailsSentTo": "ส่งถึง",
+  "txDetailsNoAddress": "ไม่ทราบ: รายการนี้มาโดยไม่มีที่อยู่ (คิวอาร์โค้ดหรือไฟล์) เพิ่มป้ายกำกับเพื่อให้จำได้",
   "txDetailsReceivedFrom": "ได้รับจาก",
   "txDetailsCopyAddress": "คัดลอกที่อยู่",
   "txDetailsAddressCopied": "คัดลอกที่อยู่แล้ว",
