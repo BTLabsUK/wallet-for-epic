@@ -195,6 +195,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
+    this.nodeRecheck = const Duration(seconds: 60),
     this.watchPoll = watchTipEvery,
     this.nodeTimeout = const Duration(seconds: 15),
     this.nodeTorTimeout = const Duration(seconds: 90),
@@ -323,6 +324,9 @@ class LepicDeskWallet implements DeskWalletApi {
     return counted != null && counted > BigInt.zero ? counted : _minConfFallback;
   }
   final Duration nodePoll;
+
+  /// How old the node list's checks may get before the list asks every node again.
+  final Duration nodeRecheck;
 
   /// How often the node is asked instead while a payment can move with the next block
   /// (watch_mode.dart).
@@ -463,6 +467,10 @@ class LepicDeskWallet implements DeskWalletApi {
   DateTime? _lastUpdate;
   String? _notice;
   final Map<String, NodeServer> _checked = {};
+
+  /// When each [_checked] node answered. Heights are compared across the list ("12 behind"):
+  /// a check kept for good froze the others while a node checked later moved on.
+  final Map<String, DateTime> _checkedAt = {};
 
   /// Whether each [_checked] node was asked through tor. A latency is shown only while the way
   /// is still the same: a direct figure never stands in for one over Tor.
@@ -2404,9 +2412,18 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<List<NodeServer>> nodes() async {
     final all = await _listed(readDirectory: true);
-    // Each node is checked once in the background; the lists show it when the check is in.
+    // Each node is checked in the background; the lists show it when the check is in. Once a
+    // check is older than [nodeRecheck], every node is asked again together, so the heights
+    // the rows are compared by stay of one moment.
+    final now = DateTime.now();
+    bool known(String url) => _checked.containsKey(url) && _checkedSameWay(url);
+    // A node still being asked does not count: its old check would ask the others in a loop.
+    final again = all.any((n) {
+      final at = _checkedAt[n.url];
+      return _checked.containsKey(n.url) && !_checking.contains(n.url) && (at == null || now.difference(at) >= nodeRecheck);
+    });
     for (final n in all) {
-      if ((_checked.containsKey(n.url) && _checkedSameWay(n.url)) || !_checking.add(n.url)) continue;
+      if ((known(n.url) && !again) || !_checking.add(n.url)) continue;
       unawaited(checkNode(n.url).whenComplete(() {
         _checking.remove(n.url);
         _changed();
@@ -3714,6 +3731,7 @@ class LepicDeskWallet implements DeskWalletApi {
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own, icon: base.icon, listedAs: base.listedAs);
     }
     _checked[url] = r;
+    _checkedAt[url] = DateTime.now();
     _checkedOverTor[url] = overTor;
     return r;
   }
@@ -3729,6 +3747,7 @@ class LepicDeskWallet implements DeskWalletApi {
     ];
     await _store.writeJson(DeskStore.nodesKey, list);
     _checked[node.url] = node;
+    _checkedAt[node.url] = DateTime.now();
     _checkedOverTor[node.url] = _overTorNow(node.url);
   }
 
