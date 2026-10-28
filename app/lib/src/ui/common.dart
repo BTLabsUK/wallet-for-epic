@@ -1635,7 +1635,6 @@ class TxTile extends ConsumerWidget {
               label: tx.label,
             ),
             onTap: open,
-            onLongPress: () => edit?.call(),
             excludeSemantics: true,
             child: InkWell(
               borderRadius: BorderRadius.circular(12),

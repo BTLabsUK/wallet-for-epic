@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -213,11 +214,12 @@ void main() {
     return;
   }
   group('tabs', () {
-    testWidgets('Epicbox and File by default; Link on adds Link', (
+    testWidgets('Epicbox, Link and File from the start; Link on fills the Link tab', (
       tester,
     ) async {
       final plain = _Harness();
       await plain.pump(tester);
+      // The Link tab stays whatever Settings says (UI-051); off, it offers Turn on.
       expect(
         [
           for (final s in tester
@@ -225,8 +227,12 @@ void main() {
               .segments)
             s.value,
         ],
-        [ReceiveTab.epicbox, ReceiveTab.file],
+        [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
       );
+      await plain.torTab(tester);
+      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
+      expect(find.byKey(receiveTurnOnLinkTorKey), findsOneWidget);
+      expect(find.byKey(receiveTorAddressKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
       final h = _Harness(payments: _directOn);
       await h.pump(tester);
@@ -300,7 +306,7 @@ void main() {
       expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
     });
 
-    testWidgets('no Link tab where the app has no Tor', (tester) async {
+    testWidgets('the Link tab stays where the app has no Tor: Link · HTTP is still a way', (tester) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
       expect(h.tor.phase, PhoneTorPhase.unavailable);
@@ -309,13 +315,13 @@ void main() {
       );
       expect(
         [for (final s in tabs.segments) s.value],
-        [ReceiveTab.epicbox, ReceiveTab.file],
+        [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
       );
-      expect(find.text('Link'), findsNothing);
-      // A remembered Link choice falls back to Epicbox.
+      // Its page offers Link · HTTP only: no Tor to turn on.
       h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
       await tester.pumpAndSettle();
-      expect(find.byKey(receiveAddressKey), findsOneWidget);
+      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
+      expect(find.byKey(receiveTurnOnLinkTorKey), findsNothing);
     });
   });
 
@@ -333,10 +339,10 @@ void main() {
       expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
     });
 
-    testWidgets('File off and nothing else: no choice at all', (tester) async {
+    testWidgets('File off and nothing else: Epicbox and the Link tab', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(directFile: false));
       await h.pump(tester);
-      expect(find.byKey(receiveTabsKey), findsNothing);
+      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
       expect(find.byKey(receiveAddressKey), findsOneWidget);
     });
 
@@ -446,13 +452,16 @@ void main() {
       expect(tabs.segments.map((s) => s.value), isNot(contains(ReceiveTab.epicbox)));
     });
 
-    testWidgets('every method off: the empty state points to Settings', (tester) async {
+    testWidgets('every method off: the Link tab alone, offering to turn its methods on', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, directFile: false, directQr: false));
       await h.pump(tester);
-      expect(find.byKey(receiveNoMethodsKey), findsOneWidget);
-      expect(find.textContaining('No receiving method is on'), findsOneWidget);
+      // One tab is no choice: the strip is gone, the Link page shows the switches (UI-051).
       expect(find.byKey(receiveTabsKey), findsNothing);
       expect(find.byKey(receiveAddressKey), findsNothing);
+      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
+      await tester.tap(find.byKey(receiveTurnOnHttpKey));
+      await tester.pumpAndSettle();
+      expect(h.container.read(appSettingsProvider).value?.payments.linkHttp, isTrue);
     });
 
     testWidgets('Standard: no offline line', (tester) async {

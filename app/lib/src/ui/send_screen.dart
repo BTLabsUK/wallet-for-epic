@@ -3540,9 +3540,9 @@ class _SendViewState extends ConsumerState<SendView> {
         context,
         _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
-        // The QR way is finished from the header; the file way has its own help (UI-061).
+        // The file way has its own help; the QR way keeps the ⓘ (UI-052).
         extra: _viaQr
-            ? TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone))
+            ? null
             : IconButton(
                 tooltip: l.sendFileHelpTooltip,
                 icon: const Icon(Icons.help_outline),
@@ -3623,7 +3623,12 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_viaQr) {
       // The code has its own screen; this step is where the send waits for the reply.
       return [
-        _header(context, MethodIcons.fullName(l, MethodKind.directQr)),
+        // Finished from the header: Scan their reply stays the one primary at the foot (UI-061).
+        _header(
+          context,
+          MethodIcons.fullName(l, MethodKind.directQr),
+          extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
+        ),
         _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
         Semantics(
           liveRegion: true,

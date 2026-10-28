@@ -3625,10 +3625,10 @@ void main() {
       await _reload(tester);
       // One tile per balance that is not zero, in a fixed order, Total last.
       const order = [
-        (BalanceKind.confirming, 'Confirming', '2'),
-        (BalanceKind.waitingSender, 'Waiting for sender', '0.5'),
-        (BalanceKind.locked, 'Locked in sends', '5'),
-        (BalanceKind.total, 'Total', '26.75'),
+        (BalanceKind.confirming, 'Confirming', '2.0000'),
+        (BalanceKind.waitingSender, 'Waiting for sender', '0.5000'),
+        (BalanceKind.locked, 'Locked in sends', '5.0000'),
+        (BalanceKind.total, 'Total', '26.7500'),
       ];
       // A grid, nothing scrolls sideways: every tile is on screen, in reading order (top
       // to bottom, then left to right), inside the row's bounds.
@@ -3938,8 +3938,8 @@ void main() {
         await _reload(tester);
         final row = tester.getRect(find.byKey(balanceTilesKey));
         for (final (kind, text) in [
-          (BalanceKind.locked, '5.12345678'),
-          (BalanceKind.confirming, '2.12345678'),
+          (BalanceKind.locked, '5.12345'),
+          (BalanceKind.confirming, '2.12345'),
         ]) {
           final tile = tester.getRect(find.byKey(balanceTileKey(kind)));
           final words = tester.getRect(_inTile(kind, text));
@@ -3947,9 +3947,9 @@ void main() {
           expect(words.right, lessThanOrEqualTo(tile.right), reason: text);
           expect(tile.left, greaterThanOrEqualTo(row.left), reason: text);
         }
-        final at = tester.getRect(_inTile(BalanceKind.locked, '5.12345678'));
+        final at = tester.getRect(_inTile(BalanceKind.locked, '5.12345'));
         await tester.pump(const Duration(seconds: 3));
-        expect(tester.getRect(_inTile(BalanceKind.locked, '5.12345678')), at);
+        expect(tester.getRect(_inTile(BalanceKind.locked, '5.12345')), at);
         expect(tester.binding.hasScheduledFrame, isFalse);
         expect(tester.takeException(), isNull);
       },

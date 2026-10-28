@@ -678,9 +678,10 @@ void main() {
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
-        (BalanceKind.confirming, 'Confirming', '1'),
-        (BalanceKind.locked, 'Locked in sends', '2'),
-        (BalanceKind.total, 'Total', '16'),
+        // One precision across the tiles (UI-013).
+        (BalanceKind.confirming, 'Confirming', '1.0000'),
+        (BalanceKind.locked, 'Locked in sends', '2.0000'),
+        (BalanceKind.total, 'Total', '16.0000'),
       ]) {
         // The row builds the tiles near the edge only: drag until this one is there.
         for (var i = 0; i < 10; i++) {
@@ -736,11 +737,11 @@ void main() {
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
       expect(find.text('0.008 EPIC'), findsOneWidget);
-      final cancel = find.widgetWithText(DangerButton, 'Cancel payment').first;
-      await _tap(tester, cancel);
+      final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
+      await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
-      await _tap(tester, cancel);
+      await _tap(tester, cancel.first);
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(session.cancelledTxIds, [2]);
       expect(find.text('Payment cancelled'), findsOneWidget);

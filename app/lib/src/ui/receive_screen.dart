@@ -15,7 +15,6 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
-import '../tor_build.dart' show torBuilt;
 import '../phone_tor.dart';
 import '../pairing_providers.dart' show invoicesOnProvider, invoicesShownProvider, pairingSupportedProvider;
 import '../providers.dart';
@@ -150,7 +149,7 @@ class ReceiveView extends ConsumerWidget {
     // as Tor's own state did before the split); the HTTP card while Link · HTTP is on.
     final linkTor = torAvailable && (payments.linkTor || (tab == ReceiveTab.direct && !payments.linkHttp));
     final linkHttp = payments.linkHttp;
-    if (tab == ReceiveTab.direct && !linkTor && !linkHttp) tab = ReceiveTab.epicbox;
+    // The Link tab keeps its page with both Link methods off: it offers to turn one on (UI-051).
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
     final offline = watchNetBlock(context, ref) == NetBlock.offline;
     final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
@@ -307,11 +306,11 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && !payments.linkHttp && !payments.linkTor) {
+    } else if (tab == ReceiveTab.direct && !payments.linkHttp && !(payments.linkTor && torAvailable)) {
       // Both Link methods off: say so and offer the switches (GP-024, UI-051).
       above = column([
         strip,
-        _LinkOff(payments: payments),
+        _LinkOff(payments: payments, tor: torAvailable),
         const SizedBox(height: 8),
         help,
       ]);
@@ -884,9 +883,12 @@ const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 /// as in Settings › Privacy).
 /// Receive › Link with both Link methods off: the reason and a Turn on for each (UI-051).
 class _LinkOff extends ConsumerWidget {
-  const _LinkOff({required this.payments});
+  const _LinkOff({required this.payments, required this.tor});
 
   final PaymentPrefs payments;
+
+  /// Whether this build and phone run Tor: without it there is no Link · Tor to turn on.
+  final bool tor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -910,7 +912,7 @@ class _LinkOff extends ConsumerWidget {
           label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkHttp))),
           onPressed: () => turnOn(MethodKind.linkHttp),
         ),
-        if (torBuilt) ...[
+        if (tor) ...[
           const SizedBox(height: 8),
           FilledButton.tonalIcon(
             key: receiveTurnOnLinkTorKey,

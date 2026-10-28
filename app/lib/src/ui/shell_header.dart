@@ -63,6 +63,9 @@ const Duration landingSweepDuration = Duration(milliseconds: 1200);
 /// The size Wallet's figure starts at, and the least it shrinks to.
 const double figureSize = 60, figureMinSize = 34;
 
+/// The size the figure never scales under: its unit goes first (UI-002).
+const double figureFloorSize = 14;
+
 /// How far the header is open, from the shell's page position: 1 on Wallet, 0 on Send and
 /// Receive, in between while a swipe or a tap moves the page.
 double headerOpenness(double page) =>
@@ -381,9 +384,11 @@ class _Figure extends StatelessWidget {
             return low;
           }
           var size = best(unit: true);
-          // Before the figure goes under its least size, the unit goes (UI-002): the
-          // figure stays readable, and the semantics still say EPIC.
-          final showUnit = size > figureMinSize || fits(figureMinSize);
+          // Past the least size the figure scales down with its unit; before that scaling
+          // would take it under a readable 14, the unit goes instead (UI-002), and the
+          // semantics still say EPIC.
+          final atMin = _textWidth(text, figure(figureMinSize), TextScaler.noScaling, direction) + unitWidth;
+          final showUnit = fits(figureMinSize) || figureMinSize * constraints.maxWidth / atMin >= figureFloorSize;
           if (!showUnit) size = best(unit: false);
           // The figure and its unit are centred as one; the figure's Flexible is loose, so
           // the row's free space falls on both sides.
