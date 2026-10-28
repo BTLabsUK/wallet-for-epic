@@ -54,7 +54,10 @@ case "$file" in
 esac
 
 install_perm='android\.permission\.(REQUEST_INSTALL_PACKAGES|UPDATE_PACKAGES_WITHOUT_USER_ACTION)'
-firebase='com[./]google[./]firebase|firebase-(messaging|common|installations|iid)|com\.google\.android\.c2dm'
+# ML Kit (the QR scanner in web and play) registers its parts through com.google.firebase.components:
+# its plumbing, not Firebase's app, messaging or push code, so only those count (as in
+# build_android_release.sh).
+firebase='com[./]google[./]firebase[./](messaging|iid|installations|FirebaseApp)|firebase-(messaging|common|installations|iid)|com\.google\.android\.c2dm'
 firebase_config='google_app_id|gcm_defaultSenderId|google_api_key'
 proprietary='com[./]google[./](android[./]gms|mlkit|android[./]datatransport|android[./]play[./]core)|play-services-|barhopper|libmlkit'
 
@@ -66,6 +69,7 @@ hits="$(dex_hits "$firebase")"
 [[ -z "$hits" ]] && r=0 || r=1; check "dex strings name no Firebase ${hits:+($hits)}" "$r"
 has "$firebase_config" "$resources" && r=1 || r=0; check "no Firebase config in the resources" "$r"
 has 'android\.permission\.POST_NOTIFICATIONS' "$manifest" && r=1 || r=0; check "no notification permission" "$r"
+has 'com\.google\.android\.gms\.permission\.AD_ID' "$manifest" && r=1 || r=0; check "no advertising ID permission" "$r"
 
 case "$dist" in
   web)

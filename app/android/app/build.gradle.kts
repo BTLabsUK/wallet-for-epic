@@ -91,6 +91,10 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // The Play bundle is arm64 only, like the APK. Flutter compiles the app for the
+        // --target-platform alone, but plugins (ML Kit, CameraX) and tor bring their own other
+        // ABIs: Play would serve those phones a split without libflutter.so.
+        if (dist == "play") ndk { abiFilters += "arm64-v8a" }
     }
 
     // tools/fetch-tor.sh android puts the Tor Project's tor here as <abi>/libtor.so. It is an
