@@ -175,7 +175,8 @@ void main() {
     await _offer(tester, 'relay.example.org');
     // The dialog's Switch, with its line, is the confirmation.
     await _footSwitch(tester);
-    expect(find.text(_l.slSwitchBody), findsOneWidget);
+    // The sheet says the same under its list; the dialog's body is what asks.
+    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text(_l.slSwitchBody)), findsOneWidget);
     expect(find.byKey(serverListSwitchKey), findsOneWidget);
     await tester.tap(find.byKey(serverListSwitchKey));
     await tester.pumpAndSettle();
@@ -283,7 +284,8 @@ void main() {
       final container = await openFromLockScreen(tester, networkMenuEpicboxKey);
       await _offer(tester, 'relay.example.org');
       await _footSwitch(tester);
-      expect(find.text(_l.slSwitchBody), findsOneWidget);
+      // The sheet says the same under its list; the dialog's body is what asks.
+    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text(_l.slSwitchBody)), findsOneWidget);
       await tester.tap(find.byKey(serverListCancelKey));
       await tester.pumpAndSettle();
 

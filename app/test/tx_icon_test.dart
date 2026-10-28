@@ -572,9 +572,9 @@ void main() {
     expect(tile.edge, side.color);
     expect(side.width, currentMarkStroke);
     expect(tile.halo, mark.boxShadow!.single.color);
-    // Both are squares with circular corners, no circles.
-    expect(mark.shape, BoxShape.rectangle);
-    expect(mark.borderRadius, isA<BorderRadius>());
+    // The timeline mark is round, as the send tracker's nodes (UI-036); the tile keeps its
+    // rounded square.
+    expect(mark.shape, BoxShape.circle);
     expect(tile.radius, _t.radiusSmall);
   });
 

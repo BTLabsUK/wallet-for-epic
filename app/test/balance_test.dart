@@ -253,15 +253,15 @@ void main() {
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
       // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
       for (final (kind, text) in [
-        (BalanceKind.locked, '10'),
-        (BalanceKind.confirming, '7.492'),
+        (BalanceKind.locked, '10.0000'),
+        (BalanceKind.confirming, '7.4920'),
       ]) {
         expect(_inTile(kind, text).hitTestable(), findsOneWidget, reason: text);
       }
       // They stand still, and nothing runs to move them.
-      final at = tester.getRect(_inTile(BalanceKind.locked, '10'));
+      final at = tester.getRect(_inTile(BalanceKind.locked, '10.0000'));
       await tester.pump(const Duration(seconds: 3));
-      expect(tester.getRect(_inTile(BalanceKind.locked, '10')), at);
+      expect(tester.getRect(_inTile(BalanceKind.locked, '10.0000')), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // The title on Send and Receive agrees: the same 0, and the same words.
@@ -303,7 +303,7 @@ void main() {
           (BalanceKind.locked, l.homeTileLocked, _epic(5)),
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
-        expect(_inTile(BalanceKind.confirming, '2'), findsOneWidget);
+        expect(_inTile(BalanceKind.confirming, '2.0000'), findsOneWidget);
         // Send and Receive keep the two items: 2 confirming and 16 maturing are coming in;
         // the 0.5 not on chain yet is not counted.
         await _tab(tester, l.homeSendButton);
@@ -341,7 +341,7 @@ void main() {
       expect(find.textContaining('coming in'), findsNothing);
       // Not a Confirming tile either: it waits for the sender, and says so.
       expect(find.byKey(balanceTileKey(BalanceKind.confirming)), findsNothing);
-      expect(_inTile(BalanceKind.waitingSender, '1,000,000'), findsOneWidget);
+      expect(_inTile(BalanceKind.waitingSender, '1,000,000.0000'), findsOneWidget);
       await _tab(tester, l.homeSendButton);
       expect(find.textContaining('coming in'), findsNothing);
       expect(find.textContaining('1,000,000'), findsNothing);
@@ -363,7 +363,7 @@ void main() {
       expect(tester.takeException(), isNull);
       // The tiles grow with the text; the first is whole, the others scroll in.
       expect(
-        _inTile(BalanceKind.confirming, '6.48473625').hitTestable(),
+        _inTile(BalanceKind.confirming, '6.48473').hitTestable(),
         findsOneWidget,
       );
       expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsOneWidget);
@@ -401,7 +401,7 @@ void main() {
         expect(_rowLabel(tester), isNot(contains('received,')));
         expect(find.textContaining(l.txStatusReceived), findsNothing);
         expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
-        expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
+        expect(_inTile(BalanceKind.confirming, '2.5000'), findsOneWidget);
 
         // The next refresh reaches block 228: three confirmations, both say so.
         session.summaryValue = _summary(

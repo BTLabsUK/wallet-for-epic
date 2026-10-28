@@ -9,7 +9,9 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
+import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/settings_sections.dart' show advancedFeatureName;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart' show TorSwitchTile;
 import 'package:epic_wallet/src/updater.dart';
@@ -213,8 +215,11 @@ void main() {
       tester.getTopLeft(about).dy - tester.getTopLeft(advanced).dy,
       moreOrLessEquals(tester.getSize(advanced).height, epsilon: 1),
     );
-    // Its state line: Off until something is on.
-    expect(_line(SettingsSection.advanced, _l.advStateOff), findsOneWidget);
+    // Its state line names what is on: Linked devices, on by default, until turned off.
+    expect(
+      _line(SettingsSection.advanced, advancedFeatureName(_l, AdvancedFeature.linkedDevices)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('no live values: no host, no version, and About has no line', (tester) async {

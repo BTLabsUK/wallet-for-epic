@@ -426,7 +426,7 @@ void main() {
     tearDown(TorNet.useDirect);
 
     const overTor =
-        "The update can't be downloaded over Tor yet. Turn Tor off to download it, or get it "
+        "The update cannot be downloaded over Tor yet. Turn Tor off to download it, or get it "
         'from the download page.';
 
     test('the download fails with a message that says why and what to do', () async {

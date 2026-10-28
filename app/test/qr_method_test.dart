@@ -231,10 +231,14 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
+      // The file way has its own help in the header instead (one help icon per header, UI-052).
       await tester.tap(_segment('Direct · File'));
       await tester.pumpAndSettle();
-      await _openHow(tester);
-      expect(_howCaption(tester), '1. ${_l.handshakeFile1}');
+      expect(find.byTooltip(_l.sendHowItWorks), findsNothing);
+      await tester.tap(find.byTooltip(_l.sendFileHelpTooltip));
+      await tester.pumpAndSettle();
+      expect(find.byType(HandshakeSheet), findsNothing);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('Receive › QR Code: the receiver side, no relay', (
