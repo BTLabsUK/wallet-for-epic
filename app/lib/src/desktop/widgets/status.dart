@@ -205,7 +205,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       return switch (s.epicboxHealth) {
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodEpicboxOffDetail),
         ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.active, detail: host),
-        ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: host),
+        ServiceHealth.ok => MethodLine(l.deskKitMethodConnected, EState.ok, detail: host),
         ServiceHealth.slow => MethodLine(l.deskKitMethodSlow, EState.warn, detail: host),
         ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown(host)),
       };

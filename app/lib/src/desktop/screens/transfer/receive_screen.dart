@@ -517,7 +517,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.deskRecvHttpIntro, style: ts.bodyDim),
+          Text(st.settings.publicMode ? l.deskRecvHttpIntroInternet : l.deskRecvHttpIntro, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           if (addr != null) ...[
             EQrReveal(
