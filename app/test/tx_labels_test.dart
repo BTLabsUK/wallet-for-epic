@@ -389,7 +389,7 @@ void main() {
       expect(find.text('Date'), findsWidgets);
       await tester.tap(find.widgetWithText(ChoiceChip, 'Link · Tor'));
       await tester.pump();
-      await tester.enterText(find.widgetWithText(TextField, 'Note'), 'Pool');
+      await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
       expect(h.session.details['c:restored'], (
@@ -425,7 +425,7 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
       await tester.tap(find.text('Add details'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.widgetWithText(TextField, 'Note'), 'Pool');
+      await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(h.session.details, isEmpty);

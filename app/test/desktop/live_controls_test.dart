@@ -100,6 +100,8 @@ void main() {
   testWidgets('Show the tour again (Help) opens the tour on Overview', (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.settingsHelp);
     container.read(deskTourProvider.notifier).close();
+    await tester.ensureVisible(find.text('Show the tour again'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Show the tour again'));
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);

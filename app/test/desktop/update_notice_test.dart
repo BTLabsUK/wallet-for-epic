@@ -128,6 +128,9 @@ void main() {
 
   /// Taps [target] and lets the restart's real awaits (the quit) run.
   Future<void> tapAndRun(WidgetTester tester, Finder target) async {
+    // About is taller than the test window since the Contact row came in: scroll to it first.
+    await tester.ensureVisible(target);
+    await tester.pump();
     await tester.runAsync(() async {
       await tester.tap(target);
       await tester.pump();
@@ -247,6 +250,8 @@ void main() {
     expect(find.descendant(of: row, matching: find.byType(LinkCopyButton)), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Check now'), findsOneWidget);
     expect(act(), findsNothing);
+    await tester.ensureVisible(find.descendant(of: row, matching: find.widgetWithText(EButton, 'Open')));
+    await tester.pumpAndSettle();
     await tester.tap(find.descendant(of: row, matching: find.widgetWithText(EButton, 'Open')));
     await tester.pumpAndSettle();
     expect(opened, [deskReleasesUrl]);
