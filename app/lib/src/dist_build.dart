@@ -9,9 +9,9 @@
 /// - web: the in-app updater and its install permission.
 /// - play, fdroid, msstore: no in-app updater (no install permission on Android); the store
 ///   updates the app.
-/// - fdroid also reads QR codes with a free scanner instead of Google ML Kit:
-///   `tools/dist-prep.sh fdroid` swaps it in the checkout before the build.
-/// No build has Firebase or any other Google push code (removed in 26.10.20).
+/// No build has Firebase or any other Google push code (removed in 26.10.20), and none has
+/// Google ML Kit or Play services: every build reads QR codes with the free scanner
+/// (scanner_backend.dart, since 26.10.24).
 library;
 
 /// The distribution channel of this build.

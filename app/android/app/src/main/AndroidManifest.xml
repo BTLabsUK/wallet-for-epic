@@ -7,8 +7,7 @@
     <!-- The in-app updater's install permissions are in src/updater/AndroidManifest.xml:
          build.gradle.kts merges them into the build from our own page only (WFE_DIST,
          https://docs.btlabs.uk/developers/build/variants/). -->
-    <!-- QR scanning on the send screen (mobile_scanner; camera + flutter_zxing in the F-Droid
-         build). Asked for when the scanner opens; devices without a camera can still install
+    <!-- QR scanning on the send screen (camera + flutter_zxing, no Google code). Asked for when the scanner opens; devices without a camera can still install
          the app. The camera plugin's audio, storage and camera.any lines are not wanted: the
          scanner records no sound and saves no pictures. -->
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -94,8 +93,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- image_picker (pulled in by flutter_zxing in the F-Droid build) asks Play services
-             for its photo picker backport; no Google code in that build. -->
+        <!-- image_picker (pulled in by flutter_zxing) asks Play services for its photo picker
+             backport; no build has Google Play services code. -->
         <service android:name="com.google.android.gms.metadata.ModuleDependencies" tools:node="remove"/>
     </application>
     <!-- Required to query activities that can process text, see:
