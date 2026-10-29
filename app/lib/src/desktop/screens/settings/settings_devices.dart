@@ -137,58 +137,68 @@ class _DevicesGroup extends ConsumerWidget {
     final ts = context.ts;
     final book = view.book;
     final now = ref.watch(deskDeviceClockProvider)();
-    // One device can be linked: Link a device until it is, then that device with Remove.
-    return ESetGroup(
-      title: l.devicesOthers,
-      trailing: book.linked != null
-          ? null
-          : EButton.primary(
-              key: devicesLinkKey,
-              label: l.devicesLink,
-              icon: EIcons.link,
-              size: EBtnSize.sm,
-              onPressed: view.supported ? () => unawaited(showDeskLinkDevice(context)) : null,
-            ),
-      rows: [
-        ESetRow(
-          key: const ValueKey('dev-this'),
-          leading: EIcons.computer,
-          title: book.deviceName,
-          text: l.devicesThisDevice,
-          control: EButton(
-            label: l.devicesRename,
-            size: EBtnSize.sm,
-            onPressed: () => unawaited(_rename(context, ref, service, book.deviceName, thisDevice: true)),
-          ),
-        ),
-        if (book.linked case final d?)
+    // This device, then the linked one: Link a device until one is, then that device with
+    // Remove (one device can be linked).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ESetGroup(
+          title: l.devicesThisDevice,
+          rows: [
             ESetRow(
-              key: ValueKey('dev-${d.deviceId}'),
-              leading: EIcons.phone,
-              title: d.name,
-              text: deviceSeen(l, d.lastSeen, now),
-              below: d.servers.isEmpty
-                  ? null
-                  : Text(d.servers.join(' · '), style: ts.mono(size: Fs.xs).copyWith(color: context.dc.faint), overflow: TextOverflow.ellipsis),
-              control: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  EButton(label: l.devicesRename, size: EBtnSize.sm, onPressed: () => unawaited(_rename(context, ref, service, d.name, id: d.deviceId))),
-                  SizedBox(width: Sp.x2),
-                  EButton(
-                    key: ValueKey('dev-remove-${d.deviceId}'),
-                    label: l.devicesRemove,
-                    kind: EBtnKind.danger,
-                    size: EBtnSize.sm,
-                    onPressed: () => unawaited(_remove(context, service, d)),
-                  ),
-                ],
+              key: const ValueKey('dev-this'),
+              leading: EIcons.computer,
+              title: book.deviceName,
+              control: EButton(
+                label: l.devicesRename,
+                size: EBtnSize.sm,
+                onPressed: () => unawaited(_rename(context, ref, service, book.deviceName, thisDevice: true)),
               ),
             ),
-        if (book.linked == null)
-          ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty)
-        else
-          ESetRow(key: const ValueKey('dev-one-only'), text: l.devicesOneOnly),
+          ],
+        ),
+        ESetGroup(
+          title: l.devicesOthers,
+          trailing: book.linked != null
+              ? null
+              : EButton.primary(
+                  key: devicesLinkKey,
+                  label: l.devicesLink,
+                  icon: EIcons.link,
+                  size: EBtnSize.sm,
+                  onPressed: view.supported ? () => unawaited(showDeskLinkDevice(context)) : null,
+                ),
+          rows: [
+            if (book.linked case final d?)
+              ESetRow(
+                key: ValueKey('dev-${d.deviceId}'),
+                leading: EIcons.phone,
+                title: d.name,
+                text: deviceSeen(l, d.lastSeen, now),
+                below: d.servers.isEmpty
+                    ? null
+                    : Text(d.servers.join(' · '), style: ts.mono(size: Fs.xs).copyWith(color: context.dc.faint), overflow: TextOverflow.ellipsis),
+                control: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    EButton(label: l.devicesRename, size: EBtnSize.sm, onPressed: () => unawaited(_rename(context, ref, service, d.name, id: d.deviceId))),
+                    SizedBox(width: Sp.x2),
+                    EButton(
+                      key: ValueKey('dev-remove-${d.deviceId}'),
+                      label: l.devicesRemove,
+                      kind: EBtnKind.danger,
+                      size: EBtnSize.sm,
+                      onPressed: () => unawaited(_remove(context, service, d)),
+                    ),
+                  ],
+                ),
+              ),
+            if (book.linked == null)
+              ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty)
+            else
+              ESetRow(key: const ValueKey('dev-one-only'), text: l.devicesOneOnly),
+          ],
+        ),
       ],
     );
   }
