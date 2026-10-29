@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/file_exchange_help.dart';
@@ -291,6 +292,19 @@ void main() {
   });
 
   group('address', () {
+    testWidgets('an empty Epicbox list: no address, a short reason and the way to add a server', (tester) async {
+      final before = hostSettings;
+      hostSettings = before.withValues(const {'epicbox.servers': <String>[]});
+      addTearDown(() => hostSettings = before);
+      final h = _Harness();
+      await h.pump(tester);
+      expect(find.byKey(const ValueKey('receive-no-epicbox')), findsOneWidget);
+      expect(find.textContaining('No Epicbox server set'), findsOneWidget);
+      expect(find.byKey(receiveAddressKey), findsNothing);
+      expect(find.byType(PrettyQrView), findsNothing);
+      expect(find.byType(ErrorText), findsNothing, reason: 'no raw core error');
+    });
+
     testWidgets('the full address comes first, the QR code below it', (
       tester,
     ) async {

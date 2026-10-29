@@ -12,6 +12,8 @@
 #                                         every packet is dropped, so connects and DNS time out
 #                                         (dead Wi-Fi, captive network).
 #                                         OFFLINE_RESTORE=0: stay offline to the end.
+#                                         OFFLINE_EMPTY_LISTS=1: the settings file's Node and
+#                                         Epicbox lists empty from the first start.
 #   tool/offline_check.sh selftest        the same namespace, cut and restore with a curl probe in
 #                                         place of the app: no build, about 20 s.
 #
@@ -160,7 +162,7 @@ timeout 2400 sudo ip netns exec "$NS" setpriv --reuid="$uid" --regid="$gid" --in
     PUB_CACHE="${PUB_CACHE:-/home/$USER/.pub-cache}" TMPDIR="$run" TMPDIR="$run" \
     ANDROID_HOME="${ANDROID_HOME:-}" JAVA_HOME="${JAVA_HOME:-}" \
     FLUTTER_SUPPRESS_ANALYTICS=true CI=1 \
-    RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
+    OFFLINE_EMPTY_LISTS="${OFFLINE_EMPTY_LISTS:-}" RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
   xvfb-run -a -s "-screen 0 1600x1000x24" dbus-run-session -- bash -c '
     printf "%s" "throwaway-$$" | gnome-keyring-daemon --unlock --components=secrets >/dev/null 2>&1
     exec flutter test --no-pub -d linux "$0"

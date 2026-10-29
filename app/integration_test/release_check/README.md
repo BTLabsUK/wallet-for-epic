@@ -19,6 +19,7 @@ Throwaway empty wallets only; never use this for a wallet that holds funds.
     app/tool/offline_check.sh selftest      # the namespace, the cut and the restore, no build
     app/tool/offline_check.sh               # offline_test.dart: the app from its first start with no network
     OFFLINE_MODE=drop app/tool/offline_check.sh   # packets vanish instead of being refused
+    OFFLINE_EMPTY_LISTS=1 app/tool/offline_check.sh   # settings.toml lists no node and no Epicbox server
     app/tool/offline_phone.sh               # offline_phone_test.dart on an emulator of its own in airplane mode
 
 `offline_check.sh` runs the test in a network namespace (`sudo ip netns`, loopback only) as this
@@ -28,4 +29,5 @@ plugs a veth on a Docker bridge network of its own into the namespace. It remove
 (`wfeoff-<pid>`) and `/etc/netns/wfeoff-<pid>/` on exit, and a later run removes what a killed one
 left. Results: `$RC_OUT/offline-results.txt`, one line per check and one per screen visited;
 shots in `$RC_OUT/shots/offline`. The phone script uses AVD `wfe_small` on port 5560, never 5554,
-5556 or 5558. Widget and unit tests of the same cases with fakes are in `test/offline/`.
+5556 or 5558; it types the AVD's screen-lock PIN (`OFFLINE_DEVICE_PIN`, 1111) and talks to the
+test through the app's `files/rc-offline` folder (`adb shell run-as`). Widget and unit tests of the same cases with fakes are in `test/offline/`.

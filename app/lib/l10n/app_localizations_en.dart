@@ -18386,4 +18386,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => 'The check needs Tor off.';
+
+  @override
+  String get deskSlNoNodeTitle => 'No node set';
+
+  @override
+  String get deskSlNoNodeText =>
+      'The node list is empty. Add a node to check balances and send.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'No Epicbox server set';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'The Epicbox server list is empty. Add a server for an Epicbox address.';
 }

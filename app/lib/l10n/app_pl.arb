@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "Brakowało pliku {file}, utworzono go na nowo.",
   "settingsFileWriteFailed": "Nie udało się zapisać {file}. Zmiana obowiązuje do zamknięcia aplikacji.",
   "settingsFileReadFailed": "Nie udało się odczytać {file}. Obowiązują wbudowane ustawienia.",
-  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora."
+  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",
+  "deskSlNoNodeTitle": "Brak węzła",
+  "deskSlNoNodeText": "Lista węzłów jest pusta. Dodaj węzeł, aby sprawdzać saldo i wysyłać.",
+  "deskSlNoEpicboxTitle": "Brak serwera Epicbox",
+  "deskSlNoEpicboxText": "Lista serwerów Epicbox jest pusta. Dodaj serwer, aby mieć adres Epicbox."
 }

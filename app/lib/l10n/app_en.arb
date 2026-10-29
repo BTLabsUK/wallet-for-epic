@@ -24644,5 +24644,21 @@
   "deskKitReachTorOff": "The check needs Tor off.",
   "@deskKitReachTorOff": {
     "description": "Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal."
+  },
+  "deskSlNoNodeTitle": "No node set",
+  "@deskSlNoNodeTitle": {
+    "description": "Notice title when settings.toml lists no node (an empty Node list): nothing reads the chain."
+  },
+  "deskSlNoNodeText": "The node list is empty. Add a node to check balances and send.",
+  "@deskSlNoNodeText": {
+    "description": "Under deskSlNoNodeTitle; a button to the node settings follows."
+  },
+  "deskSlNoEpicboxTitle": "No Epicbox server set",
+  "@deskSlNoEpicboxTitle": {
+    "description": "Notice title when settings.toml lists no Epicbox server (an empty Epicbox list): the wallet has no Epicbox address."
+  },
+  "deskSlNoEpicboxText": "The Epicbox server list is empty. Add a server for an Epicbox address.",
+  "@deskSlNoEpicboxText": {
+    "description": "Under deskSlNoEpicboxTitle; a button to the Epicbox settings follows."
   }
 }

@@ -16,6 +16,7 @@ import 'dart:ui' as ui;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/notices.dart' show NoticeCard;
@@ -137,7 +138,9 @@ void main() {
       _errors.add(d.exceptionAsString().split('\n').first);
       prev?.call(d);
     };
-    _ext = (await tester.runAsync(() async => (await getExternalStorageDirectory())!))!;
+    // The host reads and writes it with `adb shell run-as` (files/rc-offline): the app's own
+    // folder, which a debug build lets the shell into.
+    _ext = (await tester.runAsync(() async => Directory('${(await getApplicationSupportDirectory()).path}/rc-offline').create(recursive: true)))!;
     final online = await tester.runAsync(() async {
       try {
         (await Socket.connect('1.1.1.1', 443, timeout: const Duration(seconds: 3))).destroy();
@@ -148,7 +151,11 @@ void main() {
     });
     record('precondition: no network on the device', online == false, online == true ? 'reached 1.1.1.1:443' : 'no route');
 
-    await tester.runAsync(initWalletBackend);
+    // As main.dart: the settings file before anything reads a server.
+    await tester.runAsync(() async {
+      await initWalletBackend();
+      await openAppSettings(store: createSecretStore());
+    });
     await tester.pumpWidget(ProviderScope(
       retry: (_, _) => null,
       overrides: [

@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart' show DeskFiles, deskFil
 import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show ServiceHealth;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig, hostSettings, shippedHostSettings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +33,11 @@ final home = Platform.environment['RC_HOME'] ?? Directory.systemTemp.path;
 
 /// The runner's control folder: the test writes `want-up`, the runner answers `up`.
 final netDir = Platform.environment['OFFLINE_NET_DIR'];
+
+/// OFFLINE_EMPTY_LISTS=1: the settings file's Node and Epicbox lists are empty from the first
+/// start (no server configured); back online, the first shipped servers are put in use the way
+/// Settings does, and the wallet must connect without a restart.
+final emptyLists = Platform.environment['OFFLINE_EMPTY_LISTS'] == '1';
 
 String _p(String name) => '$home${Platform.pathSeparator}$name';
 
@@ -188,6 +194,13 @@ void main() {
     });
     record('precondition: no network in this process', online == false, online == true ? 'reached 1.1.1.1:443' : 'no route');
 
+    if (emptyLists) {
+      await tester.runAsync(() async {
+        final f = File('$home/.epic_cash_desktop/settings.toml');
+        await f.parent.create(recursive: true);
+        await f.writeAsString('[node]\nservers = []\n\n[epicbox]\nservers = []\n');
+      });
+    }
     final password = randomPassword();
     final t0 = DateTime.now();
     await boot(tester, extra: [
@@ -197,6 +210,10 @@ void main() {
       deskOpenFolderProvider.overrideWithValue((d) async => true),
     ]);
     await look(tester, 'Welcome', waitS: 8);
+    if (emptyLists) {
+      record('empty lists: the settings file has no node and no Epicbox server', hostSettings.nodeUrls.isEmpty && hostSettings.epicboxServers.isEmpty,
+          '${hostSettings.nodeUrls} ${hostSettings.epicboxServers.map((e) => e.label).toList()}');
+    }
     record('offline: Welcome opens', hasText('Create a new wallet'), '${DateTime.now().difference(t0).inSeconds} s');
 
     // ---- Create a wallet with no network.
@@ -275,11 +292,13 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
   if (await tapIf(tester, 'Add contact')) {
     await settle(tester, ms: 800);
     final fields = find.byType(EditableText).evaluate().length;
-    if (fields >= 2) {
-      await typeIn(tester, 0, 'Offline friend');
-      await typeIn(tester, 1, 'esZ1yz8pUH9iMdc7sk5Q2HQxpcFhCvwHJcgo9SyCYTrjEiyqHs9S@epicbox.epiccash.com');
+    // The list's search box is field 0; then the new contact's name and address.
+    if (fields >= 3) {
+      await typeIn(tester, 1, 'Offline friend');
+      // A Link address: valid whatever the Epicbox list holds, and no one's real address.
+      await typeIn(tester, 2, 'https://friend.example.org');
       await settle(tester, ms: 600);
-      await tapIf(tester, 'Save') || await tapIf(tester, 'Add contact');
+      await tapIf(tester, 'Save contact') || await tapIf(tester, 'Save');
     }
     final v = await look(tester, 'Contacts: add', waitS: 6);
     record('offline: add a contact', v.errors.isEmpty && hasText('Offline friend'), shownTexts(10));
@@ -290,7 +309,8 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
 
   // ---- Wallet data (.wfeh) export and import.
   await go(tester, DeskRoute.settingsAccount);
-  if (await tapIf(tester, 'Export…')) {
+  // The first Export… is the wallet data file; the second is Export CSV.
+  if (await tapIf(tester, 'Export…', last: false)) {
     await settle(tester, ms: 1200);
     await tapIf(tester, 'Save as…');
     final end = DateTime.now().add(const Duration(seconds: 60));
@@ -298,14 +318,14 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
       await settle(tester, ms: 500);
     }
     final v = await look(tester, 'Export wallet data', waitS: 4);
-    record('offline: export wallet data (.wfeh)', _files.lastSaved != null && File(_files.lastSaved!).existsSync() && v.errors.isEmpty,
+    record('offline: export wallet data (.wfeh)', (_files.lastSaved?.endsWith('.wfeh') ?? false) && File(_files.lastSaved!).existsSync() && v.errors.isEmpty,
         _files.lastSaved ?? 'nothing saved: ${shownTexts(12)}');
     await tapIf(tester, 'Done');
     await closeAll(tester);
   } else {
     record('offline: export wallet data (.wfeh)', false, 'no Export…: ${shownTexts(12)}');
   }
-  if (_files.lastSaved != null) {
+  if (_files.lastSaved?.endsWith('.wfeh') ?? false) {
     await go(tester, DeskRoute.settingsAccount);
     if (await tapIf(tester, 'Import…')) {
       await settle(tester, ms: 1000);
@@ -330,7 +350,7 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
   await settle(tester, ms: 800);
   await tapIf(tester, 'Review');
   await look(tester, 'Send: review (empty wallet)', waitS: 8);
-  await tapIf(tester, 'File', last: false);
+  await tapIf(tester, 'Direct · File', last: false);
   await look(tester, 'Send: File method', waitS: 8);
   await closeAll(tester);
 
@@ -339,7 +359,7 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
   await tester.runAsync(() => File(junk).writeAsString('{"version_info":{"version":4},"id":"0"}'));
   await go(tester, DeskRoute.importTx);
   _slates.next = junk;
-  final pick = find.byWidgetPredicate((w) => w is RichText && RegExp(r'^(Choose file…|Choose a file|Open file|Choose a transaction file)$').hasMatch(w.text.toPlainText().trim()));
+  final pick = find.byWidgetPredicate((w) => w is RichText && RegExp(r'^(Choose file…|Choose file|Choose a file|Open file|Choose a transaction file)$').hasMatch(w.text.toPlainText().trim()));
   if (pick.evaluate().isNotEmpty) {
     await tester.tap(pick.last, warnIfMissed: false);
     await settle(tester, ms: 1500);
@@ -355,7 +375,8 @@ Future<void> offlineScreens(WidgetTester tester, String password) async {
   await go(tester, DeskRoute.settingsHelp);
   if (await tapIf(tester, 'Report a problem')) {
     await settle(tester, ms: 800);
-    final f = find.byType(EditableText);
+    // The dialog's own field, not Help's search behind it.
+    final f = find.descendant(of: find.byType(Dialog), matching: find.byType(EditableText));
     if (f.evaluate().isNotEmpty) {
       await tester.enterText(f.first, 'Offline check: no network.');
       await settle(tester);
@@ -395,6 +416,14 @@ Future<void> backOnline(WidgetTester tester) async {
   if (up != true) return;
   final t0 = DateTime.now();
   await go(tester, DeskRoute.overview);
+  if (emptyLists) {
+    // What Settings › Node and Settings › Receiving do when a server is added and picked.
+    final c = containerOf(tester);
+    await tester.runAsync(() => c.read(deskProvider.notifier).useNode(shippedHostSettings.nodeUse));
+    await tester.runAsync(() => c.read(deskProvider.notifier).useEpicbox(shippedHostSettings.epicboxUse));
+    await settle(tester, ms: 2000);
+    record('empty lists: a node and an Epicbox server added', hostSettings.nodeUrls.isNotEmpty && hostSettings.epicboxServers.isNotEmpty, '${hostSettings.nodeUse} ${hostSettings.epicboxUse}');
+  }
   // Recovery by itself: no restart, no tap.
   final end = t0.add(const Duration(minutes: 4));
   while (DateTime.now().isBefore(end) && !(nodeHealth(tester) == ServiceHealth.ok && boxHealth(tester) == ServiceHealth.ok)) {
@@ -403,10 +432,17 @@ Future<void> backOnline(WidgetTester tester) async {
   final secs = DateTime.now().difference(t0).inSeconds;
   record('back online: node ok without a restart', nodeHealth(tester) == ServiceHealth.ok, '${nodeHealth(tester)} after $secs s');
   record('back online: Epicbox ok without a restart', boxHealth(tester) == ServiceHealth.ok, '${boxHealth(tester)} after $secs s');
+  // A failed status-site read is kept for `status.fresh_s` (no request per screen): the lines
+  // built on it clear by themselves once that has passed.
+  await settle(tester, ms: appConfig.statusFresh.inMilliseconds + 5000);
   for (final r in [DeskRoute.overview, DeskRoute.receive, DeskRoute.send, DeskRoute.settingsNode, DeskRoute.settingsPrivacy, DeskRoute.settingsAbout]) {
     await go(tester, r);
     final v = await look(tester, 'online again: ${r.name}', waitS: 10);
-    final stale = v.texts.where((t) => RegExp(r'offline|unreachable|no connection|can.t reach|not reachable', caseSensitive: false).hasMatch(t)).toList();
+    final stale = v.texts
+        .where((t) => RegExp(r'offline|unreachable|no connection|can.t reach|not reachable', caseSensitive: false).hasMatch(t))
+        // "Offline" of the recipient or of a mode, never of a service that is down.
+        .where((t) => !RegExp(r'can be offline|when offline|while it is offline|stays offline|Offline is on|No connection needed', caseSensitive: false).hasMatch(t))
+        .toList();
     record('back online: ${r.name} shows no offline notice', stale.isEmpty && v.errors.isEmpty, stale.take(3).join(' / '));
   }
 }

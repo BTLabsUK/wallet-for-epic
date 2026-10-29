@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Phone offline check: integration_test/offline_phone_test.dart on an emulator of its own in
-# airplane mode from the first start; when the test asks (want-up in the app's external files
-# folder), airplane mode goes off and the test checks the wallet recovers by itself.
+# airplane mode from the first start; when the test asks (want-up in the app's files/rc-offline,
+# read with run-as), airplane mode goes off and the test checks the wallet recovers by itself.
 #
 #   tool/offline_phone.sh            AVD wfe_small (OFFLINE_AVD) on port 5560 (OFFLINE_PORT),
 #                                    started read-only and headless, killed at the end.
+#                                    OFFLINE_DEVICE_PIN: the AVD's screen-lock PIN (1111).
 #
 # Never uses 5554 (wfe_api36), 5556 (wfe_qa) or 5558 (wfe_qa2): other work runs there. The app
 # is uninstalled first (a fresh first start). Run it through build-slot (gradle builds the
@@ -19,7 +20,7 @@ PORT="${OFFLINE_PORT:-5560}"
 case "$PORT" in 5554|5556|5558) echo "port $PORT belongs to other work" >&2; exit 2 ;; esac
 SER="emulator-$PORT"
 PKG=uk.btlabs.epiccash.mobile
-EXT="/sdcard/Android/data/$PKG/files"
+EXT="files/rc-offline"   # run-as $PKG: relative to the app's data folder
 mkdir -p "$OUT/shots/phone"
 a() { timeout 60 adb -s "$SER" "$@"; }
 
@@ -43,6 +44,21 @@ done
 [ "$(a shell getprop sys.boot_completed | tr -d '\r')" = 1 ] || { echo "emulator did not boot" >&2; exit 3; }
 echo "$SER booted ($AVD)"
 
+# An app launched under the lock screen never starts (flutter test then waits for ever). The AVD
+# may have a screen lock (wfe_small's PIN is 1111): it is typed in, and the screen stays on to
+# the end. The emulator runs read-only, so nothing of this stays.
+a shell svc power stayon true
+locked() { a shell dumpsys window | grep -q 'isKeyguardShowing=true'; }
+sleep 5
+for _ in 1 2 3; do
+  locked || break
+  a shell input keyevent 224; a shell input keyevent 82; sleep 1
+  a shell input text "${OFFLINE_DEVICE_PIN:-1111}"; a shell input keyevent 66; sleep 3
+done
+if locked; then
+  echo "the screen stays locked: set OFFLINE_DEVICE_PIN to the AVD's screen-lock PIN" >&2; exit 3
+fi
+
 a uninstall "$PKG" >/dev/null 2>&1
 a shell cmd connectivity airplane-mode enable
 a shell svc wifi disable; a shell svc data disable
@@ -53,19 +69,20 @@ fi
 echo "airplane mode on, no network on $SER"
 
 (
-  until a shell "test -e $EXT/want-up" 2>/dev/null; do kill -0 $$ 2>/dev/null || exit 0; sleep 2; done
+  until a shell run-as "$PKG" test -e "$EXT/want-up" 2>/dev/null; do kill -0 $$ 2>/dev/null || exit 0; sleep 2; done
   a shell cmd connectivity airplane-mode disable
   a shell svc wifi enable; a shell svc data enable
   echo "airplane mode off at $(date +%T)"
-  a shell "touch $EXT/up"
+  a shell run-as "$PKG" touch "$EXT/up"
 ) &
 watcher=$!
 
 cd "$here"
-timeout 2400 flutter test -d "$SER" integration_test/offline_phone_test.dart 2>&1 | tee "$OUT/offline_phone.log" |
+# Kept installed after the test, so its screenshots can be read out of its folder.
+timeout 2400 flutter test --no-uninstall -d "$SER" integration_test/offline_phone_test.dart 2>&1 | tee "$OUT/offline_phone.log" |
   grep --line-buffered -E '^(RC |VISIT )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
 rc="${PIPESTATUS[0]}"
-a pull "$EXT/shots" "$OUT/shots/phone" >/dev/null 2>&1
+timeout 60 adb -s "$SER" exec-out run-as "$PKG" tar cf - -C "$EXT" shots 2>/dev/null | tar xf - -C "$OUT/shots/phone" 2>/dev/null
 grep -h '^RC ' "$OUT/offline_phone.log" | sed 's/^RC //' > "$OUT/offline-phone-results.txt"
 echo "results: $(grep -c '^PASS' "$OUT/offline-phone-results.txt") pass, $(grep -c '^FAIL' "$OUT/offline-phone-results.txt") fail ($OUT/offline-phone-results.txt)"
 exit "$rc"

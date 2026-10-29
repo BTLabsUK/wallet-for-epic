@@ -48,9 +48,10 @@ List<String> withFirst(ServerKind kind, List<String> values, String value) {
 }
 
 /// The keys to write so that [node] and [relay] are in use: each moves to the top of its list.
+/// An empty one is no server (its list is empty): that list is not written.
 Map<String, Object> useServerValues(HostSettings s, {String? node, String? relay}) => {
-  if (node != null) 'node.servers': withFirst(ServerKind.node, s.nodeUrls, node),
-  if (relay != null)
+  if (node != null && node.trim().isNotEmpty) 'node.servers': withFirst(ServerKind.node, s.nodeUrls, node),
+  if (relay != null && relay.trim().isNotEmpty)
     'epicbox.servers': withFirst(ServerKind.relay, [for (final b in s.epicboxServers) b.label], EpicboxRelay.parse(relay)?.label ?? relay),
 };
 

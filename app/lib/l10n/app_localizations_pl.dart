@@ -19030,4 +19030,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => 'Sprawdzenie wymaga wyłączenia Tora.';
+
+  @override
+  String get deskSlNoNodeTitle => 'Brak węzła';
+
+  @override
+  String get deskSlNoNodeText =>
+      'Lista węzłów jest pusta. Dodaj węzeł, aby sprawdzać saldo i wysyłać.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'Brak serwera Epicbox';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'Lista serwerów Epicbox jest pusta. Dodaj serwer, aby mieć adres Epicbox.';
 }

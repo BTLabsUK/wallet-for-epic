@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "{file} fehlte und wurde neu geschrieben.",
   "settingsFileWriteFailed": "{file} konnte nicht geschrieben werden. Die Änderung gilt, bis die App geschlossen wird.",
   "settingsFileReadFailed": "{file} konnte nicht gelesen werden. Die eingebauten Einstellungen gelten.",
-  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor."
+  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor.",
+  "deskSlNoNodeTitle": "Kein Node eingerichtet",
+  "deskSlNoNodeText": "Die Node-Liste ist leer. Fügen Sie einen Node hinzu, um Guthaben zu prüfen und zu senden.",
+  "deskSlNoEpicboxTitle": "Kein Epicbox-Server eingerichtet",
+  "deskSlNoEpicboxText": "Die Liste der Epicbox-Server ist leer. Fügen Sie einen Server hinzu, um eine Epicbox-Adresse zu erhalten."
 }

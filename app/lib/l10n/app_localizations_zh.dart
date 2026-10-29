@@ -17323,4 +17323,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => '此检查需要关闭 Tor。';
+
+  @override
+  String get deskSlNoNodeTitle => '未设置节点';
+
+  @override
+  String get deskSlNoNodeText => '节点列表为空。添加节点后才能核对余额和发送。';
+
+  @override
+  String get deskSlNoEpicboxTitle => '未设置 Epicbox 服务器';
+
+  @override
+  String get deskSlNoEpicboxText => 'Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。';
 }

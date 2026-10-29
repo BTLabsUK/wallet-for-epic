@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "Файл {file} отсутствовал и записан заново.",
   "settingsFileWriteFailed": "Не удалось записать {file}. Изменение действует до закрытия приложения.",
   "settingsFileReadFailed": "Не удалось прочитать {file}. Действуют встроенные настройки.",
-  "deskKitReachTorOff": "Проверка работает только с выключенным Tor."
+  "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
+  "deskSlNoNodeTitle": "Узел не задан",
+  "deskSlNoNodeText": "Список узлов пуст. Добавьте узел, чтобы проверять баланс и отправлять.",
+  "deskSlNoEpicboxTitle": "Сервер Epicbox не задан",
+  "deskSlNoEpicboxText": "Список серверов Epicbox пуст. Добавьте сервер, чтобы получить адрес Epicbox."
 }

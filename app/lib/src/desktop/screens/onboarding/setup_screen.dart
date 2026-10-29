@@ -422,6 +422,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           open: !_local,
           child: Padding(padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, 0, Sp.x1), child: picker),
         ),
+        // Every node checked and none answered (no network): say so, not an empty pick.
+        if (!_local && _nodeUrl == null && nodes != null && nodes.isNotEmpty && nodes.every((n) => n.health == ServiceHealth.down))
+          Padding(
+            key: const ValueKey('setup-no-node-answers'),
+            padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, 0, 0),
+            child: Text(l.deskOnbNodeNoAnswer, style: context.ts.small.copyWith(color: context.dc.risk, fontWeight: FontWeight.w600)),
+          ),
         if (DeskFeatures.builtInNode) ...[
           SizedBox(height: Sp.x3),
           EChoiceCard(

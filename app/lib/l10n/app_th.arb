@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "ไม่พบ {file} จึงเขียนไฟล์ใหม่แล้ว",
   "settingsFileWriteFailed": "เขียน {file} ไม่ได้ การเปลี่ยนแปลงนี้ใช้ได้จนกว่าจะปิดแอป",
   "settingsFileReadFailed": "อ่าน {file} ไม่ได้ จึงใช้การตั้งค่าในตัวแอป",
-  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor"
+  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",
+  "deskSlNoNodeTitle": "ยังไม่ได้ตั้งโหนด",
+  "deskSlNoNodeText": "รายการโหนดว่างอยู่ เพิ่มโหนดเพื่อตรวจยอดเงินและส่ง",
+  "deskSlNoEpicboxTitle": "ยังไม่ได้ตั้งเซิร์ฟเวอร์ Epicbox",
+  "deskSlNoEpicboxText": "รายการเซิร์ฟเวอร์ Epicbox ว่างอยู่ เพิ่มเซิร์ฟเวอร์เพื่อให้มีที่อยู่ Epicbox"
 }

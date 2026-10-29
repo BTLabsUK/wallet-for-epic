@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "{file} 不见了，已重新写入。",
   "settingsFileWriteFailed": "无法写入 {file}。此更改在关闭应用前有效。",
   "settingsFileReadFailed": "无法读取 {file}。正在使用内置设置。",
-  "deskKitReachTorOff": "此检查需要关闭 Tor。"
+  "deskKitReachTorOff": "此检查需要关闭 Tor。",
+  "deskSlNoNodeTitle": "未设置节点",
+  "deskSlNoNodeText": "节点列表为空。添加节点后才能核对余额和发送。",
+  "deskSlNoEpicboxTitle": "未设置 Epicbox 服务器",
+  "deskSlNoEpicboxText": "Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。"
 }
