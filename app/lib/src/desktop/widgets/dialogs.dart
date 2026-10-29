@@ -9,6 +9,7 @@ import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'selectable.dart';
 import 'surfaces.dart';
 
 /// Opens an [EDialog] over a scrim. Returns what the dialog pops.
@@ -76,7 +77,9 @@ class EDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rad.lg),
         side: BorderSide(color: c.lineStrong),
       ),
-      child: ConstrainedBox(
+      // The dialog's text is selectable and copyable (selectable.dart).
+      child: DeskSelectable(
+        child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: width),
         // The buttons stay in view; the title, description and body scroll above them when the
         // window is too short (linux-09: a long message pushed Send off the screen; a short
@@ -137,6 +140,7 @@ class EDialog extends StatelessWidget {
               child: actions.isEmpty ? const SizedBox.shrink() : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
             ),
           ],
+        ),
         ),
       ),
     );
@@ -238,7 +242,7 @@ class EDrawer extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(padding: EdgeInsets.all(Sp.x6), child: body),
+              child: SingleChildScrollView(padding: EdgeInsets.all(Sp.x6), child: DeskSelectable(child: body)),
             ),
             if (actions.isNotEmpty)
               Container(

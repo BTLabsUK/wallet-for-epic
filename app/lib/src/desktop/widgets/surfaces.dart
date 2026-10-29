@@ -12,6 +12,7 @@ import '../theme/icons.dart';
 import '../../ui/badge.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'selectable.dart';
 import 'motion.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
@@ -57,8 +58,10 @@ class EPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final pad = (padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5)).resolve(Directionality.of(context));
+    // A scrolling pane is a column of its own: its text selects within it (selectable.dart), so a
+    // drag never lands in the pane next to it.
     final body = scroll
-        ? Flexible(child: SingleChildScrollView(padding: pad, child: child))
+        ? Flexible(child: SingleChildScrollView(padding: pad, child: DeskSelectable(child: child)))
         : (expand ? Expanded(child: Padding(padding: pad, child: child)) : Padding(padding: pad, child: child));
     final hasHead = head != null || title != null;
     return Container(

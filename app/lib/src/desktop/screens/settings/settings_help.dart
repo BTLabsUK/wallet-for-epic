@@ -535,7 +535,7 @@ class _TopicState extends ConsumerState<_Topic> {
                           child: Icon(EIcons.chevronRight, size: 14.u, color: c.accentText),
                         ),
                         SizedBox(width: Sp.x1),
-                        Text(_open ? context.l10n.deskSetHelpShowLess : context.l10n.deskSetHelpReadMore, style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.accentText)),
+                        NoSelect(child: Text(_open ? context.l10n.deskSetHelpShowLess : context.l10n.deskSetHelpReadMore, style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.accentText))),
                       ],
                     ),
                   ),

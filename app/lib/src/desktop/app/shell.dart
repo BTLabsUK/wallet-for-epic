@@ -243,7 +243,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // A place of a part switched off (Pairing, Invoices) reads as Overview.
     final shown = deskRouteShown(ref, at.route) ? at : const DeskLocation(DeskRoute.overview);
     final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
-    final main = Material(color: c.bg, child: page);
+    // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
+    final main = Material(color: c.bg, child: DeskSelectable(child: page));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
     final Widget frame;

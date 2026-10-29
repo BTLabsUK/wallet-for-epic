@@ -293,6 +293,7 @@ class _Chip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rad.sm),
+        child: NoSelect(
         child: Container(
           height: Ctl.sm,
           padding: EdgeInsets.symmetric(horizontal: Sp.x3),
@@ -309,6 +310,7 @@ class _Chip extends StatelessWidget {
               Text(label, style: context.ts.body.copyWith(color: selected ? c.text : c.dim)),
             ],
           ),
+        ),
         ),
       ),
     );

@@ -559,7 +559,15 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
           Divider(height: 1, color: t.line),
           const SizedBox(height: 16),
           if (topic.devices) ...[const PhoneSyncDiagram(), const SizedBox(height: 20)],
-          for (final b in topic.body) HelpBlockView(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null, block: b, style: body),
+          // The topic's text is selectable with a long press, and copies from the handle menu.
+          SelectionArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final b in topic.body) HelpBlockView(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null, block: b, style: body),
+              ],
+            ),
+          ),
           if (topic.devices) ...[const SizedBox(height: 4), const PhoneSyncStatus(), const SizedBox(height: 12)],
           if (topic.handshake)
             Align(

@@ -60,14 +60,21 @@ class _ExpandFadeState extends State<ExpandFade> with SingleTickerProviderStateM
     }
   }
 
+  /// The folded content stays laid out (Offstage), so its text would still answer a drag over
+  /// whatever is drawn in its place: a closed panel leaves the page's selection (selectable.dart)
+  /// and an open one joins it, through one container that is never remounted.
+  final _selection = StaticSelectionContainerDelegate();
+
   @override
   void dispose() {
+    _selection.dispose();
     _c.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final registrar = SelectionContainer.maybeOf(context);
     return AnimatedBuilder(
       animation: _c,
       builder: (context, child) => Offstage(
@@ -85,7 +92,12 @@ class _ExpandFadeState extends State<ExpandFade> with SingleTickerProviderStateM
       child: SizeTransition(
         sizeFactor: _size,
         alignment: AlignmentDirectional(-1, widget.axisAlignment),
-        child: FadeTransition(opacity: _fade, child: widget.child),
+        child: FadeTransition(
+          opacity: _fade,
+          child: widget.open && registrar != null
+              ? SelectionContainer(registrar: registrar, delegate: _selection, child: widget.child)
+              : SelectionContainer.disabled(child: widget.child),
+        ),
       ),
     );
   }

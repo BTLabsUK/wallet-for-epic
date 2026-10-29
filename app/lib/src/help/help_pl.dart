@@ -12,7 +12,7 @@ const List<HelpSection> helpSectionsPl = [
   (id: 'safety', title: 'Bezpieczeństwo portfela', lede: 'Fraza odzyskiwania to kopia zapasowa i klucz.', art: 'help-safety'),
   (id: 'network', title: 'Węzły i Epicbox', lede: 'Z czym łączy się portfel, oraz Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Gdy coś nie działa', lede: 'Typowe przyczyny i co zrobić.', art: 'help-trouble'),
-  (id: 'maintenance', title: 'Konserwacja', lede: 'Stare foldery portfeli i foldery wcześniejszych wersji.', art: 'help-maintenance'),
+  (id: 'maintenance', title: 'Konserwacja', lede: 'Stare foldery portfeli na dysku.', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -435,19 +435,13 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'maintenance',
         'Porządkowanie starych folderów portfeli',
-        '„Usuń z listy” zostawia folder portfela na dysku. Usuń go ręcznie, mając zapisaną frazę odzyskiwania lub gdy portfel nie jest już potrzebny.',
+        '„Usuń z listy” zostawia folder portfela na dysku. Folder usuwa się ręcznie, mając zapisaną frazę odzyskiwania lub gdy portfel jest pusty.',
         [
-          HelpBlock.p('**Usuń z listy** w [[Ustawienia › Wszystkie portfele|Settings › All wallets]] zdejmuje portfel z listy, ale zostawia jego folder na dysku, a strona proponuje go ponownie w grupie **Usunięte z listy**. Aby pozbyć się folderu, usuń go ręcznie.'),
-          HelpBlock.p('**Usunięcie folderu portfela bez jego frazy odzyskiwania oznacza utratę EPIC, które zawiera.** Najpierw sprawdź słowa albo upewnij się, że portfel jest pusty i już niepotrzebny.'),
-          HelpBlock.ol([
-            'Otwórz folder danych: przyciskiem **Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]] albo wchodząc do **.epic_cash_desktop** w swoim folderze domowym (w Windows **C:\\Users\\<nazwa>\\.epic_cash_desktop**).',
-            'Otwórz **wallets**. Każdy dodany portfel ma własny folder o nazwie będącej długim identyfikatorem; folder pierwszego portfela nazywa się **mainnet**.',
-            'Aby je rozróżnić, otwórz folder identyfikatora, w nim folder **mainnet**, i przeczytaj **WALLET.txt**: podaje nazwę portfela.',
-            'Upewnij się, że masz zapisaną frazę odzyskiwania tego portfela albo że nie ma w nim EPIC, które chcesz zachować.',
-            'Zamknij Epic Cash Desktop.',
-            'Usuń tylko ten jeden folder identyfikatora. Zostaw **mainnet**, **wallets.json** i całą resztę bez zmian.',
+          HelpBlock.ul([
+            '**Usuń z listy** w [[Ustawienia › Wszystkie portfele|Settings › All wallets]] zdejmuje portfel z listy. Jego folder zostaje na dysku, a strona proponuje go ponownie w grupie **Usunięte z listy**.',
+            '**Usunięcie folderu portfela bez jego frazy odzyskiwania oznacza utratę EPIC, które zawiera.** Usuwać tylko portfel z zapisaną frazą albo pusty i już niepotrzebny.',
+            'Foldery leżą w **wallets** w folderze danych (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]), po jednym na portfel, nazwane jego identyfikatorem; **WALLET.txt** w środku podaje nazwę portfela. Przy zamkniętym Epic Cash Desktop usunąć tylko ten jeden folder identyfikatora, a resztę zostawić bez zmian.',
           ]),
-          HelpBlock.p('**Foldery wcześniejszych wersji.** Wersje sprzed 26.10.16 trzymały dane w **~/.local/share/com.blacktyger.epicwallet** w Linuksie i w **%APPDATA%\\com.blacktyger\\EpicWallet** w Windows. Gdy każdy portfel stamtąd zostanie odtworzony w tej aplikacji i pokaże saldo, ten stary folder też można usunąć.'),
         ],
         id: HelpId.cleanup,
       ),

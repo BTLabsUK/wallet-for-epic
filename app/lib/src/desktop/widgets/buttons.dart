@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import 'selectable.dart';
+
 import '../theme/tokens.dart';
 
 /// [primarySoft] is the primary of a row of peers (a detail header's Send): the accent as a soft
@@ -160,6 +162,7 @@ class _EButtonState extends State<EButton> {
         ],
       ),
     );
+    // A label is never selected by a drag over the page (selectable.dart).
     Widget body = Semantics(
       button: true,
       enabled: enabled,
@@ -185,9 +188,9 @@ class _EButtonState extends State<EButton> {
               child: widget.hit44
                   ? ConstrainedBox(
                       constraints: BoxConstraints(minHeight: Ctl.md),
-                      child: Center(widthFactor: 1, child: FocusRing(focused: focused, child: face)),
+                      child: Center(widthFactor: 1, child: FocusRing(focused: focused, child: NoSelect(child: face))),
                     )
-                  : FocusRing(focused: focused, child: face),
+                  : FocusRing(focused: focused, child: NoSelect(child: face)),
             );
           },
         ),
@@ -340,6 +343,7 @@ class _ELinkState extends State<ELink> {
             onTap: widget.onPressed,
             child: FocusRing(
               focused: Focus.of(context).hasFocus,
+              child: NoSelect(
               child: Text(
                 widget.label,
                 style: TextStyle(
@@ -349,6 +353,7 @@ class _ELinkState extends State<ELink> {
                   decoration: TextDecoration.underline,
                   decorationColor: _hover ? color : color.withValues(alpha: 0.45),
                 ),
+              ),
               ),
             ),
           ),

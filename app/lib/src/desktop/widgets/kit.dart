@@ -22,6 +22,7 @@ export 'keyboard.dart';
 export 'password_hint.dart';
 export 'motion.dart';
 export 'qr_reveal.dart';
+export 'selectable.dart';
 export 'start_date.dart';
 export 'status.dart';
 export 'surfaces.dart';

@@ -309,13 +309,12 @@ class ReportPreview extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: SelectionArea(
-        child: Scrollbar(
-          child: ListView.builder(
-            padding: EdgeInsets.all(Sp.x3),
-            itemCount: lines.length,
-            itemBuilder: (context, i) => Text(lines[i], style: style),
-          ),
+      // Selectable through the dialog's own selection area (selectable.dart).
+      child: Scrollbar(
+        child: ListView.builder(
+          padding: EdgeInsets.all(Sp.x3),
+          itemCount: lines.length,
+          itemBuilder: (context, i) => Text(lines[i], style: style),
         ),
       ),
     );

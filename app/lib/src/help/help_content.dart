@@ -104,7 +104,7 @@ const helpSections = <HelpSection>[
   (id: 'safety', title: 'Keeping the wallet safe', lede: 'The recovery phrase is the backup and the key.', art: 'help-safety'),
   (id: 'network', title: 'Nodes and Epicbox', lede: 'What the wallet connects to, and Tor.', art: 'help-network'),
   (id: 'trouble', title: 'When something goes wrong', lede: 'The usual causes, and what to do.', art: 'help-trouble'),
-  (id: 'maintenance', title: 'Maintenance', lede: 'Old wallet folders, and the folders of earlier versions.', art: 'help-maintenance'),
+  (id: 'maintenance', title: 'Maintenance', lede: 'Old wallet folders on disk.', art: 'help-maintenance'),
 ];
 
 /// Help › Pairing (RFC 0002): shown when the wallet pairs, before "When something goes wrong".
@@ -611,19 +611,13 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       const HelpTopic(
         'maintenance',
         'Clean up old wallet folders',
-        'Remove from list keeps the wallet’s folder on disk. Delete it by hand, with the recovery phrase written down or the wallet no longer needed.',
+        'Remove from list keeps a wallet’s folder on disk. Deleting the folder is done by hand, with the recovery phrase written down or the wallet empty.',
         [
-          HelpBlock.p('**Remove from list** in [[Settings › All wallets]] takes a wallet off the list but leaves its folder on disk, and the page offers it again under **Removed from list**. To be rid of the folder, delete it by hand.'),
-          HelpBlock.p('**Deleting a wallet folder without its recovery phrase loses the EPIC in it.** Check the words first, or make sure the wallet is empty and no longer needed.'),
-          HelpBlock.ol([
-            'Open the data folder: the **Open folder** button next to [[Settings › This wallet › App files]], or **.epic_cash_desktop** in your home folder (on Windows **C:\\Users\\<name>\\.epic_cash_desktop**).',
-            'Open **wallets**. Each added wallet has its own folder, named by a long ID; the first wallet’s folder is **mainnet**.',
-            'To tell them apart, open an ID folder, then its **mainnet** folder, and read **WALLET.txt**: it gives the wallet’s name.',
-            'Make sure you have that wallet’s recovery phrase written down, or that it holds no EPIC you want to keep.',
-            'Close Epic Cash Desktop.',
-            'Delete that one id folder. Leave **mainnet**, **wallets.json** and everything else as it is.',
+          HelpBlock.ul([
+            '**Remove from list** in [[Settings › All wallets]] takes a wallet off the list. Its folder stays on disk, and the page offers it again under **Removed from list**.',
+            '**Deleting a wallet folder without its recovery phrase loses the EPIC in it.** Delete only a wallet whose phrase is written down, or one that is empty and no longer needed.',
+            'The folders sit under **wallets** in the data folder (**Open folder** next to [[Settings › This wallet › App files]]), one per wallet, named by its ID; **WALLET.txt** inside gives the wallet’s name. With Epic Cash Desktop closed, delete that one ID folder and leave the rest as it is.',
           ]),
-          HelpBlock.p('**Folders of earlier versions.** Versions before 26.10.16 kept their data in **~/.local/share/com.blacktyger.epicwallet** on Linux and in **%APPDATA%\\com.blacktyger\\EpicWallet** on Windows. Once every wallet from there has been restored in this app and shows its balance, that old folder can go too.'),
         ],
         id: HelpId.cleanup,
       ),

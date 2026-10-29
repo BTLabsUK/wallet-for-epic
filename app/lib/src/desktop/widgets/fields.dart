@@ -8,6 +8,7 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'keyboard.dart';
+import 'selectable.dart';
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -554,9 +555,9 @@ class _SegState<T> extends State<_Seg<T>> {
                       SizedBox(width: 6.u),
                     ],
                     if (widget.stretch)
-                      Flexible(child: Text(widget.seg.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: label))
+                      Flexible(child: NoSelect(child: Text(widget.seg.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: label)))
                     else
-                      Text(widget.seg.label, style: label),
+                      NoSelect(child: Text(widget.seg.label, style: label)),
                     if (widget.seg.count != null) ...[
                       SizedBox(width: 6.u),
                       Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),

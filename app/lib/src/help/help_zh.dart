@@ -12,7 +12,7 @@ const List<HelpSection> helpSectionsZh = [
   (id: 'safety', title: '保护钱包安全', lede: '助记词既是备份，也是密钥。', art: 'help-safety'),
   (id: 'network', title: '节点与 Epicbox', lede: '钱包连接到什么，以及 Tor。', art: 'help-network'),
   (id: 'trouble', title: '出现问题时', lede: '常见原因及处理方法。', art: 'help-trouble'),
-  (id: 'maintenance', title: '维护', lede: '旧的钱包文件夹，以及早期版本的文件夹。', art: 'help-maintenance'),
+  (id: 'maintenance', title: '维护', lede: '磁盘上旧的钱包文件夹。', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -433,19 +433,13 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'maintenance',
         '清理旧的钱包文件夹',
-        '“从列表中移除”会把钱包的文件夹留在磁盘上。请在已抄写助记词或不再需要该钱包时手动删除它。',
+        '“从列表中移除”会把钱包的文件夹留在磁盘上。文件夹需手动删除，前提是已抄写助记词或钱包已空。',
         [
-          HelpBlock.p('[[设置 › 所有钱包|Settings › All wallets]] 中的 **从列表中移除** 会把钱包从列表中去掉，但其文件夹仍留在磁盘上，页面会在 **已从列表中移除** 下再次列出它。要彻底清除该文件夹，请手动删除。'),
-          HelpBlock.p('**删除没有助记词的钱包文件夹，会失去其中的 EPIC。** 请先核对助记词，或确认该钱包已空且不再需要。'),
-          HelpBlock.ol([
-            '打开数据文件夹：点击 [[设置 › 此钱包 › 应用文件|Settings › This wallet › App files]] 旁的 **打开文件夹**，或打开你主目录下的 **.epic_cash_desktop**（Windows 上为 **C:\\Users\\<用户名>\\.epic_cash_desktop**）。',
-            '打开 **wallets**。每个添加的钱包都有自己的文件夹，以一长串 ID 命名；第一个钱包的文件夹名为 **mainnet**。',
-            '要分辨它们，打开某个 ID 文件夹，再打开其中的 **mainnet** 文件夹，阅读 **WALLET.txt**：其中写有钱包名称。',
-            '确认你已抄写该钱包的助记词，或其中没有你想保留的 EPIC。',
-            '关闭 Epic Cash Desktop。',
-            '只删除这一个 ID 文件夹。**mainnet**、**wallets.json** 和其他一切保持原样。',
+          HelpBlock.ul([
+            '[[设置 › 所有钱包|Settings › All wallets]] 中的 **从列表中移除** 会把钱包从列表中去掉。其文件夹仍留在磁盘上，页面会在 **已从列表中移除** 下再次列出它。',
+            '**删除没有助记词的钱包文件夹，会失去其中的 EPIC。** 只删除已抄写助记词的钱包，或已空且不再需要的钱包。',
+            '文件夹位于数据文件夹的 **wallets** 下（[[设置 › 此钱包 › 应用文件|Settings › This wallet › App files]] 旁的 **打开文件夹**），每个钱包一个，以其 ID 命名；里面的 **WALLET.txt** 写有钱包名称。关闭 Epic Cash Desktop 后，只删除这一个 ID 文件夹，其余保持原样。',
           ]),
-          HelpBlock.p('**早期版本的文件夹。** 26.10.16 之前的版本把数据保存在 Linux 的 **~/.local/share/com.blacktyger.epicwallet** 和 Windows 的 **%APPDATA%\\com.blacktyger\\EpicWallet** 中。当那里的每个钱包都已在本应用中恢复并显示余额后，这个旧文件夹也可以删除。'),
         ],
         id: HelpId.cleanup,
       ),

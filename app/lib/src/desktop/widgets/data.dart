@@ -14,6 +14,7 @@ import '../data/state.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'selectable.dart';
 import 'surfaces.dart';
 
 /// Initials on a hairline square: wallets and contacts.
@@ -271,7 +272,9 @@ class ESeedGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return LayoutBuilder(
+    // Never selectable by a drag: the words leave only through the copy button and its rules.
+    return NoSelect(
+      child: LayoutBuilder(
       builder: (context, box) {
         final cols = box.maxWidth < 480.u ? 2 : columns;
         final w = (box.maxWidth - (cols - 1) * Sp.x2) / cols;
@@ -307,6 +310,7 @@ class ESeedGrid extends StatelessWidget {
           ],
         );
       },
+      ),
     );
   }
 }
@@ -658,7 +662,7 @@ class _ENavItemState extends State<ENavItem> {
         child: Builder(
           builder: (context) => GestureDetector(
             onTap: widget.onTap,
-            child: FocusRing(focused: Focus.of(context).hasFocus, child: item),
+            child: FocusRing(focused: Focus.of(context).hasFocus, child: NoSelect(child: item)),
           ),
         ),
       ),
