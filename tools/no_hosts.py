@@ -110,8 +110,9 @@ def is_comment(line, pos):
     return in_text(line, pos) and not in_text(line, pos, strings_only=True)
 
 
-def findings(text):
-    out = port_findings(text)
+def findings(text, test_code=False):
+    # Test code may use the ports it binds or talks to; hosts stay out of it all the same.
+    out = [] if test_code else port_findings(text)
     text = text.replace('\\.', '.')  # a host written as a regex (`fastepic\.eu`)
     for m in ONION_RE.finditer(text):
         out.append(m.group(0))
@@ -181,11 +182,16 @@ def main():
                 lines = f.readlines()
         except (IsADirectoryError, FileNotFoundError):
             continue
+        # Rust test code: a `tests/` folder, or the rest of a file from a `#[cfg(test)]` at the
+        # start of a line (the test module closes the file by this codebase's convention).
+        test_code = '/tests/' in f'/{rel}' and rel.endswith('.rs')
         for n, line in enumerate(lines, 1):
             text = line.rstrip('\n')
+            if rel.endswith('.rs') and text.startswith('#[cfg(test)]'):
+                test_code = True
             for rx in mine:
                 text = rx.sub(' ', text)
-            hits = findings(text)
+            hits = findings(text, test_code)
             if hits:
                 bad += 1
                 print(f'{name}:{n}: {", ".join(dict.fromkeys(hits))}')
