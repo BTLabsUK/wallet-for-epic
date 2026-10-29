@@ -3607,7 +3607,7 @@
   "slRestore": "恢复已移除的服务器",
   "slRemovedCount": "{count, plural, other{已移除 {count} 个}}",
   "slRestored": "已恢复已移除的服务器。",
-  "slRelayWarning": "你的 Epicbox 地址会改变。请分享新的地址。",
+  "slRelayWarning": "更换服务器会改变你的 Epicbox 地址。请分享新的地址。",
   "slNotAnAddress": "不是服务器地址。请使用 host 或 host:port。",
   "slRelayNoAnswer": "此服务器无应答。未添加任何内容。",
   "deskSlRemoveHost": "移除 {host}",

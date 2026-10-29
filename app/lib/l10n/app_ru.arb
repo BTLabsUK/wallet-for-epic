@@ -3607,7 +3607,7 @@
   "slRestore": "Восстановить удалённые серверы",
   "slRemovedCount": "{count, plural, one{{count} удалён} few{{count} удалено} many{{count} удалено} other{{count} удалено}}",
   "slRestored": "Удалённые серверы восстановлены.",
-  "slRelayWarning": "Ваш адрес Epicbox изменится. Поделитесь новым.",
+  "slRelayWarning": "Смена сервера меняет ваш адрес Epicbox. Поделитесь новым.",
   "slNotAnAddress": "Это не адрес сервера. Введите host или host:port.",
   "slRelayNoAnswer": "Сервер не отвечает. Ничего не добавлено.",
   "deskSlRemoveHost": "Удалить {host}",

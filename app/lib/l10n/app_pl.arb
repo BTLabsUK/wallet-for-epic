@@ -3607,7 +3607,7 @@
   "slRestore": "Przywróć usunięte serwery",
   "slRemovedCount": "{count, plural, one{{count} usunięty} few{{count} usunięte} many{{count} usuniętych} other{{count} usuniętego}}",
   "slRestored": "Przywrócono usunięte serwery.",
-  "slRelayWarning": "Twój adres Epicbox się zmieni. Udostępnij nowy.",
+  "slRelayWarning": "Zmiana serwera zmienia twój adres Epicbox. Udostępnij nowy.",
   "slNotAnAddress": "To nie jest adres serwera. Użyj host lub host:port.",
   "slRelayNoAnswer": "Ten serwer nie odpowiada. Nic nie dodano.",
   "deskSlRemoveHost": "Usuń {host}",

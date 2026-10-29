@@ -18106,9 +18106,9 @@
       }
     }
   },
-  "slSwitchBody": "Your Epicbox address changes. Share the new one.",
+  "slSwitchBody": "Your Epicbox address will change. Share the new one.",
   "@slSwitchBody": {
-    "description": "One line under that title: switching Epicbox changes the address senders pay to."
+    "description": "One line under that title: switching Epicbox will change the address senders pay to (future: the switch has not happened yet)."
   },
   "slSwitch": "Switch",
   "@slSwitch": {
@@ -18195,9 +18195,9 @@
   "@slRestored": {
     "description": "Foot line after Restore removed servers."
   },
-  "slRelayWarning": "Your Epicbox address changes. Share the new one.",
+  "slRelayWarning": "Changing the server changes your Epicbox address. Share the new one.",
   "@slRelayWarning": {
-    "description": "Warning card under the Epicbox field."
+    "description": "Warning card always shown under the Epicbox field: a general rule (changing the server changes the address), not something happening now."
   },
   "slNotAnAddress": "Not a server address. Use host or host:port.",
   "@slNotAnAddress": {

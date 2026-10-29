@@ -476,10 +476,11 @@ void main() {
       find.textContaining('epicnet.us', findRichText: true),
       findsWidgets,
     );
-    // The sheet warns; the confirm repeats the line.
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    // The sheet warns; the confirm says the address will change.
+    expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsOneWidget);
     await _tap(tester, row);
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsNWidgets(2));
+    expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsOneWidget);
+    expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
     await _tap(tester, find.byKey(serverListCancelKey));
     expect(find.byKey(serverListSwitchKey), findsNothing);
 

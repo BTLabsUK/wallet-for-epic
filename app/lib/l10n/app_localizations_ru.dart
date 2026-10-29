@@ -14276,7 +14276,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slRestored => 'Удалённые серверы восстановлены.';
 
   @override
-  String get slRelayWarning => 'Ваш адрес Epicbox изменится. Поделитесь новым.';
+  String get slRelayWarning =>
+      'Смена сервера меняет ваш адрес Epicbox. Поделитесь новым.';
 
   @override
   String get slNotAnAddress =>

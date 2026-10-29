@@ -12976,7 +12976,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slRestored => '已恢复已移除的服务器。';
 
   @override
-  String get slRelayWarning => '你的 Epicbox 地址会改变。请分享新的地址。';
+  String get slRelayWarning => '更换服务器会改变你的 Epicbox 地址。请分享新的地址。';
 
   @override
   String get slNotAnAddress => '不是服务器地址。请使用 host 或 host:port。';

@@ -350,13 +350,13 @@ void main() {
     // Transactions has the payment methods and Send above the Epicbox panel now: a taller
     // window keeps the panel's foot (Added …, Switch) on screen.
     await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), size: const Size(1280, 1500));
-    const warning = 'Your Epicbox address changes. Share the new one.';
+    const warning = 'Changing the server changes your Epicbox address. Share the new one.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
     await tap(tester, row('epicbox.stackwallet.com'));
     expect(find.byType(EDialog), findsOneWidget);
     expect(find.text('Switch to epicbox.stackwallet.com?'), findsOneWidget);
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-cancel')));
     expect(find.byType(EDialog), findsNothing);
     expect(container.read(deskProvider).status!.epicbox.domain, before, reason: 'Cancel keeps the relay');

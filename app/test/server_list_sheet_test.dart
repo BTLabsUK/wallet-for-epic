@@ -318,7 +318,7 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       expect(
-        find.text('Your Epicbox address changes. Share the new one.'),
+        find.text('Changing the server changes your Epicbox address. Share the new one.'),
         findsOneWidget,
       );
       expect(_confirm(), findsNothing);
@@ -327,7 +327,7 @@ void main() {
       expect(_confirm(), findsOneWidget);
       expect(find.text('Switch to epicbox.epicnet.us?'), findsOneWidget);
       expect(
-        find.descendant(of: _confirm(), matching: find.text('Your Epicbox address changes. Share the new one.')),
+        find.descendant(of: _confirm(), matching: find.text('Your Epicbox address will change. Share the new one.')),
         findsOneWidget,
       );
       expect(find.byKey(serverListCancelKey), findsOneWidget);
@@ -361,7 +361,7 @@ void main() {
     testWidgets('node: a tap switches at once with no confirm; the foot says so', (tester) async {
       final env = _Env()..liveAnswer = true;
       await _pump(tester, ServerKind.node, env);
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsNothing);
+      expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsNothing);
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);

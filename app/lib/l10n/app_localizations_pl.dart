@@ -14304,7 +14304,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'Twój adres Epicbox się zmieni. Udostępnij nowy.';
+      'Zmiana serwera zmienia twój adres Epicbox. Udostępnij nowy.';
 
   @override
   String get slNotAnAddress =>

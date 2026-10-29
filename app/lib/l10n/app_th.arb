@@ -3607,7 +3607,7 @@
   "slRestore": "กู้คืนเซิร์ฟเวอร์ที่นำออก",
   "slRemovedCount": "{count, plural, other{นำออก {count} รายการ}}",
   "slRestored": "กู้คืนเซิร์ฟเวอร์ที่นำออกแล้ว",
-  "slRelayWarning": "ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย",
+  "slRelayWarning": "การเปลี่ยนเซิร์ฟเวอร์จะทำให้ที่อยู่ Epicbox ของคุณเปลี่ยน แชร์ที่อยู่ใหม่ด้วย",
   "slNotAnAddress": "ไม่ใช่ที่อยู่เซิร์ฟเวอร์ ใช้ host หรือ host:port",
   "slRelayNoAnswer": "เซิร์ฟเวอร์นี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร",
   "deskSlRemoveHost": "นำ {host} ออก",

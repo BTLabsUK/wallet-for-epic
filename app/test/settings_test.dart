@@ -1807,8 +1807,8 @@ void main() {
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Switch')),
       );
       await tester.pumpAndSettle();
-      // The confirm repeats the sheet's warning line.
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
+      // The confirm says the address will change.
+      expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);

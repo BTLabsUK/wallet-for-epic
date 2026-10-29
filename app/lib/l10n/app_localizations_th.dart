@@ -13448,7 +13448,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
+      'การเปลี่ยนเซิร์ฟเวอร์จะทำให้ที่อยู่ Epicbox ของคุณเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
 
   @override
   String get slNotAnAddress =>
