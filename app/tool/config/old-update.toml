@@ -1,0 +1,8 @@
+# The old-format update.json, which installed apps up to 26.10.23 read (https://docs.btlabs.uk/developers/releases/,
+# Release addresses). Read by tool/release_android.sh; the new format's addresses are [updates]
+# of app/assets/config/app-config.toml. Retire with the old format.
+[old_update]
+# Its file URLs must sit under this folder: those apps reject the whole manifest otherwise.
+downloads = "https://examples.btlabs.uk/epic-cash-wallets/downloads/"
+# Where it is published, read back for the serial check (--prev).
+manifest = "https://examples.btlabs.uk/epic-cash-wallets/update.json"

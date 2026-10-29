@@ -10,8 +10,8 @@
 # without Tor (-notor files), which read only that section. Publish the release files first, then
 # update.json with tools/publish-update-json.sh.
 # Usage: tool/release_android.sh <download-base-url> [notes]
-#   download-base-url  where the APKs will be served (https), e.g.
-#                      https://github.com/BTLabs-EPIC/wallet-for-epic/releases/download/v1.0.1
+#   download-base-url  where the APKs will be served (https): the old format's folder,
+#                      [old_update] downloads of tool/config/old-update.toml
 #   notes              plain text; line feeds allowed, no tabs or carriage returns
 #
 # It writes update.payload.json (unsigned; serial = issued_at in Unix seconds, expiry in 182
@@ -36,6 +36,9 @@
 # release folder that https://epiccash.btlabs.uk/releases/downloads/ also serves. The manifest keeps
 # the examples.btlabs.uk address while installed apps need it: with Tor on, apps up to 26.10.23
 # reach only that name through the downloads onion (https://docs.btlabs.uk/developers/releases/, Release addresses).
+# update-v2.json names each file by its name under [updates] downloads, and
+# tool/check_update_urls.sh stops the script before signing when any file URL of either payload
+# is off its folder.
 # WFE_DESKTOP_DIR=<folder> adds the per-system desktop blocks (tool/desktop_update_entry.sh) from
 # the published setups, AppImages and dmgs in that folder, the -notor ones into the notor section.
 #
@@ -58,6 +61,12 @@ if [[ "$notes" == *$'\r'* || "$notes" == *$'\t'* ]]; then
   echo "notes: no tabs or carriage returns (FORMAT.md section 6)" >&2
   exit 64
 fi
+# The old format's folder and address (tool/config/old-update.toml): download-base-url must be
+# that folder, checked with every file URL before signing.
+old_config="$app_dir/tool/config/old-update.toml"
+old_base="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["downloads"])' "$old_config")"
+old_base="${old_base%/}"
+old_manifest_url="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["manifest"])' "$old_config")"
 btlabs_public="${BTLABS_PUBLIC:-$HOME/code/btlabs-public}"
 signing_key="${BTLABS_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"
 
@@ -140,7 +149,7 @@ if [[ ${#notor_entries[@]} -gt 0 ]]; then
 fi
 if [[ -n "${WFE_DESKTOP_DIR:-}" ]]; then
   # Deep merge: the top-level desktop block and, for the -notor files, notor.desktop.
-  desktop_block="$("$app_dir/tool/desktop_update_entry.sh" "$version" "$WFE_DESKTOP_DIR")"
+  desktop_block="$(WFE_DOWNLOADS_BASE="$old_base" "$app_dir/tool/desktop_update_entry.sh" "$version" "$WFE_DESKTOP_DIR")"
   jq --argjson d "$desktop_block" '. * $d' "$payload" >"$payload.tmp"
   mv "$payload.tmp" "$payload"
 fi
@@ -150,8 +159,13 @@ config="$app_dir/assets/config/app-config.toml"
 base2="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["downloads"])' "$config")"
 base2="${base2%/}"
 manifest2_url="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["manifests"][0])' "$config")"
-jq --arg old "$base_url/" --arg new "$base2/" \
-  'walk(if type == "string" and startswith($old) then $new + ltrimstr($old) else . end)' "$payload" >"$payload2"
+# Every file URL by its file name, whatever folder the old one names: the same files.
+jq --arg new "$base2/" \
+  'walk(if type == "object" and (.url | type) == "string" then .url = $new + (.url | split("/") | last) else . end)' \
+  "$payload" >"$payload2"
+# Both before signing: a URL off its folder makes the apps reject the whole manifest.
+"$app_dir/tool/check_update_urls.sh" "$payload" "$old_base"
+"$app_dir/tool/check_update_urls.sh" "$payload2" "$base2"
 
 echo "Wrote $payload for $package $version_name (serial $issued_epoch, expires $expires_at):"
 jq -r '(.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes \(.url)"),
@@ -196,7 +210,7 @@ PY
 # published copy is read from BT Labs' own server, the first source the apps read.
 published="$out/update.published.json"
 rm -f "$published"
-status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://examples.btlabs.uk/epic-cash-wallets/update.json || true)"
+status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' "$old_manifest_url" || true)"
 case "$status" in
   200) sign+=(--prev "$published") ;;
   404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
