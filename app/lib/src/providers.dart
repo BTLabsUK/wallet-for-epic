@@ -836,6 +836,13 @@ class ScanNotifier extends Notifier<ScanState> {
       state = ScanState(error: failure);
       return false;
     }
+    // Ended without the core's `finished` event: stopped from elsewhere (a lock, a cancel), as
+    // the desktop reads it. Only a scan that reached its end says the balance was rechecked.
+    if (!finished) {
+      logInfo('scan', 'ended before its end: stopped');
+      state = const ScanState(stopped: true);
+      return false;
+    }
     state = ScanState(message: state.message, done: true);
     return true;
   }

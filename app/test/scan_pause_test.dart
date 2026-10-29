@@ -112,6 +112,23 @@ void main() {
     await session.scans.last.close();
   });
 
+  test('a scan whose stream ends without its finished event is stopped, never done', () async {
+    // Recheck balance said "Balance rechecked" for a scan the core ended early.
+    final session = _Session();
+    final c = ProviderContainer(
+      retry: (_, _) => null,
+      overrides: [sessionProvider.overrideWith(() => _Open(session))],
+    );
+    addTearDown(c.dispose);
+    final run = c.read(scanProvider.notifier).run(startHeight: BigInt.zero);
+    await pumpEventQueue();
+    session.scans.last.add(const ScanProgress(percent: 22, message: 'Scanning', finished: false));
+    await session.scans.last.close();
+    expect(await run, isFalse);
+    expect(c.read(scanProvider).done, isFalse);
+    expect(c.read(scanProvider).stopped, isTrue);
+  });
+
   test('Stop while paused ends the scan as stopped, without starting it again', () async {
     final session = _Session();
     final c = ProviderContainer(
