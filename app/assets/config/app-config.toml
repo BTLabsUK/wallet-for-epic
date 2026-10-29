@@ -67,7 +67,7 @@ send_request_timeout_s = 60
 
 [tor]
 start_backoff_s = [2, 10, 30, 60]
-send_wait_s = 180              # a send waits this long for Tor to be ready
+send_wait_s = 180              # a send, and the app's own requests at start, wait this long for Tor
 onion_retry_s = 30             # an onion not reached is tried once more after this
 bootstrap_timeout_s = 120
 cold_bootstrap_timeout_s = 240
