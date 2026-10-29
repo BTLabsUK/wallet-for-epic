@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import '../../ui/status.dart' show OffSlash, StatusGlyph;
+
 import '../desk_l10n.dart';
 import '../data/models.dart';
 import '../data/tor_view.dart';
@@ -357,8 +359,10 @@ class _DotPainter extends CustomPainter {
   bool shouldRepaint(_DotPainter old) => old.state != state || old.color != color || old.ink != ink || old.ring != ring;
 }
 
-/// A service glyph in a status cluster (title bar, sidebar): the glyph with its [EStateDot];
-/// off draws the glyph at 40 % with a slash and no dot. [label] ("Node: Synced") is the
+/// A service glyph in a status cluster (title bar, sidebar): the neutral glyph with its
+/// [EStateDot] as the one coloured signal, each state with its own shape (solid, ring, "!");
+/// off by choice draws the glyph faint with a thin slash and no dot, calm rather than an
+/// error. The phone's [StatusGlyph] speaks the same language. [label] ("Node: Synced") is the
 /// semantics; the cluster's own tooltip lists every glyph.
 class EStatusGlyph extends StatelessWidget {
   const EStatusGlyph({super.key, required this.icon, required this.state, required this.label, this.size, this.dim = false});
@@ -375,10 +379,10 @@ class EStatusGlyph extends StatelessWidget {
     final px = size ?? 17.u;
     final off = state == EState.off;
     final box = px + 9.u;
-    // The outline says whether the service is on (green) or off (faint); the dot, only on
-    // an enabled one, says how its connection goes: green connected, blue (pulsing) in
-    // progress, red down, amber a warning. The label says the state in words.
-    final outline = off ? c.faint : c.ok;
+    // The glyph is neutral; only the dot, on an enabled service, carries colour: green
+    // connected, blue (pulsing) in progress, red down, amber a warning. Off is faint with a
+    // slash. The label says the state in words.
+    final ink = off ? c.faint.withValues(alpha: 0.55) : c.dim;
     return Semantics(
       label: label,
       excludeSemantics: true,
@@ -388,8 +392,17 @@ class EStatusGlyph extends StatelessWidget {
           children: [
             Center(
               child: Opacity(
-                opacity: off ? 0.5 : (dim ? 0.6 : 1),
-                child: Icon(icon, size: px, color: outline),
+                opacity: dim ? 0.6 : 1,
+                child: SizedBox.square(
+                  dimension: px,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(icon, size: px, color: ink),
+                      if (off) Positioned.fill(child: OffSlash(color: ink, halo: c.bg)),
+                    ],
+                  ),
+                ),
               ),
             ),
             if (!off)

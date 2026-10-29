@@ -318,8 +318,8 @@ enum StatusDot {
   };
 }
 
-/// The diameter of the state dot at a status glyph's bottom right, ring included.
-const double statusDotSize = 10;
+/// The diameter of the state mark at a status glyph's bottom right, ring included.
+const double statusDotSize = 8;
 
 
 /// One status as its glyph on a [statusTarget] square ([StatusGlyph]). A tap runs [onTap]
@@ -340,8 +340,8 @@ class StatusIcon extends StatelessWidget {
     this.enabled = true,
   });
 
-  /// Whether the service is on: the outline is green then and the dot shows its connection;
-  /// off, the glyph is faint and has no dot, and a tap opens the switch.
+  /// Whether the service is on: the glyph is neutral then and the mark shows its connection;
+  /// off, the glyph is faint with a slash and has no mark, and a tap opens the switch.
   final bool enabled;
 
   final IconData icon;
@@ -394,9 +394,12 @@ class StatusIcon extends StatelessWidget {
   }
 }
 
-/// A status's glyph, [statusGlyph] across, with its state at the bottom right: the outline
-/// says on (green) or off (faint, no dot); the dot says how an enabled service's connection
-/// goes, with a second cue beside its colour: ring = in progress, "!" = a problem, solid = ok.
+/// A status's glyph, [statusGlyph] across, with its state at the bottom right. One signal per
+/// state: the glyph itself stays neutral ([WalletTokens.dim]) and only the small mark carries
+/// colour, each state with its own shape beside the colour: a solid green dot = ready, a blue
+/// ring (pulsing) = in progress, a red dot with "!" = a problem. Off by choice is calm, not an
+/// error: the glyph faint with a thin slash and no mark. The Settings › Network rows, the
+/// connections sheet and the desktop's clusters use the same language.
 class StatusGlyph extends StatelessWidget {
   const StatusGlyph({
     super.key,
@@ -416,16 +419,19 @@ class StatusGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final off = !enabled || dot == StatusDot.off;
     return SizedBox.square(
       dimension: statusGlyph,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Icon(icon, size: statusGlyph, color: !enabled || dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.ok),
-          if (enabled && dot != StatusDot.off)
+          Icon(icon, size: statusGlyph, color: off ? offGlyphColor(t) : t.dim),
+          if (off)
+            Positioned.fill(child: OffSlash(color: offGlyphColor(t), halo: ring))
+          else
             Positioned(
-              right: -3,
-              bottom: -3,
+              right: -2,
+              bottom: -2,
               child: StateDot(dot: dot, size: statusDotSize, ring: ring),
             ),
         ],
@@ -434,9 +440,13 @@ class StatusGlyph extends StatelessWidget {
   }
 }
 
-/// The state dot at a status glyph's corner, [size] across with the page-colour [ring]: solid
-/// green for ok, a blue ring for work in progress, red with "!" for a problem. Off is drawn
-/// by [StatusIcon] as the faded glyph with a slash instead.
+/// The colour of a glyph whose service is off by choice: faint, well under the neutral glyph,
+/// and the same for the slash over it.
+Color offGlyphColor(WalletTokens t) => t.faint.withValues(alpha: 0.55);
+
+/// The state mark at a status glyph's corner, [size] across with the page-colour [ring]: a
+/// solid green dot for ok, a blue ring for work in progress, red with "!" for a problem. Off
+/// is drawn by [StatusGlyph] as the faint glyph with an [OffSlash] instead.
 class StateDot extends StatelessWidget {
   const StateDot({super.key, required this.dot, required this.size, required this.ring});
 
@@ -455,20 +465,57 @@ class StateDot extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: dot == StatusDot.busy ? ring : color,
-        border: Border.all(color: dot == StatusDot.busy ? color : ring, width: dot == StatusDot.busy ? 2 : 1.5),
+        border: Border.all(color: dot == StatusDot.busy ? color : ring, width: 1.5),
       ),
       child: dot == StatusDot.bad
           ? Text(
               '!',
               textScaler: TextScaler.noScaling,
-              style: TextStyle(color: ring, fontSize: size * 0.72, fontWeight: FontWeight.w800, height: 1),
+              style: TextStyle(color: ring, fontSize: size * 0.8, fontWeight: FontWeight.w800, height: 1),
             )
           : null,
     );
   }
 }
 
-/// A diagonal slash over a status glyph that is off, haloed in the page colour so it reads
+/// A thin diagonal slash over a status glyph that is off by choice, haloed in the page colour
+/// [halo] so it reads over the glyph's strokes: the shape cue beside the faint colour.
+class OffSlash extends StatelessWidget {
+  const OffSlash({super.key, required this.color, required this.halo});
+
+  final Color color;
+  final Color halo;
+
+  @override
+  Widget build(BuildContext context) =>
+      IgnorePointer(child: CustomPaint(painter: _SlashPainter(color, halo)));
+}
+
+class _SlashPainter extends CustomPainter {
+  const _SlashPainter(this.color, this.halo);
+
+  final Color color;
+  final Color halo;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Bottom-left to top-right, a little past the box on both ends.
+    final a = Offset(-1, size.height + 1);
+    final b = Offset(size.width + 1, -1);
+    canvas.drawLine(a, b, Paint()
+      ..color = halo
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round);
+    canvas.drawLine(a, b, Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(_SlashPainter old) => old.color != color || old.halo != halo;
+}
+
 
 /// The node's glyph, label word and tooltip for the status icons ([StatusIcon]): the state's
 /// cloud glyph as the header's icons had it (a shape cue beside the dot's colour), the word

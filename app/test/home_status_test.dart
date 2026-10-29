@@ -357,9 +357,9 @@ void main() {
           tester.getRect(glyph).left - tester.getRect(find.byKey(key)).left,
           statusInset,
         );
-        // An enabled service's outline is green; the dot and the words say its connection
-        //.
-        expect(tester.widget<Icon>(glyph).color, t.ok);
+        // An enabled service's glyph is neutral; only the mark (and the words) say its
+        // connection.
+        expect(tester.widget<Icon>(glyph).color, t.dim);
         final dot = tester.getRect(
           find.descendant(
             of: find.byKey(key),

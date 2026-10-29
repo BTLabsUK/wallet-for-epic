@@ -263,20 +263,11 @@ class _StatusRow extends StatelessWidget {
                 children: [
                   Pulse(
                     active: pulse,
-                    child: SizedBox.square(
-                      dimension: statusGlyph,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Icon(glyph, size: statusGlyph, color: face.level == SignalLevel.none ? t.dim.withValues(alpha: 0.4) : t.dim),
-                          if (face.level != SignalLevel.none)
-                            Positioned(
-                              right: -3,
-                              bottom: -3,
-                              child: StateDot(dot: netFaceDot(t, face), size: statusDotSize, ring: t.surface),
-                            ),
-                        ],
-                      ),
+                    child: StatusGlyph(
+                      icon: glyph,
+                      enabled: face.level != SignalLevel.none,
+                      dot: netFaceDot(t, face),
+                      ring: t.surface,
                     ),
                   ),
                   const SizedBox(width: 12),
