@@ -320,7 +320,8 @@ class StatusIcons extends ConsumerWidget {
     return Semantics(
       container: true,
       button: true,
-      label: [nodeTor.label, epicboxTor.label, torLabel, '${l.receiveTabDirect}, ${link.word}'].join('\n'),
+      // Tor is named only where it is shown (never in the build without Tor).
+      label: [nodeTor.label, epicboxTor.label, if (torShown(tor)) torLabel, '${l.receiveTabDirect}, ${link.word}'].join('\n'),
       hint: l.netStatusOpenHint,
       liveRegion: true,
       excludeSemantics: true,

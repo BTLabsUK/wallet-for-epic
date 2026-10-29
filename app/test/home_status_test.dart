@@ -773,6 +773,21 @@ void main() {
       expect(find.byKey(barNodeIconKey), findsNothing);
     });
 
+    testWidgets('no Tor on this phone (the build without Tor): the bar row never names Tor, not even to a screen reader', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(
+        tester,
+        child: bar(),
+        tor: const PhoneTorState(phase: PhoneTorPhase.unavailable, receiving: true),
+      );
+      final row = tester.getSemantics(find.byKey(barStatusesKey));
+      expect(row.label, contains('Node, Synced'));
+      expect(row.label, isNot(contains('Tor')));
+      handle.dispose();
+    });
+
     testWidgets('a tap opens the same picker as on Wallet', (tester) async {
       await _pump(tester, child: bar());
       await tester.tap(find.byKey(barNodeIconKey));
