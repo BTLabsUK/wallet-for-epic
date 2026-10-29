@@ -62,6 +62,11 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   ],
                 ),
                 PairSection(l.devicesOthers),
+                // A device removed while this one was offline, until its notice goes.
+                if (view.book.removing.isNotEmpty) ...[
+                  PairCard(children: [for (final d in view.book.removing) _RemovingRow(device: d)]),
+                  const SizedBox(height: 8),
+                ],
                 // One device can be linked: Link a device until it is, then that device (Remove
                 // is on its row).
                 if (view.book.linked case final d?) ...[
@@ -207,6 +212,29 @@ class _DeviceRow extends ConsumerWidget {
       subtitle: Text(l.settingsStateJoin(deviceSeenLine(l, device.lastSeen, now), l.devicesServerCount(device.pairings.length))),
       trailing: const Icon(Icons.more_vert),
       onTap: () => _menu(context, ref),
+    );
+  }
+}
+
+/// A device removed here while offline: Removing… until the notice goes; Remove again forgets
+/// it here at once.
+class _RemovingRow extends ConsumerWidget {
+  const _RemovingRow({required this.device});
+
+  final LinkedDevice device;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    return ListTile(
+      key: ValueKey('device-removing-${device.deviceId}'),
+      leading: const Icon(Icons.link_off),
+      title: Text(device.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(l.devicesRemoving),
+      trailing: TextButton(
+        onPressed: () => ref.read(deviceServiceProvider)?.removeDevice(device.deviceId),
+        child: Text(l.devicesRemove, style: TextStyle(color: context.tokens.risk)),
+      ),
     );
   }
 }

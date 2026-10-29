@@ -17716,6 +17716,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving =>
+      'Removing… The other device is told once this one is online.';
+
+  @override
   String get devicesMoneyNote =>
       'Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.';
 

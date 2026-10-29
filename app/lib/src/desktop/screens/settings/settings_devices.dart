@@ -169,6 +169,22 @@ class _DevicesGroup extends ConsumerWidget {
                   onPressed: view.supported ? () => unawaited(showDeskLinkDevice(context)) : null,
                 ),
           rows: [
+            // A device removed while this one was offline, until its notice goes; Remove again
+            // forgets it here at once.
+            for (final d in book.removing)
+              ESetRow(
+                key: ValueKey('dev-removing-${d.deviceId}'),
+                leading: EIcons.phone,
+                title: d.name,
+                text: l.devicesRemoving,
+                control: EButton(
+                  key: ValueKey('dev-remove-${d.deviceId}'),
+                  label: l.devicesRemove,
+                  kind: EBtnKind.danger,
+                  size: EBtnSize.sm,
+                  onPressed: () => unawaited(service.removeDevice(d.deviceId)),
+                ),
+              ),
             if (book.linked case final d?)
               ESetRow(
                 key: ValueKey('dev-${d.deviceId}'),

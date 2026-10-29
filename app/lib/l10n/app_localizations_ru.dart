@@ -18321,6 +18321,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving =>
+      'Удаление… Другое устройство узнает об этом, когда это будет в сети.';
+
+  @override
   String get devicesMoneyNote =>
       'Связь делится платежами между двумя устройствами. Она не защищает деньги: любое устройство с фразой восстановления может их потратить.';
 

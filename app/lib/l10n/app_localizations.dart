@@ -27770,6 +27770,12 @@ abstract class AppLocalizations {
   /// **'{name} removed this device from the link.'**
   String devicesRemovedBy(String name);
 
+  /// Linked devices row: this device removed the other one while offline; the notice goes when it is next online. Remove on the row again forgets the device here at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing… The other device is told once this one is online.'**
+  String get devicesRemoving;
+
   /// Footnote of the Linked devices page.
   ///
   /// In en, this message translates to:

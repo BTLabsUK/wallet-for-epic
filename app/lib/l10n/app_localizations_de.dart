@@ -17919,6 +17919,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving =>
+      'Wird entfernt … Das andere Gerät erfährt es, sobald dieses wieder verbunden ist.';
+
+  @override
   String get devicesMoneyNote =>
       'Die Verknüpfung teilt Zahlungen zwischen den beiden Geräten. Sie schützt das Geld nicht: Jedes Gerät mit der Wiederherstellungsphrase kann es ausgeben.';
 

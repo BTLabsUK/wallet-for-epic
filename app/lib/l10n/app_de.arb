@@ -4643,6 +4643,7 @@
   "devicesRemoveBody": "{name} erhält und sendet keine Meldungen mehr, und Münzen, die es hier zurückhält, werden freigegeben. Das schützt das Geld nicht: Ein Gerät mit der Wiederherstellungsphrase kann es immer ausgeben. Falls {name} in fremden Händen sein könnte, das Guthaben auf eine Wallet mit neuer Wiederherstellungsphrase verschieben.",
   "devicesRemoved": "{name} entfernt.",
   "devicesRemovedBy": "{name} hat dieses Gerät aus der Verknüpfung entfernt.",
+  "devicesRemoving": "Wird entfernt … Das andere Gerät erfährt es, sobald dieses wieder verbunden ist.",
   "devicesMoneyNote": "Die Verknüpfung teilt Zahlungen zwischen den beiden Geräten. Sie schützt das Geld nicht: Jedes Gerät mit der Wiederherstellungsphrase kann es ausgeben.",
   "devicesUnsupported": "Diese Version kann noch keine Geräte verknüpfen.",
   "linkLead": "Beide Geräte müssen diese Wallet enthalten. Eines zeigt einen Code, das andere scannt ihn oder fügt ihn ein.",

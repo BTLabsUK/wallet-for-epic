@@ -18339,6 +18339,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving =>
+      'Usuwanie… Drugie urządzenie dostanie informację, gdy to połączy się z siecią.';
+
+  @override
   String get devicesMoneyNote =>
       'Połączenie udostępnia płatności między dwoma urządzeniami. Nie chroni pieniędzy: każde urządzenie z frazą odzyskiwania może je wydać.';
 

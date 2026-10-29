@@ -17310,6 +17310,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving =>
+      'กำลังนำออก… อุปกรณ์อีกเครื่องจะได้รับแจ้งเมื่ออุปกรณ์นี้เชื่อมต่อเครือข่าย';
+
+  @override
   String get devicesMoneyNote =>
       'การเชื่อมโยงแชร์รายการระหว่างอุปกรณ์ทั้งสองเครื่อง แต่ไม่ได้ปกป้องเงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้';
 

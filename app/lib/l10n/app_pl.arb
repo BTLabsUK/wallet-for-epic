@@ -4643,6 +4643,7 @@
   "devicesRemoveBody": "{name} przestaje odbierać i wysyłać komunikaty, a monety wstrzymane przez nie tutaj zostają zwolnione. To nie chroni pieniędzy: urządzenie z frazą odzyskiwania zawsze może je wydać. Jeśli {name} może być w cudzych rękach, przenieś środki do portfela z nową frazą odzyskiwania.",
   "devicesRemoved": "Usunięto: {name}.",
   "devicesRemovedBy": "{name} usunęło to urządzenie z połączenia.",
+  "devicesRemoving": "Usuwanie… Drugie urządzenie dostanie informację, gdy to połączy się z siecią.",
   "devicesMoneyNote": "Połączenie udostępnia płatności między dwoma urządzeniami. Nie chroni pieniędzy: każde urządzenie z frazą odzyskiwania może je wydać.",
   "devicesUnsupported": "Ta wersja nie może jeszcze łączyć urządzeń.",
   "linkLead": "Oba urządzenia muszą mieć ten portfel. Jedno pokazuje kod, drugie go skanuje lub wkleja.",

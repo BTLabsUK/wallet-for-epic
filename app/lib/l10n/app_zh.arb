@@ -4643,6 +4643,7 @@
   "devicesRemoveBody": "{name} 将不再接收和发送消息，它在这里保留的币会被释放。这不能保护资金：持有助记词的设备始终可以花费它。如果 {name} 可能落入他人之手，请把资金转到使用新助记词的钱包。",
   "devicesRemoved": "已移除 {name}。",
   "devicesRemovedBy": "{name} 已将本设备移出关联。",
+  "devicesRemoving": "正在移除… 本设备联网后会通知另一台设备。",
   "devicesMoneyNote": "关联会在两台设备之间共享付款信息。它不能保护资金：任何持有助记词的设备都能花费它。",
   "devicesUnsupported": "此版本暂不能关联设备。",
   "linkLead": "两台设备都必须持有这个钱包。一台显示代码，另一台扫描或粘贴它。",

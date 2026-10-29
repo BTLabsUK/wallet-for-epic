@@ -370,7 +370,7 @@ class DeviceService {
     if (!_foreground || _disposed) return;
     final every = _link != null && _link!.phase != LinkPhase.done && _link!.phase != LinkPhase.failed
         ? linkPollEvery
-        : book.devices.isNotEmpty
+        : book.devices.isNotEmpty || book.removing.isNotEmpty
         ? deviceSyncEvery
         : null;
     if (every == null) return;
@@ -401,13 +401,16 @@ class DeviceService {
     final reach = !book.paused && host.online && _api.privateSupported;
     final flow = _link;
     final linking = flow != null && flow.pairingId != null && flow.phase != LinkPhase.done && flow.phase != LinkPhase.failed;
-    if (reach && (book.devices.isNotEmpty || linking)) {
+    if (reach && (book.devices.isNotEmpty || book.removing.isNotEmpty || linking)) {
       try {
-        await _api.collectPrivate(only: [for (final d in book.devices) ...d.pairingIds, if (linking) flow.pairingId!]);
+        await _api.collectPrivate(
+          only: [for (final d in [...book.devices, ...book.removing]) ...d.pairingIds, if (linking) flow.pairingId!],
+        );
         // Payloads first: a hello that came before its pairing ended still answers the link.
         await _readPayloads();
         if (linking) await _pollLink();
         await _checkPairings();
+        await _checkRemovals();
       } on Object catch (e) {
         logWarn('devices', 'reading linked devices failed: ${_kind(e)}');
       }
@@ -447,7 +450,7 @@ class DeviceService {
     final flow = _link;
     if (flow != null && flow.pairingId == p.pairingId && book.deviceOfPairing(p.pairingId) == null) return _receiveLink(p);
     final device = book.deviceOfPairing(p.pairingId);
-    if (device == null) return _drop('payload on a pairing of no linked device');
+    if (device == null) return _receiveRemoving(p);
     if (p.bytes.length > deviceNoticeMaxBytes) return _drop('notice too large');
     final decoded = decodeNotice(p.bytes);
     final n = decoded.notice;
@@ -463,6 +466,21 @@ class DeviceService {
     );
     await _applyWaiting(device.deviceId);
     return true;
+  }
+
+  /// A payload on a pairing of a device being removed: only its own `unlink` counts, which
+  /// ends the removal (the link is over on both devices); anything else is dropped.
+  Future<bool> _receiveRemoving(PairingPayload p) async {
+    final gone = book.removing.where((d) => d.pairingIds.contains(p.pairingId)).firstOrNull;
+    if (gone == null) return _drop('payload on a pairing of no linked device');
+    if (p.bytes.length <= deviceNoticeMaxBytes) {
+      final n = decodeNotice(p.bytes).notice;
+      if (n != null && n.readable && n.type == NoticeType.unlink && n.dev == gone.deviceId) {
+        await _endRemoval(gone.deviceId);
+        return true;
+      }
+    }
+    return _drop('notice from a device being removed');
   }
 
   static List<String> _keepIds(List<String> ids) => ids.length <= _seenIdsKept ? ids : ids.sublist(ids.length - _seenIdsKept);
@@ -837,12 +855,13 @@ class DeviceService {
     }
   }
 
-  /// Posts the outbox: an entry is done once one pairing of its device took it.
+  /// Posts the outbox: an entry is done once one pairing of its device took it. A device being
+  /// removed whose notices all went is forgotten then.
   Future<void> _flush() async {
-    if (book.outbox.isEmpty) return;
+    if (book.outbox.isEmpty) return _finishRemovals();
     final left = <({String deviceId, String json})>[];
     for (final o in book.outbox) {
-      final d = book.device(o.deviceId);
+      final d = book.device(o.deviceId) ?? book.removingDevice(o.deviceId);
       if (d == null) continue;
       final bytes = utf8.encode(o.json);
       var took = false;
@@ -857,6 +876,49 @@ class DeviceService {
       if (!took) left.add(o);
     }
     await _put(book.copyWith(outbox: left));
+    await _finishRemovals();
+  }
+
+  // Removals waiting for this device to be online ([DeviceBook.removing]).
+
+  /// Forgets each device being removed whose notices a server took.
+  Future<void> _finishRemovals() async {
+    final done = [for (final d in book.removing) if (!book.outbox.any((o) => o.deviceId == d.deviceId)) d.deviceId];
+    if (done.isEmpty) return;
+    for (final id in done) {
+      await _endRemoval(id);
+    }
+    await _put(book);
+  }
+
+  /// Ends the removal of a device the other side already let go: every pairing with it is
+  /// gone or removed by it, so the notice has nowhere to go and is not needed.
+  Future<void> _checkRemovals() async {
+    if (book.removing.isEmpty) return;
+    final records = {for (final r in await _api.privatePairings()) r.id: r};
+    final gone = [
+      for (final d in book.removing)
+        if (d.pairingIds.every((id) => records[id] == null || records[id]!.removedByPeer)) d.deviceId,
+    ];
+    if (gone.isEmpty) return;
+    for (final id in gone) {
+      await _endRemoval(id);
+    }
+    await _put(book);
+  }
+
+  /// Forgets the device [deviceId] being removed: its pairings go (which also tells it) and
+  /// so do its notices not sent.
+  Future<void> _endRemoval(String deviceId) async {
+    final d = book.removingDevice(deviceId);
+    if (d == null) return;
+    for (final id in d.pairingIds) {
+      await _unpair(id);
+    }
+    _book = book.copyWith(
+      removing: [for (final r in book.removing) if (r.deviceId != deviceId) r],
+      outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o],
+    );
   }
 
   // This device's own sends: the others hear when one starts and when it moves on or ends.
@@ -1091,10 +1153,26 @@ class DeviceService {
   /// Ends the link with [deviceId] on both devices: it is told (`unlink`, which names this
   /// device), its pairings go, which also tells it should the notice not arrive, and its coins
   /// are freed here. It does not protect the money: a device with the phrase can always spend.
+  ///
+  /// When no server takes the notice now (Offline, paused, no network), the device moves to
+  /// [DeviceBook.removing] with its pairings and the notice kept, and is forgotten once a later
+  /// read posts it. Removing a device being removed forgets it here at once.
   Future<void> removeDevice(String deviceId) async {
+    if (book.removingDevice(deviceId) != null) {
+      await _endRemoval(deviceId);
+      await _put(book);
+      _schedule();
+      return;
+    }
     if (book.device(deviceId) == null) return;
     await _send(deviceId, NoticeType.unlink, const {});
-    await _forget(deviceId);
+    final d = book.device(deviceId);
+    if (d != null && book.outbox.any((o) => o.deviceId == deviceId)) {
+      final holds = unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
+      _book = book.withoutDevice(deviceId).copyWith(removing: [...book.removing, d], holds: holds, clearProposal: true);
+    } else {
+      await _forget(deviceId);
+    }
     await _put(book);
     _schedule();
   }
@@ -1344,6 +1422,8 @@ class DeviceService {
     final servers = flow.role == LinkRole.shows ? flow.servers : theirServers;
     // Linked again: the old pairings of that device go. The coins it held stay held: a hello
     // that names a linked device's id must not free the payments that device is making.
+    // Linked again while its removal waits: the removal is over.
+    await _endRemoval(theirId);
     final before = book.device(theirId);
     if (before != null) await _forget(theirId, keepHolds: true);
     final device = LinkedDevice(

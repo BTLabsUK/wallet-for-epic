@@ -16682,6 +16682,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get devicesRemoving => '正在移除… 本设备联网后会通知另一台设备。';
+
+  @override
   String get devicesMoneyNote => '关联会在两台设备之间共享付款信息。它不能保护资金：任何持有助记词的设备都能花费它。';
 
   @override

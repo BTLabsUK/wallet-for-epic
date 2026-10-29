@@ -416,6 +416,7 @@ class DeviceBook {
     required this.deviceId,
     required this.deviceName,
     this.devices = const [],
+    this.removing = const [],
     this.holds = const [],
     this.servers = const [],
     this.serversVersion = 0,
@@ -436,6 +437,12 @@ class DeviceBook {
   final String deviceId;
   final String deviceName;
   final List<LinkedDevice> devices;
+
+  /// Devices the user removed here whose `unlink` notice no server took yet (this device was
+  /// offline): their outbox entries and pairings stay until a post goes through, then they are
+  /// forgotten. Not a link any more: nothing is read from or sent to them but that notice, and
+  /// they do not count toward [maxLinkedDevices].
+  final List<LinkedDevice> removing;
   final List<HeldPayment> holds;
 
   /// The link's servers, up to [maxLinkServers]; empty until the first link.
@@ -476,6 +483,9 @@ class DeviceBook {
 
   LinkedDevice? device(String id) => devices.where((d) => d.deviceId == id).firstOrNull;
 
+  /// The device [id] being removed ([removing]), or null.
+  LinkedDevice? removingDevice(String id) => removing.where((d) => d.deviceId == id).firstOrNull;
+
   /// The device a private pairing [pairingId] belongs to, pending pairings included.
   LinkedDevice? deviceOfPairing(String pairingId) => devices.where((d) => d.pairingIds.contains(pairingId)).firstOrNull;
 
@@ -488,6 +498,7 @@ class DeviceBook {
   DeviceBook copyWith({
     String? deviceName,
     List<LinkedDevice>? devices,
+    List<LinkedDevice>? removing,
     List<HeldPayment>? holds,
     List<String>? servers,
     int? serversVersion,
@@ -508,6 +519,7 @@ class DeviceBook {
     deviceId: deviceId,
     deviceName: deviceName ?? this.deviceName,
     devices: devices ?? this.devices,
+    removing: removing ?? this.removing,
     holds: holds ?? this.holds,
     servers: servers ?? this.servers,
     serversVersion: serversVersion ?? this.serversVersion,
@@ -535,6 +547,7 @@ class DeviceBook {
     'id': deviceId,
     'name': deviceName,
     'devices': [for (final d in devices) d.toJson()],
+    'removing': [for (final d in removing) d.toJson()],
     'holds': [for (final h in holds) h.toJson()],
     'servers': servers,
     'serversVersion': serversVersion,
@@ -556,6 +569,7 @@ class DeviceBook {
       deviceId: j['id'] as String,
       deviceName: j['name'] as String,
       devices: [for (final d in (j['devices'] as List? ?? const [])) ?LinkedDevice.fromJson(d)],
+      removing: [for (final d in (j['removing'] as List? ?? const [])) ?LinkedDevice.fromJson(d)],
       holds: [for (final h in (j['holds'] as List? ?? const [])) ?HeldPayment.fromJson(h)],
       servers: [for (final s in (j['servers'] as List? ?? const [])) '$s'],
       serversVersion: (j['serversVersion'] as num?)?.toInt() ?? 0,

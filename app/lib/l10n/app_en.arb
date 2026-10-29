@@ -23612,6 +23612,10 @@
       }
     }
   },
+  "devicesRemoving": "Removing… The other device is told once this one is online.",
+  "@devicesRemoving": {
+    "description": "Linked devices row: this device removed the other one while offline; the notice goes when it is next online. Remove on the row again forgets the device here at once."
+  },
   "devicesMoneyNote": "Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.",
   "@devicesMoneyNote": {
     "description": "Footnote of the Linked devices page."
