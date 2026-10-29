@@ -3,11 +3,11 @@
 /// store keys (D9; phones keep one). Pure Dart over `dart:io`, no Flutter.
 ///
 /// The list is `wallets.json` in the app support directory ([WalletRegistry.root]). It holds
-/// labels, chains and folders only: never a phrase, password or key. A mainnet wallet's folder
-/// is `<root>/wallets/<id>`; the first wallet, the one the app makes at first run, sits at
-/// `<root>/wallet` and is listed as `legacy-<chain>` ([WalletRegistry.adoptLegacy]). A dev
-/// chain's wallets sit the same way under `<root>/dev/<chain>` ([chainHome]), apart from
-/// mainnet's.
+/// labels, chains and folders only: never a phrase, password or key. Wallet folders are
+/// `<root>/wallets/<id>/<chain>`; the first wallet, the one the app makes at first run, sits at
+/// `<root>/wallets/<chain>` and is listed as `legacy-<chain>` ([WalletRegistry.adoptLegacy]).
+/// The chain stays in these folder names, as every release before 26.10.24 wrote them (a user
+/// never sees it), so a dev chain's wallets sit apart from mainnet's.
 ///
 /// Wallet 1 has two spellings and they mean the same: the registry hands out the id
 /// `legacy-<chain>`, but its [WalletConfig.walletId] is null ([WalletEntry.walletId]), and
@@ -21,7 +21,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'chain_folders.dart';
 import 'log.dart';
 import 'wallet_service.dart';
 
@@ -183,21 +182,16 @@ class WalletRegistry {
   static final String _sep = Platform.pathSeparator;
 
   /// The first wallet's folder of [chain] under the app support directory [root]:
-  /// `<root>/wallet` on mainnet, `<root>/dev/<chain>/wallet` on a dev chain.
-  static String firstWalletDir(String root, Chain chain) => '${chainHome(root, chain)}${_sep}wallet';
+  /// `<root>/wallets/<chain>`.
+  static String firstWalletDir(String root, Chain chain) => '$root${_sep}wallets$_sep${chain.name}';
 
   /// The [root] whose [firstWalletDir] of [chain] is [firstDir].
-  static String rootOf(String firstDir, Chain chain) {
-    var dir = Directory(firstDir).parent;
-    if (chain != Chain.mainnet) dir = dir.parent.parent;
-    return dir.path;
-  }
+  static String rootOf(String firstDir, Chain chain) => Directory(firstDir).parent.parent.path;
 
-  /// The folder of the added wallet [id] of [chain] under [root]: `<root>/wallets/<id>`, a dev
-  /// chain's under its home.
-  static String walletDirOf(String root, Chain chain, String id) => '${_walletsIn(root, chain)}$_sep$id';
+  /// The folder of the added wallet [id] of [chain] under [root]: `<root>/wallets/<id>/<chain>`.
+  static String walletDirOf(String root, Chain chain, String id) => '${_walletsIn(root, chain)}$_sep$id$_sep${chain.name}';
 
-  static String _walletsIn(String root, Chain chain) => '${chainHome(root, chain)}${_sep}wallets';
+  static String _walletsIn(String root, Chain chain) => '$root${_sep}wallets';
   File get _file => File('$root$_sep$fileName');
 
   /// Entries in the order they were added.
@@ -489,10 +483,13 @@ class WalletRegistry {
     if (!_isLink(lepicDir.path) && lepicDir.existsSync()) {
       await lepicDir.delete(recursive: true);
     }
-    try {
-      await Directory(expected).delete(); // only when empty
-    } on FileSystemException {
-      // not empty (wallet_data, other files) or already gone
+    // Only when empty, innermost first: an added wallet's `<id>` folder after its chain's.
+    for (final dir in [expected, if (!entry.isLegacy) Directory(expected).parent.path]) {
+      try {
+        await Directory(dir).delete();
+      } on FileSystemException {
+        break; // not empty (wallet_data, other files) or already gone
+      }
     }
     final last = _lastUsedId == id ? null : _lastUsedId;
     await _save([..._entries]..removeAt(i), last);

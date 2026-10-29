@@ -5,7 +5,7 @@
 // wallet's sealed seed there:
 //
 //   HOME=<qa home> XDG_DATA_HOME=<qa home>/.local/share  (keyring unlocked with its password)
-//   WFE_FUNDER_DIR=<qa home>/.epic_cash_desktop/dev/floonet/wallet WFE_FUNDER_PASSWORD=…
+//   WFE_FUNDER_DIR=<qa home>/.epic_cash_desktop/wallets/floonet WFE_FUNDER_PASSWORD=…
 //   WFE_FUND_TO=<epicbox address>|balance WFE_FUND_EPIC=10
 //   flutter test -d linux integration_test/release_check/fund_test.dart
 //

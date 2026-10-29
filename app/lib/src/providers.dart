@@ -63,7 +63,7 @@ final walletServiceProvider = Provider<WalletService>(
   (ref) => backend.createWalletService(ref.watch(secretStoreProvider)),
 );
 
-/// `<application support>/wallet` on a device (a dev chain's under `dev/<chain>`); a fixed name
+/// `<application support>/wallets/<chain>` on a device; a fixed name
 /// per chain on the web.
 final walletDirProvider = Provider<WalletDirResolver>(
   (ref) => backend.defaultWalletDir,

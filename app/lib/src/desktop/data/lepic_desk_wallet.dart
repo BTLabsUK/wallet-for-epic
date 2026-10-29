@@ -3,9 +3,9 @@
 ///
 /// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. Several
 /// named wallets of one network (mainnet), listed in the [registry]: the first one at
-/// `<app support>/wallet` ([WalletDirResolver]) with a null [core.WalletConfig.walletId], each
-/// later one at `<app support>/wallets/<id>` with walletId = id (a dev chain's under
-/// `<app support>/dev/<chain>`, [reg.WalletRegistry.firstWalletDir]).
+/// `<app support>/wallets/<chain>` ([WalletDirResolver]) with a null [core.WalletConfig.walletId],
+/// as 0.1.0 made it, each later one at `<app support>/wallets/<id>/<chain>` with walletId = id
+/// ([reg.WalletRegistry.firstWalletDir], [reg.WalletRegistry.walletDirOf]).
 /// Each wallet's own data (name, scan due, favourites) is saved under its own keys
 /// ([DeskStore.walletMetaKey], [DeskStore.favouritesKeyOf]), the first wallet's unchanged from
 /// 0.1.0. The node and Epicbox server are shared by all wallets of the network, saved under the

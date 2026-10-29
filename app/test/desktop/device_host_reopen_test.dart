@@ -40,7 +40,7 @@ void main() {
   tearDown(() => dir.delete(recursive: true));
 
   test('while the wallet reopens, the devices keep the last session, never an empty engine', () async {
-    final service = _Opens()..existingWallets.add('${dir.path}/wallet');
+    final service = _Opens()..existingWallets.add('${dir.path}/wallets/mainnet');
     final secrets = MemorySecretStore();
     await secrets.write('app.node.mainnet', 'https://node.example');
     final w = LepicDeskWallet(

@@ -200,7 +200,7 @@ void main() {
     final service = core.FakeWalletService(
       password: _password,
       session: session,
-    )..existingWallets.add('${dir.path}/wallet');
+    )..existingWallets.add('${dir.path}/wallets/mainnet');
     final wallet = LepicDeskWallet(
       service: service,
       walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
@@ -243,7 +243,7 @@ void main() {
     final service = core.FakeWalletService(
       password: _password,
       session: session,
-    )..existingWallets.add('${dir.path}/wallet');
+    )..existingWallets.add('${dir.path}/wallets/mainnet');
     final wallet = LepicDeskWallet(
       service: service,
       walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
@@ -287,7 +287,7 @@ void main() {
           ),
         ],
       );
-      final service = core.FakeWalletService(password: _password, session: session)..existingWallets.add('${dir.path}/wallet');
+      final service = core.FakeWalletService(password: _password, session: session)..existingWallets.add('${dir.path}/wallets/mainnet');
       wallet = LepicDeskWallet(
         service: service,
         walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),

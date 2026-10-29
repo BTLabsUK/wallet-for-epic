@@ -139,7 +139,7 @@ void main() {
     test('a failed restore of the first wallet takes back what the core wrote, and its note', () async {
       service.failCreate = true;
       await expectLater(wallet.restoreWallet(password: _password, phrase: _other.split(' ')), throwsA(isA<DeskError>()));
-      expect(service.deletedWallets, ['${support.path}/wallet']);
+      expect(service.deletedWallets, ['${support.path}/wallets/mainnet']);
       expect(await secrets.read('desk.wallet.mainnet'), isNull);
       expect(await wallet.wallets(), isEmpty);
     });
@@ -177,7 +177,7 @@ void main() {
       await wallet.setSetupPending(id, true);
       secrets.failMeta = true;
       await wallet.setSetupPending(id, false);
-      expect(File('${support.path}/wallet/${LepicDeskWallet.setupDoneFileName}').existsSync(), isTrue);
+      expect(File('${support.path}/wallets/mainnet/${LepicDeskWallet.setupDoneFileName}').existsSync(), isTrue);
       final again = make();
       addTearDown(again.dispose);
       expect(await again.setupPending(id), isFalse, reason: 'the next start goes to Unlock');
@@ -204,7 +204,7 @@ void main() {
         final id = (await wallet.wallets()).single.id;
         expect(await wallet.unlock(_password, remember: true), isTrue);
         await wallet.resetPassword(id, phrase: service.phrase.split(' '), newPassword: 'brand-new-pass');
-        expect(service.passwordResets, ['${support.path}/wallet']);
+        expect(service.passwordResets, ['${support.path}/wallets/mainnet']);
         expect(await wallet.isRemembered(id), isFalse);
         expect(await wallet.unlock(_password), isFalse);
         expect(await wallet.unlock('brand-new-pass'), isTrue);

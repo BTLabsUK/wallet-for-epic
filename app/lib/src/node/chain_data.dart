@@ -11,7 +11,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import '../chain_folders.dart';
 import '../legacy_wallets.dart' show LegacyRoots;
 import '../models.dart' show Chain;
 
@@ -226,8 +225,8 @@ Future<String?> guiRootOf(LegacyRoots roots) async {
 }
 
 /// The chain data of other nodes for [chain] (see [foreignChainDataPaths]), each inspected once
-/// (deduplicated by canonical path), never our own: a folder that is the built-in
-/// node's `chain_data` under [bundledRoot] ([chainFolder]) is left out ([inspectChainData] it directly). Usable first, then the most
+/// (deduplicated by canonical path), never our own: a folder that is [bundledRoot]'s
+/// `<net>/chain_data` is left out ([inspectChainData] it directly). Usable first, then the most
 /// recently changed, then the larger.
 Future<List<ChainDataInfo>> findChainData(
   Chain chain, {
@@ -238,7 +237,7 @@ Future<List<ChainDataInfo>> findChainData(
   final seen = <String>{};
   if (bundledRoot != null) {
     final own = await canonicalPath(
-      joinPath([chainFolder(bundledRoot, chain), 'chain_data']),
+      joinPath([bundledRoot, chainFolderName(chain), 'chain_data']),
     );
     seen.add(_key(own));
   }

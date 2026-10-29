@@ -56,7 +56,7 @@ void main() {
     await wallet.useNetwork('floonet');
     await wallet.createWallet(name: 'Test', password: _password);
     expect((await wallet.wallets()).single.network, 'floonet');
-    expect(Directory('${tmp.path}/support/dev/floonet/wallet').listSync(), isNotEmpty);
+    expect(Directory('${tmp.path}/support/wallets/floonet').listSync(), isNotEmpty);
     expect(await wallet.unlock(_password), isTrue);
     final address = await wallet.epicboxAddress();
     expect(address, endsWith('@${floonetPreset.epicboxDomain}'));

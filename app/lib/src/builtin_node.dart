@@ -12,7 +12,6 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
-import 'chain_folders.dart';
 import 'models.dart' show Chain;
 import 'node/node_api_types.dart';
 import 'settings_file/host_settings.dart' show hostSettings;
@@ -569,9 +568,15 @@ class BuiltInNode {
   /// loopback only, which is where this is. Follows the port of a toml the user edited.
   String get url => 'http://127.0.0.1:$_apiPort';
 
-  /// The node's own folder: [root] itself on mainnet; a dev chain's sits apart from all mainnet
-  /// data ([chainFolder]).
-  String get folder => chainFolder(root, chain);
+  /// The node's own folder under [root], named by chain as every release before 26.10.24 wrote
+  /// it (a user never sees it).
+  String get folderName => switch (chain) {
+    Chain.mainnet => 'main',
+    Chain.floonet => 'floo',
+    Chain.usernet => 'user',
+  };
+
+  String get folder => _join(root, folderName);
   String get tomlPath => _join(folder, _tomlName);
 
   /// The chain data folder: the `db_root` of the user's own toml, else [options]'

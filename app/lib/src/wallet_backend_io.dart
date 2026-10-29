@@ -36,8 +36,8 @@ final SecretStore _windowsSecrets = WindowsSecretStore(
   files: const Win32StoreFiles(),
 );
 
-/// `<application support>/wallet` on mainnet, `<application support>/dev/<chain>/wallet` on a
-/// dev chain ([WalletRegistry.firstWalletDir]). One wallet per chain.
+/// `<application support>/wallets/<chain>` ([WalletRegistry.firstWalletDir]). One wallet per
+/// chain.
 Future<String> defaultWalletDir(Chain chain) async {
   final support = await appDataDirectory();
   final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));

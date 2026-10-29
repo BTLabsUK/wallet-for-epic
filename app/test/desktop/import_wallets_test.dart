@@ -194,7 +194,7 @@ void main() {
     expect(service.password, _old, reason: 'the old password has 8+ characters: it stays');
     final id = service.createdConfig!.walletId!;
     expect(r.id, id);
-    expect(service.createdConfig!.dataDir, '${support.path}/wallets/$id');
+    expect(service.createdConfig!.dataDir, '${support.path}/wallets/$id/mainnet');
     final meta = jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!) as Map<String, dynamic>;
     expect(meta['scanPending'], isTrue);
     expect(meta['name'], 'Savings');
@@ -216,8 +216,7 @@ void main() {
       throwsA(isA<DeskError>().having((e) => e.wrongPassword, 'wrongPassword', isTrue)),
     );
     expect(await wallet.wallets(), isEmpty);
-    final wallets = Directory('${support.path}/wallets');
-    expect(wallets.existsSync() ? wallets.listSync() : const [], isEmpty, reason: 'no wallet folder made');
+    expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
     expect(secrets.values.keys.where((k) => k.startsWith('desk.wallet.')), isEmpty);
     // The right one then works.
     await wallet.importOldWallet(savings.id, oldPassword: _old);
@@ -270,7 +269,7 @@ void main() {
     expect((await wallet.wallets()).map((e) => e.name), ['Main', 'Savings', 'Everyday']);
     await wallet.cancelImport();
     expect((await wallet.wallets()).map((e) => e.name), ['Main']);
-    expect(service.deletedWallets, unorderedEquals(['${support.path}/wallets/${a.id}', '${support.path}/wallets/${b.id}']));
+    expect(service.deletedWallets, unorderedEquals(['${support.path}/wallets/${a.id}/mainnet', '${support.path}/wallets/${b.id}/mainnet']));
     expect(await secrets.read('desk.wallet.mainnet.${a.id}'), isNull);
     expect(await secrets.read('desk.wallet.mainnet'), mainMeta);
     expect(await folderHash(home), before);
@@ -303,7 +302,7 @@ void main() {
     expect((await wallet.pickFolder())!.message, chainOnlyText);
     picked = await Directory('${tmp.path}/empty').create().then((d) => d.path);
     expect((await wallet.pickFolder())!.message, noWalletText);
-    picked = await oldWallet('${support.path}/wallets/x', '{"seed":"own"}');
+    picked = await oldWallet('${support.path}/wallets/x/mainnet', '{"seed":"own"}');
     final own = (await wallet.pickFolder())!;
     expect(own.wallets, isEmpty);
     expect(own.message, 'This wallet is in the app already.');

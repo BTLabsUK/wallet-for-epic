@@ -165,7 +165,7 @@ void main() {
     secrets = MemorySecretStore();
     hostSettings = hostSettings.withValues(useServerValues(hostSettings, node: _remote));
     session = _Session();
-    service = _Opens(session)..existingWallets.add('${dir.path}/wallet');
+    service = _Opens(session)..existingWallets.add('${dir.path}/wallets/mainnet');
     spawned = 0;
     startGate = null;
   });

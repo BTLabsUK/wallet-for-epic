@@ -487,11 +487,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 }
 
 /// Whether [folder] is a wallet the app made in its own folder
-/// (`…/.epic_cash_desktop/wallet` or `…/wallets/<id>`, a dev chain's under `dev/<chain>`): there the path tells wallets
-/// apart by an id only, so the list says when each was opened instead.
-bool inWalletsFolder(String folder) => RegExp(
-  r'[/\\]\.epic_cash_desktop[/\\](dev[/\\][^/\\]+[/\\])?(wallet|wallets[/\\][^/\\]+)[/\\]?$',
-).hasMatch(folder);
+/// (`…/.epic_cash_desktop/wallets/<id>/<chain>`): there the path tells wallets apart by an id only, so the list says when
+/// each was opened instead.
+bool inWalletsFolder(String folder) =>
+    RegExp(r'[/\\]\.epic_cash_desktop[/\\]wallets[/\\][^/\\]+[/\\][^/\\]+[/\\]?$').hasMatch(folder);
 
 /// [folder] with the home folder as `~`, the way the list shows it.
 String shortFolder(String folder, {String? home}) {

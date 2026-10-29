@@ -909,9 +909,9 @@ class LepicWalletService implements WalletService {
         if (r.tls) r,
   ];
 
-  /// `<anything>/wallets/<32 hex>`, the folder of a registry wallet.
+  /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
-    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/]?$',
+    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/](mainnet|floonet|usernet)[\\/]?$',
   );
 
   /// The prefix of the wallet's LEPIC entries in the app's store.
