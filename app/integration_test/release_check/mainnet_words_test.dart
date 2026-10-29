@@ -47,8 +47,10 @@ void main() {
     final password = randomPassword();
     final seen = <String>{};
     final hits = <String>[];
+    // The run's own HOME is a scratch path that may hold anything; the app shows it as is.
+    final runHome = Platform.environment['RC_HOME'] ?? Platform.environment['HOME']!;
     void look(String where) {
-      for (final t in texts()) {
+      for (final t in texts().map((t) => t.replaceAll(runHome, '~'))) {
         seen.add(t);
         if (_words.hasMatch(t)) hits.add('$where: ${t.length > 120 ? t.substring(0, 120) : t}');
       }
@@ -65,6 +67,7 @@ void main() {
     await settle(tester);
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
+    await tapText(tester, 'Reveal phrase');
     await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
@@ -157,7 +160,7 @@ void main() {
     }
 
     // The data folder and everything in it.
-    final home = Platform.environment['RC_HOME'] ?? Platform.environment['HOME']!;
+    final home = runHome;
     final paths = await tester.runAsync(() async => [
           await for (final e in Directory('$home/.epic_cash_desktop').list(recursive: true, followLinks: false)) e.path,
         ]) ??
