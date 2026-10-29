@@ -630,7 +630,7 @@ String? _specialTitle(
   if (tx.origin == TxOrigin.linkedDevice) return l.txSentFromDevice(tx.deviceName ?? '');
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
   if (tx.origin == TxOrigin.otherWallet) {
-    if (!_outgoingKind(tx)) return l.txReceivedByOtherWallet;
+    if (!_outgoingKind(tx)) return tx.deviceName != null ? l.txReceivedOnDevice(tx.deviceName!) : l.txReceivedByOtherWallet;
     return tx.unverified ? l.txSentFromOtherWalletUnverified : l.txSentFromOtherWallet;
   }
   if (tx.source == TxSource.restored && !hasCounterparty) {
@@ -1551,7 +1551,11 @@ String txSpokenLabel(
   if (tx.kind == TxKind.coinbase) {
     what = l.txSpokenMiningReward(amount);
   } else if (tx.origin == TxOrigin.otherWallet) {
-    what = out ? l.txSpokenSentFromOtherWallet(amount) : l.txSpokenReceivedByOtherWallet(amount);
+    what = out
+        ? l.txSpokenSentFromOtherWallet(amount)
+        : tx.deviceName != null
+        ? l.txSpokenReceivedOnDevice(tx.deviceName!, amount)
+        : l.txSpokenReceivedByOtherWallet(amount);
   } else if (tx.source == TxSource.restored) {
     what = l.txSpokenRestoredFunds(amount);
   } else {

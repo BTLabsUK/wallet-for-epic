@@ -18163,7 +18163,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Ten portfel na dwóch lub więcej własnych urządzeniach: każde informuje pozostałe o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na pozostałych, a jego płatności widać w ich historii. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
+      'Ten portfel na dwóch urządzeniach: tym i jednym połączonym. Każde informuje drugie o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na drugim, a jego płatności widać w historii drugiego. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
   String get devicesThisPhone => 'Telefon';
@@ -18249,7 +18249,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get devicesThisDevice => 'To urządzenie';
 
   @override
-  String get devicesOthers => 'Urządzenia';
+  String get devicesOthers => 'Połączone urządzenie';
 
   @override
   String get devicesEmpty => 'Nie połączono jeszcze żadnego urządzenia.';
@@ -18262,7 +18262,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'Komunikaty między twoimi urządzeniami idą przez każdy wybrany serwer.';
+      'Komunikaty między dwoma urządzeniami idą przez każdy wybrany serwer.';
 
   @override
   String devicesServersWaiting(String name) {
@@ -18340,7 +18340,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesMoneyNote =>
-      'Połączenie udostępnia płatności między twoimi urządzeniami. Nie chroni pieniędzy: każde urządzenie z frazą odzyskiwania może je wydać.';
+      'Połączenie udostępnia płatności między dwoma urządzeniami. Nie chroni pieniędzy: każde urządzenie z frazą odzyskiwania może je wydać.';
 
   @override
   String get devicesUnsupported =>
@@ -18452,9 +18452,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Drugie urządzenie przerwało albo nie sprawdziło obrazków na czas.';
 
   @override
-  String linkFailTooMany(int count) {
-    return 'Połączono już $count urządzeń. Najpierw usuń jedno.';
-  }
+  String get linkFailTooMany =>
+      'Jedno urządzenie jest już połączone. Aby połączyć inne, najpierw je usuń.';
 
   @override
   String get linkFailUnreachable =>
@@ -18515,11 +18514,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      'Połączone urządzenia wysyłają sobie komunikaty przez te serwery. Każdy komunikat trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
+      'Dwa połączone urządzenia wysyłają sobie komunikaty przez te serwery. Każdy komunikat trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
 
   @override
   String get deskDevServersInfo2 =>
-      'Zmiana jest najpierw wysyłana do pozostałych urządzeń i wchodzi w życie, gdy każde ją przyjmie. Do tego czasu używane są dotychczasowe serwery, a po zmianie są jeszcze czytane przez 7 dni.';
+      'Zmiana jest najpierw wysyłana do drugiego urządzenia i wchodzi w życie, gdy je przyjmie. Do tego czasu używane są dotychczasowe serwery, a po zmianie są jeszcze czytane przez 7 dni.';
 
   @override
   String get deskDevServersInfo3 =>
@@ -19060,4 +19059,38 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSlNoEpicboxText =>
       'Lista serwerów Epicbox jest pusta. Dodaj serwer, aby mieć adres Epicbox.';
+
+  @override
+  String get devicesOneOnly =>
+      'Można połączyć jedno urządzenie. Aby połączyć inne, najpierw je usuń.';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return 'Oba urządzenia używają $relay. Użyć $next na tym urządzeniu?';
+  }
+
+  @override
+  String get devicesRelayUse => 'Użyj';
+
+  @override
+  String get devicesRelayKeep => 'Zostaw';
+
+  @override
+  String get devicesRelayWhy =>
+      'Na jednym serwerze oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return 'Odebrano na: $device';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return 'Odebrano na: $device, $amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return '$device, połączone z tym portfelem, odebrało te monety.';
+  }
 }

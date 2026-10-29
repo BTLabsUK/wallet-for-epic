@@ -5434,6 +5434,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     deviceName: e.origin == core.TxOrigin.linkedDevice ? e.deviceName : null,
     deviceEnding: e.origin == core.TxOrigin.linkedDevice ? e.deviceEnding : null,
     deviceWhy: e.origin == core.TxOrigin.linkedDevice ? e.deviceWhy : null,
+    receivedOn: e.origin == core.TxOrigin.otherWallet ? e.deviceName : null,
   );
 }
 
@@ -5570,6 +5571,12 @@ class _DeskDeviceHost implements DeviceHost {
 
   @override
   Future<String> walletKey() => _host.walletKey();
+
+  @override
+  Future<String?> walletRelay() => _host.walletRelay();
+
+  @override
+  Future<void> cancelTransaction(int txId) => _host.cancelTransaction(txId);
 
   @override
   Future<String> signProof(List<int> message) => _host.signProof(message);

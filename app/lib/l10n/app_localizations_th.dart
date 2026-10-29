@@ -17149,7 +17149,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'ใช้กระเป๋าเงินนี้บนอุปกรณ์ของคุณสองเครื่องขึ้นไป แต่ละเครื่องแจ้งรายการของตนให้เครื่องอื่นทราบ เหรียญที่เครื่องหนึ่งกำลังใช้จึงถูกพักไว้บนเครื่องอื่น และรายการของมันจะแสดงในประวัติของเครื่องอื่น การเชื่อมโยงปกป้องสิ่งที่แชร์ ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'ใช้กระเป๋าเงินนี้บนอุปกรณ์สองเครื่อง: เครื่องนี้และอุปกรณ์ที่เชื่อมโยงหนึ่งเครื่อง แต่ละเครื่องแจ้งรายการของตนให้อีกเครื่องทราบ เหรียญที่เครื่องหนึ่งกำลังใช้จึงถูกพักไว้บนอีกเครื่อง และรายการของมันจะแสดงในประวัติของอีกเครื่อง การเชื่อมโยงปกป้องสิ่งที่แชร์ ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
   String get devicesThisPhone => 'โทรศัพท์';
@@ -17220,7 +17220,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get devicesThisDevice => 'อุปกรณ์นี้';
 
   @override
-  String get devicesOthers => 'อุปกรณ์';
+  String get devicesOthers => 'อุปกรณ์ที่เชื่อมโยง';
 
   @override
   String get devicesEmpty => 'ยังไม่ได้เชื่อมโยงอุปกรณ์';
@@ -17233,7 +17233,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'ข้อความระหว่างอุปกรณ์ของคุณจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
+      'ข้อความระหว่างอุปกรณ์ทั้งสองเครื่องจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
 
   @override
   String devicesServersWaiting(String name) {
@@ -17311,7 +17311,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get devicesMoneyNote =>
-      'การเชื่อมโยงแชร์รายการระหว่างอุปกรณ์ของคุณ แต่ไม่ได้ปกป้องเงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้';
+      'การเชื่อมโยงแชร์รายการระหว่างอุปกรณ์ทั้งสองเครื่อง แต่ไม่ได้ปกป้องเงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้';
 
   @override
   String get devicesUnsupported => 'เวอร์ชันนี้ยังเชื่อมโยงอุปกรณ์ไม่ได้';
@@ -17416,9 +17416,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'อุปกรณ์อีกเครื่องหยุด หรือไม่ได้ตรวจภาพทันเวลา';
 
   @override
-  String linkFailTooMany(int count) {
-    return 'เชื่อมโยงไว้แล้ว $count อุปกรณ์ นำออกหนึ่งเครื่องก่อน';
-  }
+  String get linkFailTooMany =>
+      'เชื่อมโยงอุปกรณ์ไว้แล้วหนึ่งเครื่อง นำออกก่อนจึงจะเชื่อมโยงเครื่องอื่นได้';
 
   @override
   String get linkFailUnreachable => 'ไม่มีเซิร์ฟเวอร์ตอบ ลองใหม่ภายหลัง';
@@ -17478,11 +17477,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      'อุปกรณ์ที่เชื่อมโยงส่งข้อความถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกข้อความส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
+      'อุปกรณ์ที่เชื่อมโยงทั้งสองเครื่องส่งข้อความถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกข้อความส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
 
   @override
   String get deskDevServersInfo2 =>
-      'การเปลี่ยนจะส่งไปยังอุปกรณ์อื่นก่อน และมีผลเมื่อทุกเครื่องยอมรับ ก่อนหน้านั้นยังใช้เซิร์ฟเวอร์เดิม และหลังจากนั้นยังอ่านจากเซิร์ฟเวอร์เดิมอีก 7 วัน';
+      'การเปลี่ยนจะส่งไปยังอุปกรณ์อีกเครื่องก่อน และมีผลเมื่อเครื่องนั้นยอมรับ ก่อนหน้านั้นยังใช้เซิร์ฟเวอร์เดิม และหลังจากนั้นยังอ่านจากเซิร์ฟเวอร์เดิมอีก 7 วัน';
 
   @override
   String get deskDevServersInfo3 =>
@@ -17999,4 +17998,38 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSlNoEpicboxText =>
       'รายการเซิร์ฟเวอร์ Epicbox ว่างอยู่ เพิ่มเซิร์ฟเวอร์เพื่อให้มีที่อยู่ Epicbox';
+
+  @override
+  String get devicesOneOnly =>
+      'เชื่อมโยงได้หนึ่งเครื่อง นำออกก่อนจึงจะเชื่อมโยงเครื่องอื่นได้';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return 'อุปกรณ์ทั้งสองใช้ $relay ใช้ $next บนเครื่องนี้หรือไม่';
+  }
+
+  @override
+  String get devicesRelayUse => 'ใช้';
+
+  @override
+  String get devicesRelayKeep => 'คงไว้';
+
+  @override
+  String get devicesRelayWhy =>
+      'บนเซิร์ฟเวอร์เดียวกัน อุปกรณ์ทั้งสองจะตอบรายการเดียวกัน บนเซิร์ฟเวอร์ต่างกัน แต่ละเครื่องจะตอบรายการที่ส่งมายังที่อยู่ของตนเอง';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return 'รับบน $device';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return 'รับบน $device $amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return '$device ซึ่งเชื่อมโยงกับกระเป๋าเงินนี้ ได้รับเหรียญเหล่านี้';
+  }
 }

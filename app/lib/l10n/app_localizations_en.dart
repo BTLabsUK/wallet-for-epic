@@ -17550,7 +17550,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
+      'Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
 
   @override
   String get devicesThisPhone => 'Phone';
@@ -17626,7 +17626,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devicesThisDevice => 'This device';
 
   @override
-  String get devicesOthers => 'Devices';
+  String get devicesOthers => 'Linked device';
 
   @override
   String get devicesEmpty => 'No device linked yet.';
@@ -17639,7 +17639,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'Notices between your devices go through each server chosen.';
+      'Notices between the two devices go through each server chosen.';
 
   @override
   String devicesServersWaiting(String name) {
@@ -17717,7 +17717,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devicesMoneyNote =>
-      'Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.';
+      'Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.';
 
   @override
   String get devicesUnsupported => 'This version cannot link devices yet.';
@@ -17826,9 +17826,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'The other device stopped, or did not check the pictures in time.';
 
   @override
-  String linkFailTooMany(int count) {
-    return '$count devices are linked already. Remove one first.';
-  }
+  String get linkFailTooMany =>
+      'A device is linked already. Remove it to link another.';
 
   @override
   String get linkFailUnreachable => 'No server answered. Try again later.';
@@ -17888,11 +17887,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      'Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.';
+      'The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.';
 
   @override
   String get deskDevServersInfo2 =>
-      'A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.';
+      'A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.';
 
   @override
   String get deskDevServersInfo3 =>
@@ -18416,4 +18415,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSlNoEpicboxText =>
       'The Epicbox server list is empty. Add a server for an Epicbox address.';
+
+  @override
+  String get devicesOneOnly =>
+      'One device can be linked. Remove it to link another.';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return 'Both devices use $relay. Use $next on this device?';
+  }
+
+  @override
+  String get devicesRelayUse => 'Use';
+
+  @override
+  String get devicesRelayKeep => 'Keep';
+
+  @override
+  String get devicesRelayWhy =>
+      'On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return 'Received on $device';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return 'Received on $device, $amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return '$device, linked to this wallet, received these coins.';
+  }
 }

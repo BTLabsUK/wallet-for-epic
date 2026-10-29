@@ -10,13 +10,16 @@
 /// dropped and logged without amounts or addresses. A newer version or an unknown type keeps its
 /// place in the order and is ignored.
 ///
-/// Sending, in one path ([_send]): numbered per device, stamped, kept in the book's outbox and
-/// posted to every pairing of the device (one per server).
+/// Sending, in one path ([_send]): numbered, stamped, kept in the book's outbox and posted to
+/// every pairing of the linked device (one per server).
+///
+/// A wallet is on two devices at most: this one and one linked device ([maxLinkedDevices]).
+/// Links are pairwise, so with a third device one of them would not hear the other's payments.
 ///
 /// What a notice can do here: hold or release coins, add history details, rename its device,
 /// propose servers (the user accepts here), make a further pairing with this device over the
-/// confirmed channel (second server, re-key), and remove a device. It never sends, signs or
-/// changes a setting on its own.
+/// confirmed channel (second server, a lost pairing made again), and end the link. It never
+/// sends, signs or changes a setting on its own.
 library;
 
 import 'dart:async';
@@ -30,6 +33,7 @@ import '../scan/scan_router.dart' show cleanUntrustedText;
 import '../wallet_service.dart' show WalletSession;
 import 'device_link_code.dart';
 import 'device_locks.dart';
+import 'device_history.dart' show answersTakenThere;
 import 'device_model.dart';
 import 'device_store.dart';
 import 'device_wire.dart';
@@ -45,6 +49,14 @@ abstract interface class DeviceHost {
 
   /// This wallet's payments key (its Epicbox address without the server).
   Future<String> walletKey();
+
+  /// The Epicbox relay this device's payments arrive at now (its address after the `@`):
+  /// `host`, or `host:port` off 443.
+  Future<String?> walletRelay();
+
+  /// Cancels this device's own answer [txId] to a payment the linked device answered and the
+  /// chain took from it.
+  Future<void> cancelTransaction(int txId);
 
   /// [message] signed with this wallet's address key ([WalletSession.signWithAddressKey]).
   Future<String> signProof(List<int> message);
@@ -81,6 +93,12 @@ class SessionDeviceHost implements DeviceHost {
 
   @override
   Future<String> walletKey() async => epicboxKey(await session.epicboxAddress());
+
+  @override
+  Future<String?> walletRelay() async => relayOfAddress(await session.epicboxAddress());
+
+  @override
+  Future<void> cancelTransaction(int txId) => session.cancelTransaction(txId: txId);
 
   @override
   Future<String> signProof(List<int> message) => session.signWithAddressKey(message);
@@ -250,6 +268,15 @@ String? linkServerOf(String? relay) {
   return r.endsWith(':443') ? r.substring(0, r.length - 4) : r;
 }
 
+/// The relay of Epicbox [address] (`key@host[:port]`) as the link writes servers, or null.
+String? relayOfAddress(String address) {
+  final at = address.indexOf('@');
+  return at < 0 ? null : linkServerOf(address.substring(at + 1));
+}
+
+/// The receives remembered from the linked device.
+const int _theirReceivesKept = 200;
+
 /// Why the service reads the channel now.
 enum DeviceSyncTrigger { start, resume, unlock, refresh, tick, beforeSend, link }
 
@@ -381,9 +408,11 @@ class DeviceService {
       }
     }
     try {
+      await _tellRelay();
       await _announce();
       if (reach) await _flush();
       await _sweep();
+      await _dropAnswersTakenThere();
     } on Object catch (e) {
       logWarn('devices', 'linked devices check failed: ${_kind(e)}');
     }
@@ -492,7 +521,8 @@ class DeviceService {
     NoticeType.pair2ok: _onPair2Ok,
     NoticeType.pair2done: _onPair2Done,
     NoticeType.unlink: _onUnlink,
-    NoticeType.removed: _onRemoved,
+    NoticeType.relay: _onRelay,
+    NoticeType.recv: _onRecv,
     NoticeType.snapshotRequest: _reserved,
     NoticeType.snapshot: _reserved,
   };
@@ -503,6 +533,63 @@ class DeviceService {
   Future<void> _onHello(LinkedDevice from, Notice n) async {
     final name = _shownName(n.body['name'], from.name);
     if (name != from.name) _book = book.withDevice(from.copyWith(name: name));
+  }
+
+  // Relays: two devices on one relay are one address, and both answer a payment to it. When the
+  // linked device's relay now is this one's, the user here is asked once to move.
+  Future<void> _onRelay(LinkedDevice from, Notice n) async {
+    _book = book.withDevice(from.copyWith(relay: linkServerOf(n.body['relay'] as String)));
+    await _checkRelays(ask: true);
+  }
+
+  /// Clears the question and the kept choice once the relays differ; with [ask], asks when
+  /// they are the same and the user did not keep this one.
+  Future<void> _checkRelays({required bool ask}) async {
+    final theirs = book.linked?.relay;
+    final mine = linkServerOf(await host.walletRelay());
+    if (theirs == null || mine == null || theirs != mine) {
+      if (book.relayAsk != null || book.relayKept != null) _book = book.copyWith(clearRelayAsk: true, clearRelayKept: true);
+      return;
+    }
+    if (book.relayAsk != null && book.relayAsk != mine) _book = book.copyWith(clearRelayAsk: true);
+    if (ask && book.relayKept != mine) _book = book.copyWith(relayAsk: mine);
+  }
+
+  /// Tells the linked device this device's relay when it changed since it was last told.
+  Future<void> _tellRelay() async {
+    if (book.devices.isEmpty) return;
+    final mine = linkServerOf(await host.walletRelay());
+    if (mine == null || mine == book.relaySent) return;
+    _book = book.copyWith(relaySent: mine);
+    await _broadcast(NoticeType.relay, {'relay': mine});
+    await _checkRelays(ask: false);
+  }
+
+  /// The relay both devices use while the user here is asked to move, else null.
+  String? get relayClash => book.relayAsk;
+
+  /// The user keeps the shared relay: duplicate answers stay possible, nothing is blocked.
+  Future<void> keepRelay() async {
+    final r = book.relayAsk;
+    if (r == null) return;
+    await _put(book.copyWith(clearRelayAsk: true, relayKept: r));
+  }
+
+  /// The app moved this device to another relay ([relay]): the question goes and the linked
+  /// device is told now.
+  Future<void> relayMoved() async {
+    await _put(book.copyWith(clearRelayAsk: true));
+    unawaited(sync(DeviceSyncTrigger.refresh));
+  }
+
+  Future<void> _onRecv(LinkedDevice from, Notice n) async {
+    final slateId = n.body['slateId'] as String;
+    final outputs = [for (final c in n.body['outputs'] as List) c as String];
+    final next = {...book.theirReceives, slateId: outputs};
+    while (next.length > _theirReceivesKept) {
+      next.remove(next.keys.first);
+    }
+    _book = book.copyWith(theirReceives: next);
   }
 
   Future<void> _onRename(LinkedDevice from, Notice n) async {
@@ -579,65 +666,77 @@ class DeviceService {
   Future<void> _onServersOk(LinkedDevice from, Notice n) async {
     final p = book.proposal;
     if (p == null || !p.fromHere || p.version != n.body['version']) return;
+    // The pairings on the new servers are made by the next read ([_completeServers]).
     final accepted = p.accept(from.deviceId);
     if (book.devices.every((d) => accepted.accepted.contains(d.deviceId))) {
       _book = book.copyWith(servers: p.servers, serversVersion: p.version, clearProposal: true);
-      for (final d in book.devices) {
-        await _moveToServers(d.deviceId);
-      }
     } else {
       _book = book.copyWith(proposal: accepted);
     }
   }
 
-  /// Makes pairings with [deviceId] on the link's servers it lacks; the ones on servers no
-  /// longer in the set go once a new one is confirmed ([_dropOldServers]).
-  Future<void> _moveToServers(String deviceId) async {
+  /// Gives the link a pairing on every server of its set. Only the device with the lower id
+  /// invites, so the two never invite each other on the same server at once; the other answers
+  /// ([_onPair2]). This makes the second server after a link, the new ones after a server
+  /// change, and any pairing the link lost (a relay that dropped it, an invite that never
+  /// finished). Once every server has one, pairings on servers out of the set go.
+  Future<void> _completeServers(String deviceId) async {
     final d = book.device(deviceId);
-    if (d == null) return;
-    final adding = [for (final s in book.servers) if (!d.pairings.containsKey(s) && !d.pending.any((p) => p.server == s)) s];
-    for (final s in adding) {
+    if (d == null || book.servers.isEmpty) return;
+    final missing = [for (final s in book.servers) if (!d.pairings.containsKey(s) && !d.pending.any((p) => p.server == s)) s];
+    if (missing.isEmpty && d.pending.isEmpty) return _dropOldServers(deviceId);
+    if (book.deviceId.compareTo(deviceId) >= 0) return;
+    for (final s in missing) {
       await _invite(deviceId, s);
     }
-    if (adding.isEmpty) await _dropOldServers(deviceId);
   }
 
-  /// Invites [deviceId] to a private pairing on [server] over the channel ([replaces]: the
-  /// pairing on that server it re-keys).
-  Future<void> _invite(String deviceId, String server, {String? replaces}) async {
+  /// Invites [deviceId] to a private pairing on [server] over the channel.
+  Future<void> _invite(String deviceId, String server) async {
     final d = book.device(deviceId);
     if (d == null) return;
     try {
       final r = await _api.makePrivateInvite(name: book.deviceName, homeRelay: server);
-      _book = book.withDevice(d.copyWith(pending: [...d.pending, PendingPairing(server: server, pairingId: r.id, inviter: true, replaces: replaces)]));
-      await _send(deviceId, NoticeType.pair2, {'inviteLink': r.inviteLink, 'server': server, 'rekey': replaces != null});
+      _book = book.withDevice(
+        d.copyWith(
+          pending: [
+            ...d.pending,
+            PendingPairing(server: server, pairingId: r.id, inviter: true, startedAt: _clock(), replaces: d.pairings[server]),
+          ],
+        ),
+      );
+      await _send(deviceId, NoticeType.pair2, {'inviteLink': r.inviteLink, 'server': server});
     } on Object catch (e) {
       logWarn('devices', 'no invite on a link server: ${_kind(e)}');
     }
   }
 
   // A pairing invite over the confirmed channel is answered without the user: the channel is
-  // already checked, and the pictures of the new pairing are compared over it.
+  // already checked, and the pictures of the new pairing are compared over it. An invite on a
+  // server the link has a pairing on already replaces it once confirmed: the inviter lost it.
   Future<void> _onPair2(LinkedDevice from, Notice n) async {
     final server = n.body['server'] as String;
-    final rekey = n.body['rekey'] == true;
-    if (rekey ? !from.pairings.containsKey(server) : from.pairings.length + from.pending.length >= maxLinkServers) {
-      _drop('pairing invite the link does not expect');
-      return;
-    }
     // Only on a server of the link's set, which the user accepted; moving it is `servers`'s.
     if (!book.servers.contains(server) && !from.pairings.containsKey(server)) {
       _drop('pairing invite on a server the link does not use');
       return;
     }
+    if ({...from.pairings.keys, for (final p in from.pending) p.server, server}.length > maxLinkServers) {
+      _drop('pairing invite the link does not expect');
+      return;
+    }
     try {
       final r = await _api.acceptPrivateInvite(link: n.body['inviteLink'] as String, name: book.deviceName);
       final d = book.device(from.deviceId)!;
+      // An earlier invite on this server that never finished gives way to this one.
+      for (final p in d.pending.where((p) => p.server == server)) {
+        await _unpair(p.pairingId);
+      }
       _book = book.withDevice(
         d.copyWith(
           pending: [
             ...d.pending.where((p) => p.server != server),
-            PendingPairing(server: server, pairingId: r.id, inviter: false, replaces: rekey ? from.pairings[server] : null),
+            PendingPairing(server: server, pairingId: r.id, inviter: false, startedAt: _clock(), replaces: d.pairings[server]),
           ],
         ),
       );
@@ -655,7 +754,13 @@ class DeviceService {
     final server = n.body['server'] as String;
     final p = from.pending.where((p) => p.server == server && p.inviter).firstOrNull;
     if (p == null) return;
-    final r = await _privateRecord(p.pairingId);
+    var r = await _privateRecord(p.pairingId);
+    if (r != null && !r.state.isPaired) {
+      // The answer can come before this side read that the pairing is made: read it now, as
+      // this notice is not read twice.
+      await _api.collectPrivate(only: [p.pairingId]);
+      r = await _privateRecord(p.pairingId);
+    }
     if (r == null || !r.state.isPaired) return;
     if (!_sameSas(r.sas, n.body['sas'])) {
       logWarn('devices', 'pictures of a further pairing did not match; dropped it');
@@ -705,14 +810,6 @@ class DeviceService {
   Future<void> _onUnlink(LinkedDevice from, Notice n) async {
     await _forget(from.deviceId);
     _book = book.copyWith(removedBy: from.name);
-  }
-
-  Future<void> _onRemoved(LinkedDevice from, Notice n) async {
-    final id = n.body['deviceId'] as String;
-    if (id == book.deviceId) return _onUnlink(from, n);
-    if (book.device(id) == null) return;
-    await _forget(id);
-    await _rekeyAll();
   }
 
   // Sending.
@@ -767,6 +864,22 @@ class DeviceService {
     for (final r in rows) {
       final slateId = r.slateId;
       if (r.origin != TxOrigin.thisWallet || slateId == null || r.id == null) continue;
+      if (r.kind == TxKind.received) {
+        // An answer this device made: the other hears it, for a payment both answered.
+        final key = 'recv:$slateId';
+        if (r.confirmed) {
+          announced.remove(key);
+        } else if (announced[key] == null && r.status != TxStatus.cancelled) {
+          outs ??= await host.outputs();
+          final mine = r.outputCommits.isNotEmpty
+              ? r.outputCommits
+              : [for (final o in outs) if (o.txId == r.id) o.commitment];
+          if (mine.isEmpty) continue;
+          await _broadcast(NoticeType.recv, {'slateId': slateId, 'outputs': mine.take(16).toList()});
+          announced[key] = AnnouncedState.sent;
+        }
+        continue;
+      }
       if (r.kind != TxKind.sent && r.kind != TxKind.sentCancelled) continue;
       final last = announced[slateId];
       if (r.confirmed) {
@@ -847,6 +960,24 @@ class DeviceService {
     }
   }
 
+  /// Cancels, quietly, this device's answers to payments the linked device answered too once
+  /// the chain shows the linked device's outputs: the sender used that answer, so this one's
+  /// coins never come. History shows the payment as received on that device
+  /// ([mergeDeviceHistory]).
+  Future<void> _dropAnswersTakenThere() async {
+    if (book.theirReceives.isEmpty) return;
+    final rows = await host.transactions();
+    for (final r in answersTakenThere(rows, book)) {
+      if (!r.cancellable || r.id == null) continue;
+      try {
+        await host.cancelTransaction(r.id!);
+        logInfo('devices', 'an answer the linked device made instead was dropped');
+      } on Object catch (e) {
+        logWarn('devices', 'dropping an answer the linked device made failed: ${_kind(e)}');
+      }
+    }
+  }
+
   // The chain and the clock.
 
   /// Commitments the chain shows spent: this wallet's spent outputs and the inputs of the
@@ -895,10 +1026,16 @@ class DeviceService {
         await _unpair(p.pairingId);
       }
       // The answerer of a further pairing sends its pictures once it is paired.
+      // A further pairing not done within [pairingWait] goes; the inviter makes it again.
+      final stale = [for (final p in d.pending) if (!elsewhere.contains(p) && _clock().difference(p.startedAt) > pairingWait) p];
+      for (final p in stale) {
+        logWarn('devices', 'a further pairing did not finish in time; making it again');
+        await _unpair(p.pairingId);
+      }
       final ok = <({String server, List<SasWord> sas})>[];
       final pending = <PendingPairing>[
         for (final p in d.pending)
-          if (!elsewhere.contains(p))
+          if (!elsewhere.contains(p) && !stale.contains(p))
             if (records[p.pairingId] case final r? when !r.removedByPeer)
               if (!p.inviter && r.state.isPaired && !p.okSent) ...[p.sent(), ?_noteOk(ok, p.server, r.sas)] else p,
       ];
@@ -912,6 +1049,7 @@ class DeviceService {
       for (final o in ok) {
         await _send(d.deviceId, NoticeType.pair2ok, {'server': o.server, 'sas': _sasNames(o.sas)});
       }
+      await _completeServers(d.deviceId);
     }
     await _put(book);
   }
@@ -929,8 +1067,8 @@ class DeviceService {
     }
   }
 
-  /// Forgets [deviceId] here: its holds end (spent where the chain says so), its pairings go.
-  /// Forgets [deviceId]: its pairings go and, unless [keepHolds], the coins it held are freed.
+  /// Forgets [deviceId]: its pairings go and, unless [keepHolds], the coins it held are freed
+  /// (spent where the chain says so). A server proposal waiting on it goes too.
   Future<void> _forget(String deviceId, {bool keepHolds = false}) async {
     final d = book.device(deviceId);
     if (d == null) return;
@@ -938,32 +1076,20 @@ class DeviceService {
       await _unpair(id);
     }
     final holds = keepHolds ? book.holds : unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
-    _book = book.withoutDevice(deviceId).copyWith(holds: holds, outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o]);
-  }
-
-  /// After a removal: each remaining pair of devices makes fresh pairings over its channel, the
-  /// lower device id inviting, and drops the old ones.
-  Future<void> _rekeyAll() async {
-    for (final d in [...book.devices]) {
-      if (book.deviceId.compareTo(d.deviceId) >= 0) continue;
-      for (final e in d.pairings.entries) {
-        await _invite(d.deviceId, e.key, replaces: e.value);
-      }
-    }
+    _book = book
+        .withoutDevice(deviceId)
+        .copyWith(holds: holds, outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o], clearProposal: true);
   }
 
   // The user's actions.
 
-  /// Removes [deviceId]: it is told, the others are told and re-key, its coins are freed here.
-  /// It does not protect the money: a device with the phrase can always spend.
+  /// Ends the link with [deviceId] on both devices: it is told (`unlink`, which names this
+  /// device), its pairings go, which also tells it should the notice not arrive, and its coins
+  /// are freed here. It does not protect the money: a device with the phrase can always spend.
   Future<void> removeDevice(String deviceId) async {
     if (book.device(deviceId) == null) return;
     await _send(deviceId, NoticeType.unlink, const {});
-    for (final d in book.devices) {
-      if (d.deviceId != deviceId) await _send(d.deviceId, NoticeType.removed, {'deviceId': deviceId});
-    }
     await _forget(deviceId);
-    await _rekeyAll();
     await _put(book);
     _schedule();
   }
@@ -1035,6 +1161,7 @@ class DeviceService {
   /// The servers a new link starts with: the link's set, else [defaults].
   List<String> linkServers(List<String> defaults) => book.servers.isNotEmpty ? book.servers : defaults.take(maxLinkServers).toList();
 
+  /// No device is linked yet: one can be ([maxLinkedDevices]).
   bool get canLinkMore => book.devices.length < maxLinkedDevices - 1;
 
   void _setLink(LinkFlow? flow) {
@@ -1150,6 +1277,7 @@ class DeviceService {
           'name': book.deviceName,
           'walletAddress': await host.walletKey(),
           'servers': flow.servers,
+          'relay': ?linkServerOf(await host.walletRelay()),
           'proof': await host.signProof(helloTranscript(book.deviceId, flow.sas)),
         },
       );
@@ -1222,18 +1350,25 @@ class DeviceService {
       seqOut: 1,
       seqIn: 1,
       seenIds: [hello.id],
+      relay: linkServerOf(hello.body['relay'] as String?),
     );
-    var next = book.withDevice(device);
-    if (next.servers.isEmpty) next = next.copyWith(servers: servers, serversVersion: max(1, next.serversVersion));
-    await _put(next);
+    // The only link: both devices take the set of the device that showed the code, whatever an
+    // earlier link used. The second server's pairing follows over the channel
+    // ([_completeServers]).
+    _book = book.withDevice(device).copyWith(
+      servers: servers,
+      serversVersion: max(1, book.serversVersion + 1),
+      clearProposal: true,
+      relaySent: linkServerOf(await host.walletRelay()),
+      clearRelayAsk: true,
+      clearRelayKept: true,
+      theirReceives: const {},
+    );
+    // The device being linked (it scanned the code) asks once when both use one relay.
+    await _checkRelays(ask: flow.role == LinkRole.scans);
+    await _put(book);
     _setLink(flow.to(LinkPhase.done, device: device));
-    // The device that showed the code adds the second server over the confirmed channel.
-    if (flow.role == LinkRole.shows) {
-      for (final s in flow.servers.skip(1)) {
-        await _invite(theirId, s);
-      }
-      await _put(book);
-    }
+    unawaited(sync(DeviceSyncTrigger.link));
   }
 
   /// Ends the link in the making: the pairing goes, the other side is told by the engine.

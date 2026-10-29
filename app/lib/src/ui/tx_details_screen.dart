@@ -127,7 +127,7 @@ String txExplanation(
   final outgoing = txAmount(tx).outgoing;
   // Coins another wallet on this recovery phrase spent or received: only the chain shows it.
   if (tx.origin == TxOrigin.otherWallet) {
-    if (!outgoing) return l.txDetailsOtherWalletIn;
+    if (!outgoing) return tx.deviceName != null ? l.txDetailsDeviceIn(tx.deviceName!) : l.txDetailsOtherWalletIn;
     // Only the node's answers show it so far: the next completed scan checks it.
     return tx.unverified ? '${l.txDetailsOtherWallet} ${l.txDetailsUnverified}' : l.txDetailsOtherWallet;
   }
@@ -1094,7 +1094,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           // The end of the details of a row another wallet made: the quiet "link this device" offer
           // goes here (Linked devices).
-          if (tx.origin == TxOrigin.otherWallet) const SentFromOtherWalletOffer(),
+          if (tx.origin == TxOrigin.otherWallet && tx.deviceName == null) const SentFromOtherWalletOffer(),
         ],
       ),
     );

@@ -23,11 +23,11 @@
   "@deskDevServersAllDown": {
     "description": "Line under the Servers picker when no chosen server answers."
   },
-  "deskDevServersInfo1": "Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
+  "deskDevServersInfo1": "The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
   "@deskDevServersInfo1": {
     "description": "Info card of the Servers row, paragraph 1."
   },
-  "deskDevServersInfo2": "A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
+  "deskDevServersInfo2": "A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
   "@deskDevServersInfo2": {
     "description": "Info card of the Servers row, paragraph 2."
   },

@@ -8,6 +8,11 @@
 /// A payment that ended without spending its coins stays as a cancelled row that says how
 /// (released here, cancelled, failed or expired on the device) until the chain decides: a
 /// payment whose cancel came too late comes back as the same row, confirmed.
+///
+/// Coins the linked device received (a payment, or the change of its send) reach this wallet as
+/// a chain-check row too: with a device linked, that row reads "Received on `<device>`". A
+/// payment both devices answered (they share a relay) shows once: this device's own answer is
+/// left out once the chain shows the linked device's ([answersTakenThere]).
 library;
 
 import '../models.dart';
@@ -19,7 +24,10 @@ String deviceRowKey(HeldPayment h) => 'd:${h.deviceId}:${h.slateId}';
 /// [rows] (this wallet's history, newest first) with the linked devices' payments of [book]
 /// merged in, newest first.
 List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
-  if (book.holds.isEmpty) return rows;
+  if (book.holds.isEmpty && book.devices.isEmpty && book.theirReceives.isEmpty) return rows;
+  final taken = answersTakenThere(rows, book).toSet();
+  final linked = book.linked;
+  final theirOutputs = {for (final o in book.theirReceives.values) ...o};
   // Held, ended without spending (by the device, by the fallbacks or by hand) and confirmed all
   // keep their row.
   final shown = [for (final h in book.holds) if (h.state.holds || h.state.freed || h.state == HoldState.spent) h];
@@ -39,6 +47,16 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
         continue;
       }
     }
+    if (taken.contains(r)) continue;
+    if (linked != null && r.origin == TxOrigin.otherWallet && r.spentCommits.isEmpty && r.amountCredited > BigInt.zero) {
+      // Coins of this wallet the linked device received: its answers it told about, and anything
+      // the chain shows arriving since the link (its change included).
+      final there = r.outputCommits.any(theirOutputs.contains) || r.timeUnix >= linked.linkedAt.millisecondsSinceEpoch ~/ 1000;
+      if (there) {
+        out.add(r.withDeviceName(linked.name));
+        continue;
+      }
+    }
     out.add(r);
   }
   for (final h in shown) {
@@ -46,6 +64,23 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
   }
   out.sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
   return out;
+}
+
+/// This device's own answers to payments the linked device answered too, once the chain shows
+/// the linked device's outputs for the same payment: the sender used that answer, so these never
+/// confirm. They are left out of history and cancelled quietly ([DeviceService]).
+List<TxEntry> answersTakenThere(List<TxEntry> rows, DeviceBook book) {
+  if (book.theirReceives.isEmpty) return const [];
+  final onChain = {
+    for (final r in rows)
+      if (r.origin == TxOrigin.otherWallet) ...r.outputCommits,
+  };
+  if (onChain.isEmpty) return const [];
+  return [
+    for (final r in rows)
+      if (r.origin == TxOrigin.thisWallet && !r.confirmed && (r.kind == TxKind.received || r.kind == TxKind.receivedCancelled))
+        if (book.theirReceives[r.slateId] case final theirs? when theirs.any(onChain.contains)) r,
+  ];
 }
 
 String _nameOf(DeviceBook book, HeldPayment h) => book.device(h.deviceId)?.name ?? h.deviceName ?? '';

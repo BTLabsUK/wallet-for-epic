@@ -23400,7 +23400,7 @@
   "@expLinkedDevices": {
     "description": "Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name."
   },
-  "expLinkedDevicesHint": "Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
+  "expLinkedDevicesHint": "Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
   "@expLinkedDevicesHint": {
     "description": "The info text of the Linked devices switch."
   },
@@ -23473,7 +23473,7 @@
   "@devicesThisDevice": {
     "description": "Linked devices page: the heading over this device's own name."
   },
-  "devicesOthers": "Devices",
+  "devicesOthers": "Linked device",
   "@devicesOthers": {
     "description": "Linked devices page: the heading over the other devices."
   },
@@ -23489,7 +23489,7 @@
   "@devicesServers": {
     "description": "Linked devices page: the row with the servers the devices' notices go through."
   },
-  "devicesServersNote": "Notices between your devices go through each server chosen.",
+  "devicesServersNote": "Notices between the two devices go through each server chosen.",
   "@devicesServersNote": {
     "description": "Under the server list when choosing the linked devices' servers."
   },
@@ -23612,7 +23612,7 @@
       }
     }
   },
-  "devicesMoneyNote": "Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.",
+  "devicesMoneyNote": "Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.",
   "@devicesMoneyNote": {
     "description": "Footnote of the Linked devices page."
   },
@@ -23753,14 +23753,9 @@
   "@linkFailCancelled": {
     "description": "Link failure: the other device stopped or did not check in time."
   },
-  "linkFailTooMany": "{count} devices are linked already. Remove one first.",
+  "linkFailTooMany": "A device is linked already. Remove it to link another.",
   "@linkFailTooMany": {
-    "description": "Link failure: the most devices are linked.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Link failure: a device is linked already (only one can be)."
   },
   "linkFailUnreachable": "No server answered. Try again later.",
   "@linkFailUnreachable": {
@@ -23849,11 +23844,11 @@
   "@deskDevServersAllDown": {
     "description": "Line under the Servers picker when no chosen server answers."
   },
-  "deskDevServersInfo1": "Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
+  "deskDevServersInfo1": "The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
   "@deskDevServersInfo1": {
     "description": "Info card of the Servers row, paragraph 1."
   },
-  "deskDevServersInfo2": "A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
+  "deskDevServersInfo2": "A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
   "@deskDevServersInfo2": {
     "description": "Info card of the Servers row, paragraph 2."
   },
@@ -24680,5 +24675,69 @@
   "deskSlNoEpicboxText": "The Epicbox server list is empty. Add a server for an Epicbox address.",
   "@deskSlNoEpicboxText": {
     "description": "Under deskSlNoEpicboxTitle; a button to the Epicbox settings follows."
+  },
+  "devicesOneOnly": "One device can be linked. Remove it to link another.",
+  "@devicesOneOnly": {
+    "description": "Note under the linked device: only one device can be linked at a time; remove it to link another."
+  },
+  "devicesRelayAsk": "Both devices use {relay}. Use {next} on this device?",
+  "@devicesRelayAsk": {
+    "description": "Question on a device being linked (or after a relay change): both linked devices use the same Epicbox relay, so both answer a payment; offers to move this device to another relay. {relay} is the shared relay's address, {next} the relay offered.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      },
+      "next": {
+        "type": "String",
+        "example": "relay2.example.org"
+      }
+    }
+  },
+  "devicesRelayUse": "Use",
+  "@devicesRelayUse": {
+    "description": "Button: move this device to the offered relay."
+  },
+  "devicesRelayKeep": "Keep",
+  "@devicesRelayKeep": {
+    "description": "Button: keep both devices on the same relay."
+  },
+  "devicesRelayWhy": "On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.",
+  "@devicesRelayWhy": {
+    "description": "One-line hint under the relay question: what one relay or different relays mean for the two linked devices."
+  },
+  "txReceivedOnDevice": "Received on {device}",
+  "@txReceivedOnDevice": {
+    "description": "Title of a history row for coins of this wallet that the linked device received (a payment it received, or the change of its own send). {device} is the device's name.",
+    "placeholders": {
+      "device": {
+        "type": "String",
+        "example": "Phone"
+      }
+    }
+  },
+  "txSpokenReceivedOnDevice": "Received on {device}, {amount}",
+  "@txSpokenReceivedOnDevice": {
+    "description": "Screen-reader text of a history row received on the linked device. {device} is its name, {amount} the amount.",
+    "placeholders": {
+      "device": {
+        "type": "String",
+        "example": "Phone"
+      },
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txDetailsDeviceIn": "{device}, linked to this wallet, received these coins.",
+  "@txDetailsDeviceIn": {
+    "description": "Details status line of a row the linked device received. {device} is its name.",
+    "placeholders": {
+      "device": {
+        "type": "String",
+        "example": "Phone"
+      }
+    }
   }
 }

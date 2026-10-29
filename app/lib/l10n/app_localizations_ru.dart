@@ -18145,7 +18145,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Этот кошелёк на двух и более своих устройствах: каждое сообщает остальным о своих платежах, поэтому монеты, которые тратит одно, удерживаются на остальных, а его платежи видны в их истории. Связь защищает то, чем устройства делятся, а не деньги: любое устройство с фразой восстановления может тратить. Экспериментально: может ещё измениться.';
+      'Этот кошелёк на двух устройствах: этом и одном связанном. Каждое сообщает другому о своих платежах, поэтому монеты, которые тратит одно, удерживаются на другом, а его платежи видны в истории другого. Связь защищает то, чем устройства делятся, а не деньги: любое устройство с фразой восстановления может тратить. Экспериментально: может ещё измениться.';
 
   @override
   String get devicesThisPhone => 'Телефон';
@@ -18231,7 +18231,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get devicesThisDevice => 'Это устройство';
 
   @override
-  String get devicesOthers => 'Устройства';
+  String get devicesOthers => 'Связанное устройство';
 
   @override
   String get devicesEmpty => 'Устройства ещё не связаны.';
@@ -18244,7 +18244,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'Сообщения между вашими устройствами идут через каждый выбранный сервер.';
+      'Сообщения между двумя устройствами идут через каждый выбранный сервер.';
 
   @override
   String devicesServersWaiting(String name) {
@@ -18322,7 +18322,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesMoneyNote =>
-      'Связь делится платежами между вашими устройствами. Она не защищает деньги: любое устройство с фразой восстановления может их потратить.';
+      'Связь делится платежами между двумя устройствами. Она не защищает деньги: любое устройство с фразой восстановления может их потратить.';
 
   @override
   String get devicesUnsupported =>
@@ -18433,9 +18433,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Другое устройство прервало связь или не проверило картинки вовремя.';
 
   @override
-  String linkFailTooMany(int count) {
-    return 'Уже связано $count устройств. Сначала удалите одно.';
-  }
+  String get linkFailTooMany =>
+      'Одно устройство уже связано. Чтобы связать другое, сначала удалите его.';
 
   @override
   String get linkFailUnreachable =>
@@ -18496,11 +18495,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      'Связанные устройства обмениваются сообщениями через эти серверы. Каждое сообщение уходит на все выбранные серверы, поэтому отказ одного ничего не меняет.';
+      'Два связанных устройства обмениваются сообщениями через эти серверы. Каждое сообщение уходит на все выбранные серверы, поэтому отказ одного ничего не меняет.';
 
   @override
   String get deskDevServersInfo2 =>
-      'Изменение сначала отправляется другим устройствам и вступает в силу, когда каждое его примет. До этого используются прежние серверы, а после замены они ещё читаются 7 дней.';
+      'Изменение сначала отправляется другому устройству и вступает в силу, когда оно его примет. До этого используются прежние серверы, а после замены они ещё читаются 7 дней.';
 
   @override
   String get deskDevServersInfo3 =>
@@ -19045,4 +19044,38 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSlNoEpicboxText =>
       'Список серверов Epicbox пуст. Добавьте сервер, чтобы получить адрес Epicbox.';
+
+  @override
+  String get devicesOneOnly =>
+      'Можно связать одно устройство. Чтобы связать другое, сначала удалите его.';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return 'Оба устройства используют $relay. Использовать $next на этом устройстве?';
+  }
+
+  @override
+  String get devicesRelayUse => 'Использовать';
+
+  @override
+  String get devicesRelayKeep => 'Оставить';
+
+  @override
+  String get devicesRelayWhy =>
+      'На одном сервере оба устройства отвечают на одни и те же платежи. На разных серверах каждое отвечает на платежи на свой адрес.';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return 'Получено на $device';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return 'Получено на $device, $amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return 'Эти монеты получило устройство $device, связанное с этим кошельком.';
+  }
 }

@@ -27557,7 +27557,7 @@ abstract class AppLocalizations {
   /// The info text of the Linked devices switch.
   ///
   /// In en, this message translates to:
-  /// **'Use this wallet on two or more of your devices: each tells the others about its payments, so coins one is spending are held on the others and its payments show in their history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
+  /// **'Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
   String get expLinkedDevicesHint;
 
   /// The name this phone has for linked devices until the user renames it. Shown on the user's other devices.
@@ -27629,7 +27629,7 @@ abstract class AppLocalizations {
   /// Linked devices page: the heading over the other devices.
   ///
   /// In en, this message translates to:
-  /// **'Devices'**
+  /// **'Linked device'**
   String get devicesOthers;
 
   /// Linked devices page with no device linked.
@@ -27653,7 +27653,7 @@ abstract class AppLocalizations {
   /// Under the server list when choosing the linked devices' servers.
   ///
   /// In en, this message translates to:
-  /// **'Notices between your devices go through each server chosen.'**
+  /// **'Notices between the two devices go through each server chosen.'**
   String get devicesServersNote;
 
   /// Linked devices page: a server change this device proposed waits for the others.
@@ -27773,7 +27773,7 @@ abstract class AppLocalizations {
   /// Footnote of the Linked devices page.
   ///
   /// In en, this message translates to:
-  /// **'Linking shares payments between your devices. It does not protect the money: any device that holds the recovery phrase can spend it.'**
+  /// **'Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.'**
   String get devicesMoneyNote;
 
   /// Linked devices page and link flow when this build's wallet core cannot link devices yet.
@@ -27944,11 +27944,11 @@ abstract class AppLocalizations {
   /// **'The other device stopped, or did not check the pictures in time.'**
   String get linkFailCancelled;
 
-  /// Link failure: the most devices are linked.
+  /// Link failure: a device is linked already (only one can be).
   ///
   /// In en, this message translates to:
-  /// **'{count} devices are linked already. Remove one first.'**
-  String linkFailTooMany(int count);
+  /// **'A device is linked already. Remove it to link another.'**
+  String get linkFailTooMany;
 
   /// Link failure: no server answered.
   ///
@@ -28037,13 +28037,13 @@ abstract class AppLocalizations {
   /// Info card of the Servers row, paragraph 1.
   ///
   /// In en, this message translates to:
-  /// **'Linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.'**
+  /// **'The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.'**
   String get deskDevServersInfo1;
 
   /// Info card of the Servers row, paragraph 2.
   ///
   /// In en, this message translates to:
-  /// **'A change here is sent to the other devices first; it takes effect once every device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.'**
+  /// **'A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.'**
   String get deskDevServersInfo2;
 
   /// Info card of the Servers row, paragraph 3.
@@ -28765,6 +28765,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The Epicbox server list is empty. Add a server for an Epicbox address.'**
   String get deskSlNoEpicboxText;
+
+  /// Note under the linked device: only one device can be linked at a time; remove it to link another.
+  ///
+  /// In en, this message translates to:
+  /// **'One device can be linked. Remove it to link another.'**
+  String get devicesOneOnly;
+
+  /// Question on a device being linked (or after a relay change): both linked devices use the same Epicbox relay, so both answer a payment; offers to move this device to another relay. {relay} is the shared relay's address, {next} the relay offered.
+  ///
+  /// In en, this message translates to:
+  /// **'Both devices use {relay}. Use {next} on this device?'**
+  String devicesRelayAsk(String relay, String next);
+
+  /// Button: move this device to the offered relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get devicesRelayUse;
+
+  /// Button: keep both devices on the same relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get devicesRelayKeep;
+
+  /// One-line hint under the relay question: what one relay or different relays mean for the two linked devices.
+  ///
+  /// In en, this message translates to:
+  /// **'On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.'**
+  String get devicesRelayWhy;
+
+  /// Title of a history row for coins of this wallet that the linked device received (a payment it received, or the change of its own send). {device} is the device's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Received on {device}'**
+  String txReceivedOnDevice(String device);
+
+  /// Screen-reader text of a history row received on the linked device. {device} is its name, {amount} the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Received on {device}, {amount}'**
+  String txSpokenReceivedOnDevice(String device, String amount);
+
+  /// Details status line of a row the linked device received. {device} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'{device}, linked to this wallet, received these coins.'**
+  String txDetailsDeviceIn(String device);
 }
 
 class _AppLocalizationsDelegate

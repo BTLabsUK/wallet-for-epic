@@ -94,7 +94,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ? l.deskTxNowBackup
       : t.otherWallet
       ? (t.incoming
-            ? l.txDetailsOtherWalletIn
+            ? (t.receivedOn != null ? l.txDetailsDeviceIn(t.receivedOn!) : l.txDetailsOtherWalletIn)
             : (t.unverified ? '${l.txDetailsOtherWallet} ${l.txDetailsUnverified}' : l.txDetailsOtherWallet))
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
@@ -555,7 +555,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // The end of the details of a row another wallet made: the quiet "link this device" offer
         // goes here (Linked devices).
-        if (t.otherWallet) DeskSentFromOtherWalletOffer(incoming: t.incoming),
+        if (t.otherWallet && t.receivedOn == null) DeskSentFromOtherWalletOffer(incoming: t.incoming),
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),

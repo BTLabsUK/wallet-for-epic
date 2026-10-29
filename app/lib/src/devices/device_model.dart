@@ -12,8 +12,9 @@ import 'dart:math';
 import '../models.dart' show DeviceEnding;
 import '../settings_file/host_settings.dart';
 
-/// The most devices one wallet links, this one included.
-const int maxLinkedDevices = 5;
+/// The most devices one wallet links, this one included: this device and one linked device.
+/// Links are pairwise, so a third device would not hear the other's payments.
+const int maxLinkedDevices = 2;
 
 /// The most servers a link uses: `epicbox.link_servers` of `app-config.toml`.
 int get maxLinkServers => appConfig.linkServerCount;
@@ -55,10 +56,17 @@ class ServerProposal {
 }
 
 /// A private pairing being made on [server] over the confirmed channel: the second server of a
-/// link, a server change or a re-key after a device was removed. Its four pictures are compared
+/// link, a server change, or a pairing the link lost made again. Its four pictures are compared
 /// over the channel, not by the user ([DeviceService]).
 class PendingPairing {
-  const PendingPairing({required this.server, required this.pairingId, required this.inviter, this.replaces, this.okSent = false});
+  const PendingPairing({
+    required this.server,
+    required this.pairingId,
+    required this.inviter,
+    required this.startedAt,
+    this.replaces,
+    this.okSent = false,
+  });
 
   final String server;
   final String pairingId;
@@ -66,15 +74,27 @@ class PendingPairing {
   /// This device made the invite (and confirms once the other's pictures match).
   final bool inviter;
 
-  /// The pairing on [server] it replaces (a re-key), dropped once it is confirmed.
+  /// When the invite was made or answered: one not done within [pairingWait] is dropped and
+  /// made again.
+  final DateTime startedAt;
+
+  /// The pairing on [server] it replaces, dropped once it is confirmed.
   final String? replaces;
 
   /// The answerer sent its pictures (`pair2ok`).
   final bool okSent;
 
-  PendingPairing sent() => PendingPairing(server: server, pairingId: pairingId, inviter: inviter, replaces: replaces, okSent: true);
+  PendingPairing sent() =>
+      PendingPairing(server: server, pairingId: pairingId, inviter: inviter, startedAt: startedAt, replaces: replaces, okSent: true);
 
-  Map<String, Object?> toJson() => {'server': server, 'id': pairingId, 'inviter': inviter, 'replaces': replaces, 'ok': okSent};
+  Map<String, Object?> toJson() => {
+    'server': server,
+    'id': pairingId,
+    'inviter': inviter,
+    'at': startedAt.millisecondsSinceEpoch,
+    'replaces': replaces,
+    'ok': okSent,
+  };
 
   static PendingPairing? fromJson(Object? j) {
     if (j is! Map || j['server'] is! String || j['id'] is! String) return null;
@@ -82,11 +102,15 @@ class PendingPairing {
       server: j['server'] as String,
       pairingId: j['id'] as String,
       inviter: j['inviter'] == true,
+      startedAt: _time(j['at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       replaces: j['replaces'] as String?,
       okSent: j['ok'] == true,
     );
   }
 }
+
+/// How long a further pairing may take before it is dropped and made again.
+const Duration pairingWait = Duration(minutes: 5);
 
 /// Another device of this wallet.
 class LinkedDevice {
@@ -101,10 +125,15 @@ class LinkedDevice {
     this.waiting = const {},
     this.seenIds = const [],
     this.pending = const [],
+    this.relay,
   });
 
   final String deviceId;
   final String name;
+
+  /// The Epicbox relay its payments arrive at (`host`, or `host:port` off 443), as it last told;
+  /// null until it did.
+  final String? relay;
 
   /// Its private pairings, one per server: server → pairing id.
   final Map<String, String> pairings;
@@ -145,9 +174,11 @@ class LinkedDevice {
     Map<int, ({String json, DateTime at})>? waiting,
     List<String>? seenIds,
     List<PendingPairing>? pending,
+    String? relay,
   }) => LinkedDevice(
     deviceId: deviceId,
     name: name ?? this.name,
+    relay: relay ?? this.relay,
     pairings: pairings ?? this.pairings,
     linkedAt: linkedAt,
     lastSeen: lastSeen ?? this.lastSeen,
@@ -169,6 +200,7 @@ class LinkedDevice {
     'waiting': {for (final e in waiting.entries) '${e.key}': {'json': e.value.json, 'at': e.value.at.millisecondsSinceEpoch}},
     'ids': seenIds,
     'pending': [for (final p in pending) p.toJson()],
+    'relay': relay,
   };
 
   static LinkedDevice? fromJson(Object? j) {
@@ -191,6 +223,7 @@ class LinkedDevice {
       },
       seenIds: [for (final s in (j['ids'] as List? ?? const [])) '$s'],
       pending: [for (final p in (j['pending'] as List? ?? const [])) ?PendingPairing.fromJson(p)],
+      relay: j['relay'] as String?,
     );
   }
 }
@@ -391,6 +424,10 @@ class DeviceBook {
     this.announced = const {},
     this.outbox = const [],
     this.removedBy,
+    this.relaySent,
+    this.relayAsk,
+    this.relayKept,
+    this.theirReceives = const {},
   });
 
   /// A fresh book: a new random device id, [name] as this device's name.
@@ -419,6 +456,24 @@ class DeviceBook {
   /// The name of a device that removed this one, until the user saw it.
   final String? removedBy;
 
+  /// This device's Epicbox relay as last told to the linked device.
+  final String? relaySent;
+
+  /// The relay both devices use, while the question to move this one is waiting for the user.
+  /// Both answer payments to one address when they share a relay (the key is the wallet's).
+  final String? relayAsk;
+
+  /// The shared relay the user chose to keep: not asked again until either device changes.
+  final String? relayKept;
+
+  /// Payments the linked device answered (its receives): slate id → the commitments of its
+  /// outputs. When the chain shows one of them, this device's own answer to the same payment
+  /// was not used ([mergeDeviceHistory], [DeviceService]).
+  final Map<String, List<String>> theirReceives;
+
+  /// The one linked device, or null ([maxLinkedDevices]).
+  LinkedDevice? get linked => devices.firstOrNull;
+
   LinkedDevice? device(String id) => devices.where((d) => d.deviceId == id).firstOrNull;
 
   /// The device a private pairing [pairingId] belongs to, pending pairings included.
@@ -443,6 +498,12 @@ class DeviceBook {
     List<({String deviceId, String json})>? outbox,
     String? removedBy,
     bool clearRemovedBy = false,
+    String? relaySent,
+    String? relayAsk,
+    bool clearRelayAsk = false,
+    String? relayKept,
+    bool clearRelayKept = false,
+    Map<String, List<String>>? theirReceives,
   }) => DeviceBook(
     deviceId: deviceId,
     deviceName: deviceName ?? this.deviceName,
@@ -455,6 +516,10 @@ class DeviceBook {
     announced: announced ?? this.announced,
     outbox: outbox ?? this.outbox,
     removedBy: clearRemovedBy ? null : removedBy ?? this.removedBy,
+    relaySent: relaySent ?? this.relaySent,
+    relayAsk: clearRelayAsk ? null : relayAsk ?? this.relayAsk,
+    relayKept: clearRelayKept ? null : relayKept ?? this.relayKept,
+    theirReceives: theirReceives ?? this.theirReceives,
   );
 
   /// [device] put in place of the one with its id, or added.
@@ -478,6 +543,10 @@ class DeviceBook {
     'announced': {for (final e in announced.entries) e.key: e.value.name},
     'outbox': [for (final o in outbox) {'dev': o.deviceId, 'json': o.json}],
     'removedBy': removedBy,
+    'relaySent': relaySent,
+    'relayAsk': relayAsk,
+    'relayKept': relayKept,
+    'theirReceives': theirReceives,
   };
 
   static DeviceBook? fromJson(Object? j) {
@@ -502,6 +571,14 @@ class DeviceBook {
           if (o is Map && o['dev'] is String && o['json'] is String) (deviceId: o['dev'] as String, json: o['json'] as String),
       ],
       removedBy: j['removedBy'] as String?,
+      relaySent: j['relaySent'] as String?,
+      relayAsk: j['relayAsk'] as String?,
+      relayKept: j['relayKept'] as String?,
+      theirReceives: {
+        if (j['theirReceives'] case final Map m)
+          for (final e in m.entries)
+            if (e.value is List) '${e.key}': [for (final c in e.value as List) '$c'],
+      },
     );
   }
 }

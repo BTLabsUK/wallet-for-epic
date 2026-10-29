@@ -316,6 +316,7 @@ class Tx {
     this.deviceName,
     this.deviceEnding,
     this.deviceWhy,
+    this.receivedOn,
   });
 
   final int id;
@@ -332,6 +333,10 @@ class Tx {
 
   /// The other device's code for why a payment failed there.
   final String? deviceWhy;
+
+  /// For an [otherWallet] receive: the linked device that received these coins of this wallet
+  /// (a payment, or its send's change); the row reads "Received on `<device>`".
+  final String? receivedOn;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
   /// `l:<id>`); what labels and details are stored under.
@@ -525,6 +530,7 @@ class Tx {
       deviceName: deviceName,
       deviceEnding: deviceEnding,
       deviceWhy: deviceWhy,
+      receivedOn: receivedOn,
     );
   }
 
@@ -581,6 +587,7 @@ class Tx {
     deviceName: deviceName,
     deviceEnding: deviceEnding,
     deviceWhy: deviceWhy,
+    receivedOn: receivedOn,
   );
 
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;

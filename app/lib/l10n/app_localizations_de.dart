@@ -17753,7 +17753,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Diese Wallet auf zwei oder mehr eigenen Geräten nutzen: Jedes meldet den anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf den anderen zurückgehalten, und seine Zahlungen erscheinen in deren Verlauf. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.';
+      'Diese Wallet auf zwei Geräten nutzen: diesem und einem verknüpften Gerät. Jedes meldet dem anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf dem anderen zurückgehalten, und seine Zahlungen erscheinen im Verlauf des anderen. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.';
 
   @override
   String get devicesThisPhone => 'Telefon';
@@ -17829,7 +17829,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get devicesThisDevice => 'Dieses Gerät';
 
   @override
-  String get devicesOthers => 'Geräte';
+  String get devicesOthers => 'Verknüpftes Gerät';
 
   @override
   String get devicesEmpty => 'Noch kein Gerät verknüpft.';
@@ -17842,7 +17842,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get devicesServersNote =>
-      'Meldungen zwischen Ihren Geräten laufen über jeden gewählten Server.';
+      'Meldungen zwischen den beiden Geräten laufen über jeden gewählten Server.';
 
   @override
   String devicesServersWaiting(String name) {
@@ -17920,7 +17920,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get devicesMoneyNote =>
-      'Die Verknüpfung teilt Zahlungen zwischen Ihren Geräten. Sie schützt das Geld nicht: Jedes Gerät mit der Wiederherstellungsphrase kann es ausgeben.';
+      'Die Verknüpfung teilt Zahlungen zwischen den beiden Geräten. Sie schützt das Geld nicht: Jedes Gerät mit der Wiederherstellungsphrase kann es ausgeben.';
 
   @override
   String get devicesUnsupported =>
@@ -18033,9 +18033,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das andere Gerät hat abgebrochen oder die Bilder nicht rechtzeitig geprüft.';
 
   @override
-  String linkFailTooMany(int count) {
-    return 'Es sind schon $count Geräte verknüpft. Zuerst eines entfernen.';
-  }
+  String get linkFailTooMany =>
+      'Es ist schon ein Gerät verknüpft. Zum Verknüpfen eines anderen zuerst dieses entfernen.';
 
   @override
   String get linkFailUnreachable =>
@@ -18096,11 +18095,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      'Verknüpfte Geräte schicken sich Meldungen über diese Server. Jede Meldung geht an alle gewählten Server, ein ausgefallener Server ändert also nichts.';
+      'Die beiden verknüpften Geräte schicken sich Meldungen über diese Server. Jede Meldung geht an alle gewählten Server, ein ausgefallener Server ändert also nichts.';
 
   @override
   String get deskDevServersInfo2 =>
-      'Eine Änderung wird zuerst an die anderen Geräte gesendet und gilt erst, wenn jedes Gerät sie angenommen hat. Bis dahin bleiben die bisherigen Server in Gebrauch und werden danach noch 7 Tage gelesen.';
+      'Eine Änderung wird zuerst an das andere Gerät gesendet und gilt erst, wenn dieses sie angenommen hat. Bis dahin bleiben die bisherigen Server in Gebrauch und werden danach noch 7 Tage gelesen.';
 
   @override
   String get deskDevServersInfo3 =>
@@ -18629,4 +18628,38 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSlNoEpicboxText =>
       'Die Liste der Epicbox-Server ist leer. Fügen Sie einen Server hinzu, um eine Epicbox-Adresse zu erhalten.';
+
+  @override
+  String get devicesOneOnly =>
+      'Es kann ein Gerät verknüpft sein. Zum Verknüpfen eines anderen zuerst dieses entfernen.';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return 'Beide Geräte nutzen $relay. Auf diesem Gerät $next nutzen?';
+  }
+
+  @override
+  String get devicesRelayUse => 'Nutzen';
+
+  @override
+  String get devicesRelayKeep => 'Beibehalten';
+
+  @override
+  String get devicesRelayWhy =>
+      'Auf einem Server beantworten beide Geräte dieselben Zahlungen. Auf verschiedenen Servern beantwortet jedes die Zahlungen an seine eigene Adresse.';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return 'Empfangen auf $device';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return 'Empfangen auf $device, $amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return '$device, mit dieser Wallet verknüpft, hat diese Coins empfangen.';
+  }
 }

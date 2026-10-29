@@ -16522,7 +16522,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      '在你的两台或更多设备上使用这个钱包：每台设备把自己的付款告知其他设备，因此一台正在花费的币会在其他设备上被保留，它的付款也会显示在它们的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
+      '在两台设备上使用这个钱包：本设备和一台关联设备。每台设备把自己的付款告知另一台，因此一台正在花费的币会在另一台上被保留，它的付款也会显示在另一台的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
 
   @override
   String get devicesThisPhone => '手机';
@@ -16593,7 +16593,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesThisDevice => '本设备';
 
   @override
-  String get devicesOthers => '设备';
+  String get devicesOthers => '关联设备';
 
   @override
   String get devicesEmpty => '尚未关联设备。';
@@ -16605,7 +16605,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesServers => '服务器';
 
   @override
-  String get devicesServersNote => '你的设备之间的消息会经过每个所选服务器。';
+  String get devicesServersNote => '两台设备之间的消息会经过每个所选服务器。';
 
   @override
   String devicesServersWaiting(String name) {
@@ -16682,7 +16682,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get devicesMoneyNote => '关联会在你的设备之间共享付款信息。它不能保护资金：任何持有助记词的设备都能花费它。';
+  String get devicesMoneyNote => '关联会在两台设备之间共享付款信息。它不能保护资金：任何持有助记词的设备都能花费它。';
 
   @override
   String get devicesUnsupported => '此版本暂不能关联设备。';
@@ -16784,9 +16784,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkFailCancelled => '另一台设备已停止，或未及时核对图片。';
 
   @override
-  String linkFailTooMany(int count) {
-    return '已关联 $count 台设备。请先移除一台。';
-  }
+  String get linkFailTooMany => '已关联一台设备。请先移除它，再关联另一台。';
 
   @override
   String get linkFailUnreachable => '没有服务器响应。请稍后再试。';
@@ -16842,11 +16840,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskDevServersInfo1 =>
-      '关联设备通过这些服务器互相发送消息。每条消息都会发往所有所选服务器，因此一个服务器故障不会有影响。';
+      '两台关联设备通过这些服务器互相发送消息。每条消息都会发往所有所选服务器，因此一个服务器故障不会有影响。';
 
   @override
   String get deskDevServersInfo2 =>
-      '更改会先发送给其他设备，待每台设备接受后才生效。在此之前继续使用原来的服务器，生效后原服务器还会被读取 7 天。';
+      '更改会先发送给另一台设备，待其接受后才生效。在此之前继续使用原来的服务器，生效后原服务器还会被读取 7 天。';
 
   @override
   String get deskDevServersInfo3 =>
@@ -17351,4 +17349,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlNoEpicboxText => 'Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。';
+
+  @override
+  String get devicesOneOnly => '只能关联一台设备。请先移除它，再关联另一台。';
+
+  @override
+  String devicesRelayAsk(String relay, String next) {
+    return '两台设备都在使用 $relay。要在本设备上改用 $next 吗？';
+  }
+
+  @override
+  String get devicesRelayUse => '改用';
+
+  @override
+  String get devicesRelayKeep => '保持不变';
+
+  @override
+  String get devicesRelayWhy =>
+      '在同一个服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。';
+
+  @override
+  String txReceivedOnDevice(String device) {
+    return '在 $device 上收到';
+  }
+
+  @override
+  String txSpokenReceivedOnDevice(String device, String amount) {
+    return '在 $device 上收到，$amount';
+  }
+
+  @override
+  String txDetailsDeviceIn(String device) {
+    return '与本钱包关联的 $device 收到了这些币。';
+  }
 }

@@ -1486,6 +1486,12 @@ class _MockDeviceHost implements DeviceHost {
   Future<String> walletKey() async => _epicboxKey;
 
   @override
+  Future<String?> walletRelay() async => null;
+
+  @override
+  Future<void> cancelTransaction(int txId) async {}
+
+  @override
   Future<String> signProof(List<int> message) async => fakeAddressSignature(_epicboxKey, message);
 
   @override

@@ -47,7 +47,8 @@ enum NoticeType {
   /// The sender's user accepted servers [version].
   serversOk,
 
-  /// An invite for a further private pairing (a second server, a server change, a re-key).
+  /// An invite for a further private pairing (a second server, a server change, a lost pairing
+  /// made again).
   pair2,
 
   /// The answerer's four pictures of that pairing.
@@ -56,11 +57,14 @@ enum NoticeType {
   /// The inviter's pictures matched: the pairing is in use.
   pair2done,
 
-  /// The sender removed this device.
+  /// The sender removed this device: the link ends on both.
   unlink,
 
-  /// The sender removed a third device: remove it here too and re-key.
-  removed,
+  /// The Epicbox relay the sender's payments arrive at now (also in its hello).
+  relay,
+
+  /// The sender answered a payment: its slate id and the commitments of the sender's outputs.
+  recv,
 
   // Reserved for a later version: read for their order, not acted on.
   snapshotRequest,
@@ -170,6 +174,7 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
         _str(b['name'], max: deviceNameMaxLength) &&
         _str(b['walletAddress'], max: 128) &&
         _servers(b['servers']) &&
+        _optStr(b['relay'], max: 255) &&
         _optProof(b['proof']),
   NoticeType.send =>
     _str(b['slateId'], max: 64) &&
@@ -194,9 +199,10 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.rename => _str(b['name'], max: deviceNameMaxLength),
   NoticeType.servers => _servers(b['set']) && b['version'] is int,
   NoticeType.serversOk => b['version'] is int,
-  NoticeType.pair2 => _str(b['inviteLink'], max: 4096) && _str(b['server'], max: 255) && (b['rekey'] == null || b['rekey'] is bool),
+  NoticeType.pair2 => _str(b['inviteLink'], max: 4096) && _str(b['server'], max: 255),
   NoticeType.pair2ok || NoticeType.pair2done => _str(b['server'], max: 255) && _sas(b['sas']),
   NoticeType.unlink => true,
-  NoticeType.removed => isHexId(b['deviceId']),
+  NoticeType.relay => _str(b['relay'], max: 255),
+  NoticeType.recv => _str(b['slateId'], max: 64) && b['outputs'] is List && (b['outputs'] as List).length <= 16 && (b['outputs'] as List).every(_commit),
   NoticeType.snapshotRequest || NoticeType.snapshot => true,
 };
