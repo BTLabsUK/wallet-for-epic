@@ -31,9 +31,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'live_hosts.dart';
 
 const _pin = '123456';
-const _faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
+const _faucet = liveFaucet;
 BigInt _ep(num n) => BigInt.from((n * 100000000).round());
 
 final _fails = <String>[];

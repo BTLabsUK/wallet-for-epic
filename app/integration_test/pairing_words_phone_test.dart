@@ -43,11 +43,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'live_hosts.dart';
 
 const _mode = String.fromEnvironment('WFE_WORDS_MODE', defaultValue: 'filter');
 // `desk`: the desktop app is the other side and pastes what the phone copied.
 const _joiner = String.fromEnvironment('WFE_WORDS_JOINER', defaultValue: 'here');
-const _node = 'https://node.btlabs.uk';
+const _node = liveNode;
 // A live relay outside the words meeting list: WFE_WORDS_RELAY names it.
 const _ownRelay = EpicboxRelay(host: String.fromEnvironment('WFE_WORDS_RELAY', defaultValue: 'epicbox.other.example'));
 final _l = AppLocalizationsEn();
@@ -224,9 +225,9 @@ void main() {
     final config = c.read(walletConfigProvider)!;
     record('the phone wallet is on ${config.epicboxDomain}', config.epicboxDomain == _ownRelay.host, '${config.chain.name} ${config.nodeUrl}');
     final lookup = await tester.runAsync(
-      () => InternetAddress.lookup('epicbox.epiccash.com').then((a) => a.map((e) => e.address).join(',')).catchError((Object e) => 'lookup failed'),
+      () => InternetAddress.lookup(liveRelay3).then((a) => a.map((e) => e.address).join(',')).catchError((Object e) => 'lookup failed'),
     );
-    note('epicbox.epiccash.com from here: $lookup');
+    note('$liveRelay3 from here: $lookup');
 
     await push(tester, const PairingWordsScreen());
     await pumpUntil(
@@ -286,7 +287,7 @@ void main() {
     final otherDir = Directory('${tmp!.path}/words-other-${DateTime.now().millisecondsSinceEpoch}')..createSync();
     final other = (await tester.runAsync(
       () => LepicWalletService(secrets: MemorySecretStore()).create(
-        config: mainnetPreset.config(dataDir: otherDir.path, nodeUrl: _node, relay: const EpicboxRelay(host: 'epicbox.stackwallet.com')),
+        config: mainnetPreset.config(dataDir: otherDir.path, nodeUrl: _node, relay: const EpicboxRelay(host: liveRelay)),
         password: 'words-other-$_pin',
       ),
     ))!;

@@ -30,12 +30,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'support.dart';
+import '../live_hosts.dart';
 
 final String role = Platform.environment['RC_ROLE'] ?? 'A';
 final String other = role == 'A' ? 'B' : 'A';
 final String syncDir = Platform.environment['RC_SYNC'] ?? 'build/rc_sync';
-final String nodeUrl = Platform.environment['RC_NODE'] ?? 'https://node.btlabs.uk';
-final String relayHost = Platform.environment['RC_RELAY'] ?? 'epicbox.stackwallet.com';
+final String nodeUrl = Platform.environment['RC_NODE'] ?? liveNode;
+final String relayHost = Platform.environment['RC_RELAY'] ?? liveRelay;
 
 const _names = {'A': 'Anna Desk', 'B': 'Ben Desk'};
 String get myName => _names[role]!;

@@ -21,9 +21,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'support.dart';
+import '../live_hosts.dart';
 
-const flooNode = 'https://floo-node.btlabs.uk';
-const faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
+const flooNode = liveFlooNode;
+const faucet = liveFaucet;
 int epic(num n) => (n * 100000000).round();
 String fmt(int nano) => (nano / 100000000).toStringAsFixed(2);
 

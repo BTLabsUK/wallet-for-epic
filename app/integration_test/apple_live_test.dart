@@ -17,19 +17,20 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'live_hosts.dart';
 
 /// In the order the check tries them; the first that answers is used.
 const _nodes = [
-  'https://node.btlabs.uk',
-  'https://node.epicnet.us:3413',
-  'https://node.epiccash.com:3413',
+  liveNode,
+  liveNode2,
+  liveNode3,
 ];
 
 /// In the order the Epicbox check tries them; the first that connects passes.
 const _relays = [
-  EpicboxRelay(host: 'epicbox.stackwallet.com'),
-  EpicboxRelay(host: 'epicbox.epicnet.us'),
-  EpicboxRelay(host: 'epicbox.epiccash.com'),
+  EpicboxRelay(host: liveRelay),
+  EpicboxRelay(host: liveRelay2),
+  EpicboxRelay(host: liveRelay3),
 ];
 
 const _pin = '123456';

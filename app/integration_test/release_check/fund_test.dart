@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/secret_store_api.dart' show MemorySecretStore;
 import 'package:epic_wallet/src/wallet_backend.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import '../live_hosts.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +44,7 @@ void main() {
         final sub = w.startListener().listen((_) {});
         final addr = await w.epicboxAddress();
         final c = HttpClient()..connectionTimeout = const Duration(seconds: 20);
-        final rq = await c.postUrl(Uri.parse('https://floo-explorer.btlabs.uk/api/faucet/claim?method=epicbox&destination=${Uri.encodeComponent(addr)}'));
+        final rq = await c.postUrl(Uri.parse('$liveFaucet?method=epicbox&destination=${Uri.encodeComponent(addr)}'));
         final rs = await rq.close().timeout(const Duration(seconds: 120));
         final body = await rs.transform(utf8.decoder).join();
         // ignore: avoid_print

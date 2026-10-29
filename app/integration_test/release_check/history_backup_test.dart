@@ -55,10 +55,11 @@ import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig
 import 'package:lepic/lepic.dart' as lepic;
 
 import 'support.dart';
+import '../live_hosts.dart';
 
-const flooNode = 'https://floo-node.btlabs.uk';
-const flooRelay = 'epicbox.btlabs.uk';
-const faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
+const flooNode = liveFlooNode;
+const flooRelay = liveFlooRelay;
+const faucet = liveFaucet;
 
 final phase = Platform.environment['HB_PHASE'] ?? 'build';
 /// `$RC_OUT/hb` under release_check.sh (beside shots/desktop), so both phases find it.

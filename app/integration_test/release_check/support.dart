@@ -15,11 +15,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import '../live_hosts.dart';
 
-const node = String.fromEnvironment('WFE_CHECK_NODE', defaultValue: 'https://node.btlabs.uk');
-const node2 = String.fromEnvironment('WFE_CHECK_NODE2', defaultValue: 'https://node.epicnet.us:3413');
+const node = String.fromEnvironment('WFE_CHECK_NODE', defaultValue: liveNode);
+const node2 = String.fromEnvironment('WFE_CHECK_NODE2', defaultValue: liveNode2);
 /// A fresh install starts on this relay whatever relay the run picked for reachability.
-const freshRelay = 'epicbox.epiccash.com';
+const freshRelay = liveRelay3;
 
 final shotsDir = Platform.environment['RC_SHOTS'] ?? 'build/rc_shots';
 

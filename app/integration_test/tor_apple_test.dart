@@ -16,14 +16,15 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'live_hosts.dart';
 
 const _tor = String.fromEnvironment('WFE_TEST_TOR');
 
 /// In the order the check tries them; the first that answers over Tor passes.
 const _nodes = [
-  'https://node.btlabs.uk',
-  'https://node.epicnet.us:3413',
-  'https://node.epiccash.com:3413',
+  liveNode,
+  liveNode2,
+  liveNode3,
 ];
 
 void main() {

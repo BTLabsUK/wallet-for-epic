@@ -30,10 +30,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'support.dart';
+import '../live_hosts.dart';
 
 final String syncDir = Platform.environment['RC_SYNC'] ?? 'build/rc_sync';
-const homeRelay = 'epicbox.btlabs.uk';
-const otherRelay = 'epicbox.stackwallet.com';
+const homeRelay = liveFlooRelay;
+const otherRelay = liveRelay;
 /// RC_REOPEN: unset, the wallet reopens while the link is under way; `after`, only once the
 /// link is made (with the 5 s reads running); `both`, both.
 final String reopenMode = Platform.environment['RC_REOPEN'] ?? 'during';

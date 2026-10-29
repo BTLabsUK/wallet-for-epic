@@ -1,0 +1,11 @@
+{
+  "LIVE_NODE": "https://node.example.com",
+  "LIVE_NODE2": "https://node2.example.com:3413",
+  "LIVE_NODE3": "https://node3.example.com:3413",
+  "LIVE_FLOO_NODE": "https://test-node.example.com",
+  "LIVE_FAUCET": "https://faucet.example.com/claim",
+  "LIVE_RELAY": "epicbox.example.com",
+  "LIVE_RELAY2": "epicbox2.example.com",
+  "LIVE_RELAY3": "epicbox3.example.com",
+  "LIVE_FLOO_RELAY": "test-epicbox.example.com"
+}

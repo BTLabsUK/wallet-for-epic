@@ -48,9 +48,10 @@ import 'package:integration_test/integration_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 import 'package:path_provider/path_provider.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
+import 'live_hosts.dart';
 
 const _pin = '123456';
-const _faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
+const _faucet = liveFaucet;
 const _v1File = String.fromEnvironment('WFE_V1_FILE');
 const _v1Phrase = String.fromEnvironment('WFE_V1_PHRASE');
 const _v1Start = String.fromEnvironment('WFE_V1_START');
