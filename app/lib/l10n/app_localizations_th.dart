@@ -18016,7 +18016,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get devicesRelayWhy =>
-      'บนเซิร์ฟเวอร์เดียวกัน อุปกรณ์ทั้งสองจะตอบรายการเดียวกัน บนเซิร์ฟเวอร์ต่างกัน แต่ละเครื่องจะตอบรายการที่ส่งมายังที่อยู่ของตนเอง';
+      'บนเซิร์ฟเวอร์ Epicbox เดียวกัน อุปกรณ์ทั้งสองจะตอบรายการเดียวกัน บนเซิร์ฟเวอร์ต่างกัน แต่ละเครื่องจะตอบรายการที่ส่งมายังที่อยู่ของตนเอง';
 
   @override
   String txReceivedOnDevice(String device) {

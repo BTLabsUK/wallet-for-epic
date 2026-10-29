@@ -19062,7 +19062,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get devicesRelayWhy =>
-      'На одном сервере оба устройства отвечают на одни и те же платежи. На разных серверах каждое отвечает на платежи на свой адрес.';
+      'На одном сервере Epicbox оба устройства отвечают на одни и те же платежи. На разных серверах каждое отвечает на платежи на свой адрес.';
 
   @override
   String txReceivedOnDevice(String device) {
