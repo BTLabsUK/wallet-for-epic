@@ -103,13 +103,11 @@ void main() {
   /// The epic program's mainnet wallet (its floonet one has the same name).
   OldWallet cliMain(List<OldWallet> all) => all.firstWhere((w) => w.folder == '$home/.epic/main');
 
-  test('finds the GUI and epic program wallets; floonet is listed but blocked; a copy is marked', () async {
+  test('finds the GUI and epic program wallets; floonet is not offered; a copy is marked', () async {
     final found = await wallet.findOldWallets();
     expect(found.map((w) => w.name), containsAll(['Savings', 'Everyday', 'Wallet (epic program)']));
     expect(found.any((w) => w.folder.contains('.epic-gui')), isFalse, reason: 'GUI 6.1 folder is not searched');
-    final floo = found.firstWhere((w) => w.network == 'floonet');
-    expect(floo.importable, isFalse);
-    expect(floo.blocked, contains('test wallet'));
+    expect(found.where((w) => w.network != 'mainnet'), isEmpty, reason: 'a release build names no network, and ~/.epic/floo would');
     expect(byName(found, 'Savings').importable, isTrue);
     expect(byName(found, 'Savings').group, OldWalletGroup.gui);
     final cli = cliMain(found);
