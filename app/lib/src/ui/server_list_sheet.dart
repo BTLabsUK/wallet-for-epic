@@ -1742,7 +1742,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
             Text(network.join(' · '), style: small),
           ],
           if (checked != null)
-            Text(l.serverCheckedAt(statusSiteHost, localClock(l, checked.toLocal())), style: small),
+            Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),
         ],
       ),
     );

@@ -136,7 +136,7 @@ class NodeCard extends StatelessWidget {
     final String? sourceLine;
     if (directory) {
       sourceLine = [
-        l.deskKitSourceChecked(statusSiteHost, hhmm(i.at)),
+        l.deskKitSourceChecked(hhmm(i.at), statusSiteHost),
         if (where != null && !i.latencyFromMonitor) l.deskKitLatencyMeasured(where),
       ].join(' · ');
     } else if (limited) {
